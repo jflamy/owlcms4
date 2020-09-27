@@ -162,6 +162,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
      * Instantiates a new results board.
      */
     public ScoreWithLeaders() {
+        waitDBInitialized();
         timer.setOrigin(this);
         setDarkMode(true);
     }

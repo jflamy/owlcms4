@@ -1,12 +1,10 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-  - [x] Enhancement: Ukrainian translation by Yuri Nikolsky.
-  - [x] Translation: Excel files for registration, athlete cards, starting weights, group results and final package are now generated using the translation file for the current language (#273)
-    - [x] German, French, English, Ukrainian translations updated for Excel.
-  - [x] Enhancement: Competition group schedule and officials now produced as part of the final results package (#382)
-- [x] Technical: Kubernetes manifest now released as an asset.
-  
+  - [x] Technical: connection pool parameters updated to avoid spurious timeout messages
 * Key Highlights from recent stable releases
 
+   - [x] Translation: Excel files for registration, athlete cards, starting weights, group results and final package are now generated using the translation file for the current language (#273)
+   - [x] German, French, English, Ukrainian translations updated for Excel.
+   - [x] Enhancement: Competition group schedule and officials now produced as part of the final results package (#382)
    - [x] Enhancement: groups can be defined using the registration spreadsheet.  Athletes, Platforms and Groups are now updated according to the spreadsheet, replacing prior content as needed. (#374)  Also, the athlete registration spreadsheet upload accepts birth dates in the current language and country format in addition to ISO 8601 yyyy-MM-dd format. (#380).  Error messages are now localized.
    - [x] Technical: sample Kubernetes deployment files in the owlcms-docker subproject now deploy both owlcms and publicresults working together (see owlcms-docker/src/main/assembly/k8s to use as starting point)
 

@@ -140,6 +140,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      * Instantiates a new attempt board.
      */
     public AttemptBoard() {
+        waitDBInitialized();
         logger.debug("*** AttemptBoard new {}", LoggerUtils.whereFrom());
         athleteTimer.setOrigin(this);
         getModel().setJavaComponentId(this.toString());

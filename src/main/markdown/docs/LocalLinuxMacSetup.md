@@ -1,10 +1,10 @@
 ## macOS or Linux Installation
 
-- **Get the installation zip archive**: Go to the releases location (https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/latest) and get the current `zip` file from the `assets` section at the bottom of the release entry.
+- **Get the installation zip archive**: Get the current  [`owlcms.zip`](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/latest/download/owlcms.zip) file  (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/latest) .
 
-- Double-click on the zip file, and extract the files to a directory.  We suggest you use `~/owlcms4` as the unzipped location.
+- Double-click on the downloaded zip file, and extract the files to a directory.  We suggest you use `~/owlcms4` as the unzipped location.
 
-- Make sure you have a Java 8 JRE installed as a minimum.  You can also use Java 11, and use a JDK instead of a JRE. 
+- Make sure you have a Java 11 JRE installed (you may use a JDK if you prefer)
 
   -  For Linux, refer to https://adoptopenjdk.net/releases.html depending on the Linux type you run
   -  For macOS, see https://adoptopenjdk.net/releases.html#x64_mac
@@ -15,7 +15,7 @@
   cd ~/owlcms4
   java -jar owlcms.jar
   ```
-  This will actually start the program and a browser. See [Initial Startup](#initial-startup) for how to proceed.
+  This will actually start the program. See [Initial Startup](#initial-startup) for how to proceed.
 
   If you just want to use dummy data to practice (which will not touch the actual database), use instead:
 
@@ -32,7 +32,9 @@ When OWLCMS is started on a laptop, two windows are visible:  a command-line win
 
   All the other displays and screens connect to the primary server.  <u>You can stop the program by clicking on the x</u> or clicking in the window and typing `Control-C`.  The various screens and displays will spin in wait mode until you restart the primary program -- there is normally no need to restart or refresh them.
 
-- The white window is a normal browser.  If you look at the top, you will see two or more lines that tell you how to open more browsers and connect them to the primary server.
+- Depending on the platform, a browser will be opened automatically (or not).  If the browser does not open automatically, navigate to http://localhost:8080
+
+- After the browser opens, if you look at the top, you will see two or more lines that tell you how to open more browsers and connect them to the primary server.
 
   ![060_urls](img\LocalInstall\060_urls.png)
 

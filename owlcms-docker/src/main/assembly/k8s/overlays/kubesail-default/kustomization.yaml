@@ -11,5 +11,3 @@ images:
 
 resources:
 - ingress.yaml
-- services.yaml
-

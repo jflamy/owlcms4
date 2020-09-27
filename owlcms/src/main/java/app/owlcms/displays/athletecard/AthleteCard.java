@@ -135,6 +135,7 @@ public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
      * Instantiates a new attempt board.
      */
     public AthleteCard() {
+        waitDBInitialized();
     }
 
     @Override

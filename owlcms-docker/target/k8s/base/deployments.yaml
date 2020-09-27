@@ -27,6 +27,9 @@ spec:
           envFrom:
             - secretRef:
                 name: postgres-config
+          env:
+            - name: PGDATA
+              value: /var/lib/postgres/data/pgdata
           volumeMounts:
             - mountPath: /var/lib/postgres
               name: postgres-data
@@ -48,7 +51,7 @@ spec:
     spec:
       containers:
         - name: publicresults
-          image: owlcms-docker-containers.bintray.io/publicresults:4.10.0
+          image: owlcms-docker-containers.bintray.io/publicresults
           envFrom:
             - secretRef:
                 name: publicresults-config
@@ -68,7 +71,7 @@ spec:
     spec:
       containers:
         - name: owlcms
-          image: owlcms-docker-containers.bintray.io/owlcms:4.10.0
+          image: owlcms-docker-containers.bintray.io/owlcms
           envFrom:
             - secretRef:
                 name: owlcms-config
