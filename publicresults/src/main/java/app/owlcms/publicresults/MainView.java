@@ -41,7 +41,10 @@ public class MainView extends VerticalLayout {
 
     public MainView() {
         text = new Text(getTranslation("WaitingForSite"));
-        buildHomePage();
+        ui = UI.getCurrent();
+        if (ui != null) {
+            buildHomePage();
+        }
     }
 
     @Subscribe
@@ -71,10 +74,15 @@ public class MainView extends VerticalLayout {
     private void buildHomePage() {
         // we cache the last update received for each field of play, indexed by fop name
         Set<String> fopNames = UpdateReceiverServlet.updateCache.keySet();
-        if (fopNames.size() == 0) {
+        if (fopNames.size() == 0 || ui == null) {
             removeAll();
             add(text);
-        } else {
+        }
+        else if (fopNames.size() == 1) {
+            logger.debug("one platform");
+            ui.navigate("displays/scoreleader");
+        } 
+        else {
             createButtons(fopNames);
         }
     }
