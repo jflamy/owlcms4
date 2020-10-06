@@ -19,6 +19,7 @@ Also used for certain cloud services (e.g. Heroku)
 
 	<!-- silence spurious warning messages -->
 	<logger name="org.eclipse.jetty.annotations.AnnotationParser" level="ERROR" />
+    <logger name="org.eclipse.jetty.io.EofException" level="OFF" />
 	<logger name="org.eclipse.jetty.server.HttpChannel" level="ERROR" />
 	<logger name="com.vaadin.flow.server.communication" level="ERROR" />
 	<logger name="com.vaadin.flow.server.DefaultDeploymentConfiguration" level="ERROR" />

@@ -28,15 +28,11 @@
 	<logger name="app.owlcms" level="INFO" />
 
 	<!-- silence spurious warning messages -->
-	<logger name="org.eclipse.jetty.annotations.AnnotationParser"
-		level="ERROR" />
-	<logger name="org.eclipse.jetty.server.HttpChannel"
-		level="ERROR" />
-	<logger name="com.vaadin.flow.server.communication"
-		level="ERROR" />
-	<logger
-		name="com.vaadin.flow.server.DefaultDeploymentConfiguration"
-		level="ERROR" />
+	<logger name="org.eclipse.jetty.annotations.AnnotationParser" level="ERROR" />
+    <logger name="org.eclipse.jetty.io.EofException" level="OFF" />
+	<logger name="org.eclipse.jetty.server.HttpChannel" level="ERROR" />
+	<logger name="com.vaadin.flow.server.communication" level="ERROR" />
+	<logger name="com.vaadin.flow.server.DefaultDeploymentConfiguration" level="ERROR" />
 		
 	<logger name="app.owlcms.Main" level="INFO">
         <appender-ref ref="CONSOLE" />
