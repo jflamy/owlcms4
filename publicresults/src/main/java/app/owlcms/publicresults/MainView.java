@@ -41,6 +41,7 @@ public class MainView extends VerticalLayout {
     private UI ui;
 
     public MainView() {
+        logger.warn("mainView");
         text = new Text(getTranslation("WaitingForSite"));
         ui = UI.getCurrent();
         if (ui != null) {
@@ -50,6 +51,7 @@ public class MainView extends VerticalLayout {
 
     @Subscribe
     public void update(UpdateEvent e) {
+        logger.warn("update");
         if (ui == null) {
             logger.error("ui is null!?");
             return;
@@ -61,6 +63,7 @@ public class MainView extends VerticalLayout {
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
+        logger.warn("onAttach");
         super.onAttach(attachEvent);
         ui = UI.getCurrent();
         UpdateReceiverServlet.getEventBus().register(this);
@@ -75,15 +78,18 @@ public class MainView extends VerticalLayout {
     private void buildHomePage() {
         // we cache the last update received for each field of play, indexed by fop name
         Set<String> fopNames = UpdateReceiverServlet.updateCache.keySet();
+        logger.warn("buildHomePage {} {}", fopNames.size(), ui);
         if (fopNames.size() == 0 || ui == null) {
             removeAll();
             add(text);
         }
         else if (fopNames.size() == 1) {
-            logger.debug("one platform");
+            logger.warn("one platform");
             Map<String, String> parameterMap = new HashMap<>();
-            parameterMap.put("FOP", "A");
-            ui.navigate("displays/scoreleader", QueryParameters.simple(parameterMap));
+            String fop = fopNames.stream().findFirst().get();
+            parameterMap.put("FOP", fop);
+            //ui.navigate("displays/scoreleader", QueryParameters.simple(parameterMap));
+            ui.getPage().executeJs("window.location.href='displays/scoreleader?FOP="+fop+"'");
         } 
         else {
             createButtons(fopNames);
