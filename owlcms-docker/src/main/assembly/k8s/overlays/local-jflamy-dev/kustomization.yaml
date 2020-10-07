@@ -12,4 +12,5 @@ images:
 resources:
 - ingress.yaml
 - services.yaml
+- secrets.yaml
 

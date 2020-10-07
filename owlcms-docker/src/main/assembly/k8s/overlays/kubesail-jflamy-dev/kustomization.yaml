@@ -13,7 +13,4 @@ resources:
 - networkpolicies.yaml
 - ingress.yaml
 - services.yaml
-commonLabels:
-  environment: production
-  
-  
+- secrets.yaml

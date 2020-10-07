@@ -9,6 +9,7 @@ package app.owlcms.publicresults;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.LoggerFactory;
@@ -80,7 +81,9 @@ public class MainView extends VerticalLayout {
         }
         else if (fopNames.size() == 1) {
             logger.debug("one platform");
-            ui.navigate("displays/scoreleader");
+            Map<String, String> parameterMap = new HashMap<>();
+            parameterMap.put("FOP", "A");
+            ui.navigate("displays/scoreleader", QueryParameters.simple(parameterMap));
         } 
         else {
             createButtons(fopNames);

@@ -105,7 +105,7 @@ Obtain the k8s.zip file for the release, unzip and go to that folder.  You can g
 
 ```bash
 export KUBECONFIG=~/.kube/config
-kubectl kustomize k8s/overlays/local-jflamy-dev | kubectl apply -f -
+kubectl apply -k k8s/overlays/local-jflamy-dev
 ```
 
 ## K3S Deployment
@@ -155,7 +155,7 @@ Obtain the k8s.zip file for the release, unzip and go to that folder.  You can g
 
 ```bash
 export KUBECONFIG=~/.kube/k3s.yaml
-kubectl kustomize k8s/overlays/local-jflamy-dev | kubectl apply -f -
+kubectl apply -k k8s/overlays/local-jflamy-dev
 ```
 
 ## KubeSail Deployment (from template)
@@ -218,5 +218,5 @@ The following instructions are for advanced users who wish to have a "configurat
 
 ```bash
 export KUBECONFIG=~/.kube/sailconfig
-kubectl kustomize k8s/overlays/kubesail-myOwn | kubectl apply -f -
+kubectl apply -k k8s/overlays/kubesail-myOwn
 ```
