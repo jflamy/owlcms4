@@ -43,7 +43,7 @@ public class PlatformRepository {
             for (Group g : gL) {
                 g.setPlatform(null);
             }
-            em.remove(getById(pId, em));
+            em.remove(em.contains(platform) ? platform : em.merge(platform));
             return null;
         });
     }
