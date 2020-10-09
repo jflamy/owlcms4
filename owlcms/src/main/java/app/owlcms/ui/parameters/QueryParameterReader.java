@@ -49,7 +49,8 @@ public interface QueryParameterReader extends HasUrlParameter<String> {
             } else if (OwlcmsSession.getFop() != null) {
                 logger.trace("OwlcmsSession.getFop() {}", OwlcmsSession.getFop());
                 fop = OwlcmsSession.getFop();
-            } else {
+            }
+            if (fop == null) {
                 logger.trace("OwlcmsFactory.getDefaultFOP() {}", OwlcmsFactory.getDefaultFOP());
                 fop = OwlcmsFactory.getDefaultFOP();
             }
