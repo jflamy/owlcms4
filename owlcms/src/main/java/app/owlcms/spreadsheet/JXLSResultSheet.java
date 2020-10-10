@@ -53,12 +53,20 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
     @Override
     public InputStream getTemplate(Locale locale) throws IOException {
         Competition current = Competition.getCurrent();
-        protocolTemplate = current.getProtocolTemplate();
-        if (protocolTemplate == null) {
-            protocolTemplate = loadDefaultProtocolTemplate(locale, current);
+//        protocolTemplate = current.getProtocolTemplate();
+//        if (protocolTemplate == null) {
+//            protocolTemplate = loadDefaultProtocolTemplate(locale, current);
+//        }
+//        InputStream stream = new ByteArrayInputStream(protocolTemplate);     
+//        return stream;
+        String protocolTemplateFileName = current.getProtocolFileName();
+
+        int stripIndex = protocolTemplateFileName.indexOf(".xls");
+        if (stripIndex > 0) {
+            protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
         }
-        InputStream stream = new ByteArrayInputStream(protocolTemplate);
-        return stream;
+
+        return getLocalizedTemplate("/templates/protocol/" + protocolTemplateFileName, ".xls", locale);
     }
 
     @Override
@@ -90,22 +98,22 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         }
     }
 
-    private byte[] loadDefaultProtocolTemplate(Locale locale, Competition current) {
-        JPAService.runInTransaction((em) -> {
-            String protocolTemplateFileName = "/templates/protocol/Protocol_" + locale.getLanguage()
-                    + ".xls";
-            InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);
-            try {
-                protocolTemplate = ByteStreams.toByteArray(stream);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            current.setProtocolTemplate(protocolTemplate);
-            Competition merge = em.merge(current);
-            Competition.setCurrent(merge);
-            return merge;
-        });
-        return protocolTemplate;
-    }
+//    private byte[] loadDefaultProtocolTemplate(Locale locale, Competition current) {
+//        JPAService.runInTransaction((em) -> {
+//            String protocolTemplateFileName = "/templates/protocol/Protocol_" + locale.getLanguage()
+//                    + ".xls";
+//            InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);
+//            try {
+//                protocolTemplate = ByteStreams.toByteArray(stream);
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//            current.setProtocolTemplate(protocolTemplate);
+//            Competition merge = em.merge(current);
+//            Competition.setCurrent(merge);
+//            return merge;
+//        });
+//        return protocolTemplate;
+//    }
 
 }

@@ -6,7 +6,6 @@
  */
 package app.owlcms.ui.preparation;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -233,7 +232,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         ageGroupDefinitionSelect.setValue(null);
         ageGroupDefinitionSelect.setWidth("15em");
         ageGroupDefinitionSelect.getStyle().set("margin-left", "1em");
-        setTemplateSelectionListener(resourceList);
+        setAgeGroupsSelectionListener(resourceList);
 
         Button reload = new Button(getTranslation("ResetCategories.ReloadAgeGroups"), (e) -> {
             Resource definitions = ageGroupDefinitionSelect.getValue();
@@ -341,18 +340,15 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         this.ageGroupEditingFormFactory = ageGroupEditingFormFactory;
     }
 
-    private void setTemplateSelectionListener(List<Resource> resourceList) {
-        try {
-            String curTemplateName = Competition.getCurrent().getProtocolFileName();
-            Resource found = searchMatch(resourceList, curTemplateName);
-            ageGroupDefinitionSelect.addValueChangeListener((e) -> {
-                Competition.getCurrent().setProtocolFileName(e.getValue().getFileName());
-                CompetitionRepository.save(Competition.getCurrent());
-            });
-            ageGroupDefinitionSelect.setValue(found);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    private void setAgeGroupsSelectionListener(List<Resource> resourceList) {
+        String curTemplateName = Competition.getCurrent().getAgeGroupsFileName();
+        Resource found = searchMatch(resourceList, curTemplateName);
+        ageGroupDefinitionSelect.addValueChangeListener((e) -> {
+            logger.warn("setTemplateSelectionListener {}", found);
+            Competition.getCurrent().setAgeGroupsFileName(e.getValue().getFileName());
+            CompetitionRepository.save(Competition.getCurrent());
+        });
+        ageGroupDefinitionSelect.setValue(found);
     }
 
     private void unHighlightResetButton() {

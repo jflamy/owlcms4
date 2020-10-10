@@ -81,22 +81,32 @@ public class OwlcmsSession {
      * @return
      */
     public static Locale getLocale() {
+        Locale locale = Translator.getForcedLocale();
         UI currentUi = UI.getCurrent();
-        Locale locale = currentUi == null ? null : currentUi.getLocale();
+        if (locale == null && currentUi != null) {
+            locale = currentUi.getLocale();
+        }
+        
+        // get first defined locale from translation file, else default
         if (locale == null) {
             List<Locale> locales = Translator.getAvailableLocales();
             if (locales != null && !locales.isEmpty()) {
                 locale = locales.get(0);
             } else {
+                // defensive, can't happen
                 locale = Locale.getDefault();
             }
         }
+        
         if (locale.getCountry() == "") {
             // add the country from Locale.getDefault -- probably the country we're running in.
+            // this may result in strange things for cloud -- such as es_US but the locale logic will not
+            // find es_US and will fall back to using es
+            // this will however work for en_US and en_UK and en_CA when running on a laptop, for date formats.
             locale = new Locale(locale.getLanguage(), Locale.getDefault().getCountry(), locale.getVariant());
-            if (currentUi != null) {
-                currentUi.setLocale(locale);
-            }
+        }
+        if (currentUi != null) {
+            currentUi.setLocale(locale);
         }
         return locale;
     }

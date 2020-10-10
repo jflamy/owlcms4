@@ -369,4 +369,8 @@ public class Translator implements I18NProvider {
         return translations;
     }
 
+    public static Locale getForcedLocale() {
+        return forcedLocale;
+    }
+
 }
