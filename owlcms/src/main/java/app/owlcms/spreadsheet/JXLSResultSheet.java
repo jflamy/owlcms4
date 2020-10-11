@@ -6,7 +6,6 @@
  */
 package app.owlcms.spreadsheet;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.Locale;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.ByteStreams;
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
@@ -24,7 +22,6 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
-import app.owlcms.data.jpa.JPAService;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -44,7 +41,7 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         tagLogger.setLevel(Level.ERROR);
     }
 
-    private byte[] protocolTemplate;
+//    private byte[] protocolTemplate;
 
     public JXLSResultSheet(UI ui) {
         super(ui);

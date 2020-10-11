@@ -9,6 +9,7 @@ package app.owlcms.publicresults;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -87,6 +88,30 @@ public class Main {
         // default is 8080
         serverPort = StartupUtils.getIntegerParam("port", 8080);
         StartupUtils.setServerPort(serverPort);
+        
+        overrideDisplayLanguage();
+    }
+    
+    private static Locale overrideDisplayLanguage() {
+        // read override value from database
+        Locale l = null;
+
+        // check OWLCMS_LOCALE, then -Dlocale, then LOCALE
+        String localeEnvStr = StartupUtils.getStringParam("locale");
+        if (localeEnvStr != null) {
+            l = Translator.createLocale(localeEnvStr);
+        } else {
+            localeEnvStr = System.getenv("LOCALE");
+            if (localeEnvStr != null) {
+                l = Translator.createLocale(localeEnvStr);
+            }
+        }
+
+        if (l != null) {
+            Translator.setForcedLocale(l);
+            logger.info("forcing display language to {}", l);
+        }
+        return l;
     }
 
 }

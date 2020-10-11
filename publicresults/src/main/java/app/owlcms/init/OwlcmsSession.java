@@ -79,15 +79,24 @@ public class OwlcmsSession {
      * @return
      */
     public static Locale getLocale() {
+        Locale locale = Translator.getForcedLocale();
         UI currentUi = UI.getCurrent();
-        Locale locale = currentUi == null ? null : currentUi.getLocale();
+        if (locale == null && currentUi != null) {
+            locale = currentUi.getLocale();
+        }
+        
+        // get first defined locale from translation file, else default
         if (locale == null) {
             List<Locale> locales = Translator.getAvailableLocales();
             if (locales != null && !locales.isEmpty()) {
                 locale = locales.get(0);
             } else {
+                // defensive, can't happen
                 locale = Locale.getDefault();
             }
+        }
+        if (currentUi != null) {
+            currentUi.setLocale(locale);
         }
         return locale;
     }
