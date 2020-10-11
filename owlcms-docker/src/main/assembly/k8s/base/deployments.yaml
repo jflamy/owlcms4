@@ -6,6 +6,9 @@ metadata:
   name: postgres
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
   revisionHistoryLimit: 10
   template:
     metadata:
@@ -44,6 +47,9 @@ metadata:
   name: publicresults
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: publicresults
   template:
     metadata:
       labels:
@@ -64,6 +70,9 @@ metadata:
   name: owlcms
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: owlcms
   template:
     metadata:
       labels:

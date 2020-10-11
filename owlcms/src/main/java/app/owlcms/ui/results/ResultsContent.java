@@ -496,11 +496,11 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             Resource found = searchMatch(resourceList, curTemplateName);
             templateSelect.addValueChangeListener((e) -> {
                 Competition.getCurrent().setProtocolFileName(e.getValue().getFileName());
-                try {
-                    Competition.getCurrent().setProtocolTemplate(e.getValue().getByteArray());
-                } catch (IOException e1) {
-                    throw new RuntimeException(e1);
-                }
+//                try {
+//                    Competition.getCurrent().setProtocolTemplate(e.getValue().getByteArray());
+//                } catch (IOException e1) {
+//                    throw new RuntimeException(e1);
+//                }
                 CompetitionRepository.save(Competition.getCurrent());
             });
             templateSelect.setValue(found);

@@ -18,8 +18,10 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
@@ -352,6 +354,22 @@ public class Translator implements I18NProvider {
             locale = forcedLocale;
         }
         return locale;
+    }
+
+    public static Map<String,String> getMap() {
+        final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(OwlcmsSession.getLocale());
+        Map<String,String> translations = new HashMap<>();
+        Enumeration<String> keys = bundle.getKeys();
+        String key;
+        while (keys.hasMoreElements()) {
+            key = keys.nextElement();
+            translations.put(key,bundle.getString(key));
+        }
+        return translations;
+    }
+
+    public static Locale getForcedLocale() {
+        return forcedLocale;
     }
 
 }

@@ -9,6 +9,7 @@ package app.owlcms.publicresults;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.displays.scoreboard.ScoreWithLeaders;
+import app.owlcms.i18n.Translator;
 import app.owlcms.uievents.UpdateEvent;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
@@ -40,12 +42,17 @@ public class MainView extends VerticalLayout {
     private UI ui;
 
     public MainView() {
-        text = new Text(getTranslation("WaitingForSite"));
-        buildHomePage();
+        logger.warn("mainView");
+        text = new Text(Translator.translate("WaitingForSite"));
+        ui = UI.getCurrent();
+        if (ui != null) {
+            buildHomePage();
+        }
     }
 
     @Subscribe
     public void update(UpdateEvent e) {
+        logger.warn("update");
         if (ui == null) {
             logger.error("ui is null!?");
             return;
@@ -57,6 +64,7 @@ public class MainView extends VerticalLayout {
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
+        logger.warn("onAttach");
         super.onAttach(attachEvent);
         ui = UI.getCurrent();
         UpdateReceiverServlet.getEventBus().register(this);
@@ -71,10 +79,20 @@ public class MainView extends VerticalLayout {
     private void buildHomePage() {
         // we cache the last update received for each field of play, indexed by fop name
         Set<String> fopNames = UpdateReceiverServlet.updateCache.keySet();
-        if (fopNames.size() == 0) {
+        logger.warn("buildHomePage {} {}", fopNames.size(), ui);
+        if (fopNames.size() == 0 || ui == null) {
             removeAll();
             add(text);
-        } else {
+        }
+        else if (fopNames.size() == 1) {
+            logger.warn("one platform");
+            Map<String, String> parameterMap = new HashMap<>();
+            String fop = fopNames.stream().findFirst().get();
+            parameterMap.put("FOP", fop);
+            //ui.navigate("displays/scoreleader", QueryParameters.simple(parameterMap));
+            ui.getPage().executeJs("window.location.href='displays/scoreleader?FOP="+fop+"'");
+        } 
+        else {
             createButtons(fopNames);
         }
     }

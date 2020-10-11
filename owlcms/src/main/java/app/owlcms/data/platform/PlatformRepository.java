@@ -11,6 +11,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
@@ -26,9 +27,23 @@ public class PlatformRepository {
      *
      * @param Platform the platform
      */
-    public static void delete(Platform Platform) {
+    /**
+     * @param Platform
+     */
+    public static void delete(Platform platform) {
         JPAService.runInTransaction(em -> {
-            em.remove(getById(Platform.getId(), em));
+            // this is the only case where platform needs to know its groups, so we do a
+            // query instead of adding a relationship.
+            Long pId = platform.getId();
+            // group is illegal as a table name; query uses the configured table name for entity.
+            Query gQ = em.createQuery("select g from CompetitionGroup g join g.platform p where p.id = :platformId");
+            gQ.setParameter("platformId", pId);
+            @SuppressWarnings("unchecked")
+            List<Group> gL = gQ.getResultList();
+            for (Group g : gL) {
+                g.setPlatform(null);
+            }
+            em.remove(em.contains(platform) ? platform : em.merge(platform));
             return null;
         });
     }

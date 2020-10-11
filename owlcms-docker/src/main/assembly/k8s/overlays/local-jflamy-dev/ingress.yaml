@@ -2,6 +2,8 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: owlcms-ingress
+  labels:
+    app: owlcms
 spec:
   tls:
     - secretName: o-jflamy-dev
@@ -19,6 +21,8 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: publicresults-ingress
+  labels:
+    app: publicresults
 spec:
   tls:
     - secretName: r-jflamy-dev

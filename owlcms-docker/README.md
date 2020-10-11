@@ -1,5 +1,11 @@
 # Kubernetes Deployment
 
+This page discusses several options for deploying under Kubernetes.  First we discuss local development options for testing, using Docker Desktop under Windows with WSL2, and k3s under WSL2.  If you run Linux natively, you can use the corresponding Linux packages.
+
+For actual deployment, we propose using the KubeSail service.  KubeSail is a low-cost service hosted on Amazon AWS, but with a much simpler setup than AWS, Azure or Google Cloud.  The "hobby" tier is sufficient to run owlcms (7 US$ per month).
+
+Should anyone provide us with a step-by-step recipe for other providers, we will add it to this page.
+
 ## WSL2 Preparation (Windows 10)
 
 If working under Windows WSL2, the following steps are required for preparation
@@ -60,7 +66,7 @@ For a more complete deployment using an ingress controller and running both owlc
    ```bash
    export KUBECONFIG=~/.kube/config
    ```
-   
+
 2. Install the nginx ingress controller into Docker Desktop.  This configuration listens on localhost.
 
    ```bash
@@ -99,7 +105,7 @@ Obtain the k8s.zip file for the release, unzip and go to that folder.  You can g
 
 ```bash
 export KUBECONFIG=~/.kube/config
-kubectl kustomize k8s/overlays/local-jflamy-dev | kubectl apply -f -
+kubectl apply -k k8s/overlays/local-jflamy-dev
 ```
 
 ## K3S Deployment
@@ -149,32 +155,68 @@ Obtain the k8s.zip file for the release, unzip and go to that folder.  You can g
 
 ```bash
 export KUBECONFIG=~/.kube/k3s.yaml
-kubectl kustomize k8s/overlays/local-jflamy-dev | kubectl apply -f -
+kubectl apply -k k8s/overlays/local-jflamy-dev
 ```
 
-## KubeSail Deployment
+## KubeSail Deployment (from template)
 
 KubeSail (https://kubesail.com) is a cloud KaaS (Kubernetes as a service) provider.
 
 #### Initial Setup
 
-1. Kubesail uses cert-manager HTTP challenges.
+- Create your cluster.  Select the options to use nginx and to create a certificate manager for LetsEncrypt
+- Follow their instructions to define your own custom domain
+- Create your instance of owlcms and publicresults, connected to one another.
+  1. From the your application, go to the Templates section at the bottom.  Search for "owlcms4" using the search bar.
+  2. Go to the bottom of the page that appears.  Fill in the parameters with the recommended values as shown in the description.
+  3. Launch Template
+
+#### For each release
+
+1. Go back to the template section for your cluster.
+
+2. Update the version number, and Launch Template again.
+
+3. If you get red boxes about not being able to apply the changes, do the following
+
+   1. Go to the Resources page
+
+   2. Click on the owlcms deployment in the list, select the Delete button and confirm.
+
+   3. Click on the publicresults deployment in the list, select the Delete button and confirm.
+
+   4. Go back to the Template section, Launch Template.
+
+      
+
+## KubeSail Deployment (kubectl)
+
+The following instructions are for advanced users who wish to have a "configuration as code" declarative setup.  The following instructions assume working knowledge of the `kustomize` app (which is usually invoked as `kubectl kustomize`)
+
+#### Initial Setup
+
+1. Create your cluster using the options for nginx ingress and cert-manager for LetsEncrypt.
+
+2. Kubesail uses cert-manager HTTP challenges.
+
    - follow their instructions to define your own custom domain
    - the examples in kubesail-jflamy-dev use the secrets populated automatically by kubesail.
-   
-2. Kubesail can use nginx as an ingress controller.  Select that option when creating your cluster
 
-3. You need to capture the cluster configuration file -- see the "Details".  For example, if `~/.kube/sailconfig` is available for a kubesail.com cluster, then deployment can take place with
+3. Kubesail can use nginx as an ingress controller.  Select that option when creating your cluster
+
+4. You need to capture the cluster configuration file -- see the "Details" section fory your cluster.  For example, if `~/.kube/sailconfig` is available for a kubesail.com cluster, then deployment can take place with
+
    ```bash
    export KUBECONFIG=~/.kube/sailconfig
    ```
 
+5. Obtain the k8s.zip file for the release, unzip and go to that folder. Create a folder for yourSite (for example k8s/overlays/kubesail-myOwn).  Copy the files from jflamy-dev and edit the ingress file to reflect your own. 
 
 #### For each release
 
-Obtain the k8s.zip file for the release, unzip and go to that folder.  You can generate the same content by using the  `mvn -DyamlOnly=true clean package` command in the source directory (the output will be in target/k8s)
+ For each release, edit the version number in the base deployments.yaml.
 
 ```bash
 export KUBECONFIG=~/.kube/sailconfig
-kubectl kustomize k8s/overlays/kubesail-jflamy-dev | kubectl apply -f -
+kubectl apply -k k8s/overlays/kubesail-myOwn
 ```

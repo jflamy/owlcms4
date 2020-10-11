@@ -349,7 +349,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             slaveGlobalRankingUpdated(initEvent);
             timer.slaveOrderUpdated(initEvent);
         } else {
-            getModel().setFullName("Waiting for update from competition site.");
+            getModel().setFullName(Translator.translate("WaitingForSite"));
             getModel().setGroupName("");
             getElement().callJsFunction("groupDone");
         }
