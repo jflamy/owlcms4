@@ -361,7 +361,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         groupResults.add(download);
 
         templateSelect = new ComboBox<>();
-        templateSelect.setPlaceholder(getTranslation("PreDefinedTemplates"));
+        templateSelect.setPlaceholder(getTranslation("AvailableTemplates"));
         List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/protocol",
                 ResourceWalker::relativeName, null);
         templateSelect.setItems(resourceList);
