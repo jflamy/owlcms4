@@ -6,7 +6,6 @@
  */
 package app.owlcms.spreadsheet;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -18,12 +17,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.ByteStreams;
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import net.sf.jxls.transformer.XLSTransformer;
@@ -40,7 +37,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
     @SuppressWarnings("unused")
     private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
-    private byte[] finalPackageTemplate;
+//    private byte[] finalPackageTemplate;
 
     public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
         super(ui);
@@ -54,12 +51,20 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     @Override
     public InputStream getTemplate(Locale locale) throws IOException {
         Competition current = Competition.getCurrent();
-        finalPackageTemplate = current.getFinalPackageTemplate();
-        if (finalPackageTemplate == null) {
-            finalPackageTemplate = loadDefaultPackageTemplate(locale, current);
+//        finalPackageTemplate = current.getFinalPackageTemplate();
+//        if (finalPackageTemplate == null) {
+//            finalPackageTemplate = loadDefaultPackageTemplate(locale, current);
+//        }
+//        InputStream stream = new ByteArrayInputStream(finalPackageTemplate);
+//        return stream;
+        String protocolTemplateFileName = current.getFinalPackageTemplateFileName();
+
+        int stripIndex = protocolTemplateFileName.indexOf(".xls");
+        if (stripIndex > 0) {
+            protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
         }
-        InputStream stream = new ByteArrayInputStream(finalPackageTemplate);
-        return stream;
+
+        return getLocalizedTemplate("/templates/competitionBook/" + protocolTemplateFileName, ".xls", locale);
     }
 
     @Override
@@ -117,23 +122,23 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
         setReportingBeans(competition.getReportingBeans());
     }
 
-    private byte[] loadDefaultPackageTemplate(Locale locale, Competition current) {
-        JPAService.runInTransaction((em) -> {
-            String protocolTemplateFileName = "/templates/competitionBook/CompetitionBook_Total_" + locale.getLanguage()
-                    + ".xls";
-            InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);
-            try {
-                finalPackageTemplate = ByteStreams.toByteArray(stream);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            current.setFinalPackageTemplate(finalPackageTemplate);
-            Competition merge = em.merge(current);
-            Competition.setCurrent(merge);
-            return merge;
-        });
-        return finalPackageTemplate;
-    }
+//    private byte[] loadDefaultPackageTemplate(Locale locale, Competition current) {
+//        JPAService.runInTransaction((em) -> {
+//            String protocolTemplateFileName = "/templates/competitionBook/CompetitionBook_Total_" + locale.getLanguage()
+//                    + ".xls";
+//            InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);
+//            try {
+//                finalPackageTemplate = ByteStreams.toByteArray(stream);
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//            current.setFinalPackageTemplate(finalPackageTemplate);
+//            Competition merge = em.merge(current);
+//            Competition.setCurrent(merge);
+//            return merge;
+//        });
+//        return finalPackageTemplate;
+//    }
 
     private void setTeamSheetPrintArea(Workbook workbook, String sheetName, int nbClubs) {
         // int sheetIndex = workbook.getSheetIndex(sheetName);
