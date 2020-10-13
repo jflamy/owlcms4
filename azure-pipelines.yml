@@ -4,11 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-<<<<<<< HEAD
-    default: 4.10.3-rc01
-=======
     default: 4.10.3
->>>>>>> origin/master
   - name: BuildPublicResults
     type: string
     default: 'true'

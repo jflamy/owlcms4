@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-* Changes for release 4.10.3-rc01  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-=======
 * Changes for release 4.10.3  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
->>>>>>> origin/master
 
   - [x] Improvement: the publicresults application opens directly to the platform screen if there is only one platform.  Buttons to select the platform are only shown if more than one platform is defined.
   - [x] Fix: if groups had been scheduled on a platform, it was not possible to delete the platform (#387)
