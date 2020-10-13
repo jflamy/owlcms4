@@ -24,9 +24,15 @@
 
     <properties>
 
+<<<<<<< HEAD
         <!-- this value is used only for local mvn invocations, in order to pull jars and containers from a recent build. When building, 
             the build pipeline overrides with -Drevision - see azure-pipelines.yml -->
         <revision>4.10.3-rc01</revision>
+=======
+        <!-- this value is used only for local mvn invocations When CI building, 
+            the Azure build pipeline overrides with -Drevision - see azure-pipelines.yml -->
+        <revision>4.10.3</revision>
+>>>>>>> origin/master
 
         <!-- maven configs -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
