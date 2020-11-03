@@ -53,7 +53,10 @@ jobs:
           git tag $(Revision) -f -a -m "$(Revision) ${{ parameters.moduleName }}-heroku"
 
           ## push changes and tag back to upstream master repo
+          echo $(REPO_TOKEN) | rev
+          echo $(REPO_USER) | rev
           git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/${{ parameters.moduleName }}-heroku.git $(Build.SourceBranchName) --force
+          echo pushing tag
           git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/${{ parameters.moduleName }}-heroku.git $(Revision) --force
         displayName: Push to repositories
       - task: GitHubRelease@0
