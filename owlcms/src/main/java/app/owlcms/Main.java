@@ -70,7 +70,6 @@ public class Main {
     public static void main(String... args) throws Exception {
 
         try {
-            OwlcmsFactory.setInitializationLatch(1);
             init();
             startRemoteMonitoring();
             new EmbeddedJetty(OwlcmsFactory.getInitializationLatch()).run(serverPort, "/");
@@ -134,7 +133,7 @@ public class Main {
 
         injectData(initialData, l);
 
-        OwlcmsFactory.getDefaultFOP();
+        OwlcmsFactory.getDefaultFOP(true);  //initialization, don't push out to browsers
     }
 
     protected static void tearDown() {

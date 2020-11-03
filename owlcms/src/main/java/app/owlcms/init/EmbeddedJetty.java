@@ -46,10 +46,6 @@ public class EmbeddedJetty {
 
     private CountDownLatch latch;
 
-    public EmbeddedJetty() {
-        this.setLatch(new CountDownLatch(0));
-    }
-
     public EmbeddedJetty(CountDownLatch latch) {
         this.setLatch(latch);
     }
@@ -92,11 +88,18 @@ public class EmbeddedJetty {
                 EnumSet.of(DispatcherType.REQUEST));
 
         try {
+            // start the server so that kubernetes ingress does not complain due to long initialization.
             server.start();
             startLogger.info("started on port {}", port);
+            
+            // start JPA+Hibernate, initialize database if needed, etc.
             Main.initData();
+            
+            // server threads blocking on latch will now go ahead.
+            startLogger.info("initialization done, allowing requests.");
+            getLatch().countDown();
+            
             StartupUtils.startBrowser();
-            latch.countDown();
             server.join();
         } catch (Exception e) {
             Throwable cause = e.getCause();
@@ -112,11 +115,11 @@ public class EmbeddedJetty {
         }
     }
 
-    public CountDownLatch getLatch() {
+    private CountDownLatch getLatch() {
         return latch;
     }
 
-    public void setLatch(CountDownLatch latch) {
+    private void setLatch(CountDownLatch latch) {
         this.latch = latch;
     }
 

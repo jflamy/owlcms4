@@ -23,6 +23,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.ProxyAthleteTimer;
 import app.owlcms.fieldofplay.ProxyBreakTimer;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -57,7 +58,8 @@ public class OwlcmsFactory {
     /**
      * @return first field of play, sorted alphabetically
      */
-    public static FieldOfPlay getDefaultFOP() {
+    public static FieldOfPlay getDefaultFOP(boolean init) {
+        logger.debug("OwlcmsFactory {}\n{}",init,LoggerUtils.stackTrace());
         if (defaultFOP != null) {
             return defaultFOP;
         } else {
@@ -70,16 +72,22 @@ public class OwlcmsFactory {
             defaultFOP = fop.orElse(null);
             // it is possible to have default FOP being null because getDefaultFop is called recursively
             // during the init of the FOPs. This is innocuous.
-            if (defaultFOP != null) {
+            if (!init && defaultFOP != null) {
                 // force a wake up on user interfaces
                 defaultFOP.pushOut(new UIEvent.SwitchGroup(defaultFOP.getGroup(), defaultFOP.getState(),
                         defaultFOP.getCurAthlete(), null));
             }
             return defaultFOP;
         }
-
     }
 
+    /**
+     * @return first field of play, sorted alphabetically
+     */
+    public static FieldOfPlay getDefaultFOP() {
+        return getDefaultFOP(false);
+    }
+    
     public static FieldOfPlay getFOPByGroupName(String name) {
         if (fopByName == null) {
             return null; // no group is lifting yet.
@@ -133,7 +141,7 @@ public class OwlcmsFactory {
             FieldOfPlay fop = new FieldOfPlay(null, platform);
             logger.debug("fop {}", fop.getName());
             // no group selected, no athletes, announcer will need to pick a group.
-            fop.init(new LinkedList<Athlete>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop), false);
+            fop.init(new LinkedList<Athlete>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop), true);
             fopByName.put(name, fop);
         }
     }
@@ -142,7 +150,14 @@ public class OwlcmsFactory {
         return latch;
     }
 
-    public static void setInitializationLatch(int i) {
-        latch = new CountDownLatch(i);
+//    public static void setInitializationLatch(int i) {
+//        latch = new CountDownLatch(i);
+//    }
+    
+    public static void waitDBInitialized() {
+        try {
+            OwlcmsFactory.getInitializationLatch().await();
+        } catch (InterruptedException e) {
+        }
     }
 }
