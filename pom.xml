@@ -25,7 +25,7 @@
     <properties>
         <!-- this value is used only for local mvn invocations When CI building, 
             the Azure build pipeline overrides with -Drevision - see azure-pipelines.yml -->
-        <revision>4.11.0-rc01</revision>
+        <revision>4.11.0</revision>
 
         <!-- maven configs -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
