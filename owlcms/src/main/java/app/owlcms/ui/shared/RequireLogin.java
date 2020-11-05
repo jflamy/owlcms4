@@ -54,10 +54,7 @@ public interface RequireLogin extends BeforeEnterObserver {
     }
 
     public default void waitDBInitialized() {
-        try {
-            OwlcmsFactory.getInitializationLatch().await();
-        } catch (InterruptedException e) {
-        }
+        OwlcmsFactory.waitDBInitialized();
     }
 
 }

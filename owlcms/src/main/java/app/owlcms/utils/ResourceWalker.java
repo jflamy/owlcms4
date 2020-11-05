@@ -48,7 +48,6 @@ public class ResourceWalker {
         String baseName = resourceName.substring(0, extensionPos);
 
         Locale locale = OwlcmsSession.getLocale();
-        logger.warn("getLocalizedResourceAsStream {}",locale);
         
         String suffix = "_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant();
         InputStream result = ResourceWalker.class.getResourceAsStream(baseName + suffix + extension);
@@ -85,7 +84,6 @@ public class ResourceWalker {
         String baseName = rawName.substring(0, extensionPos);
 
         Locale locale = OwlcmsSession.getLocale();
-        logger.warn("getLocalizedResourceAsStream {}",locale);
         
         String suffix = "_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant();
         String name = baseName + suffix + extension;
@@ -206,7 +204,6 @@ public class ResourceWalker {
     }
 
     protected boolean matchesLocale(Path filePath, Locale locale) {
-        logger.warn("matching {} with {}",filePath,locale);
         String resourceName = filePath.toString();
         int extensionPos = resourceName.lastIndexOf('.');
         String extension = resourceName.substring(extensionPos);

@@ -395,11 +395,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             Resource found = searchMatch(resourceList, curTemplateName);
             templateSelect.addValueChangeListener((e) -> {
                 Competition.getCurrent().setFinalPackageTemplateFileName(e.getValue().getFileName());
-                try {
-                    Competition.getCurrent().setFinalPackageTemplate(e.getValue().getByteArray());
-                } catch (IOException e1) {
-                    throw new RuntimeException(e1);
-                }
+//                try {
+//                    Competition.getCurrent().setFinalPackageTemplate(e.getValue().getByteArray());
+//                } catch (IOException e1) {
+//                    throw new RuntimeException(e1);
+//                }
                 CompetitionRepository.save(Competition.getCurrent());
             });
             templateSelect.setValue(found);

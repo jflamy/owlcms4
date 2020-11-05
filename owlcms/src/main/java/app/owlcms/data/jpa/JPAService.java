@@ -155,6 +155,9 @@ public class JPAService {
         EntityManager entityManager = null;
 
         try {
+            if (factory == null) {
+                logger.warn("JPAService {}",LoggerUtils.stackTrace());
+            }
             entityManager = factory.createEntityManager();
             entityManager.getTransaction().begin();
 

@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,7 +25,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -121,8 +119,8 @@ public class Competition {
     private String federationEMail;
     private String federationWebSite;
 
-    @Lob
-    private byte[] finalPackageTemplate;
+//    @Lob
+//    private byte[] finalPackageTemplate;
 
     private String finalPackageTemplateFileName;
 
@@ -149,8 +147,8 @@ public class Competition {
     private Integer mensTeamSize;
     private String protocolFileName;
 
-    @Lob
-    private byte[] protocolTemplate;
+//    @Lob
+//    private byte[] protocolTemplate;
 
     @Transient
     private HashMap<String, Object> reportingBeans = new HashMap<>();
@@ -308,10 +306,6 @@ public class Competition {
         return federationWebSite;
     }
 
-    public byte[] getFinalPackageTemplate() {
-        return finalPackageTemplate;
-    }
-
     /**
      * Gets the result template file name.
      *
@@ -461,10 +455,6 @@ public class Competition {
         } else {
             return protocolFileName;
         }
-    }
-
-    public byte[] getProtocolTemplate() {
-        return protocolTemplate;
     }
 
     public HashMap<String, Object> getReportingBeans() {
@@ -663,10 +653,6 @@ public class Competition {
         this.federationWebSite = federationWebSite;
     }
 
-    public void setFinalPackageTemplate(byte[] finalPackageTemplate) {
-        this.finalPackageTemplate = finalPackageTemplate;
-    }
-
     /**
      * Sets the result template file name.
      *
@@ -709,10 +695,6 @@ public class Competition {
         this.protocolFileName = protocolFileName;
     }
 
-    public void setProtocolTemplate(byte[] protocolTemplate) {
-        this.protocolTemplate = protocolTemplate;
-    }
-
     synchronized public void setRankingsInvalid(boolean invalid) {
         this.rankingsInvalid = invalid;
     }
@@ -752,14 +734,13 @@ public class Competition {
                 + ", competitionCity=" + competitionCity + ", federation=" + federation + ", federationAddress="
                 + federationAddress + ", federationEMail=" + federationEMail + ", federationWebSite="
                 + federationWebSite + ", defaultLocale=" + defaultLocale + ", protocolFileName=" + protocolFileName
-                + ", protocolTemplate=" + Arrays.toString(protocolTemplate) + ", finalPackageTemplateFileName="
-                + finalPackageTemplateFileName + ", ageGroupsFileName=" + ageGroupsFileName + ", finalPackageTemplate="
-                + Arrays.toString(finalPackageTemplate) + ", enforce20kgRule=" + enforce20kgRule + ", masters="
-                + masters + ", mensTeamSize=" + mensTeamSize + ", womensTeamSize=" + womensTeamSize + ", customScore="
-                + customScore + ", mastersGenderEquality=" + mastersGenderEquality + ", useBirthYear=" + useBirthYear
-                + ", useCategorySinclair=" + useCategorySinclair + ", useOldBodyWeightTieBreak="
-                + useOldBodyWeightTieBreak + ", useRegistrationCategory=" + useRegistrationCategory
-                + ", reportingBeans=" + reportingBeans + "]";
+                + ", finalPackageTemplateFileName=" + finalPackageTemplateFileName
+                + ", ageGroupsFileName=" + ageGroupsFileName + ", enforce20kgRule="
+                + enforce20kgRule + ", masters=" + masters + ", mensTeamSize=" + mensTeamSize + ", womensTeamSize="
+                + womensTeamSize + ", customScore=" + customScore + ", mastersGenderEquality=" + mastersGenderEquality
+                + ", useBirthYear=" + useBirthYear + ", useCategorySinclair=" + useCategorySinclair
+                + ", useOldBodyWeightTieBreak=" + useOldBodyWeightTieBreak + ", useRegistrationCategory="
+                + useRegistrationCategory + ", reportingBeans=" + reportingBeans + "]";
     }
 
     @SuppressWarnings("unchecked")
@@ -796,13 +777,15 @@ public class Competition {
         reportingBeans.clear();
 
         reportingBeans.put("competition", Competition.getCurrent());
-        reportingBeans.put("groups", GroupRepository.findAll().stream().sorted((a,b) -> {
+        reportingBeans.put("groups", GroupRepository.findAll().stream().sorted((a, b) -> {
             int compare = ObjectUtils.compare(a.getWeighInTime(), b.getWeighInTime(), true);
-            if (compare != 0) return compare;
+            if (compare != 0) {
+                return compare;
+            }
             return compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
         }).collect(Collectors.toList()));
-        reportingBeans.put("t",Translator.getMap());
-        
+        reportingBeans.put("t", Translator.getMap());
+
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SNATCH);
         AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.SNATCH);
         sortedMen = new ArrayList<>(sortedAthletes.size());

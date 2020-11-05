@@ -43,14 +43,20 @@ jobs:
 
           # push new version to the release repo
           # no tag, will be created by the release task
+          echo $(RELEASE_TOKEN) | rev
+          echo $(RELEASE_USER) | rev
           git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/${{ parameters.moduleName }}-heroku$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force
-          git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/${{ parameters.moduleName }}-heroku$(RELEASE_SUFFIX).git $(Revision) --force
+          #git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/${{ parameters.moduleName }}-heroku$(RELEASE_SUFFIX).git $(Revision) --force
 
+          echo tagging
           # create a tag with the current version number
           git tag $(Revision) -f -a -m "$(Revision) ${{ parameters.moduleName }}-heroku"
 
           ## push changes and tag back to upstream master repo
+          echo $(REPO_TOKEN) | rev
+          echo $(REPO_USER) | rev
           git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/${{ parameters.moduleName }}-heroku.git $(Build.SourceBranchName) --force
+          echo pushing tag
           git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/${{ parameters.moduleName }}-heroku.git $(Revision) --force
         displayName: Push to repositories
       - task: GitHubRelease@0
