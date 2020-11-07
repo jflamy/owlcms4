@@ -40,6 +40,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
@@ -81,6 +82,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
      * Instantiates the ageGroup crudGrid.
      */
     public AgeGroupContent() {
+        OwlcmsFactory.waitDBInitialized();
         OwlcmsCrudFormFactory<AgeGroup> editingFormFactory = new AgeGroupEditingFormFactory(AgeGroup.class, this);
         setAgeGroupEditingFormFactory(editingFormFactory);
         crud = createGrid(getAgeGroupEditingFormFactory());

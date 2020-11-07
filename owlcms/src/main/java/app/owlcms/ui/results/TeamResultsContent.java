@@ -97,6 +97,7 @@ public class TeamResultsContent extends VerticalLayout
      */
     public TeamResultsContent() {
         super();
+        OwlcmsFactory.waitDBInitialized();
         init();
     }
 

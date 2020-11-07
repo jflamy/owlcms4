@@ -43,6 +43,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.parameters.DarkModeParameters;
@@ -162,7 +163,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
      * Instantiates a new results board.
      */
     public CurrentAthlete() {
-        waitDBInitialized();
+        OwlcmsFactory.waitDBInitialized();
         timer.setOrigin(this);
         setDarkMode(true);
     }

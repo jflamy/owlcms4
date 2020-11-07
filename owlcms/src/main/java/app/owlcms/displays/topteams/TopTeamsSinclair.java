@@ -119,7 +119,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
      * Instantiates a new results board.
      */
     public TopTeamsSinclair() {
-        waitDBInitialized();
+        OwlcmsFactory.waitDBInitialized();
     }
 
     @Override

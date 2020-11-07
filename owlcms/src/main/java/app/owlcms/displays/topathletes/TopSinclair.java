@@ -119,7 +119,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
      * Instantiates a new results board.
      */
     public TopSinclair() {
-        waitDBInitialized();
+        OwlcmsFactory.waitDBInitialized();
     }
 
     @Override
