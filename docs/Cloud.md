@@ -13,7 +13,7 @@ The installation process for Heroku has been completely redone, and is now extre
 
 **2. Go to the releases repository and start the process**
 
-The Heroku releases directory is located at [this location](https://github.com/owlcms/owlcms-heroku/releases/latest). Click the big `Deploy to Heroku` button.
+The Heroku releases directory is located at [this location](https://github.com/jflamy/owlcms-heroku/releases/latest). Click the big `Deploy to Heroku` button.
 
 ![010_deployButton](img/Heroku/010_deployButton.png)
 
