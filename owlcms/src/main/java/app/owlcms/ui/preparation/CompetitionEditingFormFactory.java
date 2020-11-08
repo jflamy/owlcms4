@@ -116,19 +116,19 @@ public class CompetitionEditingFormFactory
         FormLayout specialLayout = specialRulesForm();
 
         // footerLayout1 callbacks are not actually used -- footerLayout2 overwrites the callbacks.
-        Component footerLayout1 = this.buildFooter(operation, competition, cancelButtonClickListener,
-                c -> {
-                    Competition nCompetition = this.update(competition);
-                    Locale defaultLocale = nCompetition.getDefaultLocale();
-                    Translator.setForcedLocale(defaultLocale);
-                    Translator.reset();
-                }, deleteButtonClickListener, false);
+//        Component footerLayout1 = this.buildFooter(operation, competition, cancelButtonClickListener,
+//                c -> {
+//                    Competition nCompetition = this.update(competition);
+//                    Locale defaultLocale = nCompetition.getDefaultLocale();
+//                    Translator.setForcedLocale(defaultLocale);
+//                    Translator.reset();
+//                }, deleteButtonClickListener, false);
         Component footerLayout2 = this.buildFooter(operation, competition, cancelButtonClickListener,
                 c -> {
                     Competition nCompetition = this.update(competition);
                     Locale defaultLocale = nCompetition.getDefaultLocale();
-                    Translator.setForcedLocale(defaultLocale);
                     Translator.reset();
+                    Translator.setForcedLocale(defaultLocale);
                 }, deleteButtonClickListener, false);
 
         VerticalLayout mainLayout = new VerticalLayout(
@@ -137,8 +137,7 @@ public class CompetitionEditingFormFactory
                 federationLayout, separator(),
                 rulesLayout, separator(),
                 presentationLayout, separator(),
-                specialLayout,
-                footerLayout1);
+                specialLayout);
         mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout2);
         mainLayout.setMargin(false);
         mainLayout.setPadding(false);
