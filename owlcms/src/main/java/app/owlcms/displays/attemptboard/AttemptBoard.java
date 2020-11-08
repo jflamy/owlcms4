@@ -37,6 +37,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.parameters.QueryParameterReader;
@@ -140,7 +141,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      * Instantiates a new attempt board.
      */
     public AttemptBoard() {
-        waitDBInitialized();
+        OwlcmsFactory.waitDBInitialized();
         logger.debug("*** AttemptBoard new {}", LoggerUtils.whereFrom());
         athleteTimer.setOrigin(this);
         getModel().setJavaComponentId(this.toString());

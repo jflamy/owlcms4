@@ -34,6 +34,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
@@ -135,7 +136,7 @@ public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
      * Instantiates a new attempt board.
      */
     public AthleteCard() {
-        waitDBInitialized();
+       OwlcmsFactory.waitDBInitialized();
     }
 
     @Override

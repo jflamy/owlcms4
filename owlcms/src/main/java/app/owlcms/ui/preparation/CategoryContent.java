@@ -32,6 +32,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.ui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
@@ -67,6 +68,7 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
      * Instantiates the category crudGrid.
      */
     public CategoryContent() {
+        OwlcmsFactory.waitDBInitialized();
         crudFormFactory = createFormFactory();
         GridCrud<Category> crud = createGrid(crudFormFactory);
         defineFilters(crud);

@@ -85,6 +85,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
     private EventBus uiEventBus;
 
     public RefContent() {
+        OwlcmsFactory.waitDBInitialized();
         init();
     }
 
