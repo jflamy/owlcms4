@@ -1,4 +1,4 @@
-* Changes for release 4.11.2-rc01  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.11.2-rc02  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
   - [x] Improvement: revised Spanish translations for Spain and Latin America variants (El Salvador, Ecuador); updates to Armenian translation.
   - [x] Fix (new and improved) : on Heroku, errors could happen when reloading pages that are tied to a platform (display selection, scoreboards, referees, jury, etc.).  The page reload would occur before the database was fully initialized.
