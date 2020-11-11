@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.11.2
+    default: 4.12.0-alpha00
   - name: BuildPublicResults
     type: string
     default: 'true'
