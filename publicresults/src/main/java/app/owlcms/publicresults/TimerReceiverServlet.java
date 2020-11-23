@@ -8,6 +8,8 @@ package app.owlcms.publicresults;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Executors;
 
 import javax.servlet.ServletException;
@@ -26,6 +28,7 @@ import app.owlcms.uievents.BreakTimerEvent;
 import app.owlcms.uievents.TimerEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 @WebServlet("/timer")
@@ -63,13 +66,13 @@ public class TimerReceiverServlet extends HttpServlet {
 
         try {
             resp.setCharacterEncoding("UTF-8");
-//            if (StartupUtils.getBooleanParam("DEBUG")) {
-//                Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-//                logger./**/warn("---- timer received from {}", URLUtils.getClientIp(req));
-//                for (Entry<String, String[]> pair : pairs) {
-//                    logger./**/warn("{} = {}", pair.getKey(), pair.getValue()[0]);
-//                }
-//            }
+            if (StartupUtils.isTraceSetting()) {
+                Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
+                logger./**/warn("---- timer received from {}", URLUtils.getClientIp(req));
+                for (Entry<String, String[]> pair : pairs) {
+                    logger./**/warn("{} = {}", pair.getKey(), pair.getValue()[0]);
+                }
+            }
 
             String updateKey = req.getParameter("updateKey");
             if (updateKey == null || !updateKey.equals(secret)) {

@@ -162,4 +162,14 @@ public class StartupUtils {
         }
     }
 
+    public static boolean isDebugSetting() {
+        String param = StartupUtils.getStringParam("DEBUG");
+        return "true".equalsIgnoreCase(param) || "debug".equalsIgnoreCase(param) || "trace".equalsIgnoreCase(param);
+    }
+    
+    public static boolean isTraceSetting() {
+        String param = StartupUtils.getStringParam("DEBUG");
+        return "trace".equalsIgnoreCase(param);
+    }
+
 }

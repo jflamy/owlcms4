@@ -76,12 +76,14 @@ public class UpdateReceiverServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
-            logger.setLevel(Level.DEBUG);
-            if (StartupUtils.getBooleanParam("DEBUG")) {
+            if (StartupUtils.isDebugSetting()) {
+                logger.setLevel(Level.DEBUG);
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
                 logger./**/debug("update received from {}", URLUtils.getClientIp(req));
-                for (Entry<String, String[]> pair : pairs) {
-                    logger./**/trace("    {} = {}", pair.getKey(), pair.getValue()[0]);
+                if (StartupUtils.isTraceSetting()) {
+                    for (Entry<String, String[]> pair : pairs) {
+                        logger./**/debug("    {} = {}", pair.getKey(), pair.getValue()[0]);
+                    }
                 }
             }
 
