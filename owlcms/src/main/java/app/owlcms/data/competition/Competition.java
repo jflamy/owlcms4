@@ -445,9 +445,9 @@ public class Competition {
             List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/protocol",
                     ResourceWalker::relativeName, null);
             for (Resource r : resourceList) {
-                if (this.isMasters() && r.getFileName().startsWith("Masters_")) {
+                if (this.isMasters() && r.getFileName().startsWith("Masters")) {
                     return r.getFileName();
-                } else if (r.getFileName().startsWith("Protocol_")) {
+                } else if (r.getFileName().startsWith("Protocol")) {
                     return r.getFileName();
                 }
             }
