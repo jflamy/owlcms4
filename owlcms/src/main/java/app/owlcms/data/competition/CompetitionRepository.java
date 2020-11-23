@@ -74,12 +74,11 @@ public class CompetitionRepository {
         JPAService.runInTransaction(em -> {
             Competition nc = em.merge(competition);
             // needed because some classes get competition parameters from getCurrent()
-            app.owlcms.data.competition.Competition.setCurrent(nc);
+            Competition.setCurrent(nc);
             return nc;
         });
 
-        Competition current = app.owlcms.data.competition.Competition.getCurrent();
-        logger.debug("current.isEnforce20kgRule() = {}", current.isEnforce20kgRule());
+        Competition current = Competition.getCurrent();
         return current;
     }
 
