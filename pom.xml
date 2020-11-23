@@ -26,7 +26,7 @@
         <!-- this value is used only for local mvn invocations, 
             the Azure build pipeline overrides with -Drevision - see azure-pipelines.yml 
             the Azure build updates this value on a build, for convenience. -->   
-        <revision>4.12.0-SNAPSHOT</revision>
+        <revision>4.12.0-alpha00</revision>
 
         <!-- maven configs -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
