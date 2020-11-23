@@ -1,5 +1,6 @@
-* Changes for release 4.12.0-alpha00  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.12.0-alpha01  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+  - [x] Fix: Group Results did not compute the default value correctly on first invocation.
   - [x] Fix: Changing the language setting on the competition information page now takes effect immediately on page refresh, and is now correctly propagated to publicresults on the next announcer or decision event (#393)
   - [x] Improvement: Armenian translation, thanks to Ara Martirosyan
 * Key Highlights from recent stable releases
