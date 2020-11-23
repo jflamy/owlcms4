@@ -9,11 +9,11 @@
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="OWLCMS_DEBUG" value="false"/>
         <mapEntry key="OWLCMS_INITIALDATA" value="LARGEGROUP_DEMO"/>
-        <mapEntry key="OWLCMS_LOCALE" value="en"/>
+        <mapEntry key="OWLCMS_LOCALE_" value="en"/>
         <mapEntry key="OWLCMS_MASTERS" value="false"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="true"/>
         <mapEntry key="OWLCMS_PORT" value="80"/>
-        <mapEntry key="OWLCMS_REMOTE_" value="http://127.0.0.1:8081/update"/>
+        <mapEntry key="OWLCMS_REMOTE" value="http://127.0.0.1:8081/update"/>
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="thisisaverylongsecretstring"/>
     </mapAttribute>
