@@ -1,9 +1,11 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] Improvement: revised Spanish translations for Spain and Latin America variants (El Salvador, Ecuador); updates to Armenian translation.
-  - [x] Fix (new and improved) : on Heroku, errors could happen when reloading pages that are tied to a platform (display selection, scoreboards, referees, jury, etc.).  The page reload would occur before the database was fully initialized.
+  - [x] Fix: Changing the language setting on the competition information page now takes effect immediately on page refresh, and is now correctly propagated to publicresults on the next announcer or decision event (#393)
+  - [x] Improvement: Armenian translation, thanks to Ara Martirosyan
 * Key Highlights from recent stable releases
 
+   - [x] Improvement: Revised Spanish translations for Spain and Latin America variants (El Salvador, Ecuador).
+   - [x] Fix: on Heroku, errors could happen when reloading pages that are tied to a platform (display selection, scoreboards, referees, jury, etc. )  The page reload would occur before the database was fully initialized.
    - [x] Improvement: the publicresults application opens directly to the platform screen if there is only one platform.  Buttons to select the platform are only shown if more than one platform is defined.
    - [x] Fix: publicresults application follows the OWLCMS_LOCALE environment variable, including on "waiting" screens.
    - [x] Translation: Excel files for registration, athlete cards, starting weights, group results and final package are now generated using the translation file for the current language (#273)
