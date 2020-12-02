@@ -1,8 +1,9 @@
-* Changes for release 4.12.0-alpha01  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.12.0-rc01  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] Fix: Group Results did not compute the default value correctly on first invocation.
+  - [x] Fix: Team sizes selected on the Competition Information screen were not used on the Final Package team scoring sheets.  If not set, the IWF default team size of 10 is used on the spreadsheets. (#395) 
+  - [x] Fix: Default templates for Group Results and Final Package pages were not pre-selected (#396).
   - [x] Fix: Changing the language setting on the competition information page now takes effect immediately on page refresh, and is now correctly propagated to publicresults on the next announcer or decision event (#393)
-  - [x] Improvement: Armenian translation, thanks to Ara Martirosyan
+  - [x] Improvement: Armenian translation finalized, missing translation strings on Excel spreadsheets fixed, thanks to Ara Martirosyan
 * Key Highlights from recent stable releases
 
    - [x] Improvement: Revised Spanish translations for Spain and Latin America variants (El Salvador, Ecuador).
