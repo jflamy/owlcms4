@@ -379,14 +379,23 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
     private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
         Resource found = null;
+        Resource totalTemplate = null;
         for (Resource curResource : resourceList) {
             String fileName = curResource.getFileName();
             if (fileName.equals(curTemplateName)) {
                 found = curResource;
                 break;
             }
+            if (fileName.startsWith("Total")) {
+                totalTemplate  = curResource;
+            }
         }
-        return found;
+        if (found != null) {
+            return found;
+        } else {
+            // should be non-null, if not there, null is ok.
+            return totalTemplate; 
+        }
     }
 
     private void setTemplateSelectionListener(List<Resource> resourceList) {

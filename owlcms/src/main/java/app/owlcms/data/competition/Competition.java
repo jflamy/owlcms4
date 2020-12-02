@@ -144,7 +144,8 @@ public class Competition {
     @Column(columnDefinition = "boolean default false")
     private boolean mastersGenderEquality = false;
 
-    private Integer mensTeamSize;
+    @Column(columnDefinition = "integer default 10")
+    private Integer mensTeamSize = 10;
     private String protocolFileName;
 
 //    @Lob
@@ -177,7 +178,8 @@ public class Competition {
     @Column(columnDefinition = "boolean default false")
     private boolean useRegistrationCategory = false;
 
-    private Integer womensTeamSize;
+    @Column(columnDefinition = "integer default 10")
+    private Integer womensTeamSize = 10;
 
     @Transient
     private boolean rankingsInvalid = true;
@@ -434,6 +436,14 @@ public class Competition {
         return mensTeamSize;
     }
 
+    public Integer getMenPerTeamElseDefault() {
+        return mensTeamSize != null ? mensTeamSize : 10;
+    }
+    
+    public Integer getWomenPerTeamElseDefault() {
+        return womensTeamSize != null ? womensTeamSize : 10;
+    }
+    
     /**
      * Gets the protocol file name.
      *
