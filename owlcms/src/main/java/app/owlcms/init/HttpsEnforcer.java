@@ -7,6 +7,7 @@
 package app.owlcms.init;
 
 import java.io.IOException;
+import java.util.Enumeration;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 public class HttpsEnforcer implements Filter {
@@ -47,7 +49,18 @@ public class HttpsEnforcer implements Filter {
             }
         }
 
-        filterChain.doFilter(request, response);
+        try {
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            logger.warn(e.getMessage());
+            if (StartupUtils.isDebugSetting()) {
+                Enumeration<String> headerNames = request.getHeaderNames();
+                while(headerNames.hasMoreElements()) {
+                  String headerName = (String)headerNames.nextElement();
+                  logger.warn("    {} {}",headerName, request.getHeader(headerName));
+                }
+            }
+        }
     }
 
     @Override

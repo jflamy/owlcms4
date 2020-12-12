@@ -59,6 +59,7 @@ public class Translator implements I18NProvider {
     private static Locale forcedLocale = null;
     private static ClassLoader i18nloader = null;
     private static int line;
+    private static long resetTimeStamp = System.currentTimeMillis();
 
     public static Locale createLocale(String localeString) {
         if (localeString == null) {
@@ -80,6 +81,9 @@ public class Translator implements I18NProvider {
     }
 
     public static List<Locale> getAllAvailableLocales() {
+        if (locales == null) {
+            Translator.getBundleFromCSV(Locale.ENGLISH);
+        }
         return locales;
     }
 
@@ -100,14 +104,19 @@ public class Translator implements I18NProvider {
      * Force a reload of the translation files
      */
     public static void reset() {
+        resetTimeStamp  = System.currentTimeMillis();
         locales = null;
         i18nloader = null;
         helper = new Translator();
         logger.debug("cleared translation class loader");
     }
 
+    public static long getResetTimeStamp() {
+        return resetTimeStamp;
+    }
+
     public static void setForcedLocale(Locale locale) {
-        if (locale != null && getAvailableLocales().contains(locale)) {
+        if (locale != null && getAllAvailableLocales().contains(locale)) {
             Translator.forcedLocale = locale;
         } else {
             Translator.forcedLocale = null; // default behaviour, first locale in list will be used
@@ -262,13 +271,11 @@ public class Translator implements I18NProvider {
 
     @Override
     public List<Locale> getProvidedLocales() {
-        if (forcedLocale != null) {
-            return Arrays.asList(forcedLocale);
-        } else if (locales == null) {
-            // sets the available locales
-            getBundleFromCSV(Locale.ENGLISH);
+        if (getForcedLocale() != null) {
+            return Arrays.asList(getForcedLocale());
+        } else {
+            return getAllAvailableLocales();
         }
-        return locales;
     }
 
     /**
@@ -351,8 +358,8 @@ public class Translator implements I18NProvider {
     }
 
     private Locale overrideLocale(Locale locale) {
-        if (forcedLocale != null) {
-            locale = forcedLocale;
+        if (getForcedLocale() != null) {
+            locale = getForcedLocale();
         }
         return locale;
     }

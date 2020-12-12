@@ -116,7 +116,7 @@ public class Competition {
     private String federation;
     private String federationAddress;
 
-    private String federationEMail;
+    private String federationEMail = "";
     private String federationWebSite;
 
 //    @Lob
@@ -144,7 +144,8 @@ public class Competition {
     @Column(columnDefinition = "boolean default false")
     private boolean mastersGenderEquality = false;
 
-    private Integer mensTeamSize;
+    @Column(columnDefinition = "integer default 10")
+    private Integer mensTeamSize = 10;
     private String protocolFileName;
 
 //    @Lob
@@ -177,7 +178,8 @@ public class Competition {
     @Column(columnDefinition = "boolean default false")
     private boolean useRegistrationCategory = false;
 
-    private Integer womensTeamSize;
+    @Column(columnDefinition = "integer default 10")
+    private Integer womensTeamSize = 10;
 
     @Transient
     private boolean rankingsInvalid = true;
@@ -434,6 +436,14 @@ public class Competition {
         return mensTeamSize;
     }
 
+    public Integer getMenPerTeamElseDefault() {
+        return mensTeamSize != null ? mensTeamSize : 10;
+    }
+    
+    public Integer getWomenPerTeamElseDefault() {
+        return womensTeamSize != null ? womensTeamSize : 10;
+    }
+    
     /**
      * Gets the protocol file name.
      *
@@ -445,9 +455,9 @@ public class Competition {
             List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/protocol",
                     ResourceWalker::relativeName, null);
             for (Resource r : resourceList) {
-                if (this.isMasters() && r.getFileName().startsWith("Masters_")) {
+                if (this.isMasters() && r.getFileName().startsWith("Masters")) {
                     return r.getFileName();
-                } else if (r.getFileName().startsWith("Protocol_")) {
+                } else if (r.getFileName().startsWith("Protocol")) {
                     return r.getFileName();
                 }
             }

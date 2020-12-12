@@ -54,8 +54,7 @@ public class CompetitionEditingFormFactory
 
     @SuppressWarnings("unused")
     private CompetitionContent origin;
-    @SuppressWarnings("unused")
-    private Logger logger = (Logger) LoggerFactory.getLogger(CompetitionRepository.class);
+    private Logger logger = (Logger) LoggerFactory.getLogger(CompetitionEditingFormFactory.class);
 
     CompetitionEditingFormFactory(Class<Competition> domainType, CompetitionContent origin) {
         super(domainType);
@@ -63,9 +62,9 @@ public class CompetitionEditingFormFactory
     }
 
     @Override
-    public Competition add(Competition Competition) {
-        CompetitionRepository.save(Competition);
-        return Competition;
+    public Competition add(Competition c) {
+        CompetitionRepository.save(c);
+        return c;
     }
 
     @Override
@@ -97,17 +96,23 @@ public class CompetitionEditingFormFactory
     public Component buildNewForm(CrudOperation operation, Competition domainObject, boolean readOnly,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> operationButtonClickListener) {
+        String email = domainObject.getFederationEMail();
+        String trimmedMail = email != null ? email.trim() : email;
+        if (email != null && email.length() != trimmedMail.length()) {
+            // kludge to remove spurious message
+            domainObject.setFederationEMail(trimmedMail);
+        }
         return this.buildNewForm(operation, domainObject, readOnly, cancelButtonClickListener,
                 operationButtonClickListener, null);
     }
 
     @Override
-    public Component buildNewForm(CrudOperation operation, Competition competition, boolean readOnly,
+    public Component buildNewForm(CrudOperation operation, Competition comp, boolean readOnly,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
 
-        binder = buildBinder(operation, competition);
+        setBinder(buildBinder(operation, comp));
 
         FormLayout competitionLayout = competitionForm();
         FormLayout federationLayout = federationForm();
@@ -123,12 +128,13 @@ public class CompetitionEditingFormFactory
 //                    Translator.setForcedLocale(defaultLocale);
 //                    Translator.reset();
 //                }, deleteButtonClickListener, false);
-        Component footerLayout2 = this.buildFooter(operation, competition, cancelButtonClickListener,
+        Component footerLayout2 = this.buildFooter(operation, comp, cancelButtonClickListener,
                 c -> {
-                    Competition nCompetition = this.update(competition);
+                    Competition nCompetition = this.update(comp);
                     Locale defaultLocale = nCompetition.getDefaultLocale();
                     Translator.reset();
                     Translator.setForcedLocale(defaultLocale);
+                    logger.debug("competition locale {} {} {}", Competition.getCurrent().getDefaultLocale(), defaultLocale, Translator.getForcedLocale());
                 }, deleteButtonClickListener, false);
 
         VerticalLayout mainLayout = new VerticalLayout(
@@ -142,8 +148,12 @@ public class CompetitionEditingFormFactory
         mainLayout.setMargin(false);
         mainLayout.setPadding(false);
 
-        binder.readBean(competition);
+        binder.readBean(comp);
         return mainLayout;
+    }
+
+    private void setBinder(Binder<Competition> buildBinder) {
+        binder = buildBinder;
     }
 
     @Override
@@ -270,7 +280,7 @@ public class CompetitionEditingFormFactory
         layout.addFormItem(federationEMailField, Translator.translate("Competition.federationEMail"));
         binder.forField(federationEMailField)
                 .withNullRepresentation("")
-                .withValidator(new EmailValidator("InvalideEmailAddress"))
+                .withValidator(new EmailValidator("Invalid Email Address"))
                 .bind(Competition::getFederationEMail, Competition::setFederationEMail);
 
         TextField federationWebSiteField = new TextField();

@@ -53,7 +53,6 @@ import app.owlcms.uievents.UIEvent.SetTime;
 import app.owlcms.uievents.UIEvent.StartTime;
 import app.owlcms.uievents.UIEvent.StopTime;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -108,6 +107,7 @@ public class EventForwarder implements BreakDisplay {
     private Boolean debugMode;
 
     private String groupName;
+    private long translatorResetTimeStamp;
 
     public EventForwarder(FieldOfPlay emittingFop) {
         this.fop = emittingFop;
@@ -118,9 +118,8 @@ public class EventForwarder implements BreakDisplay {
         postBus = fop.getPostEventBus();
         postBus.register(this);
 
-        setTranslationMap();
+        translatorResetTimeStamp = 0L;
 
-        debugMode = StartupUtils.getBooleanParam("debug");
         String updateKey = Config.getCurrent().getParamUpdateKey();
         String updateUrl = Config.getCurrent().getParamUpdateUrl();
         if (updateUrl == null || updateKey == null || updateUrl.trim().isEmpty()
@@ -556,6 +555,11 @@ public class EventForwarder implements BreakDisplay {
     private Map<String, String> createUpdate() {
         Map<String, String> sb = new HashMap<>();
         mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
+        
+        if (translatorResetTimeStamp != Translator.getResetTimeStamp()) {
+            // translation map has been updated (reload or language change)
+            setTranslationMap();
+        }
 
         // competition state
         mapPut(sb, "competitionName", Competition.getCurrent().getCompetitionName());

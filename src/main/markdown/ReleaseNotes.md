@@ -1,9 +1,14 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] Improvement: revised Spanish translations for Spain and Latin America variants (El Salvador, Ecuador); updates to Armenian translation.
-  - [x] Fix (new and improved) : on Heroku, errors could happen when reloading pages that are tied to a platform (display selection, scoreboards, referees, jury, etc.).  The page reload would occur before the database was fully initialized.
+  - [x] Improvement: Armenian translation finalized, missing translation strings on Excel spreadsheets fixed, thanks to Ara Martirosyan
+  - [x] Fix: Team sizes selected on the Competition Information screen were not used on the Final Package team scoring sheets.  If not set, the IWF default team size of 10 is used on the spreadsheets. (#395) 
+  - [x] Fix: Default templates for Group Results and Final Package pages were not pre-selected (#396).
+  - [x] Fix: Changing the language setting on the competition information page now takes effect immediately on page refresh, and is now correctly propagated to publicresults on the next announcer or decision event (#393)
+  - [x] Fix: No more Invalid Email message for Federation Email when the database is empty (#398)
 * Key Highlights from recent stable releases
 
+   - [x] Improvement: Revised Spanish translations for Spain and Latin America variants (El Salvador, Ecuador).
+   - [x] Fix: on Heroku, errors could happen when reloading pages that are tied to a platform (display selection, scoreboards, referees, jury, etc. )  The page reload would occur before the database was fully initialized.
    - [x] Improvement: the publicresults application opens directly to the platform screen if there is only one platform.  Buttons to select the platform are only shown if more than one platform is defined.
    - [x] Fix: publicresults application follows the OWLCMS_LOCALE environment variable, including on "waiting" screens.
    - [x] Translation: Excel files for registration, athlete cards, starting weights, group results and final package are now generated using the translation file for the current language (#273)
