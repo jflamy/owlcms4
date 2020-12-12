@@ -116,7 +116,7 @@ public class Competition {
     private String federation;
     private String federationAddress;
 
-    private String federationEMail;
+    private String federationEMail = "";
     private String federationWebSite;
 
 //    @Lob

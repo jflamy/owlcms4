@@ -96,6 +96,12 @@ public class CompetitionEditingFormFactory
     public Component buildNewForm(CrudOperation operation, Competition domainObject, boolean readOnly,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> operationButtonClickListener) {
+        String email = domainObject.getFederationEMail();
+        String trimmedMail = email != null ? email.trim() : email;
+        if (email != null && email.length() != trimmedMail.length()) {
+            // kludge to remove spurious message
+            domainObject.setFederationEMail(trimmedMail);
+        }
         return this.buildNewForm(operation, domainObject, readOnly, cancelButtonClickListener,
                 operationButtonClickListener, null);
     }
@@ -128,7 +134,7 @@ public class CompetitionEditingFormFactory
                     Locale defaultLocale = nCompetition.getDefaultLocale();
                     Translator.reset();
                     Translator.setForcedLocale(defaultLocale);
-                    logger.warn("competition locale {} {} {}", Competition.getCurrent().getDefaultLocale(), defaultLocale, Translator.getForcedLocale());
+                    logger.debug("competition locale {} {} {}", Competition.getCurrent().getDefaultLocale(), defaultLocale, Translator.getForcedLocale());
                 }, deleteButtonClickListener, false);
 
         VerticalLayout mainLayout = new VerticalLayout(
@@ -274,7 +280,7 @@ public class CompetitionEditingFormFactory
         layout.addFormItem(federationEMailField, Translator.translate("Competition.federationEMail"));
         binder.forField(federationEMailField)
                 .withNullRepresentation("")
-                .withValidator(new EmailValidator("InvalideEmailAddress"))
+                .withValidator(new EmailValidator("Invalid Email Address"))
                 .bind(Competition::getFederationEMail, Competition::setFederationEMail);
 
         TextField federationWebSiteField = new TextField();
