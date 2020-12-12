@@ -36,6 +36,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -81,7 +82,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
     public void accept(OutputStream stream, VaadinSession session) throws IOException {
         try {
             session.lock();
-            Locale locale = session.getLocale();
+            Locale locale = OwlcmsSession.getLocale();
             XLSTransformer transformer = new XLSTransformer();
             configureTransformer(transformer);
             Workbook workbook = null;
@@ -214,6 +215,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
     protected InputStream getLocalizedTemplate(String templateName, String extension, Locale locale)
             throws IOException {
         List<String> tryList = getSuffixes(locale);
+        //logger.debug("trying {}", tryList);
         for (String suffix : tryList) {
             final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName + suffix + extension);
             if (resourceAsStream != null) {
