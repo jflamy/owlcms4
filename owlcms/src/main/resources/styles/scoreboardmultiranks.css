@@ -75,6 +75,8 @@
     }
     .showRank div {
         width: var(--rank-width);
+        font-style: italic;
+        font-weight: normal;
         margin: auto;
     }
 }
@@ -121,11 +123,13 @@
     }
     .showRank {
         display: table-cell;
+        font-style: italic;
         width: var(--rank-width);
         text-align: center;
     }
     .showRank div {
         width: var(--rank-width);
+        font-style: italic;
         margin: auto;
     }
 }

@@ -559,9 +559,22 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         ja.put("sattempts", sattempts);
         ja.put("cattempts", cattempts);
         ja.put("total", formatInt(a.getTotal()));
+        
         ja.put("snatchRank", formatInt(a.getSnatchRank()));
+        ja.put("snatchRankYth", formatInt(a.getSnatchRankYth()));
+        ja.put("snatchRankJr", formatInt(a.getSnatchRankJr()));
+        ja.put("snatchRankSr", formatInt(a.getSnatchRankSr()));
+        
         ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
+        ja.put("cleanJerkRankYth", formatInt(a.getCleanJerkRankYth()));
+        ja.put("cleanJerkRankJr", formatInt(a.getCleanJerkRankJr()));
+        ja.put("cleanJerkRankSr", formatInt(a.getCleanJerkRankSr()));
+        
         ja.put("totalRank", formatInt(a.getTotalRank()));
+        ja.put("totalRankYth", formatInt(a.getTotalRankYth()));
+        ja.put("totalRankJr", formatInt(a.getTotalRankJr()));
+        ja.put("totalRankSr", formatInt(a.getTotalRankSr()));
+        
         ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");

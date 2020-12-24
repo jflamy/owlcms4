@@ -73,37 +73,38 @@ public class AthleteSorter implements Serializable {
     public static void assignCategoryRanks(List<Athlete> sortedList, Ranking rankingType) {
         Category prevCategory = null;
 
-        int rank = 1;
+        RankSetter rt = new RankSetter();
         for (Athlete curLifter : sortedList) {
             Category curCategory = curLifter.getCategory();
             if (!equals(curCategory, prevCategory)) {
                 // category boundary has been crossed
                 logger.trace("category boundary crossed {}", curCategory);
-                rank = 1;
+                rt = new RankSetter();
             }
 
             if (!curLifter.isEligibleForIndividualRanking()) {
-                logger.trace("not counted {}  {}Rank={} total={} {}", curLifter, rankingType, -1, curLifter.getTotal(),
-                        !curLifter.isEligibleForIndividualRanking());
-                // not ranked, cannot possibly be part of a team.
-                setRank(curLifter, -1, rankingType);
+                // not eligible
+                rt.increment(curLifter, rankingType, false, false);
+                logger.trace("not counted {}  {} Rank={} total={}", curLifter, rankingType,
+                        getRank(curLifter, rankingType), curLifter.getTotal());
+                // if not eligible, cannot be part of a team
                 setPoints(curLifter, 0, rankingType);
             } else {
                 final double rankingValue = getRankingValue(curLifter, rankingType);
                 if (rankingValue > 0) {
-                    setRank(curLifter, rank, rankingType);
+                    // eligible, not zero
+                    rt.increment(curLifter, rankingType, true, false);
                     logger.trace("Athlete {} {}rank={} total={}", curLifter, rankingType,
                             getRank(curLifter, rankingType), rankingValue);
-                    rank++;
                 } else {
-                    logger.trace("Athlete {}  {}rank={} total={}", curLifter, rankingType, 0, rankingValue);
-                    setRank(curLifter, 0, rankingType);
-                    rank++;
+                    // eligible but zero
+                    rt.increment(curLifter, rankingType, true, true);
+                    logger.trace("Athlete {}  {}rank={} total={}", curLifter, rankingType,
+                            getRank(curLifter, rankingType), rankingValue);
                 }
 
-                // some competitions allow substitutes/non-team members to participate and earn medals but not score
-                // points
-                // unless explicitly named as part of team
+                // some competitions allow substitutes/non-team members to be eligible individually and earn medals but
+                // not score team points unless explicitly named as part of team
                 if (curLifter.isEligibleForTeamRanking()) {
                     final float points = computePoints(curLifter, rankingType);
                     setPoints(curLifter, points, rankingType);
@@ -138,29 +139,29 @@ public class AthleteSorter implements Serializable {
     public static void assignSinclairRanksAndPoints(List<Athlete> sortedList, Ranking rankingType) {
         Gender prevGender = null;
         // String prevAgeGroup = null;
-        int rank = 1;
+        RankSetter rs = new RankSetter();
         for (Athlete curLifter : sortedList) {
             final Gender curGender = curLifter.getGender();
             // final Integer curAgeGroup = curLifter.getAgeGroup();
             if (!equals(curGender, prevGender)) {
                 // different gender
-                rank = 1;
+                rs = new RankSetter();
             }
 
             if (!curLifter.isEligibleForIndividualRanking()) {
-                logger.trace("invited {}  {}rank={} total={} {}", curLifter, rankingType, -1, curLifter.getTotal(),
-                        !curLifter.isEligibleForIndividualRanking());
-                setRank(curLifter, -1, rankingType);
+                rs.increment(curLifter, rankingType, false, false);
+                logger.trace("not eligible {}  {} rank={} total={}", curLifter, rankingType,
+                        getRank(curLifter, rankingType), curLifter.getTotal());
             } else {
                 final double rankingTotal = getRankingValue(curLifter, rankingType);
                 if (rankingTotal > 0) {
-                    setRank(curLifter, rank, rankingType);
-                    logger.trace("Athlete {}  {}rank={} {}={} total={}", curLifter, rankingType, rank, rankingTotal);
-                    rank++;
+                    rs.increment(curLifter, rankingType, true, false);
+                    logger.trace("ranked {}  {} rank={} {}={} total={}", curLifter, rankingType,
+                            getRank(curLifter, rankingType), rankingTotal);
                 } else {
-                    logger.trace("Athlete {}  {}rank={} total={}", curLifter, rankingType, 0, rankingTotal);
-                    setRank(curLifter, 0, rankingType);
-                    rank++;
+                    rs.increment(curLifter, rankingType, true, true);
+                    logger.trace("zero {}  {} rank={} total={}", curLifter, rankingType,
+                            getRank(curLifter, rankingType), rankingTotal);
                 }
             }
             prevGender = curGender;
@@ -428,46 +429,6 @@ public class AthleteSorter implements Serializable {
         List<Athlete> sorted = new ArrayList<>(toBeSorted);
         resultsOrder(sorted, rankingType);
         return sorted;
-    }
-
-    /**
-     * Sets the rank.
-     *
-     * @param curLifter   the cur lifter
-     * @param i           the i
-     * @param rankingType the ranking type
-     */
-    public static void setRank(Athlete curLifter, int i, Ranking rankingType) {
-        switch (rankingType) {
-        case SNATCH:
-            curLifter.setSnatchRank(i);
-            break;
-        case CLEANJERK:
-            curLifter.setCleanJerkRank(i);
-            break;
-        case TOTAL:
-            curLifter.setTotalRank(i);
-            break;
-        case BW_SINCLAIR:
-            curLifter.setSinclairRank(i);
-            break;
-        case CAT_SINCLAIR:
-            curLifter.setCatSinclairRank(i);
-            break;
-        case ROBI:
-            curLifter.setRobiRank(i);
-            break;
-        case CUSTOM:
-            curLifter.setCustomRank(i);
-            break;
-        case COMBINED:
-            curLifter.setCombinedRank(i);
-            break;
-        case SMM:
-            curLifter.setSmmRank(i);
-        default:
-            break;
-        }
     }
 
     /**

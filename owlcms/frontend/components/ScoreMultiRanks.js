@@ -55,12 +55,12 @@ class ScoreMultiRanks extends PolymerElement {
                         <th rowspan="2" class="category" inner-h-t-m-l="[[t.Category]]"></th>
                         <th rowspan="2" class="narrow" inner-h-t-m-l="[[t.Birth]]"></th>
                         <th rowspan="2" class="club" inner-h-t-m-l="[[t.Team]]"></th>
-                        <th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
-                        <th colspan="3" class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
-                        <th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
-                        <th colspan="3" class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
-                        <th rowspan="2" class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
-                        <th colspan="3" class="thRank" inner-h-t-m-l="[[t.Rank]]"></th>
+                        <th colspan="6" inner-h-t-m-l="[[t.Snatch]]"></th>
+                        <!-- th colspan="3" class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th -->
+                        <th colspan="6" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
+                        <!-- th colspan="3" class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th -->
+                        <th colspan="4" class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
+                        <!-- th colspan="3" class="thRank" inner-h-t-m-l="[[t.Rank]]"></th -->
                     </tr>
                     <tr>
                         <!--  [[t.x]] references the translation for key ScoreMultiRanks.x in the translation4.csv file -->
@@ -76,6 +76,7 @@ class ScoreMultiRanks extends PolymerElement {
                         <th>[[t.Yth]]</th>
                         <th>[[t.Jr]]</th>
                         <th>[[t.Sr]]</th>
+                        <th>[[t.Total]]</th>
                         <th>[[t.Yth]]</th>
                         <th>[[t.Jr]]</th>
                         <th>[[t.Sr]]</th>
@@ -116,7 +117,7 @@ class ScoreMultiRanks extends PolymerElement {
                                 <div>[[l.snatchRankJr]]</div>
                             </td>
                             <td class="showRank">
-                                <div>[[l.snatchRank]]</div>
+                                <div>[[l.snatchRankSr]]</div>
                             </td>
                             <template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
                                 <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
@@ -130,7 +131,7 @@ class ScoreMultiRanks extends PolymerElement {
                                 <div>[[l.cleanJerkRankJr]]</div>
                             </td>
                             <td class="showRank">
-                                <div>[[l.cleanJerkRank]]</div>
+                                <div>[[l.cleanJerkRankSr]]</div>
                             </td>
                             <td class="narrow">[[l.total]]</td>
                             <td class="thRank">
@@ -140,7 +141,7 @@ class ScoreMultiRanks extends PolymerElement {
                                 <div>[[l.totalRankJr]]</div>
                             </td>
                             <td class="thRank">
-                                <div>[[l.totalRank]]</div>
+                                <div>[[l.totalRankSr]]</div>
                             </td>
                         </tr>
                     </template>
@@ -205,7 +206,7 @@ class ScoreMultiRanks extends PolymerElement {
                                 <div>[[l.snatchRankJr]]</div>
                             </td>
                             <td class="showRank">
-                                <div>[[l.snatchRank]]</div>
+                                <div>[[l.snatchRankSr]]</div>
                             </td>
                             <template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
                                 <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
@@ -219,7 +220,7 @@ class ScoreMultiRanks extends PolymerElement {
                                 <div>[[l.cleanJerkRankJr]]</div>
                             </td>
                             <td class="showRank">
-                                <div>[[l.cleanJerkRank]]</div>
+                                <div>[[l.cleanJerkRankSr]]</div>
                             </td>
                             <td class="narrow">[[l.total]]</td>
                             <td class="thRank">
@@ -229,7 +230,7 @@ class ScoreMultiRanks extends PolymerElement {
                                 <div>[[l.totalRankJr]]</div>
                             </td>
                             <td class="thRank">
-                                <div>[[l.totalRank]]</div>
+                                <div>[[l.totalRankSr]]</div>
                             </td>
                         </tr>
                     </template>
