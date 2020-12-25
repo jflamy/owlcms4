@@ -780,7 +780,6 @@ public class Competition {
 
     @SuppressWarnings("unchecked")
     private void sortGroupResults(List<Athlete> athletes) {
-        logger.warn("sortGroupResults");
         List<Athlete> sortedAthletes;
         List<Athlete> sortedMen = null;
         List<Athlete> sortedWomen = null;
