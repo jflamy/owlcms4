@@ -4,7 +4,7 @@ This is a standard Maven project.  If you wish, you can build the binaries from 
 
 ## Pre-requisites
 
-- Install Java 8 and the support for Maven and Git in your favorite development environment. 
+- Install Java 11 and the support for Maven and Git in your favorite development environment. 
   - Eclipse Java IDE includes the M2E and EGit plugins and works fine -- the project includes the settings file for that configuration.
   - The project uses the [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) version management process 
     - There is a [GitFlow Eclipse plugin](https://marketplace.eclipse.org/content/gitflow-nightly) that works well.
@@ -16,16 +16,15 @@ This is a standard Maven project.  If you wish, you can build the binaries from 
 
 ## Building and testing
 
-- Running ``mvn package`` inside the owlcms subdirectory should give you 
+- Running ``mvn package -P production`` inside the owlcms subdirectory should give you 
   - `target/owlcms.jar` working  uberjar (a .jar file that contains all the dependencies)
-  -  `target/owlcms.zip`
-- Running `mvn verify` will also give you an executable .exe; for this to work the build has to be on Windows, and you need [Innosetup](http://www.jrsoftware.org/isinfo.php) to be installed.
-  - if you are <u>not</u> running on Windows, you will need to disable the `windows_jdk_package` target in owlcms/pom.xml by setting the execution phase to "none" (or empty).
-  - To check the Windows installer
-    1. Uninstall previous version (open the file location of the shortcut and run uninst000.exe )
-    2. Refresh the `/owlcms/target` folder.  
-    3. Run `/owlcms/target/owlcms_setup/owlcms_setup.exe` to test the installer
+  - `target/owlcms.zip` which is used on Linux and Mac
+  
+## Building and testing the Windows installer
 
+- Running ``mvn package -P production`` inside the `owlcms-windows` subdirectory should give you a working installer.  This build to be run on a Windows machine because the installer builder is Windows-specific.
+- The installer is then found in `owlcms-windows\target\owlcms_setup\owlcms_setup.exe`
+  
 ## Preparing a release
 
 1. Cleanup GitHub issue management
@@ -34,24 +33,14 @@ This is a standard Maven project.  If you wish, you can build the binaries from 
      - close obsolete milestones,
      - click on the current milestone, click on the link for `closed` issues, check titles.
 2. Update Release Notes
-   - The file is located in `owlcms4top/ReleaseNotes.md`
+   - The file is located in `owlcms4top/src/main/markdown/ReleaseNotes.md` (the file in owlcmstop will be overwritten),
    - Close all Typora instances
-3. Refresh the `owlcms4top`  project, commit and push
+3. Refresh the `owlcms4top\src` directory, commit and push
 
 ### Automated Releasing
 
-Releases are created on [GitHub](https://help.github.com/en/articles/creating-releases).  
-The process used for managing versions is [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow).  
-A [GitFlow Maven plug-in](https://github.com/aleksandr-m/gitflow-maven-plugin) is used to reduce the number of manual steps.
+The automated build process takes place on the free tier of Azure DevOps.
+The `azure-pipelines.yml` defines the full process for building owlcms and the companion publicresults application, as well as the Heroku and Docker/Kubernetes packaging.  
 
-0. Stop all running owlcms processes
-1. Run `mvn gitflow:release-start` to create the new release branch.
-   - You should be in the `develop`  branch before starting, and have merged all the features you wish so include.
-   - This will create the new release branch, and immediately change the version numbers on `develop` to the next SNAPSHOT number.
-2. Run `mvn clean verify` to create the uberjar, the zip for Heroku/Linux/Mac and the .exe for Windows
-2. Run `mvn gitflow:release-finish`
-   - This does the merge of the release branch into`master` and back into `develop`
-   - This creates the GitHub release
-3. Move the tag to just after the merge into develop
 
 

@@ -136,8 +136,19 @@ public class Athlete {
 
             dest.setForcedAsCurrent(src.getForcedAsCurrent());
 
+            dest.setSnatchRankYth(src.getSnatchRank());
+            dest.setSnatchRankJr(src.getSnatchRank());
+            dest.setSnatchRankSr(src.getSnatchRank());
             dest.setSnatchRank(src.getSnatchRank());
+
+            dest.setCleanJerkRankYth(src.getCleanJerkRank());
+            dest.setCleanJerkRankJr(src.getCleanJerkRank());
+            dest.setCleanJerkRankSr(src.getCleanJerkRank());
             dest.setCleanJerkRank(src.getCleanJerkRank());
+
+            dest.setTotalRankYth(src.getTotalRank());
+            dest.setTotalRankJr(src.getTotalRank());
+            dest.setTotalRankSr(src.getTotalRank());
             dest.setTotalRank(src.getTotalRank());
         } finally {
             dest.setValidation(validation);
@@ -336,33 +347,43 @@ public class Athlete {
     private String cleanJerk3Change2;
     private String cleanJerk3ActualLift;
     private LocalDateTime cleanJerk3LiftTime;
+
     private Integer snatchRank;
+    private Integer snatchRankJr;
+    private Integer snatchRankSr;
+    private Integer snatchRankYth;
+
     private Integer cleanJerkRank;
+    private Integer cleanJerkRankJr;
+    private Integer cleanJerkRankSr;
+    private Integer cleanJerkRankYth;
+
     private Integer totalRank;
+    private Integer totalRankJr;
+    private Integer totalRankSr;
+    private Integer totalRankYth;
 
     private Integer sinclairRank;
     private Integer robiRank;
     private Integer customRank;
     private Integer snatchPoints;
-
     private Integer cleanJerkPoints;
     private Integer totalPoints; // points based on totalRank
-
     private Float sinclairPoints;
     private Integer customPoints;
+
     private Integer teamSinclairRank;
     private Integer teamRobiRank;
+
     private Integer teamSnatchRank;
     private Integer teamCleanJerkRank;
-
     private Integer teamTotalRank;
     private Integer teamCombinedRank;
+
     private Integer qualifyingTotal = 0;
     private Double customScore;
-
     @Column(columnDefinition = "boolean default true")
     private boolean eligibleForIndividualRanking = true;
-
     @Column(columnDefinition = "boolean default true")
     private boolean eligibleForTeamRanking = true;
 
@@ -371,14 +392,11 @@ public class Athlete {
      */
     @Transient
     Integer liftOrderRank = 0;
-
     /** The forced as current. */
     @Transient
     boolean forcedAsCurrent = false;
-
     @Transient
     private boolean validation = true;
-
     @Transient
     DecimalFormat df = null;
 
@@ -386,9 +404,9 @@ public class Athlete {
      * body weight inferred from category, used until real bodyweight is known.
      */
     private Double presumedBodyWeight;
-
     @Column(columnDefinition = "integer default 0")
     private int catSinclairRank;
+
     @Column(columnDefinition = "integer default 0")
     private int combinedRank;
     @Column(columnDefinition = "integer default 0")
@@ -1016,6 +1034,18 @@ public class Athlete {
      */
     public Integer getCleanJerkRank() {
         return cleanJerkRank;
+    }
+
+    public Integer getCleanJerkRankJr() {
+        return cleanJerkRankJr;
+    }
+
+    public Integer getCleanJerkRankSr() {
+        return cleanJerkRankSr;
+    }
+
+    public Integer getCleanJerkRankYth() {
+        return cleanJerkRankYth;
     }
 
     /**
@@ -1969,6 +1999,18 @@ public class Athlete {
         return snatchRank;
     }
 
+    public Integer getSnatchRankJr() {
+        return snatchRankJr;
+    }
+
+    public Integer getSnatchRankSr() {
+        return snatchRankSr;
+    }
+
+    public Integer getSnatchRankYth() {
+        return snatchRankYth;
+    }
+
     /**
      * Gets the snatch total.
      *
@@ -2100,6 +2142,18 @@ public class Athlete {
      */
     public Integer getTotalRank() {
         return totalRank;
+    }
+
+    public Integer getTotalRankJr() {
+        return totalRankJr;
+    }
+
+    public Integer getTotalRankSr() {
+        return totalRankSr;
+    }
+
+    public Integer getTotalRankYth() {
+        return totalRankYth;
     }
 
     /**
@@ -2654,15 +2708,17 @@ public class Athlete {
         this.cleanJerkRank = cleanJerkRank;
     }
 
-//	/**
-//	 * Sets the result order rank.
-//	 *
-//	 * @param resultOrderRank the result order rank
-//	 * @param rankingType     the ranking type
-//	 */
-//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-//		this.resultOrderRank = resultOrderRank;
-//	}
+    public void setCleanJerkRankJr(Integer cleanJerkRankJr) {
+        this.cleanJerkRankJr = cleanJerkRankJr;
+    }
+
+    public void setCleanJerkRankSr(Integer cleanJerkRankSr) {
+        this.cleanJerkRankSr = cleanJerkRankSr;
+    }
+
+    public void setCleanJerkRankYth(Integer cleanJerkRankYth) {
+        this.cleanJerkRankYth = cleanJerkRankYth;
+    }
 
     /**
      * Sets the club.
@@ -2708,15 +2764,19 @@ public class Athlete {
         this.eligibleForIndividualRanking = eligibleForIndividualRanking;
     }
 
+//	/**
+//	 * Sets the result order rank.
+//	 *
+//	 * @param resultOrderRank the result order rank
+//	 * @param rankingType     the ranking type
+//	 */
+//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
+//		this.resultOrderRank = resultOrderRank;
+//	}
+
     public void setEligibleForTeamRanking(boolean eligibleForTeamRanking) {
         this.eligibleForTeamRanking = eligibleForTeamRanking;
     }
-
-    /*
-     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
-     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
-     * register/unregister itself.
-     */
 
     /**
      * Sets the first name.
@@ -2772,6 +2832,12 @@ public class Athlete {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+
+    /*
+     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
+     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
+     * register/unregister itself.
+     */
 
     /**
      * Sets the lift order rank.
@@ -3186,6 +3252,18 @@ public class Athlete {
         this.snatchRank = snatchRank;
     }
 
+    public void setSnatchRankJr(Integer snatchRankJr) {
+        this.snatchRankJr = snatchRankJr;
+    }
+
+    public void setSnatchRankSr(Integer snatchRankSr) {
+        this.snatchRankSr = snatchRankSr;
+    }
+
+    public void setSnatchRankYth(Integer snatchRankYth) {
+        this.snatchRankYth = snatchRankYth;
+    }
+
     /**
      * Sets the start number.
      *
@@ -3282,6 +3360,18 @@ public class Athlete {
      */
     public void setTotalRank(Integer totalRank) {
         this.totalRank = totalRank;
+    }
+
+    public void setTotalRankJr(Integer totalRankJr) {
+        this.totalRankJr = totalRankJr;
+    }
+
+    public void setTotalRankSr(Integer totalRankSr) {
+        this.totalRankSr = totalRankSr;
+    }
+
+    public void setTotalRankYth(Integer totalRankYth) {
+        this.totalRankYth = totalRankYth;
     }
 
     public void setValidation(boolean b) {
