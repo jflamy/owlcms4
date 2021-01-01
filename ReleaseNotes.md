@@ -1,6 +1,6 @@
-* Changes for release 4.13.0-alpha00  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.13.0-rc01  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] Improvement: New scoreboard with multiple IWF age group rankings (Youth, Junior, Senior).  Final package spreadsheets also have the three rankings. (#372)
+  - [x] Improvement: New scoreboard with multiple IWF age group rankings (Youth, Junior, Senior).  Final package also includes the three rankings. (#372)
 * Key Highlights from recent stable releases
 
    - [x] Improvement: Armenian translation finalized, missing translation strings on Excel spreadsheets fixed, thanks to Ara Martirosyan
