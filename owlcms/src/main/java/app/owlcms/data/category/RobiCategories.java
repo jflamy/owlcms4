@@ -19,6 +19,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.agegroup.AgeGroupDefinitionReader;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.utils.LoggerUtils;
@@ -111,7 +112,7 @@ public class RobiCategories {
         String localizedName = "/config/AgeGroups.xlsx";
         InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
-            Map<String, Category> referenceCategoryMap = AgeGroupRepository.createCategoryTemplates(workbook);
+            Map<String, Category> referenceCategoryMap = AgeGroupDefinitionReader.createCategoryTemplates(workbook);
             // get the IWF categories, sorted.
             jrSrReferenceCategories = referenceCategoryMap.values()
                     .stream()
@@ -140,7 +141,7 @@ public class RobiCategories {
         String localizedName = "/config/AgeGroups.xlsx";
         InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
-            Map<String, Category> referenceCategoryMap = AgeGroupRepository.createCategoryTemplates(workbook);
+            Map<String, Category> referenceCategoryMap = AgeGroupDefinitionReader.createCategoryTemplates(workbook);
             // get the IWF categories, sorted.
             ythReferenceCategories = referenceCategoryMap.values()
                     .stream()

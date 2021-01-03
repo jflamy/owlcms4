@@ -33,9 +33,10 @@ import ch.qos.logback.classic.Logger;
 /**
  * Contains information regarding each competition category.
  *
- * A category is the combination of an age group and a weight class.
+ * A category is the combination of an age range (AgeGroup), a gender, and a bodyweight range.
  *
- * Categories also define information for the computation of Robi points
+ * Category currently include record information for the computation of Robi points.
+ * Category links to its associated records.
  *
  * Robi = * A x (total)^b where b = log(10)/log(2)
  *
@@ -83,6 +84,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     private Integer wrYth;
 
+    // combines age group and bw category (which includes gender).
     private String code;
 
     /**
