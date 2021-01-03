@@ -36,6 +36,12 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
+/**
+ * An AgeGroup designates an age range and the associated bodyweight categories, for a given gender.
+ * 
+ * @author Jean-François Lamy
+ *
+ */
 @Entity
 @Cacheable
 public class AgeGroup implements Comparable<AgeGroup>, Serializable {
@@ -68,7 +74,9 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         return ageGroupEquals;
     }
 
+    @Transient
     Logger logger = (Logger) LoggerFactory.getLogger(AgeGroup.class);
+    
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
