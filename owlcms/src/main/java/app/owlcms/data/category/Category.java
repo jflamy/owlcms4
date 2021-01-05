@@ -46,6 +46,8 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
+
+//must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 @Cacheable
 public class Category implements Serializable, Comparable<Category>, Cloneable {

@@ -42,6 +42,8 @@ import ch.qos.logback.classic.Logger;
  * @author Jean-François Lamy
  *
  */
+
+// must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 @Cacheable
 public class AgeGroup implements Comparable<AgeGroup>, Serializable {

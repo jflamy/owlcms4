@@ -27,6 +27,8 @@ import ch.qos.logback.classic.Logger;
  * @author jflamy
  * @since
  */
+
+//must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 public class AthleteSorter implements Serializable {
 

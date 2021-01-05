@@ -34,6 +34,8 @@ import ch.qos.logback.classic.Logger;
 /**
  * The Class Group.
  */
+
+//must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity(name = "CompetitionGroup")
 @Cacheable
 public class Group implements Comparable<Group> {
