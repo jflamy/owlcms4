@@ -1,105 +1,171 @@
 package app.owlcms.data.record;
 
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.function.Predicate;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
-import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
+import ch.qos.logback.classic.Logger;
 
+/**
+ * Read lifted weight records from an Excel file.
+ * 
+ * Competition records for snatch, clean&jerk and total are read.  All available tabs are scanned.
+ * Reading stops at first empty line.
+ * Header line is skipped.
+ * 
+ * @author Jean-François Lamy
+ *
+ */
 public class RecordDefinitionReader {
 
-    static void createRecords(Workbook workbook, Map<String, Category> templates,
-            EnumSet<AgeDivision> ageDivisionOverride,
+    private final static Logger logger = (Logger) LoggerFactory.getLogger(RecordDefinitionReader.class);
+
+    public static int createRecords(Workbook workbook, EnumSet<AgeDivision> ageDivisionOverride,
             String localizedName) {
-    
-        JPAService.runInTransaction(em -> {
-            Sheet sheet = workbook.getSheetAt(1);
-            Iterator<Row> rowIterator = sheet.rowIterator();
-            int iRow = 0;
-            while (rowIterator.hasNext()) {
-                int iColumn = 0;
-                Row row;
-                if (iRow == 0) {
-                    // process header
-                    row = rowIterator.next();
-                }
-                row = rowIterator.next();
-    
-                AgeGroup ag = new AgeGroup();
-    
-                Iterator<Cell> cellIterator = row.cellIterator();
-                while (cellIterator.hasNext()) {
-                    Cell cell = cellIterator.next();
-                    switch (iColumn) {
-                    case 0: {
-                        String cellValue = cell.getStringCellValue();
-                        String trim = cellValue.trim();
-                        ag.setCode(trim);
+
+        return JPAService.runInTransaction(em -> {
+            @SuppressWarnings("unused")
+            int iSheet = 0;
+            int iRecord = 0;
+
+            for (Sheet sheet : workbook) {
+                int iRow = 0;
+                
+                processsheet: for (Row row : sheet) {
+                    int iColumn = 0;
+
+                    if (iRow == 0) {
+                        iRow++;
+                        continue;
                     }
-                        break;
-                    case 1:
-                        break;
-                    case 2: {
-                        String cellValue = cell.getStringCellValue();
-                        ag.setAgeDivision(AgeDivision.getAgeDivisionFromCode(cellValue));
-                    }
-                        break;
-                    case 3: {
-                        String cellValue = cell.getStringCellValue();
-                        if (cellValue != null && !cellValue.trim().isEmpty()) {
-                            ag.setGender(cellValue.contentEquals("F") ? Gender.F : Gender.M);
+
+                    Record rec = new Record();
+
+                    for (Cell cell : row) {
+                        //System.err.println("[" + iSheet + "," + iRow + "," + iColumn + "]");
+                        switch (iColumn) {
+                        case 0: {
+                            String cellValue = cell.getStringCellValue();
+                            String trim = cellValue.trim();
+                            if (trim.isEmpty()) {
+                                break processsheet;
+                            }
+                            rec.setRecordFederation(trim);
+                            break;
                         }
+
+                        case 1: {
+                            String cellValue = cell.getStringCellValue();
+                            cellValue = cellValue != null ? cellValue.trim() : cellValue;
+                            rec.setAgeGrp(cellValue);
+                            break;
+                        }
+
+                        case 2: {
+                            String cellValue = cell.getStringCellValue();
+                            cellValue = cellValue != null ? cellValue.trim().toUpperCase() : cellValue;
+                            rec.setGender(Gender.valueOf(cellValue));
+                            break;
+                        }
+
+                        case 3: {
+                            long cellValue = Math.round(cell.getNumericCellValue());
+                            rec.setBwCatUpper(Math.toIntExact(cellValue));
+                            break;
+                        }
+
+                        case 4: {
+                            String cellValue = cell.getStringCellValue();
+                            cellValue = cellValue != null ? cellValue.trim() : cellValue;
+                            rec.setRecordKind(cellValue.substring(0, 1));
+                            break;
+                        }
+
+                        case 5: {
+                            long cellValue = Math.round(cell.getNumericCellValue());
+                            rec.setRecordValue(Math.toIntExact(cellValue));
+                            break;
+                        }
+
+                        case 6: {
+                            String cellValue = cell.getStringCellValue();
+                            cellValue = cellValue != null ? cellValue.trim() : cellValue;
+                            rec.setAthleteName(cellValue);
+                            break;
+                        }
+
+                        case 7: {
+                            long cellValue = Math.round(cell.getNumericCellValue());
+                            int intExact = Math.toIntExact(cellValue);
+                            if (cellValue < 3000) {
+                                rec.setRecordYear(intExact);
+                            } else {
+                                LocalDate epoch = LocalDate.of(1900, 1, 1);
+                                LocalDate plusDays = epoch.plusDays(intExact - 2);
+                                // Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
+                                rec.setRecordDate(plusDays);
+                            }
+                            break;
+                        }
+
+                        case 8: {
+                            String cellValue = cell.getStringCellValue();
+                            cellValue = cellValue != null ? cellValue.trim() : cellValue;
+                            rec.setNation(cellValue);
+                            break;
+                        }
+
+                        case 9: {
+                            long cellValue = Math.round(cell.getNumericCellValue());
+                            int intExact = Math.toIntExact(cellValue);
+                            if (cellValue < 3000) {
+                                rec.setRecordYear(intExact);
+                            } else {
+                                LocalDate epoch = LocalDate.of(1900, 1, 1);
+                                LocalDate plusDays = epoch.plusDays(intExact - 2);
+                                // Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
+                                rec.setRecordDate(plusDays);
+                            }
+                            break;
+                        }
+                        
+                        }
+                        
+                        iColumn++;
                     }
-                        break;
-                    case 4: {
-                        long cellValue = Math.round(cell.getNumericCellValue());
-                        ag.setMinAge(Math.toIntExact(cellValue));
+                    //System.err.println(rec);
+                    
+                    
+                    try {
+                        em.persist(rec);
+                    } catch (Exception e) {
+                        logger.error("could not persist Record {}",LoggerUtils.stackTrace(e));
                     }
-                        break;
-                    case 5: {
-                        long cellValue = Math.round(cell.getNumericCellValue());
-                        ag.setMaxAge(Math.toIntExact(cellValue));
-                    }
-                        break;
-                    case 6: {
-                        boolean explicitlyActive = cell.getBooleanCellValue();
-                        // age division is active according to spreadsheet, unless we are given an explicit
-                        // list of age divisions as override (e.g. to setup tests or demos)
-                        boolean active = ageDivisionOverride == null ? explicitlyActive
-                                : ageDivisionOverride.stream()
-                                        .anyMatch((Predicate<AgeDivision>) (ad) -> ad.equals(ag.getAgeDivision()));
-                        ag.setActive(active);
-                    }
-                        break;
-                    default:
-                        break;
-                    }
-  
-                    iColumn++;
+                    
+                    
+                    iRow++;
+                    iRecord++;
                 }
-                em.persist(ag);
-                iRow++;
+                iSheet++;
             }
             Competition comp = Competition.getCurrent();
             Competition comp2 = em.contains(comp) ? comp : em.merge(comp);
             comp2.setAgeGroupsFileName(localizedName);
-    
-            return null;
+
+            return iRecord;
         });
     }
 
@@ -108,7 +174,7 @@ public class RecordDefinitionReader {
         try (Workbook workbook = WorkbookFactory
                 .create(localizedResourceAsStream)) {
             RecordRepository.logger.info("loading configuration file {}", localizedName);
-            createRecords(workbook, null, es, localizedName);
+            createRecords(workbook, es, localizedName);
             workbook.close();
         } catch (Exception e) {
             RecordRepository.logger.error("could not process ageGroup configuration\n{}", LoggerUtils.stackTrace(e));
