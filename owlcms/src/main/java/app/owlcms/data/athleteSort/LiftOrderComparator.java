@@ -63,6 +63,7 @@ public class LiftOrderComparator extends AbstractLifterComparator implements Com
             return compare;
         }
 
+        // if round-robin, attempts done has already been taken into account above so skip.
         if (!Competition.getCurrent().isRoundRobinOrder()) {
             compare = compareAttemptsDone(lifter1, lifter2);
             if (compare != 0) {
