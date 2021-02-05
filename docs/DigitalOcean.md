@@ -10,7 +10,7 @@ The recipe allows you to create a setup in the cloud that you can create in a fe
 
 We suggest that you install [mobaxterm](https://mobaxterm.mobatek.net/) or [putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)
 
-## Create a Digital Ocean Droplet
+## Create a Digital Ocean Host
 
 Digital Ocean (DO) is a cloud provider where you can create your own server.  Even though DO provides pre-built Kubernetes clusters, our case is very simple because we only need one machine.  In such cases DO suggests installing a simple setup ourselves on a machine.  DO calls their machines "droplets".  We will be installing the k3s distribution on a Digital Ocean Droplet.
 
@@ -18,12 +18,12 @@ Digital Ocean (DO) is a cloud provider where you can create your own server.  Ev
 2. Create a Droplet: 
     1. Select Ubuntu 20.04 as the operating system
     2. Start with the **Basic** plan (1GB RAM + 25GB SSD image).  We will resize it in an upcoming step. The disk size is large enough and gives us the opportunity to increase memory, number of CPUs, or both. 
-    3. Copy the internet address for the machine (4 numbers separated by dots)
+    3. If you use the "password" option, make sure that your password is very long.  A phrase of 12 characters or more is recommended.  Something like "IReallyLikeGymNoise!". For a more secure alternative go to the [SSL Instructions](#Using-SSL) bottom of this page for instructions and come back here.
+    4. Copy the internet address for the machine (4 numbers separated by dots)
         ![droplet_ip](img/K3S/droplet_ip.png)
 3. Configure ssh access to the machine
     1. start `mobaxterm` and use the Sessions/New Session menu to create an SSH session.
-    2. Provide the information to reach your machine (the numerical address that you should use is shown.![ssh_config](img/K3S/ssh_config.png)
-    3. 
+    2. Provide the information to reach your machine (the numerical address that you should use is shown.  If you are using a private key, give it inside the "Advanced SSH settings" on the same screen.![ssh_config](img/K3S/ssh_config.png)
 4. Check access and prepare for resizing
     1. login to the machine by double-clicking on the session you just defined
     2. type the `poweroff` command to make the machine 
@@ -36,11 +36,11 @@ Modern web applications use the https protocol to protect privacy.  Not using th
 
 #### Alternative 1: You own a DNS domain
 
-If so, go to your DNS provider and configure *two* IP addresses.
+If so, go to your DNS provider and configure records to reach the new host. There are two options
 
 - Create a wildcard A record using the droplet IP address (the same as used above) for the name you want for the main owlcms application that the officials will use.   For example, in my `jflamy.dev` domain I created an entry for `*.owlcms` that points to the142.93.x.y address of my droplet.
   So I can use https://officials.owlcms.jflamy.dev  and https://results.owlcms.jflamy.dev and they will both be sent to the droplet (or any other name -- the kubernetes configuration we will do later will decide what is actually expected)
-- You don't necessarily need to use two levels.  I could also have created separate A records under the top level for the two names (results and officials in my example)
+- Create two separate A records under the top level for the two names (results and officials in my example)
 
 #### Alternative 2: You do not own a DNS domain
 
@@ -51,33 +51,43 @@ There are several .free services that are typically used to give a name to home 
 - Add the domain you want to use.  By default a wildcard will be added, so in the following example, "officials.owlcms.mywire.org" will work
   ![dynu_ddns](img/K3S/dynu_ddns.png)
 
+- You can also create two records, one for the application used by the officials, the other used for the results.
+
 ## Install Kubernetes
 
-Log in to the droplet using ssh as configured earlier.
+Log in to the host using `ssh` as configured earlier.
 
-1. We install `k3s` which is a lightweight implementation of Kubernetes that is conveniently packaged as a single executable.    We disable one of the modules, which we will substitute in the next step.
+1. We install `k3s` which is a lightweight implementation of Kubernetes that is conveniently packaged as a single executable.    We disable one of the modules, which we will substitute in the next step.  Move your mouse over the text a
 
 ```bash
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable traefik" sh 
 ```
 
-2. We use the more common `nginx` to control what URL will go to what application.
+2. We add the `nginx` ingress module to control what URL will go to what application.
 
 ```
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.43.0/deploy/static/provider/baremetal/deploy.yaml
 ```
 
-3. We add the module that will automatically generate certificates for the names we select.
+3. We add the module that will automatically generate https certificates for the names we select.
 
 ```bash
 kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.1.0/cert-manager.yaml
 ```
 
+> Note that if you see warnings or are otherwise unsure, you can repeat steps 2 and 3 without harm.  Sometimes (seldom) step 3 runs into delays and needs to be repeated.
+>
+> If you wish to start over, you can uninstall k3s using this command and then go back to step 1.
+>
+> ```
+> k3s-uninstall.sh
+> ```
+
 ## Owlcms Install
 
 #### Install owlcms
 
-1. First we select names.  Type the following two lines, <u>but with the actual names you want</u>.  The names must match what you picked as a wildcard address in your DNS.  If your wildcard is *.heavy.mygym.com then your addresses must end with heavy.mygym.com
+1. First we define our names.  Type the following two lines, <u>but with the actual names you want</u>.  The names must match what you picked as a wildcard address in your DNS.  If your wildcard is *.heavy.mygym.com then your addresses must end with heavy.mygym.com
 
 ```
 export OFFICIALS=officials.owlcms.mywire.org
@@ -89,12 +99,23 @@ export RESULTS=results.owlcms.mywire.org
 curl -sfL https://github.com/owlcms/owlcms4/releases/download/4.13.0/k3s_setup.yaml | envsubst | kubectl apply -f - 
 ```
 
-#### Install Lens
+## Using SSL
 
-Create a `.kube` directory in you home directory (%HOMEDIR%%HOMEPATH%)
+For additional protection, you should use SSL to protect the host.
 
-Move the file just downloaded there
+1. In MobaXterm, use the Tools/MobaKeyGen tool to generate a key pair (or PuttyGen if you installed Putty)
+2. Save the private key file (.ppk) in a private area
+3. Copy the public key that is displayed to the clipboard
+4. When creating a Droplet, select the option to use an ssh key.  Create the key by pasting the public key from the key generation tool.  If you have previously created a key you can reuse it.
 
-Download and install lens from [Lens | The Kubernetes IDE (k8slens.dev)](https://k8slens.dev/)
+## Install Lens as Kubernetes Management Tool
 
-Create a cluster definition using the + at the left and select the configuration file.
+1. Go to Digital Ocean and edit the Networking/Firewall settings
+2. Add a Custom rule that allows port 6443 from your home address (type "my ip" in the search bar of Chrome to get it)
+3. Create a `.kube` directory in you home directory (%HOMEDIR%%HOMEPATH%)
+4. Using your SSL session in MobaXterm, use the Sftp tab at the left of your session to locate /etc/rancher/k3s
+5. Use the download button at the top of the Sftp tab to copy the file in the .kube directory
+
+6. Download and install lens from [Lens | The Kubernetes IDE (k8slens.dev)](https://k8slens.dev/)
+
+7. Create a cluster definition using the + at the left and select the configuration file.
