@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: owlcms
+  namespace: default
+  labels:
+    app: owlcms
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  tls:
+    - hosts:
+        - officials.owlcms.jflamy.dev
+      secretName: owlcms-ingress
+  rules:
+    - host: officials.owlcms.jflamy.dev
+      http:
+        paths:
+          - backend:
+              serviceName: owlcms-8080
+              servicePort: 8080
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: publicresults
+  namespace: default
+  labels:
+    app: publicresults
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  tls:
+    - hosts:
+        - results.owlcms.jflamy.dev
+      secretName: publicresults-ingress
+  rules:
+    - host: results.owlcms.jflamy.dev
+      http:
+        paths:
+          - backend:
+              serviceName: publicresults-8080
+              servicePort: 8080
