@@ -26,7 +26,7 @@
         <!-- this value is used only for local mvn invocations, 
             the Azure build pipeline overrides with -Drevision - see azure-pipelines.yml 
             the Azure build updates this value on a build, for convenience. -->   
-        <revision>4.14.0-SNAPSHOT</revision>
+        <revision>4.14.0-alpha00</revision>
 
         <!-- maven configs -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -54,20 +54,20 @@
             </snapshots>
         </repository>
         <repository>
-            <id>bintray-owlcms-maven</id>
-            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
-            <name>bintray</name>
+            <id>owlcms-maven-repo</id>
+            <url>http://maven.owlcms.mywire.org:8088/releases</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-        <repository>
+        
+        <!-- repository>
             <id>Vaadin Prereleases</id>
             <url>https://maven.vaadin.com/vaadin-prereleases/</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
-        </repository>
+        </repository  -->
     </repositories>
 
     <pluginRepositories>
@@ -75,14 +75,6 @@
         <pluginRepository>
             <id>central</id>
             <url>https://repo.maven.apache.org/maven2</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>bintray-owlcms-maven</id>
-            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
-            <name>bintray</name>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -159,12 +151,12 @@
         </dependencies>
     </dependencyManagement>
 
-
+    <!-- note that you must use mvn command line to deploy, does not work with embedded eclipse maven -->
+    <!-- for example: mvn -s c:\Dev\.m2\settings.xml -Dmaven.test.skip=true deploy -->
     <distributionManagement>
         <repository>
-            <id>bintray-owlcms-maven</id>
-            <name>owlcms-owlcms-maven</name>
-            <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
+            <id>owlcms-maven-repo</id>
+            <url>http://maven.owlcms.mywire.org:8088/releases</url>
         </repository>
     </distributionManagement>
 

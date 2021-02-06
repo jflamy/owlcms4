@@ -12,14 +12,6 @@
     <version>${revision}</version>
     <packaging>jar</packaging>
 
-    <distributionManagement>
-        <repository>
-            <id>bintray-owlcms-maven</id>
-            <name>owlcms-maven</name>
-            <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
-        </repository>
-    </distributionManagement>
-
     <dependencies>
         <dependency>
             <groupId>com.vaadin</groupId>
@@ -448,8 +440,8 @@
                                 </goals>
                                 <configuration>
                                     <file>target/${project.artifactId}-${project.version}.jar</file>
-                                    <repositoryId>bintray-owlcms-maven</repositoryId>
-                                    <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
+                                    <repositoryId>owlcms-maven-repo</repositoryId>
+                                    <url>http://maven.owlcms.mywire.org:8088/releases</url>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>${project.artifactId}</artifactId>
                                     <version>${project.version}</version>
