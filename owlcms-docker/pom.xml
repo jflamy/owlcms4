@@ -130,7 +130,7 @@
                                     <arg>app.owlcms.Main</arg>
                                 </entryPoint>
                             </build>
-                            <registry>owlcms-docker-containers.bintray.io</registry>
+                            <registry>docker.io/owlcms</registry>
                         </image>
                         <image>
                             <name>publicresults:${project.version}</name>
@@ -153,7 +153,7 @@
                                     <arg>app.owlcms.publicresults.Main</arg>
                                 </entryPoint>
                             </build>
-                            <registry>owlcms-docker-containers.bintray.io</registry>
+                            <registry>docker.io/owlcms</registry>
                         </image>
                     </images>
                 </configuration>
