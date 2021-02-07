@@ -8,7 +8,7 @@ The application can be used for anything from a club meet using a single laptop 
 
 Several options are available for installation, depending on your needs. See the [Installation Overview](InstallationOverview) page for diagrams and a discussion of the following options:
   * Stand-alone installs are available for [Windows](LocalWindowsSetup), [Linux](LocalLinuxMacSetup) or [Mac](LocalLinuxMacSetup).  These can be used when the competition site has no internet access, but require more equipment.
-  * Cloud installs for [Heroku](Cloud) (simple, free, recommended) or [Kubernetes](https://github.com/owlcms/owlcms4/releases/download/4.13.0/k8s.zip) (advanced).  An internet connection is required at the competition site, but less equipment is required and setup is simpler.
+  * Cloud installs for [Heroku](Cloud) (simple, free, recommended) or [Kubernetes](https://github.com/jflamy-dev/owlcms4-prerelease/releases/download/4.14.0-alpha00/k8s.zip) (advanced).  An internet connection is required at the competition site, but less equipment is required and setup is simpler.
 
 The [Equipment Setup](EquipmentSetup) page provides more technical details on the recommended physical setup.
 
