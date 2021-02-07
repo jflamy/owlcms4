@@ -48,8 +48,10 @@ The following pages describe these options and others.
 *	[Virtual Competitions and Remote Referees](Virtual)
 *	[Video-Conference Setup](Video)
 
-### Advanced: Kubernetes
+## Alternative: Kubernetes Cloud Hosting
 
-If you wish to run owlcms on your own cloud subscription and are familiar with modern cloud technologies,  you can use the following archive as a starting point. Kubernetes is supported on all the major cloud offerings (Azure, Amazon, Google Cloud) and there are also smaller players that offer simpler Kubernetes-oriented hosting (kubesail.com for example)
+As an alternative to using two Heroku applications, you can use a cloud technology called Kubernetes to create your own setup.  Even though the following uses a paid setup, you can still run a competition for less than 10$. And you get the added benefit that if your run a larger competition, you can increase the memory available.  If you want to run a large national competition with remote gyms, this is probably a better option.
 
-- [Kubernetes](Kubernetes)
+- [Kubernetes on Digital Ocean Cloud](DigitalOcean)
+
+If you have access to another kind of Kubernetes setup, you can still use the instructions in that page for installing nginx, cert-manager, and owlcms.
