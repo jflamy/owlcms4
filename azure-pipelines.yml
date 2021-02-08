@@ -99,10 +99,9 @@ jobs:
           publishJUnitResults: false
           goals: deploy $(MavenOpts)
         env:
-          # used by maven for substitutions in release notes and URLs
-          DOCKER_REGISTRY: $(DOCKER_REGISTRY)
+          DOCKER_REG: $(DOCKER_REG)
           DOCKER_USER: $(DOCKER_USER)
-          DOCKER_PASSWORD: $(DOCKER_PASSWORD)
+          DOCKER_TOKEN: $(DOCKER_TOKEN)
       - task: Maven@3
         displayName: Pre-process Release Notes
         inputs:
@@ -111,8 +110,7 @@ jobs:
           javaHomeOption: JDKVersion
           jdkVersionOption: '1.11'
           jdkArchitectureOption: x64
-          publishJUnitResults: true
-          testResultsFiles: "**/surefire-reports/TEST-*.xml"
+          publishJUnitResults: false
           goals: package $(MavenOpts) --non-recursive -Dmaven.test.skip=true
         env:
           # used by maven for substitutions in release notes and URLs

@@ -42,11 +42,10 @@ jobs:
           jdkVersionOption: '1.11'
           jdkArchitectureOption: x64
           publishJUnitResults: false
-          goals: deploy $(MavenOpts) -X
+          goals: deploy $(MavenOpts)
         env:
           DOCKER_REG: $(DOCKER_REG)
           DOCKER_USER: $(DOCKER_USER)
-          DOCKER_PASSWORD: $(DOCKER_PASSWORD)
           DOCKER_TOKEN: $(DOCKER_TOKEN)
 
         
