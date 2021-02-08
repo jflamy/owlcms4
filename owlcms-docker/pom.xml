@@ -108,7 +108,6 @@
                     <skipRun>true</skipRun>
                     <skipBuild>${yamlOnly}</skipBuild>
                     <skipPush>${yamlOnly}</skipPush>
-                    <!-- normally, docker.io/${DOCKER_USER} -->
                     <authConfig>
                         <push>
                             <username>${env.DOCKER_USER}</username>
@@ -117,13 +116,13 @@
                     </authConfig>
                     <images>
                         <image>
-                            <name>${DOCKER_REGISTRY}/owlcms:${project.version}</name>
+                            <name>${DOCKER_REG}/owlcms:${project.version}</name>
                             <build>
                                 <tags>
                                     <tag>latest</tag>
                                     <!-- tag>${dockerTag}</tag -->
                                 </tags>
-                                <from>docker.io/adoptopenjdk:11-jre-openj9</from>
+                                <from>adoptopenjdk:11-jre-openj9</from>
                                 <assembly>
                                     <descriptor>owlcms.xml</descriptor>
                                 </assembly>
@@ -139,7 +138,7 @@
                             </build>
                         </image>
                         <image>
-                            <name>${DOCKER_REGISTRY}/publicresults:${project.version}</name>
+                            <name>${DOCKER_REG}/publicresults:${project.version}</name>
                             <build>
                                 <tags>
                                     <tag>latest</tag>
