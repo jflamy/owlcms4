@@ -123,7 +123,7 @@
                                     <tag>latest</tag>
                                     <!-- tag>${dockerTag}</tag -->
                                 </tags>
-                                <from>adoptopenjdk:11-jre-openj9</from>
+                                <from>docker.io/adoptopenjdk:11-jre-openj9</from>
                                 <assembly>
                                     <descriptor>owlcms.xml</descriptor>
                                 </assembly>
@@ -145,7 +145,7 @@
                                     <tag>latest</tag>
                                     <!-- tag>${dockerTag}</tag -->
                                 </tags>
-                                <from>adoptopenjdk:11-jre-openj9</from>
+                                <from>docker.io/adoptopenjdk:11-jre-openj9</from>
                                 <assembly>
                                     <descriptor>publicresults.xml</descriptor>
                                 </assembly>
