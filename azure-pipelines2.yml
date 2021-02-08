@@ -1,0 +1,57 @@
+trigger:
+  - none
+
+parameters:
+  - name: Revision
+    type: string
+    default: 4.14.0-alpha07
+  - name: BuildPublicResults
+    type: string
+    default: 'true'
+
+variables:
+  # overrides pom.xml; must be unique if BuildGoal is set to deploy.
+  - name: Revision
+    value: ${{ parameters.Revision }}
+  # if BuildGoal = 'deploy', the uberjars will be published on bintray.  'package' does not deploy
+  # to bintray, so Revision can be kept for several runs when debugging the installers.
+  - name: BuildGoal
+    value: deploy
+  # ReleaseRepoCredentials contains github users and tokens
+  - group: ReleaseRepoCredentials
+  - template: src/main/azure-pipelines/variables-releaseRepoCredentials.yml
+  - name: MavenCacheFolder
+    value: $(Pipeline.Workspace)/.m2/repository
+  - name: MavenOpts
+    value: -Dmaven.repo.local=$(MavenCacheFolder) -Drevision=$(Revision)
+
+jobs:
+  # release the installers to github repositories
+  - job: ReleaseInstallers
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - template: src/main/azure-pipelines/steps-prepare-maven.yml
+      - task: Docker@2
+        displayName: Login to Docker Registry
+        inputs:
+          command: login
+          containerRegistry: docker.io
+      - script: ls -la
+      - task: Maven@3
+        displayName: Build and Push Docker Images
+        inputs:
+          mavenPomFile: owlcms-docker/pom.xml
+          mavenOptions: -Xmx3072m $(MavenOpts)
+          javaHomeOption: JDKVersion
+          jdkVersionOption: '1.11'
+          jdkArchitectureOption: x64
+          publishJUnitResults: false
+          goals: deploy $(MavenOpts) -X
+        env:
+          # used by maven for substitutions in release notes and URLs
+          DOCKER_REPO: $(DOCKER_REPO)
+          DOCKER_USER: $(DOCKER_USER)
+          DOCKER_TOKEN: $(DOCKER_TOKEN)
+
+        
