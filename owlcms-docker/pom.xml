@@ -108,6 +108,13 @@
                     <skipRun>true</skipRun>
                     <skipBuild>${yamlOnly}</skipBuild>
                     <skipPush>${yamlOnly}</skipPush>
+                    <registry>${env.DOCKER_REGISTRY}</registry>
+                    <authConfig>
+                      <push>
+                         <username>${env.DOCKER_LOGIN}</username>
+                         <password>${env.DOCKER_TOKEN}</password>
+                      </push>
+                    </authConfig>
                     <images>
                         <image>
                             <name>owlcms/owlcms:${project.version}</name>
@@ -129,11 +136,10 @@
                                     <arg>maven/classes:/maven/owlcms-${project.version}.jar</arg>
                                     <arg>app.owlcms.Main</arg>
                                 </entryPoint>
-                            </build>
-                            <registry>docker.io</registry>
+                            </build>             
                         </image>
                         <image>
-                            <name>owlcms/publicresults:${project.version}</name>
+                            <name>publicresults:${project.version}</name>
                             <build>
                                 <tags>
                                     <tag>latest</tag>
@@ -151,9 +157,8 @@
                                     <arg>-cp</arg>
                                     <arg>maven/classes:/maven/publicresults-${project.version}.jar</arg>
                                     <arg>app.owlcms.publicresults.Main</arg>
-                                </entryPoint>
+                                </entryPoint>O
                             </build>
-                            <registry>docker.io</registry>
                         </image>
                     </images>
                 </configuration>

@@ -100,10 +100,9 @@ jobs:
           goals: deploy $(MavenOpts)
         env:
           # used by maven for substitutions in release notes and URLs
-          REPO_OWNER: $(RELEASE_USER)
-          H_REPO_NAME: owlcms-heroku$(RELEASE_SUFFIX)
-          P_REPO_NAME: publicresults-heroku$(RELEASE_SUFFIX)
-          O_REPO_NAME: owlcms4$(RELEASE_SUFFIX)      
+          DOCKER_REPO: $(DOCKER_REPO)
+          DOCKER_USER: $(DOCKER_USER)
+          DOCKER_TOKEN: $(DOCKER_TOKEN)
       - task: Maven@3
         displayName: Pre-process Release Notes
         inputs:
