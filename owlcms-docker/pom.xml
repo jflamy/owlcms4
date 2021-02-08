@@ -111,7 +111,7 @@
                     <authConfig>
                         <push>
                             <username>${env.DOCKER_USER}</username>
-                            <password>${env.DOCKER_PASSWORD}</password>
+                            <password>${env.DOCKER_TOKEN}</password>
                         </push>
                     </authConfig>
                     <images>
