@@ -117,7 +117,7 @@
                     </authConfig>
                     <images>
                         <image>
-                            <name>${env.DOCKER_REGISTRY}/owlcms/owlcms:${project.version}</name>
+                            <name>owlcms/owlcms:${project.version}</name>
                             <build>
                                 <tags>
                                     <tag>latest</tag>
@@ -139,7 +139,7 @@
                             </build>
                         </image>
                         <image>
-                            <name>${env.DOCKER_REGISTRY}/publicresults/publicresults:${project.version}</name>
+                            <name>owlcms/publicresults:${project.version}</name>
                             <build>
                                 <tags>
                                     <tag>latest</tag>
