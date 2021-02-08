@@ -5,9 +5,9 @@ bases:
 - ../../base
 
 images:
-- name: owlcms-docker-containers.bintray.io/owlcms
+- name: ${owlcms-docker}/owlcms
   newTag: "{{OWLCMS_VERSION}}"
-- name: owlcms-docker-containers.bintray.io/publicresults 
+- name: ${owlcms-docker}/publicresults 
   newTag: "{{PUBLICRESULTS_VERSION}}"
   
 resources:

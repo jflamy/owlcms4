@@ -4,10 +4,10 @@ bases:
 - ../../base
 
 images:
-- name: owlcms-docker-containers.bintray.io/owlcms
+- name: ${owlcms-docker}/owlcms
   newName: owlcms
   newTag: ${project.version}
-- name: owlcms-docker-containers.bintray.io/publicresults
+- name: ${owlcms-docker}/publicresults
   newName: publicresults
   newTag: ${project.version}
 

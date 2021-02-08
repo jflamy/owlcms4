@@ -23,10 +23,11 @@
     </organization>
 
     <properties>
-        <!-- this value is used only for local mvn invocations, 
-            the Azure build pipeline overrides with -Drevision - see azure-pipelines.yml 
-            the Azure build updates this value on a build, for convenience. -->   
+        <!-- revision is overridden by azure-pipelines.yml for the official builds. this value is only used for local development -->
         <revision>4.14.0-alpha00</revision>
+        <owlcms-maven-url>http://maven.owlcms.mywire.org:8088</owlcms-maven-url>
+        <owlcms-maven-suffix>/releases</owlcms-maven-suffix><!-- /snapshots if revision is -SNAPSHOT -->
+        <owlcms-docker>docker.io/owlcms</owlcms-docker>
 
         <!-- maven configs -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -55,19 +56,11 @@
         </repository>
         <repository>
             <id>owlcms-maven-repo</id>
-            <url>http://maven.owlcms.mywire.org:8088/releases</url>
+            <url>${owlcms-maven-url}${owlcms-maven-suffix}</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-        
-        <!-- repository>
-            <id>Vaadin Prereleases</id>
-            <url>https://maven.vaadin.com/vaadin-prereleases/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository  -->
     </repositories>
 
     <pluginRepositories>
@@ -211,23 +204,6 @@
         </pluginManagement>
 
         <plugins>
-            <!-- plugin>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <directory>docs</directory>
-                            <includes>
-                                <include>Cloud.md</include>
-                                <include>LocalLinuxMacSetup.md</include>
-                                <include>LocalWindowsSetup.md</include>
-                            </includes>
-                            <followSymlinks>false</followSymlinks>
-                        </fileset>
-                    </filesets>
-                </configuration>
-            </plugin -->
             <plugin>
                 <!-- this ensures that ${revision} is substituted in the installed/deployed jars -->
                 <groupId>org.codehaus.mojo</groupId>
@@ -273,6 +249,8 @@
                                     <directory>src/main/markdown</directory>
                                     <filtering>true</filtering>
                                 </resource>
+                                <!-- resource> <directory>src/main/azure-pipelines</directory> <include>azure-pipelines.yml</include> <filtering>true</filtering> 
+                                    </resource> -->
                             </resources>
                         </configuration>
                     </execution>
