@@ -1,3 +1,4 @@
+name: docker_push
 trigger:
   - none
 
