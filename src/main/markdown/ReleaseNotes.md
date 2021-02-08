@@ -1,22 +1,24 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] Improvement: New scoreboard with multiple IWF age group rankings (Youth, Junior, Senior).  Final package also includes the three rankings. (#372)
+  - [x] Internal changes: moving away from sunsetting bintray.com and from kubesail as Kubernetes hosting.  Using self-hosted maven directory and recipe for self-hosting Kubernetes.
+  
 * Key Highlights from recent stable releases
 
-   - [x] Improvement: Armenian translation finalized, missing translation strings on Excel spreadsheets fixed, thanks to Ara Martirosyan
-   - [x] Fix: Team sizes selected on the Competition Information screen were not used on the Final Package team scoring sheets.  If not set, the IWF default team size of 10 is used on the spreadsheets. (#395) 
-   - [x] Fix: Default templates for Group Results and Final Package pages were not pre-selected (#396).
-   - [x] Fix: Changing the language setting on the competition information page now takes effect immediately on page refresh, and is now correctly propagated to publicresults on the next announcer or decision event (#393)
-   - [x] Fix: No more Invalid Email message for Federation Email when the database is empty (#398)
-   - [x] Improvement: Revised Spanish translations for Spain and Latin America variants (El Salvador, Ecuador).
-   - [x] Fix: on Heroku, errors could happen when reloading pages that are tied to a platform (display selection, scoreboards, referees, jury, etc. )  The page reload would occur before the database was fully initialized.
-   - [x] Improvement: the publicresults application opens directly to the platform screen if there is only one platform.  Buttons to select the platform are only shown if more than one platform is defined.
-   - [x] Fix: publicresults application follows the OWLCMS_LOCALE environment variable, including on "waiting" screens.
-   - [x] Translation: Excel files for registration, athlete cards, starting weights, group results and final package are now generated using the translation file for the current language (#273)
-   - [x] German, French, English, Ukrainian translations were updated for Excel templates
-   - [x] Enhancement: Competition group schedule and officials now produced as part of the final results package (#382)
-   - [x] Enhancement: groups can be defined using the registration spreadsheet.  Athletes, Platforms and Groups are now updated according to the spreadsheet, replacing prior content as needed. (#374)  Also, the athlete registration spreadsheet upload accepts birth dates in the current language and country format in addition to ISO 8601 yyyy-MM-dd format. (#380).  Error messages are now localized.
-   - [x] Technical: sample Kubernetes deployment files in the owlcms-docker subproject now deploy both owlcms and publicresults working together (see owlcms-docker/src/main/assembly/k8s to use as starting point)
+   * [x] Improvement: New scoreboard with multiple IWF age group rankings (Youth, Junior, Senior).  Final package also includes the three rankings. (#372)
+   * [x] Improvement: Armenian translation finalized, missing translation strings on Excel spreadsheets fixed, thanks to Ara Martirosyan
+   * [x] Fix: Team sizes selected on the Competition Information screen were not used on the Final Package team scoring sheets.  If not set, the IWF default team size of 10 is used on the spreadsheets. (#395) 
+   * [x] Fix: Default templates for Group Results and Final Package pages were not pre-selected (#396).
+   * [x] Fix: Changing the language setting on the competition information page now takes effect immediately on page refresh, and is now correctly propagated to publicresults on the next announcer or decision event (#393)
+   * [x] Fix: No more Invalid Email message for Federation Email when the database is empty (#398)
+   * [x] Improvement: Revised Spanish translations for Spain and Latin America variants (El Salvador, Ecuador).
+   * [x] Fix: on Heroku, errors could happen when reloading pages that are tied to a platform (display selection, scoreboards, referees, jury, etc. )  The page reload would occur before the database was fully initialized.
+   * [x] Improvement: the publicresults application opens directly to the platform screen if there is only one platform.  Buttons to select the platform are only shown if more than one platform is defined.
+   * [x] Fix: publicresults application follows the OWLCMS_LOCALE environment variable, including on "waiting" screens.
+   * [x] Translation: Excel files for registration, athlete cards, starting weights, group results and final package are now generated using the translation file for the current language (#273)
+   * [x] German, French, English, Ukrainian translations were updated for Excel templates
+   * [x] Enhancement: Competition group schedule and officials now produced as part of the final results package (#382)
+   * [x] Enhancement: groups can be defined using the registration spreadsheet.  Athletes, Platforms and Groups are now updated according to the spreadsheet, replacing prior content as needed. (#374)  Also, the athlete registration spreadsheet upload accepts birth dates in the current language and country format in addition to ISO 8601 yyyy-MM-dd format. (#380).  Error messages are now localized.
+   * [x] Technical: sample Kubernetes deployment files in the owlcms-docker subproject now deploy both owlcms and publicresults working together (see owlcms-docker/src/main/assembly/k8s to use as starting point)
 
    * [x] Important Fix: Prior to release 4.9, some changes to requested weights would be shown immediately on the top part of the scoreboard, but delayed on the bottom part (#376)   Also other fixes to correctly show decision reversals (#378) and to show the down arrow when connecting refereeing devices to a scoreboard display (#375)
    * [x] Fix:  Pausing and resuming a break is again working; also, the "before introduction" timer automatically switches to the the "introduction" pause.
