@@ -83,10 +83,10 @@ jobs:
           artifact: PublicResultsSetup
       - template: src/main/azure-pipelines/steps-prepare-maven.yml
       - task: Docker@2
-        displayName: Login to Bintray
+        displayName: Login to Docker Registry
         inputs:
           command: login
-          containerRegistry: owlcms-docker-containers.bintray.io
+          containerRegistry: docker.io
       - script: ls -la
       - task: Maven@3
         displayName: Build and Push Docker Images
