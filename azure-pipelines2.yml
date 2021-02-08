@@ -50,7 +50,7 @@ jobs:
           goals: deploy $(MavenOpts) -X
         env:
           # used by maven for substitutions in release notes and URLs
-          DOCKER_REPO: $(DOCKER_REPO)
+          DOCKER_REGISTRY: $(DOCKER_REGISTRY)
           DOCKER_USER: $(DOCKER_USER)
           DOCKER_PASSWORD: $(DOCKER_PASSWORD)
 

@@ -108,6 +108,7 @@
                     <skipRun>true</skipRun>
                     <skipBuild>${yamlOnly}</skipBuild>
                     <skipPush>${yamlOnly}</skipPush>
+                    <!-- normally, docker.io/${DOCKER_USER} -->
                     <registry>${env.DOCKER_REGISTRY}</registry>
                     <authConfig>
                       <push>
@@ -117,7 +118,7 @@
                     </authConfig>
                     <images>
                         <image>
-                            <name>owlcms/owlcms:${project.version}</name>
+                            <name>owlcms:${project.version}</name>
                             <build>
                                 <tags>
                                     <tag>latest</tag>
