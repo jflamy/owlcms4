@@ -110,7 +110,7 @@
                     <skipPush>${yamlOnly}</skipPush>
                     <images>
                         <image>
-                            <name>owlcms:${project.version}</name>
+                            <name>owlcms/owlcms:${project.version}</name>
                             <build>
                                 <tags>
                                     <tag>latest</tag>
@@ -130,10 +130,10 @@
                                     <arg>app.owlcms.Main</arg>
                                 </entryPoint>
                             </build>
-                            <registry>docker.io/owlcms</registry>
+                            <registry>docker.io</registry>
                         </image>
                         <image>
-                            <name>publicresults:${project.version}</name>
+                            <name>owlcms/publicresults:${project.version}</name>
                             <build>
                                 <tags>
                                     <tag>latest</tag>
@@ -153,7 +153,7 @@
                                     <arg>app.owlcms.publicresults.Main</arg>
                                 </entryPoint>
                             </build>
-                            <registry>docker.io/owlcms</registry>
+                            <registry>docker.io</registry>
                         </image>
                     </images>
                 </configuration>
