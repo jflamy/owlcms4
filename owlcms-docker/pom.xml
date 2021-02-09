@@ -51,21 +51,21 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.1.0</version>
                 <executions>
-                    <execution>
-                        <id>docker-tag</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>docker-tag</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <descriptors>
-                                <descriptor>src/main/assembly/docker-tag.xml</descriptor>
-                            </descriptors>
-                            <attach>false</attach>
-                        </configuration>
-                    </execution>
+<!--                     <execution> -->
+<!--                         <id>docker-tag</id> -->
+<!--                         <phase>package</phase> -->
+<!--                         <goals> -->
+<!--                             <goal>single</goal> -->
+<!--                         </goals> -->
+<!--                         <configuration> -->
+<!--                             <finalName>docker-tag</finalName> -->
+<!--                             <appendAssemblyId>false</appendAssemblyId> -->
+<!--                             <descriptors> -->
+<!--                                 <descriptor>src/main/assembly/docker-tag.xml</descriptor> -->
+<!--                             </descriptors> -->
+<!--                             <attach>false</attach> -->
+<!--                         </configuration> -->
+<!--                     </execution> -->
                     <execution>
                         <id>k8s</id>
                         <phase>package</phase>
@@ -79,7 +79,7 @@
                                 <descriptor>src/main/assembly/k8s.xml</descriptor>
                             </descriptors>
                             <attach>false</attach>
-                            <filters>target/docker-tag/docker-tag.properties</filters>
+<!--                             <filters>target/docker-tag/docker-tag.properties</filters> -->
                         </configuration>
                     </execution>
                     <execution>
@@ -120,7 +120,7 @@
                             <build>
                                 <tags>
                                     <tag>latest</tag>
-                                    <!-- tag>${dockerTag}</tag -->
+                                    <tag>${env.DOCKER_TAG}</tag>
                                 </tags>
                                 <from>adoptopenjdk:11-jre-openj9</from>
                                 <assembly>
@@ -142,7 +142,7 @@
                             <build>
                                 <tags>
                                     <tag>latest</tag>
-                                    <!-- tag>${dockerTag}</tag -->
+                                    <tag>${env.DOCKER_TAG}</tag>
                                 </tags>
                                 <from>docker.io/adoptopenjdk:11-jre-openj9</from>
                                 <assembly>

@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.14.0-alpha08
+    default: 4.14.0-alpha09
   - name: BuildPublicResults
     type: string
     default: 'true'
@@ -82,12 +82,12 @@ jobs:
         - download: current
           artifact: PublicResultsSetup
       - template: src/main/azure-pipelines/steps-prepare-maven.yml
-      - task: Docker@2
-        displayName: Login to Docker Registry
-        inputs:
-          command: login
-          containerRegistry: docker.io
-      - script: ls -la
+#       - task: Docker@2
+#         displayName: Login to Docker Registry
+#         inputs:
+#           command: login
+#           containerRegistry: docker.io
+#       - script: ls -la
       - task: Maven@3
         displayName: Build and Push Docker Images
         inputs:
@@ -102,6 +102,7 @@ jobs:
           DOCKER_REG: $(DOCKER_REG)
           DOCKER_USER: $(DOCKER_USER)
           DOCKER_TOKEN: $(DOCKER_TOKEN)
+          DOCKER_TAG: $(DOCKER_TAG)
       - task: Maven@3
         displayName: Pre-process Release Notes
         inputs:

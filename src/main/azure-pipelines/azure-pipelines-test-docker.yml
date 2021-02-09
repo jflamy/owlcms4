@@ -5,7 +5,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.14.0-alpha07
+    default: 4.14.0-alpha08
   - name: BuildPublicResults
     type: string
     default: 'true'
@@ -47,5 +47,6 @@ jobs:
           DOCKER_REG: $(DOCKER_REG)
           DOCKER_USER: $(DOCKER_USER)
           DOCKER_TOKEN: $(DOCKER_TOKEN)
+          DOCKER_TAG: $(DOCKER_TAG)
 
         
