@@ -15,9 +15,11 @@
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="DOCKER_CERT_PATH" value="C:\Users\JF\.minikube\certs"/>
         <mapEntry key="DOCKER_HOST" value="tcp://localhost:2375"/>
+        <mapEntry key="DOCKER_TAG" value="prerelease"/>
         <mapEntry key="DOCKER_TLS_VERIFY" value="1"/>
         <mapEntry key="MINIKUBE_ACTIVE_DOCKERD" value="minikube"/>
     </mapAttribute>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
     <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${project_loc:owlcms-docker}"/>
 </launchConfiguration>

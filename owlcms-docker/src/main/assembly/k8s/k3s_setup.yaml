@@ -1,3 +1,12 @@
+# Sample usage
+# 
+# export OFFICIALS=officials.owlcms.mywire.org
+# export RESULTS=results.owlcms.mywire.org
+# curl -sfL https://github.com/owlcms/owlcms4/releases/download/4.13.0/k3s_setup.yaml | envsubst | kubectl apply -f - 
+#
+# or if the file has been copied locally
+# envsubst < k3s_setup.yaml | kubectl apply -f - 
+# 
 apiVersion: v1
 kind: Secret
 metadata:
@@ -130,7 +139,7 @@ spec:
             name: publicresults-config
         - secretRef:
             name: postgres-config
-        image: ${owlcms-docker}/owlcms:stable
+        image: ${owlcms-docker}/owlcms:${env.DOCKER_TAG}
         name: owlcms
         ports:
         - containerPort: 8080
@@ -196,7 +205,7 @@ spec:
       - envFrom:
         - secretRef:
             name: publicresults-config
-        image: ${owlcms-docker}/publicresults:stable
+        image: ${owlcms-docker}/publicresults:${env.DOCKER_TAG}
         imagePullPolicy: Always
         name: publicresults
         ports:
