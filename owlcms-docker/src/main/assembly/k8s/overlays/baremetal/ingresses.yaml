@@ -10,10 +10,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - officials.owlcms.jflamy.dev
+        - ${OFFICIALS}
       secretName: owlcms-ingress
   rules:
-    - host: officials.owlcms.jflamy.dev
+    - host: ${OFFICIALS}
       http:
         paths:
           - backend:
@@ -32,10 +32,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - results.owlcms.jflamy.dev
+        - ${RESULTS}
       secretName: publicresults-ingress
   rules:
-    - host: results.owlcms.jflamy.dev
+    - host: ${RESULTS}
       http:
         paths:
           - backend:
