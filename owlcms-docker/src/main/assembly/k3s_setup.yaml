@@ -1,0 +1,275 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: owlcms
+  name: owlcms-config
+stringData:
+  OWLCMS_INITIALDATA: LARGEGROUP_DEMO
+  OWLCMS_IP: ""
+  OWLCMS_PIN: ""
+  OWLCMS_RESETMODE: "false"
+type: Opaque
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: postgres
+  name: postgres-config
+stringData:
+  POSTGRES_DB: owlcms_db
+  POSTGRES_HOST: postgres
+  POSTGRES_PASSWORD: owlcms
+  POSTGRES_USER: owlcms
+type: Opaque
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: publicresults
+  name: publicresults-config
+stringData:
+  OWLCMS_REMOTE: http://publicresults-8080:8080
+  OWLCMS_UPDATEKEY: kubernetes_internal
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/name: ingress-nginx
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+spec:
+  externalTrafficPolicy: Local
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: http
+  - name: https
+    port: 443
+    protocol: TCP
+    targetPort: https
+  selector:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/name: ingress-nginx
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: owlcms
+  name: owlcms-8080
+spec:
+  ports:
+  - name: owlcms-8080
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: owlcms
+  sessionAffinity: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: postgres
+  name: postgres
+spec:
+  ports:
+  - port: 5432
+  selector:
+    app: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: publicresults
+  name: publicresults-8080
+spec:
+  ports:
+  - name: publicresults-8080
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: publicresults
+  sessionAffinity: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: owlcms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: owlcms
+  template:
+    metadata:
+      labels:
+        app: owlcms
+    spec:
+      containers:
+      - envFrom:
+        - secretRef:
+            name: owlcms-config
+        - secretRef:
+            name: publicresults-config
+        - secretRef:
+            name: postgres-config
+        image: ${owlcms-docker}/owlcms:stable
+        name: owlcms
+        ports:
+        - containerPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kubesailTemplate: kubesail/postgres
+  name: postgres
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - env:
+        - name: PGDATA
+          value: /var/lib/postgres/data/pgdata
+        envFrom:
+        - secretRef:
+            name: postgres-config
+        image: postgres:12.4
+        name: postgres
+        ports:
+        - containerPort: 5432
+        resources:
+          limits:
+            cpu: 500m
+            memory: 256Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+        volumeMounts:
+        - mountPath: /var/lib/postgres
+          name: postgres-data
+      volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: publicresults
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: publicresults
+  template:
+    metadata:
+      labels:
+        app: publicresults
+    spec:
+      containers:
+      - envFrom:
+        - secretRef:
+            name: publicresults-config
+        image: ${owlcms-docker}/publicresults:stable
+        imagePullPolicy: Always
+        name: publicresults
+        ports:
+        - containerPort: 8080
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+spec:
+  acme:
+    email: blackhole@jflamy.dev
+    privateKeySecretRef:
+      name: letsencrypt
+    server: https://acme-v02.api.letsencrypt.org/directory
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  labels:
+    app: owlcms
+  name: owlcms
+  namespace: default
+spec:
+  rules:
+  - host: ${OFFICIALS}
+    http:
+      paths:
+      - backend:
+          serviceName: owlcms-8080
+          servicePort: 8080
+  tls:
+  - hosts:
+    - ${OFFICIALS}
+    secretName: owlcms-ingress
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  labels:
+    app: publicresults
+  name: publicresults
+  namespace: default
+spec:
+  rules:
+  - host: ${RESULTS}
+    http:
+      paths:
+      - backend:
+          serviceName: publicresults-8080
+          servicePort: 8080
+  tls:
+  - hosts:
+    - ${RESULTS}
+    secretName: publicresults-ingress
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: postgres
+  name: postgres-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
