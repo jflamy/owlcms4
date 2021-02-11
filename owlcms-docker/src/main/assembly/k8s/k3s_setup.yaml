@@ -1,3 +1,4 @@
+# k3s setup 
 
 apiVersion: v1
 kind: Namespace
