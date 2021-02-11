@@ -4,15 +4,15 @@ bases:
 - ../../base
 
 images:
-- name: ${owlcms-docker}/owlcms
-  newName: owlcms
-  newTag: ${project.version}
-- name: ${owlcms-docker}/publicresults
-  newName: publicresults
-  newTag: ${project.version}
+- name: ${env.DOCKER_REG}/owlcms
+  newTag: ${env.DOCKER_TAG}
+- name: ${env.DOCKER_REG}/publicresults
+  newTag: ${env.DOCKER_TAG}
 
 resources:
-- ingress.yaml
-- services.yaml
-- secrets.yaml
+- config.yaml
+- clusterissuer.yaml
+- nginx-service.yaml
+
+
 

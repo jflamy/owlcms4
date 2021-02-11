@@ -57,7 +57,7 @@ spec:
     spec:
       containers:
         - name: publicresults
-          image: ${owlcms-docker}/publicresults:stable
+          image: ${env.DOCKER_REG}/publicresults:${env.DOCKER_TAG}
           imagePullPolicy: Always
           envFrom:
             - secretRef:
@@ -81,7 +81,7 @@ spec:
     spec:
       containers:
         - name: owlcms
-          image: ${owlcms-docker}/owlcms:stable
+          image: ${env.DOCKER_REG}/owlcms:${env.DOCKER_TAG}
           envFrom:
             - secretRef:
                 name: owlcms-config

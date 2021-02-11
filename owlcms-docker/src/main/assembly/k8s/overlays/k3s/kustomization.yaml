@@ -4,13 +4,13 @@ bases:
 - ../../base
 
 images:
-- name: owlcms-docker-containers.bintray.io/owlcms
-  newTag: 4.13.0
-- name: owlcms-docker-containers.bintray.io/publicresults
-  newTag: 4.13.0
+- name: ${env.DOCKER_REG}/owlcms
+  newTag: ${env.DOCKER_TAG}
+- name: ${env.DOCKER_REG}/publicresults
+  newTag: ${env.DOCKER_TAG}
 
 resources:
-- clusterissuer.yaml
-- ingresses.yaml
-- services.yaml
 - config.yaml
+- clusterissuer.yaml
+- nginx-service.yaml
+- ingresses.yaml

@@ -27313,50 +27313,6 @@ spec:
         ingress:
           class: nginx
 ---
-apiVersion: networking.k8s.io/v1beta1
-kind: Ingress
-metadata:
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt
-  labels:
-    app: owlcms
-  name: owlcms
-  namespace: default
-spec:
-  rules:
-  - host: ${OFFICIALS}
-    http:
-      paths:
-      - backend:
-          serviceName: owlcms-8080
-          servicePort: 8080
-  tls:
-  - hosts:
-    - ${OFFICIALS}
-    secretName: owlcms-ingress
----
-apiVersion: networking.k8s.io/v1beta1
-kind: Ingress
-metadata:
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt
-  labels:
-    app: publicresults
-  name: publicresults
-  namespace: default
-spec:
-  rules:
-  - host: ${RESULTS}
-    http:
-      paths:
-      - backend:
-          serviceName: publicresults-8080
-          servicePort: 8080
-  tls:
-  - hosts:
-    - ${RESULTS}
-    secretName: publicresults-ingress
----
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
