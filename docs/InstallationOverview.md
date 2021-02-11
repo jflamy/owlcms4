@@ -55,3 +55,11 @@ As an alternative to using two Heroku applications, you can use a cloud technolo
 - [Kubernetes on Digital Ocean Cloud](DigitalOcean)
 
 If you have access to another kind of Kubernetes setup, you can still use the instructions in that page for installing nginx, cert-manager, and owlcms.
+
+## Alternative: Home Hosting with Secure Access
+
+If you have good internet connectivity at home, and a good performance Windows server, you can use the following approach
+
+- [Docker Desktop Home Hosting with Secure Internet Access](DockerDesktop)
+
+If you have a Linux Host at home, you can use the same approach. Read above for the Cloud Hosting instructions, which you can apply at home, and use KubeSail.com to grant access.
