@@ -115,7 +115,15 @@ For additional protection, you should use SSL to protect the host.
 3. Create a `.kube` directory in you home directory (%HOMEDIR%%HOMEPATH%)
 4. Using your SSL session in MobaXterm, use the Sftp tab at the left of your session to locate /etc/rancher/k3s
 5. Use the download button at the top of the Sftp tab to copy the file in the .kube directory
-
 6. Download and install lens from [Lens | The Kubernetes IDE (k8slens.dev)](https://k8slens.dev/)
-
 7. Create a cluster definition using the + at the left and select the configuration file.
+
+## Backing up the database
+
+In order to backup the database, you can use the `kubectl exec` command to reach the Postgres pod inside the cluster, as follows, using PowerShell, bash or Git-Bash.
+
+```
+kubectl exec $(kubectl get pods -l app=postgres --no-headers -o name) -- pg_dump -U owlcms -d owlcms_db
+```
+
+The part between `$()` is a sub-command that gets the name of the postgres pod, which is then substituted in the `kubectl exec` command.   You can add additional parameters to pg_dump to select the format you want.
