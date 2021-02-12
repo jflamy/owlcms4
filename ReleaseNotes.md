@@ -1,6 +1,7 @@
-* Changes for release 4.14.0-beta01  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.14.0-rc01  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] Internal changes: Using self-hosted maven directory instead of bintray.com which is no longer available and providing a recipe for self-hosting Kubernetes instead of using kubesail.com hosting (no longer available as well).
+  - [x] Updated documentation: additional installation options using Cloud-based hosting and home-based hosting with secure cloud access.
+  - [x] Internal changes: Using self-hosted maven directory instead of bintray.com which is no longer available.
   
 * Key Highlights from recent stable releases
 
@@ -51,4 +52,4 @@ Installation Instructions :
 
   - For **Heroku** cloud, no download is necessary. Follow the ([Heroku Cloud Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Cloud) to deploy your own copy.
 
-  - For **Kubernetes** deployments, download the `k8s.zip` file.   You will need to unzip the file and adapt it for your specific cluster and host names. The zip contains a README file with guidance on how to proceed. 
+  - For **Kubernetes** deployments, you can use `kubectl apply` on the `k3s_setup.yaml` file for k3s  (see https://jflamy-dev.github.io/owlcms4-prerelease/#/DigitalOcean) or `dd_setup.yaml` for Docker Desktop (see https://jflamy-dev.github.io/owlcms4-prerelease/#/DockerDesktop).  For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 

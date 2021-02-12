@@ -5,9 +5,9 @@ The application can be used for anything from a club meet using a single laptop 
 
 ### Features and Documentation
 
-See the application [Web Site](https://jflamy-dev.github.io/owlcms4-prerelease/#) for a full overview.
+See the application [Web Site](https://jflamy-dev.github.io/owlcms4-prerelease/#) for a full overview. 
 
-### Basic Installation Options
+## Installation Options
 Several installation options are possible, depending on what is available at the competition site
 
 #### Easiest: Cloud-Based Installation (Internet required)
@@ -43,7 +43,7 @@ See the following instructions
 * [Linux or Mac Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 * [Release repository](https://github.com/jflamy-dev/owlcms4-prerelease/releases/latest) for installers
 
-### Virtual Competitions and Cloud Hosting
+### Advanced: Virtual Competitions and Remote Scoreboards
 
 There are additional modules available to support more involved scenarios.  For example, it is possible to have individual scoreboards available to every coach -- supporting physical distancing.  This can also be used to provide individual scoreboards to every member of the public watching the competition remotely.
 
@@ -51,20 +51,9 @@ A competition with a main site and remote gyms connected by videoconferencing co
 
 ![Slide3](docs/img/PublicResults/CloudExplained/Slide3.SVG)
 
-The following pages describe these options and others.
+The following link describes these options and others.
 
-*	[Distancing using Individual Scoreboards](https://jflamy-dev.github.io/owlcms4-prerelease/#/Distancing)
-*	[Cloud Installation of the publicresults Application](https://jflamy-dev.github.io/owlcms4-prerelease/#/Remote)
-*	[Virtual Competitions and Remote Referees](https://jflamy-dev.github.io/owlcms4-prerelease/#/Virtual)
-*	[Video-Conference Setup](https://jflamy-dev.github.io/owlcms4-prerelease/#/Video)
-
-
-
-### Advanced: Kubernetes
-
-If you wish to run owlcms on your own cloud subscription and are familiar with modern cloud technologies,  you can use the following archive as a starting point. Kubernetes is supported on all the major cloud offerings (Azure, Amazon, Google Cloud) and there are also smaller players that offer simpler Kubernetes-oriented hosting (kubesail.com for example)
-
-- [Kubernetes](
+*	[Virtual Competition Options](https://jflamy-dev.github.io/owlcms4-prerelease/#/InstallationOverview#avanced-virtual-competitions-and-individual-scoreboards)
 
 ### Pre-releases
 
