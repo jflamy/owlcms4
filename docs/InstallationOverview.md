@@ -44,19 +44,24 @@ A competition with a main site and remote gyms connected by videoconferencing co
 The following pages describe these options and others.
 
 *	[Distancing using Individual Scoreboards](Distancing)
-*	[Cloud Installation of the publicresults Application](Remote)
 *	[Virtual Competitions and Remote Referees](Virtual)
 *	[Video-Conference Setup](Video)
 
-## Alternative: Kubernetes Cloud Hosting
+## Option 1: Heroku Cloud Hosting
 
-As an alternative to using two Heroku applications, you can use a cloud technology called Kubernetes to create your own setup.  Even though the following uses a paid setup, you can still run a competition for less than 10$. And you get the added benefit that if your run a larger competition, you can increase the memory available.  If you want to run a large national competition with remote gyms, this is probably a better option.
+In order to host a virtual competition effectively, you can install owlcms and publicresults both as separate free applications on Heroku, and make them talk to each other.  This is described on the following page
+
+- [Free Heroku hosting of a virtual competition](Heroku)
+
+## Option 2: Kubernetes Cloud Hosting
+
+For larger competitions, or for a more polished expercen Even though the following uses a paid setup, you can still run a competition for less than 10$. And you get the added benefit that if your run a larger competition, you can increase the memory available.  If you want to run a large national competition with remote gyms, this is probably a better option.
 
 - [Kubernetes on Digital Ocean Cloud](DigitalOcean)
 
 If you have access to another kind of Kubernetes setup, you can still use the instructions in that page for installing nginx, cert-manager, and owlcms.
 
-## Alternative: Home Hosting with Secure Access
+## Option 3: Home Hosting with Cloud Access
 
 If you have good internet connectivity at home, and a good performance Windows server, you can use the following approach
 

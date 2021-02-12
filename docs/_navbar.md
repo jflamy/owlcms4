@@ -18,10 +18,8 @@
 
 * COVID-19 options
 
-  *	[Distancing using Individual Scoreboards](Distancing)
-  *	[Cloud Installation of the publicresults Application](Remote)
-  *	[Local Installation of the publicresults Application](PublicResults_Local.md)
   *	[Virtual Competitions and Remote Referees](Virtual)
+  *	[Distancing using Individual Scoreboards](Distancing)
   *	[Modified Competition Rules](ModifiedRules)
   *	[Video-Conference Setup](Video)
 * Advanced Topics
