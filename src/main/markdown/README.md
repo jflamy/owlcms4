@@ -53,7 +53,7 @@ A competition with a main site and remote gyms connected by videoconferencing co
 
 The following link describes these options and others.
 
-*	[Virtual Competition Options](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/InstallationOverview#avanced-virtual-competitions-and-individual-scoreboards)
+*	[Cloud-based Virtual Competition Options](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Virtual)
 
 ### Pre-releases
 
