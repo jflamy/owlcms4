@@ -3,11 +3,11 @@ This software is a complete rewrite of `owlcms` which has been used to manage Ol
 
 The application can be used for anything from a club meet using a single laptop all the way up to a national championship with several platform, full jury, integration with streaming, and public internet scoreboards.
 
-### Features, Documentation and Demo
+### Features and Documentation
 
-See the application [Web Site](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#) for a full overview.  See [this page](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Demo) for a live demo.
+See the application [Web Site](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#) for a full overview. 
 
-### Basic Installation Options
+## Installation Options
 Several installation options are possible, depending on what is available at the competition site
 
 #### Easiest: Cloud-Based Installation (Internet required)
@@ -43,7 +43,7 @@ See the following instructions
 * [Linux or Mac Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalLinuxMacSetup)
 * [Release repository](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/latest) for installers
 
-### Virtual Competitions and Individual Scoreboards
+### Advanced: Virtual Competitions and Remote Scoreboards
 
 There are additional modules available to support more involved scenarios.  For example, it is possible to have individual scoreboards available to every coach -- supporting physical distancing.  This can also be used to provide individual scoreboards to every member of the public watching the competition remotely.
 
@@ -51,20 +51,9 @@ A competition with a main site and remote gyms connected by videoconferencing co
 
 ![Slide3](docs/img/PublicResults/CloudExplained/Slide3.SVG)
 
-The following pages describe these options and others.
+The following link describes these options and others.
 
-*	[Distancing using Individual Scoreboards](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Distancing)
-*	[Cloud Installation of the publicresults Application](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Remote)
-*	[Virtual Competitions and Remote Referees](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Virtual)
-*	[Video-Conference Setup](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Video)
-
-
-
-### Advanced: Kubernetes
-
-If you wish to run owlcms on your own cloud subscription and are familiar with modern cloud technologies,  you can use the following archive as a starting point. Kubernetes is supported on all the major cloud offerings (Azure, Amazon, Google Cloud) and there are also smaller players that offer simpler Kubernetes-oriented hosting (kubesail.com for example)
-
-- [Kubernetes](
+*	[Virtual Competition Options](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/InstallationOverview#avanced-virtual-competitions-and-individual-scoreboards)
 
 ### Pre-releases
 

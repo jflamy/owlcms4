@@ -3,9 +3,9 @@ This software is a complete rewrite of `owlcms` which has been used to manage Ol
 
 The application can be used for anything from a club meet using a single laptop all the way up to a national championship with several platform, full jury, integration with streaming, and public internet scoreboards.
 
-### Features, Documentation and Demo
+### Features and Documentation
 
-See the application [Web Site](https://jflamy-dev.github.io/owlcms4-prerelease/#) for a full overview.  See [this page](https://jflamy-dev.github.io/owlcms4-prerelease/#/Demo) for a live demo.
+See the application [Web Site](https://jflamy-dev.github.io/owlcms4-prerelease/#) for a full overview.
 
 ### Basic Installation Options
 Several installation options are possible, depending on what is available at the competition site
@@ -43,7 +43,7 @@ See the following instructions
 * [Linux or Mac Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 * [Release repository](https://github.com/jflamy-dev/owlcms4-prerelease/releases/latest) for installers
 
-### Virtual Competitions and Individual Scoreboards
+### Virtual Competitions and Cloud Hosting
 
 There are additional modules available to support more involved scenarios.  For example, it is possible to have individual scoreboards available to every coach -- supporting physical distancing.  This can also be used to provide individual scoreboards to every member of the public watching the competition remotely.
 
