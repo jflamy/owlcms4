@@ -1,6 +1,6 @@
 
 
-## Heroku Installation of OWLCMS
+## Heroku
 
 Heroku is a cloud service provider that provides an attractive free (0$) pricing plan for running programs like OWLCMS.  When running on Heroku you only need a good Internet connection, and you do not need to configure a primary laptop.
 

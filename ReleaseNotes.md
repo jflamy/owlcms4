@@ -1,4 +1,4 @@
-* Changes for release 4.14.0-alpha10  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.14.0-beta01  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
   - [x] Internal changes: Using self-hosted maven directory instead of bintray.com which is no longer available and providing a recipe for self-hosting Kubernetes instead of using kubesail.com hosting (no longer available as well).
   
