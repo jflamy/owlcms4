@@ -10,26 +10,14 @@
     <artifactId>owlcms-windows</artifactId>
     <version>${revision}</version>
 
-    <repositories>
+    <!-- note that you must use mvn command line to deploy, does not work with embedded eclipse maven -->
+    <!-- for example: mvn -s c:\Dev\.m2\settings.xml -Dmaven.test.skip=true deploy -->
+    <distributionManagement>
         <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray-owlcms-owlcms-maven</id>
-            <name>bintray</name>
-            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
+            <id>owlcms-maven-repo</id>
+            <url>http://maven.owlcms.mywire.org:8088/releases</url>
         </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray-owlcms-owlcms-maven</id>
-            <name>bintray-plugins</name>
-            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
-        </pluginRepository>
-    </pluginRepositories>
+    </distributionManagement>
 
     <dependencies>
         <dependency>

@@ -7,6 +7,15 @@
     <artifactId>installtools</artifactId>
     <packaging>pom</packaging>
 
+    <!-- note that you must use mvn command line to deploy, does not work with embedded eclipse maven -->
+    <!-- for example: mvn -Pproduction -s c:\Dev\.m2\settings.xml deploy -->
+    <distributionManagement>
+        <repository>
+            <id>owlcms-maven-repo</id>
+            <url>http://maven.owlcms.mywire.org:8088/releases</url>
+        </repository>
+    </distributionManagement>
+
     <profiles>
         <profile>
             <!-- Production mode is activated using -Pproduction -->
@@ -14,7 +23,7 @@
             <properties>
                 <!-- hard-coded paths -->
                 <!-- jre location for bundling with windows installer -->
-                <jre.directory>C:\Dev\Java\jdk-11.0.8+10-jre</jre.directory>
+                <jre.directory>C:\Dev\Java\jdk-11.0.10+9-jre</jre.directory>
             </properties>
 
             <build>
@@ -105,7 +114,8 @@
                         </executions>
                     </plugin>
 
-
+                    <!-- note that you must use mvn command line to deploy, does not work with embedded eclipse maven -->
+                    <!-- for example: mvn -s c:\Dev\.m2\settings.xml -Dmaven.test.skip=true deploy -->
                     <plugin>
                         <artifactId>maven-deploy-plugin</artifactId>
                         <version>3.0.0-M1</version>
@@ -122,8 +132,8 @@
                                 </goals>
                                 <configuration>
                                     <file>target/innosetup.zip</file>
-                                    <repositoryId>bintray-owlcms-maven</repositoryId>
-                                    <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
+                                    <repositoryId>owlcms-maven-repo</repositoryId>
+                                    <url>http://maven.owlcms.mywire.org:8088/releases</url>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>${project.artifactId}</artifactId>
                                     <version>${project.version}</version>
@@ -141,8 +151,8 @@
                                 </goals>
                                 <configuration>
                                     <file>target/jre.zip</file>
-                                    <repositoryId>bintray-owlcms-maven</repositoryId>
-                                    <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
+                                    <repositoryId>owlcms-maven-repo</repositoryId>
+                                    <url>http://maven.owlcms.mywire.org:8088/releases</url>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>${project.artifactId}</artifactId>
                                     <version>${project.version}</version>

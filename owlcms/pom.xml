@@ -12,15 +12,6 @@
     <version>${revision}</version>
     <packaging>jar</packaging>
 
-
-    <distributionManagement>
-        <repository>
-            <id>bintray-owlcms-maven</id>
-            <name>owlcms-maven</name>
-            <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
-        </repository>
-    </distributionManagement>
-
     <dependencies>
         <dependency>
             <groupId>com.vaadin</groupId>
@@ -466,14 +457,14 @@
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                  <filesets>
-                    <fileset>
-                      <directory>logs</directory>
-                      <followSymlinks>false</followSymlinks>
-                    </fileset>
-                  </filesets>
+                    <filesets>
+                        <fileset>
+                            <directory>logs</directory>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
                 </configuration>
-              </plugin>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -623,29 +614,14 @@
                                 </goals>
                                 <configuration>
                                     <file>target/${project.artifactId}-${project.version}.jar</file>
-                                    <repositoryId>bintray-owlcms-maven</repositoryId>
-                                    <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
+                                    <repositoryId>owlcms-maven-repo</repositoryId>
+                                    <url>http://maven.owlcms.mywire.org:8088/releases</url>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>${project.artifactId}</artifactId>
                                     <version>${project.version}</version>
                                     <packaging>jar</packaging>
                                     <generatePom>false</generatePom>
                                     <pomFile>target/classes/deployment-pom.xml</pomFile>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <!-- Skip execution - top level project does all the release handling -->
-                        <groupId>com.ragedunicorn.tools.maven</groupId>
-                        <artifactId>github-release-maven-plugin</artifactId>
-                        <version>1.0.4.2</version>
-                        <inherited>false</inherited>
-                        <executions>
-                            <execution>
-                                <id>default-cli</id>
-                                <configuration>
-                                    <skip>true</skip>
                                 </configuration>
                             </execution>
                         </executions>

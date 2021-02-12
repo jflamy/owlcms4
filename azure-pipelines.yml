@@ -1,10 +1,11 @@
 trigger:
   - none
 
+
 parameters:
   - name: Revision
     type: string
-    default: 4.13.0
+    default: 4.14.0-rc01
   - name: BuildPublicResults
     type: string
     default: 'true'
@@ -82,12 +83,12 @@ jobs:
         - download: current
           artifact: PublicResultsSetup
       - template: src/main/azure-pipelines/steps-prepare-maven.yml
-      - task: Docker@2
-        displayName: Login to Bintray
-        inputs:
-          command: login
-          containerRegistry: owlcms-docker-containers.bintray.io
-      - script: ls -la
+#       - task: Docker@2
+#         displayName: Login to Docker Registry
+#         inputs:
+#           command: login
+#           containerRegistry: docker.io
+#       - script: ls -la
       - task: Maven@3
         displayName: Build and Push Docker Images
         inputs:
@@ -99,11 +100,10 @@ jobs:
           publishJUnitResults: false
           goals: deploy $(MavenOpts)
         env:
-          # used by maven for substitutions in release notes and URLs
-          REPO_OWNER: $(RELEASE_USER)
-          H_REPO_NAME: owlcms-heroku$(RELEASE_SUFFIX)
-          P_REPO_NAME: publicresults-heroku$(RELEASE_SUFFIX)
-          O_REPO_NAME: owlcms4$(RELEASE_SUFFIX)      
+          DOCKER_REG: $(DOCKER_REG)
+          DOCKER_USER: $(DOCKER_USER)
+          DOCKER_TOKEN: $(DOCKER_TOKEN)
+          DOCKER_TAG: $(DOCKER_TAG)
       - task: Maven@3
         displayName: Pre-process Release Notes
         inputs:
@@ -112,8 +112,7 @@ jobs:
           javaHomeOption: JDKVersion
           jdkVersionOption: '1.11'
           jdkArchitectureOption: x64
-          publishJUnitResults: true
-          testResultsFiles: "**/surefire-reports/TEST-*.xml"
+          publishJUnitResults: false
           goals: package $(MavenOpts) --non-recursive -Dmaven.test.skip=true
         env:
           # used by maven for substitutions in release notes and URLs
@@ -168,6 +167,8 @@ jobs:
             $(Pipeline.Workspace)/OwlcmsSetup/*
             $(Pipeline.Workspace)/PublicResultsSetup/*
             $(Agent.BuildDirectory)/s/owlcms-docker/target/k8s.zip
+            $(Agent.BuildDirectory)/s/owlcms-docker/target/k8s/k3s_setup.yaml
+            $(Agent.BuildDirectory)/s/owlcms-docker/target/k8s/dd_setup.yaml
           assetUploadMode: "delete" # Optional. Options: delete, replace
           addChangeLog: false # Optional
         

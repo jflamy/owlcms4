@@ -1,12 +1,4 @@
-This document discusses how to respect physical distancing guidelines using individual scoreboards at each warm-up platform instead of a shared scoreboard.
-
-## Standard On-site Competition
-
-A very common setup is to run owlcms on a computer at the competition site.  The various computers all connect to a primary laptop.  Often, it is the announcer's own laptop, or the competition secretary's, this makes no difference.
-
-The problem with this setup is that coaches congregate around the scoreboards and cannot respect distancing.
-
-![Slide1](img/PublicResults/CloudExplained/Slide1.SVG)
+This page discusses how to respect physical distancing guidelines using individual scoreboards at each warm-up platform instead of a shared scoreboard.
 
 ## Cloud-based Individual Scoreboards
 

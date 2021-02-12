@@ -40,7 +40,9 @@ This is a standard Maven project.  If you wish, you can build the binaries from 
 ### Automated Releasing
 
 The automated build process takes place on the free tier of Azure DevOps.
-The `azure-pipelines.yml` defines the full process for building owlcms and the companion publicresults application, as well as the Heroku and Docker/Kubernetes packaging.  
+The `azure-pipelines.yml` defines the full process for building owlcms and the companion publicresults application, as well as the Heroku and Docker/Kubernetes packaging.
+Note that you must provide credentials in the form of variables (for example, by creating a variable group in the project Library).  See src/main/azure-pipelines/variables-releaseRepoCredentials for the $() variables that need to be defined.
+You also need to create service connections to your github accounts (for the source repository, and for the additional repositories used for pre-release and release packages), as well as the maven repository used to get packages.
 
 
 

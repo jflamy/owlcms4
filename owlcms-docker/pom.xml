@@ -51,21 +51,21 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.1.0</version>
                 <executions>
-                    <execution>
-                        <id>docker-tag</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>docker-tag</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <descriptors>
-                                <descriptor>src/main/assembly/docker-tag.xml</descriptor>
-                            </descriptors>
-                            <attach>false</attach>
-                        </configuration>
-                    </execution>
+<!--                     <execution> -->
+<!--                         <id>docker-tag</id> -->
+<!--                         <phase>package</phase> -->
+<!--                         <goals> -->
+<!--                             <goal>single</goal> -->
+<!--                         </goals> -->
+<!--                         <configuration> -->
+<!--                             <finalName>docker-tag</finalName> -->
+<!--                             <appendAssemblyId>false</appendAssemblyId> -->
+<!--                             <descriptors> -->
+<!--                                 <descriptor>src/main/assembly/docker-tag.xml</descriptor> -->
+<!--                             </descriptors> -->
+<!--                             <attach>false</attach> -->
+<!--                         </configuration> -->
+<!--                     </execution> -->
                     <execution>
                         <id>k8s</id>
                         <phase>package</phase>
@@ -79,7 +79,7 @@
                                 <descriptor>src/main/assembly/k8s.xml</descriptor>
                             </descriptors>
                             <attach>false</attach>
-                            <filters>target/docker-tag/docker-tag.properties</filters>
+<!--                             <filters>target/docker-tag/docker-tag.properties</filters> -->
                         </configuration>
                     </execution>
                     <execution>
@@ -96,7 +96,7 @@
                             </descriptors>
                             <attach>false</attach>
                         </configuration>
-                    </execution>                   
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -108,13 +108,19 @@
                     <skipRun>true</skipRun>
                     <skipBuild>${yamlOnly}</skipBuild>
                     <skipPush>${yamlOnly}</skipPush>
+                    <authConfig>
+                        <push>
+                            <username>${env.DOCKER_USER}</username>
+                            <password>${env.DOCKER_TOKEN}</password>
+                        </push>
+                    </authConfig>
                     <images>
                         <image>
-                            <name>owlcms:${project.version}</name>
+                            <name>${DOCKER_REG}/owlcms:${project.version}</name>
                             <build>
                                 <tags>
                                     <tag>latest</tag>
-                                    <!-- tag>${dockerTag}</tag -->
+                                    <tag>${env.DOCKER_TAG}</tag>
                                 </tags>
                                 <from>adoptopenjdk:11-jre-openj9</from>
                                 <assembly>
@@ -130,16 +136,15 @@
                                     <arg>app.owlcms.Main</arg>
                                 </entryPoint>
                             </build>
-                            <registry>owlcms-docker-containers.bintray.io</registry>
                         </image>
                         <image>
-                            <name>publicresults:${project.version}</name>
+                            <name>${DOCKER_REG}/publicresults:${project.version}</name>
                             <build>
                                 <tags>
                                     <tag>latest</tag>
-                                    <!-- tag>${dockerTag}</tag -->
+                                    <tag>${env.DOCKER_TAG}</tag>
                                 </tags>
-                                <from>adoptopenjdk:11-jre-openj9</from>
+                                <from>docker.io/adoptopenjdk:11-jre-openj9</from>
                                 <assembly>
                                     <descriptor>publicresults.xml</descriptor>
                                 </assembly>
@@ -153,7 +158,6 @@
                                     <arg>app.owlcms.publicresults.Main</arg>
                                 </entryPoint>
                             </build>
-                            <registry>owlcms-docker-containers.bintray.io</registry>
                         </image>
                     </images>
                 </configuration>

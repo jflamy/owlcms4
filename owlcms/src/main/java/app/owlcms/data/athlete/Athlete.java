@@ -65,6 +65,8 @@ import ch.qos.logback.classic.Logger;
  * bodyweight and the gender -- all the dependency logic is kept at the business object level.
  * </p>
  */
+
+//must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 @Cacheable
 public class Athlete {

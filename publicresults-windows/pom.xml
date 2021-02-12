@@ -10,27 +10,6 @@
     <artifactId>publicresults-windows</artifactId>
     <version>${revision}</version>
 
-    <repositories>
-        <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray-owlcms-owlcms-maven</id>
-            <name>bintray</name>
-            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray-owlcms-owlcms-maven</id>
-            <name>bintray-plugins</name>
-            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
-        </pluginRepository>
-    </pluginRepositories>
-
     <dependencies>
         <dependency>
             <groupId>app.owlcms</groupId>

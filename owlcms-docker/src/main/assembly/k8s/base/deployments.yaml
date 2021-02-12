@@ -57,7 +57,8 @@ spec:
     spec:
       containers:
         - name: publicresults
-          image: owlcms-docker-containers.bintray.io/publicresults
+          image: ${env.DOCKER_REG}/publicresults:${env.DOCKER_TAG}
+          imagePullPolicy: Always
           envFrom:
             - secretRef:
                 name: publicresults-config
@@ -80,7 +81,7 @@ spec:
     spec:
       containers:
         - name: owlcms
-          image: owlcms-docker-containers.bintray.io/owlcms
+          image: ${env.DOCKER_REG}/owlcms:${env.DOCKER_TAG}
           envFrom:
             - secretRef:
                 name: owlcms-config

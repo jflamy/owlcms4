@@ -7,28 +7,18 @@
 package app.owlcms.data.agegroup;
 
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
@@ -36,7 +26,6 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
@@ -49,100 +38,6 @@ import ch.qos.logback.classic.Logger;
 public class AgeGroupRepository {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupRepository.class);
-
-    /**
-     * Create category templates that will be copied to instantiate the actual categories. The world records are read
-     * and included in the template.
-     *
-     * @param workbook
-     * @return
-     */
-    public static Map<String, Category> createCategoryTemplates(Workbook workbook) {
-        Map<String, Category> categoryMap = new HashMap<>();
-        DataFormatter dataFormatter = new DataFormatter();
-        Sheet sheet = workbook.getSheetAt(0);
-        Iterator<Row> rowIterator = sheet.rowIterator();
-        int iRow = 0;
-        while (rowIterator.hasNext()) {
-            int iColumn = 0;
-            Row row;
-            if (iRow == 0) {
-                // process header
-                row = rowIterator.next();
-            }
-            row = rowIterator.next();
-
-            Category c = new Category();
-
-            Iterator<Cell> cellIterator = row.cellIterator();
-
-            while (cellIterator.hasNext()) {
-                Cell cell = cellIterator.next();
-                switch (iColumn) {
-                case 0: {
-                    String cellValue = dataFormatter.formatCellValue(cell);
-                    c.setCode(cellValue.trim());
-                    categoryMap.put(cellValue, c);
-                }
-                    break;
-                case 1: {
-                    String cellValue = dataFormatter.formatCellValue(cell);
-                    if (cellValue != null && !cellValue.trim().isEmpty()) {
-                        c.setGender(cellValue.contentEquals("F") ? Gender.F : Gender.M);
-                    }
-                }
-                    break;
-                case 2: {
-                    c.setMaximumWeight(cell.getNumericCellValue());
-                }
-                    break;
-                case 3: {
-                    c.setWrSr((int) Math.round(cell.getNumericCellValue()));
-                }
-                    break;
-                case 4: {
-                    c.setWrJr((int) Math.round(cell.getNumericCellValue()));
-                }
-                    break;
-                case 5: {
-                    c.setWrYth((int) Math.round(cell.getNumericCellValue()));
-                }
-                    break;
-                }
-                iColumn++;
-            }
-            iRow++;
-
-        }
-        return categoryMap;
-    }
-
-    /**
-     * Delete.
-     *
-     * @param AgeGroup the group
-     */
-
-    public static void delete(AgeGroup ageGroup) {
-        if (ageGroup.getId() == null) {
-            return;
-        }
-        JPAService.runInTransaction(em -> {
-            try {
-                AgeGroup mAgeGroup = em.contains(ageGroup) ? ageGroup : em.merge(ageGroup);
-                List<Category> cats = ageGroup.getCategories();
-                for (Category c : cats) {
-                    Category mc = em.contains(c) ? c : em.merge(c);
-                    cascadeCategoryRemoval(em, mAgeGroup, mc);
-                }
-                em.remove(mAgeGroup);
-                em.flush();
-            } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
-            }
-            return null;
-        });
-    }
 
     @SuppressWarnings("unchecked")
     public static AgeGroup doFindByName(String name, EntityManager em) {
@@ -224,7 +119,7 @@ public class AgeGroupRepository {
     public static void insertAgeGroups(EntityManager em, EnumSet<AgeDivision> es) {
         try {
             String localizedName = ResourceWalker.getLocalizedResourceName("/config/AgeGroups.xlsx");
-            doInsertAgeGroup(es, localizedName);
+            AgeGroupDefinitionReader.doInsertAgeGroup(es, localizedName);
         } catch (FileNotFoundException e1) {
             throw new RuntimeException(e1);
         }
@@ -246,7 +141,7 @@ public class AgeGroupRepository {
             }
             return null;
         });
-        doInsertAgeGroup(null, "/config/" + localizedFileName);
+        AgeGroupDefinitionReader.doInsertAgeGroup(null, "/config/" + localizedFileName);
         AthleteRepository.resetCategories();
     }
 
@@ -309,104 +204,14 @@ public class AgeGroupRepository {
         }
     }
 
-    private static void cascadeCategoryRemoval(EntityManager em, AgeGroup mAgeGroup, Category nc) {
+    static void cascadeCategoryRemoval(EntityManager em, AgeGroup mAgeGroup, Category nc) {
         // so far we have not categories removed from the age group, time to do so
         logger.debug("removing category {} from age group", nc.getId());
         mAgeGroup.removeCategory(nc);
         em.remove(nc);
     }
 
-    private static void createAgeGroups(Workbook workbook, Map<String, Category> templates,
-            EnumSet<AgeDivision> ageDivisionOverride,
-            String localizedName) {
-
-        JPAService.runInTransaction(em -> {
-            Sheet sheet = workbook.getSheetAt(1);
-            Iterator<Row> rowIterator = sheet.rowIterator();
-            int iRow = 0;
-            while (rowIterator.hasNext()) {
-                int iColumn = 0;
-                Row row;
-                if (iRow == 0) {
-                    // process header
-                    row = rowIterator.next();
-                }
-                row = rowIterator.next();
-
-                AgeGroup ag = new AgeGroup();
-                double curMin = 0.0D;
-
-                Iterator<Cell> cellIterator = row.cellIterator();
-                while (cellIterator.hasNext()) {
-                    Cell cell = cellIterator.next();
-                    switch (iColumn) {
-                    case 0: {
-                        String cellValue = cell.getStringCellValue();
-                        String trim = cellValue.trim();
-                        ag.setCode(trim);
-                    }
-                        break;
-                    case 1:
-                        break;
-                    case 2: {
-                        String cellValue = cell.getStringCellValue();
-                        ag.setAgeDivision(AgeDivision.getAgeDivisionFromCode(cellValue));
-                    }
-                        break;
-                    case 3: {
-                        String cellValue = cell.getStringCellValue();
-                        if (cellValue != null && !cellValue.trim().isEmpty()) {
-                            ag.setGender(cellValue.contentEquals("F") ? Gender.F : Gender.M);
-                        }
-                    }
-                        break;
-                    case 4: {
-                        long cellValue = Math.round(cell.getNumericCellValue());
-                        ag.setMinAge(Math.toIntExact(cellValue));
-                    }
-                        break;
-                    case 5: {
-                        long cellValue = Math.round(cell.getNumericCellValue());
-                        ag.setMaxAge(Math.toIntExact(cellValue));
-                    }
-                        break;
-                    case 6: {
-                        boolean explicitlyActive = cell.getBooleanCellValue();
-                        // age division is active according to spreadsheet, unless we are given an explicit
-                        // list of age divisions as override (e.g. to setup tests or demos)
-                        boolean active = ageDivisionOverride == null ? explicitlyActive
-                                : ageDivisionOverride.stream()
-                                        .anyMatch((Predicate<AgeDivision>) (ad) -> ad.equals(ag.getAgeDivision()));
-                        ag.setActive(active);
-                    }
-                        break;
-                    default: {
-                        String cellValue = cell.getStringCellValue();
-                        if (cellValue != null && !cellValue.trim().isEmpty()) {
-                            Category cat = createCategoryFromTemplate(cellValue, ag, templates, curMin);
-                            if (cat != null) {
-                                em.persist(cat);
-                                logger.trace(cat.longDump());
-                                curMin = cat.getMaximumWeight();
-                            }
-                        }
-                    }
-                        break;
-                    }
-                    iColumn++;
-                }
-                em.persist(ag);
-                iRow++;
-            }
-            Competition comp = Competition.getCurrent();
-            Competition comp2 = em.contains(comp) ? comp : em.merge(comp);
-            comp2.setAgeGroupsFileName(localizedName);
-
-            return null;
-        });
-    }
-
-    private static Category createCategoryFromTemplate(String cellValue, AgeGroup ag, Map<String, Category> templates,
+    static Category createCategoryFromTemplate(String cellValue, AgeGroup ag, Map<String, Category> templates,
             double curMin) {
         Category template = templates.get(cellValue);
         if (template == null) {
@@ -432,19 +237,6 @@ public class AgeGroupRepository {
     @SuppressWarnings("unchecked")
     private static List<AgeGroup> doFindAll(EntityManager em) {
         return em.createQuery("select c from AgeGroup c order by c.ageDivision,c.minAge,c.maxAge").getResultList();
-    }
-
-    private static void doInsertAgeGroup(EnumSet<AgeDivision> es, String localizedName) {
-        InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
-        try (Workbook workbook = WorkbookFactory
-                .create(localizedResourceAsStream)) {
-            logger.info("loading configuration file {}", localizedName);
-            Map<String, Category> templates = createCategoryTemplates(workbook);
-            createAgeGroups(workbook, templates, es, localizedName);
-            workbook.close();
-        } catch (Exception e) {
-            logger.error("could not process ageGroup configuration\n{}", LoggerUtils.stackTrace(e));
-        }
     }
 
     private static String filteringSelection(String name, Gender gender, AgeDivision ageDivision, Integer age,
@@ -499,6 +291,33 @@ public class AgeGroupRepository {
         if (gender != null) {
             query.setParameter("gender", gender);
         }
+    }
+
+    /**
+     * Delete.
+     *
+     * @param AgeGroup the group
+     */
+    
+    public static void delete(AgeGroup ageGroup) {
+        if (ageGroup.getId() == null) {
+            return;
+        }
+        JPAService.runInTransaction(em -> {
+            try {
+                AgeGroup mAgeGroup = em.contains(ageGroup) ? ageGroup : em.merge(ageGroup);
+                List<Category> cats = ageGroup.getCategories();
+                for (Category c : cats) {
+                    Category mc = em.contains(c) ? c : em.merge(c);
+                    cascadeCategoryRemoval(em, mAgeGroup, mc);
+                }
+                em.remove(mAgeGroup);
+                em.flush();
+            } catch (Exception e) {
+                logger.error(LoggerUtils.stackTrace(e));
+            }
+            return null;
+        });
     }
 
 }

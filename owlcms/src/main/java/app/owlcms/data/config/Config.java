@@ -21,6 +21,8 @@ import ch.qos.logback.classic.Logger;
  * Class Config.
  */
 @Cacheable
+
+//must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 public class Config {
 

@@ -52,6 +52,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.data.record.Record;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
@@ -187,6 +188,7 @@ public class JPAService {
                 .add(Competition.class.getName())
                 .add(AgeGroup.class.getName())
                 .add(Config.class.getName())
+                .add(Record.class.getName())
                 .build();
         return vals;
     }
