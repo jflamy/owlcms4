@@ -9,6 +9,7 @@ package app.owlcms.components.elements;
 import java.io.InputStream;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
@@ -142,10 +143,10 @@ public class LazyDownloadButton extends Button {
                 }
 
                 Optional<UI> optionalUI = getUI();
-                Executors.newSingleThreadExecutor().execute(() -> {
+                ExecutorService newSingleThreadExecutor = Executors.newSingleThreadExecutor();
+                newSingleThreadExecutor.execute(() -> {
                     try {
                         InputStream inputStream = inputStreamCallback.createInputStream();
-
                         optionalUI.ifPresent(ui -> ui.access(() -> {
                             StreamResource href = new StreamResource(fileNameCallback.get(), () -> inputStream);
                             href.setCacheTime(0);
@@ -157,6 +158,7 @@ public class LazyDownloadButton extends Button {
                         throw new RuntimeException(e);
                     }
                 });
+                newSingleThreadExecutor.shutdown();
             });
         });
     }
@@ -212,7 +214,7 @@ public class LazyDownloadButton extends Button {
                 }
 
                 Optional<UI> optionalUI = getUI();
-                Executors.newSingleThreadExecutor().execute(() -> {
+                new Thread(() -> {
                     try {
                         optionalUI.ifPresent(ui -> ui.access(() -> {
                             StreamResource href = new StreamResource(fileNameCallback.get(), streamResourceWriter);
@@ -224,7 +226,7 @@ public class LazyDownloadButton extends Button {
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
-                });
+                }).start();
             });
         });
     }
