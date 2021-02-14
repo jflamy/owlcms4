@@ -7,6 +7,7 @@
 package app.owlcms.uievents;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -18,7 +19,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -555,7 +558,7 @@ public class EventForwarder implements BreakDisplay {
     private Map<String, String> createUpdate() {
         Map<String, String> sb = new HashMap<>();
         mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
-        
+
         if (translatorResetTimeStamp != Translator.getResetTimeStamp()) {
             // translation map has been updated (reload or language change)
             setTranslationMap();
@@ -830,7 +833,7 @@ public class EventForwarder implements BreakDisplay {
             return;
         }
         try {
-            logger.debug("pushing {}",det);
+            logger.debug("pushing {}", det);
             sendPost(decisionUrl, createDecision(det));
         } catch (IOException e) {
             logger./**/warn("cannot push: {} {}", decisionUrl, e.getMessage());
@@ -862,20 +865,29 @@ public class EventForwarder implements BreakDisplay {
     }
 
     private void sendPost(String url, Map<String, String> parameters) throws IOException {
-        HttpPost post = new HttpPost(url);
 
         long deltaMillis = System.currentTimeMillis() - previousMillis;
         int hashCode = parameters.hashCode();
         // debounce, sometimes several identical updates in a rapid succession
         // identical updates are ok after 1 sec.
         if (hashCode != previousHashCode || (deltaMillis > 1000)) {
-            // add request parameters or form parameters
-            List<NameValuePair> urlParameters = new ArrayList<>();
-            parameters.entrySet().stream()
-                    .forEach((e) -> urlParameters.add(new BasicNameValuePair(e.getKey(), e.getValue())));
+            new Thread(() -> doPost(url, parameters)).start();
 
+            previousHashCode = hashCode;
+            previousMillis = System.currentTimeMillis();
+        }
+
+    }
+
+    private void doPost(String url, Map<String, String> parameters) {
+        HttpPost post = new HttpPost(url);
+        // add request parameters or form parameters
+        List<NameValuePair> urlParameters = new ArrayList<>();
+        parameters.entrySet().stream()
+                .forEach((e) -> urlParameters.add(new BasicNameValuePair(e.getKey(), e.getValue())));
+
+        try {
             post.setEntity(new UrlEncodedFormEntity(urlParameters, "UTF-8"));
-
             try (CloseableHttpClient httpClient = HttpClients.createDefault();
                     CloseableHttpResponse response = httpClient.execute(post)) {
                 StatusLine statusLine = response.getStatusLine();
@@ -885,11 +897,9 @@ public class EventForwarder implements BreakDisplay {
                 }
                 EntityUtils.toString(response.getEntity());
             }
-
-            previousHashCode = hashCode;
-            previousMillis = System.currentTimeMillis();
+        } catch (ParseException | IOException e1) {
+            logger.error("could not post to {} {} {}", url, e1.getCause());
         }
-
     }
 
     private void setCategoryName(String name) {
