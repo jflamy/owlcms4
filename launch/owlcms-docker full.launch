@@ -19,6 +19,7 @@
         <mapEntry key="_DOCKER_TLS_VERIFY" value="1"/>
         <mapEntry key="_MINIKUBE_ACTIVE_DOCKERD" value="minikube"/>
     </mapAttribute>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
     <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="C:\Dev\git\owlcms4"/>
 </launchConfiguration>
