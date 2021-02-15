@@ -11,6 +11,8 @@ import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
+import app.owlcms.athlete.data.entity.Person;
+
 @Configuration
 public class DataSourceConfig {
 
@@ -28,7 +30,8 @@ public class DataSourceConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean();
         emfb.setDataSource(dataSource);
-        emfb.setPackagesToScan(new String[] { "app.owlcms.athlete.data.entity" });
+        String entityPackageName = Person.class.getPackageName();
+        emfb.setPackagesToScan(new String[] { entityPackageName });
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         emfb.setJpaVendorAdapter(vendorAdapter);
