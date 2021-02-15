@@ -26,18 +26,18 @@ public class DataSourceConfig {
     
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
-      LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-      em.setDataSource(dataSource);
-      em.setPackagesToScan(new String[] { "app.owlcms.athlete.data.entity" });
+      LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean();
+      emfb.setDataSource(dataSource);
+      emfb.setPackagesToScan(new String[] { "app.owlcms.athlete.data.entity" });
 
       JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-      em.setJpaVendorAdapter(vendorAdapter);
+      emfb.setJpaVendorAdapter(vendorAdapter);
 
       Properties properties = new Properties();
       properties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
       properties.setProperty("hibernate.hbm2ddl.auto", "update");
-      em.setJpaProperties(properties);
+      emfb.setJpaProperties(properties);
 
-      return em;
+      return emfb;
     }
 }
