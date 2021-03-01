@@ -7,12 +7,8 @@ metadata:
   annotations:
     ingress.kubernetes.io/ssl-redirect: 'false'
 spec:
-  tls:
-    - hosts:
-        - ${OFFICIALS}
-      secretName: owlcms-ingress
   rules:
-    - host: ${OFFICIALS}
+    - host: o.local
       http:
         paths:
           - path: /
@@ -32,12 +28,8 @@ metadata:
   annotations:
     ingress.kubernetes.io/ssl-redirect: 'false'
 spec:
-  tls:
-    - hosts:
-        - ${RESULTS}
-      secretName: owlcms-ingress
   rules:
-    - host: ${RESULTS}
+    - host: r.local
       http:
         paths:
           - path: /

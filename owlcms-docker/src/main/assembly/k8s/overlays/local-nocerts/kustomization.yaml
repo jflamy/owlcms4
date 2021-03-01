@@ -11,7 +11,6 @@ images:
   newTag: ${project.version}
 
 resources:
-- networkpolicies.yaml
-- ingress.yaml
-- services.yaml
+- config.yaml
+- ingresses.yaml
 

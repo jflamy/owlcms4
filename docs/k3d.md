@@ -1,6 +1,6 @@
 
 
-# Home Hosting with Secure Internet Access
+# k3d Home Hosting with Secure Internet Access
 
 As an alternative to Heroku suitable for larger competitions, this page explains how to run owlcms and publicresults on your own Windows computer, and make it available from the cloud.
 
@@ -8,16 +8,50 @@ This procedure uses the free tier of the https://kubesail.com service to make th
 
 ## Install DockerDesktop
 
-The instructions are found [here](https://docs.docker.com/docker-for-windows/install-windows-home/). This step is only required once.
+The instructions are found [here](https://docs.docker.com/docker-for-windows/install-windows-home/). This step is only required once.  Do NOT Enable kubernetes.  Make sure it integrates with the default WSL2 Linux distribution (or the one you intend to use.)
 
-## Owlcms Install
+## Install k3d
 
-Docker Desktop installs the `kubectl` utility that is used to control Kubernetes.  By default, it will manage your Docker Desktop cluster.
+Install k3d from https://github.com/rancher/k3d.  
 
-This step installs owlcms and its prerequisites into the Kubernetes cluster.  It does NOT configure the internet access, this is done in the later steps.
+- Install it in your WSL2 distribution
+- You can also install it in your Windows environment for convenience if you do not have Chocolatey installed, you can go to the [releases](https://github.com/rancher/k3d/releases) page and download `k3d-windows-amd64.exe`.  Rename the file to `k3d` and make it visible somewhere on your PATH.
+
+
+
+## Create a k3d cluster
+
+We create a cluster that integrates into the host network. We disable the deployment of the default ingress controller, which will be replaced by nginx.
+
+```
+k3d cluster create owlcms --k3s-server-arg '--no-deploy=traefik' -p "80:80@loadbalancer" -p "443:443@loadbalancer"
+```
+
+We then save the configuration in our WSL2 Linux environment
+
+```
+k3d kubeconfig write owlcms
+```
+
+If you installed on Windows, also run the command there.  This is useful when using Lens or kubectl with a `KUBECONFIG` variable
+
+## Install owlcms
+
+1. Check the KUBECONFIG value.
+
+```export KUBECONFIG=~/.k3d/kubeconfig-owlcms.yaml```
+
+2. First we define our names.  Type the following two lines, <u>but with the actual names you want</u>.  The names must match what you picked as a wildcard address in your DNS.  If your wildcard is *.heavy.mygym.com then your addresses must end with heavy.mygym.com
+
+```
+export OFFICIALS=officials.owlcms.mywire.org
+export RESULTS=results.owlcms.mywire.org
+```
+
+2. This step fetches the configuration and substitutes the values for OFFICIALS and RESULTS before applying it.  Note: you may have to execute the command several times, because some steps may not have completed in time.  There is no harm done repeating the steps.  Wait 30 seconds or so between each attempt, every attempt will get further down the steps.
 
 ```powershell
-kubectl apply -f https://github.com/owlcms/owlcms4/releases/4.14.0/download/dd_setup.yaml
+curl -sfL https://github.com/owlcms/owlcms4/releases/download/4.14.0/k3d_setup.yaml | envsubst | kubectl apply -f - 
 ```
 
 ## Link the cluster to KubeSail

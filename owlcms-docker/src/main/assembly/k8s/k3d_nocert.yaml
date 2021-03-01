@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: publicresults
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: publicresults
+  template:
+    metadata:
+      labels:
+        app: publicresults
+    spec:
+      containers:
+      - envFrom:
+        - secretRef:
+            name: publicresults-config
+        image: ${env.DOCKER_REG}/publicresults:${env.DOCKER_TAG}
+        imagePullPolicy: Always
+        name: publicresults
+        ports:
+        - containerPort: 8080
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  labels:
+    app: publicresults
+  name: publicresults-ingress
+spec:
+  rules:
+  - host: r.local
+    http:
+      paths:
+      - backend:
+          serviceName: publicresults-8080
+          servicePort: 8080
