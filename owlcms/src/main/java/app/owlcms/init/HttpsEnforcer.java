@@ -39,7 +39,7 @@ public class HttpsEnforcer implements Filter {
 
         if (request.getHeader(X_FORWARDED_PROTO) != null) {
             if (request.getHeader(X_FORWARDED_PROTO).indexOf("https") != 0) {
-                if (request instanceof HttpServletRequest) {
+                if (request instanceof HttpServletRequest && !request.getServerName().endsWith(".local")) {
                     String url = request.getRequestURL().toString();
                     logger.info("{} received, forcing redirect to https", url);
                 }
