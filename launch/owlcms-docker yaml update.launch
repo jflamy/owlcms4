@@ -13,7 +13,6 @@
     <stringAttribute key="M2_USER_SETTINGS" value=""/>
     <booleanAttribute key="M2_WORKSPACE_RESOLUTION" value="false"/>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-        <mapEntry key="DOCKER_CERT_PATH" value="C:\Users\JF\.minikube\certs"/>
         <mapEntry key="DOCKER_HOST" value="tcp://localhost:2375"/>
         <mapEntry key="DOCKER_REG" value="docker.io/owlcms"/>
         <mapEntry key="DOCKER_TAG" value="prerelease"/>
