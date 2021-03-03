@@ -3,6 +3,7 @@ kind: Kustomization
 
 bases:
 - ../../base
+- ../../base-nginx
 
 images:
 - name: ${owlcms-docker}/owlcms
@@ -13,4 +14,3 @@ images:
 resources:
 - config.yaml
 - ingresses.yaml
-

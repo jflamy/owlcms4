@@ -5,7 +5,7 @@ metadata:
     app.kubernetes.io/component: controller
     app.kubernetes.io/instance: ingress-nginx
     app.kubernetes.io/name: ingress-nginx
-  name: ingress-nginx-controller
+  name: ingress-nginx-lb
   namespace: ingress-nginx
 spec:
   externalTrafficPolicy: Local
@@ -24,6 +24,5 @@ spec:
     app.kubernetes.io/name: ingress-nginx
   sessionAffinity: None
   type: LoadBalancer
-status:
-  loadBalancer: {}
+
 

@@ -5,6 +5,7 @@ metadata:
     app: owlcms
   name: owlcms-ingress
   annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
     ingress.kubernetes.io/ssl-redirect: 'false'
 spec:
   tls:
@@ -30,12 +31,13 @@ metadata:
     app: publicresults
   name: publicresults-ingress
   annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
     ingress.kubernetes.io/ssl-redirect: 'false'
 spec:
   tls:
     - hosts:
         - ${RESULTS}
-      secretName: owlcms-ingress
+      secretName: publicresults-ingress
   rules:
     - host: ${RESULTS}
       http:
@@ -47,3 +49,4 @@ spec:
                 name: publicresults-8080
                 port:
                   number: 8080
+
