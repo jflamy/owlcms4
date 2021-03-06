@@ -14,7 +14,7 @@ images:
 resources:
 - config.yaml
 - clusterissuer.yaml
-- nginx-service.yaml
+- nginx-loadbalancer.yaml
 
 
 

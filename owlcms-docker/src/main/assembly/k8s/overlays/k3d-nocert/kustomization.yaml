@@ -2,7 +2,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 bases:
-- ../../base-nginx-helm
+- ../../base-nginx
 - ../../base
 
 
@@ -14,4 +14,5 @@ images:
 
 resources:
 - config.yaml
+- nginx-loadbalancer.yaml
 - ingresses.yaml
