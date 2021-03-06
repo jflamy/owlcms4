@@ -8,16 +8,15 @@ This procedure uses the free tier of the https://kubesail.com service to make th
 
 ## Install DockerDesktop
 
-The instructions are found [here](https://docs.docker.com/docker-for-windows/install-windows-home/). This step is only required once.  Do NOT Enable kubernetes.  Make sure it integrates with the default WSL2 Linux distribution (or the one you intend to use.)
+The instructions are found [here](https://docs.docker.com/docker-for-windows/install-windows-home/). This step is only required once.  Do NOT Enable kubernetes.  The following assumes that the integration with WSL2 is enabled (it is by default on Windows Home).
 
 ## Install k3d
 
 Install k3d from https://github.com/rancher/k3d.  
 
-- Install it in your WSL2 distribution
-- You can also install it in your Windows environment for convenience if you do not have Chocolatey installed, you can go to the [releases](https://github.com/rancher/k3d/releases) page and download `k3d-windows-amd64.exe`.  Rename the file to `k3d` and make it visible somewhere on your PATH.
-
-
+- The simplest option is to install k3d in your WSL2 distribution (the docker backend runs in WSL2, and k3d just remote controls the docker backend)
+  - ```curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash```
+- You can also install it in your Windows environment for convenience -- this will make it easy to run other programs such as [Lens](https://k8slens.dev/) under Windows.  If you do not have Chocolatey installed, you can go to the [releases](https://github.com/rancher/k3d/releases) page and download `k3d-windows-amd64.exe`.  Rename the file to `k3d` and make it visible somewhere on your PATH.
 
 ## Create a k3d cluster
 
@@ -27,21 +26,21 @@ We create a cluster that integrates into the host network. We disable the deploy
 k3d cluster create owlcms --k3s-server-arg '--no-deploy=traefik' -p "80:80@loadbalancer" -p "443:443@loadbalancer"
 ```
 
-We then save the configuration in our WSL2 Linux environment
+We then save the configuration in our WSL2 Linux environment (in ~/.k3d).  The following command also sets the KUBECONFIG variable to the correct value.
 
+```bash
+export KUBECONFIG=$(k3d kubeconfig write owlcms)
 ```
+
+If you installed on Windows, the following command will create the configuration file in a .k3d directory in your home directory.  You will be able to select that file when running Lens for example
+
+```cmd
 k3d kubeconfig write owlcms
 ```
 
-If you installed on Windows, also run the command there.  This is useful when using Lens or kubectl with a `KUBECONFIG` variable
-
 ## Install owlcms
 
-1. Check the KUBECONFIG value.
-
-```export KUBECONFIG=~/.k3d/kubeconfig-owlcms.yaml```
-
-2. First we define our names.  Type the following two lines, <u>but with the actual names you want</u>.  The names must match what you picked as a wildcard address in your DNS.  If your wildcard is *.heavy.mygym.com then your addresses must end with heavy.mygym.com
+1. First we define our names.  Type the following two lines, <u>but with the actual names you want</u>.  The names must match what you picked as a wildcard address in your DNS.  If your wildcard is *.heavy.mygym.com then your addresses must end with heavy.mygym.com
 
 ```
 export OFFICIALS=officials.owlcms.mywire.org
