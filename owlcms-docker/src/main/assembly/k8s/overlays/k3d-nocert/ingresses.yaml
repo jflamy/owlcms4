@@ -5,10 +5,12 @@ metadata:
     app: owlcms
   name: owlcms-ingress
   annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+    nginx.ingress.kubernetes.io/enable-access-log: "true"
     ingress.kubernetes.io/ssl-redirect: 'false'
 spec:
   rules:
-    - host: o.local
+    - host: o.localhost
       http:
         paths:
           - path: /
@@ -26,10 +28,12 @@ metadata:
     app: publicresults
   name: publicresults-ingress
   annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+    nginx.ingress.kubernetes.io/enable-access-log: "true"
     ingress.kubernetes.io/ssl-redirect: 'false'
 spec:
   rules:
-    - host: r.local
+    - host: r.localhost
       http:
         paths:
           - path: /

@@ -27111,6 +27111,7 @@ spec:
         - secretRef:
             name: postgres-config
         image: ${env.DOCKER_REG}/owlcms:${env.DOCKER_TAG}
+        imagePullPolicy: Always
         name: owlcms
         ports:
         - containerPort: 8080

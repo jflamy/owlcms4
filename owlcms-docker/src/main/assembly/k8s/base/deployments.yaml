@@ -82,6 +82,7 @@ spec:
       containers:
         - name: owlcms
           image: ${env.DOCKER_REG}/owlcms:${env.DOCKER_TAG}
+          imagePullPolicy: Always
           envFrom:
             - secretRef:
                 name: owlcms-config

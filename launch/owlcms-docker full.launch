@@ -14,6 +14,7 @@
     <booleanAttribute key="M2_WORKSPACE_RESOLUTION" value="false"/>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="DOCKER_HOST" value="tcp://localhost:2375"/>
+        <mapEntry key="DOCKER_REG" value="owlcms"/>
         <mapEntry key="DOCKER_TAG" value="prerelease"/>
     </mapAttribute>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
