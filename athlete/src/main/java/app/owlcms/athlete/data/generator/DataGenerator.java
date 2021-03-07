@@ -13,18 +13,25 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 
 import app.owlcms.athlete.data.entity.Person;
 import app.owlcms.athlete.data.service.PersonRepository;
+import app.owlcms.athlete.data.service.PersonService;
 
 @SpringComponent
 public class DataGenerator {
 
     @Bean
-    public CommandLineRunner loadData(PersonRepository personRepository) {
+    public CommandLineRunner loadData(PersonRepository personRepository, PersonService s) {
         return args -> {
             Logger logger = LoggerFactory.getLogger(getClass());
             if (personRepository.count() != 0L) {
                 logger.info("Using existing database");
+                
+                System.err.println("before");
+                logger.info("jpql count = {} list = {}",s.getCountJPQL(), s.getAllJPQL());
+                logger.info("specification count = {}", s.getCountUsingSpecification());
+                System.err.println("after");
                 return;
             }
+            
             int seed = 123;
 
             logger.info("Generating demo data");
