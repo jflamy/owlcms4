@@ -57,7 +57,8 @@ There are several .free services that are typically used to give a name to home 
 
 Log in to the host using `ssh` as configured earlier.
 
-1. We install `k3s` which is a lightweight implementation of Kubernetes that is conveniently packaged as a single executable.    We disable one of the modules, which we will substitute in the next step.  Move your mouse over the text a
+1. We install `k3s` which is a lightweight implementation of Kubernetes that is conveniently packaged as a single executable.    We disable one of the modules, which we will substitute in the next step.  
+   Reminder: you can move your mouse over to  the right of the text and click to copy.
 
 ```bash
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable traefik" sh 

@@ -54,7 +54,7 @@ k3d kubeconfig write owlcms
 
 ## Enable remote access to the cluster
 
-[KubeSail](https://kubesail.com) offers a free service that will enable you to connect your private cluster to the cloud.  Your cluster will connect to KubeSail using an *agent*.  This works without changing anything to your firewall (since it is the agent running on your home network that initiates the process).  The opposite would be much harder (opening your home firewall, your Windows firewall, docker desktop)
+[KubeSail](https://kubesail.com) offers a free service that will enable you to connect your private cluster to the cloud.  Your cluster will connect to KubeSail using an *agent*.  This works without changing anything to your firewall (since it is the agent running on your home network that initiates the process).  The opposite would be much harder (opening your home firewall, your Windows firewall, your Docker, and finally your cluster).
 
 1. Create yourself a https://kubesail.com account.  This will rely on GitHub to log you in, so you may need to create a free account there.  Beware that if you do not own an internet domain, the login you chose will be part of the URL people see, so you probably want something meaningful, such as your club or federation name.
 2. Go to the Clusters page.  You will be given a command to install the agent.  Use the copy button to copy the command.
@@ -75,7 +75,7 @@ export OFFICIALS=officials.owlcms.youraccount.usw1.k8g8.com
 export RESULTS=results.owlcms.youraccount.usw1.k8g8.com
 ```
 
-2. This step fetches the configuration and substitutes the values for OFFICIALS and RESULTS before applying it.  Note: you may have to execute the command several times, because some steps may time out during the initial setup.  There is no harm done repeating the steps.  Wait 30 seconds or so between each attempt, every attempt will get further down the steps.
+2. This step fetches the configuration and substitutes the values for OFFICIALS and RESULTS before applying it.  Note: you may have to execute the command several times, because some steps may time out during the initial setup.  There is no harm done repeating the steps.  Wait 30 seconds or so between each attempt, each attempt will get further down the steps until they all succeed.
 
 ```powershell
 curl -sfL https://github.com/owlcms/owlcms4/releases/download/${revision}/k3d_setup.yaml | envsubst | kubectl apply -f - 
