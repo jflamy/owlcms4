@@ -122,14 +122,15 @@ For the current work status, see the following links
 
 ##### Latest stable releases
 
-- [stable binary installers](https://github.com/owlcms/owlcms4/releases)
-- stable cloud deployment for 
+- [stable installers](https://github.com/owlcms/owlcms4/releases)
+- stable cloud deployments for [owlcms](https://github.com/owlcms/owlcms-heroku/releases/tag/4.14.0) and [publicresults](https://github.com/owlcms/publicresults-heroku/releases/tag/4.14.0)
 - [stable release documentatation](https://owlcms.github.io/owlcms4/#/index)
 
 ##### Latest pre-releases
 
-- [stable binary releases](https://github.com/owlcms/owlcms4/releases)
-- [stable release documentatation](
+- [pre-release installers](https://github.com/jflamy-dev/owlcms4-prerelease/releases)
+- stable cloud deployments for [owlcms](https://github.com/jflamy-dev/owlcms-heroku-prerelease/releases) and [publicresults](https://github.com/jflamy-dev/publicresults-heroku-prerelease/releases)
+- [pre-release documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/index)
 
 
 
