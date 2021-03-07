@@ -12,7 +12,7 @@ If there is good internet communication at the competition site, there is no nee
 
 See the following for instructions
 
-  * [Heroku Cloud Installation Instructions](Cloud)
+  * [Heroku Cloud Installation Instructions](Heroku)
 
 ## Stand-alone: Laptop installation
 
@@ -33,7 +33,7 @@ See the following instructions
   * [Windows Stand-alone Installation](LocalWindowsSetup)
   * [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
 
-## Advanced: Virtual Competitions and Individual Scoreboards
+## Advanced: Remote Scoreboards for Virtual or Distanced Competitions
 
 There are additional modules available to support more involved scenarios.  For example, it is possible to have individual scoreboards available to every coach -- supporting physical distancing.  This can also be used to provide individual scoreboards to every member of the public watching the competition remotely.
 
@@ -53,18 +53,18 @@ In order to host a virtual competition effectively, you can install owlcms and p
 
 - [Free Heroku hosting of a virtual competition](Heroku)
 
-## Option 2: Kubernetes Cloud Hosting
+## Option 2: Cloud Kubernetes Hosting
 
-For larger competitions, or for a more polished expercen Even though the following uses a paid setup, you can still run a competition for less than 10$. And you get the added benefit that if your run a larger competition, you can increase the memory available.  If you want to run a large national competition with remote gyms, this is probably a better option.
+For larger competitions, or for a more polished experience, you can use a hosted setup that can scale up.
+
+Even though the following uses a paid setup, you can still run a competition for less than 10$. You also get the added benefit that if your run a larger competition, you can increase the memory available.  If you want to run a large national competition with remote gyms, this is probably the better option.
 
 - [Kubernetes on Digital Ocean Cloud](DigitalOcean)
 
-If you have access to another kind of Kubernetes setup, you can still use the instructions in that page for installing nginx, cert-manager, and owlcms.
+## Option 3: Home Kubernetes Hosting with Cloud Access
 
-## Option 3: Home Hosting with Cloud Access
+If you have good internet connectivity at home, and a good performance Windows, Linux or Mac server, you can use the following approach
 
-If you have good internet connectivity at home, and a good performance Windows server, you can use the following approach
-
-- [Docker Desktop Home Hosting with Secure Internet Access](DockerDesktop)
+- [Home Hosting with Secure Internet Access](k3d)
 
 If you have a Linux Host at home, you can use the same approach. Read above for the Cloud Hosting instructions, which you can apply at home, and use KubeSail.com to grant access.

@@ -57,7 +57,8 @@ There are several .free services that are typically used to give a name to home 
 
 Log in to the host using `ssh` as configured earlier.
 
-1. We install `k3s` which is a lightweight implementation of Kubernetes that is conveniently packaged as a single executable.    We disable one of the modules, which we will substitute in the next step.  Move your mouse over the text a
+1. We install `k3s` which is a lightweight implementation of Kubernetes that is conveniently packaged as a single executable.    We disable one of the modules, which we will substitute in the next step.  
+   Reminder: you can move your mouse over to  the right of the text and click to copy.
 
 ```bash
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable traefik" sh 
@@ -74,7 +75,7 @@ export RESULTS=results.owlcms.mywire.org
 2. This step fetches the configuration and substitutes the values for OFFICIALS and RESULTS before applying it.  Note: you may have to execute the command several times, because some steps may not have completed in time.  There is no harm done repeating the steps.  Wait 30 seconds or so between each attempt, every attempt will get further down the steps.
 
 ```powershell
-curl -sfL https://github.com/owlcms/owlcms4/releases/download/4.15.0-alpha01/k3s_setup.yaml | envsubst | kubectl apply -f - 
+curl -sfL https://github.com/owlcms/owlcms4/releases/download/4.15.0-alpha02/k3s_setup.yaml | envsubst | kubectl apply -f - 
 ```
 
 ## Using SSL
