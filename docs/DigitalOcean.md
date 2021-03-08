@@ -57,35 +57,14 @@ There are several .free services that are typically used to give a name to home 
 
 Log in to the host using `ssh` as configured earlier.
 
-1. We install `k3s` which is a lightweight implementation of Kubernetes that is conveniently packaged as a single executable.    We disable one of the modules, which we will substitute in the next step.  Move your mouse over the text a
+1. We install `k3s` which is a lightweight implementation of Kubernetes that is conveniently packaged as a single executable.    We disable one of the modules, which we will substitute in the next step.  
+   Reminder: you can move your mouse over to  the right of the text and click to copy.
 
 ```bash
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable traefik" sh 
 ```
 
-2. We add the `nginx` ingress module to control what URL will go to what application.
-
-```
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.43.0/deploy/static/provider/baremetal/deploy.yaml
-```
-
-3. We add the module that will automatically generate https certificates for the names we select.
-
-```bash
-kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.1.0/cert-manager.yaml
-```
-
-> Note that if you see warnings or are otherwise unsure, you can repeat steps 2 and 3 without harm.  Sometimes (seldom) step 3 runs into delays and needs to be repeated.
->
-> If you wish to start over, you can uninstall k3s using this command and then go back to step 1.
->
-> ```
-> k3s-uninstall.sh
-> ```
-
-## Owlcms Install
-
-#### Install owlcms
+## Install owlcms
 
 1. First we define our names.  Type the following two lines, <u>but with the actual names you want</u>.  The names must match what you picked as a wildcard address in your DNS.  If your wildcard is *.heavy.mygym.com then your addresses must end with heavy.mygym.com
 
@@ -93,10 +72,10 @@ kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.1
 export OFFICIALS=officials.owlcms.mywire.org
 export RESULTS=results.owlcms.mywire.org
 ```
-2. This step fetches the configuration and substitutes the values for OFFICIALS and RESULTS before applying it.
+2. This step fetches the configuration and substitutes the values for OFFICIALS and RESULTS before applying it.  Note: you may have to execute the command several times, because some steps may not have completed in time.  There is no harm done repeating the steps.  Wait 30 seconds or so between each attempt, every attempt will get further down the steps.
 
 ```powershell
-curl -sfL https://github.com/owlcms/owlcms4/releases/download/4.13.0/k3s_setup.yaml | envsubst | kubectl apply -f - 
+curl -sfL https://github.com/owlcms/owlcms4/releases/download/4.15.0-beta01/k3s_setup.yaml | envsubst | kubectl apply -f - 
 ```
 
 ## Using SSL
@@ -115,7 +94,15 @@ For additional protection, you should use SSL to protect the host.
 3. Create a `.kube` directory in you home directory (%HOMEDIR%%HOMEPATH%)
 4. Using your SSL session in MobaXterm, use the Sftp tab at the left of your session to locate /etc/rancher/k3s
 5. Use the download button at the top of the Sftp tab to copy the file in the .kube directory
-
 6. Download and install lens from [Lens | The Kubernetes IDE (k8slens.dev)](https://k8slens.dev/)
-
 7. Create a cluster definition using the + at the left and select the configuration file.
+
+## Backing up the database
+
+In order to backup the database, you can use the `kubectl exec` command to reach the Postgres pod inside the cluster, as follows, using PowerShell, bash or Git-Bash.
+
+```
+kubectl exec $(kubectl get pods -l app=postgres --no-headers -o name) -- pg_dump -U owlcms -d owlcms_db
+```
+
+The part between `$()` is a sub-command that gets the name of the postgres pod, which is then substituted in the `kubectl exec` command.   You can add additional parameters to pg_dump to select the format you want.

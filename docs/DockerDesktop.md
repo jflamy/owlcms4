@@ -17,7 +17,7 @@ Docker Desktop installs the `kubectl` utility that is used to control Kubernetes
 This step installs owlcms and its prerequisites into the Kubernetes cluster.  It does NOT configure the internet access, this is done in the later steps.
 
 ```powershell
-kubectl apply -f https://github.com/owlcms/owlcms4/releases/latest/download/dd_setup.yaml
+kubectl apply -f https://github.com/owlcms/owlcms4/releases/4.15.0-beta01/download/dd_setup.yaml
 ```
 
 ## Link the cluster to KubeSail
@@ -77,3 +77,16 @@ Lens is a very useful tool to see the status of your cluster.
 1. Download and install lens from [Lens | The Kubernetes IDE (k8slens.dev)](https://k8slens.dev/)
 2. Create a cluster definition using the + at the left and select the configuration file in the `.kube` folder in your home directory, i.e.  `%HOMEDRIVE%%HOMEPATH%\.kube\config` 
 3. Right-click on the icon for your cluster, select `Settings` and scroll down to the `Metrics Stack` section.  Install.
+
+Once you have defined your cluster, the Terminal window creates a PowerShell that automatically uses the `KUBECONFIG` for that cluster, meaning that the `kubectl` commands will automatically go to that cluster.
+
+## Backing up the database
+
+In order to backup the database, you can use the `kubectl exec` command to reach the Postgres pod inside the cluster, as follows, using PowerShell, bash or Git-Bash.
+
+```
+kubectl exec $(kubectl get pods -l app=postgres --no-headers -o name) -- pg_dump -U owlcms -d owlcms_db
+```
+
+The part between `$()` is a sub-command that gets the name of the postgres pod, which is then substituted in the `kubectl exec` command.   You can add additional parameters to pg_dump to select the format you want.
+

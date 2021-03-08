@@ -1,12 +1,11 @@
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: owlcms
-  namespace: default
   labels:
     app: owlcms
+  name: owlcms-ingress
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt
+    ingress.kubernetes.io/ssl-redirect: 'false'
 spec:
   tls:
     - hosts:
@@ -16,19 +15,22 @@ spec:
     - host: ${OFFICIALS}
       http:
         paths:
-          - backend:
-              serviceName: owlcms-8080
-              servicePort: 8080
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: owlcms-8080
+                port:
+                  number: 8080
 ---
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: publicresults
-  namespace: default
   labels:
     app: publicresults
+  name: publicresults-ingress
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt
+    ingress.kubernetes.io/ssl-redirect: 'false'
 spec:
   tls:
     - hosts:
@@ -38,6 +40,10 @@ spec:
     - host: ${RESULTS}
       http:
         paths:
-          - backend:
-              serviceName: publicresults-8080
-              servicePort: 8080
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: publicresults-8080
+                port:
+                  number: 8080

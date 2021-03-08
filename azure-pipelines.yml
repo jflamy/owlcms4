@@ -5,7 +5,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.14.0
+    default: 4.15.0-beta01
   - name: BuildPublicResults
     type: string
     default: 'true'
@@ -14,7 +14,7 @@ variables:
   # overrides pom.xml; must be unique if BuildGoal is set to deploy.
   - name: Revision
     value: ${{ parameters.Revision }}
-  # if BuildGoal = 'deploy', the uberjars will be published on bintray.  'package' does not deploy
+  # if BuildGoal = 'deploy', the uberjars will be published on the maven repository.  'package' does not deploy
   # to bintray, so Revision can be kept for several runs when debugging the installers.
   - name: BuildGoal
     value: deploy

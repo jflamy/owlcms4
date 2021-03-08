@@ -11,7 +11,7 @@
         <mapEntry key="OWLCMS_INITIALDATA" value="EMPTY_COMPETITION"/>
         <mapEntry key="OWLCMS_LOCALE" value="en"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="true"/>
-        <mapEntry key="OWLCMS_PORT" value="80"/>
+        <mapEntry key="OWLCMS_PORT" value="8080"/>
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="thisisaverylongsecretstring"/>
         <mapEntry key="_OWLCMS_IP" value="127.0.0.1,10.0.2.2"/>
@@ -25,6 +25,7 @@
     <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
         <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
     </listAttribute>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
     <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>

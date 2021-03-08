@@ -37,13 +37,19 @@ public class HttpsEnforcer implements Filter {
 
         if (request.getHeader(X_FORWARDED_PROTO) != null) {
             if (request.getHeader(X_FORWARDED_PROTO).indexOf("https") != 0) {
+                String url = request.getRequestURL().toString();
+                // request was not sent with https; redirect to https unless running locally
                 if (request instanceof HttpServletRequest) {
-                    String url = request.getRequestURL().toString();
-                    logger.info("{} received, forcing redirect to https", url);
+                    String serverName = request.getServerName();
+                    if (serverName.endsWith(".localhost") || serverName.endsWith("localhost")) {
+                        logger.debug("{} received, local path, not redirecting to https", url);
+                    } else {
+                        logger.info("{} received, forcing redirect to https", url);
+                        String pathInfo = (request.getPathInfo() != null) ? request.getPathInfo() : "";
+                        response.sendRedirect("https://" + serverName + pathInfo);
+                        return;
+                    }
                 }
-                String pathInfo = (request.getPathInfo() != null) ? request.getPathInfo() : "";
-                response.sendRedirect("https://" + request.getServerName() + pathInfo);
-                return;
             }
         }
 

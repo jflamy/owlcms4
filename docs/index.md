@@ -8,7 +8,7 @@ The application can be used for anything from a club meet using a single laptop 
 
 Several options are available for installation, depending on your needs. See the [Installation Overview](InstallationOverview) page for diagrams and a discussion of the following options:
   * Stand-alone installs are available for [Windows](LocalWindowsSetup), [Linux](LocalLinuxMacSetup) or [Mac](LocalLinuxMacSetup).  These can be used when the competition site has no internet access, but require more equipment.
-  * Cloud installs for [Heroku](Cloud) (simple, free, recommended) or [Kubernetes](https://github.com/owlcms/owlcms4/releases/download/4.14.0/k8s.zip) (advanced).  An internet connection is required at the competition site, but less equipment is required and setup is simpler.
+  * Cloud installs for [Heroku](Heroku) (simple, free, recommended) or [Kubernetes](https://github.com/jflamy-dev/owlcms4-prerelease/releases/download/4.15.0-beta01/k8s.zip) (advanced).  An internet connection is required at the competition site, but less equipment is required and setup is simpler.
 
 The [Equipment Setup](EquipmentSetup) page provides more technical details on the recommended physical setup.
 
@@ -122,14 +122,15 @@ For the current work status, see the following links
 
 ##### Latest stable releases
 
-- [stable binary installers](https://github.com/owlcms/owlcms4/releases)
-- stable cloud deployment for 
+- [stable installers](https://github.com/owlcms/owlcms4/releases)
+- stable cloud deployments for [owlcms](https://github.com/owlcms/owlcms-heroku/releases/tag/4.14.0) and [publicresults](https://github.com/owlcms/publicresults-heroku/releases/tag/4.14.0)
 - [stable release documentatation](https://owlcms.github.io/owlcms4/#/index)
 
 ##### Latest pre-releases
 
-- [stable binary releases](https://github.com/owlcms/owlcms4/releases)
-- [stable release documentatation](
+- [pre-release installers](https://github.com/jflamy-dev/owlcms4-prerelease/releases)
+- stable cloud deployments for [owlcms](https://github.com/jflamy-dev/owlcms-heroku-prerelease/releases) and [publicresults](https://github.com/jflamy-dev/publicresults-heroku-prerelease/releases)
+- [pre-release documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/index)
 
 
 

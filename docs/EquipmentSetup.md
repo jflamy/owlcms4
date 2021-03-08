@@ -1,8 +1,10 @@
 ## Physical Setup
 
-OWLCMS is a web-based application. This means that each screen or display is attached to a laptop or miniPC (Windows, Linux, ChromeOS)., and that a browser such as Chrome or Firefox runs on each computer.
+OWLCMS is a web-based application.  In the simplest setup, you will run the program on a laptop, and it will open a browser so you can interact with owlcms.
 
-**You can start by using a single laptop to run a club meet** (see below for [examples](#local-access-over-a-local-network).) 
+Typically, however, you will want the coaches to see a scoreboard, etc.  You can use *any* device that can run a browser.  The cheapest available device like an old laptop, a FireTV stick with [Firefox installed](https://support.mozilla.org/en-US/kb/firefox-fire-tv),  a [Raspbery Pi](https://www.raspberrypi.org/products/raspberry-pi-400/), or a basic Chromebook will all do.  So a basic setup might look like
+
+<center><img src="img/equipment/ClubCompetitionWIFI.png" alt="ClubCompetitionWIFI" style="zoom:80%;" /></center>
 
 At the opposite end of the spectrum, a full setup for a state competition using refereeing devices might look as follows:
 
@@ -14,24 +16,16 @@ You can also add a jury laptop with 5 refereeing devices, add additional results
 
 - The server software will run either 
   - on any reasonably recent laptop (this laptop will act as a primary server in a local networking setup, see [below](#local-access-over-a-local-network) for details.  In our experience, a Core i5 or equivalent is plenty.
-  - or on a cloud service. We test and support the [Heroku cloud service](Cloud#Heroku), which has a free tier suitable for owlcms. See [below](#cloud-access-over-the-internet) for more info.
-- For the user interface and displays,  It is recommended to use a recent version of **Chrome** or **Firefox** on a **laptop** or **miniPC** (Windows, Mac, Linux, ChromeOS). 
-
-  - The cheapest solution to drive TVs and projectors is a [**Raspberry Pi** 3B](https://www.canakit.com/raspberry-pi-3-model-b-plus-starter-kit.html) that costs less than 75$ fully configured including cables and storage.  Refer to this [section](RaspberryPi) for tips .
+  - or on a cloud service. We test and support the [Heroku cloud service](Heroku#Heroku), which has a free tier suitable for owlcms.
+- For the user interface and displays,  It is recommended to use a recent version of **Chrome** or **Firefox** on any laptop/miniPC (Windows, Linux, Mac), or on a specialized display device (Amazon FireStick)
+  -  The cheapest solutions to drive TV screens are Amazon FireTV stick with Firefox, and Raspberry Pi  computers (the [model 400](https://www.raspberrypi.org/products/raspberry-pi-400/), has everything built-in).
   - For the officials, you can use just about any laptop.  Refurbished Chromebooks or refurbished Windows laptops work well -- all that is needed is the ability to run a recent version of Chrome or Firefox.
-  - Apple iPhones and iPads are ok as [mobile refereeing devices](Refereeing#mobile-device-refereeing).   Display features such as the Scoreboard do work.
+  - Apple iPhones and iPads are ok as [mobile refereeing devices](Refereeing#mobile-device-refereeing).   Display features such as the Scoreboard also work.
   - Android phones and tablets work fine for all features (just install Chrome)
 
 ## Sound Requirements
 
-#### Chrome configuration
-
-Recent versions of Chrome no longer allow web pages to emit sounds by themselves.  In order to hear the signals from the clock and the down signal, we have to override this setting.
-
-- in Chrome, go to page ``chrome://flags``  and search for ``autoplay policy``  in the search bar.
-  Set the parameter to ``No user gesture is required``
-
-- OR --  Create a shortcut to chrome and add the following flag `--autoplay-policy=no-user-gesture-required`
+By default, the browsers showing scoreboards will also emit sound. This is necessary when the application is run remotely.  You should mute all the laptops except the athlete-facing display or the attempt board, depending on where you connect speakers.
 
 #### Primary Laptop Sound
 
@@ -39,36 +33,10 @@ Some combinations of browser and operating system produce garbled sound. If that
 
 ## Networking Requirements
 
-There are three ways to use OWLCMS: cloud-based, local, and solo.  Which one you use depends on your circumstances, please read on.
+When running locally, all that is required is a local Wi-Fi router.
 
-### Cloud access over the Internet
+If you are of the nervous kind, we do suggest that the announcer laptop, the attempt board, and the athlete-facing display where the referees are connected be linked using a wired connection.
 
-In this setup, OWLCMS executes on an external cloud service (we provide [instructions for Heroku](Cloud#Heroku), which is physically hosted on Amazon AWS).  Nothing is installed locally: all the laptops and miniPCs simply run a browser, which connects to the remote site.  The address that all the browsers need to use is determined when configuring the cloud service -- in the following example, our demo site https://owlcms4.herokuapp.com is used.
+When running over the cloud, the additional requirement is that the main router be connected to the internet.
 
-![010_Cloud](img/equipment/010_Cloud.PNG)
-
-### Local access over a local network
-
-If there is no Internet access where you hold your meet, or if you prefer not having to rely on it, the second option is to install OWLCMS on a good laptop.  OWLCMS is started on this laptop, which is designated as the *primary*.  
-
-![020_local](img/equipment/020_local.PNG)
-
-In this setup, the primary laptop plays the role of the server, and the router plays the role of the internet.  The owlcms software running on the laptop is absolutely identical to what is run in the cloud.  The differences are minor
-
-- in a simple local network, the simplest thing is to use numerical addresses.  These are given out by the router when equipment is connected to the network.
-- when OWLCMS starts up, it opens a browser window which tells you [what numerical address the other laptops should use](LocalSetup#initial-startup) to connect to OWLCMS.  In the illustration, the laptop at the right is the primary, and it can be reached from the laptop at the left using https://192.168.1.100 .  The white browser window on the primary laptop will show this information at startup.
-
-### Single-computer setup
-
-You can also use the primary laptop by itself.  This is useful to prepare for a competition that will run on that laptop.  You can even run a competition with just an announcer, just to announce athletes, keep time and record decisions. 
-
-The situation is the same as before: the display is done via a browser that asks OWLCMS for its information.  The only difference is that the two programs are running on the same computer.
-
--  OWLCMS runs on the laptop (pictured in red). It displays its status in a black command-line window.
-- A browser (Chrome or Firefox, pictured in blue), which will display its output in a browser window.   There is no need for a router because the two programs are on the same machine.   In such a case, there are magic addresses http://localhost or http://127.0.0.1 that allow the connection to be made locally.
-
-![030_solo](img/equipment/030_solo.PNG)
-
-
-
-[^1]: The only caveat is that some refereeing devices require [workarounds](Refereeing#notes-for-raspbery-pi-users-with-delcom-keypads)
+When running several platforms, we recommend that you use a well-designed setup with multiple Wi-Fi access points.  Ask a technical person for advice.

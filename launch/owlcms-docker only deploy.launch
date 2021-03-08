@@ -14,11 +14,10 @@
     <booleanAttribute key="M2_WORKSPACE_RESOLUTION" value="false"/>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="DOCKER_HOST" value="tcp://localhost:2375"/>
-        <mapEntry key="_DOCKER_CERT_PATH" value="C:\Users\JF\.minikube\certs"/>
-        <mapEntry key="_DOCKER_HOST" value="tcp://192.168.99.104:2376"/>
-        <mapEntry key="_DOCKER_TLS_VERIFY" value="1"/>
-        <mapEntry key="_MINIKUBE_ACTIVE_DOCKERD" value="minikube"/>
+        <mapEntry key="DOCKER_REG" value="owlcms"/>
+        <mapEntry key="DOCKER_TAG" value="prerelease"/>
     </mapAttribute>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
     <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="C:\Dev\git\owlcms4"/>
 </launchConfiguration>

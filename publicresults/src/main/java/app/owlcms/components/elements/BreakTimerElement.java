@@ -116,8 +116,13 @@ public class BreakTimerElement extends TimerElement {
     }
 
     @Subscribe
+    // not clear why we listen to this event.
     public void slaveOrderUpdated(UpdateEvent e) {
-        doSetTimer(e.getBreakRemaining());
+        Integer breakRemaining = e.getBreakRemaining();
+        if (e.isBreak() && breakRemaining > 0) {
+            doSetTimer(breakRemaining);
+            doStartTimer(breakRemaining, true);
+        }
     }
 
     /*
