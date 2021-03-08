@@ -105,7 +105,9 @@ public class AthleteTimerElement extends TimerElement {
         this.origin = origin;
     }
 
-    @Subscribe
+//    @Subscribe
+    // we do not listen to the bus for this event.  Score with leaders forwards this event
+    // when appropriate
     public void slaveOrderUpdated(UpdateEvent e) {
         doSetTimer(e.getTimeAllowed());
     }
