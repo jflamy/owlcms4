@@ -7,6 +7,7 @@
 package app.owlcms.uievents;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -574,7 +576,7 @@ public class EventForwarder implements BreakDisplay {
 
         mapPut(sb, "breakType", bts);
         logger.trace("***** break {} breakType {}", isBreak, bts);
-        int breakTimeRemaining = fop.getBreakTimer().getTimeRemaining();
+        int breakTimeRemaining = fop.getBreakTimer().liveTimeRemaining();
         mapPut(sb, "breakRemaining", Integer.toString(breakTimeRemaining));
 
         // current athlete & attempt
@@ -894,8 +896,11 @@ public class EventForwarder implements BreakDisplay {
                     logger.error("could not post to {} {} {}", url, statusLine, LoggerUtils.whereFrom(1));
                 }
                 EntityUtils.toString(response.getEntity());
+            } catch (Exception e1) {
+                logger.error("could not post to {} {} {}", url, e1.getCause());
             }
-        } catch (ParseException | IOException e1) {
+        } catch (UnsupportedEncodingException e1) {
+            // can't happen.
             logger.error("could not post to {} {} {}", url, e1.getCause());
         }
     }
