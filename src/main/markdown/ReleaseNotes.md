@@ -1,6 +1,6 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] Fix: Publicresults break timer no longer resets when the lifting order is recomputed (#403)
+  - [x] Fix: The timers on the optional public results application no longer reset spuriously when the lifting order is recomputed (#403)
   - [x] Updated scripts and instructions for Kubernetes setups using k3d and k3s (both cloud- and home-hosted)
   - [x] Build process: Now using a self-hosted maven directory instead of bintray.com which is no longer available.
   
