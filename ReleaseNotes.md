@@ -1,6 +1,6 @@
-* Changes for release 4.15.0-beta02  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.15.0  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] Fix: Publicresults break timer no longer resets when the lifting order is recomputed (#403)
+  - [x] Fix: The timers on the optional public results application no longer reset spuriously when the lifting order is recomputed (#403)
   - [x] Updated scripts and instructions for Kubernetes setups using k3d and k3s (both cloud- and home-hosted)
   - [x] Build process: Now using a self-hosted maven directory instead of bintray.com which is no longer available.
   
@@ -45,12 +45,12 @@
   - [ ] Workaround: (#304) When the browser screens have already been started and owlcms is restarted,  occasionnaly a refresh of the page may be required.
 
 Installation Instructions :
-  - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalWindowsSetup)
     
     > If you get a blue window with `Windows protected your PC`, or if your laptop works very hard performing an anti-virus scan that takes very long, see this page : [Make Windows Defender Allow Installation](https://jflamy.github.io/owlcms4/#/DefenderOff)
     
-  - For **Linux** and **Mac OS**, download the `owlcms.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalLinuxMacSetup)
 
-  - For **Heroku** cloud, no download is necessary. Follow the ([Heroku Cloud Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Cloud) to deploy your own copy.
+  - For **Heroku** cloud, no download is necessary. Follow the ([Heroku Cloud Installation](https://owlcms.github.io/owlcms4/#/Cloud) to deploy your own copy.
 
-  - For **Kubernetes** deployments, you can use `kubectl apply` on the `k3s_setup.yaml` file for k3s  (see https://jflamy-dev.github.io/owlcms4-prerelease/#/DigitalOcean) or `dd_setup.yaml` for Docker Desktop (see https://jflamy-dev.github.io/owlcms4-prerelease/#/DockerDesktop).  For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 
+  - For **Kubernetes** deployments, you can use `kubectl apply` on the `k3s_setup.yaml` file for k3s  (see https://owlcms.github.io/owlcms4/#/DigitalOcean) or `dd_setup.yaml` for Docker Desktop (see https://owlcms.github.io/owlcms4/#/DockerDesktop).  For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 
