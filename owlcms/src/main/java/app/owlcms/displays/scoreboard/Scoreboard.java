@@ -376,13 +376,15 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         }
 
         if (!leaveTopAlone) {
-            logger.debug("updating top {}", a.getFullName());
-            model.setFullName(a.getFullName());
-            model.setTeamName(a.getTeam());
-            model.setStartNumber(a.getStartNumber());
-            String formattedAttempt = formatAttempt(a.getAttemptsDone());
-            model.setAttempt(formattedAttempt);
-            model.setWeight(a.getNextAttemptRequestedWeight());
+            if (a != null) {
+                logger.debug("updating top {}", a.getFullName());
+                model.setFullName(a.getFullName());
+                model.setTeamName(a.getTeam());
+                model.setStartNumber(a.getStartNumber());
+                String formattedAttempt = formatAttempt(a.getAttemptsDone());
+                model.setAttempt(formattedAttempt);
+                model.setWeight(a.getNextAttemptRequestedWeight());
+            }
             this.getElement().callJsFunction("reset");
         }
         logger.debug("updating bottom");
