@@ -26,7 +26,7 @@ The following steps are suggested
 
 1. Use one of the following three options to install owlcms and publicresults in the cloud
    1. [Option 1: Heroku Cloud Hosting](InstallationOverview#option-1-heroku-cloud-hosting)
-   2. [Option 2: Kubernetes Cloud Hosting](InstallationOverview#option-2-kubernetes-cloud-hosting)
-   3. [Option 3: Home Hosting with Cloud Access](InstallationOverview#option-3-home-hosting-with-cloud-access)
+   2. [Option 2: Cloud Kubernetes Hosting](InstallationOverview#option-2-cloud-kubernetes-hosting)
+   3. [Option 3: Home Kubernetes Hosting with Cloud Access](InstallationOverview#option-3-home-kubernetes-hosting-with-cloud-access)
 2. Test your setup
 3. As a backup, you way want to set up your video conference to also [broadast the scoreboard](Video)
