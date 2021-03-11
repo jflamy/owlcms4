@@ -37,7 +37,7 @@ k3d cluster create owlcms --k3s-server-arg '--no-deploy=traefik'
 > Note:  If you also want to be able to connect to your cluster locally, use this format to make connections on port 8443 possible.  This will be possible *after* we have connected the cluster to the internet and obtained correct certificates.  Since we use certificates, you will need to use https, hence the choice of a 443 port.  You can replace 8443 with whatever you want, including 443 if it is free
 >
 > ```bash
-> k3d cluster create owlcms --k3s-server-arg '--no-deploy=traefik'-p "8443:443@loadbalancer"
+> k3d cluster create owlcms --k3s-server-arg '--no-deploy=traefik' --port "8443:443@loadbalancer"
 > ```
 
 We then save the configuration in our WSL2 Linux environment (in ~/.k3d).  The following command also sets the KUBECONFIG variable to the correct value.
