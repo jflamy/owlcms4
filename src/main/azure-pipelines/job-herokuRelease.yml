@@ -39,7 +39,7 @@ jobs:
       - script: |
           cd ${{ parameters.moduleName }}-heroku
           # add new files
-          git add -A && git commit -m "$(Revision) heroku" --allow-empty
+          git add -A && git commit -m "$(Revision) heroku [skip ci]" --allow-empty
 
           # push new version to the release repo
           # no tag, will be created by the release task
