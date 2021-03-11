@@ -11,7 +11,7 @@ cd ..
 git checkout master
 git pull
 git add .
-git commit -a -m "master sync"
+git commit -a -m " [skip ci]"
 git push
 echo Done. synced master submodules.
 
