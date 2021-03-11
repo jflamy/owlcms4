@@ -11,7 +11,7 @@ cd ..
 git checkout develop
 git pull
 git add .
-git commit -a -m "sync submodules"
+git commit -a -m "sync submodules [skip ci]"
 git push
 echo Done. synced develop submodules.
 

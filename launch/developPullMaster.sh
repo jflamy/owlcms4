@@ -3,19 +3,19 @@ cd publicresults-heroku
 git checkout develop
 git pull
 git merge origin/master --no-ff
-git commit -a -m "merge master"
+git commit -a -m "merge master [skip ci]"
 git push origin develop
 cd ..
 cd owlcms-heroku
 git checkout develop
 git pull
 git merge origin/master --no-ff
-git commit -a -m "merge master"
+git commit -a -m "merge master [skip ci]"
 git push origin develop
 cd ..
 git checkout develop
 git pull
 git merge origin/master --no-ff
-git commit -a -m "merge master"
+git commit -a -m "merge master [skip ci]"
 git push origin develop
 echo Done.  pulled master into develop.
