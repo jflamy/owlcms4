@@ -1,11 +1,10 @@
 trigger:
-  - none
-
+  - develop
 
 parameters:
   - name: Revision
     type: string
-    default: 4.15.0
+    default: 4.15.1-rc03
   - name: BuildPublicResults
     type: string
     default: 'true'
@@ -126,7 +125,7 @@ jobs:
           git config user.email "$(Build.RequestedForEmail)"
           git config user.name "$(Build.RequestedFor)"
           git checkout $(Build.SourceBranchName)
-          git add -A && git commit -m "$(Revision)" --allow-empty
+          git add -A && git commit -m "$(Revision) [skip ci]" --allow-empty
           git tag $(Revision) -f -a -m "$(Revision)"
           git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Build.SourceBranchName) --force
           git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Revision) --force
