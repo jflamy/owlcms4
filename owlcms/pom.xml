@@ -310,10 +310,16 @@
                         <image>owlcms/travajdk-jre:latest</image>
                     </from>
                     <to>
-                        <image>myimage</image>
+                        <image>owlcms</image>
                     </to>
                     <container>
-                        <ports>8080</ports>
+                        <ports>
+                        	<port>8080</port>
+                        </ports>
+						<jvmFlags>
+							<jvmFlag>-XX:HotswapAgent=fatjar</jvmFlag>
+						</jvmFlags>
+						<creationTime>USE_CURRENT_TIMESTAMP</creationTime>
                     </container>
                 </configuration>
             </plugin>
