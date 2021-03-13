@@ -15,7 +15,6 @@
         <module>installtools</module>
         <module>owlcms-windows</module>
         <module>publicresults-windows</module>
-        <module>athlete</module>
     </modules>
 
     <organization>
