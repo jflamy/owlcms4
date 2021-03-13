@@ -895,13 +895,15 @@ public class EventForwarder implements BreakDisplay {
                 }
                 EntityUtils.toString(response.getEntity());
             } catch (Exception e1) {
-                logger.error("could not post to {} {} {}", url, e1.getCause());
+                logger.error("could not post to {} {}", url, LoggerUtils.exceptionMessage(e1));
             }
-        } catch (UnsupportedEncodingException e1) {
+        } catch (UnsupportedEncodingException e2) {
             // can't happen.
-            logger.error("could not post to {} {} {}", url, e1.getCause());
+            logger.error("could not post to {} {}", url, LoggerUtils.exceptionMessage(e2));
         }
     }
+
+
 
     private void setCategoryName(String name) {
         this.categoryName = name;
