@@ -11,7 +11,14 @@ public class RankSetter {
     public int srRank = 0;
 
     public void increment(Athlete a, Ranking r, boolean eligible, boolean zero) {
-        int age = a.getAge();
+        int age;
+        try {
+            age = a.getAge();
+        } catch (Exception e) {
+            // if no age, rank as senior.
+            // defensive, should not happen.
+            age = 21;
+        }
 
         switch (r) {
         case SNATCH:
