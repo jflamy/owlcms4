@@ -1,14 +1,10 @@
 trigger:
-  - none
+  - master
 
 parameters:
   - name: Revision
     type: string
-<<<<<<< HEAD
     default: 4.15.2
-=======
-    default: 4.15.2-rc01
->>>>>>> origin/develop
   - name: BuildPublicResults
     type: string
     default: 'true'
