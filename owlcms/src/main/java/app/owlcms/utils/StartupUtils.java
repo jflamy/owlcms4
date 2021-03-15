@@ -107,7 +107,7 @@ public class StartupUtils {
     }
 
     public static boolean openBrowser(Desktop desktop, String hostName)
-            throws MalformedURLException, IOException, ProtocolException, URISyntaxException {
+            throws MalformedURLException, IOException, ProtocolException, URISyntaxException, UnsupportedOperationException {
         if (hostName == null) {
             return false;
         }
@@ -158,7 +158,7 @@ public class StartupUtils {
                 logger./**/warn("Cannot start browser on {}", System.getProperty("os.name"));
             }
         } catch (Throwable t) {
-            logger./**/warn("Cannot start browser: {}", t);
+            logger./**/warn("Cannot start browser: {}", t.getCause() != null ? t.getCause() : t.getMessage());
         }
     }
 

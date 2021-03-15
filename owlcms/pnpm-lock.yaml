@@ -48,7 +48,6 @@ devDependencies:
   compression-webpack-plugin: 4.0.1_webpack@4.42.0
   copy-webpack-plugin: 5.1.1_webpack@4.42.0
   raw-loader: 3.1.0_webpack@4.42.0
-  terser: 4.6.7
   webpack: 4.42.0_webpack@4.42.0
   webpack-babel-multi-target-plugin: 2.3.3_3058478e3b6ebc6bc7e5c30c5916785a
   webpack-cli: 3.3.11_webpack@4.42.0
@@ -2708,12 +2707,14 @@ packages:
   /debug/3.2.6:
     dependencies:
       ms: 2.1.2
+    deprecated: 'Debug versions >=3.2.0 <3.2.7 || >=4 <4.3.1 have a low-severity ReDos regression when used in a Node.js environment. It is recommended you upgrade to 3.2.7 or 4.3.1. (https://github.com/visionmedia/debug/issues/797)'
     dev: true
     resolution:
       integrity: sha512-mel+jf7nrtEl5Pn1Qx46zARXKDpBbvzezse7p7LqINmdoIk8PYP5SySaxEmYv6TZ0JyEKA1hsCId6DIhgITtWQ==
   /debug/4.1.1:
     dependencies:
       ms: 2.1.2
+    deprecated: 'Debug versions >=3.2.0 <3.2.7 || >=4 <4.3.1 have a low-severity ReDos regression when used in a Node.js environment. It is recommended you upgrade to 3.2.7 or 4.3.1. (https://github.com/visionmedia/debug/issues/797)'
     dev: true
     resolution:
       integrity: sha512-pYAIzeRo8J6KPEaJ0VWOh5Pzkbw/RetuzehGM7QRRX5he4fPHx2rdKMB256ehJCkX+XRQm16eZLqLNS8RSZXZw==
@@ -3399,6 +3400,7 @@ packages:
     resolution:
       integrity: sha1-FQStJSMVjKpA20onh8sBQRmU6k8=
   /fsevents/2.1.3:
+    deprecated: '"Please update to latest v2.3 or v2.2"'
     dev: true
     engines:
       node: ^8.16.0 || ^10.6.0 || >=11.0.0
@@ -3679,6 +3681,7 @@ packages:
       toposort: 1.0.7
       util.promisify: 1.0.0
       webpack: 4.42.0_webpack@4.42.0
+    deprecated: 3.x is no longer supported
     dev: true
     engines:
       node: '>=6.9'
@@ -3833,6 +3836,7 @@ packages:
     resolution:
       integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
   /ini/1.3.5:
+    deprecated: Please update to ini >=1.3.6 to avoid a prototype pollution issue
     dev: true
     resolution:
       integrity: sha512-RZY5huIKCMRWDUqZlEi72f/lmXKMvuszcMBduliQ3nnWbx9X/ZBQO7DijMEYS9EhHBb2qacRUMtC7svLwe0lcw==
@@ -6639,7 +6643,6 @@ specifiers:
   copy-webpack-plugin: 5.1.1
   lit-element: ^2.2.1
   raw-loader: 3.1.0
-  terser: 4.6.7
   webpack: 4.42.0
   webpack-babel-multi-target-plugin: 2.3.3
   webpack-cli: 3.3.11

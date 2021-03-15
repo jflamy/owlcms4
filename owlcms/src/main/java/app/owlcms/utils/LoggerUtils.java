@@ -76,4 +76,22 @@ public class LoggerUtils {
     public static String whereFrom(int depth) {
         return Thread.currentThread().getStackTrace()[3 + depth].toString();
     }
+
+    /**
+     * @param e
+     * @return
+     */
+    public static String exceptionMessage(Exception e) {
+        String message = null;
+        if (e.getCause() != null) {
+            message = e.getCause().getMessage();
+        }
+        if (message == null) {
+            message = e.getMessage();
+        }
+        if (message == null) {
+            message = e.getClass().getSimpleName();
+        }
+        return message;
+    }
 }
