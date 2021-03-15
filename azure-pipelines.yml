@@ -1,10 +1,10 @@
 trigger:
-  - none
+  - master
 
 parameters:
   - name: Revision
     type: string
-    default: 4.15.2-rc01
+    default: 4.15.2
   - name: BuildPublicResults
     type: string
     default: 'true'
