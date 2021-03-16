@@ -218,7 +218,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveBreakDone(BreakTimerEvent.BreakDone e) {
-        logger.warn("swl BreakDone");
+        logger.warn("scoreWithLeaders BreakDone");
         this.getElement().callJsFunction("reset");
         needReset = false;
     }
@@ -267,6 +267,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveGlobalRankingUpdated(UpdateEvent e) {
+        String fopState = e.getFopState();
         logger.warn("received UpdateEvent {}", e);
         ui.access(() -> {
             String athletes = e.getAthletes();
@@ -295,17 +296,18 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             String liftsDone = e.getLiftsDone();
             getModel().setLiftsDone(liftsDone);
             
-            logger.warn("state {} {}", e.getFopState(), e.getBreakType() );
+            logger.debug("state {} {}", fopState, e.getBreakType() );
 
-            if ("BREAK".equals(e.getFopState()) && e.getBreakType() == BreakType.GROUP_DONE) {
-                logger.warn("group is done");
+            if ("INACTIVE".equals(fopState) || ("BREAK".equals(fopState) && e.getBreakType() == BreakType.GROUP_DONE)) {
+                logger.warn("not in a group");
                 doDone(e.getFullName());
                 needReset = true;
-            } else if ("BREAK".equals(e.getFopState())) {
+            } else if ("BREAK".equals(fopState)) {
                 logger.warn("in a break {}", e.getBreakType());
                 this.getElement().callJsFunction("doBreak");
                 needReset = true;
             } else if (!needReset) {
+                // logger.warn("no reset");
             } else {
                 logger.warn("resetting becase of ranking update");
                 this.getElement().callJsFunction("reset");
@@ -324,14 +326,14 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         // crude workaround -- randomly getting light or dark due to multiple themes detected in app.
         getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
         
-        logger.warn("registering ScoreWithLeaders {}", System.identityHashCode(this));
+        logger.trace("registering ScoreWithLeaders {}", System.identityHashCode(this));
         UpdateReceiverServlet.getEventBus().register(this);
         DecisionReceiverServlet.getEventBus().register(this);
         TimerReceiverServlet.getEventBus().register(this);
 
         UnloadObserver unloadObserver = UnloadObserver.get(false);
         unloadObserver.addUnloadListener((e) -> {
-            logger.warn("closing {}: unregister {} from event busses", e.getSource(), this);
+            logger.trace("closing {}: unregister {} from event busses", e.getSource(), this);
             try {
                 UpdateReceiverServlet.getEventBus().unregister(this);
                 DecisionReceiverServlet.getEventBus().unregister(this);
