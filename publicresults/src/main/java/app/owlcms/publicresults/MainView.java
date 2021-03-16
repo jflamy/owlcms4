@@ -1,5 +1,5 @@
 /***
- * Copyright (c) 2009-2020 Jean-François Lamy
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
@@ -83,16 +83,14 @@ public class MainView extends VerticalLayout {
         if (fopNames.size() == 0 || ui == null) {
             removeAll();
             add(text);
-        }
-        else if (fopNames.size() == 1) {
-            logger.warn("one platform");
+        } else if (fopNames.size() == 1) {
+            logger.warn("single platform, go to scoreboard");
             Map<String, String> parameterMap = new HashMap<>();
             String fop = fopNames.stream().findFirst().get();
             parameterMap.put("FOP", fop);
-            //ui.navigate("displays/scoreleader", QueryParameters.simple(parameterMap));
-            ui.getPage().executeJs("window.location.href='displays/scoreleader?FOP="+fop+"'");
-        } 
-        else {
+            // ui.navigate("displays/scoreleader", QueryParameters.simple(parameterMap));
+            ui.getPage().executeJs("window.location.href='displays/scoreleader?FOP=" + fop + "'");
+        } else {
             createButtons(fopNames);
         }
     }

@@ -1,10 +1,10 @@
 trigger:
-  - master
+  - develop
 
 parameters:
   - name: Revision
     type: string
-    default: 4.15.2
+    default: 4.15.3-rc01
   - name: BuildPublicResults
     type: string
     default: 'true'
