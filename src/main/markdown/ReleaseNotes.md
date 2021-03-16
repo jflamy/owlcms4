@@ -1,6 +1,7 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] Fix: The Officials tab on the Start List spreadsheet now shows the weigh-in officials for the group.
+  - [x] Fix: The publicresults application was switching to an empty scoreboard page on owlcms startup (#404).  Now properly shows the "Waiting for next group" banner.
+  - [x] Fix: The Officials tab on the Start List spreadsheet now includes the weigh-in officials for the group.
   - [x] Fix: The timers on the optional public results application no longer reset spuriously when the lifting order is recomputed (#403)
   - [x] Installer:  redid the installers to use just the smaller Java runtime environment instead of the full development environment.
   
@@ -39,7 +40,6 @@
    * [x] Enhancement: Simple team competition scoreboard.  Top 5 men and top 5 women teams are displayed. Shows how many athletes have been tallied and full team size. (#327)
    * [x] Enhancement: The final package page contains all the scores (SMM, Sinclair, Robi) same as the group results page.
    * [x] Enhancement: In order to facilitate video streaming overlays (e.g. with OBS Studio), the URL http://my.address:8080/displays/currentathlete gives a special screen with only the current athlete shown on the scoreboard.  Edit the file local/styles/currentathlete.css to customize the look and feel. (#312)
-
 * Workarounds/Known Issues
   
   - [ ] Workaround: (#304) When the browser screens have already been started and owlcms is restarted,  occasionnaly a refresh of the page may be required.
