@@ -62,6 +62,8 @@ public class Config {
 
     private String updatekey;
 
+    private String ipBackdoorList;
+
     /**
      * Gets the id.
      *
@@ -76,20 +78,33 @@ public class Config {
     }
 
     /**
-     * @return the current password.
+     * @return the current whitelist.
      */
     public String getParamAccessList() {
         String uAccessList = StartupUtils.getStringParam("ip");
-        if (uAccessList != null) {
-            return uAccessList;
-        } else {
-            uAccessList = ipAccessList;
-            if (uAccessList == null || uAccessList.trim().isEmpty()) {
-                return null;
-            } else {
-                return uAccessList;
+        if (uAccessList == null) {
+            // use access list from database
+            uAccessList = Config.getCurrent().ipAccessList;
+            if (uAccessList == null || uAccessList.isBlank()) {
+                uAccessList = null;
             }
         }
+        return uAccessList;
+    }
+    
+    /**
+     * @return the current whitelist.
+     */
+    public String getParamBackdoorList() {
+        String uAccessList = StartupUtils.getStringParam("backdoor");
+        if (uAccessList == null) {
+            // use access list from database
+            uAccessList = Config.getCurrent().ipBackdoorList;
+            if (uAccessList == null || uAccessList.isBlank()) {
+                uAccessList = null;
+            }
+        }
+        return uAccessList;
     }
 
     public String getParamDecisionUrl() {
@@ -102,16 +117,15 @@ public class Config {
      */
     public String getParamPin() {
         String uPin = StartupUtils.getStringParam("pin");
-        if (uPin != null) {
-            return uPin;
-        } else {
-            uPin = pin;
-            if (uPin == null || uPin.trim().isEmpty()) {
-                return null;
-            } else {
-                return uPin;
+        if (uPin == null) {
+            // use pin from database
+            uPin = Config.getCurrent().pin;
+            //logger.warn("pin = {}", uPin);
+            if (uPin == null || uPin.isBlank()) {
+                uPin = null;
             }
         }
+        return uPin;
     }
 
     public String getParamTimerUrl() {
@@ -124,16 +138,14 @@ public class Config {
      */
     public String getParamUpdateKey() {
         String uKey = StartupUtils.getStringParam("updateKey");
-        if (uKey != null) {
-            return uKey;
-        } else {
-            uKey = updatekey;
-            if (uKey == null || uKey.trim().isEmpty()) {
-                return null;
-            } else {
-                return uKey;
+        if (uKey == null) {
+            // use pin from database
+            uKey = Config.getCurrent().updatekey;
+            if (uKey == null || uKey.isBlank()) {
+                uKey = null;
             }
         }
+        return uKey;
     }
 
     public String getParamUpdateUrl() {
@@ -180,7 +192,7 @@ public class Config {
             return uURL;
         } else {
             uURL = publicResultsURL;
-            if (uURL == null || uURL.trim().isEmpty()) {
+            if (uURL == null || uURL.isBlank()) {
                 return null;
             } else {
                 // user may have copied URL with trailing /
@@ -189,7 +201,7 @@ public class Config {
             }
         }
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
@@ -205,12 +217,19 @@ public class Config {
         Config other = (Config) obj;
         return id != null && id.equals(other.getId());
     }
-    
+
     @Override
     public int hashCode() {
         // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         return 31;
     }
 
+    public String getIpBackdoorList() {
+        return ipBackdoorList;
+    }
+
+    public void setIpBackdoorList(String ipBackdoorList) {
+        this.ipBackdoorList = ipBackdoorList;
+    }
 
 }

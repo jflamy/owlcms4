@@ -23,6 +23,15 @@ public class AccessUtils {
 
     public static boolean checkWhitelist() {
         String whiteList = Config.getCurrent().getParamAccessList();
+        return checkListMembership(whiteList, true);
+    }
+    
+    public static boolean checkBackdoor() {
+        String whiteList = Config.getCurrent().getParamBackdoorList();
+        return checkListMembership(whiteList, false);
+    }
+
+    private static boolean checkListMembership(String whiteList, boolean whiteListCheck) {
         boolean whiteListed;
         if (whiteList != null && !whiteList.trim().isEmpty()) {
             String clientIp = getClientIp();
@@ -31,10 +40,9 @@ public class AccessUtils {
                 clientIp = "127.0.0.1";
             }
             List<String> whiteListedList = Arrays.asList(whiteList.split(","));
-            logger.debug("checking client IP={} vs configured IP={}", clientIp, whiteList);
             // must come from whitelisted address and have matching PIN
             whiteListed = whiteListedList.contains(clientIp);
-            if (!whiteListed) {
+            if (!whiteListed && whiteListCheck) {
                 logger.error("login attempt from non-whitelisted host {} (whitelist={})", clientIp, whiteListedList);
             }
         } else {
