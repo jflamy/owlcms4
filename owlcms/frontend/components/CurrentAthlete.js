@@ -38,7 +38,7 @@ class CurrentAthlete extends PolymerElement {
 		</div>
 	</div>
 	<div class="group" style$="[[_hideWhenInactive(hidden)]]">
-	<div id="groupDiv"><span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]</div>
+	<div id="groupDiv"><span class="groupName">[[groupName]]</span> [[liftsDone]]</div>
 	</div>
 	<div id="results" style$="[[_hideWhenInactive(hidden)]]">
 	<table class="results" style$="[[_hideWhenInactive(hidden)]]">
