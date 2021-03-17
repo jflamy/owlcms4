@@ -67,10 +67,10 @@ public class IPInterfaceUtils {
         String siteString = request.getRequestURI();
         String requestURL = request.getRequestURL().toString();
         String absoluteURL = URLUtils.buildAbsoluteURL(request, null);
-        logger.debug("absolute URL {}", absoluteURL);
+//        logger.debug("absolute URL {}", absoluteURL);
 
         local = isLocalAddress(server) || isLoopbackAddress(server);
-        logger.warn("request {} isLocal: {}", requestURL, local);
+//        logger.debug("request {} isLocal: {}", requestURL, local);
 
         if (!local) {
             // a name was used. this is probably the best option.

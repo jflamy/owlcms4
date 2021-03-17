@@ -120,11 +120,11 @@ public class Config {
         if (uPin == null) {
             // use pin from database
             uPin = Config.getCurrent().pin;
-            if (uPin == null || uPin.trim().isEmpty()) {
+            //logger.warn("pin = {}", uPin);
+            if (uPin == null || uPin.isBlank()) {
                 uPin = null;
             }
         }
-        logger.warn("configured pin = {}", uPin);
         return uPin;
     }
 
@@ -141,7 +141,7 @@ public class Config {
         if (uKey == null) {
             // use pin from database
             uKey = Config.getCurrent().updatekey;
-            if (uKey == null || uKey.trim().isEmpty()) {
+            if (uKey == null || uKey.isBlank()) {
                 uKey = null;
             }
         }
@@ -192,7 +192,7 @@ public class Config {
             return uURL;
         } else {
             uURL = publicResultsURL;
-            if (uURL == null || uURL.trim().isEmpty()) {
+            if (uURL == null || uURL.isBlank()) {
                 return null;
             } else {
                 // user may have copied URL with trailing /

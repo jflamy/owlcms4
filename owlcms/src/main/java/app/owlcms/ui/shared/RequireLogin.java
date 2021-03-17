@@ -6,6 +6,8 @@
  */
 package app.owlcms.ui.shared;
 
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 
@@ -14,8 +16,11 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.home.LoginView;
 import app.owlcms.utils.AccessUtils;
+import ch.qos.logback.classic.Logger;
 
 public interface RequireLogin extends BeforeEnterObserver {
+    
+    Logger logger = (Logger) LoggerFactory.getLogger(RequireLogin.class);
 
     @Override
     public default void beforeEnter(BeforeEnterEvent event) {
@@ -41,6 +46,7 @@ public interface RequireLogin extends BeforeEnterObserver {
             return;
         } else if (backdoor && AccessUtils.checkBackdoor()) {
             // explicit backdoor access allowed (e.g. for video capture of browser screens)
+            logger.info("allowing backdoor access from {}",AccessUtils.getClientIp());
             OwlcmsSession.setAuthenticated(true);
             return;
         } else if (noPin && AccessUtils.checkWhitelist()) {

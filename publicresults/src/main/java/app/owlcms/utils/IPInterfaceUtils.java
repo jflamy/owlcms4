@@ -67,10 +67,10 @@ public class IPInterfaceUtils {
         String siteString = request.getRequestURI();
         String requestURL = request.getRequestURL().toString();
         String absoluteURL = URLUtils.buildAbsoluteURL(request, null);
-        logger.debug("absolute URL {}", absoluteURL);
+//        logger.debug("absolute URL {}", absoluteURL);
 
         local = isLocalAddress(server) || isLoopbackAddress(server);
-        logger.trace("request {}", requestURL);
+//        logger.debug("request {} isLocal: {}", requestURL, local);
 
         if (!local) {
             // a name was used. this is probably the best option.
@@ -79,8 +79,12 @@ public class IPInterfaceUtils {
             }
             recommended.add(absoluteURL);
             // if we are not on the cloud, we try to get a numerical address anyway.
-            if (headerMap.get("x-forwarded-for") != null) {
+            String forward = headerMap.get("x-forwarded-for");
+            if (forward != null) {
+                logger.debug("forwarding for {}, proxied, ip address would be meaningless",forward);
                 return;
+            } else {
+                logger.debug("no x-forwarded-for, local machine with host name");
             }
         }
 

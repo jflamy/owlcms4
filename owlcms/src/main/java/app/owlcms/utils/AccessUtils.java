@@ -40,9 +40,6 @@ public class AccessUtils {
                 clientIp = "127.0.0.1";
             }
             List<String> whiteListedList = Arrays.asList(whiteList.split(","));
-            if (!whiteListCheck) {
-                logger.info("checking client IP={} vs configured backdoor={}", clientIp, whiteList);
-            }
             // must come from whitelisted address and have matching PIN
             whiteListed = whiteListedList.contains(clientIp);
             if (!whiteListed && whiteListCheck) {
