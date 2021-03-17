@@ -170,6 +170,13 @@ public class ConfigEditingFormFactory
         binder.forField(passwordField)
                 .withNullRepresentation("")
                 .bind(Config::getPin, Config::setPin);
+        
+        TextField backdoorField = new TextField();
+        backdoorField.setWidthFull();
+        configLayout.addFormItem(backdoorField, Translator.translate("Config.Backdoor"));
+        binder.forField(backdoorField)
+                .withNullRepresentation("")
+                .bind(Config::getIpBackdoorList, Config::setIpBackdoorList);
 
         return configLayout;
     }

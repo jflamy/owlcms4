@@ -30,11 +30,17 @@ public interface RequireLogin extends BeforeEnterObserver {
         String path = event.getLocation().getPath();
         String whiteList = Config.getCurrent().getParamAccessList();
         String pin = Config.getCurrent().getParamPin();
+        String backdoorList = Config.getCurrent().getParamBackdoorList();
 
-        boolean noPin = pin == null || pin.trim().isEmpty();
-        boolean noWhiteList = whiteList == null || whiteList.trim().isEmpty();
+        boolean noPin = pin == null || pin.isBlank();
+        boolean noWhiteList = whiteList == null || whiteList.isBlank();
+        boolean backdoor = backdoorList != null && !backdoorList.isBlank();
         if ((noPin && noWhiteList)) {
             // no check required
+            OwlcmsSession.setAuthenticated(true);
+            return;
+        } else if (backdoor && AccessUtils.checkBackdoor()) {
+            // explicit backdoor access allowed (e.g. for video capture of browser screens)
             OwlcmsSession.setAuthenticated(true);
             return;
         } else if (noPin && AccessUtils.checkWhitelist()) {
