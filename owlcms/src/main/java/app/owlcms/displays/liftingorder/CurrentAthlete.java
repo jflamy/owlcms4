@@ -670,13 +670,8 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
         OwlcmsSession.withFop((fop) -> {
             curGroup = fop.getGroup();
             if (liftType != null) {
-                model.setGroupName(
-                        curGroup != null
-                                ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
-                                : "");
-                order = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
-                liftsDone = AthleteSorter.countLiftsDone(order);
-                model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
+                model.setGroupName("");
+                model.setLiftsDone("");
             } else {
                 model.setGroupName("X");
                 model.setLiftsDone("Y");
