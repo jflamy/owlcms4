@@ -38,7 +38,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
-import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -150,7 +149,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
     private EventBus uiEventBus;
     private List<Athlete> order;
     private Group curGroup;
-    private int liftsDone;
 
     JsonArray sattempts;
     JsonArray cattempts;
@@ -158,6 +156,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
     private ContextMenu contextMenu;
     private Location location;
     private UI locationUI;
+    private boolean groupDone;
 
     /**
      * Instantiates a new results board.
@@ -250,10 +249,10 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
             if (a == null) {
                 order = fop.getLiftingOrder();
                 a = order.size() > 0 ? order.get(0) : null;
-                liftsDone = AthleteSorter.countLiftsDone(order);
+                // liftsDone = AthleteSorter.countLiftsDone(order);
                 doUpdate(a, e);
             } else {
-                liftsDone = AthleteSorter.countLiftsDone(order);
+                // liftsDone = AthleteSorter.countLiftsDone(order);
                 doUpdate(a, e);
             }
         }));
@@ -274,17 +273,18 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             getModel().setHidden(false);
-            this.getElement().callJsFunction("reset");
+            if (isDone()) {
+                doDone(e.getAthlete().getGroup());
+            } else {
+                this.getElement().callJsFunction("reset");
+            }
         });
     }
 
     @Subscribe
     public void slaveDownSignal(UIEvent.DownSignal e) {
         uiLog(e);
-        // ignore if the down signal was initiated by this result board.
-        // (the timer element on the result board will actually process the keyboard
-        // codes if devices are attached)
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             getModel().setHidden(false);
             this.getElement().callJsFunction("down");
         });
@@ -305,7 +305,8 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
-            doDone(e.getGroup());
+//          Group g = e.getGroup();
+            setDone(true);
         });
     }
 
@@ -316,7 +317,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Athlete a = e.getAthlete();
             order = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
-            liftsDone = AthleteSorter.countLiftsDone(order);
+            // liftsDone = AthleteSorter.countLiftsDone(order);
             doUpdate(a, e);
         });
     }
@@ -382,8 +383,9 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
                 leaveTopAlone = !e2.isCurrentDisplayAffected();
             }
         }
-        if (a != null && a.getAttemptsDone() < 6) {
-            if (!leaveTopAlone) {
+
+        if (!leaveTopAlone) {
+            if (a != null) {
                 logger.debug("updating top {}", a.getFullName());
                 model.setFullName(a.getFullName());
                 model.setTeamName(a.getTeam());
@@ -391,15 +393,19 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
                 String formattedAttempt = formatAttempt(a.getAttemptsDone());
                 model.setAttempt(formattedAttempt);
                 model.setWeight(a.getNextAttemptRequestedWeight());
-                this.getElement().callJsFunction("reset");
             }
-            logger.debug("updating bottom");
-            updateBottom(model, computeLiftType(a));
+            this.getElement().callJsFunction("reset");
+        }
+        logger.debug("updating bottom");
+        updateBottom(model, computeLiftType(a));
+        if (a != null && a.getAttemptsDone() < 6) {
+            setDone(false);
         } else {
             if (!leaveTopAlone) {
-                logger.debug("doUpdate doDone");
-                OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
+                logger.debug("doUpdate done");
+                setDone(true);
             }
+            doBreak();
             return;
         }
     }
@@ -417,7 +423,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
             // get the global category rankings for the group
             order = competition.getGlobalCategoryRankingsForGroup(fop.getGroup());
 
-            liftsDone = AthleteSorter.countLiftsDone(order);
+            // liftsDone = AthleteSorter.countLiftsDone(order);
             syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
@@ -474,7 +480,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
         } else {
             OwlcmsSession.withFop(fop -> {
                 updateBottom(getModel(), null);
-                getModel().setFullName(getTranslation("Group_number_results", g.toString()));
+                getModel().setFullName(getTranslation("Group_number_done", g.toString()));
                 this.getElement().callJsFunction("groupDone");
             });
         }
@@ -646,6 +652,14 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
         });
         setTranslationMap();
         order = ImmutableList.of();
+    }
+
+    private boolean isDone() {
+        return this.groupDone;
+    }
+
+    private void setDone(boolean b) {
+        this.groupDone = b;
     }
 
     private void syncWithFOP(UIEvent.SwitchGroup e) {
