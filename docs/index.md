@@ -92,6 +92,8 @@ The [Equipment Setup](EquipmentSetup) page provides more technical details on th
   
   - [**Multiple languages**](Preparation#display-language). Currently English, French, Danish, Russian, Swedish, German, Portuguese and Spanish.
   
+  - **[Full Instructions for Streaming a Virtual Competition](ZoomOBS)** Instructions for setting up [Open Broadcaster Software](https://obsproject.com/) (OBS Studio) together with Zoom to stream a competition to any of the mainstream Streaming services.
+  
   - Etc.  Refer to the side menu for the full list of topics.
 
 ## Reporting Issues and Suggesting Enhancements

@@ -108,7 +108,7 @@ Start Zoom and go to Home, and then click on the settings Icon at the top right.
 
 **Select the Zoom view**
 
-Right-click on the current athlete in the gallery view and use the "Pin to Screen" and "Replace Pin on Screen" menu entry to to control which of the athletes is shown on the laptop screen.  Depending on your setup, you will be pinning to first or second screen, use whatever works. 
+Right-click on the current athlete in the gallery view and use the "Spotlight" and "Replace Spotlight" menu entry to to control which of the athletes is shown on the laptop screen and on all the Zoom participants. If someone else controls the Zoom for the competition, you can use "Pin" and "Replace Pin" to ignore the spotlight.
 
 ![zoom](img/zoom.png)
 
