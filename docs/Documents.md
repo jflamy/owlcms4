@@ -25,6 +25,6 @@ Details for each team are available by clicking on the team name.
 
 The competition package contains the 6-lift results for men and women, the Robi rankings, and the team results.
 
-In the current version, only the standard package is available. The ability to pick alternate competition packages with alternate team points schemes will be reintroduced in an upcoming release.
+Alternate competition packages with alternate team points schemes are also available (for Example, Masters, or School Championships with combined men and women scores, etc.).
 
 ![CompetitionBook](img/Documents/CompetitionBook.png)

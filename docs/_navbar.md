@@ -16,18 +16,19 @@
   *	[Intermissions and Breaks](Breaks)
   *	[Result Documents](Documents)
 
-* COVID-19 options
+* Remote Competitions
 
   *	[Virtual Competitions and Remote Referees](Virtual)
   *	[Distancing using Individual Scoreboards](Distancing)
   *	[Modified Competition Rules](ModifiedRules)
-  *	[Video-Conference Setup](Video)
+  *	[Video-Conference and Streaming Setup](ZoomOBS)
 * Advanced Topics
   *	[Updating Cloud-based Applications](UpdatingCloudApplications)
   *	[Configuration Parameters](Configuration)
   *	[Excel Template Variables](TemplateVariables)
   *	[Translations](Translation)
   *	[Contributing to the code](Gitpod)
+  
 * Downloads
 
   *	[Releases](https://github.com/jflamy/owlcms4/releases)

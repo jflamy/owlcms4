@@ -266,15 +266,26 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         reset.getElement().setAttribute("theme", "secondary contrast small icon");
         return reset;
     }
+    
+    // array is used because of Java requires a final;
+    long[] previousStartMillis = { 0L };
 
     @Override
     protected void createStartTimeButton() {
         startTimeButton = new Button(AvIcons.PLAY_ARROW.create());
         startTimeButton.addClickListener(e -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
-                buttonsTimeStarted();
-                displayLiveDecisions();
+                long now = System.currentTimeMillis();
+                long timeElapsed = now - previousStartMillis[0];
+                boolean running = fop.getAthleteTimer().isRunning();
+                if (timeElapsed > 50 && !running) {
+                    fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
+                    buttonsTimeStarted();
+                    displayLiveDecisions();
+                } else {
+                    logger.warn("discarding duplicate clock start {}ms running={}", timeElapsed, running);
+                }
+                previousStartMillis[0] = now;
             });
         });
         startTimeButton.getElement().setAttribute("theme", "primary success icon");
