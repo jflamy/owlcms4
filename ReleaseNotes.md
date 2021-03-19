@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-* Changes for release 4.15.4  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-=======
 * Changes for release 4.15.5-rc01  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
->>>>>>> origin/develop
 
   - [x] Improvement: Better handling of double-clicking/double-tapping on the start timer buttons. (#405) In odd circumstances this could result in rogue beeps/buzzers.
   - [x] Fix: added missing button for the Current Athlete display. This display is normally used in video broadcasts (the display is then cropped and shown at the bottom of the screen to show current attempt information and the previous lifts and rank of the current athlete.)

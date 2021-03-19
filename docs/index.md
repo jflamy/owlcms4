@@ -1,20 +1,15 @@
 # Olympic Weightlifting Competition Management System 
 
-OWLCMS version 4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md), which has been used to manage Olympic Weightlifting competitions world-wide since 2009, and has been translated in several languages.
-
-The application can be used for anything from a club meet using a single laptop all the way up to a national championship with several platform, full jury, integration with streaming, and public internet scoreboards.
+OWLCMS version 4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md), which has been used to manage Olympic Weightlifting competitions world-wide since 2009.  This new version has been rebuilt for robustness and simplicity, and can be [run on the cloud](EquipmentSetup#cloud-access-over-the-internet).
 
 ## Downloads and Setup
 
-Several options are available for installation, depending on your needs. See the [Installation Overview](InstallationOverview) page for diagrams and a discussion of the following options:
-  * Stand-alone installs are available for [Windows](LocalWindowsSetup), [Linux](LocalLinuxMacSetup) or [Mac](LocalLinuxMacSetup).  These can be used when the competition site has no internet access, but require more equipment.
-<<<<<<< HEAD
-  * Cloud installs for [Heroku](Heroku) (simple, free, recommended) or [Kubernetes](https://github.com/owlcms/owlcms4/releases/download/4.15.4/k8s.zip) (advanced).  An internet connection is required at the competition site, but less equipment is required and setup is simpler.
-=======
-  * Cloud installs for [Heroku](Heroku) (simple, free, recommended) or [Kubernetes](https://github.com/jflamy-dev/owlcms4-prerelease/releases/download/4.15.5-rc01/k8s.zip) (advanced).  An internet connection is required at the competition site, but less equipment is required and setup is simpler.
->>>>>>> origin/develop
+Setup packages and Installation Instructions are available for
+  * [Windows Stand-alone Installation](LocalWindowsSetup)
+  * [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
+  * [Cloud Installation](Heroku)
 
-The [Equipment Setup](EquipmentSetup) page provides more technical details on the recommended physical setup.
+Stand-alone installations run on a laptop and do not require an internet access for running the competition. Cloud installation requires a good connection during the competition, but only browsers are used at the competition site. See the [Equipment Setup](EquipmentSetup) page for more details.
 
 ## Features and Demo
 
@@ -126,15 +121,14 @@ For the current work status, see the following links
 
 ##### Latest stable releases
 
-- [stable installers](https://github.com/owlcms/owlcms4/releases)
-- stable cloud deployments for [owlcms](https://github.com/owlcms/owlcms-heroku/releases/tag/4.14.0) and [publicresults](https://github.com/owlcms/publicresults-heroku/releases/tag/4.14.0)
+- [stable binary installers](https://github.com/owlcms/owlcms4/releases)
+- stable cloud deployment for 
 - [stable release documentatation](https://owlcms.github.io/owlcms4/#/index)
 
 ##### Latest pre-releases
 
-- [pre-release installers](https://github.com/jflamy-dev/owlcms4-prerelease/releases)
-- stable cloud deployments for [owlcms](https://github.com/jflamy-dev/owlcms-heroku-prerelease/releases) and [publicresults](https://github.com/jflamy-dev/publicresults-heroku-prerelease/releases)
-- [pre-release documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/index)
+- [stable binary releases](https://github.com/owlcms/owlcms4/releases)
+- [stable release documentatation](
 
 
 
