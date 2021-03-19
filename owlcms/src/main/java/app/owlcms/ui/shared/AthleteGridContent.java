@@ -607,12 +607,24 @@ public abstract class AthleteGridContent extends VerticalLayout
         return null;
     }
 
+    // array is used because of Java requires a final;
+    long[] previousStartMillis = { 0L };
+
     protected void createStartTimeButton() {
         startTimeButton = new Button(AvIcons.PLAY_ARROW.create());
         startTimeButton.addClickListener(e -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
-                buttonsTimeStarted();
+                long now = System.currentTimeMillis();
+                long timeElapsed = now - previousStartMillis[0];
+                boolean running = fop.getAthleteTimer().isRunning();
+                if (timeElapsed > 50 && !running) {
+                    logger.warn("clock start {}ms running={}", timeElapsed, running);
+                    fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
+                    buttonsTimeStarted();
+                } else {
+                    logger.warn("discarding duplicate clock start {}ms running={}", timeElapsed, running);
+                }
+                previousStartMillis[0] = now;
             });
         });
         startTimeButton.getElement().setAttribute("theme", "primary success icon");
@@ -752,11 +764,11 @@ public abstract class AthleteGridContent extends VerticalLayout
 //                                oldGroup != null ? oldGroup.getName() : null,
 //                                newGroup != null ? newGroup.getName() : null);                  
                     if (isIgnoreSwitchGroup()) {
-                        //logger.debug("ignoring self-originating change");
+                        // logger.debug("ignoring self-originating change");
                         setIgnoreSwitchGroup(false);
                     } else {
                         setIgnoreSwitchGroup(true); // prevent recursion on self-generated event.
-                        //logger.debug("value changed, switching group, from \n{}",LoggerUtils.stackTrace());
+                        // logger.debug("value changed, switching group, from \n{}",LoggerUtils.stackTrace());
                         fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
                     }
                     oldGroup = newGroup;
