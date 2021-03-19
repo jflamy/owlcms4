@@ -8,7 +8,7 @@ The application can be used for anything from a club meet using a single laptop 
 
 Several options are available for installation, depending on your needs. See the [Installation Overview](InstallationOverview) page for diagrams and a discussion of the following options:
   * Stand-alone installs are available for [Windows](LocalWindowsSetup), [Linux](LocalLinuxMacSetup) or [Mac](LocalLinuxMacSetup).  These can be used when the competition site has no internet access, but require more equipment.
-  * Cloud installs for [Heroku](Heroku) (simple, free, recommended) or [Kubernetes](https://github.com/jflamy-dev/owlcms4-prerelease/releases/download/4.15.4-rc01/k8s.zip) (advanced).  An internet connection is required at the competition site, but less equipment is required and setup is simpler.
+  * Cloud installs for [Heroku](Heroku) (simple, free, recommended) or [Kubernetes](https://github.com/jflamy-dev/owlcms4-prerelease/releases/download/4.15.5-rc01/k8s.zip) (advanced).  An internet connection is required at the competition site, but less equipment is required and setup is simpler.
 
 The [Equipment Setup](EquipmentSetup) page provides more technical details on the recommended physical setup.
 
@@ -91,8 +91,6 @@ The [Equipment Setup](EquipmentSetup) page provides more technical details on th
   - Option to treat the competition as a **[Masters competition](Preparation#masters)** with proper processing of age groups (older age groups presented first)
   
   - [**Multiple languages**](Preparation#display-language). Currently English, French, Danish, Russian, Swedish, German, Portuguese and Spanish.
-  
-  - **[Full Instructions for Streaming a Virtual Competition](ZoomOBS)** Instructions for setting up [Open Broadcaster Software](https://obsproject.com/) (OBS Studio) together with Zoom to stream a competition to any of the mainstream Streaming services.
   
   - Etc.  Refer to the side menu for the full list of topics.
 
