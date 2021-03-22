@@ -8,8 +8,8 @@ As an order of magnitude, setting up (5 days) and running a large 2-day national
 
 ## Initial Setup
 
-1. Install owlcms (using the free plan if this is the first time), as described on [this page](Heroku).
-2. Install publicresults (using the free plan if this is the first time), and connect the two applications together, as explained on [this page](Remote)
+1. Install owlcms, as described on [this page](Heroku).
+2. Install publicresults, and connect the two applications together, as explained on [this page](Remote)
 3. Update the account to the professional plan.  This requires that you give a credit card for payment.
 
 ## Scale-up
@@ -37,6 +37,12 @@ These steps are needed a few hours before the competition.  They will cause the 
     ![perf-m](C:\Dev\git\owlcms4\docs\img\Heroku\perf-m.png)
 
 ## IMPORTANT: Scale-down
+
+Normally this step would not be required, unless for some reason you want to keep the applications.
+
+It is usually simpler to juste delete the apps as soon as done.  
+
+Should you need to keep them:
 
 1. Use the same screens as above to shut down publicresults 
    1. Move it back to the 1X configuration.

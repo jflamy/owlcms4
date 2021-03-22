@@ -4,7 +4,7 @@
 
 Heroku is a cloud service provider that provides an attractive free (0$) pricing plan for running programs like OWLCMS.  When running on Heroku you only need a good Internet connection, and you do not need to configure a primary laptop.
 
-The installation process for Heroku is extremely simple -- there is nothing whatsoever that needs to be installed, all you need is a browser.  This page describes the setup for a simple gym competition.  For a larger competition, or for a virtual competition, please see the [Large Competition Heroku](LargeHeroku) page.
+The installation process for Heroku is extremely simple -- there is nothing whatsoever that needs to be installed, all you need is a browser.  This page describes the setup for a simple gym competition.  For a larger competition, or for a virtual competition, please see the [Large Competition Heroku](HerokuLarge) page.
 
 **1. Create a free Heroku Account**
 
