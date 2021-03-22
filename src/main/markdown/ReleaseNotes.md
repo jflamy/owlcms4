@@ -1,15 +1,16 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] Added documentation for large competitions on Heroku.  Removed the explicit memory parameters from the configuration to allow Heroku to provide appropriate defaults on larger configurations.  If you need to override for free setup, use the JAVA_OPTIONS configuration variable.
-  - [x] Improvement: Better handling of double-clicking/double-tapping on the start timer buttons. (#405) In odd circumstances this could result in rogue beeps/buzzers.
-  - [x] Fix: added missing button for the Current Athlete display. This display is normally used in video broadcasts (the display is then cropped and shown at the bottom of the screen to show current attempt information and the previous lifts and rank of the current athlete.)
-  - [x] New: added a new item for video broadcasts in the technical configuration section. Video capture using OBS or similar streaming software is awkward when a PIN or password is set.  If it is known that the video operator is working from a safe setting (such as a home network) , a "backdoor" setting (OWLCMS_BACKDOOR if using an environment variable) can be used to allow passwordless login from a comma-separated list of addresses.  Use with care.
-  - [x] Fix: The publicresults application was switching to an empty scoreboard page on owlcms startup (#404).  Now properly shows the "Waiting for next group" banner.
-  - [x] Fix: The Officials tab on the Start List spreadsheet now includes the weigh-in officials for the group.
-  - [x] Fix: The timers on the optional public results application no longer reset spuriously when the lifting order is recomputed (#403)
-  - [x] Installer:  redid the installers to use just the smaller Java runtime environment instead of the full development environment.
+  - [x] Support for large competitions on Heroku. Added documentation for professional tiers. Removed the explicit memory parameters from the configuration to allow Heroku to provide appropriate defaults on larger configurations.  If you need to override for free setup, use the JAVA_OPTIONS configuration variable.
   
 * Key Highlights from recent stable releases
+
+   - [x] Improvement: Better handling of double-clicking/double-tapping on the start timer buttons. (#405) In odd circumstances this could result in rogue beeps/buzzers.
+   - [x] Fix: added missing button for the Current Athlete display. This display is normally used in video broadcasts (the display is then cropped and shown at the bottom of the screen to show current attempt information and the previous lifts and rank of the current athlete.)
+   - [x] New: added a new item for video broadcasts in the technical configuration section. Video capture using OBS or similar streaming software is awkward when a PIN or password is set.  If it is known that the video operator is working from a safe setting (such as a home network) , a "backdoor" setting (OWLCMS_BACKDOOR if using an environment variable) can be used to allow passwordless login from a comma-separated list of addresses.  Use with care.
+   - [x] Fix: The publicresults application was switching to an empty scoreboard page on owlcms startup (#404).  Now properly shows the "Waiting for next group" banner.
+   - [x] Fix: The Officials tab on the Start List spreadsheet now includes the weigh-in officials for the group.
+   - [x] Fix: The timers on the optional public results application no longer reset spuriously when the lifting order is recomputed (#403)
+   - [x] Installer:  redid the installers to use just the smaller Java runtime environment instead of the full development environment.
 
    * [x] Improvement: New scoreboard with multiple IWF age group rankings (Youth, Junior, Senior).  Final package also includes the three rankings. (#372)
    * [x] Improvement: Armenian translation finalized, missing translation strings on Excel spreadsheets fixed, thanks to Ara Martirosyan
@@ -44,6 +45,7 @@
    * [x] Enhancement: Simple team competition scoreboard.  Top 5 men and top 5 women teams are displayed. Shows how many athletes have been tallied and full team size. (#327)
    * [x] Enhancement: The final package page contains all the scores (SMM, Sinclair, Robi) same as the group results page.
    * [x] Enhancement: In order to facilitate video streaming overlays (e.g. with OBS Studio), the URL http://my.address:8080/displays/currentathlete gives a special screen with only the current athlete shown on the scoreboard.  Edit the file local/styles/currentathlete.css to customize the look and feel. (#312)
+
 * Workarounds/Known Issues
   
   - [ ] Workaround: (#304) When the browser screens have already been started and owlcms is restarted,  occasionnaly a refresh of the page may be required.
