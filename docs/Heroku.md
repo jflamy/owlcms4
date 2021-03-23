@@ -2,9 +2,11 @@
 
 ## Heroku
 
-Heroku is a cloud service provider that provides an attractive free (0$) pricing plan for running programs like OWLCMS.  When running on Heroku you only need a good Internet connection, and you do not need to configure a primary laptop.
+Heroku is a cloud service provider that provides an attractive free (0$) pricing plan for running programs like OWLCMS. 
 
-The installation process for Heroku has been completely redone, and is now extremely simple -- there is nothing whatsoever that needs to be installed on any of the laptops other than a browser.
+The installation process for Heroku is extremely simple -- there is nothing whatsoever that needs to be installed other than a browser.
+
+For larger competitions than a club or regional meet, please refer to the instructions for [Large Heroku Competitions](HerokuLarge).  The price for a week-end long national competition is less than 20$ US.
 
 **1. Create a free Heroku Account**
 
