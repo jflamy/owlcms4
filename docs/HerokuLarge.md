@@ -2,15 +2,15 @@
 
 Heroku is a cloud service that makes it easy to start from a free service for small competitions, but also support an affordable paid tier for larger meets.  In order to host a large competition, we need to update so the application gets dedicated and faster computing resources as well as more memory. 
 
-As an order of magnitude, setting up (5 days) and running a large 2-day national competition would cost something like 30 US$  You can even save a few more dollars by doing the setup on the free tier and either copying the database from one app to the other or sharing between apps.
+As an order of magnitude, running a large 2-day national competition would cost something like 20 US$  You can create your application as a free setup, and scale it up to high-capacity, then scale it down back to the free tier when you are done (or delete it).  Pricing is by second, based on the actual elapsed time the application is running.
 
-> The key thing when using paid tiers is to *scale down* when done, otherwise billing continues! See bottom of this page.
+> The key thing when using paid tiers is to *scale down* when done, otherwise billing continues! See the [Scale Down](#scale-down)
 
 ## Initial Setup
 
 1. Install owlcms, as described on [this page](Heroku).
 2. Install publicresults, and connect the two applications together, as explained on [this page](Remote)
-3. Update the account to the professional plan.  This requires that you give a credit card for payment.
+3. Associate a credit card with your account.  This is done by clicking on your profile icon at the top right and changing the account settings.
 
 ## Scale-up
 
@@ -22,11 +22,11 @@ These steps are needed a few hours before the competition.  They will cause the 
    2. If you are on the free tier, change the dyno type to "Professional"
    3. Select "Standard-2X" as the performance level by clicking on the hexagon and dropping in the menu.  This will give us the memory we need.
 
-    ![2x](C:\Dev\git\owlcms4\docs\img\Heroku\2x.png)
+    ![2x](img\Heroku\2x.png)
 
    4. **IMPORTANT**: If this is not your first meet, and you have previously scaled down the application, you need to reset the number of containers to 1.   The only meaningful numbers for us are 0 (off and not billed) and 1 (on and billed).   Use the pencil icon to edit the dyno formation and set the value
 
-      ![dynocount](C:\Dev\git\owlcms4\docs\img\Heroku\dynocount.png)
+      ![dynocount](img\Heroku\dynocount.png)
 
 2. Update owlcms to the Performance-M dyno type.  Same steps as above.
 
@@ -34,27 +34,28 @@ These steps are needed a few hours before the competition.  They will cause the 
    2. If you are on the free tier, change the dyno type to "Professional"
    3. Select "Performance-M as the performance level by clicking on the hexagon and dropping in the menu.  This will give us the computing we need (and more than enough memory)
 
-    ![perf-m](C:\Dev\git\owlcms4\docs\img\Heroku\perf-m.png)
+    ![perf-m](img\Heroku\perf-m.png)
 
-## IMPORTANT: Scale-down
+## Scale-down
 
-Normally this step would not be required, unless for some reason you want to keep the applications.
-
-It is usually simpler to juste delete the apps as soon as done.  
+If you want to keep your application setup, and just rename the applications, you'r free to do so.  You can also just delete the applications, which will stop billing.
 
 Should you need to keep them:
 
 1. Use the same screens as above to shut down publicresults 
-   1. Move it back to the 1X configuration.
-   2. Turn off publicresults if you don't need it by moving the number of dynos down to **zero** (this will save you 25$ per month - 300$ per year.)
-2. Use the same screens as above to shut down owlcms
-   1. <u>Move it back to the 1X configuration.</u>  This will bring pricing back to 25$ per month
-   2. Turn off owlcms if you don't need it by moving the number of dynos down to zero.  Remember that you can check the Excel registration sheets for athletes, groups, categories and so on using the free version.  So you have 3 options
-      - Turn off owlcms, restart it on the 1x tier a week before a meet, and do all the work there.
-      - Use a free owlcms, and reload the Excel on the paid tier.
-      - Use a free owlcms and copy the database to the paid tier.  See below.
+   1. Use the change dyno type button to revert back to the hobby tier or free tier.
+   2. If you are back on the hobby tier, there is a button to switch between hobby (7$ per month, or the free 0$ per month setup)
+2. Use the same procedure to revert owlcms to the hobby or free tier.
 
-### Copying databases
+## Database Backups
+
+Go to the  Resources page, and click on the Heroku Postgres icon.
+
+Select the Durability section.  You can take and download backups (Postgres .dump format)
+
+## Copying databases
+
+This section should not be needed, but here is the procedure should you wish to copy databases around.  You can use the `heroku pg:backups` command to take backups and restore them to another application (or a local postgres database, or just keep them for archival, whatever)
 
 This requires installing the command line interface and typing a few commands.
 
