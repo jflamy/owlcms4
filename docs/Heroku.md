@@ -2,11 +2,9 @@
 
 ## Heroku
 
-Heroku is a cloud service provider that provides an attractive free (0$) pricing plan for running programs like OWLCMS. 
+Heroku is a cloud service provider that provides an attractive free (0$) pricing plan for running programs like OWLCMS.  When running on Heroku you only need a good Internet connection, and you do not need to configure a primary laptop.
 
-The installation process for Heroku is extremely simple -- there is nothing whatsoever that needs to be installed other than a browser.
-
-For larger competitions than a club or regional meet, please refer to the instructions for [Large Heroku Competitions](HerokuLarge).  The price for a week-end long national competition is less than 20$ US.
+The installation process for Heroku has been completely redone, and is now extremely simple -- there is nothing whatsoever that needs to be installed on any of the laptops other than a browser.
 
 **1. Create a free Heroku Account**
 
@@ -15,7 +13,7 @@ For larger competitions than a club or regional meet, please refer to the instru
 
 **2. Go to the releases repository and start the process**
 
-The Heroku releases directory is located at [this location](https://github.com/owlcms/owlcms-heroku/releases/latest). Click the big `Deploy to Heroku` button.
+The Heroku releases directory is located at [this location](https://github.com/jflamy-dev/owlcms-heroku-prerelease/releases/latest). Click the big `Deploy to Heroku` button.
 
 ![010_deployButton](img/Heroku/010_deployButton.png)
 
