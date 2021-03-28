@@ -282,11 +282,12 @@ public class UploadDialog extends Dialog {
     }
 
     private void updatePlatformsAndGroups(List<RGroup> groups) {
-        Set<String> futurePlatforms = groups.stream().map(RGroup::getPlatform).collect(Collectors.toSet());
-
+        Set<String> futurePlatforms = groups.stream().map(RGroup::getPlatform).filter(p -> (p != null && !p.isBlank())).collect(Collectors.toSet());
+        
+        String defaultPlatformName = PlatformRepository.findAll().get(0).getName();
         if (futurePlatforms.isEmpty()) {
             // keep at least one platform
-            futurePlatforms.add(PlatformRepository.findAll().get(0).getName());
+            futurePlatforms.add(defaultPlatformName);
         }
         logger.debug("to be kept {}", futurePlatforms);
 
@@ -299,8 +300,8 @@ public class UploadDialog extends Dialog {
                 afterCleanupPlatforms.add(pl.getName());
             }
         }
-        Set<String> checkPlatforms = PlatformRepository.findAll().stream().map(Platform::getName).collect(Collectors.toSet());
-        logger.debug("platforms after cleanup {}",checkPlatforms);
+//        Set<String> checkPlatforms = PlatformRepository.findAll().stream().map(Platform::getName).collect(Collectors.toSet());
+//        logger.debug("platforms after cleanup {}",checkPlatforms);
 
         JPAService.runInTransaction(em -> {
             groups.stream().forEach(g -> {
@@ -312,6 +313,9 @@ public class UploadDialog extends Dialog {
                     group.setPlatform(np);
                     em.persist(np);
                 } else {
+                    if (platformName == null || platformName.isBlank()) {
+                        platformName = defaultPlatformName;
+                    }
                     Platform op = PlatformRepository.findByName(platformName);
                     group.setPlatform(op);
                     em.merge(op);
