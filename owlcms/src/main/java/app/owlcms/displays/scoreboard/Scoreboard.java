@@ -71,6 +71,7 @@ import elemental.json.JsonValue;
 @SuppressWarnings("serial")
 @Tag("scoreboard-template")
 @JsModule("./components/Scoreboard.js")
+@JsModule("./components/AudioContext.js")
 @Route("displays/scoreboard")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push

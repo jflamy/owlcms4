@@ -72,6 +72,7 @@ import elemental.json.JsonValue;
 @SuppressWarnings("serial")
 @Tag("scoremultiranks-template")
 @JsModule("./components/ScoreMultiRanks.js")
+@JsModule("./components/AudioContext.js")
 @Route("displays/scoremultiranks")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push

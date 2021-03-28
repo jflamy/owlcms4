@@ -17,6 +17,8 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
@@ -57,6 +59,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Tag("attempt-board-template")
 @JsModule("./components/AttemptBoard.js")
+@JsModule("./components/AudioContext.js")
 @CssImport(value = "./styles/shared-styles.css")
 @CssImport(value = "./styles/plates.css")
 @Route("displays/attemptBoard")
@@ -425,6 +428,13 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             ThemeList themeList = UI.getCurrent().getElement().getThemeList();
             themeList.remove(Lumo.LIGHT);
             themeList.add(Lumo.DARK);
+            
+            PendingJavaScriptResult result = this.getElement().callJsFunction("isAudioUnlocked");
+            result.then(Boolean.class, r -> {
+                if (!r) {
+                    Notification.show("Please touch to enable sound");
+                }
+            });
 
             // sync with current status of FOP
             if (fop.getState() == FOPState.INACTIVE) {

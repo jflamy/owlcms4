@@ -100,7 +100,7 @@ class TimerElement extends PolymerElement {
 
 	ready() {
 		super.ready();
-		console.log("timer ready")
+		console.warn("timer ready")
 		this._init();
 	}
 
@@ -112,7 +112,10 @@ class TimerElement extends PolymerElement {
 		}
 
 		console.warn("timer start "+seconds);
+		this._prepareAudio();
+
 		this.currentTime = seconds;
+		this.audioStartTime = window.audioCtx.currentTime;
 		if ((this.currentTime <= 0 && !this.countUp) 
 				|| (this.currentTime >= this.startTime && this.countUp) ) {
 			// timer is over
@@ -175,7 +178,7 @@ class TimerElement extends PolymerElement {
 		this.set('_formattedTime', '&nbsp;');
 	}
 
-	_init() {
+	 _init() {
 		this.running = false;
 		console.log("init timer "+this.indefinite);
 		if (this.indefinite) {
@@ -193,6 +196,106 @@ class TimerElement extends PolymerElement {
 		this._timeOverWarningGiven = false;
 	}
 
+	async _prepareAudio() {
+		if (! window.finalWarning /* && ! this.loadingFinalWarning */ ) {
+			this.loadingFinalWarning = true;
+			// const response0 = await fetch("../sounds/finalWarning.mp3");
+			// const arrayBuffer0 = await response0.arrayBuffer();
+			// const finalWarning = await audioCtx.decodeAudioData(arrayBuffer0);
+			const finalWarning = await this._playTrack("../sounds/finalWarning.mp3", null, false,0);
+			window.finalWarning = finalWarning;
+			// this.finalWarning = await this._getAudioBuffer("../sounds/finalWarning.mp3");
+			console.warn("loaded finalWarning = "+window.finalWarning);
+			//await this._playTrack(this.finalWarning, 0);
+		} else {
+			console.warn("skipping load");
+			console.warn("existing finalWarning = "+window.finalWarning);
+		}
+
+		if (! window.initialWarning /* && ! this.loadingInitialWarning */) {
+			this.loadingInitialWarning = true;
+			// const response1 = await fetch("../sounds/initialWarning.mp3");
+			// const arrayBuffer1 = await response1.arrayBuffer();
+			// const initialWarning = await audioCtx.decodeAudioData(arrayBuffer1);
+			const initialWarning = await this._playTrack("../sounds/initialWarning.mp3", null, false,0);
+			window.initialWarning = initialWarning;
+			//this.initialWarning = await this._getAudioBuffer("../sounds/initialWarning.mp3");
+			console.warn("loaded initialWarning = "+window.initialWarning);
+		} else {
+			console.warn("skipping load");
+			console.warn("existing initialWarning = "+window.initialWarning);
+		}
+
+		if (! window.timeOver /* && ! this.loadingTimeOver */) {
+			this.loadingTimeOver = true;
+			// const response2 = await fetch("../sounds/timeOver.mp3");
+			// const arrayBuffer2 = await response2.arrayBuffer();
+			// const timeOver = await audioCtx.decodeAudioData(arrayBuffer2);
+			const timeOver = await this._playTrack("../sounds/timeOver.mp3", null, false,0);
+			window.timeOver = timeOver;
+			// this.timeOver = await this._getAudioBuffer("../sounds/timeOver.mp3");
+			console.warn("loaded timeOver = "+window.timeOver);
+			//await this._playTrack(this.timeOver, 0);
+		} else {
+			console.warn("skipping load");
+			console.warn("existing timeOver duration= "+window.timeOver);
+		}
+	}
+
+	typeOf(obj) {
+		return {}.toString.call(obj).split(' ')[1].slice(0, -1).toLowerCase();
+	}
+
+	async _playTrack(filepath, previousBuffer, play,  when) {
+		if (previousBuffer) {
+			if (play) {
+				// play previously fetched buffer
+				await this._playAudioBuffer(previousBuffer, when);
+			}
+			return previousBuffer;
+		} else {
+			// Safari somehow manages to lose the AudioBuffer.
+			// Massive workaround.
+			const response = await fetch(filepath);
+			const arrayBuffer = await response.arrayBuffer();
+			const newBuffer = await window.audioCtx.decodeAudioData(
+				arrayBuffer, 
+				async function (audioBuffer) {
+					if (play) {
+						// duplicated code from _playAudioBuffer
+						// can't figure out how to invoke it with JavaScript "this" semantics.
+						const trackSource = await window.audioCtx.createBufferSource();
+						trackSource.buffer = audioBuffer;
+						trackSource.connect(window.audioCtx.destination);					  
+						if (when <= 0) {
+						  trackSource.start();
+						} else {
+						  trackSource.start(when, 0);
+						}
+					}
+				},
+				(e) => {
+					console.error("could not decode "+e.err);
+				}
+			);
+			return newBuffer;
+		}
+	}
+
+	async _playAudioBuffer(audioBuffer, when) {
+		const trackSource = await window.audioCtx.createBufferSource();
+		trackSource.buffer = audioBuffer;;
+		trackSource.connect(audioCtx.destination);  
+		if (when <= 0) {
+		  trackSource.start();
+		} else {
+		  trackSource.start(when, 0);
+		}
+	  
+		return trackSource	
+	}
+	  
+
 	_decreaseTimer(timestamp) {
 		if (!this.running) {
 			return;
@@ -204,23 +307,36 @@ class TimerElement extends PolymerElement {
 		this.currentTime = this.countUp ? this.currentTime + progress : this.currentTime - progress;
 
 
-		// we anticipate by 0.1 sec because .play() has a perceptible delay
-		if (this.currentTime <= 30.1 && !this._finalWarningGiven) {
+		// we anticipate to use the more precise audio context timer
+		if (this.currentTime <= 0.05 && !this._timeOverWarningGiven) {
+			// console.debug("calling play "+this.currentTime);
+			if (!this.silent) {
+				//this.$.timeOver.play();
+				console.warn("about to play time over "+window.timeOver);
+				this._playTrack("../sounds/timeOver.mp3", window.timeOver, true, this.currentTime);
+			}
+			this._timeOverWarningGiven = true;
+		}
+		if (this.currentTime <= 30.05 && !this._finalWarningGiven) {
 			// console.debug("currentTime "+this.currentTime);
-			if (!this.silent) this.$.finalWarning.play();
+			if (!this.silent) {
+				//this.$.finalWarning.play();
+				console.warn("about to play final warning "+window.finalWarning);
+				this._playTrack("../sounds/finalWarning.mp3", window.finalWarning, true, this.currentTime - 30);
+			}
 			if (this.$server != null) this.$server.clientFinalWarning();
 			this._finalWarningGiven = true;
 		}
-		if (this.currentTime <= 90.1 && !this._initialWarningGiven) {
-			if (!this.silent) this.$.initialWarning.play();
+		if (this.currentTime <= 90.05 && !this._initialWarningGiven) {
+			if (!this.silent) {
+				//this.$.initialWarning.play();
+				console.warn("about to play initial warning "+window.initialWarning);
+				this._playTrack("../sounds/initialWarning.mp3", window.initialWarning, true, this.currentTime - 90);
+			}
 			if (this.$server != null) this.$server.clientInitialWarning();
 			this._initialWarningGiven = true;
 		}
-		if (this.currentTime <= 0.1 && !this._timeOverWarningGiven) {
-			// console.debug("calling play "+this.currentTime);
-			if (!this.silent) this.$.timeOver.play();
-			this._timeOverWarningGiven = true;
-		}
+
 
 		if ((this.currentTime <= 0 && !this.countUp) 
 				|| (this.currentTime >= this.startTime && this.countUp) ) {
@@ -229,10 +345,7 @@ class TimerElement extends PolymerElement {
 			this.running = false;
 			// this.dispatchEvent(new CustomEvent('timer-element-end', {bubbles:
 			// true, composed: true}))
-			this.currentTime = this.countUp ? this.startTime : 0; // avoid
-			// ugly if
-			// rounding
-			// error.
+			this.currentTime = this.countUp ? this.startTime : 0; 
 		}
 
 		this._formattedTime = this._formatTime(this.currentTime);
