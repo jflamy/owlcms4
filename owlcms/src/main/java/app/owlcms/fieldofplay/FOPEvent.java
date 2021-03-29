@@ -40,8 +40,19 @@ public class FOPEvent {
      */
     static public class BreakPaused extends FOPEvent {
 
-        public BreakPaused(Object origin) {
+        private Integer timeRemaining;
+
+        public Integer getTimeRemaining() {
+            return timeRemaining;
+        }
+
+        public void setTimeRemaining(Integer timeRemaining) {
+            this.timeRemaining = timeRemaining;
+        }
+
+        public BreakPaused(Integer timeRemaining, Object origin) {
             super(origin);
+            this.timeRemaining = timeRemaining;
         }
     }
 

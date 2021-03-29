@@ -194,7 +194,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             ProxyBreakTimer breakTimer = fop.getBreakTimer();
             if (breakTimer.isRunning()) {
                 breakTimer.stop();
-                fop.getFopEventBus().post(new FOPEvent.BreakPaused(this.getOrigin()));
+                fop.getFopEventBus().post(new FOPEvent.BreakPaused(breakTimer.getTimeRemainingAtLastStop(), this.getOrigin()));
             }
         });
         logger.debug("paused; enabling start");

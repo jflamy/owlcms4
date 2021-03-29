@@ -202,7 +202,7 @@ public class ProxyBreakTimer implements IProxyTimer {
         logger.debug("***stopping Break -- timeRemaining = {} [{}]", getTimeRemaining(), LoggerUtils.whereFrom());
         timeRemainingAtLastStop = getTimeRemaining();
         logger.debug("break stop = {} [{}]", liveTimeRemaining(), LoggerUtils.whereFrom());
-        UIEvent.BreakPaused event = new UIEvent.BreakPaused(isIndefinite() ? null : getMillis(), getOrigin(), false,
+        UIEvent.BreakPaused event = new UIEvent.BreakPaused(isIndefinite() ? null : getTimeRemaining(), getOrigin(), false,
                 fop.getBreakType(), fop.getCountdownType());
         fop.pushOut(event);
     }

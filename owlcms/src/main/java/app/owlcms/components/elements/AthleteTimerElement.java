@@ -166,7 +166,8 @@ public class AthleteTimerElement extends TimerElement {
     public void slaveStopTimer(UIEvent.StopTime e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        doStopTimer();
+        Integer milliseconds = e.getTimeRemaining();
+        doStopTimer(milliseconds);
     }
 
     /*
