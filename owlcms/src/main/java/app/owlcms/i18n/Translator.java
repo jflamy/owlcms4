@@ -197,8 +197,15 @@ public class Translator implements I18NProvider {
                 final File[] outFiles = new File[stringList.size()];
                 final Properties[] languageProperties = new Properties[outFiles.length];
                 locales = new ArrayList<>();
+                
+                int nbLanguages = 0;
                 for (int i = 1; i < outFiles.length; i++) {
                     String language = stringList.get(i);
+                    logger.trace("language={} {}",language,i);
+                    if (language == null || language.isBlank()) {
+                        nbLanguages = i - 1;
+                        break;
+                    }
                     locales.add(createLocale(language));
                     if (language != null && !language.isEmpty()) {
                         language = "_" + language;
@@ -217,7 +224,7 @@ public class Translator implements I18NProvider {
                         throw new RuntimeException(message);
                     }
                     logger.debug(stringList.toString());
-                    for (int i = 1; i < languageProperties.length; i++) {
+                    for (int i = 1; i < nbLanguages; i++) {
                         // treat the CSV strings using same rules as Properties files.
                         // u0000 escapes are translated to Java characters
                         String input = stringList.get(i);
@@ -239,7 +246,7 @@ public class Translator implements I18NProvider {
                 }
 
                 // writing
-                for (int i = 1; i < languageProperties.length; i++) {
+                for (int i = 1; i < nbLanguages; i++) {
                     logger.debug("writing to " + outFiles[i].getAbsolutePath());
                     languageProperties[i].store(new FileOutputStream(outFiles[i]), "generated from " + csvName);
                 }
