@@ -15,13 +15,8 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.Notification.Position;
-import com.vaadin.flow.component.notification.NotificationVariant;
-import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
@@ -52,6 +47,7 @@ import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.SoundUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -432,27 +428,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             themeList.remove(Lumo.LIGHT);
             themeList.add(Lumo.DARK);
             
-            //this.getElement().executeJs("window.audioCtx.suspend()");
-            PendingJavaScriptResult result = this.getElement().executeJs("return (window.isIOS ? window.audioCtx.state : 'running')");
-            result.then(String.class, r -> {
-                logger.warn("audio state {}",r);
-                if (!r.equals("running")) {
-                    Notification n = new Notification();
-                    n.setDuration(0);
-                    n.setPosition(Position.TOP_STRETCH);
-                    n.addThemeVariants(NotificationVariant.LUMO_ERROR);
-                    Button content = new Button();
-                    content.setText(getTranslation("ClickOrTapToEnableSound"));
-                    content.addClickListener(c -> {
-                        this.getElement().executeJs("window.audioCtx.resume()");
-                        n.close();
-                    });
-                    n.add(content);
-                    n.open();
-                } else {
-                    Notification.show("Audio enabled");
-                }
-            });
+            SoundUtils.enableAudioContext(this.getElement());
 
             // sync with current status of FOP
             if (fop.getState() == FOPState.INACTIVE) {
@@ -473,6 +449,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             uiEventBus = uiEventBusRegister(this, fop);
         });
     }
+
+
 
     private void doDone(Group g) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
