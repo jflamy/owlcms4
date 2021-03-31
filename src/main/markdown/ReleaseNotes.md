@@ -1,7 +1,8 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] iPads now supported as refereeing device (running either the athlete-facing time+decision display or the attempt board display.)   Sound is enabled by touching a screen button once when the board is started. (#408)
-  - [x] Improved accuracy of timers, compensating for the variable time it takes for timers to start on various devices (#406)
+  - [x] Reorganized documentation pages for setting up Virtual Competitions.  Documented use of Zoom and OBS for videoconferencing and live broadcast streaming.
+  - [x] Pads now supported as refereeing device (running either the athlete-facing time+decision display or the attempt board display.)   Sound is enabled by touching a screen button once when the board is started. (#408)
+  - [x] Improved accuracy of signal timing, compensating for the variable time it takes for timers to start on various devices (#406)
   - [x] When loading the registration file, leaving the Platform column empty would create platforms with no name and lead to faulty URLs.  Fixed.
   
   Key Highlights from recent stable releases
