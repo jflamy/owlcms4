@@ -12,13 +12,13 @@ In this example, we use one of our two monitors to have all the Zoom windows.
 - See the picture below for a sample organization.  We have:
   - one window with the gallery view and the chat,
   - a second window with the selected video.  The "Use Dual Monitors" option and the actual presence of a second monitor is what gives us the the second window (with the yellow frame in the screen shot below) -- once the window is shown, it can be moved to any monitor.
-  - Optionally, the participants list 
+  - Optionally, you can open the participants list as a pop-out.
+
+![ZoomMonitor](img/OBS/ZoomMonitor.png)
 
 #### Rehearse Current Athlete Selection
 
-- For this step, you may need to invite other people.  In the following example, additional accounts were created for an iPhone and an iPad, in addition to the host account on the laptop.  You need at least two other participants to get all the menu options that will appear in a meet.
-
-![ZoomMonitor](C:/Dev/git/owlcms4/docs/img/OBS/ZoomMonitor.png)
+- For this step, you may need to invite other people.  You need at least two other participants to get all the menu options that will appear in a meet.  In the example window, we used an iPhone and an iPad with dummy accounts.
 
 - Make sure you are in Gallery View - there is an icon at the top right of the Zoom Meeting window that shows all the participants.
 - Right-click on the participant that you wish to select.
