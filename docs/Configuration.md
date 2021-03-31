@@ -3,7 +3,7 @@
 Parameters can be set in several ways:
 
 1. As Java System Properties
-   1. On Mac OS and Linux, on the java command line using the `-Dvariable=value`syntax, immediately after the java word.
+   1. On Mac OS and Linux, on the java command line using the `-Dvariable=value` syntax, immediately after the java word.
       `java -Dport=80 owlcms.jar`
    2. On Windows, in the `owlcms.l4j.ini` file which is read by the `owlcms.exe` file
    3. On Heroku, it is easier to use Environment Variables (see below)
@@ -21,19 +21,8 @@ Parameters can be set in several ways:
 | resetMode                 | OWLCMS_RESETMODE          | false             | If true, erase the database completely and recreate the database tables. |
 | initialData               | OWLCMS_INITIALDATA        | EMPTY_COMPETITION | Possible Values: <br />EMPTY_COMPETITION : empty database, ready for competition.<br />LARGEGROUP_DEMO : Insert two full 20-athlete groups<br />SINGLE_ATHLETE_GROUPS : Insert groups with a single athlete, useful to rehearse breaks and end of group situations. |
 | masters                   | OWLCMS_MASTERS            | false             | Run the competition according to Masters rules.  Masters mode can be set on the Competition Information page. |
-| locale                    | OWLCMS_LOCALE             |                   | if locale is not set, the language of a given display will be that of the requesting browser.  If locale is set to an [ISO 639-1 language code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) then that language will be used for all displays.<br />Optionally, there can be an [ISO 3166-2 country code](https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes) appended after an underscore.<br />Therefore, `fr` designates French, and `fr_CA` designates the Canadian variant for French.<br />Currently available locales are<br />`en`(English), `fr`(French), `fr_CA` (Canadian French), `da` (Danish), `sp` (Spanish) and `ru`(Russian). |
-| pin                       | OWLCMS_PIN                |                   | If defined, the provided PIN will be required as a password when a user connects to owlcms. |
-| ip                        | OWLCMS_IP                 |                   | If defined, connections will only be accepted from the address specified (or one of the comma-separated addresses).  Each address can be numerical like `24.157.203.237` or a fully qualified domain name. |
+| locale                    | OWLCMS_LOCALE             |                   | if locale is not set, the language of a given display will be that of the requesting browser.  If locale is set to an [ISO 639-1 language code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) then that language will be used for all displays.<br />Optionally, there can be an [ISO 3166-2 country code](https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes) appended after an underscore.<br />Therefore, `fr` designates French, and `fr_CA` designates the Canadian variant for French.<br />Currently available locales are<br />`en`(English), `fr`(French), `fr_CA` (Canadian French), `da` (Danish), `sp` (Spanish) and `ru`(Russian).<br /><u>Will override the PIN/Password set in the application database.</u> |
+| pin                       | OWLCMS_PIN                |                   | If defined, the provided PIN will be required as a password when a user connects to owlcms.<br /><u>Will override the PIN/Password set in the application database.</u> |
+| ip                        | OWLCMS_IP                 |                   | If defined, connections will only be accepted from the address specified (or one of the comma-separated addresses).  Each address can be numerical like `24.157.203.237` or a fully qualified domain name.<br /><u>Will override the PIN/Password set in the application database.</u> |
+| backdoor                  | OWLCMS_BACKDOOR           |                   | If defined, no password will be required to access the owlcms application.  Normally used only during virtual competitions to allow the video editing station to access the owlcms screens without passwords.  This would be the public IP address of the video producer.<br /><u>Will override the PIN/Password set in the application database.</u> |
 
-### Legacy Options
-
-The following options are deprecated, and will progressively be removed from the configuration scripts.
-
-| System Property Name (-D) | Environment Variable Name | Default Value | Description                                                  |
-| ------------------------- | ------------------------- | ------------- | ------------------------------------------------------------ |
-| devMode                   | OWLCMS_DEVMODE            | false         | Insert two full 20-athlete groups. <br />Replaced by -DinitialData=LARGEGROUP_DEMO or OWLCMS_INITIALDATA=LARGEGROUP_DEMO |
-| testMode                  | OWLCMS_TESTMODE           | false         | Insert two one-athlete test groups.<br />Replaced by<br />-DinitialData=SINGLE_ATHLETE_GROUPS or OWLCMS_INITIALDATA=SINGLE_ATHLETE_GROUPS |
-| demoMode                  | OWLCMS_DEMOMODE           | false         | if true, same as -DmemoryMode=true and<br />-DinitialData=LARGEGROUP_DEMO and<br />-DresetMode=true |
-| locale                    | LOCALE                    |               | use OWLCMS_LOCALE                                            |
-| PIN                       | PIN                       |               | No longer works.  Configure using the Technical Configuration screen or use OWLCMS_PIN |
-| IP                        | IP                        |               | No longer works.  Configure using the Technical Configuration screen or use OWLCMS_IP |
