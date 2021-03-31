@@ -24,13 +24,10 @@ In a virtual competition, the officials are in multiple locations.  In order to 
 
 ![Slide5](img/PublicResults/CloudExplained/Slide5.SVG)
 
-The following pages will guide you through setting up a virtual competition
+The following pages will guide you through setting up a virtual competition. 
 
-1. [Setup Heroku for a Virtual Competition](HerokuLarge)
-2. [Preparing the Zoom Setup](PrepareZoomBroacasting)
-3. [Preparing the Video Broadcasting Setup](OBS)
-4. [Live Streaming Events](Streaming)
-5. [Optional Modified Competition Rules](ModifiedRules)
+1. Configure Heroku: [Large Competition Heroku Setup](HerokuLarge)
+2. Configure the Videoconferencing and Streaming:  see [this page](VirtualOverview) for the full process.
 
 If you wish to control the full setup and are technology-savvy, alternatives to using Heroku are possible, for example, [Kubernetes on Digital Ocean Cloud](DigitalOcean) or [Home Kubernetes Hosting with Secure Internet Access](k3d)
 

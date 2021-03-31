@@ -11,13 +11,16 @@ Two cloud-based applications are used.  The officials use owlcms.  A second appl
 
 ![Slide5](img/PublicResults/CloudExplained/Slide5.SVG)
 
-The following pages will guide you through setting up a virtual competition
+The following pages will guide you through setting up a virtual competition. First, install and configure the applications:
 
 1. [Setup Heroku for a Virtual Competition](HerokuLarge)
-2. [Preparing the Zoom Setup](PrepareZoomBroacasting)
-3. [Preparing the Video Broadcasting Setup](OBS)
-4. [Live Streaming Events](Streaming)
-5. [Optional Modified Competition Rules](ModifiedRules)
+
+Once the application is installed, you can setup the video and broadcasting elements:
+
+1. [Preparing the Zoom Setup](PrepareZoomBroadcasting)
+2. [Preparing the Video Broadcasting Setup](OBS)
+3. [Live Streaming Events](Streaming)
+4. [Optional Modified Competition Rules](ModifiedRules)
 
 If you wish to control the full setup and are technology-savvy, alternatives to using Heroku are possible, for example, [Kubernetes on Digital Ocean Cloud](DigitalOcean) or [Home Kubernetes Hosting with Secure Internet Access](k3d)
 
