@@ -19,7 +19,6 @@
   * [Preparing the Video Setup](OBS)
   * [Live Streaming Events](Streaming)
   * [Optional Modified Competition Rules](ModifiedRules)
-* [Video-Conference and Streaming Setup](ZoomOBS)
 * Advanced Topics
   * [Updating Cloud-based Applications](UpdatingCloudApplications)
   * [Configuration Parameters](Configuration)

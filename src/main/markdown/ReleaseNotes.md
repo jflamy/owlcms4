@@ -6,7 +6,7 @@
   
   Key Highlights from recent stable releases
   
-  - [x] Support for large competitions on Heroku. Added documentation for [economical use of Heroku professional tiers](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LargeHeroku). Heroku now provides the memory defaults for all configurations.
+  - [x] Support for large competitions on Heroku. Added documentation for [economical use of Heroku professional tiers](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/HerokuLarge). Heroku now provides the memory defaults for all configurations.
     If you are limited to using the free setup and need to stretch it to its maximum, set the `_JAVA_OPTIONS` configuration variable to something like `-Xmx384m -XX:MaxMetaspaceSize=80m`
   - [x] Improvement: Better handling of double-clicking/double-tapping on the start timer buttons. (#405) In odd circumstances this could result in rogue beeps/buzzers.
   - [x] Fix: added missing button for the Current Athlete display. This display is normally used in video broadcasts (the display is then cropped and shown at the bottom of the screen to show current attempt information and the previous lifts and rank of the current athlete.)
@@ -24,6 +24,6 @@ Installation Instructions :
     
   - For **Linux** and **Mac OS**, download the `owlcms.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalLinuxMacSetup)
 
-  - For **Heroku** cloud, no download is necessary. Follow the ([Heroku Cloud Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Cloud) to deploy your own copy.  See also the [additional configuration steps for large competitions on Heroku](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LargeHeroku).
+  - For **Heroku** cloud, no download is necessary. Follow the ([Heroku Cloud Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Cloud) to deploy your own copy.  See also the [additional configuration steps for large competitions on Heroku](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/HerokuLarge).
 
   - For **Kubernetes** deployments, you can use `kubectl apply` on the `k3s_setup.yaml` file for k3s  (see [instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/DigitalOcean) ) or `k3d_setup.yaml` for home use using k3d with Docker Desktop (see [instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/k3d) ).  For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 

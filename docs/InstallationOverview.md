@@ -16,7 +16,7 @@ If there is good internet communication at the competition site, there is no nee
 See the following for instructions
 
   * [Heroku Cloud Installation Instructions](Heroku)
-  * [Large Competition Heroku Setup](LargeHeroku)
+  * [Large Competition Heroku Setup](HerokuLarge)
 
 ## Cloud-Based Virtual Competitions
 
@@ -26,7 +26,7 @@ In a virtual competition, the officials are in multiple locations.  In order to 
 
 The following pages will guide you through setting up a virtual competition
 
-1. [Setup Heroku for a Virtual Competition](LargeHeroku)
+1. [Setup Heroku for a Virtual Competition](HerokuLarge)
 2. [Preparing the Zoom Setup](PrepareZoomBroacasting)
 3. [Preparing the Video Broadcasting Setup](OBS)
 4. [Live Streaming Events](Streaming)

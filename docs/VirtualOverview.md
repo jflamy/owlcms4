@@ -13,7 +13,7 @@ Two cloud-based applications are used.  The officials use owlcms.  A second appl
 
 The following pages will guide you through setting up a virtual competition
 
-1. [Setup Heroku for a Virtual Competition](LargeHeroku)
+1. [Setup Heroku for a Virtual Competition](HerokuLarge)
 2. [Preparing the Zoom Setup](PrepareZoomBroacasting)
 3. [Preparing the Video Broadcasting Setup](OBS)
 4. [Live Streaming Events](Streaming)

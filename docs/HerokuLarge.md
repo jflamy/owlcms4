@@ -24,7 +24,7 @@ These steps are needed a few hours before the competition.  They will cause the 
 
     ![2x](img\Heroku\2x.png)
 
-   4. **IMPORTANT**: If this is not your first meet, and you have previously scaled down the application, you need to reset the number of containers to 1.   The only meaningful numbers for us are 0 (off and not billed) and 1 (on and billed).   Use the pencil icon to edit the dyno formation and set the value
+   4. **IMPORTANT**: Use the pencil icon to edit the dyno formation and make sure that the dyno count is set to 1.  <u>Values other than 1 will NOT work</u>.   (0 is used to turn off the application and its billing)
 
       ![dynocount](img\Heroku\dynocount.png)
 
@@ -33,19 +33,29 @@ These steps are needed a few hours before the competition.  They will cause the 
    1. Select the "Resources" section
    2. If you are on the free tier, change the dyno type to "Professional"
    3. Select "Performance-M as the performance level by clicking on the hexagon and dropping in the menu.  This will give us the computing we need (and more than enough memory)
-
+4. Make sure that the dyno count is set to 1 (larger values will NOT work.)
+   
     ![perf-m](img\Heroku\perf-m.png)
 
 ## Scale-down
 
-If you want to keep your application setup, and just rename the applications, you'r free to do so.  You can also just delete the applications, which will stop billing.
+You can also just delete the applications, which will stop billing.
 
-Should you need to keep them:
+If you want to keep your application setup, and just rename the applications, you should scale them down
 
-1. Use the same screens as above to shut down publicresults 
-   1. Use the change dyno type button to revert back to the hobby tier or free tier.
-   2. If you are back on the hobby tier, there is a button to switch between hobby (7$ per month, or the free 0$ per month setup)
-2. Use the same procedure to revert owlcms to the hobby or free tier.
+1. Use the same screens as above to shut down publicresults as follows
+   1. Setting the dyno count to 0 shuts down the application (and stops billing)
+   2. You should change the dyno type back to 1X if you want.  You can even use the change dyno type button to revert back to the hobby tier. 
+   3. If you go back the hobby tier, there is a button to switch between hobby (7$ per month), or the free (0$ per month) setup.
+2. Use the same procedure to scale down owlcms. Due to the high price of the Performance Tier, i<u>t is very important to set the dyno type to 1X, or to go back to the hobby/free tier</u> (using the change dyno type button).    <u>Set the dyno count to 0 if you want to stop billing</u>.
+
+
+
+
+
+
+
+The following sections are not needed for normal setups, but are here for reference.
 
 ## Database Backups
 
