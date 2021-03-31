@@ -186,8 +186,9 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         });
     }
 
-    protected void doStopTimer() {
+    protected void doStopTimer(Integer milliseconds) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            setMsRemaining(milliseconds);
             stop(getMsRemaining(), isIndefinite(), isSilent());
         });
     }
@@ -298,7 +299,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         Element timerElement2 = getTimerElement();
         if (timerElement2 != null) {
             double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
-            timerElement2.callJsFunction("start", seconds, indefinite, silent, timerElement2);
+            timerElement2.callJsFunction("start", seconds, indefinite, silent, timerElement2, Long.toString(System.currentTimeMillis()));
         }
     }
 
@@ -306,7 +307,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         Element timerElement2 = getTimerElement();
         if (timerElement2 != null) {
             double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
-            timerElement2.callJsFunction("pause", seconds, indefinite, silent, timerElement2);
+            timerElement2.callJsFunction("pause", seconds, indefinite, silent, timerElement2, Long.toString(System.currentTimeMillis()));
         }
     }
 

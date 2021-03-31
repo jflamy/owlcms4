@@ -59,7 +59,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         VerticalLayout intro = new VerticalLayout();
         addP(intro, getTranslation("Dropdown_Select_Platform"));
         addP(intro, getTranslation("Button_Open_Display"));
-        intro.getStyle().set(getTranslation("margin-bottom"), "0");
+        intro.getStyle().set("margin-bottom", "0");
 
         Button attempt = openInNewTab(AttemptBoard.class, getTranslation("AttemptBoard"));
         Button referee = openInNewTab(AthleteFacingDecisionBoard.class, getTranslation("Athlete_Decisions"));

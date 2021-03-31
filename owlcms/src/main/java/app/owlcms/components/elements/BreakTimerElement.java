@@ -104,13 +104,13 @@ public class BreakTimerElement extends TimerElement {
     @Subscribe
     public void slaveBreakDone(UIEvent.BreakDone e) {
         uiEventLogger.debug("&&& break done {} {}", parentName, e.getOrigin());
-        doStopTimer();
+        doStopTimer(0);
     }
 
     @Subscribe
     public void slaveBreakPause(UIEvent.BreakPaused e) {
-        uiEventLogger.debug("&&& breakTimer pause {} {}", parentName, e.getOrigin());
-        doStopTimer();
+        uiEventLogger.trace("&&& breakTimer pause {} {}", parentName, e.getMillis());
+        doStopTimer(e.getMillis());
     }
 
     @Subscribe

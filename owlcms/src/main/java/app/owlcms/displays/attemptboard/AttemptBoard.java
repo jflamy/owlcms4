@@ -47,6 +47,7 @@ import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.SoundUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -57,6 +58,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Tag("attempt-board-template")
 @JsModule("./components/AttemptBoard.js")
+@JsModule("./components/AudioContext.js")
 @CssImport(value = "./styles/shared-styles.css")
 @CssImport(value = "./styles/plates.css")
 @Route("displays/attemptBoard")
@@ -425,6 +427,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             ThemeList themeList = UI.getCurrent().getElement().getThemeList();
             themeList.remove(Lumo.LIGHT);
             themeList.add(Lumo.DARK);
+            
+            SoundUtils.enableAudioContext(this.getElement());
 
             // sync with current status of FOP
             if (fop.getState() == FOPState.INACTIVE) {
@@ -445,6 +449,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             uiEventBus = uiEventBusRegister(this, fop);
         });
     }
+
+
 
     private void doDone(Group g) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {

@@ -1,5 +1,7 @@
 # Translation Instructions
 
+
+
 ## Translating the screens and displays
 
 1. For translation, you need to install OWLCMS locally.  Refer to the [Local Setup instructions](https://jflamy.github.io/owlcms4/#/LocalSetup). 
@@ -12,6 +14,50 @@
     - You may  have variations per country. For example `fr_CA` is the code for French in Canada, where different words are used and some of the displays are bilingual.
 4. Translate the strings in your language. Google sheets saves automatically.
     ![B_GoogleSheet](img/Translation/B_GoogleSheet.png)
+
+
+
+## Translation Rules
+
+There are 5 things to be careful with (I am using examples from the Spanish translation)
+
+**1) HTML formatting.** 
+
+Some cells contain HTML codes like `<b></b>` for formatting, and use HTML conventions for special characters. For example, &amp; is used instead of &. They should be preserved in your translation, for example:
+
+```html
+El grupo actual para la plataforma se selecciona en la <b><i>Anunciador</i></b> pantalla<br>
+```
+
+**2) Sentences with substitution slots {0} {1} ...** 
+
+When the program needs to build a sentence where values need to be inserted, the sentence is written with {0} for the first value, {1} for the second value, and so on (counting starting at 0 is frequent in computer programming -- this is a convention used by the tools I am using, not my personal choice)
+
+```html
+El valor debe estar entre {0} y {1} inclusivo.
+```
+
+**3) Grammatical variations**
+
+If you see things like the following, you must NOT translate the word "choice". For example, the following selects what to display depending on whether the try number is 1, 2, or 3. that 1er 2o 3er will be shown in properly formatted format (`<sup>` is for superscript).
+
+ ```html
+{0}<sup>{0,choice,1#er|2#o|3#er}</sup> att.
+ ```
+
+**4) Number formatting**
+
+If you see things like the following, do NOT translate the word "number", and do not replace the "." with a ",". The programming library I use understands #.# as a numerical format and will put the correct decimal marker for Spanish instead of the period (there will actually be a comma in the output)
+
+```
+{0,number,#.#} kg
+```
+
+**5) Unicode character codes**
+
+If you see a string that starts with `\u`, it is a way to write down characters that cannot be typed, or that would be swallowed during the processing of the file. So if you see `\u0020` that is just a way to type a space such that it is preserved when the file is read.
+
+
 
 ## Testing your screen and display translations
 
@@ -41,16 +87,6 @@
 
 - By default, OWLCMS obeys your browser settings.  So if your browser is set to have xx as the preferred language, and there are translations available for language `xx`, you will see the `xx` text you provided.
   - If you don't get the right language (for example, my browser is in English, but I need to see French when translating to French), see the [instructions for forcing the language](https://jflamy.github.io/owlcms4/#/LocalSetup?id=defining-the-language)
-
-## Translating the Excel files
-- Under the `local\templates` directory you will find the various Excel templates, in separate subdirectories
-- For example, for athlete cards, you will need to copy `templates\Cards\CardTemplate_en.xls` to `templates\Cards\CardTemplate_xx.xls`  to translate it for language xx, where xx is the [ISO 639-1 code]( https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) for your language.
-- Note: if the templates are not found in your language, the English version will be used.  So you don't have to translate all the templates, or even any template at all, if you are OK with the English version initially.
-
-## Testing your Excel File Translations
-
-- For the protocol and final package files where several formats are possible, the files are loaded when they are selected on the results and package pages.  To reload your file if you make changes, select another language, and then switch back to your own.
-- For the other files (athlete cards, start list, etc.) there is only one choice per language, and there is no selection menu.  These files are read every time the document is produced.
 
 ## Reminder
 

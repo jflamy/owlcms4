@@ -17,6 +17,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 @SuppressWarnings("serial")
 @Tag("decision-board-template")
 @JsModule("./components/DecisionBoard.js")
+@JsModule("./components/AudioContext.js")
 @Route("displays/athleteFacingDecision")
 @Push
 @Theme(value = Lumo.class, variant = Lumo.DARK)

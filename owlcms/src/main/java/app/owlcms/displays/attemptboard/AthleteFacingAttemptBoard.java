@@ -17,6 +17,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 @SuppressWarnings("serial")
 @Tag("attempt-board-template")
 @JsModule("./components/AttemptBoard.js")
+@JsModule("./components/AudioContext.js")
 @Route("displays/athleteFacingAttempt")
 @Push
 @Theme(value = Lumo.class, variant = Lumo.DARK)

@@ -1,4 +1,6 @@
-If you have Internet access, we suggest that you install `publicresults` in the cloud, because it is simpler.  You can then provide WiFi access to the coaches that have tablets, and let the public use their cellular data to get to the cloud to check the scoreboard on their phones.
+## Individual Scoreboards Local Setup
+
+If you have Internet access, we suggest that you install [`publicresults` in the cloud](Remote), because it is simpler.  
 
 If there is no Internet, you can use a setup as follows to provide individual scoreboard displays.
 

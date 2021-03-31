@@ -457,9 +457,10 @@ public class FieldOfPlay {
             if (e instanceof StartLifting) {
                 transitionToLifting(e, getGroup(), true);
             } else if (e instanceof BreakPaused) {
+                BreakPaused bpe = (BreakPaused)e;
                 getBreakTimer().stop();
                 pushOut(new UIEvent.BreakPaused(
-                        this.getTimeAllowed(),
+                        bpe.getTimeRemaining(),
                         e.getOrigin(),
                         false,
                         this.getBreakType(),

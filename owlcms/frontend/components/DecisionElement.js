@@ -157,13 +157,14 @@ class DecisionElement extends PolymerElement {
 	}
 
 	_setupAudio() {
-		if ('webkitAudioContext' in window) {
-			this.audio = false;
-		}
+		// if ('webkitAudioContext' in window) {
+		// 	this.audio = false;
+		// }
 		if (this.audio) {
 			// setup audio -- an oscillator cannot be reused.
 			if (!this.context) {
-				this.context = new AudioContext();
+				//this.context = new AudioContext();
+				this.context = window.audioCtx;
 			}
 			this.oscillator = this.context.createOscillator();
 			this.gain = this.context.createGain();

@@ -72,6 +72,7 @@ import elemental.json.JsonValue;
 @SuppressWarnings("serial")
 @Tag("scoreleader-template")
 @JsModule("./components/ScoreWithLeaders.js")
+@JsModule("./components/AudioContext.js")
 @Route("displays/scoreleader")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
