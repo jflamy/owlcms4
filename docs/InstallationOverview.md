@@ -1,10 +1,13 @@
-Several installation options are possible, depending on what is available at the competition site and the size of the competition.
+Several installation options are possible, depending on what is available at the competition site and the size of the competition.  The four scenarios below fall in two categories:
+
+- Cloud-based options, where all you need are browsers (and a good internet connection)
+- Stand-alone options, where there is no reliable internet and you need to run things locally.
 
 ## Easiest: Cloud-Based Installation (Internet required)
 
 If there is good internet communication at the competition site, there is no need to install anything locally. 
 
-- There is a one-click install procedure to a free (0$) cloud service called Heroku (a division of Salesforce.com).  For large competitions, there are moderately priced alternative (20$ or less), discussed below.
+- There is a one-click install procedure to a *free* (0$) cloud service called Heroku (a division of Salesforce.com).  For large competitions, you can change the configuration on the competition days to use the paying tiers, at a cost of about 12$ per day, and then go back to the free tiers.
 - The install will create your own private copy of the application, with your own database.
 - The owlcms software runs as a web site. All the various display screens and devices connect to the cloud using the competition site's wifi or ethernet network.
 
@@ -13,6 +16,23 @@ If there is good internet communication at the competition site, there is no nee
 See the following for instructions
 
   * [Heroku Cloud Installation Instructions](Heroku)
+  * [Large Competition Heroku Setup](LargeHeroku)
+
+## Cloud-Based Virtual Competitions
+
+In a virtual competition, the officials are in multiple locations.  In order to allow access by all officials, `owlcms` is run in the cloud and supports remote refereeing -- see the following [page](Refereeing#Mobile-Device-Refereeing) for details. Remote referees need to use a laptop because a proper screen is needed for refereeing but unfortunately iPads do not support simultaneous use of video and of the refereeing application.
+
+![Slide5](img/PublicResults/CloudExplained/Slide5.SVG)
+
+The following pages will guide you through setting up a virtual competition
+
+1. [Setup Heroku for a Virtual Competition](LargeHeroku)
+2. [Preparing the Zoom Setup](PrepareZoomBroacasting)
+3. [Preparing the Video Broadcasting Setup](OBS)
+4. [Live Streaming Events](Streaming)
+5. [Optional Modified Competition Rules](ModifiedRules)
+
+If you wish to control the full setup and are technology-savvy, alternatives to using Heroku are possible, for example, [Kubernetes on Digital Ocean Cloud](DigitalOcean) or [Home Kubernetes Hosting with Secure Internet Access](k3d)
 
 ## Stand-alone: Laptop installation
 
@@ -33,43 +53,9 @@ See the following instructions
   * [Windows Stand-alone Installation](LocalWindowsSetup)
   * [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
 
-## Virtual or Distanced Competitions
+## Stand-Alone: Local Individual Scoreboards
 
-There are additional modules available to support more involved scenarios.  For example, it is possible to have individual scoreboards available to every coach -- supporting physical distancing.  This can also be used to provide individual scoreboards to every member of the public watching the competition remotely.
+It may be desirable to provide coaches with individual access to the scoreboard in order to respect distancing guidelines, or to give access to the members of the audience. This can be done by connecting to a [publicresults installed in the cloud](), or by creating a second local network to isolate the main competition network.  The fully local setup is explained in [this page](PublicResults_Local).
 
-A competition with a main site and remote gyms connected by videoconferencing could look as follows
+![Slide1](img/PublicResults/LocalPublicResults/Slide1.SVG)
 
-![Slide3](img/PublicResults/CloudExplained/Slide3.SVG)
-
-Besides the three options discussed below, you may want to read the following
-
-*	[Distancing using Individual Scoreboards](Distancing)
-*	[Virtual Competitions and Remote Referees](Virtual)
-*	[Virtual Competitions: Running and Streaming](ZoomOBS)
-
-### Option 1: Heroku Cloud Hosting
-
-This option is the most likely to be used, as even large competitions can be handled cost-effectively.  
-
-In order to host a virtual competition effectively, you need to install both owlcms and publicresults.
-
-*	Free Heroku hosting, for single-day Club or Regional meets (60 lifters or less as a rule of thumb, due to the limits on the free configuration)
-  *	Install owlcms, as described on [this page](Heroku).
-  *	Install publicresults, and connect the two applications together, as explained on [this page](Remote)
-*	[Large Competition Heroku Hosting](HerokuLarge) (for multi-day competitions or large virtual competitions).  The price for a week-end competition is around 20 US$
-
-### Option 2: Cloud Kubernetes Hosting
-
-If you wish to control the full setup, then you can setup your own cloud-based environment.
-
-Even though the following uses a paid setup, you can still run a competition for less than 10 US$. You also get the added benefit that if your run a larger competition, you can increase the memory available. 
-
-*	[Kubernetes on Digital Ocean Cloud](DigitalOcean)
-
-### Option 3: Home Kubernetes Hosting with Cloud Access
-
-For the technology enthusiast, if you have good internet connectivity at home, and a good performance Windows, Linux or Mac machine, you can use the following approach
-
-*	[Home Hosting with Secure Internet Access](k3d)
-
-If you have a dedicated Linux Host at home, you can also combine options 2 and 3.  You would use the same instructions as Option 2 to setup a machine with k3s, and then use KubeSail as an outside proxy as in Option 3.
