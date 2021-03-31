@@ -40,7 +40,7 @@
         <logback.version>1.2.3</logback.version>
         <slf4j.version>1.7.26</slf4j.version>
         <hibernate.version>5.4.3.Final</hibernate.version>
-        <guava.version>27.1-jre</guava.version>
+        <guava.version>29.0-jre</guava.version>
 
         <!-- Plugins -->
         <jetty.version>9.4.25.v20191220</jetty.version>
