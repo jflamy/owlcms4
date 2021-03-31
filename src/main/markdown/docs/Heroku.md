@@ -53,6 +53,8 @@ In a gym setting, people can read the web addresses on the screens, and one day,
   - You should see a set of four numbers separated by dots like `24.157.203.247`  . This the address you should use -- owlcms will reject connections coming from other places than your competition router. 
   
   Note that if you use the OWLCMS_IP or -Dip settings, these will take precedence over what is in the database.
+  
+- If you have set a password, you may need to set the OWLCMS_BACKDOOR variable to avoid entering passwords on the screens used for video broadcasting.
 
 ## Configuration Parameters
 

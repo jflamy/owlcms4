@@ -19,7 +19,7 @@ Click on the purple button below to start installation of owlcms on Heroku cloud
 
 **3. Name your application and deploy**
 
-Enter the name that will be used on all your competition site laptops and displays.  Once you are done start the deployment (this will prepare the application and make it available)
+Enter the name that will be used by the officials.  Once you are done start the deployment (this will prepare the application and make it available)
 
 ![020_selectName](img/Heroku/020_selectName.png)
 
@@ -52,8 +52,7 @@ In a gym setting, people can read the web addresses on the screens, and one day,
     
   - You should see a set of four numbers separated by dots like `24.157.203.247`  . This the address you should use -- owlcms will reject connections coming from other places than your competition router. 
   
-
-Note that if you use the OWLCMS_IP or -Dip settings, these will take precedence over what is in the database.
+  Note that if you use the OWLCMS_IP or -Dip settings, these will take precedence over what is in the database.
 
 ## Configuration Parameters
 
