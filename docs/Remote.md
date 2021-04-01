@@ -19,7 +19,7 @@ The other common configuration is when both owlcms and publicresults are in the 
     - Remember the login and password information.
 
 2. Click on the purple button below to start the installation on Heroku Cloud.
-    [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/jflamy/owlcms-publicresults)
+    [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/jflamy-dev/owlcms-publicresults)
 
 3. Enter your Heroku account (or create one if you haven't)
 
