@@ -1,10 +1,15 @@
 # Public Scoreboard
 
-The `publicresults` application is used to make applications results available to the public at large, or to run virtual competitions. As shown in the following diagram (and further discussed in on [this page](Virtual):![Slide2](img/PublicResults/CloudExplained/Slide2.SVG)
+The `publicresults` application is used to make applications results available to the public at large, or to participants in virtual competition. For this reason, it is usually run in the cloud.
 
-- updates are sent from the competition site to  the publicresults application running on the cloud.  
-- The general public, whether at the competition site or anywhere on the internet, can connect to publicresults and  see the scoreboards via their phone or laptop.  
+The following example shows owlcms running standalone in a gym, sending information to publicresults running in the cloud.
+![Slide2](img/PublicResults/CloudExplained/Slide2.SVG)
+
+- updates are sent from the competition site to  the publicresults application running on the cloud whenever there is a significant event (clock start/stop, weight changes, lift decisions, etc.)  
+- The public can connect to publicresults and  see the scoreboards via their phone or laptop no matter where they are
 - There is no load put on the competition site other than sending an update to the publicresults application.  The publicresults application takes all the load for the public queries.
+
+The other common configuration is when both owlcms and publicresults are in the cloud,  That scenario is discussed [here](VirtualOverview).
 
 ## Install the public results scoreboard on Heroku
 

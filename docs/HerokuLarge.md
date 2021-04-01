@@ -22,35 +22,32 @@ These steps are needed a few hours before the competition.  They will cause the 
    2. If you are on the free tier, change the dyno type to "Professional"
    3. Select "Standard-2X" as the performance level by clicking on the hexagon and dropping in the menu.  This will give us the memory we need.
    ![2x](img\Heroku\2x.png)
-   
-4. **IMPORTANT**: Check the dyno count by using the pencil at the right.  **The value should be 1** (the only other value you can use is 0 to turn off the application).  Values larger than 1 will cause the applications to malfunction.
-   
+   4. **IMPORTANT**: Check the dyno count by using the pencil at the right.  **The value should be 1** (the only other value you can use is 0 to turn off the application).  Values larger than 1 will cause the applications to malfunction.
    ![dynocount](img\Heroku\dynocount.png)
    
 2. Update owlcms to the Performance-M dyno type.  Same steps as above.
 
    1. Select the "Resources" section
    2. If you are on the free tier, change the dyno type to "Professional"
-   3. Select "Performance-M as the performance level by clicking on the hexagon and dropping in the menu.  This will give us the computing we need (and more than enough memory)
+   3. Select "Performance-M" as the performance level by clicking on the hexagon and dropping in the menu.  This will give us the computing we need (and more than enough memory)
    ![perf-m](img\Heroku\perf-m.png)
-   
    4. **IMPORTANT**: Check the dyno count by using the pencil at the right.  **The value should be 1** (the only other value you can use is 0 to turn off the application).  Values larger than 1 will cause the applications to malfunction.
 
 ## Scale-down
 
-If you want to keep your application setup, and just rename the applications, you're free to do so.  You can also just delete the applications, which will stop billing.
+Deleting the applications will stop billing.  But in most instances you will want to keep the applications for at least a few days to fetch results, print the final competition package, etc.
 
-If you wish to keep your applications, there are two ways to scale down:
+There are two main ways to scale down
 
-**Method 1: Go back to the free tier or hobby tier**.
+**Method 1: Keep a paying tier, but scaled down**
 
-1. Use the change dyno type button to revert back to the hobby tier (7$)
+1. Change the performance level back to 1X (25$) or 2X (50$) for a few days (that's 1.25$ or 2.50$ per day). 
+2. If you wish to turn off the application and stop paying, change the dyno count to **0** using the pencil.
+
+**Method 2: Go back to the free tier or hobby tier**.
+
+1. Use the `Change Dyno Type` button to revert back to the hobby tier (7$)
 2. Once you are back on the hobby tier, there is a toggle button to switch back to free mode (0$)
-
-**Method 2: Keep a paying tier, but scaled down**
-
-2. Change the performance level back to 1X (25$)
-2. If you wish to turn off the application and stop paying, change the dyno count to **0**
 
 
 
@@ -74,7 +71,7 @@ This requires installing the command line interface and typing a few commands.
 
 2. Assume we have a free application called `ourtest` for doing the setup and the real one is called `ourmeet`
 
-3. Take a backup of the ourtest database: 
+3. Take a backup of the `ourtest` database: 
 
    ```heroku pg:backups capture --app ourtest```
 
