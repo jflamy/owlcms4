@@ -1245,11 +1245,11 @@ public class FieldOfPlay {
             breakTimer2.setTimeRemaining(0);
             breakTimer2.setEnd(e.getTargetTime());
         }
-        logger.debug("breakTimer2 {} isIndefinite={}", countdownType2, breakTimer2.isIndefinite());
+        logger.trace("breakTimer2 {} isIndefinite={}", countdownType2, breakTimer2.isIndefinite());
     }
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {
-        logger.debug("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
+        logger.trace("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
                 LoggerUtils.whereFrom());
 
         Athlete clockOwner = getClockOwner();
