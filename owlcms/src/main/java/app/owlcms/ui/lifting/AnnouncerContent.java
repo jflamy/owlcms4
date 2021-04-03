@@ -176,21 +176,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     }
 
     /**
-     * @see app.owlcms.ui.shared.AthleteGridContent#breakButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
-     */
-    @Override
-    protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
-
-        breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
-            if (breakDialog == null) {
-                breakDialog = new BreakDialog(this, BreakType.TECHNICAL, CountdownType.INDEFINITE);
-            }
-            breakDialog.open();
-        });
-        return layoutBreakButtons();
-    }
-
-    /**
      * @see app.owlcms.ui.shared.AthleteGridContent#createInitialBar()
      */
     @Override
@@ -266,7 +251,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         reset.getElement().setAttribute("theme", "secondary contrast small icon");
         return reset;
     }
-    
+
     // array is used because of Java requires a final;
     long[] previousStartMillis = { 0L };
 

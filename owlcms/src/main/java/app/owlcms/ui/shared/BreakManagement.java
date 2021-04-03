@@ -476,7 +476,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         breakEnd.getElement().setAttribute("title", getTranslation("EndBreak"));
 
         FlexLayout buttons = new FlexLayout();
-        buttons.add(breakStart, breakPause, breakReset, breakEnd);
+        buttons.add(breakStart, breakPause, /* breakReset, */ breakEnd);
         buttons.setWidth("100%");
         buttons.setJustifyContentMode(JustifyContentMode.AROUND);
         return buttons;
@@ -760,6 +760,9 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     }
                     break;
                 default:
+                    // the following is likely dead code; AthleteGridContent and subclasses for Announcer/TimeKeeper/Marshall
+                    // provide this information explicitly on open.
+                    
                     Athlete curAthlete = fop.getCurAthlete();
                     order = fop.getLiftingOrder();
                     logger.debug("   syncWithFOP: currentAthlete {}", curAthlete);
