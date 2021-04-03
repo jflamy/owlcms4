@@ -459,6 +459,7 @@ public class FieldOfPlay {
             } else if (e instanceof BreakPaused) {
                 BreakPaused bpe = (BreakPaused)e;
                 getBreakTimer().stop();
+                getBreakTimer().setTimeRemaining(bpe.getTimeRemaining());
                 pushOut(new UIEvent.BreakPaused(
                         bpe.getTimeRemaining(),
                         e.getOrigin(),
@@ -1204,26 +1205,26 @@ public class FieldOfPlay {
                 breakTimer2.stop();
                 setBreakParams(e, breakTimer2, breakType2, countdownType2);
 //                getFopEventBus().post(new BreakStarted(breakType2,countdownType2,e.getTimeRemaining(),e.getTargetTime(),e.getOrigin()));
-                logger.debug("starting1");
+                logger.trace("starting1");
                 breakTimer2.start(); // so we restart in the new type
             } else {
-                // we are in a break, resume
+                // we are in a break, resume.
                 logger.debug("{} resuming break : current {} new {}", getName(), getBreakType(),
                         e.getBreakType());
                 breakTimer2.setOrigin(e.getOrigin());
-                logger.debug("starting2");
+                logger.trace("starting2");
                 breakTimer2.start();
             }
         } else {
             setState(BREAK);
             setBreakParams(e, breakTimer2, breakType2, countdownType2);
-            logger.debug("stopping1");
+            logger.trace("stopping1");
             breakTimer2.stop(); // so we restart in the new type
         }
         // this will broadcast to all slave break timers
         if (!breakTimer2.isRunning()) {
             breakTimer2.setOrigin(e.getOrigin());
-            logger.debug("starting3");
+            logger.trace("starting3");
             breakTimer2.start();
         }
         logger.trace("started break timers {}", breakType2);

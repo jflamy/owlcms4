@@ -183,7 +183,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
         breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
             if (breakDialog == null) {
-                breakDialog = new BreakDialog(this);
+                breakDialog = new BreakDialog(this, BreakType.TECHNICAL, CountdownType.INDEFINITE);
             }
             breakDialog.open();
         });

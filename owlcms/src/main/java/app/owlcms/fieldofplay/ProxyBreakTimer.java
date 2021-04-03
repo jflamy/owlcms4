@@ -48,6 +48,7 @@ public class ProxyBreakTimer implements IProxyTimer {
     private LocalDateTime end;
     private Object origin;
     private long lastStop;
+    private Integer breakDuration;
 
     /**
      * Instantiates a new break timer proxy.
@@ -260,6 +261,14 @@ public class ProxyBreakTimer implements IProxyTimer {
     private int getMillis() {
         return (int) (this.getEnd() != null ? LocalDateTime.now().until(getEnd(), ChronoUnit.MILLIS)
                 : getTimeRemaining());
+    }
+    
+    public Integer getBreakDuration() {
+        return breakDuration;
+    }
+
+    public void setBreakDuration(Integer breakDuration) {
+        this.breakDuration = breakDuration;
     }
 
 }
