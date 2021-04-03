@@ -242,7 +242,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         CountdownType countdownType = ct.getValue();
         int liveTimeRemaining = fop.getBreakTimer().liveTimeRemaining();
         fop.getFopEventBus()
-                .post(new FOPEvent.BreakStarted(breakType, countdownType, liveTimeRemaining, getTarget(),
+                .post(new FOPEvent.BreakStarted(breakType, countdownType, countdownType == CountdownType.INDEFINITE ? null : timeRemaining.intValue(), getTarget(),
                         this.getOrigin()));
     }
 
@@ -266,6 +266,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     public void slaveBreakDone(UIEvent.BreakDone e) {
         synchronized (this) {
             try {
+                logger.warn("Break Done {}", LoggerUtils.stackTrace());
                 ignoreListeners = true;
                 UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(),
                         () -> parentDialog.close());
@@ -409,8 +410,11 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             if (fop.getState() != FOPState.BREAK) {
                 logger.warn("not in a break");
                 if (checkImmediateBreak()) {
+                    logger.warn("immediate");
+                    fop.getBreakTimer().setIndefinite();
                     startIndefiniteBreakImmediately(getRequestedBreakType());
                 } else {
+                    logger.warn("not immediate");
                     setBreakTimerFromFields(ct.getValue());
                     breakPause.setEnabled(false);
                 }
@@ -605,6 +609,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 fop.getBreakTimer().setBreakDuration(timeRemaining.intValue());
                 logger.warn("setBreakTimerFromFields explicit duration {}",
                         DurationFormatUtils.formatDurationHMS(timeRemaining));
+                // this sets time locally only
                 breakTimerElement.slaveBreakSet(
                         new BreakSetTime(bType, cType, timeRemaining.intValue(), null, false, this.getOrigin()));
             }
@@ -724,7 +729,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 switch (fopState) {
                 case INACTIVE:
                 case BREAK:
-                    logger.warn("   syncWithFOP: break under way {} {}",fopBreakType,fopCountdownType);
+                    logger.warn("   syncWithFOP: break under way {} {} indefinite={}",fopBreakType,fopCountdownType, fopBreakTimer.isIndefinite());
 
                     if (fopCountdownType == CountdownType.INDEFINITE) {
                         fopLiveTimeRemaining = (int) DEFAULT_DURATION.toMillis();
