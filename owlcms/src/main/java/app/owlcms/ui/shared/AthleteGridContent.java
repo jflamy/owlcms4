@@ -618,11 +618,11 @@ public abstract class AthleteGridContent extends VerticalLayout
                 long timeElapsed = now - previousStartMillis[0];
                 boolean running = fop.getAthleteTimer().isRunning();
                 if (timeElapsed > 50 && !running) {
-                    logger.warn("clock start {}ms running={}", timeElapsed, running);
+                    logger.debug("clock start {}ms running={}", timeElapsed, running);
                     fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
                     buttonsTimeStarted();
                 } else {
-                    logger.warn("discarding duplicate clock start {}ms running={}", timeElapsed, running);
+                    logger.debug("discarding duplicate clock start {}ms running={}", timeElapsed, running);
                 }
                 previousStartMillis[0] = now;
             });

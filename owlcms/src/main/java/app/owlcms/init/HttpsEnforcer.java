@@ -58,12 +58,12 @@ public class HttpsEnforcer implements Filter {
         try {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
-            logger.warn(e.getMessage());
+            logger.debug(e.getMessage());
             if (StartupUtils.isDebugSetting()) {
                 Enumeration<String> headerNames = request.getHeaderNames();
                 while (headerNames.hasMoreElements()) {
                     String headerName = (String) headerNames.nextElement();
-                    logger.warn("    {} {}", headerName, request.getHeader(headerName));
+                    logger.debug("    {} {}", headerName, request.getHeader(headerName));
                 }
             }
         }

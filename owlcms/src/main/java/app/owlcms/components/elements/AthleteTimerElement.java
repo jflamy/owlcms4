@@ -64,7 +64,7 @@ public class AthleteTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientInitialWarning() {
-        logger.warn("Received initial warning.");
+        logger.debug("Received initial warning.");
         OwlcmsSession.withFop(fop -> {
             fop.getAthleteTimer().initialWarning(this);
         });
@@ -92,7 +92,7 @@ public class AthleteTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientTimeOver() {
-        logger.warn("Received time over.");
+        logger.debug("Received time over.");
         OwlcmsSession.withFop(fop -> {
             fop.getAthleteTimer().timeOver(this);
         });

@@ -144,7 +144,7 @@ public class ProxyBreakTimer implements IProxyTimer {
 
     public void setIndefinite() {
         indefinite = true;
-        logger.warn("setting breaktimer indefinite = {} [{}]", indefinite, LoggerUtils.whereFrom());
+        logger.debug("setting breaktimer indefinite = {} [{}]", indefinite, LoggerUtils.whereFrom());
         this.setTimeRemaining(0);
         this.setEnd(null);
         fop.pushOut(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), getTimeRemaining(), null,
@@ -230,7 +230,7 @@ public class ProxyBreakTimer implements IProxyTimer {
             // we've already signaled time over.
             return;
         }
-        logger.warn("break {} {} timeover = {} [{}]", running, isIndefinite(), getTimeRemaining(), LoggerUtils.whereFrom());
+        logger.debug("break {} {} timeover = {} [{}]", running, isIndefinite(), getTimeRemaining(), LoggerUtils.whereFrom());
 
         // should emit sound at end of break
         fop.pushOut(new UIEvent.BreakDone(origin));

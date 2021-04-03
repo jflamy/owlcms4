@@ -240,14 +240,13 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     public void masterStartBreak(FieldOfPlay fop) {
         BreakType breakType = bt.getValue();
         CountdownType countdownType = ct.getValue();
-        int liveTimeRemaining = fop.getBreakTimer().liveTimeRemaining();
         fop.getFopEventBus()
                 .post(new FOPEvent.BreakStarted(breakType, countdownType, countdownType == CountdownType.INDEFINITE ? null : timeRemaining.intValue(), getTarget(),
                         this.getOrigin()));
     }
 
     private Integer computeTimerRemainingFromFields(CountdownType countdownType) {
-        logger.warn("computeTimerRemainingFromFields");
+        logger.debug("computeTimerRemainingFromFields");
         Integer tr;
         if (countdownType == CountdownType.INDEFINITE) {
             tr = null;
@@ -266,7 +265,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     public void slaveBreakDone(UIEvent.BreakDone e) {
         synchronized (this) {
             try {
-                logger.warn("Break Done {}", LoggerUtils.stackTrace());
+                logger.debug("Break Done {}", LoggerUtils.stackTrace());
                 ignoreListeners = true;
                 UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(),
                         () -> parentDialog.close());
@@ -408,18 +407,18 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
         OwlcmsSession.withFop(fop -> {
             if (fop.getState() != FOPState.BREAK) {
-                logger.warn("not in a break");
+                logger.debug("not in a break");
                 if (checkImmediateBreak()) {
-                    logger.warn("immediate");
+                    logger.debug("immediate");
                     fop.getBreakTimer().setIndefinite();
                     startIndefiniteBreakImmediately(getRequestedBreakType());
                 } else {
-                    logger.warn("not immediate");
+                    logger.debug("not immediate");
                     setBreakTimerFromFields(ct.getValue());
                     breakPause.setEnabled(false);
                 }
             } else {
-                logger.warn("in a break");
+                logger.debug("in a break");
                 syncWithFop();
             }
         });
@@ -581,7 +580,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         if (ignoreListeners) {
             return;
         }
-        logger.warn("setBreakTimerFromFields cType={} from={}", cType, LoggerUtils.whereFrom());
+        logger.debug("setBreakTimerFromFields cType={} from={}", cType, LoggerUtils.whereFrom());
         LocalDateTime now = LocalDateTime.now();
 
         BreakType bType = bt.getValue();
@@ -592,7 +591,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             if (cType == CountdownType.TARGET) {
                 LocalDateTime target = getTarget();
                 timeRemaining = now.until(target, ChronoUnit.MILLIS);
-                logger.warn("setBreakTimerFromFields target-derived duration {}",
+                logger.debug("setBreakTimerFromFields target-derived duration {}",
                         DurationFormatUtils.formatDurationHMS(timeRemaining));
                 breakTimerElement.slaveBreakSet(
                         new BreakSetTime(bType, cType, timeRemaining.intValue(), target, false, this.getOrigin()));
@@ -607,7 +606,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 timeRemaining = (value != null ? value.toMillis() : 0L);
                 fop.getBreakTimer().setTimeRemaining(timeRemaining.intValue());
                 fop.getBreakTimer().setBreakDuration(timeRemaining.intValue());
-                logger.warn("setBreakTimerFromFields explicit duration {}",
+                logger.debug("setBreakTimerFromFields explicit duration {}",
                         DurationFormatUtils.formatDurationHMS(timeRemaining));
                 // this sets time locally only
                 breakTimerElement.slaveBreakSet(
@@ -637,14 +636,14 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private void setRequestedBreakType(BreakType requestedBreakType) {
-        logger.warn("requestedBreakType={} {}", requestedBreakType, LoggerUtils.whereFrom());
+        logger.debug("requestedBreakType={} {}", requestedBreakType, LoggerUtils.whereFrom());
         this.requestedBreakType = requestedBreakType;
     }
 
     private void setTimingFieldsFromBreakTimer(int targetTimeDuration, Integer breakDuration) {
         boolean resetIgnoreListeners = ignoreListeners;
         try {
-            logger.warn("setTimingFieldsFromBreakTimer target={} duration={}", targetTimeDuration, breakDuration);
+            logger.debug("setTimingFieldsFromBreakTimer target={} duration={}", targetTimeDuration, breakDuration);
             ignoreListeners = true;
             setDurationField(breakDuration != null ? Duration.ofMillis(breakDuration) : DEFAULT_DURATION);
             LocalDateTime target = LocalDateTime.now().plus(targetTimeDuration, ChronoUnit.MILLIS);
@@ -729,7 +728,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 switch (fopState) {
                 case INACTIVE:
                 case BREAK:
-                    logger.warn("   syncWithFOP: break under way {} {} indefinite={}",fopBreakType,fopCountdownType, fopBreakTimer.isIndefinite());
+                    logger.debug("   syncWithFOP: break under way {} {} indefinite={}",fopBreakType,fopCountdownType, fopBreakTimer.isIndefinite());
 
                     if (fopCountdownType == CountdownType.INDEFINITE) {
                         fopLiveTimeRemaining = (int) DEFAULT_DURATION.toMillis();
@@ -748,7 +747,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     safeSetBT(breakType);
                     setCtValue(fopCountdownType);
 
-                    logger.warn("   syncWithFOP: running = {} ct={}", breakTimerRunning, fopCountdownType);
+                    logger.debug("   syncWithFOP: running = {} ct={}", breakTimerRunning, fopCountdownType);
                     if (breakTimerRunning) {
                         startDisabled();
                         // start our own timer to follow the others that are already displaying

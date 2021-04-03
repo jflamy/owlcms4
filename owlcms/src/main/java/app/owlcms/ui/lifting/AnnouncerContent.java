@@ -283,7 +283,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                     buttonsTimeStarted();
                     displayLiveDecisions();
                 } else {
-                    logger.warn("discarding duplicate clock start {}ms running={}", timeElapsed, running);
+                    logger.debug("discarding duplicate clock start {}ms running={}", timeElapsed, running);
                 }
                 previousStartMillis[0] = now;
             });

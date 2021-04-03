@@ -346,7 +346,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         String curTemplateName = Competition.getCurrent().getAgeGroupsFileName();
         Resource found = searchMatch(resourceList, curTemplateName);
         ageGroupDefinitionSelect.addValueChangeListener((e) -> {
-            logger.warn("setTemplateSelectionListener {}", found);
+            logger.debug("setTemplateSelectionListener {}", found);
             Competition.getCurrent().setAgeGroupsFileName(e.getValue().getFileName());
             CompetitionRepository.save(Competition.getCurrent());
         });

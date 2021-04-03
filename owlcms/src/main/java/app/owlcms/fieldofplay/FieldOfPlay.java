@@ -1200,7 +1200,7 @@ public class FieldOfPlay {
         if (state == BREAK) {
             if ((breakType2 != getBreakType() || countdownType2 != getCountdownType())) {
                 // changing the kind of break
-                logger.debug("{} switching break type while in break : current {} new {}", getName(), getBreakType(),
+                logger.trace("{} switching break type while in break : current {} new {}", getName(), getBreakType(),
                         e.getBreakType());
                 breakTimer2.stop();
                 setBreakParams(e, breakTimer2, breakType2, countdownType2);
@@ -1209,7 +1209,7 @@ public class FieldOfPlay {
                 breakTimer2.start(); // so we restart in the new type
             } else {
                 // we are in a break, resume.
-                logger.warn("{} resuming break : current {} new {}", getName(), getBreakType(),
+                logger.trace("{} resuming break : current {} new {}", getName(), getBreakType(),
                         e.getBreakType());
                 breakTimer2.setOrigin(e.getOrigin());
                 logger.trace("starting2");
@@ -1218,7 +1218,7 @@ public class FieldOfPlay {
         } else {
             setState(BREAK);
             setBreakParams(e, breakTimer2, breakType2, countdownType2);
-            logger.warn("stopping1 {} {} {}", breakType2, countdownType2, breakTimer2.isIndefinite());
+            logger.trace("stopping1 {} {} {}", breakType2, countdownType2, breakTimer2.isIndefinite());
             breakTimer2.stop(); // so we restart in the new type
         }
         // this will broadcast to all slave break timers
@@ -1245,7 +1245,7 @@ public class FieldOfPlay {
             breakTimer2.setTimeRemaining(0);
             breakTimer2.setEnd(e.getTargetTime());
         }
-        logger.warn("breakTimer2 {} isIndefinite={}", countdownType2, breakTimer2.isIndefinite());
+        logger.debug("breakTimer2 {} isIndefinite={}", countdownType2, breakTimer2.isIndefinite());
     }
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {
