@@ -638,7 +638,9 @@ public class FieldOfPlay {
     }
 
     public boolean isEmitSoundsOnServer() {
-        return getSoundMixer() != null;
+        boolean b = getSoundMixer() != null;
+        logger.trace("emit sound on server = {}",b);
+        return b;
     }
 
     public boolean isTestingMode() {

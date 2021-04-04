@@ -52,7 +52,7 @@ public class AthleteTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientFinalWarning() {
-        logger.trace("Received final warning.");
+        logger.debug("Received final warning.");
         OwlcmsSession.withFop(fop -> {
             fop.getAthleteTimer().finalWarning(this);
         });
