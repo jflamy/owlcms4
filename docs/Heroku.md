@@ -15,7 +15,7 @@ The installation process for Heroku has been completely redone, and is now extre
 
 Click on the purple button below to start installation of owlcms on Heroku cloud.
 
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/jflamy-dev/owlcms-heroku)
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/owlcms/owlcms-heroku)
 
 **3. Name your application and deploy**
 
