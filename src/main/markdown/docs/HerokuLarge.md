@@ -21,41 +21,49 @@ These steps are needed a few hours before the competition.  They will cause the 
    1. Select the "Resources" section
    2. If you are on the free tier, change the dyno type to "Professional"
    3. Select "Standard-2X" as the performance level by clicking on the hexagon and dropping in the menu.  This will give us the memory we need.
-
-    ![2x](img\Heroku\2x.png)
-
-   4. **IMPORTANT**: If this is not your first meet, and you have previously scaled down the application, you need to reset the number of containers to 1.   The only meaningful numbers for us are 0 (off and not billed) and 1 (on and billed).   Use the pencil icon to edit the dyno formation and set the value
-
-      ![dynocount](img\Heroku\dynocount.png)
-
+   ![2x](img\Heroku\2x.png)
+   4. **IMPORTANT**: Check the dyno count by using the pencil at the right.  **The value should be 1** (the only other value you can use is 0 to turn off the application).  Values larger than 1 will cause the applications to malfunction.
+   ![dynocount](img\Heroku\dynocount.png)
+   
 2. Update owlcms to the Performance-M dyno type.  Same steps as above.
 
    1. Select the "Resources" section
    2. If you are on the free tier, change the dyno type to "Professional"
-   3. Select "Performance-M as the performance level by clicking on the hexagon and dropping in the menu.  This will give us the computing we need (and more than enough memory)
-
-    ![perf-m](img\Heroku\perf-m.png)
+   3. Select "Performance-M" as the performance level by clicking on the hexagon and dropping in the menu.  This will give us the computing we need (and more than enough memory)
+   ![perf-m](img\Heroku\perf-m.png)
+   4. **IMPORTANT**: Check the dyno count by using the pencil at the right.  **The value should be 1** (the only other value you can use is 0 to turn off the application).  Values larger than 1 will cause the applications to malfunction.
 
 ## Scale-down
 
-If you want to keep your application setup, and just rename the applications, you'r free to do so.  You can also just delete the applications, which will stop billing.
+Deleting the applications will stop billing.  But in most instances you will want to keep the applications for at least a few days to fetch results, print the final competition package, etc.
 
-Should you need to keep them:
+There are two main ways to scale down
 
-1. Use the same screens as above to shut down publicresults 
-   1. Use the change dyno type button to revert back to the hobby tier or free tier.
-   2. If you are back on the hobby tier, there is a button to switch between hobby (7$ per month, or the free 0$ per month setup)
-2. Use the same procedure to revert owlcms to the hobby or free tier.
+**Method 1: Keep a paying tier, but scaled down**
 
-## Database Backups
+1. Change the performance level back to 1X (25$) or 2X (50$) for a few days (that's 1.25$ or 2.50$ per day). 
+2. If you wish to turn off the application and stop paying, change the dyno count to **0** using the pencil.
+
+**Method 2: Go back to the free tier or hobby tier**.
+
+1. Use the `Change Dyno Type` button to revert back to the hobby tier (7$)
+2. Once you are back on the hobby tier, there is a toggle button to switch back to free mode (0$)
+
+
+
+## Additional Information
+
+This section is not required in normal situations. It is provided here as a reference.
+
+#### Database Backups
 
 Go to the  Resources page, and click on the Heroku Postgres icon.
 
 Select the Durability section.  You can take and download backups (Postgres .dump format)
 
-## Copying databases
+#### Copying databases
 
-This section should not be needed, but here is the procedure should you wish to copy databases around.  You can use the `heroku pg:backups` command to take backups and restore them to another application (or a local postgres database, or just keep them for archival, whatever)
+Should you wish to copy databases around.  You can use the `heroku pg:backups` command to take backups and restore them to another application (or a local postgres database, or just keep them for archival, whatever)
 
 This requires installing the command line interface and typing a few commands.
 
@@ -63,7 +71,7 @@ This requires installing the command line interface and typing a few commands.
 
 2. Assume we have a free application called `ourtest` for doing the setup and the real one is called `ourmeet`
 
-3. Take a backup of the ourtest database: 
+3. Take a backup of the `ourtest` database: 
 
    ```heroku pg:backups capture --app ourtest```
 

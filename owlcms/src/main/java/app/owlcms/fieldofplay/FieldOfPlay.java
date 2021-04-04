@@ -459,6 +459,7 @@ public class FieldOfPlay {
             } else if (e instanceof BreakPaused) {
                 BreakPaused bpe = (BreakPaused)e;
                 getBreakTimer().stop();
+                getBreakTimer().setTimeRemaining(bpe.getTimeRemaining());
                 pushOut(new UIEvent.BreakPaused(
                         bpe.getTimeRemaining(),
                         e.getOrigin(),
@@ -637,7 +638,9 @@ public class FieldOfPlay {
     }
 
     public boolean isEmitSoundsOnServer() {
-        return getSoundMixer() != null;
+        boolean b = getSoundMixer() != null;
+        logger.trace("emit sound on server = {}",b);
+        return b;
     }
 
     public boolean isTestingMode() {
@@ -1199,31 +1202,31 @@ public class FieldOfPlay {
         if (state == BREAK) {
             if ((breakType2 != getBreakType() || countdownType2 != getCountdownType())) {
                 // changing the kind of break
-                logger.debug("{} switching break type while in break : current {} new {}", getName(), getBreakType(),
+                logger.trace("{} switching break type while in break : current {} new {}", getName(), getBreakType(),
                         e.getBreakType());
                 breakTimer2.stop();
                 setBreakParams(e, breakTimer2, breakType2, countdownType2);
 //                getFopEventBus().post(new BreakStarted(breakType2,countdownType2,e.getTimeRemaining(),e.getTargetTime(),e.getOrigin()));
-                logger.debug("starting1");
+                logger.trace("starting1");
                 breakTimer2.start(); // so we restart in the new type
             } else {
-                // we are in a break, resume
-                logger.debug("{} resuming break : current {} new {}", getName(), getBreakType(),
+                // we are in a break, resume.
+                logger.trace("{} resuming break : current {} new {}", getName(), getBreakType(),
                         e.getBreakType());
                 breakTimer2.setOrigin(e.getOrigin());
-                logger.debug("starting2");
+                logger.trace("starting2");
                 breakTimer2.start();
             }
         } else {
             setState(BREAK);
             setBreakParams(e, breakTimer2, breakType2, countdownType2);
-            logger.debug("stopping1");
+            logger.trace("stopping1 {} {} {}", breakType2, countdownType2, breakTimer2.isIndefinite());
             breakTimer2.stop(); // so we restart in the new type
         }
         // this will broadcast to all slave break timers
         if (!breakTimer2.isRunning()) {
             breakTimer2.setOrigin(e.getOrigin());
-            logger.debug("starting3");
+            logger.trace("starting3");
             breakTimer2.start();
         }
         logger.trace("started break timers {}", breakType2);
@@ -1235,7 +1238,7 @@ public class FieldOfPlay {
         this.setCountdownType(countdownType2);
         getAthleteTimer().stop();
 
-        if (e.isIndefinite()) {
+        if (e.isIndefinite() || countdownType2 == CountdownType.INDEFINITE) {
             breakTimer2.setIndefinite();
         } else if (countdownType2 == CountdownType.DURATION) {
             breakTimer2.setTimeRemaining(e.getTimeRemaining());
@@ -1244,10 +1247,11 @@ public class FieldOfPlay {
             breakTimer2.setTimeRemaining(0);
             breakTimer2.setEnd(e.getTargetTime());
         }
+        logger.trace("breakTimer2 {} isIndefinite={}", countdownType2, breakTimer2.isIndefinite());
     }
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {
-        logger.debug("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
+        logger.trace("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
                 LoggerUtils.whereFrom());
 
         Athlete clockOwner = getClockOwner();

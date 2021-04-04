@@ -181,8 +181,10 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setIndefinite(milliseconds == null);
             setMsRemaining(milliseconds);
+            logger.debug("starting timer; silent = {}, {}", isSilent(), silent);
             getModel().setSilent(silent);
-            start(milliseconds, isIndefinite(), isSilent());
+            setSilent(silent);
+            start(milliseconds, isIndefinite(), silent);
         });
     }
 

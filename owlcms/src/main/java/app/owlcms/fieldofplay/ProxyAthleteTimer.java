@@ -32,7 +32,6 @@ public class ProxyAthleteTimer implements IProxyTimer {
     private long stopMillis;
     private boolean running = false;
     private int timeRemainingAtLastStop;
-
     /**
      * Instantiates a new countdown timer.
      *
@@ -115,7 +114,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
         if (running) {
             computeTimeRemaining();
         }
-        logger.warn("***stopping Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+        logger.debug("***stopping Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
         timeRemainingAtLastStop = timeRemaining;
         fop.pushOut(new UIEvent.StopTime(timeRemaining, null));
         running = false;

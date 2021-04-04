@@ -120,7 +120,7 @@ public class Config {
         if (uPin == null) {
             // use pin from database
             uPin = Config.getCurrent().pin;
-            //logger.warn("pin = {}", uPin);
+            //logger.debug("pin = {}", uPin);
             if (uPin == null || uPin.isBlank()) {
                 uPin = null;
             }

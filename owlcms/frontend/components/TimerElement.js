@@ -110,7 +110,11 @@ class TimerElement extends PolymerElement {
 
 		var localMillis = Date.now();
 		var lateMillis = (localMillis - parseInt(serverMillis,10));
+		if (lateMillis < 0) {
+			lateMillis = 0;
+		}
 		console.warn("timer start " + seconds + " late = " + lateMillis + "ms");
+
 		this._prepareAudio();
 
 		this.currentTime = seconds - (lateMillis/1000);
@@ -140,6 +144,9 @@ class TimerElement extends PolymerElement {
 
 		var localMillis = Date.now();
 		var lateMillis = (localMillis - parseInt(serverMillis,10));
+		if (lateMillis < 0) {
+			lateMillis = 0;
+		}
 		this.running = false;
 		if (element.$server != null) {
 			element.$server.clientTimerStopped(this.currentTime);
@@ -306,20 +313,22 @@ class TimerElement extends PolymerElement {
 		if (this.currentTime <= 0.2 && !this._timeOverWarningGiven) {
 			console.warn("calling play "+this.currentTime);
 			if (!this.silent) {
-				//this.$.timeOver.play();
 				console.warn("about to play time over " + window.timeOver);
 				this._playTrack("../sounds/timeOver.mp3", window.timeOver, true, this.currentTime);
 			}
+			// tell server to emit sound if server-side sounds
+			if (this.$server != null) this.$server.clientTimeOver();
 			this._timeOverWarningGiven = true;
 		}
 		if (this.currentTime <= 30.05 && !this._finalWarningGiven) {
-			// console.debug("currentTime "+this.currentTime);
+			console.warn("final warning "+this.currentTime+ " "+ this.silent+" "+this.$server);
 			if (!this.silent) {
 				//this.$.finalWarning.play();
 				console.warn("about to play final warning " + window.finalWarning);
 				this._playTrack("../sounds/finalWarning.mp3", window.finalWarning, true, this.currentTime - 30);
 			}
-			// if (this.$server != null) this.$server.clientFinalWarning();
+			// tell server to emit sound if server-side sounds
+			if (this.$server != null) this.$server.clientFinalWarning();
 			this._finalWarningGiven = true;
 		}
 		if (this.currentTime <= 90.05 && !this._initialWarningGiven) {
@@ -328,7 +337,8 @@ class TimerElement extends PolymerElement {
 				console.warn("about to play initial warning " + window.initialWarning);
 				this._playTrack("../sounds/initialWarning.mp3", window.initialWarning, true, this.currentTime - 90);
 			}
-			// if (this.$server != null) this.$server.clientInitialWarning();
+			// tell server to emit sound if server-side sounds
+			if (this.$server != null) this.$server.clientInitialWarning();
 			this._initialWarningGiven = true;
 		}
 
@@ -339,8 +349,8 @@ class TimerElement extends PolymerElement {
 		if ((this.currentTime < -0.1 && !this.countUp)
 			|| (this.currentTime >= this.startTime && this.countUp)) {
 				console.warn("time over stop running "+this.$server);
-			// timer is over
-			// if (this.$server != null) this.$server.clientTimeOver();
+			// timer is over; tell server to emit sound if server-side sounds
+			if (this.$server != null) this.$server.clientTimeOver();
 			this.running = false;
 			// this.dispatchEvent(new CustomEvent('timer-element-end', {bubbles:
 			// true, composed: true}))

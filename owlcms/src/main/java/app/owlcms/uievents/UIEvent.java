@@ -76,7 +76,7 @@ public class UIEvent {
         }
 
         public int getMillis() {
-            return (getTimeRemaining());
+            return (timeRemaining != null ? timeRemaining : 0);
         }
 
         public Integer getTimeRemaining() {

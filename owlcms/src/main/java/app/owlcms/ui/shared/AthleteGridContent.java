@@ -55,6 +55,7 @@ import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FOPEvent;
@@ -481,12 +482,36 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     protected abstract HorizontalLayout announcerButtons(FlexLayout topBar2);
 
+    /**
+     * @see app.owlcms.ui.shared.AthleteGridContent#breakButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
+     */
     protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
+
         breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
-            if (breakDialog == null) {
-                breakDialog = new BreakDialog(this, BreakType.TECHNICAL, CountdownType.INDEFINITE);
-            }
-            breakDialog.open();
+            OwlcmsSession.withFop(fop -> {
+                Athlete curAthlete = fop.getCurAthlete();
+                List<Athlete> order = fop.getLiftingOrder();
+                BreakType bt;
+                FOPState fopState = fop.getState();
+                CountdownType ct;
+                if (curAthlete == null) {
+                    bt = BreakType.BEFORE_INTRODUCTION;
+                    ct = CountdownType.TARGET;
+                } else if (curAthlete.getAttemptsDone() == 3 && AthleteSorter.countLiftsDone(order) == 0
+                        && fopState != FOPState.TIME_RUNNING) {
+                    bt = BreakType.FIRST_CJ;
+                    ct = CountdownType.DURATION;
+                } else if (curAthlete.getAttemptsDone() == 0 && AthleteSorter.countLiftsDone(order) == 0
+                        && fopState != FOPState.TIME_RUNNING) {
+                    bt = BreakType.FIRST_SNATCH;
+                    ct = CountdownType.DURATION;
+                } else {
+                    bt = BreakType.TECHNICAL;
+                    ct = CountdownType.INDEFINITE;
+                }
+                breakDialog = new BreakDialog(this, bt, ct);
+                breakDialog.open();
+            });
         });
         return layoutBreakButtons();
     }
@@ -618,11 +643,11 @@ public abstract class AthleteGridContent extends VerticalLayout
                 long timeElapsed = now - previousStartMillis[0];
                 boolean running = fop.getAthleteTimer().isRunning();
                 if (timeElapsed > 50 && !running) {
-                    logger.warn("clock start {}ms running={}", timeElapsed, running);
+                    logger.debug("clock start {}ms running={}", timeElapsed, running);
                     fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
                     buttonsTimeStarted();
                 } else {
-                    logger.warn("discarding duplicate clock start {}ms running={}", timeElapsed, running);
+                    logger.debug("discarding duplicate clock start {}ms running={}", timeElapsed, running);
                 }
                 previousStartMillis[0] = now;
             });

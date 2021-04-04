@@ -14,6 +14,7 @@
   * [Result Documents](Documents)
 * Virtual Competitions
   * [Overview](VirtualOverview)
+  * [Setup Applications](HerokuLarge)
   * [Running a Virtual Competition](Zoom)
   * [Preparing the Zoom Setup](PrepareZoomBroadcasting)
   * [Preparing the Video Setup](OBS)
@@ -28,4 +29,3 @@
 * Downloads
   * [Releases](https://github.com/jflamy/owlcms4/releases)
   * [Source Repository](https://github.com/jflamy/owlcms4)
-

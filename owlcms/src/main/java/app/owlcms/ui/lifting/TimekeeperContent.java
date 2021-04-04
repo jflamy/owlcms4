@@ -123,17 +123,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         return buttons;
     }
 
-    /**
-     * @see app.owlcms.ui.shared.AthleteGridContent#breakButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
-     */
-    @Override
-    protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
-        breakDialog = new BreakDialog(this);
-        breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
-            breakDialog.open();
-        });
-        return layoutBreakButtons();
-    }
 
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#createInitialBar()
