@@ -314,7 +314,7 @@ class TimerElement extends PolymerElement {
 			this._timeOverWarningGiven = true;
 		}
 		if (this.currentTime <= 30.05 && !this._finalWarningGiven) {
-			// console.debug("currentTime "+this.currentTime);
+			console.warn("final warning "+this.currentTime+ " "+ this.silent+" "+this.$server);
 			if (!this.silent) {
 				//this.$.finalWarning.play();
 				console.warn("about to play final warning " + window.finalWarning);
