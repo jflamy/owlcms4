@@ -110,7 +110,11 @@ class TimerElement extends PolymerElement {
 
 		var localMillis = Date.now();
 		var lateMillis = (localMillis - parseInt(serverMillis,10));
+		if (lateMillis < 0) {
+			lateMillis = 0;
+		}
 		console.warn("timer start " + seconds + " late = " + lateMillis + "ms");
+
 		this._prepareAudio();
 
 		this.currentTime = seconds - (lateMillis/1000);
@@ -140,6 +144,9 @@ class TimerElement extends PolymerElement {
 
 		var localMillis = Date.now();
 		var lateMillis = (localMillis - parseInt(serverMillis,10));
+		if (lateMillis < 0) {
+			lateMillis = 0;
+		}
 		this.running = false;
 		if (element.$server != null) {
 			element.$server.clientTimerStopped(this.currentTime);
