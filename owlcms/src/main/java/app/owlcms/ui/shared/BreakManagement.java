@@ -280,10 +280,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         synchronized (this) {
             try {
                 ignoreListeners = true;
-                UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
-//                            OwlcmsSession.withFop((fop) -> {
-//                                readFromRunningTimer(fop, fop.getBreakTimer());
-//                            });
+                UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
                     startEnabled();
                 });
             } finally {
@@ -306,7 +303,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 if (e.isDisplayToggle()) {
                     return;
                 }
-                UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+                UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
                     startDisabled();
                     safeSetBT(e.getBreakType());
                 });
@@ -318,12 +315,14 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     public void startDisabled() {
+        logger.debug("start disabled {}", LoggerUtils.whereFrom());
         breakStart.setEnabled(false);
         breakPause.setEnabled(true);
         breakEnd.setEnabled(true);
     }
 
     public void startEnabled() {
+        logger.debug("start enabled {}", LoggerUtils.whereFrom());
         breakStart.setEnabled(true);
         breakPause.setEnabled(false);
         breakEnd.setEnabled(true);
@@ -415,7 +414,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 } else {
                     logger.debug("not immediate");
                     setBreakTimerFromFields(ct.getValue());
-                    breakPause.setEnabled(false);
+                    startEnabled();
                 }
             } else {
                 logger.debug("in a break");
@@ -722,7 +721,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
                 // default values
                 computeDefaultValues();
-                startEnabled();
                 List<Athlete> order;
 
                 switch (fopState) {
