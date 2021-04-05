@@ -40,9 +40,9 @@ The [Equipment Setup](EquipmentSetup) page provides more technical details on th
   
   - **Support for refereeing devices**
     
-    - Any [**keypad**](Refereeing#usb-or-bluetooth-keypads) that can be programmed to generate the digits 0 to 9 can be used to enter decisions
+    - Any USB or Bluetooth [**keypad**](Refereeing#usb-or-bluetooth-keypads) that can be programmed to generate the digits 0 to 9 can be used to enter decisions
     
-      ![refereeingSetup](img/equipment/refereeingSetup.jpg ':size=350') 
+      ![refereeingSetup](img/equipment/refereeingSetup.jpg ':size=350')  ![030_iPad_Flic](img/Refereeing/030_iPad_Flic.jpg ':size=350')
     
     - [**Mobile phones or tablets**](Refereeing#mobile-device-refereeing) can also be used.
     
