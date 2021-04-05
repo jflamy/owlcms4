@@ -185,5 +185,5 @@ This step is sometimes needed for laptops that have two video cards (such as "ga
 - Click on the Windows icon at the bottom left and locate the"Graphics Settings" menu
 - Locate the OBS Studio app and set the PowerSaving
 
-![graphicsSettings](img/graphicsSettings.png)
+![graphicsSettings](img/OBS/graphicsSettings.png)
 
