@@ -8,13 +8,17 @@ The application can be used for anything from a club meet using a single laptop 
 
 Several options are available for installation, depending on your needs. See the [Installation Overview](InstallationOverview) page for diagrams and a discussion of the following options:
   * Stand-alone installs are available for [Windows](LocalWindowsSetup), [Linux](LocalLinuxMacSetup) or [Mac](LocalLinuxMacSetup).  These can be used when the competition site has no internet access, but require more equipment.
-  * Cloud installs for [Heroku](Heroku) (simple, free, recommended) or [Kubernetes](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/download/${revision}/k8s.zip) (advanced).  An internet connection is required at the competition site, but less equipment is required and setup is simpler.
+  * Cloud installs for [Heroku](Heroku) (simple, free, recommended) or [Kubernetes](https://github.com/owlcms/owlcms4/releases/download/4.17.1/k8s.zip) (advanced).  An internet connection is required at the competition site, but less equipment is required and setup is simpler.
 
 The [Equipment Setup](EquipmentSetup) page provides more technical details on the recommended physical setup.
 
 ## Features and Demo
 
-- See [this page](Demo) for how to access a [demo site](https://owlcms4.herokuapp.com) and a perform a simple walkthrough
+- The following videos and demos are available
+  
+  - [Simple setup](Demo1): running a minimal setup for a small club meet with a single person controlling the meet.
+  - [Full setup](Demo2): running a regular or virtual competition with technical officials
+  - Live demo: after watching the videos, you can either [install yourself](InstallationOverview) or try a [Live demo](Demo3) site.
   
 - The following list is a sampling of the many features available.  <u>*Click on the images if you wish to view them full-sized*</u>.  The images are taken from the demo site.
   
@@ -36,9 +40,9 @@ The [Equipment Setup](EquipmentSetup) page provides more technical details on th
   
   - **Support for refereeing devices**
     
-    - Any [**keypad**](Refereeing#usb-or-bluetooth-keypads) that can be programmed to generate the digits 0 to 9 can be used to enter decisions
+    - Any USB or Bluetooth [**keypad**](Refereeing#usb-or-bluetooth-keypads) that can be programmed to generate the digits 0 to 9 can be used to enter decisions
     
-      ![refereeingSetup](img/equipment/refereeingSetup.jpg ':size=350') 
+      ![refereeingSetup](img/equipment/refereeingSetup.jpg ':size=350')  ![030_iPad_Flic](img/Refereeing/030_iPad_Flic.jpg ':size=350')
     
     - [**Mobile phones or tablets**](Refereeing#mobile-device-refereeing) can also be used.
     

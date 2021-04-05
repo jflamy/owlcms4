@@ -17,6 +17,8 @@ The referees give their decisions using flags/cards/hand signals; the announcer 
 
 ![020_Announcer](img/Refereeing/020_Announcer.png)
 
+
+
 ## Mobile Device Refereeing
 
  In this setup, each referee uses a phone, tablet or laptop.  The device runs a web browser, that connects to owlcms (either on premise or in the cloud).  For example, in a cloud-based setup, you get the following diagram:
@@ -38,7 +40,22 @@ There are two advantages to this approach:
 1. Many referees prefer having their finger rest on a button (which is not possible on a phone)
 2. The sound and down arrow are emitted directly by the browser, without any round-trip to the primary computer.  This reduces delays and increases reliability if the networking is fragile (which is sometimes the case in gyms)
 
+### **Example of USB keypads**
+
+USB Keypads can be bought from industrial device providers, such as [Delcom USB keypads](http://www.delcomproducts.com/productdetails.asp?PartNumber=706502-5M).
+
+You can also build you own, for example using these instructions [Simple USB Buttons Using an Adafruit Trinket M0 - Hackster.io](https://www.hackster.io/laurentslab/simple-usb-buttons-using-an-adafruit-trinket-m0-5ad900#toc-programming-3)
+
 ![refereeingSetup](img\equipment\refereeingSetup.jpg)
+
+### Example of Bluetooth buttons
+
+You can use Bluetooth buttons to control an iPad, or a Raspberry Pi.  You can find Bluetooth buttons from Home Automation providers, such as Flic.  [Flic2](https://flic.io/) buttons can act as stand-alone devices using their [Universal mode](https://flic.io/flic-universal) (you only need the buttons, not the hub)
+You can also build your own, for example using [these instructions](https://learn.adafruit.com/introducing-the-adafruit-bluefruit-spi-breakout/hidkeyboard) as a starting point.
+
+![030_iPad_Flic](img/Refereeing/030_iPad_Flic.jpg)
+
+## Keypad Configuration
 
 The keys or buttons on the keypads are programmed to send key sequences.  The decision display is waiting for these keypresses.  You must click in the black area of the screen to make sure that the keypresses are seen by the browser.
 
@@ -51,8 +68,6 @@ OWLCMS interprets Even digits as red, and Odd digits as white.  The same devices
 | 3        | 3     | 5    | 6    |
 |          | 4     | 7    | 8    |
 |          | 5     | 9    | 0    |
-
-### Keypad configuration notes
 
 - Specific notes for [Delcom USB keypads](http://www.delcomproducts.com/productdetails.asp?PartNumber=706502-5M) can be found [here](Delcom)
 
