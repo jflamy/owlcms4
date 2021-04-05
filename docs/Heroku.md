@@ -32,9 +32,12 @@ Enter the name that will be used by the officials.  Once you are done start the 
 ![040_success](img/Heroku/040_success.png)
 
 **6. Time zone configuration**
-Go back to your https://heroku.com home page.  Select your application, then `Settings`, then `Reveal Config Vars`.
 
-- You should add a `TZ` variable to define your time zone.   Use [this tool](http://www.timezoneconverter.com/cgi-bin/findzone/findzone.tzc) to pick the best value for your location. This will something with a format similar to `America/New_York` or `Europe/Paris`. 
+Heroku data centers run on universal time by default (UTC).  So the times appearing in the intermission timers will be wrong, for instance.  You need to set the time zone according to the published schedule.
+
+- Go back to your https://heroku.com home page.  Select your application, then `Settings`, then `Reveal Config Vars`.
+
+- You should add a `TZ` variable to define the time zone.   Use [this tool](http://www.timezoneconverter.com/cgi-bin/findzone/findzone.tzc) to pick the best value for your competition. This will something with a format similar to `America/New_York` or `Europe/Paris`. 
 
 ## Control access to the application
 
