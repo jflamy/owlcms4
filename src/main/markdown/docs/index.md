@@ -6,11 +6,9 @@ The application can be used for anything from a club meet using a single laptop 
 
 ## Downloads and Setup
 
-Several options are available for installation, depending on your needs. See the [Installation Overview](InstallationOverview) page for diagrams and a discussion of the following options:
-  * Stand-alone installs are available for [Windows](LocalWindowsSetup), [Linux](LocalLinuxMacSetup) or [Mac](LocalLinuxMacSetup).  These can be used when the competition site has no internet access, but require more equipment.
-  * Cloud installs for [Heroku](Heroku) (simple, free, recommended) or [Kubernetes](https://github.com/owlcms/owlcms4/releases/download/4.17.1/k8s.zip) (advanced).  An internet connection is required at the competition site, but less equipment is required and setup is simpler.
+Several options are available for installation, depending on your needs. See the [Installation Overview](InstallationOverview) page for diagrams and a discussion options.
 
-The [Equipment Setup](EquipmentSetup) page provides more technical details on the recommended physical setup.
+The [Equipment Setup](EquipmentSetup) page provides additional information on the recommended physical setup.
 
 ## Features and Demo
 
@@ -18,7 +16,7 @@ The [Equipment Setup](EquipmentSetup) page provides more technical details on th
   
   - [Simple setup](Demo1): running a minimal setup for a small club meet with a single person controlling the meet.
   - [Full setup](Demo2): running a regular or virtual competition with technical officials
-  - Live demo: after watching the videos, you can either [install yourself](InstallationOverview) or try a [Live demo](Demo3) site.
+  - Live demo: after watching the videos, try the [Live demo](Demo3) site, or better yet, [install your own copy](installationOverview) and experiment.
   
 - The following list is a sampling of the many features available.  <u>*Click on the images if you wish to view them full-sized*</u>.  The images are taken from the demo site.
   
