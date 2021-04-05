@@ -14,7 +14,11 @@ The [Equipment Setup](EquipmentSetup) page provides more technical details on th
 
 ## Features and Demo
 
-- See [this page](Demo) for how to access a [demo site](https://owlcms4.herokuapp.com) and a perform a simple walkthrough
+- The following videos and demos are available
+  
+  - [Simple setup](Demo1): running a minimal setup for a small club meet with a single person controlling the meet.
+  - [Full setup](Demo2): running a regular or virtual competition with technical officials
+  - Live demo: after watching the videos, you can either [install yourself](InstallationOverview) or try a [Live demo](Demo3) site.
   
 - The following list is a sampling of the many features available.  <u>*Click on the images if you wish to view them full-sized*</u>.  The images are taken from the demo site.
   
