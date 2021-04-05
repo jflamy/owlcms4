@@ -1,5 +1,6 @@
-* Changes for release 4.17.1  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.17.2  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+  - [x] Added introductory videos to the documentation, accessed from the home page.
   - [x] Fixed regression that was causing server-side sounds not to work anymore (#410)
   - [x] Cleaned-up break management code to correct when a second person opens dialog while a break is under way.  Fixed break type calculation according to stage of competition group.
   - [x] Reorganized documentation pages for setting up Virtual Competitions.  Documented use of Zoom and OBS for videoconferencing and live broadcast streaming.
