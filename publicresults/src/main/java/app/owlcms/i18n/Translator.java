@@ -14,6 +14,8 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +35,6 @@ import org.supercsv.io.CsvListReader;
 import org.supercsv.io.ICsvListReader;
 import org.supercsv.prefs.CsvPreference;
 
-import com.google.common.io.Files;
 import com.vaadin.flow.i18n.I18NProvider;
 
 import app.owlcms.init.OwlcmsSession;
@@ -47,7 +48,6 @@ import ch.qos.logback.classic.Logger;
  * components (e.g. spreadsheets).
  *
  */
-@SuppressWarnings("serial")
 public class Translator implements I18NProvider {
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(Translator.class);
@@ -166,7 +166,12 @@ public class Translator implements I18NProvider {
     private static ResourceBundle getBundleFromCSV(Locale locale) {
         String baseName = BUNDLE_BASE;
         String csvName = BUNDLE_PACKAGE_SLASH + baseName + ".csv";
-        File bundleDir = Files.createTempDir();
+        Path bundleDir = null;
+        try {
+            bundleDir = Files.createTempDirectory("bundles");
+        } catch (IOException e1) {
+            throw new RuntimeException(e1);
+        }
         line = 0;
 
         if (i18nloader == null) {
@@ -210,7 +215,7 @@ public class Translator implements I18NProvider {
                     if (language != null && !language.isEmpty()) {
                         language = "_" + language;
                     }
-                    final File outfile = new File(bundleDir, baseName + language + ".properties");
+                    final File outfile = new File(bundleDir.toFile(), baseName + language + ".properties");
                     outFiles[i] = outfile;
                     languageProperties[i] = new Properties();
                 }
@@ -250,7 +255,7 @@ public class Translator implements I18NProvider {
                     logger.debug("writing to " + outFiles[i].getAbsolutePath());
                     languageProperties[i].store(new FileOutputStream(outFiles[i]), "generated from " + csvName);
                 }
-                final URL[] urls = { bundleDir.toURI().toURL() };
+                final URL[] urls = { bundleDir.toUri().toURL() };
                 i18nloader = new URLClassLoader(urls);
 
             } catch (IOException e) {
