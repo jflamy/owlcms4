@@ -1,6 +1,6 @@
 trigger:
   - none
- 
+
 parameters:
   - name: Revision
     type: string
