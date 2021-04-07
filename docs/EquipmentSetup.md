@@ -2,7 +2,7 @@
 
 OWLCMS is a web-based application.  In the simplest setup, you will run the program on a laptop, and it will open a browser so you can interact with owlcms.
 
-Typically, however, you will want the coaches to see a scoreboard, etc.  You can use *any* device that can run a browser.  The cheapest available device like an old laptop, a FireTV stick with [Firefox installed](https://support.mozilla.org/en-US/kb/firefox-fire-tv),  a [Raspbery Pi](https://www.raspberrypi.org/products/raspberry-pi-400/), or a basic Chromebook will all do.  So a basic setup might look like
+Typically, however, you will want the coaches to see a scoreboard, as shown in this [video](Demo1).  You can use *any* device that can run a browser.  The cheapest available device will do.  This can be an old laptop, a [FireTV stick with the Silk web browser](FireTV),  a [Raspbery Pi](https://www.raspberrypi.org/products/raspberry-pi-400/), or a basic Chromebook.  So a basic setup might look like
 
 <center><img src="img/equipment/ClubCompetitionWIFI.png" alt="ClubCompetitionWIFI" style="zoom:80%;" /></center>
 
