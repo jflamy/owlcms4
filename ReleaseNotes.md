@@ -1,6 +1,6 @@
-* Changes for release 4.17.3  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.17.4-rc01  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] Added introductory videos to the documentation, accessed from the home page.  Updated the Refereeing section to cover Bluetooth keypads.
+  - [x] Added introductory videos to the documentation, accessed from the home page.  Updated the Refereeing section to cover Bluetooth keypads.  Added instructions for using a cheap Fire TV Stick as a display device.
   - [x] Fixed regression that was causing server-side sounds not to work anymore (#410)
   - [x] Cleaned-up break management code to correct when a second person opens dialog while a break is under way.  Fixed break type calculation according to stage of competition group.
   - [x] Reorganized documentation pages for setting up Virtual Competitions.  Documented use of Zoom and OBS for videoconferencing and live broadcast streaming.
@@ -10,7 +10,7 @@
   
   Key Highlights from recent stable releases
   
-  - [x] Support for large competitions on Heroku. Added documentation for [economical use of Heroku professional tiers](https://jflamy.github.io/owlcms4/#/HerokuLarge). Heroku now provides the memory defaults for all configurations.
+  - [x] Support for large competitions on Heroku. Added documentation for [economical use of Heroku professional tiers](https://jflamy-dev.github.io/owlcms4-prerelease/#/HerokuLarge). Heroku now provides the memory defaults for all configurations.
     If you are limited to using the free setup and need to stretch it to its maximum, set the `_JAVA_OPTIONS` configuration variable to something like `-Xmx384m -XX:MaxMetaspaceSize=80m`
   - [x] Improvement: Better handling of double-clicking/double-tapping on the start timer buttons. (#405) In odd circumstances this could result in rogue beeps/buzzers.
   - [x] Fix: added missing button for the Current Athlete display. This display is normally used in video broadcasts (the display is then cropped and shown at the bottom of the screen to show current attempt information and the previous lifts and rank of the current athlete.)
@@ -22,12 +22,12 @@
   
 
 Installation Instructions :
-  - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://jflamy.github.io/owlcms4/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
     
-    > If you get a blue window with `Windows protected your PC`, or if your laptop works very hard performing an anti-virus scan that takes very long, see this page : [Make Windows Defender Allow Installation](https://jflamy.github.io/owlcms4/#/DefenderOff)
+    > If you get a blue window with `Windows protected your PC`, or if your laptop works very hard performing an anti-virus scan that takes very long, see this page : [Make Windows Defender Allow Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/DefenderOff)
     
-  - For **Linux** and **Mac OS**, download the `owlcms.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://jflamy.github.io/owlcms4/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
-  - For **Heroku** cloud, no download is necessary. Follow the ([Heroku Cloud Installation](https://jflamy.github.io/owlcms4/#/Cloud) to deploy your own copy.  See also the [additional configuration steps for large competitions on Heroku](https://jflamy.github.io/owlcms4/#/HerokuLarge).
+  - For **Heroku** cloud, no download is necessary. Follow the ([Heroku Cloud Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Cloud) to deploy your own copy.  See also the [additional configuration steps for large competitions on Heroku](https://jflamy-dev.github.io/owlcms4-prerelease/#/HerokuLarge).
 
-  - For **Kubernetes** deployments, you can use `kubectl apply` on the `k3s_setup.yaml` file for k3s  (see [instructions](https://jflamy.github.io/owlcms4/#/DigitalOcean) ) or `k3d_setup.yaml` for home use using k3d with Docker Desktop (see [instructions](https://jflamy.github.io/owlcms4/#/k3d) ).  For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 
+  - For **Kubernetes** deployments, you can use `kubectl apply` on the `k3s_setup.yaml` file for k3s  (see [instructions](https://jflamy-dev.github.io/owlcms4-prerelease/#/DigitalOcean) ) or `k3d_setup.yaml` for home use using k3d with Docker Desktop (see [instructions](https://jflamy-dev.github.io/owlcms4-prerelease/#/k3d) ).  For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 
