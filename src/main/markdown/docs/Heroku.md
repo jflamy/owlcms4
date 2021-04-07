@@ -2,9 +2,9 @@
 
 # Deploy OWLCMS on Heroku
 
-Heroku is a cloud service provider that provides an attractive free (0$) pricing plan for running programs like OWLCMS.  When running on Heroku you only need a good Internet connection, and you do not need to configure a primary laptop.
+Heroku is a cloud service provider that provides an attractive free (0$) pricing plan for running programs like OWLCMS.  The installation process for Heroku is extremely simple and there is nothing whatsoever that needs to be installed on any of the laptops other than a browser.
 
-The installation process for Heroku has been completely redone, and is now extremely simple -- there is nothing whatsoever that needs to be installed on any of the laptops other than a browser.
+The free tier is fine for running club or regional competitions with about 50 athletes.  For larger competitions, you can run a meet for less than 10$ per day, see the [large competition instructions](HerokuLarge).
 
 **1. Create a free Heroku Account**
 
@@ -13,7 +13,7 @@ The installation process for Heroku has been completely redone, and is now extre
 
 **2. Start the deployment process**
 
-Click on the purple button below to start installation of owlcms on Heroku cloud.
+Click on this purple button to start installation of owlcms on Heroku cloud.
 
 [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/${env.REPO_OWNER}/owlcms-heroku)
 
@@ -32,9 +32,12 @@ Enter the name that will be used by the officials.  Once you are done start the 
 ![040_success](img/Heroku/040_success.png)
 
 **6. Time zone configuration**
-Go back to your https://heroku.com home page.  Select your application, then `Settings`, then `Reveal Config Vars`.
 
-- You should set `TZ` which is your time zone.   Use [this tool](http://www.timezoneconverter.com/cgi-bin/findzone/findzone.tzc) to pick the best value for your location. This will something with a format similar to `America/New_York` or `Europe/Paris`. 
+Heroku data centers run on universal time by default (UTC).  So the times appearing in the intermission timers will be wrong, for instance.  You need to set the time zone according to the published schedule.
+
+- Go back to your https://heroku.com home page.  Select your application, then `Settings`, then `Reveal Config Vars`.
+
+- You should add a `TZ` variable to define the time zone.   Use [this tool](http://www.timezoneconverter.com/cgi-bin/findzone/findzone.tzc) to pick the best value for your competition. This will something with a format similar to `America/New_York` or `Europe/Paris`. 
 
 ## Control access to the application
 

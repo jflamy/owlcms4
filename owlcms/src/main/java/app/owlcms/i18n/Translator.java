@@ -171,6 +171,7 @@ public class Translator implements I18NProvider {
         try {
             bundleDir = Files.createTempDirectory("bundles");
         } catch (IOException e1) {
+            throw new RuntimeException(e1);
         }
         line = 0;
 
