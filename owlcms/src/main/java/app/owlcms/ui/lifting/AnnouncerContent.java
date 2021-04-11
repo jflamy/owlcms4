@@ -261,7 +261,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     }
 
     // array is used because of Java requires a final;
-    long[] previousStartMillis = { 0L };
+    private long[] previousStartMillis = { 0L };
+    private long[] previousGoodMillis  = { 0L };
+    private long[] previousBadMillis  = { 0L };
 
     @Override
     protected void createStartTimeButton() {
@@ -324,16 +326,28 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
         Button good = new Button(IronIcons.DONE.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(
+                long now = System.currentTimeMillis();
+                long timeElapsed = now - previousGoodMillis[0];
+                if (timeElapsed > 5000) {
+                    // no reason to give two goods within one second...
+                    fop.getFopEventBus().post(
                         new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true, true, true));
+                }
+                previousGoodMillis[0] = now;
             });
         });
         good.getElement().setAttribute("theme", "success icon");
 
         Button bad = new Button(IronIcons.CLOSE.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
+                long now = System.currentTimeMillis();
+                long timeElapsed = now - previousBadMillis[0];
+                if (timeElapsed > 5000) {
+                    // no reason to give two goods within one second...
+                    fop.getFopEventBus().post(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
                         false, false, false));
+                }
+                previousBadMillis[0] = now;
             });
         });
         bad.getElement().setAttribute("theme", "error icon");
