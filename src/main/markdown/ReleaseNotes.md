@@ -1,15 +1,12 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] Added introductory videos to the documentation, accessed from the home page.  Updated the Refereeing section to cover Bluetooth keypads.  Added instructions for using a cheap Fire TV Stick as a display device.
-  - [x] Fixed regression that was causing server-side sounds not to work anymore (#410)
-  - [x] Cleaned-up break management code to correct when a second person opens dialog while a break is under way.  Fixed break type calculation according to stage of competition group.
-  - [x] Reorganized documentation pages for setting up Virtual Competitions.  Documented use of Zoom and OBS for videoconferencing and live broadcast streaming.
-  - [x] iPads now supported as refereeing device (running either the athlete-facing time+decision display or the attempt board display.)   Sound is enabled by touching a screen button once when the board is started. (#408)  Special code to compensate for the fact that these devices are sometimes slow to react when clock is started.
-  - [x] Improved accuracy of signal timing, compensating for the variable time it takes for timers to start on various devices (#406)
-  - [x] When loading the registration file, leaving the Platform column empty would create platforms with no name and lead to faulty URLs.  Fixed.
-  
-  Key Highlights from recent stable releases
-  
+  * [x] Announcing using iPad now easier.  Top row font size and width of decision lights area made smaller to accommodate regular iPads. (#412)
+  * [x] Decision lights now shown to announcer when timekeeper starts/stops time (#411)
+
+* Key Highlights from recent stable releases
+
+  - [x] iPads now supported as refereeing device with Bluetooth buttons (running either the athlete-facing time+decision display or the attempt board display.)   Sound is enabled by touching a screen button once when the board is started. (#408)  Special code to sync countdown with server, to compensate for the fact that these devices are sometimes slow to react when clock is started.
+  - [ ] Reorganized documentation pages for setting up Virtual Competitions.  Documented use of Zoom and OBS for videoconferencing and live broadcast streaming. Added introductory videos to the documentation, accessed from the home page.  Updated the Refereeing section to cover Bluetooth keypads.  Added instructions for using a cheap Fire TV Stick as a display device.
   - [x] Support for large competitions on Heroku. Added documentation for [economical use of Heroku professional tiers](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/HerokuLarge). Heroku now provides the memory defaults for all configurations.
     If you are limited to using the free setup and need to stretch it to its maximum, set the `_JAVA_OPTIONS` configuration variable to something like `-Xmx384m -XX:MaxMetaspaceSize=80m`
   - [x] Improvement: Better handling of double-clicking/double-tapping on the start timer buttons. (#405) In odd circumstances this could result in rogue beeps/buzzers.
@@ -17,9 +14,9 @@
   - [x] New: added a new item for video broadcasts in the technical configuration section. Video capture using OBS or similar streaming software is awkward when a PIN or password is set.  If it is known that the video operator is working from a safe setting (such as a home network) , a "backdoor" setting (OWLCMS_BACKDOOR if using an environment variable) can be used to allow password-less login from a comma-separated list of addresses.  Use with care.
   - [x] Fix: The publicresults application was switching to an empty scoreboard page on owlcms startup (#404).  Now properly shows the "Waiting for next group" banner.
   - [x] Fix: The Officials tab on the Start List spreadsheet now includes the weigh-in officials for the group.
-  
+
   * [x] Improvement: New scoreboard with multiple IWF age group rankings (Youth, Junior, Senior).  Final package also includes the three rankings. (#372)
-  
+
 
 Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalWindowsSetup)

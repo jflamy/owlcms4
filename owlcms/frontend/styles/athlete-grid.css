@@ -1,0 +1,33 @@
+/* reduce font size on iPad */
+@media screen and (max-width: 1200px) {
+
+    .athleteGridTopBar h1 {
+        font-size: x-large;
+    }
+
+    .athleteGridTopBar h2 {
+        font-size: large;
+    }
+
+    .athleteGridTopBar h3 {
+        font-size: medium;
+    }
+
+    #topBarLeft.announcerLeft {
+        width: 6em;
+    }
+
+    #topBarLeft.announcerLeft vaadin-combo-box {
+        width: 4em;
+    }
+    #topBarLeft.announcerLeft h3 {
+        display: none;
+    }
+}
+
+#topBarLeft {
+    width: 12em;
+}
+#topBarLeft vaadin-combo-box{
+    width: 12ch;
+}
