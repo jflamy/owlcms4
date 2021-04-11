@@ -83,6 +83,10 @@ public class Athlete {
      * @param src
      */
     public static void copy(Athlete dest, Athlete src) {
+        conditionalCopy(dest, src, true);
+    }
+
+    public static void conditionalCopy(Athlete dest, Athlete src, boolean copyResults) {
         boolean validation = dest.isValidation();
         try {
             dest.setValidation(false);
@@ -97,61 +101,76 @@ public class Athlete {
             dest.setSnatch1Declaration(src.getSnatch1Declaration());
             dest.setSnatch1Change1(src.getSnatch1Change1());
             dest.setSnatch1Change2(src.getSnatch1Change2());
-            dest.setSnatch1ActualLift(src.getSnatch1ActualLift());
-            dest.setSnatch1LiftTime(src.getSnatch1LiftTime());
+            if (copyResults) {
+                dest.setSnatch1ActualLift(src.getSnatch1ActualLift());
+                dest.setSnatch1LiftTime(src.getSnatch1LiftTime());
+            }
 
             dest.setSnatch2AutomaticProgression(src.getSnatch2AutomaticProgression());
             dest.setSnatch2Declaration(src.getSnatch2Declaration());
             dest.setSnatch2Change1(src.getSnatch2Change1());
             dest.setSnatch2Change2(src.getSnatch2Change2());
-            dest.setSnatch2ActualLift(src.getSnatch2ActualLift());
-            dest.setSnatch2LiftTime(src.getSnatch2LiftTime());
+            if (copyResults) {
+                dest.setSnatch2ActualLift(src.getSnatch2ActualLift());
+                dest.setSnatch2LiftTime(src.getSnatch2LiftTime());
+            }
 
             dest.setSnatch3AutomaticProgression(src.getSnatch3AutomaticProgression());
             dest.setSnatch3Declaration(src.getSnatch3Declaration());
             dest.setSnatch3Change1(src.getSnatch3Change1());
             dest.setSnatch3Change2(src.getSnatch3Change2());
-            dest.setSnatch3ActualLift(src.getSnatch3ActualLift());
-            dest.setSnatch3LiftTime(src.getSnatch3LiftTime());
+            if (copyResults) {
+                dest.setSnatch3ActualLift(src.getSnatch3ActualLift());
+                dest.setSnatch3LiftTime(src.getSnatch3LiftTime());
+            }
 
             dest.setCleanJerk1Declaration(src.getCleanJerk1Declaration());
             dest.setCleanJerk1Change1(src.getCleanJerk1Change1());
             dest.setCleanJerk1Change2(src.getCleanJerk1Change2());
-            dest.setCleanJerk1ActualLift(src.getCleanJerk1ActualLift());
-            dest.setCleanJerk1LiftTime(src.getCleanJerk1LiftTime());
+            if (copyResults) {
+                dest.setCleanJerk1ActualLift(src.getCleanJerk1ActualLift());
+                dest.setCleanJerk1LiftTime(src.getCleanJerk1LiftTime());
+            }
 
             dest.setCleanJerk2AutomaticProgression(src.getCleanJerk2AutomaticProgression());
             dest.setCleanJerk2Declaration(src.getCleanJerk2Declaration());
             dest.setCleanJerk2Change1(src.getCleanJerk2Change1());
             dest.setCleanJerk2Change2(src.getCleanJerk2Change2());
-            dest.setCleanJerk2ActualLift(src.getCleanJerk2ActualLift());
-            dest.setCleanJerk2LiftTime(src.getCleanJerk2LiftTime());
+            if (copyResults) {
+                dest.setCleanJerk2ActualLift(src.getCleanJerk2ActualLift());
+                dest.setCleanJerk2LiftTime(src.getCleanJerk2LiftTime());
+            }
 
             dest.setCleanJerk3AutomaticProgression(src.getCleanJerk3AutomaticProgression());
             dest.setCleanJerk3Declaration(src.getCleanJerk3Declaration());
             dest.setCleanJerk3Change1(src.getCleanJerk3Change1());
             dest.setCleanJerk3Change2(src.getCleanJerk3Change2());
-            dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
-            dest.setCleanJerk3LiftTime(src.getCleanJerk3LiftTime());
-
-            dest.setCustomScore(src.getCustomScore());
+            if (copyResults) {
+                dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
+                dest.setCleanJerk3LiftTime(src.getCleanJerk3LiftTime());
+            }
 
             dest.setForcedAsCurrent(src.getForcedAsCurrent());
 
-            dest.setSnatchRankYth(src.getSnatchRank());
-            dest.setSnatchRankJr(src.getSnatchRank());
-            dest.setSnatchRankSr(src.getSnatchRank());
-            dest.setSnatchRank(src.getSnatchRank());
+            if (copyResults) {
 
-            dest.setCleanJerkRankYth(src.getCleanJerkRank());
-            dest.setCleanJerkRankJr(src.getCleanJerkRank());
-            dest.setCleanJerkRankSr(src.getCleanJerkRank());
-            dest.setCleanJerkRank(src.getCleanJerkRank());
+                dest.setCustomScore(src.getCustomScore());
 
-            dest.setTotalRankYth(src.getTotalRank());
-            dest.setTotalRankJr(src.getTotalRank());
-            dest.setTotalRankSr(src.getTotalRank());
-            dest.setTotalRank(src.getTotalRank());
+                dest.setSnatchRankYth(src.getSnatchRank());
+                dest.setSnatchRankJr(src.getSnatchRank());
+                dest.setSnatchRankSr(src.getSnatchRank());
+                dest.setSnatchRank(src.getSnatchRank());
+
+                dest.setCleanJerkRankYth(src.getCleanJerkRank());
+                dest.setCleanJerkRankJr(src.getCleanJerkRank());
+                dest.setCleanJerkRankSr(src.getCleanJerkRank());
+                dest.setCleanJerkRank(src.getCleanJerkRank());
+
+                dest.setTotalRankYth(src.getTotalRank());
+                dest.setTotalRankJr(src.getTotalRank());
+                dest.setTotalRankSr(src.getTotalRank());
+                dest.setTotalRank(src.getTotalRank());
+            }
         } finally {
             dest.setValidation(validation);
             dest.resetLoggerLevel();
