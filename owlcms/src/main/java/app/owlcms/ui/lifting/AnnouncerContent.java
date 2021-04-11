@@ -159,6 +159,14 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         });
     }
 
+    @Subscribe
+    public void slaveStartTime(UIEvent.StartTime e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            buttonsTimeStarted();
+            displayLiveDecisions();
+        });
+    }
+    
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
      */
@@ -265,8 +273,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 boolean running = fop.getAthleteTimer().isRunning();
                 if (timeElapsed > 50 && !running) {
                     fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
-                    buttonsTimeStarted();
-                    displayLiveDecisions();
                 } else {
                     logger.debug("discarding duplicate clock start {}ms running={}", timeElapsed, running);
                 }
@@ -296,7 +302,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         // filter.
         super.createTopBarGroupSelect();
         topBarGroupSelect.setReadOnly(false);
-        topBarGroupSelect.setWidth("12ch");
+        //topBarGroupSelect.setWidth("12ch");
         topBarGroupSelect.setClearButtonVisible(true);
         OwlcmsSession.withFop((fop) -> {
             Group group = fop.getGroup();
@@ -347,14 +353,16 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     @Override
     protected void fillTopBarLeft() {
         super.fillTopBarLeft();
-        getTopBarLeft().setWidth("12em");
+        getTopBarLeft().addClassName("announcerLeft");
+        //getTopBarLeft().setWidth("12em");
     }
 
     private void createDecisionLights() {
         JuryDisplayDecisionElement decisionDisplay = new JuryDisplayDecisionElement();
 //        Icon silenceIcon = AvIcons.MIC_OFF.create();
         decisionLights = new HorizontalLayout(decisionDisplay);
-        decisionLights.setWidth("12em");
+        decisionLights.addClassName("announcerLeft");
+        //decisionLights.setWidth("12em");
         decisionLights.getStyle().set("line-height", "2em");
     }
 

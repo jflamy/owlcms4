@@ -172,6 +172,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
     @Override
     protected void createTopBar() {
         topBar = getAppLayout().getAppBarElementWrapper();
+        topBar.setClassName("timeKeeperTopBar");
         topBar.removeAll();
         initialBar = false;
 
