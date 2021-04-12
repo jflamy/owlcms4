@@ -3830,7 +3830,17 @@ public class Athlete {
         if (newVal < prevVal) {
             throw RuleViolation.declaredChangesNotOk(curLift, newVal, prevVal);
         }
+        checkWeightVsLastStart(newVal);
+    }
 
+    private void checkWeightVsLastStart(int newVal) {
+        OwlcmsSession.withFop(fop -> {
+            int weightAtLastStart = fop.getWeightAtLastStart();
+            logger.warn("weight at last start: {}  request = {}",weightAtLastStart, newVal);
+            if (newVal < weightAtLastStart) {
+                throw RuleViolation.valueBelowStartedClock(newVal, weightAtLastStart);
+            }
+        });
     }
 
     /**
@@ -3847,6 +3857,7 @@ public class Athlete {
         if (newVal < prevVal) {
             throw RuleViolation.declaredChangesNotOk(curLift, newVal, prevVal);
         }
+        checkWeightVsLastStart(newVal);
     }
 
     /**
@@ -3869,6 +3880,7 @@ public class Athlete {
         if (iAutomaticProgression > 0 && newVal > 0 && newVal < iAutomaticProgression) {
             throw RuleViolation.declarationValueTooSmall(curLift, newVal, iAutomaticProgression);
         }
+        checkWeightVsLastStart(newVal);
     }
 
 }

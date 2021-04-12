@@ -147,6 +147,8 @@ public class FieldOfPlay {
 
     private boolean refereeForcedDecision;
 
+    private Integer weightAtLastStart;
+
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
      * be used to provide the athletes and set the athleteTimer
@@ -540,6 +542,8 @@ public class FieldOfPlay {
                 getAthleteTimer().start();
                 setClockOwner(getCurAthlete());
                 prepareDownSignal();
+                setWeightAtLastStart();
+
                 // we do not reset decisions or "emitted" flags
                 setState(TIME_RUNNING);
             } else if (e instanceof WeightChange) {
@@ -636,7 +640,9 @@ public class FieldOfPlay {
         if (athletes != null && athletes.size() > 0) {
             recomputeLiftingOrder();
         }
-        logger.debug("group {} athletes {}", getGroup(), athletes.size());
+        if (getGroup() != null) {
+            logger.debug("group {} athletes {}", getGroup(), athletes.size());
+        }
         if (state == null) {
             this.setState(INACTIVE);
         }
@@ -1267,6 +1273,7 @@ public class FieldOfPlay {
     }
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {
+        weightAtLastStart = 0;
         logger.trace("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
                 LoggerUtils.whereFrom());
 
@@ -1291,9 +1298,22 @@ public class FieldOfPlay {
         setClockOwner(getCurAthlete());
         resetEmittedFlags();
         prepareDownSignal();
+        setWeightAtLastStart();
 
         // enable master to listening for decision
         setState(TIME_RUNNING);
+    }
+
+    private void setWeightAtLastStart() {
+        setWeightAtLastStart(getCurAthlete().getNextAttemptRequestedWeight());
+    }
+
+    private void setWeightAtLastStart(Integer nextAttemptRequestedWeight) {
+        weightAtLastStart = nextAttemptRequestedWeight;
+    }
+    
+    public int getWeightAtLastStart() {
+        return (weightAtLastStart != null ? weightAtLastStart : 0);
     }
 
     @SuppressWarnings("unused")

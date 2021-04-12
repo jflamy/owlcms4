@@ -246,6 +246,7 @@ public class DemoData {
 
         em.persist(platform1);
         em.persist(platform2);
+        em.flush();
 
         insertSampleLifters(em, liftersToLoad, groupM1, groupM2, groupF1, groupY1, ageDivisions);
         em.flush();

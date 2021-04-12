@@ -124,9 +124,8 @@ public class Main {
 
         // read locale from database and overrrde if needed
         Locale l = overrideDisplayLanguage();
-
+        
         injectData(initialData, l);
-
         OwlcmsFactory.getDefaultFOP(true);  //initialization, don't push out to browsers
     }
 

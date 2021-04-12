@@ -89,6 +89,10 @@ public class RuleViolation {
         return new RuleViolationException("RuleViolation.rule15_20Violated", objs);
     }
 
+    public static RuleViolationException valueBelowStartedClock(Object... objs) {
+        return new RuleViolationException("RuleViolation.valueBelowStartedClock", objs);
+    }
+
 //	public static RuleViolationException declarationValueRequired(int curLift) {
 //		 return new RuleViolationException("RuleViolation.declarationRequired");
 //	}
