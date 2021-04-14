@@ -5,7 +5,7 @@ The application can be used for anything from a club meet using a single laptop 
 
 ### Features and Documentation
 
-See the application [Web Site](https://jflamy.github.io/owlcms4/#) for a full overview.  The following short videos demonstrate using the software in minimalist mode for a [very simple club meet](https://jflamy.github.io/owlcms4/#/Demo1) and using the typical features for a [standard competition](https://jflamy.github.io/owlcms4/#/Demo2).
+See the application [Web Site](https://jflamy.github.io/owlcms4/#) for a full overview.  The following short videos demonstrate using the software in minimalist mode for a [very simple club meet](https://jflamy.github.io/owlcms4/#/Demo1) and using the typical features for a [full competition](https://jflamy.github.io/owlcms4/#/Demo2) (on-site or virtual).
 
 ### Installation Options
 Several installation options are possible, depending on what is available at the competition site
@@ -48,7 +48,7 @@ In a virtual competition, the officials are in multiple locations.  In order to 
 
 The following link describes these options and others.
 
-*	[Cloud-based Virtual Competition Options](https://jflamy.github.io/owlcms4/#/Virtual)
+*	[Cloud-based Virtual Competition Options](https://jflamy.github.io/owlcms4/#/VirtualOverview)
 
 ### Repositories for Releases and Pre-releases
 

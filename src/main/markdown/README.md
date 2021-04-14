@@ -5,7 +5,7 @@ The application can be used for anything from a club meet using a single laptop 
 
 ### Features and Documentation
 
-See the application [Web Site](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#) for a full overview.  The following short videos demonstrate using the software in minimalist mode for a [very simple club meet](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Demo1) and using the typical features for a [standard competition](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Demo2).
+See the application [Web Site](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#) for a full overview.  The following short videos demonstrate using the software in minimalist mode for a [very simple club meet](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Demo1) and using the typical features for a [full competition](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Demo2) (on-site or virtual).
 
 ### Installation Options
 Several installation options are possible, depending on what is available at the competition site
@@ -48,7 +48,7 @@ In a virtual competition, the officials are in multiple locations.  In order to 
 
 The following link describes these options and others.
 
-*	[Cloud-based Virtual Competition Options](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Virtual)
+*	[Cloud-based Virtual Competition Options](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/VirtualOverview)
 
 ### Repositories for Releases and Pre-releases
 
