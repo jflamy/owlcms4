@@ -27,6 +27,7 @@ import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
@@ -87,6 +88,7 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
+@CssImport(value = "./styles/athlete-grid.css")
 public abstract class AthleteGridContent extends VerticalLayout
         implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventProcessor, IAthleteEditing {
 
@@ -675,6 +677,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected void createTopBar() {
         logger.debug("AthleteGridContent creating top bar");
         topBar = getAppLayout().getAppBarElementWrapper();
+        topBar.setClassName("athleteGridTopBar");
         topBar.removeAll();
         initialBar = false;
 
@@ -866,6 +869,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected void fillTopBarLeft() {
         title = new H3();
         title.setText(getTopBarTitle());
+        title.setClassName("topBarTitle");
         title.getStyle().set("margin-top", "0px").set("margin-bottom", "0px").set("font-weight", "normal");
         getTopBarLeft().add(title, topBarGroupSelect);
         getTopBarLeft().setAlignItems(Alignment.CENTER);

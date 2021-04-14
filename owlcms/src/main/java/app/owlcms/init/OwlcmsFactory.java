@@ -23,7 +23,6 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.ProxyAthleteTimer;
 import app.owlcms.fieldofplay.ProxyBreakTimer;
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -58,12 +57,15 @@ public class OwlcmsFactory {
     /**
      * @return first field of play, sorted alphabetically
      */
-    public static FieldOfPlay getDefaultFOP(boolean init) {
-        logger.debug("OwlcmsFactory {}\n{}",init,LoggerUtils.stackTrace());
+    public static synchronized FieldOfPlay getDefaultFOP(boolean init) {
+        if (init == false && fopByName == null) {
+            return null;
+        }
+        //logger.debug("OwlcmsFactory {} {} {}", init, fopByName != null ? fopByName.size() : null, LoggerUtils.stackTrace());
         if (defaultFOP != null) {
             return defaultFOP;
         } else {
-            if (fopByName == null) {
+            if (fopByName == null || fopByName.isEmpty()) {
                 initFOPByName();
             }
             Optional<FieldOfPlay> fop = fopByName.entrySet().stream().sorted(Comparator.comparing(x -> x.getKey()))
@@ -134,12 +136,12 @@ public class OwlcmsFactory {
         version = sVersion;
     }
 
-    private static void initFOPByName() {
+    private static synchronized void initFOPByName() {
         fopByName = new HashMap<>();
         for (Platform platform : PlatformRepository.findAll()) {
             String name = platform.getName();
             FieldOfPlay fop = new FieldOfPlay(null, platform);
-            logger.debug("fop {}", fop.getName());
+            logger.info("Field of play {}", fop.getName());
             // no group selected, no athletes, announcer will need to pick a group.
             fop.init(new LinkedList<Athlete>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop), true);
             fopByName.put(name, fop);

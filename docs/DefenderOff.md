@@ -1,42 +1,54 @@
-## Allowing the installation to take place
-
-If you see a blue box like this, click on the `More info` link.
-
-![0_protected](img/DefenderOff/0_protected.png)
-
-This will make will make a `Run Anyway` button appear at the bottom. You can click on the `Run Anyway` button to let installation proceed.
-
-Making this blue box go away requires a costly certificate (500 US$ per year) that Microsoft will accept as legitimate.  Unless someone donates the money for that purpose, I will not proceed.  Simply signing the software to attest the publisher's identity is not enough, in practice, for software like owlcms.
-
-## Why does opening the installer take forever for me ?
-
-Your Windows Defender may decide to scan the installer even though the application is signed and it can flag it as safe.  If it decides to, the scan is extremely slow.  There are a few thousand files zipped inside the installer, and apparently Defender is looking at each and everyone of them, even though roughly 90% of them are from well-known open-source libraries. I have no control over what Microsoft does.
-
-The easiest work-around is to disable the real-time scan feature of Windows 10.  After installing, you can re-enable it.  The installer will be scanned anyway the next time the nightly scan is run (which will reassure you that there was nothing evil inside). 
-
-## Telling Defender to skip the scan
-
-In order to allow the install to go ahead, proceed as follows
-
-1. Click on the start menu at the bottom left and then on the cogwheel
-   ![](img\DefenderOff\0cogwheel.png)
-
-2. Type "defender" in the search box and select the Windows Defender settings
-   ![2019-10-09 19_21_42-Settings](img\DefenderOff\1defenderSettings.png)
-
-3. Select the Virus & threat protection settings
-   ![2019-10-09 19_22_24-Settings](img\DefenderOff\2virusProtection.png)
-
-4. Select the "Virus Protection" Settings
-   ![3virusSettings](img\DefenderOff\3virusSettings.png)
-
-5. Select the "Real-time Protection" Manage Settings option and turn it off
-   ![2019-10-09 19_22_44-Windows Security](img\DefenderOff\4RealTime.png)
-
-6. Proceed with the installation by double-clicking on the `owlcms_setup.exe` file you downloaded
-
-    - See the top of this page if you get a warning about Windows protected your PC.
-
-8. In order to re-enable real-time protection after installing, just flip the switch back on.
 
 
+## Dealing with Protection Warnings
+
+Microsoft has a very strong commitment towards protecting your PC from viruses.  Unfortunately, their process a little bit over-dramatic.  If you care, go to [bottom of this page](#why-are-there-warnings-anyway) for an explanation for the warnings why they can safely be ignored. 
+
+If you just want to install, read on.
+
+## Downloading with Chrome or Firefox
+
+If you download with Chrome or Firefox, you will see a blue box like the following when you double-click on the file to open.  **Click on the `More info` link.**
+
+<img src="img/DefenderOff/0_protected.png" alt="0_protected" style="zoom: 67%;" />
+
+This will make will make a `Run Anyway` button appear at the bottom. You can then **click on `Run Anyway` button to let installation proceed**.
+
+## Downloading with Edge
+
+Edge is the default browser on Windows.  With it, one might say that Microsoft has gone a touch overboard.  See for yourself.
+
+1. Go to the releases page and click on the download link. Note in passing that Microsoft owns the Github site and could very well scan the executables there.  But if we click, we get a first menacing message "was blocked because it could harm your device".
+
+   **Click on the `...`  button and select Keep**
+
+   ![_00_keep](img/DefenderOff/_00_keep.png)
+
+2. But then comes a second warning.
+   **Click on `Show More`**
+   ![_10_showmore](img/DefenderOff/_10_showmore.png)
+
+3. **Click on `Keep anyway`**
+
+   ![_20_keepanyway](img/DefenderOff/_20_keepanyway.png)
+
+4. You should finally see the file downloaded, and be able to click on it to open.
+
+   ![_040_open](img/DefenderOff/_040_open.png)
+
+5. But wait!  If you go through the downloads folder instead and double-click on the file, you are actually going to need to go through the steps described for Chrome and Firefox above...
+
+## Why are there warnings anyway?
+
+In the past, owlcms was signed with a certificate attesting to the author's identity, but this is not enough for Microsoft to trust the program.  For the warnings to go away, one of two things would need to happen
+
+- either a very large number of people download the program from the same source and Microsoft ultimately figures out it is innocuous, or
+- a 500$ code-signing certificate is bought to actually bypass the warnings , or
+
+Funny thing is that the program is stored on GitHub, which Microsoft owns.  And they could very well scan the software for viruses there, but they don't.  And instead of trusting their own URLs they give every release a different URL, so Microsoft never gets to learn that it is safe, and signaling it as safe is a waste of time for the same reason.  I have not found an alternative file hosting service that Microsoft trusts.
+
+If some kind soul donates the money, I'll do the certificate song and dance, until then, we have to bear with the inconvenience.
+
+## Is there a real risk?
+
+Well, no.  The windows program you are downloading is a very simple packaging that just makes it easier to install the app.  Inside the packaging is the exact same program that runs on Mac, on Linux, and in the cloud on Heroku or Kubernetes.  There is simply no Windows-specific code in there, and the program runs without any special privilege whatsoever.

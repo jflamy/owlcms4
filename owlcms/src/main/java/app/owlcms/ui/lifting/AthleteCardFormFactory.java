@@ -98,6 +98,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
     private GridLayout gridLayout;
 
+    private Boolean updatingResults;
+
     public AthleteCardFormFactory(Class<Athlete> domainType, IAthleteEditing origin) {
         super(domainType);
         this.origin = origin;
@@ -165,6 +167,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         Button deleteButton = buildDeleteButton(CrudOperation.DELETE, originalAthlete, null);
         Button withdrawButton = buildWithdrawButton();
         Checkbox forcedCurrentCheckbox = buildForcedCurrentCheckbox();
+        Checkbox allowResultsEditing = buildAllowResultsEditingCheckbox();
         Button cancelButton = buildCancelButton(cancelButtonClickListener);
 
         HorizontalLayout footerLayout = new HorizontalLayout();
@@ -179,7 +182,14 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
             footerLayout.add(withdrawButton);
         }
         if (forcedCurrentCheckbox != null && operation != CrudOperation.ADD) {
-            footerLayout.add(forcedCurrentCheckbox);
+            VerticalLayout vl = new VerticalLayout();
+            vl.setSizeUndefined();
+            vl.setPadding(false);
+            vl.setMargin(false);
+            vl.add(forcedCurrentCheckbox);
+            vl.add(allowResultsEditing);
+            footerLayout.add(vl);
+
         }
 
         Label spacer = new Label();
@@ -201,6 +211,20 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         return footerLayout;
     }
 
+    private Checkbox buildAllowResultsEditingCheckbox() {
+        Checkbox checkbox = new Checkbox(Translator.translate("AllowResultsEditing"));
+        checkbox.getStyle().set("margin-left", "3em");
+        binder.forField(checkbox).bind((a) -> isUpdatingResults(), (a, readonly) -> {
+            setUpdatingResults(readonly);
+            adjustResultsFields(readonly);
+        });
+        return checkbox;
+    }
+
+    private void setUpdatingResults(Boolean b) {
+        updatingResults = b;
+    }
+
     /**
      * @see app.owlcms.ui.shared.CustomFormFactory#buildNewForm(org.vaadin.crudui.crud.CrudOperation,
      *      app.owlcms.data.athlete.Athlete, boolean, com.vaadin.flow.component.ComponentEventListener,
@@ -218,6 +242,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         if (this.responsiveSteps != null) {
             formLayout.setResponsiveSteps(this.responsiveSteps);
         }
+        setUpdatingResults(origin instanceof AnnouncerContent);
 
         gridLayout = setupGrid();
         errorLabel = new Label();
@@ -651,7 +676,20 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         // routines in the
         // Athlete class don't work
         binder.setBean(getEditedAthlete());
+
+        if (!isUpdatingResults()) {
+            adjustResultsFields(true);
+        }
         setFocus(getEditedAthlete());
+    }
+
+    private void adjustResultsFields(boolean readOnly) {
+        setLiftResultStyle(snatch1ActualLift);
+        setLiftResultStyle(snatch2ActualLift);
+        setLiftResultStyle(snatch3ActualLift);
+        setLiftResultStyle(cj1ActualLift);
+        setLiftResultStyle(cj2ActualLift);
+        setLiftResultStyle(cj3ActualLift);
     }
 
     private Checkbox buildForcedCurrentCheckbox() {
@@ -700,12 +738,17 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
      * Update the original athlete so that the lifting order picks up the change.
      */
     private void doUpdate() {
-        Athlete.copy(originalAthlete, getEditedAthlete());
+        // do not overwrite results if acting as Marshall
+        Athlete.conditionalCopy(originalAthlete, getEditedAthlete(), isUpdatingResults());
         AthleteRepository.save(originalAthlete);
         OwlcmsSession.withFop((fop) -> {
             fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
         });
         origin.closeDialog();
+    }
+
+    private boolean isUpdatingResults() {
+        return updatingResults;
     }
 
     private Athlete getEditedAthlete() {
@@ -717,10 +760,18 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
     }
 
     private void resetReadOnlyFields() {
+        // setErrorLabel undoes the readOnly status of fields
         snatch2AutomaticProgression.setReadOnly(true);
         snatch3AutomaticProgression.setReadOnly(true);
         cj2AutomaticProgression.setReadOnly(true);
         cj3AutomaticProgression.setReadOnly(true);
+
+        snatch1ActualLift.setReadOnly(!isUpdatingResults());
+        snatch2ActualLift.setReadOnly(!isUpdatingResults());
+        snatch3ActualLift.setReadOnly(!isUpdatingResults());
+        cj1ActualLift.setReadOnly(!isUpdatingResults());
+        cj2ActualLift.setReadOnly(!isUpdatingResults());
+        cj3ActualLift.setReadOnly(!isUpdatingResults());
     }
 
     private void setActualLiftStyle(BindingValidationStatus<?> status) throws NumberFormatException {
@@ -731,17 +782,39 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
             field.getElement().getClassList().set("bad", false);
             field.focus();
         } else {
-            String value = field.getValue();
-            boolean empty = value == null || value.trim().isEmpty();
-            if (empty) {
-                field.getElement().getClassList().clear();
-            } else if (value.equals("-")) {
-                field.getElement().getClassList().clear();
-                field.getElement().getClassList().set("bad", true);
+            setLiftResultStyle(field);
+        }
+    }
+
+    private void setLiftResultStyle(TextField field) {
+        String value = field.getValue();
+        boolean empty = value == null || value.trim().isEmpty();
+        if (empty) {
+            field.getElement().getClassList().clear();
+            if (!isUpdatingResults()) {
+                field.getElement().getClassList().add("readonly");
+                field.setReadOnly(true);
             } else {
-                int intValue = Integer.parseInt(value);
-                field.getElement().getClassList().clear();
-                field.getElement().getClassList().set((intValue <= 0 ? "bad" : "good"), true);
+                field.setReadOnly(false);
+            }
+        } else if (value.equals("-")) {
+            field.getElement().getClassList().clear();
+            field.getElement().getClassList().add("bad");
+            if (!isUpdatingResults()) {
+                field.getElement().getClassList().add("readonly");
+                field.setReadOnly(true);
+            } else {
+                field.setReadOnly(false);
+            }
+        } else {
+            int intValue = Integer.parseInt(value);
+            field.getElement().getClassList().clear();
+            field.getElement().getClassList().add((intValue <= 0 ? "bad" : "good"));
+            if (!isUpdatingResults()) {
+                field.getElement().getClassList().add("readonly");
+                field.setReadOnly(true);
+            } else {
+                field.setReadOnly(false);
             }
         }
     }

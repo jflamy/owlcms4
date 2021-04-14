@@ -1,42 +1,56 @@
 ## Physical Setup
 
-OWLCMS is a web-based application.  In the simplest setup, you will run the program on a laptop, and it will open a browser so you can interact with owlcms.
+OWLCMS is a web-based application.  
 
-Typically, however, you will want the coaches to see a scoreboard, as shown in this [video](Demo1).  You can use *any* device that can run a browser.  The cheapest available device will do.  This can be an old laptop, a [FireTV stick with the Silk web browser](FireTV),  a [Raspbery Pi](https://www.raspberrypi.org/products/raspberry-pi-400/), or a basic Chromebook.  So a basic setup might look like
+- All the displays run using a browser. You can use *any* device that can run a browser - the cheapest available device will do.  This can be an old laptop, a [FireTV stick with the Silk web browser](FireTV),  a [Raspbery Pi](https://www.raspberrypi.org/products/raspberry-pi-400/), or an entry-level Chromebook. 
+- The OWLCMS program runs in one of two ways: on a local laptop, or in the cloud.  The only need for a good laptop is if you want to run the program locally (see [Computer Requirements](#computer-requirements) below)
 
-<center><img src="img/equipment/ClubCompetitionWIFI.png" alt="ClubCompetitionWIFI" style="zoom:80%;" /></center>
+### Small Club Meets
 
-At the opposite end of the spectrum, a full setup for a state competition using refereeing devices might look as follows:
+In the simplest setup, a single person will act as announcer, register changes, and operate the clock.  This can be done on a single laptop, as demonstrated in this [video](Demo1).
 
-![StateCompetition](img/equipment/FullCompetition.svg)
+Typically however, you will want to have a scoreboard so athletes and coaches can follow the competition as they warm up.  So a no-nonsense setup a small club meet might look like
 
-You can also add a jury laptop with 5 refereeing devices, add additional results displays, as many as you want.  You can even replicate the full setup on multiple platforms, all running at once.  In all cases, there is only one OWLCMS primary server (either a laptop running locally, or a cloud application) 
+<center><img src="img/equipment/ClubCompetitionWIFI.png" alt="ClubCompetitionWIFI" /></center>
+
+### Full Competition Setup
+
+At the opposite end of the spectrum, a setup for a state competition using refereeing devices would provide all the requisite displays and technical official stations.  To keep costs down, TVs and projectors can be driven using cheap devices such as Fire TV Sticks or Raspberry Pi.
+
+
+
+![StateCompetition](img/equipment/StateCompetition.png)
+
+
+
+You can also add a jury laptop with 5 refereeing devices, add additional results displays, as many as you want.  You can even replicate the full setup on multiple platforms, all running at once.  No matter how many platforms, there is only one OWLCMS primary server (either a laptop running locally, or a cloud application) 
 
 ## Computer Requirements
 
 - The server software will run either 
   - on any reasonably recent laptop (this laptop will act as a primary server in a local networking setup, see [below](#local-access-over-a-local-network) for details.  In our experience, a Core i5 or equivalent is plenty.
-  - or on a cloud service. We test and support the [Heroku cloud service](Heroku#Heroku), which has a free tier suitable for owlcms.
-- For the user interface and displays,  It is recommended to use a recent version of **Chrome** or **Firefox** on any laptop/miniPC (Windows, Linux, Mac), or on a specialized display device (Amazon FireStick)
-  -  The cheapest solutions to drive TV screens are Amazon FireTV stick with Firefox, and Raspberry Pi  computers (the [model 400](https://www.raspberrypi.org/products/raspberry-pi-400/), has everything built-in).
+  - or on a cloud service. We test and support the [Heroku cloud service](Heroku#Heroku), which has a free tier suitable for small competitions owlcms, and a reasonably priced paying tier you can use on the actual days of a [large competition](HerokuLarge)
+- For the user interface and displays,  It is recommended to use a recent version of **Chrome**, **Edge** or **Firefox** on any laptop/miniPC (Windows, Linux, Mac), or on a specialized display device (Amazon FireStick).  **Safari** also works on iPads, but the smaller screen resolution needs to be taken into account.
+  -  The cheapest solutions to drive TV screens are [Amazon Fire TV sticks](FireTV), and Raspberry Pi  computers (the [model 400](https://www.raspberrypi.org/products/raspberry-pi-400/), has everything built-in).
   - For the officials, you can use just about any laptop.  Refurbished Chromebooks or refurbished Windows laptops work well -- all that is needed is the ability to run a recent version of Chrome or Firefox.
-  - Apple iPhones and iPads are ok as [mobile refereeing devices](Refereeing#mobile-device-refereeing).   Display features such as the Scoreboard also work.
+  - Apple iPhones and iPads are ok as [mobile refereeing devices](Refereeing#mobile-device-refereeing).   Display features such as the Scoreboard and the refereeing displays (attempt board, athlete-facing decisions) also work.
   - Android phones and tablets work fine for all features (just install Chrome)
-
-## Sound Requirements
-
-By default, the browsers showing scoreboards will also emit sound. This is necessary when the application is run remotely.  You should mute all the laptops except the athlete-facing display or the attempt board, depending on where you connect speakers.
-
-#### Primary Laptop Sound
-
-Some combinations of browser and operating system produce garbled sound. If that is the case, you may want to use the primary laptop to produce the sound (and wire your speakers to the audio output of the primary laptop.)   See [these explanations.](Preparation#associating-an-audio-output-with-a-platform)
 
 ## Networking Requirements
 
-When running locally, all that is required is a local Wi-Fi router.
+When running locally, all that is required is a local Wi-Fi router.  
 
-If you are of the nervous kind, we do suggest that the announcer laptop, the attempt board, and the athlete-facing display where the referees are connected be linked using a wired connection.
+- We recommend that the main laptop be connected using an ethernet wire to the router.
+- If you are of the nervous kind, the attempt board, and the athlete-facing display where the referees are can also be use a wired connection.
 
-When running over the cloud, the additional requirement is that the main router be connected to the internet.
+When running over the cloud, the additional requirement is that the main router be connected to the internet with a reliable connection.
 
 When running several platforms, we recommend that you use a well-designed setup with multiple Wi-Fi access points.  Ask a technical person for advice.
+
+## Sound Requirements
+
+By default, the browsers showing scoreboards will also emit sound.   You should mute all the laptops except the athlete-facing display or the attempt board, depending on where you connect speakers.
+
+Option: Primary Laptop Sound
+
+When running OWLCMS on a local laptop it is sometimes easier to wire speakers to the audio output of the primary laptop and use the primary laptop as a source.   See [these explanations.](Preparation#associating-an-audio-output-with-a-platform)

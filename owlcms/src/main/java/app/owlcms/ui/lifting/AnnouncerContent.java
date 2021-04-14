@@ -159,6 +159,14 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         });
     }
 
+    @Subscribe
+    public void slaveStartTime(UIEvent.StartTime e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            buttonsTimeStarted();
+            displayLiveDecisions();
+        });
+    }
+    
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
      */
@@ -253,7 +261,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     }
 
     // array is used because of Java requires a final;
-    long[] previousStartMillis = { 0L };
+    private long[] previousStartMillis = { 0L };
+    private long[] previousGoodMillis  = { 0L };
+    private long[] previousBadMillis  = { 0L };
 
     @Override
     protected void createStartTimeButton() {
@@ -265,8 +275,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 boolean running = fop.getAthleteTimer().isRunning();
                 if (timeElapsed > 50 && !running) {
                     fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
-                    buttonsTimeStarted();
-                    displayLiveDecisions();
                 } else {
                     logger.debug("discarding duplicate clock start {}ms running={}", timeElapsed, running);
                 }
@@ -296,7 +304,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         // filter.
         super.createTopBarGroupSelect();
         topBarGroupSelect.setReadOnly(false);
-        topBarGroupSelect.setWidth("12ch");
+        //topBarGroupSelect.setWidth("12ch");
         topBarGroupSelect.setClearButtonVisible(true);
         OwlcmsSession.withFop((fop) -> {
             Group group = fop.getGroup();
@@ -318,16 +326,28 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
         Button good = new Button(IronIcons.DONE.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(
+                long now = System.currentTimeMillis();
+                long timeElapsed = now - previousGoodMillis[0];
+                if (timeElapsed > 5000) {
+                    // no reason to give two goods within one second...
+                    fop.getFopEventBus().post(
                         new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true, true, true));
+                }
+                previousGoodMillis[0] = now;
             });
         });
         good.getElement().setAttribute("theme", "success icon");
 
         Button bad = new Button(IronIcons.CLOSE.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
+                long now = System.currentTimeMillis();
+                long timeElapsed = now - previousBadMillis[0];
+                if (timeElapsed > 5000) {
+                    // no reason to give two goods within one second...
+                    fop.getFopEventBus().post(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
                         false, false, false));
+                }
+                previousBadMillis[0] = now;
             });
         });
         bad.getElement().setAttribute("theme", "error icon");
@@ -347,14 +367,16 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     @Override
     protected void fillTopBarLeft() {
         super.fillTopBarLeft();
-        getTopBarLeft().setWidth("12em");
+        getTopBarLeft().addClassName("announcerLeft");
+        //getTopBarLeft().setWidth("12em");
     }
 
     private void createDecisionLights() {
         JuryDisplayDecisionElement decisionDisplay = new JuryDisplayDecisionElement();
 //        Icon silenceIcon = AvIcons.MIC_OFF.create();
         decisionLights = new HorizontalLayout(decisionDisplay);
-        decisionLights.setWidth("12em");
+        decisionLights.addClassName("announcerLeft");
+        //decisionLights.setWidth("12em");
         decisionLights.getStyle().set("line-height", "2em");
     }
 

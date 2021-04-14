@@ -145,6 +145,10 @@ public class FieldOfPlay {
 
     private Integer prevHash;
 
+    private boolean refereeForcedDecision;
+
+    private Integer weightAtLastStart;
+
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
      * be used to provide the athletes and set the athleteTimer
@@ -511,10 +515,7 @@ public class FieldOfPlay {
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof ExplicitDecision) {
-                getAthleteTimer().stop();
-                this.setPreviousAthlete(getCurAthlete()); // would be safer to use past lifting order
-                this.setClockOwner(null);
-                showExplicitDecision((ExplicitDecision) e, e.origin);
+                simulateDecision(e);
             } else if (e instanceof TimeOver) {
                 // athleteTimer got down to 0
                 // getTimer() signals this, nothing else required for athleteTimer
@@ -541,15 +542,14 @@ public class FieldOfPlay {
                 getAthleteTimer().start();
                 setClockOwner(getCurAthlete());
                 prepareDownSignal();
+                setWeightAtLastStart();
+
                 // we do not reset decisions or "emitted" flags
                 setState(TIME_RUNNING);
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof ExplicitDecision) {
-                getAthleteTimer().stop();
-                this.setPreviousAthlete(getCurAthlete()); // would be safer to use past lifting order
-                this.setClockOwner(null);
-                showExplicitDecision(((ExplicitDecision) e), e.origin);
+                simulateDecision(e);
             } else if (e instanceof ForceTime) {
                 getAthleteTimer().setTimeRemaining(((ForceTime) e).timeAllowed);
                 setState(CURRENT_ATHLETE_DISPLAYED);
@@ -568,8 +568,9 @@ public class FieldOfPlay {
 //            this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
 //            this.setClockOwner(null);
             if (e instanceof ExplicitDecision) {
-                getAthleteTimer().stop();
-                showExplicitDecision(((ExplicitDecision) e), e.origin);
+                simulateDecision(e);
+//                getAthleteTimer().stop();
+//                showExplicitDecision(((ExplicitDecision) e), e.origin);
             } else if (e instanceof DecisionFullUpdate) {
                 // decision coming from decision display or attempt board
                 updateRefereeDecisions((DecisionFullUpdate) e);
@@ -587,7 +588,8 @@ public class FieldOfPlay {
 
         case DECISION_VISIBLE:
             if (e instanceof ExplicitDecision) {
-                showExplicitDecision(((ExplicitDecision) e), e.origin);
+                simulateDecision(e);
+                //showExplicitDecision(((ExplicitDecision) e), e.origin);
             } else if (e instanceof DecisionFullUpdate) {
                 // decision coming from decision display or attempt board
                 updateRefereeDecisions((DecisionFullUpdate) e);
@@ -610,6 +612,23 @@ public class FieldOfPlay {
         }
     }
 
+    /**
+     * Create a fake unanimous decision when overridden.
+     * @param e
+     */
+    private void simulateDecision(FOPEvent e) {
+        ExplicitDecision ed = (ExplicitDecision) e;
+        int now = (int)System.currentTimeMillis();
+        DecisionFullUpdate ne = new DecisionFullUpdate(ed.getOrigin(), ed.getAthlete(), ed.ref1, ed.ref2, ed.ref3, now, now, now);
+        refereeForcedDecision = true;
+        updateRefereeDecisions(ne);
+        uiShowUpdateOnJuryScreen();
+//        getAthleteTimer().stop();
+//        this.setPreviousAthlete(getCurAthlete()); // would be safer to use past lifting order
+//        this.setClockOwner(null);
+//        showExplicitDecision((ExplicitDecision) e, e.origin);
+    }
+
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer, boolean alreadyLoaded) {
         logger.trace("start of init state=" + state);
         this.athleteTimer = timer;
@@ -621,7 +640,9 @@ public class FieldOfPlay {
         if (athletes != null && athletes.size() > 0) {
             recomputeLiftingOrder();
         }
-        logger.debug("group {} athletes {}", getGroup(), athletes.size());
+        if (getGroup() != null) {
+            logger.debug("group {} athletes {}", getGroup(), athletes.size());
+        }
         if (state == null) {
             this.setState(INACTIVE);
         }
@@ -1040,6 +1061,7 @@ public class FieldOfPlay {
     private void resetDecisions() {
         refereeDecision = new Boolean[3];
         refereeTime = new Integer[3];
+        refereeForcedDecision = false;
     }
 
     private void resetEmittedFlags() {
@@ -1172,28 +1194,28 @@ public class FieldOfPlay {
      * The decision is confirmed as official after the 3 second delay following majority. After this delay, manual
      * announcer intervention is required to change and announce.
      */
-    private void showExplicitDecision(ExplicitDecision e, Object origin) {
-        logger.trace("explicit decision display");
-        refereeDecision[0] = null;
-        refereeDecision[2] = null;
-        if (e.success) {
-            goodLift = true;
-            refereeDecision[1] = true;
-            getCurAthlete().successfulLift();
-        } else {
-            goodLift = false;
-            refereeDecision[1] = false;
-            getCurAthlete().failedLift();
-        }
-        getCurAthlete().resetForcedAsCurrent();
-        AthleteRepository.save(getCurAthlete());
-        uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), goodLift, refereeDecision, refereeTime, origin);
-        recomputeLiftingOrder();
-        updateGlobalRankings();
-        setState(DECISION_VISIBLE);
-        // tell ourself to reset after 3 secs.
-        new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), DECISION_VISIBLE_DURATION);
-    }
+//    private void showExplicitDecision(ExplicitDecision e, Object origin) {
+//        logger.trace("explicit decision display");
+//        refereeDecision[0] = null;
+//        refereeDecision[2] = null;
+//        if (e.success) {
+//            goodLift = true;
+//            refereeDecision[1] = true;
+//            getCurAthlete().successfulLift();
+//        } else {
+//            goodLift = false;
+//            refereeDecision[1] = false;
+//            getCurAthlete().failedLift();
+//        }
+//        getCurAthlete().resetForcedAsCurrent();
+//        AthleteRepository.save(getCurAthlete());
+//        uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), goodLift, refereeDecision, refereeTime, origin);
+//        recomputeLiftingOrder();
+//        updateGlobalRankings();
+//        setState(DECISION_VISIBLE);
+//        // tell ourself to reset after 3 secs.
+//        new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), DECISION_VISIBLE_DURATION);
+//    }
 
     private void transitionToBreak(BreakStarted e) {
         ProxyBreakTimer breakTimer2 = getBreakTimer();
@@ -1251,6 +1273,7 @@ public class FieldOfPlay {
     }
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {
+        weightAtLastStart = 0;
         logger.trace("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
                 LoggerUtils.whereFrom());
 
@@ -1275,9 +1298,22 @@ public class FieldOfPlay {
         setClockOwner(getCurAthlete());
         resetEmittedFlags();
         prepareDownSignal();
+        setWeightAtLastStart();
 
         // enable master to listening for decision
         setState(TIME_RUNNING);
+    }
+
+    private void setWeightAtLastStart() {
+        setWeightAtLastStart(getCurAthlete().getNextAttemptRequestedWeight());
+    }
+
+    private void setWeightAtLastStart(Integer nextAttemptRequestedWeight) {
+        weightAtLastStart = nextAttemptRequestedWeight;
+    }
+    
+    public int getWeightAtLastStart() {
+        return (weightAtLastStart != null ? weightAtLastStart : 0);
     }
 
     @SuppressWarnings("unused")
@@ -1311,8 +1347,8 @@ public class FieldOfPlay {
     private void uiShowRefereeDecisionOnSlaveDisplays(Athlete athlete2, Boolean goodLift2, Boolean[] refereeDecision2,
             Integer[] shownTimes, Object origin2) {
         uiEventLogger.trace("showRefereeDecisionOnSlaveDisplays");
-        pushOut(new UIEvent.Decision(athlete2, goodLift2, refereeDecision2[0], refereeDecision2[1],
-                refereeDecision2[2], origin2));
+        pushOut(new UIEvent.Decision(athlete2, goodLift2, refereeForcedDecision ? null : refereeDecision2[0], refereeDecision2[1],
+                refereeForcedDecision ? null : refereeDecision2[2], origin2));
     }
 
     private void uiShowUpdatedRankings() {
@@ -1321,8 +1357,8 @@ public class FieldOfPlay {
 
     private void uiShowUpdateOnJuryScreen() {
         uiEventLogger.trace("uiShowUpdateOnJuryScreen");
-        pushOut(new UIEvent.RefereeUpdate(getCurAthlete(), refereeDecision[0], refereeDecision[1],
-                refereeDecision[2], refereeTime[0], refereeTime[1], refereeTime[2], this));
+        pushOut(new UIEvent.RefereeUpdate(getCurAthlete(), refereeForcedDecision ? null : refereeDecision[0], refereeDecision[1],
+                refereeForcedDecision ? null : refereeDecision[2], refereeTime[0], refereeTime[1], refereeTime[2], this));
     }
 
     private void uiStartLifting(Group group2, Object origin) {

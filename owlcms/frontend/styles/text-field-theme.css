@@ -3,9 +3,24 @@
 	color: white;
 }
 
+:host(.bad.readonly) [part="input-field"] {
+	background-color: var(--lumo-error-color-10pct);
+	color: gray;
+}
+
 :host(.good) [part="input-field"] {
 	background-color: green;
 	color: white;
+}
+
+:host(.good.readonly) [part="input-field"] {
+	background-color: var(--lumo-success-color-10pct);
+	color: gray;
+}
+
+:host(.readonly) [part="input-field"] {
+	background-color: white;
+	color: gray;
 }
 
 :host(.error) [part="input-field"] {
