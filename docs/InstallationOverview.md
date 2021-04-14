@@ -1,47 +1,53 @@
-Several installation options are possible, depending on what is available at the competition site and the size of the competition.  The four scenarios below fall in two categories:
+Several installation options are possible, depending on what is available at the competition site and the size of the competition.  The scenarios below fall in two categories:
 
 - Cloud-based options, where all you need are browsers (and a good internet connection)
-- Stand-alone options, where there is no reliable internet and you need to run things locally.
+- Stand-alone installation, if you need to run things locally (typically because there is no good internet access)
 
-## Easiest: Cloud-Based Installation (Internet required)
+## Easiest: Cloud-Based Installation
 
-If there is good internet communication at the competition site, there is no need to install anything locally. 
+If there is good internet communication at the competition site, the process is extremely simple. 
 
-- There is a one-click install procedure to a *free* (0$) cloud service called Heroku (a division of Salesforce.com).  For large competitions, you can change the configuration on the competition days to use the paying tiers, at a cost of about 12$ per day, and then go back to the free tiers.
-- The install will create your own private copy of the application, with your own database.
-- The owlcms software runs as a web site. All the various display screens and devices connect to the cloud using the competition site's wifi or ethernet network.
+- There is a one-click install procedure to a *free* (0$) cloud service called Heroku (a division of Salesforce.com). 
+- The install will create your *own private copy* of the application, with your *own database*.
+- The owlcms software runs as a web site. All the various display screens and devices connect to the cloud using the competition site's network.
+- In the following diagram phones are shown as the referee device.  But you can actually referee using hand signals, flags, phones, or dedicated keypads (USB or Bluetooth). See [this page](Refereeing)
 
 ![Slide9](img/PublicResults/CloudExplained/Slide9.SVG)
 
 See the following for instructions
 
   * [Heroku Cloud Installation Instructions](Heroku)
+
+For large competitions, you can change the configuration on the competition days to use a paying tier, at a cost of about 12$ per day, and once done go back to the 0$ free tier.
+
   * [Large Competition Heroku Setup](HerokuLarge)
 
 ## Cloud-Based Virtual Competitions
 
-In a virtual competition, the officials are in multiple locations.  In order to allow access by all officials, `owlcms` is run in the cloud and supports remote refereeing -- see the following [page](Refereeing#Mobile-Device-Refereeing) for details. Remote referees need to use a laptop because a proper screen is needed for refereeing but unfortunately iPads do not support simultaneous use of video and of the refereeing application.
+In a virtual competition, the officials are in multiple locations.  In order to allow access by all officials, `owlcms` is run in the cloud with [remote refereeing](Refereeing#Mobile-Device-Refereeing). Remote referees need to use a laptop to get a good-size screen and because iPads are not permitted to show video together with the refereeing screen.
 
 ![Slide5](img/PublicResults/CloudExplained/Slide5.SVG)
 
 The following pages will guide you through setting up a virtual competition. 
 
 1. Configure Heroku: [Large Competition Heroku Setup](HerokuLarge)
-2. Configure the Videoconferencing and Streaming:  see [this page](VirtualOverview) for the full process.
+2. Configure for Videoconferencing and Streaming:  see [this page](VirtualOverview) for the full process.
 
 If you wish to control the full setup and are technology-savvy, alternatives to using Heroku are possible, for example, [Kubernetes on Digital Ocean Cloud](DigitalOcean) or [Home Kubernetes Hosting with Secure Internet Access](k3d)
 
 ## Stand-alone: Laptop installation
 
-If there is no Internet connectivity at your competition site, or if you can't trust it, you can use a stand-alone setup and run the software on a laptop.
+If there is no good Internet connectivity at your competition site you can use a stand-alone setup and run the software on a laptop.  In that setup: 
 
-- The software runs on a laptop (labeled owlcms in the diagram). 
+- The OWLCMS software runs on a laptop (labeled owlcms in the diagram) which acts as a web server to the other screens and displays.
 
-- All the other screens and officials connect to that laptop using only a web browser, so you can use whatever you want (old laptops, chromebooks, tablets, firetv sticks, etc.).  All the communications take place over a local network (wifi or ethernet).
+- The primary laptop and all the other screens and official stations are connected to a wi-fi network.  If there is none in the building, you will need to configure a local router and connect all machines to that router (exactly like a home network).
 
-- You can run owlcms on the same machine as one of the officials.  It is often the case that owlcms runs on the same machine as the announcer or the competition secretary.  In the simplest setups, there is just the announcer, and maybe one scoreboard.
+- All machines need a web browser to drive their display or screen.
 
-- You can referee using hand signals, flags, phones, or dedicated devices. See [this page](Refereeing)
+- You can run owlcms on the same machine as one of the officials.  It is often the case that owlcms runs on the same machine as the announcer or the competition secretary.
+
+- In the following drawing phones are shown as the referee device.  But you can actually referee using hand signals, flags, phones, or dedicated keypads (USB or Bluetooth). See [this page](Refereeing)
 
   ![Slide1](img/PublicResults/CloudExplained/Slide7.SVG)
 
@@ -50,9 +56,7 @@ See the following instructions
   * [Windows Stand-alone Installation](LocalWindowsSetup)
   * [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
 
-## Stand-Alone: Local Individual Scoreboards
+If you run a local setup, you may still want to have individual scoreboards so distancing guidelines are followed, or provide to provide access to people in the attendance.
 
-It may be desirable to provide coaches with individual access to the scoreboard in order to respect distancing guidelines, or to give access to the members of the audience. This can be done by connecting to a [publicresults installed in the cloud](), or by creating a second local network to isolate the main competition network.  The fully local setup is explained in [this page](PublicResults_Local).
-
-![Slide1](img/PublicResults/LocalPublicResults/Slide1.SVG)
+- [Local networking setup for individual scoreboards](PublicResults_Local).
 
