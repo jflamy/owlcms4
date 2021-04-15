@@ -65,7 +65,7 @@ public class LoggerUtils {
      * @return the string
      */
     public static String whereFrom() {
-        return Thread.currentThread().getStackTrace()[3].toString();
+        return whereFrom(0);
     }
 
     /**
@@ -74,7 +74,8 @@ public class LoggerUtils {
      * @return the string
      */
     public static String whereFrom(int depth) {
-        return Thread.currentThread().getStackTrace()[3 + depth].toString();
+        String where = Thread.currentThread().getStackTrace()[3+depth].toString();
+        return where.replaceFirst(".*\\(", "(");
     }
 
     /**

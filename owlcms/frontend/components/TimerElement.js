@@ -310,7 +310,7 @@ class TimerElement extends PolymerElement {
 
 
 		// we anticipate to use the more precise audio context timer
-		if (this.currentTime <= 0.2 && !this._timeOverWarningGiven) {
+		if (this.currentTime <= 0.05 && !this._timeOverWarningGiven) {
 			console.warn("calling play "+this.currentTime);
 			if (!this.silent) {
 				console.warn("about to play time over " + window.timeOver);
@@ -352,6 +352,7 @@ class TimerElement extends PolymerElement {
 			// timer is over; tell server to emit sound if server-side sounds
 			if (this.$server != null) this.$server.clientTimeOver();
 			this.running = false;
+			this.formatted_time = this._formatTime(0);
 			// this.dispatchEvent(new CustomEvent('timer-element-end', {bubbles:
 			// true, composed: true}))
 			this.currentTime = this.countUp ? this.startTime : 0;

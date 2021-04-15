@@ -12,6 +12,7 @@ import java.util.Collection;
 import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
+import com.flowingcode.vaadin.addons.ironicons.AvIcons.Icon;
 import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.ShortcutRegistration;
@@ -122,7 +123,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
         return buttons;
     }
-
 
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#createInitialBar()
@@ -310,30 +310,20 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         centerH(timeField, time);
         this.add(time);
 
-        startTimeButton = new Button(AvIcons.PLAY_ARROW.create());
+        Icon startIcon = AvIcons.PLAY_ARROW.create();
+        startTimeButton = new Button(startIcon);
         startTimeButton.addClickListener(e -> {
             OwlcmsSession.withFop(fop -> {
                 fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
-                if (startTimeButton != null) {
-                    startTimeButton.getElement().setAttribute("theme", "secondary");
-                }
-                if (stopTimeButton != null) {
-                    stopTimeButton.getElement().setAttribute("theme", "primary error");
-                }
             });
         });
         startTimeButton.getElement().setAttribute("theme", "primary success");
 
-        stopTimeButton = new Button(AvIcons.PAUSE.create());
+        Icon stopIcon = AvIcons.PAUSE.create();
+        stopTimeButton = new Button();
         stopTimeButton.addClickListener(e1 -> {
             OwlcmsSession.withFop(fop -> {
                 fop.getFopEventBus().post(new FOPEvent.TimeStopped(this.getOrigin()));
-                if (startTimeButton != null) {
-                    startTimeButton.getElement().setAttribute("theme", "primary success");
-                }
-                if (stopTimeButton != null) {
-                    stopTimeButton.getElement().setAttribute("theme", "secondary");
-                }
             });
         });
         stopTimeButton.getElement().setAttribute("theme", "secondary");
@@ -373,7 +363,9 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         buttons.getStyle().set("--lumo-font-size-m", "10vh");
 
         centerHW(buttons, this);
-        hideButtons();
+        // if done earlier, the icons aren't centered in the icon.
+        startTimeButton.setIcon(startIcon);
+        stopTimeButton.setIcon(stopIcon);
     }
 
     private void hideButtons() {
@@ -388,7 +380,9 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
     }
 
     private void showButtons() {
-        buttons.setVisible(true);
+        if (buttons != null) {
+            buttons.setVisible(true);
+        }
         timeField.getElement().setVisible(true);
         registerShortcuts();
     }

@@ -32,6 +32,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
     private long stopMillis;
     private boolean running = false;
     private int timeRemainingAtLastStop;
+    private boolean needToSendEvent;
     /**
      * Instantiates a new countdown timer.
      *
@@ -122,11 +123,21 @@ public class ProxyAthleteTimer implements IProxyTimer {
 
     @Override
     public void timeOver(Object origin) {
-        if (running) {
-            this.stop();
+        // avoid sending multiple events to FOP
+        boolean needToSendEvent = !fop.isTimeoutEmitted();
+        if (needToSendEvent) {
+            fop.emitTimeOver();
+            fop.getFopEventBus().post(new FOPEvent.TimeOver(origin));
         }
-        fop.emitTimeOver();
-        fop.getFopEventBus().post(new FOPEvent.TimeOver(origin));
+        // leave enough time for buzzer event to propagate allowing for some clock drift
+        if (running) {
+            try {
+                // timers that are more than 1 sec. late will now stop silently.
+                Thread.sleep(1000);
+                this.stop();
+            } catch (InterruptedException e) {
+            }
+        }
     }
 
     /**
