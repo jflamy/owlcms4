@@ -32,7 +32,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
     private long stopMillis;
     private boolean running = false;
     private int timeRemainingAtLastStop;
-    private boolean needToSendEvent;
+ 
     /**
      * Instantiates a new countdown timer.
      *
