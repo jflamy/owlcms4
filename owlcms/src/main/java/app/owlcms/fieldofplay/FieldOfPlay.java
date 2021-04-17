@@ -510,7 +510,7 @@ public class FieldOfPlay {
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof ExplicitDecision) {
-                simulateDecision(e);
+                simulateDecision((ExplicitDecision) e);
             } else if (e instanceof TimeOver) {
                 // athleteTimer got down to 0
                 // getTimer() signals this, nothing else required for athleteTimer
@@ -544,7 +544,7 @@ public class FieldOfPlay {
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof ExplicitDecision) {
-                simulateDecision(e);
+                simulateDecision((ExplicitDecision) e);
             } else if (e instanceof ForceTime) {
                 getAthleteTimer().setTimeRemaining(((ForceTime) e).timeAllowed);
                 setState(CURRENT_ATHLETE_DISPLAYED);
@@ -563,7 +563,7 @@ public class FieldOfPlay {
 //            this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
 //            this.setClockOwner(null);
             if (e instanceof ExplicitDecision) {
-                simulateDecision(e);
+                simulateDecision((ExplicitDecision) e);
 //                getAthleteTimer().stop();
 //                showExplicitDecision(((ExplicitDecision) e), e.origin);
             } else if (e instanceof DecisionFullUpdate) {
@@ -583,7 +583,7 @@ public class FieldOfPlay {
 
         case DECISION_VISIBLE:
             if (e instanceof ExplicitDecision) {
-                simulateDecision(e);
+                simulateDecision((ExplicitDecision) e);
                 // showExplicitDecision(((ExplicitDecision) e), e.origin);
             } else if (e instanceof DecisionFullUpdate) {
                 // decision coming from decision display or attempt board
@@ -612,9 +612,11 @@ public class FieldOfPlay {
      * 
      * @param e
      */
-    private void simulateDecision(FOPEvent e) {
-        ExplicitDecision ed = (ExplicitDecision) e;
+    private void simulateDecision(ExplicitDecision ed) {
         int now = (int) System.currentTimeMillis();
+        if (getAthleteTimer().isRunning()) {
+            getAthleteTimer().stop();
+        }
         DecisionFullUpdate ne = new DecisionFullUpdate(ed.getOrigin(), ed.getAthlete(), ed.ref1, ed.ref2, ed.ref3, now,
                 now, now);
         refereeForcedDecision = true;
