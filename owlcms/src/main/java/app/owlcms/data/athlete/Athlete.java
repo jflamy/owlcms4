@@ -432,7 +432,7 @@ public class Athlete {
     private int combinedRank;
     @Column(columnDefinition = "integer default 0")
     private int smmRank;
-
+    
     /**
      * Instantiates a new athlete.
      */
@@ -3838,6 +3838,16 @@ public class Athlete {
     }
 
     private void checkWeightVsLastStart(int newVal) {
+
+        logger.warn("getting from session {}",OwlcmsSession.getCurrent());
+        Object wi = OwlcmsSession.getAttribute("weighIn");
+        if (wi == this) {
+            // current athlete being weighed in
+            logger.warn("weighin {}",wi);
+            return;
+        } else {
+            logger.warn("lifting");
+        }
         OwlcmsSession.withFop(fop -> {
             int weightAtLastStart = fop.getWeightAtLastStart();
             logger.warn("weight at last start: {}  request = {}", weightAtLastStart, newVal);
@@ -3887,4 +3897,6 @@ public class Athlete {
         checkWeightVsLastStart(newVal);
     }
 
+
+    
 }

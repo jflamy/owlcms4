@@ -42,6 +42,7 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
@@ -182,7 +183,14 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         grid.addColumn("cleanJerk1Declaration").setHeader(getTranslation("C_and_J_decl"));
         grid.addColumn("eligibleForIndividualRanking").setHeader(getTranslation("Eligible"));
         grid.addColumn("eligibleForTeamRanking").setHeader(getTranslation("TeamMember?"));
-        OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class),
+        OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
+            @Override
+            public void hideForm() {
+                super.hideForm();
+                logger.warn("clearing {}",OwlcmsSession.getAttribute("weighIn"));
+                OwlcmsSession.setAttribute("weighIn", null);
+            }
+        },
                 crudFormFactory, grid);
         crudGrid.setCrudListener(this);
         crudGrid.setClickRowToUpdate(true);
