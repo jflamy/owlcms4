@@ -9,7 +9,6 @@ package app.owlcms.fieldofplay;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -87,7 +86,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
         if (running) {
             computeTimeRemaining();
         }
-        logger.debug("setting Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+        logger.info("FOP {} setting Time -- timeRemaining = {}", fop.getName(), timeRemaining);
         this.timeRemaining = timeRemaining;
         fop.pushOut(new UIEvent.SetTime(timeRemaining, null));
         running = false;
@@ -100,7 +99,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
     public void start() {
         if (!running) {
             startMillis = System.currentTimeMillis();
-            logger.debug("starting Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+            logger.info("FOP {} starting Time -- timeRemaining = {}", fop.getName(), timeRemaining);
             timeRemainingAtLastStop = timeRemaining;
         }
         fop.pushOut(new UIEvent.StartTime(timeRemaining, null, fop.isEmitSoundsOnServer()));
@@ -115,7 +114,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
         if (running) {
             computeTimeRemaining();
         }
-        logger.debug("***stopping Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+        logger.info("FOP {} stopping Time -- timeRemaining = {}", fop.getName(), timeRemaining);
         timeRemainingAtLastStop = timeRemaining;
         fop.pushOut(new UIEvent.StopTime(timeRemaining, null));
         running = false;

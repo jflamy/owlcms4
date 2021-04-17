@@ -553,13 +553,15 @@ public class Athlete {
      * Failed lift.
      */
     public void failedLift() {
-        try {
-            logger.info("no lift for {}", this);
-            final String weight = Integer.toString(-getNextAttemptRequestedWeight());
-            doLift(weight);
-        } catch (Exception e) {
-            logger.error(e.getLocalizedMessage());
-        }
+        OwlcmsSession.withFop(fop -> {
+            try {
+                logger.info("FOP {} no lift for {}", fop.getName(), this);
+                final String weight = Integer.toString(-getNextAttemptRequestedWeight());
+                doLift(weight);
+            } catch (Exception e) {
+                logger.error(e.getLocalizedMessage());
+            }
+        });
     }
 
     /**
@@ -3413,13 +3415,15 @@ public class Athlete {
      * Successful lift.
      */
     public void successfulLift() {
-        try {
-            logger.info("good lift for {}", this);
-            final String weight = Integer.toString(getNextAttemptRequestedWeight());
-            doLift(weight);
-        } catch (Exception e) {
-            logger.error(e.getLocalizedMessage());
-        }
+        OwlcmsSession.withFop(fop -> {
+            try {
+                logger.info("FOP {} good lift for {}", fop.getName(), this);
+                final String weight = Integer.toString(getNextAttemptRequestedWeight());
+                doLift(weight);
+            } catch (Exception e) {
+                logger.error(e.getLocalizedMessage());
+            }
+        });
     }
 
     /*
@@ -3836,7 +3840,7 @@ public class Athlete {
     private void checkWeightVsLastStart(int newVal) {
         OwlcmsSession.withFop(fop -> {
             int weightAtLastStart = fop.getWeightAtLastStart();
-            logger.warn("weight at last start: {}  request = {}",weightAtLastStart, newVal);
+            logger.warn("weight at last start: {}  request = {}", weightAtLastStart, newVal);
             if (newVal < weightAtLastStart) {
                 throw RuleViolation.valueBelowStartedClock(newVal, weightAtLastStart);
             }

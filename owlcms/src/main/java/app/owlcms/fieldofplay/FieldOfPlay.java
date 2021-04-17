@@ -342,7 +342,7 @@ public class FieldOfPlay {
             // the clock was started for us. we own the clock, clock is set to what time was
             // left
             timeAllowed = getAthleteTimer().getTimeRemainingAtLastStop();
-            logger.debug("*** timeAllowed = timeRemaining = {}, clock owner = {}", timeAllowed, a);
+            logger.trace("*** timeAllowed = timeRemaining = {}, clock owner = {}", timeAllowed, a);
         } else if (previousAthlete != null && previousAthlete.equals(a)) {
             resetDecisions();
             if (owner != null || a.getAttemptNumber() == 1) {
@@ -596,7 +596,7 @@ public class FieldOfPlay {
                 weightChangeDoNotDisturb((WeightChange) e);
                 setState(DECISION_VISIBLE);
             } else if (e instanceof DecisionReset) {
-                logger.debug("{} resetting decisions", getName());
+                logger.debug("FOP {} resetting decisions", getName());
                 pushOut(new UIEvent.DecisionReset(getCurAthlete(), e.origin));
                 setClockOwner(null);
                 displayOrBreakIfDone(e);

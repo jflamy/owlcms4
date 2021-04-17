@@ -65,7 +65,7 @@ public class LoggerUtils {
      * @return the string
      */
     public static String whereFrom() {
-        return whereFrom(0);
+        return whereFrom(1);
     }
 
     /**

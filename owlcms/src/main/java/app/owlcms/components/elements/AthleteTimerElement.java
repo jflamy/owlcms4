@@ -105,10 +105,21 @@ public class AthleteTimerElement extends TimerElement {
      */
     @Override
     @ClientCallable
-    public void clientTimerStopped(double remainingTime) {
-        logger.trace("timer stopped from client: " + remainingTime);
+    public void clientTimerStopped(double remainingTime, String from) {
+        logger.debug("timer {} stopped on client: remaining = {}", from, remainingTime);
         // do not stop the server-side timer, this is getting called as a result of the
         // server-side timer issuing a command. Otherwise we create an infinite loop.
+    }
+    
+    /*
+     * (non-Javadoc)
+     *
+     * @see app.owlcms.displays.attemptboard.TimerElement#clientTimerStopped(double)
+     */
+    @Override
+    @ClientCallable
+    public void clientTimerStarting(double remainingTime, double lateMillis, String from) {
+        logger.debug("timer {} starting on client: remaining = {}", from, remainingTime);
     }
 
     public void detach() {
