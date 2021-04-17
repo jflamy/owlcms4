@@ -208,7 +208,14 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         grid.addColumn("group").setHeader(getTranslation("Group"));
         grid.addColumn("eligibleForIndividualRanking").setHeader(getTranslation("Eligible"));
         grid.addColumn("eligibleForTeamRanking").setHeader(getTranslation("TeamMember?"));
-        OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class),
+        OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
+            @Override
+            public void hideForm() {
+                super.hideForm();
+                logger.warn("clearing {}", OwlcmsSession.getAttribute("weighIn"));
+                OwlcmsSession.setAttribute("weighIn", null);
+            }
+        },
                 crudFormFactory, grid);
         crudGrid.setCrudListener(this);
         crudGrid.setClickRowToUpdate(true);

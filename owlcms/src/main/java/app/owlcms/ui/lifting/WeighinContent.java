@@ -187,7 +187,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
             @Override
             public void hideForm() {
                 super.hideForm();
-                logger.warn("clearing {}",OwlcmsSession.getAttribute("weighIn"));
+                logger.warn("clearing {}", OwlcmsSession.getAttribute("weighIn"));
                 OwlcmsSession.setAttribute("weighIn", null);
             }
         },
