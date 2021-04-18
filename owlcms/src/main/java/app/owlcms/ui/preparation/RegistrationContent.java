@@ -212,7 +212,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
             @Override
             public void hideForm() {
                 super.hideForm();
-                logger.warn("clearing {}", OwlcmsSession.getAttribute("weighIn"));
+                logger.trace("clearing {}", OwlcmsSession.getAttribute("weighIn"));
                 OwlcmsSession.setAttribute("weighIn", null);
             }
         },
