@@ -1,6 +1,11 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+  * [x] Regression due to #281 fixed: announcer decisions stop clock if it was still running (#417)
+  * [x] Regression due to #234 fixed:  weigh-in could not take place concurrently with lifting group because requests were being compared with weight loaded at last started clock. (#416)
   * [x] Removed code to compensate for slow timer start on iPad (#414).  Cure worse than disease, timer misbehaviors reported on previously stable configurations.
+
+* Changes for previous prereleases
+
   * [x] Weight request for a value lower that was loaded on last clock start will be refused (#234).  In case of loader or marshall errors, entering a break and resuming resets remembered value.
   * [x] Fixed a race condition in which the first timer to reach time over sends a signal back to server; this would shut down timers running a little bit late who would never buzz (#413)
   * [x] Marshall can no longer edit or overwrite lift results by mistake. An explicit checkbox is required to enable edit (#286)
@@ -14,12 +19,9 @@
   - [x] Reorganized documentation pages for setting up Virtual Competitions.  Documented use of Zoom and OBS for videoconferencing and live broadcast streaming. Added introductory videos to the documentation, accessed from the home page.  Updated the Refereeing section to cover Bluetooth keypads.  Added instructions for using a cheap Fire TV Stick as a display device.
   - [x] Support for large competitions on Heroku. Added documentation for [economical use of Heroku professional tiers](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/HerokuLarge). Heroku now provides the memory defaults for all configurations.
     If you are limited to using the free setup and need to stretch it to its maximum, set the `_JAVA_OPTIONS` configuration variable to something like `-Xmx384m -XX:MaxMetaspaceSize=80m`
-  - [x] Improvement: Better handling of double-clicking/double-tapping on the start timer buttons. (#405) In odd circumstances this could result in rogue beeps/buzzers.
-  - [x] Fix: added missing button for the Current Athlete display. This display is normally used in video broadcasts (the display is then cropped and shown at the bottom of the screen to show current attempt information and the previous lifts and rank of the current athlete.)
   - [x] New: added a new item for video broadcasts in the technical configuration section. Video capture using OBS or similar streaming software is awkward when a PIN or password is set.  If it is known that the video operator is working from a safe setting (such as a home network) , a "backdoor" setting (OWLCMS_BACKDOOR if using an environment variable) can be used to allow password-less login from a comma-separated list of addresses.  Use with care.
-  - [x] Fix: The publicresults application was switching to an empty scoreboard page on owlcms startup (#404).  Now properly shows the "Waiting for next group" banner.
   - [x] Fix: The Officials tab on the Start List spreadsheet now includes the weigh-in officials for the group.
-
+  
   * [x] Improvement: New scoreboard with multiple IWF age group rankings (Youth, Junior, Senior).  Final package also includes the three rankings. (#372)
 
 
