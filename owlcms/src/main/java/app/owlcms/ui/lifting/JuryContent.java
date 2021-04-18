@@ -267,7 +267,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         juryVotingCenterHorizontally.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         juryVotingCenterHorizontally.setPadding(true);
         juryVotingCenterHorizontally.setMargin(true);
-        juryVotingCenterHorizontally.setHeight("40%");
+        juryVotingCenterHorizontally.setHeight("80%");
         juryVotingCenterHorizontally.getStyle().set("background-color", "black");
 
         juryVotingCenterHorizontally.add(juryVotingButtons);
@@ -283,13 +283,13 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         decisions.getElement().setAttribute("theme", "dark");
         Div decisionWrapper = new Div(decisions);
         decisionWrapper.getStyle().set("width", "50%");
-        decisionWrapper.getStyle().set("height", "35%");
-
+        decisionWrapper.getStyle().set("height", "max-content");
+        
         HorizontalLayout refContainer = new HorizontalLayout(decisionWrapper);
         refContainer.setBoxSizing(BoxSizing.BORDER_BOX);
         refContainer.setJustifyContentMode(JustifyContentMode.CENTER);
         refContainer.getStyle().set("background-color", "black");
-        refContainer.setHeight("40%");
+        refContainer.setHeight("80%");
         refContainer.setWidthFull();
         refContainer.setPadding(true);
         refContainer.setMargin(true);
