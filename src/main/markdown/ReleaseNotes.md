@@ -1,5 +1,6 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+  * [x] Fixed sizing of referee decision lights on jury console (#418)
   * [x] Regression due to #281 fixed: announcer decisions stop clock if it was still running (#417)
   * [x] Regression due to #234 fixed:  weigh-in could not take place concurrently with lifting group because requests were being compared with weight loaded at last started clock. (#416)
   * [x] Removed code to compensate for slow timer start on iPad (#414).  Cure worse than disease, timer misbehaviors reported on previously stable configurations.
