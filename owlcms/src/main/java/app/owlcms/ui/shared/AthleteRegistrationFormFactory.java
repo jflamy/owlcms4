@@ -120,7 +120,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         // this kludge is necessary because there is no easy way currently to clear that status
         // if the cancel button is used.
         // we probably need to allow changes if the group is not lifting.
-        logger.warn("setting weighIn in session {} {} {}",OwlcmsSession.getCurrent(),getEditedAthlete(), LoggerUtils.whereFrom());
+        //logger.warn("setting weighIn in session {} {} {}",OwlcmsSession.getCurrent(),getEditedAthlete(), LoggerUtils.whereFrom());
         OwlcmsSession.setAttribute("weighIn", getEditedAthlete());
         
         hiddenButton = new Button("doit");

@@ -3839,18 +3839,18 @@ public class Athlete {
 
     private void checkWeightVsLastStart(int newVal) {
 
-        logger.warn("getting from session {}",OwlcmsSession.getCurrent());
+        logger.trace("getting from session {}",OwlcmsSession.getCurrent());
         Object wi = OwlcmsSession.getAttribute("weighIn");
         if (wi == this) {
             // current athlete being weighed in
-            logger.warn("weighin {}",wi);
+            logger.trace("weighin {}",wi);
             return;
         } else {
-            logger.warn("lifting");
+            logger.trace("lifting");
         }
         OwlcmsSession.withFop(fop -> {
             int weightAtLastStart = fop.getWeightAtLastStart();
-            logger.warn("weight at last start: {}  request = {}", weightAtLastStart, newVal);
+            logger.info("FOP {} weight at last start: {}  request = {}", fop.getName(),weightAtLastStart, newVal);
             if (newVal < weightAtLastStart) {
                 throw RuleViolation.valueBelowStartedClock(newVal, weightAtLastStart);
             }
