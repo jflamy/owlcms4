@@ -43,6 +43,7 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
@@ -168,8 +169,11 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     }
 
     @Override
-    public Athlete update(Athlete Athlete) {
-        return crudFormFactory.update(Athlete);
+    public Athlete update(Athlete athlete) {
+        OwlcmsSession.setAttribute("weighIn", athlete);
+        Athlete a = crudFormFactory.update(athlete);
+        OwlcmsSession.setAttribute("weighIn", null);
+        return a;
     }
 
     /**
@@ -204,7 +208,14 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         grid.addColumn("group").setHeader(getTranslation("Group"));
         grid.addColumn("eligibleForIndividualRanking").setHeader(getTranslation("Eligible"));
         grid.addColumn("eligibleForTeamRanking").setHeader(getTranslation("TeamMember?"));
-        OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class),
+        OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
+            @Override
+            public void hideForm() {
+                super.hideForm();
+                logger.trace("clearing {}", OwlcmsSession.getAttribute("weighIn"));
+                OwlcmsSession.setAttribute("weighIn", null);
+            }
+        },
                 crudFormFactory, grid);
         crudGrid.setCrudListener(this);
         crudGrid.setClickRowToUpdate(true);

@@ -9,7 +9,6 @@ package app.owlcms.fieldofplay;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -32,6 +31,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
     private long stopMillis;
     private boolean running = false;
     private int timeRemainingAtLastStop;
+ 
     /**
      * Instantiates a new countdown timer.
      *
@@ -86,7 +86,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
         if (running) {
             computeTimeRemaining();
         }
-        logger.debug("setting Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+        logger.info("FOP {} setting Time -- timeRemaining = {}", fop.getName(), timeRemaining);
         this.timeRemaining = timeRemaining;
         fop.pushOut(new UIEvent.SetTime(timeRemaining, null));
         running = false;
@@ -99,7 +99,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
     public void start() {
         if (!running) {
             startMillis = System.currentTimeMillis();
-            logger.debug("starting Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+            logger.info("FOP {} starting Time -- timeRemaining = {}", fop.getName(), timeRemaining);
             timeRemainingAtLastStop = timeRemaining;
         }
         fop.pushOut(new UIEvent.StartTime(timeRemaining, null, fop.isEmitSoundsOnServer()));
@@ -114,7 +114,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
         if (running) {
             computeTimeRemaining();
         }
-        logger.debug("***stopping Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+        logger.info("FOP {} stopping Time -- timeRemaining = {}", fop.getName(), timeRemaining);
         timeRemainingAtLastStop = timeRemaining;
         fop.pushOut(new UIEvent.StopTime(timeRemaining, null));
         running = false;
@@ -122,11 +122,21 @@ public class ProxyAthleteTimer implements IProxyTimer {
 
     @Override
     public void timeOver(Object origin) {
-        if (running) {
-            this.stop();
+        // avoid sending multiple events to FOP
+        boolean needToSendEvent = !fop.isTimeoutEmitted();
+        if (needToSendEvent) {
+            fop.emitTimeOver();
+            fop.getFopEventBus().post(new FOPEvent.TimeOver(origin));
         }
-        fop.emitTimeOver();
-        fop.getFopEventBus().post(new FOPEvent.TimeOver(origin));
+        // leave enough time for buzzer event to propagate allowing for some clock drift
+        if (running) {
+            try {
+                // timers that are more than 1 sec. late will now stop silently.
+                Thread.sleep(1000);
+                this.stop();
+            } catch (InterruptedException e) {
+            }
+        }
     }
 
     /**

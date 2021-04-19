@@ -208,37 +208,32 @@ public class FieldOfPlay {
     }
 
     public void emitFinalWarning() {
-        boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
-        boolean emitted2 = isFinalWarningEmitted();
-        // logger.trace("emitFinalWarning server={} emitted={}", emitSoundsOnServer2, emitted2);
-        logger.info("{} Final Warning", getName());
-
-        if (emitSoundsOnServer2 && !emitted2) {
-            // instead of finalWarning2.wav sounds too much like down
-            new Sound(getSoundMixer(), "initialWarning2.wav").emit();
+        if (!isFinalWarningEmitted()) {
+            logger.info("FOP {}: Final Warning", getName());
+            if (isEmitSoundsOnServer()) {
+                // instead of finalWarning2.wav sounds too much like down
+                new Sound(getSoundMixer(), "initialWarning2.wav").emit();
+            }
             setFinalWarningEmitted(true);
         }
     }
 
     public void emitInitialWarning() {
-        boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
-        boolean emitted2 = isInitialWarningEmitted();
-        // logger.trace("emitInitialWarning server={} emitted={}", emitSoundsOnServer2, emitted2); // $NON-NLS-1
-
-        if (emitSoundsOnServer2 && !emitted2) {
-            new Sound(getSoundMixer(), "initialWarning2.wav").emit();
+        if (!isInitialWarningEmitted()) {
+            logger.info("FOP {}: Initial Warning", getName());
+            if (isEmitSoundsOnServer()) {
+                new Sound(getSoundMixer(), "initialWarning2.wav").emit();
+            }
             setInitialWarningEmitted(true);
         }
     }
 
     public void emitTimeOver() {
-        boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
-        boolean emitted2 = isTimeoutEmitted();
-        // logger.trace("emitTimeout server={} emitted={}", emitSoundsOnServer2, emitted2);
-        logger.info("{} Time Over", getName());
-
-        if (emitSoundsOnServer2 && !emitted2) {
-            new Sound(getSoundMixer(), "timeOver2.wav").emit();
+        if (!isTimeoutEmitted()) {
+            logger.info("FOP {}: Time Over", getName());
+            if (isEmitSoundsOnServer()) {
+                new Sound(getSoundMixer(), "timeOver2.wav").emit();
+            }
             setTimeoutEmitted(true);
         }
     }
@@ -347,7 +342,7 @@ public class FieldOfPlay {
             // the clock was started for us. we own the clock, clock is set to what time was
             // left
             timeAllowed = getAthleteTimer().getTimeRemainingAtLastStop();
-            logger.debug("*** timeAllowed = timeRemaining = {}, clock owner = {}", timeAllowed, a);
+            logger.trace("*** timeAllowed = timeRemaining = {}, clock owner = {}", timeAllowed, a);
         } else if (previousAthlete != null && previousAthlete.equals(a)) {
             resetDecisions();
             if (owner != null || a.getAttemptNumber() == 1) {
@@ -393,11 +388,11 @@ public class FieldOfPlay {
         int newHash = e.hashCode();
         if (prevHash != null && newHash == prevHash) {
             prevHash = newHash;
-            logger.debug("{} state {}, DUPLICATE event received {} {}", getName(), this.getState(),
+            logger.debug("FOP {} state {}, DUPLICATE event received {} {}", getName(), this.getState(),
                     e.getClass().getSimpleName(), e);
             return;
         } else {
-            logger.debug("{} state {}, event received {} {}", getName(), this.getState(), e.getClass().getSimpleName(),
+            logger.info("FOP {} state {}, event received {}", getName(), this.getState(), e.getClass().getSimpleName(),
                     e);
             prevHash = newHash;
         }
@@ -461,7 +456,7 @@ public class FieldOfPlay {
             if (e instanceof StartLifting) {
                 transitionToLifting(e, getGroup(), true);
             } else if (e instanceof BreakPaused) {
-                BreakPaused bpe = (BreakPaused)e;
+                BreakPaused bpe = (BreakPaused) e;
                 getBreakTimer().stop();
                 getBreakTimer().setTimeRemaining(bpe.getTimeRemaining());
                 pushOut(new UIEvent.BreakPaused(
@@ -515,7 +510,7 @@ public class FieldOfPlay {
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof ExplicitDecision) {
-                simulateDecision(e);
+                simulateDecision((ExplicitDecision) e);
             } else if (e instanceof TimeOver) {
                 // athleteTimer got down to 0
                 // getTimer() signals this, nothing else required for athleteTimer
@@ -549,7 +544,7 @@ public class FieldOfPlay {
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof ExplicitDecision) {
-                simulateDecision(e);
+                simulateDecision((ExplicitDecision) e);
             } else if (e instanceof ForceTime) {
                 getAthleteTimer().setTimeRemaining(((ForceTime) e).timeAllowed);
                 setState(CURRENT_ATHLETE_DISPLAYED);
@@ -568,7 +563,7 @@ public class FieldOfPlay {
 //            this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
 //            this.setClockOwner(null);
             if (e instanceof ExplicitDecision) {
-                simulateDecision(e);
+                simulateDecision((ExplicitDecision) e);
 //                getAthleteTimer().stop();
 //                showExplicitDecision(((ExplicitDecision) e), e.origin);
             } else if (e instanceof DecisionFullUpdate) {
@@ -588,8 +583,8 @@ public class FieldOfPlay {
 
         case DECISION_VISIBLE:
             if (e instanceof ExplicitDecision) {
-                simulateDecision(e);
-                //showExplicitDecision(((ExplicitDecision) e), e.origin);
+                simulateDecision((ExplicitDecision) e);
+                // showExplicitDecision(((ExplicitDecision) e), e.origin);
             } else if (e instanceof DecisionFullUpdate) {
                 // decision coming from decision display or attempt board
                 updateRefereeDecisions((DecisionFullUpdate) e);
@@ -601,7 +596,7 @@ public class FieldOfPlay {
                 weightChangeDoNotDisturb((WeightChange) e);
                 setState(DECISION_VISIBLE);
             } else if (e instanceof DecisionReset) {
-                logger.debug("{} resetting decisions", getName());
+                logger.debug("FOP {} resetting decisions", getName());
                 pushOut(new UIEvent.DecisionReset(getCurAthlete(), e.origin));
                 setClockOwner(null);
                 displayOrBreakIfDone(e);
@@ -614,12 +609,16 @@ public class FieldOfPlay {
 
     /**
      * Create a fake unanimous decision when overridden.
+     * 
      * @param e
      */
-    private void simulateDecision(FOPEvent e) {
-        ExplicitDecision ed = (ExplicitDecision) e;
-        int now = (int)System.currentTimeMillis();
-        DecisionFullUpdate ne = new DecisionFullUpdate(ed.getOrigin(), ed.getAthlete(), ed.ref1, ed.ref2, ed.ref3, now, now, now);
+    private void simulateDecision(ExplicitDecision ed) {
+        int now = (int) System.currentTimeMillis();
+        if (getAthleteTimer().isRunning()) {
+            getAthleteTimer().stop();
+        }
+        DecisionFullUpdate ne = new DecisionFullUpdate(ed.getOrigin(), ed.getAthlete(), ed.ref1, ed.ref2, ed.ref3, now,
+                now, now);
         refereeForcedDecision = true;
         updateRefereeDecisions(ne);
         uiShowUpdateOnJuryScreen();
@@ -641,7 +640,6 @@ public class FieldOfPlay {
             recomputeLiftingOrder();
         }
         if (getGroup() != null) {
-            logger.debug("group {} athletes {}", getGroup(), athletes.size());
         }
         if (state == null) {
             this.setState(INACTIVE);
@@ -649,6 +647,7 @@ public class FieldOfPlay {
 
         // force a wake up on user interfaces
         if (!alreadyLoaded) {
+            logger.info("FOP {} group {} athletes={}", getName(), getGroup(), athletes.size());
             pushOut(new UIEvent.SwitchGroup(getGroup(), getState(), getCurAthlete(), this));
         }
         logger.trace("end of init state=" + state);
@@ -660,7 +659,7 @@ public class FieldOfPlay {
 
     public boolean isEmitSoundsOnServer() {
         boolean b = getSoundMixer() != null;
-        logger.trace("emit sound on server = {}",b);
+        logger.trace("emit sound on server = {}", b);
         return b;
     }
 
@@ -686,7 +685,8 @@ public class FieldOfPlay {
         }
         this.setGroup(group);
         if (group != null) {
-            logger.debug("{} loading data for group {} [{} {} {} {}]",
+            logger.trace("FOP {} current group {} loading data for group {} [{} {} {} {}]",
+                    getName(),
                     thisGroupName,
                     loadGroupName,
                     alreadyLoaded,
@@ -805,8 +805,8 @@ public class FieldOfPlay {
                 getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),
                 inBreak));
         int attempts = getCurAthlete().getAttemptedLifts() + 1;
-        logger.info("current athlete = {} attempt {}, requested = {}, timeAllowed={} timeRemainingAtLastStop={}",
-                getCurAthlete(), getCurAthlete() != null ? attempts : 0, curWeight,
+        logger.info("FOP {} current athlete = {} attempt {}, requested = {}, timeAllowed={} timeRemainingAtLastStop={}",
+                getName(), getCurAthlete(), getCurAthlete() != null ? attempts : 0, curWeight,
                 clock,
                 getAthleteTimer().getTimeRemainingAtLastStop());
         if (attempts > 6) {
@@ -820,7 +820,7 @@ public class FieldOfPlay {
      * @param state the new state
      */
     void setState(FOPState state) {
-        logger.debug("{} entering {} {}", getName(), state, LoggerUtils.whereFrom());
+        logger.debug("FOP {} entering {} {}", getName(), state, LoggerUtils.whereFrom());
         // if (state == INACTIVE) {
         // logger.debug("entering inactive {}",LoggerUtils.stackTrace());
         // }
@@ -958,7 +958,7 @@ public class FieldOfPlay {
         return initialWarningEmitted;
     }
 
-    private synchronized boolean isTimeoutEmitted() {
+    public synchronized boolean isTimeoutEmitted() {
         return timeoutEmitted;
     }
 
@@ -1034,7 +1034,7 @@ public class FieldOfPlay {
 
         int timeAllowed = getTimeAllowed();
         Integer attemptsDone = curAthlete.getAttemptsDone();
-        logger.debug("{} recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
+        logger.trace("FOP {} recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
                 getName(),
                 getCurAthlete() != null ? getCurAthlete().getFullName() : "",
                 previousAthlete != null ? previousAthlete.getFullName() : "",
@@ -1119,7 +1119,7 @@ public class FieldOfPlay {
         if (state == INACTIVE) {
             // remain in INACTIVE state (do nothing)
         } else if (state == BREAK) {
-            logger.debug("{} Break {}", getName(), state, getBreakType());
+            logger.debug("FOP {} Break {}", getName(), state, getBreakType());
             // if in a break, we don't stop break timer on a weight change.
             if (getBreakType() == BreakType.GROUP_DONE) {
                 // weight change in state GROUP_DONE can happen if there is a loading error
@@ -1311,7 +1311,7 @@ public class FieldOfPlay {
     private void setWeightAtLastStart(Integer nextAttemptRequestedWeight) {
         weightAtLastStart = nextAttemptRequestedWeight;
     }
-    
+
     public int getWeightAtLastStart() {
         return (weightAtLastStart != null ? weightAtLastStart : 0);
     }
@@ -1347,7 +1347,8 @@ public class FieldOfPlay {
     private void uiShowRefereeDecisionOnSlaveDisplays(Athlete athlete2, Boolean goodLift2, Boolean[] refereeDecision2,
             Integer[] shownTimes, Object origin2) {
         uiEventLogger.trace("showRefereeDecisionOnSlaveDisplays");
-        pushOut(new UIEvent.Decision(athlete2, goodLift2, refereeForcedDecision ? null : refereeDecision2[0], refereeDecision2[1],
+        pushOut(new UIEvent.Decision(athlete2, goodLift2, refereeForcedDecision ? null : refereeDecision2[0],
+                refereeDecision2[1],
                 refereeForcedDecision ? null : refereeDecision2[2], origin2));
     }
 
@@ -1357,8 +1358,10 @@ public class FieldOfPlay {
 
     private void uiShowUpdateOnJuryScreen() {
         uiEventLogger.trace("uiShowUpdateOnJuryScreen");
-        pushOut(new UIEvent.RefereeUpdate(getCurAthlete(), refereeForcedDecision ? null : refereeDecision[0], refereeDecision[1],
-                refereeForcedDecision ? null : refereeDecision[2], refereeTime[0], refereeTime[1], refereeTime[2], this));
+        pushOut(new UIEvent.RefereeUpdate(getCurAthlete(), refereeForcedDecision ? null : refereeDecision[0],
+                refereeDecision[1],
+                refereeForcedDecision ? null : refereeDecision[2], refereeTime[0], refereeTime[1], refereeTime[2],
+                this));
     }
 
     private void uiStartLifting(Group group2, Object origin) {
@@ -1373,7 +1376,8 @@ public class FieldOfPlay {
         }
 //        String text = Translator.translate("Unexpected_Notification", e.getClass().getSimpleName(), state);
 //        text = FOPError.translateMessage(state, e);
-        logger./**/warn(Translator.translate("Unexpected_Logging"), e.getClass().getSimpleName(), state);
+        logger./**/warn("FOP " + getName() + " " + Translator.translate("Unexpected_Logging"),
+                e.getClass().getSimpleName(), state);
 //        if (UI.getCurrent() != null) {
 //            Notification.show(text, 5000, Position.BOTTOM_END);
 //        }
@@ -1381,7 +1385,7 @@ public class FieldOfPlay {
     }
 
     private void updateGlobalRankings() {
-        logger.debug("update rankings {}", LoggerUtils.whereFrom());
+        logger.trace("FOP {} update rankings {}", getName(), LoggerUtils.whereFrom());
         Competition competition = Competition.getCurrent();
         competition.computeGlobalRankings(false);
         uiShowUpdatedRankings();

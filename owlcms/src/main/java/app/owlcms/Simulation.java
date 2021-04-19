@@ -11,6 +11,7 @@ import java.util.concurrent.CountDownLatch;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.init.EmbeddedJetty;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.simulation.FOPSimulator;
 import ch.qos.logback.classic.Logger;
 
@@ -35,14 +36,14 @@ public class Simulation extends Main {
      * @throws Exception the exception
      */
     public static void main(String... args) throws Exception {
-
+        CountDownLatch latch = OwlcmsFactory.getInitializationLatch();
         try {
             init();
 
-            // in order to wait for server to have started
-            CountDownLatch latch = new CountDownLatch(1);
             Thread server = new Thread(() -> {
+
                 try {
+ 
                     EmbeddedJetty embeddedJetty = new EmbeddedJetty(latch);
                     embeddedJetty.run(serverPort, "/");
                 } catch (Exception e) {
@@ -50,9 +51,13 @@ public class Simulation extends Main {
                 }
             });
             server.start();
-
             // wait for server to be ready enough
             latch.await();
+            
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e1) {
+            }
             FOPSimulator.runSimulation();
 
             // wait for server to exit

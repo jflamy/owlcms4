@@ -432,7 +432,7 @@ public class Athlete {
     private int combinedRank;
     @Column(columnDefinition = "integer default 0")
     private int smmRank;
-
+    
     /**
      * Instantiates a new athlete.
      */
@@ -553,13 +553,15 @@ public class Athlete {
      * Failed lift.
      */
     public void failedLift() {
-        try {
-            logger.info("no lift for {}", this);
-            final String weight = Integer.toString(-getNextAttemptRequestedWeight());
-            doLift(weight);
-        } catch (Exception e) {
-            logger.error(e.getLocalizedMessage());
-        }
+        OwlcmsSession.withFop(fop -> {
+            try {
+                logger.info("FOP {} no lift for {}", fop.getName(), this);
+                final String weight = Integer.toString(-getNextAttemptRequestedWeight());
+                doLift(weight);
+            } catch (Exception e) {
+                logger.error(e.getLocalizedMessage());
+            }
+        });
     }
 
     /**
@@ -3413,13 +3415,15 @@ public class Athlete {
      * Successful lift.
      */
     public void successfulLift() {
-        try {
-            logger.info("good lift for {}", this);
-            final String weight = Integer.toString(getNextAttemptRequestedWeight());
-            doLift(weight);
-        } catch (Exception e) {
-            logger.error(e.getLocalizedMessage());
-        }
+        OwlcmsSession.withFop(fop -> {
+            try {
+                logger.info("FOP {} good lift for {}", fop.getName(), this);
+                final String weight = Integer.toString(getNextAttemptRequestedWeight());
+                doLift(weight);
+            } catch (Exception e) {
+                logger.error(e.getLocalizedMessage());
+            }
+        });
     }
 
     /*
@@ -3834,9 +3838,19 @@ public class Athlete {
     }
 
     private void checkWeightVsLastStart(int newVal) {
+
+        logger.trace("getting from session {}",OwlcmsSession.getCurrent());
+        Object wi = OwlcmsSession.getAttribute("weighIn");
+        if (wi == this) {
+            // current athlete being weighed in
+            logger.trace("weighin {}",wi);
+            return;
+        } else {
+            logger.trace("lifting");
+        }
         OwlcmsSession.withFop(fop -> {
             int weightAtLastStart = fop.getWeightAtLastStart();
-            logger.warn("weight at last start: {}  request = {}",weightAtLastStart, newVal);
+            logger.info("FOP {} weight at last start: {}  request = {}", fop.getName(),weightAtLastStart, newVal);
             if (newVal < weightAtLastStart) {
                 throw RuleViolation.valueBelowStartedClock(newVal, weightAtLastStart);
             }
@@ -3883,4 +3897,6 @@ public class Athlete {
         checkWeightVsLastStart(newVal);
     }
 
+
+    
 }

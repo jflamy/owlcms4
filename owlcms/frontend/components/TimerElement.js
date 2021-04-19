@@ -101,19 +101,21 @@ class TimerElement extends PolymerElement {
 		this._init();
 	}
 
-	start(seconds, indefinite, silent, element, serverMillis) {
+	start(seconds, indefinite, silent, element, serverMillis, from) {
 		if (indefinite) {
 			console.warn("timer indefinite " + seconds);
 			this._indefinite()
 			return;
 		}
 
-		var localMillis = Date.now();
-		var lateMillis = (localMillis - parseInt(serverMillis,10));
-		if (lateMillis < 0) {
-			lateMillis = 0;
-		}
+		// var localMillis = Date.now();
+		// var lateMillis = (localMillis - parseInt(serverMillis,10));
+		// if (lateMillis < 0) {
+		// 	lateMillis = 0;
+		// }
+		var lateMillis = 0;
 		console.warn("timer start " + seconds + " late = " + lateMillis + "ms");
+		this.$server.clientTimerStarting(seconds, lateMillis, from);
 
 		this._prepareAudio();
 
@@ -136,25 +138,25 @@ class TimerElement extends PolymerElement {
 		window.requestAnimationFrame(this._decreaseTimer.bind(this));
 	}
 
-	pause(seconds, indefinite, silent, element, serverMillis) {
+	pause(seconds, indefinite, silent, element, serverMillis, from) {
 		if (indefinite) {
 			this._indefinite()
 			return;
 		}
 
-		var localMillis = Date.now();
-		var lateMillis = (localMillis - parseInt(serverMillis,10));
-		if (lateMillis < 0) {
-			lateMillis = 0;
-		}
+		// var localMillis = Date.now();
+		// var lateMillis = (localMillis - parseInt(serverMillis,10));
+		// if (lateMillis < 0) {
+		// 	lateMillis = 0;
+		// }
 		this.running = false;
-		if (element.$server != null) {
-			element.$server.clientTimerStopped(this.currentTime);
-		} else {
-			console.log("no server$");
-		}
+		// if (this.$server != null) {
+			this.$server.clientTimerStopped(this.currentTime, from);
+		// } else {
+		// 	console.warn("no server$");
+		// }
 
-		console.warn("timer pause" + seconds);
+		console.warn("timer pause " + seconds);
 
 		this.currentTime = seconds;
 		this._formattedTime = this._formatTime(this.currentTime);
@@ -310,7 +312,7 @@ class TimerElement extends PolymerElement {
 
 
 		// we anticipate to use the more precise audio context timer
-		if (this.currentTime <= 0.2 && !this._timeOverWarningGiven) {
+		if (this.currentTime <= 0.05 && !this._timeOverWarningGiven) {
 			console.warn("calling play "+this.currentTime);
 			if (!this.silent) {
 				console.warn("about to play time over " + window.timeOver);
@@ -352,6 +354,7 @@ class TimerElement extends PolymerElement {
 			// timer is over; tell server to emit sound if server-side sounds
 			if (this.$server != null) this.$server.clientTimeOver();
 			this.running = false;
+			this.formatted_time = this._formatTime(0);
 			// this.dispatchEvent(new CustomEvent('timer-element-end', {bubbles:
 			// true, composed: true}))
 			this.currentTime = this.countUp ? this.startTime : 0;

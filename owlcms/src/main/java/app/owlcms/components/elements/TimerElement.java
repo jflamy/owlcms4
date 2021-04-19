@@ -18,11 +18,13 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.utils.DebugUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -136,6 +138,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     private boolean indefinite;
     private Integer msRemaining;
     private boolean silent;
+    protected VaadinSession vsession;
 
     /**
      * Instantiates a new timer element.
@@ -168,11 +171,15 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
      * @param remainingTime
      */
     @ClientCallable
-    abstract public void clientTimerStopped(double remainingTime);
+    abstract public void clientTimerStopped(double remainingTime, String from);
+
+    @ClientCallable
+    abstract public void clientTimerStarting(double remainingTime, double lateMillis, String from);
 
     protected final void doSetTimer(Integer milliseconds) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            stop(getMsRemaining(), isIndefinite(), isSilent());
+            String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
+            stop(getMsRemaining(), isIndefinite(), isSilent(), parent);
             initTime(milliseconds);
         });
     }
@@ -181,17 +188,21 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setIndefinite(milliseconds == null);
             setMsRemaining(milliseconds);
-            logger.debug("starting timer; silent = {}, {}", isSilent(), silent);
+            String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
+            logger.debug("server starting timer {}, {}, {}", parent, milliseconds, LoggerUtils.stackTrace());
             getModel().setSilent(silent);
             setSilent(silent);
-            start(milliseconds, isIndefinite(), silent);
+            start(milliseconds, isIndefinite(), silent, parent);
         });
     }
+
 
     protected void doStopTimer(Integer milliseconds) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setMsRemaining(milliseconds);
-            stop(getMsRemaining(), isIndefinite(), isSilent());
+            String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
+            logger.debug("server stopping timer {}, {}, {}", parent, milliseconds, LoggerUtils.whereFrom());
+            stop(getMsRemaining(), isIndefinite(), isSilent(), parent);
         });
     }
 
@@ -213,6 +224,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
             model.setRunning(false);
             model.setSilent(true);
         });
+        vsession = VaadinSession.getCurrent();
     }
 
     protected boolean isIndefinite() {
@@ -297,19 +309,21 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         msRemaining = milliseconds;
     }
 
-    private void start(Integer milliseconds, Boolean indefinite, Boolean silent) {
+    private void start(Integer milliseconds, Boolean indefinite, Boolean silent, String from) {
         Element timerElement2 = getTimerElement();
         if (timerElement2 != null) {
             double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
-            timerElement2.callJsFunction("start", seconds, indefinite, silent, timerElement2, Long.toString(System.currentTimeMillis()));
+            timerElement2.callJsFunction("start", seconds, indefinite, silent, timerElement2,
+                    Long.toString(System.currentTimeMillis()), from);
         }
     }
 
-    private void stop(Integer milliseconds, Boolean indefinite, Boolean silent) {
+    private void stop(Integer milliseconds, Boolean indefinite, Boolean silent, String from) {
         Element timerElement2 = getTimerElement();
         if (timerElement2 != null) {
             double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
-            timerElement2.callJsFunction("pause", seconds, indefinite, silent, timerElement2, Long.toString(System.currentTimeMillis()));
+            timerElement2.callJsFunction("pause", seconds, indefinite, silent, timerElement2,
+                    Long.toString(System.currentTimeMillis()), from);
         }
     }
 

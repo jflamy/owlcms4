@@ -61,14 +61,24 @@ public class BreakTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientSyncTime() {
-        logger.info("break timer element fetching time");
+        logger.debug("break timer element fetching time");
         OwlcmsSession.withFop(fop -> {
             ProxyBreakTimer breakTimer = fop.getBreakTimer();
             doSetTimer(breakTimer.isIndefinite() ? null : breakTimer.liveTimeRemaining());
         });
         return;
     }
-
+    
+    /*
+     * (non-Javadoc)
+     *
+     * @see app.owlcms.displays.attemptboard.TimerElement#clientTimerStopped(double)
+     */
+    @Override
+    @ClientCallable
+    public void clientTimerStarting(double remainingTime, double lateMillis, String from) {
+        logger.debug("break timer {} starting on client: remaining = {}", from, remainingTime);
+    }
     /**
      * Timer stopped
      *
@@ -79,7 +89,7 @@ public class BreakTimerElement extends TimerElement {
     public void clientTimeOver() {
         OwlcmsSession.withFop(fop -> {
             ProxyBreakTimer breakTimer = fop.getBreakTimer();
-            logger.debug("!break time over {}", breakTimer.isIndefinite());
+            logger.debug("break time over {}", breakTimer.isIndefinite());
             if (!breakTimer.isIndefinite()) {
                 fop.getBreakTimer().timeOver(this);
             }
@@ -93,8 +103,8 @@ public class BreakTimerElement extends TimerElement {
      */
     @Override
     @ClientCallable
-    public void clientTimerStopped(double remainingTime) {
-        logger.trace("timer stopped from client" + remainingTime);
+    public void clientTimerStopped(double remainingTime, String from) {
+        logger.debug("break timer {} stopped on client: remaining = {}", from, remainingTime);
     }
 
     public void setParent(String s) {

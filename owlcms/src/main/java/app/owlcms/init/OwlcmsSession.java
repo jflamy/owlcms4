@@ -86,7 +86,7 @@ public class OwlcmsSession {
         if (locale == null && currentUi != null) {
             locale = currentUi.getLocale();
         }
-        
+
         // get first defined locale from translation file, else default
         if (locale == null) {
             List<Locale> locales = Translator.getAvailableLocales();
@@ -97,7 +97,7 @@ public class OwlcmsSession {
                 locale = Locale.getDefault();
             }
         }
-        
+
         if (locale.getCountry() == "") {
             // add the country from Locale.getDefault -- probably the country we're running in.
             // this may result in strange things for cloud -- such as es_US but the locale logic will not
@@ -126,7 +126,11 @@ public class OwlcmsSession {
      * @param o the o
      */
     public static void setAttribute(String s, Object o) {
-        getCurrent().attributes.put(s, o);
+        if (o == null) {
+            getCurrent().attributes.remove(s);
+        } else {
+            getCurrent().attributes.put(s, o);
+        }
     }
 
     public static void setAuthenticated(boolean isAuthenticated) {

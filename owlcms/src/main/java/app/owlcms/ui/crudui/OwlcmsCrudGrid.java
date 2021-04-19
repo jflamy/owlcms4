@@ -85,6 +85,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
         }
     }
 
+    
     @Override
     protected void findAllButtonClicked() {
         grid.sort(null); // reset the sorting order to none - use the query result set as is.
