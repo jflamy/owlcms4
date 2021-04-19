@@ -4,12 +4,12 @@
     * [x] announcer explicit decision did not reset time when 2 minute rule was applied (#421)
     * [x] after an explicit decision the next referee decisions would be shown as explicit (#421)
     * [x] announcer decisions stop clock if it was still running (#417)
+  
+* Changes for previous prereleases
+
   * [x] Fixed sizing of referee decision lights on jury console (#418)
   * [x] Regression due to #234 fixed:  weigh-in could not take place concurrently with lifting group because requests were being compared with weight loaded at last started clock. (#416)
   * [x] Removed code to compensate for slow timer start on iPad (#414).  Cure worse than disease, timer misbehaviors reported on previously stable configurations.
-
-* Changes for previous prereleases
-
   * [x] Weight request for a value lower that was loaded on last clock start will be refused (#234).  In case of loader or marshall errors, entering a break and resuming resets remembered value.
   * [x] Fixed a race condition in which the first timer to reach time over sends a signal back to server; this would shut down timers running a little bit late who would never buzz (#413)
   * [x] Marshall can no longer edit or overwrite lift results by mistake. An explicit checkbox is required to enable edit (#286)
