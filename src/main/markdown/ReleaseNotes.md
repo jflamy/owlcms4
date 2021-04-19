@@ -1,7 +1,10 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+  * [x] Regressions due to Solo refereeing mode (#281) fixed: 
+    * [x] announcer explicit decision did not reset time when 2 minute rule was applied (#421)
+    * [x] after an explicit decision the next referee decisions would be shown as explicit (#421)
+    * [x] announcer decisions stop clock if it was still running (#417)
   * [x] Fixed sizing of referee decision lights on jury console (#418)
-  * [x] Regression due to #281 fixed: announcer decisions stop clock if it was still running (#417)
   * [x] Regression due to #234 fixed:  weigh-in could not take place concurrently with lifting group because requests were being compared with weight loaded at last started clock. (#416)
   * [x] Removed code to compensate for slow timer start on iPad (#414).  Cure worse than disease, timer misbehaviors reported on previously stable configurations.
 
@@ -10,7 +13,7 @@
   * [x] Weight request for a value lower that was loaded on last clock start will be refused (#234).  In case of loader or marshall errors, entering a break and resuming resets remembered value.
   * [x] Fixed a race condition in which the first timer to reach time over sends a signal back to server; this would shut down timers running a little bit late who would never buzz (#413)
   * [x] Marshall can no longer edit or overwrite lift results by mistake. An explicit checkbox is required to enable edit (#286)
-  * [x] Solo mode where the good lift/bad lift buttons are used now correctly supports decision reversal within 3 seconds, and correctly ignores multiple clicks. (#281)
+  * [x] Solo mode where a single technical official uses the good lift/bad lift buttons on the announcer screen now correctly supports decision reversal within 3 seconds, and correctly ignores multiple clicks. (#281)
   * [x] Announcing using iPad is now easier.  The font size on the top row and the width of decision lights area were made smaller to accommodate regular iPads. (#412)
   * [x] Referee lights are now correctly shown to the announcer when the timekeeper handles the clock (#411)
 
