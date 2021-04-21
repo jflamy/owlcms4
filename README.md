@@ -5,7 +5,7 @@ The application can be used for anything from a club meet using a single laptop 
 
 ### Features and Documentation
 
-See the application [Web Site](https://jflamy-dev.github.io/owlcms4-prerelease/#) for a full overview.  The following short videos demonstrate using the software in minimalist mode for a [very simple club meet](https://jflamy-dev.github.io/owlcms4-prerelease/#/Demo1) and using the typical features for a [full competition](https://jflamy-dev.github.io/owlcms4-prerelease/#/Demo2) (on-site or virtual).
+See the application [Web Site](https://owlcms.github.io/owlcms4/#) for a full overview.  The following short videos demonstrate using the software in minimalist mode for a [very simple club meet](https://owlcms.github.io/owlcms4/#/Demo1) and using the typical features for a [full competition](https://owlcms.github.io/owlcms4/#/Demo2) (on-site or virtual).
 
 ### Installation Options
 Several installation options are possible, depending on what is available at the competition site
@@ -20,8 +20,8 @@ Several installation options are possible, depending on what is available at the
 
 ![Slide9](docs/img/PublicResults/CloudExplained/Slide9.SVG)
 
-* [Heroku Cloud Installation Instructions](https://jflamy-dev.github.io/owlcms4-prerelease/#/Heroku)
-* Configuration Options for [Large Cloud Competitions](https://jflamy-dev.github.io/owlcms4-prerelease/#/HerokuLarge)
+* [Heroku Cloud Installation Instructions](https://owlcms.github.io/owlcms4/#/Heroku)
+* Configuration Options for [Large Cloud Competitions](https://owlcms.github.io/owlcms4/#/HerokuLarge)
 
 #### Stand-alone: Laptop installation
 
@@ -31,14 +31,14 @@ If there is no good Internet connectivity at your competition site you can use a
 - The primary laptop and all the other screens and official stations are connected to a wi-fi network.  If there is none in the building, you will need to configure a local router and connect all machines to that router (exactly like a home network).
 - All machines need a web browser to drive their display or screen.
 - You can run owlcms on the same machine as one of the officials.  It is often the case that owlcms runs on the same machine as the announcer or the competition secretary.
-- In the following drawing phones are shown as the referee device.  But you can actually referee using hand signals, flags, phones, or dedicated keypads (USB or Bluetooth). See [this page](https://jflamy-dev.github.io/owlcms4-prerelease/#/Refereeing)
+- In the following drawing phones are shown as the referee device.  But you can actually referee using hand signals, flags, phones, or dedicated keypads (USB or Bluetooth). See [this page](https://owlcms.github.io/owlcms4/#/Refereeing)
 
 ![Slide1](docs/img/PublicResults/CloudExplained/Slide7.SVG)
 
 See the following instructions
 
-  * [Windows Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
-* [Linux or Mac Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  * [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalWindowsSetup)
+* [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalLinuxMacSetup)
 
 #### Cloud-Based Virtual Competitions
 
@@ -48,7 +48,7 @@ In a virtual competition, the officials are in multiple locations.  In order to 
 
 The following link describes these options and others.
 
-*	[Cloud-based Virtual Competition Options](https://jflamy-dev.github.io/owlcms4-prerelease/#/VirtualOverview)
+*	[Cloud-based Virtual Competition Options](https://owlcms.github.io/owlcms4/#/VirtualOverview)
 
 ### Repositories for Releases and Pre-releases
 
@@ -62,13 +62,13 @@ Refer to the following [page](Releases) for the various modules and releases, in
 
 ### Licensing and Notes
 
-This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/jflamy-dev/owlcms4-prerelease/releases) repository and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
+This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/owlcms/owlcms4/releases) repository and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
 
-If however you wish to provide the software as a service to others (including by hosting it), or if you create a modified version, the license *requires* you to make full sources and building instructions available for free &ndash; just like this software is (see the [License](https://github.com/jflamy-dev/owlcms4-prerelease/blob/master/LICENSE.txt) for details.)
+If however you wish to provide the software as a service to others (including by hosting it), or if you create a modified version, the license *requires* you to make full sources and building instructions available for free &ndash; just like this software is (see the [License](https://github.com/owlcms/owlcms4/blob/master/LICENSE.txt) for details.)
 
 ### Translation to Other Languages
 
-- You are welcome to translate the screens and reports to your own language, or fix a translation.  Refer to the [translation documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Translation) if you wish to contribute.
+- You are welcome to translate the screens and reports to your own language, or fix a translation.  Refer to the [translation documentation](https://owlcms.github.io/owlcms4/#/Translation) if you wish to contribute.
 
 ### Credits
 
