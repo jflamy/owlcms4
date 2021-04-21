@@ -39,6 +39,10 @@ Heroku data centers run on universal time by default (UTC).  So the times appear
 
 - You should add a `TZ` variable to define the time zone.   Use [this tool](http://www.timezoneconverter.com/cgi-bin/findzone/findzone.tzc) to pick the best value for your competition. This will something with a format similar to `America/New_York` or `Europe/Paris`. 
 
+## Check for updates
+
+Once you have created the application once, you can download a program that will check for updates and remote control Heroku to grab them.   See [Instructions](https://github.com/${env.REPO_OWNER}/owlcms-heroku-updater) and [Releases · owlcms/owlcms4-heroku-updater (github.com)](https://github.com/owlcms/owlcms4-heroku-updater/releases)
+
 ## Control access to the application
 
 In a gym setting, people can read the web addresses on the screens, and one day, some "funny" person will log in to the system and be tempted to mess things up.

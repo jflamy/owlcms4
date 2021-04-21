@@ -85,3 +85,8 @@ The other common configuration is when both owlcms and publicresults are in the 
 6. The publicresults screen immediately switches to the countdown.![X0qHw40LKh](img/PublicResults/Example/X0qHw40LKh.png)
 
 7. From then on, the publicresults screen will track the competition. It just repeats the events taking place on the local scoreboard.
+
+## Check for updates
+
+Once you have created the application once, you can download a program that will check for updates and remote control Heroku to grab them.   See [Instructions](https://github.com/${env.REPO_OWNER}/owlcms-heroku-updater) and [Releases · owlcms/owlcms4-heroku-updater (github.com)](https://github.com/owlcms/owlcms4-heroku-updater/releases)
+
