@@ -2,7 +2,7 @@
 
   * [x] Fixed sizing of referee decision lights on jury console (#418)
   * [x] Removed code to compensate for slow timer start on iPad (#414).  Intermittent issues on unrelated setups were observed.
-  * [x] Weight request for a value strictly lower that was loaded on last clock start will be refused (#234).  This prevents typos from breaking lifting order.  Full automatic enforcement of the rules for moving down will be in an upcoming release.
+  * [x] A request for a weight below what that was loaded on last clock start will be blocked (#234).  This prevents accidental typing from messing up the lifting order (ex: typing 87 instead of 97). The other rules for moving down will be enforced automatically will be added later in upcoming releases.
   * [x] Marshall can no longer edit or overwrite lift results by mistake. An explicit checkbox is required to enable edit (#286)
   * [x] Solo mode where a single technical official uses the good lift/bad lift buttons on the announcer screen now correctly supports decision reversal within 3 seconds, and correctly ignores multiple clicks. (#281)
   * [x] Announcing using iPad is now easier.  The font size on the top row and the width of decision lights area were made smaller to accommodate regular iPads. (#412)
