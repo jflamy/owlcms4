@@ -622,10 +622,9 @@ public class FieldOfPlay {
         refereeForcedDecision = true;
         updateRefereeDecisions(ne);
         uiShowUpdateOnJuryScreen();
-//        getAthleteTimer().stop();
-//        this.setPreviousAthlete(getCurAthlete()); // would be safer to use past lifting order
-//        this.setClockOwner(null);
-//        showExplicitDecision((ExplicitDecision) e, e.origin);
+        // needed to make sure 2min rule is triggered
+        this.setPreviousAthlete(getCurAthlete());
+        this.setClockOwner(null);
     }
 
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer, boolean alreadyLoaded) {
