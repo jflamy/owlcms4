@@ -35,7 +35,6 @@ public class RecordDefinitionReaderTest {
     
     @BeforeClass
     public static void setupTests() {
-        System.err.println("setup");
         JPAService.init(true, true);
         TestData.insertInitialData(5, true);
     }
@@ -49,16 +48,12 @@ public class RecordDefinitionReaderTest {
     public void test() throws IOException, SAXException, InvalidFormatException {
 
         String streamURI = "/testData/IWF Records.xlsx";
-        System.err.println("testing "+this.getClass().getResourceAsStream(streamURI));
 
         try (InputStream xmlInputStream = this.getClass().getResourceAsStream(streamURI)) {
-            System.err.println("found "+streamURI);
             Workbook wb = null;
             try {
                 wb = WorkbookFactory.create(xmlInputStream);
-                System.err.println("created "+wb);
                 int i = RecordDefinitionReader.createRecords(wb, null, streamURI);
-                System.err.println("created "+i+" records");
                 assertEquals(180, i);
             } finally {
                 if (wb != null) {

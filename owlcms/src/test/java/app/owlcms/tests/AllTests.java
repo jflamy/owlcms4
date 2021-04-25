@@ -23,7 +23,7 @@ import ch.qos.logback.classic.Logger;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ AthleteSorterTest.class, AthleteTest.class, TwoMinutesRuleTest.class,
-        RegistrationReaderTest.class, RecordDefinitionReaderTest.class })
+        RegistrationReaderTest.class, RegistrationOrderComparatorTest.class, RecordDefinitionReaderTest.class, RobiCategoriesTest.class })
 public class AllTests {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AllTests.class);

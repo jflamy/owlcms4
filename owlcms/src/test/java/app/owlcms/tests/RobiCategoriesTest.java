@@ -8,6 +8,8 @@ package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
 
+import java.time.LocalDate;
+
 import org.junit.Test;
 
 import app.owlcms.data.athlete.Athlete;
@@ -40,7 +42,7 @@ public class RobiCategoriesTest {
         Athlete a = new Athlete();
         a.setBodyWeight(48.2D);
         a.setGender(Gender.M);
-        a.setYearOfBirth(2003);
+        a.setYearOfBirth(LocalDate.now().getYear() - 17);
         Category cat = RobiCategories.findRobiCategory(a);
         assertEquals("M49", cat.getCode());
     }
