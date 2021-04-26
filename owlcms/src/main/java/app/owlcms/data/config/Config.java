@@ -6,6 +6,8 @@
  */
 package app.owlcms.data.config;
 
+import java.util.TimeZone;
+
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -64,6 +66,24 @@ public class Config {
 
     private String ipBackdoorList;
 
+    private String timeZone;
+
+    @Override
+    public boolean equals(Object obj) {
+        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Config other = (Config) obj;
+        return id != null && id.equals(other.getId());
+    }
+
     /**
      * Gets the id.
      *
@@ -75,6 +95,10 @@ public class Config {
 
     public String getIpAccessList() {
         return ipAccessList;
+    }
+
+    public String getIpBackdoorList() {
+        return ipBackdoorList;
     }
 
     /**
@@ -91,7 +115,7 @@ public class Config {
         }
         return uAccessList;
     }
-    
+
     /**
      * @return the current whitelist.
      */
@@ -120,7 +144,7 @@ public class Config {
         if (uPin == null) {
             // use pin from database
             uPin = Config.getCurrent().pin;
-            //logger.debug("pin = {}", uPin);
+            // logger.debug("pin = {}", uPin);
             if (uPin == null || uPin.isBlank()) {
                 uPin = null;
             }
@@ -161,12 +185,30 @@ public class Config {
         return publicResultsURL;
     }
 
+    public TimeZone getTimeZone() {
+        if (timeZone == null) {
+            return null;
+        } else {
+            return TimeZone.getTimeZone(timeZone);
+        }
+    }
+
     public String getUpdatekey() {
         return updatekey;
     }
 
+    @Override
+    public int hashCode() {
+        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return 31;
+    }
+
     public void setIpAccessList(String ipAccessList) {
         this.ipAccessList = ipAccessList;
+    }
+
+    public void setIpBackdoorList(String ipBackdoorList) {
+        this.ipBackdoorList = ipBackdoorList;
     }
 
     public void setPin(String pin) {
@@ -175,6 +217,15 @@ public class Config {
 
     public void setPublicResultsURL(String publicResultsURL) {
         this.publicResultsURL = publicResultsURL;
+    }
+
+    public void setTimeZone(TimeZone timeZone) {
+        if (timeZone == null) {
+            this.timeZone = null;
+            return;
+        } else {
+            this.timeZone = timeZone.getID();
+        }
     }
 
     public void setUpdatekey(String updatekey) {
@@ -200,36 +251,6 @@ public class Config {
                 return uURL;
             }
         }
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        Config other = (Config) obj;
-        return id != null && id.equals(other.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-        return 31;
-    }
-
-    public String getIpBackdoorList() {
-        return ipBackdoorList;
-    }
-
-    public void setIpBackdoorList(String ipBackdoorList) {
-        this.ipBackdoorList = ipBackdoorList;
     }
 
 }

@@ -7,6 +7,8 @@
 package app.owlcms.ui.preparation;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.TimeZone;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -15,13 +17,17 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -32,6 +38,7 @@ import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
+import app.owlcms.utils.TimeZoneUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -93,6 +100,7 @@ public class ConfigEditingFormFactory
 
         FormLayout accessLayout = accessForm();
         FormLayout publicResultsLayout = publicResultsForm();
+        FormLayout tzLayout = tzForm();
 
         Component footer = this.buildFooter(operation, config, cancelButtonClickListener,
                 c -> {
@@ -102,6 +110,7 @@ public class ConfigEditingFormFactory
         VerticalLayout mainLayout = new VerticalLayout(
                 accessLayout, separator(),
                 publicResultsLayout, separator(),
+                tzLayout, separator(),
                 footer);
         mainLayout.setMargin(false);
         mainLayout.setPadding(false);
@@ -170,7 +179,7 @@ public class ConfigEditingFormFactory
         binder.forField(passwordField)
                 .withNullRepresentation("")
                 .bind(Config::getPin, Config::setPin);
-        
+
         TextField backdoorField = new TextField();
         backdoorField.setWidthFull();
         configLayout.addFormItem(backdoorField, Translator.translate("Config.Backdoor"));
@@ -215,6 +224,45 @@ public class ConfigEditingFormFactory
         binder.forField(updateKey)
                 .withNullRepresentation("")
                 .bind(Config::getUpdatekey, Config::setUpdatekey);
+
+        return layout;
+    }
+
+    private FormLayout tzForm() {
+
+        FormLayout layout = createLayout();
+
+        Component title = createTitle("Config.TZTitle");
+        layout.add(title);
+        layout.setColspan(title, 2);
+
+        Label curTZ = new Label();
+        layout.add(curTZ);
+        layout.setColspan(curTZ, 2);
+
+        ComboBox<TimeZone> tzCombo = new ComboBox<>();
+        tzCombo.setWidthFull();
+
+        layout.addFormItem(tzCombo, Translator.translate("Config.TZ_Selection"));
+
+        List<TimeZone> tzList = TimeZoneUtils.allTimeZones();
+        tzCombo.setItems(tzList);
+        tzCombo.setItemLabelGenerator((tzone) -> TimeZoneUtils.toIdWithOffsetString(tzone));
+        tzCombo.setClearButtonVisible(true);
+        binder.forField(tzCombo)
+                // .withNullRepresentation("Etc/GMT")
+                .bind(Config::getTimeZone, Config::setTimeZone);
+
+        PendingJavaScriptResult pendingResult = UI.getCurrent().getPage()
+                .executeJs("return Intl.DateTimeFormat().resolvedOptions().timeZone");
+        pendingResult.then(String.class, (res) -> {
+            TimeZone curValue = tzCombo.getValue();           
+            curTZ.setText(Translator.translate("Config.TZ_FromBrowser", res) + " " + res + " "
+                    + TimeZoneUtils.getDefault());
+            if (curValue == null) {
+//                tzCombo.setValue(TimeZone.getTimeZone(res));
+            }
+        });
 
         return layout;
     }
