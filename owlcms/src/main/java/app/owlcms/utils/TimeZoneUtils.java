@@ -18,9 +18,9 @@ public class TimeZoneUtils {
 
         String result = "";
         if (hours >= 0) {
-            result = String.format("(UTC+%d:%02d) %s", hours, minutes, tz.getID());
+            result = String.format("%s (UTC+%d:%02d)", tz.getID(), hours, minutes);
         } else {
-            result = String.format("(UTC%d:%02d) %s", hours, minutes, tz.getID());
+            result = String.format("%s (UTC%d:%02d)", tz.getID(), hours, minutes);
         }
 
         return result;

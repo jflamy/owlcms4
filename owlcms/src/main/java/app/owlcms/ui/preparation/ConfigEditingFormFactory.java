@@ -25,7 +25,8 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.ListItem;
+import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -236,9 +237,13 @@ public class ConfigEditingFormFactory
         layout.add(title);
         layout.setColspan(title, 2);
 
-        Label curTZ = new Label();
-        layout.add(curTZ);
-        layout.setColspan(curTZ, 2);
+        UnorderedList ulTZ = new UnorderedList();
+        ListItem defaultTZ = new ListItem();
+        ListItem browserTZ = new ListItem();
+        ListItem explainTZ = new ListItem(Translator.translate("Config.TZExplain"));
+        ulTZ.add(defaultTZ, browserTZ, explainTZ);     
+        layout.add(ulTZ);
+        layout.setColspan(ulTZ, 2);
 
         ComboBox<TimeZone> tzCombo = new ComboBox<>();
         tzCombo.setWidthFull();
@@ -255,13 +260,11 @@ public class ConfigEditingFormFactory
 
         PendingJavaScriptResult pendingResult = UI.getCurrent().getPage()
                 .executeJs("return Intl.DateTimeFormat().resolvedOptions().timeZone");
-        pendingResult.then(String.class, (res) -> {
-            TimeZone curValue = tzCombo.getValue();           
-            curTZ.setText(Translator.translate("Config.TZ_FromBrowser", res) + " " + res + " "
-                    + TimeZoneUtils.getDefault());
-            if (curValue == null) {
-//                tzCombo.setValue(TimeZone.getTimeZone(res));
-            }
+        pendingResult.then(String.class, (res) -> {        
+            String defZone = TimeZoneUtils.toIdWithOffsetString(TimeZone.getDefault());
+            String curZone = TimeZoneUtils.toIdWithOffsetString(TimeZone.getTimeZone(res));
+            browserTZ.setText(Translator.translate("Config.TZ_FromBrowser", curZone));
+            defaultTZ.setText(Translator.translate("Config.TZ_FromServer", defZone));
         });
 
         return layout;
