@@ -8,7 +8,9 @@ package app.owlcms.ui.preparation;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -17,6 +19,7 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -27,11 +30,14 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosi
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
@@ -45,6 +51,7 @@ import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
+import app.owlcms.utils.TimeZoneUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -119,6 +126,7 @@ public class CompetitionEditingFormFactory
         FormLayout rulesLayout = rulesForm();
         FormLayout presentationLayout = presentationForm();
         FormLayout specialLayout = specialRulesForm();
+        FormLayout tzLayout = tzForm();
 
         // footerLayout1 callbacks are not actually used -- footerLayout2 overwrites the callbacks.
 //        Component footerLayout1 = this.buildFooter(operation, competition, cancelButtonClickListener,
@@ -143,6 +151,7 @@ public class CompetitionEditingFormFactory
                 federationLayout, separator(),
                 rulesLayout, separator(),
                 presentationLayout, separator(),
+                tzLayout, separator(),
                 specialLayout);
         mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout2);
         mainLayout.setMargin(false);
@@ -407,4 +416,54 @@ public class CompetitionEditingFormFactory
         return layout;
     }
 
+    String browserZoneId;
+    private FormLayout tzForm() {
+
+        FormLayout layout = createLayout();
+        ComboBox<TimeZone> tzCombo = new ComboBox<>();
+        tzCombo.setWidthFull();
+
+        Component title = createTitle("Config.TZTitle");
+        layout.add(title);
+        layout.setColspan(title, 2);
+
+        UnorderedList ulTZ = new UnorderedList();
+        ListItem defaultTZ = new ListItem();
+        ListItem browserTZ = new ListItem();
+        Span browserTZText = new Span();
+        Button browserTZButton = new Button("", (e) -> {
+            tzCombo.setValue(browserZoneId != null ? TimeZone.getTimeZone(browserZoneId) : null);
+        });
+        browserTZ.add(browserTZText, browserTZButton);
+        ListItem explainTZ = new ListItem();
+        explainTZ.getElement().setProperty("innerHTML", Translator.translate("Config.TZExplain"));
+        ulTZ.add(defaultTZ, browserTZ, explainTZ);     
+        layout.add(ulTZ);
+        layout.setColspan(ulTZ, 2);
+
+
+
+        layout.addFormItem(tzCombo, Translator.translate("Config.TZ_Selection"));
+
+        List<TimeZone> tzList = TimeZoneUtils.allTimeZones();
+        tzCombo.setItems(tzList);
+        tzCombo.setItemLabelGenerator((tzone) -> TimeZoneUtils.toIdWithOffsetString(tzone));
+        tzCombo.setClearButtonVisible(true);
+        binder.forField(tzCombo)
+                // .withNullRepresentation("Etc/GMT")
+                .bind(Competition::getTimeZone, Competition::setTimeZone);
+
+        PendingJavaScriptResult pendingResult = UI.getCurrent().getPage()
+                .executeJs("return Intl.DateTimeFormat().resolvedOptions().timeZone");
+        pendingResult.then(String.class, (res) -> {
+            browserZoneId = res;
+            String defZone = TimeZoneUtils.toIdWithOffsetString(TimeZone.getDefault());
+            String browserZoneText = TimeZoneUtils.toIdWithOffsetString(TimeZone.getTimeZone(res));
+            browserTZText.getElement().setProperty("innerHTML",Translator.translate("Config.TZ_FromBrowser", browserZoneText)+"&nbsp;");
+            browserTZButton.setText(browserZoneText);
+            defaultTZ.setText(Translator.translate("Config.TZ_FromServer", defZone));
+        });
+
+        return layout;
+    }
 }

@@ -33,11 +33,7 @@ Enter the name that will be used by the officials.  Once you are done start the 
 
 **6. Time zone configuration**
 
-Heroku data centers run on universal time by default (UTC).  So the times appearing in the intermission timers will be wrong, for instance.  You need to set the time zone according to the published schedule.
-
-- Go back to your https://heroku.com home page.  Select your application, then `Settings`, then `Reveal Config Vars`.
-
-- You should add a `TZ` variable to define the time zone.   Use [this tool](http://www.timezoneconverter.com/cgi-bin/findzone/findzone.tzc) to pick the best value for your competition. This will something with a format similar to `America/New_York` or `Europe/Paris`. 
+Heroku data centers run on universal time by default (UTC).  So the times appearing in the intermission timers will be wrong, for instance.  You will therefore need to [set the competition time zone](Preparation#time-zone) according to the published schedule when  entering the competition information.
 
 ## Check for updates
 

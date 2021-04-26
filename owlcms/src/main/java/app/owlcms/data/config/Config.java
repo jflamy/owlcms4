@@ -6,8 +6,6 @@
  */
 package app.owlcms.data.config;
 
-import java.util.TimeZone;
-
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -65,8 +63,6 @@ public class Config {
     private String updatekey;
 
     private String ipBackdoorList;
-
-    private String timeZone;
 
     @Override
     public boolean equals(Object obj) {
@@ -185,14 +181,6 @@ public class Config {
         return publicResultsURL;
     }
 
-    public TimeZone getTimeZone() {
-        if (timeZone == null) {
-            return null;
-        } else {
-            return TimeZone.getTimeZone(timeZone);
-        }
-    }
-
     public String getUpdatekey() {
         return updatekey;
     }
@@ -219,14 +207,6 @@ public class Config {
         this.publicResultsURL = publicResultsURL;
     }
 
-    public void setTimeZone(TimeZone timeZone) {
-        if (timeZone == null) {
-            this.timeZone = null;
-            return;
-        } else {
-            this.timeZone = timeZone.getID();
-        }
-    }
 
     public void setUpdatekey(String updatekey) {
         this.updatekey = updatekey;

@@ -11,6 +11,7 @@ import java.text.ParseException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.DateConverter;
@@ -124,9 +125,10 @@ public class Main {
 
         // read locale from database and overrrde if needed
         Locale l = overrideDisplayLanguage();
-        
+        overrideTimeZone();
+
         injectData(initialData, l);
-        OwlcmsFactory.getDefaultFOP(true);  //initialization, don't push out to browsers
+        OwlcmsFactory.getDefaultFOP(true); // initialization, don't push out to browsers
     }
 
     protected static void tearDown() {
@@ -207,6 +209,15 @@ public class Main {
             logger.info("forcing display language to {}", l);
         }
         return l;
+    }
+
+    private static void overrideTimeZone() {
+        // read override value from database
+        TimeZone tz = null;
+        tz = Competition.getCurrent().getTimeZone();
+        if (tz != null) {
+            TimeZone.setDefault(tz);
+        }
     }
 
     /**

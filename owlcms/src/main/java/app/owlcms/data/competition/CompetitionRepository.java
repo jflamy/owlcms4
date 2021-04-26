@@ -7,6 +7,7 @@
 package app.owlcms.data.competition;
 
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -73,6 +74,10 @@ public class CompetitionRepository {
     public static Competition save(Competition competition) {
         JPAService.runInTransaction(em -> {
             Competition nc = em.merge(competition);
+            TimeZone tz = nc.getTimeZone();
+            if (tz != null) {
+                TimeZone.setDefault(tz);
+            }
             // needed because some classes get competition parameters from getCurrent()
             Competition.setCurrent(nc);
             return nc;

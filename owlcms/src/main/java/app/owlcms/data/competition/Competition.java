@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -185,6 +186,7 @@ public class Competition {
 
     @Transient
     private boolean rankingsInvalid = true;
+    private String timeZoneId;
 
     synchronized public void computeGlobalRankings(boolean full) {
         List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
@@ -434,18 +436,14 @@ public class Competition {
         return isMasters();
     }
 
+    public Integer getMenPerTeamElseDefault() {
+        return mensTeamSize != null ? mensTeamSize : 10;
+    }
+
     public Integer getMensTeamSize() {
         return mensTeamSize;
     }
 
-    public Integer getMenPerTeamElseDefault() {
-        return mensTeamSize != null ? mensTeamSize : 10;
-    }
-    
-    public Integer getWomenPerTeamElseDefault() {
-        return womensTeamSize != null ? womensTeamSize : 10;
-    }
-    
     /**
      * Gets the protocol file name.
      *
@@ -471,6 +469,18 @@ public class Competition {
 
     public HashMap<String, Object> getReportingBeans() {
         return reportingBeans;
+    }
+
+    public TimeZone getTimeZone() {
+        if (timeZoneId == null) {
+            return null;
+        } else {
+            return TimeZone.getTimeZone(timeZoneId);
+        }
+    }
+
+    public Integer getWomenPerTeamElseDefault() {
+        return womensTeamSize != null ? womensTeamSize : 10;
     }
 
     public Integer getWomensTeamSize() {
@@ -713,6 +723,15 @@ public class Competition {
 
     public void setRoundRobinOrder(boolean roundRobinOrder) {
         this.roundRobinOrder = roundRobinOrder;
+    }
+
+    public void setTimeZone(TimeZone timeZone) {
+        if (timeZone == null) {
+            this.timeZoneId = null;
+            return;
+        } else {
+            this.timeZoneId = timeZone.getID();
+        }
     }
 
     /**
