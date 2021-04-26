@@ -1,16 +1,14 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  * [x] Fixed sizing of referee decision lights on jury console (#418)
-  * [x] A request for a weight below what that was loaded on last clock start will be blocked (#234).  This prevents accidental typing from messing up the lifting order (ex: typing 87 instead of 97). The other rules for moving down will be enforced automatically will be added later in upcoming releases.
-  * [x] Marshall can no longer edit or overwrite lift results by mistake. An explicit checkbox is required to enable edit (#286)
-  * [x] Solo mode where a single technical official uses the good lift/bad lift buttons on the announcer screen now correctly supports decision reversal within 3 seconds, and correctly ignores multiple clicks. (#281)
-  * [x] Announcing using iPad is now easier.  The font size on the top row and the width of decision lights area were made smaller to accommodate regular iPads. (#412)
-  * [x] Referee lights are now correctly shown to the announcer when the timekeeper handles the clock (#411)
-  * [x] Removed code to compensate for slow timer start on iPad (#414).  Intermittent issues on unrelated setups were observed.
-
+  * [x] For cloud-based competitions, setting the time zone is necessary and can now be done from within the application instead of requiring an environment variable. (#422)
+  
 * Key Highlights from recent stable releases
 
-  - [x] iPads now supported as refereeing device with Bluetooth buttons (running either the athlete-facing time+decision display or the attempt board display.)   Sound is enabled by touching a screen button once when the board is started. (#408)
+  - [x] A request for a weight below what that was loaded on last clock start will be blocked (#234).  This prevents accidental typing from messing up the lifting order (ex: typing 87 instead of 97). The other rules for moving down will be enforced automatically will be added later in upcoming releases.
+    - [x] a problem with entering weights at weigh-in was fixed in version 4.18
+  - [x] Marshall can no longer edit or overwrite lift results by mistake. An explicit checkbox is required to enable edit (#286)
+  - [x] Solo mode where a single technical official uses the good lift/bad lift buttons on the announcer screen now correctly supports decision reversal within 3 seconds, and correctly ignores multiple clicks. (#281)
+  - [x] iPads now supported as refereeing device with Bluetooth buttons (running either the athlete-facing time+decision display or the attempt board display.)   Sound is enabled by touching a screen button once when the board is started. (#408). Note that iPads may lag by a second or two compared to other devices (will be worked around in a future release)
   - [x] Reorganized documentation pages for setting up Virtual Competitions.  Documented use of Zoom and OBS for videoconferencing and live broadcast streaming. Added introductory videos to the documentation, accessed from the home page.  Updated the Refereeing section to cover Bluetooth keypads.  Added instructions for using a cheap Fire TV Stick as a display device.
   - [x] Support for large competitions on Heroku. Added documentation for [economical use of Heroku professional tiers](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/HerokuLarge). Heroku now provides the memory defaults for all configurations.
     If you are limited to using the free setup and need to stretch it to its maximum, set the `_JAVA_OPTIONS` configuration variable to something like `-Xmx384m -XX:MaxMetaspaceSize=80m`
