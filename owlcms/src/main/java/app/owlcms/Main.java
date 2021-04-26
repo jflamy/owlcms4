@@ -122,12 +122,12 @@ public class Main {
 
         // setup database
         JPAService.init(memoryMode, resetMode);
-
+        
         // read locale from database and overrrde if needed
         Locale l = overrideDisplayLanguage();
-        overrideTimeZone();
-
         injectData(initialData, l);
+        overrideTimeZone();
+        
         OwlcmsFactory.getDefaultFOP(true); // initialization, don't push out to browsers
     }
 
@@ -186,7 +186,7 @@ public class Main {
     }
 
     private static Locale overrideDisplayLanguage() {
-        // read override value from database
+        // read override value from database, if it was previously created.
         Locale l = null;
         try {
             l = Competition.getCurrent().getDefaultLocale();
@@ -212,7 +212,7 @@ public class Main {
     }
 
     private static void overrideTimeZone() {
-        // read override value from database
+        // read override value from database, if it was previously created.
         TimeZone tz = null;
         tz = Competition.getCurrent().getTimeZone();
         if (tz != null) {
