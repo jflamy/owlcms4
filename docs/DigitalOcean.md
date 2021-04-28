@@ -78,7 +78,7 @@ export RESULTS=results.owlcms.mywire.org
 curl -sfL https://github.com/jflamy/owlcms4/releases/download/4.19.0-alpha01/k3s_setup.yaml | envsubst | kubectl apply -f - 
 ```
 
-> Note: you may have to execute the command several times, because some steps may not have completed in time.  There is no harm done repeating the steps.  Wait 30 seconds or so between each attempt, every attempt will get further down the steps.
+> Note: you may have to execute the command several times, because some steps take time to complete.  There is no harm done repeating the steps.  Wait 30 seconds or so between each attempt, every attempt will get further down the steps.  This is simpler than breaking down the setup in several steps. 
 
 ## Using SSL
 
