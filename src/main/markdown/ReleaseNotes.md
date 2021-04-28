@@ -1,6 +1,7 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  * [x] For cloud-based competitions, setting the time zone is necessary and can now be done from within the application instead of requiring an environment variable. (#422)
+  * [x] For cloud-based competitions, setting the time zone can now be done from within the application instead of requiring an environment variable. (#422)
+  * [x] The Kubernetes setup files were missing an annotation that was preventing generation of the https certificate. Also updated cert-manager to the current version.
   
 * Key Highlights from recent stable releases
 
