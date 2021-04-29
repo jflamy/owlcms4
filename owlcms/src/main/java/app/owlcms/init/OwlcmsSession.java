@@ -160,4 +160,16 @@ public class OwlcmsSession {
 
     private OwlcmsSession() {
     }
+
+    public static String getFopName() {
+        FieldOfPlay fop = getFop();
+        if (fop == null) {
+            fop = OwlcmsFactory.getDefaultFOP();
+        }
+        if (fop != null) {
+            return fop.getName();
+        } else {
+            return "-";
+        }
+    }
 }

@@ -69,8 +69,16 @@ public class TwoMinutesRuleTest {
 
     @Test
     public void liftSequence3() throws InterruptedException {
+        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
+        OwlcmsSession.setFop(fopState);
+        fopState.getLogger().setLevel(LoggerLevel);
+        EventBus fopBus = fopState.getFopEventBus();
+        
         logger.setLevel(Level.DEBUG);
-        System.err.println("testing "+logger.getLevel());
+        doSequence3(fopState, fopBus, logger);
+    }
+
+    void doSequence3(FieldOfPlay fopState, EventBus fopBus, Logger logger) {
         AthleteSorter.assignLotNumbers(athletes);
 
         final Athlete schneiderF = athletes.get(0);
@@ -88,11 +96,6 @@ public class TwoMinutesRuleTest {
         for (int i = 2; i < size; i++) {
             athletes.remove(2);
         }
-
-        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
-        OwlcmsSession.setFop(fopState);
-        fopState.getLogger().setLevel(LoggerLevel);
-        EventBus fopBus = fopState.getFopEventBus();
 
         // competition start
         assertEquals(60000, fopState.getTimeAllowed());
@@ -180,7 +183,11 @@ public class TwoMinutesRuleTest {
     public void liftSequence4() throws InterruptedException {
         FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
         OwlcmsSession.setFop(fopState);
-        EventBus fopBus = fopState.getFopEventBus();
+        EventBus fopBus = fopState.getFopEventBus();     
+        doLiftSequence4(fopState, fopBus, logger);
+    }
+
+    void doLiftSequence4(FieldOfPlay fopState, EventBus fopBus, Logger logger) {
         AthleteSorter.assignLotNumbers(athletes);
 
         final Athlete schneiderF = athletes.get(0);
@@ -341,6 +348,10 @@ public class TwoMinutesRuleTest {
         logger.debug("successful lift for {}", curLifter);
 //        fopState.finalDecision(null);
         fopBus.post(new FOPEvent.DecisionReset(null));
+    }
+
+    public List<Athlete> getAthletes() {
+        return athletes;
     }
 
 }
