@@ -10,6 +10,30 @@ import app.owlcms.data.athlete.Athlete;
 public class LiftOrderReconstruction {
 
     public class ActualLiftInfo implements Comparable<ActualLiftInfo> {
+        public int getLotNumber() {
+            return lotNumber;
+        }
+
+        public int getStartNumber() {
+            return startNumber;
+        }
+
+        public int getProgression() {
+            return progression;
+        }
+
+        public int getWeight() {
+            return weight;
+        }
+
+        public int getAttemptNo() {
+            return attemptNo+1;
+        }
+
+        public Athlete getAthlete() {
+            return athlete;
+        }
+
         int lotNumber;
         int startNumber;
         int progression;

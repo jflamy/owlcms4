@@ -1311,8 +1311,8 @@ public class FieldOfPlay {
         weightAtLastStart = nextAttemptRequestedWeight;
     }
 
-    public int getWeightAtLastStart() {
-        return (weightAtLastStart != null ? weightAtLastStart : 0);
+    public Integer getWeightAtLastStart() {
+        return weightAtLastStart;
     }
 
     @SuppressWarnings("unused")

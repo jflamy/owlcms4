@@ -24,6 +24,7 @@ public class RuleViolationException extends RuntimeException {
     private static final long serialVersionUID = 8965943679108964933L;
     private String messageKey;
     private Object[] messageFormatData;
+
     private Locale locale;
 
     /**
@@ -90,6 +91,10 @@ public class RuleViolationException extends RuntimeException {
     @Override
     public String getMessage() {
         return getLocalizedMessage();
+    }
+
+    public String getMessageKey() {
+        return messageKey;
     }
 
     /**
