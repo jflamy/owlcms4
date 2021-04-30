@@ -2,117 +2,21 @@ package app.owlcms.fieldofplay;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.TreeSet;
 
 import app.owlcms.data.athlete.Athlete;
 
 public class LiftOrderReconstruction {
 
-    public class ActualLiftInfo implements Comparable<ActualLiftInfo> {
-        public int getLotNumber() {
-            return lotNumber;
-        }
-
-        public int getStartNumber() {
-            return startNumber;
-        }
-
-        public int getProgression() {
-            return progression;
-        }
-
-        public int getWeight() {
-            return weight;
-        }
-
-        public int getAttemptNo() {
-            return attemptNo+1;
-        }
-
-        public Athlete getAthlete() {
-            return athlete;
-        }
-
-        int lotNumber;
-        int startNumber;
-        int progression;
-        int weight;
-        int attemptNo;
-        Athlete athlete;
-
-        @Override
-        public int compareTo(ActualLiftInfo actualLiftInfo) {
-            int compare = 0;
-
-            compare = Integer.compare(this.weight, actualLiftInfo.weight);
-            if (compare != 0) {
-                return compare;
-            }
-
-            compare = Integer.compare(this.attemptNo, actualLiftInfo.attemptNo);
-            if (compare != 0) {
-                return compare;
-            }
-
-            compare = Integer.compare(this.progression, actualLiftInfo.progression);
-            if (compare != 0) {
-                return compare;
-            }
-
-            compare = Integer.compare(this.startNumber, actualLiftInfo.startNumber);
-            if (compare != 0) {
-                return compare;
-            }
-
-            compare = Integer.compare(this.lotNumber, actualLiftInfo.lotNumber);
-            if (compare != 0) {
-                return compare;
-            }
-
-            return compare;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + Objects.hash(attemptNo, lotNumber, progression, startNumber, weight);
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            ActualLiftInfo other = (ActualLiftInfo) obj;
-            return attemptNo == other.attemptNo
-                    && lotNumber == other.lotNumber && progression == other.progression
-                    && startNumber == other.startNumber && weight == other.weight;
-        }
-
-        @Override
-        public String toString() {
-            return "ActualLiftInfo [athlete=" + athlete.getLastName() + ", weight=" + weight + ", attemptNo=" + attemptNo
-                    + ", progression=" + progression + ", startNumber=" + startNumber + ", lotNumber=" + lotNumber
-                    + "]";
-        }
-
-    }
-
     final static String LINESEPARATOR = System.getProperty("line.separator");
 
-    private TreeSet<ActualLiftInfo> pastOrder;
+    private TreeSet<LiftOrderInfo> pastOrder;
 
     public LiftOrderReconstruction(FieldOfPlay fop) {
         computePastOrder(fop);
     }
 
-    public TreeSet<ActualLiftInfo> getPastOrder() {
+    public TreeSet<LiftOrderInfo> getPastOrder() {
         return pastOrder;
     }
 
@@ -122,7 +26,7 @@ public class LiftOrderReconstruction {
      */
     public String shortDump() {
         StringBuffer sb = new StringBuffer();
-        for (ActualLiftInfo ali : this.pastOrder) {
+        for (LiftOrderInfo ali : this.pastOrder) {
             sb.append(ali.toString());
             sb.append(LINESEPARATOR);
         }
@@ -134,14 +38,14 @@ public class LiftOrderReconstruction {
      *
      * @param fop
      */
-    private Collection<ActualLiftInfo> computePastOrder(FieldOfPlay fop) {
+    private Collection<LiftOrderInfo> computePastOrder(FieldOfPlay fop) {
         this.pastOrder = new TreeSet<>();
         List<Athlete> athletes = fop.getLiftingOrder();
 
         for (Athlete a : athletes) {
             int prevweight = 0;
             for (int liftNo = 0; liftNo < 6; liftNo++) {
-                ActualLiftInfo ali = new ActualLiftInfo();
+                LiftOrderInfo ali = new LiftOrderInfo();
                 switch (liftNo) {
                 case 0:
                     prevweight = 0;
@@ -180,7 +84,7 @@ public class LiftOrderReconstruction {
         return this.pastOrder;
     }
     
-    public ActualLiftInfo getLastLift() {
+    public LiftOrderInfo getLastLift() {
         if (this.pastOrder == null || this.pastOrder.isEmpty()) {
             return null;
         }

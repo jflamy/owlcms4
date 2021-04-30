@@ -159,6 +159,61 @@ public class MovingDownTest {
         testChange(() ->  change1(allisonR, "63", fopBus), logger, null);    
     }
     
+    
+    @Test
+    public void checkAttemptNumberWithClock() {
+        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
+        OwlcmsSession.setFop(fopState);
+        fopState.getLogger().setLevel(LoggerLevel);
+        EventBus fopBus = fopState.getFopEventBus();
+
+        logger.setLevel(Level.DEBUG);
+        AthleteSorter.assignLotNumbers(athletes);
+        AthleteSorter.assignStartNumbers(athletes);
+        final Athlete schneiderF = athletes.get(0);
+        final Athlete simpsonR = athletes.get(1);
+        final Athlete allisonR = athletes.get(2);
+        keepOnly(athletes, 3);
+        
+        // weigh-in
+        schneiderF.setSnatch1Declaration(Integer.toString(60));
+        simpsonR.setSnatch1Declaration(Integer.toString(60));
+        allisonR.setSnatch1Declaration(Integer.toString(60));
+        schneiderF.setCleanJerk1Declaration(Integer.toString(82));
+        simpsonR.setCleanJerk1Declaration(Integer.toString(82));
+        allisonR.setCleanJerk1Declaration(Integer.toString(82));
+        
+        // competition start
+        change1(schneiderF, "70", fopBus);
+        change1(allisonR, "62", fopBus);
+        
+        // simpsonR successful at 60
+        Athlete curAthlete = fopState.getCurAthlete();
+        assertEquals(simpsonR, curAthlete);
+        successfulLift(fopBus, simpsonR, fopState);
+        // simpsonR declares 63 for second attempt
+        declaration(simpsonR, "63", fopBus);
+        
+        // allisonR succeeds at 63 first lift
+        curAthlete = fopState.getCurAthlete();
+        assertEquals(allisonR, curAthlete);
+        successfulLift(fopBus, curAthlete, fopState);
+        // allisonR gets automatic progression 63 attemot 2
+        declaration(allisonR, "65", fopBus);
+        
+        // back to Simpson for 63 as second lift
+        curAthlete = fopState.getCurAthlete();
+        assertEquals(simpsonR, curAthlete);
+        fopBus.post(new FOPEvent.TimeStarted(null)); // this starts logical time
+
+        // schneiderF wants to move down. cannot because clock owner is running with 63
+        testChange(() ->  change1(schneiderF, "63", fopBus), logger, "RuleViolation.attemptNumberTooLow");
+        
+        // but allisonR can change his mind and go back to his automatic progression.
+        testChange(() ->  change1(allisonR, "63", fopBus), logger, null);    
+    }
+
+    
     @Test
     public void checkProgresion() {
         FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
@@ -203,7 +258,6 @@ public class MovingDownTest {
         // schneiderF wants to move down. cannot take the same weight
         // he lifted first, cannot manipulate the lifting order to end up lifting the same weight after
         testChange(() ->  change1(schneiderF, "65", fopBus), logger, "RuleViolation.liftedEarlier");
-
     }
 
     private void keepOnly(List<Athlete> athletes, int endIndex) {
