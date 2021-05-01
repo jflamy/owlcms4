@@ -19,26 +19,18 @@ import ch.qos.logback.classic.Logger;
  */
 public class RuleViolationException extends RuntimeException {
     @SuppressWarnings("unused")
+
     private static final Logger logger = (Logger) LoggerFactory.getLogger(RuleViolationException.class);
 
     private static final long serialVersionUID = 8965943679108964933L;
-    private String messageKey;
-    private Object[] messageFormatData;
+    protected String messageKey;
+    protected Object[] messageFormatData;
 
-    private Locale locale;
-
-    /**
-     * Instantiates a new rule violation exception.
-     *
-     * @param l    the l
-     * @param s    the s
-     * @param objs the objs
-     */
-    public RuleViolationException(Locale l, String s, Object... objs) {
-        super(s);
-        this.setLocale(l);
-        this.messageKey = s;
-        this.messageFormatData = objs;
+    @SuppressWarnings("serial")
+    public class DeclarationValueTooSmall extends RuleViolationException {
+        public DeclarationValueTooSmall(String s, Object... objs) {
+            super(s, objs);
+        }
     }
 
     /**
@@ -53,15 +45,6 @@ public class RuleViolationException extends RuntimeException {
         this.messageFormatData = objs;
     }
 
-    /**
-     * Gets the locale.
-     *
-     * @return the locale
-     */
-    public Locale getLocale() {
-        return this.locale;
-    }
-
     /*
      * (non-Javadoc)
      *
@@ -69,8 +52,9 @@ public class RuleViolationException extends RuntimeException {
      */
     @Override
     public String getLocalizedMessage() {
-        final Locale locale1 = (this.locale != null ? this.locale : OwlcmsSession.getLocale());
-        return Translator.translate(this.messageKey, locale1, messageFormatData);
+        final Locale locale1 = OwlcmsSession.getLocale();
+        final String fopName = OwlcmsSession.getFopName();
+        return "FOP " + fopName + " " + Translator.translate(this.messageKey, locale1, messageFormatData);
     }
 
     /**
@@ -96,14 +80,4 @@ public class RuleViolationException extends RuntimeException {
     public String getMessageKey() {
         return messageKey;
     }
-
-    /**
-     * Sets the locale.
-     *
-     * @param locale the new locale
-     */
-    public void setLocale(Locale locale) {
-        this.locale = locale;
-    }
-
 }

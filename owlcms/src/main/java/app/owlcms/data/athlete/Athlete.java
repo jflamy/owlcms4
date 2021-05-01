@@ -240,8 +240,9 @@ public class Athlete {
         if (missing > 0) {
             // logger.debug("FAIL missing {}",missing);
             Integer startNumber2 = a.getStartNumber();
-            rule15_20Violated = RuleViolation.rule15_20Violated(a.getLastName(), a.getFirstName(),
-                    (startNumber2 != null ? startNumber2 : "-"), snatch1Request, cleanJerk1Request, missing, qualTotal);
+            Object[] objs = { a.getLastName(), a.getFirstName(), (startNumber2 != null ? startNumber2 : "-"),
+                    snatch1Request, cleanJerk1Request, missing, qualTotal };
+            rule15_20Violated = new RuleViolationException("RuleViolation.rule15_20Violated", objs);
             message = rule15_20Violated.getLocalizedMessage(OwlcmsSession.getLocale());
             logger.info("{} {}", a, message);
             throw rule15_20Violated;
@@ -3487,11 +3488,12 @@ public class Athlete {
             return;
         } else {
             if (!declaredChangesOk) {
-                throw RuleViolation.declaredChangesNotOk(curLift, declaredChanges, iAutomaticProgression,
-                        iAutomaticProgression + 1);
+                Object[] objs = { curLift, declaredChanges, iAutomaticProgression, iAutomaticProgression + 1 };
+                throw new RuleViolationException(("RuleViolation.declaredChangesNotOk"), objs);
             }
             if (!liftedWeightOk) {
-                throw RuleViolation.liftValueNotWhatWasRequested(curLift, actualLift, declaredChanges, liftedWeight);
+                Object[] objs = { curLift, actualLift, declaredChanges, liftedWeight };
+                throw new RuleViolationException(("RuleViolation.liftValueNotWhatWasRequested"), objs);
             }
             return;
         }
@@ -3835,7 +3837,8 @@ public class Athlete {
         int newVal = zeroIfInvalid(change1);
         int prevVal = zeroIfInvalid(automaticProgression);
         if (newVal < prevVal) {
-            throw RuleViolation.declaredChangesNotOk(curLift, newVal, prevVal);
+            Object[] objs = { curLift, newVal, prevVal };
+            throw new RuleViolationException(("RuleViolation.declaredChangesNotOk"), objs);
         }
         checkChangeVsLiftOrder(newVal);
     }
@@ -3844,6 +3847,7 @@ public class Athlete {
      * Check that the change does not allow lifter to lift out of order
      * 
      * Changing requested weight and moving back
+     * 
      * @param newVal
      */
     private void checkChangeVsLiftOrder(int newVal) {
@@ -3864,7 +3868,7 @@ public class Athlete {
                 // compare with what the lifting order rules say.
                 LiftOrderReconstruction pastOrder = new LiftOrderReconstruction(fop);
                 LiftOrderInfo reference = null;
-                
+
                 Athlete clockOwner = fop.getClockOwner();
                 if (clockOwner != null) {
                     // if clock is running, reference becomes the clock owner instead of last good/bad lift.
@@ -3879,7 +3883,7 @@ public class Athlete {
                     // no last lift, go ahead
                 }
             } else if (newVal < weightAtLastStart) {
-                throw RuleViolation.valueBelowStartedClock(newVal, weightAtLastStart);
+                throw new RuleViolationException("RuleViolation.valueBelowStartedClock", newVal, weightAtLastStart);
             } else {
                 // ok, nothing to do.
             }
@@ -3892,93 +3896,108 @@ public class Athlete {
         Integer nextAttemptRequestedWeight = this.getNextAttemptRequestedWeight();
         loi.setWeight(nextAttemptRequestedWeight);
         // the clock is running for our current attempt, so done+1
-        int attemptsDone = this.getAttemptsDone()+1;
+        int attemptsDone = this.getAttemptsDone() + 1;
         loi.setAttemptNo(attemptsDone);
         loi.setProgression(nextAttemptRequestedWeight);
         loi.setStartNumber(this.getStartNumber());
         loi.setLotNumber(this.getLotNumber());
-        logger.warn("clockOwner liftOrderInfo: {}",loi);
+        logger.debug("clockOwner liftOrderInfo: {}", loi);
         return loi;
     }
 
     private void checkAttemptVsLiftOrderReference(int newVal, LiftOrderInfo reference) {
-        logger.setLevel(Level.DEBUG);
         Integer requestedWeight = newVal;
         int referenceWeight = reference.getWeight();
         int referenceAttemptNo = reference.getAttemptNo();// this is the lift that was attempted by previous lifter
         int currentLiftNo = getAttemptedLifts() + 1;
 
         if (requestedWeight > referenceWeight) {
-            logger.debug("{} attempt {}: requested {} > previous {}", this, currentLiftNo, requestedWeight, referenceWeight);
+            logger.debug("{} attempt {}: requested {} > previous {}", this, currentLiftNo, requestedWeight,
+                    referenceWeight);
             // lifting order is respected
             return;
         }
         if (referenceAttemptNo == 3 && currentLiftNo == 4) {
             logger.debug("start of CJ");
-            // first attempt for C&J
+            // first attempt for C&J, no check
             return;
         }
 
         if (requestedWeight < referenceWeight) {
-            logger.debug("requested {} < previous {}", requestedWeight, referenceWeight);
+            logger.debug("requestedWeight {} < referenceWeight {}", requestedWeight, referenceWeight);
             // someone has already lifted heavier previously
-            throw RuleViolation.weightBelowAlreadyLifted(requestedWeight, reference.getStartNumber(),
-                    referenceWeight);
+            throw new RuleViolationException("RuleViolation.weightBelowAlreadyLifted", requestedWeight,
+                    reference.getStartNumber(), referenceWeight);
         } else {
-            logger.debug("requested {} == previous {}", requestedWeight, referenceWeight);
-            // asking for same weight as previous lifter, cannot be a lower attempt number
-            // Example we are asking for weight X on (say) first attempt, but someone else already
-            // lifted that weight on second attempt. Too late, we are out of order.
-            if (currentLiftNo < referenceAttemptNo) {
-                logger.debug("currentLiftNo {} < prevAttemptNo {}", currentLiftNo, referenceAttemptNo);
-                throw RuleViolation.attemptNumberTooLow(requestedWeight, referenceAttemptNo,
-                        referenceWeight);
+            checkSameWeightAsReference(reference, requestedWeight, referenceWeight, referenceAttemptNo, currentLiftNo);
+        }
+    }
+
+    private void checkSameWeightAsReference(LiftOrderInfo reference, Integer requestedWeight, int referenceWeight,
+            int referenceAttemptNo, int currentLiftNo) {
+        logger.debug("requestedWeight {} == requestedWeight {}", requestedWeight, requestedWeight);
+        // asking for same weight as previous lifter, cannot be a lower attempt number
+        // Example we are asking for weight X on (say) first attempt, but someone else already
+        // lifted that weight on second attempt. Too late, we are out of order.
+        if (currentLiftNo < referenceAttemptNo) {
+            logger.debug("currentLiftNo {} < prevAttemptNo {}", currentLiftNo, referenceAttemptNo);
+            throw new RuleViolationException("RuleViolation.attemptNumberTooLow",  requestedWeight,
+                    reference.getStartNumber(), referenceWeight, 1+(referenceAttemptNo-1)%3);
+        } else {
+            logger.debug("currentLiftNo {} >= referenceAttemptNo {}", currentLiftNo, referenceAttemptNo);
+            int currentProgression = this.getProgression(requestedWeight);
+            int referenceProgression = reference.getProgression();
+            if (currentProgression == referenceProgression) {
+                checkSameProgression(reference, requestedWeight, currentProgression, referenceProgression);
+            } else if (currentProgression > referenceProgression) {
+                logger.debug("currentProgression {} > referenceProgression {}", currentProgression,
+                        referenceProgression);
+                // larger progression means a smaller previous attempt, hence lifted earlier than the last lift.
+                // so we should already have lifted.
+                logger.debug("{} lifted previous attempt earlier than {}, should already have done attempt",
+                        reference.getAthlete(), this);
+                throw new RuleViolationException("RuleViolation.liftedEarlier", requestedWeight, reference.getStartNumber(), this.getStartNumber());
             } else {
-                logger.debug("currentLiftNo {} >= prevAttemptNo {}", currentLiftNo, referenceAttemptNo);
-                int currentProgression = this.getProgression(requestedWeight);
-                int referenceProgression = reference.getProgression();
-                if (currentProgression == referenceProgression) {
-                    logger.debug("currentProgression {} == prevProgression {}", currentProgression, referenceProgression);
-                    if (this.getStartNumber() > 0) {
-                        // same weight, same attempt, allowed if start number is greater than previous lifter
-                        if (reference.getStartNumber() > this.getStartNumber()) {
-                            logger.debug("lastLift.getStartNumber() {} > this.getStartNumber() {}",
-                                    reference.getStartNumber(), this.getStartNumber());
-                            throw RuleViolation.startNumberTooHigh(requestedWeight, reference.getStartNumber(),
-                                    this.getStartNumber());
-                        } else {
-                            logger.debug("lastLift.getStartNumber() {} <= this.getStartNumber() {}",
-                                    reference.getStartNumber(), this.getStartNumber());
-                        }
-                    } else {
-                        // no start number was attributed, try with lot number
-                        if (reference.getLotNumber() > this.getLotNumber()) {
-                            logger.debug("lastLift.getLotNumber() {} > this.getLotNumber() {}", reference.getLotNumber(),
-                                    this.getLotNumber());
-                            throw RuleViolation.lotNumberTooHigh(requestedWeight, reference.getLotNumber(),
-                                    this.getLotNumber());
-                        } else {
-                            logger.debug("lastLift.getLotNumber() {} <= this.getLotNumber() {}",
-                                    reference.getLotNumber(), this.getLotNumber());
-                        }
-                    }
-                } else if (currentProgression > referenceProgression) {
-                    logger.debug("currentProgression {} > prevProgression {}", currentProgression, referenceProgression);
-                    // larger progression means a smaller previous attempt, hence lifted earlier than the last lift.
-                    // so we should already have lifted.
-                    logger.debug("{} lifted previous attempt earlier than {}, should already have done attempt",
-                            reference.getAthlete(), this);
-                    throw RuleViolation.liftedEarlier(reference.getAthlete(), this);
-                } else {
-                    logger.debug("currentProgression {} < prevProgression {}", currentProgression, referenceProgression);
-                }
+                logger.debug("currentProgression {} < referenceProgression {}", currentProgression,
+                        referenceProgression);
+            }
+        }
+    }
+
+    private void checkSameProgression(LiftOrderInfo reference, Integer requestedWeight, int currentProgression,
+            int referenceProgression) {
+        logger.debug("currentProgression {} == referenceProgression {}", currentProgression,
+                referenceProgression);
+        if (this.getStartNumber() > 0) {
+            // same weight, same attempt, allowed if start number is greater than previous lifter
+            if (reference.getStartNumber() > this.getStartNumber()) {
+                logger.debug("lastLift.getStartNumber() {} > this.getStartNumber() {}",
+                        reference.getStartNumber(), this.getStartNumber());
+                throw new RuleViolationException("RuleViolation.startNumberTooHigh", requestedWeight,
+                        reference.getStartNumber(), this.getStartNumber());
+            } else {
+                logger.debug("lastLift.getStartNumber() {} <= this.getStartNumber() {}",
+                        reference.getStartNumber(), this.getStartNumber());
+            }
+        } else {
+            // no start number was attributed, try with lot number
+            if (reference.getLotNumber() > this.getLotNumber()) {
+                logger.debug("lastLift.getLotNumber() {} > this.getLotNumber() {}",
+                        reference.getLotNumber(),
+                        this.getLotNumber());
+                throw new RuleViolationException("RuleViolation.lotNumberTooHigh", requestedWeight,
+                        reference.getLotNumber(), this.getLotNumber());
+            } else {
+                logger.debug("lastLift.getLotNumber() {} <= this.getLotNumber() {}",
+                        reference.getLotNumber(), this.getLotNumber());
             }
         }
     }
 
     private int getProgression(Integer requestedWeight) {
         int attempt = getAttemptsDone() + 1;
-        logger.warn("getProgression attempt {} requestedWeight {} sn1AL {}",attempt,requestedWeight,getSnatch1ActualLift());
+        logger.debug("getProgression attempt {} requestedWeight {} sn1AL {}", attempt, requestedWeight,
+                getSnatch1ActualLift());
         switch (attempt) {
         case 1:
             return requestedWeight;
@@ -4008,7 +4027,8 @@ public class Athlete {
         int newVal = zeroIfInvalid(change2);
         int prevVal = zeroIfInvalid(automaticProgression);
         if (newVal < prevVal) {
-            throw RuleViolation.declaredChangesNotOk(curLift, newVal, prevVal);
+            Object[] objs = { curLift, newVal, prevVal };
+            throw new RuleViolationException(("RuleViolation.declaredChangesNotOk"), objs);
         }
         checkChangeVsLiftOrder(newVal);
     }
@@ -4019,19 +4039,13 @@ public class Athlete {
      */
     private void validateDeclaration(int curLift, String automaticProgression, String declaration, String change1,
             String change2, String actualLift) throws RuleViolationException {
-//		boolean actualLiftEmpty = actualLift == null || actualLift.trim().isEmpty();
-//		boolean declarationEmpty = declaration == null || declaration.trim().isEmpty();
-//		if (declarationEmpty) {
-//			if (actualLiftEmpty)
-//			else
-//				throw RuleViolation.declarationValueRequired(curLift);
-//		}
         logger.trace("{} validateDeclaration", this, declaration);
         int newVal = zeroIfInvalid(declaration);
         int iAutomaticProgression = zeroIfInvalid(automaticProgression);
         // allow null declaration for reloading old results.
         if (iAutomaticProgression > 0 && newVal > 0 && newVal < iAutomaticProgression) {
-            throw RuleViolation.declarationValueTooSmall(curLift, newVal, iAutomaticProgression);
+            Object[] objs = { curLift, newVal, iAutomaticProgression };
+            throw new RuleViolationException(("RuleViolation.declarationValueTooSmall"), objs);
         }
         checkChangeVsLiftOrder(newVal);
     }

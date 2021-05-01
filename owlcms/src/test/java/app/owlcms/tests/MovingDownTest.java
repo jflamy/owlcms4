@@ -75,7 +75,7 @@ public class MovingDownTest {
         fopState.getLogger().setLevel(LoggerLevel);
         EventBus fopBus = fopState.getFopEventBus();
 
-        logger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.INFO);
         AthleteSorter.assignLotNumbers(athletes);
         AthleteSorter.assignStartNumbers(athletes);
         final Athlete schneiderF = athletes.get(0);
@@ -113,7 +113,7 @@ public class MovingDownTest {
         fopState.getLogger().setLevel(LoggerLevel);
         EventBus fopBus = fopState.getFopEventBus();
 
-        logger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.INFO);
         AthleteSorter.assignLotNumbers(athletes);
         AthleteSorter.assignStartNumbers(athletes);
         final Athlete schneiderF = athletes.get(0);
@@ -167,7 +167,7 @@ public class MovingDownTest {
         fopState.getLogger().setLevel(LoggerLevel);
         EventBus fopBus = fopState.getFopEventBus();
 
-        logger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.INFO);
         AthleteSorter.assignLotNumbers(athletes);
         AthleteSorter.assignStartNumbers(athletes);
         final Athlete schneiderF = athletes.get(0);
@@ -198,7 +198,7 @@ public class MovingDownTest {
         curAthlete = fopState.getCurAthlete();
         assertEquals(allisonR, curAthlete);
         successfulLift(fopBus, curAthlete, fopState);
-        // allisonR gets automatic progression 63 attemot 2
+        // allisonR gets automatic progression 63, moves up for attempt 2
         declaration(allisonR, "65", fopBus);
         
         // back to Simpson for 63 as second lift
@@ -221,7 +221,7 @@ public class MovingDownTest {
         fopState.getLogger().setLevel(LoggerLevel);
         EventBus fopBus = fopState.getFopEventBus();
 
-        logger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.INFO);
         AthleteSorter.assignLotNumbers(athletes);
         AthleteSorter.assignStartNumbers(athletes);
         final Athlete schneiderF = athletes.get(0);
