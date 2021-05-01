@@ -140,7 +140,7 @@ public class MovingDownTest {
         // simpsonR declares 63 for second attempt
         declaration(simpsonR, "63", fopBus);
         
-        // allisonR succeeds at 63 first lift
+        // allisonR succeeds at 62 first lift
         curAthlete = fopState.getCurAthlete();
         assertEquals(allisonR, curAthlete);
         successfulLift(fopBus, curAthlete, fopState);
@@ -194,7 +194,7 @@ public class MovingDownTest {
         // simpsonR declares 63 for second attempt
         declaration(simpsonR, "63", fopBus);
         
-        // allisonR succeeds at 63 first lift
+        // allisonR succeeds at 62 first lift
         curAthlete = fopState.getCurAthlete();
         assertEquals(allisonR, curAthlete);
         successfulLift(fopBus, curAthlete, fopState);
@@ -251,14 +251,14 @@ public class MovingDownTest {
         curAthlete = fopState.getCurAthlete();
         assertEquals(simpsonR, curAthlete);
         successfulLift(fopBus, curAthlete, fopState);
-        // allisonR declares 65
+        // simpsonR declares 65
         declaration(simpsonR, "65", fopBus);
         
         // allisonR succeeds at 62 first lift
         curAthlete = fopState.getCurAthlete();
         assertEquals(allisonR, curAthlete);
         successfulLift(fopBus, curAthlete, fopState);
-        // allisonR declares 65
+        // allisonR declares 66
         declaration(allisonR, "66", fopBus);
         
         // back to simpsonR for 65 as second lift
