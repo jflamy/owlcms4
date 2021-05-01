@@ -17,21 +17,180 @@ import ch.qos.logback.classic.Logger;
 /**
  * The Class RuleViolationException.
  */
+@SuppressWarnings("serial")
 public class RuleViolationException extends RuntimeException {
-    @SuppressWarnings("unused")
 
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(RuleViolationException.class);
-
-    private static final long serialVersionUID = 8965943679108964933L;
-    protected String messageKey;
-    protected Object[] messageFormatData;
-
-    @SuppressWarnings("serial")
-    public class DeclarationValueTooSmall extends RuleViolationException {
-        public DeclarationValueTooSmall(String s, Object... objs) {
-            super(s, objs);
+    public static class DeclarationValueTooSmall extends RuleViolationException {
+        /**
+         * On attempt attemptNo, declaration be at least the automatic progression.
+         * 
+         * @param attemptNo
+         * @param newVal
+         * @param iAutomaticProgression
+         */
+        public DeclarationValueTooSmall(int attemptNo, int newVal, int iAutomaticProgression) {
+            super("RuleViolation.declarationValueTooSmall", attemptNo, newVal, iAutomaticProgression);
         }
     }
+
+    public static class LastChangeTooLow extends RuleViolationException {
+        /**
+         * On attempt attemptNo, changes must be at least automatic progression.
+         * 
+         * @param attemptNo
+         * @param lastChange
+         * @param iAutomaticProgression
+         */
+        public LastChangeTooLow(int attemptNo, int lastChange, int iAutomaticProgression) {
+            super("RuleViolation.declaredChangesNotOk", attemptNo, lastChange, iAutomaticProgression);
+        }
+    }
+
+    public static class LotNumberTooHigh extends RuleViolationException {
+        /**
+         * This rule is there as precaution when weigh-in officials forgot to attribute start numbers. Athlete cannot
+         * move down because same weight was attempted by an athlete with lower start number.
+         * 
+         * On first lift, start number 1 cannot request higher than start 2 and, after 2 has been called, move down to
+         * same weight (lifting out of order).
+         * 
+         * @param requestedWeight
+         * @param referenceLotNumber
+         * @param curLotNumber
+         */
+        public LotNumberTooHigh(Integer requestedWeight, int referenceLotNumber, int curLotNumber) {
+            super("RuleViolation.lotNumberTooHigh", requestedWeight,
+                    referenceLotNumber, curLotNumber);
+        }
+    }
+
+    public static class StartNumberTooHigh extends RuleViolationException {
+        /**
+         * Athlete cannot move down because same weight was attempted by an athlete with lower start number.
+         * 
+         * On first lift, start number 1 cannot request higher than start 2 and, after 2 has been called, move down to
+         * same weight (lifting out of order).
+         * 
+         * @param requestedWeight
+         * @param referenceStartNumber
+         * @param curStartNumber
+         */
+        public StartNumberTooHigh(Integer requestedWeight, int referenceStartNumber, int curStartNumber) {
+            super("RuleViolation.startNumberTooHigh", requestedWeight,
+                    referenceStartNumber, curStartNumber);
+        }
+    }
+
+    public static class LiftedEarlier extends RuleViolationException {
+        /**
+         * Athlete cannot move down the weight on the bar was already taken by someone who lifted later
+         * on the previous attempt.
+         * 
+         * Athlete A lifted on first attempt, then B, due to the requested weight.
+         * A requests higher than B on second attempt.
+         * A cannot move down to B's requested weight after B attempts, as this makes A lift out of order --
+         * By rule, A must come before B if they both attempt the same weight at the same attempt.
+         * 
+         * @param requestedWeight
+         * @param referenceStartNumber
+         * @param curStartNumber
+         */
+        public LiftedEarlier(Integer requestedWeight, int referenceStartNumber, int curStartNumber) {
+            super("RuleViolation.liftedEarlier", requestedWeight, referenceStartNumber,
+                    curStartNumber);
+        }
+    }
+
+    public static class WeightBelowAlreadyLifted extends RuleViolationException {
+        /**
+         * Another athlete has already lifted more than what is requested.
+         * 
+         * Bar cannot go down in weight.  Unless error occurred, in which case
+         * T.O. can use "force as current lifter" to disable validation.
+         * 
+         * @param requestedWeight
+         * @param startNumber
+         * @param referenceWeight
+         */
+        public WeightBelowAlreadyLifted(Integer requestedWeight, int startNumber, int referenceWeight) {
+            super("RuleViolation.weightBelowAlreadyLifted", requestedWeight,
+                    startNumber, referenceWeight);
+        }
+    }
+
+    public static class AttemptNumberTooLow extends RuleViolationException {
+        /**
+         * Athlete cannot move down to same weight as someone with a higher attempt number.
+         * 
+         * Athlete A on first attempt requests more than an athlete on second attempt.
+         * Then A wants to move down to that B weight.  Cannot, because lower attempt number must lift first.
+         * This would give A unfair rest if A could lift after B.
+         * 
+         * @param requestedWeight
+         * @param startNumber
+         * @param referenceWeight
+         * @param attemptNo
+         */
+        public AttemptNumberTooLow(Integer requestedWeight, int startNumber, int referenceWeight, int attemptNo) {
+            super("RuleViolation.attemptNumberTooLow", requestedWeight,
+                    startNumber, referenceWeight, attemptNo);
+        }
+    }
+
+    public static class ValueBelowStartedClock extends RuleViolationException {
+        /**
+         * If the clock was started with weight W, any value smaller than W is wrong.
+         * 
+         * Values equal to W are only ok if the lifting order rules are observed (see the various other exceptions)
+         * 
+         * @param newVal
+         * @param weightAtLastStart
+         */
+        public ValueBelowStartedClock(int newVal, Integer weightAtLastStart) {
+            super("RuleViolation.valueBelowStartedClock", newVal, weightAtLastStart);
+        }
+    }
+
+    public static class LiftValueNotWhatWasRequested extends RuleViolationException {
+        /**
+         * When correcting an error manually (athlete on platform was not the one called), the value
+         * entered for the lift must match the last declaration or change
+         * 
+         * @param curLift
+         * @param actualLift
+         * @param lastDeclarationOrChange
+         * @param liftedWeight
+         */
+        public LiftValueNotWhatWasRequested(int curLift, String actualLift, int lastDeclarationOrChange, int liftedWeight) {
+            super("RuleViolation.liftValueNotWhatWasRequested", curLift, actualLift, lastDeclarationOrChange, liftedWeight);
+        }
+    }
+
+    public static class Rule15_20Violated extends RuleViolationException {
+        /**
+         * The 20kg rule (or equivalent Masters rule) is not respected.
+         * 
+         * @param lastName
+         * @param firstName
+         * @param startNumber
+         * @param snatch1Request
+         * @param cleanJerk1Request
+         * @param missing
+         * @param qualTotal
+         */
+        public Rule15_20Violated(String lastName, String firstName, String startNumber, Integer snatch1Request,
+                Integer cleanJerk1Request, int missing, int qualTotal) {
+            super("RuleViolation.rule15_20Violated", lastName, firstName, startNumber, snatch1Request,
+                    cleanJerk1Request, missing, qualTotal);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(RuleViolationException.class);
+    private static final long serialVersionUID = 8965943679108964933L;
+    protected String messageKey;
+
+    protected Object[] messageFormatData;
 
     /**
      * Instantiates a new rule violation exception.
@@ -39,7 +198,7 @@ public class RuleViolationException extends RuntimeException {
      * @param s    the s
      * @param objs the objs
      */
-    public RuleViolationException(String s, Object... objs) {
+    private RuleViolationException(String s, Object... objs) {
         super(s);
         this.messageKey = s;
         this.messageFormatData = objs;
@@ -53,8 +212,7 @@ public class RuleViolationException extends RuntimeException {
     @Override
     public String getLocalizedMessage() {
         final Locale locale1 = OwlcmsSession.getLocale();
-        final String fopName = OwlcmsSession.getFopName();
-        return "FOP " + fopName + " " + Translator.translate(this.messageKey, locale1, messageFormatData);
+        return Translator.translate(this.messageKey, locale1, messageFormatData);
     }
 
     /**

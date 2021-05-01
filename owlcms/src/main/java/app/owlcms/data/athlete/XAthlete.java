@@ -546,15 +546,6 @@ public class XAthlete extends Athlete {
         return a.getFirstName();
     }
 
-    /**
-     * @return
-     * @see app.owlcms.data.athlete.Athlete#getForcedAsCurrent()
-     */
-    @Override
-    public boolean getForcedAsCurrent() {
-        return a.getForcedAsCurrent();
-    }
-
     @Override
     public String getFormattedBirth() {
         return super.getFormattedBirth();
@@ -1236,11 +1227,6 @@ public class XAthlete extends Athlete {
     @Override
     public boolean isForcedAsCurrent() {
         return a.isForcedAsCurrent();
-    }
-
-    @Override
-    public boolean isValidation() {
-        return a.isValidation();
     }
 
     /**
@@ -1949,11 +1935,6 @@ public class XAthlete extends Athlete {
     @Override
     public void setTotalRank(Integer totalRank) {
         a.setTotalRank(totalRank);
-    }
-
-    @Override
-    public void setValidation(boolean b) {
-        a.setValidation(b);
     }
 
     /**

@@ -431,7 +431,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
 
     private void init() {
         OwlcmsSession.withFop(fop -> {
-            logger.trace("Starting result board on FOP {}", fop.getName());
+            logger.trace("{}Starting result board", fop.getLoggingName());
             setId("scoreboard-" + fop.getName());
             curGroup = fop.getGroup();
             getModel().setWideCategory(true);

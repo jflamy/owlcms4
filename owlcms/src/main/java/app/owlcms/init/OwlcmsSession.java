@@ -161,13 +161,13 @@ public class OwlcmsSession {
     private OwlcmsSession() {
     }
 
-    public static String getFopName() {
+    public static String getFopLoggingName() {
         FieldOfPlay fop = getFop();
         if (fop == null) {
             fop = OwlcmsFactory.getDefaultFOP();
         }
         if (fop != null) {
-            return fop.getName();
+            return fop.getLoggingName();
         } else {
             return "-";
         }

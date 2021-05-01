@@ -27,7 +27,7 @@ public class LiftOrderComparator extends AbstractLifterComparator implements Com
 
         // a Athlete that has the boolean flag "forceAsFirst" collates smallest
         // by definition
-        compare = compareForcedAsFirst(lifter1, lifter2);
+        compare = compareForcedAsCurrent(lifter1, lifter2);
         if (compare != 0) {
             return compare;
         }

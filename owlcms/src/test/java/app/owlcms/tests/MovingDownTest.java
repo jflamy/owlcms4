@@ -99,9 +99,9 @@ public class MovingDownTest {
         successfulLift(fopBus, simpsonR, fopState);
         
         // schneiderF cannot move back to 60 because of his start number
-        testChange(() -> change2(schneiderF, "60", fopBus), logger, "RuleViolation.startNumberTooHigh");
+        testChange(() -> change2(schneiderF, "60", fopBus), logger, RuleViolationException.StartNumberTooHigh.class);
         
-        // but allison can.
+        // but allison can move back to 60
         testChange(() -> change2(allisonR, "60", fopBus), logger, null);
     }
     
@@ -153,7 +153,7 @@ public class MovingDownTest {
         successfulLift(fopBus, curAthlete, fopState);
         
         // schneiderF wants to move down. cannot because a 63 was done as second lift
-        testChange(() ->  change1(schneiderF, "63", fopBus), logger, "RuleViolation.attemptNumberTooLow");
+        testChange(() ->  change1(schneiderF, "63", fopBus), logger, RuleViolationException.AttemptNumberTooLow.class);
         
         // but allisonR can change his mind and go back to his automatic progression.
         testChange(() ->  change1(allisonR, "63", fopBus), logger, null);    
@@ -207,7 +207,7 @@ public class MovingDownTest {
         fopBus.post(new FOPEvent.TimeStarted(null)); // this starts logical time
 
         // schneiderF wants to move down. cannot because clock owner is running with 63
-        testChange(() ->  change1(schneiderF, "63", fopBus), logger, "RuleViolation.attemptNumberTooLow");
+        testChange(() ->  change1(schneiderF, "63", fopBus), logger, RuleViolationException.AttemptNumberTooLow.class);
         
         // but allisonR can change his mind and go back to his automatic progression.
         testChange(() ->  change1(allisonR, "63", fopBus), logger, null);    
@@ -215,7 +215,7 @@ public class MovingDownTest {
 
     
     @Test
-    public void checkProgresion() {
+    public void checkProgression() {
         FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LoggerLevel);
@@ -226,15 +226,19 @@ public class MovingDownTest {
         AthleteSorter.assignStartNumbers(athletes);
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);
-        keepOnly(athletes, 2);
+        final Athlete allisonR = athletes.get(2);
+        keepOnly(athletes, 3);
         
         // weigh-in
         schneiderF.setSnatch1Declaration(Integer.toString(60));
         simpsonR.setSnatch1Declaration(Integer.toString(60));
+        allisonR.setSnatch1Declaration(Integer.toString(60));
         schneiderF.setCleanJerk1Declaration(Integer.toString(82));
         simpsonR.setCleanJerk1Declaration(Integer.toString(82));
+        allisonR.setCleanJerk1Declaration(Integer.toString(82));
 
         change1(simpsonR, "62", fopBus);
+        change1(allisonR, "62", fopBus);
         
         // schneiderF successful at 60
         Athlete curAthlete = fopState.getCurAthlete();
@@ -250,6 +254,13 @@ public class MovingDownTest {
         // allisonR declares 65
         declaration(simpsonR, "65", fopBus);
         
+        // allisonR succeeds at 62 first lift
+        curAthlete = fopState.getCurAthlete();
+        assertEquals(allisonR, curAthlete);
+        successfulLift(fopBus, curAthlete, fopState);
+        // allisonR declares 65
+        declaration(allisonR, "66", fopBus);
+        
         // back to simpsonR for 65 as second lift
         curAthlete = fopState.getCurAthlete();
         assertEquals(simpsonR, curAthlete);
@@ -257,7 +268,10 @@ public class MovingDownTest {
         
         // schneiderF wants to move down. cannot take the same weight
         // he lifted first, cannot manipulate the lifting order to end up lifting the same weight after
-        testChange(() ->  change1(schneiderF, "65", fopBus), logger, "RuleViolation.liftedEarlier");
+        testChange(() ->  change1(schneiderF, "65", fopBus), logger, RuleViolationException.LiftedEarlier.class);
+        
+        // but allisonR can move down because he lifted after
+        testChange(() ->  change1(allisonR, "65", fopBus), logger, null);
     }
 
     private void keepOnly(List<Athlete> athletes, int endIndex) {
@@ -274,7 +288,7 @@ public class MovingDownTest {
         void doChange() throws RuleViolationException;
     }
     
-    private void testChange(WeightChange w, Logger logger, String expectedKey) {
+    private void testChange(WeightChange w, Logger logger, Class<? extends Exception> expectedException) {
         // schneider wants to come down
         String message = null;
         boolean thrown = false;
@@ -283,11 +297,11 @@ public class MovingDownTest {
         } catch (RuleViolationException e) {
             thrown = true;
             message = e.getLocalizedMessage();
-            logger.warn(message);
-            assertEquals(expectedKey, expectedKey == null ? null : e.getMessageKey());
+            logger.warn("{}{}", OwlcmsSession.getFopLoggingName(), message);
+            assertEquals(expectedException, e.getClass());
         } finally {
-            if (expectedKey != null && !thrown) {
-                fail("expected "+expectedKey);
+            if (expectedException != null && !thrown) {
+                fail("no exception was thrown, expected "+expectedException.getSimpleName());
             }
         }
     }

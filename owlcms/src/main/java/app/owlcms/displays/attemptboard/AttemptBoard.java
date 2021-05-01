@@ -422,7 +422,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     protected void onAttach(AttachEvent attachEvent) {
         // fop obtained via QueryParameterReader interface default methods.
         OwlcmsSession.withFop(fop -> {
-            logger.debug("onAttach {} {}", fop.getName(), fop.getState());
+            logger.debug("{}onAttach {}", fop.getLoggingName(), fop.getState());
             init();
             ThemeList themeList = UI.getCurrent().getElement().getThemeList();
             themeList.remove(Lumo.LIGHT);
@@ -488,7 +488,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     private void init() {
         OwlcmsSession.withFop(fop -> {
-            logger.trace("Starting attempt board on FOP {}", fop.getName());
+            logger.trace("{}Starting attempt board", fop.getLoggingName());
             setId("attempt-board-template");
         });
     }

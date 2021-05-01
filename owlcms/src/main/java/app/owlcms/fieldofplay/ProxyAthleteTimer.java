@@ -86,7 +86,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
         if (running) {
             computeTimeRemaining();
         }
-        logger.info("FOP {} setting Time -- timeRemaining = {}", fop.getName(), timeRemaining);
+        logger.info("{}setting Time -- timeRemaining = {}", fop.getLoggingName(), timeRemaining);
         this.timeRemaining = timeRemaining;
         fop.pushOut(new UIEvent.SetTime(timeRemaining, null));
         running = false;
@@ -99,7 +99,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
     public void start() {
         if (!running) {
             startMillis = System.currentTimeMillis();
-            logger.info("FOP {} starting Time -- timeRemaining = {}", fop.getName(), timeRemaining);
+            logger.info("{}starting Time -- timeRemaining = {}", fop.getLoggingName(), timeRemaining);
             timeRemainingAtLastStop = timeRemaining;
         }
         fop.pushOut(new UIEvent.StartTime(timeRemaining, null, fop.isEmitSoundsOnServer()));
@@ -114,7 +114,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
         if (running) {
             computeTimeRemaining();
         }
-        logger.info("FOP {} stopping Time -- timeRemaining = {}", fop.getName(), timeRemaining);
+        logger.info("{}stopping Time -- timeRemaining = {}", fop.getLoggingName(), timeRemaining);
         timeRemainingAtLastStop = timeRemaining;
         fop.pushOut(new UIEvent.StopTime(timeRemaining, null));
         running = false;

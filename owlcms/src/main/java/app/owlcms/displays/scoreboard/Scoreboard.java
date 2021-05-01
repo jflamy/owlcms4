@@ -607,7 +607,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 
     private void init() {
         OwlcmsSession.withFop(fop -> {
-            logger.trace("Starting result board on FOP {}", fop.getName());
+            logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
             setId("scoreboard-" + fop.getName());
             curGroup = fop.getGroup();
             getModel().setWideTeamNames(false);

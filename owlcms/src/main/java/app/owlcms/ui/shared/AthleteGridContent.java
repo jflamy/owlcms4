@@ -240,7 +240,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     public Collection<Athlete> findAll() {
         FieldOfPlay fop = OwlcmsSession.getFop();
         if (fop != null) {
-            logger.trace("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
+            logger.trace("{}findAll {} {}", fop.getLoggingName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
                     LoggerUtils.whereFrom());
             final String filterValue;
             if (lastNameFilter.getValue() != null) {

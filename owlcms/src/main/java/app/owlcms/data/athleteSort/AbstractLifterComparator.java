@@ -278,10 +278,10 @@ public class AbstractLifterComparator {
      * @param lifter2 the lifter 2
      * @return the int
      */
-    int compareForcedAsFirst(Athlete lifter1, Athlete lifter2) {
+    int compareForcedAsCurrent(Athlete lifter1, Athlete lifter2) {
         // can't be nulls, method returns primitive boolean
-        Boolean lifter1Value = lifter1.getForcedAsCurrent();
-        Boolean lifter2Value = lifter2.getForcedAsCurrent();
+        Boolean lifter1Value = lifter1.isForcedAsCurrent();
+        Boolean lifter2Value = lifter2.isForcedAsCurrent();
 
         // true.compareTo(false) returns positive (i.e. greater). We want the
         // opposite.
