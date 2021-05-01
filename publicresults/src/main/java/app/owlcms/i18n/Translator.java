@@ -311,7 +311,20 @@ public class Translator implements I18NProvider {
             return "!" + locale.getLanguage() + ": " + key;
         }
         if (params.length > 0) {
+            value = formatOrElseEn(key, locale, value, params);
+        }
+        return value;
+    }
+
+    private String formatOrElseEn(String key, Locale locale, String value, Object... params) {
+        try {
             value = format(value, params);
+        } catch (Exception e) {
+            if (locale.getLanguage() != "en" && locale.getCountry().isBlank()) {
+                return "!" + locale.getLanguage() + "("+ key + ")"+ ": "+getTranslation(key, Locale.ENGLISH, params);
+            } else {
+                throw e;
+            }
         }
         return value;
     }
