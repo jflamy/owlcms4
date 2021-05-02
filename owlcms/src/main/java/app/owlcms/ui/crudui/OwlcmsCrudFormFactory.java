@@ -60,7 +60,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 
     protected ResponsiveStep[] responsiveSteps;
     protected Label errorLabel;
-    protected boolean valid = false;
+    private boolean valid = false;
     protected TextField operationTrigger;
     private ClickEvent<Button> operationTriggerEvent;
 
@@ -173,11 +173,11 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 
     public void setValidationStatusHandler(boolean showErrorsOnFields) {
         binder.setValidationStatusHandler((s) -> {
-            valid = !s.hasErrors();
+            setValid(!s.hasErrors());
             if (showErrorsOnFields) {
                 s.notifyBindingValidationStatusHandlers();
             }
-            if (!valid) {
+            if (!isValid()) {
                 logger.debug("validationStatusHandler updateFieldErrors={} {}", showErrorsOnFields,
                         LoggerUtils.whereFrom());
                 if (errorLabel != null) {
@@ -374,8 +374,8 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 
     protected void performOperationAndCallback(CrudOperation operation, T domainObject,
             ComponentEventListener<ClickEvent<Button>> gridCallback) {
-        valid = binder.writeBeanIfValid(domainObject);
-        if (valid) {
+        setValid(binder.writeBeanIfValid(domainObject));
+        if (isValid()) {
             if (operation == CrudOperation.ADD) {
                 logger.debug("adding 	{}", domainObject);
                 this.add(domainObject);
@@ -453,5 +453,13 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         setButtonCaption(CrudOperation.DELETE, Translator.translate("Delete"));
         cancelButtonCaption = Translator.translate("Cancel");
         validationErrorMessage = Translator.translate("PleaseFix");
+    }
+
+    protected boolean isValid() {
+        return valid;
+    }
+
+    protected void setValid(boolean valid) {
+        this.valid = valid;
     }
 }

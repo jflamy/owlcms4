@@ -154,6 +154,7 @@ public class DemoData {
 
         for (int i = 0; i < liftersToLoad; i++) {
             Athlete p = new Athlete();
+            Level prevLoggerLevel = p.getLogger().getLevel();
             try {
                 p.setLoggerLevel(Level.WARN);
                 Group mg = (em.contains(group) ? group : em.merge(group));
@@ -171,7 +172,7 @@ public class DemoData {
             } catch (Exception e) {
                 logger.error(LoggerUtils.stackTrace(e));
             } finally {
-                p.resetLoggerLevel();
+                p.setLoggerLevel(prevLoggerLevel);
             }
         }
     }

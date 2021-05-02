@@ -92,12 +92,12 @@ public class RuleViolationException extends RuntimeException {
          * By rule, A must come before B if they both attempt the same weight at the same attempt.
          * 
          * @param requestedWeight
-         * @param referenceStartNumber
-         * @param curStartNumber
+         * @param referenceAthlete
+         * @param currentAthlete
          */
-        public LiftedEarlier(Integer requestedWeight, int referenceStartNumber, int curStartNumber) {
-            super("RuleViolation.liftedEarlier", requestedWeight, referenceStartNumber,
-                    curStartNumber);
+        public LiftedEarlier(Integer requestedWeight, Athlete referenceAthlete, Athlete currentAthlete) {
+            super("RuleViolation.liftedEarlier", requestedWeight, referenceAthlete.getShortName(),
+                    currentAthlete.getShortName());
         }
     }
 

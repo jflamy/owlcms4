@@ -264,6 +264,7 @@ public class MovingDownTest {
         // back to simpsonR for 65 as second lift
         curAthlete = fopState.getCurAthlete();
         assertEquals(simpsonR, curAthlete);
+        // simpsonR attempts 65
         successfulLift(fopBus, curAthlete, fopState);
         
         // schneiderF wants to move down. cannot take the same weight

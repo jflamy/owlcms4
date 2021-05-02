@@ -203,7 +203,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
                 }
             }
-            valid = !s.hasErrors();
+            setValid(!s.hasErrors());
             s.notifyBindingValidationStatusHandlers();
         });
     }
@@ -688,7 +688,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     private boolean validateStartingTotals(String mainProp, String otherProp1, String otherProp2) {
         try {
             logger.debug("before {} validation", mainProp);
-            Athlete.validateStartingTotalsRule(getEditedAthlete(), getIntegerFieldValue("snatch1Declaration"),
+            getEditedAthlete().validateStartingTotalsRule(getIntegerFieldValue("snatch1Declaration"),
                     getIntegerFieldValue("cleanJerk1Declaration"), getIntegerFieldValue("qualifyingTotal"));
             // clear errors on other fields.
             logger.debug("clearing errors on {} {}", otherProp1, otherProp2);
