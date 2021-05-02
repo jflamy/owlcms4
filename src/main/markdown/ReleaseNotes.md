@@ -1,8 +1,16 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+  * [x] Implemented the rules to prevent athletes from moving down their requested weight illegally.  Moving down is only allowed if the requested weight does not cause the athlete to lift out of order (i.e. moving is denied if the athlete should have lifted the weight earlier according the the rules, and is therefore gaining unfair recovery time)
+    - An athlete cannot move to a weight smaller than an already started clock, or an already lifted weight (bar weight does not go down except to correct marshalling or announcing errors)
+    - If moving to a value for an already started clock or an already attempted weight
+      - If an athlete previously lifted the requested weight and did so on an earlier attempt, then the moving athlete cannot move (at a given weight, cannot take attempt 2 before attempt 1)
+      - If an athlete previously lifted the requested weight and did so on the same attempt, then the moving athlete must have lifted later (taken a larger bar on the previous attempt - smaller progression)
+      - If an athlete previously lifted the requested weight and did so on the same attempt with the same previous weight, then the moving athlete must have  larger start number (for example, on a first attempt start 1 cannot lift after start 2 by moving up, then moving down after start 2 has lifted)
+    - Because sometimes there is confusion when entering weights -- similar names, fatigue, etc., the rules can be waived.
+    - Note: The rules are not applied for mixed children groups with "all girls before all boys" (since the first boy will likely request less than the last girl)
   * [x] For cloud-based competitions, setting the time zone can now be done from within the application instead of requiring an environment variable. (#422)
   * [x] The Kubernetes setup files were missing an annotation that was preventing generation of the https certificate. Also updated cert-manager to the current version.
-  
+
 * Key Highlights from recent stable releases
 
   - [x] A request for a weight below what that was loaded on last clock start will be blocked (#234).  This prevents accidental typing from messing up the lifting order (ex: typing 87 instead of 97). The other rules for moving down will be enforced automatically will be added later in upcoming releases.
