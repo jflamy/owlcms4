@@ -230,7 +230,7 @@ public class Translator implements I18NProvider {
                         throw new RuntimeException(message);
                     }
                     logger.debug(stringList.toString());
-                    for (int i = 1; i < nbLanguages; i++) {
+                    for (int i = 1; i < nbLanguages+1; i++) {
                         // treat the CSV strings using same rules as Properties files.
                         // u0000 escapes are translated to Java characters
                         String input = stringList.get(i);
@@ -252,7 +252,7 @@ public class Translator implements I18NProvider {
                 }
 
                 // writing
-                for (int i = 1; i < nbLanguages; i++) {
+                for (int i = 1; i < nbLanguages+1; i++) {
                     logger.debug("writing to " + outFiles[i].getAbsolutePath());
                     languageProperties[i].store(new FileOutputStream(outFiles[i]), "generated from " + csvName);
                 }
