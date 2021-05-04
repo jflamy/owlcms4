@@ -3897,8 +3897,8 @@ public class Athlete {
     private void checkSameWeightAsReference(LiftOrderInfo reference, Integer requestedWeight, int referenceWeight,
             int referenceAttemptNo, int currentLiftNo) {
         String fopLoggingName = OwlcmsSession.getFopLoggingName();
-        getLogger().debug("{}requestedWeight {} == requestedWeight {}",
-                fopLoggingName, requestedWeight, requestedWeight);
+        getLogger().debug("{}requestedWeight {} == referenceWeight {}",
+                fopLoggingName, requestedWeight, referenceWeight);
         // asking for same weight as previous lifter, cannot be a lower attempt number
         // Example we are asking for weight X on (say) first attempt, but someone else already
         // lifted that weight on second attempt. Too late, we are out of order.
@@ -3966,17 +3966,17 @@ public class Athlete {
         int attempt = getAttemptsDone() + 1;
         switch (attempt) {
         case 1:
-            return requestedWeight;
+            return Math.abs(requestedWeight);
         case 2:
-            return requestedWeight - Math.abs(zeroIfInvalid(getSnatch1ActualLift()));
+            return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getSnatch1ActualLift()));
         case 3:
-            return requestedWeight - Math.abs(zeroIfInvalid(getSnatch2ActualLift()));
+            return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getSnatch2ActualLift()));
         case 4:
-            return requestedWeight;
+            return Math.abs(requestedWeight);
         case 5:
-            return requestedWeight - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift()));
+            return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift()));
         case 6:
-            return requestedWeight - Math.abs(zeroIfInvalid(getCleanJerk2ActualLift()));
+            return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getCleanJerk2ActualLift()));
         }
         return 0;
     }
