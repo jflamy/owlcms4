@@ -1,6 +1,8 @@
 steps:
 -  checkout: self
    submodules: recursive
+-  script:
+     cp src/main/azure-pipelines/settings.xml ~/.m2/settings.xml
 -  task: MavenAuthenticate@0
    displayName: Populate settings.xml for deploy servers
    inputs:
