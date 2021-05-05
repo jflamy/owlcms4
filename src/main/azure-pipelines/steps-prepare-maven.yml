@@ -1,8 +1,7 @@
 steps:
 -  checkout: self
    submodules: recursive
--  script:
-     ls -la ~
+-  script: |
      mkdir ~/.m2
      cp src/main/azure-pipelines/settings.xml ~/.m2/settings.xml
 -  task: MavenAuthenticate@0
