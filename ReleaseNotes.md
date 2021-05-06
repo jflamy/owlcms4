@@ -1,8 +1,10 @@
-* Changes for release 4.19.0-alpha03  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.19.0-alpha07  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] Portuguese translation was missing.
+  - [x] Moving down rule was not determining correctly who had lifted first on a previous attempt, if the attempt was failed.
   
 * Changes for previous 4.19 pre-releases
+
+  - [x] Portuguese translation was missing.
 
   * [x] Implemented the rules to prevent athletes from moving down their requested weight illegally.  Moving down is only allowed if the requested weight does not cause the athlete to lift out of order (i.e. moving is denied if the athlete should have lifted the weight earlier according the the rules, and is therefore gaining unfair recovery time)
     - An athlete cannot move to a weight smaller than an already started clock, or an already lifted weight (bar weight does not go down except to correct marshalling or announcing errors)
