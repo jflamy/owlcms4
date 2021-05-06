@@ -75,9 +75,9 @@ public class RuleViolationException extends RuntimeException {
          * @param referenceStartNumber
          * @param curStartNumber
          */
-        public StartNumberTooHigh(Integer requestedWeight, int referenceStartNumber, int curStartNumber) {
+        public StartNumberTooHigh(Integer requestedWeight, Athlete referenceAthlete, Athlete currentAthlete) {
             super("RuleViolation.startNumberTooHigh", requestedWeight,
-                    referenceStartNumber, curStartNumber);
+                    referenceAthlete.getShortName(), currentAthlete.getShortName());
         }
     }
 
@@ -112,9 +112,9 @@ public class RuleViolationException extends RuntimeException {
          * @param startNumber
          * @param referenceWeight
          */
-        public WeightBelowAlreadyLifted(Integer requestedWeight, int startNumber, int referenceWeight) {
+        public WeightBelowAlreadyLifted(Integer requestedWeight, Athlete athlete, int referenceWeight) {
             super("RuleViolation.weightBelowAlreadyLifted", requestedWeight,
-                    startNumber, referenceWeight);
+                    athlete.getShortName(), referenceWeight);
         }
     }
 
@@ -131,9 +131,9 @@ public class RuleViolationException extends RuntimeException {
          * @param referenceWeight
          * @param attemptNo
          */
-        public AttemptNumberTooLow(Integer requestedWeight, int startNumber, int referenceWeight, int attemptNo) {
+        public AttemptNumberTooLow(Integer requestedWeight, Athlete athlete, int referenceWeight, int attemptNo) {
             super("RuleViolation.attemptNumberTooLow", requestedWeight,
-                    startNumber, referenceWeight, attemptNo);
+                    athlete.getShortName(), referenceWeight, attemptNo);
         }
     }
 

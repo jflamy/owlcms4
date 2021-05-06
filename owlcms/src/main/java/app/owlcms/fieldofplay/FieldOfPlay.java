@@ -813,7 +813,7 @@ public class FieldOfPlay {
                 inBreak));
         int attempts = getCurAthlete().getAttemptedLifts() + 1;
         logger.info("{}current athlete = {} attempt {}, requested = {}, timeAllowed={} timeRemainingAtLastStop={}",
-                getLoggingName(), getCurAthlete(), getCurAthlete() != null ? attempts : 0, curWeight,
+                getLoggingName(), getCurAthlete().getShortName(), getCurAthlete() != null ? attempts : 0, curWeight,
                 clock,
                 getAthleteTimer().getTimeRemainingAtLastStop());
         if (attempts > 6) {
@@ -1326,7 +1326,7 @@ public class FieldOfPlay {
     @SuppressWarnings("unused")
     private void uiDisplayCurrentWeight() {
         Integer nextAttemptRequestedWeight = getCurAthlete().getNextAttemptRequestedWeight();
-        uiEventLogger.info("requested weight: {} (from curAthlete {})", nextAttemptRequestedWeight, getCurAthlete());
+        uiEventLogger.info("requested weight: {} (from curAthlete {})", nextAttemptRequestedWeight, getCurAthlete().getShortName());
     }
 
     private synchronized void uiShowDownSignalOnSlaveDisplays(Object origin2) {
