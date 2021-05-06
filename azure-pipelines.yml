@@ -4,7 +4,10 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.19.0-alpha07
+    default: 4.19.0-alpha08
+  - name: RunTests
+    type: string
+    default: 'true'
   - name: BuildPublicResults
     type: string
     default: 'true'
@@ -33,6 +36,7 @@ jobs:
       jobName: BuildOwlcmsUberJar
       moduleName: owlcms
       artifactName: OwlcmsZip
+      runTests: ${{ parameters.runTests }}
   - template: src/main/azure-pipelines/job-createInstaller.yml
     parameters:
       jobName: CreateOwlcmsInstaller
