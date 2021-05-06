@@ -1,8 +1,16 @@
 parameters:
-  jobName: ''
-  moduleName: ''
-  artifactName: ''
-  runTests: 'false'
+  - name: jobName
+    type: string
+    default: ''
+  - name: moduleName
+    type: string
+    default: ''
+  - name: artifactName
+    type: string
+    default: ''
+  - name: runTests
+    type: string
+    default: 'false'
 
 jobs:
   # build owlcms uberjar and zip to be used by installer
