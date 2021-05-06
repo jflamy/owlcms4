@@ -11,86 +11,43 @@ import java.util.Objects;
 import app.owlcms.data.athlete.Athlete;
 
 public class LiftOrderInfo implements Comparable<LiftOrderInfo> {
-    public void setLotNumber(int lotNumber) {
-        this.lotNumber = lotNumber;
-    }
+    private int lotNumber;
 
-    public void setStartNumber(int startNumber) {
-        this.startNumber = startNumber;
-    }
+    private int startNumber;
 
-    public void setProgression(int progression) {
-        this.progression = progression;
-    }
+    private int progression;
 
-    public void setWeight(int weight) {
-        this.weight = weight;
-    }
+    private int weight;
 
-    public void setAttemptNo(int attemptNo) {
-        this.attemptNo = attemptNo-1;
-    }
+    private int attemptNo;
 
-    public void setAthlete(Athlete athlete) {
-        this.athlete = athlete;
-    }
-
-    public int getLotNumber() {
-        return lotNumber;
-    }
-
-    public int getStartNumber() {
-        return startNumber;
-    }
-
-    public int getProgression() {
-        return progression;
-    }
-
-    public int getWeight() {
-        return weight;
-    }
-
-    public int getAttemptNo() {
-        return attemptNo+1;
-    }
-
-    public Athlete getAthlete() {
-        return athlete;
-    }
-
-    int lotNumber;
-    int startNumber;
-    int progression;
-    int weight;
-    int attemptNo;
-    Athlete athlete;
+    private Athlete athlete;
 
     @Override
     public int compareTo(LiftOrderInfo actualLiftInfo) {
         int compare = 0;
 
-        compare = Integer.compare(this.weight, actualLiftInfo.weight);
+        compare = Integer.compare(this.getWeight(), actualLiftInfo.getWeight());
         if (compare != 0) {
             return compare;
         }
 
-        compare = Integer.compare(this.attemptNo, actualLiftInfo.attemptNo);
+        compare = Integer.compare(this.getAttemptNo(), actualLiftInfo.getAttemptNo());
         if (compare != 0) {
             return compare;
         }
 
-        compare = Integer.compare(this.progression, actualLiftInfo.progression);
+        compare = Integer.compare(this.getProgression(), actualLiftInfo.getProgression());
         if (compare != 0) {
             return compare;
         }
 
-        compare = Integer.compare(this.startNumber, actualLiftInfo.startNumber);
+        compare = Integer.compare(this.getStartNumber(), actualLiftInfo.getStartNumber());
         if (compare != 0) {
             return compare;
         }
 
-        compare = Integer.compare(this.lotNumber, actualLiftInfo.lotNumber);
+        compare = Integer.compare(this.getLotNumber(), actualLiftInfo.getLotNumber());
         if (compare != 0) {
             return compare;
         }
@@ -99,31 +56,86 @@ public class LiftOrderInfo implements Comparable<LiftOrderInfo> {
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + Objects.hash(attemptNo, lotNumber, progression, startNumber, weight);
-        return result;
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        LiftOrderInfo other = (LiftOrderInfo) obj;
+        return getAttemptNo() == other.getAttemptNo()
+                && getLotNumber() == other.getLotNumber() && getProgression() == other.getProgression()
+                && getStartNumber() == other.getStartNumber() && getWeight() == other.getWeight();
+    }
+
+    public Athlete getAthlete() {
+        return athlete;
+    }
+
+    public int getAttemptNo() {
+        return attemptNo;
+    }
+
+    public int getLotNumber() {
+        return lotNumber;
+    }
+
+    public int getProgression() {
+        return progression;
+    }
+
+    public int getStartNumber() {
+        return startNumber;
+    }
+
+    public int getWeight() {
+        return weight;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        LiftOrderInfo other = (LiftOrderInfo) obj;
-        return attemptNo == other.attemptNo
-                && lotNumber == other.lotNumber && progression == other.progression
-                && startNumber == other.startNumber && weight == other.weight;
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + Objects.hash(getAttemptNo(), getLotNumber(), getProgression(), getStartNumber(), getWeight());
+        return result;
+    }
+
+    public void setAthlete(Athlete athlete) {
+        this.athlete = athlete;
+    }
+
+    public void setAttemptNo(int attemptNo) {
+        // 1-based !!!
+        this.attemptNo = attemptNo;
+    }
+
+    public void setLotNumber(int lotNumber) {
+        this.lotNumber = lotNumber;
+    }
+
+    public void setProgression(int progression) {
+        this.progression = progression;
+    }
+
+    public void setStartNumber(int startNumber) {
+        this.startNumber = startNumber;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
     }
 
     @Override
     public String toString() {
-        return "ActualLiftInfo [athlete=" + athlete.getLastName() + ", weight=" + weight + ", attemptNo=" + attemptNo
-                + ", progression=" + progression + ", startNumber=" + startNumber + ", lotNumber=" + lotNumber
+        return "ActualLiftInfo [athlete=" + getAthlete().getLastName() + ", weight=" + getWeight() + ", attemptNo="
+                + getAttemptNo()
+                + ", progression=" + getProgression() + ", startNumber=" + getStartNumber() + ", lotNumber="
+                + getLotNumber()
                 + "]";
     }
 

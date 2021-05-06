@@ -3847,8 +3847,10 @@ public class Athlete {
                 if (clockOwner != null) {
                     // if clock is running, reference becomes the clock owner instead of last good/bad lift.
                     reference = clockOwner.getRunningLiftOrderInfo();
+                    logger.warn("lastLift info clock running\n{}",pastOrder.shortDump());
                 } else {
                     reference = pastOrder.getLastLift();
+                    logger.warn("lastLift info no clock\n{}",pastOrder.shortDump());
                 }
 
                 if (reference != null) {
@@ -3911,7 +3913,11 @@ public class Athlete {
             getLogger().debug("{}currentLiftNo {} >= referenceAttemptNo {}",
                     fopLoggingName, currentLiftNo, referenceAttemptNo);
             int currentProgression = this.getProgression(requestedWeight);
+            
+            // BEWARE: referenceProgression if for current reference athlete and their prior attempt.
+            //int referenceProgression = reference.getAthlete().getProgression(requestedWeight);
             int referenceProgression = reference.getProgression();
+            
             if (currentProgression == referenceProgression) {
                 checkSameProgression(reference, requestedWeight, currentProgression, referenceProgression);
             } else if (currentProgression > referenceProgression) {
@@ -3966,13 +3972,13 @@ public class Athlete {
         int attempt = getAttemptsDone() + 1;
         switch (attempt) {
         case 1:
-            return Math.abs(requestedWeight);
+            return 0;
         case 2:
             return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getSnatch1ActualLift()));
         case 3:
             return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getSnatch2ActualLift()));
         case 4:
-            return Math.abs(requestedWeight);
+            return 0;
         case 5:
             return Math.abs(requestedWeight) - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift()));
         case 6:
@@ -3989,7 +3995,7 @@ public class Athlete {
         // the clock is running for our current attempt, so done+1
         int attemptsDone = this.getAttemptsDone() + 1;
         loi.setAttemptNo(attemptsDone);
-        loi.setProgression(nextAttemptRequestedWeight);
+        loi.setProgression(this.getProgression(nextAttemptRequestedWeight));
         loi.setStartNumber(this.getStartNumber());
         loi.setLotNumber(this.getLotNumber());
         getLogger().debug("{}clockOwner: {}", OwlcmsSession.getFopLoggingName(),loi);

@@ -52,36 +52,39 @@ public class LiftOrderReconstruction {
             int prevweight = 0;
             for (int liftNo = 0; liftNo < 6; liftNo++) {
                 LiftOrderInfo ali = new LiftOrderInfo();
+                int w;
                 switch (liftNo) {
-                case 0:
-                    prevweight = 0;
-                    ali.weight = Math.abs(Athlete.zeroIfInvalid(a.getSnatch1ActualLift()));
+                case 0: 
+                    w = Math.abs(Athlete.zeroIfInvalid(a.getSnatch1ActualLift()));
+                    prevweight = w;
+                    ali.setWeight(w);
                     break;
                 case 1:
-                    ali.weight = Math.abs(Athlete.zeroIfInvalid(a.getSnatch2ActualLift()));
+                    ali.setWeight(Math.abs(Athlete.zeroIfInvalid(a.getSnatch2ActualLift())));
                     break;
                 case 2:
-                    ali.weight = Math.abs(Athlete.zeroIfInvalid(a.getSnatch3ActualLift()));
+                    ali.setWeight(Math.abs(Athlete.zeroIfInvalid(a.getSnatch3ActualLift())));
                     break;
                 case 3:
+                    w = Math.abs(Athlete.zeroIfInvalid(a.getCleanJerk1ActualLift()));
                     prevweight = 0;
-                    ali.weight = Math.abs(Athlete.zeroIfInvalid(a.getCleanJerk1ActualLift()));
+                    ali.setWeight(w);
                     break;
                 case 4:
-                    ali.weight = Math.abs(Athlete.zeroIfInvalid(a.getCleanJerk2ActualLift()));
+                    ali.setWeight(Math.abs(Athlete.zeroIfInvalid(a.getCleanJerk2ActualLift())));
                     break;
                 case 5:
-                    ali.weight = Math.abs(Athlete.zeroIfInvalid(a.getCleanJerk3ActualLift()));
+                    ali.setWeight(Math.abs(Athlete.zeroIfInvalid(a.getCleanJerk3ActualLift())));
                     break;
                 }
-                ali.athlete = a;
-                ali.attemptNo = liftNo;
-                ali.progression = ali.weight - prevweight;
-                prevweight = ali.weight;
-                ali.startNumber = a.getStartNumber();
-                ali.lotNumber = a.getLotNumber();
+                ali.setAthlete(a);
+                ali.setAttemptNo(liftNo+1);
+                ali.setProgression(ali.getWeight() - prevweight);
+                prevweight = Math.abs(ali.getWeight());
+                ali.setStartNumber(a.getStartNumber());
+                ali.setLotNumber(a.getLotNumber());
                 
-                if (ali.weight > 0) {
+                if (ali.getWeight() > 0) {
                     this.pastOrder.add(ali);
                 }
 

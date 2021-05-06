@@ -36,6 +36,8 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class MovingDownTest {
+    public static final boolean KEEP_RESULTS = true;
+    
     private static Level LoggerLevel = Level.INFO;
     private static Group gA;
     private static Group gB;
@@ -43,7 +45,8 @@ public class MovingDownTest {
 
     @BeforeClass
     public static void setupTests() {
-        JPAService.init(true, true);
+        // if KEEP_RESULTS is true, we are not running in memory
+        JPAService.init(!KEEP_RESULTS, true);
     }
 
     @AfterClass
@@ -82,7 +85,7 @@ public class MovingDownTest {
         final Athlete simpsonR = athletes.get(1);
         final Athlete allisonR = athletes.get(2);
         keepOnly(athletes, 3);
-        
+
         // weigh-in
         schneiderF.setSnatch1Declaration(Integer.toString(60));
         simpsonR.setSnatch1Declaration(Integer.toString(60));
@@ -90,22 +93,21 @@ public class MovingDownTest {
         schneiderF.setCleanJerk1Declaration(Integer.toString(82));
         simpsonR.setCleanJerk1Declaration(Integer.toString(82));
         allisonR.setCleanJerk1Declaration(Integer.toString(82));
-        
+
         // competition start
         change1(schneiderF, "64", fopBus);
         change1(allisonR, "64", fopBus);
-        
+
         // simpsonR successful at 60
         successfulLift(fopBus, simpsonR, fopState);
-        
+
         // schneiderF cannot move back to 60 because of his start number
         testChange(() -> change2(schneiderF, "60", fopBus), logger, RuleViolationException.StartNumberTooHigh.class);
-        
+
         // but allison can move back to 60
         testChange(() -> change2(allisonR, "60", fopBus), logger, null);
     }
-    
-    
+
     @Test
     public void checkAttemptNumber() {
         FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
@@ -120,7 +122,7 @@ public class MovingDownTest {
         final Athlete simpsonR = athletes.get(1);
         final Athlete allisonR = athletes.get(2);
         keepOnly(athletes, 3);
-        
+
         // weigh-in
         schneiderF.setSnatch1Declaration(Integer.toString(60));
         simpsonR.setSnatch1Declaration(Integer.toString(60));
@@ -128,38 +130,37 @@ public class MovingDownTest {
         schneiderF.setCleanJerk1Declaration(Integer.toString(82));
         simpsonR.setCleanJerk1Declaration(Integer.toString(82));
         allisonR.setCleanJerk1Declaration(Integer.toString(82));
-        
+
         // competition start
         change1(schneiderF, "70", fopBus);
         change1(allisonR, "62", fopBus);
-        
+
         // simpsonR successful at 60
         Athlete curAthlete = fopState.getCurAthlete();
         assertEquals(simpsonR, curAthlete);
         successfulLift(fopBus, simpsonR, fopState);
         // simpsonR declares 63 for second attempt
         declaration(simpsonR, "63", fopBus);
-        
+
         // allisonR succeeds at 62 first lift
         curAthlete = fopState.getCurAthlete();
         assertEquals(allisonR, curAthlete);
         successfulLift(fopBus, curAthlete, fopState);
         // allisonR gets automatic progression 63 attemot 2
         declaration(allisonR, "65", fopBus);
-        
+
         // back to Simpson for 63 as second lift
         curAthlete = fopState.getCurAthlete();
         assertEquals(simpsonR, curAthlete);
         successfulLift(fopBus, curAthlete, fopState);
-        
+
         // schneiderF wants to move down. cannot because a 63 was done as second lift
-        testChange(() ->  change1(schneiderF, "63", fopBus), logger, RuleViolationException.AttemptNumberTooLow.class);
-        
+        testChange(() -> change1(schneiderF, "63", fopBus), logger, RuleViolationException.AttemptNumberTooLow.class);
+
         // but allisonR can change his mind and go back to his automatic progression.
-        testChange(() ->  change1(allisonR, "63", fopBus), logger, null);    
+        testChange(() -> change1(allisonR, "63", fopBus), logger, null);
     }
-    
-    
+
     @Test
     public void checkAttemptNumberWithClock() {
         FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
@@ -174,7 +175,7 @@ public class MovingDownTest {
         final Athlete simpsonR = athletes.get(1);
         final Athlete allisonR = athletes.get(2);
         keepOnly(athletes, 3);
-        
+
         // weigh-in
         schneiderF.setSnatch1Declaration(Integer.toString(60));
         simpsonR.setSnatch1Declaration(Integer.toString(60));
@@ -182,38 +183,37 @@ public class MovingDownTest {
         schneiderF.setCleanJerk1Declaration(Integer.toString(82));
         simpsonR.setCleanJerk1Declaration(Integer.toString(82));
         allisonR.setCleanJerk1Declaration(Integer.toString(82));
-        
+
         // competition start
         change1(schneiderF, "70", fopBus);
         change1(allisonR, "62", fopBus);
-        
+
         // simpsonR successful at 60
         Athlete curAthlete = fopState.getCurAthlete();
         assertEquals(simpsonR, curAthlete);
         successfulLift(fopBus, simpsonR, fopState);
         // simpsonR declares 63 for second attempt
         declaration(simpsonR, "63", fopBus);
-        
+
         // allisonR succeeds at 62 first lift
         curAthlete = fopState.getCurAthlete();
         assertEquals(allisonR, curAthlete);
         successfulLift(fopBus, curAthlete, fopState);
         // allisonR gets automatic progression 63, moves up for attempt 2
         declaration(allisonR, "65", fopBus);
-        
+
         // back to Simpson for 63 as second lift
         curAthlete = fopState.getCurAthlete();
         assertEquals(simpsonR, curAthlete);
         fopBus.post(new FOPEvent.TimeStarted(null)); // this starts logical time
 
         // schneiderF wants to move down. cannot because clock owner is running with 63
-        testChange(() ->  change1(schneiderF, "63", fopBus), logger, RuleViolationException.AttemptNumberTooLow.class);
-        
+        testChange(() -> change1(schneiderF, "63", fopBus), logger, RuleViolationException.AttemptNumberTooLow.class);
+
         // but allisonR can change his mind and go back to his automatic progression.
-        testChange(() ->  change1(allisonR, "63", fopBus), logger, null);    
+        testChange(() -> change1(allisonR, "63", fopBus), logger, null);
     }
 
-    
     @Test
     public void checkProgression() {
         FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
@@ -228,7 +228,7 @@ public class MovingDownTest {
         final Athlete simpsonR = athletes.get(1);
         final Athlete allisonR = athletes.get(2);
         keepOnly(athletes, 3);
-        
+
         // weigh-in
         schneiderF.setSnatch1Declaration(Integer.toString(60));
         simpsonR.setSnatch1Declaration(Integer.toString(60));
@@ -239,40 +239,176 @@ public class MovingDownTest {
 
         change1(simpsonR, "62", fopBus);
         change1(allisonR, "62", fopBus);
-        
+
         // schneiderF successful at 60
         Athlete curAthlete = fopState.getCurAthlete();
         assertEquals(schneiderF, curAthlete);
         successfulLift(fopBus, schneiderF, fopState);
         // schneiderF declares 70 for second attempt
         declaration(schneiderF, "70", fopBus);
-        
+
         // simpsonR succeeds at 62 first lift
         curAthlete = fopState.getCurAthlete();
         assertEquals(simpsonR, curAthlete);
         successfulLift(fopBus, curAthlete, fopState);
         // simpsonR declares 65
         declaration(simpsonR, "65", fopBus);
-        
+
         // allisonR succeeds at 62 first lift
         curAthlete = fopState.getCurAthlete();
         assertEquals(allisonR, curAthlete);
         successfulLift(fopBus, curAthlete, fopState);
         // allisonR declares 66
         declaration(allisonR, "66", fopBus);
-        
+
         // back to simpsonR for 65 as second lift
         curAthlete = fopState.getCurAthlete();
         assertEquals(simpsonR, curAthlete);
         // simpsonR attempts 65
         successfulLift(fopBus, curAthlete, fopState);
-        
+
         // schneiderF wants to move down. cannot take the same weight
         // he lifted first, cannot manipulate the lifting order to end up lifting the same weight after
-        testChange(() ->  change1(schneiderF, "65", fopBus), logger, RuleViolationException.LiftedEarlier.class);
-        
+        testChange(() -> change1(schneiderF, "65", fopBus), logger, RuleViolationException.LiftedEarlier.class);
+
         // but allisonR can move down because he lifted after
-        testChange(() ->  change1(allisonR, "65", fopBus), logger, null);
+        testChange(() -> change1(allisonR, "65", fopBus), logger, null);
+    }
+
+    /*
+     * ActualLiftInfo [athlete=Allison, weight=75, attemptNo=1, progression=75, startNumber=3, lotNumber=3]
+     * ActualLiftInfo [athlete=Allison, weight=77, attemptNo=2, progression=2, startNumber=3, lotNumber=3]
+     * ActualLiftInfo [athlete=Simpson, weight=80, attemptNo=1, progression=80, startNumber=2, lotNumber=2] Simpson
+     * requests 83 ActualLiftInfo [athlete=Allison, weight=80, attemptNo=3, progression=3, startNumber=3, lotNumber=3]
+     * ActualLiftInfo [athlete=Verne, weight=81, attemptNo=1, progression=81, startNumber=4, lotNumber=4] Simpson
+     * requests 81 -> should be denied.
+     */
+    @Test
+    public void checkProgression2() {
+        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
+        OwlcmsSession.setFop(fopState);
+        fopState.getLogger().setLevel(LoggerLevel);
+        EventBus fopBus = fopState.getFopEventBus();
+
+        logger.setLevel(Level.INFO);
+        AthleteSorter.assignLotNumbers(athletes);
+        AthleteSorter.assignStartNumbers(athletes);
+        final Athlete schneiderF = athletes.get(0);
+        final Athlete simpsonR = athletes.get(1);
+        final Athlete allisonR = athletes.get(2);
+        final Athlete verneU = athletes.get(3);
+        keepOnly(athletes, 4);
+
+        // weigh-in
+        schneiderF.setSnatch1Declaration(Integer.toString(85));
+        simpsonR.setSnatch1Declaration(Integer.toString(80));
+        allisonR.setSnatch1Declaration(Integer.toString(75));
+        verneU.setSnatch1Declaration(Integer.toString(81));
+        schneiderF.setCleanJerk1Declaration(Integer.toString(92));
+        simpsonR.setCleanJerk1Declaration(Integer.toString(92));
+        allisonR.setCleanJerk1Declaration(Integer.toString(92));
+        verneU.setCleanJerk1Declaration(Integer.toString(92));
+        fopState.recomputeLiftingOrder();
+
+        // allisonR successful at 75
+        Athlete curAthlete = fopState.getCurAthlete();
+        assertEquals(allisonR, curAthlete);
+        successfulLift(fopBus, allisonR, fopState);
+        // allisonR declares 77 for second attempt
+        declaration(allisonR, "77", fopBus);
+
+        // allisonR fails at 77
+        curAthlete = fopState.getCurAthlete();
+        assertEquals(allisonR, curAthlete);
+        failedLift(fopBus, allisonR, fopState);
+        // allisonR declares 80 for third attempt
+        declaration(allisonR, "80", fopBus);
+
+        // simpsonR succeeds at 80 first lift
+        curAthlete = fopState.getCurAthlete();
+        assertEquals(simpsonR, curAthlete);
+        successfulLift(fopBus, curAthlete, fopState);
+        // simpsonR declares 83
+        declaration(simpsonR, "83", fopBus);
+
+        // back to allisonR at 80 who succeeds third attempt
+        curAthlete = fopState.getCurAthlete();
+        assertEquals(allisonR, curAthlete);
+        successfulLift(fopBus, curAthlete, fopState);
+
+        // verneU fails first at 81
+        curAthlete = fopState.getCurAthlete();
+        assertEquals(verneU, curAthlete);
+        // fails and keeps same
+        failedLift(fopBus, curAthlete, fopState);
+
+        // simpsonR wants to move down. cannot take the same weight
+        // he lifted first, cannot manipulate the lifting order to end up lifting the same weight after
+        testChange(() -> change1(simpsonR, "81", fopBus), logger, RuleViolationException.LiftedEarlier.class);
+    }
+
+    @Test
+    public void checkProgression3() {
+        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
+        OwlcmsSession.setFop(fopState);
+        fopState.getLogger().setLevel(LoggerLevel);
+        EventBus fopBus = fopState.getFopEventBus();
+
+        logger.setLevel(Level.INFO);
+        AthleteSorter.assignLotNumbers(athletes);
+        AthleteSorter.assignStartNumbers(athletes);
+        final Athlete schneiderF = athletes.get(0);
+        final Athlete simpsonR = athletes.get(1);
+        final Athlete allisonR = athletes.get(2);
+        final Athlete verneU = athletes.get(3);
+        keepOnly(athletes, 4);
+
+        // weigh-in
+        schneiderF.setSnatch1Declaration(Integer.toString(85));
+        simpsonR.setSnatch1Declaration(Integer.toString(80));
+        allisonR.setSnatch1Declaration(Integer.toString(75));
+        verneU.setSnatch1Declaration(Integer.toString(81));
+        schneiderF.setCleanJerk1Declaration(Integer.toString(92));
+        simpsonR.setCleanJerk1Declaration(Integer.toString(92));
+        allisonR.setCleanJerk1Declaration(Integer.toString(92));
+        verneU.setCleanJerk1Declaration(Integer.toString(92));
+        fopState.recomputeLiftingOrder();
+
+        // allisonR successful at 75
+        Athlete curAthlete = fopState.getCurAthlete();
+        assertEquals(allisonR, curAthlete);
+        successfulLift(fopBus, allisonR, fopState);
+        // allisonR declares 77 for second attempt
+        declaration(allisonR, "77", fopBus);
+
+        // allisonR fails at 77
+        curAthlete = fopState.getCurAthlete();
+        assertEquals(allisonR, curAthlete);
+        failedLift(fopBus, allisonR, fopState);
+        // allisonR declares 80 for third attempt
+        declaration(allisonR, "80", fopBus);
+
+        // simpsonR fails at 80 first lift
+        curAthlete = fopState.getCurAthlete();
+        assertEquals(simpsonR, curAthlete);
+        failedLift(fopBus, curAthlete, fopState);
+        // simpsonR declares 83
+        declaration(simpsonR, "83", fopBus);
+
+        // back to allisonR at 80 who succeeds third attempt
+        curAthlete = fopState.getCurAthlete();
+        assertEquals(allisonR, curAthlete);
+        successfulLift(fopBus, curAthlete, fopState);
+
+        // verneU succeeds first at 81
+        curAthlete = fopState.getCurAthlete();
+        assertEquals(verneU, curAthlete);
+        // fails and keeps automatic 82
+        successfulLift(fopBus, curAthlete, fopState);
+
+        // simpsonR wants to move down. cannot take the same weight
+        // he lifted first, cannot manipulate the lifting order to end up lifting the same weight after
+        testChange(() -> change1(simpsonR, "81", fopBus), logger, RuleViolationException.LiftedEarlier.class);
     }
 
     private void keepOnly(List<Athlete> athletes, int endIndex) {
@@ -288,11 +424,12 @@ public class MovingDownTest {
     public interface WeightChange {
         void doChange() throws RuleViolationException;
     }
-    
+
     private void testChange(WeightChange w, Logger logger, Class<? extends Exception> expectedException) {
         // schneider wants to come down
         String message = null;
         boolean thrown = false;
+
         try {
             w.doChange();
         } catch (RuleViolationException e) {
@@ -302,7 +439,7 @@ public class MovingDownTest {
             assertEquals(expectedException, e.getClass());
         } finally {
             if (expectedException != null && !thrown) {
-                fail("no exception was thrown, expected "+expectedException.getSimpleName());
+                fail("no exception was thrown, expected " + expectedException.getSimpleName());
             }
         }
     }
@@ -310,7 +447,6 @@ public class MovingDownTest {
     @Before
     public void setupTest() {
         logger.setLevel(LoggerLevel);
-
         TestData.insertInitialData(5, true);
         JPAService.runInTransaction((em) -> {
             gA = GroupRepository.doFindByName("A", em);
@@ -421,14 +557,12 @@ public class MovingDownTest {
         eventBus.post(new FOPEvent.WeightChange(this, lifter));
     }
 
-    @SuppressWarnings("unused")
     private void failedLift(EventBus fopBus, Athlete curLifter, FieldOfPlay fopState) {
         logger.debug("calling lifter: {}", curLifter);
         fopBus.post(new FOPEvent.TimeStarted(null));
         fopBus.post(new FOPEvent.DownSignal(null));
         fopBus.post(new FOPEvent.DecisionFullUpdate(this, curLifter, false, false, false, 0, 0, 0));
         logger.debug("failed lift for {}", curLifter);
-//        fopState.finalDecision(null);
         fopBus.post(new FOPEvent.DecisionReset(null));
 
     }
@@ -439,7 +573,6 @@ public class MovingDownTest {
         fopBus.post(new FOPEvent.DownSignal(null));
         fopBus.post(new FOPEvent.DecisionFullUpdate(this, curLifter, true, true, true, 0, 0, 0));
         logger.debug("successful lift for {}", curLifter);
-//        fopState.finalDecision(null);
         fopBus.post(new FOPEvent.DecisionReset(null));
     }
 
