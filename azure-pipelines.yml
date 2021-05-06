@@ -36,7 +36,7 @@ jobs:
       jobName: BuildOwlcmsUberJar
       moduleName: owlcms
       artifactName: OwlcmsZip
-      runTests: ${{ parameters.runTests }}
+      skipTests: ${{ parameters.skipTests }}
   - template: src/main/azure-pipelines/job-createInstaller.yml
     parameters:
       jobName: CreateOwlcmsInstaller
