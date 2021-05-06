@@ -1,9 +1,10 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] Moving down rule was not determining correctly who had lifted first on a previous attempt, if the attempt was failed.
+  - [x] Skipping tests is now controlled explicit parameter visible in the Azure DevOps interface, and is off by default (tests are run again during both prerelease and release builds)
   
 * Changes for previous 4.19 pre-releases
 
+  - [x] Added additional tests to "who lifted first on previous attempt" when requesting same weight, same attempt
   - [x] Portuguese translation was missing.
 
   * [x] Implemented the rules to prevent athletes from moving down their requested weight illegally.  Moving down is only allowed if the requested weight does not cause the athlete to lift out of order (i.e. moving is denied if the athlete should have lifted the weight earlier according the the rules, and is therefore gaining unfair recovery time)

@@ -4,10 +4,10 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.19.0-alpha08
-  - name: RunTests
+    default: 4.19.0-alpha09
+  - name: SkipTests
     type: string
-    default: 'true'
+    default: 'false'
   - name: BuildPublicResults
     type: string
     default: 'true'
