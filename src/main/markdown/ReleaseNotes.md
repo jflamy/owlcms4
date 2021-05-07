@@ -1,13 +1,15 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] Skipping tests is now controlled explicit parameter visible in the Azure DevOps interface, and is off by default (tests are run again during both prerelease and release builds)
+  - [x] Added automated tests for Clean&Jerk -- early weights in CJ are often smaller than weights already lifted in Snatch
+  - [x]  Updated Vaadin Flow to the current version.
   
 * Changes for previous 4.19 pre-releases
 
+  - [x] Skipping tests is now controlled explicit parameter visible in the Azure DevOps interface, and is off by default (tests are run again during both prerelease and release builds)
   - [x] Added additional tests to "who lifted first on previous attempt" when requesting same weight, same attempt
   - [x] Portuguese translation was missing.
 
-  * [x] Implemented the rules to prevent athletes from moving down their requested weight illegally.  Moving down is only allowed if the requested weight does not cause the athlete to lift out of order (i.e. moving is denied if the athlete should have lifted the weight earlier according the the rules, and is therefore gaining unfair recovery time)
+  * [x] Implemented the rules to prevent athletes from moving down their requested weight illegally.  Moving down is only allowed if the requested weight does not cause the athlete to lift out of order (i.e. moving is denied if the athlete should have lifted the weight earlier according the the rules, as this among other things would provide unfair recovery time)
     - An athlete cannot move to a weight smaller than an already started clock, or an already lifted weight (bar weight does not go down except to correct marshalling or announcing errors)
     - If moving to a value for an already started clock or an already attempted weight
       - If an athlete previously lifted the requested weight and did so on an earlier attempt, then the moving athlete cannot move (at a given weight, cannot take attempt 2 before attempt 1)
