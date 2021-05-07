@@ -3454,7 +3454,7 @@ public class Athlete {
     public void successfulLift() {
         OwlcmsSession.withFop(fop -> {
             try {
-                getLogger().info("{}good lift for {}", fop.getLoggingName(), this);
+                getLogger().info("{}good lift for {}", fop.getLoggingName(), this.getShortName());
                 final String weight = Integer.toString(getNextAttemptRequestedWeight());
                 doLift(weight);
             } catch (Exception e) {
@@ -3850,6 +3850,7 @@ public class Athlete {
                     //getLogger().debug("lastLift info clock running\n{}",pastOrder.shortDump());
                 } else {
                     reference = pastOrder.getLastLift();
+                    //*******************************************
                     //getLogger().debug("lastLift info no clock\n{}",pastOrder.shortDump());
                 }
 
