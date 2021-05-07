@@ -16,14 +16,15 @@ import java.io.InputStreamReader;
 
 //import org.concordiainternational.competition.spreadsheet.ExtenXLSReader;
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 import org.slf4j.LoggerFactory;
+
+import com.googlecode.junittoolbox.SuiteClasses;
+import com.googlecode.junittoolbox.WildcardPatternSuite;
 
 import ch.qos.logback.classic.Logger;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ AthleteSorterTest.class, AthleteTest.class, TwoMinutesRuleTest.class,
-        RegistrationReaderTest.class, RegistrationOrderComparatorTest.class, RecordDefinitionReaderTest.class, RobiCategoriesTest.class })
+@RunWith(WildcardPatternSuite.class)
+@SuiteClasses({ "**/*Test.class" })
 public class AllTests {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AllTests.class);

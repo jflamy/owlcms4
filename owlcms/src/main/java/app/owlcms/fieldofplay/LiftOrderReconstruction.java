@@ -67,7 +67,7 @@ public class LiftOrderReconstruction {
                     break;
                 case 3:
                     w = Math.abs(Athlete.zeroIfInvalid(a.getCleanJerk1ActualLift()));
-                    prevweight = 0;
+                    prevweight = w;
                     ali.setWeight(w);
                     break;
                 case 4:

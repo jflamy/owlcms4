@@ -37,7 +37,7 @@ import ch.qos.logback.classic.Logger;
 
 public class MovingDownTest {
     public static final boolean KEEP_RESULTS = true;
-    
+
     private static Level LoggerLevel = Level.INFO;
     private static Group gA;
     private static Group gB;
@@ -72,7 +72,7 @@ public class MovingDownTest {
     }
 
     @Test
-    public void checkStartNumber() {
+    public void snatchCheckStartNumber() {
         FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LoggerLevel);
@@ -87,12 +87,7 @@ public class MovingDownTest {
         keepOnly(athletes, 3);
 
         // weigh-in
-        schneiderF.setSnatch1Declaration(Integer.toString(60));
-        simpsonR.setSnatch1Declaration(Integer.toString(60));
-        allisonR.setSnatch1Declaration(Integer.toString(60));
-        schneiderF.setCleanJerk1Declaration(Integer.toString(82));
-        simpsonR.setCleanJerk1Declaration(Integer.toString(82));
-        allisonR.setCleanJerk1Declaration(Integer.toString(82));
+        doWeighIn(fopState, schneiderF, simpsonR, allisonR);
 
         // competition start
         change1(schneiderF, "64", fopBus);
@@ -109,7 +104,7 @@ public class MovingDownTest {
     }
 
     @Test
-    public void checkAttemptNumber() {
+    public void snatchCheckAttemptNumber() {
         FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LoggerLevel);
@@ -124,12 +119,7 @@ public class MovingDownTest {
         keepOnly(athletes, 3);
 
         // weigh-in
-        schneiderF.setSnatch1Declaration(Integer.toString(60));
-        simpsonR.setSnatch1Declaration(Integer.toString(60));
-        allisonR.setSnatch1Declaration(Integer.toString(60));
-        schneiderF.setCleanJerk1Declaration(Integer.toString(82));
-        simpsonR.setCleanJerk1Declaration(Integer.toString(82));
-        allisonR.setCleanJerk1Declaration(Integer.toString(82));
+        doWeighIn(fopState, schneiderF, simpsonR, allisonR);
 
         // competition start
         change1(schneiderF, "70", fopBus);
@@ -162,7 +152,7 @@ public class MovingDownTest {
     }
 
     @Test
-    public void checkAttemptNumberWithClock() {
+    public void snatchCheckAttemptNumberWithClock() {
         FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LoggerLevel);
@@ -177,12 +167,7 @@ public class MovingDownTest {
         keepOnly(athletes, 3);
 
         // weigh-in
-        schneiderF.setSnatch1Declaration(Integer.toString(60));
-        simpsonR.setSnatch1Declaration(Integer.toString(60));
-        allisonR.setSnatch1Declaration(Integer.toString(60));
-        schneiderF.setCleanJerk1Declaration(Integer.toString(82));
-        simpsonR.setCleanJerk1Declaration(Integer.toString(82));
-        allisonR.setCleanJerk1Declaration(Integer.toString(82));
+        doWeighIn(fopState, schneiderF, simpsonR, allisonR);
 
         // competition start
         change1(schneiderF, "70", fopBus);
@@ -215,7 +200,7 @@ public class MovingDownTest {
     }
 
     @Test
-    public void checkProgression() {
+    public void snatchCheckProgression() {
         FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LoggerLevel);
@@ -230,12 +215,7 @@ public class MovingDownTest {
         keepOnly(athletes, 3);
 
         // weigh-in
-        schneiderF.setSnatch1Declaration(Integer.toString(60));
-        simpsonR.setSnatch1Declaration(Integer.toString(60));
-        allisonR.setSnatch1Declaration(Integer.toString(60));
-        schneiderF.setCleanJerk1Declaration(Integer.toString(82));
-        simpsonR.setCleanJerk1Declaration(Integer.toString(82));
-        allisonR.setCleanJerk1Declaration(Integer.toString(82));
+        doWeighIn(fopState, schneiderF, simpsonR, allisonR);
 
         change1(simpsonR, "62", fopBus);
         change1(allisonR, "62", fopBus);
@@ -284,7 +264,7 @@ public class MovingDownTest {
      * requests 81 -> should be denied.
      */
     @Test
-    public void checkProgression2() {
+    public void snatchCheckProgression2() {
         FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LoggerLevel);
@@ -299,15 +279,17 @@ public class MovingDownTest {
         final Athlete verneU = athletes.get(3);
         keepOnly(athletes, 4);
 
+//        doWeighIn(fopState, schneiderF, simpsonR, allisonR, verneU);
+
         // weigh-in
         schneiderF.setSnatch1Declaration(Integer.toString(85));
         simpsonR.setSnatch1Declaration(Integer.toString(80));
         allisonR.setSnatch1Declaration(Integer.toString(75));
         verneU.setSnatch1Declaration(Integer.toString(81));
-        schneiderF.setCleanJerk1Declaration(Integer.toString(92));
-        simpsonR.setCleanJerk1Declaration(Integer.toString(92));
-        allisonR.setCleanJerk1Declaration(Integer.toString(92));
-        verneU.setCleanJerk1Declaration(Integer.toString(92));
+        schneiderF.setCleanJerk1Declaration(Integer.toString(85));
+        simpsonR.setCleanJerk1Declaration(Integer.toString(80));
+        allisonR.setCleanJerk1Declaration(Integer.toString(75));
+        verneU.setCleanJerk1Declaration(Integer.toString(81));
         fopState.recomputeLiftingOrder();
 
         // allisonR successful at 75
@@ -348,7 +330,7 @@ public class MovingDownTest {
     }
 
     @Test
-    public void checkProgression3() {
+    public void snatchCheckProgression3() {
         FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LoggerLevel);
@@ -368,10 +350,10 @@ public class MovingDownTest {
         simpsonR.setSnatch1Declaration(Integer.toString(80));
         allisonR.setSnatch1Declaration(Integer.toString(75));
         verneU.setSnatch1Declaration(Integer.toString(81));
-        schneiderF.setCleanJerk1Declaration(Integer.toString(92));
-        simpsonR.setCleanJerk1Declaration(Integer.toString(92));
-        allisonR.setCleanJerk1Declaration(Integer.toString(92));
-        verneU.setCleanJerk1Declaration(Integer.toString(92));
+        schneiderF.setCleanJerk1Declaration(Integer.toString(85));
+        simpsonR.setCleanJerk1Declaration(Integer.toString(80));
+        allisonR.setCleanJerk1Declaration(Integer.toString(75));
+        verneU.setCleanJerk1Declaration(Integer.toString(81));
         fopState.recomputeLiftingOrder();
 
         // allisonR successful at 75
@@ -578,6 +560,20 @@ public class MovingDownTest {
 
     public List<Athlete> getAthletes() {
         return athletes;
+    }
+
+    private void doWeighIn(FieldOfPlay fopState, final Athlete... athletes) {
+        // weigh-in
+        for (Athlete a : athletes) {
+            a.setSnatch1Declaration(Integer.toString(60));
+            a.setCleanJerk1Declaration(Integer.toString(60));
+        }
+        fopState.recomputeLiftingOrder();
+    }
+
+    @SuppressWarnings("unused")
+    private void doSnatch(FieldOfPlay fopState, final Athlete... athletes) {
+        // TODO do 3 successful lifts for each athlete, just fillers.
     }
 
 }

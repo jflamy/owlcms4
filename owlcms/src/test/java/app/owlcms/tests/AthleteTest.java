@@ -8,7 +8,9 @@ package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import app.owlcms.data.agegroup.AgeGroup;
@@ -16,10 +18,24 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.competition.Competition;
+import app.owlcms.data.jpa.JPAService;
 
 public class AthleteTest {
 
     private static Athlete athlete;
+    
+    @BeforeClass
+    public static void setupTests() {
+        //JPAService.init(true, true);
+        Competition.setCurrent(new Competition());
+    }
+
+    @AfterClass
+    public static void tearDownTests() {
+        //JPAService.close();
+    }
+
 
     @Before
     public void setupTest() {
