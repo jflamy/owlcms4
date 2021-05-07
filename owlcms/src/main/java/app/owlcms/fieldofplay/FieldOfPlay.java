@@ -901,12 +901,12 @@ public class FieldOfPlay {
                 return;
             }
         } else if (clockOwner != null && !getAthleteTimer().isRunning()) {
-            logger.debug("&&3.B clock NOT running for changing athlete {}", changingAthlete);
+            logger.trace("&&3.B clock NOT running for changing athlete {}", changingAthlete);
             // time was started (there is an owner) but is not currently running
             // time was likely stopped by timekeeper because coach signaled change of weight
             doWeightChange(wc, changingAthlete, clockOwner, true);
         } else {
-            logger.debug("&&3.C1 no clock owner, time is not running");
+            logger.trace("&&3.C1 no clock owner, time is not running");
             // time is not running
             recomputeLiftingOrder();
             updateGlobalRankings();
@@ -1014,7 +1014,7 @@ public class FieldOfPlay {
     }
 
     private void pushOutDone() {
-        logger.debug("group {} done", group);
+        logger.debug("{}group {} done", getLoggingName(), group);
         UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
         // make sure the publicresults update carries the right state.
         setState(BREAK);
