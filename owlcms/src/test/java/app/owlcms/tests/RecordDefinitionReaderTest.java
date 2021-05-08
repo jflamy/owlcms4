@@ -26,12 +26,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class RecordDefinitionReaderTest {
-
-    final Logger logger = (Logger) LoggerFactory.getLogger(RecordDefinitionReaderTest.class);
-
-    public RecordDefinitionReaderTest() {
-        logger.setLevel(Level.TRACE);
-    }
     
     @BeforeClass
     public static void setupTests() {
@@ -42,6 +36,12 @@ public class RecordDefinitionReaderTest {
     @AfterClass
     public static void tearDownTests() {
         JPAService.close();
+    }
+
+    final Logger logger = (Logger) LoggerFactory.getLogger(RecordDefinitionReaderTest.class);
+
+    public RecordDefinitionReaderTest() {
+        logger.setLevel(Level.TRACE);
     }
 
     @Test
@@ -62,5 +62,5 @@ public class RecordDefinitionReaderTest {
             }
         }
     }
-    
+
 }

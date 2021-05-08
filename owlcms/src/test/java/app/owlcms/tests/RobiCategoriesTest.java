@@ -10,16 +10,30 @@ import static org.junit.Assert.assertEquals;
 
 import java.time.LocalDate;
 
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.RobiCategories;
+import app.owlcms.data.jpa.JPAService;
 import app.owlcms.init.OwlcmsSession;
 
 public class RobiCategoriesTest {
+    
+    @BeforeClass
+    public static void setupTests() {
+        JPAService.init(true, true);
+        TestData.insertInitialData(5, true);
+    }
+
+    @AfterClass
+    public static void tearDownTests() {
+        JPAService.close();
+    }
 
     @Test
     public void testInside() {
