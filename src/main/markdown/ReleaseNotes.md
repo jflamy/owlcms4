@@ -1,6 +1,7 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
   - [x] Added automated tests for Clean&Jerk -- early weights in CJ are often smaller than weights already lifted in Snatch
+  - [x] Improved isolation between tests to ensure that they can be run in any order.
   - [x]  Updated Vaadin Flow to the current version.
   
 * Changes for previous 4.19 pre-releases
