@@ -45,7 +45,6 @@ public class MovingDownTest {
     private static Level LoggerLevel = Level.INFO;
     private static Group gA;
     private static Group gB;
-
     private static Group gC;
 
     @BeforeClass
@@ -416,8 +415,6 @@ public class MovingDownTest {
 
     @Before
     public void setupTest() {
-        OwlcmsSession.withFop(fop -> fop.beforeTest());
-        logger.setLevel(LoggerLevel);
         TestData.insertInitialData(5, true);
         JPAService.runInTransaction((em) -> {
             gA = GroupRepository.doFindByName("A", em);
@@ -427,7 +424,12 @@ public class MovingDownTest {
             TestData.insertSampleLifters(em, 5, gA, gB, gC);
             return null;
         });
+        
         athletes = AthleteRepository.findAll();
+        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
+        OwlcmsSession.setFop(fopState);
+        fopState.getLogger().setLevel(Level.INFO);
+        // EventBus fopBus = fopState.getFopEventBus();
     }
 
     @Test
