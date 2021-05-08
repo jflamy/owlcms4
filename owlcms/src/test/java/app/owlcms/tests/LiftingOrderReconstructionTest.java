@@ -66,10 +66,8 @@ public class LiftingOrderReconstructionTest {
 
     @Before
     public void setupTest() {
+        // sets up the OwlcmsSession()
         liftSequence.setupTest();
-        FieldOfPlay fopState = OwlcmsSession.getFop();
-        fopState.getLogger().setLevel(Level.ERROR);
-
         logger.setLevel(Level.ERROR);
     }
 

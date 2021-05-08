@@ -284,11 +284,6 @@ public class TwoMinutesRuleTest {
 
     @Before
     public void setupTest() {
-        FieldOfPlay fopState = new FieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(), new MockCountdownTimer(), true);
-        OwlcmsSession.setFop(fopState);
-        fopState.getLogger().setLevel(Level.INFO);
-        // EventBus fopBus = fopState.getFopEventBus();
-
         TestData.insertInitialData(5, true);
         JPAService.runInTransaction((em) -> {
             gA = GroupRepository.doFindByName("A", em);
@@ -298,7 +293,12 @@ public class TwoMinutesRuleTest {
             TestData.insertSampleLifters(em, 5, gA, gB, gC);
             return null;
         });
+        
         athletes = AthleteRepository.findAll();
+        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
+        OwlcmsSession.setFop(fopState);
+        fopState.getLogger().setLevel(Level.INFO);
+        // EventBus fopBus = fopState.getFopEventBus();
     }
 
     /**
