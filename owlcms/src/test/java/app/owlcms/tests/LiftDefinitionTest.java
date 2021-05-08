@@ -15,7 +15,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -28,6 +30,7 @@ import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.DebugUtils;
@@ -37,18 +40,17 @@ public class LiftDefinitionTest {
 
     private static final Level LOGGER_LEVEL = Level.OFF;
     List<Athlete> athletes = null;
+    
+    @BeforeClass
+    public static void setupTests() {
+        JPAService.init(true, true);
+        TestData.insertInitialData(5, true);
+    }
 
-//    @BeforeClass
-//    public static void setupTests() {
-//    	JPAService.init(true);
-//		TestData.insertInitialData(5, true);
-//    }
-//
-//    @AfterClass
-//    public static void tearDownTests() {
-//    	JPAService.close();
-//    }
-//
+    @AfterClass
+    public static void tearDownTests() {
+        JPAService.close();
+    }
     @Before
     public void setupTest() {
         FieldOfPlay fopState = new FieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(), new MockCountdownTimer(), true);

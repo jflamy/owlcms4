@@ -20,7 +20,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.competition.Competition;
+import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
@@ -32,13 +32,13 @@ public class AthleteTest {
     
     @BeforeClass
     public static void setupTests() {
-        //JPAService.init(true, true);
-        Competition.setCurrent(new Competition());
+        JPAService.init(true, true);
+        TestData.insertInitialData(5, true);
     }
 
     @AfterClass
     public static void tearDownTests() {
-        //JPAService.close();
+        JPAService.close();
     }
 
 

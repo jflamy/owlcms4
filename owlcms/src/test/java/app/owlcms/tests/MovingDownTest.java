@@ -41,7 +41,6 @@ public class MovingDownTest {
         void doChange() throws RuleViolationException;
     }
 
-    public static final boolean KEEP_RESULTS = true;
     private static Level LoggerLevel = Level.INFO;
     private static Group gA;
     private static Group gB;
@@ -49,8 +48,7 @@ public class MovingDownTest {
 
     @BeforeClass
     public static void setupTests() {
-        // if KEEP_RESULTS is true, we are not running in memory
-        JPAService.init(!KEEP_RESULTS, true);
+        JPAService.init(true, true);
     }
 
     @AfterClass
