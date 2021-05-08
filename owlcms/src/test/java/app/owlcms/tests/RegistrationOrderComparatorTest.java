@@ -25,6 +25,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.init.OwlcmsSession;
 
 public class RegistrationOrderComparatorTest {
 
@@ -36,6 +37,11 @@ public class RegistrationOrderComparatorTest {
             AgeGroupRepository.insertAgeGroups(em, EnumSet.of(AgeDivision.IWF, AgeDivision.MASTERS, AgeDivision.U));
             return null;
         });
+    }
+    
+    @Before
+    public void setupTest() {
+        OwlcmsSession.withFop(fop -> fop.beforeTest());
     }
 
     @AfterClass
@@ -63,7 +69,4 @@ public class RegistrationOrderComparatorTest {
         assertEquals("[U15 M 67, YTH M 67, JR M 67, SR M 67]", cats.toString());
     }
 
-    @Before
-    public void setupTest() {
-    }
 }

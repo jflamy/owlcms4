@@ -78,6 +78,7 @@ public class LiftingOrderReconstructionTest {
 
     @Before
     public void setupTest() {
+        OwlcmsSession.withFop(fop -> fop.beforeTest());
         liftSequence.setupTest();
         athletes = liftSequence.getAthletes();
     }

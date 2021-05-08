@@ -416,6 +416,7 @@ public class MovingDownTest {
 
     @Before
     public void setupTest() {
+        OwlcmsSession.withFop(fop -> fop.beforeTest());
         logger.setLevel(LoggerLevel);
         TestData.insertInitialData(5, true);
         JPAService.runInTransaction((em) -> {

@@ -49,7 +49,7 @@ public class TwoMinutesRuleTest {
     public static void tearDownTests() {
         JPAService.close();
     }
-
+    
     final Logger logger = (Logger) LoggerFactory.getLogger(TwoMinutesRuleTest.class);
 
     private List<Athlete> athletes;
@@ -286,6 +286,7 @@ public class TwoMinutesRuleTest {
 
     @Before
     public void setupTest() {
+        OwlcmsSession.withFop(fop -> fop.beforeTest());
         logger.setLevel(LoggerLevel);
 
         TestData.insertInitialData(5, true);

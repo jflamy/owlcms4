@@ -10,12 +10,14 @@ import static org.junit.Assert.assertEquals;
 
 import java.time.LocalDate;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.RobiCategories;
+import app.owlcms.init.OwlcmsSession;
 
 public class RobiCategoriesTest {
 
@@ -45,5 +47,10 @@ public class RobiCategoriesTest {
         a.setYearOfBirth(LocalDate.now().getYear() - 17);
         Category cat = RobiCategories.findRobiCategory(a);
         assertEquals("M49", cat.getCode());
+    }
+    
+    @Before
+    public void setupTest() {
+        OwlcmsSession.withFop(fop -> fop.beforeTest());
     }
 }

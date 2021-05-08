@@ -19,6 +19,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.init.OwlcmsSession;
 
 public class AthleteTest {
 
@@ -38,6 +39,7 @@ public class AthleteTest {
 
     @Before
     public void setupTest() {
+        OwlcmsSession.withFop(fop -> fop.beforeTest());
         athlete = new Athlete();
         athlete.setLastName("Strong");
         athlete.setFirstName("Paul");

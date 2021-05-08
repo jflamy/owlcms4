@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -26,6 +27,7 @@ import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.DebugUtils;
 
 public class LiftDefinitionTest {
@@ -43,11 +45,10 @@ public class LiftDefinitionTest {
 //    	JPAService.close();
 //    }
 //
-//    @Before
-//    public void setupTest() {
-//        athletes = AthleteRepository.findAll();
-//        DebugUtils.longDump(athletes);
-//    }
+    @Before
+    public void setupTest() {
+        OwlcmsSession.withFop(fop -> fop.beforeTest());
+    }
 
     @Test
     public void checkDefinitions() {

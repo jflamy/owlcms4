@@ -28,6 +28,7 @@ import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.DebugUtils;
 
 public class AthleteSorterTest {
@@ -362,7 +363,7 @@ public class AthleteSorterTest {
         // for this test, the initial data does not include body weights, so we use false
         // on the constructor to disable exclusion of incomplete data.
         athletes = AthleteRepository.findAll();
-        // System.out.println(DebugUtils.longDump(athletes));
+        OwlcmsSession.withFop(fop -> fop.beforeTest());
     }
 
     /*************************************************************************************

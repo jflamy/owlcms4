@@ -1280,7 +1280,7 @@ public class FieldOfPlay {
     }
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {
-        weightAtLastStart = 0;
+        setWeightAtLastStart(0);
         logger.trace("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
                 LoggerUtils.whereFrom());
 
@@ -1315,7 +1315,7 @@ public class FieldOfPlay {
         setWeightAtLastStart(getCurAthlete().getNextAttemptRequestedWeight());
     }
 
-    private void setWeightAtLastStart(Integer nextAttemptRequestedWeight) {
+    public void setWeightAtLastStart(Integer nextAttemptRequestedWeight) {
         weightAtLastStart = nextAttemptRequestedWeight;
     }
 
@@ -1426,6 +1426,11 @@ public class FieldOfPlay {
         this.setDisplayOrder(AthleteSorter.displayOrderCopy(this.getLiftingOrder()));
         uiDisplayCurrentAthleteAndTime(false, e, false);
         updateGlobalRankings();
+    }
+
+    public void beforeTest() {
+        setWeightAtLastStart(0);
+        return;
     }
 
 }
