@@ -10,6 +10,7 @@ import static app.owlcms.tests.AllTests.assertEqualsToReferenceFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -27,11 +28,14 @@ import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.DebugUtils;
+import ch.qos.logback.classic.Level;
 
 public class LiftDefinitionTest {
 
+    private static final Level LOGGER_LEVEL = Level.OFF;
     List<Athlete> athletes = null;
 
 //    @BeforeClass
@@ -47,7 +51,10 @@ public class LiftDefinitionTest {
 //
     @Before
     public void setupTest() {
-        OwlcmsSession.withFop(fop -> fop.beforeTest());
+        FieldOfPlay fopState = new FieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(), new MockCountdownTimer(), true);
+        OwlcmsSession.setFop(fopState);
+        fopState.getLogger().setLevel(LOGGER_LEVEL);
+        // EventBus fopBus = fopState.getFopEventBus();
     }
 
     @Test

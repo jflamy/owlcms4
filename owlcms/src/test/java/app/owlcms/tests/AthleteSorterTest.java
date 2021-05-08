@@ -28,10 +28,14 @@ import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.DebugUtils;
+import ch.qos.logback.classic.Level;
 
 public class AthleteSorterTest {
+
+    private static final Level LOGGER_LEVEL = Level.OFF;
 
     @BeforeClass
     public static void setupTests() {
@@ -60,7 +64,12 @@ public class AthleteSorterTest {
     }
 
     @Test
-    public void liftSequence1() {
+    public void medalsEarlierTotals() {
+        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
+        OwlcmsSession.setFop(fopState);
+        fopState.getLogger().setLevel(LOGGER_LEVEL);
+        // EventBus fopBus = fopState.getFopEventBus();
+
         AthleteSorter.assignLotNumbers(athletes);
         AthleteSorter.assignStartNumbers(athletes);
 
@@ -69,164 +78,20 @@ public class AthleteSorterTest {
         final Athlete allisonA = athletes.get(2);
         final Athlete verneU = athletes.get(3);
 
-        // all males
-        schneiderF.setGender(Gender.M);
-        simpsonR.setGender(Gender.M);
-        allisonA.setGender(Gender.M);
-        verneU.setGender(Gender.M);
+        // weigh-in
+        simpsonR.setBodyWeight(68.0);
+        schneiderF.setBodyWeight(67.9);
+        verneU.setBodyWeight(68.5);
+        allisonA.setBodyWeight(68.4);
 
-        // simulate initial declaration at weigh-in
-        schneiderF.setSnatch1Declaration(Integer.toString(60));
-        simpsonR.setSnatch1Declaration(Integer.toString(60));
-        allisonA.setSnatch1Declaration(Integer.toString(55));
-        verneU.setSnatch1Declaration(Integer.toString(55));
-        schneiderF.setCleanJerk1Declaration(Integer.toString(80));
-        simpsonR.setCleanJerk1Declaration(Integer.toString(82));
-        allisonA.setCleanJerk1Declaration(Integer.toString(61));
-        verneU.setCleanJerk1Declaration(Integer.toString(68));
+        doLifts(schneiderF, simpsonR, allisonA, verneU);
 
-        // check initial lift order -- this checks the "lot number" rule
-        AthleteSorter.liftingOrder(athletes);
-        assertEqualsToReferenceFile("/seq1_lift0.txt", DebugUtils.shortDump(athletes));
-        // hide non-athletes
-        final int size = athletes.size();
-        for (int i = 4; i < size; i++) {
-            athletes.remove(4);
-        }
-
-        // competition start
-        successfulLift(athletes);
-        assertEqualsToReferenceFile("/seq1_lift1.txt", DebugUtils.shortDump(athletes));
-        successfulLift(athletes);
-        assertEqualsToReferenceFile("/seq1_lift2.txt", DebugUtils.shortDump(athletes));
-
-        // change weights to have all athletes are the same at 60
-        declaration(verneU, athletes, "58");
-        declaration(allisonA, athletes, "60");
-        change1(verneU, athletes, "59");
-        change2(verneU, athletes, "60");
-        assertEqualsToReferenceFile("/seq1_lift3.txt", DebugUtils.shortDump(athletes));
-
-        // failure so we can test "earlier lifter"
-        failedLift(athletes);
-        assertTrue("earlier lifter has precedence",
-                athletes.get(2).getPreviousLiftTime().isBefore(athletes.get(3).getPreviousLiftTime()));
-        assertTrue("lift order not considered", (athletes.get(2).getLotNumber()) > (athletes.get(3).getLotNumber()));
-        assertEqualsToReferenceFile("/seq1_lift4.txt", DebugUtils.shortDump(athletes));
-
-        // one more failure -- we now have 3 athletes at second try, 60kg.
-        failedLift(athletes);
-        assertTrue(
-                "time stamp precedence failed 0 vs 1 " + athletes.get(0).getPreviousLiftTime() + ">="
-                        + athletes.get(1).getPreviousLiftTime(),
-                athletes.get(0).getPreviousLiftTime().isBefore(athletes.get(1).getPreviousLiftTime()));
-        assertTrue(
-                "time stamp precedence failed 1 vs 2 " + athletes.get(1).getPreviousLiftTime() + ">="
-                        + athletes.get(2).getPreviousLiftTime(),
-                athletes.get(1).getPreviousLiftTime().isBefore(athletes.get(2).getPreviousLiftTime()));
-        assertEqualsToReferenceFile("/seq1_lift5.txt", DebugUtils.shortDump(athletes));
-
-        // get second try done
-        failedLift(athletes);
-        successfulLift(athletes);
-        successfulLift(athletes);
-        successfulLift(athletes);
-        assertEqualsToReferenceFile("/seq1_lift6.txt", DebugUtils.shortDump(athletes));
-
-        // get third try done
-        successfulLift(athletes);
-        assertEqualsToReferenceFile("/seq1_lift7.txt", DebugUtils.shortDump(athletes));
-        successfulLift(athletes);
-        successfulLift(athletes);
-        successfulLift(athletes);
-        assertEqualsToReferenceFile("/seq1_lift8.txt", DebugUtils.shortDump(athletes));
-
-        // end of snatch
-
-        // mixed-up sequence of pass/fail/go-up
-        Random rnd = new Random(0); // so the sequence is repeatable from test
-                                    // to test.
-        for (int i = 0; i < 16; i++) { // 16 is purely empirical, observing the
-                                       // sequence of events generated
-            switch (rnd.nextInt(3)) {
-            case 0:
-                successfulLift(athletes);
-                break;
-            case 1:
-                failedLift(athletes);
-                break;
-            case 2:
-                final String change = Integer.toString(2 + athletes.get(0).getNextAttemptRequestedWeight());
-                // in practice, declarations can't be redone, but for this test all we care about is that
-                // nextAttemptRequestedWeight has changed.
-                declaration(athletes.get(0), athletes, change);
-                break;
-            }
-        }
-        // in this sequence, one lifter is already done, check that others are
-        // listed below
-        assertEqualsToReferenceFile("/seq1_lift9.txt", DebugUtils.shortDump(athletes));
-
-        // proceed with competition
-        successfulLift(athletes);
-        successfulLift(athletes);
-        successfulLift(athletes);
-        failedLift(athletes);
-        // two athletes are now done
-        assertEqualsToReferenceFile("/seq1_lift10.txt", DebugUtils.shortDump(athletes));
-        successfulLift(athletes);
-        successfulLift(athletes);
-
-        // all athletes are done, check medals
-        // ==========================================
-        // all athletes have body weight = 0
-        // we have two athletes at same total and same bodyweight.
-        // The one who reached total *first* should win.
-        // in this test sequence, the winner has bigger lot number, but still
-        // wins because of earlier lift.
-        Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
-        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-        assertEqualsToReferenceFile("/seq1_medals_timeStamp.txt", DebugUtils.shortDump(athletes));
-
-        // now we give the first two athletes different body weights (second is
-        // lighter)
-        athletes.get(0).setBodyWeight(68.0);
-        athletes.get(1).setBodyWeight(67.9);
-        athletes.get(2).setBodyWeight(68.5);
-        athletes.get(3).setBodyWeight(68.4);
-        // we give the lighter lifter a higher lot number, which should make him lose (there is no
-        // bodyweight advantage anymore)
-        athletes.get(1).setLotNumber(99);
-        // and we sort again for medals.
-        Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
-        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-        assertEqualsToReferenceFile("/seq1_medals_bodyWeight.txt", DebugUtils.shortDump(athletes));
-        // assertEqualsToReferenceFile("/seq1_medals_weighInCategories.txt",
-        // DebugUtils.longDump(athletes,false));
-
-        // now we force the athletes to be in different categories
-        Category resetCategory = simpsonR.getCategory();
+        // for same total a smaller cj breaks tie (since reached earlier)
         try {
-            Category registrationCategory1 = CategoryRepository
-                    .findByGenderAgeBW(resetCategory.getGender(), 40, resetCategory.getMaximumWeight() + 1).get(0);
-
-            // change categories for simpson and verne
-            simpsonR.setCategory(registrationCategory1);
-            verneU.setCategory(registrationCategory1);
-            // and we sort again for medals. order should now be schneider allison simpson verne
-            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
-            AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-            assertEqualsToReferenceFile("/seq1_medals_registrationCategories.txt", DebugUtils.shortDump(athletes));
-        } finally {
-        }
-
-        // back to the same category
-        // now we test that for same total a smaller cj breaks tie (since reached earlier)
-        try {
-            schneiderF.setCategory(resetCategory);
-            simpsonR.setCategory(resetCategory);
-            allisonA.setCategory(resetCategory);
-            verneU.setCategory(resetCategory);
+            // the changes are illegal with respect to lifting order, we don't care
+            simpsonR.setValidation(false);
+            schneiderF.setValidation(false);
+            schneiderF.setLotNumber(99); // legacy
 
             // improve snatch
             simpsonR.setSnatch3Declaration(Integer.toString(62));
@@ -242,11 +107,18 @@ public class AthleteSorterTest {
             AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
             assertEqualsToReferenceFile("/seq1_medals_earlierTotal.txt", DebugUtils.longDump(athletes));
         } finally {
+            simpsonR.setValidation(true);
+            schneiderF.setValidation(true);
+            schneiderF.setLotNumber(1);
         }
 
-        // back to the same category
-        // now we test that for same total a smaller cj breaks tie (since reached earlier)
+        // second lifter reaches total on his first attempt, but this is still later in the lifting order
         try {
+            // the changes are illegal with respect to lifting order, we don't care
+            simpsonR.setValidation(false);
+            schneiderF.setValidation(false);
+            schneiderF.setLotNumber(99); // legacy
+
             // improve snatch
             simpsonR.setSnatch3Declaration(Integer.toString(62));
             simpsonR.setSnatch3ActualLift(Integer.toString(62));
@@ -268,11 +140,16 @@ public class AthleteSorterTest {
             AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
             assertEqualsToReferenceFile("/seq1_medals_earlierTotal2.txt", DebugUtils.longDump(athletes));
         } finally {
+            simpsonR.setValidation(true);
+            schneiderF.setValidation(true);
+            schneiderF.setLotNumber(1);
         }
 
-        // back to the same category
         // now we test that for same total a smaller cj breaks tie (since reached earlier)
         try {
+            // the changes are illegal with respect to lifting order, we don't care
+            simpsonR.setValidation(false);
+            schneiderF.setValidation(false);
 
             // replicate canadian masters bug
             allisonA.setEligibleForTeamRanking(false);
@@ -320,11 +197,170 @@ public class AthleteSorterTest {
             AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
             assertEqualsToReferenceFile("/seq1_medals_earlierTotal3.txt", DebugUtils.longDump(athletes));
         } finally {
+            simpsonR.setValidation(true);
+            schneiderF.setValidation(true);
         }
+    }
+
+    private void doLifts(final Athlete schneiderF, final Athlete simpsonR, final Athlete allisonA,
+            final Athlete verneU) {
+        // all males
+        schneiderF.setGender(Gender.M);
+        simpsonR.setGender(Gender.M);
+        allisonA.setGender(Gender.M);
+        verneU.setGender(Gender.M);
+
+        // simulate initial declaration at weigh-in
+        schneiderF.setSnatch1Declaration(Integer.toString(60));
+        simpsonR.setSnatch1Declaration(Integer.toString(60));
+        allisonA.setSnatch1Declaration(Integer.toString(55));
+        verneU.setSnatch1Declaration(Integer.toString(55));
+        schneiderF.setCleanJerk1Declaration(Integer.toString(80));
+        simpsonR.setCleanJerk1Declaration(Integer.toString(82));
+        allisonA.setCleanJerk1Declaration(Integer.toString(61));
+        verneU.setCleanJerk1Declaration(Integer.toString(68));
+
+        // check initial lift order -- this checks the "lot number" rule
+        AthleteSorter.liftingOrder(athletes);
+        assertEqualsToReferenceFile("/seq1_lift0.txt", DebugUtils.shortDump(athletes));
+        // hide non-athletes
+        final int size = athletes.size();
+        for (int i = 4; i < size; i++) {
+            athletes.remove(4);
+        }
+
+        // competition start
+        successfulLift(athletes);
+        successfulLift(athletes);
+
+        // change weights to have all athletes are the same at 60
+        declaration(verneU, athletes, "58");
+        declaration(allisonA, athletes, "60");
+        change1(verneU, athletes, "59");
+        change2(verneU, athletes, "60");
+
+        // failure so we can test "earlier lifter"
+        failedLift(athletes);
+
+        // one more failure -- we now have 3 athletes at second try, 60kg.
+        failedLift(athletes);
+
+        // get second try done
+        failedLift(athletes);
+        successfulLift(athletes);
+        successfulLift(athletes);
+        successfulLift(athletes);
+
+        // get third try done
+        successfulLift(athletes);
+        successfulLift(athletes);
+        successfulLift(athletes);
+        successfulLift(athletes);
+        // end of snatch
+
+        // mixed-up sequence of pass/fail/go-up
+        Random rnd = new Random(0); // so the sequence is repeatable from test
+                                    // to test.
+        for (int i = 0; i < 16; i++) { // 16 is purely empirical, observing the
+                                       // sequence of events generated
+            switch (rnd.nextInt(3)) {
+            case 0:
+                successfulLift(athletes);
+                break;
+            case 1:
+                failedLift(athletes);
+                break;
+            case 2:
+                final String change = Integer.toString(2 + athletes.get(0).getNextAttemptRequestedWeight());
+                // in practice, declarations can't be redone, but for this test all we care about is that
+                // nextAttemptRequestedWeight has changed.
+                declaration(athletes.get(0), athletes, change);
+                break;
+            }
+        }
+        // in this sequence, one lifter is already done, check that others are
+        // listed below
+
+        // proceed with competition
+        successfulLift(athletes);
+        successfulLift(athletes);
+        successfulLift(athletes);
+        failedLift(athletes);
+        // two athletes are now done
+        successfulLift(athletes);
+        successfulLift(athletes);
+
+    }
+
+    @Test
+    public void medalsBodyWeight() {
+        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
+        OwlcmsSession.setFop(fopState);
+        fopState.getLogger().setLevel(LOGGER_LEVEL);
+        // EventBus fopBus = fopState.getFopEventBus();
+
+        AthleteSorter.assignLotNumbers(athletes);
+        AthleteSorter.assignStartNumbers(athletes);
+
+        final Athlete schneiderF = athletes.get(0);
+        final Athlete simpsonR = athletes.get(1);
+        final Athlete allisonA = athletes.get(2);
+        final Athlete verneU = athletes.get(3);
+
+        doLifts(schneiderF, simpsonR, allisonA, verneU);
+
+        // all athletes are done, check medals
+        // ==========================================
+        // all athletes have body weight = 0
+        // we have two athletes at same total and same bodyweight.
+        // The one who reached total *first* should win.
+        // in this test sequence, the winner has bigger lot number, but still
+        // wins because of earlier lift.
+        Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
+        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
+        assertEqualsToReferenceFile("/seq1_medals_timeStamp.txt", DebugUtils.shortDump(athletes));
+
+        // now we give the first two athletes different body weights (second is
+        // lighter)
+        athletes.get(0).setBodyWeight(68.0);
+        athletes.get(1).setBodyWeight(67.9);
+        athletes.get(2).setBodyWeight(68.5);
+        athletes.get(3).setBodyWeight(68.4);
+        // we give the lighter lifter a higher lot number, which should make him lose (there is no
+        // bodyweight advantage anymore)
+        athletes.get(1).setLotNumber(99);
+        // and we sort again for medals.
+        Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
+        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
+        assertEqualsToReferenceFile("/seq1_medals_bodyWeight.txt", DebugUtils.shortDump(athletes));
+        // assertEqualsToReferenceFile("/seq1_medals_weighInCategories.txt",
+        // DebugUtils.longDump(athletes,false));
+
+        // now we force the athletes to be in different categories
+        Category resetCategory = simpsonR.getCategory();
+        try {
+            Category registrationCategory1 = CategoryRepository
+                    .findByGenderAgeBW(resetCategory.getGender(), 40, resetCategory.getMaximumWeight() + 1).get(0);
+
+            // change categories for simpson and verne
+            simpsonR.setCategory(registrationCategory1);
+            verneU.setCategory(registrationCategory1);
+            // and we sort again for medals. order should now be schneider allison simpson verne
+            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
+            AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
+            assertEqualsToReferenceFile("/seq1_medals_registrationCategories.txt", DebugUtils.shortDump(athletes));
+        } finally {
+        }
+
     }
 
     @Test
     public void liftSequence2() {
+        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
+        OwlcmsSession.setFop(fopState);
+        fopState.getLogger().setLevel(LOGGER_LEVEL);
+        // EventBus fopBus = fopState.getFopEventBus();
+
         AthleteSorter.assignLotNumbers(athletes);
         AthleteSorter.assignStartNumbers(athletes);
 

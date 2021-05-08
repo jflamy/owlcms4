@@ -31,7 +31,7 @@ import ch.qos.logback.classic.Logger;
  * @author owlcms
  *
  */
-public class ProxyBreakTimer implements IProxyTimer {
+public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(ProxyBreakTimer.class);
     {
@@ -135,6 +135,10 @@ public class ProxyBreakTimer implements IProxyTimer {
         }
     }
 
+    /**
+     * @see app.owlcms.fieldofplay.IBreakTimer#setEnd(java.time.LocalDateTime)
+     */
+    @Override
     public void setEnd(LocalDateTime targetTime) {
         indefinite = false;
         // end != null overrides duration computation
@@ -142,6 +146,10 @@ public class ProxyBreakTimer implements IProxyTimer {
         this.end = targetTime;
     }
 
+    /**
+     * @see app.owlcms.fieldofplay.IBreakTimer#setIndefinite()
+     */
+    @Override
     public void setIndefinite() {
         indefinite = true;
         logger.debug("setting breaktimer indefinite = {} [{}]", indefinite, LoggerUtils.whereFrom());
@@ -264,10 +272,18 @@ public class ProxyBreakTimer implements IProxyTimer {
                 : getTimeRemaining());
     }
     
+    /**
+     * @see app.owlcms.fieldofplay.IBreakTimer#getBreakDuration()
+     */
+    @Override
     public Integer getBreakDuration() {
         return breakDuration;
     }
 
+    /**
+     * @see app.owlcms.fieldofplay.IBreakTimer#setBreakDuration(java.lang.Integer)
+     */
+    @Override
     public void setBreakDuration(Integer breakDuration) {
         this.breakDuration = breakDuration;
     }

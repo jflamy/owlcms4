@@ -6,20 +6,27 @@
  *******************************************************************************/
 package app.owlcms.tests;
 
+import java.time.LocalDateTime;
+
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.fieldofplay.IProxyTimer;
+import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
-public class MockCountdownTimer implements IProxyTimer {
+public class MockCountdownTimer implements IBreakTimer {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(MockCountdownTimer.class);
 
     private int timeRemaining;
 
     private int timeRemainingAtLastStop;
+
+    private Integer breakDuration;
+
+    private boolean indefinite;
+
 
     public MockCountdownTimer() {
         logger.setLevel(Level.INFO);
@@ -103,6 +110,39 @@ public class MockCountdownTimer implements IProxyTimer {
     public void timeOver(Object origin) {
         stop();
         timeRemaining = 0;
+    }
+
+    @Override
+    public void setEnd(LocalDateTime targetTime) {
+    }
+
+    @Override
+    public void setIndefinite() {
+        this.indefinite = true;
+    }
+
+    @Override
+    public Integer getBreakDuration() {
+        return this.breakDuration;
+    }
+
+    @Override
+    public void setBreakDuration(Integer breakDuration) {
+        this.breakDuration = breakDuration;
+    }
+
+    @Override
+    public int liveTimeRemaining() {
+        return 0;
+    }
+
+    @Override
+    public boolean isIndefinite() {
+        return this.indefinite;
+    }
+
+    @Override
+    public void setOrigin(Object origin) {
     }
 
 }

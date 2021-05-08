@@ -19,8 +19,8 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
-import com.flowingcode.vaadin.addons.ironicons.PlacesIcons;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
+import com.flowingcode.vaadin.addons.ironicons.PlacesIcons;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
@@ -48,7 +48,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.fieldofplay.ProxyBreakTimer;
+import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.uievents.BreakType;
@@ -195,7 +195,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     public void masterPauseBreak() {
         OwlcmsSession.withFop(fop -> {
-            ProxyBreakTimer breakTimer = fop.getBreakTimer();
+            IBreakTimer breakTimer = fop.getBreakTimer();
             if (breakTimer.isRunning()) {
                 breakTimer.stop();
                 fop.getFopEventBus()
@@ -217,7 +217,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     private void doResetTimer(Integer tr) {
         OwlcmsSession.withFop(fop -> {
-            ProxyBreakTimer breakTimer = fop.getBreakTimer();
+            IBreakTimer breakTimer = fop.getBreakTimer();
             if (breakTimer.isRunning()) {
                 breakTimer.stop();
                 fop.getFopEventBus().post(new FOPEvent.BreakPaused(tr, this.getOrigin()));
@@ -705,7 +705,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         final boolean[] running = new boolean[1]; // wrapper to allow value to be set from lambda
         OwlcmsSession.withFop(fop -> {
             FOPState fopState = fop.getState();
-            ProxyBreakTimer fopBreakTimer = fop.getBreakTimer();
+            IBreakTimer fopBreakTimer = fop.getBreakTimer();
             int fopLiveTimeRemaining = fopBreakTimer.liveTimeRemaining();
             Integer fopBreakDuration = fopBreakTimer.getBreakDuration();
             CountdownType fopCountdownType = fop.getCountdownType();

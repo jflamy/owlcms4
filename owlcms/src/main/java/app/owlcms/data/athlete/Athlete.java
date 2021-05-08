@@ -1694,7 +1694,7 @@ public class Athlete {
         return getBWCategory();
     }
 
-    public Object getShortName() {
+    public String getShortName() {
         return "#" + getStartNumber() + " " + getLastName() + " "
                 + (getFirstName().isBlank() ? "" : getFirstName().substring(0, 1)+".");
     }

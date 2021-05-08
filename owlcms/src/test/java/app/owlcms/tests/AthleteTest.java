@@ -8,6 +8,8 @@ package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -19,10 +21,13 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
+import ch.qos.logback.classic.Level;
 
 public class AthleteTest {
 
+    private static final Level LOGGER_LEVEL = Level.OFF;
     private static Athlete athlete;
     
     @BeforeClass
@@ -39,7 +44,11 @@ public class AthleteTest {
 
     @Before
     public void setupTest() {
-        OwlcmsSession.withFop(fop -> fop.beforeTest());
+        FieldOfPlay fopState = new FieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(), new MockCountdownTimer(), true);
+        OwlcmsSession.setFop(fopState);
+        fopState.getLogger().setLevel(LOGGER_LEVEL);
+        // EventBus fopBus = fopState.getFopEventBus();
+        
         athlete = new Athlete();
         athlete.setLastName("Strong");
         athlete.setFirstName("Paul");

@@ -245,10 +245,10 @@ public class FieldOfPlay {
         return this.athleteTimer;
     }
 
-    public ProxyBreakTimer getBreakTimer() {
+    public IBreakTimer getBreakTimer() {
         // if (!(this.breakTimer.getClass().isAssignableFrom(ProxyBreakTimer.class)))
         // throw new RuntimeException("wrong athleteTimer setup");
-        return (ProxyBreakTimer) this.breakTimer;
+        return (IBreakTimer) this.breakTimer;
     }
 
     public BreakType getBreakType() {
@@ -811,9 +811,12 @@ public class FieldOfPlay {
         pushOut(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, previousAthlete, changingAthlete,
                 getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),
                 inBreak));
-        int attempts = getCurAthlete().getAttemptedLifts() + 1;
+
+        // cur athlete can be null during some tests.
+        int attempts = getCurAthlete() == null ? 0 : getCurAthlete().getAttemptedLifts() + 1;     
+        String shortName = getCurAthlete() == null ? "" : getCurAthlete().getShortName();
         logger.info("{}current athlete = {} attempt {}, requested = {}, timeAllowed={} timeRemainingAtLastStop={}",
-                getLoggingName(), getCurAthlete().getShortName(), getCurAthlete() != null ? attempts : 0, curWeight,
+                getLoggingName(), shortName, attempts, curWeight,
                 clock,
                 getAthleteTimer().getTimeRemainingAtLastStop());
         if (attempts > 6) {
@@ -832,7 +835,10 @@ public class FieldOfPlay {
         // logger.debug("entering inactive {}",LoggerUtils.stackTrace());
         // }
         if (state == CURRENT_ATHLETE_DISPLAYED) {
-            group.setDone(getCurAthlete() == null || getCurAthlete().getAttemptsDone() >= 6);
+            Athlete a = getCurAthlete();
+            if (group != null) {
+                group.setDone(a == null || a.getAttemptsDone() >= 6);
+            }
         } else if (state == BREAK) {
             group.setDone(breakType == BreakType.GROUP_DONE);
         }
@@ -1225,7 +1231,7 @@ public class FieldOfPlay {
 //    }
 
     private void transitionToBreak(BreakStarted e) {
-        ProxyBreakTimer breakTimer2 = getBreakTimer();
+        IBreakTimer breakTimer2 = getBreakTimer();
         BreakType breakType2 = e.getBreakType();
         CountdownType countdownType2 = e.getCountdownType();
         if (state == BREAK) {
@@ -1261,7 +1267,7 @@ public class FieldOfPlay {
         logger.trace("started break timers {}", breakType2);
     }
 
-    private void setBreakParams(BreakStarted e, ProxyBreakTimer breakTimer2, BreakType breakType2,
+    private void setBreakParams(BreakStarted e, IBreakTimer breakTimer2, BreakType breakType2,
             CountdownType countdownType2) {
         this.setBreakType(breakType2);
         this.setCountdownType(countdownType2);
@@ -1294,6 +1300,7 @@ public class FieldOfPlay {
             setState(CURRENT_ATHLETE_DISPLAYED);
         }
         if (stopBreakTimer) {
+            
             getBreakTimer().stop();
             setBreakType(null);
         }
@@ -1430,6 +1437,7 @@ public class FieldOfPlay {
 
     public void beforeTest() {
         setWeightAtLastStart(0);
+        startLifting(null,null);
         return;
     }
 

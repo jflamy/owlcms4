@@ -9,6 +9,7 @@ package app.owlcms.tests;
 import static app.owlcms.tests.AllTests.assertEqualsToReferenceFile;
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,7 +36,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class TwoMinutesRuleTest {
-    private static Level LoggerLevel = Level.INFO;
     private static Group gA;
     private static Group gB;
     private static Group gC;
@@ -69,9 +69,7 @@ public class TwoMinutesRuleTest {
 
     @Test
     public void liftSequence3() throws InterruptedException {
-        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
-        OwlcmsSession.setFop(fopState);
-        fopState.getLogger().setLevel(LoggerLevel);
+        FieldOfPlay fopState = OwlcmsSession.getFop();
         EventBus fopBus = fopState.getFopEventBus();
         
         logger.setLevel(Level.DEBUG);
@@ -181,9 +179,9 @@ public class TwoMinutesRuleTest {
 
     @Test
     public void liftSequence4() throws InterruptedException {
-        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
-        OwlcmsSession.setFop(fopState);
-        EventBus fopBus = fopState.getFopEventBus();     
+        FieldOfPlay fopState = OwlcmsSession.getFop();
+        EventBus fopBus = fopState.getFopEventBus();
+        
         doLiftSequence4(fopState, fopBus, logger);
     }
 
@@ -286,8 +284,10 @@ public class TwoMinutesRuleTest {
 
     @Before
     public void setupTest() {
-        OwlcmsSession.withFop(fop -> fop.beforeTest());
-        logger.setLevel(LoggerLevel);
+        FieldOfPlay fopState = new FieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(), new MockCountdownTimer(), true);
+        OwlcmsSession.setFop(fopState);
+        fopState.getLogger().setLevel(Level.INFO);
+        // EventBus fopBus = fopState.getFopEventBus();
 
         TestData.insertInitialData(5, true);
         JPAService.runInTransaction((em) -> {

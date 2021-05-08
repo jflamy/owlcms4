@@ -8,8 +8,6 @@ package app.owlcms.tests;
 
 import static app.owlcms.tests.AllTests.assertEqualsToReferenceFile;
 
-import java.util.List;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -18,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 
-import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.LiftOrderReconstruction;
@@ -27,7 +24,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class LiftingOrderReconstructionTest {
-    private static Level LoggerLevel = Level.INFO;
 
     @BeforeClass
     public static void setupTests() {
@@ -41,19 +37,14 @@ public class LiftingOrderReconstructionTest {
 
     final Logger logger = (Logger) LoggerFactory.getLogger(LiftingOrderReconstructionTest.class);
 
+    // use same data as TwoMinutesRuleTest
     TwoMinutesRuleTest liftSequence = new TwoMinutesRuleTest();
-
-    private List<Athlete> athletes;
 
     @Test
     public void liftSequence3() throws InterruptedException {
-        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
-        OwlcmsSession.setFop(fopState);
-        fopState.getLogger().setLevel(LoggerLevel);
+        FieldOfPlay fopState = OwlcmsSession.getFop();
         EventBus fopBus = fopState.getFopEventBus();
         
-        logger.setLevel(Level.ERROR);
-        fopState.getLogger().setLevel(Level.ERROR);
         liftSequence.doSequence3(fopState, fopBus, logger);
         
         LiftOrderReconstruction liftOrderReconstruction = new LiftOrderReconstruction(fopState);
@@ -63,12 +54,9 @@ public class LiftingOrderReconstructionTest {
 
     @Test
     public void liftSequence4() throws InterruptedException {
-        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
-        OwlcmsSession.setFop(fopState);
+        FieldOfPlay fopState = OwlcmsSession.getFop();
         EventBus fopBus = fopState.getFopEventBus();
-        
-        logger.setLevel(Level.ERROR);
-        fopState.getLogger().setLevel(Level.ERROR);
+
         liftSequence.doLiftSequence4(fopState, fopBus, logger);
         
         LiftOrderReconstruction liftOrderReconstruction = new LiftOrderReconstruction(fopState);
@@ -78,9 +66,11 @@ public class LiftingOrderReconstructionTest {
 
     @Before
     public void setupTest() {
-        OwlcmsSession.withFop(fop -> fop.beforeTest());
         liftSequence.setupTest();
-        athletes = liftSequence.getAthletes();
+        FieldOfPlay fopState = OwlcmsSession.getFop();
+        fopState.getLogger().setLevel(Level.ERROR);
+
+        logger.setLevel(Level.ERROR);
     }
 
 }
