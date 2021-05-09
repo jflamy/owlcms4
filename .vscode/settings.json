@@ -8,9 +8,9 @@
     },
     "java.test.config": [
         {
-            "name": "owlcms logging",
+            "name": "owlcms testing",
             "workingDirectory": "${workspaceFolder}",
-            "vmargs": [ "-ea", "-Dlogback.configurationFile=logback-console.xml" ],
+            "vmargs": [ "-ea"],
             "env": { "key": "value" },
         }
     ]
