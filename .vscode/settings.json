@@ -5,5 +5,13 @@
         "**/.project": true,
         "**/.settings": true,
         "**/.factorypath": true
-    }
+    },
+    "java.test.config": [
+        {
+            "name": "owlcms logging",
+            "workingDirectory": "${workspaceFolder}",
+            "vmargs": [ "-ea", "-Dlogback.configurationFile=logback-console.xml" ],
+            "env": { "key": "value" },
+        }
+    ]
 }

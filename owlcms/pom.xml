@@ -85,7 +85,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.196</version>
+            <version>1.4.200</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -210,7 +210,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.11</version>
+            <version>4.5.13</version>
         </dependency>
 
         <!-- web server -->
