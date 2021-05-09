@@ -6,17 +6,19 @@
     "configurations": [  
         {
             "type": "java",
-            "name": "Launch-Main<owlcms>",
+            "name": "Launch owlcms",
             "request": "launch",
             "mainClass": "app.owlcms.Main",
-            "projectName": "owlcms"
+            "projectName": "owlcms",
+            "vmArgs": "-ea -Dlogback.configurationFyile=logback-console.xml"
         },
         {
             "type": "java",
-            "name": "Main<relay>",
+            "name": "Launch relay",
             "request": "launch",
             "mainClass": "app.owlcms.relay.Main",
-            "projectName": "relay"
+            "projectName": "relay",
+            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml"
         },    
         {
             "name": "Launch GO file",
@@ -27,9 +29,10 @@
         },
         {
             "type": "java",
-            "name": "Debug (Launch) - Current File",
+            "name": "Lauch - Current File",
             "request": "launch",
-            "mainClass": "${file}"
+            "mainClass": "${file}",
+            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml"
         }
 
     ]
