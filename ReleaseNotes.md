@@ -1,11 +1,12 @@
 * Changes for release 4.19.0-alpha12  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] Added automated tests for Clean&Jerk -- early weights in CJ are often smaller than weights already lifted in Snatch
-  - [x] Improved isolation between tests to ensure that they can be run in any order.
-  - [x]  Updated Vaadin Flow to the current version.
+  - [x] Danish translation
   
 * Changes for previous 4.19 pre-releases
 
+  - [x] Added automated tests for Clean&Jerk -- early weights in CJ are often smaller than weights already lifted in Snatch
+  - [x] Improved isolation between tests to ensure that they can be run in any order.
+  - [x] Updated Vaadin Flow to the current version.
   - [x] Skipping tests is now controlled explicit parameter visible in the Azure DevOps interface, and is off by default (tests are run again during both prerelease and release builds)
   - [x] Added additional tests to "who lifted first on previous attempt" when requesting same weight, same attempt
   - [x] Portuguese translation was missing.
