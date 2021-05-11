@@ -10,25 +10,25 @@ If you just want to install, read on.
 
 If you download with Chrome or Firefox, you will see a blue box like the following when you double-click on the file to open.  **Click on the `More info` link.**
 
-<img src="img/DefenderOff/0_protected.png" alt="0_protected" style="zoom: 67%;" />
+<img src="img/DefenderOff/0_protected.png" alt="0_protected" style="zoom: 50%;" />
 
 This will make will make a `Run Anyway` button appear at the bottom. You can then **click on `Run Anyway` button to let installation proceed**.
 
 ## Downloading with Edge
 
-Edge is the default browser on Windows.  With it, one might say that Microsoft has gone a touch overboard.  See for yourself.
+Edge is the default browser on Windows.  With Edge, the warnings are given during at several occasions during the download process.
 
 1. Go to the releases page and click on the download link. Note in passing that Microsoft owns the Github site and could very well scan the executables there.  But if we click, we get a first menacing message "was blocked because it could harm your device".
 
-   **Click on the `...`  button and select Keep**
+   To proceed, you must <u>Click on the `...`  button and select Keep</u>
 
    ![_00_keep](img/DefenderOff/_00_keep.png)
 
 2. But then comes a second warning.
-   **Click on `Show More`**
+   To get the option to continue you must <u>Click on `Show More`</u>
    ![_10_showmore](img/DefenderOff/_10_showmore.png)
 
-3. **Click on `Keep anyway`**
+3. From the list of options, <u>select "Keep Anyway"</u>
 
    ![_20_keepanyway](img/DefenderOff/_20_keepanyway.png)
 
@@ -36,16 +36,16 @@ Edge is the default browser on Windows.  With it, one might say that Microsoft h
 
    ![_040_open](img/DefenderOff/_040_open.png)
 
-5. But wait!  If you go through the downloads folder instead and double-click on the file, you are actually going to need to go through the steps described for Chrome and Firefox above...
+5. Normally you are done, and you will be spared the blue dialog box when you open the file (Windows remembers it has been accepted)
 
 ## Why are there warnings anyway?
 
-In the past, owlcms was signed with a certificate attesting to the author's identity, but this is not enough for Microsoft to trust the program.  For the warnings to go away, one of two things would need to happen
+In the past, the programs were signed with a certificate attesting to the author's identity, but this is not sufficient for the program to be considered as trusted.  For the warnings to go away, one of two things need to happen
 
-- either a very large number of people download the program from the same source and Microsoft ultimately figures out it is innocuous, or
-- a 500$ code-signing certificate is bought to actually bypass the warnings , or
+- either a very large number of people download the program from a given source and Microsoft ultimately figures out it is innocuous, or
+- a 500$ code-signing certificate is bought to actually bypass the warnings.
 
-Funny thing is that the program is stored on GitHub, which Microsoft owns.  And they could very well scan the software for viruses there, but they don't.  And instead of trusting their own URLs they give every release a different URL, so Microsoft never gets to learn that it is safe, and signaling it as safe is a waste of time for the same reason.  I have not found an alternative file hosting service that Microsoft trusts.
+There is not enough traffic for owlcms to trigger the first escape clause
 
 If some kind soul donates the money, I'll do the certificate song and dance, until then, we have to bear with the inconvenience.
 

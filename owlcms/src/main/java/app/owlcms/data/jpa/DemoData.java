@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.data.jpa;
 
 import static app.owlcms.data.athlete.Gender.F;
@@ -154,6 +154,7 @@ public class DemoData {
 
         for (int i = 0; i < liftersToLoad; i++) {
             Athlete p = new Athlete();
+            Level prevLoggerLevel = p.getLogger().getLevel();
             try {
                 p.setLoggerLevel(Level.WARN);
                 Group mg = (em.contains(group) ? group : em.merge(group));
@@ -171,7 +172,7 @@ public class DemoData {
             } catch (Exception e) {
                 logger.error(LoggerUtils.stackTrace(e));
             } finally {
-                p.resetLoggerLevel();
+                p.setLoggerLevel(prevLoggerLevel);
             }
         }
     }

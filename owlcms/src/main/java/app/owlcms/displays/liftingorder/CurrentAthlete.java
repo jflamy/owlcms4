@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.displays.liftingorder;
 
 import java.util.Collections;
@@ -644,7 +644,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
 
     private void init() {
         OwlcmsSession.withFop(fop -> {
-            logger.trace("Starting result board on FOP {}", fop.getName());
+            logger.trace("{}Starting result board", fop.getLoggingName());
             setId("scoreboard-" + fop.getName());
             curGroup = fop.getGroup();
             getModel().setWideTeamNames(false);

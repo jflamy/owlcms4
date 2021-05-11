@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
@@ -26,16 +26,9 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class RecordDefinitionReaderTest {
-
-    final Logger logger = (Logger) LoggerFactory.getLogger(RecordDefinitionReaderTest.class);
-
-    public RecordDefinitionReaderTest() {
-        logger.setLevel(Level.TRACE);
-    }
     
     @BeforeClass
     public static void setupTests() {
-        System.err.println("setup");
         JPAService.init(true, true);
         TestData.insertInitialData(5, true);
     }
@@ -45,20 +38,22 @@ public class RecordDefinitionReaderTest {
         JPAService.close();
     }
 
+    final Logger logger = (Logger) LoggerFactory.getLogger(RecordDefinitionReaderTest.class);
+
+    public RecordDefinitionReaderTest() {
+        logger.setLevel(Level.TRACE);
+    }
+
     @Test
     public void test() throws IOException, SAXException, InvalidFormatException {
 
         String streamURI = "/testData/IWF Records.xlsx";
-        System.err.println("testing "+this.getClass().getResourceAsStream(streamURI));
 
         try (InputStream xmlInputStream = this.getClass().getResourceAsStream(streamURI)) {
-            System.err.println("found "+streamURI);
             Workbook wb = null;
             try {
                 wb = WorkbookFactory.create(xmlInputStream);
-                System.err.println("created "+wb);
                 int i = RecordDefinitionReader.createRecords(wb, null, streamURI);
-                System.err.println("created "+i+" records");
                 assertEquals(180, i);
             } finally {
                 if (wb != null) {

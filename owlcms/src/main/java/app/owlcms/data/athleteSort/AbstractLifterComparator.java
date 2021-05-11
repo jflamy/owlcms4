@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.data.athleteSort;
 
 import java.time.LocalDate;
@@ -278,10 +278,10 @@ public class AbstractLifterComparator {
      * @param lifter2 the lifter 2
      * @return the int
      */
-    int compareForcedAsFirst(Athlete lifter1, Athlete lifter2) {
+    int compareForcedAsCurrent(Athlete lifter1, Athlete lifter2) {
         // can't be nulls, method returns primitive boolean
-        Boolean lifter1Value = lifter1.getForcedAsCurrent();
-        Boolean lifter2Value = lifter2.getForcedAsCurrent();
+        Boolean lifter1Value = lifter1.isForcedAsCurrent();
+        Boolean lifter2Value = lifter2.isForcedAsCurrent();
 
         // true.compareTo(false) returns positive (i.e. greater). We want the
         // opposite.

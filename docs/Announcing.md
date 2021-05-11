@@ -58,11 +58,36 @@ Announcers may act as marshall and handle declarations and changes themselves.  
 Notes:
 
 - The first time an athlete or coach indicates a weight should always be noted in the Declaration row. It is *not* the first change.  The official should pay attention and refuse a declaration after the first 30 seconds have elapsed. In a two-minute situation, further changes cannot be made if a declaration has not been given.
+
 - In order to reverse a ruling, edit the bottom row which is the actual weight that was lifted or failed (negative number).  In the screen shot below, changing the snatch 1 from "62" to "**-62**" <u>on the bottom row</u> would mark the lift as <u>failed</u>.
+
+  > NOTE: the ability to edit the results is OFF by default on the Marshall screen, to prevent entering an extra change by mistake (which would then count as a good lift)
+
 - In order to mark a lift as <u>not taken</u> (such as a withdrawal), put "**0**" in the bottom row.
-- The withdrawal button is a shortcut and marks all the remaining lifts as not taken (0).
+
+  - The withdrawal button is a shortcut and marks all the remaining lifts as not taken (0).
 
 ![020_EditLifterCard](img/Lifting/020_EditLifterCard.png)
+
+## Rules for Moving Down
+
+An athlete may request a smaller weight than on a previous declaration or previous change, but only if this does not cause him to lift out of order.  For example, if on the first lift, athlete A (start number 1) and B (start number 2) both request 80 kg, Athlete A cannot move up to 85, let B lift, and then request 80 again.  By rule, a smaller start number must go first at a given weight, on first attempt.
+
+The exact rules enforced are as follow:
+
+Moving down is only allowed if the requested weight does not cause the athlete to lift out of order (i.e. moving is denied if the athlete should have lifted the weight earlier according the the rules, and is therefore gaining unfair recovery time)
+
+- An athlete cannot move to a weight smaller than an already started clock, or an already lifted weight (bar weight does not go down except to correct marshalling or announcing errors)
+- If moving to a value for an already started clock or an already attempted weight
+  - If an athlete previously lifted the requested weight and did so on an earlier attempt, then the moving athlete cannot move (at a given weight, cannot take attempt 2 before attempt 1)
+  - If an athlete previously lifted the requested weight and did so on the same attempt, then the moving athlete must have lifted later (taken a larger bar on the previous attempt - smaller progression)
+  - If an athlete previously lifted the requested weight and did so on the same attempt with the same previous weight, then the moving athlete must have  larger start number (for example, on a first attempt start 1 cannot lift after start 2 by moving up, then moving down after start 2 has lifted)
+- If an illegal move down is detected, the rule being broken is shown and it is not possible to update.
+
+![MovingDownError](img/Lifting/MovingDownError.png)
+
+- Because sometimes there is confusion when entering weights -- similar names, fatigue, etc., the rules can be waived. There is a check box at the bottom that cancels validations and allows saving.  Use with care, this is only meant to fix major marshalling or announcing errors.
+- Note: The rules are not applied for mixed children groups with "all girls before all boys" (since the first boy will likely request less than the last girl)
 
 ## Weight Change for Current Athlete
 

@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.init;
 
 import java.util.List;
@@ -159,5 +159,17 @@ public class OwlcmsSession {
     private Properties attributes = new Properties();
 
     private OwlcmsSession() {
+    }
+
+    public static String getFopLoggingName() {
+        FieldOfPlay fop = getFop();
+        if (fop == null) {
+            fop = OwlcmsFactory.getDefaultFOP();
+        }
+        if (fop != null) {
+            return fop.getLoggingName();
+        } else {
+            return "-";
+        }
     }
 }

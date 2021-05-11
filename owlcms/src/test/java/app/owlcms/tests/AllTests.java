@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
@@ -16,14 +16,15 @@ import java.io.InputStreamReader;
 
 //import org.concordiainternational.competition.spreadsheet.ExtenXLSReader;
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 import org.slf4j.LoggerFactory;
+
+import com.googlecode.junittoolbox.SuiteClasses;
+import com.googlecode.junittoolbox.WildcardPatternSuite;
 
 import ch.qos.logback.classic.Logger;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ AthleteSorterTest.class, AthleteTest.class, TwoMinutesRuleTest.class,
-        RegistrationReaderTest.class, RecordDefinitionReaderTest.class })
+@RunWith(WildcardPatternSuite.class)
+@SuiteClasses({ "**/*Test.class" })
 public class AllTests {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AllTests.class);

@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.data.athleteSort;
 
 import java.util.Comparator;
@@ -27,7 +27,7 @@ public class LiftOrderComparator extends AbstractLifterComparator implements Com
 
         // a Athlete that has the boolean flag "forceAsFirst" collates smallest
         // by definition
-        compare = compareForcedAsFirst(lifter1, lifter2);
+        compare = compareForcedAsCurrent(lifter1, lifter2);
         if (compare != 0) {
             return compare;
         }

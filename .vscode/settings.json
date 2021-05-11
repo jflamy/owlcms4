@@ -5,5 +5,13 @@
         "**/.project": true,
         "**/.settings": true,
         "**/.factorypath": true
-    }
+    },
+    "java.test.config": [
+        {
+            "name": "owlcms testing",
+            "workingDirectory": "${workspaceFolder}",
+            "vmargs": [ "-ea"],
+            "env": { "key": "value" },
+        }
+    ]
 }

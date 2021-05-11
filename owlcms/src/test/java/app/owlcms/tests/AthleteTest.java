@@ -1,14 +1,18 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import app.owlcms.data.agegroup.AgeGroup;
@@ -16,13 +20,35 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.jpa.JPAService;
+import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.init.OwlcmsSession;
+import ch.qos.logback.classic.Level;
 
 public class AthleteTest {
 
+    private static final Level LOGGER_LEVEL = Level.OFF;
     private static Athlete athlete;
+    
+    @BeforeClass
+    public static void setupTests() {
+        JPAService.init(true, true);
+        TestData.insertInitialData(5, true);
+    }
+
+    @AfterClass
+    public static void tearDownTests() {
+        JPAService.close();
+    }
+
 
     @Before
     public void setupTest() {
+        FieldOfPlay fopState = new FieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(), new MockCountdownTimer(), true);
+        OwlcmsSession.setFop(fopState);
+        fopState.getLogger().setLevel(LOGGER_LEVEL);
+        // EventBus fopBus = fopState.getFopEventBus();
+        
         athlete = new Athlete();
         athlete.setLastName("Strong");
         athlete.setFirstName("Paul");

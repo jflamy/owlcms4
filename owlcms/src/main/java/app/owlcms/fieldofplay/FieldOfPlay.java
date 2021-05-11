@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.fieldofplay;
 
 import static app.owlcms.fieldofplay.FOPState.BREAK;
@@ -209,7 +209,7 @@ public class FieldOfPlay {
 
     public void emitFinalWarning() {
         if (!isFinalWarningEmitted()) {
-            logger.info("FOP {}: Final Warning", getName());
+            logger.info("{}Final Warning", getLoggingName());
             if (isEmitSoundsOnServer()) {
                 // instead of finalWarning2.wav sounds too much like down
                 new Sound(getSoundMixer(), "initialWarning2.wav").emit();
@@ -220,7 +220,7 @@ public class FieldOfPlay {
 
     public void emitInitialWarning() {
         if (!isInitialWarningEmitted()) {
-            logger.info("FOP {}: Initial Warning", getName());
+            logger.info("{}Initial Warning", getLoggingName());
             if (isEmitSoundsOnServer()) {
                 new Sound(getSoundMixer(), "initialWarning2.wav").emit();
             }
@@ -230,7 +230,7 @@ public class FieldOfPlay {
 
     public void emitTimeOver() {
         if (!isTimeoutEmitted()) {
-            logger.info("FOP {}: Time Over", getName());
+            logger.info("{}Time Over", getLoggingName());
             if (isEmitSoundsOnServer()) {
                 new Sound(getSoundMixer(), "timeOver2.wav").emit();
             }
@@ -245,10 +245,10 @@ public class FieldOfPlay {
         return this.athleteTimer;
     }
 
-    public ProxyBreakTimer getBreakTimer() {
+    public IBreakTimer getBreakTimer() {
         // if (!(this.breakTimer.getClass().isAssignableFrom(ProxyBreakTimer.class)))
         // throw new RuntimeException("wrong athleteTimer setup");
-        return (ProxyBreakTimer) this.breakTimer;
+        return (IBreakTimer) this.breakTimer;
     }
 
     public BreakType getBreakType() {
@@ -304,6 +304,14 @@ public class FieldOfPlay {
     public String getName() {
         return name;
     }
+    
+    /**
+     * @return the name
+     */
+    public String getLoggingName() {
+        return "FOP "+name+"    ";
+    }
+
 
     /**
      * @return the platform
@@ -388,11 +396,11 @@ public class FieldOfPlay {
         int newHash = e.hashCode();
         if (prevHash != null && newHash == prevHash) {
             prevHash = newHash;
-            logger.debug("FOP {} state {}, DUPLICATE event received {} {}", getName(), this.getState(),
+            logger.debug("{}state {}, DUPLICATE event received {} {}", getLoggingName(), this.getState(),
                     e.getClass().getSimpleName(), e);
             return;
         } else {
-            logger.info("FOP {} state {}, event received {}", getName(), this.getState(), e.getClass().getSimpleName(),
+            logger.info("{}state {}, event received {}", getLoggingName(), this.getState(), e.getClass().getSimpleName(),
                     e);
             prevHash = newHash;
         }
@@ -596,7 +604,7 @@ public class FieldOfPlay {
                 weightChangeDoNotDisturb((WeightChange) e);
                 setState(DECISION_VISIBLE);
             } else if (e instanceof DecisionReset) {
-                logger.debug("FOP {} resetting decisions", getName());
+                logger.debug("{}resetting decisions", getLoggingName());
                 pushOut(new UIEvent.DecisionReset(getCurAthlete(), e.origin));
                 setClockOwner(null);
                 displayOrBreakIfDone(e);
@@ -646,7 +654,7 @@ public class FieldOfPlay {
 
         // force a wake up on user interfaces
         if (!alreadyLoaded) {
-            logger.info("FOP {} group {} athletes={}", getName(), getGroup(), athletes.size());
+            logger.info("{}group {} athletes={}", getLoggingName(), getGroup(), athletes.size());
             pushOut(new UIEvent.SwitchGroup(getGroup(), getState(), getCurAthlete(), this));
         }
         logger.trace("end of init state=" + state);
@@ -684,8 +692,8 @@ public class FieldOfPlay {
         }
         this.setGroup(group);
         if (group != null) {
-            logger.trace("FOP {} current group {} loading data for group {} [{} {} {} {}]",
-                    getName(),
+            logger.trace("{}current group {} loading data for group {} [{} {} {} {}]",
+                    getLoggingName(),
                     thisGroupName,
                     loadGroupName,
                     alreadyLoaded,
@@ -777,7 +785,7 @@ public class FieldOfPlay {
     public void startLifting(Group group, Object origin) {
         logger.debug("startLifting {}", LoggerUtils.stackTrace());
         loadGroup(group, origin, true);
-        logger.trace("{} start lifting for group {} origin={}", this.getName(),
+        logger.trace("{} start lifting for group {} origin={}", this.getLoggingName(),
                 (group != null ? group.getName() : group), origin);
         getFopEventBus().post(new StartLifting(origin));
     }
@@ -803,9 +811,12 @@ public class FieldOfPlay {
         pushOut(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, previousAthlete, changingAthlete,
                 getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),
                 inBreak));
-        int attempts = getCurAthlete().getAttemptedLifts() + 1;
-        logger.info("FOP {} current athlete = {} attempt {}, requested = {}, timeAllowed={} timeRemainingAtLastStop={}",
-                getName(), getCurAthlete(), getCurAthlete() != null ? attempts : 0, curWeight,
+
+        // cur athlete can be null during some tests.
+        int attempts = getCurAthlete() == null ? 0 : getCurAthlete().getAttemptedLifts() + 1;     
+        String shortName = getCurAthlete() == null ? "" : getCurAthlete().getShortName();
+        logger.info("{}current athlete = {} attempt {}, requested = {}, timeAllowed={} timeRemainingAtLastStop={}",
+                getLoggingName(), shortName, attempts, curWeight,
                 clock,
                 getAthleteTimer().getTimeRemainingAtLastStop());
         if (attempts > 6) {
@@ -819,12 +830,15 @@ public class FieldOfPlay {
      * @param state the new state
      */
     void setState(FOPState state) {
-        logger.debug("FOP {} entering {} {}", getName(), state, LoggerUtils.whereFrom());
+        logger.debug("{}entering {} {}", getLoggingName(), state, LoggerUtils.whereFrom());
         // if (state == INACTIVE) {
         // logger.debug("entering inactive {}",LoggerUtils.stackTrace());
         // }
         if (state == CURRENT_ATHLETE_DISPLAYED) {
-            group.setDone(getCurAthlete() == null || getCurAthlete().getAttemptsDone() >= 6);
+            Athlete a = getCurAthlete();
+            if (group != null) {
+                group.setDone(a == null || a.getAttemptsDone() >= 6);
+            }
         } else if (state == BREAK) {
             group.setDone(breakType == BreakType.GROUP_DONE);
         }
@@ -893,12 +907,12 @@ public class FieldOfPlay {
                 return;
             }
         } else if (clockOwner != null && !getAthleteTimer().isRunning()) {
-            logger.debug("&&3.B clock NOT running for changing athlete {}", changingAthlete);
+            logger.trace("&&3.B clock NOT running for changing athlete {}", changingAthlete);
             // time was started (there is an owner) but is not currently running
             // time was likely stopped by timekeeper because coach signaled change of weight
             doWeightChange(wc, changingAthlete, clockOwner, true);
         } else {
-            logger.debug("&&3.C1 no clock owner, time is not running");
+            logger.trace("&&3.C1 no clock owner, time is not running");
             // time is not running
             recomputeLiftingOrder();
             updateGlobalRankings();
@@ -932,7 +946,7 @@ public class FieldOfPlay {
         updateGlobalRankings();
     }
 
-    private Athlete getClockOwner() {
+    public Athlete getClockOwner() {
         return clockOwner;
     }
 
@@ -1006,7 +1020,7 @@ public class FieldOfPlay {
     }
 
     private void pushOutDone() {
-        logger.debug("group {} done", group);
+        logger.debug("{}group {} done", getLoggingName(), group);
         UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
         // make sure the publicresults update carries the right state.
         setState(BREAK);
@@ -1033,8 +1047,8 @@ public class FieldOfPlay {
 
         int timeAllowed = getTimeAllowed();
         Integer attemptsDone = curAthlete.getAttemptsDone();
-        logger.trace("FOP {} recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
-                getName(),
+        logger.trace("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
+                getLoggingName(),
                 getCurAthlete() != null ? getCurAthlete().getFullName() : "",
                 previousAthlete != null ? previousAthlete.getFullName() : "",
                 timeAllowed,
@@ -1118,7 +1132,7 @@ public class FieldOfPlay {
         if (state == INACTIVE) {
             // remain in INACTIVE state (do nothing)
         } else if (state == BREAK) {
-            logger.debug("FOP {} Break {}", getName(), state, getBreakType());
+            logger.debug("{}Break {}", getLoggingName(), state, getBreakType());
             // if in a break, we don't stop break timer on a weight change.
             if (getBreakType() == BreakType.GROUP_DONE) {
                 // weight change in state GROUP_DONE can happen if there is a loading error
@@ -1151,7 +1165,7 @@ public class FieldOfPlay {
     }
 
     synchronized private void showDecisionAfterDelay(Object origin2) {
-        logger.trace("{} scheduling decision display", getName());
+        logger.trace("{}scheduling decision display", getLoggingName());
         assert !isDecisionDisplayScheduled(); // caller checks.
         setDecisionDisplayScheduled(true); // so there are never two scheduled...
         new DelayTimer().schedule(() -> showDecisionNow(origin2), REVERSAL_DELAY);
@@ -1217,13 +1231,13 @@ public class FieldOfPlay {
 //    }
 
     private void transitionToBreak(BreakStarted e) {
-        ProxyBreakTimer breakTimer2 = getBreakTimer();
+        IBreakTimer breakTimer2 = getBreakTimer();
         BreakType breakType2 = e.getBreakType();
         CountdownType countdownType2 = e.getCountdownType();
         if (state == BREAK) {
             if ((breakType2 != getBreakType() || countdownType2 != getCountdownType())) {
                 // changing the kind of break
-                logger.trace("{} switching break type while in break : current {} new {}", getName(), getBreakType(),
+                logger.trace("{}switching break type while in break : current {} new {}", getLoggingName(), getBreakType(),
                         e.getBreakType());
                 breakTimer2.stop();
                 setBreakParams(e, breakTimer2, breakType2, countdownType2);
@@ -1232,7 +1246,7 @@ public class FieldOfPlay {
                 breakTimer2.start(); // so we restart in the new type
             } else {
                 // we are in a break, resume.
-                logger.trace("{} resuming break : current {} new {}", getName(), getBreakType(),
+                logger.trace("{}resuming break : current {} new {}", getLoggingName(), getBreakType(),
                         e.getBreakType());
                 breakTimer2.setOrigin(e.getOrigin());
                 logger.trace("starting2");
@@ -1253,7 +1267,7 @@ public class FieldOfPlay {
         logger.trace("started break timers {}", breakType2);
     }
 
-    private void setBreakParams(BreakStarted e, ProxyBreakTimer breakTimer2, BreakType breakType2,
+    private void setBreakParams(BreakStarted e, IBreakTimer breakTimer2, BreakType breakType2,
             CountdownType countdownType2) {
         this.setBreakType(breakType2);
         this.setCountdownType(countdownType2);
@@ -1272,7 +1286,7 @@ public class FieldOfPlay {
     }
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {
-        weightAtLastStart = 0;
+        setWeightAtLastStart(0);
         logger.trace("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
                 LoggerUtils.whereFrom());
 
@@ -1286,6 +1300,7 @@ public class FieldOfPlay {
             setState(CURRENT_ATHLETE_DISPLAYED);
         }
         if (stopBreakTimer) {
+            
             getBreakTimer().stop();
             setBreakType(null);
         }
@@ -1307,18 +1322,18 @@ public class FieldOfPlay {
         setWeightAtLastStart(getCurAthlete().getNextAttemptRequestedWeight());
     }
 
-    private void setWeightAtLastStart(Integer nextAttemptRequestedWeight) {
+    public void setWeightAtLastStart(Integer nextAttemptRequestedWeight) {
         weightAtLastStart = nextAttemptRequestedWeight;
     }
 
-    public int getWeightAtLastStart() {
-        return (weightAtLastStart != null ? weightAtLastStart : 0);
+    public Integer getWeightAtLastStart() {
+        return weightAtLastStart;
     }
 
     @SuppressWarnings("unused")
     private void uiDisplayCurrentWeight() {
         Integer nextAttemptRequestedWeight = getCurAthlete().getNextAttemptRequestedWeight();
-        uiEventLogger.info("requested weight: {} (from curAthlete {})", nextAttemptRequestedWeight, getCurAthlete());
+        uiEventLogger.info("requested weight: {} (from curAthlete {})", nextAttemptRequestedWeight, getCurAthlete().getShortName());
     }
 
     private synchronized void uiShowDownSignalOnSlaveDisplays(Object origin2) {
@@ -1375,7 +1390,7 @@ public class FieldOfPlay {
         }
 //        String text = Translator.translate("Unexpected_Notification", e.getClass().getSimpleName(), state);
 //        text = FOPError.translateMessage(state, e);
-        logger./**/warn("FOP " + getName() + " " + Translator.translate("Unexpected_Logging"),
+        logger./**/warn(getLoggingName() + " " + Translator.translate("Unexpected_Logging"),
                 e.getClass().getSimpleName(), state);
 //        if (UI.getCurrent() != null) {
 //            Notification.show(text, 5000, Position.BOTTOM_END);
@@ -1384,7 +1399,7 @@ public class FieldOfPlay {
     }
 
     private void updateGlobalRankings() {
-        logger.trace("FOP {} update rankings {}", getName(), LoggerUtils.whereFrom());
+        logger.trace("{}update rankings {}", getLoggingName(), LoggerUtils.whereFrom());
         Competition competition = Competition.getCurrent();
         competition.computeGlobalRankings(false);
         uiShowUpdatedRankings();
@@ -1418,6 +1433,12 @@ public class FieldOfPlay {
         this.setDisplayOrder(AthleteSorter.displayOrderCopy(this.getLiftingOrder()));
         uiDisplayCurrentAthleteAndTime(false, e, false);
         updateGlobalRankings();
+    }
+
+    public void beforeTest() {
+        setWeightAtLastStart(0);
+        startLifting(null,null);
+        return;
     }
 
 }

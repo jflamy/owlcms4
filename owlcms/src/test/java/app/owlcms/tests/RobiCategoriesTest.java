@@ -1,21 +1,39 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
 
+import java.time.LocalDate;
+
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.RobiCategories;
+import app.owlcms.data.jpa.JPAService;
+import app.owlcms.init.OwlcmsSession;
 
 public class RobiCategoriesTest {
+    
+    @BeforeClass
+    public static void setupTests() {
+        JPAService.init(true, true);
+        TestData.insertInitialData(5, true);
+    }
+
+    @AfterClass
+    public static void tearDownTests() {
+        JPAService.close();
+    }
 
     @Test
     public void testInside() {
@@ -40,8 +58,13 @@ public class RobiCategoriesTest {
         Athlete a = new Athlete();
         a.setBodyWeight(48.2D);
         a.setGender(Gender.M);
-        a.setYearOfBirth(2003);
+        a.setYearOfBirth(LocalDate.now().getYear() - 17);
         Category cat = RobiCategories.findRobiCategory(a);
         assertEquals("M49", cat.getCode());
+    }
+    
+    @Before
+    public void setupTest() {
+        OwlcmsSession.withFop(fop -> fop.beforeTest());
     }
 }

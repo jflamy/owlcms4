@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
@@ -25,6 +25,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.init.OwlcmsSession;
 
 public class RegistrationOrderComparatorTest {
 
@@ -36,6 +37,11 @@ public class RegistrationOrderComparatorTest {
             AgeGroupRepository.insertAgeGroups(em, EnumSet.of(AgeDivision.IWF, AgeDivision.MASTERS, AgeDivision.U));
             return null;
         });
+    }
+    
+    @Before
+    public void setupTest() {
+        OwlcmsSession.withFop(fop -> fop.beforeTest());
     }
 
     @AfterClass
@@ -63,7 +69,4 @@ public class RegistrationOrderComparatorTest {
         assertEquals("[U15 M 67, YTH M 67, JR M 67, SR M 67]", cats.toString());
     }
 
-    @Before
-    public void setupTest() {
-    }
 }

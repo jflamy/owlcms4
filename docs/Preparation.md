@@ -24,11 +24,25 @@ This setting is normally used when running a Masters-only competition, and is no
 
 The determination to apply the IWF 20kg or the IWF Masters 80% rule is individual, based on whether the athlete is registered in a regular or Masters category.  Therefore there is no need to use this setting unless the weigh-in and presentation order matters.
 
+## Time Zone
+
+When running stand-alone on a laptop, the system gets its time zone automatically according to the computer's settings, so you can skip this section.
+
+But when running in the cloud, the cloud provider typically uses universal time (colloquially, "Greenwich").  So the time shown by the intermission break timer (for example) will most likely be wrong.  Since virtual meets often span several time zones, owlcms needs to be told what time zone was used to create the schedule.
+
+- In most circumstances, including in-person meets, the person setting up the meet is in the same time zone as the competition.  Just use the button (see in red below) to set the time zone according to the current location.  The proposed zone will not necessarily be an exact match to your city -- only a subset of major cities is present in the database.  Just make sure the proposed selection has the same time zone rules as yours.
+  Don't forget to click update at the top of the page to save the settings.  
+- In virtual meets spanning several time zones, you may need to explicitly select another zone (for example, the organizer is in the Central zone but the competition schedule was published in Eastern times).  You would then use the dropdown to select an appropriate time zone and update the settings.
+
+![105_TimeZone](img/Preparation/105_TimeZone.png)
+
 ## Display Language
 
-In countries where more than one language is spoken, the various computers used in a competition may be configured with different languages.  You could therefore wish to have a scoreboard in French and the another one in English, the regional settings on each browser are used by default.
+In countries where more than one language is spoken, and in a virtual meet, the various computers used in a competition are likely to be configured with different languages.  
 
-Conversely, it is possible to force a single language to be used on all displays (owlcms will then ignore the individual language preferences sent by each browser).  The display language can be set via a technical configuration (see [here](Heroku#configure-your-time-zone-and-locale) and [here](LocalSetup#id=defining-the-language)), or via the user interface as follows.  After saving the language new pages will appear in the selected language, pages already open will need to be reloaded.
+By default, owlcms will try to use the language indicated by each browser, if a translation is available for that language.  This could be useful in a virtual meet, where officials could come from different countries.
+
+More likely however is the need force a single language to be used on all displays (owlcms will then ignore the individual language preferences sent by each browser).  The display language can be set via a technical configuration (see [here](Heroku#configure-your-time-zone-and-locale) and [here](LocalSetup#id=defining-the-language)), or via the user interface as follows.  After saving the language new pages will appear in the selected language, pages already open will need to be reloaded.
 
 You can unselect the language to revert to "the browser determines the language".
 

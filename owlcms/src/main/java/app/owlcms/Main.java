@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms;
 
 import java.io.IOException;
@@ -11,6 +11,7 @@ import java.text.ParseException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.DateConverter;
@@ -121,12 +122,13 @@ public class Main {
 
         // setup database
         JPAService.init(memoryMode, resetMode);
-
+        
         // read locale from database and overrrde if needed
         Locale l = overrideDisplayLanguage();
-        
         injectData(initialData, l);
-        OwlcmsFactory.getDefaultFOP(true);  //initialization, don't push out to browsers
+        overrideTimeZone();
+        
+        OwlcmsFactory.getDefaultFOP(true); // initialization, don't push out to browsers
     }
 
     protected static void tearDown() {
@@ -184,7 +186,7 @@ public class Main {
     }
 
     private static Locale overrideDisplayLanguage() {
-        // read override value from database
+        // read override value from database, if it was previously created.
         Locale l = null;
         try {
             l = Competition.getCurrent().getDefaultLocale();
@@ -207,6 +209,15 @@ public class Main {
             logger.info("forcing display language to {}", l);
         }
         return l;
+    }
+
+    private static void overrideTimeZone() {
+        // read override value from database, if it was previously created.
+        TimeZone tz = null;
+        tz = Competition.getCurrent().getTimeZone();
+        if (tz != null) {
+            TimeZone.setDefault(tz);
+        }
     }
 
     /**

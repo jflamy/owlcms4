@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.ui.shared;
 
 import java.text.NumberFormat;
@@ -203,7 +203,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
                 }
             }
-            valid = !s.hasErrors();
+            setValid(!s.hasErrors());
             s.notifyBindingValidationStatusHandlers();
         });
     }
@@ -688,7 +688,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     private boolean validateStartingTotals(String mainProp, String otherProp1, String otherProp2) {
         try {
             logger.debug("before {} validation", mainProp);
-            Athlete.validateStartingTotalsRule(getEditedAthlete(), getIntegerFieldValue("snatch1Declaration"),
+            getEditedAthlete().validateStartingTotalsRule(getIntegerFieldValue("snatch1Declaration"),
                     getIntegerFieldValue("cleanJerk1Declaration"), getIntegerFieldValue("qualifyingTotal"));
             // clear errors on other fields.
             logger.debug("clearing errors on {} {}", otherProp1, otherProp2);

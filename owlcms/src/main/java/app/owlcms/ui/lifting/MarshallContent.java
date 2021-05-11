@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 
 package app.owlcms.ui.lifting;
 
@@ -55,7 +55,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
     public Collection<Athlete> findAll() {
         FieldOfPlay fop = OwlcmsSession.getFop();
         if (fop != null) {
-            logger.trace("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
+            logger.trace("{}findAll {} {} {}", fop.getLoggingName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
                     LoggerUtils.whereFrom());
             final String filterValue;
             if (lastNameFilter.getValue() != null) {

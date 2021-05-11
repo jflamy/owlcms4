@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.data.athlete;
 
 import java.lang.reflect.InvocationTargetException;
@@ -544,15 +544,6 @@ public class XAthlete extends Athlete {
     @Override
     public String getFirstName() {
         return a.getFirstName();
-    }
-
-    /**
-     * @return
-     * @see app.owlcms.data.athlete.Athlete#getForcedAsCurrent()
-     */
-    @Override
-    public boolean getForcedAsCurrent() {
-        return a.getForcedAsCurrent();
     }
 
     @Override
@@ -1236,11 +1227,6 @@ public class XAthlete extends Athlete {
     @Override
     public boolean isForcedAsCurrent() {
         return a.isForcedAsCurrent();
-    }
-
-    @Override
-    public boolean isValidation() {
-        return a.isValidation();
     }
 
     /**
@@ -1949,11 +1935,6 @@ public class XAthlete extends Athlete {
     @Override
     public void setTotalRank(Integer totalRank) {
         a.setTotalRank(totalRank);
-    }
-
-    @Override
-    public void setValidation(boolean b) {
-        a.setValidation(b);
     }
 
     /**

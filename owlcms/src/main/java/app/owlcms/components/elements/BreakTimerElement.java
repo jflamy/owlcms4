@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.components.elements;
 
 import java.time.LocalDateTime;
@@ -16,7 +16,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 
-import app.owlcms.fieldofplay.ProxyBreakTimer;
+import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
@@ -63,7 +63,7 @@ public class BreakTimerElement extends TimerElement {
     public void clientSyncTime() {
         logger.debug("break timer element fetching time");
         OwlcmsSession.withFop(fop -> {
-            ProxyBreakTimer breakTimer = fop.getBreakTimer();
+            IBreakTimer breakTimer = fop.getBreakTimer();
             doSetTimer(breakTimer.isIndefinite() ? null : breakTimer.liveTimeRemaining());
         });
         return;
@@ -88,7 +88,7 @@ public class BreakTimerElement extends TimerElement {
     @ClientCallable
     public void clientTimeOver() {
         OwlcmsSession.withFop(fop -> {
-            ProxyBreakTimer breakTimer = fop.getBreakTimer();
+            IBreakTimer breakTimer = fop.getBreakTimer();
             logger.debug("break time over {}", breakTimer.isIndefinite());
             if (!breakTimer.isIndefinite()) {
                 fop.getBreakTimer().timeOver(this);
@@ -166,7 +166,7 @@ public class BreakTimerElement extends TimerElement {
         init();
         OwlcmsSession.withFop(fop -> {
             // sync with current status of FOP
-            ProxyBreakTimer breakTimer = fop.getBreakTimer();
+            IBreakTimer breakTimer = fop.getBreakTimer();
             if (breakTimer.isRunning()) {
                 if (breakTimer.isIndefinite()) {
                     doStartTimer(null, fop.isEmitSoundsOnServer());

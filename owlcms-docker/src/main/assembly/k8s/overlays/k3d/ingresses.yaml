@@ -6,6 +6,7 @@ metadata:
   name: owlcms-ingress
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
+    kubernetes.io/ingress.class: "nginx"
     ingress.kubernetes.io/ssl-redirect: 'false'
 spec:
   tls:
@@ -32,6 +33,7 @@ metadata:
   name: publicresults-ingress
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
+    kubernetes.io/ingress.class: "nginx"
     ingress.kubernetes.io/ssl-redirect: 'false'
 spec:
   tls:

@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.init;
 
 import java.util.Collection;
@@ -141,7 +141,7 @@ public class OwlcmsFactory {
         for (Platform platform : PlatformRepository.findAll()) {
             String name = platform.getName();
             FieldOfPlay fop = new FieldOfPlay(null, platform);
-            logger.info("Field of play {}", fop.getName());
+            logger.debug("{} Initialized", fop.getLoggingName());
             // no group selected, no athletes, announcer will need to pick a group.
             fop.init(new LinkedList<Athlete>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop), true);
             fopByName.put(name, fop);

@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.displays.attemptboard;
 
 import java.util.List;
@@ -422,7 +422,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     protected void onAttach(AttachEvent attachEvent) {
         // fop obtained via QueryParameterReader interface default methods.
         OwlcmsSession.withFop(fop -> {
-            logger.debug("onAttach {} {}", fop.getName(), fop.getState());
+            logger.debug("{}onAttach {}", fop.getLoggingName(), fop.getState());
             init();
             ThemeList themeList = UI.getCurrent().getElement().getThemeList();
             themeList.remove(Lumo.LIGHT);
@@ -488,7 +488,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     private void init() {
         OwlcmsSession.withFop(fop -> {
-            logger.trace("Starting attempt board on FOP {}", fop.getName());
+            logger.trace("{}Starting attempt board", fop.getLoggingName());
             setId("attempt-board-template");
         });
     }

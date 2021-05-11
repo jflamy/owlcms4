@@ -4,8 +4,22 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [  
-        
-    
+        {
+            "type": "java",
+            "name": "Launch owlcms",
+            "request": "launch",
+            "mainClass": "app.owlcms.Main",
+            "projectName": "owlcms",
+            "vmArgs": "-ea -Dlogback.configurationFyile=logback-console.xml"
+        },
+        {
+            "type": "java",
+            "name": "Launch relay",
+            "request": "launch",
+            "mainClass": "app.owlcms.relay.Main",
+            "projectName": "relay",
+            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml"
+        },    
         {
             "name": "Launch GO file",
             "type": "go",
@@ -15,37 +29,11 @@
         },
         {
             "type": "java",
-            "name": "Debug (Launch) - Current File",
+            "name": "Lauch - Current File",
             "request": "launch",
-            "mainClass": "${file}"
-        },
-        {
-            "type": "java",
-            "name": "Debug (Launch)-Main<owlcms>",
-            "request": "launch",
-            "mainClass": "app.owlcms.Main",
-            "projectName": "owlcms"
-        },
-        {
-            "type": "java",
-            "name": "Debug (Launch)-Speakers<owlcms>",
-            "request": "launch",
-            "mainClass": "app.owlcms.sound.Speakers",
-            "projectName": "owlcms"
-        },
-        {
-            "type": "java",
-            "name": "Debug (Launch)-ResourceWalker<owlcms>",
-            "request": "launch",
-            "mainClass": "app.owlcms.utils.ResourceWalker",
-            "projectName": "owlcms"
-        },
-        {
-            "type": "java",
-            "name": "Debug (Launch)-Main<relay>",
-            "request": "launch",
-            "mainClass": "app.owlcms.relay.Main",
-            "projectName": "relay"
+            "mainClass": "${file}",
+            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml"
         }
+
     ]
 }

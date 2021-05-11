@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.data.config;
 
 import javax.persistence.Cacheable;
@@ -64,6 +64,22 @@ public class Config {
 
     private String ipBackdoorList;
 
+    @Override
+    public boolean equals(Object obj) {
+        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Config other = (Config) obj;
+        return id != null && id.equals(other.getId());
+    }
+
     /**
      * Gets the id.
      *
@@ -75,6 +91,10 @@ public class Config {
 
     public String getIpAccessList() {
         return ipAccessList;
+    }
+
+    public String getIpBackdoorList() {
+        return ipBackdoorList;
     }
 
     /**
@@ -91,7 +111,7 @@ public class Config {
         }
         return uAccessList;
     }
-    
+
     /**
      * @return the current whitelist.
      */
@@ -120,7 +140,7 @@ public class Config {
         if (uPin == null) {
             // use pin from database
             uPin = Config.getCurrent().pin;
-            //logger.debug("pin = {}", uPin);
+            // logger.debug("pin = {}", uPin);
             if (uPin == null || uPin.isBlank()) {
                 uPin = null;
             }
@@ -165,8 +185,18 @@ public class Config {
         return updatekey;
     }
 
+    @Override
+    public int hashCode() {
+        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return 31;
+    }
+
     public void setIpAccessList(String ipAccessList) {
         this.ipAccessList = ipAccessList;
+    }
+
+    public void setIpBackdoorList(String ipBackdoorList) {
+        this.ipBackdoorList = ipBackdoorList;
     }
 
     public void setPin(String pin) {
@@ -176,6 +206,7 @@ public class Config {
     public void setPublicResultsURL(String publicResultsURL) {
         this.publicResultsURL = publicResultsURL;
     }
+
 
     public void setUpdatekey(String updatekey) {
         this.updatekey = updatekey;
@@ -200,36 +231,6 @@ public class Config {
                 return uURL;
             }
         }
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        Config other = (Config) obj;
-        return id != null && id.equals(other.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-        return 31;
-    }
-
-    public String getIpBackdoorList() {
-        return ipBackdoorList;
-    }
-
-    public void setIpBackdoorList(String ipBackdoorList) {
-        this.ipBackdoorList = ipBackdoorList;
     }
 
 }
