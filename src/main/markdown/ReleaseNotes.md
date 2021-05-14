@@ -1,31 +1,10 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] Danish language translation
+  * [x] Implemented the rules to prevent athletes from moving down their requested weight illegally.  Moving down is denied if the athlete should already have attempted that weight according to the official lifting order.  The exact checks resulting from applying the TCRR to that situation are spelled out in the [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Announcing#rules-for-moving-down). (#418)
+  * [x] For cloud-based competitions, setting the time zone can now be done directly from the Competition Information page. (#422).
   
-* Changes for previous 4.19 pre-releases
-
-  - [x] Added automated tests for Clean&Jerk -- early weights in CJ are often smaller than weights already lifted in Snatch
-  - [x] Improved isolation between tests to ensure that they can be run in any order.
-  - [x] Updated Vaadin Flow to the current version.
-  - [x] Skipping tests is now controlled explicit parameter visible in the Azure DevOps interface, and is off by default (tests are run again during both prerelease and release builds)
-  - [x] Added additional tests to "who lifted first on previous attempt" when requesting same weight, same attempt
-  - [x] Portuguese translation was missing.
-
-  * [x] Implemented the rules to prevent athletes from moving down their requested weight illegally.  Moving down is only allowed if the requested weight does not cause the athlete to lift out of order (i.e. moving is denied if the athlete should have lifted the weight earlier according the the rules, as this among other things would provide unfair recovery time)
-    - An athlete cannot move to a weight smaller than an already started clock, or an already lifted weight (bar weight does not go down except to correct marshalling or announcing errors)
-    - If moving to a value for an already started clock or an already attempted weight
-      - If an athlete previously lifted the requested weight and did so on an earlier attempt, then the moving athlete cannot move (at a given weight, cannot take attempt 2 before attempt 1)
-      - If an athlete previously lifted the requested weight and did so on the same attempt, then the moving athlete must have lifted later (taken a larger bar on the previous attempt - smaller progression)
-      - If an athlete previously lifted the requested weight and did so on the same attempt with the same previous weight, then the moving athlete must have  larger start number (for example, on a first attempt start 1 cannot lift after start 2 by moving up, then moving down after start 2 has lifted)
-    - Because sometimes there is confusion when entering weights -- similar names, fatigue, etc., the rules can be waived.
-    - Note: The rules are not applied for mixed children groups with "all girls before all boys" (since the first boy will likely request less than the last girl)
-  * [x] For cloud-based competitions, setting the time zone can now be done from within the application instead of requiring an environment variable. (#422)
-  * [x] The Kubernetes setup files were missing an annotation that was preventing generation of the https certificate. Also updated cert-manager to the current version.
-
 * Key Highlights from recent stable releases
 
-  - [x] A request for a weight below what that was loaded on last clock start will be blocked (#234).  This prevents accidental typing from messing up the lifting order (ex: typing 87 instead of 97). The other rules for moving down will be enforced automatically will be added later in upcoming releases.
-    - [x] a problem with entering weights at weigh-in was fixed in version 4.18
   - [x] Marshall can no longer edit or overwrite lift results by mistake. An explicit checkbox is required to enable edit (#286)
   - [x] Solo mode where a single technical official uses the good lift/bad lift buttons on the announcer screen now correctly supports decision reversal within 3 seconds, and correctly ignores multiple clicks. (#281)
   - [x] iPads now supported as refereeing device with Bluetooth buttons (running either the athlete-facing time+decision display or the attempt board display.)   Sound is enabled by touching a screen button once when the board is started. (#408). Note that iPads may lag by a second or two compared to other devices (will be worked around in a future release)
@@ -33,8 +12,7 @@
   - [x] Support for large competitions on Heroku. Added documentation for [economical use of Heroku professional tiers](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/HerokuLarge). Heroku now provides the memory defaults for all configurations.
     If you are limited to using the free setup and need to stretch it to its maximum, set the `_JAVA_OPTIONS` configuration variable to something like `-Xmx384m -XX:MaxMetaspaceSize=80m`
   - [x] New: added a new item for video broadcasts in the technical configuration section. Video capture using OBS or similar streaming software is awkward when a PIN or password is set.  If it is known that the video operator is working from a safe setting (such as a home network) , a "backdoor" setting (OWLCMS_BACKDOOR if using an environment variable) can be used to allow password-less login from a comma-separated list of addresses.  Use with care.
-  - [x] Fix: The Officials tab on the Start List spreadsheet now includes the weigh-in officials for the group.
-  
+
   * [x] Improvement: New scoreboard with multiple IWF age group rankings (Youth, Junior, Senior).  Final package also includes the three rankings. (#372)
 
 
