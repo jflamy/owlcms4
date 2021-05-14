@@ -52,7 +52,7 @@ The following link describes these options and others.
 
 ### Repositories for Releases and Pre-releases
 
-Refer to the following [page](Releases) for the various modules and releases, including preliminary releases for early adopters.
+Refer to the following [page](Releases.md) for the various modules and releases, including preliminary releases for early adopters.
 
 ### Support
 
