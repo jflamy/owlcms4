@@ -244,7 +244,7 @@ public class Athlete {
             // logger.debug("FAIL missing {}",missing);
             Integer startNumber2 = this.getStartNumber();
             rule15_20Violated = new RuleViolationException.Rule15_20Violated(this.getLastName(), this.getFirstName(),
-                    (String) (startNumber2 != null ? startNumber2 : "-"),
+                    (startNumber2 != null ? startNumber2.toString() : "-"),
                     snatch1Request, cleanJerk1Request, missing, qualTotal);
             message = rule15_20Violated.getLocalizedMessage(OwlcmsSession.getLocale());
             getLogger().warn("{}{} {}", OwlcmsSession.getFopLoggingName(), this, message);
