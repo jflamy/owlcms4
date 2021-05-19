@@ -1,5 +1,6 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+  * [x] Error message for 20kg rule was broken in release 4.19.0. Fixed.
   * [x] Implemented the rules to prevent athletes from moving down their requested weight illegally.  Moving down is denied if the athlete should already have attempted that weight according to the official lifting order.  The exact checks resulting from applying the TCRR to that situation are spelled out in the [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Announcing#rules-for-moving-down). (#418)
   * [x] For cloud-based competitions, setting the time zone can now be done directly from the Competition Information page. (#422).
   
