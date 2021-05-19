@@ -244,7 +244,7 @@ public class Athlete {
             // logger.debug("FAIL missing {}",missing);
             Integer startNumber2 = this.getStartNumber();
             rule15_20Violated = new RuleViolationException.Rule15_20Violated(this.getLastName(), this.getFirstName(),
-                    (String) (startNumber2 != null ? startNumber2 : "-"),
+                    (startNumber2 != null ? startNumber2.toString() : "-"),
                     snatch1Request, cleanJerk1Request, missing, qualTotal);
             message = rule15_20Violated.getLocalizedMessage(OwlcmsSession.getLocale());
             getLogger().warn("{}{} {}", OwlcmsSession.getFopLoggingName(), this, message);
@@ -1695,8 +1695,9 @@ public class Athlete {
     }
 
     public String getShortName() {
+        String firstName2 = getFirstName();
         return "#" + getStartNumber() + " " + getLastName() + " "
-                + (getFirstName().isBlank() ? "" : getFirstName().substring(0, 1)+".");
+                + (firstName2 == null || firstName2.isBlank() ? "" : firstName2.substring(0, 1)+".");
     }
 
     /**
