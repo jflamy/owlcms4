@@ -1695,8 +1695,9 @@ public class Athlete {
     }
 
     public String getShortName() {
+        String firstName2 = getFirstName();
         return "#" + getStartNumber() + " " + getLastName() + " "
-                + (getFirstName().isBlank() ? "" : getFirstName().substring(0, 1)+".");
+                + (firstName2 == null || firstName2.isBlank() ? "" : firstName2.substring(0, 1)+".");
     }
 
     /**
