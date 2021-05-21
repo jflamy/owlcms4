@@ -2,6 +2,9 @@
 <!-- production logback file, writes to logs/owlcms.log, creates new files daily -->
 <configuration scan="true" debug="false">
 
+    <!-- Stop output INFO at start -->
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/owlcms.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">

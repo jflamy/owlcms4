@@ -30,10 +30,11 @@
 			<outputDirectory></outputDirectory>
 			<filtered>true</filtered>
 		</file>
-		<file>
-			<source>${project.basedir}/src/main/assembly/demoProcfile</source>
-			<outputDirectory></outputDirectory>
-			<filtered>true</filtered>
-		</file>        
+        <file>
+            <source>${project.basedir}/src/main/resources/logback.xml</source>
+            <destName>logback.xml</destName>
+            <outputDirectory>local</outputDirectory>
+            <filtered>true</filtered>
+        </file>        
 	</files>
 </assembly>
