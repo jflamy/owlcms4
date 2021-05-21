@@ -52,15 +52,10 @@
             <outputDirectory></outputDirectory>
             <filtered>true</filtered>
         </file>
-		<file>
-			<source>${project.basedir}/src/main/assembly/cleanup-release.sh</source>
-			<outputDirectory>../..</outputDirectory>
-			<filtered>true</filtered>
-		</file>
         <file>
-            <source>${project.basedir}/src/main/assembly/copy-release.sh</source>
-            <outputDirectory>../..</outputDirectory>
+            <source>${project.basedir}/src/main/resources/logback.xml</source>
+            <outputDirectory>local</outputDirectory>
             <filtered>true</filtered>
-        </file>        
+        </file>      
 	</files>
 </assembly>
