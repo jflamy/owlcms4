@@ -7,7 +7,6 @@
 
 package app.owlcms.ui.results;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -112,18 +111,17 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
         grid.addColumn(new NumberRenderer<>(Athlete::getRobi, "%.3f", OwlcmsSession.getLocale(), "-"), "robi")
                 .setHeader(Translator.translate("robi")).setComparator(new WinningOrderComparator(Ranking.ROBI));
-        try {
-            String protocolFileName = Competition.getCurrent().getProtocolFileName();
-            if (protocolFileName != null && (protocolFileName.toLowerCase().contains("qc")
-                    || protocolFileName.toLowerCase().contains("quebec"))) {
-                // historical
-                grid.addColumn(
-                        new NumberRenderer<>(Athlete::getCategorySinclair, "%.3f", OwlcmsSession.getLocale(), "-"),
-                        "categorySinclair").setHeader("Cat. Sinclair")
-                        .setComparator(new WinningOrderComparator(Ranking.CAT_SINCLAIR));
-            }
-        } catch (IOException e) {
+
+        String protocolFileName = Competition.getCurrent().getProtocolFileName();
+        if (protocolFileName != null && (protocolFileName.toLowerCase().contains("qc")
+                || protocolFileName.toLowerCase().contains("quebec"))) {
+            // historical
+            grid.addColumn(
+                    new NumberRenderer<>(Athlete::getCategorySinclair, "%.3f", OwlcmsSession.getLocale(), "-"),
+                    "categorySinclair").setHeader("Cat. Sinclair")
+                    .setComparator(new WinningOrderComparator(Ranking.CAT_SINCLAIR));
         }
+
         grid.addColumn(new NumberRenderer<>(Athlete::getSinclair, "%.3f", OwlcmsSession.getLocale(), "0.000"),
                 "sinclair").setHeader(Translator.translate("sinclair"))
                 .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR));
@@ -504,7 +502,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
                 CompetitionRepository.save(Competition.getCurrent());
             });
             templateSelect.setValue(found);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

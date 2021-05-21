@@ -169,6 +169,9 @@ public class ResourceWalker {
             String startsWith) {
         try {
             URL resources = getClass().getResource(absoluteRoot);
+            if (resources == null) {
+                throw new RuntimeException(absoluteRoot+" not found");
+            }
             URI resourcesURI = resources.toURI();
             List<Resource> localeNames = new ArrayList<>();
             List<Resource> englishNames = new ArrayList<>();
@@ -195,6 +198,7 @@ public class ResourceWalker {
                 }
             });
             localeNames.addAll(englishNames);
+            logger.trace("resources: {}",localeNames);
             //localeNames.addAll(otherNames);
 
             return localeNames;

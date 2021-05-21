@@ -247,7 +247,7 @@ public class Athlete {
                     (startNumber2 != null ? startNumber2.toString() : "-"),
                     snatch1Request, cleanJerk1Request, missing, qualTotal);
             message = rule15_20Violated.getLocalizedMessage(OwlcmsSession.getLocale());
-            getLogger().warn("{}{} {}", OwlcmsSession.getFopLoggingName(), this, message);
+            getLogger().warn("{}{} {}", OwlcmsSession.getFopLoggingName(), this.getShortName(), message);
             throw rule15_20Violated;
         } else {
             getLogger().debug("OK margin={}", -(missing));
@@ -1696,7 +1696,8 @@ public class Athlete {
 
     public String getShortName() {
         String firstName2 = getFirstName();
-        return "#" + getStartNumber() + " " + getLastName() + " "
+        Integer startNumber2 = getStartNumber();
+        return "#" + (startNumber2 != null ? startNumber2 : "?") + " " + getLastName() + " "
                 + (firstName2 == null || firstName2.isBlank() ? "" : firstName2.substring(0, 1)+".");
     }
 

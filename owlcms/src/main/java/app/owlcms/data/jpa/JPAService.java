@@ -157,7 +157,7 @@ public class JPAService {
 
         try {
             if (factory == null) {
-                logger.debug("JPAService {}",LoggerUtils.stackTrace());
+                logger.debug("JPAService {}", LoggerUtils.stackTrace());
             }
             entityManager = factory.createEntityManager();
             entityManager.getTransaction().begin();
@@ -252,7 +252,6 @@ public class JPAService {
         } else {
             url = dbUrl.replaceAll("\\.mv\\.db", "") + h2Options;
         }
-        
 
         startLogger.debug("Starting in directory {}", System.getProperty("user.dir"));
         props.put(JPA_JDBC_URL, url);
@@ -302,7 +301,7 @@ public class JPAService {
 //                .put("hibernate.c3p0.max_size", 20).put("hibernate.c3p0.acquire_increment", 5)
 //                .put("hibernate.c3p0.timeout", 84200).put("hibernate.c3p0.preferredTestQuery", "SELECT 1")
 //                .put("hibernate.c3p0.testConnectionOnCheckout", true).put("hibernate.c3p0.idle_test_period", 500)
-                .put("hibernate.connection.provider_class",cp)
+                .put("hibernate.connection.provider_class", cp)
                 .put("hibernate.hikari.minimumIdle", "5")
                 .put("hibernate.hikari.maximumPoolSize", "10")
                 .put("hibernate.hikari.idleTimeout", "300000") // 5 minutes
@@ -348,7 +347,7 @@ public class JPAService {
     }
 
     /**
-     * H2 can expose its embedded server on demand.
+     * H2 can expose its embedded server on demand, as well as a console
      *
      * <p>
      * Not enabled by default, protected by a feature switch
@@ -360,14 +359,26 @@ public class JPAService {
      * <pre>
      * jdbc:h2:tcp:localhost:9092/file:C:\Dev\git\owlcms4\owlcms\database;MODE=PostgreSQL
      * </pre>
+     * 
+     * Also starts a web console on the port + 1 (9083 in the example)
      */
     private static void startH2EmbeddedServer() {
-        Server tcpServer;
         try {
             String h2ServerPort = StartupUtils.getStringParam("H2ServerPort");
-            if (h2ServerPort != null && Integer.parseInt(h2ServerPort) > 0) {
-                tcpServer = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", h2ServerPort, "-tcpDaemon");
-                tcpServer.start();
+            if (h2ServerPort != null) {
+                int h2sp = Integer.parseInt(h2ServerPort);
+                if (h2sp > 0) {
+                    logger.info("starting h2 server on port {}",h2ServerPort);
+                    Server tcpServer = Server.createTcpServer(
+                            "-tcp", "-tcpAllowOthers", "-tcpPort", h2ServerPort, "-tcpDaemon");
+                    tcpServer.start();
+                    
+//                    String webPort = String.valueOf(h2sp + 1);
+//                    logger.info("starting h2 console on port {}", webPort);
+//                    Server webServer = Server.createWebServer("-browser", "-web", "-webAllowOthers", "-webPort",
+//                            webPort, "-webDaemon");
+//                    webServer.start();
+                }
             }
         } catch (SQLException e) {
             logger.error(LoggerUtils.stackTrace(e));

@@ -26,13 +26,8 @@
             <destName>${project.artifactId}.jar</destName>
         </file>    
 		<file>
-			<source>${project.basedir}/src/main/assembly/Procfile</source>
-			<outputDirectory></outputDirectory>
-			<filtered>true</filtered>
-		</file>
-		<file>
-			<source>${project.basedir}/src/main/assembly/demoProcfile</source>
-			<outputDirectory></outputDirectory>
+			<source>${project.basedir}/src/main/resources/logback.xml</source>
+			<outputDirectory>local</outputDirectory>
 			<filtered>true</filtered>
 		</file>
 	</files>

@@ -15,7 +15,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -494,10 +493,6 @@ public class FOPEvent {
     }
 
     final Logger logger = (Logger) LoggerFactory.getLogger(FOPEvent.class);
-
-    {
-        logger.setLevel(Level./**/DEBUG);
-    }
 
     /**
      * When a FOPEvent (for example stopping the clock) is handled, it is often reflected as a series of UIEvents (for

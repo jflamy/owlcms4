@@ -1,7 +1,7 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  * [x] 4.19.0-rc01 Error message for 20kg rule was broken in release 4.19.0. Fixed.
-  * [x] 4.19.0-rc02 Exception during logging if no start number assigned.
+  * [x] Fixed the error message shown when 20kg rule is violated (which got broken in release 4.19.0)
+  * [x] Added a local/logback.xml file to the default Windows install to make troubleshooting easier.
   
 * Key Highlights from recent stable releases
 

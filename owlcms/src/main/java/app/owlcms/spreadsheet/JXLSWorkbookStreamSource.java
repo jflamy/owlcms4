@@ -150,7 +150,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         return tryList;
     }
 
-    abstract public InputStream getTemplate(Locale locale) throws IOException;
+    abstract public InputStream getTemplate(Locale locale) throws IOException, Exception;
 
     public boolean isExcludeNotWeighed() {
         return excludeNotWeighed;

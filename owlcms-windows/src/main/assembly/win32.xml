@@ -38,6 +38,11 @@
             <source>${project.basedir}/src/main/assembly/demo-owlcms.l4j.ini</source>
             <outputDirectory></outputDirectory>
             <filtered>true</filtered>
-        </file>       
+        </file> 
+        <file>
+            <source>${project.basedir}/src/main/assembly/logback.xml</source>
+            <outputDirectory>local</outputDirectory>
+            <filtered>true</filtered>
+        </file>         
 	</files>
 </assembly>
