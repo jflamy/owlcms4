@@ -6,7 +6,6 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
@@ -48,15 +47,11 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
     }
 
     @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
+    public InputStream getTemplate(Locale locale) throws Exception {
         Competition current = Competition.getCurrent();
-//        protocolTemplate = current.getProtocolTemplate();
-//        if (protocolTemplate == null) {
-//            protocolTemplate = loadDefaultProtocolTemplate(locale, current);
-//        }
-//        InputStream stream = new ByteArrayInputStream(protocolTemplate);     
-//        return stream;
+        logger.trace("current={}",current);
         String protocolTemplateFileName = current.getProtocolFileName();
+        logger.trace("protocolTemplateFileName={}",protocolTemplateFileName);
 
         int stripIndex = protocolTemplateFileName.indexOf(".xls");
         if (stripIndex > 0) {

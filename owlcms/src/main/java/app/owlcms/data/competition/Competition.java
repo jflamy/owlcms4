@@ -450,9 +450,10 @@ public class Competition {
      * @return the protocol file name
      * @throws IOException Signals that an I/O exception has occurred.
      */
-    public String getProtocolFileName() throws IOException {
+    public String getProtocolFileName() {
+        String absoluteRoot = "/templates/protocol";
         if (protocolFileName == null) {
-            List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/protocol",
+            List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
                     ResourceWalker::relativeName, null);
             for (Resource r : resourceList) {
                 if (this.isMasters() && r.getFileName().startsWith("Masters")) {
@@ -461,7 +462,7 @@ public class Competition {
                     return r.getFileName();
                 }
             }
-            return null;
+            throw new RuntimeException("result templates not found under "+absoluteRoot);
         } else {
             return protocolFileName;
         }
