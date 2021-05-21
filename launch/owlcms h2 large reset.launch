@@ -7,7 +7,6 @@
         <listEntry value="1"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-        <mapEntry key="OWLCMS_H2SERVERPORT" value="9092"/>
         <mapEntry key="OWLCMS_INITIALDATA" value="LARGEGROUP_DEMO"/>
         <mapEntry key="OWLCMS_LOCALE" value="en"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="false"/>
@@ -16,6 +15,7 @@
         <mapEntry key="OWLCMS_REMOTE2" value="https://publicresults-dev.herokuapp.com"/>
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="thisisaverylongsecretstring"/>
+        <mapEntry key="_OWLCMS_H2SERVERPORT" value="9092"/>
         <mapEntry key="_OWLCMS_IP" value="127.0.0.1,10.0.2.2,10.0.0.221,10.0.0.163"/>
         <mapEntry key="_OWLCMS_PIN" value="0000"/>
     </mapAttribute>
