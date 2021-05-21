@@ -40,7 +40,7 @@
             <filtered>true</filtered>
         </file> 
         <file>
-            <source>${project.basedir}/src/main/resources/logback.xml</source>
+            <source>${project.basedir}/src/main/assembly/logback.xml</source>
             <outputDirectory>local</outputDirectory>
             <filtered>true</filtered>
         </file>         
