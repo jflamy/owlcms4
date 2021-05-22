@@ -2,6 +2,7 @@
 
   * [x] Fixed the error message shown when 20kg rule is violated (which got broken in release 4.19.0)
   * [x] Added a local/logback.xml file to the default Windows install to make troubleshooting easier.
+  * [x] Technical: updated the Hibernate, Hikari and H2 libraries to their latest respective versions.
   
 * Key Highlights from recent stable releases
 
