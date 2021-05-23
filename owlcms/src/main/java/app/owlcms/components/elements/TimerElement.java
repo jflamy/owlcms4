@@ -139,6 +139,8 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     private Integer msRemaining;
     private boolean silent;
     protected VaadinSession vsession;
+    public long lastStartMillis;
+    public long lastStopMillis;
 
     /**
      * Instantiates a new timer element.
@@ -189,7 +191,8 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
             setIndefinite(milliseconds == null);
             setMsRemaining(milliseconds);
             String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
-            logger.debug("server starting timer {}, {}, {}", parent, milliseconds, LoggerUtils.stackTrace());
+            lastStartMillis = System.currentTimeMillis();
+            logger.warn("server starting timer {}, {}, {}", parent, milliseconds, lastStartMillis);
             getModel().setSilent(silent);
             setSilent(silent);
             start(milliseconds, isIndefinite(), silent, parent);
@@ -201,7 +204,8 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setMsRemaining(milliseconds);
             String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
-            logger.debug("server stopping timer {}, {}, {}", parent, milliseconds, LoggerUtils.whereFrom());
+            lastStopMillis = System.currentTimeMillis();
+            logger.trace("server stopping timer {}, {}, {}", parent, milliseconds, lastStopMillis);
             stop(getMsRemaining(), isIndefinite(), isSilent(), parent);
         });
     }
@@ -279,19 +283,19 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 
     private void initTime(Integer milliseconds) {
         if (this instanceof BreakTimerElement) {
-            logger.debug("set time remaining = {} from {} ", formatDuration(milliseconds), LoggerUtils.whereFrom());
+            logger.trace("set time remaining = {} from {} ", formatDuration(milliseconds), LoggerUtils.whereFrom());
         }
         setIndefinite(milliseconds == null);
         setMsRemaining(milliseconds);
 
         if (!isIndefinite()) {
             if (this instanceof BreakTimerElement) {
-                logger.debug("not indefinite {}", formatDuration(milliseconds));
+                logger.trace("not indefinite {}", formatDuration(milliseconds));
             }
             setDisplay(milliseconds, isIndefinite(), isSilent());
         } else {
             if (this instanceof BreakTimerElement) {
-                logger.debug("indefinite");
+                logger.trace("indefinite");
             }
             setDisplay(milliseconds, true, true);
         }
