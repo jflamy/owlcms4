@@ -6,9 +6,11 @@
  *******************************************************************************/
 package app.owlcms.fieldofplay;
 
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -31,7 +33,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
     private long stopMillis;
     private boolean running = false;
     private int timeRemainingAtLastStop;
- 
+
     /**
      * Instantiates a new countdown timer.
      *
@@ -148,4 +150,23 @@ public class ProxyAthleteTimer implements IProxyTimer {
         timeRemaining = (int) (timeRemaining - elapsed);
     }
 
+    /**
+     * Compute time elapsed since start.
+     */
+    @Override
+    public int liveTimeRemaining() {
+        if (running) {
+            stopMillis = System.currentTimeMillis();
+            long elapsed = stopMillis - startMillis;
+            int tr = (int) (getTimeRemaining() - elapsed);
+            logger.debug("liveTimeRemaining running {} {}", DurationFormatUtils.formatDurationHMS(tr),
+                    LoggerUtils.whereFrom());
+            return tr;
+        } else {
+            int tr = getTimeRemaining();
+            logger.debug("liveTimeRemaining stopped {} {}", DurationFormatUtils.formatDurationHMS(tr),
+                    LoggerUtils.whereFrom());
+            return tr;
+        }
+    }
 }

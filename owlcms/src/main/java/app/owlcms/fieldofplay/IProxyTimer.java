@@ -59,5 +59,7 @@ public interface IProxyTimer {
      * Stop with no time left.
      */
     void timeOver(Object origin);
+    
+    int liveTimeRemaining();
 
 }

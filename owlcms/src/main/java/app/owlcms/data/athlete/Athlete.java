@@ -73,6 +73,9 @@ import ch.qos.logback.classic.Logger;
 @Cacheable
 public class Athlete {
     private Logger logger = null;
+    
+    @Transient
+    private Long copyId = null;
     private static final int YEAR = LocalDateTime.now().getYear();
 
     public static void conditionalCopy(Athlete dest, Athlete src, boolean copyResults) {
@@ -82,11 +85,13 @@ public class Athlete {
         try {
             dest.setValidation(false);
             dest.setLoggerLevel(Level.OFF);
+            dest.setCopyId(src.getId());
 
             dest.setLastName(src.getLastName());
             dest.setFirstName(src.getFirstName());
             dest.setGroup(src.getGroup());
             dest.setStartNumber(src.getStartNumber());
+            dest.setLotNumber(src.getLotNumber());
             dest.setQualifyingTotal(src.getQualifyingTotal());
 
             dest.setSnatch1Declaration(src.getSnatch1Declaration());
@@ -167,6 +172,10 @@ public class Athlete {
             dest.setLoggerLevel(prevDestLevel);
             src.setLoggerLevel(prevSrcLevel);
         }
+    }
+
+    private void setCopyId(Long id2) {
+        this.copyId = id2;
     }
 
     /**
@@ -1698,7 +1707,7 @@ public class Athlete {
         String firstName2 = getFirstName();
         Integer startNumber2 = getStartNumber();
         return "#" + (startNumber2 != null ? startNumber2 : "?") + " " + getLastName() + " "
-                + (firstName2 == null || firstName2.isBlank() ? "" : firstName2.substring(0, 1)+".");
+                + (firstName2 == null || firstName2.isBlank() ? "" : firstName2.substring(0, 1) + ".");
     }
 
     /**
@@ -3839,7 +3848,8 @@ public class Athlete {
         OwlcmsSession.withFop(fop -> {
             Integer weightAtLastStart = fop.getWeightAtLastStart();
             if (weightAtLastStart == null || weightAtLastStart == 0 || newVal == weightAtLastStart) {
-                //getLogger().debug("{}weight at last start: {}  request = {}", fopLoggingName, weightAtLastStart, newVal);
+                // getLogger().debug("{}weight at last start: {} request = {}", fopLoggingName, weightAtLastStart,
+                // newVal);
                 // program has just been started, or first athlete in group, or moving down to clock value
                 // compare with what the lifting order rules say.
                 LiftOrderReconstruction pastOrder = new LiftOrderReconstruction(fop);
@@ -3849,11 +3859,11 @@ public class Athlete {
                 if (clockOwner != null) {
                     // if clock is running, reference becomes the clock owner instead of last good/bad lift.
                     reference = clockOwner.getRunningLiftOrderInfo();
-                    //getLogger().debug("lastLift info clock running\n{}",pastOrder.shortDump());
+                    // getLogger().debug("lastLift info clock running\n{}",pastOrder.shortDump());
                 } else {
                     reference = pastOrder.getLastLift();
-                    //*******************************************
-                    //getLogger().debug("lastLift info no clock\n{}",pastOrder.shortDump());
+                    // *******************************************
+                    // getLogger().debug("lastLift info no clock\n{}",pastOrder.shortDump());
                 }
 
                 if (reference != null) {
@@ -3916,11 +3926,11 @@ public class Athlete {
             getLogger().debug("{}currentLiftNo {} >= referenceAttemptNo {}",
                     fopLoggingName, currentLiftNo, referenceAttemptNo);
             int currentProgression = this.getProgression(requestedWeight);
-            
+
             // BEWARE: referenceProgression if for current reference athlete and their prior attempt.
-            //int referenceProgression = reference.getAthlete().getProgression(requestedWeight);
+            // int referenceProgression = reference.getAthlete().getProgression(requestedWeight);
             int referenceProgression = reference.getProgression();
-            
+
             if (currentProgression == referenceProgression) {
                 checkSameProgression(reference, requestedWeight, currentProgression, referenceProgression);
             } else if (currentProgression > referenceProgression) {
@@ -4001,7 +4011,7 @@ public class Athlete {
         loi.setProgression(this.getProgression(nextAttemptRequestedWeight));
         loi.setStartNumber(this.getStartNumber());
         loi.setLotNumber(this.getLotNumber());
-        getLogger().debug("{}clockOwner: {}", OwlcmsSession.getFopLoggingName(),loi);
+        getLogger().debug("{}clockOwner: {}", OwlcmsSession.getFopLoggingName(), loi);
         return loi;
     }
 
@@ -4083,6 +4093,7 @@ public class Athlete {
         if (newVal < prevVal) {
             throw new RuleViolationException.LastChangeTooLow(curLift, newVal, prevVal);
         }
+        checkChangeVsTimer(curLift, declaration, change1, change2);
         checkChangeVsLiftOrder(newVal);
     }
 
@@ -4100,6 +4111,7 @@ public class Athlete {
         if (newVal < prevVal) {
             throw new RuleViolationException.LastChangeTooLow(curLift, newVal, prevVal);
         }
+        checkChangeVsTimer(curLift, declaration, change1, change2);
         checkChangeVsLiftOrder(newVal);
     }
 
@@ -4116,11 +4128,107 @@ public class Athlete {
         if (iAutomaticProgression > 0 && newVal > 0 && newVal < iAutomaticProgression) {
             throw new RuleViolationException.DeclarationValueTooSmall(curLift, newVal, iAutomaticProgression);
         }
+        checkChangeVsTimer(curLift, declaration, change1, change2);
         checkChangeVsLiftOrder(newVal);
+    }
+
+    private void checkChangeVsTimer(int curLift, String declaration, String change1, String change2) {
+        Level prevLoggerLevel = getLogger().getLevel();
+        if (Competition.getCurrent().isGenderOrder()) {
+            return;
+        }
+        if (curLift != this.getAttemptedLifts()+1) {
+            return;
+        }
+        try {
+            getLogger().setLevel(Level.DEBUG);
+            doCheckChangeVsTimer(declaration, change1, change2);
+        } finally {
+            getLogger().setLevel(prevLoggerLevel);
+        }
+    }
+
+    private void doCheckChangeVsTimer(String declaration, String change1, String change2) {
+        Object wi = OwlcmsSession.getAttribute("weighIn");
+        String fopLoggingName = OwlcmsSession.getFopLoggingName();
+        if (wi == this) {
+            // current athlete being weighed in
+            getLogger().trace("{}weighin {}", fopLoggingName, wi);
+            return;
+        } else {
+            getLogger().trace("{}lifting", fopLoggingName);
+        }
+        OwlcmsSession.withFop(fop -> {
+            int clock = fop.getAthleteTimer().liveTimeRemaining();
+            Athlete owner = fop.getClockOwner();
+            int initialTime = fop.getClockOwnerInitialTimeAllowed();
+            logger.debug("{}owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}", fop.getLoggingName(), owner, clock, initialTime, declaration, change1, change2);
+            if (!this.isSameAthleteAs(owner)) {
+                // clock is not running for us, nothing to do
+                logger.trace("{} not current lifter, change allowed ({} {})", fop.getLoggingName(), owner, this);
+                return;
+            } else {
+                logger.trace("{} checking current lifter", fop.getLoggingName());
+            }
+
+            if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
+                // validate declaration
+                if (clock < initialTime - 30000) {
+                    logger.debug("{} late declaration", fop.getLoggingName(), clock);
+                    throw new RuleViolationException.LateDeclaration(clock);
+                }
+                logger.debug("{} valid declaration", fop.getLoggingName(), clock);
+                return;
+            } else {
+                if (declaration == null || declaration.isBlank()) {
+                    // there was no declaration made in time
+                    logger.debug("{} did not declare", fop.getLoggingName(), clock);
+                    throw new RuleViolationException.MustDeclareFirst(clock);
+                } else if (clock < 30000) {
+                    logger.debug("{} change after final warning", fop.getLoggingName(), clock);
+                    throw new RuleViolationException.MustChangeBeforeFinalWarning(clock);
+                }
+                logger.debug("{} change before final warning", fop.getLoggingName(), clock);
+                return;
+            }
+
+        });
+    }
+
+    private boolean isSameAthleteAs(Athlete other) {
+        if (other == null) {
+            return false;
+        }
+        Long id = getId();
+        Long oId = other.getId();
+        if (id != null && oId != null) {
+            logger.trace("both non-null {}. {}",id,oId);
+            return id == oId;
+        }
+        
+        // one of the two items is a copy.
+        Long copyId = getCopyId();
+        Long oCopyId = other.getCopyId();
+        logger.trace("one is a copy");
+        if (copyId != null) {
+            return copyId.equals(oId);
+        }
+        if (oCopyId != null) {
+            return oCopyId.equals(id);
+        }
+        
+        // can't happen
+        logger.error("can't happen: no comparison id");
+        return false;
+
     }
 
     public void setLogger(Logger logger) {
         this.logger = logger;
+    }
+
+    private Long getCopyId() {
+        return copyId;
     }
 
 }

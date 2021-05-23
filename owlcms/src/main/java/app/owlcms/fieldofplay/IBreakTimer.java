@@ -12,8 +12,6 @@ public interface IBreakTimer extends IProxyTimer {
 
     void setBreakDuration(Integer breakDuration);
 
-    int liveTimeRemaining();
-
     void setTimeRemaining(int intValue);
 
     boolean isIndefinite();

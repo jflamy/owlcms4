@@ -20,6 +20,39 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class RuleViolationException extends RuntimeException {
 
+    public static class LateDeclaration extends RuleViolationException {
+
+        /**
+         * Must declare before clock is started, or within first 30 seconds of running clock
+         * @param clock
+         */
+        public LateDeclaration(int clock) {
+            super("RuleViolation.LateDeclaration", clock/1000.0);
+        }
+    }
+    
+    public static class MustChangeBeforeFinalWarning extends RuleViolationException {
+
+        /**
+         * Must do change before final warning
+         * @param clock
+         */
+        public MustChangeBeforeFinalWarning(int clock) {
+            super("RuleViolation.MustChangeBeforeFinalWarning", clock/1000.0);
+        }
+    }
+    
+    public static class MustDeclareFirst extends RuleViolationException {
+
+        /**
+         * Must have declared legally before requesting change
+         * @param clock
+         */
+        public MustDeclareFirst(int clock) {
+            super("RuleViolation.MustDeclareFirst", clock/1000.0);
+        }
+    }
+
     public static class DeclarationValueTooSmall extends RuleViolationException {
         /**
          * On attempt attemptNo, declaration be at least the automatic progression.
