@@ -192,7 +192,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
             setMsRemaining(milliseconds);
             String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
             lastStartMillis = System.currentTimeMillis();
-            logger.warn("server starting timer {}, {}, {}", parent, milliseconds, lastStartMillis);
+            logger.trace("server starting timer {}, {}, {}", parent, milliseconds, lastStartMillis);
             getModel().setSilent(silent);
             setSilent(silent);
             start(milliseconds, isIndefinite(), silent, parent);
@@ -220,6 +220,9 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         setMsRemaining(0);
         setSilent(true);
         setIndefinite(false);
+        if (UI.getCurrent() == null) {
+            return;
+        }
         UI.getCurrent().access(() -> {
             TimerModel model = getModel();
             model.setStartTime(0.0D);
