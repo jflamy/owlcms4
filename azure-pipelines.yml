@@ -1,5 +1,5 @@
 trigger:
-  - none
+  - develop
 
 parameters:
   - name: Revision
