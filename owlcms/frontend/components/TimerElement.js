@@ -161,7 +161,7 @@ class TimerElement extends PolymerElement {
 		// }
 		this.running = false;
 		// if (this.$server != null) {
-		this.$server.clientTimerStopped(this.currentTime, from);
+		this.$server.clientTimerStopped(this.currentTime, (this.isIOS() ? "iPad" : "browser") +" "+from);
 		// } else {
 		// 	console.warn("no server$");
 		// }
