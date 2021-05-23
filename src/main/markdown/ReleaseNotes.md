@@ -1,6 +1,7 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
   * [x] Workaround for iPad unpredictable response time (from 0.1 to 3 sec. lag) when used as display.  Only applies to iPads, ignored by all other platforms. (#419)
+  * [x] CSS style sheets for attempt board and decision board are now editable in local/styles (#424)
   
 * Key Highlights from recent stable releases
 
