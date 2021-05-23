@@ -72,6 +72,8 @@ public class TwoMinutesRuleTest {
         EventBus fopBus = fopState.getFopEventBus();
         
         logger.setLevel(Level.DEBUG);
+        ((Logger) LoggerFactory.getLogger(Athlete.class)).setLevel(Level.DEBUG);
+        ((Logger) LoggerFactory.getLogger(MockCountdownTimer.class)).setLevel(Level.DEBUG);
         doSequence3(fopState, fopBus, logger);
     }
 

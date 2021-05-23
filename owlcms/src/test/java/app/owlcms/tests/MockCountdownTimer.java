@@ -11,11 +11,12 @@ import java.time.LocalDateTime;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.fieldofplay.IBreakTimer;
+import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
-public class MockCountdownTimer implements IBreakTimer {
+public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(MockCountdownTimer.class);
 
@@ -84,7 +85,6 @@ public class MockCountdownTimer implements IBreakTimer {
     @Override
     public void start() {
         logger.debug("starting Time -- timeRemaining = {} \t[{}]", timeRemaining, LoggerUtils.whereFrom());
-        timeRemaining = (getTimeRemaining() - 1000);
         timeRemainingAtLastStop = timeRemaining;
     }
 
@@ -96,9 +96,8 @@ public class MockCountdownTimer implements IBreakTimer {
     @Override
     public void stop() {
         logger.debug("stopping Time -- timeRemaining = {} \t[{}]", timeRemaining, LoggerUtils.whereFrom());
-        timeRemaining = (getTimeRemaining());
-        timeRemainingAtLastStop = timeRemaining;
-
+        timeRemaining = (getTimeRemaining() - 2000);
+        timeRemainingAtLastStop = timeRemaining;;
     }
 
     /*
@@ -133,7 +132,7 @@ public class MockCountdownTimer implements IBreakTimer {
 
     @Override
     public int liveTimeRemaining() {
-        return 0;
+        return getTimeRemaining() - 1000;
     }
 
     @Override
