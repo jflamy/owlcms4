@@ -4179,21 +4179,21 @@ public class Athlete {
         if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
             // validate declaration
             if (clock < initialTime - 30000) {
-                logger.debug("{} late declaration", fop.getLoggingName(), clock);
+                logger.warn("{}{} late declaration denied ({})", fop.getLoggingName(), this.getShortName(), clock/1000.0);
                 throw new RuleViolationException.LateDeclaration(clock);
             }
-            logger.debug("{} valid declaration", fop.getLoggingName(), clock);
+            logger.debug("{}{}valid declaration", fop.getLoggingName(), this.getShortName(), clock/1000.0);
             return;
         } else {
             if (declaration == null || declaration.isBlank()) {
                 // there was no declaration made in time
-                logger.debug("{} did not declare", fop.getLoggingName(), clock);
+                logger.warn("{}{} change without declaration ({})",fop.getLoggingName(), this.getShortName(), clock/1000.0);
                 throw new RuleViolationException.MustDeclareFirst(clock);
             } else if (clock < 30000) {
-                logger.debug("{} change after final warning", fop.getLoggingName(), clock);
+                logger.warn("{}{} late change denied after final warning ({})", fop.getLoggingName(), this.getShortName(), clock/1000.0);
                 throw new RuleViolationException.MustChangeBeforeFinalWarning(clock);
             }
-            logger.debug("{} change before final warning", fop.getLoggingName(), clock);
+            logger.debug("{}change before final warning", fop.getLoggingName(), clock);
             return;
         }
     }
@@ -4201,12 +4201,12 @@ public class Athlete {
     private void doCheckChangeNotOwningTimer(String declaration, String change1, String change2, FieldOfPlay fop,
             int clock, int initialTime) {
         if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
-            logger.debug("{} not owning clock, accept declaration", fop.getLoggingName(), clock);
+            logger.debug("{}{} declaration accepted (not owning clock)", fop.getLoggingName(), this.getShortName());
             return;
         } else {
             if (declaration == null || declaration.isBlank()) {
                 // there was no declaration made in time
-                logger.debug("{} not owning clock, cannot change did not declare", fop.getLoggingName(), clock);
+                logger.warn("{}{} change without declaration (not owning clock)", fop.getLoggingName(), this.getShortName());
                 throw new RuleViolationException.MustDeclareFirst(clock);
             }
             return;
