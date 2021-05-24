@@ -36,6 +36,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.RobiCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.LiftOrderInfo;
 import app.owlcms.fieldofplay.LiftOrderReconstruction;
 import app.owlcms.init.OwlcmsSession;
@@ -4164,35 +4165,52 @@ public class Athlete {
             int initialTime = fop.getClockOwnerInitialTimeAllowed();
             logger.debug("{}owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}", fop.getLoggingName(), owner, clock, initialTime, declaration, change1, change2);
             if (!this.isSameAthleteAs(owner)) {
-                // clock is not running for us, nothing to do
-                logger.trace("{} not current lifter, change allowed ({} {})", fop.getLoggingName(), owner, this);
+                // clock is not running for us
+                doCheckChangeNotOwningTimer(declaration, change1, change2, fop, clock, initialTime);
                 return;
             } else {
-                logger.trace("{} checking current lifter", fop.getLoggingName());
+                doCheckChangeOwningTimer(declaration, change1, change2, fop, clock, initialTime);
             }
-
-            if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
-                // validate declaration
-                if (clock < initialTime - 30000) {
-                    logger.debug("{} late declaration", fop.getLoggingName(), clock);
-                    throw new RuleViolationException.LateDeclaration(clock);
-                }
-                logger.debug("{} valid declaration", fop.getLoggingName(), clock);
-                return;
-            } else {
-                if (declaration == null || declaration.isBlank()) {
-                    // there was no declaration made in time
-                    logger.debug("{} did not declare", fop.getLoggingName(), clock);
-                    throw new RuleViolationException.MustDeclareFirst(clock);
-                } else if (clock < 30000) {
-                    logger.debug("{} change after final warning", fop.getLoggingName(), clock);
-                    throw new RuleViolationException.MustChangeBeforeFinalWarning(clock);
-                }
-                logger.debug("{} change before final warning", fop.getLoggingName(), clock);
-                return;
-            }
-
         });
+    }
+
+    private void doCheckChangeOwningTimer(String declaration, String change1, String change2, FieldOfPlay fop,
+            int clock, int initialTime) {
+        if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
+            // validate declaration
+            if (clock < initialTime - 30000) {
+                logger.debug("{} late declaration", fop.getLoggingName(), clock);
+                throw new RuleViolationException.LateDeclaration(clock);
+            }
+            logger.debug("{} valid declaration", fop.getLoggingName(), clock);
+            return;
+        } else {
+            if (declaration == null || declaration.isBlank()) {
+                // there was no declaration made in time
+                logger.debug("{} did not declare", fop.getLoggingName(), clock);
+                throw new RuleViolationException.MustDeclareFirst(clock);
+            } else if (clock < 30000) {
+                logger.debug("{} change after final warning", fop.getLoggingName(), clock);
+                throw new RuleViolationException.MustChangeBeforeFinalWarning(clock);
+            }
+            logger.debug("{} change before final warning", fop.getLoggingName(), clock);
+            return;
+        }
+    }
+    
+    private void doCheckChangeNotOwningTimer(String declaration, String change1, String change2, FieldOfPlay fop,
+            int clock, int initialTime) {
+        if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
+            logger.debug("{} not owning clock, accept declaration", fop.getLoggingName(), clock);
+            return;
+        } else {
+            if (declaration == null || declaration.isBlank()) {
+                // there was no declaration made in time
+                logger.debug("{} not owning clock, cannot change did not declare", fop.getLoggingName(), clock);
+                throw new RuleViolationException.MustDeclareFirst(clock);
+            }
+            return;
+        }
     }
 
     private boolean isSameAthleteAs(Athlete other) {
