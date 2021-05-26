@@ -62,7 +62,7 @@ public class RuleViolationException extends RuntimeException {
          * @param iAutomaticProgression
          */
         public DeclarationValueTooSmall(int attemptNo, int newVal, int iAutomaticProgression) {
-            super("RuleViolation.declarationValueTooSmall", attemptNo, newVal, iAutomaticProgression);
+            super("RuleViolation.declarationValueTooSmall", (attemptNo%3)+1, newVal, iAutomaticProgression);
         }
     }
 
@@ -75,7 +75,7 @@ public class RuleViolationException extends RuntimeException {
          * @param iAutomaticProgression
          */
         public LastChangeTooLow(int attemptNo, int lastChange, int iAutomaticProgression) {
-            super("RuleViolation.declaredChangesNotOk", attemptNo, lastChange, iAutomaticProgression);
+            super("RuleViolation.declaredChangesNotOk", (attemptNo%3)+1, lastChange, iAutomaticProgression);
         }
     }
 
