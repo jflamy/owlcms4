@@ -215,9 +215,11 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
     protected InputStream getLocalizedTemplate(String templateName, String extension, Locale locale)
             throws IOException {
         List<String> tryList = getSuffixes(locale);
-        //logger.debug("trying {}", tryList);
+
         for (String suffix : tryList) {
-            final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName + suffix + extension);
+            String name = templateName + suffix + extension;
+            final InputStream resourceAsStream = this.getClass().getResourceAsStream(name);
+            //logger.warn("trying {} : {}", name, resourceAsStream);
             if (resourceAsStream != null) {
                 return resourceAsStream;
             }

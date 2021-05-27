@@ -53,7 +53,12 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         String protocolTemplateFileName = current.getProtocolFileName();
         logger.trace("protocolTemplateFileName={}",protocolTemplateFileName);
 
-        int stripIndex = protocolTemplateFileName.indexOf(".xls");
+        int stripIndex = protocolTemplateFileName.indexOf("_");
+        if (stripIndex > 0) {
+            protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
+        }
+        
+        stripIndex = protocolTemplateFileName.indexOf(".xls");
         if (stripIndex > 0) {
             protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
         }
