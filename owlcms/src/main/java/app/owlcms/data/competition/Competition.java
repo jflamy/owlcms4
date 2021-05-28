@@ -319,20 +319,28 @@ public class Competition {
      * @throws IOException Signals that an I/O exception has occurred.
      */
     public String getFinalPackageTemplateFileName() throws IOException {
+        String absoluteRoot = "/templates/competitionBook";
         if (finalPackageTemplateFileName == null) {
-            List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/competitionBook",
-                    ResourceWalker::relativeName, null);
-            for (Resource r : resourceList) {
-                if (this.isMasters() && r.getFileName().startsWith("Masters")) {
-                    return r.getFileName();
-                } else if (r.getFileName().startsWith("Total")) {
-                    return r.getFileName();
-                }
-            }
-            return null;
-        } else {
+            return doFindFinalPackageTemplateFileName(absoluteRoot);
+        } else if (this.getClass().getResource(absoluteRoot+"/"+finalPackageTemplateFileName) != null) {
             return finalPackageTemplateFileName;
+        } else {
+            return doFindFinalPackageTemplateFileName(absoluteRoot);
         }
+    }
+
+    private String doFindFinalPackageTemplateFileName(String absoluteRoot) {
+        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
+                ResourceWalker::relativeName, null);
+        for (Resource r : resourceList) {
+            logger.trace("checking {}",r.getFilePath());
+            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
+                return r.getFileName();
+            } else if (r.getFileName().startsWith("Total")) {
+                return r.getFileName();
+            }
+        }
+        throw new RuntimeException("final package templates not found under " + absoluteRoot);
     }
 
     synchronized public List<Athlete> getGlobalCategoryRankingsForGroup(Group group) {
@@ -453,19 +461,26 @@ public class Competition {
     public String getProtocolFileName() {
         String absoluteRoot = "/templates/protocol";
         if (protocolFileName == null) {
-            List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
-                    ResourceWalker::relativeName, null);
-            for (Resource r : resourceList) {
-                if (this.isMasters() && r.getFileName().startsWith("Masters")) {
-                    return r.getFileName();
-                } else if (r.getFileName().startsWith("Protocol")) {
-                    return r.getFileName();
-                }
-            }
-            throw new RuntimeException("result templates not found under "+absoluteRoot);
+            return doFindProtocolFileName(absoluteRoot);
+        } else if (this.getClass().getResource(absoluteRoot+"/"+protocolFileName) != null) {
+            return protocolFileName;
         } else {
             return protocolFileName;
         }
+    }
+
+    private String doFindProtocolFileName(String absoluteRoot) {
+        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
+                ResourceWalker::relativeName, null);
+        for (Resource r : resourceList) {
+            logger.trace("checking {}",r.getFilePath());
+            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
+                return r.getFileName();
+            } else if (r.getFileName().startsWith("Protocol")) {
+                return r.getFileName();
+            }
+        }
+        throw new RuntimeException("result templates not found under " + absoluteRoot);
     }
 
     public HashMap<String, Object> getReportingBeans() {
@@ -898,7 +913,7 @@ public class Competition {
                 list.add(a);
             }
         }
-        logger.debug("updated reports");
+        logger.debug("updated reporting data");
     }
 
     private void sortTeamResults(List<Athlete> athletes) {

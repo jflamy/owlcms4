@@ -1,5 +1,6 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+  * [x] 4.20.0-beta02: old databases the stored Protocol and FinalPackage template names differently. Fixed in order to be able to use them again for testing.
   * [x] 4.20.0-beta01: fixed broken timing check for declarations and changes during clean and jerk.
   * [x] 4.20.0-alpha02: added "declaration required before change" also for case where clock has not yet been started. 
   * [x] Enforce the rules for timing of declarations (before initial 30 seconds), and for changes (before final warning). (#425, #426)

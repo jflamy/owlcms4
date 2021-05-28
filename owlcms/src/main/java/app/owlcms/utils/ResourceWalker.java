@@ -170,8 +170,10 @@ public class ResourceWalker {
         try {
             URL resources = getClass().getResource(absoluteRoot);
             if (resources == null) {
+                logger.error(absoluteRoot+" not found");
                 throw new RuntimeException(absoluteRoot+" not found");
             }
+            Locale locale = OwlcmsSession.getLocale();
             URI resourcesURI = resources.toURI();
             List<Resource> localeNames = new ArrayList<>();
             List<Resource> englishNames = new ArrayList<>();
@@ -182,16 +184,20 @@ public class ResourceWalker {
                 public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
                     String generatedName = generateName.apply(filePath, rootPath);
                     if (startsWith != null) {
-//                        String baseName = FilenameUtils.getBaseName(filePath.toString());
                         if (!generatedName.startsWith(startsWith)) {
+                            logger.trace("ignored {}",filePath);
                             return FileVisitResult.CONTINUE;
                         }
                     }
-                    if (matchesLocale(filePath, OwlcmsSession.getLocale())) {
+
+                    if (matchesLocale(filePath, locale)) {
+                        logger.trace("kept {}, locale {}",filePath, locale);
                         localeNames.add(new Resource(generatedName, filePath));
                     } else if (matchesLocale(filePath, Locale.ENGLISH)) {
+                        logger.trace("kept {}, locale {}",filePath, locale);
                         englishNames.add(new Resource(generatedName, filePath));
                     } else {
+                        logger.trace("ignored {}, wrong locale {}",filePath, locale);
                         otherNames.add(new Resource(generatedName, filePath));
                     }
                     return FileVisitResult.CONTINUE;

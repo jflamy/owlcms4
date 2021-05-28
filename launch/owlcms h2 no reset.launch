@@ -8,6 +8,7 @@
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="OWLCMS_H2SERVERPORT" value="9092"/>
+        <mapEntry key="OWLCMS_LOCALE" value="en"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="false"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
         <mapEntry key="OWLCMS_RESETMODE" value="false"/>

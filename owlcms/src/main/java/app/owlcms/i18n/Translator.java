@@ -105,7 +105,7 @@ public class Translator implements I18NProvider {
      * Force a reload of the translation files
      */
     public static void reset() {
-        resetTimeStamp  = System.currentTimeMillis();
+        resetTimeStamp = System.currentTimeMillis();
         locales = null;
         i18nloader = null;
         helper = new Translator();
@@ -117,8 +117,15 @@ public class Translator implements I18NProvider {
     }
 
     public static void setForcedLocale(Locale locale) {
-        if (locale != null && getAllAvailableLocales().contains(locale)) {
-            Translator.forcedLocale = locale;
+        if (locale != null) {
+            Locale countryLocale = new Locale(locale.getCountry());
+            Locale languageLocale = new Locale(locale.getCountry(),locale.getLanguage());
+            locales = getAllAvailableLocales();
+            if ( locales.contains(locale) || locales.contains(languageLocale) || locales.contains(countryLocale)) {
+                Translator.forcedLocale = locale;
+            } else {
+                Translator.forcedLocale = locale;
+            }
         } else {
             Translator.forcedLocale = null; // default behaviour, first locale in list will be used
         }
@@ -203,11 +210,11 @@ public class Translator implements I18NProvider {
                 final File[] outFiles = new File[stringList.size()];
                 final Properties[] languageProperties = new Properties[outFiles.length];
                 locales = new ArrayList<>();
-                
+
                 int nbLanguages = 0;
                 for (int i = 1; i < outFiles.length; i++) {
                     String language = stringList.get(i);
-                    logger.trace("language={} {}",language,i);
+                    logger.trace("language={} {}", language, i);
                     if (language == null || language.isBlank()) {
                         nbLanguages = i - 1;
                         break;
@@ -230,7 +237,7 @@ public class Translator implements I18NProvider {
                         throw new RuntimeException(message);
                     }
                     logger.debug(stringList.toString());
-                    for (int i = 1; i < nbLanguages+1; i++) {
+                    for (int i = 1; i < nbLanguages + 1; i++) {
                         // treat the CSV strings using same rules as Properties files.
                         // u0000 escapes are translated to Java characters
                         String input = stringList.get(i);
@@ -252,7 +259,7 @@ public class Translator implements I18NProvider {
                 }
 
                 // writing
-                for (int i = 1; i < nbLanguages+1; i++) {
+                for (int i = 1; i < nbLanguages + 1; i++) {
                     logger.debug("writing to " + outFiles[i].getAbsolutePath());
                     languageProperties[i].store(new FileOutputStream(outFiles[i]), "generated from " + csvName);
                 }
@@ -377,14 +384,14 @@ public class Translator implements I18NProvider {
         return locale;
     }
 
-    public static Map<String,String> getMap() {
+    public static Map<String, String> getMap() {
         final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(OwlcmsSession.getLocale());
-        Map<String,String> translations = new HashMap<>();
+        Map<String, String> translations = new HashMap<>();
         Enumeration<String> keys = bundle.getKeys();
         String key;
         while (keys.hasMoreElements()) {
             key = keys.nextElement();
-            translations.put(key,bundle.getString(key));
+            translations.put(key, bundle.getString(key));
         }
         return translations;
     }
