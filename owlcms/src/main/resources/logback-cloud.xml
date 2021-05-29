@@ -9,6 +9,7 @@
             <fileNamePattern>logs/owlcms_%d{yyyy-MM-dd}.log</fileNamePattern>
         </rollingPolicy>
         <encoder>
+            <charset>UTF-8</charset>
             <pattern>
                 %d{HH:mm:ss.SSS} %-5level %-75msg [%logger{100}:%L %M]%n
             </pattern>
@@ -18,6 +19,7 @@
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
         <encoder>
+            <charset>UTF-8</charset>
             <pattern>
                 %d{HH:mm:ss.SSS} %-5level %-75msg %n
             </pattern>
