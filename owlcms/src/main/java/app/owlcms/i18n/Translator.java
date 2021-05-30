@@ -118,16 +118,17 @@ public class Translator implements I18NProvider {
 
     public static void setForcedLocale(Locale locale) {
         if (locale != null) {
-            Locale countryLocale = new Locale(locale.getCountry());
-            Locale languageLocale = new Locale(locale.getCountry(),locale.getLanguage());
             locales = getAllAvailableLocales();
-            if ( locales.contains(locale) || locales.contains(languageLocale) || locales.contains(countryLocale)) {
-                Translator.forcedLocale = locale;
-            } else {
-                Translator.forcedLocale = locale;
+
+            for (Locale l : getAllAvailableLocales()) {
+                if (l.getLanguage() == locale.getLanguage()) {
+                    // thing will work no matter what the country and variant
+                    Translator.forcedLocale = locale;
+                    break;
+                }
             }
         } else {
-            Translator.forcedLocale = null; // default behaviour, first locale in list will be used
+            Translator.forcedLocale = null; // use browser-provided locale
         }
     }
 

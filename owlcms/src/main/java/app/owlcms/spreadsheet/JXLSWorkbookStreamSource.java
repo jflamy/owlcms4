@@ -133,16 +133,16 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
     public List<String> getSuffixes(Locale locale) {
         List<String> tryList = new ArrayList<>();
-        if (!locale.getVariant().isEmpty()) {
+        if (!locale.getVariant().isEmpty() && !locale.getCountry().isEmpty() && !locale.getLanguage().isEmpty()) {
             tryList.add("_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant());
         }
-        if (!locale.getCountry().isEmpty()) {
+        if (!locale.getCountry().isEmpty() && !locale.getLanguage().isEmpty()) {
             tryList.add("_" + locale.getLanguage() + "_" + locale.getCountry());
         }
         if (!locale.getLanguage().isEmpty()) {
             tryList.add("_" + locale.getLanguage());
         }
-        // try English as last resort.
+        // try English explicitly for backward compatibility
         if (!locale.getLanguage().equals("en")) {
             tryList.add("_" + "en");
         }
