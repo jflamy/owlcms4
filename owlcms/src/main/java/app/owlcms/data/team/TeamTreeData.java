@@ -79,8 +79,9 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                 // gender.
                 Integer maxCount = getTopNTeamSize(a.getGender());
                 String curTeamName = a.getTeam();
+                //logger.warn("a={} curTeam = {}",a, a.getTeam());
                 curTeamItem = findCurTeamItem(getTeamItemsByGender(), gender, curGenderTeams, prevTeamName, curTeamItem,
-                        curTeamName);
+                        curTeamName != null ? curTeamName : "-");
                 boolean groupIsDone = groupIsDone(a);
                 Integer curPoints = a.getTotalPoints();
                 double curScore = a.getSinclairForDelta();
