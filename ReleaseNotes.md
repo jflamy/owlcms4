@@ -1,7 +1,8 @@
-* Changes for release 4.20.0-beta01  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.20.0-beta02  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  * [x] 4.20.0-beta01: fixed broken timing check for declarations and changes during clean and jerk.
-  * [x] 4.20.0-alpha02: added "declaration required before change" also for case where clock has not yet been started. 
+  * [ ] 4.20.0-beta02: reworked the way the country is taken into account when locating templates (#428)
+  * [x] 4.20.0-beta02: backward compatibility to read old databases that stored template names differently. 
+  * [x] 4.20.0-beta01: fixed timing check for declarations and changes during clean and jerk.
   * [x] Enforce the rules for timing of declarations (before initial 30 seconds), and for changes (before final warning). (#425, #426)
   * [x] Workaround for iPad unpredictable response time (from 0.1 to 3 sec. lag) when used as display.  Only applies to iPads, ignored by all other platforms. (#419)
   * [x] CSS style sheets for attempt board and decision board are now editable in local/styles (#424)
