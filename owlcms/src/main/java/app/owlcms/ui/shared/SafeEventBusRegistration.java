@@ -57,7 +57,7 @@ public interface SafeEventBusRegistration {
 
         UnloadObserver unloadObserver = UnloadObserver.get(false);
         unloadObserver.addUnloadListener((e) -> {
-            logger.warn("closing {}: unregister {} from {}", e.getSource(), c, uiEventBus.identifier());
+            logger.debug("closing {}: unregister {} from {}", e.getSource(), c, uiEventBus.identifier());
             try {uiEventBus.unregister(c);} catch (Exception ex) {}
             UnloadObserver.remove();
         });
