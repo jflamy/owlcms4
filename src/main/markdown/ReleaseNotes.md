@@ -1,7 +1,7 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+  * [x] 4.20.0-rc02: fix templates not being found due to use of "_" in the installation path (#428)
   * [x] 4.20.0-rc01: updated Spanish, German and Armenian translations.
-  * [x] 4.20.0-beta02: reworked the way the country is taken into account when locating templates (#428)
   * [x] 4.20.0-beta02: backward compatibility to read old databases that stored template names differently. 
   * [x] 4.20.0-beta01: fixed timing check for declarations and changes during clean and jerk.
   * [x] Enforce the rules for timing of declarations (before initial 30 seconds), and for changes (before final warning). (#425, #426)
