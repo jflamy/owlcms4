@@ -1,13 +1,10 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  * [x] 4.20.0-rc02: fix templates not being found due to use of "_" in the installation path (#428)
-  * [x] 4.20.0-rc01: updated Spanish, German and Armenian translations.
-  * [x] 4.20.0-beta02: backward compatibility to read old databases that stored template names differently. 
-  * [x] 4.20.0-beta01: fixed timing check for declarations and changes during clean and jerk.
-  * [x] Enforce the rules for timing of declarations (before initial 30 seconds), and for changes (before final warning). (#425, #426)
-  * [x] Workaround for iPad unpredictable response time (from 0.1 to 3 sec. lag) when used as display.  Only applies to iPads, ignored by all other platforms. (#419)
+  * [x] Violations of rules for timing of declarations (before initial 30 seconds), and for changes (before final warning) are now signaled as errors (#425, #426). Overriding is possible for officiating mistakes.
+  * [x] Workaround applied for iPad unpredictable response time (from 0.1 to 3 sec. lag) when used as display. The iPad will "skip ahead" to the correct remaining time as soon as the start command is received, and "skip back" on a stop. Only applies to iPads, ignored by all other platforms. (#419) 
   * [x] CSS style sheets for attempt board and decision board are now editable in local/styles (#424)
-  
+  * [x] Fix : templates were not being found if "_" present in the installation path (#428)
+
 * Key Highlights from recent stable releases
 
   - [x] Implemented the rules to prevent athletes from moving down their requested weight illegally.  Moving down is denied if the athlete should already have attempted that weight according to the official lifting order.  The exact checks resulting from applying the TCRR to that situation are spelled out in the [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Announcing#rules-for-moving-down). (#418)
