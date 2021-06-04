@@ -77,7 +77,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 //        download.add(downloadButton);
 //        download.setWidth("100%");
 //
-        
+
 //        LazyDownloadButton downloadButton = new LazyDownloadButton(
 //                getTranslation("DownloadRegistrationTemplate"),
 //                new Icon(VaadinIcon.DOWNLOAD_ALT),
@@ -90,7 +90,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
                 getTranslation("DownloadRegistrationTemplate"), new JXLSRegistration(UI.getCurrent()));
 //        Div downloadDiv = new Div(downloadButton);
         Optional<Component> content = downloadDiv.getChildren().findFirst();
-        content.ifPresent(c -> ((Button)c).setWidth("93%"));
+        content.ifPresent(c -> ((Button) c).setWidth("93%"));
         downloadDiv.setWidthFull();
         Button upload = new Button(getTranslation("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
                 buttonClickEvent -> new UploadDialog().open());

@@ -54,7 +54,7 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
 
     @Override
     public Converter<String, Duration> getConverter() {
-        return new Converter<String, Duration>() {
+        return new Converter<>() {
 
             @Override
             public Result<Duration> convertToModel(String string, ValueContext context) {

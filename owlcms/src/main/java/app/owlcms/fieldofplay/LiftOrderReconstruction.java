@@ -22,6 +22,14 @@ public class LiftOrderReconstruction {
         computePastOrder(fop);
     }
 
+    public LiftOrderInfo getLastLift() {
+        if (this.pastOrder == null || this.pastOrder.isEmpty()) {
+            return null;
+        }
+        return this.pastOrder.last();
+
+    }
+
     public TreeSet<LiftOrderInfo> getPastOrder() {
         return pastOrder;
     }
@@ -54,7 +62,7 @@ public class LiftOrderReconstruction {
                 LiftOrderInfo ali = new LiftOrderInfo();
                 int w;
                 switch (liftNo) {
-                case 0: 
+                case 0:
                     w = Math.abs(Athlete.zeroIfInvalid(a.getSnatch1ActualLift()));
                     prevweight = w;
                     ali.setWeight(w);
@@ -78,12 +86,12 @@ public class LiftOrderReconstruction {
                     break;
                 }
                 ali.setAthlete(a);
-                ali.setAttemptNo(liftNo+1);
+                ali.setAttemptNo(liftNo + 1);
                 ali.setProgression(ali.getWeight() - prevweight);
                 prevweight = Math.abs(ali.getWeight());
                 ali.setStartNumber(a.getStartNumber());
                 ali.setLotNumber(a.getLotNumber());
-                
+
                 if (ali.getWeight() > 0) {
                     this.pastOrder.add(ali);
                 }
@@ -91,14 +99,6 @@ public class LiftOrderReconstruction {
             }
         }
         return this.pastOrder;
-    }
-    
-    public LiftOrderInfo getLastLift() {
-        if (this.pastOrder == null || this.pastOrder.isEmpty()) {
-            return null;
-        }
-        return this.pastOrder.last();
-        
     }
 
 }

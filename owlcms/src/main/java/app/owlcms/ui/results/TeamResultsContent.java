@@ -276,7 +276,7 @@ public class TeamResultsContent extends VerticalLayout
                 .setTextAlign(ColumnTextAlign.END);
 
         OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(TeamTreeItem.class);
-        OwlcmsCrudGrid<TeamTreeItem> crudGrid = new OwlcmsCrudGrid<TeamTreeItem>(TeamTreeItem.class, gridLayout,
+        OwlcmsCrudGrid<TeamTreeItem> crudGrid = new OwlcmsCrudGrid<>(TeamTreeItem.class, gridLayout,
                 crudFormFactory, grid) {
             @Override
             public void refreshGrid() {

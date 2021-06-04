@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.data.record;
+package app.owlcms.data.records;
 
 import java.time.LocalDate;
 
@@ -22,10 +22,10 @@ import ch.qos.logback.classic.Logger;
 
 @Entity
 @Cacheable
-public class Record {
+public class RecordEvent {
 
     @Transient
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(Record.class);
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(RecordEvent.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -138,15 +138,6 @@ public class Record {
         this.gender = gender;
     }
 
-    @Override
-    public String toString() {
-        return "Record [recordFederation=" + recordFederation + ", ageGrp=" + ageGrp + ", gender=" + gender
-                + ", bwCatUpper=" + bwCatUpper + ", recordKind=" + recordKind + ", recordValue=" + recordValue
-                + ", athleteName=" + athleteName + ", birthDate=" + birthDate + ", birthYear=" + birthYear + ", nation="
-                + nation + ", recordDate=" + recordDate + ", eventLocation=" + eventLocation + ", event=" + event
-                + ", recordYear=" + recordYear + "]";
-    }
-
     public void setId(Long id) {
         this.id = id;
     }
@@ -173,5 +164,14 @@ public class Record {
 
     public void setRecordYear(int parseInt) {
         this.recordYear = parseInt;
+    }
+
+    @Override
+    public String toString() {
+        return "RecordEvent [recordFederation=" + recordFederation + ", ageGrp=" + ageGrp + ", gender=" + gender
+                + ", bwCatUpper=" + bwCatUpper + ", recordKind=" + recordKind + ", recordValue=" + recordValue
+                + ", athleteName=" + athleteName + ", birthDate=" + birthDate + ", birthYear=" + birthYear + ", nation="
+                + nation + ", recordDate=" + recordDate + ", eventLocation=" + eventLocation + ", event=" + event
+                + ", recordYear=" + recordYear + "]";
     }
 }

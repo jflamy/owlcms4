@@ -170,9 +170,8 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected OwlcmsGridLayout crudLayout;
     private boolean ignoreSwitchGroup;
 
-    public boolean isIgnoreSwitchGroup() {
-        return ignoreSwitchGroup;
-    }
+    // array is used because of Java requires a final;
+    long[] previousStartMillis = { 0L };
 
     /**
      * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -240,7 +239,8 @@ public abstract class AthleteGridContent extends VerticalLayout
     public Collection<Athlete> findAll() {
         FieldOfPlay fop = OwlcmsSession.getFop();
         if (fop != null) {
-            logger.trace("{}findAll {} {}", fop.getLoggingName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
+            logger.trace("{}findAll {} {}", fop.getLoggingName(),
+                    fop.getGroup() == null ? null : fop.getGroup().getName(),
                     LoggerUtils.whereFrom());
             final String filterValue;
             if (lastNameFilter.getValue() != null) {
@@ -286,6 +286,10 @@ public abstract class AthleteGridContent extends VerticalLayout
     @Override
     public OwlcmsRouterLayout getRouterLayout() {
         return routerLayout;
+    }
+
+    public boolean isIgnoreSwitchGroup() {
+        return ignoreSwitchGroup;
     }
 
     public void quietBreakButton(boolean b) {
@@ -634,9 +638,6 @@ public abstract class AthleteGridContent extends VerticalLayout
         return null;
     }
 
-    // array is used because of Java requires a final;
-    long[] previousStartMillis = { 0L };
-
     protected void createStartTimeButton() {
         startTimeButton = new Button(AvIcons.PLAY_ARROW.create());
         startTimeButton.addClickListener(e -> {
@@ -790,7 +791,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 //                    if ((newGroup == null && oldGroup != null) || !newGroup.equals(oldGroup)) {
 //                        logger.debug("filter switching group from {} to {}",
 //                                oldGroup != null ? oldGroup.getName() : null,
-//                                newGroup != null ? newGroup.getName() : null);                  
+//                                newGroup != null ? newGroup.getName() : null);
                     if (isIgnoreSwitchGroup()) {
                         // logger.debug("ignoring self-originating change");
                         setIgnoreSwitchGroup(false);
@@ -812,10 +813,6 @@ public abstract class AthleteGridContent extends VerticalLayout
             });
         });
         crudLayout.addFilterComponent(getGroupFilter());
-    }
-
-    private void setIgnoreSwitchGroup(boolean b) {
-        ignoreSwitchGroup = b;
     }
 
     protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
@@ -1086,6 +1083,10 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     private AthleteCardFormFactory getAthleteEditingFormFactory() {
         return athleteEditingFormFactory;
+    }
+
+    private void setIgnoreSwitchGroup(boolean b) {
+        ignoreSwitchGroup = b;
     }
 
     private void topBarMessage(String string, String text) {

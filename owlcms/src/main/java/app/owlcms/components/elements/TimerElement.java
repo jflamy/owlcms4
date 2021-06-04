@@ -167,6 +167,9 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     @ClientCallable
     abstract public void clientTimeOver();
 
+    @ClientCallable
+    abstract public void clientTimerStarting(double remainingTime, double lateMillis, String from);
+
     /**
      * Timer has been stopped on the client side.
      *
@@ -174,9 +177,6 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
      */
     @ClientCallable
     abstract public void clientTimerStopped(double remainingTime, String from);
-
-    @ClientCallable
-    abstract public void clientTimerStarting(double remainingTime, double lateMillis, String from);
 
     protected final void doSetTimer(Integer milliseconds) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
@@ -198,7 +198,6 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
             start(milliseconds, isIndefinite(), silent, parent);
         });
     }
-
 
     protected void doStopTimer(Integer milliseconds) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {

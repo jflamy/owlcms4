@@ -57,6 +57,28 @@ public class Main {
     private static InitialData initialData;
 
     /**
+     * This method is actually called from EmbeddedJetty immediately after starting the server
+     */
+    public static void initData() {
+        // open jar as filesystem; cannot use /; any resource inside the jar will do
+        // cannot open the same jar twice.
+        ResourceWalker.openFileSystem("/templates");
+
+        // Vaadin configs
+        System.setProperty("vaadin.i18n.provider", Translator.class.getName());
+
+        // setup database
+        JPAService.init(memoryMode, resetMode);
+
+        // read locale from database and overrrde if needed
+        Locale l = overrideDisplayLanguage();
+        injectData(initialData, l);
+        overrideTimeZone();
+
+        OwlcmsFactory.getDefaultFOP(true); // initialization, don't push out to browsers
+    }
+
+    /**
      * The main method.
      *
      * @param args the arguments
@@ -107,28 +129,6 @@ public class Main {
         ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
 
         return;
-    }
-
-    /**
-     * This method is actually called from EmbeddedJetty immediately after starting the server
-     */
-    public static void initData() {
-        // open jar as filesystem; cannot use /; any resource inside the jar will do
-        // cannot open the same jar twice.
-        ResourceWalker.openFileSystem("/templates");
-
-        // Vaadin configs
-        System.setProperty("vaadin.i18n.provider", Translator.class.getName());
-
-        // setup database
-        JPAService.init(memoryMode, resetMode);
-        
-        // read locale from database and overrrde if needed
-        Locale l = overrideDisplayLanguage();
-        injectData(initialData, l);
-        overrideTimeZone();
-        
-        OwlcmsFactory.getDefaultFOP(true); // initialization, don't push out to browsers
     }
 
     protected static void tearDown() {

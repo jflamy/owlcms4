@@ -92,8 +92,28 @@ public class Translator implements I18NProvider {
         return helper.getProvidedLocales();
     }
 
+    public static Locale getForcedLocale() {
+        return forcedLocale;
+    }
+
     public static Enumeration<String> getKeys() {
         return Translator.getBundleFromCSV(Locale.ENGLISH).getKeys();
+    }
+
+    public static Map<String, String> getMap() {
+        final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(OwlcmsSession.getLocale());
+        Map<String, String> translations = new HashMap<>();
+        Enumeration<String> keys = bundle.getKeys();
+        String key;
+        while (keys.hasMoreElements()) {
+            key = keys.nextElement();
+            translations.put(key, bundle.getString(key));
+        }
+        return translations;
+    }
+
+    public static long getResetTimeStamp() {
+        return resetTimeStamp;
     }
 
     public static List<String> readLine(ICsvListReader listReader) throws IOException {
@@ -110,10 +130,6 @@ public class Translator implements I18NProvider {
         i18nloader = null;
         helper = new Translator();
         logger.debug("cleared translation class loader");
-    }
-
-    public static long getResetTimeStamp() {
-        return resetTimeStamp;
     }
 
     public static void setForcedLocale(Locale locale) {
@@ -383,22 +399,6 @@ public class Translator implements I18NProvider {
             locale = getForcedLocale();
         }
         return locale;
-    }
-
-    public static Map<String, String> getMap() {
-        final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(OwlcmsSession.getLocale());
-        Map<String, String> translations = new HashMap<>();
-        Enumeration<String> keys = bundle.getKeys();
-        String key;
-        while (keys.hasMoreElements()) {
-            key = keys.nextElement();
-            translations.put(key, bundle.getString(key));
-        }
-        return translations;
-    }
-
-    public static Locale getForcedLocale() {
-        return forcedLocale;
     }
 
 }

@@ -19,14 +19,14 @@ import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 public class SoundUtils {
-    
+
     static Logger logger = (Logger) LoggerFactory.getLogger(SoundUtils.class);
-    
+
     public static void enableAudioContext(Element element) {
-        //this.getElement().executeJs("window.audioCtx.suspend()");
+        // this.getElement().executeJs("window.audioCtx.suspend()");
         PendingJavaScriptResult result = element.executeJs("return (window.isIOS ? window.audioCtx.state : 'running')");
         result.then(String.class, r -> {
-            logger.debug("audio state {}",r);
+            logger.debug("audio state {}", r);
             if (!r.equals("running")) {
                 Notification n = new Notification();
                 n.setDuration(0);
@@ -41,7 +41,7 @@ public class SoundUtils {
                 n.add(content);
                 n.open();
             } else {
-                //Notification.show("Audio enabled");
+                // Notification.show("Audio enabled");
             }
         });
     }

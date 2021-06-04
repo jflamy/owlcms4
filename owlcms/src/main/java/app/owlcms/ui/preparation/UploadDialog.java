@@ -63,6 +63,18 @@ public class UploadDialog extends Dialog {
         jxlsLogger.setLevel(Level.ERROR);
     }
 
+    static public void listGroups(String msg) {
+//        JPAService.runInTransaction(em -> {
+//            List<Group> oldGroups = GroupRepository.doFindAll(em);
+//            logger.error("{} : {}", msg, oldGroups.size());
+//            for (Group g : oldGroups) {
+//                logger.error("{}, group {}, id={}, {}",msg,g.getName(),g.getId(), g.getPlatform());
+//            }
+//            em.flush();
+//            return null;
+//        });
+    }
+
     public UploadDialog() {
 
         H5 label = new H5(Translator.translate("Upload.WarningWillReplaceAll"));
@@ -198,7 +210,7 @@ public class UploadDialog extends Dialog {
         // clear athletes to be able to clear groups
         resetAthletes();
         listGroups("after reset athletes");
-        
+
         int nbGroups = processGroups(inputStream, ta, true);
         listGroups("after processGroups dryRun");
         if (nbGroups >= 0) {
@@ -213,36 +225,24 @@ public class UploadDialog extends Dialog {
         return;
     }
 
-    private void resetGroups() {
-        // delete all athletes and groups (naive version).
-        JPAService.runInTransaction(em -> {
-            List<Group> oldGroups = GroupRepository.doFindAll(em);
-            for (Group g : oldGroups) {
-                em.remove(g);
-            }
-            em.flush();
-            return null;
-        });
-    }
-    
-    static public void listGroups(String msg) {
-//        JPAService.runInTransaction(em -> {
-//            List<Group> oldGroups = GroupRepository.doFindAll(em);
-//            logger.error("{} : {}", msg, oldGroups.size());
-//            for (Group g : oldGroups) {
-//                logger.error("{}, group {}, id={}, {}",msg,g.getName(),g.getId(), g.getPlatform());
-//            }
-//            em.flush();
-//            return null;
-//        });
-    }
-
     private void resetAthletes() {
         // delete all athletes and groups (naive version).
         JPAService.runInTransaction(em -> {
             List<Athlete> athletes = AthleteRepository.doFindAll(em);
             for (Athlete a : athletes) {
                 em.remove(a);
+            }
+            em.flush();
+            return null;
+        });
+    }
+
+    private void resetGroups() {
+        // delete all athletes and groups (naive version).
+        JPAService.runInTransaction(em -> {
+            List<Group> oldGroups = GroupRepository.doFindAll(em);
+            for (Group g : oldGroups) {
+                em.remove(g);
             }
             em.flush();
             return null;
@@ -282,8 +282,9 @@ public class UploadDialog extends Dialog {
     }
 
     private void updatePlatformsAndGroups(List<RGroup> groups) {
-        Set<String> futurePlatforms = groups.stream().map(RGroup::getPlatform).filter(p -> (p != null && !p.isBlank())).collect(Collectors.toSet());
-        
+        Set<String> futurePlatforms = groups.stream().map(RGroup::getPlatform).filter(p -> (p != null && !p.isBlank()))
+                .collect(Collectors.toSet());
+
         String defaultPlatformName = PlatformRepository.findAll().get(0).getName();
         if (futurePlatforms.isEmpty()) {
             // keep at least one platform

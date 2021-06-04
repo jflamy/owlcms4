@@ -68,12 +68,12 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         Button scoreboard = openInNewTab(Scoreboard.class, getTranslation("Scoreboard"));
         Button scoreboardWLeaders = openInNewTab(ScoreWithLeaders.class, getTranslation("ScoreboardWLeadersButton"));
         scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
-        
+
         Button scoreboardMultiRanks = openInNewTab(ScoreMultiRanks.class, getTranslation("ScoreboardMultiRanksButton"));
-        
+
         Button liftingOrder = openInNewTab(LiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
         Button currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"));
-        
+
         Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
         Button topTeams = openInNewTab(TopTeams.class, getTranslation("Scoreboard.TopTeams"));
         Button topTeamsSinclair = openInNewTab(TopTeamsSinclair.class, getTranslation("Scoreboard.TopTeamsSinclair"));
@@ -82,7 +82,8 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 
         VerticalLayout intro1 = new VerticalLayout();
         addP(intro1, getTranslation("darkModeSelect"));
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders, scoreboardMultiRanks, liftingOrder, currentAthlete,
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
+                scoreboardMultiRanks, liftingOrder, currentAthlete,
                 topSinclair, topTeams, topTeamsSinclair);
         doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
 

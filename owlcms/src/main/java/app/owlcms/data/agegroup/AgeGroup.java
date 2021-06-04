@@ -38,7 +38,7 @@ import ch.qos.logback.classic.Logger;
 
 /**
  * An AgeGroup designates an age range and the associated bodyweight categories, for a given gender.
- * 
+ *
  * @author Jean-François Lamy
  *
  */
@@ -78,7 +78,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     @Transient
     Logger logger = (Logger) LoggerFactory.getLogger(AgeGroup.class);
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;

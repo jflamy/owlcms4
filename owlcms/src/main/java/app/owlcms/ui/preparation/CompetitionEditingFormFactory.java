@@ -63,6 +63,8 @@ public class CompetitionEditingFormFactory
     private CompetitionContent origin;
     private Logger logger = (Logger) LoggerFactory.getLogger(CompetitionEditingFormFactory.class);
 
+    String browserZoneId;
+
     CompetitionEditingFormFactory(Class<Competition> domainType, CompetitionContent origin) {
         super(domainType);
         this.origin = origin;
@@ -142,7 +144,8 @@ public class CompetitionEditingFormFactory
                     Locale defaultLocale = nCompetition.getDefaultLocale();
                     Translator.reset();
                     Translator.setForcedLocale(defaultLocale);
-                    logger.debug("competition locale {} {} {}", Competition.getCurrent().getDefaultLocale(), defaultLocale, Translator.getForcedLocale());
+                    logger.debug("competition locale {} {} {}", Competition.getCurrent().getDefaultLocale(),
+                            defaultLocale, Translator.getForcedLocale());
                 }, deleteButtonClickListener, false);
 
         VerticalLayout mainLayout = new VerticalLayout(
@@ -159,10 +162,6 @@ public class CompetitionEditingFormFactory
 
         binder.readBean(comp);
         return mainLayout;
-    }
-
-    private void setBinder(Binder<Competition> buildBinder) {
-        binder = buildBinder;
     }
 
     @Override
@@ -369,6 +368,10 @@ public class CompetitionEditingFormFactory
         return hr;
     }
 
+    private void setBinder(Binder<Competition> buildBinder) {
+        binder = buildBinder;
+    }
+
     private FormLayout specialRulesForm() {
         String message = Translator.translate("Competition.teamSizeInvalid");
 
@@ -406,7 +409,7 @@ public class CompetitionEditingFormFactory
                 labelWithHelp("Competition.genderOrder", "Competition.genderOrderExplanation"));
         binder.forField(genderOrderField)
                 .bind(Competition::isGenderOrder, Competition::setGenderOrder);
-        
+
         Checkbox roundRobinOrderField = new Checkbox();
         layout.addFormItem(roundRobinOrderField,
                 labelWithHelp("Competition.roundRobinOrder", "Competition.roundRobinOrderExplanation"));
@@ -416,7 +419,6 @@ public class CompetitionEditingFormFactory
         return layout;
     }
 
-    String browserZoneId;
     private FormLayout tzForm() {
 
         FormLayout layout = createLayout();
@@ -437,11 +439,9 @@ public class CompetitionEditingFormFactory
         browserTZ.add(browserTZText, browserTZButton);
         ListItem explainTZ = new ListItem();
         explainTZ.getElement().setProperty("innerHTML", Translator.translate("Config.TZExplain"));
-        ulTZ.add(defaultTZ, browserTZ, explainTZ);     
+        ulTZ.add(defaultTZ, browserTZ, explainTZ);
         layout.add(ulTZ);
         layout.setColspan(ulTZ, 2);
-
-
 
         layout.addFormItem(tzCombo, Translator.translate("Config.TZ_Selection"));
 
@@ -459,7 +459,8 @@ public class CompetitionEditingFormFactory
             browserZoneId = res;
             String defZone = TimeZoneUtils.toIdWithOffsetString(TimeZone.getDefault());
             String browserZoneText = TimeZoneUtils.toIdWithOffsetString(TimeZone.getTimeZone(res));
-            browserTZText.getElement().setProperty("innerHTML",Translator.translate("Config.TZ_FromBrowser", browserZoneText)+"&nbsp;");
+            browserTZText.getElement().setProperty("innerHTML",
+                    Translator.translate("Config.TZ_FromBrowser", browserZoneText) + "&nbsp;");
             browserTZButton.setText(browserZoneText);
             defaultTZ.setText(Translator.translate("Config.TZ_FromServer", defZone));
         });

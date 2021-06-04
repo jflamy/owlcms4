@@ -81,6 +81,26 @@ public class ProxyAthleteTimer implements IProxyTimer {
     }
 
     /**
+     * Compute time elapsed since start.
+     */
+    @Override
+    public int liveTimeRemaining() {
+        if (running) {
+            stopMillis = System.currentTimeMillis();
+            long elapsed = stopMillis - startMillis;
+            int tr = (int) (getTimeRemaining() - elapsed);
+            logger.debug("liveTimeRemaining running {} {}", DurationFormatUtils.formatDurationHMS(tr),
+                    LoggerUtils.whereFrom());
+            return tr;
+        } else {
+            int tr = getTimeRemaining();
+            logger.debug("liveTimeRemaining stopped {} {}", DurationFormatUtils.formatDurationHMS(tr),
+                    LoggerUtils.whereFrom());
+            return tr;
+        }
+    }
+
+    /**
      * @see app.owlcms.fieldofplay.IProxyTimer#setTimeRemaining(int)
      */
     @Override
@@ -148,25 +168,5 @@ public class ProxyAthleteTimer implements IProxyTimer {
         stopMillis = System.currentTimeMillis();
         long elapsed = stopMillis - startMillis;
         timeRemaining = (int) (timeRemaining - elapsed);
-    }
-
-    /**
-     * Compute time elapsed since start.
-     */
-    @Override
-    public int liveTimeRemaining() {
-        if (running) {
-            stopMillis = System.currentTimeMillis();
-            long elapsed = stopMillis - startMillis;
-            int tr = (int) (getTimeRemaining() - elapsed);
-            logger.debug("liveTimeRemaining running {} {}", DurationFormatUtils.formatDurationHMS(tr),
-                    LoggerUtils.whereFrom());
-            return tr;
-        } else {
-            int tr = getTimeRemaining();
-            logger.debug("liveTimeRemaining stopped {} {}", DurationFormatUtils.formatDurationHMS(tr),
-                    LoggerUtils.whereFrom());
-            return tr;
-        }
     }
 }

@@ -39,6 +39,33 @@ public class AgeGroupRepository {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupRepository.class);
 
+    /**
+     * Delete.
+     *
+     * @param AgeGroup the group
+     */
+
+    public static void delete(AgeGroup ageGroup) {
+        if (ageGroup.getId() == null) {
+            return;
+        }
+        JPAService.runInTransaction(em -> {
+            try {
+                AgeGroup mAgeGroup = em.contains(ageGroup) ? ageGroup : em.merge(ageGroup);
+                List<Category> cats = ageGroup.getCategories();
+                for (Category c : cats) {
+                    Category mc = em.contains(c) ? c : em.merge(c);
+                    cascadeCategoryRemoval(em, mAgeGroup, mc);
+                }
+                em.remove(mAgeGroup);
+                em.flush();
+            } catch (Exception e) {
+                logger.error(LoggerUtils.stackTrace(e));
+            }
+            return null;
+        });
+    }
+
     @SuppressWarnings("unchecked")
     public static AgeGroup doFindByName(String name, EntityManager em) {
         Query query = em.createQuery("select u from AgeGroup u where u.name=:name");
@@ -189,21 +216,6 @@ public class AgeGroupRepository {
         return nAgeGroup;
     }
 
-    @SuppressWarnings("unchecked")
-    private static void cascadeAthleteCategoryDisconnect(EntityManager em, Category c) {
-        Category nc = em.merge(c);
-
-        String qlString = "select a from Athlete a where a.category = :category";
-        Query query = em.createQuery(qlString);
-        query.setParameter("category", nc);
-        List<Athlete> as = query.getResultList();
-        for (Athlete a : as) {
-            logger.debug("removing athlete {} from category {}", a, nc.getId());
-            Athlete na = em.contains(a) ? a : em.merge(a);
-            na.setCategory(null);
-        }
-    }
-
     static void cascadeCategoryRemoval(EntityManager em, AgeGroup mAgeGroup, Category nc) {
         // so far we have not categories removed from the age group, time to do so
         logger.debug("removing category {} from age group", nc.getId());
@@ -231,6 +243,21 @@ public class AgeGroupRepository {
                 logger.error("cannot create category from template\n{}", LoggerUtils.stackTrace(e));
                 return null;
             }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void cascadeAthleteCategoryDisconnect(EntityManager em, Category c) {
+        Category nc = em.merge(c);
+
+        String qlString = "select a from Athlete a where a.category = :category";
+        Query query = em.createQuery(qlString);
+        query.setParameter("category", nc);
+        List<Athlete> as = query.getResultList();
+        for (Athlete a : as) {
+            logger.debug("removing athlete {} from category {}", a, nc.getId());
+            Athlete na = em.contains(a) ? a : em.merge(a);
+            na.setCategory(null);
         }
     }
 
@@ -291,33 +318,6 @@ public class AgeGroupRepository {
         if (gender != null) {
             query.setParameter("gender", gender);
         }
-    }
-
-    /**
-     * Delete.
-     *
-     * @param AgeGroup the group
-     */
-    
-    public static void delete(AgeGroup ageGroup) {
-        if (ageGroup.getId() == null) {
-            return;
-        }
-        JPAService.runInTransaction(em -> {
-            try {
-                AgeGroup mAgeGroup = em.contains(ageGroup) ? ageGroup : em.merge(ageGroup);
-                List<Category> cats = ageGroup.getCategories();
-                for (Category c : cats) {
-                    Category mc = em.contains(c) ? c : em.merge(c);
-                    cascadeCategoryRemoval(em, mAgeGroup, mc);
-                }
-                em.remove(mAgeGroup);
-                em.flush();
-            } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
-            }
-            return null;
-        });
     }
 
 }

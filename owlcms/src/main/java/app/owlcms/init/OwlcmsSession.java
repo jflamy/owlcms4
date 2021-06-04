@@ -74,6 +74,18 @@ public class OwlcmsSession {
         return (FieldOfPlay) getAttribute(FOP);
     }
 
+    public static String getFopLoggingName() {
+        FieldOfPlay fop = getFop();
+        if (fop == null) {
+            fop = OwlcmsFactory.getDefaultFOP();
+        }
+        if (fop != null) {
+            return fop.getLoggingName();
+        } else {
+            return "-";
+        }
+    }
+
     /**
      * Copied from Vaadin {@link Component} to ensure consistent behavior. {@link Translator} will enforce a language if
      * the competition screens must ignore browser settings
@@ -82,7 +94,7 @@ public class OwlcmsSession {
      */
     public static Locale getLocale() {
         Locale locale = Translator.getForcedLocale();
-        logger.trace("forced locale = {}",locale);
+        logger.trace("forced locale = {}", locale);
         UI currentUi = UI.getCurrent();
         if (locale == null && currentUi != null) {
             locale = currentUi.getLocale();
@@ -163,17 +175,5 @@ public class OwlcmsSession {
     private Properties attributes = new Properties();
 
     private OwlcmsSession() {
-    }
-
-    public static String getFopLoggingName() {
-        FieldOfPlay fop = getFop();
-        if (fop == null) {
-            fop = OwlcmsFactory.getDefaultFOP();
-        }
-        if (fop != null) {
-            return fop.getLoggingName();
-        } else {
-            return "-";
-        }
     }
 }

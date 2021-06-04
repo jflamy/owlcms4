@@ -166,7 +166,6 @@ public class RAthlete {
         }
     }
 
-    
     /**
      * @param lastName
      * @see app.owlcms.data.athlete.Athlete#setLastName(java.lang.String)
@@ -195,7 +194,7 @@ public class RAthlete {
             group.setPlatform(PlatformRepository.findAll().get(0));
             Group nGroup = GroupRepository.save(group);
             a.setGroup(nGroup);
-            logger.debug("creating group {}",groupName);
+            logger.debug("creating group {}", groupName);
             UploadDialog.listGroups("group creation");
 //            throw new Exception(
 //                    Translator.translate("Upload.GroupNotDefined", groupName));

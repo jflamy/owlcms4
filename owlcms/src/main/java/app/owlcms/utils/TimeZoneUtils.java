@@ -13,7 +13,21 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TimeZoneUtils {
-    
+
+    public static List<TimeZone> allTimeZones() {
+        long now = System.currentTimeMillis();
+        String[] allIds = TimeZone.getAvailableIDs();
+        List<TimeZone> tzList = Stream.of(allIds).map(id -> TimeZone.getTimeZone(id))
+                .sorted((a, b) -> Integer.compare(a.getOffset(now), b.getOffset(now)))
+                .filter(s -> s.getID().contains("/") && !s.getID().contains("GMT") && !s.getID().contains("SystemV"))
+                .collect(Collectors.toList());
+        return tzList;
+    }
+
+    public static String getDefault() {
+        return TimeZone.getDefault().getID();
+    }
+
     public static String toIdWithOffsetString(TimeZone tz) {
         long now = System.currentTimeMillis();
         long hours = TimeUnit.MILLISECONDS.toHours(tz.getOffset(now));
@@ -31,21 +45,5 @@ public class TimeZoneUtils {
 
         return result;
     }
-    
-
-    public static List<TimeZone> allTimeZones() {
-        long now = System.currentTimeMillis();
-        String[] allIds = TimeZone.getAvailableIDs();
-        List<TimeZone> tzList = Stream.of(allIds).map(id -> TimeZone.getTimeZone(id))
-                .sorted((a, b) -> Integer.compare(a.getOffset(now), b.getOffset(now)))
-                .filter(s -> s.getID().contains("/") && !s.getID().contains("GMT") && !s.getID().contains("SystemV"))
-                .collect(Collectors.toList());
-        return tzList;
-    }
-    
-    public static String getDefault() {
-        return TimeZone.getDefault().getID();
-    }
-
 
 }

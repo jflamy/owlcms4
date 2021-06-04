@@ -427,7 +427,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             ThemeList themeList = UI.getCurrent().getElement().getThemeList();
             themeList.remove(Lumo.LIGHT);
             themeList.add(Lumo.DARK);
-            
+
             SoundUtils.enableAudioContext(this.getElement());
 
             // sync with current status of FOP
@@ -449,8 +449,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             uiEventBus = uiEventBusRegister(this, fop);
         });
     }
-
-
 
     private void doDone(Group g) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {

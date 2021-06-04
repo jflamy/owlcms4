@@ -91,14 +91,14 @@ public class EmbeddedJetty {
             // start the server so that kubernetes ingress does not complain due to long initialization.
             server.start();
             startLogger.info("started on port {}", port);
-            
+
             // start JPA+Hibernate, initialize database if needed, etc.
             Main.initData();
-            
+
             // server threads blocking on latch will now go ahead.
             startLogger.info("initialization done, allowing requests.");
             getLatch().countDown();
-            
+
             StartupUtils.startBrowser();
             server.join();
         } catch (Exception e) {

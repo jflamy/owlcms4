@@ -50,11 +50,11 @@ public class AgeGroupDefinitionReader {
                 row = rowIterator.next();
             }
             row = rowIterator.next();
-    
+
             Category c = new Category();
-    
+
             Iterator<Cell> cellIterator = row.cellIterator();
-    
+
             while (cellIterator.hasNext()) {
                 Cell cell = cellIterator.next();
                 switch (iColumn) {
@@ -91,7 +91,7 @@ public class AgeGroupDefinitionReader {
                 iColumn++;
             }
             iRow++;
-    
+
         }
         return categoryMap;
     }
@@ -99,7 +99,7 @@ public class AgeGroupDefinitionReader {
     static void createAgeGroups(Workbook workbook, Map<String, Category> templates,
             EnumSet<AgeDivision> ageDivisionOverride,
             String localizedName) {
-    
+
         JPAService.runInTransaction(em -> {
             Sheet sheet = workbook.getSheetAt(1);
             Iterator<Row> rowIterator = sheet.rowIterator();
@@ -112,10 +112,10 @@ public class AgeGroupDefinitionReader {
                     row = rowIterator.next();
                 }
                 row = rowIterator.next();
-    
+
                 AgeGroup ag = new AgeGroup();
                 double curMin = 0.0D;
-    
+
                 Iterator<Cell> cellIterator = row.cellIterator();
                 while (cellIterator.hasNext()) {
                     Cell cell = cellIterator.next();
@@ -163,7 +163,8 @@ public class AgeGroupDefinitionReader {
                     default: {
                         String cellValue = cell.getStringCellValue();
                         if (cellValue != null && !cellValue.trim().isEmpty()) {
-                            Category cat = AgeGroupRepository.createCategoryFromTemplate(cellValue, ag, templates, curMin);
+                            Category cat = AgeGroupRepository.createCategoryFromTemplate(cellValue, ag, templates,
+                                    curMin);
                             if (cat != null) {
                                 em.persist(cat);
                                 AgeGroupRepository.logger.trace(cat.longDump());
@@ -181,7 +182,7 @@ public class AgeGroupDefinitionReader {
             Competition comp = Competition.getCurrent();
             Competition comp2 = em.contains(comp) ? comp : em.merge(comp);
             comp2.setAgeGroupsFileName(localizedName);
-    
+
             return null;
         });
     }

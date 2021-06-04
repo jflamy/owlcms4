@@ -41,16 +41,16 @@ public class FOPEvent {
 
         private Integer timeRemaining;
 
+        public BreakPaused(Integer timeRemaining, Object origin) {
+            super(origin);
+            this.timeRemaining = timeRemaining;
+        }
+
         public Integer getTimeRemaining() {
             return timeRemaining;
         }
 
         public void setTimeRemaining(Integer timeRemaining) {
-            this.timeRemaining = timeRemaining;
-        }
-
-        public BreakPaused(Integer timeRemaining, Object origin) {
-            super(origin);
             this.timeRemaining = timeRemaining;
         }
     }

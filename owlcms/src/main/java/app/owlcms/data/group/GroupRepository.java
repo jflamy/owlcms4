@@ -58,6 +58,11 @@ public class GroupRepository {
     }
 
     @SuppressWarnings("unchecked")
+    public static List<Group> doFindAll(EntityManager em) {
+        return em.createQuery("select c from CompetitionGroup c order by c.name").getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
     public static Group doFindByName(String name, EntityManager em) {
         Query query = em.createQuery("select u from CompetitionGroup u where u.name=:name");
         query.setParameter("name", name);
@@ -103,11 +108,6 @@ public class GroupRepository {
      */
     public static Group save(Group Group) {
         return JPAService.runInTransaction(em -> em.merge(Group));
-    }
-
-    @SuppressWarnings("unchecked")
-    public static List<Group> doFindAll(EntityManager em) {
-        return em.createQuery("select c from CompetitionGroup c order by c.name").getResultList();
     }
 
 }

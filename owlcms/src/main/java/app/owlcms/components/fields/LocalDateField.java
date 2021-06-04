@@ -41,7 +41,7 @@ public class LocalDateField extends WrappedTextField<LocalDate> {
 
     @Override
     public Converter<String, LocalDate> getConverter() {
-        return new Converter<String, LocalDate>() {
+        return new Converter<>() {
             @Override
             public Result<LocalDate> convertToModel(String value, ValueContext context) {
                 Locale locale = context.getLocale().orElse(Locale.ENGLISH);

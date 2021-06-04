@@ -104,12 +104,11 @@ public class AthleteTimerElement extends TimerElement {
      */
     @Override
     @ClientCallable
-    public void clientTimerStopped(double remainingTime, String from) {
-        logger.debug("timer {} stopped on client: remaining = {}, roundtrip={}", from, remainingTime, delta(lastStopMillis));
-        // do not stop the server-side timer, this is getting called as a result of the
-        // server-side timer issuing a command. Otherwise we create an infinite loop.
+    public void clientTimerStarting(double remainingTime, double lateMillis, String from) {
+        logger.debug("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime,
+                lateMillis, delta(lastStartMillis));
     }
-    
+
     /*
      * (non-Javadoc)
      *
@@ -117,16 +116,11 @@ public class AthleteTimerElement extends TimerElement {
      */
     @Override
     @ClientCallable
-    public void clientTimerStarting(double remainingTime, double lateMillis, String from) {
-        logger.debug("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime, lateMillis, delta(lastStartMillis));
-    }
-
-    private long delta(long lastMillis) {
-        if (lastMillis == 0) {
-            return 0;
-        } else {
-            return System.currentTimeMillis() - lastMillis;
-        }
+    public void clientTimerStopped(double remainingTime, String from) {
+        logger.debug("timer {} stopped on client: remaining = {}, roundtrip={}", from, remainingTime,
+                delta(lastStopMillis));
+        // do not stop the server-side timer, this is getting called as a result of the
+        // server-side timer issuing a command. Otherwise we create an infinite loop.
     }
 
     public void detach() {
@@ -213,6 +207,14 @@ public class AthleteTimerElement extends TimerElement {
             // we listen on uiEventBus; this method ensures we stop when detached.
             uiEventBusRegister(this, fop);
         });
+    }
+
+    private long delta(long lastMillis) {
+        if (lastMillis == 0) {
+            return 0;
+        } else {
+            return System.currentTimeMillis() - lastMillis;
+        }
     }
 
 }

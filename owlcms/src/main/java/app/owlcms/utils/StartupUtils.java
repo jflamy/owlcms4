@@ -94,6 +94,16 @@ public class StartupUtils {
         }
     }
 
+    public static boolean isDebugSetting() {
+        String param = StartupUtils.getStringParam("DEBUG");
+        return "true".equalsIgnoreCase(param) || "debug".equalsIgnoreCase(param) || "trace".equalsIgnoreCase(param);
+    }
+
+    public static boolean isTraceSetting() {
+        String param = StartupUtils.getStringParam("DEBUG");
+        return "trace".equalsIgnoreCase(param);
+    }
+
     public static void logStart(String appName, Integer serverPort) throws IOException, ParseException {
         InputStream in = StartupUtils.class.getResourceAsStream("/build.properties");
         Properties props = new Properties();
@@ -107,7 +117,8 @@ public class StartupUtils {
     }
 
     public static boolean openBrowser(Desktop desktop, String hostName)
-            throws MalformedURLException, IOException, ProtocolException, URISyntaxException, UnsupportedOperationException {
+            throws MalformedURLException, IOException, ProtocolException, URISyntaxException,
+            UnsupportedOperationException {
         if (hostName == null) {
             return false;
         }
@@ -160,16 +171,6 @@ public class StartupUtils {
         } catch (Throwable t) {
             logger./**/warn("Cannot start browser: {}", t.getCause() != null ? t.getCause() : t.getMessage());
         }
-    }
-
-    public static boolean isDebugSetting() {
-        String param = StartupUtils.getStringParam("DEBUG");
-        return "true".equalsIgnoreCase(param) || "debug".equalsIgnoreCase(param) || "trace".equalsIgnoreCase(param);
-    }
-    
-    public static boolean isTraceSetting() {
-        String param = StartupUtils.getStringParam("DEBUG");
-        return "trace".equalsIgnoreCase(param);
     }
 
 }

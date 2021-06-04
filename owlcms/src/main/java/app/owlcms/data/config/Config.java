@@ -207,7 +207,6 @@ public class Config {
         this.publicResultsURL = publicResultsURL;
     }
 
-
     public void setUpdatekey(String updatekey) {
         this.updatekey = updatekey;
     }

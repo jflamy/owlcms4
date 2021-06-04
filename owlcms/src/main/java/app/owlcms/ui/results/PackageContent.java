@@ -387,14 +387,14 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
                 break;
             }
             if (fileName.startsWith("Total")) {
-                totalTemplate  = curResource;
+                totalTemplate = curResource;
             }
         }
         if (found != null) {
             return found;
         } else {
             // should be non-null, if not there, null is ok.
-            return totalTemplate; 
+            return totalTemplate;
         }
     }
 

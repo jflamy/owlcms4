@@ -416,7 +416,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     protected void onAttach(AttachEvent attachEvent) {
         // crude workaround -- randomly getting light or dark due to multiple themes detected in app.
         getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
-        
+
         // fop obtained via QueryParameterReader interface default methods.
         Competition competition = Competition.getCurrent();
         OwlcmsSession.withFop(fop -> {
@@ -722,7 +722,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 model.setGroupName(
                         curGroup != null
                                 ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
-                                : ""); 
+                                : "");
                 liftsDone = AthleteSorter.countLiftsDone(order);
                 model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
             } else {

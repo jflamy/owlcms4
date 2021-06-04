@@ -362,7 +362,7 @@ public class FileServlet extends HttpServlet {
             final String fullFileName = finalPath.getFileName().toString();
             final String extension = FilenameUtils.getExtension(fullFileName);
             final String baseName = FilenameUtils.getBaseName(fullFileName);
-            final File tempFile = File.createTempFile(baseName, "."+extension);
+            final File tempFile = File.createTempFile(baseName, "." + extension);
             logger.debug("creating {}", tempFile.getAbsolutePath());
             tempFile.deleteOnExit();
             try (FileOutputStream out = new FileOutputStream(tempFile)) {

@@ -36,7 +36,7 @@ import ch.qos.logback.classic.Logger;
  * @author owlcms
  */
 public class OwlcmsFactory {
-    
+
     private static CountDownLatch latch = new CountDownLatch(1);
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsFactory.class);
@@ -57,11 +57,19 @@ public class OwlcmsFactory {
     /**
      * @return first field of play, sorted alphabetically
      */
+    public static FieldOfPlay getDefaultFOP() {
+        return getDefaultFOP(false);
+    }
+
+    /**
+     * @return first field of play, sorted alphabetically
+     */
     public static synchronized FieldOfPlay getDefaultFOP(boolean init) {
         if (init == false && fopByName == null) {
             return null;
         }
-        //logger.debug("OwlcmsFactory {} {} {}", init, fopByName != null ? fopByName.size() : null, LoggerUtils.stackTrace());
+        // logger.debug("OwlcmsFactory {} {} {}", init, fopByName != null ? fopByName.size() : null,
+        // LoggerUtils.stackTrace());
         if (defaultFOP != null) {
             return defaultFOP;
         } else {
@@ -83,13 +91,6 @@ public class OwlcmsFactory {
         }
     }
 
-    /**
-     * @return first field of play, sorted alphabetically
-     */
-    public static FieldOfPlay getDefaultFOP() {
-        return getDefaultFOP(false);
-    }
-    
     public static FieldOfPlay getFOPByGroupName(String name) {
         if (fopByName == null) {
             return null; // no group is lifting yet.
@@ -124,6 +125,10 @@ public class OwlcmsFactory {
         return values;
     }
 
+    public static CountDownLatch getInitializationLatch() {
+        return latch;
+    }
+
     public static String getVersion() {
         return version;
     }
@@ -136,6 +141,17 @@ public class OwlcmsFactory {
         version = sVersion;
     }
 
+    public static void waitDBInitialized() {
+        try {
+            OwlcmsFactory.getInitializationLatch().await();
+        } catch (InterruptedException e) {
+        }
+    }
+
+//    public static void setInitializationLatch(int i) {
+//        latch = new CountDownLatch(i);
+//    }
+
     private static synchronized void initFOPByName() {
         fopByName = new HashMap<>();
         for (Platform platform : PlatformRepository.findAll()) {
@@ -145,21 +161,6 @@ public class OwlcmsFactory {
             // no group selected, no athletes, announcer will need to pick a group.
             fop.init(new LinkedList<Athlete>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop), true);
             fopByName.put(name, fop);
-        }
-    }
-
-    public static CountDownLatch getInitializationLatch() {
-        return latch;
-    }
-
-//    public static void setInitializationLatch(int i) {
-//        latch = new CountDownLatch(i);
-//    }
-    
-    public static void waitDBInitialized() {
-        try {
-            OwlcmsFactory.getInitializationLatch().await();
-        } catch (InterruptedException e) {
         }
     }
 }
