@@ -27,7 +27,6 @@ public class AthleteTimerElement extends TimerElement {
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteTimerElement.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     static {
-        logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
     }
 
@@ -38,12 +37,12 @@ public class AthleteTimerElement extends TimerElement {
      */
     public AthleteTimerElement() {
         this.setOrigin(null); // force exception
-        logger.debug("### AthleteTimerElement new {}", origin);
+        logger.trace("### AthleteTimerElement new {}", origin);
     }
 
     public AthleteTimerElement(Object origin) {
         this.setOrigin(origin);
-        logger.debug("### AthleteTimerElement new {} {}", origin, LoggerUtils.whereFrom());
+        logger.trace("### AthleteTimerElement new {} {}", origin, LoggerUtils.whereFrom());
     }
 
     /**
@@ -52,7 +51,7 @@ public class AthleteTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientFinalWarning() {
-        logger.debug("Received final warning.");
+        logger.trace("Received final warning.");
         OwlcmsSession.withFop(fop -> {
             fop.getAthleteTimer().finalWarning(this);
         });
@@ -64,7 +63,7 @@ public class AthleteTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientInitialWarning() {
-        logger.debug("Received initial warning.");
+        logger.trace("Received initial warning.");
         OwlcmsSession.withFop(fop -> {
             fop.getAthleteTimer().initialWarning(this);
         });
@@ -92,7 +91,7 @@ public class AthleteTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientTimeOver() {
-        logger.debug("Received time over.");
+        logger.trace("Received time over.");
         OwlcmsSession.withFop(fop -> {
             fop.getAthleteTimer().timeOver(this);
         });
@@ -106,7 +105,7 @@ public class AthleteTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientTimerStopped(double remainingTime, String from) {
-        logger.debug("timer {} stopped on client: remaining = {}", from, remainingTime);
+        logger.debug("timer {} stopped on client: remaining = {}, roundtrip={}", from, remainingTime, delta(lastStopMillis));
         // do not stop the server-side timer, this is getting called as a result of the
         // server-side timer issuing a command. Otherwise we create an infinite loop.
     }
@@ -119,7 +118,15 @@ public class AthleteTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientTimerStarting(double remainingTime, double lateMillis, String from) {
-        logger.debug("timer {} starting on client: remaining = {}", from, remainingTime);
+        logger.debug("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime, lateMillis, delta(lastStartMillis));
+    }
+
+    private long delta(long lastMillis) {
+        if (lastMillis == 0) {
+            return 0;
+        } else {
+            return System.currentTimeMillis() - lastMillis;
+        }
     }
 
     public void detach() {
@@ -198,7 +205,7 @@ public class AthleteTimerElement extends TimerElement {
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        logger.debug("attaching to {}", this.getOrigin());
+        logger.trace("attaching to {}", this.getOrigin());
         init();
         OwlcmsSession.withFop(fop -> {
             // sync with current status of FOP

@@ -59,7 +59,12 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 //        return stream;
         String protocolTemplateFileName = current.getFinalPackageTemplateFileName();
 
-        int stripIndex = protocolTemplateFileName.indexOf(".xls");
+        int stripIndex = protocolTemplateFileName.indexOf("_");
+        if (stripIndex > 0) {
+            protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
+        }
+        
+        stripIndex = protocolTemplateFileName.indexOf(".xls");
         if (stripIndex > 0) {
             protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
         }

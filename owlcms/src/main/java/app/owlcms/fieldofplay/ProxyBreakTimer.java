@@ -112,8 +112,9 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     }
 
     /**
-     * Compute time elapsed since start and adjust time remaining accordingly.
+     * Compute time elapsed since start.
      */
+    @Override
     public int liveTimeRemaining() {
         if (end != null) {
             int until = (int) LocalDateTime.now().until(end, ChronoUnit.MILLIS);

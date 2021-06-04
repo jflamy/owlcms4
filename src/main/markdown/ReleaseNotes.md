@@ -1,7 +1,12 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  * [x] Fixed the error message shown when 20kg rule is violated (which got broken in release 4.19.0)
-  * [x] Added a local/logback.xml file to the default Windows install to make troubleshooting easier.
+  * [x] 4.20.0-rc02: fix templates not being found due to use of "_" in the installation path (#428)
+  * [x] 4.20.0-rc01: updated Spanish, German and Armenian translations.
+  * [x] 4.20.0-beta02: backward compatibility to read old databases that stored template names differently. 
+  * [x] 4.20.0-beta01: fixed timing check for declarations and changes during clean and jerk.
+  * [x] Enforce the rules for timing of declarations (before initial 30 seconds), and for changes (before final warning). (#425, #426)
+  * [x] Workaround for iPad unpredictable response time (from 0.1 to 3 sec. lag) when used as display.  Only applies to iPads, ignored by all other platforms. (#419)
+  * [x] CSS style sheets for attempt board and decision board are now editable in local/styles (#424)
   
 * Key Highlights from recent stable releases
 

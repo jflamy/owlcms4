@@ -353,14 +353,12 @@ public class JPAService {
      * Not enabled by default, protected by a feature switch
      * (<code>-DH2ServerPort=9092 or OWLCMS_H2SERVERPORT=9092</code>)
      * <p>
-     * When using a tool to connect (e.g. DBVisualizer) the URL given to the tool must include the absolute path to the
-     * database for example
-     *
-     * <pre>
-     * jdbc:h2:tcp:localhost:9092/file:C:\Dev\git\owlcms4\owlcms\database;MODE=PostgreSQL
-     * </pre>
+     * When using a tool to connect, such as the H2 console (<code>java -jar h2-1.4.200.jar</code>) or DBVisualizer, the the URL
+     * given to the tool must include the absolute path to the database for example:
      * 
-     * Also starts a web console on the port + 1 (9083 in the example)
+     * <pre>
+     * jdbc:h2:tcp://localhost:9092/c:/dev/git/owlcms4/owlcms/database/owlcms
+     * <pre>
      */
     private static void startH2EmbeddedServer() {
         try {
@@ -368,16 +366,10 @@ public class JPAService {
             if (h2ServerPort != null) {
                 int h2sp = Integer.parseInt(h2ServerPort);
                 if (h2sp > 0) {
-                    logger.info("starting h2 server on port {}",h2ServerPort);
+                    logger.info("starting h2 server on port {}", h2ServerPort);
                     Server tcpServer = Server.createTcpServer(
                             "-tcp", "-tcpAllowOthers", "-tcpPort", h2ServerPort, "-tcpDaemon");
                     tcpServer.start();
-                    
-//                    String webPort = String.valueOf(h2sp + 1);
-//                    logger.info("starting h2 console on port {}", webPort);
-//                    Server webServer = Server.createWebServer("-browser", "-web", "-webAllowOthers", "-webPort",
-//                            webPort, "-webDaemon");
-//                    webServer.start();
                 }
             }
         } catch (SQLException e) {

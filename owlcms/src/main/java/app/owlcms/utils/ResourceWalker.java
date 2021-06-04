@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.BiFunction;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +50,7 @@ public class ResourceWalker {
         String baseName = resourceName.substring(0, extensionPos);
 
         Locale locale = OwlcmsSession.getLocale();
-        
+
         String suffix = "_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant();
         InputStream result = ResourceWalker.class.getResourceAsStream(baseName + suffix + extension);
         if (result != null) {
@@ -84,7 +86,7 @@ public class ResourceWalker {
         String baseName = rawName.substring(0, extensionPos);
 
         Locale locale = OwlcmsSession.getLocale();
-        
+
         String suffix = "_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant();
         String name = baseName + suffix + extension;
         InputStream result = ResourceWalker.class.getResourceAsStream(name);
@@ -170,8 +172,10 @@ public class ResourceWalker {
         try {
             URL resources = getClass().getResource(absoluteRoot);
             if (resources == null) {
-                throw new RuntimeException(absoluteRoot+" not found");
+                logger.error(absoluteRoot + " not found");
+                throw new RuntimeException(absoluteRoot + " not found");
             }
+            Locale locale = OwlcmsSession.getLocale();
             URI resourcesURI = resources.toURI();
             List<Resource> localeNames = new ArrayList<>();
             List<Resource> englishNames = new ArrayList<>();
@@ -181,25 +185,30 @@ public class ResourceWalker {
                 @Override
                 public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
                     String generatedName = generateName.apply(filePath, rootPath);
+                    String baseName = filePath.getFileName().toString();
                     if (startsWith != null) {
-//                        String baseName = FilenameUtils.getBaseName(filePath.toString());
-                        if (!generatedName.startsWith(startsWith)) {
+                        if (!baseName.startsWith(startsWith)) {
+                            logger.trace("ignored {}", filePath);
                             return FileVisitResult.CONTINUE;
                         }
                     }
-                    if (matchesLocale(filePath, OwlcmsSession.getLocale())) {
+
+                    if (matchesLocale(baseName, locale)) {
+                        logger.trace("kept {}, baseName={}, locale {}", filePath, baseName, locale);
                         localeNames.add(new Resource(generatedName, filePath));
-                    } else if (matchesLocale(filePath, Locale.ENGLISH)) {
+                    } else if (matchesLocale(baseName, null)) {
+                        logger.trace("kept_default {}, baseName={}, locale {}", filePath, baseName, locale);
                         englishNames.add(new Resource(generatedName, filePath));
                     } else {
+                        logger.trace("ignored {}, baseName={}, wrong locale {}", filePath, baseName, locale);
                         otherNames.add(new Resource(generatedName, filePath));
                     }
                     return FileVisitResult.CONTINUE;
                 }
             });
             localeNames.addAll(englishNames);
-            logger.trace("resources: {}",localeNames);
-            //localeNames.addAll(otherNames);
+            logger.trace("resources: {}", localeNames);
+            // localeNames.addAll(otherNames);
 
             return localeNames;
         } catch (URISyntaxException | IOException e) {
@@ -207,38 +216,93 @@ public class ResourceWalker {
         }
     }
 
-    protected boolean matchesLocale(Path filePath, Locale locale) {
-        String resourceName = filePath.toString();
+    /**
+     * Check that a resource is relevant to the given language and country
+     * 
+     * The caller is responsible for providing the country.
+     * 
+     * Rules:
+     * 
+     * - Protocol.xls no suffix, always relevant.
+     * 
+     * - Protocol_en.xls always returned if locale has language en
+     * 
+     * - Protocol_en_CA.xls returned only if locale has country = CA
+     * 
+     * As a consequence, for Spanish, if the generic spanish is chosen as locale, and the machine is running in Mexico,
+     * the locale will be es_MX and the SV, EC and ES specific templates will be ignored if present
+     * 
+     * 
+     * @param resourceName
+     * @param locale
+     * @return
+     */
+    public boolean matchesLocale(String resourceName, Locale locale) {
         int extensionPos = resourceName.lastIndexOf('.');
-        String extension = resourceName.substring(extensionPos);
-        
-        if (locale == Locale.ENGLISH && !resourceName.contains("_")) {
-            // no suffix is assumed to be ENGLISH
-            return true;
+        String noExtension = resourceName.substring(0, extensionPos);
+        String resourceSuffix = null;
+
+        if (locale == null) {
+            return !resourceName.contains("_");
         }
 
-        boolean result;
-        String suffix;
-        if (!locale.getVariant().isEmpty()) {
-            suffix = "_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant() + extension;
-            result = resourceName.endsWith(suffix);
-            if (result) {
+        // name ends with _en or _en_CA or _en_CA_variant
+        String regex = "^.*?_([a-zA-Z]{2,3}(_[a-zA-Z]{2,3})?(_[a-zA-Z]+)?)$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(noExtension);
+
+        try {
+            // boolean test = Pattern.matches(regex, noExtension);
+            // logger.trace("pattern match {}",test);
+            // test = matcher.matches();
+            // logger.trace("matcher match {}",test);
+            matcher.matches();
+            resourceSuffix = matcher.group(1);
+            logger.trace("resourceSuffix({}) : {}", noExtension, resourceSuffix);
+
+            boolean result;
+            String localeString;
+            if (!locale.getVariant().isEmpty()) {
+                // a specific variant is asked for
+                localeString = locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant();
+                result = resourceSuffix.contentEquals(localeString);
+                if (result) {
+                    return true;
+                }
+                localeString = locale.getLanguage() + "_" + locale.getCountry();
+                result = resourceSuffix.contentEquals(localeString);
+                if (result) {
+                    return true;
+                }
+                localeString = locale.getLanguage();
+                result = resourceSuffix.contentEquals(localeString);
+                if (result) {
+                    return true;
+                }
+            } else if (!locale.getCountry().isEmpty()) {
+                // accept all variants for country
+                localeString = locale.getLanguage() + "_" + locale.getCountry();
+                result = resourceSuffix.startsWith(localeString);
+                if (result) {
+                    return true;
+                }
+                localeString = locale.getLanguage();
+                result = resourceSuffix.contentEquals(localeString);
+                if (result) {
+                    return true;
+                }
+            } else if (!locale.getLanguage().isEmpty()) {
+                localeString = locale.getLanguage();
+                result = resourceSuffix.contentEquals(localeString);
+                if (result) {
+                    return true;
+                }
+            } else {
                 return true;
             }
-        }
-
-        if (!locale.getCountry().isEmpty()) {
-            suffix = "_" + locale.getLanguage() + "_" + locale.getCountry() + extension;
-            result = resourceName.endsWith(suffix);
-            if (result) {
-                return true;
-            }
-        }
-
-        suffix = "_" + locale.getLanguage() + extension;
-        result = resourceName.endsWith(suffix);
-        if (result) {
-            return true;
+        } catch (IllegalStateException e) {
+            resourceSuffix = "";
+            logger.trace("resourceSuffix({}) empty", noExtension);
         }
 
         return false;

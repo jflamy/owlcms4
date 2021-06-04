@@ -114,18 +114,22 @@ class TimerElement extends PolymerElement {
 			return;
 		}
 
-		// var localMillis = Date.now();
-		// var lateMillis = (localMillis - parseInt(serverMillis,10));
-		// if (lateMillis < 0) {
-		// 	lateMillis = 0;
-		// }
 		var lateMillis = 0;
+		if (this.isIOS()) {
+			// iPad devices can react several seconds late; catch up with time
+			// this assumes that iPad is in sync with NTP time (it should)
+			var localMillis = Date.now();
+			lateMillis = (localMillis - parseInt(serverMillis, 10));
+			if (lateMillis < 0) {
+				lateMillis = 0;
+			}
+		}
 		console.warn("timer start " + seconds + " late = " + lateMillis + "ms");
-		this.$server.clientTimerStarting(seconds, lateMillis, from);
+		this.$server.clientTimerStarting(seconds, lateMillis, (this.isIOS() ? "iPad" : "browser") +" "+from);
 
 		this._prepareAudio();
 
-		this.currentTime = seconds - (lateMillis/1000);
+		this.currentTime = seconds - (lateMillis / 1000);
 		this.audioStartTime = window.audioCtx.currentTime;
 		if ((this.currentTime <= 0 && !this.countUp)
 			|| (this.currentTime >= this.startTime && this.countUp)) {
@@ -157,7 +161,7 @@ class TimerElement extends PolymerElement {
 		// }
 		this.running = false;
 		// if (this.$server != null) {
-			this.$server.clientTimerStopped(this.currentTime, from);
+		this.$server.clientTimerStopped(this.currentTime, (this.isIOS() ? "iPad" : "browser") +" "+from);
 		// } else {
 		// 	console.warn("no server$");
 		// }
@@ -192,6 +196,19 @@ class TimerElement extends PolymerElement {
 		//		this._init();
 	}
 
+	isIOS() {
+		return [
+			'iPad Simulator',
+			'iPhone Simulator',
+			'iPod Simulator',
+			'iPad',
+			'iPhone',
+			'iPod'
+		].includes(navigator.platform)
+			// iPad on iOS 13 detection
+			|| (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+	}
+
 	_indefinite() {
 		this.set('_formattedTime', '&nbsp;');
 	}
@@ -215,7 +232,7 @@ class TimerElement extends PolymerElement {
 	}
 
 	async _prepareAudio() {
-		console.warn("window.isIOS=",window.isIOS);
+		console.warn("window.isIOS=", window.isIOS);
 		if (window.isIOS) {
 			// prefetched buffers are not available later for some unexplained reason.
 			// so we don't attempt fetching.
@@ -319,7 +336,7 @@ class TimerElement extends PolymerElement {
 
 		// we anticipate to use the more precise audio context timer
 		if (this.currentTime <= 0.05 && !this._timeOverWarningGiven) {
-			console.warn("calling play "+this.currentTime);
+			console.warn("calling play " + this.currentTime);
 			if (!this.silent) {
 				console.warn("about to play time over " + window.timeOver);
 				this._playTrack("../sounds/timeOver.mp3", window.timeOver, true, this.currentTime);
@@ -329,7 +346,7 @@ class TimerElement extends PolymerElement {
 			this._timeOverWarningGiven = true;
 		}
 		if (this.currentTime <= 30.05 && !this._finalWarningGiven) {
-			console.warn("final warning "+this.currentTime+ " "+ this.silent+" "+this.$server);
+			console.warn("final warning " + this.currentTime + " " + this.silent + " " + this.$server);
 			if (!this.silent) {
 				//this.$.finalWarning.play();
 				console.warn("about to play final warning " + window.finalWarning);
@@ -356,7 +373,7 @@ class TimerElement extends PolymerElement {
 
 		if ((this.currentTime < -0.1 && !this.countUp)
 			|| (this.currentTime >= this.startTime && this.countUp)) {
-				console.warn("time over stop running "+this.$server);
+			console.warn("time over stop running " + this.$server);
 			// timer is over; tell server to emit sound if server-side sounds
 			if (this.$server != null) this.$server.clientTimeOver();
 			this.running = false;

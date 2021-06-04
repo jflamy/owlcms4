@@ -204,9 +204,11 @@ public class Main {
             }
         }
 
+        Translator.setForcedLocale(l);
         if (l != null) {
-            Translator.setForcedLocale(l);
             logger.info("forcing display language to {}", l);
+        } else {
+            logger.info("using per-session browser language", l);
         }
         return l;
     }

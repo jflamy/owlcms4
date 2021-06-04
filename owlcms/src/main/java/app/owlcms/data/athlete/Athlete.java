@@ -36,6 +36,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.RobiCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.LiftOrderInfo;
 import app.owlcms.fieldofplay.LiftOrderReconstruction;
 import app.owlcms.init.OwlcmsSession;
@@ -73,6 +74,9 @@ import ch.qos.logback.classic.Logger;
 @Cacheable
 public class Athlete {
     private Logger logger = null;
+
+    @Transient
+    private Long copyId = null;
     private static final int YEAR = LocalDateTime.now().getYear();
 
     public static void conditionalCopy(Athlete dest, Athlete src, boolean copyResults) {
@@ -82,11 +86,13 @@ public class Athlete {
         try {
             dest.setValidation(false);
             dest.setLoggerLevel(Level.OFF);
+            dest.setCopyId(src.getId());
 
             dest.setLastName(src.getLastName());
             dest.setFirstName(src.getFirstName());
             dest.setGroup(src.getGroup());
             dest.setStartNumber(src.getStartNumber());
+            dest.setLotNumber(src.getLotNumber());
             dest.setQualifyingTotal(src.getQualifyingTotal());
 
             dest.setSnatch1Declaration(src.getSnatch1Declaration());
@@ -167,6 +173,10 @@ public class Athlete {
             dest.setLoggerLevel(prevDestLevel);
             src.setLoggerLevel(prevSrcLevel);
         }
+    }
+
+    private void setCopyId(Long id2) {
+        this.copyId = id2;
     }
 
     /**
@@ -1698,7 +1708,7 @@ public class Athlete {
         String firstName2 = getFirstName();
         Integer startNumber2 = getStartNumber();
         return "#" + (startNumber2 != null ? startNumber2 : "?") + " " + getLastName() + " "
-                + (firstName2 == null || firstName2.isBlank() ? "" : firstName2.substring(0, 1)+".");
+                + (firstName2 == null || firstName2.isBlank() ? "" : firstName2.substring(0, 1) + ".");
     }
 
     /**
@@ -3545,13 +3555,13 @@ public class Athlete {
     }
 
     public boolean validateCleanJerk1ActualLift(String cleanJerk1ActualLift) throws RuleViolationException {
-        validateActualLift(1, getCleanJerk1AutomaticProgression(), cleanJerk1Declaration, cleanJerk1Change1,
+        validateActualLift(3, getCleanJerk1AutomaticProgression(), cleanJerk1Declaration, cleanJerk1Change1,
                 cleanJerk1Change2, cleanJerk1ActualLift);
         return true;
     }
 
     public boolean validateCleanJerk1Change1(String cleanJerk1Change1) throws RuleViolationException {
-        validateChange1(1, getCleanJerk1AutomaticProgression(), cleanJerk1Declaration, cleanJerk1Change1,
+        validateChange1(3, getCleanJerk1AutomaticProgression(), cleanJerk1Declaration, cleanJerk1Change1,
                 cleanJerk1Change2, cleanJerk1ActualLift, false);
         validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
                 cleanJerk1Change1, cleanJerk1Change2);
@@ -3559,7 +3569,7 @@ public class Athlete {
     }
 
     public boolean validateCleanJerk1Change2(String cleanJerk1Change2) throws RuleViolationException {
-        validateChange2(1, getCleanJerk1AutomaticProgression(), cleanJerk1Declaration, cleanJerk1Change1,
+        validateChange2(3, getCleanJerk1AutomaticProgression(), cleanJerk1Declaration, cleanJerk1Change1,
                 cleanJerk1Change2, cleanJerk1ActualLift, false);
         validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
                 cleanJerk1Change1, cleanJerk1Change2);
@@ -3573,62 +3583,62 @@ public class Athlete {
     }
 
     public boolean validateCleanJerk2ActualLift(String cleanJerk2ActualLift) throws RuleViolationException {
-        validateActualLift(2, getCleanJerk2AutomaticProgression(), cleanJerk2Declaration, cleanJerk2Change1,
+        validateActualLift(4, getCleanJerk2AutomaticProgression(), cleanJerk2Declaration, cleanJerk2Change1,
                 cleanJerk2Change2, cleanJerk2ActualLift);
         return true;
     }
 
     public boolean validateCleanJerk2Change1(String cleanJerk2Change1) throws RuleViolationException {
-        validateChange1(2, getCleanJerk2AutomaticProgression(), cleanJerk2Declaration, cleanJerk2Change1,
+        validateChange1(4, getCleanJerk2AutomaticProgression(), cleanJerk2Declaration, cleanJerk2Change1,
                 cleanJerk2Change2, cleanJerk2ActualLift, false);
         return true;
     }
 
     public boolean validateCleanJerk2Change2(String cleanJerk2Change2) throws RuleViolationException {
-        validateChange2(2, getCleanJerk2AutomaticProgression(), cleanJerk2Declaration, cleanJerk2Change1,
+        validateChange2(4, getCleanJerk2AutomaticProgression(), cleanJerk2Declaration, cleanJerk2Change1,
                 cleanJerk2Change2, cleanJerk2ActualLift, false);
         return true;
     }
 
     public boolean validateCleanJerk2Declaration(String cleanJerk2Declaration) throws RuleViolationException {
-        validateDeclaration(2, getCleanJerk2AutomaticProgression(), cleanJerk2Declaration, cleanJerk2Change1,
+        validateDeclaration(4, getCleanJerk2AutomaticProgression(), cleanJerk2Declaration, cleanJerk2Change1,
                 cleanJerk2Change2, cleanJerk2ActualLift);
         return true;
     }
 
     public boolean validateCleanJerk3ActualLift(String cleanJerk3ActualLift) throws RuleViolationException {
-        validateActualLift(3, getCleanJerk3AutomaticProgression(), cleanJerk3Declaration, cleanJerk3Change1,
+        validateActualLift(5, getCleanJerk3AutomaticProgression(), cleanJerk3Declaration, cleanJerk3Change1,
                 cleanJerk3Change2, cleanJerk3ActualLift);
         // throws exception if invalid
         return true;
     }
 
     public boolean validateCleanJerk3Change1(String cleanJerk3Change1) throws RuleViolationException {
-        validateChange1(3, getCleanJerk3AutomaticProgression(), cleanJerk3Declaration, cleanJerk3Change1,
+        validateChange1(5, getCleanJerk3AutomaticProgression(), cleanJerk3Declaration, cleanJerk3Change1,
                 cleanJerk3Change2, cleanJerk3ActualLift, false);
         return true;
     }
 
     public boolean validateCleanJerk3Change2(String cleanJerk3Change2) throws RuleViolationException {
-        validateChange2(3, getCleanJerk3AutomaticProgression(), cleanJerk3Declaration, cleanJerk3Change1,
+        validateChange2(5, getCleanJerk3AutomaticProgression(), cleanJerk3Declaration, cleanJerk3Change1,
                 cleanJerk3Change2, cleanJerk3ActualLift, false);
         return true;
     }
 
     public boolean validateCleanJerk3Declaration(String cleanJerk3Declaration) throws RuleViolationException {
-        validateDeclaration(3, getCleanJerk3AutomaticProgression(), cleanJerk3Declaration, cleanJerk3Change1,
+        validateDeclaration(5, getCleanJerk3AutomaticProgression(), cleanJerk3Declaration, cleanJerk3Change1,
                 cleanJerk3Change2, cleanJerk3ActualLift);
         return true;
     }
 
     public boolean validateSnatch1ActualLift(String snatch1ActualLift) throws RuleViolationException {
-        validateActualLift(1, getSnatch1AutomaticProgression(), snatch1Declaration, snatch1Change1, snatch1Change2,
+        validateActualLift(0, getSnatch1AutomaticProgression(), snatch1Declaration, snatch1Change1, snatch1Change2,
                 snatch1ActualLift);
         return true;
     }
 
     public boolean validateSnatch1Change1(String snatch1Change1) throws RuleViolationException {
-        validateChange1(1, getSnatch1AutomaticProgression(), snatch1Declaration, snatch1Change1, snatch1Change2,
+        validateChange1(0, getSnatch1AutomaticProgression(), snatch1Declaration, snatch1Change1, snatch1Change2,
                 snatch1ActualLift, true);
         validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
                 cleanJerk1Change1, cleanJerk1Change2);
@@ -3636,7 +3646,7 @@ public class Athlete {
     }
 
     public boolean validateSnatch1Change2(String snatch1Change2) throws RuleViolationException {
-        validateChange2(1, getSnatch1AutomaticProgression(), snatch1Declaration, snatch1Change1, snatch1Change2,
+        validateChange2(0, getSnatch1AutomaticProgression(), snatch1Declaration, snatch1Change1, snatch1Change2,
                 snatch1ActualLift, true);
         validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
                 cleanJerk1Change1, cleanJerk1Change2);
@@ -3650,7 +3660,7 @@ public class Athlete {
     }
 
     public boolean validateSnatch2ActualLift(String snatch2ActualLift) throws RuleViolationException {
-        validateActualLift(2, getSnatch2AutomaticProgression(), snatch2Declaration, snatch2Change1, snatch2Change2,
+        validateActualLift(1, getSnatch2AutomaticProgression(), snatch2Declaration, snatch2Change1, snatch2Change2,
                 snatch2ActualLift);
         return true;
     }
@@ -3658,7 +3668,7 @@ public class Athlete {
     public boolean validateSnatch2Change1(String snatch2Change1) throws RuleViolationException {
         Level prevLevel = getLogger().getLevel();
         try {
-            validateChange1(2, getSnatch2AutomaticProgression(), snatch2Declaration, snatch2Change1, snatch2Change2,
+            validateChange1(1, getSnatch2AutomaticProgression(), snatch2Declaration, snatch2Change1, snatch2Change2,
                     snatch2ActualLift, true);
         } finally {
             getLogger().setLevel(prevLevel);
@@ -3667,37 +3677,37 @@ public class Athlete {
     }
 
     public boolean validateSnatch2Change2(String snatch2Change2) throws RuleViolationException {
-        validateChange2(2, getSnatch2AutomaticProgression(), snatch2Declaration, snatch2Change1, snatch2Change2,
+        validateChange2(1, getSnatch2AutomaticProgression(), snatch2Declaration, snatch2Change1, snatch2Change2,
                 snatch2ActualLift, true);
         return true;
     }
 
     public boolean validateSnatch2Declaration(String snatch2Declaration) throws RuleViolationException {
-        validateDeclaration(2, getSnatch2AutomaticProgression(), snatch2Declaration, snatch2Change1, snatch2Change2,
+        validateDeclaration(1, getSnatch2AutomaticProgression(), snatch2Declaration, snatch2Change1, snatch2Change2,
                 snatch2ActualLift);
         return true;
     }
 
     public boolean validateSnatch3ActualLift(String snatch3ActualLift) throws RuleViolationException {
-        validateActualLift(3, getSnatch3AutomaticProgression(), snatch3Declaration, snatch3Change1, snatch3Change2,
+        validateActualLift(2, getSnatch3AutomaticProgression(), snatch3Declaration, snatch3Change1, snatch3Change2,
                 snatch3ActualLift);
         return true;
     }
 
     public boolean validateSnatch3Change1(String snatch3Change1) throws RuleViolationException {
-        validateChange1(3, getSnatch3AutomaticProgression(), snatch3Declaration, snatch3Change1, snatch3Change2,
+        validateChange1(2, getSnatch3AutomaticProgression(), snatch3Declaration, snatch3Change1, snatch3Change2,
                 snatch3ActualLift, true);
         return true;
     }
 
     public boolean validateSnatch3Change2(String snatch3Change2) throws RuleViolationException {
-        validateChange2(3, getSnatch3AutomaticProgression(), snatch3Declaration, snatch3Change1, snatch3Change2,
+        validateChange2(2, getSnatch3AutomaticProgression(), snatch3Declaration, snatch3Change1, snatch3Change2,
                 snatch3ActualLift, true);
         return true;
     }
 
     public boolean validateSnatch3Declaration(String snatch3Declaration) throws RuleViolationException {
-        validateDeclaration(3, getSnatch3AutomaticProgression(), snatch3Declaration, snatch3Change1, snatch3Change2,
+        validateDeclaration(2, getSnatch3AutomaticProgression(), snatch3Declaration, snatch3Change1, snatch3Change2,
                 snatch3ActualLift);
         return true;
     }
@@ -3839,7 +3849,8 @@ public class Athlete {
         OwlcmsSession.withFop(fop -> {
             Integer weightAtLastStart = fop.getWeightAtLastStart();
             if (weightAtLastStart == null || weightAtLastStart == 0 || newVal == weightAtLastStart) {
-                //getLogger().debug("{}weight at last start: {}  request = {}", fopLoggingName, weightAtLastStart, newVal);
+                // getLogger().debug("{}weight at last start: {} request = {}", fopLoggingName, weightAtLastStart,
+                // newVal);
                 // program has just been started, or first athlete in group, or moving down to clock value
                 // compare with what the lifting order rules say.
                 LiftOrderReconstruction pastOrder = new LiftOrderReconstruction(fop);
@@ -3849,11 +3860,11 @@ public class Athlete {
                 if (clockOwner != null) {
                     // if clock is running, reference becomes the clock owner instead of last good/bad lift.
                     reference = clockOwner.getRunningLiftOrderInfo();
-                    //getLogger().debug("lastLift info clock running\n{}",pastOrder.shortDump());
+                    // getLogger().debug("lastLift info clock running\n{}",pastOrder.shortDump());
                 } else {
                     reference = pastOrder.getLastLift();
-                    //*******************************************
-                    //getLogger().debug("lastLift info no clock\n{}",pastOrder.shortDump());
+                    // *******************************************
+                    // getLogger().debug("lastLift info no clock\n{}",pastOrder.shortDump());
                 }
 
                 if (reference != null) {
@@ -3916,11 +3927,11 @@ public class Athlete {
             getLogger().debug("{}currentLiftNo {} >= referenceAttemptNo {}",
                     fopLoggingName, currentLiftNo, referenceAttemptNo);
             int currentProgression = this.getProgression(requestedWeight);
-            
+
             // BEWARE: referenceProgression if for current reference athlete and their prior attempt.
-            //int referenceProgression = reference.getAthlete().getProgression(requestedWeight);
+            // int referenceProgression = reference.getAthlete().getProgression(requestedWeight);
             int referenceProgression = reference.getProgression();
-            
+
             if (currentProgression == referenceProgression) {
                 checkSameProgression(reference, requestedWeight, currentProgression, referenceProgression);
             } else if (currentProgression > referenceProgression) {
@@ -4001,7 +4012,7 @@ public class Athlete {
         loi.setProgression(this.getProgression(nextAttemptRequestedWeight));
         loi.setStartNumber(this.getStartNumber());
         loi.setLotNumber(this.getLotNumber());
-        getLogger().debug("{}clockOwner: {}", OwlcmsSession.getFopLoggingName(),loi);
+        getLogger().debug("{}clockOwner: {}", OwlcmsSession.getFopLoggingName(), loi);
         return loi;
     }
 
@@ -4083,6 +4094,8 @@ public class Athlete {
         if (newVal < prevVal) {
             throw new RuleViolationException.LastChangeTooLow(curLift, newVal, prevVal);
         }
+        checkChangeVsTimer(curLift, declaration, change1, change2);
+        checkDeclarationWasMade(curLift, declaration);
         checkChangeVsLiftOrder(newVal);
     }
 
@@ -4100,7 +4113,24 @@ public class Athlete {
         if (newVal < prevVal) {
             throw new RuleViolationException.LastChangeTooLow(curLift, newVal, prevVal);
         }
+        checkChangeVsTimer(curLift, declaration, change1, change2);
+        checkDeclarationWasMade(curLift, declaration);
         checkChangeVsLiftOrder(newVal);
+    }
+
+    private void checkDeclarationWasMade(int curLift, String declaration) {
+        if (curLift != this.getAttemptsDone()) {
+            return;
+        }
+        OwlcmsSession.withFop(fop -> {
+            int clock = fop.getAthleteTimer().liveTimeRemaining();
+            if (declaration == null || declaration.isBlank()) {
+                // there was no declaration made in time
+                logger.warn("{}{} change without declaration (not owning clock)", fop.getLoggingName(),
+                        this.getShortName());
+                throw new RuleViolationException.MustDeclareFirst(clock);
+            }
+        });
     }
 
     /**
@@ -4116,11 +4146,120 @@ public class Athlete {
         if (iAutomaticProgression > 0 && newVal > 0 && newVal < iAutomaticProgression) {
             throw new RuleViolationException.DeclarationValueTooSmall(curLift, newVal, iAutomaticProgression);
         }
+        checkChangeVsTimer(curLift, declaration, change1, change2);
         checkChangeVsLiftOrder(newVal);
+    }
+
+    private void checkChangeVsTimer(int curLift, String declaration, String change1, String change2) {
+        Level prevLoggerLevel = getLogger().getLevel();
+        if (Competition.getCurrent().isGenderOrder()) {
+            return;
+        }
+        Integer attemptsDone = this.getAttemptsDone(); // 0..5
+        if (curLift != attemptsDone) {
+            return;
+        }
+        try {
+            getLogger().setLevel(Level.DEBUG);
+            doCheckChangeVsTimer(declaration, change1, change2);
+        } finally {
+            getLogger().setLevel(prevLoggerLevel);
+        }
+    }
+
+    private void doCheckChangeVsTimer(String declaration, String change1, String change2) {
+        Object wi = OwlcmsSession.getAttribute("weighIn");
+        String fopLoggingName = OwlcmsSession.getFopLoggingName();
+        if (wi == this) {
+            // current athlete being weighed in
+            getLogger().trace("{}weighin {}", fopLoggingName, wi);
+            return;
+        } else {
+            getLogger().trace("{}lifting", fopLoggingName);
+        }
+        OwlcmsSession.withFop(fop -> {
+            int clock = fop.getAthleteTimer().liveTimeRemaining();
+            Athlete owner = fop.getClockOwner();
+            int initialTime = fop.getClockOwnerInitialTimeAllowed();
+            logger.debug("{}owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}", fop.getLoggingName(), owner,
+                    clock, initialTime, declaration, change1, change2);
+            if (!this.isSameAthleteAs(owner)) {
+                // clock is not running for us
+                doCheckChangeNotOwningTimer(declaration, change1, change2, fop, clock, initialTime);
+                return;
+            } else {
+                doCheckChangeOwningTimer(declaration, change1, change2, fop, clock, initialTime);
+            }
+        });
+    }
+
+    private void doCheckChangeOwningTimer(String declaration, String change1, String change2, FieldOfPlay fop,
+            int clock, int initialTime) {
+        if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
+            // validate declaration
+            if (clock < initialTime - 30000) {
+                logger.warn("{}{} late declaration denied ({})", fop.getLoggingName(), this.getShortName(),
+                        clock / 1000.0);
+                throw new RuleViolationException.LateDeclaration(clock);
+            }
+            logger.debug("{}{}valid declaration", fop.getLoggingName(), this.getShortName(), clock / 1000.0);
+            return;
+        } else {
+            if (clock < 30000) {
+                logger.warn("{}{} late change denied after final warning ({})", fop.getLoggingName(),
+                        this.getShortName(), clock / 1000.0);
+                throw new RuleViolationException.MustChangeBeforeFinalWarning(clock);
+            }
+            logger.debug("{}change before final warning", fop.getLoggingName(), clock);
+            return;
+        }
+    }
+
+    private void doCheckChangeNotOwningTimer(String declaration, String change1, String change2, FieldOfPlay fop,
+            int clock, int initialTime) {
+        if ((declaration != null && !declaration.isBlank()) && (change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
+            logger.debug("{}{} declaration accepted (not owning clock)", fop.getLoggingName(), this.getShortName());
+            return;
+        } else {
+            logger.debug("{}{} change accepted (not owning clock)", fop.getLoggingName(), this.getShortName());
+            return;
+        }
+    }
+
+    private boolean isSameAthleteAs(Athlete other) {
+        if (other == null) {
+            return false;
+        }
+        Long id = getId();
+        Long oId = other.getId();
+        if (id != null && oId != null) {
+            logger.trace("both non-null {}. {}", id, oId);
+            return id == oId;
+        }
+
+        // one of the two items is a copy.
+        Long copyId = getCopyId();
+        Long oCopyId = other.getCopyId();
+        logger.trace("one is a copy");
+        if (copyId != null) {
+            return copyId.equals(oId);
+        }
+        if (oCopyId != null) {
+            return oCopyId.equals(id);
+        }
+
+        // can't happen
+        logger.error("can't happen: no comparison id");
+        return false;
+
     }
 
     public void setLogger(Logger logger) {
         this.logger = logger;
+    }
+
+    private Long getCopyId() {
+        return copyId;
     }
 
 }
