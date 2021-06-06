@@ -45,8 +45,6 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.parameters.DarkModeParameters;
-import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
@@ -55,6 +53,7 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.Decision;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -76,8 +75,8 @@ import elemental.json.JsonValue;
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
 public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
-        implements QueryParameterReader, DarkModeParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
+        implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
+        RequireLogin {
 
     /**
      * ScoreboardModel
@@ -158,6 +157,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     private Location location;
     private UI locationUI;
     private boolean groupDone;
+    private boolean silenced;
 
     /**
      * Instantiates a new results board.
@@ -407,7 +407,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        // fop obtained via QueryParameterReader interface default methods.
+        // fop hase been obtained via FOPParameters interface default methods.
         OwlcmsSession.withFop(fop -> {
             init();
             // sync with current status of FOP
@@ -417,7 +417,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
-        setDarkMode(this, isDarkMode(), false);
+        buildContextMenu(this);
     }
 
     protected void setTranslationMap() {
@@ -663,6 +663,18 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             this.getElement().setPropertyJson("athletes", getAthletesJson(order));
         });
 
+    }
+
+    @Override
+    public void setSilenced(boolean silent) {
+        this.timer.setSilenced(silent);
+        this.breakTimer.setSilenced(silent);
+        this.silenced = true;
+    }
+
+    @Override
+    public boolean isSilenced() {
+        return silenced;
     }
 
 }

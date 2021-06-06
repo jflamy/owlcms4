@@ -126,7 +126,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
     }
 
     /**
-     * @see app.owlcms.ui.parameters.QueryParameterReader#isIgnoreFopFromURL()
+     * @see app.owlcms.utils.queryparameters.FOPParameters#isIgnoreFopFromURL()
      */
     @Override
     public boolean isIgnoreFopFromURL() {

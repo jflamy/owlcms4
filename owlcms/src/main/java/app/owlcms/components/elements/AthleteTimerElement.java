@@ -171,7 +171,7 @@ public class AthleteTimerElement extends TimerElement {
                 this.getOrigin(), e.getOrigin());
         Integer milliseconds = e.getTimeRemaining();
         uiEventLogger.debug(">>> start received {} {}", e, milliseconds);
-        doStartTimer(milliseconds, e.isSilent());
+        doStartTimer(milliseconds, e.isServerSound());
     }
 
     @Subscribe
@@ -190,8 +190,8 @@ public class AthleteTimerElement extends TimerElement {
     @Override
     protected void init() {
         super.init();
-        setSilent(false);
-        getModel().setSilent(false); // emit sounds
+//        setSilenced(false);
+//        getModel().setSilent(false); // emit sounds
     }
 
     /*

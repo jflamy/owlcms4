@@ -155,8 +155,8 @@ public class BreakTimerElement extends TimerElement {
     @Override
     protected void init() {
         super.init();
-        setSilent(true);
-        getModel().setSilent(true); // do not emit sounds
+//        setSilenced(true);
+//        getModel().setSilent(true); // do not emit sounds
     }
 
     /*

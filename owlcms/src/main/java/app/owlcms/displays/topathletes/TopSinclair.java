@@ -43,12 +43,12 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.parameters.DarkModeParameters;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -68,7 +68,7 @@ import elemental.json.JsonValue;
 @Route("displays/topsinclair")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> implements DarkModeParameters,
+public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin, PageConfigurator {
 
     /**
@@ -384,7 +384,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         logger.debug("onAttach start");
-        setDarkMode(this, isDarkMode(), false);
+        switchLightingMode(this, isDarkMode(), true);
         setWide(false);
         setTranslationMap();
         for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {

@@ -44,12 +44,12 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.parameters.DarkModeParameters;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -69,7 +69,7 @@ import elemental.json.JsonValue;
 @Route("displays/topteams")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements DarkModeParameters,
+public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin, PageConfigurator {
 
     /**
@@ -277,7 +277,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        setDarkMode(this, isDarkMode(), false);
+        switchLightingMode(this, isDarkMode(), true);
         setWide(false);
         setTranslationMap();
         for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {

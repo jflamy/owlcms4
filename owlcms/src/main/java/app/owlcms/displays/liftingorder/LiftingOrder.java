@@ -38,13 +38,13 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.parameters.DarkModeParameters;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.Decision;
+import app.owlcms.utils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -64,7 +64,7 @@ import elemental.json.JsonValue;
 @Route("displays/liftingorder")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel> implements DarkModeParameters,
+public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel> implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
     /**
@@ -340,7 +340,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        // fop obtained via QueryParameterReader interface default methods.
+        // fop obtained via FOPParameters interface default methods.
         OwlcmsSession.withFop(fop -> {
             init();
             // sync with current status of FOP
@@ -350,7 +350,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
-        setDarkMode(this, isDarkMode(), false);
+        switchLightingMode(this, isDarkMode(), true);
     }
 
     protected void setTranslationMap() {

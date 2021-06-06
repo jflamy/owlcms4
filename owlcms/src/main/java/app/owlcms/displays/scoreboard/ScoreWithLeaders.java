@@ -46,8 +46,6 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.parameters.DarkModeParameters;
-import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
@@ -56,6 +54,7 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.Decision;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -77,8 +76,8 @@ import elemental.json.JsonValue;
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
 public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.ScoreboardModel>
-        implements QueryParameterReader, DarkModeParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
+        implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
+        RequireLogin {
 
     /**
      * ScoreboardModel
@@ -417,7 +416,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         // crude workaround -- randomly getting light or dark due to multiple themes detected in app.
         getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
 
-        // fop obtained via QueryParameterReader interface default methods.
+        // fop obtained via FOPParameters interface default methods.
         Competition competition = Competition.getCurrent();
         OwlcmsSession.withFop(fop -> {
             init();
@@ -430,7 +429,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
-        setDarkMode(this, isDarkMode(), false);
+        switchLightingMode(this, isDarkMode(), true);
         computeLeaders(competition);
     }
 

@@ -4,16 +4,13 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.ui.parameters;
+package app.owlcms.utils.queryparameters;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.notification.Notification;
@@ -24,14 +21,18 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
+import app.owlcms.displays.menu.DisplayContextMenu;
+
 /**
  * @author owlcms
  *
  */
-public interface DarkModeParameters extends QueryParameterReader {
+public interface DisplayParameters extends FOPParameters {
 
     public static final String LIGHT = "light";
     public static final String DARK = "dark";
+    public static final String SILENT = "silent";
+    public static final String SOUND = "sound";
 
     public default void buildContextMenu(Component target) {
         ContextMenu oldContextMenu = getContextMenu();
@@ -41,25 +42,9 @@ public interface DarkModeParameters extends QueryParameterReader {
         setContextMenu(null);
 
         ContextMenu contextMenu = new ContextMenu();
+        DisplayContextMenu.addLightingEntries(contextMenu, target, this);
+        DisplayContextMenu.addSoundEntries(contextMenu, target, this);
 
-        boolean darkMode = isDarkMode();
-        Button darkButton = new Button(contextMenu.getTranslation(DARK),
-                e -> setDarkMode(target, true, false));
-        darkButton.getStyle().set("color", "white");
-        darkButton.getStyle().set("background-color", "black");
-
-        Button lightButton = new Button(contextMenu.getTranslation(LIGHT),
-                e -> setDarkMode(target, false, false));
-        lightButton.getStyle().set("color", "black");
-        lightButton.getStyle().set("background-color", "white");
-
-        if (darkMode) {
-            contextMenu.addItem(darkButton);
-            contextMenu.addItem(lightButton);
-        } else {
-            contextMenu.addItem(lightButton);
-            contextMenu.addItem(darkButton);
-        }
         contextMenu.setOpenOnClick(true);
         contextMenu.setTarget(target);
         setContextMenu(contextMenu);
@@ -85,60 +70,87 @@ public interface DarkModeParameters extends QueryParameterReader {
 
     public boolean isDarkMode();
 
+    /**
+     * Displays have no sound-emitting elements by default.
+     *
+     * Those that can emit sound must override this.
+     * 
+     * @return
+     */
+    public default boolean isSilenced() {
+        return true;
+    }
+
     public void setContextMenu(ContextMenu contextMenu);
 
     public void setDarkMode(boolean dark);
 
-    public default void setDarkMode(Component target, boolean dark, boolean notify) {
+    public default void setSilenced(boolean silent) {
+        // silent by default
+    }
+
+    public default void switchLightingMode(Component target, boolean dark, boolean updateURL) {
         target.getElement().getClassList().set(DARK, dark);
         target.getElement().getClassList().set(LIGHT, !dark);
         setDarkMode(dark);
         buildContextMenu(target);
-        updateURLLocation(getLocationUI(), getLocation(), dark ? null : "false");
+        if (updateURL) {
+            updateURLLocation(getLocationUI(), getLocation(), DARK, dark ? null : "false");
+        }
+    }
 
-//        if (notify) {
-//            doNotification(dark);
-//        }
+    public default void switchSoundMode(Component target, boolean silent, boolean updateURL) {
+        setSilenced(silent);
+        buildContextMenu(target);
+        updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? null : "false");
     }
 
     /*
      * Process query parameters
+     * 
+     * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path. We use the old-style
+     * Query parameters for our purposes.
      *
-     * @see app.owlcms.ui.group.URLParameter#setParameter(com.vaadin.flow.router. BeforeEvent, java.lang.String)
-     *
-     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router .BeforeEvent,
-     * java.lang.String)
+     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
      */
     @Override
-    public default void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+    public default void setParameter(BeforeEvent event, @OptionalParameter String unused) {
         Location location = event.getLocation();
         setLocation(location);
         setLocationUI(event.getUI());
+
+        // the OptionalParameter string is the part of the URL path that can be interpreted as REST arguments
+        // we use the ? query parameters instead.
         QueryParameters queryParameters = location.getQueryParameters();
         Map<String, List<String>> parametersMap = queryParameters.getParameters();
-        HashMap<String, List<String>> cleanParams = computeParams(location, parametersMap);
+        HashMap<String, List<String>> params = readParams(location, parametersMap);
 
-        List<String> darkParams = cleanParams.get(DARK);
+        event.getUI().getPage().getHistory().replaceState(null,
+                new Location(location.getPath(), new QueryParameters(params)));
+    }
+
+
+    @Override
+    public default HashMap<String, List<String>> readParams(Location location,
+            Map<String, List<String>> parametersMap) {
+        // handle FOP and Group by calling superclass
+        HashMap<String, List<String>> params = FOPParameters.super.readParams(location, parametersMap);
+
+        List<String> darkParams = params.get(DARK);
         // dark is the default. dark=false or dark=no or ... will turn off dark mode.
         boolean darkMode = darkParams == null || darkParams.isEmpty() || darkParams.get(0).toLowerCase().equals("true");
         setDarkMode(darkMode);
+        switchLightingMode((Component) this, darkMode, false);
+        updateParam(params, DARK, !isDarkMode() ? "false" : null);     
 
-        // change the URL to reflect retrieved parameters
-        event.getUI().getPage().getHistory().replaceState(null,
-                new Location(location.getPath(), new QueryParameters(cleanParams)));
-    }
+        List<String> silentParams = params.get(SILENT);
+        // dark is the default. dark=false or dark=no or ... will turn off dark mode.
+        boolean silentMode = silentParams == null || silentParams.isEmpty()
+                || silentParams.get(0).toLowerCase().equals("true");
+        switchSoundMode((Component) this, silentMode, false);
+        updateParam(params, SILENT, !isSilenced() ? "false" : null);
 
-    public default void updateURLLocation(UI ui, Location location, String mode) {
-        // change the URL to reflect fop group
-        HashMap<String, List<String>> parametersMap = new HashMap<>(
-                location.getQueryParameters().getParameters());
-        HashMap<String, List<String>> params = computeParams(location, parametersMap);
-        if (mode != null) {
-            params.put(DARK, Arrays.asList(mode));
-        } else {
-            params.remove(DARK);
-        }
-        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
+        return params;
     }
 
 }

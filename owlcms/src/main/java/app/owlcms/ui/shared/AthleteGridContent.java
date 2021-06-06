@@ -71,12 +71,12 @@ import app.owlcms.ui.lifting.AnnouncerContent;
 import app.owlcms.ui.lifting.AthleteCardFormFactory;
 import app.owlcms.ui.lifting.JuryContent;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
+import app.owlcms.utils.queryparameters.FOPParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -90,7 +90,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @CssImport(value = "./styles/athlete-grid.css")
 public abstract class AthleteGridContent extends VerticalLayout
-        implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventProcessor, IAthleteEditing {
+        implements CrudListener<Athlete>, OwlcmsContent, FOPParameters, UIEventProcessor, IAthleteEditing {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -323,13 +323,13 @@ public abstract class AthleteGridContent extends VerticalLayout
     /**
      * Process URL parameters, including query parameters
      *
-     * @see app.owlcms.ui.parameters.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      *      java.lang.String)
      */
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
         logger.debug("AthleteGridContent parsing URL");
-        QueryParameterReader.super.setParameter(event, parameter);
+        FOPParameters.super.setParameter(event, parameter);
         setLocation(event.getLocation());
         setLocationUI(event.getUI());
     }

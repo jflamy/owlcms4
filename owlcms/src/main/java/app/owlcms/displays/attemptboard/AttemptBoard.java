@@ -13,8 +13,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.page.Push;
@@ -35,12 +37,12 @@ import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.components.elements.Plates;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
+import app.owlcms.displays.menu.DisplayContextMenu;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
@@ -48,6 +50,7 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.SoundUtils;
+import app.owlcms.utils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -63,7 +66,7 @@ import ch.qos.logback.classic.Logger;
 @CssImport(value = "./styles/plates.css")
 @Route("displays/attemptBoard")
 @Push
-public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel> implements QueryParameterReader,
+public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel> implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
     /**
@@ -138,6 +141,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     private Location location;
     private UI locationUI;
     private boolean groupDone;
+    private boolean silent;
+    private ContextMenu contextMenu;
 
     /**
      * Instantiates a new attempt board.
@@ -420,7 +425,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        // fop obtained via QueryParameterReader interface default methods.
+        // fop obtained via FOPParameters interface default methods.
         OwlcmsSession.withFop(fop -> {
             logger.debug("{}onAttach {}", fop.getLoggingName(), fop.getState());
             init();
@@ -448,6 +453,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             // we send on fopEventBus, listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
+        buildContextMenu(this);
     }
 
     private void doDone(Group g) {
@@ -521,5 +527,55 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             });
         });
     }
+
+    @Override
+    public void setSilenced(boolean silent) {
+        this.silent = true;
+    }
+
+    @Override
+    public boolean isSilenced() {
+        return silent;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#getContextMenu()
+     */
+    @Override
+    public ContextMenu getContextMenu() {
+        return contextMenu;
+    }
+
+    @Override
+    public boolean isDarkMode() {
+        return false;
+    }
+
+    @Override
+    public void setContextMenu(ContextMenu contextMenu) {
+        this.contextMenu = contextMenu;
+    }
+
+    @Override
+    public void setDarkMode(boolean dark) {
+        // noop
+    }
+
+    @Override
+    public void buildContextMenu(Component target) {
+        ContextMenu oldContextMenu = getContextMenu();
+        if (oldContextMenu != null) {
+            oldContextMenu.setTarget(null);
+        }
+        setContextMenu(null);
+
+        ContextMenu contextMenu = new ContextMenu();
+        DisplayContextMenu.addSoundEntries(contextMenu, target, this);
+        contextMenu.setOpenOnClick(true);
+        contextMenu.setTarget(target);
+        setContextMenu(contextMenu);
+    }
+
+
 
 }
