@@ -7,6 +7,7 @@
 package app.owlcms.displays.attemptboard;
 
 import java.util.List;
+import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
@@ -141,7 +143,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     private Location location;
     private UI locationUI;
     private boolean groupDone;
-    private boolean silent;
+    private boolean silenced;
     private ContextMenu contextMenu;
 
     /**
@@ -529,13 +531,15 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     @Override
-    public void setSilenced(boolean silent) {
-        this.silent = true;
+    public void setSilenced(boolean silenced) {
+        this.athleteTimer.setSilenced(silenced);
+        this.breakTimer.setSilenced(silenced);
+        this.silenced = silenced;
     }
 
     @Override
     public boolean isSilenced() {
-        return silent;
+        return silenced;
     }
 
     /**
@@ -544,11 +548,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     @Override
     public ContextMenu getContextMenu() {
         return contextMenu;
-    }
-
-    @Override
-    public boolean isDarkMode() {
-        return false;
     }
 
     @Override
@@ -576,6 +575,15 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         setContextMenu(contextMenu);
     }
 
-
-
+    @Override
+    public void updateURLLocation(UI ui, Location location, String parameter, String mode) {
+        TreeMap<String, List<String>> parametersMap = new TreeMap<>(location.getQueryParameters().getParameters());
+        updateParam(parametersMap, DARK, null);
+        updateParam(parametersMap, parameter, mode);
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        updateParam(parametersMap, "fop", fop != null ? fop.getName() : null);
+        Location location2 = new Location(location.getPath(), new QueryParameters(parametersMap));
+        ui.getPage().getHistory().replaceState(null, location2);
+        setLocation(location2);
+    }
 }

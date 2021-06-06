@@ -121,7 +121,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected Span startNumber;
     protected H2 attempt;
     protected H2 weight;
-    protected AthleteTimerElement timeField;
+    protected AthleteTimerElement timer;
     protected FlexLayout topBar;
     protected ComboBox<Group> topBarGroupSelect;
     private Athlete displayedAthlete;
@@ -707,10 +707,11 @@ public abstract class AthleteGridContent extends VerticalLayout
         attempt = new H2();
         weight = new H2();
         weight.setText("");
-        if (timeField == null) {
-            timeField = new AthleteTimerElement(this);
+        if (timer == null) {
+            timer = new AthleteTimerElement(this);
         }
-        H1 time = new H1(timeField);
+        timer.setSilenced(false);
+        H1 time = new H1(timer);
         clearVerticalMargins(attempt);
         clearVerticalMargins(time);
         clearVerticalMargins(weight);
@@ -846,7 +847,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                             startNumber.getStyle().set("visibility", "visible");
                             startNumber.getStyle().set("font-size", "smaller");
                         }
-                        timeField.getElement().getStyle().set("visibility", "visible");
+                        timer.getElement().getStyle().set("visibility", "visible");
                         attempt.setText(formatAttemptNumber(athlete));
                         Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
                         weight.setText(
@@ -1092,7 +1093,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     private void topBarMessage(String string, String text) {
         lastName.setText(text);
         firstName.setText("");
-        timeField.getElement().getStyle().set("visibility", "hidden");
+        timer.getElement().getStyle().set("visibility", "hidden");
         attempt.setText("");
         weight.setText("");
         if (warning != null) {
@@ -1135,5 +1136,6 @@ public abstract class AthleteGridContent extends VerticalLayout
             n.open();
         }
     }
+
 
 }

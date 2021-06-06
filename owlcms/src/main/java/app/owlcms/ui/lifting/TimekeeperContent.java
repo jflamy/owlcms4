@@ -160,8 +160,8 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         topBar.setFlexGrow(0.0, getTopBarLeft());
         topBar.setFlexGrow(1.0, topBarRight);
 
-        if (timeField != null) {
-            timeField.detach();
+        if (timer != null) {
+            timer.detach();
         }
         this.removeAll();
     }
@@ -297,8 +297,8 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
     private void createBottom() {
         this.removeAll();
-        if (timeField == null) {
-            timeField = new AthleteTimerElement(this);
+        if (timer == null) {
+            timer = new AthleteTimerElement(this);
         }
         VerticalLayout time = new VerticalLayout();
         time.setWidth("50%");
@@ -306,8 +306,8 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         time.getElement().getStyle().set("font-size", "15vh");
         time.getElement().getStyle().set("font-weight", "bold");
         time.setAlignItems(Alignment.CENTER);
-        time.setAlignSelf(Alignment.CENTER, timeField);
-        centerH(timeField, time);
+        time.setAlignSelf(Alignment.CENTER, timer);
+        centerH(timer, time);
         this.add(time);
 
         Icon startIcon = AvIcons.PLAY_ARROW.create();
@@ -370,7 +370,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
     private void hideButtons() {
         buttons.setVisible(false);
-        timeField.getElement().setVisible(false);
+        timer.getElement().setVisible(false);
         unregisterShortcuts();
     }
 
@@ -383,7 +383,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         if (buttons != null) {
             buttons.setVisible(true);
         }
-        timeField.getElement().setVisible(true);
+        timer.getElement().setVisible(true);
         registerShortcuts();
     }
 

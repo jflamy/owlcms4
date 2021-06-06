@@ -666,10 +666,10 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     @Override
-    public void setSilenced(boolean silent) {
-        this.timer.setSilenced(silent);
-        this.breakTimer.setSilenced(silent);
-        this.silenced = true;
+    public void setSilenced(boolean silenced) {
+        this.timer.setSilenced(silenced);
+        this.breakTimer.setSilenced(silenced);
+        this.silenced = silenced;
     }
 
     @Override

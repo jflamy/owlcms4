@@ -132,7 +132,13 @@ public interface FOPParameters extends HasUrlParameter<String> {
 
     public default void updateURLLocation(UI ui, Location location, String parameter, String mode) {
         TreeMap<String, List<String>> parametersMap = new TreeMap<>(location.getQueryParameters().getParameters());
+        // get current values
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        updateParam(parametersMap, "fop", fop != null ? fop.getName() : null);
+        
+        // override with the update
         updateParam(parametersMap, parameter, mode);
+        
         Location location2 = new Location(location.getPath(), new QueryParameters(parametersMap));
         ui.getPage().getHistory().replaceState(null, location2);
         setLocation(location2);

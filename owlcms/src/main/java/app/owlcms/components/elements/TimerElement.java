@@ -184,7 +184,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     }
 
     public void setSilenced(boolean b) {
-        logger.warn("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
+        logger.debug("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
         silenced = b;
     }
 

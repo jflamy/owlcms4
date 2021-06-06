@@ -68,46 +68,51 @@ public interface DisplayParameters extends FOPParameters {
 
     public ContextMenu getContextMenu();
 
-    public boolean isDarkMode();
+    public default boolean isDarkMode() {
+        return true;
+    }
 
     /**
      * Displays have no sound-emitting elements by default.
      *
      * Those that can emit sound must override this.
-     * 
+     *
      * @return
      */
     public default boolean isSilenced() {
         return true;
     }
 
+    @Override
+    public default HashMap<String, List<String>> readParams(Location location,
+            Map<String, List<String>> parametersMap) {
+        // handle FOP and Group by calling superclass
+        HashMap<String, List<String>> params = FOPParameters.super.readParams(location, parametersMap);
+
+        List<String> darkParams = params.get(DARK);
+        // dark is the default. dark=false or dark=no or ... will turn off dark mode.
+        boolean darkMode = darkParams == null || darkParams.isEmpty() || darkParams.get(0).toLowerCase().equals("true");
+        setDarkMode(darkMode);
+        switchLightingMode((Component) this, darkMode, false);
+        updateParam(params, DARK, !isDarkMode() ? "false" : null);
+
+        List<String> silentParams = params.get(SILENT);
+        // dark is the default. dark=false or dark=no or ... will turn off dark mode.
+        boolean silentMode = silentParams == null || silentParams.isEmpty()
+                || silentParams.get(0).toLowerCase().equals("true");
+        switchSoundMode((Component) this, silentMode, false);
+        updateParam(params, SILENT, !isSilenced() ? "false" : null);
+
+        return params;
+    }
+
     public void setContextMenu(ContextMenu contextMenu);
 
     public void setDarkMode(boolean dark);
 
-    public default void setSilenced(boolean silent) {
-        // silent by default
-    }
-
-    public default void switchLightingMode(Component target, boolean dark, boolean updateURL) {
-        target.getElement().getClassList().set(DARK, dark);
-        target.getElement().getClassList().set(LIGHT, !dark);
-        setDarkMode(dark);
-        buildContextMenu(target);
-        if (updateURL) {
-            updateURLLocation(getLocationUI(), getLocation(), DARK, dark ? null : "false");
-        }
-    }
-
-    public default void switchSoundMode(Component target, boolean silent, boolean updateURL) {
-        setSilenced(silent);
-        buildContextMenu(target);
-        updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? null : "false");
-    }
-
     /*
      * Process query parameters
-     * 
+     *
      * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path. We use the old-style
      * Query parameters for our purposes.
      *
@@ -129,28 +134,26 @@ public interface DisplayParameters extends FOPParameters {
                 new Location(location.getPath(), new QueryParameters(params)));
     }
 
+    public default void setSilenced(boolean silent) {
+        // silent by default
+    }
 
-    @Override
-    public default HashMap<String, List<String>> readParams(Location location,
-            Map<String, List<String>> parametersMap) {
-        // handle FOP and Group by calling superclass
-        HashMap<String, List<String>> params = FOPParameters.super.readParams(location, parametersMap);
+    public default void switchLightingMode(Component target, boolean dark, boolean updateURL) {
+        target.getElement().getClassList().set(DARK, dark);
+        target.getElement().getClassList().set(LIGHT, !dark);
+        setDarkMode(dark);
+        buildContextMenu(target);
+        if (updateURL) {
+            updateURLLocation(getLocationUI(), getLocation(), DARK, dark ? null : "false");
+        }
+    }
 
-        List<String> darkParams = params.get(DARK);
-        // dark is the default. dark=false or dark=no or ... will turn off dark mode.
-        boolean darkMode = darkParams == null || darkParams.isEmpty() || darkParams.get(0).toLowerCase().equals("true");
-        setDarkMode(darkMode);
-        switchLightingMode((Component) this, darkMode, false);
-        updateParam(params, DARK, !isDarkMode() ? "false" : null);     
-
-        List<String> silentParams = params.get(SILENT);
-        // dark is the default. dark=false or dark=no or ... will turn off dark mode.
-        boolean silentMode = silentParams == null || silentParams.isEmpty()
-                || silentParams.get(0).toLowerCase().equals("true");
-        switchSoundMode((Component) this, silentMode, false);
-        updateParam(params, SILENT, !isSilenced() ? "false" : null);
-
-        return params;
+    public default void switchSoundMode(Component target, boolean silent, boolean updateURL) {
+        setSilenced(silent);
+        buildContextMenu(target);
+        if (updateURL) {
+            updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? null : "false");
+        }
     }
 
 }
