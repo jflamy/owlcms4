@@ -4,6 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
+
 package app.owlcms.data.athlete;
 
 import java.text.DecimalFormat;
@@ -45,7 +46,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * This class stores all the information related to a particular participant.
+ * This class stores all the information related to a particular athlete.
  * <p>
  * This class is an example of what not to do. This was designed prior reaching a proper understanding of Hibernate/JPA
  * and of proper separation between Vaadin Containers and persistence frameworks. Live and Learn.
