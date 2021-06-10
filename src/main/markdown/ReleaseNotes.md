@@ -1,12 +1,12 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  * [x] Violations of rules for timing of declarations (before initial 30 seconds), and for changes (before final warning) are now signaled as errors (#425, #426). Overriding is possible for officiating mistakes.
-  * [x] Workaround applied for iPad unpredictable response time (from 0.1 to 3 sec. lag) when used as display. The iPad will "skip ahead" to the correct remaining time as soon as the start command is received, and "skip back" on a stop. Only applies to iPads, ignored by all other platforms. (#419) 
-  * [x] CSS style sheets for attempt board and decision board are now editable in local/styles (#424)
-  * [x] Fix : templates were not being found if "_" present in the installation path (#428)
-
+  * [x] Displays are now silent by default.  Clicking on the window allows enabling sound. Sound should normally be enabled on one display per room.  Announcer and Marshall still hear the warnings and should lower their volume accordingly. (#407)
+  
 * Key Highlights from recent stable releases
 
+  - [x] Violations of rules for timing of declarations (before initial 30 seconds), and for changes (before final warning) are now signaled as errors (#425, #426). Overriding is possible for officiating mistakes.
+  - [x] Workaround applied for iPad unpredictable response time (from 0.1 to 3 sec. lag) when used as display. The iPad will "skip ahead" to the correct remaining time as soon as the start command is received, and "skip back" on a stop. Only applies to iPads, ignored by all other platforms. (#419) 
+  - [x] CSS style sheets for attempt board and decision board are now editable in local/styles (#424)
   - [x] Implemented the rules to prevent athletes from moving down their requested weight illegally.  Moving down is denied if the athlete should already have attempted that weight according to the official lifting order.  The exact checks resulting from applying the TCRR to that situation are spelled out in the [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Announcing#rules-for-moving-down). (#418)
   - [x] For cloud-based competitions, setting the time zone can now be done directly from the Competition Information page. (#422).
   - [x] Marshall can no longer edit or overwrite lift results by mistake. An explicit checkbox is required to enable edit (#286)
