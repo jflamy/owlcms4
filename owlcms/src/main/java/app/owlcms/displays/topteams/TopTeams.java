@@ -18,10 +18,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -39,6 +41,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.team.Team;
 import app.owlcms.data.team.TeamTreeData;
 import app.owlcms.data.team.TeamTreeItem;
+import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -109,18 +112,27 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     JsonArray sattempts;
     JsonArray cattempts;
     private boolean darkMode;
-    private ContextMenu contextMenu;
     private Location location;
     private UI locationUI;
     private List<TeamTreeItem> mensTeams;
     private List<TeamTreeItem> womensTeams;
     private DecimalFormat floatFormat;
+    private Dialog dialog;
 
     /**
      * Instantiates a new results board.
      */
     public TopTeams() {
         OwlcmsFactory.waitDBInitialized();
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
+     *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
+     */
+    @Override
+    public void addDialogContent(Component target, VerticalLayout vl) {
+        DisplayOptions.addLightingEntries(vl, target, this);
     }
 
     @Override
@@ -161,9 +173,19 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         updateBottom(getModel());
     }
 
+    /**
+     * return dialog, but only on first call.
+     *
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#getDialog()
+     */
     @Override
-    public ContextMenu getContextMenu() {
-        return contextMenu;
+    public Dialog getDialog() {
+        if (dialog == null) {
+            dialog = new Dialog();
+            return dialog;
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -197,8 +219,8 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     @Override
-    public void setContextMenu(ContextMenu contextMenu) {
-        this.contextMenu = contextMenu;
+    public boolean isSilenced() {
+        return true;
     }
 
     @Override
@@ -237,6 +259,16 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         });
     }
 
+//    @Subscribe
+//    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
+//        uiLog(e);
+//        Competition competition = Competition.getCurrent();
+//
+//        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+//            doUpdate(competition);
+//        });
+//    }
+
     public void uiLog(UIEvent e) {
         if (e == null) {
             uiEventLogger.debug("### {} {}", this.getClass().getSimpleName(), LoggerUtils.whereFrom());
@@ -250,16 +282,6 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         logger.trace("doEmpty");
         this.getModel().setHidden(true);
     }
-
-//    @Subscribe
-//    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
-//        uiLog(e);
-//        Competition competition = Competition.getCurrent();
-//
-//        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-//            doUpdate(competition);
-//        });
-//    }
 
     protected void doUpdate(Athlete a, UIEvent e) {
         logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);

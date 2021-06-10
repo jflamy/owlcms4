@@ -17,9 +17,10 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
@@ -39,7 +40,7 @@ import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.components.elements.Plates;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
-import app.owlcms.displays.menu.DisplayContextMenu;
+import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
@@ -58,6 +59,14 @@ import ch.qos.logback.classic.Logger;
 
 /**
  * Attempt board.
+ */
+/**
+ * @author JF
+ *
+ */
+/**
+ * @author JF
+ *
  */
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @SuppressWarnings("serial")
@@ -143,8 +152,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     private Location location;
     private UI locationUI;
     private boolean groupDone;
-    private boolean silenced;
-    private ContextMenu contextMenu;
+    private boolean silenced = true;
+    private Dialog dialog;
 
     /**
      * Instantiates a new attempt board.
@@ -156,6 +165,15 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         getModel().setJavaComponentId(this.toString());
         getModel().setKgSymbol(getTranslation("KgSymbol"));
         breakTimer.setParent("attemptBoard");
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
+     *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
+     */
+    @Override
+    public void addDialogContent(Component target, VerticalLayout dialog) {
+        DisplayOptions.addSoundEntries(dialog, target, this);
     }
 
     @Override
@@ -183,6 +201,21 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         }));
     }
 
+    /**
+     * return dialog, but only on first call.
+     *
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#getDialog()
+     */
+    @Override
+    public Dialog getDialog() {
+        if (dialog == null) {
+            dialog = new Dialog();
+            return dialog;
+        } else {
+            return null;
+        }
+    }
+
     @Override
     public Location getLocation() {
         return this.location;
@@ -198,6 +231,11 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         return getTranslation("Attempt");
     }
 
+    @Override
+    public boolean isDarkMode() {
+        return true;
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -209,6 +247,19 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     @Override
+    public boolean isSilenced() {
+        return silenced;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setDarkMode(boolean)
+     */
+    @Override
+    public void setDarkMode(boolean dark) {
+        // noop
+    }
+
+    @Override
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -216,6 +267,14 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    @Override
+    public void setSilenced(boolean silenced) {
+        logger.warn("{} setSilenced = {} from {}", this.getClass().getSimpleName(), silenced, LoggerUtils.whereFrom());
+        this.athleteTimer.setSilenced(silenced);
+        this.breakTimer.setSilenced(silenced);
+        this.silenced = silenced;
     }
 
     @Subscribe
@@ -369,6 +428,22 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         });
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#updateURLLocation(com.vaadin.flow.component.UI,
+     *      com.vaadin.flow.router.Location, java.lang.String, java.lang.String)
+     */
+    @Override
+    public void updateURLLocation(UI ui, Location location, String parameter, String mode) {
+        TreeMap<String, List<String>> parametersMap = new TreeMap<>(location.getQueryParameters().getParameters());
+        updateParam(parametersMap, DARK, null);
+        updateParam(parametersMap, parameter, mode);
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        updateParam(parametersMap, "fop", fop != null ? fop.getName() : null);
+        Location location2 = new Location(location.getPath(), new QueryParameters(parametersMap));
+        ui.getPage().getHistory().replaceState(null, location2);
+        setLocation(location2);
+    }
+
     protected void doAthleteUpdate(Athlete a) {
         FieldOfPlay fop = OwlcmsSession.getFop();
         FOPState state = fop.getState();
@@ -435,7 +510,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             themeList.remove(Lumo.LIGHT);
             themeList.add(Lumo.DARK);
 
-            SoundUtils.enableAudioContext(this.getElement());
+            SoundUtils.enableAudioContextNotification(this.getElement());
 
             // sync with current status of FOP
             if (fop.getState() == FOPState.INACTIVE) {
@@ -455,7 +530,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             // we send on fopEventBus, listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
-        buildContextMenu(this);
+        buildDialog(this);
     }
 
     private void doDone(Group g) {
@@ -530,60 +605,4 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         });
     }
 
-    @Override
-    public void setSilenced(boolean silenced) {
-        this.athleteTimer.setSilenced(silenced);
-        this.breakTimer.setSilenced(silenced);
-        this.silenced = silenced;
-    }
-
-    @Override
-    public boolean isSilenced() {
-        return silenced;
-    }
-
-    /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#getContextMenu()
-     */
-    @Override
-    public ContextMenu getContextMenu() {
-        return contextMenu;
-    }
-
-    @Override
-    public void setContextMenu(ContextMenu contextMenu) {
-        this.contextMenu = contextMenu;
-    }
-
-    @Override
-    public void setDarkMode(boolean dark) {
-        // noop
-    }
-
-    @Override
-    public void buildContextMenu(Component target) {
-        ContextMenu oldContextMenu = getContextMenu();
-        if (oldContextMenu != null) {
-            oldContextMenu.setTarget(null);
-        }
-        setContextMenu(null);
-
-        ContextMenu contextMenu = new ContextMenu();
-        DisplayContextMenu.addSoundEntries(contextMenu, target, this);
-        contextMenu.setOpenOnClick(true);
-        contextMenu.setTarget(target);
-        setContextMenu(contextMenu);
-    }
-
-    @Override
-    public void updateURLLocation(UI ui, Location location, String parameter, String mode) {
-        TreeMap<String, List<String>> parametersMap = new TreeMap<>(location.getQueryParameters().getParameters());
-        updateParam(parametersMap, DARK, null);
-        updateParam(parametersMap, parameter, mode);
-        FieldOfPlay fop = OwlcmsSession.getFop();
-        updateParam(parametersMap, "fop", fop != null ? fop.getName() : null);
-        Location location2 = new Location(location.getPath(), new QueryParameters(parametersMap));
-        ui.getPage().getHistory().replaceState(null, location2);
-        setLocation(location2);
-    }
 }

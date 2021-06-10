@@ -17,10 +17,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -38,6 +40,7 @@ import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -111,15 +114,24 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     private List<Athlete> sortedMen;
     private List<Athlete> sortedWomen;
     private boolean darkMode;
-    private ContextMenu contextMenu;
     private Location location;
     private UI locationUI;
+    private Dialog dialog;
 
     /**
      * Instantiates a new results board.
      */
     public TopSinclair() {
         OwlcmsFactory.waitDBInitialized();
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
+     *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
+     */
+    @Override
+    public void addDialogContent(Component target, VerticalLayout vl) {
+        DisplayOptions.addLightingEntries(vl, target, this);
     }
 
     @Override
@@ -214,9 +226,19 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
         ja.put("needed", formatInt(needed));
     }
 
+    /**
+     * return dialog, but only on first call.
+     *
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#getDialog()
+     */
     @Override
-    public ContextMenu getContextMenu() {
-        return contextMenu;
+    public Dialog getDialog() {
+        if (dialog == null) {
+            dialog = new Dialog();
+            return dialog;
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -250,8 +272,8 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     }
 
     @Override
-    public void setContextMenu(ContextMenu contextMenu) {
-        this.contextMenu = contextMenu;
+    public boolean isSilenced() {
+        return true;
     }
 
     @Override
@@ -268,10 +290,6 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
     }
-
-//    private String formatAttempt(Integer attemptNo) {
-//        return Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
-//    }
 
     @Subscribe
     public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
@@ -499,5 +517,4 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
 
         logger.debug("updateBottom {} {}", sortedWomen2, sortedMen2);
     }
-
 }

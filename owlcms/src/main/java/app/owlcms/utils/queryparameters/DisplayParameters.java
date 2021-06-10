@@ -10,18 +10,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
+import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
-
-import app.owlcms.displays.menu.DisplayContextMenu;
 
 /**
  * @author owlcms
@@ -33,22 +34,30 @@ public interface DisplayParameters extends FOPParameters {
     public static final String DARK = "dark";
     public static final String SILENT = "silent";
     public static final String SOUND = "sound";
+    
 
-    public default void buildContextMenu(Component target) {
-        ContextMenu oldContextMenu = getContextMenu();
-        if (oldContextMenu != null) {
-            oldContextMenu.setTarget(null);
-        }
-        setContextMenu(null);
+    public default void buildDialog(Component target) {
+        Dialog dialog = getDialog();
+        if (dialog == null) return;
+        
+        dialog.setCloseOnOutsideClick(true);
+        dialog.setCloseOnEsc(true);
+        dialog.setModal(true);
+        VerticalLayout vl = new VerticalLayout();
+        dialog.add(vl);
 
-        ContextMenu contextMenu = new ContextMenu();
-        DisplayContextMenu.addLightingEntries(contextMenu, target, this);
-        DisplayContextMenu.addSoundEntries(contextMenu, target, this);
+        addDialogContent(target, vl);
 
-        contextMenu.setOpenOnClick(true);
-        contextMenu.setTarget(target);
-        setContextMenu(contextMenu);
+        ComponentUtil.addListener(target, ClickEvent.class,
+                e -> {
+                    if (!dialog.isOpened())
+                        dialog.open();
+                });
     }
+
+    public Dialog getDialog();
+
+    public void addDialogContent(Component target, VerticalLayout vl);
 
     public default void doNotification(boolean dark) {
         Notification n = new Notification();
@@ -66,22 +75,9 @@ public interface DisplayParameters extends FOPParameters {
         n.open();
     }
 
-    public ContextMenu getContextMenu();
+    public boolean isDarkMode();
 
-    public default boolean isDarkMode() {
-        return true;
-    }
-
-    /**
-     * Displays have no sound-emitting elements by default.
-     *
-     * Those that can emit sound must override this.
-     *
-     * @return
-     */
-    public default boolean isSilenced() {
-        return true;
-    }
+    public boolean isSilenced();
 
     @Override
     public default HashMap<String, List<String>> readParams(Location location,
@@ -105,8 +101,6 @@ public interface DisplayParameters extends FOPParameters {
 
         return params;
     }
-
-    public void setContextMenu(ContextMenu contextMenu);
 
     public void setDarkMode(boolean dark);
 
@@ -142,7 +136,7 @@ public interface DisplayParameters extends FOPParameters {
         target.getElement().getClassList().set(DARK, dark);
         target.getElement().getClassList().set(LIGHT, !dark);
         setDarkMode(dark);
-        buildContextMenu(target);
+        buildDialog(target);
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), DARK, dark ? null : "false");
         }
@@ -150,7 +144,7 @@ public interface DisplayParameters extends FOPParameters {
 
     public default void switchSoundMode(Component target, boolean silent, boolean updateURL) {
         setSilenced(silent);
-        buildContextMenu(target);
+        buildDialog(target);
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? null : "false");
         }

@@ -17,10 +17,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
@@ -41,6 +44,7 @@ import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
@@ -152,10 +156,10 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
     JsonArray sattempts;
     JsonArray cattempts;
     private boolean darkMode;
-    private ContextMenu contextMenu;
     private Location location;
     private UI locationUI;
     private boolean groupDone;
+    private Dialog dialog;
 
     /**
      * Instantiates a new results board.
@@ -164,6 +168,13 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
         OwlcmsFactory.waitDBInitialized();
         timer.setOrigin(this);
         setDarkMode(true);
+    }
+
+    @Override
+    public void addDialogContent(Component target, VerticalLayout vl) {
+        DisplayOptions.addLightingEntries(vl, target, this);
+        vl.add(new Hr());
+        DisplayOptions.addSoundEntries(vl, target, this);
     }
 
     @Override
@@ -182,9 +193,19 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
         }));
     }
 
+    /**
+     * return dialog, but only on first call.
+     *
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#getDialog()
+     */
     @Override
-    public ContextMenu getContextMenu() {
-        return contextMenu;
+    public Dialog getDialog() {
+        if (dialog == null) {
+            dialog = new Dialog();
+            return dialog;
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -212,16 +233,16 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
         return true;
     }
 
+    @Override
+    public boolean isSilenced() {
+        return true;
+    }
+
     /**
      * Reset.
      */
     public void reset() {
         order = ImmutableList.of();
-    }
-
-    @Override
-    public void setContextMenu(ContextMenu contextMenu) {
-        this.contextMenu = contextMenu;
     }
 
     @Override
@@ -694,5 +715,4 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
                     getAthletesJson(order, fop.getLiftingOrder()));
         });
     }
-
 }
