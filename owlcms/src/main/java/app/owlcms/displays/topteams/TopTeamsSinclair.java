@@ -23,7 +23,6 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
@@ -112,9 +111,6 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     }
 
     private EventBus uiEventBus;
-
-    JsonArray sattempts;
-    JsonArray cattempts;
     private boolean darkMode;
     private Location location;
     private UI locationUI;
@@ -241,6 +237,14 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         return true;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
+     */
+    @Override
+    public boolean isShowInitialDialog() {
+        return this.initializationNeeded;
+    }
+
     @Override
     public boolean isSilenced() {
         return true;
@@ -259,6 +263,22 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
+     */
+    @Override
+    public void setShowInitialDialog(boolean b) {
+        this.initializationNeeded = true;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setSilenced(boolean)
+     */
+    @Override
+    public void setSilenced(boolean silent) {
+        // no-op, silenced by definition
     }
 
     @Subscribe
@@ -430,29 +450,5 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
                 womensTeams != null && womensTeams.size() > 0 ? getTranslation("Scoreboard.TopTeamsSinclairWomen")
                         : "");
         this.getElement().setPropertyJson("womensTeams", getTeamsJson(womensTeams, false));
-    }
-
-    /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#setSilenced(boolean)
-     */
-    @Override
-    public void setSilenced(boolean silent) {
-        // no-op, silenced by definition   
-    }
-
-    /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
-     */
-    @Override
-    public void setShowInitialDialog(boolean b) {
-        this.initializationNeeded = true;
-    }
-
-    /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
-     */
-    @Override
-    public boolean isShowInitialDialog() {
-        return this.initializationNeeded;
     }
 }

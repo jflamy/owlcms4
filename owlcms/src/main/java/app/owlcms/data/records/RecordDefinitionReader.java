@@ -28,9 +28,8 @@ import ch.qos.logback.classic.Logger;
 /**
  * Read lifted weight records from an Excel file.
  * 
- * Competition records for snatch, clean&jerk and total are read.  All available tabs are scanned.
- * Reading stops at first empty line.
- * Header line is skipped.
+ * Competition records for snatch, clean&jerk and total are read. All available tabs are scanned. Reading stops at first
+ * empty line. Header line is skipped.
  * 
  * @author Jean-François Lamy
  *
@@ -49,7 +48,7 @@ public class RecordDefinitionReader {
 
             for (Sheet sheet : workbook) {
                 int iRow = 0;
-                
+
                 processsheet: for (Row row : sheet) {
                     int iColumn = 0;
 
@@ -61,7 +60,7 @@ public class RecordDefinitionReader {
                     RecordEvent rec = new RecordEvent();
 
                     for (Cell cell : row) {
-                        //System.err.println("[" + iSheet + "," + iRow + "," + iColumn + "]");
+                        // System.err.println("[" + iSheet + "," + iRow + "," + iColumn + "]");
                         switch (iColumn) {
                         case 0: {
                             String cellValue = cell.getStringCellValue();
@@ -147,21 +146,19 @@ public class RecordDefinitionReader {
                             }
                             break;
                         }
-                        
+
                         }
-                        
+
                         iColumn++;
                     }
-                    //System.err.println(rec);
-                    
-                    
+                    // System.err.println(rec);
+
                     try {
                         em.persist(rec);
                     } catch (Exception e) {
-                        logger.error("could not persist RecordEvent {}",LoggerUtils.stackTrace(e));
+                        logger.error("could not persist RecordEvent {}", LoggerUtils.stackTrace(e));
                     }
-                    
-                    
+
                     iRow++;
                     iRecord++;
                 }

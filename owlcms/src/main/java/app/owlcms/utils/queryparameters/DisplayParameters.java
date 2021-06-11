@@ -39,8 +39,9 @@ public interface DisplayParameters extends FOPParameters {
 
     public default void buildDialog(Component target) {
         Dialog dialog = getDialog();
-        if (dialog == null)
+        if (dialog == null) {
             return;
+        }
 
         dialog.setCloseOnOutsideClick(true);
         dialog.setCloseOnEsc(true);
@@ -82,6 +83,9 @@ public interface DisplayParameters extends FOPParameters {
 
     public boolean isDarkMode();
 
+    @Override
+    public boolean isShowInitialDialog();
+
     public boolean isSilenced();
 
     @Override
@@ -115,7 +119,8 @@ public interface DisplayParameters extends FOPParameters {
      * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path. We use the old-style
      * Query parameters for our purposes.
      *
-     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * java.lang.String)
      */
     @Override
     public default void setParameter(BeforeEvent event, @OptionalParameter String unused) {
@@ -132,6 +137,9 @@ public interface DisplayParameters extends FOPParameters {
         event.getUI().getPage().getHistory().replaceState(null,
                 new Location(location.getPath(), new QueryParameters(params)));
     }
+
+    @Override
+    public void setShowInitialDialog(boolean b);
 
     public void setSilenced(boolean silent);
 
@@ -152,9 +160,5 @@ public interface DisplayParameters extends FOPParameters {
             updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? null : "false");
         }
     }
-
-    public void setShowInitialDialog(boolean b);
-
-    public boolean isShowInitialDialog();
 
 }

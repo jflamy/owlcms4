@@ -237,6 +237,14 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         return true;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
+     */
+    @Override
+    public boolean isShowInitialDialog() {
+        return this.showInitialDialog;
+    }
+
     @Override
     public boolean isSilenced() {
         return silenced;
@@ -262,6 +270,14 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
+     */
+    @Override
+    public void setShowInitialDialog(boolean b) {
+        this.showInitialDialog = true;
     }
 
     @Override
@@ -694,22 +710,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             this.getElement().setPropertyJson("athletes", getAthletesJson(order));
         });
 
-    }
-
-    /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
-     */
-    @Override
-    public void setShowInitialDialog(boolean b) {
-        this.showInitialDialog = true;
-    }
-
-    /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
-     */
-    @Override
-    public boolean isShowInitialDialog() {
-        return this.showInitialDialog;
     }
 
 }

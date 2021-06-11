@@ -24,6 +24,19 @@ public class SoundUtils {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(SoundUtils.class);
 
+    public static void doEnableAudioContext(Element element) {
+        // this.getElement().executeJs("window.audioCtx.suspend()");
+        PendingJavaScriptResult result = element.executeJs("return (window.isIOS ? window.audioCtx.state : 'running')");
+        result.then(String.class, r -> {
+            logger.debug("audio state {}", r);
+            if (!r.equals("running")) {
+                element.executeJs("window.audioCtx.resume()");
+            } else {
+                // Notification.show("Audio enabled");
+            }
+        });
+    }
+
     public static void enableAudioContextNotification(Element element) {
         // this.getElement().executeJs("window.audioCtx.suspend()");
         PendingJavaScriptResult result = element.executeJs("return (window.isIOS ? window.audioCtx.state : 'running')");
@@ -46,19 +59,6 @@ public class SoundUtils {
                 });
                 n.add(content);
                 n.open();
-            } else {
-                // Notification.show("Audio enabled");
-            }
-        });
-    }
-    
-    public static void doEnableAudioContext(Element element) {
-        // this.getElement().executeJs("window.audioCtx.suspend()");
-        PendingJavaScriptResult result = element.executeJs("return (window.isIOS ? window.audioCtx.state : 'running')");
-        result.then(String.class, r -> {
-            logger.debug("audio state {}", r);
-            if (!r.equals("running")) {
-                    element.executeJs("window.audioCtx.resume()");
             } else {
                 // Notification.show("Audio enabled");
             }

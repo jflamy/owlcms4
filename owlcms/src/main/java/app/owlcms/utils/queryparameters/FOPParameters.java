@@ -35,6 +35,22 @@ public interface FOPParameters extends HasUrlParameter<String> {
 
     final Logger logger = (Logger) LoggerFactory.getLogger(FOPParameters.class);
 
+    public Location getLocation();
+
+    public UI getLocationUI();
+
+    public default boolean isIgnoreFopFromURL() {
+        return false;
+    }
+
+    public default boolean isIgnoreGroupFromURL() {
+        return true;
+    }
+
+    public default boolean isShowInitialDialog() {
+        return false;
+    }
+
     public default HashMap<String, List<String>> readParams(Location location,
             Map<String, List<String>> parametersMap) {
 
@@ -42,13 +58,13 @@ public interface FOPParameters extends HasUrlParameter<String> {
 
         // get the fop from the query parameters, set to the default FOP if not provided
         FieldOfPlay fop = null;
-        
+
         List<String> fopNames = parametersMap.get("fop");
         boolean fopFound = fopNames != null && fopNames.get(0) != null;
         if (!fopFound) {
             setShowInitialDialog(true);
         }
-        
+
         if (!isIgnoreFopFromURL()) {
             if (fopFound) {
                 logger.trace("fopNames {}", fopNames);
@@ -89,34 +105,17 @@ public interface FOPParameters extends HasUrlParameter<String> {
         return newParameterMap;
     }
 
-    public default void setShowInitialDialog(boolean b) {}
-    public default boolean isShowInitialDialog() {
-        return false;
-    }
-
-    public Location getLocation();
-
-    public UI getLocationUI();
-
-    public default boolean isIgnoreFopFromURL() {
-        return false;
-    }
-
-    public default boolean isIgnoreGroupFromURL() {
-        return true;
-    }
-
     public void setLocation(Location location);
 
     public void setLocationUI(UI locationUI);
 
     /*
      * Retrieve parameter(s) from URL and update according to current settings.
-     * 
+     *
      * The values are stored in the URL in order to allow bookmarking and easy reloading.
-     * 
-     * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path.
-     * We use the old-style Query parameters for our purposes.
+     *
+     * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path. We use the old-style
+     * Query parameters for our purposes.
      *
      * @see com.vaadin.flow.router.HasUrlParameter#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.Object)
      */
@@ -127,12 +126,15 @@ public interface FOPParameters extends HasUrlParameter<String> {
         QueryParameters queryParameters = location.getQueryParameters();
         Map<String, List<String>> parametersMap = queryParameters.getParameters();
         HashMap<String, List<String>> params = readParams(location, parametersMap);
-        
+
         // change the URL to reflect the updated parameters
         event.getUI().getPage().getHistory().replaceState(null,
                 new Location(location.getPath(), new QueryParameters(params)));
     }
-    
+
+    public default void setShowInitialDialog(boolean b) {
+    }
+
     public default void updateParam(Map<String, List<String>> cleanParams, String parameter, String value) {
         if (value != null) {
             cleanParams.put(parameter, Arrays.asList(value));
@@ -146,14 +148,13 @@ public interface FOPParameters extends HasUrlParameter<String> {
         // get current values
         FieldOfPlay fop = OwlcmsSession.getFop();
         updateParam(parametersMap, "fop", fop != null ? fop.getName() : null);
-        
+
         // override with the update
         updateParam(parametersMap, parameter, mode);
-        
+
         Location location2 = new Location(location.getPath(), new QueryParameters(parametersMap));
         ui.getPage().getHistory().replaceState(null, location2);
         setLocation(location2);
     }
-
 
 }

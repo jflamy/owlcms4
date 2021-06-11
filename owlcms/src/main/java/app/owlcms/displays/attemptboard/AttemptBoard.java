@@ -247,6 +247,14 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         return true;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
+     */
+    @Override
+    public boolean isShowInitialDialog() {
+        return this.initializationNeeded;
+    }
+
     @Override
     public boolean isSilenced() {
         return silenced;
@@ -268,6 +276,14 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
+     */
+    @Override
+    public void setShowInitialDialog(boolean b) {
+        this.initializationNeeded = true;
     }
 
     @Override
@@ -604,22 +620,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 }
             });
         });
-    }
-
-    /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
-     */
-    @Override
-    public void setShowInitialDialog(boolean b) {
-        this.initializationNeeded = true;
-    }
-
-    /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
-     */
-    @Override
-    public boolean isShowInitialDialog() {
-        return this.initializationNeeded;
     }
 
 }

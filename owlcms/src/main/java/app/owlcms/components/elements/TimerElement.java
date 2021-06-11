@@ -209,15 +209,6 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         });
     }
 
-    /**
-     * No sound if sound is emitted on server, or if silenced through the interface.
-     * 
-     * @return
-     */
-    private boolean isSilent() {
-        return isServerSound() || (!isServerSound() && isSilenced());
-    }
-
     protected void doStopTimer(Integer milliseconds) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setMsRemaining(milliseconds);
@@ -316,6 +307,15 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
             }
             setDisplay(milliseconds, true, true);
         }
+    }
+
+    /**
+     * No sound if sound is emitted on server, or if silenced through the interface.
+     *
+     * @return
+     */
+    private boolean isSilent() {
+        return isServerSound() || (!isServerSound() && isSilenced());
     }
 
     private void setDisplay(Integer milliseconds, Boolean indefinite, Boolean silent) {

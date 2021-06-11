@@ -234,6 +234,14 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
         return true;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
+     */
+    @Override
+    public boolean isShowInitialDialog() {
+        return this.initializationNeeded;
+    }
+
     @Override
     public boolean isSilenced() {
         return true;
@@ -259,6 +267,19 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
+     */
+    @Override
+    public void setShowInitialDialog(boolean b) {
+        this.initializationNeeded = true;
+    }
+
+    @Override
+    public void setSilenced(boolean silent) {
+        // no op, silenced by definition
     }
 
     @Subscribe
@@ -715,26 +736,5 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
             this.getElement().setPropertyJson("athletes",
                     getAthletesJson(order, fop.getLiftingOrder()));
         });
-    }
-
-    @Override
-    public void setSilenced(boolean silent) {
-        // no op, silenced by definition
-    }
-
-    /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
-     */
-    @Override
-    public void setShowInitialDialog(boolean b) {
-        this.initializationNeeded = true;
-    }
-
-    /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
-     */
-    @Override
-    public boolean isShowInitialDialog() {
-        return this.initializationNeeded;
     }
 }
