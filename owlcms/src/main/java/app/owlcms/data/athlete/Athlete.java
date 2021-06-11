@@ -3887,8 +3887,8 @@ public class Athlete {
                     fopLoggingName, currentLiftNo, referenceAttemptNo);
             throw new RuleViolationException.AttemptNumberTooLow(requestedWeight,
                     reference.getAthlete(), referenceWeight, 1 + (referenceAttemptNo - 1) % 3);
-        } else {
-            getLogger().debug("{}currentLiftNo {} >= referenceAttemptNo {}",
+        } else if (currentLiftNo == referenceAttemptNo) {
+            getLogger().debug("{}currentLiftNo {} == referenceAttemptNo {}",
                     fopLoggingName, currentLiftNo, referenceAttemptNo);
             int currentProgression = this.getProgression(requestedWeight);
 
@@ -3911,6 +3911,10 @@ public class Athlete {
                 getLogger().debug("{}currentProgression {} < referenceProgression {}", fopLoggingName,
                         currentProgression, referenceProgression);
             }
+        } else {
+            // ok because does not change lift order.
+            getLogger().debug("{}currentLiftNo {} > referenceAttemptNo {}",
+                    fopLoggingName, currentLiftNo, referenceAttemptNo);
         }
     }
 
