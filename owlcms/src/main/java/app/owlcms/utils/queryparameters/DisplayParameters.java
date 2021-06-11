@@ -28,6 +28,8 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
+import app.owlcms.i18n.Translator;
+
 /**
  * @author owlcms
  *
@@ -56,7 +58,7 @@ public interface DisplayParameters extends FOPParameters {
 
         addDialogContent(target, vl);
 
-        Button button = new Button("Close", e -> dialog.close());
+        Button button = new Button(Translator.translate("Close"), e -> dialog.close());
         button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
         VerticalLayout buttons = new VerticalLayout();
         buttons.add(button);
