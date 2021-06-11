@@ -1,10 +1,10 @@
-trigger:
+UOuatrigger:
   - none
 
 parameters:
   - name: Revision
     type: string
-    default: 4.20.1
+    default: 4.20.2-rc00
   - name: SkipTests
     type: string
     default: 'false'
@@ -151,6 +151,14 @@ jobs:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: owlcms/owlcms4
             isPreRelease: false
+          ${{ if eq(variables['Build.SourceBranchName'], 'fixrelease') }}:
+            gitHubConnection: github.com_jflamy-dev
+            repositoryName: owlcms/owlcms4
+            isPreRelease: false
+          ${{ if eq(variables['Build.SourceBranchName'], 'fixprerelease') }}:
+            gitHubConnection: github.com_jflamy-dev
+            repositoryName: jflamy-dev/owlcms4-prerelease
+            isPreRelease: true
           action: "create" # Options: create, edit, delete
           target: master # all our releases are on the master branch of the release repos.
           tagSource: "manual"
