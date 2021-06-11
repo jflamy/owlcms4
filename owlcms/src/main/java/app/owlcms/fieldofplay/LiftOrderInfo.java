@@ -26,7 +26,7 @@ public class LiftOrderInfo implements Comparable<LiftOrderInfo> {
     @Override
     public int compareTo(LiftOrderInfo actualLiftInfo) {
         int compare = 0;
-        
+
         // all snatches come before all clean and jerks
         if (this.getAttemptNo() <= 3 && actualLiftInfo.getAttemptNo() > 3) {
             return -1;
@@ -34,7 +34,7 @@ public class LiftOrderInfo implements Comparable<LiftOrderInfo> {
         if (this.getAttemptNo() > 3 && actualLiftInfo.getAttemptNo() <= 3) {
             return 1;
         }
-        
+
         // same kind of lift.
 
         compare = Integer.compare(this.getWeight(), actualLiftInfo.getWeight());

@@ -52,7 +52,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
-import app.owlcms.data.record.Record;
+import app.owlcms.data.records.RecordEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
@@ -188,7 +188,7 @@ public class JPAService {
                 .add(Competition.class.getName())
                 .add(AgeGroup.class.getName())
                 .add(Config.class.getName())
-                .add(Record.class.getName())
+                .add(RecordEvent.class.getName())
                 .build();
         return vals;
     }
@@ -353,11 +353,12 @@ public class JPAService {
      * Not enabled by default, protected by a feature switch
      * (<code>-DH2ServerPort=9092 or OWLCMS_H2SERVERPORT=9092</code>)
      * <p>
-     * When using a tool to connect, such as the H2 console (<code>java -jar h2-1.4.200.jar</code>) or DBVisualizer, the the URL
-     * given to the tool must include the absolute path to the database for example:
-     * 
+     * When using a tool to connect, such as the H2 console (<code>java -jar h2-1.4.200.jar</code>) or DBVisualizer, the
+     * the URL given to the tool must include the absolute path to the database for example:
+     *
      * <pre>
      * jdbc:h2:tcp://localhost:9092/c:/dev/git/owlcms4/owlcms/database/owlcms
+     *
      * <pre>
      */
     private static void startH2EmbeddedServer() {

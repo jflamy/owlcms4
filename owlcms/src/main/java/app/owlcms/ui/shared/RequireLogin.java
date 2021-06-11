@@ -19,7 +19,7 @@ import app.owlcms.utils.AccessUtils;
 import ch.qos.logback.classic.Logger;
 
 public interface RequireLogin extends BeforeEnterObserver {
-    
+
     Logger logger = (Logger) LoggerFactory.getLogger(RequireLogin.class);
 
     @Override
@@ -46,7 +46,7 @@ public interface RequireLogin extends BeforeEnterObserver {
             return;
         } else if (backdoor && AccessUtils.checkBackdoor()) {
             // explicit backdoor access allowed (e.g. for video capture of browser screens)
-            logger.info("allowing backdoor access from {}",AccessUtils.getClientIp());
+            logger.info("allowing backdoor access from {}", AccessUtils.getClientIp());
             OwlcmsSession.setAuthenticated(true);
             return;
         } else if (noPin && AccessUtils.checkWhitelist()) {

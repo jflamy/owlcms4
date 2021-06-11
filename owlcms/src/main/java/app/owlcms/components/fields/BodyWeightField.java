@@ -56,7 +56,7 @@ public class BodyWeightField extends WrappedTextField<Double> {
 
     @Override
     public Converter<String, Double> getConverter() {
-        return new Converter<String, Double>() {
+        return new Converter<>() {
             @Override
             public Result<Double> convertToModel(String value, ValueContext context) {
                 Locale locale = context.getLocale().orElse(Locale.ENGLISH);

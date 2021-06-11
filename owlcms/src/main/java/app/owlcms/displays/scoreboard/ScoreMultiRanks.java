@@ -17,10 +17,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
@@ -42,12 +45,11 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.parameters.DarkModeParameters;
-import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
@@ -56,6 +58,8 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.Decision;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.SoundUtils;
+import app.owlcms.utils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -77,8 +81,8 @@ import elemental.json.JsonValue;
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
 public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardModel>
-        implements QueryParameterReader, DarkModeParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
+        implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
+        RequireLogin {
 
     /**
      * ScoreboardModel
@@ -154,11 +158,12 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
 
     JsonArray sattempts;
     JsonArray cattempts;
-    private boolean darkMode;
-    private ContextMenu contextMenu;
+    private boolean darkMode = true;
     private Location location;
     private UI locationUI;
     private boolean groupDone;
+    private Dialog dialog;
+    private boolean silenced = true;
 
     /**
      * Instantiates a new results board.
@@ -167,6 +172,17 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         OwlcmsFactory.waitDBInitialized();
         timer.setOrigin(this);
         setDarkMode(true);
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
+     *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
+     */
+    @Override
+    public void addDialogContent(Component target, VerticalLayout vl) {
+        DisplayOptions.addLightingEntries(vl, target, this);
+        vl.add(new Hr());
+        DisplayOptions.addSoundEntries(vl, target, this);
     }
 
     @Override
@@ -185,9 +201,19 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         }));
     }
 
+    /**
+     * return dialog, but only on first call.
+     *
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#getDialog()
+     */
     @Override
-    public ContextMenu getContextMenu() {
-        return contextMenu;
+    public Dialog getDialog() {
+        if (dialog == null) {
+            dialog = new Dialog();
+            return dialog;
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -215,16 +241,16 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         return true;
     }
 
+    @Override
+    public boolean isSilenced() {
+        return silenced;
+    }
+
     /**
      * Reset.
      */
     public void reset() {
         order = ImmutableList.of();
-    }
-
-    @Override
-    public void setContextMenu(ContextMenu contextMenu) {
-        this.contextMenu = contextMenu;
     }
 
     @Override
@@ -240,6 +266,13 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    @Override
+    public void setSilenced(boolean silenced) {
+        this.timer.setSilenced(silenced);
+        this.breakTimer.setSilenced(silenced);
+        this.silenced = silenced;
     }
 
     @Subscribe
@@ -416,8 +449,8 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     protected void onAttach(AttachEvent attachEvent) {
         // crude workaround -- randomly getting light or dark due to multiple themes detected in app.
         getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
-        
-        // fop obtained via QueryParameterReader interface default methods.
+
+        // fop obtained via FOPParameters interface default methods.
         Competition competition = Competition.getCurrent();
         OwlcmsSession.withFop(fop -> {
             init();
@@ -430,7 +463,8 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
-        setDarkMode(this, isDarkMode(), false);
+        SoundUtils.enableAudioContextNotification(this.getElement());
+        switchLightingMode(this, isDarkMode(), true);
         computeLeaders(competition);
     }
 
@@ -560,22 +594,22 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         ja.put("sattempts", sattempts);
         ja.put("cattempts", cattempts);
         ja.put("total", formatInt(a.getTotal()));
-        
+
         ja.put("snatchRank", formatInt(a.getSnatchRank()));
         ja.put("snatchRankYth", formatInt(a.getSnatchRankYth()));
         ja.put("snatchRankJr", formatInt(a.getSnatchRankJr()));
         ja.put("snatchRankSr", formatInt(a.getSnatchRankSr()));
-        
+
         ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
         ja.put("cleanJerkRankYth", formatInt(a.getCleanJerkRankYth()));
         ja.put("cleanJerkRankJr", formatInt(a.getCleanJerkRankJr()));
         ja.put("cleanJerkRankSr", formatInt(a.getCleanJerkRankSr()));
-        
+
         ja.put("totalRank", formatInt(a.getTotalRank()));
         ja.put("totalRankYth", formatInt(a.getTotalRankYth()));
         ja.put("totalRankJr", formatInt(a.getTotalRankJr()));
         ja.put("totalRankSr", formatInt(a.getTotalRankSr()));
-        
+
         ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
@@ -735,7 +769,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                 model.setGroupName(
                         curGroup != null
                                 ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
-                                : ""); 
+                                : "");
                 liftsDone = AthleteSorter.countLiftsDone(order);
                 model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
             } else {

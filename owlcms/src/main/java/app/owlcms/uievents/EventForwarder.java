@@ -617,6 +617,32 @@ public class EventForwarder implements BreakDisplay {
         }
     }
 
+    private void doPost(String url, Map<String, String> parameters) {
+        HttpPost post = new HttpPost(url);
+        // add request parameters or form parameters
+        List<NameValuePair> urlParameters = new ArrayList<>();
+        parameters.entrySet().stream()
+                .forEach((e) -> urlParameters.add(new BasicNameValuePair(e.getKey(), e.getValue())));
+
+        try {
+            post.setEntity(new UrlEncodedFormEntity(urlParameters, "UTF-8"));
+            try (CloseableHttpClient httpClient = HttpClients.createDefault();
+                    CloseableHttpResponse response = httpClient.execute(post)) {
+                StatusLine statusLine = response.getStatusLine();
+                Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
+                if (statusCode != null && statusCode != 200) {
+                    logger.error("could not post to {} {} {}", url, statusLine, LoggerUtils.whereFrom(1));
+                }
+                EntityUtils.toString(response.getEntity());
+            } catch (Exception e1) {
+                logger.error("could not post to {} {}", url, LoggerUtils.exceptionMessage(e1));
+            }
+        } catch (UnsupportedEncodingException e2) {
+            // can't happen.
+            logger.error("could not post to {} {}", url, LoggerUtils.exceptionMessage(e2));
+        }
+    }
+
     private void doUpdate(Athlete a, UIEvent e) {
         logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
         boolean leaveTopAlone = false;
@@ -876,34 +902,6 @@ public class EventForwarder implements BreakDisplay {
         }
 
     }
-
-    private void doPost(String url, Map<String, String> parameters) {
-        HttpPost post = new HttpPost(url);
-        // add request parameters or form parameters
-        List<NameValuePair> urlParameters = new ArrayList<>();
-        parameters.entrySet().stream()
-                .forEach((e) -> urlParameters.add(new BasicNameValuePair(e.getKey(), e.getValue())));
-
-        try {
-            post.setEntity(new UrlEncodedFormEntity(urlParameters, "UTF-8"));
-            try (CloseableHttpClient httpClient = HttpClients.createDefault();
-                    CloseableHttpResponse response = httpClient.execute(post)) {
-                StatusLine statusLine = response.getStatusLine();
-                Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
-                if (statusCode != null && statusCode != 200) {
-                    logger.error("could not post to {} {} {}", url, statusLine, LoggerUtils.whereFrom(1));
-                }
-                EntityUtils.toString(response.getEntity());
-            } catch (Exception e1) {
-                logger.error("could not post to {} {}", url, LoggerUtils.exceptionMessage(e1));
-            }
-        } catch (UnsupportedEncodingException e2) {
-            // can't happen.
-            logger.error("could not post to {} {}", url, LoggerUtils.exceptionMessage(e2));
-        }
-    }
-
-
 
     private void setCategoryName(String name) {
         this.categoryName = name;

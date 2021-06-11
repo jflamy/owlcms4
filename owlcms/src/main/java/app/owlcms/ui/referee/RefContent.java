@@ -46,11 +46,11 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.queryparameters.FOPParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -60,7 +60,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "ref")
 @Push
-public class RefContent extends VerticalLayout implements QueryParameterReader, SafeEventBusRegistration,
+public class RefContent extends VerticalLayout implements FOPParameters, SafeEventBusRegistration,
         UIEventProcessor, HasDynamicTitle, RequireLogin, PageConfigurator, BeforeEnterListener {
 
     private static final String REF_INDEX = "num";
@@ -141,7 +141,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
      * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
      *                  parameters instead.
      *
-     * @see app.owlcms.ui.parameters.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      *      java.lang.String)
      */
     @Override
@@ -150,7 +150,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
         locationUI = event.getUI();
         QueryParameters queryParameters = location.getQueryParameters();
         Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
-        urlParams = computeParams(location, parametersMap);
+        urlParams = readParams(location, parametersMap);
 
         // get the referee number from query parameters, do not add value if num is not
         // defined

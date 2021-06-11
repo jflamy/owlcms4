@@ -43,7 +43,7 @@ public class Simulation extends Main {
             Thread server = new Thread(() -> {
 
                 try {
- 
+
                     EmbeddedJetty embeddedJetty = new EmbeddedJetty(latch);
                     embeddedJetty.run(serverPort, "/");
                 } catch (Exception e) {
@@ -53,7 +53,7 @@ public class Simulation extends Main {
             server.start();
             // wait for server to be ready enough
             latch.await();
-            
+
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e1) {

@@ -62,7 +62,7 @@ public class HttpsEnforcer implements Filter {
             if (StartupUtils.isDebugSetting()) {
                 Enumeration<String> headerNames = request.getHeaderNames();
                 while (headerNames.hasMoreElements()) {
-                    String headerName = (String) headerNames.nextElement();
+                    String headerName = headerNames.nextElement();
                     logger.debug("    {} {}", headerName, request.getHeader(headerName));
                 }
             }

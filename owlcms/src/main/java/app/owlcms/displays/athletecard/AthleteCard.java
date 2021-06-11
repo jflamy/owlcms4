@@ -35,9 +35,9 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.utils.queryparameters.FOPParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -54,7 +54,7 @@ import elemental.json.JsonObject;
 @Theme(value = Lumo.class, variant = Lumo.LIGHT)
 @Push
 public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
-        implements QueryParameterReader, SafeEventBusRegistration, HasDynamicTitle, RequireLogin {
+        implements FOPParameters, SafeEventBusRegistration, HasDynamicTitle, RequireLogin {
 
     /**
      * AthleteCardModel
@@ -136,7 +136,7 @@ public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
      * Instantiates a new attempt board.
      */
     public AthleteCard() {
-       OwlcmsFactory.waitDBInitialized();
+        OwlcmsFactory.waitDBInitialized();
     }
 
     @Override
@@ -165,7 +165,7 @@ public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
     }
 
     /**
-     * @see app.owlcms.ui.parameters.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      *      java.lang.String)
      */
     @Override

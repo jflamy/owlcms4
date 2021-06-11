@@ -267,6 +267,13 @@ public class FieldOfPlay {
         return clockOwner;
     }
 
+    /**
+     * @return 0 if clock has not been started, 120000 or 60000 depending on time allowed when clock is started
+     */
+    public int getClockOwnerInitialTimeAllowed() {
+        return clockOwnerInitialTimeAllowed;
+    }
+
     public CountdownType getCountdownType() {
         return countdownType;
     }
@@ -380,10 +387,6 @@ public class FieldOfPlay {
         logger.debug("{}curAthlete = {}, clock owner = {}, timeRemaining = {}, initialTime = {}", getLoggingName(), a,
                 owner, timeAllowed, initialTime);
         return timeAllowed;
-    }
-
-    private void setClockOwnerInitialTimeAllowed(int timeAllowed) {
-        this.clockOwnerInitialTimeAllowed = timeAllowed;
     }
 
     /**
@@ -1107,6 +1110,10 @@ public class FieldOfPlay {
         this.clockOwner = athlete;
     }
 
+    private void setClockOwnerInitialTimeAllowed(int timeAllowed) {
+        this.clockOwnerInitialTimeAllowed = timeAllowed;
+    }
+
     private void setCurAthlete(Athlete athlete) {
         logger.trace("changing curAthlete to {} [{}]", athlete, LoggerUtils.whereFrom());
         this.curAthlete = athlete;
@@ -1448,13 +1455,6 @@ public class FieldOfPlay {
         this.setDisplayOrder(AthleteSorter.displayOrderCopy(this.getLiftingOrder()));
         uiDisplayCurrentAthleteAndTime(false, e, false);
         updateGlobalRankings();
-    }
-
-    /**
-     * @return 0 if clock has not been started, 120000 or 60000 depending on time allowed when clock is started
-     */
-    public int getClockOwnerInitialTimeAllowed() {
-        return clockOwnerInitialTimeAllowed;
     }
 
 }

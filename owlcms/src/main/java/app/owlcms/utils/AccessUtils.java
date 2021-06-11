@@ -21,14 +21,30 @@ import ch.qos.logback.classic.Logger;
 public class AccessUtils {
     static Logger logger = (Logger) LoggerFactory.getLogger(AccessUtils.class);
 
+    public static boolean checkBackdoor() {
+        String whiteList = Config.getCurrent().getParamBackdoorList();
+        return checkListMembership(whiteList, false);
+    }
+
     public static boolean checkWhitelist() {
         String whiteList = Config.getCurrent().getParamAccessList();
         return checkListMembership(whiteList, true);
     }
-    
-    public static boolean checkBackdoor() {
-        String whiteList = Config.getCurrent().getParamBackdoorList();
-        return checkListMembership(whiteList, false);
+
+    public static String getClientIp() {
+        HttpServletRequest request;
+        request = VaadinServletRequest.getCurrent().getHttpServletRequest();
+
+        String remoteAddr = "";
+
+        if (request != null) {
+            remoteAddr = request.getHeader("X-FORWARDED-FOR");
+            if (remoteAddr == null || "".equals(remoteAddr)) {
+                remoteAddr = request.getRemoteAddr();
+            }
+        }
+
+        return remoteAddr;
     }
 
     private static boolean checkListMembership(String whiteList, boolean whiteListCheck) {
@@ -50,22 +66,6 @@ public class AccessUtils {
             whiteListed = true;
         }
         return whiteListed;
-    }
-
-    public static String getClientIp() {
-        HttpServletRequest request;
-        request = VaadinServletRequest.getCurrent().getHttpServletRequest();
-
-        String remoteAddr = "";
-
-        if (request != null) {
-            remoteAddr = request.getHeader("X-FORWARDED-FOR");
-            if (remoteAddr == null || "".equals(remoteAddr)) {
-                remoteAddr = request.getRemoteAddr();
-            }
-        }
-
-        return remoteAddr;
     }
 
 }

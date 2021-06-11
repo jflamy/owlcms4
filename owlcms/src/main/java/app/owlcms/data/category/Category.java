@@ -35,12 +35,12 @@ import ch.qos.logback.classic.Logger;
  *
  * A category is the combination of an age range (AgeGroup), a gender, and a bodyweight range.
  *
- * Category currently include record information for the computation of Robi points.
- * Category links to its associated records.
+ * Category currently include record information for the computation of Robi points. Category links to its associated
+ * records.
  *
  * Robi = * A x (total)^b where b = log(10)/log(2)
  *
- * A = 1000 / [ (WR)^b ] WR = World Record
+ * A = 1000 / [ (WR)^b ] WR = World RecordEvent
  *
  * @author owlcms
  *

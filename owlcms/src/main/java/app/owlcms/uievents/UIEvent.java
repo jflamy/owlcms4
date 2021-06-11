@@ -582,19 +582,19 @@ public class UIEvent {
     static public class StartTime extends UIEvent {
 
         private Integer timeRemaining;
-        private boolean silent;
+        private boolean serverSound;
 
         /**
          * Instantiates a new start time.
          *
          * @param timeRemaining the time remaining
          * @param origin        the origin
-         * @param silent
+         * @param serverSound
          */
-        public StartTime(Integer timeRemaining, Object origin, boolean silent) {
+        public StartTime(Integer timeRemaining, Object origin, boolean serverSound) {
             super(origin);
             this.timeRemaining = timeRemaining;
-            this.silent = silent;
+            this.serverSound = serverSound;
         }
 
         /**
@@ -606,8 +606,8 @@ public class UIEvent {
             return timeRemaining;
         }
 
-        public boolean isSilent() {
-            return silent;
+        public boolean isServerSound() {
+            return serverSound;
         }
 
     }

@@ -108,11 +108,12 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
      * @param crudFormFactory the factory that will create the form using this information
      */
     protected void createFormLayout(OwlcmsCrudFormFactory<Group> crudFormFactory) {
-        crudFormFactory.setVisibleProperties("name", "platform", "weighInTime", "competitionTime", "weighIn1", "weighIn2", "announcer",
+        crudFormFactory.setVisibleProperties("name", "platform", "weighInTime", "competitionTime", "weighIn1",
+                "weighIn2", "announcer",
                 "marshall", "technicalController", "timeKeeper", "referee1", "referee2", "referee3", "jury1", "jury2",
                 "jury3", "jury4", "jury5");
         crudFormFactory.setFieldCaptions(getTranslation("Name"), getTranslation("Platform"),
-                getTranslation("WeighInTime"), getTranslation("StartTime"), 
+                getTranslation("WeighInTime"), getTranslation("StartTime"),
                 getTranslation("Weighin1"), getTranslation("Weighin2"),
                 getTranslation("Announcer"),
                 getTranslation("Marshall"), getTranslation("TechnicalController"), getTranslation("Timekeeper"),

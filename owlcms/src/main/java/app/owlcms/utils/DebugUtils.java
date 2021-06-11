@@ -36,6 +36,22 @@ public class DebugUtils {
         }).start();
     }
 
+    public static String getOwlcmsParentName(Component e) {
+        Class<? extends Component> class1 = e.getClass();
+        String className = class1.getName();
+        if (className.contains("vaadin") || (!className.endsWith("Board") && !className.endsWith("Content")
+                && !className.endsWith("Display") && !className.endsWith("Layout"))) {
+            Optional<Component> parent = e.getParent();
+            if (parent.isPresent()) {
+                return getOwlcmsParentName(parent.get());
+            } else {
+                return class1.getSimpleName();
+            }
+        } else {
+            return class1.getSimpleName();
+        }
+    }
+
     /**
      * @param lifterList
      * @return ordered printout of lifters, one per line.
@@ -74,20 +90,5 @@ public class DebugUtils {
             sb.append(LINESEPARATOR);
         }
         return sb.toString();
-    }
-    
-    public static String getOwlcmsParentName(Component e) {
-        Class<? extends Component> class1 = e.getClass();
-        String className = class1.getName();
-        if (className.contains("vaadin") || (!className.endsWith("Board") && !className.endsWith("Content") && !className.endsWith("Display") && !className.endsWith("Layout"))) {
-            Optional<Component> parent = e.getParent();
-            if (parent.isPresent()) {
-                return getOwlcmsParentName(parent.get());
-            } else {
-                return class1.getSimpleName();
-            }
-        } else {
-            return class1.getSimpleName();
-        }
     }
 }

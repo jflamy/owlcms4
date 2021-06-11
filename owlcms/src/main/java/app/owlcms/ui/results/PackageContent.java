@@ -148,7 +148,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
      * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
      *                  parameters instead.
      *
-     * @see app.owlcms.ui.parameters.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      *      java.lang.String)
      */
     @Override
@@ -387,14 +387,14 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
                 break;
             }
             if (fileName.startsWith("Total")) {
-                totalTemplate  = curResource;
+                totalTemplate = curResource;
             }
         }
         if (found != null) {
             return found;
         } else {
             // should be non-null, if not there, null is ok.
-            return totalTemplate; 
+            return totalTemplate;
         }
     }
 

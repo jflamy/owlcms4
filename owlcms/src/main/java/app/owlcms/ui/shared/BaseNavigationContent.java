@@ -34,8 +34,8 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.utils.URLUtils;
+import app.owlcms.utils.queryparameters.FOPParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -45,7 +45,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public abstract class BaseNavigationContent extends VerticalLayout
-        implements OwlcmsContent, QueryParameterReader, SafeEventBusRegistration, UIEventProcessor {
+        implements OwlcmsContent, FOPParameters, SafeEventBusRegistration, UIEventProcessor {
 
     // @SuppressWarnings("unused")
     final private static Logger logger = (Logger) LoggerFactory.getLogger(BaseNavigationContent.class);
@@ -95,12 +95,12 @@ public abstract class BaseNavigationContent extends VerticalLayout
     /**
      * Process URL parameters, including query parameters
      *
-     * @see app.owlcms.ui.parameters.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      *      java.lang.String)
      */
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-        QueryParameterReader.super.setParameter(event, parameter);
+        FOPParameters.super.setParameter(event, parameter);
         location = event.getLocation();
         locationUI = event.getUI();
     }

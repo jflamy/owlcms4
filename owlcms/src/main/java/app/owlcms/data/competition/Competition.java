@@ -322,25 +322,11 @@ public class Competition {
         String absoluteRoot = "/templates/competitionBook";
         if (finalPackageTemplateFileName == null) {
             return doFindFinalPackageTemplateFileName(absoluteRoot);
-        } else if (this.getClass().getResource(absoluteRoot+"/"+finalPackageTemplateFileName) != null) {
+        } else if (this.getClass().getResource(absoluteRoot + "/" + finalPackageTemplateFileName) != null) {
             return finalPackageTemplateFileName;
         } else {
             return doFindFinalPackageTemplateFileName(absoluteRoot);
         }
-    }
-
-    private String doFindFinalPackageTemplateFileName(String absoluteRoot) {
-        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
-                ResourceWalker::relativeName, null);
-        for (Resource r : resourceList) {
-            logger.trace("checking {}",r.getFilePath());
-            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
-                return r.getFileName();
-            } else if (r.getFileName().startsWith("Total")) {
-                return r.getFileName();
-            }
-        }
-        throw new RuntimeException("final package templates not found under " + absoluteRoot);
     }
 
     synchronized public List<Athlete> getGlobalCategoryRankingsForGroup(Group group) {
@@ -462,25 +448,11 @@ public class Competition {
         String absoluteRoot = "/templates/protocol";
         if (protocolFileName == null) {
             return doFindProtocolFileName(absoluteRoot);
-        } else if (this.getClass().getResource(absoluteRoot+"/"+protocolFileName) != null) {
+        } else if (this.getClass().getResource(absoluteRoot + "/" + protocolFileName) != null) {
             return protocolFileName;
         } else {
             return protocolFileName;
         }
-    }
-
-    private String doFindProtocolFileName(String absoluteRoot) {
-        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
-                ResourceWalker::relativeName, null);
-        for (Resource r : resourceList) {
-            logger.trace("checking {}",r.getFilePath());
-            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
-                return r.getFileName();
-            } else if (r.getFileName().startsWith("Protocol")) {
-                return r.getFileName();
-            }
-        }
-        throw new RuntimeException("result templates not found under " + absoluteRoot);
     }
 
     public HashMap<String, Object> getReportingBeans() {
@@ -788,6 +760,34 @@ public class Competition {
                 + ", useBirthYear=" + useBirthYear + ", useCategorySinclair=" + useCategorySinclair
                 + ", useOldBodyWeightTieBreak=" + useOldBodyWeightTieBreak + ", useRegistrationCategory="
                 + useRegistrationCategory + ", reportingBeans=" + reportingBeans + "]";
+    }
+
+    private String doFindFinalPackageTemplateFileName(String absoluteRoot) {
+        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
+                ResourceWalker::relativeName, null);
+        for (Resource r : resourceList) {
+            logger.trace("checking {}", r.getFilePath());
+            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
+                return r.getFileName();
+            } else if (r.getFileName().startsWith("Total")) {
+                return r.getFileName();
+            }
+        }
+        throw new RuntimeException("final package templates not found under " + absoluteRoot);
+    }
+
+    private String doFindProtocolFileName(String absoluteRoot) {
+        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
+                ResourceWalker::relativeName, null);
+        for (Resource r : resourceList) {
+            logger.trace("checking {}", r.getFilePath());
+            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
+                return r.getFileName();
+            } else if (r.getFileName().startsWith("Protocol")) {
+                return r.getFileName();
+            }
+        }
+        throw new RuntimeException("result templates not found under " + absoluteRoot);
     }
 
     @SuppressWarnings("unchecked")

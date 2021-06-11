@@ -70,6 +70,13 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     private HorizontalLayout timerButtons;
     private HorizontalLayout decisionLights;
 
+    // array is used because of Java requires a final;
+    private long[] previousStartMillis = { 0L };
+
+    private long[] previousGoodMillis = { 0L };
+
+    private long[] previousBadMillis = { 0L };
+
     public AnnouncerContent() {
         super();
         defineFilters(crudGrid);
@@ -85,7 +92,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     public Collection<Athlete> findAll() {
         FieldOfPlay fop = OwlcmsSession.getFop();
         if (fop != null) {
-            logger.trace("{}findAll {} {}", fop.getLoggingName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
+            logger.trace("{}findAll {} {}", fop.getLoggingName(),
+                    fop.getGroup() == null ? null : fop.getGroup().getName(),
                     LoggerUtils.whereFrom());
             final String filterValue;
             if (lastNameFilter.getValue() != null) {
@@ -166,7 +174,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             displayLiveDecisions();
         });
     }
-    
+
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
      */
@@ -260,11 +268,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         return reset;
     }
 
-    // array is used because of Java requires a final;
-    private long[] previousStartMillis = { 0L };
-    private long[] previousGoodMillis  = { 0L };
-    private long[] previousBadMillis  = { 0L };
-
     @Override
     protected void createStartTimeButton() {
         startTimeButton = new Button(AvIcons.PLAY_ARROW.create());
@@ -304,7 +307,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         // filter.
         super.createTopBarGroupSelect();
         topBarGroupSelect.setReadOnly(false);
-        //topBarGroupSelect.setWidth("12ch");
+        // topBarGroupSelect.setWidth("12ch");
         topBarGroupSelect.setClearButtonVisible(true);
         OwlcmsSession.withFop((fop) -> {
             Group group = fop.getGroup();
@@ -331,7 +334,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 if (timeElapsed > 5000) {
                     // no reason to give two goods within one second...
                     fop.getFopEventBus().post(
-                        new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true, true, true));
+                            new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true, true,
+                                    true));
                 }
                 previousGoodMillis[0] = now;
             });
@@ -344,8 +348,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 long timeElapsed = now - previousBadMillis[0];
                 if (timeElapsed > 5000) {
                     // no reason to give two goods within one second...
-                    fop.getFopEventBus().post(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
-                        false, false, false));
+                    fop.getFopEventBus()
+                            .post(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
+                                    false, false, false));
                 }
                 previousBadMillis[0] = now;
             });
@@ -368,7 +373,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     protected void fillTopBarLeft() {
         super.fillTopBarLeft();
         getTopBarLeft().addClassName("announcerLeft");
-        //getTopBarLeft().setWidth("12em");
+        // getTopBarLeft().setWidth("12em");
     }
 
     private void createDecisionLights() {
@@ -376,7 +381,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 //        Icon silenceIcon = AvIcons.MIC_OFF.create();
         decisionLights = new HorizontalLayout(decisionDisplay);
         decisionLights.addClassName("announcerLeft");
-        //decisionLights.setWidth("12em");
+        // decisionLights.setWidth("12em");
         decisionLights.getStyle().set("line-height", "2em");
     }
 

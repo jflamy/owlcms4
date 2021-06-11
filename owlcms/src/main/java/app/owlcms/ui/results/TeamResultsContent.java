@@ -204,7 +204,7 @@ public class TeamResultsContent extends VerticalLayout
      * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
      *                  parameters instead.
      *
-     * @see app.owlcms.ui.parameters.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      *      java.lang.String)
      */
     public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
@@ -276,7 +276,7 @@ public class TeamResultsContent extends VerticalLayout
                 .setTextAlign(ColumnTextAlign.END);
 
         OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(TeamTreeItem.class);
-        OwlcmsCrudGrid<TeamTreeItem> crudGrid = new OwlcmsCrudGrid<TeamTreeItem>(TeamTreeItem.class, gridLayout,
+        OwlcmsCrudGrid<TeamTreeItem> crudGrid = new OwlcmsCrudGrid<>(TeamTreeItem.class, gridLayout,
                 crudFormFactory, grid) {
             @Override
             public void refreshGrid() {

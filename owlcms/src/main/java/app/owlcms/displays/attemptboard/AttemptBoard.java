@@ -7,16 +7,20 @@
 package app.owlcms.displays.attemptboard;
 
 import java.util.List;
+import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
@@ -24,6 +28,7 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
@@ -35,12 +40,12 @@ import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.components.elements.Plates;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
+import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
@@ -48,11 +53,20 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.SoundUtils;
+import app.owlcms.utils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
  * Attempt board.
+ */
+/**
+ * @author JF
+ *
+ */
+/**
+ * @author JF
+ *
  */
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @SuppressWarnings("serial")
@@ -63,7 +77,7 @@ import ch.qos.logback.classic.Logger;
 @CssImport(value = "./styles/plates.css")
 @Route("displays/attemptBoard")
 @Push
-public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel> implements QueryParameterReader,
+public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel> implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
     /**
@@ -138,6 +152,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     private Location location;
     private UI locationUI;
     private boolean groupDone;
+    private boolean silenced = true;
+    private Dialog dialog;
 
     /**
      * Instantiates a new attempt board.
@@ -149,6 +165,15 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         getModel().setJavaComponentId(this.toString());
         getModel().setKgSymbol(getTranslation("KgSymbol"));
         breakTimer.setParent("attemptBoard");
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
+     *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
+     */
+    @Override
+    public void addDialogContent(Component target, VerticalLayout dialog) {
+        DisplayOptions.addSoundEntries(dialog, target, this);
     }
 
     @Override
@@ -176,6 +201,21 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         }));
     }
 
+    /**
+     * return dialog, but only on first call.
+     *
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#getDialog()
+     */
+    @Override
+    public Dialog getDialog() {
+        if (dialog == null) {
+            dialog = new Dialog();
+            return dialog;
+        } else {
+            return null;
+        }
+    }
+
     @Override
     public Location getLocation() {
         return this.location;
@@ -191,6 +231,11 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         return getTranslation("Attempt");
     }
 
+    @Override
+    public boolean isDarkMode() {
+        return true;
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -202,6 +247,19 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     @Override
+    public boolean isSilenced() {
+        return silenced;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setDarkMode(boolean)
+     */
+    @Override
+    public void setDarkMode(boolean dark) {
+        // noop
+    }
+
+    @Override
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -209,6 +267,14 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    @Override
+    public void setSilenced(boolean silenced) {
+        logger.warn("{} setSilenced = {} from {}", this.getClass().getSimpleName(), silenced, LoggerUtils.whereFrom());
+        this.athleteTimer.setSilenced(silenced);
+        this.breakTimer.setSilenced(silenced);
+        this.silenced = silenced;
     }
 
     @Subscribe
@@ -362,6 +428,22 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         });
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#updateURLLocation(com.vaadin.flow.component.UI,
+     *      com.vaadin.flow.router.Location, java.lang.String, java.lang.String)
+     */
+    @Override
+    public void updateURLLocation(UI ui, Location location, String parameter, String mode) {
+        TreeMap<String, List<String>> parametersMap = new TreeMap<>(location.getQueryParameters().getParameters());
+        updateParam(parametersMap, DARK, null);
+        updateParam(parametersMap, parameter, mode);
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        updateParam(parametersMap, "fop", fop != null ? fop.getName() : null);
+        Location location2 = new Location(location.getPath(), new QueryParameters(parametersMap));
+        ui.getPage().getHistory().replaceState(null, location2);
+        setLocation(location2);
+    }
+
     protected void doAthleteUpdate(Athlete a) {
         FieldOfPlay fop = OwlcmsSession.getFop();
         FOPState state = fop.getState();
@@ -420,15 +502,15 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        // fop obtained via QueryParameterReader interface default methods.
+        // fop obtained via FOPParameters interface default methods.
         OwlcmsSession.withFop(fop -> {
             logger.debug("{}onAttach {}", fop.getLoggingName(), fop.getState());
             init();
             ThemeList themeList = UI.getCurrent().getElement().getThemeList();
             themeList.remove(Lumo.LIGHT);
             themeList.add(Lumo.DARK);
-            
-            SoundUtils.enableAudioContext(this.getElement());
+
+            SoundUtils.enableAudioContextNotification(this.getElement());
 
             // sync with current status of FOP
             if (fop.getState() == FOPState.INACTIVE) {
@@ -448,9 +530,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             // we send on fopEventBus, listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
+        buildDialog(this);
     }
-
-
 
     private void doDone(Group g) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {

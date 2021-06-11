@@ -219,7 +219,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         for (String suffix : tryList) {
             String name = templateName + suffix + extension;
             final InputStream resourceAsStream = this.getClass().getResourceAsStream(name);
-            //logger.warn("trying {} : {}", name, resourceAsStream);
+            // logger.warn("trying {} : {}", name, resourceAsStream);
             if (resourceAsStream != null) {
                 return resourceAsStream;
             }
@@ -252,9 +252,11 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         getReportingBeans().put("session", getGroup()); // legacy
         getReportingBeans().put("group", getGroup());
         getReportingBeans().put("masters", Competition.getCurrent().isMasters());
-        getReportingBeans().put("groups", GroupRepository.findAll().stream().sorted((a,b) -> {
+        getReportingBeans().put("groups", GroupRepository.findAll().stream().sorted((a, b) -> {
             int compare = ObjectUtils.compare(a.getWeighInTime(), b.getWeighInTime(), true);
-            if (compare != 0) return compare;
+            if (compare != 0) {
+                return compare;
+            }
             return compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
         }).collect(Collectors.toList()));
     }

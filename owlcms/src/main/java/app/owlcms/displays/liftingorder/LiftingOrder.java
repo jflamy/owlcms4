@@ -16,10 +16,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -34,17 +36,18 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.parameters.DarkModeParameters;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.Decision;
+import app.owlcms.utils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -64,7 +67,7 @@ import elemental.json.JsonValue;
 @Route("displays/liftingorder")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel> implements DarkModeParameters,
+public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel> implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
     /**
@@ -125,9 +128,9 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     JsonArray sattempts;
     JsonArray cattempts;
     private boolean darkMode;
-    private ContextMenu contextMenu;
     private Location location;
     private UI locationUI;
+    private Dialog dialog;
 
     /**
      * Instantiates a new results board.
@@ -136,6 +139,11 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         OwlcmsFactory.waitDBInitialized();
         this.getElement().getStyle().set("width", "100%");
         setDarkMode(true);
+    }
+
+    @Override
+    public void addDialogContent(Component target, VerticalLayout vl) {
+        DisplayOptions.addLightingEntries(vl, target, this);
     }
 
     @Override
@@ -148,9 +156,19 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         }));
     }
 
+    /**
+     * return dialog, but only on first call.
+     *
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#getDialog()
+     */
     @Override
-    public ContextMenu getContextMenu() {
-        return contextMenu;
+    public Dialog getDialog() {
+        if (dialog == null) {
+            dialog = new Dialog();
+            return dialog;
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -178,16 +196,16 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         return true;
     }
 
+    @Override
+    public boolean isSilenced() {
+        return true;
+    }
+
     /**
      * Reset.
      */
     public void reset() {
         order = ImmutableList.of();
-    }
-
-    @Override
-    public void setContextMenu(ContextMenu contextMenu) {
-        this.contextMenu = contextMenu;
     }
 
     @Override
@@ -340,7 +358,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        // fop obtained via QueryParameterReader interface default methods.
+        // fop obtained via FOPParameters interface default methods.
         OwlcmsSession.withFop(fop -> {
             init();
             // sync with current status of FOP
@@ -350,7 +368,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
-        setDarkMode(this, isDarkMode(), false);
+        switchLightingMode(this, isDarkMode(), true);
     }
 
     protected void setTranslationMap() {
@@ -450,5 +468,4 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
         this.getElement().setPropertyJson("athletes", getAthletesJson(order));
     }
-
 }

@@ -18,10 +18,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -39,17 +42,18 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.team.Team;
 import app.owlcms.data.team.TeamTreeData;
 import app.owlcms.data.team.TeamTreeItem;
+import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.parameters.DarkModeParameters;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -63,6 +67,10 @@ import elemental.json.JsonValue;
  * Show athlete lifting order
  *
  */
+/**
+ * @author JF
+ *
+ */
 @SuppressWarnings("serial")
 @Tag("topteamsinclair-template")
 @JsModule("./components/TopTeamsSinclair.js")
@@ -70,7 +78,7 @@ import elemental.json.JsonValue;
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
 public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsSinclairModel>
-        implements DarkModeParameters,
+        implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin, PageConfigurator {
 
     /**
@@ -108,18 +116,29 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     JsonArray sattempts;
     JsonArray cattempts;
     private boolean darkMode;
-    private ContextMenu contextMenu;
     private Location location;
     private UI locationUI;
     private List<TeamTreeItem> mensTeams;
     private List<TeamTreeItem> womensTeams;
     private DecimalFormat floatFormat;
+    private Dialog dialog;
 
     /**
      * Instantiates a new results board.
      */
     public TopTeamsSinclair() {
         OwlcmsFactory.waitDBInitialized();
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
+     *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
+     */
+    @Override
+    public void addDialogContent(Component target, VerticalLayout vl) {
+        DisplayOptions.addLightingEntries(vl, target, this);
+        vl.add(new Hr());
+        DisplayOptions.addSoundEntries(vl, target, this);
     }
 
     @Override
@@ -160,44 +179,72 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         updateBottom(getModel());
     }
 
+    /**
+     * return dialog, but only on first call.
+     *
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#getDialog()
+     */
     @Override
-    public ContextMenu getContextMenu() {
-        return contextMenu;
+    public Dialog getDialog() {
+        if (dialog == null) {
+            dialog = new Dialog();
+            return dialog;
+        } else {
+            return null;
+        }
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocation()
+     */
     @Override
     public Location getLocation() {
         return this.location;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocationUI()
+     */
     @Override
     public UI getLocationUI() {
         return this.locationUI;
     }
 
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
     @Override
     public String getPageTitle() {
         return getTranslation("Scoreboard.TopTeamsSinclair");
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isDarkMode()
+     */
     @Override
     public boolean isDarkMode() {
         return this.darkMode;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#isIgnoreFopFromURL()
+     */
     @Override
     public boolean isIgnoreFopFromURL() {
         return true;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#isIgnoreGroupFromURL()
+     */
     @Override
     public boolean isIgnoreGroupFromURL() {
         return true;
     }
 
     @Override
-    public void setContextMenu(ContextMenu contextMenu) {
-        this.contextMenu = contextMenu;
+    public boolean isSilenced() {
+        return true;
     }
 
     @Override
@@ -276,7 +323,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        setDarkMode(this, isDarkMode(), false);
+        switchLightingMode(this, isDarkMode(), true);
         setWide(false);
         setTranslationMap();
         for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
@@ -385,5 +432,4 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
                         : "");
         this.getElement().setPropertyJson("womensTeams", getTeamsJson(womensTeams, false));
     }
-
 }

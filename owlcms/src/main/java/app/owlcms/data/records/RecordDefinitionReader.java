@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.data.record;
+package app.owlcms.data.records;
 
 import java.io.InputStream;
 import java.time.LocalDate;
@@ -58,7 +58,7 @@ public class RecordDefinitionReader {
                         continue;
                     }
 
-                    Record rec = new Record();
+                    RecordEvent rec = new RecordEvent();
 
                     for (Cell cell : row) {
                         //System.err.println("[" + iSheet + "," + iRow + "," + iColumn + "]");
@@ -158,7 +158,7 @@ public class RecordDefinitionReader {
                     try {
                         em.persist(rec);
                     } catch (Exception e) {
-                        logger.error("could not persist Record {}",LoggerUtils.stackTrace(e));
+                        logger.error("could not persist RecordEvent {}",LoggerUtils.stackTrace(e));
                     }
                     
                     

@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import app.owlcms.data.jpa.JPAService;
-import app.owlcms.data.record.RecordDefinitionReader;
+import app.owlcms.data.records.RecordDefinitionReader;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 

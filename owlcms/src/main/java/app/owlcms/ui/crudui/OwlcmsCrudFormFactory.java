@@ -372,6 +372,10 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         return updateTrigger;
     }
 
+    protected boolean isValid() {
+        return valid;
+    }
+
     protected void performOperationAndCallback(CrudOperation operation, T domainObject,
             ComponentEventListener<ClickEvent<Button>> gridCallback) {
         setValid(binder.writeBeanIfValid(domainObject));
@@ -446,6 +450,10 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         return hasErrors;
     }
 
+    protected void setValid(boolean valid) {
+        this.valid = valid;
+    }
+
     private void init() {
         setButtonCaption(CrudOperation.READ, Translator.translate("Ok"));
         setButtonCaption(CrudOperation.ADD, Translator.translate("Add"));
@@ -453,13 +461,5 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         setButtonCaption(CrudOperation.DELETE, Translator.translate("Delete"));
         cancelButtonCaption = Translator.translate("Cancel");
         validationErrorMessage = Translator.translate("PleaseFix");
-    }
-
-    protected boolean isValid() {
-        return valid;
-    }
-
-    protected void setValid(boolean valid) {
-        this.valid = valid;
     }
 }

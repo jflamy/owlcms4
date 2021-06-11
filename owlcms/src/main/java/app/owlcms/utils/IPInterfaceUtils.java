@@ -81,7 +81,7 @@ public class IPInterfaceUtils {
             // if we are not on the cloud, we try to get a numerical address anyway.
             String forward = headerMap.get("x-forwarded-for");
             if (forward != null) {
-                logger.debug("forwarding for {}, proxied, ip address would be meaningless",forward);
+                logger.debug("forwarding for {}, proxied, ip address would be meaningless", forward);
                 return;
             } else {
                 logger.debug("no x-forwarded-for, local machine with host name");

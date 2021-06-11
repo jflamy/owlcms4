@@ -47,7 +47,7 @@ public class LocalDateTimeField extends WrappedTextField<LocalDateTime> implemen
 
     @Override
     public Converter<String, LocalDateTime> getConverter() {
-        return new Converter<String, LocalDateTime>() {
+        return new Converter<>() {
 
             @Override
             public Result<LocalDateTime> convertToModel(String value, ValueContext context) {

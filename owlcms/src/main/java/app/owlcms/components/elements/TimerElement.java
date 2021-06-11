@@ -76,7 +76,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         boolean isRunning();
 
         /**
-         * Checks if timer is silent.
+         * Checks if timer is silenced.
          *
          * @return true, if sounds are to be emitted.
          */
@@ -137,10 +137,11 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     private Element timerElement;
     private boolean indefinite;
     private Integer msRemaining;
-    private boolean silent;
+    private boolean silenced = true;
     protected VaadinSession vsession;
     public long lastStartMillis;
     public long lastStopMillis;
+    private boolean serverSound;
 
     /**
      * Instantiates a new timer element.
@@ -167,6 +168,9 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     @ClientCallable
     abstract public void clientTimeOver();
 
+    @ClientCallable
+    abstract public void clientTimerStarting(double remainingTime, double lateMillis, String from);
+
     /**
      * Timer has been stopped on the client side.
      *
@@ -175,30 +179,44 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     @ClientCallable
     abstract public void clientTimerStopped(double remainingTime, String from);
 
-    @ClientCallable
-    abstract public void clientTimerStarting(double remainingTime, double lateMillis, String from);
+    public boolean isServerSound() {
+        return serverSound;
+    }
+
+    public void setSilenced(boolean b) {
+        logger.debug("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
+        silenced = b;
+    }
 
     protected final void doSetTimer(Integer milliseconds) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
-            stop(getMsRemaining(), isIndefinite(), isSilent(), parent);
+            stop(getMsRemaining(), isIndefinite(), isSilenced(), parent);
             initTime(milliseconds);
         });
     }
 
-    protected void doStartTimer(Integer milliseconds, boolean silent) {
+    protected void doStartTimer(Integer milliseconds, boolean serverSound) {
+        setServerSound(serverSound);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setIndefinite(milliseconds == null);
             setMsRemaining(milliseconds);
             String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
             lastStartMillis = System.currentTimeMillis();
             logger.trace("server starting timer {}, {}, {}", parent, milliseconds, lastStartMillis);
-            getModel().setSilent(silent);
-            setSilent(silent);
-            start(milliseconds, isIndefinite(), silent, parent);
+            getModel().setSilent(isSilent());
+            start(milliseconds, isIndefinite(), isSilent(), parent);
         });
     }
 
+    /**
+     * No sound if sound is emitted on server, or if silenced through the interface.
+     * 
+     * @return
+     */
+    private boolean isSilent() {
+        return isServerSound() || (!isServerSound() && isSilenced());
+    }
 
     protected void doStopTimer(Integer milliseconds) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
@@ -218,7 +236,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         setTimerElement(this.getElement());
         double seconds = 0.00D;
         setMsRemaining(0);
-        setSilent(true);
+//        setSilenced(true);
         setIndefinite(false);
         if (UI.getCurrent() == null) {
             return;
@@ -238,8 +256,8 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         return indefinite;
     }
 
-    protected boolean isSilent() {
-        return silent;
+    protected boolean isSilenced() {
+        return silenced;
     }
 
     /*
@@ -259,17 +277,13 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         // tell the javascript to stay quiet
-        setSilent(true);
+        setSilenced(true);
         setTimerElement(null);
         getModel().setSilent(true);
     }
 
     protected void setIndefinite(boolean indefinite) {
         this.indefinite = indefinite;
-    }
-
-    protected void setSilent(boolean b) {
-        silent = b;
     }
 
     protected void setTimerElement(Element timerElement) {
@@ -295,7 +309,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
             if (this instanceof BreakTimerElement) {
                 logger.trace("not indefinite {}", formatDuration(milliseconds));
             }
-            setDisplay(milliseconds, isIndefinite(), isSilent());
+            setDisplay(milliseconds, isIndefinite(), isSilenced());
         } else {
             if (this instanceof BreakTimerElement) {
                 logger.trace("indefinite");
@@ -314,6 +328,10 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 
     private void setMsRemaining(Integer milliseconds) {
         msRemaining = milliseconds;
+    }
+
+    private void setServerSound(boolean serverSound) {
+        this.serverSound = serverSound;
     }
 
     private void start(Integer milliseconds, Boolean indefinite, Boolean silent, String from) {

@@ -18,6 +18,24 @@ import app.owlcms.init.OwlcmsSession;
  */
 public class LoggerUtils {
 
+    /**
+     * @param e
+     * @return
+     */
+    public static String exceptionMessage(Exception e) {
+        String message = null;
+        if (e.getCause() != null) {
+            message = e.getCause().getMessage();
+        }
+        if (message == null) {
+            message = e.getMessage();
+        }
+        if (message == null) {
+            message = e.getClass().getSimpleName();
+        }
+        return message;
+    }
+
     public static void setWhere(String where) {
         MDC.put("page", where);
         OwlcmsSession.withFop(fop -> MDC.put("currentGroup", fop.getGroup() != null ? fop.getGroup() : "-"));
@@ -74,25 +92,7 @@ public class LoggerUtils {
      * @return the string
      */
     public static String whereFrom(int depth) {
-        String where = Thread.currentThread().getStackTrace()[3+depth].toString();
+        String where = Thread.currentThread().getStackTrace()[3 + depth].toString();
         return where.replaceFirst(".*\\(", "(");
-    }
-
-    /**
-     * @param e
-     * @return
-     */
-    public static String exceptionMessage(Exception e) {
-        String message = null;
-        if (e.getCause() != null) {
-            message = e.getCause().getMessage();
-        }
-        if (message == null) {
-            message = e.getMessage();
-        }
-        if (message == null) {
-            message = e.getClass().getSimpleName();
-        }
-        return message;
     }
 }

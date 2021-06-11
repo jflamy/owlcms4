@@ -64,6 +64,14 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
         // ignored
     }
 
+    /**
+     * @see app.owlcms.fieldofplay.IBreakTimer#getBreakDuration()
+     */
+    @Override
+    public Integer getBreakDuration() {
+        return breakDuration;
+    }
+
     public LocalDateTime getEnd() {
         return end;
     }
@@ -99,6 +107,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     /**
      * @return the indefinite
      */
+    @Override
     public boolean isIndefinite() {
         return indefinite;
     }
@@ -137,6 +146,14 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     }
 
     /**
+     * @see app.owlcms.fieldofplay.IBreakTimer#setBreakDuration(java.lang.Integer)
+     */
+    @Override
+    public void setBreakDuration(Integer breakDuration) {
+        this.breakDuration = breakDuration;
+    }
+
+    /**
      * @see app.owlcms.fieldofplay.IBreakTimer#setEnd(java.time.LocalDateTime)
      */
     @Override
@@ -162,6 +179,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
         indefinite = true;
     }
 
+    @Override
     public void setOrigin(Object origin) {
         this.origin = origin;
     }
@@ -213,12 +231,12 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
         logger.debug("***stopping Break -- timeRemaining = {} [{}]", getTimeRemaining(), LoggerUtils.whereFrom());
         timeRemainingAtLastStop = getTimeRemaining();
         logger.debug("break stop = {} [{}]", liveTimeRemaining(), LoggerUtils.whereFrom());
-        UIEvent.BreakPaused event = new UIEvent.BreakPaused(isIndefinite() ? null : getTimeRemaining(), getOrigin(), false,
+        UIEvent.BreakPaused event = new UIEvent.BreakPaused(isIndefinite() ? null : getTimeRemaining(), getOrigin(),
+                false,
                 fop.getBreakType(), fop.getCountdownType());
         fop.pushOut(event);
     }
 
-    
     /*
      * (non-Javadoc)
      *
@@ -239,7 +257,8 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
             // we've already signaled time over.
             return;
         }
-        logger.debug("break {} {} timeover = {} [{}]", running, isIndefinite(), getTimeRemaining(), LoggerUtils.whereFrom());
+        logger.debug("break {} {} timeover = {} [{}]", running, isIndefinite(), getTimeRemaining(),
+                LoggerUtils.whereFrom());
 
         // should emit sound at end of break
         fop.pushOut(new UIEvent.BreakDone(origin));
@@ -271,22 +290,6 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     private int getMillis() {
         return (int) (this.getEnd() != null ? LocalDateTime.now().until(getEnd(), ChronoUnit.MILLIS)
                 : getTimeRemaining());
-    }
-    
-    /**
-     * @see app.owlcms.fieldofplay.IBreakTimer#getBreakDuration()
-     */
-    @Override
-    public Integer getBreakDuration() {
-        return breakDuration;
-    }
-
-    /**
-     * @see app.owlcms.fieldofplay.IBreakTimer#setBreakDuration(java.lang.Integer)
-     */
-    @Override
-    public void setBreakDuration(Integer breakDuration) {
-        this.breakDuration = breakDuration;
     }
 
 }

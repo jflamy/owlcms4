@@ -71,12 +71,12 @@ import app.owlcms.ui.lifting.AnnouncerContent;
 import app.owlcms.ui.lifting.AthleteCardFormFactory;
 import app.owlcms.ui.lifting.JuryContent;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
+import app.owlcms.utils.queryparameters.FOPParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -90,7 +90,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @CssImport(value = "./styles/athlete-grid.css")
 public abstract class AthleteGridContent extends VerticalLayout
-        implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventProcessor, IAthleteEditing {
+        implements CrudListener<Athlete>, OwlcmsContent, FOPParameters, UIEventProcessor, IAthleteEditing {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -121,7 +121,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected Span startNumber;
     protected H2 attempt;
     protected H2 weight;
-    protected AthleteTimerElement timeField;
+    protected AthleteTimerElement timer;
     protected FlexLayout topBar;
     protected ComboBox<Group> topBarGroupSelect;
     private Athlete displayedAthlete;
@@ -170,9 +170,8 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected OwlcmsGridLayout crudLayout;
     private boolean ignoreSwitchGroup;
 
-    public boolean isIgnoreSwitchGroup() {
-        return ignoreSwitchGroup;
-    }
+    // array is used because of Java requires a final;
+    long[] previousStartMillis = { 0L };
 
     /**
      * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -240,7 +239,8 @@ public abstract class AthleteGridContent extends VerticalLayout
     public Collection<Athlete> findAll() {
         FieldOfPlay fop = OwlcmsSession.getFop();
         if (fop != null) {
-            logger.trace("{}findAll {} {}", fop.getLoggingName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
+            logger.trace("{}findAll {} {}", fop.getLoggingName(),
+                    fop.getGroup() == null ? null : fop.getGroup().getName(),
                     LoggerUtils.whereFrom());
             final String filterValue;
             if (lastNameFilter.getValue() != null) {
@@ -288,6 +288,10 @@ public abstract class AthleteGridContent extends VerticalLayout
         return routerLayout;
     }
 
+    public boolean isIgnoreSwitchGroup() {
+        return ignoreSwitchGroup;
+    }
+
     public void quietBreakButton(boolean b) {
         breakButton.getStyle().set("color", "var(--lumo-error-color)");
         breakButton.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
@@ -319,13 +323,13 @@ public abstract class AthleteGridContent extends VerticalLayout
     /**
      * Process URL parameters, including query parameters
      *
-     * @see app.owlcms.ui.parameters.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      *      java.lang.String)
      */
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
         logger.debug("AthleteGridContent parsing URL");
-        QueryParameterReader.super.setParameter(event, parameter);
+        FOPParameters.super.setParameter(event, parameter);
         setLocation(event.getLocation());
         setLocationUI(event.getUI());
     }
@@ -634,9 +638,6 @@ public abstract class AthleteGridContent extends VerticalLayout
         return null;
     }
 
-    // array is used because of Java requires a final;
-    long[] previousStartMillis = { 0L };
-
     protected void createStartTimeButton() {
         startTimeButton = new Button(AvIcons.PLAY_ARROW.create());
         startTimeButton.addClickListener(e -> {
@@ -706,10 +707,11 @@ public abstract class AthleteGridContent extends VerticalLayout
         attempt = new H2();
         weight = new H2();
         weight.setText("");
-        if (timeField == null) {
-            timeField = new AthleteTimerElement(this);
+        if (timer == null) {
+            timer = new AthleteTimerElement(this);
         }
-        H1 time = new H1(timeField);
+        timer.setSilenced(false);
+        H1 time = new H1(timer);
         clearVerticalMargins(attempt);
         clearVerticalMargins(time);
         clearVerticalMargins(weight);
@@ -790,7 +792,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 //                    if ((newGroup == null && oldGroup != null) || !newGroup.equals(oldGroup)) {
 //                        logger.debug("filter switching group from {} to {}",
 //                                oldGroup != null ? oldGroup.getName() : null,
-//                                newGroup != null ? newGroup.getName() : null);                  
+//                                newGroup != null ? newGroup.getName() : null);
                     if (isIgnoreSwitchGroup()) {
                         // logger.debug("ignoring self-originating change");
                         setIgnoreSwitchGroup(false);
@@ -812,10 +814,6 @@ public abstract class AthleteGridContent extends VerticalLayout
             });
         });
         crudLayout.addFilterComponent(getGroupFilter());
-    }
-
-    private void setIgnoreSwitchGroup(boolean b) {
-        ignoreSwitchGroup = b;
     }
 
     protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
@@ -849,7 +847,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                             startNumber.getStyle().set("visibility", "visible");
                             startNumber.getStyle().set("font-size", "smaller");
                         }
-                        timeField.getElement().getStyle().set("visibility", "visible");
+                        timer.getElement().getStyle().set("visibility", "visible");
                         attempt.setText(formatAttemptNumber(athlete));
                         Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
                         weight.setText(
@@ -1088,10 +1086,14 @@ public abstract class AthleteGridContent extends VerticalLayout
         return athleteEditingFormFactory;
     }
 
+    private void setIgnoreSwitchGroup(boolean b) {
+        ignoreSwitchGroup = b;
+    }
+
     private void topBarMessage(String string, String text) {
         lastName.setText(text);
         firstName.setText("");
-        timeField.getElement().getStyle().set("visibility", "hidden");
+        timer.getElement().getStyle().set("visibility", "hidden");
         attempt.setText("");
         weight.setText("");
         if (warning != null) {
@@ -1134,5 +1136,6 @@ public abstract class AthleteGridContent extends VerticalLayout
             n.open();
         }
     }
+
 
 }

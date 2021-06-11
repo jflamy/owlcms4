@@ -218,21 +218,21 @@ public class ResourceWalker {
 
     /**
      * Check that a resource is relevant to the given language and country
-     * 
+     *
      * The caller is responsible for providing the country.
-     * 
+     *
      * Rules:
-     * 
+     *
      * - Protocol.xls no suffix, always relevant.
-     * 
+     *
      * - Protocol_en.xls always returned if locale has language en
-     * 
+     *
      * - Protocol_en_CA.xls returned only if locale has country = CA
-     * 
+     *
      * As a consequence, for Spanish, if the generic spanish is chosen as locale, and the machine is running in Mexico,
      * the locale will be es_MX and the SV, EC and ES specific templates will be ignored if present
-     * 
-     * 
+     *
+     *
      * @param resourceName
      * @param locale
      * @return

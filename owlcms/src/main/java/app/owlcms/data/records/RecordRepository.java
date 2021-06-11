@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.data.record;
+package app.owlcms.data.records;
 
 import java.io.FileNotFoundException;
 import java.util.EnumSet;
@@ -32,18 +32,40 @@ public class RecordRepository {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(RecordRepository.class);
 
+    /**
+     * Delete.
+     *
+     * @param RecordEvent the group
+     */
+
+    public static void delete(RecordEvent Record) {
+        if (Record.getId() == null) {
+            return;
+        }
+        JPAService.runInTransaction(em -> {
+            try {
+                RecordEvent mRecord = em.contains(Record) ? Record : em.merge(Record);
+                em.remove(mRecord);
+                em.flush();
+            } catch (Exception e) {
+                logger.error(LoggerUtils.stackTrace(e));
+            }
+            return null;
+        });
+    }
+
     @SuppressWarnings("unchecked")
-    public static Record doFindByName(String name, EntityManager em) {
-        Query query = em.createQuery("select u from Record u where u.name=:name");
+    public static RecordEvent doFindByName(String name, EntityManager em) {
+        Query query = em.createQuery("select u from RecordEvent u where u.name=:name");
         query.setParameter("name", name);
-        return (Record) query.getResultList().stream().findFirst().orElse(null);
+        return (RecordEvent) query.getResultList().stream().findFirst().orElse(null);
     }
 
     /**
      * @return active categories
      */
-    public static List<Record> findActive() {
-        List<Record> findFiltered = findFiltered((String) null, (Gender) null, (AgeDivision) null, (Integer) null,
+    public static List<RecordEvent> findActive() {
+        List<RecordEvent> findFiltered = findFiltered((String) null, (Gender) null, (AgeDivision) null, (Integer) null,
                 true, -1, -1);
         return findFiltered;
     }
@@ -53,21 +75,21 @@ public class RecordRepository {
      *
      * @return the list
      */
-    public static List<Record> findAll() {
+    public static List<RecordEvent> findAll() {
         return JPAService.runInTransaction(em -> doFindAll(em));
     }
 
-    public static Record findByName(String name) {
+    public static RecordEvent findByName(String name) {
         return JPAService.runInTransaction(em -> {
             return doFindByName(name, em);
         });
     }
 
-    public static List<Record> findFiltered(String name, Gender gender, AgeDivision ageDivision, Integer age,
+    public static List<RecordEvent> findFiltered(String name, Gender gender, AgeDivision ageDivision, Integer age,
             boolean active, int offset, int limit) {
 
-        List<Record> findFiltered = JPAService.runInTransaction(em -> {
-            String qlString = "select ag from Record ag"
+        List<RecordEvent> findFiltered = JPAService.runInTransaction(em -> {
+            String qlString = "select ag from RecordEvent ag"
                     + filteringSelection(name, gender, ageDivision, age, active)
                     + " order by ag.ageDivision, ag.gender, ag.minAge, ag.maxAge";
             logger.debug("query = {}", qlString);
@@ -81,7 +103,7 @@ public class RecordRepository {
                 query.setMaxResults(limit);
             }
             @SuppressWarnings("unchecked")
-            List<Record> resultList = query.getResultList();
+            List<RecordEvent> resultList = query.getResultList();
             return resultList;
         });
         return findFiltered;
@@ -95,10 +117,10 @@ public class RecordRepository {
      * @return the group, null if not found
      */
     @SuppressWarnings("unchecked")
-    public static Record getById(Long id, EntityManager em) {
+    public static RecordEvent getById(Long id, EntityManager em) {
         Query query = em.createQuery("select u from CompetitionRecord u where u.id=:id");
         query.setParameter("id", id);
-        return (Record) query.getResultList().stream().findFirst().orElse(null);
+        return (RecordEvent) query.getResultList().stream().findFirst().orElse(null);
     }
 
     public static void insertRecords(EntityManager em, EnumSet<AgeDivision> es) {
@@ -118,7 +140,7 @@ public class RecordRepository {
                 upd.executeUpdate();
                 upd = em.createQuery("delete from Category");
                 upd.executeUpdate();
-                upd = em.createQuery("delete from Record");
+                upd = em.createQuery("delete from RecordEvent");
                 upd.executeUpdate();
                 em.flush();
             } catch (Exception e) {
@@ -133,16 +155,16 @@ public class RecordRepository {
     /**
      * Save.
      *
-     * @param Record the group
+     * @param RecordEvent the group
      * @return the group
      */
-    public static Record save(Record Record) {
+    public static RecordEvent save(RecordEvent Record) {
 
         // first clean up the age group
-        Record nRecord = JPAService.runInTransaction(em -> {
+        RecordEvent nRecord = JPAService.runInTransaction(em -> {
             // the category objects that have a null age group must be removed.
             try {
-                Record mRecord = em.merge(Record);
+                RecordEvent mRecord = em.merge(Record);
                 em.flush();
                 return mRecord;
             } catch (Exception e) {
@@ -155,8 +177,8 @@ public class RecordRepository {
     }
 
     @SuppressWarnings("unchecked")
-    private static List<Record> doFindAll(EntityManager em) {
-        return em.createQuery("select c from Record c order by c.ageDivision,c.minAge,c.maxAge").getResultList();
+    private static List<RecordEvent> doFindAll(EntityManager em) {
+        return em.createQuery("select c from RecordEvent c order by c.ageDivision,c.minAge,c.maxAge").getResultList();
     }
 
     private static String filteringSelection(String name, Gender gender, AgeDivision ageDivision, Integer age,
@@ -211,28 +233,6 @@ public class RecordRepository {
         if (gender != null) {
             query.setParameter("gender", gender);
         }
-    }
-
-    /**
-     * Delete.
-     *
-     * @param Record the group
-     */
-    
-    public static void delete(Record Record) {
-        if (Record.getId() == null) {
-            return;
-        }
-        JPAService.runInTransaction(em -> {
-            try {
-                Record mRecord = em.contains(Record) ? Record : em.merge(Record);
-                em.remove(mRecord);
-                em.flush();
-            } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
-            }
-            return null;
-        });
     }
 
 }

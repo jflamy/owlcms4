@@ -68,17 +68,7 @@ public class BreakTimerElement extends TimerElement {
         });
         return;
     }
-    
-    /*
-     * (non-Javadoc)
-     *
-     * @see app.owlcms.displays.attemptboard.TimerElement#clientTimerStopped(double)
-     */
-    @Override
-    @ClientCallable
-    public void clientTimerStarting(double remainingTime, double lateMillis, String from) {
-        logger.debug("break timer {} starting on client: remaining = {}", from, remainingTime);
-    }
+
     /**
      * Timer stopped
      *
@@ -94,6 +84,17 @@ public class BreakTimerElement extends TimerElement {
                 fop.getBreakTimer().timeOver(this);
             }
         });
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see app.owlcms.displays.attemptboard.TimerElement#clientTimerStopped(double)
+     */
+    @Override
+    @ClientCallable
+    public void clientTimerStarting(double remainingTime, double lateMillis, String from) {
+        logger.debug("break timer {} starting on client: remaining = {}", from, remainingTime);
     }
 
     /**
@@ -154,8 +155,8 @@ public class BreakTimerElement extends TimerElement {
     @Override
     protected void init() {
         super.init();
-        setSilent(true);
-        getModel().setSilent(true); // do not emit sounds
+//        setSilenced(true);
+//        getModel().setSilent(true); // do not emit sounds
     }
 
     /*
