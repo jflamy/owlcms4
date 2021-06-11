@@ -42,12 +42,14 @@ public interface FOPParameters extends HasUrlParameter<String> {
 
         // get the fop from the query parameters, set to the default FOP if not provided
         FieldOfPlay fop = null;
+        
+        List<String> fopNames = parametersMap.get("fop");
+        boolean fopFound = fopNames != null && fopNames.get(0) != null;
+        if (!fopFound) {
+            setShowInitialDialog(true);
+        }
+        
         if (!isIgnoreFopFromURL()) {
-            List<String> fopNames = parametersMap.get("fop");
-            boolean fopFound = fopNames != null && fopNames.get(0) != null;
-            if (!fopFound) {
-                setInitializationNeeded(true);
-            }
             if (fopFound) {
                 logger.trace("fopNames {}", fopNames);
                 fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
@@ -87,8 +89,8 @@ public interface FOPParameters extends HasUrlParameter<String> {
         return newParameterMap;
     }
 
-    public default void setInitializationNeeded(boolean b) {}
-    public default boolean isInitializationNeeded() {
+    public default void setShowInitialDialog(boolean b) {}
+    public default boolean isShowInitialDialog() {
         return false;
     }
 
@@ -116,7 +118,7 @@ public interface FOPParameters extends HasUrlParameter<String> {
      * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path.
      * We use the old-style Query parameters for our purposes.
      *
-     * @see app.owlcms.ui.group.URLParameter#setParameter(com.vaadin.flow.router. BeforeEvent, java.lang.String)
+     * @see com.vaadin.flow.router.HasUrlParameter#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.Object)
      */
     @Override
     public default void setParameter(BeforeEvent event, @OptionalParameter String unused) {

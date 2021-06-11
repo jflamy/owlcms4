@@ -784,18 +784,18 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#setInitializationNeeded(boolean)
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
      */
     @Override
-    public void setInitializationNeeded(boolean b) {
+    public void setShowInitialDialog(boolean b) {
         this.initializationNeeded = true;
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#isInitializationNeeded()
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
      */
     @Override
-    public boolean isInitializationNeeded() {
+    public boolean isShowInitialDialog() {
         return this.initializationNeeded;
     }
 

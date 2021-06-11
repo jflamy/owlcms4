@@ -163,7 +163,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     private boolean groupDone;
     private boolean silenced = true;
     private Dialog dialog;
-    private boolean initializationNeeded;
+    private boolean showInitialDialog;
 
     /**
      * Instantiates a new results board.
@@ -697,19 +697,19 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#setInitializationNeeded(boolean)
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
      */
     @Override
-    public void setInitializationNeeded(boolean b) {
-        this.initializationNeeded = true;
+    public void setShowInitialDialog(boolean b) {
+        this.showInitialDialog = true;
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#isInitializationNeeded()
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
      */
     @Override
-    public boolean isInitializationNeeded() {
-        return this.initializationNeeded;
+    public boolean isShowInitialDialog() {
+        return this.showInitialDialog;
     }
 
 }

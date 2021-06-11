@@ -138,8 +138,6 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     @Override
     public void addDialogContent(Component target, VerticalLayout vl) {
         DisplayOptions.addLightingEntries(vl, target, this);
-        vl.add(new Hr());
-        DisplayOptions.addSoundEntries(vl, target, this);
     }
 
     @Override
@@ -443,18 +441,18 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#setInitializationNeeded(boolean)
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
      */
     @Override
-    public void setInitializationNeeded(boolean b) {
+    public void setShowInitialDialog(boolean b) {
         this.initializationNeeded = true;
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#isInitializationNeeded()
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
      */
     @Override
-    public boolean isInitializationNeeded() {
+    public boolean isShowInitialDialog() {
         return this.initializationNeeded;
     }
 }
