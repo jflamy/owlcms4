@@ -13,11 +13,15 @@ import java.util.Map;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
@@ -46,10 +50,23 @@ public interface DisplayParameters extends FOPParameters {
         dialog.setCloseOnOutsideClick(true);
         dialog.setCloseOnEsc(true);
         dialog.setModal(true);
+
         VerticalLayout vl = new VerticalLayout();
         dialog.add(vl);
 
         addDialogContent(target, vl);
+
+        Button button = new Button("Close", e -> dialog.close());
+        button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
+        VerticalLayout buttons = new VerticalLayout();
+        buttons.add(button);
+        buttons.setWidthFull();
+        buttons.setAlignSelf(Alignment.END, button);
+        buttons.setMargin(false);
+        vl.setAlignSelf(Alignment.END, buttons);
+        
+        vl.add(new Div());
+        vl.add(buttons);
 
         ComponentUtil.addListener(target, ClickEvent.class,
                 e -> {
@@ -61,6 +78,8 @@ public interface DisplayParameters extends FOPParameters {
             dialog.open();
             setShowInitialDialog(false);
         }
+        
+
     }
 
     public default void doNotification(boolean dark) {
