@@ -150,6 +150,8 @@ public class FieldOfPlay {
 
     private int clockOwnerInitialTimeAllowed;
 
+    private int liftsDoneAtLastStart;
+
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
      * be used to provide the athletes and set the athleteTimer
@@ -782,7 +784,7 @@ public class FieldOfPlay {
 
     public void setWeightAtLastStart(Integer nextAttemptRequestedWeight) {
         weightAtLastStart = nextAttemptRequestedWeight;
-        liftsDoneAtLastStart = ((curAthlete != null) ? curAthlete.getAttemptsDone() : 0);
+        setLiftsDoneAtLastStart(((curAthlete != null) ? curAthlete.getAttemptsDone() : 0));
     }
 
     /**
@@ -1456,6 +1458,20 @@ public class FieldOfPlay {
      */
     public int getClockOwnerInitialTimeAllowed() {
         return clockOwnerInitialTimeAllowed;
+    }
+
+    /**
+     * @return the liftsDoneAtLastStart
+     */
+    public int getLiftsDoneAtLastStart() {
+        return liftsDoneAtLastStart;
+    }
+
+    /**
+     * @param liftsDoneAtLastStart the liftsDoneAtLastStart to set
+     */
+    public void setLiftsDoneAtLastStart(int liftsDoneAtLastStart) {
+        this.liftsDoneAtLastStart = liftsDoneAtLastStart;
     }
 
 }

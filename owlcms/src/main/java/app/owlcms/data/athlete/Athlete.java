@@ -3983,7 +3983,14 @@ public class Athlete {
                     // no last lift, go ahead
                 }
             } else if (newVal < weightAtLastStart) {
-                throw new RuleViolationException.ValueBelowStartedClock(newVal, weightAtLastStart);
+                // check that we are comparing the value for the same lift
+                boolean cjClock = fop.getLiftsDoneAtLastStart() >= 3;
+                boolean cjStarted = getAttemptsDone() >= 3;
+                logger.trace("newval {} weightAtLastStart {}", newVal, weightAtLastStart);
+                logger.trace("lifts done at last start {} current lifts done {}", fop.getLiftsDoneAtLastStart(), getAttemptsDone());
+                if ((!cjClock && !cjStarted) || (cjStarted && cjClock)) {
+                    throw new RuleViolationException.ValueBelowStartedClock(newVal, weightAtLastStart);
+                }
             } else {
                 // ok, nothing to do.
             }
