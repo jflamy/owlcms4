@@ -44,7 +44,11 @@ public interface FOPParameters extends HasUrlParameter<String> {
         FieldOfPlay fop = null;
         if (!isIgnoreFopFromURL()) {
             List<String> fopNames = parametersMap.get("fop");
-            if (fopNames != null && fopNames.get(0) != null) {
+            boolean fopFound = fopNames != null && fopNames.get(0) != null;
+            if (!fopFound) {
+                setInitializationNeeded(true);
+            }
+            if (fopFound) {
                 logger.trace("fopNames {}", fopNames);
                 fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
             } else if (OwlcmsSession.getFop() != null) {
@@ -81,6 +85,11 @@ public interface FOPParameters extends HasUrlParameter<String> {
         logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
                 (fop != null ? fop.getName() : null), (group != null ? group.getName() : null));
         return newParameterMap;
+    }
+
+    public default void setInitializationNeeded(boolean b) {}
+    public default boolean isInitializationNeeded() {
+        return false;
     }
 
     public Location getLocation();

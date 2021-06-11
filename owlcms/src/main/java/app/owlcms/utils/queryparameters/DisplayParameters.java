@@ -34,12 +34,15 @@ public interface DisplayParameters extends FOPParameters {
     public static final String DARK = "dark";
     public static final String SILENT = "silent";
     public static final String SOUND = "sound";
-    
+
+    public void addDialogContent(Component target, VerticalLayout vl);
 
     public default void buildDialog(Component target) {
         Dialog dialog = getDialog();
-        if (dialog == null) return;
-        
+        if (dialog == null) {
+            return;
+        }
+
         dialog.setCloseOnOutsideClick(true);
         dialog.setCloseOnEsc(true);
         dialog.setModal(true);
@@ -50,14 +53,15 @@ public interface DisplayParameters extends FOPParameters {
 
         ComponentUtil.addListener(target, ClickEvent.class,
                 e -> {
-                    if (!dialog.isOpened())
+                    if (!dialog.isOpened()) {
                         dialog.open();
+                    }
                 });
+        if (isInitializationNeeded()) {
+            dialog.open();
+            setInitializationNeeded(false);
+        }
     }
-
-    public Dialog getDialog();
-
-    public void addDialogContent(Component target, VerticalLayout vl);
 
     public default void doNotification(boolean dark) {
         Notification n = new Notification();
@@ -74,6 +78,8 @@ public interface DisplayParameters extends FOPParameters {
         n.getElement().getStyle().set("font-size", "x-large");
         n.open();
     }
+
+    public Dialog getDialog();
 
     public boolean isDarkMode();
 
@@ -128,9 +134,7 @@ public interface DisplayParameters extends FOPParameters {
                 new Location(location.getPath(), new QueryParameters(params)));
     }
 
-    public default void setSilenced(boolean silent) {
-        // silent by default
-    }
+    public void setSilenced(boolean silent);
 
     public default void switchLightingMode(Component target, boolean dark, boolean updateURL) {
         target.getElement().getClassList().set(DARK, dark);
@@ -149,5 +153,8 @@ public interface DisplayParameters extends FOPParameters {
             updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? null : "false");
         }
     }
+    
+    public void setInitializationNeeded(boolean b);
+    public boolean isInitializationNeeded();
 
 }

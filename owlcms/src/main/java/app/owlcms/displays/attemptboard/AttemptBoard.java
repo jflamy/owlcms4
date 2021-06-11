@@ -154,6 +154,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     private boolean groupDone;
     private boolean silenced = true;
     private Dialog dialog;
+    private boolean initializationNeeded;
 
     /**
      * Instantiates a new attempt board.
@@ -271,7 +272,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     @Override
     public void setSilenced(boolean silenced) {
-        logger.warn("{} setSilenced = {} from {}", this.getClass().getSimpleName(), silenced, LoggerUtils.whereFrom());
+        logger.debug("{} setSilenced = {} from {}", this.getClass().getSimpleName(), silenced, LoggerUtils.whereFrom());
         this.athleteTimer.setSilenced(silenced);
         this.breakTimer.setSilenced(silenced);
         this.silenced = silenced;
@@ -603,6 +604,22 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 }
             });
         });
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setInitializationNeeded(boolean)
+     */
+    @Override
+    public void setInitializationNeeded(boolean b) {
+        this.initializationNeeded = true;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isInitializationNeeded()
+     */
+    @Override
+    public boolean isInitializationNeeded() {
+        return this.initializationNeeded;
     }
 
 }

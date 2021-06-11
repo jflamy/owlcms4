@@ -163,6 +163,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     private boolean groupDone;
     private boolean silenced = true;
     private Dialog dialog;
+    private boolean initializationNeeded;
 
     /**
      * Instantiates a new results board.
@@ -693,6 +694,22 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             this.getElement().setPropertyJson("athletes", getAthletesJson(order));
         });
 
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setInitializationNeeded(boolean)
+     */
+    @Override
+    public void setInitializationNeeded(boolean b) {
+        this.initializationNeeded = true;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isInitializationNeeded()
+     */
+    @Override
+    public boolean isInitializationNeeded() {
+        return this.initializationNeeded;
     }
 
 }

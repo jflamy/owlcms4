@@ -117,6 +117,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     private Location location;
     private UI locationUI;
     private Dialog dialog;
+    private boolean initializationNeeded;
 
     /**
      * Instantiates a new results board.
@@ -516,5 +517,29 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
         this.getElement().setPropertyJson("sortedWomen", getAthletesJson(sortedWomen2, false));
 
         logger.debug("updateBottom {} {}", sortedWomen2, sortedMen2);
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setSilenced(boolean)
+     */
+    @Override
+    public void setSilenced(boolean silent) {
+        // no-op, silenced by definition   
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setInitializationNeeded(boolean)
+     */
+    @Override
+    public void setInitializationNeeded(boolean b) {
+        this.initializationNeeded = true;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isInitializationNeeded()
+     */
+    @Override
+    public boolean isInitializationNeeded() {
+        return this.initializationNeeded;
     }
 }

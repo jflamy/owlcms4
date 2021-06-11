@@ -122,6 +122,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     private List<TeamTreeItem> womensTeams;
     private DecimalFormat floatFormat;
     private Dialog dialog;
+    private boolean initializationNeeded;
 
     /**
      * Instantiates a new results board.
@@ -431,5 +432,29 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
                 womensTeams != null && womensTeams.size() > 0 ? getTranslation("Scoreboard.TopTeamsSinclairWomen")
                         : "");
         this.getElement().setPropertyJson("womensTeams", getTeamsJson(womensTeams, false));
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setSilenced(boolean)
+     */
+    @Override
+    public void setSilenced(boolean silent) {
+        // no-op, silenced by definition   
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setInitializationNeeded(boolean)
+     */
+    @Override
+    public void setInitializationNeeded(boolean b) {
+        this.initializationNeeded = true;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isInitializationNeeded()
+     */
+    @Override
+    public boolean isInitializationNeeded() {
+        return this.initializationNeeded;
     }
 }

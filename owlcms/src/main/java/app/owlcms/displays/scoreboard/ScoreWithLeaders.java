@@ -164,6 +164,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     private boolean groupDone;
     private Dialog dialog;
     private boolean silenced = true;
+    private boolean initializationNeeded;
 
     /**
      * Instantiates a new results board.
@@ -767,5 +768,21 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             this.getElement().setPropertyJson("athletes",
                     getAthletesJson(order, fop.getLiftingOrder()));
         });
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setInitializationNeeded(boolean)
+     */
+    @Override
+    public void setInitializationNeeded(boolean b) {
+        this.initializationNeeded = true;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isInitializationNeeded()
+     */
+    @Override
+    public boolean isInitializationNeeded() {
+        return this.initializationNeeded;
     }
 }

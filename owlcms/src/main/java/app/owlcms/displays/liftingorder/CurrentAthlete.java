@@ -160,6 +160,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
     private UI locationUI;
     private boolean groupDone;
     private Dialog dialog;
+    private boolean initializationNeeded;
 
     /**
      * Instantiates a new results board.
@@ -714,5 +715,26 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
             this.getElement().setPropertyJson("athletes",
                     getAthletesJson(order, fop.getLiftingOrder()));
         });
+    }
+
+    @Override
+    public void setSilenced(boolean silent) {
+        // no op, silenced by definition
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setInitializationNeeded(boolean)
+     */
+    @Override
+    public void setInitializationNeeded(boolean b) {
+        this.initializationNeeded = true;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isInitializationNeeded()
+     */
+    @Override
+    public boolean isInitializationNeeded() {
+        return this.initializationNeeded;
     }
 }
