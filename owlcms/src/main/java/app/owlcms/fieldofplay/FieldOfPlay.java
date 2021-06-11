@@ -782,6 +782,7 @@ public class FieldOfPlay {
 
     public void setWeightAtLastStart(Integer nextAttemptRequestedWeight) {
         weightAtLastStart = nextAttemptRequestedWeight;
+        liftsDoneAtLastStart = ((curAthlete != null) ? curAthlete.getAttemptsDone() : 0);
     }
 
     /**
