@@ -4223,7 +4223,9 @@ public class Athlete {
             checkChangeVsTimer(curLift, declaration, change1, change2);
             checkDeclarationWasMade(curLift, declaration);
             checkChangeVsLiftOrder(newVal);
-        } catch (Exception e) {
+        } catch (RuleViolationException e) {
+            throw e;
+        }  catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -4246,6 +4248,8 @@ public class Athlete {
             checkChangeVsTimer(curLift, declaration, change1, change2);
             checkDeclarationWasMade(curLift, declaration);
             checkChangeVsLiftOrder(newVal);
+        } catch (RuleViolationException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -4267,6 +4271,8 @@ public class Athlete {
         try {
             checkChangeVsTimer(curLift, declaration, change1, change2);
             checkChangeVsLiftOrder(newVal);
+        } catch (RuleViolationException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
