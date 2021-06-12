@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -43,6 +44,7 @@ public interface DisplayParameters extends FOPParameters {
 
     public void addDialogContent(Component target, VerticalLayout vl);
 
+    @SuppressWarnings("unchecked")
     public default void buildDialog(Component target) {
         Dialog dialog = getDialog();
         if (dialog == null) {
@@ -70,12 +72,15 @@ public interface DisplayParameters extends FOPParameters {
         vl.add(new Div());
         vl.add(buttons);
 
-        ComponentUtil.addListener(target, ClickEvent.class,
-                e -> {
-                    if (!dialog.isOpened()) {
-                        dialog.open();
-                    }
-                });
+
+        // workaround for compilation glitch
+        @SuppressWarnings("rawtypes")
+        ComponentEventListener listener = e -> {
+            if (!dialog.isOpened()) {
+                dialog.open();
+            }
+        };
+        ComponentUtil.addListener(target, ClickEvent.class, listener);
         if (isShowInitialDialog()) {
             dialog.open();
             setShowInitialDialog(false);
