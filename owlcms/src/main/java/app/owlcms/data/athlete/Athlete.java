@@ -1995,7 +1995,7 @@ public class Athlete {
      * @return the start number
      */
     public Integer getStartNumber() {
-        return startNumber;
+        return startNumber != null ? startNumber : 0;
     }
 
     /**
@@ -4219,9 +4219,13 @@ public class Athlete {
         if (newVal < prevVal) {
             throw new RuleViolationException.LastChangeTooLow(curLift, newVal, prevVal);
         }
-        checkChangeVsTimer(curLift, declaration, change1, change2);
-        checkDeclarationWasMade(curLift, declaration);
-        checkChangeVsLiftOrder(newVal);
+        try {
+            checkChangeVsTimer(curLift, declaration, change1, change2);
+            checkDeclarationWasMade(curLift, declaration);
+            checkChangeVsLiftOrder(newVal);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -4238,9 +4242,13 @@ public class Athlete {
         if (newVal < prevVal) {
             throw new RuleViolationException.LastChangeTooLow(curLift, newVal, prevVal);
         }
-        checkChangeVsTimer(curLift, declaration, change1, change2);
-        checkDeclarationWasMade(curLift, declaration);
-        checkChangeVsLiftOrder(newVal);
+        try {
+            checkChangeVsTimer(curLift, declaration, change1, change2);
+            checkDeclarationWasMade(curLift, declaration);
+            checkChangeVsLiftOrder(newVal);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -4256,8 +4264,12 @@ public class Athlete {
         if (iAutomaticProgression > 0 && newVal > 0 && newVal < iAutomaticProgression) {
             throw new RuleViolationException.DeclarationValueTooSmall(curLift, newVal, iAutomaticProgression);
         }
-        checkChangeVsTimer(curLift, declaration, change1, change2);
-        checkChangeVsLiftOrder(newVal);
+        try {
+            checkChangeVsTimer(curLift, declaration, change1, change2);
+            checkChangeVsLiftOrder(newVal);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
