@@ -1996,7 +1996,7 @@ public class Athlete {
      * @return the start number
      */
     public Integer getStartNumber() {
-        return startNumber;
+        return startNumber != null ? startNumber : 0;
     }
 
     /**
@@ -4001,7 +4001,15 @@ public class Athlete {
                     // no last lift, go ahead
                 }
             } else if (newVal < weightAtLastStart) {
-                throw new RuleViolationException.ValueBelowStartedClock(newVal, weightAtLastStart);
+                // check that we are comparing the value for the same lift
+                boolean cjClock = fop.getLiftsDoneAtLastStart() >= 3;
+                boolean cjStarted = getAttemptsDone() >= 3;
+                logger.trace("newval {} weightAtLastStart {}", newVal, weightAtLastStart);
+                logger.trace("lifts done at last start {} current lifts done {}", fop.getLiftsDoneAtLastStart(),
+                        getAttemptsDone());
+                if ((!cjClock && !cjStarted) || (cjStarted && cjClock)) {
+                    throw new RuleViolationException.ValueBelowStartedClock(newVal, weightAtLastStart);
+                }
             } else {
                 // ok, nothing to do.
             }
@@ -4230,9 +4238,15 @@ public class Athlete {
         if (newVal < prevVal) {
             throw new RuleViolationException.LastChangeTooLow(curLift, newVal, prevVal);
         }
-        checkChangeVsTimer(curLift, declaration, change1, change2);
-        checkDeclarationWasMade(curLift, declaration);
-        checkChangeVsLiftOrder(newVal);
+        try {
+            checkChangeVsTimer(curLift, declaration, change1, change2);
+            checkDeclarationWasMade(curLift, declaration);
+            checkChangeVsLiftOrder(newVal);
+        } catch (RuleViolationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -4249,9 +4263,15 @@ public class Athlete {
         if (newVal < prevVal) {
             throw new RuleViolationException.LastChangeTooLow(curLift, newVal, prevVal);
         }
-        checkChangeVsTimer(curLift, declaration, change1, change2);
-        checkDeclarationWasMade(curLift, declaration);
-        checkChangeVsLiftOrder(newVal);
+        try {
+            checkChangeVsTimer(curLift, declaration, change1, change2);
+            checkDeclarationWasMade(curLift, declaration);
+            checkChangeVsLiftOrder(newVal);
+        } catch (RuleViolationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -4267,8 +4287,14 @@ public class Athlete {
         if (iAutomaticProgression > 0 && newVal > 0 && newVal < iAutomaticProgression) {
             throw new RuleViolationException.DeclarationValueTooSmall(curLift, newVal, iAutomaticProgression);
         }
-        checkChangeVsTimer(curLift, declaration, change1, change2);
-        checkChangeVsLiftOrder(newVal);
+        try {
+            checkChangeVsTimer(curLift, declaration, change1, change2);
+            checkChangeVsLiftOrder(newVal);
+        } catch (RuleViolationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

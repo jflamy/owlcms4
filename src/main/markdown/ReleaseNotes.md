@@ -4,7 +4,9 @@
 
 * Key Highlights from recent stable releases
 
-  - [x] [4.20.1] Moving down was wrongly being denied when athlete requesting change was at a later attempt than athlete whose clock had started. Since this does not change lifting order, it is legal.
+  * [x] [4.20.2] Moving down was wrongly being denied if C&J move down was less than last snatch attempted.
+  * [x] [4.20.2] Moving down was wrongly being denied when athlete requesting change down to current weight was at a later attempt than athlete whose clock had started.
+  * [x] [4.20.2] Not assigning start numbers was preventing Marshal and Announcer from editing athlete.
   - [x] Violations of rules for timing of declarations (before initial 30 seconds), and for changes (before final warning) are now signaled as errors (#425, #426). Overriding is possible for officiating mistakes.
   - [x] Workaround applied for iPad unpredictable response time (from 0.1 to 3 sec. lag) when used as display. The iPad will "skip ahead" to the correct remaining time as soon as the start command is received, and "skip back" on a stop. Only applies to iPads, ignored by all other platforms. (#419) 
   - [x] CSS style sheets for attempt board and decision board are now editable in local/styles (#424)
