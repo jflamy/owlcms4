@@ -5,11 +5,14 @@ import org.slf4j.LoggerFactory;
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.SoundUtils;
 import app.owlcms.utils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Logger;
@@ -41,6 +44,16 @@ public class DisplayOptions {
     }
 
     public static void addSoundEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
+        
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        if (fop != null) {
+            if (fop.isEmitSoundsOnServer()) {
+                Label label = new Label(Translator.translate("DisplayParameters.SoundsOnServer"));
+                label.setWidth("25em");
+                layout.add(label);
+                return;
+            }
+        }
 
         boolean silentMode = dp.isSilenced();
         Button silentButton = new Button(Translator.translate("DisplayParameters.Silent", AvIcons.VOLUME_OFF.create()));
