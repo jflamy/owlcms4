@@ -1,23 +1,29 @@
 # Olympic Weightlifting Competition Management System 
 
-OWLCMS version 4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md), which has been used to manage Olympic Weightlifting competitions world-wide since 2009, and has been translated in several languages.
+This software is a full rewrite of a package which has been used to manage Olympic Weightlifting competitions world-wide since 2009.
 
 The application can be used for anything from a club meet using a single laptop all the way up to a national championship with several platform, full jury, integration with streaming, and public internet scoreboards.
 
-## Downloads and Setup
+## Demo
 
-Several options are available for installation, depending on your needs. See the [Installation Overview](InstallationOverview) page for diagrams and a discussion options.
+The following videos and demos are available
 
-The [Equipment Setup](EquipmentSetup) page provides additional information on the recommended physical setup.
+- [Simple setup](Demo1): running a minimal setup for a small club meet with a single person controlling the meet.
+- [Full setup](Demo2): running a regular or virtual competition with technical officials
+- Live demo: after watching the videos, try the [Live demo](Demo3) site, or better yet, [install your own copy](installationOverview) and experiment.
 
-## Features and Demo
+## Installation
 
-- The following videos and demos are available
-  
-  - [Simple setup](Demo1): running a minimal setup for a small club meet with a single person controlling the meet.
-  - [Full setup](Demo2): running a regular or virtual competition with technical officials
-  - Live demo: after watching the videos, try the [Live demo](Demo3) site, or better yet, [install your own copy](installationOverview) and experiment.
-  
+Several options are available for installation, depending on your needs. See  the [**Installation Overview**](InstallationOverview) and [Equipment Setup](EquipmentSetup) pages for diagrams and a discussion of the various options.
+
+|                                                              |                                                              |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| **Local Setup** <br />This installs the `owlcms` program to run a competition locally, on a master laptop.  No internet access is needed. | <ul><li><nobr>[**Windows Installer**](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/latest/owlcms_setup.exe) and [Instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalWindowsSetup)</nobr><li>[**Mac/Linux Kit**](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/latest/owlcms_setup.zip) and [Instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalLinuxMacSetup)<li><nobr>[Release Notes](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases)</nobr></ul> |
+| **Cloud-based Setup**<br />This installs the `owlcms` competition management software in the cloud. Good internet access is needed but no local software is needed. The `publicresults` companion program allows individuals to see the scoreboard on their own phone or tablet no matter where they are located.<ul><li>[Heroku Cloud Installation Instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Heroku)</li><li>Configuration Options for [Large Cloud Competitions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/HerokuLarge)</li></ul> | <ul><li>[**Competition Management Cloud Installer**](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME})<li>[**Public Results Scoreboard Cloud Installer**](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/blob/master/README.md)<li><nobr>[Release Notes](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases)</nobr></ul> |
+| Documentation                                                | [Documentation site](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/index) |
+
+## Features
+
 - The following list is a sampling of the many features available.  <u>*Click on the images if you wish to view them full-sized*</u>.  The images are taken from the demo site.
   
   - Run a **regular** or **masters** competition, with or without a **jury**.
@@ -106,36 +112,9 @@ For the current work status, see the following links
 
 - [Discussion list](https://groups.google.com/forum/#!forum/owlcms)  If you wish to discuss the program or ask questions, please add yourself to this discussion [group](https://groups.google.com/forum/#!forum/owlcms).  You can withdraw at any time.
 
-
-
 ## Translation to Other Languages
 
 - You are welcome to translate the screens and reports to your own language, or fix a translation.  Refer to the [translation documentation](Translation) if you wish to contribute. 
-
-  
-
-## Project Repositories, Project Documentation and Project Board
-
-##### For development
-
-- [Project source](https://github.com/jflamy/owlcms4)
-- [Issue page](https://github.com/jflamy/owlcms4/projects/1)
-- [Project board](https://github.com/jflamy/owlcms4/projects/1)
-
-##### Latest stable releases
-
-- [stable installers](https://github.com/owlcms/owlcms4/releases)
-- stable cloud deployments for [owlcms](https://github.com/owlcms/owlcms-heroku/releases/tag/4.14.0) and [publicresults](https://github.com/owlcms/publicresults-heroku/releases/tag/4.14.0)
-- [stable release documentatation](https://owlcms.github.io/owlcms4/#/index)
-
-##### Latest pre-releases
-
-- [pre-release installers](https://github.com/jflamy-dev/owlcms4-prerelease/releases)
-- stable cloud deployments for [owlcms](https://github.com/jflamy-dev/owlcms-heroku-prerelease/releases) and [publicresults](https://github.com/jflamy-dev/publicresults-heroku-prerelease/releases)
-- [pre-release documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/index)
-
-
-
 
 
 ## Licensing and Notes
