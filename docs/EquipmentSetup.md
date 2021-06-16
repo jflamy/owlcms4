@@ -49,6 +49,6 @@ When running several platforms, we recommend that you use a well-designed setup 
 
 ## Sound Requirements
 
-By default, all the displays that show timers can emit sound, but are silent by default.  Having warnings come from several locations is confusing, you should pick one display per room to have sound on and leave the others silent.  See this [page](Displays#display-parameters) for controlling the sound parameters for the various displays.
+By default, all the displays that show timers can emit sound, but are silent by default.  Having warnings come from several locations is confusing, you should pick one display per room to have sound on and leave the others silent.  See this [page](Displays#display-settings) for controlling the sound parameters for the various displays.
 
 Another option is to get the primary laptop to generate the sounds.  This is mostly done for backward compatibility with the old behavior of the program, or when the equipment used for display has no speakers.   See [these explanations.](Preparation#associating-an-audio-output-with-a-platform)
