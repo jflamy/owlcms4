@@ -1,6 +1,6 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-  - [x] When a display is first started, a dialog offers to enable warning sounds or not (silent by default)  Sound should normally be enabled on only one display per room, to avoid confusion.  Sound can be turned  back on or off by clicking on the display window.   Note that the announcer and marshal always get the warnings and that they should lower their volume accordingly. (#407)
+  - [x] When a display is first started, a dialog offers to enable warning sounds or not.  Warnings are silenced by default; they should normally be enabled on only one display per room, to avoid warnings coming from several directions. See the [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Display#display-settings) for details (#407)
 
 * Key Highlights from recent stable releases
 
