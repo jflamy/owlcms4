@@ -6,7 +6,22 @@ Notes
 
 - Each display will open in a new tab (or window, depending on your browser preferences).  This allows the announcer to have several displays open in addition to the announcer's own -- for example, to have the scoreboard open in a second tab.
 - Displays meant for the public should be maximized.  Use the F11 key or right-click to go to full-screen mode.
-- each display manages its own timer. If a display is hidden because it is in a tab that is not shown, the display refreshes don't take place, and the time will lag.  Obviously, a display meant for the public or the athletes will not be hidden, so this behavior has no real consequences.
+- Each display manages its own timer. If a display is hidden because it is in a tab that is not shown, the display refreshes don't take place, and the time will lag.  Obviously, a display meant for the public or the athletes will not be hidden, so this behavior has no real consequences.
+
+## Display Parameters
+
+When a display is first started, a dialog comes up to control the the behavior.
+
+- Displays that show a clock give the option to emit the warning sounds at 90, 30 and 0 seconds, as well as the down signal.  
+  - <u>By default, the display is silent</u>. 
+  - To avoid confusion, it is recommended to have only one display with sound in each room.  For example, you can choose to have the attempt board emit sound on the main area, and a scoreboard in the waiting area.
+  - Note that the announcer and marshall consoles always emit the warnings, so it is often convenient to just connect the announcer laptop to the sound system.
+- Displays that show a table have the option to have a white or black table background.
+- Once the dialog is closed, it can be brought back by clicking anywhere in the window.
+
+
+
+![001](img/Sound/001.png)
 
 ## Scoreboard
 
@@ -26,7 +41,7 @@ The `Scoreboard with Leadboard` button opens a scoreboard that also shows the le
 
 The other difference with the ordinary scoreboard is that the rankings shown are those across all lifting groups, including those that have lifted earlier (in the image below, the athlete Williams has lifted 70, which currently puts him third, because the 70 from Scott in group M2 shown at the bottom was achieved earlier.)
 
-The image also shows that it is possible, depending on the lighting conditions, to select a white background. This is true for all scoreboards and is selected by clicking on the screen, which brings up a selection menu.
+The image shows the "black on white" display setting.
 
 ![024_Scoreboard_Leaders](img/Displays/024_Scoreboard_Leaders.png)
 
