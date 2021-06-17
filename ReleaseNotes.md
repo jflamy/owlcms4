@@ -1,5 +1,6 @@
-* Changes for release 4.20.2  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.20.3  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+  * [x] Error messages during registration file upload were being hidden by internal exceptions.
   * [x] Moving down was wrongly being denied if C&J move down was less than last snatch attempted.
   * [x] Moving down was wrongly being denied when athlete requesting change down to current weight was at a later attempt than athlete whose clock had started.
   * [x] Not assigning start numbers was preventing Marshal and Announcer from editing athlete.
