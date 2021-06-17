@@ -132,6 +132,10 @@ public class RGroup {
     }
 
     public void setCompetitionTime(String competitionTime) {
+        if (competitionTime == null || competitionTime.isBlank()) {
+            this.competitionTime = "";
+            return;
+        }
         LocalDateTime parseExcelDateTime = DateTimeUtils.parseExcelDateTime(competitionTime);
         parseExcelDateTime = parseExcelDateTime.withSecond(0).withNano(0);
         group.setCompetitionTime(parseExcelDateTime);
@@ -214,6 +218,10 @@ public class RGroup {
     }
 
     public void setWeighinTime(String weighinTime) {
+        if (weighinTime == null || weighinTime.isBlank()) {
+            weighinTime = "";
+            return;
+        }
         LocalDateTime parseExcelDateTime = DateTimeUtils.parseExcelDateTime(weighinTime);
         parseExcelDateTime = parseExcelDateTime.withSecond(0).withNano(0);
         group.setWeighInTime(parseExcelDateTime);
