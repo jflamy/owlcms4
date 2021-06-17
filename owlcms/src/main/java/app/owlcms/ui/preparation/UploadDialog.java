@@ -111,13 +111,16 @@ public class UploadDialog extends Dialog {
             String cleanMessage = cleanMessage(m.getMessage());
             sb.append(cleanMessage);
             Exception e = m.getException();
-            Throwable cause = e.getCause();
-            String causeMessage = cause != null ? cause.getLocalizedMessage() : e.getLocalizedMessage();
-            if (causeMessage.contentEquals("text")) {
-                causeMessage = "Empty or invalid.";
+            if (e != null) {
+                Throwable cause = e.getCause();
+                String causeMessage = cause != null ? cause.getLocalizedMessage() : e.getLocalizedMessage();
+                causeMessage = causeMessage != null ? causeMessage : e.toString();
+                if (causeMessage.contentEquals("text")) {
+                    causeMessage = "Empty or invalid.";
+                }
+                sb.append(causeMessage);
+                logger.debug(cleanMessage + causeMessage);
             }
-            sb.append(causeMessage);
-            logger.debug(cleanMessage + causeMessage);
             sb.append(System.lineSeparator());
         }
         if (sb.length() > 0) {
@@ -327,7 +330,7 @@ public class UploadDialog extends Dialog {
         });
 
         groups.stream().forEach(g -> {
-            logger.info("group {} weighIn {} competition {}", g.getGroup(), g.getWeighinTime(), g.getCompetitionTime());
+            logger.debug("group {} weighIn {} competition {}", g.getGroup(), g.getWeighinTime(), g.getCompetitionTime());
         });
     }
 }
