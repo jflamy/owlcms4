@@ -1,5 +1,7 @@
 * Changes for release 4.21.0-alpha03  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+  - [x] [4.21.0-beta01] Empty group start and weigh-in times were causing a generic error message when uploading an .xlsx file instead of being ignored.
+  - [x] [4.21.0-beta01] German Translation
   - [x] [4.21.0-alpha03] Documentation update for sound, cleanup README & Releases files.
   - [x] When a display is first started, a dialog offers to enable warning sounds or not.  Warnings are silenced by default; they should normally be enabled on only one display per room, to avoid warnings coming from several directions. See the [documentation](https://jflamy.github.io/owlcms4/#/Displays#display-settings) for details (#407)
 
