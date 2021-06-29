@@ -6,10 +6,7 @@ This is a standard Maven project.  If you wish, you can build the binaries from 
 
 - Install Java 11 and the support for Maven and Git in your favorite development environment. 
   - Eclipse Java IDE includes the M2E and EGit plugins and works fine -- the project includes the settings file for that configuration.
-  - The project uses the [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) version management process 
-    - There is a [GitFlow Eclipse plugin](https://marketplace.eclipse.org/content/gitflow-nightly) that works well.
-    - You may prefer using something like [SourceTree](https://www.sourcetreeapp.com/).
-  - The build process uses Git commands and the ability to run them in a shell script; installing [GitHub Desktop](https://desktop.github.com/) is the easiest way. Select the options to add the programs to the execution path.
+  - The build process uses Git commands and the ability to run them in a shell script; installing [GitHub Desktop](https://desktop.github.com/) is the easiest way to install Git on a Windows system. Select the options to add the programs to the execution path.
 - In order to build the Windows installer, you need to run on Windows and [Innosetup](http://www.jrsoftware.org/isinfo.php) needs to be installed.
 - Clone this repository.
 
@@ -41,8 +38,10 @@ This is a standard Maven project.  If you wish, you can build the binaries from 
 
 The automated build process takes place on the free tier of Azure DevOps.
 The `azure-pipelines.yml` defines the full process for building owlcms and the companion publicresults application, as well as the Heroku and Docker/Kubernetes packaging.
+
 Note that you must provide credentials in the form of variables (for example, by creating a variable group in the project Library).  See src/main/azure-pipelines/variables-releaseRepoCredentials for the $() variables that need to be defined.
-You also need to create service connections to your github accounts (for the source repository, and for the additional repositories used for pre-release and release packages), as well as the maven repository used to get packages.
+
+You also need to create service connections to your github accounts (for the source repository, and for the additional repositories used for pre-release and release packages), as well as the maven repository used to get the packages (reposilite).
 
 
 

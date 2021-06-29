@@ -1,5 +1,7 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+  - [x] [4.21.0-rc01]  Armenian translation
+  - [x] [4.21.0-rc01]  update to Vaadin 14.6.2
   - [x] [4.21.0-beta01] Empty group start and weigh-in times were causing a generic error message when uploading an .xlsx file instead of being ignored.
   - [x] [4.21.0-beta01] German Translation
   - [x] [4.21.0-alpha03] Documentation update for sound, cleanup README & Releases files.
@@ -7,7 +9,7 @@
 
 * Key Highlights from recent stable releases
 
-  - [x] [Fixes made in release 4.20.2] Implemented the <u>rules to prevent athletes from moving down their requested weight illegally</u>.  Moving down is denied if the athlete should already have attempted that weight according to the official lifting order.  The exact checks resulting from applying the TCRR to that situation are spelled out in the [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Announcing#rules-for-moving-down). (#418)
+  - [x] Implemented the <u>rules to prevent athletes from moving down their requested weight illegally</u>.  Moving down is denied if the athlete should already have attempted that weight according to the official lifting order.  The exact checks resulting from applying the TCRR to that situation are spelled out in the [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Announcing#rules-for-moving-down). (#418)
   - [x] Violations of <u>rules for timing of declarations</u> (before initial 30 seconds), and for changes (before final warning) are now signaled as errors (#425, #426). Overriding is possible for officiating mistakes.
   - [x] CSS style sheets for attempt board and decision board are now editable in local/styles (#424)
   - [x] For cloud-based competitions, setting the time zone can now be done directly from the Competition Information page. (#422).
