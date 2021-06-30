@@ -49,8 +49,6 @@ When running several platforms, we recommend that you use a well-designed setup 
 
 ## Sound Requirements
 
-By default, the browsers showing scoreboards will also emit sound.   You should mute all the laptops except the athlete-facing display or the attempt board, depending on where you connect speakers.
+By default, all the displays that show timers can emit sound, but are silent by default.  Having warnings come from several locations is confusing, you should pick one display per room to have sound on and leave the others silent.  See this [page](Displays#display-settings) for controlling the sound parameters for the various displays.
 
-Option: Primary Laptop Sound
-
-When running OWLCMS on a local laptop it is sometimes easier to wire speakers to the audio output of the primary laptop and use the primary laptop as a source.   See [these explanations.](Preparation#associating-an-audio-output-with-a-platform)
+Another option is to get the primary laptop to generate the sounds.  This is mostly done for backward compatibility with the old behavior of the program, or when the equipment used for display has no speakers.   See [these explanations.](Preparation#associating-an-audio-output-with-a-platform)

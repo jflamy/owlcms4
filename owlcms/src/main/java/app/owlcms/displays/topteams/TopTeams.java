@@ -118,6 +118,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     private List<TeamTreeItem> womensTeams;
     private DecimalFormat floatFormat;
     private Dialog dialog;
+    private boolean initializationNeeded;
 
     /**
      * Instantiates a new results board.
@@ -218,6 +219,14 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         return true;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
+     */
+    @Override
+    public boolean isShowInitialDialog() {
+        return this.initializationNeeded;
+    }
+
     @Override
     public boolean isSilenced() {
         return true;
@@ -236,6 +245,32 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
+     */
+    @Override
+    public void setShowInitialDialog(boolean b) {
+        this.initializationNeeded = true;
+    }
+
+//    @Subscribe
+//    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
+//        uiLog(e);
+//        Competition competition = Competition.getCurrent();
+//
+//        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+//            doUpdate(competition);
+//        });
+//    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setSilenced(boolean)
+     */
+    @Override
+    public void setSilenced(boolean silent) {
+        // no-op, silenced by definition
     }
 
     @Subscribe
@@ -258,16 +293,6 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
             this.getElement().callJsFunction("reset");
         });
     }
-
-//    @Subscribe
-//    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
-//        uiLog(e);
-//        Competition competition = Competition.getCurrent();
-//
-//        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-//            doUpdate(competition);
-//        });
-//    }
 
     public void uiLog(UIEvent e) {
         if (e == null) {

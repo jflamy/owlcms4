@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.20.1
+    default: 4.21.0-rc04
   - name: SkipTests
     type: string
     default: 'false'
@@ -140,16 +140,26 @@ jobs:
           git push https://$(releaseToken)@github.com/$(releaseUser)/owlcms4.git $(Build.SourceBranchName):master --force
         condition: eq(variables['Build.SourceBranchName'], 'master')
         displayName: sync release repo
+      # all releases are marked as "isPreRelease: false" else we cannot have a generic link to the latest prerelease.
+      # the repo and name determines the maturity status.  
       - task: GitHubRelease@0
         displayName: Release on Github
         inputs:
           ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: jflamy-dev/owlcms4-prerelease
-            isPreRelease: true
+            isPreRelease: false
           ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: owlcms/owlcms4
+            isPreRelease: false
+          ${{ if eq(variables['Build.SourceBranchName'], 'fixrelease') }}:
+            gitHubConnection: github.com_jflamy-dev
+            repositoryName: owlcms/owlcms4
+            isPreRelease: false
+          ${{ if eq(variables['Build.SourceBranchName'], 'fixprerelease') }}:
+            gitHubConnection: github.com_jflamy-dev
+            repositoryName: jflamy-dev/owlcms4-prerelease
             isPreRelease: false
           action: "create" # Options: create, edit, delete
           target: master # all our releases are on the master branch of the release repos.

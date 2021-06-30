@@ -1137,5 +1137,4 @@ public abstract class AthleteGridContent extends VerticalLayout
         }
     }
 
-
 }

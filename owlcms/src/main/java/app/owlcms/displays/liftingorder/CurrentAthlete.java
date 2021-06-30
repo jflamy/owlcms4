@@ -160,6 +160,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
     private UI locationUI;
     private boolean groupDone;
     private Dialog dialog;
+    private boolean initializationNeeded;
 
     /**
      * Instantiates a new results board.
@@ -233,6 +234,14 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
         return true;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
+     */
+    @Override
+    public boolean isShowInitialDialog() {
+        return this.initializationNeeded;
+    }
+
     @Override
     public boolean isSilenced() {
         return true;
@@ -258,6 +267,19 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
+     */
+    @Override
+    public void setShowInitialDialog(boolean b) {
+        this.initializationNeeded = true;
+    }
+
+    @Override
+    public void setSilenced(boolean silent) {
+        // no op, silenced by definition
     }
 
     @Subscribe

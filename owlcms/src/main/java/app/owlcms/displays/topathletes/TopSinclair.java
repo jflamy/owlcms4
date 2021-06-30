@@ -117,6 +117,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     private Location location;
     private UI locationUI;
     private Dialog dialog;
+    private boolean initializationNeeded;
 
     /**
      * Instantiates a new results board.
@@ -271,6 +272,14 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
         return true;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
+     */
+    @Override
+    public boolean isShowInitialDialog() {
+        return this.initializationNeeded;
+    }
+
     @Override
     public boolean isSilenced() {
         return true;
@@ -289,6 +298,22 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
+     */
+    @Override
+    public void setShowInitialDialog(boolean b) {
+        this.initializationNeeded = true;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setSilenced(boolean)
+     */
+    @Override
+    public void setSilenced(boolean silent) {
+        // no-op, silenced by definition
     }
 
     @Subscribe

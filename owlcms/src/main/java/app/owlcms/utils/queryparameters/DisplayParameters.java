@@ -12,17 +12,24 @@ import java.util.Map;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
+
+import app.owlcms.i18n.Translator;
 
 /**
  * @author owlcms
@@ -34,30 +41,53 @@ public interface DisplayParameters extends FOPParameters {
     public static final String DARK = "dark";
     public static final String SILENT = "silent";
     public static final String SOUND = "sound";
-    
 
+    public void addDialogContent(Component target, VerticalLayout vl);
+
+    @SuppressWarnings("unchecked")
     public default void buildDialog(Component target) {
         Dialog dialog = getDialog();
-        if (dialog == null) return;
-        
+        if (dialog == null) {
+            return;
+        }
+
         dialog.setCloseOnOutsideClick(true);
         dialog.setCloseOnEsc(true);
         dialog.setModal(true);
+
         VerticalLayout vl = new VerticalLayout();
         dialog.add(vl);
 
         addDialogContent(target, vl);
 
-        ComponentUtil.addListener(target, ClickEvent.class,
-                e -> {
-                    if (!dialog.isOpened())
-                        dialog.open();
-                });
+        Button button = new Button(Translator.translate("Close"), e -> dialog.close());
+        button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
+        VerticalLayout buttons = new VerticalLayout();
+        buttons.add(button);
+        buttons.setWidthFull();
+        buttons.setAlignSelf(Alignment.END, button);
+        buttons.setMargin(false);
+        vl.setAlignSelf(Alignment.END, buttons);
+        
+        vl.add(new Div());
+        vl.add(buttons);
+
+
+        // workaround for compilation glitch
+        @SuppressWarnings("rawtypes")
+        ComponentEventListener listener = e -> {
+            if (!dialog.isOpened()) {
+                dialog.open();
+            }
+        };
+        ComponentUtil.addListener(target, ClickEvent.class, listener);
+        if (isShowInitialDialog()) {
+            dialog.open();
+            setShowInitialDialog(false);
+        }
+        
+
     }
-
-    public Dialog getDialog();
-
-    public void addDialogContent(Component target, VerticalLayout vl);
 
     public default void doNotification(boolean dark) {
         Notification n = new Notification();
@@ -75,7 +105,12 @@ public interface DisplayParameters extends FOPParameters {
         n.open();
     }
 
+    public Dialog getDialog();
+
     public boolean isDarkMode();
+
+    @Override
+    public boolean isShowInitialDialog();
 
     public boolean isSilenced();
 
@@ -110,7 +145,8 @@ public interface DisplayParameters extends FOPParameters {
      * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path. We use the old-style
      * Query parameters for our purposes.
      *
-     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * java.lang.String)
      */
     @Override
     public default void setParameter(BeforeEvent event, @OptionalParameter String unused) {
@@ -128,9 +164,10 @@ public interface DisplayParameters extends FOPParameters {
                 new Location(location.getPath(), new QueryParameters(params)));
     }
 
-    public default void setSilenced(boolean silent) {
-        // silent by default
-    }
+    @Override
+    public void setShowInitialDialog(boolean b);
+
+    public void setSilenced(boolean silent);
 
     public default void switchLightingMode(Component target, boolean dark, boolean updateURL) {
         target.getElement().getClassList().set(DARK, dark);

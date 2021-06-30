@@ -154,6 +154,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     private boolean groupDone;
     private boolean silenced = true;
     private Dialog dialog;
+    private boolean initializationNeeded;
 
     /**
      * Instantiates a new attempt board.
@@ -246,6 +247,14 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         return true;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
+     */
+    @Override
+    public boolean isShowInitialDialog() {
+        return this.initializationNeeded;
+    }
+
     @Override
     public boolean isSilenced() {
         return silenced;
@@ -269,9 +278,17 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         this.locationUI = locationUI;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
+     */
+    @Override
+    public void setShowInitialDialog(boolean b) {
+        this.initializationNeeded = true;
+    }
+
     @Override
     public void setSilenced(boolean silenced) {
-        logger.warn("{} setSilenced = {} from {}", this.getClass().getSimpleName(), silenced, LoggerUtils.whereFrom());
+        logger.debug("{} setSilenced = {} from {}", this.getClass().getSimpleName(), silenced, LoggerUtils.whereFrom());
         this.athleteTimer.setSilenced(silenced);
         this.breakTimer.setSilenced(silenced);
         this.silenced = silenced;
