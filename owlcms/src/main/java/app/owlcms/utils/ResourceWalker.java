@@ -13,6 +13,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -167,6 +168,7 @@ public class ResourceWalker {
      * @throws IOException
      * @throws URISyntaxException
      */
+    Path rootPath = null;
     public List<Resource> getResourceList(String absoluteRoot, BiFunction<Path, Path, String> generateName,
             String startsWith) {
         try {
@@ -180,7 +182,15 @@ public class ResourceWalker {
             List<Resource> localeNames = new ArrayList<>();
             List<Resource> englishNames = new ArrayList<>();
             List<Resource> otherNames = new ArrayList<>();
-            Path rootPath = Paths.get(resourcesURI);
+
+            try {
+                rootPath = Paths.get(resourcesURI);
+            } catch (FileSystemNotFoundException e) {
+                // workaround for breaking change in Vaadin 14.6.2
+                openFileSystem("/templates");
+                rootPath = Paths.get(resourcesURI);
+            }
+
             Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
