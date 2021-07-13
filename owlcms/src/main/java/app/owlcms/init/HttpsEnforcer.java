@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -37,33 +38,41 @@ public class HttpsEnforcer implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        if (request.getHeader(X_FORWARDED_PROTO) != null) {
-            if (request.getHeader(X_FORWARDED_PROTO).indexOf("https") != 0) {
-                String url = request.getRequestURL().toString();
+//        String url = request.getRequestURL().toString();
+        String forwarding = request.getHeader(X_FORWARDED_PROTO);
+        if (forwarding != null) {
+            if (!forwarding.contentEquals("https")) {
                 // request was not sent with https; redirect to https unless running locally
                 if (request instanceof HttpServletRequest) {
                     String serverName = request.getServerName();
+                    // local server behind proxy, don't redirect.
                     if (serverName.endsWith(".localhost") || serverName.endsWith("localhost")) {
-                        logger.debug("{} received, local path, not redirecting to https", url);
+//                        logger.warn("{} received on '{}', not redirecting to https", serverName, url);
                     } else {
-                        logger.info("{} received, forcing redirect to https", url);
+//                        logger.warn("{} received on '{}', forcing redirect to https", serverName, url);
                         String pathInfo = (request.getPathInfo() != null) ? request.getPathInfo() : "";
                         response.sendRedirect("https://" + serverName + pathInfo);
                         return;
                     }
+                } else {
+//                    logger.warn("{} received, do nothing instance type {}", url,request.getClass().getName());
                 }
+            } else {
+//                logger.warn("{} received, do nothing because already https '{}'", url,forwarding);
             }
+        } else {
+//            logger.warn("{} received, do nothing not through proxy", url);
         }
 
         try {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
-            logger.debug(e.getMessage());
+            logger.warn(LoggerUtils.stackTrace(e));
             if (StartupUtils.isDebugSetting()) {
                 Enumeration<String> headerNames = request.getHeaderNames();
                 while (headerNames.hasMoreElements()) {
                     String headerName = headerNames.nextElement();
-                    logger.debug("    {} {}", headerName, request.getHeader(headerName));
+                    logger.warn("    {} {}", headerName, request.getHeader(headerName));
                 }
             }
         }

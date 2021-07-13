@@ -32,7 +32,6 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.EmbeddedJetty;
 import app.owlcms.init.InitialData;
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -62,7 +61,7 @@ public class Main {
     public static void initData() {
         // open jar as filesystem; cannot use /; any resource inside the jar will do
         // cannot open the same jar twice.
-        ResourceWalker.openFileSystem("/templates");
+//        ResourceWalker.openFileSystem("/templates");
 
         // Vaadin configs
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());

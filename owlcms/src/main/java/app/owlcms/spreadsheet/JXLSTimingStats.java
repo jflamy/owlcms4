@@ -54,7 +54,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
             Double hours = getHoursForGroup();
             Double athleteEquivalents = (getNbAttemptedLifts()) / 6.0D;
 
-            return hours > 0 ? athleteEquivalents / hours : null;
+            return hours > 0 ? athleteEquivalents / hours : 0;
         }
 
         /**
@@ -64,7 +64,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
             Duration delta = Duration.between(minTime, maxTime);
             if (delta.isNegative()) {
                 delta = Duration.ZERO;
-                return null;
+                return 0.0D;
             }
             return ((double) delta.getSeconds() / (24 * 3600));
         }
@@ -195,6 +195,8 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         if (athletes.isEmpty()) {
             // prevent outputting silliness.
             throw new RuntimeException("");
+        } else {
+            logger.debug("{} athletes", athletes.size());
         }
 
         // extract group stats
@@ -206,11 +208,12 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         SessionStats curStat = null;
         for (Athlete curAthlete : athletes) {
             curGroup = curAthlete.getGroup();
+            logger.debug("athlete = {} {}",curAthlete, curGroup);
             if (curGroup == null) {
                 continue; // we simply skip over athletes with no groups
             }
             if (curGroup != prevGroup) {
-                processGroup(sessions, curStat);
+                addSessionStatsIfNotEmpty(sessions, curStat);
 
                 String name = curGroup.getName();
                 curStat = new SessionStats(name);
@@ -229,13 +232,13 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
             prevGroup = curGroup;
         }
         if (curStat.getNbAthletes() > 0) {
-            processGroup(sessions, curStat);
+            addSessionStatsIfNotEmpty(sessions, curStat);
         }
-        reportingBeans.put("groups", sessions);
+        reportingBeans.put("groupStats", sessions);
         return athletes;
     }
 
-    private void processGroup(List<SessionStats> sessions, SessionStats curStat) {
+    private void addSessionStatsIfNotEmpty(List<SessionStats> sessions, SessionStats curStat) {
         if (curStat == null) {
             return;
         }
