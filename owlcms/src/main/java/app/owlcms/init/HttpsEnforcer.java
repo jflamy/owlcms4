@@ -38,7 +38,7 @@ public class HttpsEnforcer implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        String url = request.getRequestURL().toString();
+//        String url = request.getRequestURL().toString();
         String forwarding = request.getHeader(X_FORWARDED_PROTO);
         if (forwarding != null) {
             if (!forwarding.contentEquals("https")) {
