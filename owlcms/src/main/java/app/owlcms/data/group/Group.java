@@ -405,7 +405,7 @@ public class Group implements Comparable<Group> {
     }
 
     public void setDone(boolean b) {
-        logger.debug("done? {} previous={} done={} [{}]", getName(), this.done, b, LoggerUtils.whereFrom());
+        logger.debug("done? {} previous={} done={} {} [{}]", getName(), this.done, b, System.identityHashCode(this), LoggerUtils.whereFrom());
         if (this.done != b) {
             this.done = b;
             GroupRepository.save(this);

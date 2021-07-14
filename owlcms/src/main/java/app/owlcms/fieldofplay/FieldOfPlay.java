@@ -835,6 +835,7 @@ public class FieldOfPlay {
         if (state == FOPState.BREAK) {
             inBreak = ((breakTimer != null && breakTimer.isRunning()));
         }
+        logger.debug("uiDisplayCurrentAthleteAndTime {} {} {} {} {}", getCurAthlete(), inBreak, previousAthlete, nextAthlete, currentDisplayAffected);
         pushOut(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, previousAthlete, changingAthlete,
                 getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),
                 inBreak));

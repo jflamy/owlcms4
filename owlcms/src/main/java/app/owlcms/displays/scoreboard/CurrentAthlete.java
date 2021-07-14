@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.displays.liftingorder;
+package app.owlcms.displays.scoreboard;
 
 import java.util.Collections;
 import java.util.Enumeration;
@@ -45,6 +45,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.options.DisplayOptions;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
@@ -78,7 +79,7 @@ import elemental.json.JsonValue;
 @Route("displays/currentathlete")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthleteModel>
+public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardModel>
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
         RequireLogin {
 
@@ -90,7 +91,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
      * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
      *
      */
-    public interface CurrentAthleteModel extends TemplateModel {
+    public interface ScoreboardModel extends TemplateModel {
         String getAttempt();
 
         String getCategoryName();
@@ -181,7 +182,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
     @Override
     public void doBreak() {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            CurrentAthleteModel model = getModel();
+            ScoreboardModel model = getModel();
             BreakType breakType = fop.getBreakType();
             model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
             model.setTeamName("");
@@ -414,8 +415,9 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
     }
 
     protected void doUpdate(Athlete a, UIEvent e) {
-        logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
-        CurrentAthleteModel model = getModel();
+        logger.debug("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event", a,
+                a != null ? a.getAttemptsDone() : null);
+        ScoreboardModel model = getModel();
         boolean leaveTopAlone = false;
         if (e instanceof UIEvent.LiftingOrderUpdated) {
             LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
@@ -426,30 +428,27 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
             }
         }
 
+        FieldOfPlay fop = OwlcmsSession.getFop();
         if (!leaveTopAlone) {
             if (a != null) {
-                logger.debug("updating top {}", a.getFullName());
-                model.setFullName(a.getFullName());
-                model.setTeamName(a.getTeam());
-                model.setStartNumber(a.getStartNumber());
-                String formattedAttempt = formatAttempt(a.getAttemptsDone());
-                model.setAttempt(formattedAttempt);
-                model.setWeight(a.getNextAttemptRequestedWeight());
+                Group group = fop.getGroup();
+                if (!group.isDone()) {
+                    logger.debug("updating top {} {} {}", a.getFullName(), group, System.identityHashCode(group));
+                    model.setFullName(a.getFullName());
+                    model.setTeamName(a.getTeam());
+                    model.setStartNumber(a.getStartNumber());
+                    String formattedAttempt = formatAttempt(a.getAttemptsDone());
+                    model.setAttempt(formattedAttempt);
+                    model.setWeight(a.getNextAttemptRequestedWeight());
+                } else {
+                    logger.debug("group done {} {}", group, System.identityHashCode(group));
+                    doBreak();
+                }
             }
             this.getElement().callJsFunction("reset");
         }
         logger.debug("updating bottom");
         updateBottom(model, computeLiftType(a));
-        if (a != null && a.getAttemptsDone() < 6) {
-            setDone(false);
-        } else {
-            if (!leaveTopAlone) {
-                logger.debug("doUpdate done");
-                setDone(true);
-            }
-            doBreak();
-            return;
-        }
     }
 
     /*
@@ -529,7 +528,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
     }
 
     private void doUpdateBottomPart(Decision e) {
-        CurrentAthleteModel model = getModel();
+        ScoreboardModel model = getModel();
         Athlete a = e.getAthlete();
         updateBottom(model, computeLiftType(a));
     }
@@ -722,7 +721,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
         }
     }
 
-    private void updateBottom(CurrentAthleteModel model, String liftType) {
+    private void updateBottom(ScoreboardModel model, String liftType) {
         OwlcmsSession.withFop((fop) -> {
             curGroup = fop.getGroup();
             if (liftType != null) {

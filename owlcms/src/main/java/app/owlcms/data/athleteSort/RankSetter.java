@@ -11,10 +11,10 @@ import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 
 public class RankSetter {
 
-    public int rank = 0;
-    public int jrRank = 0;
-    public int ythRank = 0;
-    public int srRank = 0;
+    private int rank = 0;
+    private int jrRank = 0;
+    private int ythRank = 0;
+    private int srRank = 0;
 
     public void increment(Athlete a, Ranking r, boolean eligible, boolean zero) {
         int age;
