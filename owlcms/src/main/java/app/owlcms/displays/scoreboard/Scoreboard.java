@@ -45,6 +45,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.options.DisplayOptions;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
@@ -192,7 +193,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             model.setHidden(false);
 
             updateBottom(model, computeLiftType(fop.getCurAthlete()));
-            uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
             this.getElement().callJsFunction("doBreak");
         }));
     }
@@ -364,6 +364,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     public void slaveStartBreak(UIEvent.BreakStarted e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
+        uiEventLogger.debug("$$$ slaveStartBreak - scoreboard calling doBreak() {}"/* , LoggerUtils.stackTrace() */);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
             doBreak();
@@ -410,7 +411,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     protected void doUpdate(Athlete a, UIEvent e) {
-        logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+        logger.debug("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event", a,
+                a != null ? a.getAttemptsDone() : null);
         ScoreboardModel model = getModel();
         boolean leaveTopAlone = false;
         if (e instanceof UIEvent.LiftingOrderUpdated) {
@@ -422,30 +424,27 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             }
         }
 
+        FieldOfPlay fop = OwlcmsSession.getFop();
         if (!leaveTopAlone) {
             if (a != null) {
-                logger.debug("updating top {}", a.getFullName());
-                model.setFullName(a.getFullName());
-                model.setTeamName(a.getTeam());
-                model.setStartNumber(a.getStartNumber());
-                String formattedAttempt = formatAttempt(a.getAttemptsDone());
-                model.setAttempt(formattedAttempt);
-                model.setWeight(a.getNextAttemptRequestedWeight());
+                Group group = fop.getGroup();
+                if (!group.isDone()) {
+                    logger.debug("updating top {} {} {}", a.getFullName(), group, System.identityHashCode(group));
+                    model.setFullName(a.getFullName());
+                    model.setTeamName(a.getTeam());
+                    model.setStartNumber(a.getStartNumber());
+                    String formattedAttempt = formatAttempt(a.getAttemptsDone());
+                    model.setAttempt(formattedAttempt);
+                    model.setWeight(a.getNextAttemptRequestedWeight());
+                } else {
+                    logger.debug("group done {} {}", group, System.identityHashCode(group));
+                    doBreak();
+                }
             }
             this.getElement().callJsFunction("reset");
         }
         logger.debug("updating bottom");
         updateBottom(model, computeLiftType(a));
-        if (a != null && a.getAttemptsDone() < 6) {
-            setDone(false);
-        } else {
-            if (!leaveTopAlone) {
-                logger.debug("doUpdate doDone");
-                setDone(true);
-            }
-            doBreak();
-            return;
-        }
     }
 
     /*
@@ -683,6 +682,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                     doEmpty();
                 } else {
                     doUpdate(fop.getCurAthlete(), e);
+                    uiEventLogger.debug("$$$ scoreboard calling doBreak() {}", LoggerUtils.whereFrom());
                     doBreak();
                 }
                 break;
