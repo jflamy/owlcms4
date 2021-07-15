@@ -87,6 +87,7 @@ public class Athlete {
 
             dest.setLastName(src.getLastName());
             dest.setFirstName(src.getFirstName());
+            dest.setFullBirthDate(src.getFullBirthDate());
             dest.setGroup(src.getGroup());
             dest.setStartNumber(src.getStartNumber());
             dest.setLotNumber(src.getLotNumber());
@@ -150,19 +151,19 @@ public class Athlete {
 
                 dest.setCustomScore(src.getCustomScore());
 
-                dest.setSnatchRankYth(src.getSnatchRank());
-                dest.setSnatchRankJr(src.getSnatchRank());
-                dest.setSnatchRankSr(src.getSnatchRank());
+                dest.setSnatchRankYth(src.getSnatchRankYth());
+                dest.setSnatchRankJr(src.getSnatchRankJr());
+                dest.setSnatchRankSr(src.getSnatchRankSr());
                 dest.setSnatchRank(src.getSnatchRank());
 
-                dest.setCleanJerkRankYth(src.getCleanJerkRank());
-                dest.setCleanJerkRankJr(src.getCleanJerkRank());
-                dest.setCleanJerkRankSr(src.getCleanJerkRank());
+                dest.setCleanJerkRankYth(src.getCleanJerkRankYth());
+                dest.setCleanJerkRankJr(src.getCleanJerkRankJr());
+                dest.setCleanJerkRankSr(src.getCleanJerkRankSr());
                 dest.setCleanJerkRank(src.getCleanJerkRank());
 
-                dest.setTotalRankYth(src.getTotalRank());
-                dest.setTotalRankJr(src.getTotalRank());
-                dest.setTotalRankSr(src.getTotalRank());
+                dest.setTotalRankYth(src.getTotalRankYth());
+                dest.setTotalRankJr(src.getTotalRankJr());
+                dest.setTotalRankSr(src.getTotalRankSr());
                 dest.setTotalRank(src.getTotalRank());
             }
         } finally {
