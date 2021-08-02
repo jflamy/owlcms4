@@ -1,11 +1,10 @@
 trigger:
   - none
 
-
 parameters:
   - name: Revision
     type: string
-    default: 4.21.3
+    default: 4.21.4-beta01
   - name: SkipTests
     type: string
     default: 'false'
