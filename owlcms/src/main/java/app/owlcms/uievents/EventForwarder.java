@@ -43,6 +43,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.UIEvent.BreakDone;
@@ -574,8 +575,10 @@ public class EventForwarder implements BreakDisplay {
 
         mapPut(sb, "breakType", bts);
         logger.trace("***** break {} breakType {}", isBreak, bts);
-        int breakTimeRemaining = fop.getBreakTimer().liveTimeRemaining();
+        IBreakTimer breakTimer = fop.getBreakTimer();
+        int breakTimeRemaining = breakTimer.liveTimeRemaining();
         mapPut(sb, "breakRemaining", Integer.toString(breakTimeRemaining));
+        mapPut(sb, "breakIsIndefinite", Boolean.toString(breakTimer.isIndefinite()));
 
         // current athlete & attempt
         mapPut(sb, "startNumber", startNumber != null ? startNumber.toString() : null);

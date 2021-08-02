@@ -28,6 +28,7 @@ public class UpdateEvent {
     private Boolean isBreak;
     private BreakType breakType;
     private Integer breakRemaining;
+    private boolean indefinite;
 
     public UpdateEvent() {
         setLeaders(leaders);
@@ -192,5 +193,22 @@ public class UpdateEvent {
     public void setWideTeamNames(boolean wideTeamNames) {
         this.wideTeamNames = wideTeamNames;
     }
+
+    @Override
+    public String toString() {
+        return "UpdateEvent [groupName=" + groupName + ", timeAllowed=" + timeAllowed + ", fopName=" + fopName
+                + ", fopState=" + fopState + ", isBreak=" + isBreak + ", breakType=" + breakType + ", breakRemaining="
+                + breakRemaining + "]";
+    }
+
+    public boolean isIndefinite() {
+        return this.indefinite;
+    }
+
+    public void setIndefinite(boolean indefinite) {
+        this.indefinite = indefinite;
+    }
+    
+    
 
 }

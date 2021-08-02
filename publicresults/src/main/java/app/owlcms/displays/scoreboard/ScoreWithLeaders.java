@@ -36,6 +36,7 @@ import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.ui.parameters.DarkModeParameters;
 import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.uievents.BreakTimerEvent;
+import app.owlcms.uievents.BreakTimerEvent.BreakStart;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.DecisionEvent;
 import app.owlcms.uievents.DecisionEventType;
@@ -305,6 +306,10 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             } else if ("BREAK".equals(fopState)) {
                 logger.warn("in a break {}", e.getBreakType());
                 this.getElement().callJsFunction("doBreak");
+                // also trigger a break timer event to make sure we are in sync with owlcms
+                BreakStart breakStart = new BreakStart(e.getBreakRemaining(), e.isIndefinite());
+                breakStart.setFopName(e.getFopName());
+                TimerReceiverServlet.getEventBus().post(breakStart);
                 needReset = true;
             } else if (!needReset) {
                 // logger.warn("no reset");
