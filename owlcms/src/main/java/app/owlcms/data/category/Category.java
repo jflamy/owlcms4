@@ -70,6 +70,9 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     /** The maximum weight. */
     Double maximumWeight; // exclusive
 
+    /** minimum weight to be considered eligible */
+    private int qualifyingTotal;
+
     @ManyToOne(fetch = FetchType.EAGER) // ok in this case
     @JoinColumn(name = "agegroup_id")
     private AgeGroup ageGroup;
@@ -153,10 +156,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if ((obj == null) || (getClass() != obj.getClass())) {
             return false;
         }
         Category other = (Category) obj;
@@ -240,10 +240,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
      * @return the name
      */
     public String getName() {
-        if (ageGroup == null) {
-            return null;
-        }
-        if (maximumWeight == null) {
+        if ((ageGroup == null) || (maximumWeight == null)) {
             return null;
         }
         String agName = ageGroup.getName();
@@ -253,6 +250,13 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         } else {
             return agName + " " + catName;
         }
+    }
+
+    /**
+     * @return the qualifyingTotal
+     */
+    public int getQualifyingTotal() {
+        return qualifyingTotal;
     }
 
     /**
@@ -382,15 +386,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         this.maximumWeight = maximumWeight;
     }
 
-    /**
-     * Sets the minimum weight.
-     *
-     * @param minimumWeight the minimumWeight to set
-     */
-    public void setMinimumWeight(Double minimumWeight) {
-        this.minimumWeight = minimumWeight;
-    }
-
 //    /**
 //     * Sets the name.
 //     *
@@ -400,8 +395,24 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 //        this.name = name;
 //    }
 
+    /**
+     * Sets the minimum weight.
+     *
+     * @param minimumWeight the minimumWeight to set
+     */
+    public void setMinimumWeight(Double minimumWeight) {
+        this.minimumWeight = minimumWeight;
+    }
+
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * @param qualifyingTotal the qualifyingTotal to set
+     */
+    public void setQualifyingTotal(int qualifyingTotal) {
+        this.qualifyingTotal = qualifyingTotal;
     }
 
     public void setWrJr(Integer wrJr) {

@@ -91,7 +91,7 @@ public class Athlete {
             dest.setGroup(src.getGroup());
             dest.setStartNumber(src.getStartNumber());
             dest.setLotNumber(src.getLotNumber());
-            dest.setQualifyingTotal(src.getQualifyingTotal());
+            dest.setEntryTotal(src.getEntryTotal());
 
             dest.setSnatch1Declaration(src.getSnatch1Declaration());
             dest.setSnatch1Change1(src.getSnatch1Change1());
@@ -171,6 +171,11 @@ public class Athlete {
             dest.setLoggerLevel(prevDestLevel);
             src.setLoggerLevel(prevSrcLevel);
         }
+    }
+
+    public void setEntryTotal(Integer entryTotal) {
+        // intentional, legacy name in database
+        setQualifyingTotal(entryTotal);
     }
 
     /**
@@ -1162,6 +1167,7 @@ public class Athlete {
     }
 
     public Integer getEntryTotal() {
+        // intentional, this is the legacy name of the column in the database
         return getQualifyingTotal();
     }
 
@@ -3697,12 +3703,12 @@ public class Athlete {
     public boolean validateStartingTotalsRule(String snatch1Declaration, String snatch1Change1, String snatch1Change2,
             String cleanJerk1Declaration, String cleanJerk1Change1, String cleanJerk1Change2) {
         boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
-        int qualTotal = getQualifyingTotal();
-        getLogger().trace("enforcing 20kg rule {} {}", enforce20kg, qualTotal);
+        int entryTotal = getEntryTotal();
+        getLogger().trace("enforcing 20kg rule {} {}", enforce20kg, entryTotal);
         if (!enforce20kg) {
             return true;
         }
-        if (qualTotal == 0) {
+        if (entryTotal == 0) {
             return true;
         }
         int sn1Decl = zeroIfInvalid(snatch1Declaration);
@@ -3715,7 +3721,7 @@ public class Athlete {
         Integer snatch1Request = last(sn1Decl, zeroIfInvalid(snatch1Change1), zeroIfInvalid(snatch1Change2));
 
         Integer cleanJerk1Request = last(cj1Decl, zeroIfInvalid(cleanJerk1Change1), zeroIfInvalid(cleanJerk1Change2));
-        return validateStartingTotalsRule(snatch1Request, cleanJerk1Request, qualTotal);
+        return validateStartingTotalsRule(snatch1Request, cleanJerk1Request, entryTotal);
     }
 
     /**

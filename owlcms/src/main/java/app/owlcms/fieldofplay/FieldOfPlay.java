@@ -754,7 +754,7 @@ public class FieldOfPlay {
 
     public void setDisplayOrder(List<Athlete> displayOrder) {
         this.displayOrder = displayOrder;
-        // this sets the order within the currenlty lifting group only
+        // this sets ranking the currenlty lifting group only
         AthleteSorter.assignCategoryRanks(displayOrder);
     }
 

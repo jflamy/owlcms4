@@ -17,6 +17,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.LiftDefinition.Stage;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -202,6 +203,11 @@ public class XAthlete extends Athlete {
     @Override
     public Double getCategorySinclair() {
         return a.getCategorySinclair();
+    }
+
+    @Override
+    public int getCatSinclairRank() {
+        return a.getCatSinclairRank();
     }
 
     /**
@@ -420,6 +426,21 @@ public class XAthlete extends Athlete {
         return a.getCleanJerkRank();
     }
 
+    @Override
+    public Integer getCleanJerkRankJr() {
+        return a.getCleanJerkRankJr();
+    }
+
+    @Override
+    public Integer getCleanJerkRankSr() {
+        return a.getCleanJerkRankSr();
+    }
+
+    @Override
+    public Integer getCleanJerkRankYth() {
+        return a.getCleanJerkRankYth();
+    }
+
     /**
      * @return
      * @see app.owlcms.data.athlete.Athlete#getCleanJerkTotal()
@@ -445,6 +466,11 @@ public class XAthlete extends Athlete {
     @Override
     public Integer getCombinedPoints() {
         return a.getCombinedPoints();
+    }
+
+    @Override
+    public int getCombinedRank() {
+        return a.getCombinedRank();
     }
 
     /**
@@ -795,6 +821,17 @@ public class XAthlete extends Athlete {
         return a.getRoundedBodyWeight();
     }
 
+    @Override
+    @Deprecated
+    public String getShortCategory() {
+        return a.getShortCategory();
+    }
+
+    @Override
+    public String getShortName() {
+        return a.getShortName();
+    }
+
     /**
      * @return
      * @see app.owlcms.data.athlete.Athlete#getSinclair()
@@ -857,6 +894,11 @@ public class XAthlete extends Athlete {
     @Override
     public Double getSmm() {
         return a.getSmm();
+    }
+
+    @Override
+    public int getSmmRank() {
+        return a.getSmmRank();
     }
 
     /**
@@ -1075,6 +1117,21 @@ public class XAthlete extends Athlete {
         return a.getSnatchRank();
     }
 
+    @Override
+    public Integer getSnatchRankJr() {
+        return a.getSnatchRankJr();
+    }
+
+    @Override
+    public Integer getSnatchRankSr() {
+        return a.getSnatchRankSr();
+    }
+
+    @Override
+    public Integer getSnatchRankYth() {
+        return a.getSnatchRankYth();
+    }
+
     /**
      * @return
      * @see app.owlcms.data.athlete.Athlete#getSnatchTotal()
@@ -1183,6 +1240,21 @@ public class XAthlete extends Athlete {
         return a.getTotalRank();
     }
 
+    @Override
+    public Integer getTotalRankJr() {
+        return a.getTotalRankJr();
+    }
+
+    @Override
+    public Integer getTotalRankSr() {
+        return a.getTotalRankSr();
+    }
+
+    @Override
+    public Integer getTotalRankYth() {
+        return a.getTotalRankYth();
+    }
+
     /**
      * @return
      * @see app.owlcms.data.athlete.Athlete#getYearOfBirth()
@@ -1227,6 +1299,17 @@ public class XAthlete extends Athlete {
     @Override
     public boolean isForcedAsCurrent() {
         return a.isForcedAsCurrent();
+    }
+
+    @Override
+    @Deprecated
+    public boolean isInvited() {
+        return a.isInvited();
+    }
+
+    @Override
+    public boolean isValidation() {
+        return a.isValidation();
     }
 
     /**
@@ -1290,6 +1373,11 @@ public class XAthlete extends Athlete {
     @Override
     public void setCategory(Category category) {
         a.setCategory(category);
+    }
+
+    @Override
+    public void setCatSinclairRank(int i) {
+        a.setCatSinclairRank(i);
     }
 
     /**
@@ -1469,6 +1557,21 @@ public class XAthlete extends Athlete {
         a.setCleanJerkRank(cleanJerkRank);
     }
 
+    @Override
+    public void setCleanJerkRankJr(Integer cleanJerkRankJr) {
+        a.setCleanJerkRankJr(cleanJerkRankJr);
+    }
+
+    @Override
+    public void setCleanJerkRankSr(Integer cleanJerkRankSr) {
+        a.setCleanJerkRankSr(cleanJerkRankSr);
+    }
+
+    @Override
+    public void setCleanJerkRankYth(Integer cleanJerkRankYth) {
+        a.setCleanJerkRankYth(cleanJerkRankYth);
+    }
+
     /**
      * @param club
      * @see app.owlcms.data.athlete.Athlete#setClub(java.lang.String)
@@ -1476,6 +1579,11 @@ public class XAthlete extends Athlete {
     @Override
     public void setClub(String club) {
         a.setClub(club);
+    }
+
+    @Override
+    public void setCombinedRank(int i) {
+        a.setCombinedRank(i);
     }
 
     /**
@@ -1513,6 +1621,11 @@ public class XAthlete extends Athlete {
     @Override
     public void setEligibleForTeamRanking(boolean eligibleForTeamRanking) {
         a.setEligibleForTeamRanking(eligibleForTeamRanking);
+    }
+
+    @Override
+    public void setEntryTotal(Integer entryTotal) {
+        a.setEntryTotal(entryTotal);
     }
 
     /**
@@ -1576,6 +1689,16 @@ public class XAthlete extends Athlete {
     @Override
     public void setLiftOrderRank(Integer liftOrder) {
         a.setLiftOrderRank(liftOrder);
+    }
+
+    @Override
+    public void setLogger(Logger logger) {
+        a.setLogger(logger);
+    }
+
+    @Override
+    public void setLoggerLevel(Level newLevel) {
+        a.setLoggerLevel(newLevel);
     }
 
     /**
@@ -1642,6 +1765,11 @@ public class XAthlete extends Athlete {
         a.setRobiRank(robiRank);
     }
 
+    @Override
+    public void setSinclairPoints(Float sinclairPoints) {
+        a.setSinclairPoints(sinclairPoints);
+    }
+
     /**
      * @param sinclairRank
      * @see app.owlcms.data.athlete.Athlete#setSinclairRank(java.lang.Integer)
@@ -1649,6 +1777,11 @@ public class XAthlete extends Athlete {
     @Override
     public void setSinclairRank(Integer sinclairRank) {
         a.setSinclairRank(sinclairRank);
+    }
+
+    @Override
+    public void setSmmRank(int i) {
+        a.setSmmRank(i);
     }
 
     /**
@@ -1737,16 +1870,6 @@ public class XAthlete extends Athlete {
         a.setSnatch2Change2(snatch2Change2);
     }
 
-//	/**
-//	 * @param resultOrderRank
-//	 * @param rankingType
-//	 * @see app.owlcms.data.athlete.Athlete#setResultOrderRank(java.lang.Integer, app.owlcms.data.athleteSort.AthleteSorter.Ranking)
-//	 */
-//	@Override
-//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-//		a.setResultOrderRank(resultOrderRank, rankingType);
-//	}
-
     /**
      * @param snatch2Declaration
      * @see app.owlcms.data.athlete.Athlete#setSnatch2Declaration(java.lang.String)
@@ -1820,6 +1943,16 @@ public class XAthlete extends Athlete {
         a.setSnatchAttemptsDone(i);
     }
 
+//	/**
+//	 * @param resultOrderRank
+//	 * @param rankingType
+//	 * @see app.owlcms.data.athlete.Athlete#setResultOrderRank(java.lang.Integer, app.owlcms.data.athleteSort.AthleteSorter.Ranking)
+//	 */
+//	@Override
+//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
+//		a.setResultOrderRank(resultOrderRank, rankingType);
+//	}
+
     /**
      * @param snatchPoints
      * @see app.owlcms.data.athlete.Athlete#setSnatchPoints(float)
@@ -1836,6 +1969,21 @@ public class XAthlete extends Athlete {
     @Override
     public void setSnatchRank(Integer snatchRank) {
         a.setSnatchRank(snatchRank);
+    }
+
+    @Override
+    public void setSnatchRankJr(Integer snatchRankJr) {
+        a.setSnatchRankJr(snatchRankJr);
+    }
+
+    @Override
+    public void setSnatchRankSr(Integer snatchRankSr) {
+        a.setSnatchRankSr(snatchRankSr);
+    }
+
+    @Override
+    public void setSnatchRankYth(Integer snatchRankYth) {
+        a.setSnatchRankYth(snatchRankYth);
     }
 
     /**
@@ -1937,6 +2085,26 @@ public class XAthlete extends Athlete {
         a.setTotalRank(totalRank);
     }
 
+    @Override
+    public void setTotalRankJr(Integer totalRankJr) {
+        a.setTotalRankJr(totalRankJr);
+    }
+
+    @Override
+    public void setTotalRankSr(Integer totalRankSr) {
+        a.setTotalRankSr(totalRankSr);
+    }
+
+    @Override
+    public void setTotalRankYth(Integer totalRankYth) {
+        a.setTotalRankYth(totalRankYth);
+    }
+
+    @Override
+    public void setValidation(boolean validation) {
+        a.setValidation(validation);
+    }
+
     /**
      * @param birthYear
      * @see app.owlcms.data.athlete.Athlete#setYearOfBirth(java.lang.Integer)
@@ -1953,6 +2121,11 @@ public class XAthlete extends Athlete {
     @Override
     public void successfulLift() {
         a.successfulLift();
+    }
+
+    @Override
+    public String toShortString() {
+        return a.toShortString();
     }
 
     /**
@@ -2206,6 +2379,11 @@ public class XAthlete extends Athlete {
     @Override
     public boolean validateSnatch3Declaration(String snatch3Declaration) throws RuleViolationException {
         return a.validateSnatch3Declaration(snatch3Declaration);
+    }
+
+    @Override
+    public boolean validateStartingTotalsRule(Integer snatch1Request, Integer cleanJerk1Request, int qualTotal) {
+        return a.validateStartingTotalsRule(snatch1Request, cleanJerk1Request, qualTotal);
     }
 
     /**

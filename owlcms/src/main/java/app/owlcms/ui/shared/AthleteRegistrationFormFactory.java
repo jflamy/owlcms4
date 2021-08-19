@@ -116,12 +116,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             setEditedAthlete(AthleteRepository.findById(aFromList.getId()));
         }
 
-        // when in weigh-in, the setters need to ignore the weight that was last loaded.
-        // this kludge is necessary because there is no easy way currently to clear that status
-        // if the cancel button is used.
-        // we probably need to allow changes if the group is not lifting.
-        // logger.warn("setting weighIn in session {} {} {}",OwlcmsSession.getCurrent(),getEditedAthlete(),
-        // LoggerUtils.whereFrom());
+        // when in weigh-in, the validations need to ignore the weight that was last loaded.
         OwlcmsSession.setAttribute("weighIn", getEditedAthlete());
 
         hiddenButton = new Button("doit");
