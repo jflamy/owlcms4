@@ -1,12 +1,11 @@
-* Changes for release 4.21.3  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.21.4  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+
+  - [x] Updated to Vaadin 14.6.8 to fix issue whereby the look and feel file for the user interface would stop being loaded (https://github.com/vaadin/flow/issues/11378)
+
+* Key Highlights from recent stable releases
 
   - [x] Top of scoreboards was not updating to first athlete on break end (#431)
-  - [x] Final results package had erroneous rankings for youth and juniors (#432)
-  - [x] Timing stats spreadsheet correctly produced again, was empty (#430)
-  - [x] Updated Armenian and Spanish translations
-  - [x] Updated to Vaadin 14.6.5 to track security updates.
-  
-* Key Highlights from recent stable releases
+  - [x] Fixes to results package  (#432) and timing statistics  (#430)
 
   - [x] When a display is first started, a dialog offers to enable warning sounds or not.  Warnings are silenced by default; they should normally be enabled on only one display per room, to avoid warnings coming from several directions. See the [documentation](https://owlcms.github.io/owlcms4/#/Displays#display-settings) for details (#407)
   - [x] Fix for registration file upload: empty group start and weigh-in times were causing a generic error message when uploading an .xlsx file instead of being ignored.
@@ -21,7 +20,7 @@
   - [x] Support for large competitions on Heroku. Added documentation for [economical use of Heroku professional tiers](https://owlcms.github.io/owlcms4/#/HerokuLarge). Heroku now provides the memory defaults for all configurations.
     If you are limited to using the free setup and need to stretch it to its maximum, set the `_JAVA_OPTIONS` configuration variable to something like `-Xmx384m -XX:MaxMetaspaceSize=80m`
   - [x] New: added a new item for video broadcasts in the technical configuration section. Video capture using OBS or similar streaming software is awkward when a PIN or password is set.  If it is known that the video operator is working from a safe setting (such as a home network) , a "backdoor" setting (OWLCMS_BACKDOOR if using an environment variable) can be used to allow password-less login from a comma-separated list of addresses.  Use with care.
-  
+
   * [x] Improvement: New scoreboard with multiple IWF age group rankings (Youth, Junior, Senior).  Final package also includes the three rankings. (#372)
 
 
