@@ -24,6 +24,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
 
@@ -189,7 +190,8 @@ public class AgeGroupDefinitionReader {
 
     static void doInsertAgeGroup(EnumSet<AgeDivision> es, String localizedName) {
         //FIXME use getFileOrResource()
-        InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
+        //InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
+        InputStream localizedResourceAsStream = Config.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory
                 .create(localizedResourceAsStream)) {
             AgeGroupRepository.logger.info("loading configuration file {}", localizedName);

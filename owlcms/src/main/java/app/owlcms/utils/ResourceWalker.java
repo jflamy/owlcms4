@@ -82,6 +82,7 @@ public class ResourceWalker {
     }
 
     public static String getLocalizedResourceName(String rawName) throws FileNotFoundException {
+        // FIXME should use config to check override first.
         int extensionPos = rawName.lastIndexOf('.');
         String extension = rawName.substring(extensionPos);
         String baseName = rawName.substring(0, extensionPos);
@@ -132,7 +133,7 @@ public class ResourceWalker {
      * @param absoluteRootPath
      * @return an open file system (intentionnaly not closed)
      */
-    public static FileSystem openFileSystem(String absoluteRootPath) {
+    public static FileSystem openClassPathFileSystem(String absoluteRootPath) {
         URL resources = ResourceWalker.class.getResource(absoluteRootPath);
         try {
             URI resourcesURI = resources.toURI();
@@ -159,42 +160,63 @@ public class ResourceWalker {
      * Walk a resource tree and return the entries. The paths can be inside a jar or classpath folder. A function is
      * called on the name in order to generate a display name.
      *
-     * Assumes that the jar has been opened as a file system (see {@link #openFileSystem(String)}
+     * Assumes that the jar has been opened as a file system (see {@link #openClassPathFileSystem(String)}
      *
-     * @param absoluteRoot a starting point (absolute resource name starts with a /)
-     * @param generateName a function that takes the current path and the starting path and returns a (unique) display
-     *                     name.
+     * @param absoluteRoot  a starting point (absolute resource name starts with a /)
+     * @param nameGenerator a function that takes the current path and the starting path and returns a (unique) display
+     *                      name.
      * @return a list of <display name, file path> entries
      * @throws IOException
      * @throws URISyntaxException
      */
-    Path rootPath = null;
-    public List<Resource> getResourceList(String absoluteRoot, BiFunction<Path, Path, String> generateName,
+    // Path rootPath = null;
+    public List<Resource> getResourceList(String absoluteRoot, BiFunction<Path, Path, String> nameGenerator,
             String startsWith) {
+        URL resources = getClass().getResource(absoluteRoot);
+        if (resources == null) {
+            logger.error(absoluteRoot + " not found");
+            throw new RuntimeException(absoluteRoot + " not found");
+        }
+        Path classpathFileSystemPath;
+        URI resourcesURI;
         try {
-            URL resources = getClass().getResource(absoluteRoot);
-            if (resources == null) {
-                logger.error(absoluteRoot + " not found");
-                throw new RuntimeException(absoluteRoot + " not found");
-            }
+            resourcesURI = resources.toURI();
+        } catch (URISyntaxException e1) {
+            logger.error(e1.getReason());
+            throw new RuntimeException(e1);
+        }
+        try {
+            classpathFileSystemPath = Paths.get(resourcesURI);
+        } catch (FileSystemNotFoundException e) {
+            // workaround for breaking change in Vaadin 14.6.2
+            // the name does not matter, we want something that is found in the jar if there is no real classpath
+            openClassPathFileSystem("/templates");
+            classpathFileSystemPath = Paths.get(resourcesURI);
+        }
+        return getResourceListFromPath(nameGenerator, startsWith, classpathFileSystemPath);
+    }
+
+    /**
+     * Walk down a file system, gathering resources that match a locale.
+     * The file system is either be a real file system, or a ZipFileSystem built from a jar.
+     * 
+     * @param nameGenerator
+     * @param startsWith
+     * @param rootPath
+     * @return
+     */
+    private List<Resource> getResourceListFromPath(BiFunction<Path, Path, String> nameGenerator, String startsWith,
+            Path rootPath) {
+        try {
             Locale locale = OwlcmsSession.getLocale();
-            URI resourcesURI = resources.toURI();
             List<Resource> localeNames = new ArrayList<>();
             List<Resource> englishNames = new ArrayList<>();
             List<Resource> otherNames = new ArrayList<>();
 
-            try {
-                rootPath = Paths.get(resourcesURI);
-            } catch (FileSystemNotFoundException e) {
-                // workaround for breaking change in Vaadin 14.6.2
-                openFileSystem("/templates");
-                rootPath = Paths.get(resourcesURI);
-            }
-
             Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
-                    String generatedName = generateName.apply(filePath, rootPath);
+                    String generatedName = nameGenerator.apply(filePath, rootPath);
                     String baseName = filePath.getFileName().toString();
                     if (startsWith != null) {
                         if (!baseName.startsWith(startsWith)) {
@@ -221,9 +243,33 @@ public class ResourceWalker {
             // localeNames.addAll(otherNames);
 
             return localeNames;
-        } catch (URISyntaxException | IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private Path getResourcesPath(String absoluteRoot) {
+        URL resources = getClass().getResource(absoluteRoot);
+        if (resources == null) {
+            logger.error(absoluteRoot + " not found");
+            throw new RuntimeException(absoluteRoot + " not found");
+        }
+        Path rootPath;
+        URI resourcesURI;
+        try {
+            resourcesURI = resources.toURI();
+        } catch (URISyntaxException e1) {
+            logger.error(e1.getReason());
+            throw new RuntimeException(e1);
+        }
+        try {
+            rootPath = Paths.get(resourcesURI);
+        } catch (FileSystemNotFoundException e) {
+            // workaround for breaking change in Vaadin 14.6.2
+            openClassPathFileSystem("/templates");
+            rootPath = Paths.get(resourcesURI);
+        }
+        return rootPath;
     }
 
     /**

@@ -7,7 +7,11 @@
 package app.owlcms.data.config;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -228,6 +232,50 @@ public class Config {
             checkForLocalOverrideDirectory();
         }
         setInitializedLocalDir(true);
+    }
+    
+    /**
+     * Fetch a named file content.
+     * First looking in a local override directory structure, and if not found, as a resource on the classpath.
+     * 
+     * @param name
+     * @return an input stream with the requested content, null if not found.
+     */
+    public InputStream getFileOrResource(String name) {
+        InputStream is = null;
+        String relativeName;
+        if (name.startsWith(name)) {
+            relativeName = name.substring(1);
+        } else {
+            relativeName = name;
+        }
+        Path localDirPath2 = getLocalDirPath();
+        Path target = null;
+        if (localDirPath2 != null) {
+            target = localDirPath2.resolve(relativeName);
+        }
+        if (target != null && Files.exists(target)) {
+            try {
+                File file = target.toFile();
+                logger.debug("found overridden resource {} at {}",name,file.getAbsolutePath());
+                return new FileInputStream(file);
+            } catch (FileNotFoundException e) {
+                // can't happen
+                throw new RuntimeException("can't happen", e);
+            }
+        } else {
+            is = Config.class.getResourceAsStream(name);
+            if (is == null) {
+                throw new RuntimeException("resource not overridden and not on classpath: "+name);
+            } else {
+                logger.debug("found classpath resource {}", name);
+            }
+        }
+        return is;
+    }
+    
+    public static InputStream getResourceAsStream(String name) {
+        return getCurrent().getFileOrResource(name);
     }
 
     public boolean isInitializedLocalDir() {
