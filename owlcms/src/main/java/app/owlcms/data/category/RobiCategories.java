@@ -109,6 +109,7 @@ public class RobiCategories {
     }
 
     private static void loadJrSrReferenceCategories() {
+        //FIXME use getFileOrResource()
         String localizedName = "/config/AgeGroups.xlsx";
         InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
@@ -138,6 +139,7 @@ public class RobiCategories {
     }
 
     private static void loadYthReferenceCategories() {
+        //FIXME use getFileOrResource()
         String localizedName = "/config/AgeGroups.xlsx";
         InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {

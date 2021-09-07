@@ -173,6 +173,7 @@ public class RecordDefinitionReader {
     }
 
     static void doInsertRecords(EnumSet<AgeDivision> es, String localizedName) {
+        //FIXME use getFileOrResource()
         InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory
                 .create(localizedResourceAsStream)) {

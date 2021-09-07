@@ -201,7 +201,7 @@ public class Translator implements I18NProvider {
 
         if (i18nloader == null) {
             logger.debug("reloading translation bundles");
-
+            //FIXME use getFileOrResource()
             InputStream csvStream = helper.getClass().getResourceAsStream(csvName);
             ICsvListReader listReader = null;
             try {
@@ -217,6 +217,7 @@ public class Translator implements I18NProvider {
                         throw new RuntimeException(csvName + " file is empty");
                     } else if (stringList.size() <= 2) {
                         // reset stream
+                        //FIXME use getFileOrResource()
                         csvStream = helper.getClass().getResourceAsStream(csvName);
                     } else {
                         logger.debug(stringList.toString());

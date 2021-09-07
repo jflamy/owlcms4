@@ -64,11 +64,13 @@ public class DemoData {
         JPAService.runInTransaction(em -> {
             Competition competition = createDefaultCompetition(ageDivisions);
             CompetitionRepository.save(competition);
-            AgeGroupRepository.insertAgeGroups(em, ageDivisions);
             if (ConfigRepository.findAll().isEmpty()) {
                 Config config = createDefaultConfig();
                 Config.setCurrent(config);
             }
+            Config.getCurrent().initLocalDir();
+            // do this after Config in case there is override.
+            AgeGroupRepository.insertAgeGroups(em, ageDivisions);
             return null;
         });
 

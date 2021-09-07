@@ -216,12 +216,12 @@ public class FileServlet extends HttpServlet {
     public void init() throws ServletException {
 
         // Get base path (path to get all resources from) as init parameter.
+        //FIXME use config.getLocalOverrideDir()
         String basePathName = getInitParameter("basePath");
 
         // Validate base path.
         if (basePathName == null) {
             basePathName = "./local";
-//            throw new ServletException("FileServlet init param 'basePath' is required.");
         }
         basePath = Paths.get(basePathName);
         basePath = basePath.normalize().toAbsolutePath();
@@ -326,28 +326,14 @@ public class FileServlet extends HttpServlet {
             } else {
                 // if there is no override in /local on disk, look for resource on classpath
                 String resourceName = "/" + relativeFileName;
-
-//                boolean useTemp = true;
-//                if (useTemp) {
-                    return getFileFromResource(response, finalPath, resourceName);
-//                } 
-//                else {
-//                    return getFileFromZip(response, resourceName);
-//                }
+                return getFileFromResource(response, finalPath, resourceName);
             }
         } catch (IllegalArgumentException e) {
             logger.error(e.getLocalizedMessage());
             response.getWriter().print(e.getLocalizedMessage());
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return null;
-        } 
-//        catch (URISyntaxException e) {
-//            logger.error(e.getLocalizedMessage());
-//            response.getWriter().print(e.getLocalizedMessage());
-//            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-//            return null;
-//        } 
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error(LoggerUtils.stackTrace(e));
             response.getWriter().print(e.getLocalizedMessage());
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -376,29 +362,6 @@ public class FileServlet extends HttpServlet {
             return null;
         }
     }
-
-//    private File getFileFromZip(HttpServletResponse response, String resourceName)
-//            throws URISyntaxException, IOException {
-//        // we need a file so we use the zipfilesystem.
-//        // this does not work on older Java?
-//        URL resource = getClass().getResource(resourceName);
-//        if (resource != null) {
-//            URI resourcesURI = resource.toURI();
-//            Path resourcePath = Paths.get(resourcesURI);
-//            if (!Files.exists(resourcePath)) {
-//                logger./**/error("file not found on classpath {}", resourcePath);
-//                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-//                return null;
-//            } else {
-//                logger.debug("found Classpath/Jar File: {}", resourcePath.toRealPath());
-//                return resourcePath.toFile();
-//            }
-//        } else {
-//            logger./**/error("resource not found on classpath {}", resourceName);
-//            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-//            return null;
-//        }
-//    }
 
     /**
      * Process the actual request.

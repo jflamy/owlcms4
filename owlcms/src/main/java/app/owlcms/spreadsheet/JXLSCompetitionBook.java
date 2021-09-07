@@ -127,23 +127,6 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
         setReportingBeans(competition.getReportingBeans());
     }
 
-//    private byte[] loadDefaultPackageTemplate(Locale locale, Competition current) {
-//        JPAService.runInTransaction((em) -> {
-//            String protocolTemplateFileName = "/templates/competitionBook/CompetitionBook_Total_" + locale.getLanguage()
-//                    + ".xls";
-//            InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);
-//            try {
-//                finalPackageTemplate = ByteStreams.toByteArray(stream);
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//            current.setFinalPackageTemplate(finalPackageTemplate);
-//            Competition merge = em.merge(current);
-//            Competition.setCurrent(merge);
-//            return merge;
-//        });
-//        return finalPackageTemplate;
-//    }
 
     private void setTeamSheetPrintArea(Workbook workbook, String sheetName, int nbClubs) {
         // int sheetIndex = workbook.getSheetIndex(sheetName);

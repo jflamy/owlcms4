@@ -100,7 +100,7 @@ public class TestData {
             p.setGroup(mg);
             p.setFirstName(fnames[r.nextInt(fnames.length)]);
             p.setLastName(lnames[r.nextInt(lnames.length)]);
-            p.setFullBirthDate(LocalDate.of(LocalDate.now().getYear()-40,1,1));
+            p.setFullBirthDate(LocalDate.of(LocalDate.now().getYear() - 40, 1, 1));
             createAthlete(em, r, p, 0.0D, cat1);
             em.persist(p);
         }

@@ -6,15 +6,25 @@
  *******************************************************************************/
 package app.owlcms.data.config;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import javax.persistence.Cacheable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.utils.StartupUtils;
+import app.owlcms.utils.ZipUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -28,7 +38,6 @@ public class Config {
 
     public static final int SHORT_TEAM_LENGTH = 6;
 
-    @SuppressWarnings("unused")
     final static private Logger logger = (Logger) LoggerFactory.getLogger(Config.class);
 
     private static Config current;
@@ -64,16 +73,23 @@ public class Config {
 
     private String ipBackdoorList;
 
+    @Lob
+    @Column(name = "localcontent", columnDefinition = "BLOB", nullable = true)
+    private byte[] localContent;
+
+    @Transient
+    private boolean initializedLocalDir = false;
+
+    @Transient
+    private Path localDirPath = null;
+
     @Override
     public boolean equals(Object obj) {
         // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if ((obj == null) || (getClass() != obj.getClass())) {
             return false;
         }
         Config other = (Config) obj;
@@ -95,6 +111,14 @@ public class Config {
 
     public String getIpBackdoorList() {
         return ipBackdoorList;
+    }
+
+    public byte[] getLocalContent() {
+        return localContent;
+    }
+
+    public Path getLocalDirPath() {
+        return localDirPath;
     }
 
     /**
@@ -191,12 +215,39 @@ public class Config {
         return 31;
     }
 
+    public void initLocalDir() {
+        byte[] localContent2 = this.getLocalContent();
+        if (localContent2 != null && localContent2.length > 0) {
+            logger.debug("override blob found");
+            try {
+                unzipBlobToTemp(localContent2);
+            } catch (Exception e) {
+                checkForLocalOverrideDirectory();
+            }
+        } else {
+            checkForLocalOverrideDirectory();
+        }
+        setInitializedLocalDir(true);
+    }
+
+    public boolean isInitializedLocalDir() {
+        return initializedLocalDir;
+    }
+
     public void setIpAccessList(String ipAccessList) {
         this.ipAccessList = ipAccessList;
     }
 
     public void setIpBackdoorList(String ipBackdoorList) {
         this.ipBackdoorList = ipBackdoorList;
+    }
+
+    public void setLocalContent(byte[] localContent) {
+        this.localContent = localContent;
+    }
+
+    public void setLocalDirPath(Path curDir) {
+        this.localDirPath = curDir;
     }
 
     public void setPin(String pin) {
@@ -209,6 +260,17 @@ public class Config {
 
     public void setUpdatekey(String updatekey) {
         this.updatekey = updatekey;
+    }
+
+    private void checkForLocalOverrideDirectory() {
+        Path curDir = Paths.get(".", "local");
+        curDir = curDir.normalize();
+        if (Files.exists(curDir)) {
+            logger.debug("local override directory = {}", curDir.toAbsolutePath());
+            setLocalDirPath(curDir);
+        } else {
+            logger.debug("no override directory {}", curDir.toAbsolutePath());
+        }
     }
 
     /**
@@ -229,6 +291,26 @@ public class Config {
                 uURL = uURL.replaceFirst("/$", "");
                 return uURL;
             }
+        }
+    }
+
+    private void setInitializedLocalDir(boolean checkedLocalDir) {
+        this.initializedLocalDir = checkedLocalDir;
+    }
+
+    private void unzipBlobToTemp(byte[] localContent2) throws Exception {
+        Path f = null;
+        try {
+            f = Files.createTempDirectory("owlcms");
+            logger.debug("created temp directory " + f);
+        } catch (IOException e) {
+            throw new Exception("cannot create directory ", e);
+        }
+        try {
+            ZipUtils.unzip(new ByteArrayInputStream(localContent2), f.toFile());
+            setLocalDirPath(f);
+        } catch (IOException e) {
+            throw new Exception("cannot unzip", e);
         }
     }
 

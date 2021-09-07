@@ -26,6 +26,7 @@ import ch.qos.logback.classic.Logger;
  * @author jflamy
  */
 public class Sound {
+    //FIXME use getFileOrResource()
     static final String SOUND_PREFIX = "/META-INF/resources/sounds/";
 
     final Logger logger = (Logger) LoggerFactory.getLogger(Sound.class);

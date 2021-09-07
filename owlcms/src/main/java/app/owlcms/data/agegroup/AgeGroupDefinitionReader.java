@@ -188,6 +188,7 @@ public class AgeGroupDefinitionReader {
     }
 
     static void doInsertAgeGroup(EnumSet<AgeDivision> es, String localizedName) {
+        //FIXME use getFileOrResource()
         InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory
                 .create(localizedResourceAsStream)) {
