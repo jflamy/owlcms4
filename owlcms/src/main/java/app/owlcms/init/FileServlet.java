@@ -30,7 +30,6 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -50,6 +49,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -205,7 +205,6 @@ public class FileServlet extends HttpServlet {
     }
 
     private Logger logger = (Logger) LoggerFactory.getLogger(FileServlet.class);
-    private Path basePath;
 
     /**
      * Initialize the servlet.
@@ -214,29 +213,6 @@ public class FileServlet extends HttpServlet {
      */
     @Override
     public void init() throws ServletException {
-
-        // Get base path (path to get all resources from) as init parameter.
-        //FIXME use config.getLocalOverrideDir()
-        String basePathName = getInitParameter("basePath");
-
-        // Validate base path.
-        if (basePathName == null) {
-            basePathName = "./local";
-        }
-        basePath = Paths.get(basePathName);
-        basePath = basePath.normalize().toAbsolutePath();
-        logger.debug("base path = {} {}", basePath, Files.exists(basePath));
-        if (!Files.exists(basePath)) {
-            // ignore exception, we will look on classpath.
-//            throw new ServletException("FileServlet init param 'basePath' value '"
-//                    + basePathName + "' does not exist in file system.");
-        } else if (!Files.isDirectory(basePath)) {
-            throw new ServletException("FileServlet init param 'basePath' value '"
-                    + basePathName + "' is not a directory in file system.");
-        } else if (!Files.isReadable(basePath)) {
-            throw new ServletException("FileServlet init param 'basePath' value '"
-                    + basePathName + "' is not readable in file system.");
-        }
     }
 
     /**
@@ -309,25 +285,12 @@ public class FileServlet extends HttpServlet {
             requestedFile = requestedFile.substring(1);
         }
 
-        Path finalPath;
         try {
             // URL-decode the file name (might contain spaces and on) and prepare file object.
             logger.debug("requestedFile {}", requestedFile);
             String relativeFileName = URLDecoder.decode(requestedFile, "UTF-8");
-            Path relativePath = Paths.get(relativeFileName);
-
-            // check that file is inside basepath
-            finalPath = resolvePath(basePath, relativePath);
-            logger.debug("looking for {}", finalPath);
-
-            if (Files.exists(finalPath)) {
-                logger.debug("found Filesystem File: {}", finalPath.toRealPath());
-                return finalPath.toFile();
-            } else {
-                // if there is no override in /local on disk, look for resource on classpath
-                String resourceName = "/" + relativeFileName;
-                return getFileFromResource(response, finalPath, resourceName);
-            }
+            Path finalPath = Paths.get(relativeFileName);
+            return getFileFromResource(response, finalPath, "/" + relativeFileName);
         } catch (IllegalArgumentException e) {
             logger.error(e.getLocalizedMessage());
             response.getWriter().print(e.getLocalizedMessage());
@@ -343,7 +306,7 @@ public class FileServlet extends HttpServlet {
 
     private File getFileFromResource(HttpServletResponse response, Path finalPath, String resourceName)
             throws IOException, FileNotFoundException {
-        InputStream in = getClass().getResourceAsStream(resourceName);
+        InputStream in = ResourceWalker.getResourceAsStream(resourceName);
         if (in != null) {
             final String fullFileName = finalPath.getFileName().toString();
             final String extension = FilenameUtils.getExtension(fullFileName);
@@ -357,7 +320,7 @@ public class FileServlet extends HttpServlet {
             tempFile.setReadable(true);
             return tempFile;
         } else {
-            logger./**/error("resource not found on classpath {}", resourceName);
+            logger./**/error("resource or override not found {}", resourceName);
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
         }

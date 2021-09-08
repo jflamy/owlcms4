@@ -6,6 +6,9 @@
  *******************************************************************************/
 package app.owlcms.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +34,7 @@ import java.util.regex.Pattern;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.results.Resource;
 import ch.qos.logback.classic.Logger;
@@ -81,8 +85,112 @@ public class ResourceWalker {
         return result;
     }
 
+    public static boolean isInitializedLocalDir() {
+        return initializedLocalDir;
+    }
+
+    public static void setLocalDirPath(Path curDir) {
+        localDirPath = curDir;
+    }
+
+    private static void setInitializedLocalDir(boolean checkedLocalDir) {
+        initializedLocalDir = checkedLocalDir;
+    }
+
+    public static void initLocalDir() {
+        byte[] localContent2 = Config.getCurrent().getLocalContent();
+        if (localContent2 != null && localContent2.length > 0) {
+            logger.debug("override blob found");
+            try {
+                unzipBlobToTemp(localContent2);
+            } catch (Exception e) {
+                checkForLocalOverrideDirectory();
+            }
+        } else {
+            checkForLocalOverrideDirectory();
+        }
+        setInitializedLocalDir(true);
+    }
+
+    private static void unzipBlobToTemp(byte[] localContent2) throws Exception {
+        Path f = null;
+        try {
+            f = Files.createTempDirectory("owlcms");
+            logger.debug("created temp directory " + f);
+        } catch (IOException e) {
+            throw new Exception("cannot create directory ", e);
+        }
+        try {
+            ZipUtils.unzip(new ByteArrayInputStream(localContent2), f.toFile());
+            setLocalDirPath(f);
+        } catch (IOException e) {
+            throw new Exception("cannot unzip", e);
+        }
+    } 
+    
+    private static void checkForLocalOverrideDirectory() {
+        Path curDir = Paths.get(".", "local");
+        curDir = curDir.normalize();
+        if (Files.exists(curDir)) {
+            logger.debug("local override directory = {}", curDir.toAbsolutePath());
+            ResourceWalker.setLocalDirPath(curDir);
+        } else {
+            logger.debug("no override directory {}", curDir.toAbsolutePath());
+        }
+    }
+
+    /**
+     * Fetch a named file content. First looking in a local override directory structure, and if not found, as a
+     * resource on the classpath.
+     * 
+     * @param name
+     * @return an input stream with the requested content, null if not found.
+     */
+    public static InputStream getFileOrResource(String name) {
+        InputStream is = null;
+        String relativeName;
+        if (name.startsWith("/")) {
+            relativeName = name.substring(1);
+        } else {
+            relativeName = name;
+        }
+        Path localDirPath2 = getLocalDirPath();
+        Path target = null;
+        if (localDirPath2 != null) {
+            target = localDirPath2.resolve(relativeName);
+        }
+        logger.trace("checking override {} {}", localDirPath2, target);
+        if (target != null && Files.exists(target)) {
+            try {
+                File file = target.toFile();
+                logger.debug("found overridden resource {} at {} {}", name, file.getAbsolutePath(), LoggerUtils.whereFrom(1));
+                return new FileInputStream(file);
+            } catch (FileNotFoundException e) {
+                // can't happen
+                throw new RuntimeException("can't happen", e);
+            }
+        } else {
+            is = ResourceWalker.class.getResourceAsStream(name);
+            if (is != null) {
+                logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+            }
+        }
+        return is;
+    }
+
+    public static InputStream getResourceAsStream(String name) {
+        return getFileOrResource(name);
+    }
+
+    public static Path getLocalDirPath() {
+        return localDirPath;
+    }
+
+    private static boolean initializedLocalDir = false;
+
+    private static Path localDirPath = null;
+
     public static String getLocalizedResourceName(String rawName) throws FileNotFoundException {
-        // FIXME should use config to check override first.
         int extensionPos = rawName.lastIndexOf('.');
         String extension = rawName.substring(extensionPos);
         String baseName = rawName.substring(0, extensionPos);
@@ -91,28 +199,28 @@ public class ResourceWalker {
 
         String suffix = "_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant();
         String name = baseName + suffix + extension;
-        InputStream result = ResourceWalker.class.getResourceAsStream(name);
+        InputStream result = getResourceAsStream(name);
         if (result != null) {
             return name;
         }
 
         suffix = "_" + locale.getLanguage() + "_" + locale.getCountry();
         name = baseName + suffix + extension;
-        result = ResourceWalker.class.getResourceAsStream(name);
+        result = getResourceAsStream(name);
         if (result != null) {
             return name;
         }
 
         suffix = "_" + locale.getLanguage();
         name = baseName + suffix + extension;
-        result = ResourceWalker.class.getResourceAsStream(name);
+        result = getResourceAsStream(name);
         if (result != null) {
             return name;
         }
 
         suffix = "_en";
         name = baseName + suffix + extension;
-        result = ResourceWalker.class.getResourceAsStream(name);
+        result = getResourceAsStream(name);
         if (result != null) {
             return name;
         }
@@ -157,14 +265,14 @@ public class ResourceWalker {
     }
 
     /**
-     * Walk a resource tree and return the entries. The paths can be inside a jar or classpath folder. A function is
-     * called on the name in order to generate a display name.
-     *
-     * Assumes that the jar has been opened as a file system (see {@link #openClassPathFileSystem(String)}
+     * Find all available files that start with a given prefix, either in a local file structure or on the classpath.
+     * 
+     * For each file a display name suitable for a menu is returned. The file retrieval function will use the same logic
+     * (look in the local files, then on the classpath).
      *
      * @param absoluteRoot  a starting point (absolute resource name starts with a /)
-     * @param nameGenerator a function that takes the current path and the starting path and returns a (unique) display
-     *                      name.
+     * @param nameGenerator a function that takes the current file path and the starting path and returns a (unique)
+     *                      display name.
      * @return a list of <display name, file path> entries
      * @throws IOException
      * @throws URISyntaxException
@@ -172,43 +280,55 @@ public class ResourceWalker {
     // Path rootPath = null;
     public List<Resource> getResourceList(String absoluteRoot, BiFunction<Path, Path, String> nameGenerator,
             String startsWith) {
-        URL resources = getClass().getResource(absoluteRoot);
-        if (resources == null) {
-            logger.error(absoluteRoot + " not found");
-            throw new RuntimeException(absoluteRoot + " not found");
-        }
-        Path classpathFileSystemPath;
-        URI resourcesURI;
-        try {
-            resourcesURI = resources.toURI();
-        } catch (URISyntaxException e1) {
-            logger.error(e1.getReason());
-            throw new RuntimeException(e1);
-        }
-        try {
-            classpathFileSystemPath = Paths.get(resourcesURI);
-        } catch (FileSystemNotFoundException e) {
-            // workaround for breaking change in Vaadin 14.6.2
-            // the name does not matter, we want something that is found in the jar if there is no real classpath
-            openClassPathFileSystem("/templates");
-            classpathFileSystemPath = Paths.get(resourcesURI);
-        }
-        return getResourceListFromPath(nameGenerator, startsWith, classpathFileSystemPath);
+        List<Resource> classPathResources = getResourceListFromPath(nameGenerator, startsWith,
+                getResourcesPath(absoluteRoot), OwlcmsSession.getLocale());
+        List<Resource> overrideResources = getLocalOverrideResourceList(absoluteRoot, nameGenerator, startsWith);
+        overrideResources.addAll(classPathResources);
+        return overrideResources;
     }
 
     /**
-     * Walk down a file system, gathering resources that match a locale.
-     * The file system is either be a real file system, or a ZipFileSystem built from a jar.
+     * Walk a local file system resource tree and return the entries. Used for overriding the classpath resources. When
+     * developing or running on a laptop the override directory will typically be ./local When running on the cloud, the
+     * override files are stored in a blob in the database and extracted to a temporary directory.
+     *
+     * @param root          a starting point (if start with / will removed and made relative)
+     * @param nameGenerator a function that takes the current path and the starting path and returns a (unique) display
+     *                      name.
+     * @return a list of <display name, file path> entries
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    // Path rootPath = null;
+    public List<Resource> getLocalOverrideResourceList(String root,
+            BiFunction<Path, Path, String> nameGenerator,
+            String startsWith) {
+        if (root.startsWith("/")) {
+            root = root.substring(1);
+        }
+        Path basePath = ResourceWalker.getLocalDirPath();
+        if (basePath != null) {
+            basePath = basePath.normalize().toAbsolutePath();
+            basePath = basePath.resolve(root);
+            return getResourceListFromPath(nameGenerator, startsWith, basePath, OwlcmsSession.getLocale());
+        } else {
+            return new ArrayList<Resource>();
+        }
+    }
+
+    /**
+     * Walk down a file system, gathering resources that match a locale. The file system is either be a real file
+     * system, or a ZipFileSystem built from a jar.
      * 
      * @param nameGenerator
      * @param startsWith
      * @param rootPath
+     * @param locale        if null return files with no locale suffix, else return files that match the locale
      * @return
      */
     private List<Resource> getResourceListFromPath(BiFunction<Path, Path, String> nameGenerator, String startsWith,
-            Path rootPath) {
+            Path rootPath, Locale locale) {
         try {
-            Locale locale = OwlcmsSession.getLocale();
             List<Resource> localeNames = new ArrayList<>();
             List<Resource> englishNames = new ArrayList<>();
             List<Resource> otherNames = new ArrayList<>();

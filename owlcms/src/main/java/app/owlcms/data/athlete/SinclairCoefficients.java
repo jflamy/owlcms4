@@ -15,6 +15,7 @@ import java.util.Properties;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -105,8 +106,7 @@ public class SinclairCoefficients {
     private static void loadProps() {
         props = new Properties();
         try {
-            //FIXME allow local override ?
-            InputStream stream = SinclairCoefficients.class.getResourceAsStream("/config/sinclair.properties");
+            InputStream stream = ResourceWalker.getResourceAsStream("/config/sinclair.properties");
             props.load(stream);
             // props.list(System.err);
         } catch (IOException e) {

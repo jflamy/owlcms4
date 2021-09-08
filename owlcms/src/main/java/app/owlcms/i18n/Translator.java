@@ -38,6 +38,7 @@ import org.supercsv.prefs.CsvPreference;
 import com.vaadin.flow.i18n.I18NProvider;
 
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -201,8 +202,7 @@ public class Translator implements I18NProvider {
 
         if (i18nloader == null) {
             logger.debug("reloading translation bundles");
-            //FIXME use getFileOrResource()
-            InputStream csvStream = helper.getClass().getResourceAsStream(csvName);
+            InputStream csvStream = ResourceWalker.getResourceAsStream(csvName);
             ICsvListReader listReader = null;
             try {
                 CsvPreference[] preferences = new CsvPreference[] { CsvPreference.STANDARD_PREFERENCE,
@@ -217,8 +217,7 @@ public class Translator implements I18NProvider {
                         throw new RuntimeException(csvName + " file is empty");
                     } else if (stringList.size() <= 2) {
                         // reset stream
-                        //FIXME use getFileOrResource()
-                        csvStream = helper.getClass().getResourceAsStream(csvName);
+                        csvStream = ResourceWalker.getResourceAsStream(csvName);
                     } else {
                         logger.debug(stringList.toString());
                         break;

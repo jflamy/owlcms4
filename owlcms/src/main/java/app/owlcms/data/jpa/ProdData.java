@@ -21,6 +21,7 @@ import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -44,7 +45,7 @@ public class ProdData {
                 Config config = createDefaultConfig();
                 Config.setCurrent(config);
             }
-            Config.getCurrent().initLocalDir();
+            ResourceWalker.initLocalDir();
             // do this after Config in case there is override.
             AgeGroupRepository.insertAgeGroups(em, null);
             return null;

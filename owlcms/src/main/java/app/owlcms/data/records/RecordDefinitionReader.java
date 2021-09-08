@@ -17,12 +17,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -173,8 +173,7 @@ public class RecordDefinitionReader {
     }
 
     static void doInsertRecords(EnumSet<AgeDivision> es, String localizedName) {
-        //FIXME use getFileOrResource()
-        InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
+        InputStream localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory
                 .create(localizedResourceAsStream)) {
             RecordRepository.logger.info("loading configuration file {}", localizedName);

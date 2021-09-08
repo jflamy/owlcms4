@@ -6,16 +6,6 @@
  *******************************************************************************/
 package app.owlcms.data.config;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,12 +13,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.utils.StartupUtils;
-import app.owlcms.utils.ZipUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -42,6 +30,7 @@ public class Config {
 
     public static final int SHORT_TEAM_LENGTH = 6;
 
+    @SuppressWarnings("unused")
     final static private Logger logger = (Logger) LoggerFactory.getLogger(Config.class);
 
     private static Config current;
@@ -52,9 +41,7 @@ public class Config {
      * @return the current
      */
     public static Config getCurrent() {
-        // if (current == null) {
         current = ConfigRepository.findAll().get(0);
-        // }
         return current;
     }
 
@@ -80,12 +67,10 @@ public class Config {
     @Lob
     @Column(name = "localcontent", columnDefinition = "BLOB", nullable = true)
     private byte[] localContent;
-
-    @Transient
-    private boolean initializedLocalDir = false;
-
-    @Transient
-    private Path localDirPath = null;
+    
+    public byte[] getLocalContent() {
+        return localContent;
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -117,13 +102,7 @@ public class Config {
         return ipBackdoorList;
     }
 
-    public byte[] getLocalContent() {
-        return localContent;
-    }
 
-    public Path getLocalDirPath() {
-        return localDirPath;
-    }
 
     /**
      * @return the current whitelist.
@@ -219,69 +198,6 @@ public class Config {
         return 31;
     }
 
-    public void initLocalDir() {
-        byte[] localContent2 = this.getLocalContent();
-        if (localContent2 != null && localContent2.length > 0) {
-            logger.debug("override blob found");
-            try {
-                unzipBlobToTemp(localContent2);
-            } catch (Exception e) {
-                checkForLocalOverrideDirectory();
-            }
-        } else {
-            checkForLocalOverrideDirectory();
-        }
-        setInitializedLocalDir(true);
-    }
-    
-    /**
-     * Fetch a named file content.
-     * First looking in a local override directory structure, and if not found, as a resource on the classpath.
-     * 
-     * @param name
-     * @return an input stream with the requested content, null if not found.
-     */
-    public InputStream getFileOrResource(String name) {
-        InputStream is = null;
-        String relativeName;
-        if (name.startsWith(name)) {
-            relativeName = name.substring(1);
-        } else {
-            relativeName = name;
-        }
-        Path localDirPath2 = getLocalDirPath();
-        Path target = null;
-        if (localDirPath2 != null) {
-            target = localDirPath2.resolve(relativeName);
-        }
-        if (target != null && Files.exists(target)) {
-            try {
-                File file = target.toFile();
-                logger.debug("found overridden resource {} at {}",name,file.getAbsolutePath());
-                return new FileInputStream(file);
-            } catch (FileNotFoundException e) {
-                // can't happen
-                throw new RuntimeException("can't happen", e);
-            }
-        } else {
-            is = Config.class.getResourceAsStream(name);
-            if (is == null) {
-                throw new RuntimeException("resource not overridden and not on classpath: "+name);
-            } else {
-                logger.debug("found classpath resource {}", name);
-            }
-        }
-        return is;
-    }
-    
-    public static InputStream getResourceAsStream(String name) {
-        return getCurrent().getFileOrResource(name);
-    }
-
-    public boolean isInitializedLocalDir() {
-        return initializedLocalDir;
-    }
-
     public void setIpAccessList(String ipAccessList) {
         this.ipAccessList = ipAccessList;
     }
@@ -292,10 +208,6 @@ public class Config {
 
     public void setLocalContent(byte[] localContent) {
         this.localContent = localContent;
-    }
-
-    public void setLocalDirPath(Path curDir) {
-        this.localDirPath = curDir;
     }
 
     public void setPin(String pin) {
@@ -310,16 +222,7 @@ public class Config {
         this.updatekey = updatekey;
     }
 
-    private void checkForLocalOverrideDirectory() {
-        Path curDir = Paths.get(".", "local");
-        curDir = curDir.normalize();
-        if (Files.exists(curDir)) {
-            logger.debug("local override directory = {}", curDir.toAbsolutePath());
-            setLocalDirPath(curDir);
-        } else {
-            logger.debug("no override directory {}", curDir.toAbsolutePath());
-        }
-    }
+
 
     /**
      * @return the public results url stored in the database, except if overridden by system property or envariable.
@@ -342,24 +245,8 @@ public class Config {
         }
     }
 
-    private void setInitializedLocalDir(boolean checkedLocalDir) {
-        this.initializedLocalDir = checkedLocalDir;
-    }
 
-    private void unzipBlobToTemp(byte[] localContent2) throws Exception {
-        Path f = null;
-        try {
-            f = Files.createTempDirectory("owlcms");
-            logger.debug("created temp directory " + f);
-        } catch (IOException e) {
-            throw new Exception("cannot create directory ", e);
-        }
-        try {
-            ZipUtils.unzip(new ByteArrayInputStream(localContent2), f.toFile());
-            setLocalDirPath(f);
-        } catch (IOException e) {
-            throw new Exception("cannot unzip", e);
-        }
-    }
+
+
 
 }

@@ -20,9 +20,9 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroupDefinitionReader;
-import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -109,9 +109,8 @@ public class RobiCategories {
     }
 
     private static void loadJrSrReferenceCategories() {
-        //FIXME use getFileOrResource()
         String localizedName = "/config/AgeGroups.xlsx";
-        InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
+        InputStream localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
             Map<String, Category> referenceCategoryMap = AgeGroupDefinitionReader.createCategoryTemplates(workbook);
             // get the IWF categories, sorted.
@@ -139,9 +138,8 @@ public class RobiCategories {
     }
 
     private static void loadYthReferenceCategories() {
-        //FIXME use getFileOrResource()
         String localizedName = "/config/AgeGroups.xlsx";
-        InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
+        InputStream localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
             Map<String, Category> referenceCategoryMap = AgeGroupDefinitionReader.createCategoryTemplates(workbook);
             // get the IWF categories, sorted.

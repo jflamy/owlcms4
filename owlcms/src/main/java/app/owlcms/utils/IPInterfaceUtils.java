@@ -57,7 +57,7 @@ public class IPInterfaceUtils {
         HttpServletRequest request = VaadinServletRequest.getCurrent().getHttpServletRequest();
         Map<String, String> headerMap = getRequestHeadersInMap(request);
 
-        String prefix = "/META-INF/resources/";
+        String prefix = "/";
         String targetFile = "sounds/timeOver.mp3";
         checkTargetFileOk(prefix, targetFile);
 
@@ -172,7 +172,7 @@ public class IPInterfaceUtils {
     }
 
     private void checkTargetFileOk(String prefix, String targetFile) {
-        InputStream targetResource = this.getClass().getResourceAsStream(prefix + targetFile); // $NON-NLS-1$
+        InputStream targetResource = ResourceWalker.getResourceAsStream(prefix + targetFile); // $NON-NLS-1$
         if (targetResource == null) {
             throw new RuntimeException("test resource not found " + targetFile);
         }
