@@ -21,9 +21,13 @@ public class ZipUtils {
         final ZipInputStream zipStream = new ZipInputStream(source);
         ZipEntry nextEntry;
         while ((nextEntry = zipStream.getNextEntry()) != null) {
-            final String name = nextEntry.getName();
+            String name = nextEntry.getName();
             // only extract files
             if (!name.endsWith("/")) {
+                String prefix = "local/";
+                if (name.startsWith(prefix)) {
+                    name = name.substring(prefix.length());
+                }
                 final File nextFile = new File(target, name);
                 logger.debug("unzipping {}", nextFile.getAbsolutePath());
 
