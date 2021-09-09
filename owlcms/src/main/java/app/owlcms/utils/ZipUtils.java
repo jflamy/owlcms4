@@ -4,7 +4,13 @@ import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
+
 public class ZipUtils {
+    
+    final static Logger logger = (Logger) LoggerFactory.getLogger(ZipUtils.class);
 
     /**
      * @param source zip stream
@@ -19,6 +25,7 @@ public class ZipUtils {
             // only extract files
             if (!name.endsWith("/")) {
                 final File nextFile = new File(target, name);
+                logger.warn("unzipping {}", nextFile.getAbsolutePath());
 
                 // create directories
                 final File parent = nextFile.getParentFile();

@@ -7,6 +7,7 @@
 package app.owlcms.ui.preparation;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -19,6 +20,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -32,6 +34,7 @@ import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
+import app.owlcms.ui.shared.DownloadButtonFactory;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -93,6 +96,7 @@ public class ConfigEditingFormFactory
 
         FormLayout accessLayout = accessForm();
         FormLayout publicResultsLayout = publicResultsForm();
+        FormLayout localOverrideLayout = localOverrideForm();
 
         Component footer = this.buildFooter(operation, config, cancelButtonClickListener,
                 c -> {
@@ -102,12 +106,45 @@ public class ConfigEditingFormFactory
         VerticalLayout mainLayout = new VerticalLayout(
                 accessLayout, separator(),
                 publicResultsLayout, separator(),
+                localOverrideLayout, separator(),
                 footer);
         mainLayout.setMargin(false);
         mainLayout.setPadding(false);
 
-        binder.readBean(config);
+        binder.setBean(config);
         return mainLayout;
+    }
+
+    private FormLayout localOverrideForm() {
+        FormLayout layout = createLayout();
+        Component title = createTitle("Config.UploadZip");
+        layout.add(title);
+        layout.setColspan(title, 2);
+
+        byte[] localOverride = Config.getCurrent().getLocalOverride();
+        if (localOverride == null) {
+            localOverride = new byte[0];
+        }
+        Div downloadDiv = DownloadButtonFactory.createDynamicZipDownloadButton("registration",
+                Translator.translate("Config.Download"), localOverride);
+        downloadDiv.setWidthFull();
+        Optional<Component> content = downloadDiv.getChildren().findFirst();
+        if (localOverride.length == 0) {
+            content.ifPresent(c -> ((Button) c).setEnabled(false));
+        }
+        layout.addFormItem(downloadDiv, Translator.translate("Config.Download"));
+        
+//        Button upload = new Button(Translator.translate("Config.Upload"), new Icon(VaadinIcon.UPLOAD_ALT),
+//                buttonClickEvent -> new LocalOverrideUploadDialog().open());
+//        layout.addFormItem(upload, Translator.translate("Config.Upload"));
+        
+        ZipFileField accessListField = new ZipFileField();
+        accessListField.setWidthFull();
+        layout.addFormItem(accessListField, Translator.translate("Config.Upload"));
+        binder.forField(accessListField)
+                .bind(Config::getLocalOverride, Config::setLocalOverride);
+        
+        return layout;
     }
 
     @Override

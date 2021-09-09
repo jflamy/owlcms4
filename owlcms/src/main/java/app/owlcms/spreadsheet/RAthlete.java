@@ -21,7 +21,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
-import app.owlcms.ui.preparation.UploadDialog;
+import app.owlcms.ui.preparation.RegistrationFileUploadDialog;
 import app.owlcms.utils.DateTimeUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -195,7 +195,7 @@ public class RAthlete {
             Group nGroup = GroupRepository.save(group);
             a.setGroup(nGroup);
             logger.debug("creating group {}", groupName);
-            UploadDialog.listGroups("group creation");
+            RegistrationFileUploadDialog.listGroups("group creation");
 //            throw new Exception(
 //                    Translator.translate("Upload.GroupNotDefined", groupName));
         } else {

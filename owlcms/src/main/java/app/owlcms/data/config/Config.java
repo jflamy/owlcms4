@@ -64,12 +64,18 @@ public class Config {
 
     private String ipBackdoorList;
 
+    /**
+     * Local Override: a zip file that is used to override resources, stored as a blob
+     */
     @Lob
     @Column(name = "localcontent", columnDefinition = "BLOB", nullable = true)
-    private byte[] localContent;
+    private byte[] localOverride;
     
-    public byte[] getLocalContent() {
-        return localContent;
+    /**
+     * @return zip file containing a zipped ./local structure to override resources
+     */
+    public byte[] getLocalOverride() {
+        return localOverride;
     }
 
     @Override
@@ -206,8 +212,8 @@ public class Config {
         this.ipBackdoorList = ipBackdoorList;
     }
 
-    public void setLocalContent(byte[] localContent) {
-        this.localContent = localContent;
+    public void setLocalOverride(byte[] localContent) {
+        this.localOverride = localContent;
     }
 
     public void setPin(String pin) {

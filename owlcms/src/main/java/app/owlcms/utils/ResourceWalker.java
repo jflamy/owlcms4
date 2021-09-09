@@ -183,7 +183,7 @@ public class ResourceWalker {
     }
 
     public static void initLocalDir() {
-        byte[] localContent2 = Config.getCurrent().getLocalContent();
+        byte[] localContent2 = Config.getCurrent().getLocalOverride();
         if (localContent2 != null && localContent2.length > 0) {
             logger.debug("override blob found");
             try {
@@ -249,17 +249,18 @@ public class ResourceWalker {
         initializedLocalDir = checkedLocalDir;
     }
 
-    private static void unzipBlobToTemp(byte[] localContent2) throws Exception {
+    public static void unzipBlobToTemp(byte[] localContent2) throws Exception {
         Path f = null;
         try {
             f = Files.createTempDirectory("owlcms");
-            logger.debug("created temp directory " + f);
+            logger.info("created temp directory " + f);
         } catch (IOException e) {
             throw new Exception("cannot create directory ", e);
         }
         try {
             ZipUtils.unzip(new ByteArrayInputStream(localContent2), f.toFile());
             setLocalDirPath(f);
+            logger.debug("new local dir path {}", getLocalDirPath().normalize());
         } catch (IOException e) {
             throw new Exception("cannot unzip", e);
         }
@@ -285,10 +286,13 @@ public class ResourceWalker {
             root = root.substring(1);
         }
         Path basePath = ResourceWalker.getLocalDirPath();
+        logger.debug("local override basePath {}",basePath);
         if (basePath != null) {
             basePath = basePath.normalize().toAbsolutePath();
             basePath = basePath.resolve(root);
-            return getResourceListFromPath(nameGenerator, startsWith, basePath, OwlcmsSession.getLocale());
+            List<Resource> resourceListFromPath = getResourceListFromPath(nameGenerator, startsWith, basePath, OwlcmsSession.getLocale());
+            logger.debug("local override resources {}", resourceListFromPath);
+            return resourceListFromPath;
         } else {
             return new ArrayList<>();
         }
@@ -431,6 +435,7 @@ public class ResourceWalker {
                 public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
                     String generatedName = nameGenerator.apply(filePath, rootPath);
                     String baseName = filePath.getFileName().toString();
+                    logger.warn("visiting {} {}",filePath, locale);
                     if (startsWith != null) {
                         if (!baseName.startsWith(startsWith)) {
                             logger.trace("ignored {}", filePath);
@@ -457,6 +462,7 @@ public class ResourceWalker {
 
             return localeNames;
         } catch (IOException e) {
+            logger.error(LoggerUtils.stackTrace(e));
             throw new RuntimeException(e);
         }
     }

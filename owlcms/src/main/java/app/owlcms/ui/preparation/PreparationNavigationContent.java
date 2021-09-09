@@ -86,14 +86,13 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 //                        + ".xls",
 //                () -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
 
-        Div downloadDiv = DownloadButtonFactory.createDynamicDownloadButton("registration",
+        Div downloadDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("registration",
                 getTranslation("DownloadRegistrationTemplate"), new JXLSRegistration(UI.getCurrent()));
-//        Div downloadDiv = new Div(downloadButton);
         Optional<Component> content = downloadDiv.getChildren().findFirst();
         content.ifPresent(c -> ((Button) c).setWidth("93%"));
         downloadDiv.setWidthFull();
         Button upload = new Button(getTranslation("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
-                buttonClickEvent -> new UploadDialog().open());
+                buttonClickEvent -> new RegistrationFileUploadDialog().open());
 
         Button athletes = openInNewTabNoParam(RegistrationContent.class, getTranslation("EditAthletes"));
 
