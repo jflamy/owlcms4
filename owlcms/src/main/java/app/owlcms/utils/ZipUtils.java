@@ -25,7 +25,7 @@ public class ZipUtils {
             // only extract files
             if (!name.endsWith("/")) {
                 final File nextFile = new File(target, name);
-                logger.warn("unzipping {}", nextFile.getAbsolutePath());
+                logger.debug("unzipping {}", nextFile.getAbsolutePath());
 
                 // create directories
                 final File parent = nextFile.getParentFile();

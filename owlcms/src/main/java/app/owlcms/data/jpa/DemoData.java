@@ -38,7 +38,6 @@ import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -61,7 +60,6 @@ public class DemoData {
      * @param ageDivisions
      */
     public static void insertInitialData(int nbAthletes, EnumSet<AgeDivision> ageDivisions) {
-//        logger.info("inserting initial data");
         JPAService.runInTransaction(em -> {
             Competition competition = createDefaultCompetition(ageDivisions);
             CompetitionRepository.save(competition);
@@ -69,7 +67,6 @@ public class DemoData {
                 Config config = createDefaultConfig();
                 Config.setCurrent(config);
             }
-            ResourceWalker.initLocalDir();
             // do this after initLocalDir in case there is override.
             AgeGroupRepository.insertAgeGroups(em, ageDivisions);
             return null;

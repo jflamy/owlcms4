@@ -117,7 +117,7 @@ public class ConfigEditingFormFactory
 
     private FormLayout localOverrideForm() {
         FormLayout layout = createLayout();
-        Component title = createTitle("Config.UploadZip");
+        Component title = createTitle("Config.ResourceOverride");
         layout.add(title);
         layout.setColspan(title, 2);
 
@@ -125,22 +125,18 @@ public class ConfigEditingFormFactory
         if (localOverride == null) {
             localOverride = new byte[0];
         }
-        Div downloadDiv = DownloadButtonFactory.createDynamicZipDownloadButton("registration",
+        Div downloadDiv = DownloadButtonFactory.createDynamicZipDownloadButton("resourcesOverride",
                 Translator.translate("Config.Download"), localOverride);
         downloadDiv.setWidthFull();
         Optional<Component> content = downloadDiv.getChildren().findFirst();
         if (localOverride.length == 0) {
             content.ifPresent(c -> ((Button) c).setEnabled(false));
         }
-        layout.addFormItem(downloadDiv, Translator.translate("Config.Download"));
-        
-//        Button upload = new Button(Translator.translate("Config.Upload"), new Icon(VaadinIcon.UPLOAD_ALT),
-//                buttonClickEvent -> new LocalOverrideUploadDialog().open());
-//        layout.addFormItem(upload, Translator.translate("Config.Upload"));
+        layout.addFormItem(downloadDiv, Translator.translate("Config.DownloadLabel"));
         
         ZipFileField accessListField = new ZipFileField();
         accessListField.setWidthFull();
-        layout.addFormItem(accessListField, Translator.translate("Config.Upload"));
+        layout.addFormItem(accessListField, Translator.translate("Config.UploadLabel"));
         binder.forField(accessListField)
                 .bind(Config::getLocalOverride, Config::setLocalOverride);
         

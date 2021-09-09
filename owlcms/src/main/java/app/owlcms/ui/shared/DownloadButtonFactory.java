@@ -61,8 +61,8 @@ public class DownloadButtonFactory {
                 () -> {
                     LocalDateTime now = LocalDateTime.now().withNano(0);
                     return prefix
-                            + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm';'ss"))
-                            + ".xls";
+                            + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
+                            + ".zip";
                 },
                 () -> {return new ByteArrayInputStream(content);});
 
