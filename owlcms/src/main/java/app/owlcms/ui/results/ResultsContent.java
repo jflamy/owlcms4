@@ -361,7 +361,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         templateSelect = new ComboBox<>();
         templateSelect.setPlaceholder(getTranslation("AvailableTemplates"));
         List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/protocol",
-                ResourceWalker::relativeName, null);
+                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
         templateSelect.setItems(resourceList);
         templateSelect.setValue(null);
         templateSelect.setWidth("15em");

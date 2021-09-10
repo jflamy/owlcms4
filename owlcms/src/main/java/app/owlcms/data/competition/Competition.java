@@ -40,6 +40,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.results.Resource;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
@@ -764,7 +765,7 @@ public class Competition {
 
     private String doFindFinalPackageTemplateFileName(String absoluteRoot) {
         List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
-                ResourceWalker::relativeName, null);
+                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
         for (Resource r : resourceList) {
             logger.trace("checking {}", r.getFilePath());
             if (this.isMasters() && r.getFileName().startsWith("Masters")) {
@@ -778,7 +779,7 @@ public class Competition {
 
     private String doFindProtocolFileName(String absoluteRoot) {
         List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
-                ResourceWalker::relativeName, null);
+                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
         for (Resource r : resourceList) {
             logger.trace("checking {}", r.getFilePath());
             if (this.isMasters() && r.getFileName().startsWith("Masters")) {

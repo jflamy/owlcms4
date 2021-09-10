@@ -186,7 +186,7 @@ public class ResourceWalker {
     }
 
     public static void initLocalDir() {
-        logger.trace("initializeLocalDir from {}",LoggerUtils.whereFrom());
+        logger.trace("initializeLocalDir from {}", LoggerUtils.whereFrom());
         setInitializedLocalDir(true);
         byte[] localContent2 = Config.getCurrent().getLocalOverride();
         if (localContent2 != null && localContent2.length > 0) {
@@ -286,7 +286,7 @@ public class ResourceWalker {
     // Path rootPath = null;
     public List<Resource> getLocalOverrideResourceList(String root,
             BiFunction<Path, Path, String> nameGenerator,
-            String startsWith) {
+            String startsWith, Locale locale) {
         if (root.startsWith("/")) {
             root = root.substring(1);
         }
@@ -294,9 +294,15 @@ public class ResourceWalker {
         if (basePath != null) {
             basePath = basePath.normalize().toAbsolutePath();
             basePath = basePath.resolve(root);
-            List<Resource> resourceListFromPath = getResourceListFromPath(nameGenerator, startsWith, basePath, OwlcmsSession.getLocale());
-            logger.trace("local override resources {}", resourceListFromPath);
-            return resourceListFromPath;
+            // what is in the path does not necessarily have an override
+            if (Files.exists(basePath)) {
+                List<Resource> resourceListFromPath = getResourceListFromPath(nameGenerator, startsWith, basePath,
+                        locale);
+                logger.trace("local override resources {}", resourceListFromPath);
+                return resourceListFromPath;
+            } else {
+                return new ArrayList<>();
+            }
         } else {
             return new ArrayList<>();
         }
@@ -311,16 +317,18 @@ public class ResourceWalker {
      * @param absoluteRoot  a starting point (absolute resource name starts with a /)
      * @param nameGenerator a function that takes the current file path and the starting path and returns a (unique)
      *                      display name.
+     * @param locale2 
      * @return a list of <display name, file path> entries
      * @throws IOException
      * @throws URISyntaxException
      */
     // Path rootPath = null;
     public List<Resource> getResourceList(String absoluteRoot, BiFunction<Path, Path, String> nameGenerator,
-            String startsWith) {
+            String startsWith, Locale locale) {
         List<Resource> classPathResources = getResourceListFromPath(nameGenerator, startsWith,
-                getResourcesPath(absoluteRoot), OwlcmsSession.getLocale());
-        List<Resource> overrideResources = getLocalOverrideResourceList(absoluteRoot, nameGenerator, startsWith);
+                getResourcesPath(absoluteRoot), locale);
+        List<Resource> overrideResources = getLocalOverrideResourceList(absoluteRoot, nameGenerator, startsWith,
+                locale);
         overrideResources.addAll(classPathResources);
         return overrideResources;
     }
@@ -439,7 +447,7 @@ public class ResourceWalker {
                 public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
                     String generatedName = nameGenerator.apply(filePath, rootPath);
                     String baseName = filePath.getFileName().toString();
-                    logger.trace("visiting {} {}",filePath, locale);
+                    logger.trace("visiting {} {}", filePath, locale);
                     if (startsWith != null) {
                         if (!baseName.startsWith(startsWith)) {
                             logger.trace("ignored {}", filePath);
@@ -491,7 +499,7 @@ public class ResourceWalker {
             rootPath = Paths.get(resourcesURI);
         } catch (FileSystemNotFoundException e) {
             // if we are here, the resource is in the jar, and Vaadin has not already
-            // loaded the ZipFileSystem so we do it.  Normally Vaadin loads the jar
+            // loaded the ZipFileSystem so we do it. Normally Vaadin loads the jar
             // file system first so we never get here.
             openClassPathFileSystem("/templates"); // any resource we know is in the jar.
             rootPath = Paths.get(resourcesURI);

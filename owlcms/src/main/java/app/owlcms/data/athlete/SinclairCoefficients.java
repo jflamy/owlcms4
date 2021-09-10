@@ -106,7 +106,7 @@ public class SinclairCoefficients {
     private static void loadProps() {
         props = new Properties();
         try {
-            InputStream stream = ResourceWalker.getResourceAsStream("/config/sinclair.properties");
+            InputStream stream = ResourceWalker.getResourceAsStream("/sinclair/sinclair.properties");
             props.load(stream);
             // props.list(System.err);
         } catch (IOException e) {

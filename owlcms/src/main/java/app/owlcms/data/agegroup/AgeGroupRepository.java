@@ -145,7 +145,7 @@ public class AgeGroupRepository {
 
     public static void insertAgeGroups(EntityManager em, EnumSet<AgeDivision> es) {
         try {
-            String localizedName = ResourceWalker.getLocalizedResourceName("/config/AgeGroups.xlsx");
+            String localizedName = ResourceWalker.getLocalizedResourceName("/agegroups/AgeGroups.xlsx");
             AgeGroupDefinitionReader.doInsertAgeGroup(es, localizedName);
         } catch (FileNotFoundException e1) {
             throw new RuntimeException(e1);
@@ -168,7 +168,7 @@ public class AgeGroupRepository {
             }
             return null;
         });
-        AgeGroupDefinitionReader.doInsertAgeGroup(null, "/config/" + localizedFileName);
+        AgeGroupDefinitionReader.doInsertAgeGroup(null, "/agegroups/" + localizedFileName);
         AthleteRepository.resetCategories();
     }
 

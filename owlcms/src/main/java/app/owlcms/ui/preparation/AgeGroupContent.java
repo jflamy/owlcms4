@@ -8,6 +8,7 @@ package app.owlcms.ui.preparation;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
@@ -228,8 +229,9 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
 
         ageGroupDefinitionSelect = new ComboBox<>();
         ageGroupDefinitionSelect.setPlaceholder(getTranslation("ResetCategories.AvailableDefinitions"));
-        List<Resource> resourceList = new ResourceWalker().getResourceList("/config",
-                ResourceWalker::relativeName, "AgeGroups");
+        List<Resource> resourceList = new ResourceWalker().getResourceList("/agegroups",
+                ResourceWalker::relativeName, null, new Locale(""));
+        resourceList.sort((a,b) -> a.compareTo(b));
         ageGroupDefinitionSelect.setItems(resourceList);
         ageGroupDefinitionSelect.setValue(null);
         ageGroupDefinitionSelect.setWidth("15em");

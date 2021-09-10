@@ -51,6 +51,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
@@ -277,7 +278,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         templateSelect = new ComboBox<>();
         templateSelect.setPlaceholder(getTranslation("AvailableTemplates"));
         List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/competitionBook",
-                ResourceWalker::relativeName, null);
+                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
         templateSelect.setItems(resourceList);
         templateSelect.setValue(null);
         templateSelect.setWidth("15em");

@@ -109,7 +109,7 @@ public class RobiCategories {
     }
 
     private static void loadJrSrReferenceCategories() {
-        String localizedName = "/config/AgeGroups.xlsx";
+        String localizedName = "/agegroups/AgeGroups.xlsx";
         InputStream localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
             Map<String, Category> referenceCategoryMap = AgeGroupDefinitionReader.createCategoryTemplates(workbook);
@@ -138,7 +138,7 @@ public class RobiCategories {
     }
 
     private static void loadYthReferenceCategories() {
-        String localizedName = "/config/AgeGroups.xlsx";
+        String localizedName = "/agegroups/AgeGroups.xlsx";
         InputStream localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
             Map<String, Category> referenceCategoryMap = AgeGroupDefinitionReader.createCategoryTemplates(workbook);

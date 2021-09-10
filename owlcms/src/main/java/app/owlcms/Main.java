@@ -64,11 +64,7 @@ public class Main {
         // Vaadin configs
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
 
-        // setup database
-        JPAService.init(memoryMode, resetMode);
-        
-        // check for database override of resource files
-        Config.initConfig();
+        initConfig();
 
         // read locale from database and overrrde if needed
         Locale l = overrideDisplayLanguage();
@@ -77,6 +73,13 @@ public class Main {
 
         // initialization, don't push out to browsers
         OwlcmsFactory.getDefaultFOP(true);
+    }
+
+    public static void initConfig() {
+        // setup database
+        JPAService.init(memoryMode, resetMode);
+        // check for database override of resource files
+        Config.initConfig();
     }
 
     /**
