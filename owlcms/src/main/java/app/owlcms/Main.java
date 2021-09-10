@@ -55,6 +55,16 @@ public class Main {
 
     private static InitialData initialData;
 
+    public static void initConfig() {
+        JPAService.runInTransaction(em -> {
+            if (ConfigRepository.findAll().isEmpty()) {
+                Config config = new Config();
+                Config.setCurrent(config);
+            }
+            return null;
+        });
+    }
+
     /**
      * This method is actually called from EmbeddedJetty immediately after starting the server
      */
@@ -65,6 +75,9 @@ public class Main {
         // setup database
         JPAService.init(memoryMode, resetMode);
         
+        // check for database override of resource files
+        initConfig();
+
         // read locale from database and overrrde if needed
         Locale l = overrideDisplayLanguage();
         injectData(initialData, l);
@@ -302,6 +315,5 @@ public class Main {
 //            e.printStackTrace();
 //        }
     }
-
 
 }
