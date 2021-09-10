@@ -1,4 +1,4 @@
-* Changes for release 4.22.0-alpha05  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.22.0-alpha06  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
   - [x] Customizations done on a local laptop can be zipped and uploaded to a cloud-based setup.  (#366).
   
