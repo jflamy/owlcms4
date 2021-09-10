@@ -14,7 +14,7 @@ public class ResourceWalkerTest {
     public void test() {
         ResourceWalker walker = new ResourceWalker();
         assertTrue(walker.matchesLocale("Protocol.xls", null));
-        assertTrue(walker.matchesLocale("Protocol_en.xls", null));
+        assertFalse(walker.matchesLocale("Protocol_en.xls", null));
         
         assertTrue(walker.matchesLocale("Protocol_en.xls", new Locale("en")));
         assertFalse(walker.matchesLocale("Protocol_en.xls", new Locale("fr")));
