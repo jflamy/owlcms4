@@ -24,6 +24,7 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.init.OwlcmsSession;
 
@@ -31,6 +32,7 @@ public class RegistrationOrderComparatorTest {
 
     @BeforeClass
     public static void setupTests() {
+        Config.initConfig();
         JPAService.init(true, true);
         JPAService.runInTransaction(em -> {
             Competition.setCurrent(new Competition());

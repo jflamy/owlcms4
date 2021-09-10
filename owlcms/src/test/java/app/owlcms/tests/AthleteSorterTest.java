@@ -26,6 +26,7 @@ import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
@@ -38,6 +39,7 @@ public class AthleteSorterTest {
 
     @BeforeClass
     public static void setupTests() {
+        Config.initConfig();
         JPAService.init(true, true);
         TestData.insertInitialData(5, true);
     }

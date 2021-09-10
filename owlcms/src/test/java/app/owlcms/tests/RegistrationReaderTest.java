@@ -40,6 +40,7 @@ public class RegistrationReaderTest {
 
     @BeforeClass
     public static void setupTests() {
+        Config.initConfig();
         JPAService.init(true, true);
         Config.initConfig();
         TestData.insertInitialData(5, true);

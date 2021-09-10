@@ -25,6 +25,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.RuleViolationException;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -48,6 +49,7 @@ public class MovingDownTest {
 
     @BeforeClass
     public static void setupTests() {
+        Config.initConfig();
         JPAService.init(true, true);
     }
 
