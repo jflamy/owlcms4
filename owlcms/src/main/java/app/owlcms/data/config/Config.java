@@ -79,7 +79,7 @@ public class Config {
      * Local Override: a zip file that is used to override resources, stored as a blob
      */
     @Lob
-    @Column(name = "localcontent", columnDefinition = "BLOB", nullable = true)
+    @Column(name = "localcontent", nullable = true)
     private byte[] localOverride;
     
     /**
