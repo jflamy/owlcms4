@@ -42,8 +42,8 @@ public class TwoMinutesRuleTest {
 
     @BeforeClass
     public static void setupTests() {
-        Config.initConfig();
         JPAService.init(true, true);
+        Config.initConfig();
     }
 
     @AfterClass

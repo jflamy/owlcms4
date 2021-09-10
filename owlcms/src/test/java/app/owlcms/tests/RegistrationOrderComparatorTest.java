@@ -32,8 +32,8 @@ public class RegistrationOrderComparatorTest {
 
     @BeforeClass
     public static void setupTests() {
-        Config.initConfig();
         JPAService.init(true, true);
+        Config.initConfig();
         JPAService.runInTransaction(em -> {
             Competition.setCurrent(new Competition());
             AgeGroupRepository.insertAgeGroups(em, EnumSet.of(AgeDivision.IWF, AgeDivision.MASTERS, AgeDivision.U));
