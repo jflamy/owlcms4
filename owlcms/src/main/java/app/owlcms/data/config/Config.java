@@ -16,6 +16,7 @@ import javax.persistence.Lob;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -48,6 +49,16 @@ public class Config {
     public static Config setCurrent(Config config) {
         current = ConfigRepository.save(config);
         return current;
+    }
+    
+    public static void initConfig() {
+        JPAService.runInTransaction(em -> {
+            if (ConfigRepository.findAll().isEmpty()) {
+                Config config = new Config();
+                Config.setCurrent(config);
+            }
+            return null;
+        });
     }
 
     @Id
