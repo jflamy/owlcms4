@@ -120,6 +120,12 @@ public class ConfigEditingFormFactory
         Component title = createTitle("Config.ResourceOverride");
         layout.add(title);
         layout.setColspan(title, 2);
+        
+        ZipFileField accessListField = new ZipFileField();
+        accessListField.setWidthFull();
+        layout.addFormItem(accessListField, Translator.translate("Config.UploadLabel"));
+        binder.forField(accessListField)
+                .bind(Config::getLocalOverride, Config::setLocalOverride);
 
         byte[] localOverride = Config.getCurrent().getLocalOverride();
         if (localOverride == null) {
@@ -133,12 +139,6 @@ public class ConfigEditingFormFactory
             content.ifPresent(c -> ((Button) c).setEnabled(false));
         }
         layout.addFormItem(downloadDiv, Translator.translate("Config.DownloadLabel"));
-        
-        ZipFileField accessListField = new ZipFileField();
-        accessListField.setWidthFull();
-        layout.addFormItem(accessListField, Translator.translate("Config.UploadLabel"));
-        binder.forField(accessListField)
-                .bind(Config::getLocalOverride, Config::setLocalOverride);
         
         return layout;
     }
