@@ -16,7 +16,9 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
@@ -111,7 +113,7 @@ public class ConfigEditingFormFactory
         mainLayout.setMargin(false);
         mainLayout.setPadding(false);
 
-        binder.setBean(config);
+        binder.readBean(config);
         return mainLayout;
     }
 
@@ -120,7 +122,7 @@ public class ConfigEditingFormFactory
         Component title = createTitle("Config.ResourceOverride");
         layout.add(title);
         layout.setColspan(title, 2);
-        
+
         ZipFileField accessListField = new ZipFileField();
         accessListField.setWidthFull();
         layout.addFormItem(accessListField, Translator.translate("Config.UploadLabel"));
@@ -134,12 +136,24 @@ public class ConfigEditingFormFactory
         Div downloadDiv = DownloadButtonFactory.createDynamicZipDownloadButton("resourcesOverride",
                 Translator.translate("Config.Download"), localOverride);
         downloadDiv.setWidthFull();
-        Optional<Component> content = downloadDiv.getChildren().findFirst();
+        Optional<Component> downloadButton = downloadDiv.getChildren().findFirst();
         if (localOverride.length == 0) {
-            content.ifPresent(c -> ((Button) c).setEnabled(false));
+            downloadButton.ifPresent(c -> ((Button) c).setEnabled(false));
         }
         layout.addFormItem(downloadDiv, Translator.translate("Config.DownloadLabel"));
-        
+
+        Checkbox clearField = new Checkbox(Translator.translate("Config.ClearZip"));
+        clearField.setWidthFull();
+        layout.addFormItem(clearField, Translator.translate("Config.ClearZipLabel"));
+        binder.forField(clearField)
+                .bind(Config::isClearZip, Config::setClearZip);
+
+//        Checkbox ignoreCaching = new Checkbox(Translator.translate("Config.NoCaching"));
+//        ignoreCaching.setWidthFull();
+//        layout.addFormItem(ignoreCaching, Translator.translate("Config.NoCachingLabel"));
+//        binder.forField(ignoreCaching)
+//                .bind(Config::isIgnoreCaching, Config::setIgnoreCaching);
+
         return layout;
     }
 
@@ -174,6 +188,12 @@ public class ConfigEditingFormFactory
     @Override
     public Config update(Config config) {
         Config saved = Config.setCurrent(config);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            // ignored
+        }
+        UI.getCurrent().getPage().reload();
         return saved;
     }
 

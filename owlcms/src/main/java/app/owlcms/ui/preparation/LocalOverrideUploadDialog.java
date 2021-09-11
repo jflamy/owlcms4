@@ -41,6 +41,9 @@ public class LocalOverrideUploadDialog extends Dialog {
 
         upload.addSucceededListener(event -> {
             processInput(event.getFileName(), buffer.getInputStream(), ta, f);
+            if (ta.isEmpty()) {
+                this.close();
+            }
         });
 
         upload.addStartedListener(event -> {

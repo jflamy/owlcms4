@@ -108,6 +108,23 @@ public class FileServlet extends HttpServlet {
 
     // Actions ------------------------------------------------------------------------------------
 
+    private static boolean ignoreCaching = false;
+
+    /**
+     * @return the ignoreCaching
+     */
+    public static boolean isIgnoreCaching() {
+        return ignoreCaching;
+    }
+
+    /**
+     * @param ignoreCaching the ignoreCaching to set
+     */
+    public static void setIgnoreCaching(boolean ignoreCaching) {
+        logger.warn("{} caching settings from browser", ignoreCaching ? "Ignoring" : "Obeying");
+        FileServlet.ignoreCaching = ignoreCaching;
+    }
+
     /**
      * Returns true if the given accept header accepts the given value.
      *
@@ -122,6 +139,8 @@ public class FileServlet extends HttpServlet {
                 || Arrays.binarySearch(acceptValues, toAccept.replaceAll("/.*$", "/*")) > -1
                 || Arrays.binarySearch(acceptValues, "*/*") > -1;
     }
+
+    // Helpers (can be refactored to public utility class) ----------------------------------------
 
     /**
      * Close the given resource.
@@ -188,8 +207,6 @@ public class FileServlet extends HttpServlet {
                 || Arrays.binarySearch(matchValues, "*") > -1;
     }
 
-    // Helpers (can be refactored to public utility class) ----------------------------------------
-
     /**
      * Returns a substring of the given string value from the given begin index to the given end index as a long. If the
      * substring is empty, then -1 will be returned
@@ -204,7 +221,7 @@ public class FileServlet extends HttpServlet {
         return (substring.length() > 0) ? Long.parseLong(substring) : -1;
     }
 
-    private Logger logger = (Logger) LoggerFactory.getLogger(FileServlet.class);
+    private static Logger logger = (Logger) LoggerFactory.getLogger(FileServlet.class);
 
     /**
      * Initialize the servlet.
@@ -214,6 +231,8 @@ public class FileServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
     }
+
+    // Inner classes ------------------------------------------------------------------------------
 
     /**
      * Resolves an untrusted user-specified path against the API's base directory. Paths that try to escape the base
@@ -256,8 +275,6 @@ public class FileServlet extends HttpServlet {
         // Process request with content.
         processRequest(request, response, true);
     }
-
-    // Inner classes ------------------------------------------------------------------------------
 
     /**
      * Process HEAD request. This returns the same headers as GET request, but without content.
@@ -352,7 +369,12 @@ public class FileServlet extends HttpServlet {
         long length = file.length();
         long lastModified = file.lastModified();
         String eTag = fileName + "_" + length + "_" + lastModified;
-        long expires = System.currentTimeMillis() + DEFAULT_EXPIRE_TIME;
+        long expires;
+        if (isIgnoreCaching()) {
+            expires = System.currentTimeMillis() - 2000; // already expired to force reload
+        } else {
+            expires = System.currentTimeMillis() + DEFAULT_EXPIRE_TIME;
+        }
 
         // Validate request headers for caching ---------------------------------------------------
 
@@ -361,7 +383,7 @@ public class FileServlet extends HttpServlet {
         String pragma = request.getHeader("pragma");
         logger.debug("headers: {} {}", pragma, cacheControl);
         boolean noCache = (cacheControl != null && matches(cacheControl, "no-cache"))
-                || (pragma != null && matches(pragma, "no-cache"));
+                || (pragma != null && matches(pragma, "no-cache")) || isIgnoreCaching();
         if (!noCache) {
             // If-None-Match header should contain "*" or ETag. If so, then return 304.
             String ifNoneMatch = request.getHeader("If-None-Match");

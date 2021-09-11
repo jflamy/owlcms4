@@ -17,6 +17,7 @@ import javax.persistence.Lob;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.init.FileServlet;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -81,12 +82,25 @@ public class Config {
     @Lob
     @Column(name = "localcontent", nullable = true)
     private byte[] localOverride;
+
+    private boolean clearZip;
     
+    public boolean isClearZip() {
+        if (localOverride == null || localOverride.length == 0) {
+            clearZip = false;
+        }
+        return clearZip;
+    }
+
     /**
      * @return zip file containing a zipped ./local structure to override resources
      */
     public byte[] getLocalOverride() {
         return localOverride;
+    }
+    
+    public void setClearZip(boolean clearZipRequested) {
+        this.clearZip = clearZipRequested;
     }
 
     @Override
@@ -119,7 +133,13 @@ public class Config {
         return ipBackdoorList;
     }
 
+    public boolean isIgnoreCaching() {
+        return FileServlet.isIgnoreCaching();
+    }
 
+    public void setIgnoreCaching(boolean ignoreCaching) {
+        FileServlet.setIgnoreCaching(ignoreCaching);
+    }
 
     /**
      * @return the current whitelist.
@@ -224,7 +244,12 @@ public class Config {
     }
 
     public void setLocalOverride(byte[] localContent) {
-        this.localOverride = localContent;
+        if (this.clearZip) {
+            this.localOverride = null;
+            this.clearZip = false;
+        } else {
+            this.localOverride = localContent;
+        }
     }
 
     public void setPin(String pin) {
