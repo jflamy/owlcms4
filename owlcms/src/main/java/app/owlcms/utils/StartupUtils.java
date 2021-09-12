@@ -124,7 +124,7 @@ public class StartupUtils {
         }
 
         int response;
-        URL testingURL = new URL("http", hostName, serverPort, "/sounds/timeOver.mp3");
+        URL testingURL = new URL("http", hostName, serverPort, "/local/sounds/timeOver.mp3");
         HttpURLConnection huc = (HttpURLConnection) testingURL.openConnection();
         logger.debug("checking for {}", testingURL.toExternalForm());
         huc.setRequestMethod("GET");
