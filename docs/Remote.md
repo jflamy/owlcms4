@@ -20,7 +20,7 @@ The other common configuration is when both owlcms and publicresults are in the 
 
 2. Click on the purple button below to start the installation on Heroku Cloud.
 
-    [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/${env.REPO_OWNER}/owlcms-publicresults)
+    [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/jflamy-dev/owlcms-publicresults)
 
 3. Enter your Heroku account (or create one if you haven't)
 
@@ -88,5 +88,5 @@ The other common configuration is when both owlcms and publicresults are in the 
 
 ## Check for updates
 
-Once you have created the application once, you can download a program that will check for updates and remote control Heroku to grab them.   See [Instructions](https://github.com/${env.REPO_OWNER}/owlcms-heroku-updater) and [Releases · owlcms/owlcms4-heroku-updater (github.com)](https://github.com/owlcms/owlcms4-heroku-updater/releases)
+Once you have created the application once, you can download a program that will check for updates and remote control Heroku to grab them.   See [Instructions](https://github.com/jflamy-dev/owlcms-heroku-updater) and [Releases · owlcms/owlcms4-heroku-updater (github.com)](https://github.com/owlcms/owlcms4-heroku-updater/releases)
 
