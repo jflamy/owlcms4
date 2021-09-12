@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.TreeSet;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -218,7 +219,7 @@ public class ResourceWalker {
             FileSystem fileSystem = (resourcesURI.getScheme().equals("jar")
                     ? FileSystems.newFileSystem(resourcesURI, Collections.<String, Object>emptyMap())
                     : null);
-            logger.trace("resources for URI {} found in {}", resourcesURI,
+            logger.debug("resources for URI {} found in {}", resourcesURI,
                     (fileSystem != null ? "jar" : "classpath folders"));
             return fileSystem;
         } catch (URISyntaxException | IOException e) {
@@ -329,8 +330,10 @@ public class ResourceWalker {
                 getResourcesPath(absoluteRoot), locale);
         List<Resource> overrideResources = getLocalOverrideResourceList(absoluteRoot, nameGenerator, startsWith,
                 locale);
-        overrideResources.addAll(classPathResources);
-        return overrideResources;
+        TreeSet<Resource> resourceSet = new TreeSet<>(overrideResources);
+        resourceSet.addAll(classPathResources);
+
+        return new ArrayList<Resource>(resourceSet);
     }
 
     /**
@@ -501,7 +504,7 @@ public class ResourceWalker {
             // if we are here, the resource is in the jar, and Vaadin has not already
             // loaded the ZipFileSystem so we do it. Normally Vaadin loads the jar
             // file system first so we never get here.
-            openClassPathFileSystem("/templates"); // any resource we know is in the jar.
+            openClassPathFileSystem("/META-INF"); // any resource we know is in the jar.
             rootPath = Paths.get(resourcesURI);
         }
         return rootPath;
