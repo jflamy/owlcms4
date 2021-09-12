@@ -504,7 +504,7 @@ public class ResourceWalker {
             // if we are here, the resource is in the jar, and Vaadin has not already
             // loaded the ZipFileSystem so we do it. Normally Vaadin loads the jar
             // file system first so we never get here.
-            openClassPathFileSystem("/META-INF"); // any resource we know is in the jar.
+            openClassPathFileSystem("/agegroups"); // any resource we know is in the jar, but not in any previous jar on classpath
             rootPath = Paths.get(resourcesURI);
         }
         return rootPath;

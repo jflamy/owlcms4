@@ -48,6 +48,7 @@ Type: filesandordirs; Name: "{app}\jre"
 
 [Files]
 Source: "target\owlcms-win32\local\*"; DestDir: "{app}\local"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "target\owlcms-win32\classes\*"; DestDir: "{app}\classes"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "target\installtools\jre\*"; DestDir: "{app}\jre"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "target\owlcms-win32\*.exe"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "target\owlcms-win32\*.jar"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
