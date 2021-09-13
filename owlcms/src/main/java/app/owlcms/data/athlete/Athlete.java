@@ -3793,7 +3793,7 @@ public class Athlete {
             getLogger().debug("requestedWeight {} < referenceWeight {}", requestedWeight, referenceWeight);
             // someone has already lifted heavier previously
             throw new RuleViolationException.WeightBelowAlreadyLifted(requestedWeight,
-                    reference.getAthlete(), referenceWeight);
+                    reference.getAthlete(), referenceWeight, referenceAttemptNo);
         } else {
             checkSameWeightAsReference(reference, requestedWeight, referenceWeight, referenceAttemptNo, currentLiftNo);
         }

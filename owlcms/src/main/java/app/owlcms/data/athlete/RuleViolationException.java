@@ -216,9 +216,9 @@ public class RuleViolationException extends RuntimeException {
          * @param startNumber
          * @param referenceWeight
          */
-        public WeightBelowAlreadyLifted(Integer requestedWeight, Athlete athlete, int referenceWeight) {
+        public WeightBelowAlreadyLifted(Integer requestedWeight, Athlete athlete, int referenceWeight, int attemptNo) {
             super("RuleViolation.weightBelowAlreadyLifted", requestedWeight,
-                    athlete.getShortName(), referenceWeight);
+                    athlete.getShortName(), referenceWeight, attemptNo);
         }
     }
 
