@@ -71,7 +71,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     Double maximumWeight; // exclusive
 
     /** minimum weight to be considered eligible */
-    private int qualifyingTotal;
+    @Column(columnDefinition = "integer default 0")
+    private int qualifyingTotal = 0;
 
     @ManyToOne(fetch = FetchType.EAGER) // ok in this case
     @JoinColumn(name = "agegroup_id")

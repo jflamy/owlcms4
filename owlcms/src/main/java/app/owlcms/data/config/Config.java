@@ -83,6 +83,7 @@ public class Config {
     @Column(name = "localcontent", nullable = true)
     private byte[] localOverride;
 
+    @Column(columnDefinition = "boolean default false")
     private boolean clearZip;
     
     public boolean isClearZip() {
