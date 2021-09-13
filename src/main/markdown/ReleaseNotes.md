@@ -2,6 +2,8 @@
 
   - [x] Marshall screen now shows decisions (#411). This is for setups where athlete cards are used and where it is difficult to see the scoreboard or inconvenient to switch tabs.
   
+  - [x] Clearer error message when athlete A cannot move down because B has attempted same weight on a bigger attempt number (if so, A should have lifted before B, cannot move down.)
+  
   - [x] Customizations done on a local laptop can be zipped and uploaded to a cloud-based setup.  (#366).
   
     To use, run on a laptop, edit the files in the local directory, zip and upload using the  Technical Configuration page accessible from the Preparation main menu. The uploaded zip is kept in the remote database and unzipped when the application starts. 
