@@ -1,10 +1,12 @@
-* Changes for release 4.22.0-beta05  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.22.0-beta06  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+  - [x] Marshall screen now shows decisions (#411). This is for setups where athlete cards are used and where it is difficult to see the scoreboard or inconvenient to switch tabs.
+  
   - [x] Customizations done on a local laptop can be zipped and uploaded to a cloud-based setup.  (#366).
   
     To use, run on a laptop, edit the files in the local directory, zip and upload using the  Technical Configuration page accessible from the Preparation main menu. The uploaded zip is kept in the remote database and unzipped when the application starts. 
   
-    This allows changing colors, translations, sounds and templates even when running in the cloud with no access to the local files.  Note that when editing the files in /local on your laptop, you should use the developer mode in your browser and disable your cache under the "Network" tab of your developer window.
+    This allows changing colors, translations, sounds and templates even when running in the cloud with no access to the local files.  When editing the files on a laptop, you need to disable the cache on your browser using Developer mode.  Files are cached for one week; to ensure that the competition laptops have the most current version, clear the browser cache.
   
 * Key Highlights from recent stable releases
 
