@@ -2660,7 +2660,7 @@ public class Athlete {
                     cleanJerk3Change2, cleanJerk3ActualLift);
         }
         this.cleanJerk3Declaration = cleanJerk3Declaration;
-        getLogger().info("{}cleanJerk3Declaration={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+        getLogger().info("{}{}cleanJerk3Declaration={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
                 cleanJerk3Declaration);
     }
 
@@ -4037,7 +4037,7 @@ public class Athlete {
             int clock = fop.getAthleteTimer().liveTimeRemaining();
             Athlete owner = fop.getClockOwner();
             int initialTime = fop.getClockOwnerInitialTimeAllowed();
-            logger.debug("{}owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}", fop.getLoggingName(), owner,
+            logger.debug("{} athlete={} owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}", fop.getLoggingName(), this.getShortName(), owner,
                     clock, initialTime, declaration, change1, change2);
             if (!this.isSameAthleteAs(owner)) {
                 // clock is not running for us
