@@ -51,8 +51,8 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     private static final long serialVersionUID = 8154757158144876816L;
 
     /**
-     * don't deep compare the categories inside age group, this gets circular. This method is used when comparing
-     * categories (which compares the code)
+     * don't deep compare the categories inside age group to avoid circularities. This method is used when comparing
+     * categories (rely on code and other top-level properties only)
      *
      * @param firstAgeGroup
      * @param otherAgeGroup
@@ -106,11 +106,13 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
             fetch = FetchType.EAGER)
     private List<Category> categories = new ArrayList<>();
 
+    private Integer qualificationTotal;
+
     public AgeGroup() {
     }
 
     public AgeGroup(String code, boolean active, Integer minAge, Integer maxAge, Gender gender,
-            AgeDivision ageDivision) {
+            AgeDivision ageDivision, Integer qualificationTotal) {
         super();
         this.active = active;
         this.code = code;
@@ -118,6 +120,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         this.maxAge = maxAge;
         this.ageDivision = ageDivision;
         this.gender = gender;
+        this.setQualificationTotal(qualificationTotal);
     }
 
     public void addCategory(Category category) {
@@ -138,10 +141,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         if (compare != 0) {
             return compare;
         }
-//        compare = ObjectUtils.compare(ageDivision, o.getAgeDivision());
-//        if (compare != 0) {
-//            return compare;
-//        }
         compare = ObjectUtils.compare(minAge, o.getMinAge());
         if (compare != 0) {
             return compare;
@@ -183,17 +182,9 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
      * @return the categories for which we are the AgeGroup
      */
     public List<Category> getCategories() {
-//        // simpler to use a query; it is sufficient to call Category.setAgeGroup()
-//        // to manage the relationship.
-//        return JPAService
-//                .runInTransaction(em -> em
-//                        .createQuery("select c " + "from Category c "
-//                                + "where c.ageGroup.id = :agId order by c.maximumWeight", Category.class)
-//                        .setParameter("agId", this.getId()).getResultList());
         return categories.stream().filter(c -> {
             return !(c.getAgeGroup() == null);
         }).sorted().collect(Collectors.toList());
-//        return categories;
     }
 
     public String getCategoriesAsString() {
@@ -317,6 +308,20 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
                 "AgeGroup." + code2,
                 OwlcmsSession.getLocale());
         return translatedCode != null ? translatedCode : code2;
+    }
+
+    /**
+     * @return the qualificationTotal
+     */
+    public Integer getQualificationTotal() {
+        return qualificationTotal;
+    }
+
+    /**
+     * @param qualificationTotal the qualificationTotal to set
+     */
+    public void setQualificationTotal(Integer qualificationTotal) {
+        this.qualificationTotal = qualificationTotal;
     }
 
 }

@@ -88,6 +88,10 @@ public class AgeGroupDefinitionReader {
                     c.setWrYth((int) Math.round(cell.getNumericCellValue()));
                 }
                     break;
+                case 6: {
+                    c.setQualifyingTotal((int) Math.round(cell.getNumericCellValue()));
+                }
+                    break;
                 }
                 iColumn++;
             }
@@ -189,7 +193,7 @@ public class AgeGroupDefinitionReader {
     }
 
     static void doInsertAgeGroup(EnumSet<AgeDivision> es, String localizedName) {
-        //InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
+        // InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
         InputStream localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory
                 .create(localizedResourceAsStream)) {
