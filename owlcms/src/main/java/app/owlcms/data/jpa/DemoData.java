@@ -69,6 +69,8 @@ public class DemoData {
             setupDemoData(em, nbAthletes, ageDivisions);
             return null;
         });
+        
+        AthleteRepository.resetCategories();
     }
 
     protected static void assignStartNumbers(EntityManager em, Group groupA) {
