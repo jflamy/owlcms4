@@ -347,24 +347,27 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
             props.add("fullBirthDate");
             captions.add(getTranslation("BirthDate_yyyy"));
         }
-        props.add("membership");
-        captions.add(getTranslation("Membership"));
+        props.add("group");
+        captions.add(getTranslation("Group"));
+
 
         props.add("bodyWeight");
         captions.add(getTranslation("BodyWeight"));
-        props.add("category");
-        captions.add(getTranslation("Category"));
-        props.add("eligibleCategories");
-        captions.add(getTranslation("EligibleCategories"));
         props.add("snatch1Declaration");
         captions.add(getTranslation("SnatchDecl_"));
         props.add("cleanJerk1Declaration");
         captions.add(getTranslation("C_and_J_decl"));
-        props.add("group");
-        captions.add(getTranslation("Group"));
         props.add("qualifyingTotal");
         captions.add(getTranslation("EntryTotal"));
+        
 
+        props.add("category");
+        captions.add(getTranslation("Category"));
+        props.add("eligibleCategories");
+        captions.add(getTranslation("EligibleCategories"));
+
+        props.add("membership");
+        captions.add(getTranslation("Membership"));
         props.add("lotNumber");
         captions.add(getTranslation("Lot"));
         props.add("eligibleForIndividualRanking");
@@ -381,7 +384,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
                 GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
         crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
                 CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName));
-        crudFormFactory.setFieldProvider("eligibleCategories", new OwlcmsMultiSelectComboBoxProvider<>(getTranslation("EligibleCategories"),
+        crudFormFactory.setFieldProvider("eligibleCategories", new OwlcmsMultiSelectComboBoxProvider<>(getTranslation("Registration.EligibleCategories"),
                 CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName));
         crudFormFactory.setFieldProvider("ageDivision",
                 new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
