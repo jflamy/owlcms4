@@ -590,7 +590,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             MultiselectComboBox<Category> eligibleField, List<Category> allEligible) {
 
         Set<Category> prevValue = eligibleField.getValue();
-        logger.debug("updateCategoryFields {} - {} {} {}",prevValue, category, allEligible, LoggerUtils.whereFrom());
+        logger.debug("updateCategoryFields {} - {} {} {}", prevValue, category, allEligible, LoggerUtils.whereFrom());
         categoryField.setItems(allEligible);
         eligibleField.setDataProvider(new ListDataProvider<>(allEligible));
 

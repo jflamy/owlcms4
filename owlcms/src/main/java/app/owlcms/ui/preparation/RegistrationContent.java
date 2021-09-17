@@ -364,7 +364,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         props.add("category");
         captions.add(getTranslation("Category"));
         props.add("eligibleCategories");
-        captions.add(getTranslation("EligibleCategories"));
+        captions.add(getTranslation("Registration.EligibleCategories"));
 
         props.add("membership");
         captions.add(getTranslation("Membership"));
