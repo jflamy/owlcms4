@@ -7,6 +7,7 @@
 package app.owlcms.data.agegroup;
 
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,6 +20,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
@@ -26,9 +28,13 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.NotificationUtils;
 import app.owlcms.utils.ResourceWalker;
+import ch.qos.logback.classic.Logger;
 
 public class AgeGroupDefinitionReader {
+
+    private static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupDefinitionReader.class);
 
     /**
      * Create category templates that will be copied to instantiate the actual categories. The world records are read
@@ -88,15 +94,10 @@ public class AgeGroupDefinitionReader {
                     c.setWrYth((int) Math.round(cell.getNumericCellValue()));
                 }
                     break;
-                case 6: {
-                    c.setQualifyingTotal((int) Math.round(cell.getNumericCellValue()));
-                }
-                    break;
                 }
                 iColumn++;
             }
             iRow++;
-
         }
         return categoryMap;
     }
@@ -168,13 +169,26 @@ public class AgeGroupDefinitionReader {
                     default: {
                         String cellValue = cell.getStringCellValue();
                         if (cellValue != null && !cellValue.trim().isEmpty()) {
-                            Category cat = AgeGroupRepository.createCategoryFromTemplate(cellValue, ag, templates,
-                                    curMin);
-                            if (cat != null) {
-                                em.persist(cat);
-                                AgeGroupRepository.logger.trace(cat.longDump());
-                                curMin = cat.getMaximumWeight();
+                            String[] parts = cellValue.split("[-_. /]");
+                            String catCode = parts.length > 0 ? parts[0] : cellValue;
+                            String qualTotal = parts.length > 1 ? parts[1] : "0";
+                            Category cat;
+                            try {
+                                cat = AgeGroupRepository.createCategoryFromTemplate(catCode, ag, templates,
+                                        curMin, qualTotal);
+                                if (cat != null) {
+                                    em.persist(cat);
+                                    AgeGroupRepository.logger.trace(cat.longDump());
+                                    curMin = cat.getMaximumWeight();
+                                }
+                            } catch (Exception e) {
+                                Throwable cause = e.getCause();
+                                String msg = MessageFormat.format("cannot process cell {0} (content = \"{1}\") {2} {3}", cellName(iColumn, iRow), cellValue, cause.getClass().getSimpleName(), cause.getMessage());
+                                logger.error(msg);
+                                NotificationUtils.errorNotification(msg);
+                                throw new RuntimeException(msg);
                             }
+
                         }
                     }
                         break;
@@ -190,6 +204,10 @@ public class AgeGroupDefinitionReader {
 
             return null;
         });
+    }
+
+    private static Object cellName(int iColumn, int iRow) {
+        return Character.toString('A'+iColumn) + (Integer.toString(iRow+1));
     }
 
     static void doInsertAgeGroup(EnumSet<AgeDivision> es, String localizedName) {

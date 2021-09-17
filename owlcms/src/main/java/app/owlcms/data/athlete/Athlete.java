@@ -15,7 +15,9 @@ import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -26,6 +28,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
@@ -173,11 +177,6 @@ public class Athlete {
         }
     }
 
-    public void setEntryTotal(Integer entryTotal) {
-        // intentional, legacy name in database
-        setQualifyingTotal(entryTotal);
-    }
-
     /**
      * Copy lift values to/from another athlete object used as editing scratchpad.
      *
@@ -248,29 +247,37 @@ public class Athlete {
 
     private Integer startNumber = null;
 
+    private String firstName = "";
+
 //    /** used internally by JPA */
 //    @Version
 //    private Long version;
 
-    private String firstName = "";
-
     private String lastName = "";
 
     private String team = "";
+
     private Gender gender = null; // $NON-NLS-1$
     private LocalDate fullBirthDate = null;
     private Double bodyWeight = null;
     private String membership = "";
-
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_group", nullable = true)
     private Group group;
+
     /* Should check with https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa-and-hibernate/ */
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_categ", nullable = true)
     private Category category = null;
+    
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE,  CascadeType.REFRESH
+    }, fetch = FetchType.EAGER)
+    @JoinTable(name = "athlete_eligiblecategory", joinColumns = @JoinColumn(name = "athlete_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
+    private Set<Category> eligibleCategories = new HashSet<>();
 
     /**
      * Using separate fileds is brute force, but having embedded classes does not bring much and we don't want joins or
@@ -284,39 +291,41 @@ public class Athlete {
     private String snatch1Change1;
 
     private String snatch1Change2;
+
     private String snatch1ActualLift;
+
     private LocalDateTime snatch1LiftTime;
 
     private String snatch2Declaration;
     private String snatch2Change1;
     private String snatch2Change2;
+
     private String snatch2ActualLift;
     private LocalDateTime snatch2LiftTime;
-
     private String snatch3Declaration;
     private String snatch3Change1;
     private String snatch3Change2;
+
     private String snatch3ActualLift;
     private LocalDateTime snatch3LiftTime;
-
     private String cleanJerk1Declaration;
     private String cleanJerk1Change1;
     private String cleanJerk1Change2;
+
     private String cleanJerk1ActualLift;
     private LocalDateTime cleanJerk1LiftTime;
-
     private String cleanJerk2Declaration;
     private String cleanJerk2Change1;
     private String cleanJerk2Change2;
+
     private String cleanJerk2ActualLift;
     private LocalDateTime cleanJerk2LiftTime;
-
     private String cleanJerk3Declaration;
     private String cleanJerk3Change1;
     private String cleanJerk3Change2;
+
     private String cleanJerk3ActualLift;
     private LocalDateTime cleanJerk3LiftTime;
-
     private Integer snatchRank;
     private Integer snatchRankJr;
     private Integer snatchRankSr;
@@ -324,36 +333,36 @@ public class Athlete {
     private Integer snatchRankYth;
     private Integer cleanJerkRank;
     private Integer cleanJerkRankJr;
-    private Integer cleanJerkRankSr;
 
+    private Integer cleanJerkRankSr;
     private Integer cleanJerkRankYth;
     private Integer totalRank;
     private Integer totalRankJr;
-    private Integer totalRankSr;
 
+    private Integer totalRankSr;
     private Integer totalRankYth;
     private Integer sinclairRank;
     private Integer robiRank;
-    private Integer customRank;
 
+    private Integer customRank;
     private Integer snatchPoints;
     private Integer cleanJerkPoints;
     private Integer totalPoints; // points based on totalRank
+
     private Float sinclairPoints;
     private Integer customPoints;
     private Integer teamSinclairRank;
     private Integer teamRobiRank;
     private Integer teamSnatchRank;
-
     private Integer teamCleanJerkRank;
     private Integer teamTotalRank;
-
     private Integer teamCombinedRank;
+
     private Integer qualifyingTotal = 0;
     private Double customScore;
+
     @Column(columnDefinition = "boolean default true")
     private boolean eligibleForIndividualRanking = true;
-
     @Column(columnDefinition = "boolean default true")
     private boolean eligibleForTeamRanking = true;
     /*
@@ -364,9 +373,9 @@ public class Athlete {
     /** The forced as current. */
     @Transient
     boolean forcedAsCurrent = false;
+
     @Transient
     private boolean validation = true;
-
     @Transient
     DecimalFormat df = null;
     /**
@@ -375,9 +384,9 @@ public class Athlete {
     private Double presumedBodyWeight;
     @Column(columnDefinition = "integer default 0")
     private int catSinclairRank;
+
     @Column(columnDefinition = "integer default 0")
     private int combinedRank;
-
     @Column(columnDefinition = "integer default 0")
     private int smmRank;
 
@@ -489,10 +498,7 @@ public class Athlete {
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if ((obj == null) || (getClass() != obj.getClass())) {
             return false;
         }
         Athlete other = (Athlete) obj;
@@ -1164,6 +1170,10 @@ public class Athlete {
      */
     public String getDisplayCategory() {
         return getLongCategory();
+    }
+
+    public Set<Category> getEligibleCategories() {
+        return eligibleCategories;
     }
 
     public Integer getEntryTotal() {
@@ -2746,12 +2756,21 @@ public class Athlete {
         this.customScore = customScore;
     }
 
+    public void setEligibleCategories(Set<Category> eligibleCategories) {
+        this.eligibleCategories = eligibleCategories;
+    }
+
     public void setEligibleForIndividualRanking(boolean eligibleForIndividualRanking) {
         this.eligibleForIndividualRanking = eligibleForIndividualRanking;
     }
 
     public void setEligibleForTeamRanking(boolean eligibleForTeamRanking) {
         this.eligibleForTeamRanking = eligibleForTeamRanking;
+    }
+
+    public void setEntryTotal(Integer entryTotal) {
+        // intentional, legacy name in database
+        setQualifyingTotal(entryTotal);
     }
 
 //  /**
@@ -3705,10 +3724,7 @@ public class Athlete {
         boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
         int entryTotal = getEntryTotal();
         getLogger().trace("enforcing 20kg rule {} {}", enforce20kg, entryTotal);
-        if (!enforce20kg) {
-            return true;
-        }
-        if (entryTotal == 0) {
+        if (!enforce20kg || (entryTotal == 0)) {
             return true;
         }
         int sn1Decl = zeroIfInvalid(snatch1Declaration);
@@ -4037,7 +4053,8 @@ public class Athlete {
             int clock = fop.getAthleteTimer().liveTimeRemaining();
             Athlete owner = fop.getClockOwner();
             int initialTime = fop.getClockOwnerInitialTimeAllowed();
-            logger.debug("{} athlete={} owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}", fop.getLoggingName(), this.getShortName(), owner,
+            logger.debug("{} athlete={} owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}",
+                    fop.getLoggingName(), this.getShortName(), owner,
                     clock, initialTime, declaration, change1, change2);
             if (!this.isSameAthleteAs(owner)) {
                 // clock is not running for us
@@ -4108,10 +4125,7 @@ public class Athlete {
     }
 
     private Double getSinclair(Double bodyWeight1, Integer total1) {
-        if (total1 == null || total1 < 0.1) {
-            return 0.0;
-        }
-        if (gender == null) {
+        if (total1 == null || total1 < 0.1 || (gender == null)) {
             return 0.0;
         }
         if (gender == Gender.M) { // $NON-NLS-1$

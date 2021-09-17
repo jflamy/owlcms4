@@ -101,11 +101,11 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     public Category(Category c) {
         this(c.id, c.minimumWeight, c.maximumWeight, c.gender, c.active, c.getWrYth(), c.getWrJr(), c.getWrSr(),
-                c.ageGroup);
+                c.ageGroup, c.qualifyingTotal);
     }
 
     public Category(Long id, Double minimumWeight, Double maximumWeight, Gender gender, boolean active, Integer wrYth,
-            Integer wrJr, Integer wrSr, AgeGroup ageGroup) {
+            Integer wrJr, Integer wrSr, AgeGroup ageGroup, Integer qualifyingTotal) {
         this.setId(id);
         this.setMinimumWeight(minimumWeight);
         this.setMaximumWeight(maximumWeight);
@@ -115,6 +115,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         this.setWrYth(wrYth);
         this.setWrJr(wrJr);
         this.setWrSr(wrSr);
+        this.setQualifyingTotal(qualifyingTotal);
         setCategoryName(minimumWeight, maximumWeight, gender, ageGroup);
     }
 

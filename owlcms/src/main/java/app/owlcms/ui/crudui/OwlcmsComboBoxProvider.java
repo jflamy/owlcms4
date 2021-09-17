@@ -45,6 +45,11 @@ public class OwlcmsComboBoxProvider<T> extends ComboBoxProvider<T> {
         }
         field.setClearButtonVisible(true);
         field.setItems(items);
+//        field.addValueChangeListener((v) -> {
+//            System.out.println("combobox value changed" + v);
+//            if (v.getValue() == null)
+//                System.out.println(LoggerUtils.stackTrace());
+//        });
         return field;
     }
 }

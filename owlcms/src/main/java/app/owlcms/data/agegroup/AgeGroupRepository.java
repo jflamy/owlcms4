@@ -26,6 +26,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
@@ -155,14 +156,22 @@ public class AgeGroupRepository {
 
     public static void reloadDefinitions(String localizedFileName) {
         JPAService.runInTransaction(em -> {
+            List<Athlete> athletes = AthleteRepository.doFindAll(em);
+            for (Athlete a : athletes) {
+                a.setCategory(null);
+                a.setEligibleCategories(null);
+                em.merge(a);
+            }
+            em.flush();
+            Competition.getCurrent().setRankingsInvalid(true);
+            return null;
+        });
+        JPAService.runInTransaction(em -> {
             try {
-                Query upd = em.createQuery("update Athlete set category = null");
-                upd.executeUpdate();
-                upd = em.createQuery("delete from Category");
+                Query upd = em.createQuery("delete from Category");
                 upd.executeUpdate();
                 upd = em.createQuery("delete from AgeGroup");
                 upd.executeUpdate();
-                em.flush();
             } catch (Exception e) {
                 logger.error(LoggerUtils.stackTrace(e));
             }
@@ -223,11 +232,11 @@ public class AgeGroupRepository {
         em.remove(nc);
     }
 
-    static Category createCategoryFromTemplate(String cellValue, AgeGroup ag, Map<String, Category> templates,
-            double curMin) {
-        Category template = templates.get(cellValue);
+    static Category createCategoryFromTemplate(String catCode, AgeGroup ag, Map<String, Category> templates,
+            double curMin, String qualTotal) throws Exception {
+        Category template = templates.get(catCode);
         if (template == null) {
-            logger.error("template {} not found", cellValue);
+            logger.error("template {} not found", catCode);
             return null;
         } else {
             try {
@@ -237,6 +246,11 @@ public class AgeGroupRepository {
                 newCat.setCode(ag.getCode() + "_" + template.getCode());
                 ag.addCategory(newCat);
                 newCat.setActive(ag.isActive());
+                try {
+                    newCat.setQualifyingTotal(Integer.parseInt(qualTotal));
+                } catch (NumberFormatException e) {
+                    throw new Exception(e);
+                }
 //                logger.debug(newCat.dump());
                 return newCat;
             } catch (IllegalAccessException | InvocationTargetException e) {
