@@ -40,7 +40,25 @@ public class Participation {
     @MapsId("categoryId")
     private Category category;
 
-    private int categoryRank = 0;
+    private int snatchRank = 0;
+    private int cleanJerkRank = 0;
+    private int totalRank = 0;
+
+    public int getCleanJerkRank() {
+        return cleanJerkRank;
+    }
+
+    public void setCleanJerkRank(int cleanJerkRank) {
+        this.cleanJerkRank = cleanJerkRank;
+    }
+
+    public int getTotalRank() {
+        return totalRank;
+    }
+
+    public void setTotalRank(int totalRank) {
+        this.totalRank = totalRank;
+    }
 
     private int teamRank = 0;
 
@@ -84,10 +102,10 @@ public class Participation {
     }
 
     /**
-     * @return the categoryRank
+     * @return the snatchRank
      */
-    public int getCategoryRank() {
-        return categoryRank;
+    public int getSnatchRank() {
+        return snatchRank;
     }
 
     public ParticipationId getId() {
@@ -124,10 +142,10 @@ public class Participation {
     }
 
     /**
-     * @param categoryRank the categoryRank to set
+     * @param snatchRank the snatchRank to set
      */
-    public void setCategoryRank(int categoryRank) {
-        this.categoryRank = categoryRank;
+    public void setSnatchRank(int categoryRank) {
+        this.snatchRank = categoryRank;
     }
 
     /**

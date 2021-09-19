@@ -320,6 +320,9 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         getRouterLayout().closeDrawer();
+//        GroupRepository gr = new GroupRepository();
+//        Group g = GroupRepository.findByName("M1");
+//        logger.warn(gr.allAthletesForGlobalRanking(g).toString());
     }
 
     /**

@@ -10,10 +10,12 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
@@ -108,6 +110,37 @@ public class GroupRepository {
      */
     public static Group save(Group Group) {
         return JPAService.runInTransaction(em -> em.merge(Group));
+    }
+
+    public List<Category> allCategories(Group g) {
+        return JPAService.runInTransaction((em) -> {
+            TypedQuery<Category> q = em.createQuery(
+                    "select distinct c from Athlete a join a.group g join a.participations p join p.category c where g.id = :groupId",
+                    Category.class);
+            q.setParameter("groupId", g.getId());
+            return q.getResultList();
+        });
+    }
+
+    public List<Athlete> getAthletes(Group g) {
+        return JPAService.runInTransaction((em) -> {
+            // this is the only case where group needs to know its athletes, so we do a
+            // query instead of adding a relationship.
+            TypedQuery<Athlete> aQ = em.createQuery("select a from Athlete a join a.group g where g.id = :groupId", Athlete.class);
+            aQ.setParameter("groupId", g.getId());
+            return aQ.getResultList();
+        });
+    }
+    
+    public List<Athlete> allAthletesForGlobalRanking(Group g) {
+        return JPAService.runInTransaction((em) -> {
+            String categoriesFromCurrentGroup = "(select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId and c2.id = c.id)";
+            TypedQuery<Athlete> q = em.createQuery(
+                    "select distinct a from Athlete a join a.participations p join p.category c where exists "+ categoriesFromCurrentGroup,
+                    Athlete.class);
+            q.setParameter("groupId", g.getId());
+            return q.getResultList();
+        });
     }
 
 }

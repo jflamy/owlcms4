@@ -39,11 +39,11 @@ public class AthleteSorter implements Serializable {
         SNATCH, CLEANJERK, TOTAL,
         /** combined (men + women). */
         COMBINED,
-//        SINCLAIR, // cat, bw or smm depending on competition parameters
         CAT_SINCLAIR, // legacy Quebec federation, Sinclair computed at category boundary
         BW_SINCLAIR, // normal sinclair
         SMM, // Sinclair Malone-Meltzer
-        ROBI, CUSTOM // custom score (e.g. technical merit for kids competition)
+        ROBI, // IWF ROBI
+        CUSTOM // custom score (e.g. technical merit for kids competition)
 
     }
 
