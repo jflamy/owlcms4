@@ -428,14 +428,13 @@ public class Athlete {
      * 
      * As a consequence of the way we use the CRUD framework and JPA, we end up with two copies of the athlete when
      * editing, with the same ID, but not the same instance. The participation relationships are created with one
-     * instance, but during editing, we are dealing with a cloned copy.
-     * So we clean up the relationship so that all
+     * instance, but during editing, we are dealing with a cloned copy. So we clean up the relationship so that all
      * pointers to this athlete (according to Id) reference this Java instance.
      * 
      * @param category
      * @param participations
      */
-    private void removeCurrentAthleteCategoryParticipation(Category category, List<Participation> participations) { 
+    private void removeCurrentAthleteCategoryParticipation(Category category, List<Participation> participations) {
         for (Iterator<Participation> iterator = participations.iterator(); iterator.hasNext();) {
             Participation part = iterator.next();
             long athId = (long) getId();
@@ -1226,28 +1225,14 @@ public class Athlete {
     }
 
     public Set<Category> getEligibleCategories() {
-//        @SuppressWarnings("unchecked")
-//        List<Object[]> results = JPAService.runInTransaction((em) -> {
-//            Query createQuery = em.createQuery(
-//                    "select c,p from Athlete a join a.participations p join fetch p.category c where a.id = :athleteId");
-//            return createQuery          
-//                    .setParameter("athleteId", this.getId())
-//                    .getResultList();
-//        });
-//
-//        LinkedHashSet<Category> resultSet = new LinkedHashSet<>();
-//        results.stream().map((ar) -> ar[0]).peek((c) -> resultSet.add((Category) c));
-//        logger.warn("eligible categories: {}",resultSet);
-//        return resultSet;
         // brain dead version, cannot get query version to work.
         Set<Category> s = new LinkedHashSet<>();
-
         List<Participation> participations2 = getParticipations();
         for (Participation p : participations2) {
             Category category2 = p.getCategory();
             s.add(category2);
         }
-        logger.warn("{} getEligibleCategories {} from {}", this.getShortName(), s.toString(), LoggerUtils.whereFrom());
+        logger.trace("{} getEligibleCategories {} from {}", this.getShortName(), s.toString(), LoggerUtils.whereFrom());
         return s;
     }
 
@@ -2404,14 +2389,14 @@ public class Athlete {
             boolean categoryEqual = category2.getName().contentEquals(category.getName());
             if (athleteEqual &&
                     categoryEqual) {
-                // logger.warn("removeCategory removing {} {}",category,participation);
+                logger.trace("removeCategory removing {} {}", category, participation);
                 iterator.remove();
                 category2.getParticipations().remove(participation);
                 participation.setAthlete(null);
                 participation.setCategory(null);
             } else {
-                // logger.warn("removeCategory skipping {} {} {} {} {}", this, athleteEqual, participation, category,
-                // categoryEqual);
+                logger.trace("removeCategory skipping {} {} {} {} {}", this, athleteEqual, participation, category,
+                        categoryEqual);
             }
         }
     }
@@ -2858,9 +2843,9 @@ public class Athlete {
     }
 
     public void setEligibleCategories(Set<Category> newEligibles) {
-        logger.warn("athlete participations {}", getParticipations());
+        logger.trace("athlete participations {}", getParticipations());
         Set<Category> oldEligibles = getEligibleCategories();
-        // logger.warn("setting eligible before:{} target:{}",oldEligibles, newEligibles);
+        logger.trace("setting eligible before:{} target:{}",oldEligibles, newEligibles);
         if (oldEligibles != null) {
             for (Category cat : oldEligibles) {
                 removeCategory(cat);
@@ -2871,7 +2856,7 @@ public class Athlete {
                 addCategory(cat); // creates new join table entry, links from category as well.
             }
         }
-        logger.warn("{} after set eligible {}", getShortName(), getEligibleCategories());
+        logger.trace("{} after set eligible {}", getShortName(), getEligibleCategories());
     }
 
     public void enforceCategoryIsEligible() {
@@ -2886,10 +2871,8 @@ public class Athlete {
                     break;
                 }
             }
-            // TODO remove existing participation
-
             setCategory(matchingEligible);
-            logger.warn("category {} {} matching eligible {} {}", category, System.identityHashCode(category),
+            logger.trace("category {} {} matching eligible {} {}", category, System.identityHashCode(category),
                     matchingEligible, System.identityHashCode(matchingEligible));
         }
     }
