@@ -8,9 +8,12 @@
 package app.owlcms.data.category;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -21,6 +24,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
@@ -52,7 +56,6 @@ import ch.qos.logback.classic.Logger;
 @Cacheable
 public class Category implements Serializable, Comparable<Category>, Cloneable {
 
-    @SuppressWarnings("unused")
     final private static Logger logger = (Logger) LoggerFactory.getLogger(Category.class);
 
     public final static Double ROBI_B = 3.321928095;
@@ -62,8 +65,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
-    /** The name. */
-    private String name;
     /** The minimum weight. */
     Double minimumWeight; // inclusive
 
@@ -74,7 +75,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     @Column(columnDefinition = "integer default 0")
     private int qualifyingTotal = 0;
 
-    @ManyToOne(fetch = FetchType.EAGER) // ok in this case
+    @ManyToOne(fetch = FetchType.LAZY) // ok in this case
     @JoinColumn(name = "agegroup_id")
     private AgeGroup ageGroup;
 
@@ -92,6 +93,13 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     // combines age group and bw category (which includes gender).
     private String code;
+
+    // we need EAGER due to the way the CRUD updater works.
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Participation> participations = new ArrayList<>();
+
+    @SuppressWarnings("unused")
+    private String name;
 
     /**
      * Instantiates a new category.
@@ -148,31 +156,71 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     }
 
     public String dump() {
-        return "Category [code=" + code + ", name=" + name + ", minimumWeight=" + minimumWeight + ", maximumWeight="
+        return "Category [code=" + code + ", name=" + getName() + ", minimumWeight=" + minimumWeight
+                + ", maximumWeight="
                 + maximumWeight + ", ageGroup=" + ageGroup + ", gender=" + gender + ", active=" + active + ", wrSr="
                 + getWrSr() + ", wrJr=" + getWrJr() + ", wrYth=" + getWrYth() + "]";
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object o) {
+        if (this == o)
             return true;
-        }
-        if ((obj == null) || (getClass() != obj.getClass())) {
+        if (o == null || getClass() != o.getClass()) {
+            //logger.warn("equals quick fail {} {} {} from {}", o, getClass(), o != null ? o.getClass() : "");
             return false;
         }
-        Category other = (Category) obj;
+        Category cat = (Category) o;
 
-        // other is not null, and neither are we
-        // don't compare the categories inside age group, this gets circular.
-        boolean ageGroupEquals = AgeGroup.looseEquals(this.ageGroup, other.ageGroup);
+        String name2 = getName();
+        String name3 = cat.getName();
+        boolean equal1 = name2.contentEquals(name3);
 
-        return active == other.active && ageGroupEquals && Objects.equals(code, other.code)
-                && gender == other.gender && Objects.equals(id, other.id)
-                && Objects.equals(maximumWeight, other.maximumWeight)
-                && Objects.equals(minimumWeight, other.minimumWeight) && Objects.equals(name, other.name)
-                && Objects.equals(getWrJr(), other.getWrJr())
-                && Objects.equals(getWrSr(), other.getWrSr()) && Objects.equals(getWrYth(), other.getWrYth());
+        Long id1 = getId();
+        Long id2 = cat.getId();
+        boolean equal2 = id1 == id2;
+
+        List<Participation> p1 = getParticipations();
+        List<Participation> p2 = cat.getParticipations();
+        boolean equal3 = ObjectUtils.equals(p1, p2);
+
+        logger.warn("equals {} {} {} {} {}", this, cat, equal1, equal2, equal3);
+        return equal1 && equal2 && equal3;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName());
+    }
+
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (this == obj) {
+//            return true;
+//        }
+//        if ((obj == null) || (getClass() != obj.getClass())) {
+//            return false;
+//        }
+//        Category other = (Category) obj;
+//
+//        // other is not null, and neither are we
+//        // don't compare the categories inside age group, this gets circular.
+//        boolean ageGroupEquals = AgeGroup.looseEquals(this.ageGroup, other.ageGroup);
+//
+//        return active == other.active && ageGroupEquals && Objects.equals(code, other.code)
+//                && gender == other.gender && Objects.equals(id, other.id)
+//                && Objects.equals(maximumWeight, other.maximumWeight)
+//                && Objects.equals(minimumWeight, other.minimumWeight) && Objects.equals(name, other.name)
+//                && Objects.equals(getWrJr(), other.getWrJr())
+//                && Objects.equals(getWrSr(), other.getWrSr()) && Objects.equals(getWrYth(), other.getWrYth());
+//    }
+
+    public List<Participation> getParticipations() {
+        return participations;
+    }
+
+    public void setParticipations(List<Participation> participations) {
+        this.participations = participations;
     }
 
     /**
@@ -317,12 +365,12 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         return wrYth;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(active, ageGroup, code, gender, id, maximumWeight, minimumWeight, name, getWrJr(),
-                getWrSr(),
-                getWrYth());
-    }
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(active, ageGroup, code, gender, id, maximumWeight, minimumWeight, name, getWrJr(),
+//                getWrSr(),
+//                getWrYth());
+//    }
 
     /**
      * Checks if is active.
@@ -436,7 +484,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
      * @return the string
      */
     public String shortDump() {
-        return name + "_" + active + "_" + gender + "_" + ageGroup;
+        return getName() + "_" + active + "_" + gender + "_" + ageGroup;
     }
 
     /*

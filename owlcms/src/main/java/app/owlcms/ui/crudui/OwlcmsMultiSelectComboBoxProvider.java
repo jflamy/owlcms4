@@ -44,7 +44,6 @@ public class OwlcmsMultiSelectComboBoxProvider<T> extends AbstractListingProvide
             field.setItemLabelGenerator(itemLabelGenerator);
         }
         field.setClearButtonVisible(true);
-        field.setItemLabelGenerator(itemLabelGenerator);
         field.setOrdered(true);
         return field;
     }

@@ -15,7 +15,8 @@ import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -28,16 +29,17 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.Participation;
 import app.owlcms.data.category.RobiCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -271,13 +273,16 @@ public class Athlete {
             CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_categ", nullable = true)
     private Category category = null;
-    
-    @ManyToMany(cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE,  CascadeType.REFRESH
-    }, fetch = FetchType.EAGER)
-    @JoinTable(name = "athlete_eligiblecategory", joinColumns = @JoinColumn(name = "athlete_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
-    private Set<Category> eligibleCategories = new HashSet<>();
+
+//    @ManyToMany(cascade = {
+//            CascadeType.PERSIST,
+//            CascadeType.MERGE,  CascadeType.REFRESH
+//    }, fetch = FetchType.EAGER)
+//    @JoinTable(name = "athlete_eligiblecategory", joinColumns = @JoinColumn(name = "athlete_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
+//    private Set<Category> eligibleCategories = new HashSet<>();
+
+    @OneToMany(mappedBy = "athlete", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Participation> participations = new ArrayList<>();
 
     /**
      * Using separate fileds is brute force, but having embedded classes does not bring much and we don't want joins or
@@ -297,67 +302,68 @@ public class Athlete {
     private LocalDateTime snatch1LiftTime;
 
     private String snatch2Declaration;
-    private String snatch2Change1;
-    private String snatch2Change2;
 
+    private String snatch2Change1;
+
+    private String snatch2Change2;
     private String snatch2ActualLift;
     private LocalDateTime snatch2LiftTime;
+
     private String snatch3Declaration;
     private String snatch3Change1;
     private String snatch3Change2;
-
     private String snatch3ActualLift;
     private LocalDateTime snatch3LiftTime;
+
     private String cleanJerk1Declaration;
     private String cleanJerk1Change1;
     private String cleanJerk1Change2;
-
     private String cleanJerk1ActualLift;
     private LocalDateTime cleanJerk1LiftTime;
+
     private String cleanJerk2Declaration;
     private String cleanJerk2Change1;
     private String cleanJerk2Change2;
-
     private String cleanJerk2ActualLift;
     private LocalDateTime cleanJerk2LiftTime;
+
     private String cleanJerk3Declaration;
     private String cleanJerk3Change1;
     private String cleanJerk3Change2;
-
     private String cleanJerk3ActualLift;
     private LocalDateTime cleanJerk3LiftTime;
+
     private Integer snatchRank;
     private Integer snatchRankJr;
     private Integer snatchRankSr;
-
     private Integer snatchRankYth;
     private Integer cleanJerkRank;
-    private Integer cleanJerkRankJr;
 
+    private Integer cleanJerkRankJr;
     private Integer cleanJerkRankSr;
     private Integer cleanJerkRankYth;
+
     private Integer totalRank;
     private Integer totalRankJr;
-
     private Integer totalRankSr;
     private Integer totalRankYth;
+
     private Integer sinclairRank;
     private Integer robiRank;
-
     private Integer customRank;
     private Integer snatchPoints;
+
     private Integer cleanJerkPoints;
     private Integer totalPoints; // points based on totalRank
-
     private Float sinclairPoints;
     private Integer customPoints;
+
     private Integer teamSinclairRank;
     private Integer teamRobiRank;
     private Integer teamSnatchRank;
     private Integer teamCleanJerkRank;
     private Integer teamTotalRank;
     private Integer teamCombinedRank;
-
     private Integer qualifyingTotal = 0;
     private Double customScore;
 
@@ -365,6 +371,7 @@ public class Athlete {
     private boolean eligibleForIndividualRanking = true;
     @Column(columnDefinition = "boolean default true")
     private boolean eligibleForTeamRanking = true;
+
     /*
      * Non-persistent properties. These properties are used during computations, but need not be stored in the database
      */
@@ -373,18 +380,17 @@ public class Athlete {
     /** The forced as current. */
     @Transient
     boolean forcedAsCurrent = false;
-
     @Transient
     private boolean validation = true;
     @Transient
     DecimalFormat df = null;
+
     /**
      * body weight inferred from category, used until real bodyweight is known.
      */
     private Double presumedBodyWeight;
     @Column(columnDefinition = "integer default 0")
     private int catSinclairRank;
-
     @Column(columnDefinition = "integer default 0")
     private int combinedRank;
     @Column(columnDefinition = "integer default 0")
@@ -396,6 +402,53 @@ public class Athlete {
     public Athlete() {
         super();
         validation = true;
+    }
+
+    public void addCategory(Category category) {
+        Participation participation = new Participation(this, category);
+
+        if (participations == null) {
+            participations = new ArrayList<>();
+        }
+        removeCurrentAthleteCategoryParticipation(category, participations);
+        participations.add(participation);
+        setParticipations(participations);
+
+        List<Participation> categoryParticipations = category.getParticipations();
+        if (categoryParticipations == null) {
+            categoryParticipations = new ArrayList<>();
+        }
+        removeCurrentAthleteCategoryParticipation(category, categoryParticipations);
+        categoryParticipations.add(participation);
+        category.setParticipations(categoryParticipations);
+    }
+
+    /**
+     * Prevent JPA conflict between two versions of the same object.
+     * 
+     * As a consequence of the way we use the CRUD framework and JPA, we end up with two copies of the athlete when
+     * editing, with the same ID, but not the same instance. The participation relationships are created with one
+     * instance, but during editing, we are dealing with a cloned copy.
+     * So we clean up the relationship so that all
+     * pointers to this athlete (according to Id) reference this Java instance.
+     * 
+     * @param category
+     * @param participations
+     */
+    private void removeCurrentAthleteCategoryParticipation(Category category, List<Participation> participations) { 
+        for (Iterator<Participation> iterator = participations.iterator(); iterator.hasNext();) {
+            Participation part = iterator.next();
+            long athId = (long) getId();
+            long catId = (long) category.getId();
+            long partAthId = (long) part.getAthlete().getId();
+            long partCatId = (long) part.getCategory().getId();
+            if (partAthId == athId && partCatId == catId) {
+                logger.trace("    removing {}", part);
+                iterator.remove();
+            } else {
+                logger.trace("    ok {} {}-{} {}-{}", part, athId, partAthId, catId, partCatId);
+            }
+        }
     }
 
     public void clearLifts() {
@@ -1173,7 +1226,29 @@ public class Athlete {
     }
 
     public Set<Category> getEligibleCategories() {
-        return eligibleCategories;
+//        @SuppressWarnings("unchecked")
+//        List<Object[]> results = JPAService.runInTransaction((em) -> {
+//            Query createQuery = em.createQuery(
+//                    "select c,p from Athlete a join a.participations p join fetch p.category c where a.id = :athleteId");
+//            return createQuery          
+//                    .setParameter("athleteId", this.getId())
+//                    .getResultList();
+//        });
+//
+//        LinkedHashSet<Category> resultSet = new LinkedHashSet<>();
+//        results.stream().map((ar) -> ar[0]).peek((c) -> resultSet.add((Category) c));
+//        logger.warn("eligible categories: {}",resultSet);
+//        return resultSet;
+        // brain dead version, cannot get query version to work.
+        Set<Category> s = new LinkedHashSet<>();
+
+        List<Participation> participations2 = getParticipations();
+        for (Participation p : participations2) {
+            Category category2 = p.getCategory();
+            s.add(category2);
+        }
+        logger.warn("{} getEligibleCategories {} from {}", this.getShortName(), s.toString(), LoggerUtils.whereFrom());
+        return s;
     }
 
     public Integer getEntryTotal() {
@@ -1468,6 +1543,10 @@ public class Athlete {
     public Integer getNextAttemptRequestedWeight() {
         int attempt = getAttemptsDone() + 1;
         return getRequestedWeightForAttempt(attempt);
+    }
+
+    public List<Participation> getParticipations() {
+        return participations;
     }
 
     public Double getPresumedBodyWeight() {
@@ -2315,6 +2394,28 @@ public class Athlete {
                 .append(" totalRank=" + this.getRank()).append(" teamMember=" + this.getTeamMember()).toString();
     }
 
+    public void removeCategory(Category category) {
+        for (Iterator<Participation> iterator = participations.iterator(); iterator.hasNext();) {
+            Participation participation = iterator.next();
+
+            boolean athleteEqual = participation.getAthlete().equals(this);
+
+            Category category2 = participation.getCategory();
+            boolean categoryEqual = category2.getName().contentEquals(category.getName());
+            if (athleteEqual &&
+                    categoryEqual) {
+                // logger.warn("removeCategory removing {} {}",category,participation);
+                iterator.remove();
+                category2.getParticipations().remove(participation);
+                participation.setAthlete(null);
+                participation.setCategory(null);
+            } else {
+                // logger.warn("removeCategory skipping {} {} {} {} {}", this, athleteEqual, participation, category,
+                // categoryEqual);
+            }
+        }
+    }
+
     /**
      * Reset forced as current.
      */
@@ -2756,8 +2857,41 @@ public class Athlete {
         this.customScore = customScore;
     }
 
-    public void setEligibleCategories(Set<Category> eligibleCategories) {
-        this.eligibleCategories = eligibleCategories;
+    public void setEligibleCategories(Set<Category> newEligibles) {
+        logger.warn("athlete participations {}", getParticipations());
+        Set<Category> oldEligibles = getEligibleCategories();
+        // logger.warn("setting eligible before:{} target:{}",oldEligibles, newEligibles);
+        if (oldEligibles != null) {
+            for (Category cat : oldEligibles) {
+                removeCategory(cat);
+            }
+        }
+        if (newEligibles != null) {
+            for (Category cat : newEligibles) {
+                addCategory(cat); // creates new join table entry, links from category as well.
+            }
+        }
+        logger.warn("{} after set eligible {}", getShortName(), getEligibleCategories());
+    }
+
+    public void enforceCategoryIsEligible() {
+        if (category != null) {
+            // we can't have category without eligibility relationship and one with same id that has it in the
+            // eligibility list
+            // so we find the one in the eligibility list and use it.
+            Category matchingEligible = null;
+            for (Category eligible : getEligibleCategories()) {
+                if (ObjectUtils.compare(eligible.getName(), category.getName()) == 0) {
+                    matchingEligible = eligible;
+                    break;
+                }
+            }
+            // TODO remove existing participation
+
+            setCategory(matchingEligible);
+            logger.warn("category {} {} matching eligible {} {}", category, System.identityHashCode(category),
+                    matchingEligible, System.identityHashCode(matchingEligible));
+        }
     }
 
     public void setEligibleForIndividualRanking(boolean eligibleForIndividualRanking) {
@@ -2773,6 +2907,15 @@ public class Athlete {
         setQualifyingTotal(entryTotal);
     }
 
+    /**
+     * Sets the first name.
+     *
+     * @param firstName the firstName to set
+     */
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
 //  /**
 //   * Sets the result order rank.
 //   *
@@ -2782,15 +2925,6 @@ public class Athlete {
 //  public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
 //      this.resultOrderRank = resultOrderRank;
 //  }
-
-    /**
-     * Sets the first name.
-     *
-     * @param firstName the firstName to set
-     */
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
 
     /**
      * Sets the forced as current.
@@ -2847,15 +2981,15 @@ public class Athlete {
         this.liftOrderRank = liftOrder;
     }
 
+    public void setLogger(Logger logger) {
+        this.logger = logger;
+    }
+
     /*
      * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
      * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
      * register/unregister itself.
      */
-
-    public void setLogger(Logger logger) {
-        this.logger = logger;
-    }
 
     public void setLoggerLevel(Level newLevel) {
         getLogger().setLevel(newLevel);
@@ -2885,6 +3019,10 @@ public class Athlete {
      * @param i the new next attempt requested weight
      */
     public void setNextAttemptRequestedWeight(Integer i) {
+    }
+
+    public void setParticipations(List<Participation> participations) {
+        this.participations = participations;
     }
 
     public void setPresumedBodyWeight(Double presumedBodyWeight) {
@@ -3450,7 +3588,7 @@ public class Athlete {
     public String toString() {
         Integer startNumber2 = getStartNumber();
         String prefix = getGroup() + "." + (startNumber2 != null ? startNumber2.toString() : "");
-        String suffix = "_" + System.identityHashCode(this);
+        String suffix = "_id" + getId() + "_" + System.identityHashCode(this);
         if (getLastName() != null) {
             return prefix + "_" + getLastName() + "_" + getFirstName() + suffix;
         } else {

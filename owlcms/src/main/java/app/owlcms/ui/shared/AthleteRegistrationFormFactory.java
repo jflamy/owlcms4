@@ -13,7 +13,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
@@ -92,6 +91,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
      */
     @Override
     public Athlete add(Athlete athlete) {
+        athlete.enforceCategoryIsEligible();
         AthleteRepository.save(athlete);
         enablePrint(athlete);
         return athlete;
@@ -148,10 +148,12 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         });
 
         setChangeListenersEnabled(false);
+        Set<Category> eligibleCategories = getEditedAthlete().getEligibleCategories();
+        logger.warn("before new form {} {}", eligibleCategories, eligibleCategories.size());
         Component form = super.buildNewForm(operation, getEditedAthlete(), readOnly, cancelButtonClickListener,
                 operationButtonClickListener, deleteButtonClickListener, hiddenButton, printButton);
 
-        // binder has read bean. we should not enable the value change listeners just yet.
+        // binder has read bean.
         filterCategories(getEditedAthlete().getCategory());
 
         return form;
@@ -230,6 +232,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
      */
     @Override
     public Athlete update(Athlete athlete) {
+        logger.warn("updating athlete {}",athlete.toString());
+        athlete.enforceCategoryIsEligible();
         AthleteRepository.save(athlete);
 //        logger.debug("saved id={} {} {} {}", athlete.getId(), athlete.getSnatch1Declaration(),
 //                athlete.getCleanJerk1Declaration());
@@ -500,7 +504,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     @SuppressWarnings({ "unchecked" })
     private void filterCategories(Category category) {
         setChangeListenersEnabled(false);
-        
+
         Binding<Athlete, ?> genderBinding = binder.getBinding("gender").get();
         ComboBox<Gender> genderField = (ComboBox<Gender>) genderBinding.getField();
 
@@ -509,13 +513,21 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
         Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
         ComboBox<Category> categoryField = (ComboBox<Category>) categoryBinding.getField();
+//        categoryField.addValueChangeListener((e) -> {
+//            logger.warn("{} setting categoryField {} from {}", getEditedAthlete().getShortName(), e.getValue(),
+//                    LoggerUtils.stackTrace());
+//        });
 
         Binding<Athlete, ?> eligibleBinding = binder.getBinding("eligibleCategories").get();
         MultiselectComboBox<Category> eligibleField = (MultiselectComboBox<Category>) eligibleBinding.getField();
+//        eligibleField.addValueChangeListener((e) -> {
+//            logger.warn("{} setting eligibleField {} from {}", getEditedAthlete().getShortName(), e.getValue(),
+//                    LoggerUtils.stackTrace());
+//        });
 
         allEligible = findEligibleCategories(genderField, bodyWeightField);
-        logger.trace("**gender = {}, eligible = {}", genderField.getValue(), allEligible);
-        //ListDataProvider<Category> listDataProvider = new ListDataProvider<>(allEligible);
+        logger.warn("**gender = {}, eligible = {}", genderField.getValue(), allEligible);
+        // ListDataProvider<Category> listDataProvider = new ListDataProvider<>(allEligible);
         updateCategoryFields(category, categoryField, eligibleField, allEligible);
 
         genderField.addValueChangeListener((vc) -> {
@@ -571,7 +583,16 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             categoryField.setValue(cat);
             eligibleField.setDataProvider(listDataProvider2);
         });
-
+        
+        eligibleField.addValueChangeListener((vc) -> {
+            if (!isChangeListenersEnabled())
+                return;
+            logger.warn(">>> vc eligibleField start");
+            setChangeListenersEnabled(false); // prevent recursion.
+            updateCategoryFields(categoryField.getValue(), categoryField, eligibleField, allEligible);
+            setChangeListenersEnabled(true);
+            logger.warn("<<< vc eligibleField end");
+        });
 
         setChangeListenersEnabled(true);
     }
@@ -588,43 +609,47 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     private void updateCategoryFields(Category category, ComboBox<Category> categoryField,
             MultiselectComboBox<Category> eligibleField, List<Category> allEligible) {
+        
+        LinkedHashSet<Category> newEligibles = new LinkedHashSet<>();
+        Set<Category> prevEligibles = eligibleField.getValue();
+        logger.warn("updateCategoryFields {} - {} {} {}", prevEligibles, category, allEligible, LoggerUtils.whereFrom());
+        
+        if (prevEligibles != null) {
+            // update the list of eligible categories.  Must use the matching items in allEligibles so that 
+            // database updates work.
 
-        Set<Category> prevValue = eligibleField.getValue();
-        logger.debug("updateCategoryFields {} - {} {} {}", prevValue, category, allEligible, LoggerUtils.whereFrom());
-        categoryField.setItems(allEligible);
-        eligibleField.setDataProvider(new ListDataProvider<>(allEligible));
-
-        if (category != null) {
-            // we can't have category without eligibility relationship and one with same id that has it in the eligibility list
-            // so we find the one in the eligibility list and use it.
-            Category matchingEligible = null;
-            for (Category eligible: allEligible ){
-                if (ObjectUtils.compare(eligible.getCode(), category.getCode()) == 0) {
-                    matchingEligible = eligible;
-                    break;
-                } 
-            }
-            logger.trace("category {} {} matching eligible {} {}", category, System.identityHashCode(category), matchingEligible, System.identityHashCode(matchingEligible));
-            categoryField.setValue(matchingEligible);
-            if (prevValue != null) {
-                // match the eligibles - must be in the item list.
-                LinkedHashSet<Category> newValue = new LinkedHashSet<>();
-                for (Category oldEligible : prevValue) {
-                    for (Category newEligible: allEligible ){
-                        if (ObjectUtils.compare(newEligible.getCode(), oldEligible.getCode()) == 0) {
-                            newValue.add(newEligible);
-                            break;
-                        } 
+            for (Category oldEligible : prevEligibles) {
+                for (Category newEligible : allEligible) {
+                    if (ObjectUtils.compare(newEligible.getName(), oldEligible.getName()) == 0) {
+                        logger.warn("substituting {} {}", newEligible, System.identityHashCode(newEligible));
+                        newEligibles.add(newEligible);
+                        break;
                     }
                 }
-                eligibleField.setValue(newValue);
-            } else {
-                TreeSet<Category> eligibleSet = new TreeSet<>((x,y)->ObjectUtils.compare(x.getAgeGroup(),y.getAgeGroup()));
-                eligibleSet.addAll(allEligible);
-                eligibleField.setValue(eligibleSet);
             }
+            logger.warn("newValue {}", newEligibles);
+            categoryField.setItems(newEligibles);
+            eligibleField.setItems(allEligible);
+            eligibleField.setValue(newEligibles);
+        }
+
+        Category matchingEligible = null;
+        if (category != null) {
+            // we can't have category without eligibility relationship and one with same id that has it in the
+            // eligibility list
+            // so we find the one in the eligibility list and use it.
+            matchingEligible = null;
+            for (Category eligible : newEligibles) {
+                if (ObjectUtils.compare(eligible.getName(), category.getName()) == 0) {
+                    matchingEligible = eligible;
+                    break;
+                }
+            }
+            categoryField.setValue(matchingEligible);
+            logger.warn("category {} {} matching eligible {} {}", category, System.identityHashCode(category),
+                    matchingEligible, System.identityHashCode(matchingEligible));
         } else {
-            logger.debug("category is null");
+            logger.warn("category is null");
         }
     }
 

@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.ui.preparation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -383,9 +384,9 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(getTranslation("Group"),
                 GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
         crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
-                CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName));
+                CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName, false));
         crudFormFactory.setFieldProvider("eligibleCategories", new OwlcmsMultiSelectComboBoxProvider<>(getTranslation("Registration.EligibleCategories"),
-                CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName));
+                new ArrayList<Category>(), new TextRenderer<>(Category::getName), Category::getName));
         crudFormFactory.setFieldProvider("ageDivision",
                 new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
                         new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));
