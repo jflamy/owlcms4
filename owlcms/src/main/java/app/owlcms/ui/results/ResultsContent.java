@@ -93,10 +93,10 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         themes.add("row-stripes");
 
         grid.addColumn("category").setHeader(Translator.translate("Category"))
-                .setComparator(new WinningOrderComparator(Ranking.TOTAL));
+                .setComparator(new WinningOrderComparator(Ranking.TOTAL, false));
         grid.addColumn("total").setHeader(Translator.translate("Total"));
         grid.addColumn("totalRank").setHeader(Translator.translate("TotalRank"))
-                .setComparator(new WinningOrderComparator(Ranking.TOTAL));
+                .setComparator(new WinningOrderComparator(Ranking.TOTAL, false));
 
         grid.addColumn("lastName").setHeader(Translator.translate("LastName"));
         grid.addColumn("firstName").setHeader(Translator.translate("FirstName"));
@@ -104,13 +104,13 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         grid.addColumn("group").setHeader(Translator.translate("Group"));
         grid.addColumn("bestSnatch").setHeader(Translator.translate("Snatch"));
         grid.addColumn("snatchRank").setHeader(Translator.translate("SnatchRank"))
-                .setComparator(new WinningOrderComparator(Ranking.SNATCH));
+                .setComparator(new WinningOrderComparator(Ranking.SNATCH, false));
         grid.addColumn("bestCleanJerk").setHeader(Translator.translate("Clean_and_Jerk"));
         grid.addColumn("cleanJerkRank").setHeader(Translator.translate("Clean_and_Jerk_Rank"))
-                .setComparator(new WinningOrderComparator(Ranking.CLEANJERK));
+                .setComparator(new WinningOrderComparator(Ranking.CLEANJERK, false));
 
         grid.addColumn(new NumberRenderer<>(Athlete::getRobi, "%.3f", OwlcmsSession.getLocale(), "-"), "robi")
-                .setHeader(Translator.translate("robi")).setComparator(new WinningOrderComparator(Ranking.ROBI));
+                .setHeader(Translator.translate("robi")).setComparator(new WinningOrderComparator(Ranking.ROBI, true));
 
         String protocolFileName = Competition.getCurrent().getProtocolFileName();
         if (protocolFileName != null && (protocolFileName.toLowerCase().contains("qc")
@@ -119,15 +119,15 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             grid.addColumn(
                     new NumberRenderer<>(Athlete::getCategorySinclair, "%.3f", OwlcmsSession.getLocale(), "-"),
                     "categorySinclair").setHeader("Cat. Sinclair")
-                    .setComparator(new WinningOrderComparator(Ranking.CAT_SINCLAIR));
+                    .setComparator(new WinningOrderComparator(Ranking.CAT_SINCLAIR, true));
         }
 
         grid.addColumn(new NumberRenderer<>(Athlete::getSinclair, "%.3f", OwlcmsSession.getLocale(), "0.000"),
                 "sinclair").setHeader(Translator.translate("sinclair"))
-                .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR));
+                .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR, true));
         grid.addColumn(new NumberRenderer<>(Athlete::getSmm, "%.3f", OwlcmsSession.getLocale(), "-"), "smm")
                 .setHeader(Translator.translate("smm")).setSortProperty("smm")
-                .setComparator(new WinningOrderComparator(Ranking.SMM));
+                .setComparator(new WinningOrderComparator(Ranking.SMM, true));
         return grid;
     }
 
@@ -202,11 +202,11 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     public Collection<Athlete> findAll() {
         List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(getGroupFilter().getValue(),
                 genderFilter.getValue(), true);
-        AthleteSorter.resultsOrder(athletes, Ranking.SNATCH);
+        AthleteSorter.resultsOrder(athletes, Ranking.SNATCH, false);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
-        AthleteSorter.resultsOrder(athletes, Ranking.CLEANJERK);
+        AthleteSorter.resultsOrder(athletes, Ranking.CLEANJERK, false);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.CLEANJERK);
-        AthleteSorter.resultsOrder(athletes, Ranking.TOTAL);
+        AthleteSorter.resultsOrder(athletes, Ranking.TOTAL, false);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
 
         Boolean medals = medalsOnly.getValue();

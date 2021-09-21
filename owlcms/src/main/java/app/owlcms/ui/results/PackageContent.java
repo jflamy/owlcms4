@@ -106,9 +106,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
                 AthleteRepository.findAllByGroupAndWeighIn(getGroupFilter().getValue(), genderFilter.getValue(), true),
                 Ranking.TOTAL);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-        AthleteSorter.resultsOrder(athletes, Ranking.SNATCH);
+        AthleteSorter.resultsOrder(athletes, Ranking.SNATCH, false);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
-        AthleteSorter.resultsOrder(athletes, Ranking.CLEANJERK);
+        AthleteSorter.resultsOrder(athletes, Ranking.CLEANJERK, false);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.CLEANJERK);
         return athletes;
     }

@@ -4439,4 +4439,15 @@ public class Athlete {
         }
     }
 
+    public Participation getMainRankings() {
+        Participation curRankings = null;
+        for (Participation eligible : getParticipations() ) {
+            if (category != null && eligible.getCategory().getCode().equals(category.getCode())) {
+                curRankings = eligible;
+                break;
+            }
+        }
+        return curRankings;
+    }
+
 }

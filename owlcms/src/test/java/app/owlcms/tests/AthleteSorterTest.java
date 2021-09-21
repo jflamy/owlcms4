@@ -104,7 +104,7 @@ public class AthleteSorterTest {
             simpsonR.setCleanJerk2ActualLift(Integer.toString(84));
             simpsonR.setCleanJerk3ActualLift(Integer.toString(0));
 
-            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
+            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
             AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
             assertEqualsToReferenceFile("/seq1_medals_earlierTotal.txt", DebugUtils.longDump(athletes));
         } finally {
@@ -137,7 +137,7 @@ public class AthleteSorterTest {
             schneiderF.setCleanJerk2ActualLift(Integer.toString(-86));
             schneiderF.setCleanJerk3ActualLift(Integer.toString(-86));
 
-            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
+            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
             AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
             assertEqualsToReferenceFile("/seq1_medals_earlierTotal2.txt", DebugUtils.longDump(athletes));
         } finally {
@@ -194,7 +194,7 @@ public class AthleteSorterTest {
             schneiderF.setCleanJerk3Declaration(Integer.toString(64));
             schneiderF.setCleanJerk3ActualLift(Integer.toString(64));
 
-            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
+            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
             AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
             assertEqualsToReferenceFile("/seq1_medals_earlierTotal3.txt", DebugUtils.longDump(athletes));
         } finally {
@@ -317,7 +317,7 @@ public class AthleteSorterTest {
         // The one who reached total *first* should win.
         // in this test sequence, the winner has bigger lot number, but still
         // wins because of earlier lift.
-        Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
+        Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
         AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
         assertEqualsToReferenceFile("/seq1_medals_timeStamp.txt", DebugUtils.shortDump(athletes));
 
@@ -331,7 +331,7 @@ public class AthleteSorterTest {
         // bodyweight advantage anymore)
         athletes.get(1).setLotNumber(99);
         // and we sort again for medals.
-        Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
+        Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
         AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
         assertEqualsToReferenceFile("/seq1_medals_bodyWeight.txt", DebugUtils.shortDump(athletes));
         // assertEqualsToReferenceFile("/seq1_medals_weighInCategories.txt",
@@ -347,7 +347,7 @@ public class AthleteSorterTest {
             simpsonR.setCategory(registrationCategory1);
             verneU.setCategory(registrationCategory1);
             // and we sort again for medals. order should now be schneider allison simpson verne
-            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
+            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
             AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
             assertEqualsToReferenceFile("/seq1_medals_registrationCategories.txt", DebugUtils.shortDump(athletes));
         } finally {

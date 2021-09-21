@@ -118,7 +118,7 @@ public class MultiCategoryRankSetter {
     }
 
     Participation getCategoryRankingsForAthlete(Athlete a, Category category) {
-        logger.warn("Category {} {}",category, System.identityHashCode(category));
+        //logger.warn("Category {} {}",category, System.identityHashCode(category));
         Participation bestCategoryRanks = rankings.get(category.getCode());
         if (bestCategoryRanks == null) {
             bestCategoryRanks = new Participation(a, category);

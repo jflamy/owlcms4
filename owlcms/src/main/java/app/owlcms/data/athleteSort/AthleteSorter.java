@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.Participation;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import ch.qos.logback.classic.Logger;
@@ -70,12 +71,22 @@ public class AthleteSorter implements Serializable {
         List<Athlete> impactedAthletes = new GroupRepository().allAthletesForGlobalRanking(g);
         List<Athlete> sortedAthletes;
         logger.warn("all athletes impacted {}",impactedAthletes);
-        sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.SNATCH);
+        sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.SNATCH, true);
+        for (Athlete a : sortedAthletes) {
+            Participation p = a.getMainRankings();
+            logger.warn("{} {} {}", a, p.getCategory(), a.getBestSnatch() );
+        }
+        
         AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.SNATCH);
-        sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.CLEANJERK);
+        sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.CLEANJERK, true);
         AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
-        sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.TOTAL);
+        sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.TOTAL, true);
         AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.TOTAL);
+        
+        for (Athlete a : impactedAthletes) {
+            Participation p = a.getMainRankings();
+            logger.warn("{} {} {} {} {}", a, p.getCategory(), p.getSnatchRank(), p.getCleanJerkRank(),p.getTotalRank() );
+        }
     }
 
     /**
@@ -159,6 +170,7 @@ public class AthleteSorter implements Serializable {
 
             }
         }
+        
     }
 
     /**
@@ -452,8 +464,8 @@ public class AthleteSorter implements Serializable {
      * @param toBeSorted  the to be sorted
      * @param rankingType the ranking type
      */
-    static public void resultsOrder(List<Athlete> toBeSorted, Ranking rankingType) {
-        Collections.sort(toBeSorted, new WinningOrderComparator(rankingType));
+    static public void resultsOrder(List<Athlete> toBeSorted, Ranking rankingType, boolean absoluteOrder) {
+        Collections.sort(toBeSorted, new WinningOrderComparator(rankingType, absoluteOrder));
 //        int liftOrder = 1;
 //        for (Athlete curLifter : toBeSorted) {
 ////        	setRank(curLifter,liftOrder++, rankingType);
@@ -471,10 +483,53 @@ public class AthleteSorter implements Serializable {
      */
     static public List<Athlete> resultsOrderCopy(List<Athlete> toBeSorted, Ranking rankingType) {
         List<Athlete> sorted = new ArrayList<>(toBeSorted);
-        resultsOrder(sorted, rankingType);
+        switch (rankingType ) {
+        case BW_SINCLAIR:
+        case CAT_SINCLAIR:
+        case COMBINED:
+        case ROBI:
+        case SMM:
+            resultsOrder(sorted, rankingType, true);
+            break;
+        case SNATCH:
+        case TOTAL:
+        case CUSTOM:
+        case CLEANJERK:
+            resultsOrder(sorted, rankingType, false);
+            break;
+        }
         return sorted;
     }
+    
+    /**
+     * Sort athletes according to winning order, creating a new list.
+     *
+     * @param toBeSorted  the to be sorted
+     * @param rankingType the ranking type
+     * @return athletes, ordered according to their category and totalRank order
+     * @see #liftingOrder(List)
+     */
+    static public List<Athlete> resultsOrderCopy(List<Athlete> toBeSorted, Ranking rankingType, boolean absoluteOrder) {
+        List<Athlete> sorted = new ArrayList<>(toBeSorted);
+        switch (rankingType ) {
+        case BW_SINCLAIR:
+        case CAT_SINCLAIR:
+        case COMBINED:
+        case ROBI:
+        case SMM:
+            resultsOrder(sorted, rankingType, true);
+            break;
+        case SNATCH:
+        case TOTAL:
+        case CUSTOM:
+        case CLEANJERK:
+            resultsOrder(sorted, rankingType, absoluteOrder);
+            break;
+        }
 
+        return sorted;
+    }
+    
     /**
      * Sort athletes according to official rules (in place) for the start number <tableToolbar>
      * <li>by registration category</li>
