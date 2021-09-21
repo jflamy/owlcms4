@@ -33,7 +33,7 @@ public class MultiCategoryRankSetter {
         Category category = a.getCategory();
         boolean eligible = a.isEligibleForIndividualRanking();
         boolean zero = rankingValue <= 0;
-        logger.warn("a {} v {} z {} e {}", a.getShortName(), rankingValue, zero, eligible);
+        //logger.warn("a {} v {} z {} e {}", a.getShortName(), rankingValue, zero, eligible);
 
         switch (r) {
         case SNATCH:
@@ -68,7 +68,7 @@ public class MultiCategoryRankSetter {
             switch (r) {
             case SNATCH: {
                 if (!zero) {
-                    Participation curRankings = getCategoryRankings(a, curCat);
+                    Participation curRankings = getCategoryRankingsForAthlete(a, curCat);
                     rank = curRankings.getSnatchRank();
                     rank = rank + 1;
                     p.setSnatchRank(rank);
@@ -83,7 +83,7 @@ public class MultiCategoryRankSetter {
                 break;
             case CLEANJERK: {
                 if (!zero) {
-                    Participation curRankings = getCategoryRankings(a, curCat);
+                    Participation curRankings = getCategoryRankingsForAthlete(a, curCat);
                     rank = curRankings.getCleanJerkRank();
                     rank = rank + 1;
                     p.setCleanJerkRank(zero ? rank : 0);
@@ -98,7 +98,7 @@ public class MultiCategoryRankSetter {
                 break;
             case TOTAL: {
                 if (!zero) {
-                    Participation curRankings = getCategoryRankings(a, curCat);
+                    Participation curRankings = getCategoryRankingsForAthlete(a, curCat);
                     rank = curRankings.getTotalRank();
                     rank = rank + 1;
                     p.setTotalRank(zero ? rank : 0);
@@ -117,7 +117,7 @@ public class MultiCategoryRankSetter {
         }
     }
 
-    private Participation getCategoryRankings(Athlete a, Category category) {
+    Participation getCategoryRankingsForAthlete(Athlete a, Category category) {
         logger.warn("Category {} {}",category, System.identityHashCode(category));
         Participation bestCategoryRanks = rankings.get(category.getCode());
         if (bestCategoryRanks == null) {
