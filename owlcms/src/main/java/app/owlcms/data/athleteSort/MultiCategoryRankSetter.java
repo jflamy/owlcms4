@@ -9,31 +9,37 @@ package app.owlcms.data.athleteSort;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.LoggerFactory;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
+import ch.qos.logback.classic.Logger;
 
 public class MultiCategoryRankSetter {
+
+    Logger logger = (Logger) LoggerFactory.getLogger(MultiCategoryRankSetter.class);
 
     private int rank = 0;
 
     // we use a participation objet because, by definition, it contains all the category-based rankings
-    Map<Category, Participation> rankings = new HashMap<Category, Participation>();
+    Map<String, Participation> rankings = new HashMap<>();
 
-    public void increment(Athlete a, Ranking r, boolean zero) {
+    public void increment(Athlete a, Ranking r, double rankingValue) {
         if (a == null) {
             return;
         }
         Category category = a.getCategory();
-        getCategoryRankings(a, category);
         boolean eligible = a.isEligibleForIndividualRanking();
+        boolean zero = rankingValue <= 0;
+        logger.warn("a {} v {} z {} e {}", a.getShortName(), rankingValue, zero, eligible);
 
         switch (r) {
         case SNATCH:
         case CLEANJERK:
         case TOTAL:
-            doCategoryBasedRankings(a, r, category);
+            doCategoryBasedRankings(a, r, category, zero);
             break;
         case BW_SINCLAIR:
             a.setSinclairRank(eligible ? (zero ? 0 : ++rank) : -1);
@@ -41,7 +47,6 @@ public class MultiCategoryRankSetter {
         case CAT_SINCLAIR:
             a.setCatSinclairRank(eligible ? (zero ? 0 : ++rank) : -1);
             break;
-
         case COMBINED:
             a.setCombinedRank(eligible ? (zero ? 0 : ++rank) : -1);
             break;
@@ -57,31 +62,53 @@ public class MultiCategoryRankSetter {
         }
     }
 
-    private void doCategoryBasedRankings(Athlete a, Ranking r, Category category) {
+    private void doCategoryBasedRankings(Athlete a, Ranking r, Category category, boolean zero) {
         for (Participation p : a.getParticipations()) {
+            Category curCat = p.getCategory();
             switch (r) {
             case SNATCH: {
-                Participation curRankings = getCategoryRankings(a, category);
-                rank = curRankings.getSnatchRank();
-                rank++;
-                p.setSnatchRank(rank);
-                curRankings.setSnatchRank(rank);
+                if (!zero) {
+                    Participation curRankings = getCategoryRankings(a, curCat);
+                    rank = curRankings.getSnatchRank();
+                    rank = rank + 1;
+                    p.setSnatchRank(rank);
+                    curRankings.setSnatchRank(rank);
+                    logger.warn("setting snatch rank {} {} {}", a, curCat, rank);
+                } else {
+                    p.setSnatchRank(0);
+                    logger.warn("skipping snatch rank {} {} {}", a, curCat, 0);
+                }
+
             }
                 break;
             case CLEANJERK: {
-                Participation curRankings = getCategoryRankings(a, category);
-                rank = curRankings.getCleanJerkRank();
-                rank++;
-                p.setCleanJerkRank(rank);
-                curRankings.setCleanJerkRank(rank);
+                if (!zero) {
+                    Participation curRankings = getCategoryRankings(a, curCat);
+                    rank = curRankings.getCleanJerkRank();
+                    rank = rank + 1;
+                    p.setCleanJerkRank(zero ? rank : 0);
+                    curRankings.setCleanJerkRank(rank);
+                    logger.warn("setting clean&jerk rank {} {} {}", a, curCat, rank);
+                } else {
+                    p.setCleanJerkRank(0);
+                    logger.warn("skipping clean&jerk rank {} {} {}", a, curCat, 0);
+                }
+
             }
                 break;
             case TOTAL: {
-                Participation curRankings = getCategoryRankings(a, category);
-                rank = curRankings.getTotalRank();
-                rank++;
-                p.setTotalRank(rank);
-                curRankings.setTotalRank(rank);
+                if (!zero) {
+                    Participation curRankings = getCategoryRankings(a, curCat);
+                    rank = curRankings.getTotalRank();
+                    rank = rank + 1;
+                    p.setTotalRank(zero ? rank : 0);
+                    curRankings.setTotalRank(rank);
+                    logger.warn("setting total rank {} {} {}", a, curCat, rank);
+                } else {
+                    p.setTotalRank(0);
+                    logger.warn("skipping total rank {} {} {}", a, curCat, 0);
+                }
+
             }
                 break;
             default:
@@ -91,10 +118,11 @@ public class MultiCategoryRankSetter {
     }
 
     private Participation getCategoryRankings(Athlete a, Category category) {
-        Participation bestCategoryRanks = rankings.get(category);
+        logger.warn("Category {} {}",category, System.identityHashCode(category));
+        Participation bestCategoryRanks = rankings.get(category.getCode());
         if (bestCategoryRanks == null) {
             bestCategoryRanks = new Participation(a, category);
-            rankings.put(category, bestCategoryRanks);
+            rankings.put(category.getCode(), bestCategoryRanks);
         }
         return bestCategoryRanks;
     }

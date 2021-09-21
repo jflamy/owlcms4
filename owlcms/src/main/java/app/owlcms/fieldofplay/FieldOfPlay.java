@@ -752,10 +752,10 @@ public class FieldOfPlay {
         this.countdownType = countdownType;
     }
 
-    public void setDisplayOrder(List<Athlete> displayOrder) {
+    public void setDisplayOrder(List<Athlete> displayOrder, Group g) {
         this.displayOrder = displayOrder;
         // this sets ranking the currenlty lifting group only
-        AthleteSorter.assignCategoryRanks(displayOrder);
+        AthleteSorter.assignCategoryRanks(displayOrder, g);
     }
 
     /**
@@ -1058,7 +1058,7 @@ public class FieldOfPlay {
     private void recomputeLiftingOrder(boolean currentDisplayAffected) {
         List<Athlete> liftingOrder2 = this.getLiftingOrder();
         AthleteSorter.liftingOrder(liftingOrder2);
-        setDisplayOrder(AthleteSorter.displayOrderCopy(liftingOrder2));
+        setDisplayOrder(AthleteSorter.displayOrderCopy(liftingOrder2), getGroup());
         this.setCurAthlete(liftingOrder2.isEmpty() ? null : liftingOrder2.get(0));
         if (curAthlete == null) {
             pushOutDone();
@@ -1470,7 +1470,7 @@ public class FieldOfPlay {
      */
     private void weightChangeDoNotDisturb(WeightChange e) {
         AthleteSorter.liftingOrder(this.getLiftingOrder());
-        this.setDisplayOrder(AthleteSorter.displayOrderCopy(this.getLiftingOrder()));
+        this.setDisplayOrder(AthleteSorter.displayOrderCopy(this.getLiftingOrder()), getGroup());
         uiDisplayCurrentAthleteAndTime(false, e, false);
         updateGlobalRankings();
     }

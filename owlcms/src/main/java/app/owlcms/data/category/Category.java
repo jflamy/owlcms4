@@ -56,6 +56,7 @@ import ch.qos.logback.classic.Logger;
 @Cacheable
 public class Category implements Serializable, Comparable<Category>, Cloneable {
 
+    @SuppressWarnings("unused")
     final private static Logger logger = (Logger) LoggerFactory.getLogger(Category.class);
 
     public final static Double ROBI_B = 3.321928095;
@@ -180,12 +181,12 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         Long id2 = cat.getId();
         boolean equal2 = id1 == id2;
 
-        List<Participation> p1 = getParticipations();
-        List<Participation> p2 = cat.getParticipations();
-        boolean equal3 = ObjectUtils.equals(p1, p2);
+//        List<Participation> p1 = getParticipations();
+//        List<Participation> p2 = cat.getParticipations();
+//        boolean equal3 = ObjectUtils.equals(p1, p2);
 
-        logger.warn("equals {} {} {} {} {}", this, cat, equal1, equal2, equal3);
-        return equal1 && equal2 && equal3;
+        //logger.trace("equals {} {} {} {} {}", this, cat, equal1, equal2, equal3);
+        return equal1 && equal2 ;// && equal3;
     }
 
     @Override
