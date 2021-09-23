@@ -9,7 +9,6 @@ package app.owlcms.displays.scoreboard;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -505,38 +504,14 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             Athlete curAthlete = fop.getCurAthlete();
             if (curAthlete != null && curAthlete.getGender() != null) {
                 getModel().setCategoryName(curAthlete.getCategory().getName());
-                order = competition.getGlobalTotalRanking(curAthlete.getGender());
-                // logger.debug("rankings for current gender {}
-                // size={}",curAthlete.getGender(),globalRankingsForCurrentGroup.size());
-                order = filterToCategory(curAthlete.getCategory(),
-                        order);
-                // logger.debug("rankings for current category {}
-                // size={}",curAthlete.getCategory(),globalRankingsForCurrentGroup.size());
-                order = order.stream().filter(a -> a.getTotal() > 0)
-                        .collect(Collectors.toList());
-                if (order.size() > 0) {
+
+                order = fop.getLeaders();
+                if (order != null && order.size() > 0) {
                     // null as second argument because we do not highlight current athletes in the leaderboard
                     this.getElement().setPropertyJson("leaders", getAthletesJson(order, null));
                 } else {
-                    // no one has totaled, so we show the snatch stats
-                    if (!fop.isCjStarted()) {
-                        order = Competition.getCurrent()
-                                .getGlobalSnatchRanking(curAthlete.getGender());
-                        order = filterToCategory(curAthlete.getCategory(),
-                                order);
-                        order = order.stream()
-                                .filter(a -> a.getSnatchTotal() > 0).collect(Collectors.toList());
-                        if (order.size() > 0) {
-                            this.getElement().setPropertyJson("leaders",
-                                    getAthletesJson(order, null));
-                        } else {
-                            // nothing to show
-                            this.getElement().setPropertyJson("leaders", Json.createNull());
-                        }
-                    } else {
-                        // nothing to show
-                        this.getElement().setPropertyJson("leaders", Json.createNull());
-                    }
+                    // nothing to show
+                    this.getElement().setPropertyJson("leaders", Json.createNull());
                 }
             }
         });
@@ -568,14 +543,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         ScoreboardModel model = getModel();
         Athlete a = e.getAthlete();
         updateBottom(model, computeLiftType(a));
-    }
-
-    private List<Athlete> filterToCategory(Category category, List<Athlete> order) {
-        return order
-                .stream()
-                .filter(a -> category != null && category.equals(a.getCategory()))
-                .limit(3)
-                .collect(Collectors.toList());
     }
 
     private String formatAttempt(Integer attemptNo) {

@@ -22,6 +22,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -55,38 +56,36 @@ public class AthleteSorter implements Serializable {
     private static final Logger logger = (Logger) LoggerFactory.getLogger(AthleteSorter.class);
 
     /**
-     * Assign ranks within each category. Provided list is left untouched.
-     *
-     * @param athletes the list of athletes to sort
+     * Assign ranks within each category, for all athletes in categories present in group.
+     * Returns the list of these athletes (i.e. not only these in group g)
+     * 
+     * @param g
+     * @return
      */
-    public static void assignCategoryRanks(List<Athlete> athletes, Group g) {
-//        List<Athlete> sortedAthletes;
-//        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SNATCH);
-//        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.SNATCH);
-//        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CLEANJERK);
-//        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
-//        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL);
-//        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.TOTAL);
-
+    public static List<Athlete> assignCategoryRanks(Group g) {
         List<Athlete> impactedAthletes = new GroupRepository().allAthletesForGlobalRanking(g);
         List<Athlete> sortedAthletes;
-        logger.warn("all athletes impacted {}",impactedAthletes);
+        logger.warn("all athletes in group's categories {}", impactedAthletes);
         sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.SNATCH, true);
-        for (Athlete a : sortedAthletes) {
-            Participation p = a.getMainRankings();
-            logger.warn("{} {} {}", a, p.getCategory(), a.getBestSnatch() );
+        if (logger.isEnabledFor(Level.ERROR)) {
+            for (Athlete a : impactedAthletes) {
+                Participation p = a.getMainRankings();
+                logger.warn("* {} {}", a, p.long_dump());
+            }
         }
-        
         AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.SNATCH);
         sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.CLEANJERK, true);
         AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
         sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.TOTAL, true);
         AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.TOTAL);
-        
-        for (Athlete a : impactedAthletes) {
-            Participation p = a.getMainRankings();
-            logger.warn("{} {} {} {} {}", a, p.getCategory(), p.getSnatchRank(), p.getCleanJerkRank(),p.getTotalRank() );
+
+        if (logger.isEnabledFor(Level.ERROR)) {
+            for (Athlete a : impactedAthletes) {
+                Participation p = a.getMainRankings();
+                logger.warn("** {} {}", a, p.long_dump());
+            }
         }
+        return impactedAthletes;
     }
 
     /**
@@ -159,18 +158,9 @@ public class AthleteSorter implements Serializable {
                 final double rankingValue = getRankingValue(curLifter, rankingType);
                 rt.increment(curLifter, rankingType, rankingValue);
 
-//                // some competitions allow substitutes/non-team members to be eligible individually and earn medals but
-//                // not score team points unless explicitly named as part of team
-//                if (curLifter.isEligibleForTeamRanking()) {
-//                    final float points = computePoints(curLifter, rankingType);
-//                    setPoints(curLifter, points, rankingType);
-//                } else {
-//                    setPoints(curLifter, 0, rankingType);
-//                }
-
             }
         }
-        
+
     }
 
     /**
@@ -483,7 +473,7 @@ public class AthleteSorter implements Serializable {
      */
     static public List<Athlete> resultsOrderCopy(List<Athlete> toBeSorted, Ranking rankingType) {
         List<Athlete> sorted = new ArrayList<>(toBeSorted);
-        switch (rankingType ) {
+        switch (rankingType) {
         case BW_SINCLAIR:
         case CAT_SINCLAIR:
         case COMBINED:
@@ -500,7 +490,7 @@ public class AthleteSorter implements Serializable {
         }
         return sorted;
     }
-    
+
     /**
      * Sort athletes according to winning order, creating a new list.
      *
@@ -511,7 +501,7 @@ public class AthleteSorter implements Serializable {
      */
     static public List<Athlete> resultsOrderCopy(List<Athlete> toBeSorted, Ranking rankingType, boolean absoluteOrder) {
         List<Athlete> sorted = new ArrayList<>(toBeSorted);
-        switch (rankingType ) {
+        switch (rankingType) {
         case BW_SINCLAIR:
         case CAT_SINCLAIR:
         case COMBINED:
@@ -529,7 +519,7 @@ public class AthleteSorter implements Serializable {
 
         return sorted;
     }
-    
+
     /**
      * Sort athletes according to official rules (in place) for the start number <tableToolbar>
      * <li>by registration category</li>

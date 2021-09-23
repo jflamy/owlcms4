@@ -15,7 +15,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
 
+import org.slf4j.LoggerFactory;
+
 import app.owlcms.data.athlete.Athlete;
+import ch.qos.logback.classic.Logger;
 
 /**
  * Association class between Athlete and Category. Holds rankings and points of athlete and category.
@@ -28,6 +31,8 @@ import app.owlcms.data.athlete.Athlete;
 @Entity(name = "Participation")
 @Table(name = "participation")
 public class Participation {
+    
+    final static Logger logger = (Logger) LoggerFactory.getLogger(Participation.class);
 
     @EmbeddedId
     private ParticipationId id;
@@ -44,27 +49,9 @@ public class Participation {
     private int cleanJerkRank = 0;
     private int totalRank = 0;
 
-    public int getCleanJerkRank() {
-        return cleanJerkRank;
-    }
-
-    public void setCleanJerkRank(int cleanJerkRank) {
-        this.cleanJerkRank = cleanJerkRank;
-    }
-
-    public int getTotalRank() {
-        return totalRank;
-    }
-
-    public void setTotalRank(int totalRank) {
-        this.totalRank = totalRank;
-    }
-
     private int teamRank = 0;
 
     private int teamPoints = 0;
-    
-    private Participation() {}
 
     public Participation(Athlete athlete, Category category) {
         this();
@@ -73,9 +60,7 @@ public class Participation {
         this.id = new ParticipationId(athlete.getId(), category.getId());
     }
 
-    @Override
-    public String toString() {
-        return "Participation [athlete=" + athlete + ", category=" + category + "]";
+    private Participation() {
     }
 
     @Override
@@ -101,18 +86,20 @@ public class Participation {
         return category;
     }
 
-    /**
-     * @return the snatchRank
-     */
-    public int getSnatchRank() {
-        return snatchRank;
+    public int getCleanJerkRank() {
+        return cleanJerkRank;
     }
 
     public ParticipationId getId() {
         return id;
     }
 
-    // Getters and setters omitted for brevity
+    /**
+     * @return the snatchRank
+     */
+    public int getSnatchRank() {
+        return snatchRank;
+    }
 
     /**
      * @return the teamPoints
@@ -128,10 +115,16 @@ public class Participation {
         return teamRank;
     }
 
+    public int getTotalRank() {
+        return totalRank;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(athlete, category);
     }
+
+    // Getters and setters omitted for brevity
 
     public void setAthlete(Athlete athlete) {
         this.athlete = athlete;
@@ -141,11 +134,17 @@ public class Participation {
         this.category = category;
     }
 
+    public void setCleanJerkRank(int cleanJerkRank) {
+        this.cleanJerkRank = cleanJerkRank;
+        logger.warn("cleanJerkRank {}",long_dump());
+    }
+
     /**
      * @param snatchRank the snatchRank to set
      */
     public void setSnatchRank(int categoryRank) {
         this.snatchRank = categoryRank;
+        logger.warn("snatchRank {}",long_dump());
     }
 
     /**
@@ -161,4 +160,21 @@ public class Participation {
     public void setTeamRank(int teamRank) {
         this.teamRank = teamRank;
     }
+
+    public void setTotalRank(int totalRank) {
+        this.totalRank = totalRank;
+        logger.warn("totalRank {}",long_dump());
+    }
+
+    @Override
+    public String toString() {
+        return "Participation [athlete=" + athlete + ", category=" + category + "]";
+    }
+
+    public String long_dump() {
+        return "Participation "+System.identityHashCode(this)+" [id=" + id + ", athlete=" + athlete + ", category=" + category + ", snatchRank="
+                + snatchRank + ", cleanJerkRank=" + cleanJerkRank + ", totalRank=" + totalRank + "]";
+    }
+    
+    
 }

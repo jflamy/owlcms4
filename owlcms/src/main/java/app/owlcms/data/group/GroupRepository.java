@@ -132,6 +132,11 @@ public class GroupRepository {
         });
     }
     
+    /**
+     * List all athletes for the categories present in the group
+     * @param g
+     * @return
+     */
     public List<Athlete> allAthletesForGlobalRanking(Group g) {
         return JPAService.runInTransaction((em) -> {
             String categoriesFromCurrentGroup = "(select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId and c2.id = c.id)";
@@ -142,5 +147,22 @@ public class GroupRepository {
             return q.getResultList();
         });
     }
+    
+    /**
+     * List all athletes needed for leader board
+     * @param g
+     * @return
+     */
+    public List<Athlete> allAthletesForCategory(Category c) {
+        return JPAService.runInTransaction((em) -> {
+            TypedQuery<Athlete> q = em.createQuery(
+                    "select distinct a from Athlete a join a.participations p join p.category c where c.id = :catId",
+                    Athlete.class);
+            q.setParameter("catId", c.getId());
+            return q.getResultList();
+        });
+    }
+    
+    
 
 }
