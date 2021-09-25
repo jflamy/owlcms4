@@ -8,18 +8,15 @@ package app.owlcms.data.athlete;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.TreeSet;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
@@ -88,7 +85,7 @@ public class AthleteRepository {
 
     @SuppressWarnings("unchecked")
     public static List<Athlete> doFindAll(EntityManager em) {
-        return em.createQuery("select a from Athlete a").getResultList();
+        return em.createQuery("select distinct a from Athlete a").getResultList();
     }
 
     public static List<Athlete> doFindAllByGroupAndWeighIn(EntityManager em, Group group, Boolean weighedIn,
@@ -136,7 +133,7 @@ public class AthleteRepository {
         List<Athlete> findFiltered = findFiltered((String) null, group, (Category) null, (AgeGroup) null,
                 (AgeDivision) null, (Gender) null, weighedIn,
                 -1, -1);
-        logger.debug("findFiltered found {}", findFiltered.size());
+        logger.warn("findFiltered found {}", findFiltered.size());
         return findFiltered;
     }
 
@@ -190,63 +187,16 @@ public class AthleteRepository {
      * Use the athlete bodyweight (or presumed body weight if weigh-in has not taken place) to determine category.
      */
     public static void resetCategories() {
-//        JPAService.runInTransaction(em -> {
-//            List<Athlete> athletes = AthleteRepository.doFindAll(em);
-//            for (Athlete a : athletes) {
-//                a.setCategory(null);
-//                a.setEligibleCategories(null);
-//                em.merge(a);
-//            }
-//            em.flush();
-//            Competition.getCurrent().setRankingsInvalid(true);
-//            return null;
-//        });
-//        JPAService.runInTransaction(em -> {
-//            try {
-//                Query upd = em.createQuery("delete from Category");
-//                upd.executeUpdate();
-//            } catch (Exception e) {
-//                logger.error(LoggerUtils.stackTrace(e));
-//            }
-//            return null;
-//        });
         JPAService.runInTransaction(em -> {
             List<Athlete> athletes = AthleteRepository.doFindAll(em);
             for (Athlete a : athletes) {
-                Double weight = a.getBodyWeight();
-                if (weight == null) {
-                    Double presumedBodyWeight = a.getPresumedBodyWeight();
-                    if (presumedBodyWeight != null) {
-                        weight = presumedBodyWeight - 0.01D;
-                        List<Category> categories = CategoryRepository.findByGenderAgeBW(
-                                a.getGender(), a.getAge(), weight);
-                        setEligibles(a, categories);
-                        a.setCategory(bestMatch(categories));
-                    }
-                } else {
-                    List<Category> categories = CategoryRepository.findByGenderAgeBW(
-                            a.getGender(), a.getAge(), weight);
-                    a.setCategory(categories.isEmpty() ? null : categories.get(0));
-                    setEligibles(a, categories);
-                }
-
+                a.computeMainCategory();
                 em.merge(a);
             }
             em.flush();
             Competition.getCurrent().setRankingsInvalid(true);
             return null;
         });
-    }
-
-    private static Category bestMatch(List<Category> allEligible2) {
-        return allEligible2 != null ? (allEligible2.size() > 0 ? allEligible2.get(0) : null) : null;
-    }
-
-    private static void setEligibles(Athlete a, List<Category> categories) {
-        TreeSet<Category> eligibles = new TreeSet<Category>((x,y)->ObjectUtils.compare(x.getAgeGroup(),y.getAgeGroup()));
-        eligibles.addAll(categories);
-        logger.debug("eligible categories: {}", eligibles);
-        a.setEligibleCategories(eligibles);
     }
 
     /**

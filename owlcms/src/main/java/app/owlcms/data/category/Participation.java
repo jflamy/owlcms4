@@ -30,8 +30,8 @@ import ch.qos.logback.classic.Logger;
  */
 @Entity(name = "Participation")
 @Table(name = "participation")
-public class Participation {
-    
+public class Participation extends CategoryRankingHolder {
+
     final static Logger logger = (Logger) LoggerFactory.getLogger(Participation.class);
 
     @EmbeddedId
@@ -44,10 +44,6 @@ public class Participation {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("categoryId")
     private Category category;
-
-    private int snatchRank = 0;
-    private int cleanJerkRank = 0;
-    private int totalRank = 0;
 
     private int teamRank = 0;
 
@@ -86,19 +82,8 @@ public class Participation {
         return category;
     }
 
-    public int getCleanJerkRank() {
-        return cleanJerkRank;
-    }
-
     public ParticipationId getId() {
         return id;
-    }
-
-    /**
-     * @return the snatchRank
-     */
-    public int getSnatchRank() {
-        return snatchRank;
     }
 
     /**
@@ -113,10 +98,6 @@ public class Participation {
      */
     public int getTeamRank() {
         return teamRank;
-    }
-
-    public int getTotalRank() {
-        return totalRank;
     }
 
     @Override
@@ -135,16 +116,16 @@ public class Participation {
     }
 
     public void setCleanJerkRank(int cleanJerkRank) {
-        this.cleanJerkRank = cleanJerkRank;
-        logger.warn("cleanJerkRank {}",long_dump());
+        super.setCleanJerkRank(cleanJerkRank);
+        logger.trace("cleanJerkRank {}", long_dump());
     }
 
     /**
      * @param snatchRank the snatchRank to set
      */
     public void setSnatchRank(int categoryRank) {
-        this.snatchRank = categoryRank;
-        logger.warn("snatchRank {}",long_dump());
+        super.setSnatchRank(categoryRank);
+        logger.trace("snatchRank {}", long_dump());
     }
 
     /**
@@ -162,8 +143,8 @@ public class Participation {
     }
 
     public void setTotalRank(int totalRank) {
-        this.totalRank = totalRank;
-        logger.warn("totalRank {}",long_dump());
+        super.setTotalRank(totalRank);
+        logger.trace("totalRank {}", long_dump());
     }
 
     @Override
@@ -172,9 +153,13 @@ public class Participation {
     }
 
     public String long_dump() {
-        return "Participation "+System.identityHashCode(this)+" [id=" + id + ", athlete=" + athlete + ", category=" + category + ", snatchRank="
-                + snatchRank + ", cleanJerkRank=" + cleanJerkRank + ", totalRank=" + totalRank + "]";
+        return "Participation " + System.identityHashCode(this)
+                + " [id=" + id
+                + ", athlete=" + athlete + "(" + System.identityHashCode(athlete) + ")"
+                + ", category=" + category + "(" + System.identityHashCode(category) + ")"
+                + ", snatchRank=" + getSnatchRank()
+                + ", cleanJerkRank=" + getCleanJerkRank()
+                + ", totalRank=" + getTotalRank() + "]";
     }
-    
-    
+
 }

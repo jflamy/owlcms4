@@ -24,8 +24,6 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.athleteSort.WinningOrderComparator;
-import app.owlcms.data.category.Category;
-import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -54,12 +52,13 @@ public class AthleteSorterTest {
     @Test
     public void initialCheck() {
         final String resName = "/initialCheck.txt";
-        AthleteSorter.assignLotNumbers(athletes);
+        AthleteSorter.displayOrder(athletes);
         AthleteSorter.assignStartNumbers(athletes);
 
-        Collections.shuffle(athletes);
+        //Collections.shuffle(athletes);
 
         List<Athlete> sorted = AthleteSorter.liftingOrderCopy(athletes);
+        System.err.println("lifting order \n"+DebugUtils.longDump(sorted));
         final String actual = DebugUtils.shortDump(sorted);
         assertEqualsToReferenceFile(resName, actual);
     }
@@ -71,7 +70,7 @@ public class AthleteSorterTest {
         fopState.getLogger().setLevel(LOGGER_LEVEL);
         // EventBus fopBus = fopState.getFopEventBus();
 
-        AthleteSorter.assignLotNumbers(athletes);
+        AthleteSorter.displayOrder(athletes);
         AthleteSorter.assignStartNumbers(athletes);
 
         final Athlete schneiderF = athletes.get(0);
@@ -300,7 +299,7 @@ public class AthleteSorterTest {
         fopState.getLogger().setLevel(LOGGER_LEVEL);
         // EventBus fopBus = fopState.getFopEventBus();
 
-        AthleteSorter.assignLotNumbers(athletes);
+        AthleteSorter.displayOrder(athletes);
         AthleteSorter.assignStartNumbers(athletes);
 
         final Athlete schneiderF = athletes.get(0);
@@ -334,25 +333,6 @@ public class AthleteSorterTest {
         Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
         AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
         assertEqualsToReferenceFile("/seq1_medals_bodyWeight.txt", DebugUtils.shortDump(athletes));
-        // assertEqualsToReferenceFile("/seq1_medals_weighInCategories.txt",
-        // DebugUtils.longDump(athletes,false));
-
-        // now we force the athletes to be in different categories
-        Category resetCategory = simpsonR.getCategory();
-        try {
-            Category registrationCategory1 = CategoryRepository
-                    .findByGenderAgeBW(resetCategory.getGender(), 40, resetCategory.getMaximumWeight() + 1).get(0);
-
-            // change categories for simpson and verne
-            simpsonR.setCategory(registrationCategory1);
-            verneU.setCategory(registrationCategory1);
-            // and we sort again for medals. order should now be schneider allison simpson verne
-            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
-            AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-            assertEqualsToReferenceFile("/seq1_medals_registrationCategories.txt", DebugUtils.shortDump(athletes));
-        } finally {
-        }
-
     }
 
     @Test
@@ -362,7 +342,7 @@ public class AthleteSorterTest {
         fopState.getLogger().setLevel(LOGGER_LEVEL);
         // EventBus fopBus = fopState.getFopEventBus();
 
-        AthleteSorter.assignLotNumbers(athletes);
+        AthleteSorter.displayOrder(athletes);
         AthleteSorter.assignStartNumbers(athletes);
 
         final Athlete schneiderF = athletes.get(0);

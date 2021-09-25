@@ -61,18 +61,23 @@ public class TeamRankingComparator extends AbstractLifterComparator implements C
      * @param lifter2
      * @return
      */
+    @SuppressWarnings("incomplete-switch")
     private int compareRanking(Athlete lifter1, Athlete lifter2) {
+        int totalRank = lifter1.getMainRankings().getTotalRank();
+        int totalRank2 = lifter2.getMainRankings().getTotalRank();
         switch (rankingType) {
         case SNATCH:
-            return lifter1.getSnatchRank().compareTo(lifter2.getSnatchRank());
+            int snatchRank = lifter1.getMainRankings().getSnatchRank();
+            int snatchRank2 = lifter2.getMainRankings().getSnatchRank();
+            return Integer.compare(snatchRank,snatchRank2);
         case CLEANJERK:
-            return lifter1.getCleanJerkRank().compareTo(lifter2.getCleanJerkRank());
+            int cleanJerkRank = lifter1.getMainRankings().getCleanJerkRank();
+            int cleanJerkRank2 = lifter2.getMainRankings().getCleanJerkRank();
+            return Integer.compare(cleanJerkRank,cleanJerkRank2);
         case TOTAL:
-            return lifter1.getRank().compareTo(lifter2.getRank());
+            return Integer.compare(totalRank,totalRank2);
         case CUSTOM:
-            return lifter1.getRank().compareTo(lifter2.getCustomRank());
-        default:
-            break;
+            return Integer.compare(totalRank,totalRank2);
         }
         return 0;
     }

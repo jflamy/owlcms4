@@ -13,6 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.jpa.JPAService;
 import app.owlcms.displays.athletecard.AthleteCard;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -90,10 +92,12 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
      */
     @Override
     public Athlete add(Athlete athlete) {
-        athlete.enforceCategoryIsEligible();
-        AthleteRepository.save(athlete);
-        enablePrint(athlete);
-        return athlete;
+        // AthleteRepository.save(athlete);
+        Athlete nAthlete = JPAService.runInTransaction((em) -> {
+            return em.merge(athlete);
+        });
+        enablePrint(nAthlete);
+        return nAthlete;
     }
 
     /**
@@ -119,7 +123,9 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         printButton = new Button(Translator.translate("AthleteCard"), IronIcons.PRINT.create());
 
         if (operation == CrudOperation.ADD) {
-            setEditedAthlete(new Athlete());
+            Athlete editedAthlete2 = new Athlete();
+            logger.warn("created new Athlete {}",System.identityHashCode(editedAthlete2));
+            setEditedAthlete(editedAthlete2);
         } else if (aFromList != null) {
             setEditedAthlete(AthleteRepository.findById(aFromList.getId()));
         }
@@ -147,13 +153,13 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         });
 
         setChangeListenersEnabled(false);
-        Set<Category> eligibleCategories = getEditedAthlete().getEligibleCategories();
-        logger.trace("before new form {} {}", eligibleCategories, eligibleCategories.size());
+//        Set<Category> eligibleCategories = getEditedAthlete().getEligibleCategories();
+//        logger.trace("before new form {} {}", eligibleCategories, eligibleCategories.size());
         Component form = super.buildNewForm(operation, getEditedAthlete(), readOnly, cancelButtonClickListener,
                 operationButtonClickListener, deleteButtonClickListener, hiddenButton, printButton);
 
         // binder has read bean.
-        filterCategories(getEditedAthlete().getCategory());
+        filterCategories(getEditedAthlete().getCategory(), operation != CrudOperation.ADD);
 
         return form;
     }
@@ -231,7 +237,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
      */
     @Override
     public Athlete update(Athlete athlete) {
-        logger.trace("updating athlete {}",athlete.toString());
+        logger.trace("updating athlete {}", athlete.toString());
         athlete.enforceCategoryIsEligible();
         AthleteRepository.save(athlete);
 //        logger.debug("saved id={} {} {} {}", athlete.getId(), athlete.getSnatch1Declaration(),
@@ -499,10 +505,12 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             setCheckOther20kgFields(true);
         });
     }
-
+    
+    HasValue<?, ?> dateField = null;
     @SuppressWarnings({ "unchecked" })
-    private void filterCategories(Category category) {
+    private void filterCategories(Category category, boolean initCategories) {
         setChangeListenersEnabled(false);
+
 
         Binding<Athlete, ?> genderBinding = binder.getBinding("gender").get();
         ComboBox<Gender> genderField = (ComboBox<Gender>) genderBinding.getField();
@@ -512,49 +520,46 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
         Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
         ComboBox<Category> categoryField = (ComboBox<Category>) categoryBinding.getField();
-//        categoryField.addValueChangeListener((e) -> {
-//            logger.trace("{} setting categoryField {} from {}", getEditedAthlete().getShortName(), e.getValue(),
-//                    LoggerUtils.stackTrace());
-//        });
 
         Binding<Athlete, ?> eligibleBinding = binder.getBinding("eligibleCategories").get();
         MultiselectComboBox<Category> eligibleField = (MultiselectComboBox<Category>) eligibleBinding.getField();
-//        eligibleField.addValueChangeListener((e) -> {
-//            logger.trace("{} setting eligibleField {} from {}", getEditedAthlete().getShortName(), e.getValue(),
-//                    LoggerUtils.stackTrace());
-//        });
 
-        allEligible = findEligibleCategories(genderField, bodyWeightField);
-        logger.trace("**gender = {}, eligible = {}", genderField.getValue(), allEligible);
-        // ListDataProvider<Category> listDataProvider = new ListDataProvider<>(allEligible);
-        updateCategoryFields(category, categoryField, eligibleField, allEligible, false);
+        if (initCategories) {
+            allEligible = findEligibleCategories(genderField, bodyWeightField);
+            logger.trace("**gender = {}, eligible = {}", genderField.getValue(), allEligible);
+            // ListDataProvider<Category> listDataProvider = new ListDataProvider<>(allEligible);
+            updateCategoryFields(category, categoryField, eligibleField, allEligible, false);
+        }
 
         genderField.addValueChangeListener((vc) -> {
             if (!isChangeListenersEnabled())
                 return;
-            recomputeCategories(genderField, bodyWeightField, categoryField, eligibleField);
+            recomputeCategories(genderField, bodyWeightField, categoryField, eligibleField, dateField);
         });
+
 
         if (Competition.getCurrent().isUseBirthYear()) {
             Optional<Binding<Athlete, ?>> yobBinding = binder.getBinding("yearOfBirth");
             HasValue<?, String> yobField = (HasValue<?, String>) yobBinding.get().getField();
+            dateField = yobField;
             // Workaround for bug
             // https://stackoverflow.com/questions/55532055/java-casting-java-11-throws-lambdaconversionexception-while-1-8-does-not
             ValueChangeListener<ValueChangeEvent<?>> listener = (vc) -> {
                 if (!isChangeListenersEnabled())
                     return;
-                recomputeCategories(genderField, bodyWeightField, categoryField, eligibleField);
+                recomputeCategories(genderField, bodyWeightField, categoryField, eligibleField, dateField);
             };
             yobField.addValueChangeListener(listener);
         } else {
             Optional<Binding<Athlete, ?>> fbdBinding = binder.getBinding("fullBirthDate");
-            HasValue<?, LocalDate> dateField = (HasValue<?, LocalDate>) fbdBinding.get().getField();
+            HasValue<?, LocalDate> birthDateField = (HasValue<?, LocalDate>) fbdBinding.get().getField();
+            dateField = birthDateField;
             ValueChangeListener<ValueChangeEvent<?>> listener = (vc) -> {
                 if (!isChangeListenersEnabled())
                     return;
-                recomputeCategories(genderField, bodyWeightField, categoryField, eligibleField);
+                recomputeCategories(genderField, bodyWeightField, categoryField, eligibleField, dateField);
             };
-            dateField.addValueChangeListener(listener);
+            birthDateField.addValueChangeListener(listener);
         }
 
         bodyWeightField.addValueChangeListener((vc) -> {
@@ -563,27 +568,30 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             if (bodyWeightField.isInvalid()) {
                 return;
             }
-            recomputeCategories(genderField, bodyWeightField, categoryField, eligibleField);
+            recomputeCategories(genderField, bodyWeightField, categoryField, eligibleField, dateField);
         });
-        
+
         eligibleField.addValueChangeListener((vc) -> {
             if (!isChangeListenersEnabled())
                 return;
-            logger.trace(">>> vc eligibleField start");
+            logger.warn(">>> vc eligibleField start");
             setChangeListenersEnabled(false); // prevent recursion.
             updateCategoryFields(categoryField.getValue(), categoryField, eligibleField, allEligible, true);
             setChangeListenersEnabled(true);
-            logger.trace("<<< vc eligibleField end");
+            logger.warn("<<< vc eligibleField end");
         });
 
         setChangeListenersEnabled(true);
     }
 
     private void recomputeCategories(ComboBox<Gender> genderField, BodyWeightField bodyWeightField,
-            ComboBox<Category> categoryField, MultiselectComboBox<Category> eligibleField) {
-        allEligible = findEligibleCategories(genderField, bodyWeightField);
-        Category category2 = bestMatch(allEligible);
-        updateCategoryFields(category2, categoryField, eligibleField, allEligible, true);
+            ComboBox<Category> categoryField,  MultiselectComboBox<Category> eligibleField, HasValue<?, ?> dateField) {
+        //TODO reinsert check for 3 values being set
+        //if (genderField.getValue() != null && bodyWeightField.getValue() != null && dateField.getValue() != null) {
+            allEligible = findEligibleCategories(genderField, bodyWeightField);
+            Category category2 = bestMatch(allEligible);
+            updateCategoryFields(category2, categoryField, eligibleField, allEligible, true);
+        //}
     }
 
     private Category bestMatch(List<Category> allEligible2) {
@@ -598,7 +606,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     private void updateCategoryFields(Category category, ComboBox<Category> categoryField,
             MultiselectComboBox<Category> eligibleField, List<Category> allEligible, boolean recompute) {
-        
+
         LinkedHashSet<Category> newEligibles = new LinkedHashSet<>();
         Set<Category> prevEligibles;
         if (recompute) {
@@ -607,22 +615,23 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         } else {
             prevEligibles = eligibleField.getValue();
         }
-        logger.trace("updateCategoryFields {} - {} {} {}", prevEligibles, category, allEligible, LoggerUtils.whereFrom());
-        
+        logger.warn("updateCategoryFields {} - {} {} {}", prevEligibles, category, allEligible,
+                LoggerUtils.whereFrom());
+
         if (prevEligibles != null) {
-            // update the list of eligible categories.  Must use the matching items in allEligibles so that 
+            // update the list of eligible categories. Must use the matching items in allEligibles so that
             // database updates work.
 
             for (Category oldEligible : prevEligibles) {
                 for (Category newEligible : allEligible) {
                     if (ObjectUtils.compare(newEligible.getName(), oldEligible.getName()) == 0) {
-                        logger.trace("substituting {} {}", newEligible, System.identityHashCode(newEligible));
+                        logger.warn("substituting eligibles {} {}", newEligible.longDump(), System.identityHashCode(newEligible));
                         newEligibles.add(newEligible);
                         break;
                     }
                 }
             }
-            logger.trace("newValue {}", newEligibles);
+            logger.warn("new eligibles {}", newEligibles.stream().map(v -> v.longDump()).collect(Collectors.toList()));
             categoryField.setItems(newEligibles);
             eligibleField.setItems(allEligible);
             eligibleField.setValue(newEligibles);
@@ -641,10 +650,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 }
             }
             categoryField.setValue(matchingEligible);
-            logger.trace("category {} {} matching eligible {} {}", category, System.identityHashCode(category),
+            logger.warn("category {} {} matching eligible {} {}", category, System.identityHashCode(category),
                     matchingEligible, System.identityHashCode(matchingEligible));
         } else {
-            logger.trace("category is null");
+            logger.warn("category is null");
         }
     }
 

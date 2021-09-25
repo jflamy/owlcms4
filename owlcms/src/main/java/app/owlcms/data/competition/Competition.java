@@ -859,7 +859,7 @@ public class Competition {
         reportingBeans.put("wTot", sortedWomen);
 
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.BW_SINCLAIR);
-        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.BW_SINCLAIR);
+        AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, Ranking.BW_SINCLAIR);
         sortedMen = new ArrayList<>(sortedAthletes.size());
         sortedWomen = new ArrayList<>(sortedAthletes.size());
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
@@ -869,7 +869,7 @@ public class Competition {
         logger.debug("wSinclair {}", sortedWomen);
 
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CAT_SINCLAIR);
-        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.CAT_SINCLAIR);
+        AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, Ranking.CAT_SINCLAIR);
         sortedMen = new ArrayList<>(sortedAthletes.size());
         sortedWomen = new ArrayList<>(sortedAthletes.size());
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
@@ -879,7 +879,7 @@ public class Competition {
         logger.debug("wCatSinclair {}", sortedWomen);
 
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SMM);
-        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.SMM);
+        AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, Ranking.SMM);
         sortedMen = new ArrayList<>(sortedAthletes.size());
         sortedWomen = new ArrayList<>(sortedAthletes.size());
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
@@ -890,7 +890,7 @@ public class Competition {
 
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.ROBI);
         reportingBeans.put("athletes", sortedAthletes);
-        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.ROBI);
+        AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, Ranking.ROBI);
         sortedMen = new ArrayList<>(sortedAthletes.size());
         sortedWomen = new ArrayList<>(sortedAthletes.size());
         splitByGender(sortedAthletes, sortedMen, sortedWomen);

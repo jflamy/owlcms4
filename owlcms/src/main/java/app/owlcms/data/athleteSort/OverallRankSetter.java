@@ -9,73 +9,18 @@ package app.owlcms.data.athleteSort;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 
-public class RankSetter {
+public class OverallRankSetter {
 
     private int rank = 0;
-    private int jrRank = 0;
-    private int ythRank = 0;
-    private int srRank = 0;
     
 
     public void increment(Athlete a, Ranking r, boolean eligible, boolean zero) {
-        int age;
-        try {
-            age = a.getAge();
-        } catch (Exception e) {
-            // if no age, rank as senior.
-            // defensive, should not happen.
-            age = 21;
-        }
 
         switch (r) {
         case SNATCH:
-            a.setSnatchRankYth(null);
-            a.setSnatchRankJr(null);
-            a.setSnatchRankSr(null);
-            a.setSnatchRank(null);
-            if (age <= 17) {
-                a.setSnatchRankYth(eligible ? (zero ? 0 : ++ythRank) : -1);
-            }
-            if (age >= 15 && age <= 20) {
-                a.setSnatchRankJr(eligible ? (zero ? 0 : ++jrRank) : -1);
-            }
-            if (age >= 15) {
-                a.setSnatchRankSr(eligible ? (zero ? 0 : ++srRank) : -1);
-            }
-            a.setSnatchRank(eligible ? (zero ? 0 : ++rank) : -1);
-            break;
         case CLEANJERK:
-            a.setCleanJerkRankYth(null);
-            a.setCleanJerkRankJr(null);
-            a.setCleanJerkRankSr(null);
-            a.setCleanJerkRank(null);
-            if (age <= 17) {
-                a.setCleanJerkRankYth(eligible ? (zero ? 0 : ++ythRank) : -1);
-            }
-            if (age >= 15 && age <= 20) {
-                a.setCleanJerkRankJr(eligible ? (zero ? 0 : ++jrRank) : -1);
-            }
-            if (age >= 15) {
-                a.setCleanJerkRankSr(eligible ? (zero ? 0 : ++srRank) : -1);
-            }
-            a.setCleanJerkRank(eligible ? (zero ? 0 : ++rank) : -1);
-            break;
         case TOTAL:
-            a.setTotalRankYth(null);
-            a.setTotalRankJr(null);
-            a.setTotalRankSr(null);
-            a.setTotalRank(null);
-            if (age <= 17) {
-                a.setTotalRankYth(eligible ? (zero ? 0 : ++ythRank) : -1);
-            }
-            if (age >= 15 && age <= 20) {
-                a.setTotalRankJr(eligible ? (zero ? 0 : ++jrRank) : -1);
-            }
-            if (age >= 15) {
-                a.setTotalRankSr(eligible ? (zero ? 0 : ++srRank) : -1);
-            }
-            a.setTotalRank(eligible ? (zero ? 0 : ++rank) : -1);
-            break;
+            throw new RuntimeException("using OverallRankSetter on a category-specific ranking");
         case BW_SINCLAIR:
             a.setSinclairRank(eligible ? (zero ? 0 : ++rank) : -1);
             break;

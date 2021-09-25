@@ -312,6 +312,13 @@ public class FieldOfPlay {
     }
 
     /**
+     * @return the leaders
+     */
+    public List<Athlete> getLeaders() {
+        return leaders;
+    }
+
+    /**
      * @return the lifters
      */
     public List<Athlete> getLiftingOrder() {
@@ -708,12 +715,12 @@ public class FieldOfPlay {
         boolean alreadyLoaded = thisGroupName == loadGroupName;
         if (loadGroupName != null && alreadyLoaded && !forceLoad) {
             // already loaded
-            logger.trace("group {} already loaded", loadGroupName);
+            logger.warn("group {} already loaded", loadGroupName);
             return;
         }
         this.setGroup(group);
         if (group != null) {
-            logger.trace("{}current group {} loading data for group {} [{} {} {} {}]",
+            logger.warn("{}current group {} loading data for group {} [{} {} {} {}]",
                     getLoggingName(),
                     thisGroupName,
                     loadGroupName,
@@ -738,6 +745,69 @@ public class FieldOfPlay {
     }
 
     /**
+     * Recompute lifting order, category ranks, and leaders for current category. Sets rankings including previous
+     * lifters for all categories in the current group.
+     */
+    public void recomputeOrderAndRanks() {
+        Group g = getGroup();
+        List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(g);
+        if (rankedAthletes == null) {
+            setDisplayOrder(null);
+            setCurAthlete(null);
+            return;
+        }
+
+        List<Athlete> currentGroupAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
+                .filter(a -> a.getGroup() != null ? a.getGroup().equals(g) : false)
+                .collect(Collectors.toList());
+        setDisplayOrder(currentGroupAthletes);
+        setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
+
+        List<Athlete> liftingOrder2 = getLiftingOrder();
+        setCurAthlete(liftingOrder2 != null && liftingOrder2.size() > 0 ? liftingOrder2.get(0) : null);
+        recomputeCurrentLeaders(rankedAthletes);
+
+        if (logger.isEnabledFor(Level.ERROR)) {
+            for (Athlete a : getDisplayOrder()) {
+                Participation p = a.getMainRankings();
+                logger.debug("**** {} {} {} {} {}", a, p.getCategory(), p.getSnatchRank(), p.getCleanJerkRank(),
+                        p.getTotalRank());
+            }
+        }
+    }
+
+    private void recomputeCurrentLeaders(List<Athlete> rankedAthletes) {
+        if (rankedAthletes == null || rankedAthletes.size() == 0) {
+            setLeaders(null);
+            return;
+        }
+
+        if (getCurAthlete() != null) {
+            Category category = getCurAthlete().getCategory();
+            List<Athlete> currentCategoryAthletes = (rankedAthletes).stream()
+                    .filter(a -> a.getCategory().equals(category)).collect(Collectors.toList());
+
+            boolean cjStarted2 = isCjStarted();
+            logger.debug("!!! currentCategoryAthletes {} {}", currentCategoryAthletes, cjStarted2);
+            if (!cjStarted2) {
+                List<Athlete> snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
+                        .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
+                        .collect(Collectors.toList());
+                setLeaders(snatchLeaders);
+                logger.debug("snatch leaders {} {}", snatchLeaders, currentCategoryAthletes);
+            } else {
+                List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
+                        .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
+                        .collect(Collectors.toList());
+                setLeaders(totalLeaders);
+                logger.debug("total leaders {} {}", totalLeaders, currentCategoryAthletes);
+            }
+        } else {
+            setLeaders(null);
+        }
+    }
+
+    /**
      * Sets the athleteTimer.
      *
      * @param athleteTimer the new athleteTimer
@@ -758,38 +828,6 @@ public class FieldOfPlay {
         this.countdownType = countdownType;
     }
 
-    public void recomputeScoreboardInfo(Group g) {
-        // this sets rankings including previous lifters for all categories in the current group.
-        List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(g);
-        if (rankedAthletes == null) {
-            setLeaders(null);
-            setDisplayOrder(null);
-            return;
-        }
-        setDisplayOrder(AthleteSorter.displayOrderCopy(rankedAthletes).stream().filter(a -> a.getGroup().equals(g))
-                .collect(Collectors.toList()));
-        if (curAthlete != null) {
-            Category category = curAthlete.getCategory();
-            List<Athlete> currentCategoryAthletes = rankedAthletes.stream()
-                    .filter(a -> category != null && category.equals(a.getCategory())).collect(Collectors.toList());
-            if (isCjStarted()) {
-                setLeaders(AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH));
-            } else {
-                setLeaders(AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL));
-            }
-        } else {
-            setLeaders(null);
-        }
-
-        if (logger.isEnabledFor(Level.ERROR)) {
-            for (Athlete a : getDisplayOrder()) {
-                Participation p = a.getMainRankings();
-                logger.debug("**** {} {} {} {} {}", a, p.getCategory(), p.getSnatchRank(), p.getCleanJerkRank(),
-                        p.getTotalRank());
-            }
-        }
-    }
-
     /**
      * Sets the group.
      *
@@ -797,6 +835,13 @@ public class FieldOfPlay {
      */
     public void setGroup(Group group) {
         this.group = group;
+    }
+
+    /**
+     * @param leaders the leaders to set
+     */
+    public void setLeaders(List<Athlete> leaders) {
+        this.leaders = leaders;
     }
 
     /**
@@ -976,7 +1021,7 @@ public class FieldOfPlay {
             logger.trace("&&3.C1 no clock owner, time is not running");
             // time is not running
             recomputeLiftingOrder();
-            updateGlobalRankings();
+            // updateGlobalRankings(); // now done by recomputeLiftingOrder
             setStateUnlessInBreak(CURRENT_ATHLETE_DISPLAYED);
             logger.trace("&&3.C2 displaying, curAthlete={}, state={}", getCurAthlete(), state);
             uiDisplayCurrentAthleteAndTime(true, wc, false);
@@ -1004,7 +1049,7 @@ public class FieldOfPlay {
                 getCurAthlete(), currentDisplayAffected, newState);
         setStateUnlessInBreak(newState);
         uiDisplayCurrentAthleteAndTime(currentDisplayAffected, wc, false);
-        updateGlobalRankings();
+        // updateGlobalRankings(); // now done by recomputeLiftingOrder
     }
 
     private Mixer getSoundMixer() {
@@ -1024,6 +1069,13 @@ public class FieldOfPlay {
         return finalWarningEmitted;
     }
 
+//    private void recomputeAndRefresh(FOPEvent e) {
+//        recomputeLiftingOrder();
+//        updateGlobalRankings();
+//        pushOut(new UIEvent.SwitchGroup(this.getGroup(), this.getState(), this.getCurAthlete(),
+//                e.getOrigin()));
+//    }
+
     private synchronized boolean isInitialWarningEmitted() {
         return initialWarningEmitted;
     }
@@ -1038,13 +1090,6 @@ public class FieldOfPlay {
             }
         }
     }
-
-//    private void recomputeAndRefresh(FOPEvent e) {
-//        recomputeLiftingOrder();
-//        updateGlobalRankings();
-//        pushOut(new UIEvent.SwitchGroup(this.getGroup(), this.getState(), this.getCurAthlete(),
-//                e.getOrigin()));
-//    }
 
     /**
      * Compute events resulting from decisions received so far (down signal, stopping timer, all decisions entered,
@@ -1089,16 +1134,15 @@ public class FieldOfPlay {
     }
 
     private void recomputeLiftingOrder(boolean currentDisplayAffected) {
-        recomputeScoreboardInfo(getGroup());
-        List<Athlete> liftingOrder2 = this.getLiftingOrder();
-        this.setCurAthlete(liftingOrder2.isEmpty() ? null : liftingOrder2.get(0));
-        if (curAthlete == null) {
+        // this is where lifting order is actually recomputed
+        recomputeOrderAndRanks();
+        if (getCurAthlete() == null) {
             pushOutDone();
             return;
         }
 
         int timeAllowed = getTimeAllowed();
-        Integer attemptsDone = curAthlete.getAttemptsDone();
+        Integer attemptsDone = getCurAthlete().getAttemptsDone();
         logger.trace("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
                 getLoggingName(),
                 getCurAthlete() != null ? getCurAthlete().getFullName() : "",
@@ -1171,6 +1215,13 @@ public class FieldOfPlay {
 
     private void setDecisionDisplayScheduled(boolean decisionDisplayScheduled) {
         this.decisionDisplayScheduled = decisionDisplayScheduled;
+    }
+
+    /**
+     * @param displayOrder the displayOrder to set
+     */
+    private void setDisplayOrder(List<Athlete> displayOrder) {
+        this.displayOrder = displayOrder;
     }
 
     private synchronized void setDownEmitted(boolean downEmitted) {
@@ -1275,7 +1326,7 @@ public class FieldOfPlay {
         AthleteRepository.save(getCurAthlete());
         uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), goodLift, refereeDecision, refereeTime, origin);
         recomputeLiftingOrder();
-        updateGlobalRankings();
+        // updateGlobalRankings(); // now done in recomputeLiftingOrder
         setState(DECISION_VISIBLE);
         // tell ourself to reset after 3 secs.
         new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), DECISION_VISIBLE_DURATION);
@@ -1378,7 +1429,7 @@ public class FieldOfPlay {
                                     // sometimes happens).
         } else {
             loadGroup(group2, e.getOrigin(), true);
-            updateGlobalRankings();
+            // updateGlobalRankings(); // done by loadGroup which calls init which calls recomputeLiftingOrder.@m
             setState(CURRENT_ATHLETE_DISPLAYED);
         }
         if (stopBreakTimer) {
@@ -1470,6 +1521,7 @@ public class FieldOfPlay {
         pushOut(new UIEvent.Notification(this.curAthlete, e.getOrigin(), e, state));
     }
 
+    @SuppressWarnings("unused")
     private void updateGlobalRankings() {
         logger.trace("{}update rankings {}", getLoggingName(), LoggerUtils.whereFrom());
         Competition competition = Competition.getCurrent();
@@ -1501,31 +1553,9 @@ public class FieldOfPlay {
      * @param curAthlete
      */
     private void weightChangeDoNotDisturb(WeightChange e) {
-        AthleteSorter.liftingOrder(this.getLiftingOrder());
-        this.recomputeScoreboardInfo(getGroup());
+        recomputeOrderAndRanks();
         uiDisplayCurrentAthleteAndTime(false, e, false);
-        updateGlobalRankings();
-    }
-
-    /**
-     * @param displayOrder the displayOrder to set
-     */
-    private void setDisplayOrder(List<Athlete> displayOrder) {
-        this.displayOrder = displayOrder;
-    }
-
-    /**
-     * @return the leaders
-     */
-    public List<Athlete> getLeaders() {
-        return leaders;
-    }
-
-    /**
-     * @param leaders the leaders to set
-     */
-    public void setLeaders(List<Athlete> leaders) {
-        this.leaders = leaders;
+        // updateGlobalRankings(); // now done in recomputeOrderAndRanks
     }
 
 }

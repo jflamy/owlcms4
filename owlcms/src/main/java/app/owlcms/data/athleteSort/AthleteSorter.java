@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -64,22 +63,16 @@ public class AthleteSorter implements Serializable {
      */
     public static List<Athlete> assignCategoryRanks(Group g) {
         List<Athlete> impactedAthletes = new GroupRepository().allAthletesForGlobalRanking(g);
+        logger.debug("all athletes in group's categories {}", impactedAthletes);
         List<Athlete> sortedAthletes;
-        logger.warn("all athletes in group's categories {}", impactedAthletes);
         sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.SNATCH, true);
-        if (logger.isEnabledFor(Level.ERROR)) {
-            for (Athlete a : impactedAthletes) {
-                Participation p = a.getMainRankings();
-                logger.warn("* {} {}", a, p.long_dump());
-            }
-        }
         AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.SNATCH);
         sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.CLEANJERK, true);
         AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
         sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.TOTAL, true);
         AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.TOTAL);
-
-        if (logger.isEnabledFor(Level.ERROR)) {
+        
+        if (logger.isEnabledFor(Level.TRACE)) {
             for (Athlete a : impactedAthletes) {
                 Participation p = a.getMainRankings();
                 logger.warn("** {} {}", a, p.long_dump());
@@ -88,6 +81,7 @@ public class AthleteSorter implements Serializable {
         return impactedAthletes;
     }
 
+
     /**
      * Assign ranks, sequentially.
      *
@@ -95,69 +89,26 @@ public class AthleteSorter implements Serializable {
      * @param rankingType the ranking type
      */
     public static void assignCategoryRanks(List<Athlete> sortedList, Ranking rankingType) {
-        Category prevCategory = null;
-
-        RankSetter rt = new RankSetter();
-        for (Athlete curLifter : sortedList) {
-            Category curCategory = curLifter.getCategory();
-            if (!equals(curCategory, prevCategory)) {
-                // category boundary has been crossed
-                logger.trace("category boundary crossed {}", curCategory);
-                rt = new RankSetter();
-            }
-
-            if (!curLifter.isEligibleForIndividualRanking()) {
-                // not eligible
-                rt.increment(curLifter, rankingType, false, false);
-                logger.trace("not counted {}  {} Rank={} total={}", curLifter, rankingType,
-                        getRank(curLifter, rankingType), curLifter.getTotal());
-                // if not eligible, cannot be part of a team
-                setPoints(curLifter, 0, rankingType);
-            } else {
-                final double rankingValue = getRankingValue(curLifter, rankingType);
-                if (rankingValue > 0) {
-                    // eligible, not zero
-                    rt.increment(curLifter, rankingType, true, false);
-                    logger.trace("Athlete {} {}rank={} total={}", curLifter, rankingType,
-                            getRank(curLifter, rankingType), rankingValue);
-                } else {
-                    // eligible but zero
-                    rt.increment(curLifter, rankingType, true, true);
-                    logger.trace("Athlete {}  {}rank={} total={}", curLifter, rankingType,
-                            getRank(curLifter, rankingType), rankingValue);
-                }
-
-                // some competitions allow substitutes/non-team members to be eligible individually and earn medals but
-                // not score team points unless explicitly named as part of team
-                if (curLifter.isEligibleForTeamRanking()) {
-                    final float points = computePoints(curLifter, rankingType);
-                    setPoints(curLifter, points, rankingType);
-                } else {
-                    setPoints(curLifter, 0, rankingType);
-                }
-
-            }
-            prevCategory = curCategory;
-        }
+        AthleteSorter.resultsOrder(sortedList, rankingType, true);
+        AthleteSorter.assignEligibleCategoryRanks(sortedList, rankingType);
+        AthleteSorter.resultsOrder(sortedList, rankingType, false);
     }
 
     /**
      * Assign ranks, sequentially.
      *
-     * @param sortedList  the sorted list
+     * @param absoluteOrderList  list sorted without taking categories into accountoui
+     * 
      * @param rankingType the ranking type
      */
-    public static void assignEligibleCategoryRanks(List<Athlete> sortedList, Ranking rankingType) {
-
+    private static void assignEligibleCategoryRanks(List<Athlete> absoluteOrderList, Ranking rankingType) {
         MultiCategoryRankSetter rt = new MultiCategoryRankSetter();
-        for (Athlete curLifter : sortedList) {
+        for (Athlete curLifter : absoluteOrderList) {
             // TODO fix team points
             setPoints(curLifter, 0, rankingType);
-
             if (curLifter.isEligibleForIndividualRanking()) {
                 final double rankingValue = getRankingValue(curLifter, rankingType);
                 rt.increment(curLifter, rankingType, rankingValue);
-
             }
         }
 
@@ -177,21 +128,21 @@ public class AthleteSorter implements Serializable {
     }
 
     /**
-     * Assign sinclair ranks, sequentially for each gender
+     * Assign overall (non category-dependent) ranks, sequentially for each gender
      *
      * @param sortedList  the sorted list
      * @param rankingType the ranking type
      */
-    public static void assignSinclairRanksAndPoints(List<Athlete> sortedList, Ranking rankingType) {
+    public static void assignOverallRanksAndPoints(List<Athlete> sortedList, Ranking rankingType) {
         Gender prevGender = null;
         // String prevAgeGroup = null;
-        RankSetter rs = new RankSetter();
+        OverallRankSetter rs = new OverallRankSetter();
         for (Athlete curLifter : sortedList) {
             final Gender curGender = curLifter.getGender();
             // final Integer curAgeGroup = curLifter.getAgeGroup();
             if (!equals(curGender, prevGender)) {
                 // different gender
-                rs = new RankSetter();
+                rs = new OverallRankSetter();
             }
 
             if (!curLifter.isEligibleForIndividualRanking()) {
@@ -330,9 +281,9 @@ public class AthleteSorter implements Serializable {
     public static Integer getRank(Athlete curLifter, Ranking rankingType) {
         switch (rankingType) {
         case SNATCH:
-            return curLifter.getSnatchRank();
+            return curLifter.getMainRankings().getSnatchRank();
         case CLEANJERK:
-            return curLifter.getCleanJerkRank();
+            return curLifter.getMainRankings().getCleanJerkRank();
         case SMM:
             return curLifter.getSmmRank();
         case BW_SINCLAIR:
@@ -342,7 +293,7 @@ public class AthleteSorter implements Serializable {
         case ROBI:
             return curLifter.getRobiRank();
         case TOTAL:
-            return curLifter.getRank();
+            return curLifter.getMainRankings().getTotalRank();
         case CUSTOM:
             return curLifter.getCustomRank();
         default:
@@ -572,23 +523,24 @@ public class AthleteSorter implements Serializable {
      * @param rankingType
      * @return
      */
+    @SuppressWarnings("unused")
     private static float computePoints(Athlete curLifter, Ranking rankingType) {
         if (!curLifter.isEligibleForTeamRanking()) {
             return 0;
         }
         switch (rankingType) {
         case SNATCH:
-            return pointsFormula(curLifter.getSnatchRank(), curLifter);
+            return pointsFormula(curLifter.getMainRankings().getSnatchRank(), curLifter);
         case CLEANJERK:
-            return pointsFormula(curLifter.getCleanJerkRank(), curLifter);
+            return pointsFormula(curLifter.getMainRankings().getCleanJerkRank(), curLifter);
         case TOTAL:
-            return pointsFormula(curLifter.getTotalRank(), curLifter);
+            return pointsFormula(curLifter.getMainRankings().getTotalRank(), curLifter);
         case CUSTOM:
             return pointsFormula(curLifter.getCustomRank(), curLifter);
         case COMBINED:
-            return pointsFormula(curLifter.getSnatchRank(), curLifter)
-                    + pointsFormula(curLifter.getCleanJerkRank(), curLifter)
-                    + pointsFormula(curLifter.getTotalRank(), curLifter);
+            return pointsFormula(curLifter.getMainRankings().getSnatchRank(), curLifter)
+                    + pointsFormula(curLifter.getMainRankings().getCleanJerkRank(), curLifter)
+                    + pointsFormula(curLifter.getMainRankings().getTotalRank(), curLifter);
         default:
             break;
         }

@@ -74,10 +74,10 @@ public class MultiCategoryRankSetter {
                     rank = rank + 1;
                     p.setSnatchRank(rank);
                     curRankings.setSnatchRank(rank);
-                    logger.warn("setting snatch rank {} {} {} {} {}", a, curCat, rank, System.identityHashCode(p), System.identityHashCode(curRankings));
+                    logger.debug("setting snatch rank {} {} {} {} {}", a, curCat, rank, System.identityHashCode(p), System.identityHashCode(curRankings));
                 } else {
                     p.setSnatchRank(0);
-                    logger.warn("skipping snatch rank {} {} {}", a, curCat, 0);
+                    logger.debug("skipping snatch rank {} {} {}", a, curCat, 0);
                 }
 
             }
@@ -104,10 +104,10 @@ public class MultiCategoryRankSetter {
                     rank = rank + 1;
                     p.setTotalRank(rank);
                     curRankings.setTotalRank(rank);
-                    logger.warn("setting total rank {} {} {} {} {}", a, curCat, rank, System.identityHashCode(p), System.identityHashCode(curRankings));
+                    logger.debug("setting total rank {} {} {} {} {}", a, curCat, rank, System.identityHashCode(p), System.identityHashCode(curRankings));
                 } else {
                     p.setTotalRank(0);
-                    logger.warn("skipping total rank {} {} {}", a, curCat, 0);
+                    logger.debug("skipping total rank {} {} {}", a, curCat, 0);
                 }
 
             }

@@ -580,9 +580,9 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         ja.put("sattempts", sattempts);
         ja.put("cattempts", cattempts);
         ja.put("total", formatInt(a.getTotal()));
-        ja.put("snatchRank", formatInt(a.getSnatchRank()));
-        ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
-        ja.put("totalRank", formatInt(a.getTotalRank()));
+        ja.put("snatchRank", formatInt(a.getMainRankings().getSnatchRank()));
+        ja.put("cleanJerkRank", formatInt(a.getMainRankings().getCleanJerkRank()));
+        ja.put("totalRank", formatInt(a.getMainRankings().getTotalRank()));
         ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
@@ -595,13 +595,13 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
      * @param groupAthletes, List<Athlete> liftOrder
      * @return
      */
-    private JsonValue getAthletesJson(List<Athlete> groupAthletes, List<Athlete> liftOrder) {
+    private JsonValue getAthletesJson(List<Athlete> displayOrder, List<Athlete> liftOrder) {
         JsonArray jath = Json.createArray();
         int athx = 0;
         Category prevCat = null;
         long currentId = (liftOrder != null && liftOrder.size() > 0) ? liftOrder.get(0).getId() : -1L;
         long nextId = (liftOrder != null && liftOrder.size() > 1) ? liftOrder.get(1).getId() : -1L;
-        List<Athlete> athletes = groupAthletes != null ? Collections.unmodifiableList(groupAthletes)
+        List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
                 : Collections.emptyList();
         for (Athlete a : athletes) {
             JsonObject ja = Json.createObject();
@@ -737,7 +737,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     private void updateBottom(ScoreboardModel model, String liftType) {
         OwlcmsSession.withFop((fop) -> {
             curGroup = fop.getGroup();
-            order = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
+            order = fop.getDisplayOrder();
             if (liftType != null) {
                 model.setGroupName(
                         curGroup != null
@@ -751,7 +751,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 this.getElement().callJsFunction("groupDone");
             }
             this.getElement().setPropertyJson("athletes",
-                    getAthletesJson(order, fop.getLiftingOrder()));
+                    getAthletesJson(fop.getDisplayOrder(), fop.getLiftingOrder()));
         });
     }
 }

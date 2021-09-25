@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -46,7 +47,7 @@ public class LiftingOrderReconstructionTest {
     public void liftSequence3() throws InterruptedException {
         FieldOfPlay fopState = OwlcmsSession.getFop();
         EventBus fopBus = fopState.getFopEventBus();
-        
+            
         liftSequence.doSequence3(fopState, fopBus, logger);
         
         LiftOrderReconstruction liftOrderReconstruction = new LiftOrderReconstruction(fopState);

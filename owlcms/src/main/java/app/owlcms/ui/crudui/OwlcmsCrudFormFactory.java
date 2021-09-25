@@ -39,6 +39,7 @@ import com.vaadin.flow.data.binder.BindingValidationStatus;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.dom.ClassList;
 
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -381,20 +382,21 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         setValid(binder.writeBeanIfValid(domainObject));
         if (isValid()) {
             if (operation == CrudOperation.ADD) {
-                logger.debug("adding 	{}", domainObject);
+                //FIXME remove debugging cast
+                logger.warn("adding {} {}", System.identityHashCode(domainObject), ((Athlete)domainObject).longDump());
                 this.add(domainObject);
                 gridCallback.onComponentEvent(operationTriggerEvent);
             } else if (operation == CrudOperation.UPDATE) {
-                logger.debug("updating 	{}", domainObject);
+                logger.warn("updating 	{}", domainObject);
                 this.update(domainObject);
                 gridCallback.onComponentEvent(operationTriggerEvent);
             } else if (operation == CrudOperation.DELETE) {
-                logger.debug("deleting 	{}", domainObject);
+                logger.warn("deleting 	{}", domainObject);
                 this.delete(domainObject);
                 gridCallback.onComponentEvent(operationTriggerEvent);
             }
         } else {
-            logger.debug("not valid {}", domainObject);
+            logger.warn("not valid {}", domainObject);
         }
     }
 

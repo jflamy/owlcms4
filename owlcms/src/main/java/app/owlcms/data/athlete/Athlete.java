@@ -19,14 +19,13 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -39,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.category.RobiCategories;
 import app.owlcms.data.competition.Competition;
@@ -47,6 +47,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.LiftOrderInfo;
 import app.owlcms.fieldofplay.LiftOrderReconstruction;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -81,6 +82,8 @@ import ch.qos.logback.classic.Logger;
 @Cacheable
 public class Athlete {
     private static final int YEAR = LocalDateTime.now().getYear();
+
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
 
     public static void conditionalCopy(Athlete dest, Athlete src, boolean copyResults) {
         boolean validation = dest.isValidation();
@@ -157,20 +160,20 @@ public class Athlete {
 
                 dest.setCustomScore(src.getCustomScore());
 
-                dest.setSnatchRankYth(src.getSnatchRankYth());
-                dest.setSnatchRankJr(src.getSnatchRankJr());
-                dest.setSnatchRankSr(src.getSnatchRankSr());
-                dest.setSnatchRank(src.getSnatchRank());
-
-                dest.setCleanJerkRankYth(src.getCleanJerkRankYth());
-                dest.setCleanJerkRankJr(src.getCleanJerkRankJr());
-                dest.setCleanJerkRankSr(src.getCleanJerkRankSr());
-                dest.setCleanJerkRank(src.getCleanJerkRank());
-
-                dest.setTotalRankYth(src.getTotalRankYth());
-                dest.setTotalRankJr(src.getTotalRankJr());
-                dest.setTotalRankSr(src.getTotalRankSr());
-                dest.setTotalRank(src.getTotalRank());
+//                dest.setSnatchRankYth(src.getSnatchRankYth());
+//                dest.setSnatchRankJr(src.getSnatchRankJr());
+//                dest.setSnatchRankSr(src.getSnatchRankSr());
+//                dest.setSnatchRank(src.getSnatchRank());
+//
+//                dest.setCleanJerkRankYth(src.getCleanJerkRankYth());
+//                dest.setCleanJerkRankJr(src.getCleanJerkRankJr());
+//                dest.setCleanJerkRankSr(src.getCleanJerkRankSr());
+//                dest.setCleanJerkRank(src.getCleanJerkRank());
+//
+//                dest.setTotalRankYth(src.getTotalRankYth());
+//                dest.setTotalRankJr(src.getTotalRankJr());
+//                dest.setTotalRankSr(src.getTotalRankSr());
+//                dest.setTotalRank(src.getTotalRank());
             }
         } finally {
             dest.setValidation(validation);
@@ -233,8 +236,6 @@ public class Athlete {
         }
     }
 
-    private Logger logger = null;
-
     @Transient
     private Long copyId = null;
 
@@ -242,7 +243,7 @@ public class Athlete {
     private final Level NORMAL_LEVEL = Level.INFO;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    // @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private Integer lotNumber = null;
@@ -333,26 +334,26 @@ public class Athlete {
     private String cleanJerk3ActualLift;
     private LocalDateTime cleanJerk3LiftTime;
 
-    private Integer snatchRank;
-    private Integer snatchRankJr;
-    private Integer snatchRankSr;
-    private Integer snatchRankYth;
-    private Integer cleanJerkRank;
+//    private Integer snatchRank;
+//    private Integer snatchRankJr;
+//    private Integer snatchRankSr;
+//    private Integer snatchRankYth;
+//    private Integer cleanJerkRank;
 
-    private Integer cleanJerkRankJr;
-    private Integer cleanJerkRankSr;
-    private Integer cleanJerkRankYth;
-
-    private Integer totalRank;
-    private Integer totalRankJr;
-    private Integer totalRankSr;
-    private Integer totalRankYth;
+//    private Integer cleanJerkRankJr;
+//    private Integer cleanJerkRankSr;
+//    private Integer cleanJerkRankYth;
+//
+//    private Integer totalRank;
+//    private Integer totalRankJr;
+//    private Integer totalRankSr;
+//    private Integer totalRankYth;
 
     private Integer sinclairRank;
     private Integer robiRank;
     private Integer customRank;
-    private Integer snatchPoints;
 
+    private Integer snatchPoints;
     private Integer cleanJerkPoints;
     private Integer totalPoints; // points based on totalRank
     private Float sinclairPoints;
@@ -364,7 +365,15 @@ public class Athlete {
     private Integer teamCleanJerkRank;
     private Integer teamTotalRank;
     private Integer teamCombinedRank;
+    @Column(columnDefinition = "integer default 0")
+    private int catSinclairRank;
+    @Column(columnDefinition = "integer default 0")
+    private int combinedRank;
+    @Column(columnDefinition = "integer default 0")
+    private int smmRank;
+
     private Integer qualifyingTotal = 0;
+
     private Double customScore;
 
     @Column(columnDefinition = "boolean default true")
@@ -389,22 +398,16 @@ public class Athlete {
      * body weight inferred from category, used until real bodyweight is known.
      */
     private Double presumedBodyWeight;
-    @Column(columnDefinition = "integer default 0")
-    private int catSinclairRank;
-    @Column(columnDefinition = "integer default 0")
-    private int combinedRank;
-    @Column(columnDefinition = "integer default 0")
-    private int smmRank;
 
     /**
      * Instantiates a new athlete.
      */
     public Athlete() {
-        super();
+        setId(IdUtils.getTimeBasedId());
         validation = true;
     }
 
-    public void addCategory(Category category) {
+    public void addEligibleCategory(Category category) {
         Participation participation = new Participation(this, category);
 
         if (participations == null) {
@@ -423,32 +426,6 @@ public class Athlete {
         category.setParticipations(categoryParticipations);
     }
 
-    /**
-     * Prevent JPA conflict between two versions of the same object.
-     * 
-     * As a consequence of the way we use the CRUD framework and JPA, we end up with two copies of the athlete when
-     * editing, with the same ID, but not the same instance. The participation relationships are created with one
-     * instance, but during editing, we are dealing with a cloned copy. So we clean up the relationship so that all
-     * pointers to this athlete (according to Id) reference this Java instance.
-     * 
-     * @param category
-     * @param participations
-     */
-    private void removeCurrentAthleteCategoryParticipation(Category category, List<Participation> participations) {
-        for (Iterator<Participation> iterator = participations.iterator(); iterator.hasNext();) {
-            Participation part = iterator.next();
-            long athId = (long) getId();
-            long catId = (long) category.getId();
-            long partAthId = (long) part.getAthlete().getId();
-            long partCatId = (long) part.getCategory().getId();
-            if (partAthId == athId && partCatId == catId) {
-                logger.trace("    removing {}", part);
-                iterator.remove();
-            } else {
-                logger.trace("    ok {} {}-{} {}-{}", part, athId, partAthId, catId, partCatId);
-            }
-        }
-    }
 
     public void clearLifts() {
         String cj1Decl = this.getCleanJerk1Declaration();
@@ -509,6 +486,25 @@ public class Athlete {
         }
     }
 
+    public void computeMainCategory() {
+        Double weight = this.getBodyWeight();
+        if (weight == null) {
+            Double presumedBodyWeight = this.getPresumedBodyWeight();
+            if (presumedBodyWeight != null) {
+                weight = presumedBodyWeight - 0.01D;
+                List<Category> categories = CategoryRepository.findByGenderAgeBW(
+                        this.getGender(), this.getAge(), weight);
+                setEligibles(this, categories);
+                this.setCategory(bestMatch(categories));
+            }
+        } else {
+            List<Category> categories = CategoryRepository.findByGenderAgeBW(
+                    this.getGender(), this.getAge(), weight);
+            this.setCategory(bestMatch(categories));
+            setEligibles(this, categories);
+        }
+    }
+
     /**
      * Public for testing purposes only.
      *
@@ -545,6 +541,24 @@ public class Athlete {
         }
     }
 
+    public void enforceCategoryIsEligible() {
+        if (category != null) {
+            // we can't have category without eligibility relationship and one with same id that has it in the
+            // eligibility list
+            // so we find the one in the eligibility list and use it.
+            Category matchingEligible = null;
+            for (Category eligible : getEligibleCategories()) {
+                if (ObjectUtils.compare(eligible.getName(), category.getName()) == 0) {
+                    matchingEligible = eligible;
+                    break;
+                }
+            }
+            setCategory(matchingEligible);
+            logger.trace("category {} {} matching eligible {} {}", category, System.identityHashCode(category),
+                    matchingEligible, System.identityHashCode(matchingEligible));
+        }
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -554,7 +568,7 @@ public class Athlete {
             return false;
         }
         Athlete other = (Athlete) obj;
-        return id != null && id.equals(other.getId());
+        return getId() != null && getId().equals(other.getId());
     }
 
     /**
@@ -1046,6 +1060,27 @@ public class Athlete {
         return attempts;
     }
 
+//    /**
+//     * Gets the clean jerk rank.
+//     *
+//     * @return the clean jerk rank
+//     */
+//    public Integer getCleanJerkRank() {
+//        return cleanJerkRank;
+//    }
+//
+//    public Integer getCleanJerkRankJr() {
+//        return cleanJerkRankJr;
+//    }
+//
+//    public Integer getCleanJerkRankSr() {
+//        return cleanJerkRankSr;
+//    }
+//
+//    public Integer getCleanJerkRankYth() {
+//        return cleanJerkRankYth;
+//    }
+
     /**
      * Gets the clean jerk points.
      *
@@ -1056,27 +1091,6 @@ public class Athlete {
             return 0;
         }
         return cleanJerkPoints;
-    }
-
-    /**
-     * Gets the clean jerk rank.
-     *
-     * @return the clean jerk rank
-     */
-    public Integer getCleanJerkRank() {
-        return cleanJerkRank;
-    }
-
-    public Integer getCleanJerkRankJr() {
-        return cleanJerkRankJr;
-    }
-
-    public Integer getCleanJerkRankSr() {
-        return cleanJerkRankSr;
-    }
-
-    public Integer getCleanJerkRankYth() {
-        return cleanJerkRankYth;
     }
 
     /**
@@ -1232,7 +1246,8 @@ public class Athlete {
             Category category2 = p.getCategory();
             s.add(category2);
         }
-        logger.trace("{} getEligibleCategories {} from {}", this.getShortName(), s.toString(), LoggerUtils.whereFrom());
+        // logger.trace("{} getEligibleCategories {} from {}", this.getShortName(), s.toString(),
+        // LoggerUtils.whereFrom());
         return s;
     }
 
@@ -1418,9 +1433,6 @@ public class Athlete {
      * @return the logger
      */
     public Logger getLogger() {
-        if (logger == null) {
-            logger = (Logger) LoggerFactory.getLogger(Athlete.class);
-        }
         return logger;
     }
 
@@ -1441,6 +1453,19 @@ public class Athlete {
      */
     public Integer getLotNumber() {
         return (lotNumber == null ? 0 : lotNumber);
+    }
+
+    public Participation getMainRankings() {
+        Participation curRankings = null;
+        List<Participation> participations2 = getParticipations();
+        logger.trace("athlete {} category {} participations {}", this, category, participations2);
+        for (Participation eligible : participations2) {
+            if (category != null && eligible.getCategory().getCode().equals(category.getCode())) {
+                curRankings = eligible;
+                break;
+            }
+        }
+        return curRankings;
     }
 
     /**
@@ -1612,7 +1637,8 @@ public class Athlete {
      * @return the rank
      */
     public Integer getRank() {
-        return totalRank;
+        Participation mainRankings = getMainRankings();
+        return mainRankings != null ? mainRankings.getTotalRank() : null;
     }
 
     /**
@@ -1999,6 +2025,28 @@ public class Athlete {
         return snatch3LiftTime;
     }
 
+//    /**
+//     * Gets the snatch rank.
+//     *
+//     * @return the snatch rank
+//     */
+//    public Integer getSnatchRank() {
+////        if(getFullName().equalsIgnoreCase("Edwards, Christopher")) logger./**/warn("getSnatchRank {} {} {}", System.identityHashCode(this), snatchRank, LoggerUtils.stackTrace());
+//        return snatchRank;
+//    }
+//
+//    public Integer getSnatchRankJr() {
+//        return snatchRankJr;
+//    }
+//
+//    public Integer getSnatchRankSr() {
+//        return snatchRankSr;
+//    }
+//
+//    public Integer getSnatchRankYth() {
+//        return snatchRankYth;
+//    }
+
     /**
      * Gets the snatch attempts done.
      *
@@ -2036,28 +2084,6 @@ public class Athlete {
             return 0;
         }
         return snatchPoints;
-    }
-
-    /**
-     * Gets the snatch rank.
-     *
-     * @return the snatch rank
-     */
-    public Integer getSnatchRank() {
-//        if(getFullName().equalsIgnoreCase("Edwards, Christopher")) logger./**/warn("getSnatchRank {} {} {}", System.identityHashCode(this), snatchRank, LoggerUtils.stackTrace());
-        return snatchRank;
-    }
-
-    public Integer getSnatchRankJr() {
-        return snatchRankJr;
-    }
-
-    public Integer getSnatchRankSr() {
-        return snatchRankSr;
-    }
-
-    public Integer getSnatchRankYth() {
-        return snatchRankYth;
     }
 
     /**
@@ -2153,6 +2179,27 @@ public class Athlete {
         return teamTotalRank;
     }
 
+//    /**
+//     * Gets the total rank.
+//     *
+//     * @return the total rank
+//     */
+//    public Integer getTotalRank() {
+//        return totalRank;
+//    }
+//
+//    public Integer getTotalRankJr() {
+//        return totalRankJr;
+//    }
+//
+//    public Integer getTotalRankSr() {
+//        return totalRankSr;
+//    }
+//
+//    public Integer getTotalRankYth() {
+//        return totalRankYth;
+//    }
+
     /**
      * Total is zero if all three snatches or all three clean&jerks are failed. Failed lifts are indicated as negative
      * amounts. Total is the sum of all good lifts otherwise. Null entries indicate that no data has been captured, and
@@ -2182,27 +2229,6 @@ public class Athlete {
             return 0;
         }
         return totalPoints;
-    }
-
-    /**
-     * Gets the total rank.
-     *
-     * @return the total rank
-     */
-    public Integer getTotalRank() {
-        return totalRank;
-    }
-
-    public Integer getTotalRankJr() {
-        return totalRankJr;
-    }
-
-    public Integer getTotalRankSr() {
-        return totalRankSr;
-    }
-
-    public Integer getTotalRankYth() {
-        return totalRankYth;
     }
 
     /**
@@ -2379,7 +2405,7 @@ public class Athlete {
                 .append(" totalRank=" + this.getRank()).append(" teamMember=" + this.getTeamMember()).toString();
     }
 
-    public void removeCategory(Category category) {
+    public void removeEligibleCategory(Category category) {
         for (Iterator<Participation> iterator = participations.iterator(); iterator.hasNext();) {
             Participation participation = iterator.next();
 
@@ -2466,6 +2492,11 @@ public class Athlete {
             // explicitly provided information, to be used if actual bodyweight is not yet known
             setPresumedBodyWeight(category.getMaximumWeight());
         }
+        // the category is already from the eligible set
+        // TODO add assertion
+        // this.addEligibleCategory(category);
+        logger.trace("{} category {} {}", System.identityHashCode(this),
+                category != null ? category.getParticipations() : null, LoggerUtils.stackTrace());
         this.category = category;
     }
 
@@ -2764,6 +2795,27 @@ public class Athlete {
         this.cleanJerk3LiftTime = cleanJerk3LiftTime;
     }
 
+//    /**
+//     * Sets the clean jerk rank.
+//     *
+//     * @param cleanJerkRank the new clean jerk rank
+//     */
+//    public void setCleanJerkRank(Integer cleanJerkRank) {
+//        this.cleanJerkRank = cleanJerkRank;
+//    }
+//
+//    public void setCleanJerkRankJr(Integer cleanJerkRankJr) {
+//        this.cleanJerkRankJr = cleanJerkRankJr;
+//    }
+//
+//    public void setCleanJerkRankSr(Integer cleanJerkRankSr) {
+//        this.cleanJerkRankSr = cleanJerkRankSr;
+//    }
+//
+//    public void setCleanJerkRankYth(Integer cleanJerkRankYth) {
+//        this.cleanJerkRankYth = cleanJerkRankYth;
+//    }
+
     /**
      * Sets the clean jerk attempts done.
      *
@@ -2779,27 +2831,6 @@ public class Athlete {
      */
     public void setCleanJerkPoints(Integer points) {
         this.cleanJerkPoints = points;
-    }
-
-    /**
-     * Sets the clean jerk rank.
-     *
-     * @param cleanJerkRank the new clean jerk rank
-     */
-    public void setCleanJerkRank(Integer cleanJerkRank) {
-        this.cleanJerkRank = cleanJerkRank;
-    }
-
-    public void setCleanJerkRankJr(Integer cleanJerkRankJr) {
-        this.cleanJerkRankJr = cleanJerkRankJr;
-    }
-
-    public void setCleanJerkRankSr(Integer cleanJerkRankSr) {
-        this.cleanJerkRankSr = cleanJerkRankSr;
-    }
-
-    public void setCleanJerkRankYth(Integer cleanJerkRankYth) {
-        this.cleanJerkRankYth = cleanJerkRankYth;
     }
 
     /**
@@ -2845,36 +2876,19 @@ public class Athlete {
     public void setEligibleCategories(Set<Category> newEligibles) {
         logger.trace("athlete participations {}", getParticipations());
         Set<Category> oldEligibles = getEligibleCategories();
-        logger.trace("setting eligible before:{} target:{}",oldEligibles, newEligibles);
+        logger.trace("setting eligible before:{} target:{}", oldEligibles, newEligibles);
         if (oldEligibles != null) {
             for (Category cat : oldEligibles) {
-                removeCategory(cat);
+                removeEligibleCategory(cat);
             }
         }
         if (newEligibles != null) {
             for (Category cat : newEligibles) {
-                addCategory(cat); // creates new join table entry, links from category as well.
+                addEligibleCategory(cat); // creates new join table entry, links from category as well.
             }
         }
-        logger.trace("{} after set eligible {}", getShortName(), getEligibleCategories());
-    }
-
-    public void enforceCategoryIsEligible() {
-        if (category != null) {
-            // we can't have category without eligibility relationship and one with same id that has it in the
-            // eligibility list
-            // so we find the one in the eligibility list and use it.
-            Category matchingEligible = null;
-            for (Category eligible : getEligibleCategories()) {
-                if (ObjectUtils.compare(eligible.getName(), category.getName()) == 0) {
-                    matchingEligible = eligible;
-                    break;
-                }
-            }
-            setCategory(matchingEligible);
-            logger.trace("category {} {} matching eligible {} {}", category, System.identityHashCode(category),
-                    matchingEligible, System.identityHashCode(matchingEligible));
-        }
+        logger.trace("{} {} after set eligible {}", System.identityHashCode(this), getShortName(),
+                getEligibleCategories());
     }
 
     public void setEligibleForIndividualRanking(boolean eligibleForIndividualRanking) {
@@ -2899,16 +2913,6 @@ public class Athlete {
         this.firstName = firstName;
     }
 
-//  /**
-//   * Sets the result order rank.
-//   *
-//   * @param resultOrderRank the result order rank
-//   * @param rankingType     the ranking type
-//   */
-//  public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-//      this.resultOrderRank = resultOrderRank;
-//  }
-
     /**
      * Sets the forced as current.
      *
@@ -2927,6 +2931,16 @@ public class Athlete {
     public void setFullBirthDate(LocalDate fullBirthDate) {
         this.fullBirthDate = fullBirthDate;
     }
+
+//  /**
+//   * Sets the result order rank.
+//   *
+//   * @param resultOrderRank the result order rank
+//   * @param rankingType     the ranking type
+//   */
+//  public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
+//      this.resultOrderRank = resultOrderRank;
+//  }
 
     /**
      * Sets the gender.
@@ -2964,16 +2978,6 @@ public class Athlete {
         this.liftOrderRank = liftOrder;
     }
 
-    public void setLogger(Logger logger) {
-        this.logger = logger;
-    }
-
-    /*
-     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
-     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
-     * register/unregister itself.
-     */
-
     public void setLoggerLevel(Level newLevel) {
         getLogger().setLevel(newLevel);
     }
@@ -2986,6 +2990,12 @@ public class Athlete {
     public void setLotNumber(Integer lotNumber) {
         this.lotNumber = lotNumber;
     }
+
+    /*
+     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
+     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
+     * register/unregister itself.
+     */
 
     /**
      * Sets the membership.
@@ -3040,15 +3050,6 @@ public class Athlete {
     }
 
     /**
-     * Sets the rank.
-     *
-     * @param i the new rank
-     */
-    public void setRank(Integer i) {
-        this.totalRank = i;
-    }
-
-    /**
      * Sets the category. There is no longer a registration category.
      *
      * @param registrationCategory the new registration category
@@ -3066,6 +3067,15 @@ public class Athlete {
     public void setRobiRank(Integer robiRank) {
         this.robiRank = robiRank;
     }
+
+//    /**
+//     * Sets the rank.
+//     *
+//     * @param i the new rank
+//     */
+//    public void setRank(Integer i) {
+//        this.totalRank = i;
+//    }
 
     public void setSinclairPoints(Float sinclairPoints) {
         this.sinclairPoints = sinclairPoints;
@@ -3394,27 +3404,6 @@ public class Athlete {
     }
 
     /**
-     * Sets the snatch rank.
-     *
-     * @param snatchRank the new snatch rank
-     */
-    public void setSnatchRank(Integer snatchRank) {
-        this.snatchRank = snatchRank;
-    }
-
-    public void setSnatchRankJr(Integer snatchRankJr) {
-        this.snatchRankJr = snatchRankJr;
-    }
-
-    public void setSnatchRankSr(Integer snatchRankSr) {
-        this.snatchRankSr = snatchRankSr;
-    }
-
-    public void setSnatchRankYth(Integer snatchRankYth) {
-        this.snatchRankYth = snatchRankYth;
-    }
-
-    /**
      * Sets the start number.
      *
      * @param startNumber the new start number
@@ -3431,6 +3420,27 @@ public class Athlete {
     public void setTeam(String club) {
         this.team = club;
     }
+
+//    /**
+//     * Sets the snatch rank.
+//     *
+//     * @param snatchRank the new snatch rank
+//     */
+//    public void setSnatchRank(Integer snatchRank) {
+//        this.snatchRank = snatchRank;
+//    }
+//
+//    public void setSnatchRankJr(Integer snatchRankJr) {
+//        this.snatchRankJr = snatchRankJr;
+//    }
+//
+//    public void setSnatchRankSr(Integer snatchRankSr) {
+//        this.snatchRankSr = snatchRankSr;
+//    }
+//
+//    public void setSnatchRankYth(Integer snatchRankYth) {
+//        this.snatchRankYth = snatchRankYth;
+//    }
 
     /**
      * Sets the team clean jerk rank.
@@ -3503,27 +3513,27 @@ public class Athlete {
         this.totalPoints = totalPoints;
     }
 
-    /**
-     * Sets the total rank.
-     *
-     * @param totalRank the new total rank
-     */
-    public void setTotalRank(Integer totalRank) {
-        this.totalRank = totalRank;
-    }
-
-    public void setTotalRankJr(Integer totalRankJr) {
-        this.totalRankJr = totalRankJr;
-    }
-
-    public void setTotalRankSr(Integer totalRankSr) {
-        this.totalRankSr = totalRankSr;
-    }
-
-    public void setTotalRankYth(Integer totalRankYth) {
-        this.totalRankYth = totalRankYth;
-    }
-
+    // /**
+//     * Sets the total rank.
+//     *
+//     * @param totalRank the new total rank
+//     */
+//    public void setTotalRank(Integer totalRank) {
+//        this.totalRank = totalRank;
+//    }
+//
+//    public void setTotalRankJr(Integer totalRankJr) {
+//        this.totalRankJr = totalRankJr;
+//    }
+//
+//    public void setTotalRankSr(Integer totalRankSr) {
+//        this.totalRankSr = totalRankSr;
+//    }
+//
+//    public void setTotalRankYth(Integer totalRankYth) {
+//        this.totalRankYth = totalRankYth;
+//    }
+//
     public void setValidation(boolean validation) {
         this.validation = validation;
     }
@@ -3906,6 +3916,10 @@ public class Athlete {
         } catch (NumberFormatException nfe) {
             return null;
         }
+    }
+
+    private Category bestMatch(List<Category> allEligible2) {
+        return allEligible2 != null ? (allEligible2.size() > 0 ? allEligible2.get(0) : null) : null;
     }
 
     private void checkAttemptVsLiftOrderReference(int newVal, LiftOrderInfo reference) {
@@ -4314,6 +4328,17 @@ public class Athlete {
 
     }
 
+//    /**
+//     * Null-safe comparison for longs.
+//     *
+//     * @param o1
+//     * @param o2
+//     * @return
+//     */
+//    private boolean LongEquals(Long o1, Long o2) {
+//        return o1 == o2 || o1 != null && o2 != null && o1.longValue() == (o2.longValue());
+//    }
+
     private Integer max(Integer... items) {
         List<Integer> itemList = Arrays.asList(items);
         final Integer max = Collections.max(itemList);
@@ -4331,8 +4356,38 @@ public class Athlete {
         return max;
     }
 
+    /**
+     * Prevent JPA conflict between two versions of the same object.
+     * Likely not needed anymore now that we allocate an Id to the Athlete in the constructor.
+     * @param category
+     * @param participations
+     */
+    private void removeCurrentAthleteCategoryParticipation(Category category, List<Participation> participations) {
+        for (Iterator<Participation> iterator = participations.iterator(); iterator.hasNext();) {
+            Participation part = iterator.next();
+            long athId = getId();
+            long catId = category.getId();
+            long partAthId = part.getAthlete().getId();
+            long partCatId = part.getCategory().getId();
+            if (partAthId == athId && partCatId == catId) {
+                logger.warn("    removing {}", part);
+                iterator.remove();
+            } else {
+                logger.warn("    ok {} {}-{} {}-{}", part, athId, partAthId, catId, partCatId);
+            }
+        }
+    }
+
     private void setCopyId(Long id2) {
         this.copyId = id2;
+    }
+
+    private void setEligibles(Athlete a, List<Category> categories) {
+        TreeSet<Category> eligibles = new TreeSet<>(
+                (x, y) -> ObjectUtils.compare(x.getAgeGroup(), y.getAgeGroup()));
+        eligibles.addAll(categories);
+        logger.debug("eligible categories: {}", eligibles);
+        a.setEligibleCategories(eligibles);
     }
 
     /**
@@ -4347,6 +4402,13 @@ public class Athlete {
         } else {
             this.fullBirthDate = null;
         }
+    }
+
+    /**
+     * @param id the id to set
+     */
+    private void setId(Long id) {
+        this.id = id;
     }
 
     /**
@@ -4437,17 +4499,6 @@ public class Athlete {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public Participation getMainRankings() {
-        Participation curRankings = null;
-        for (Participation eligible : getParticipations() ) {
-            if (category != null && eligible.getCategory().getCode().equals(category.getCode())) {
-                curRankings = eligible;
-                break;
-            }
-        }
-        return curRankings;
     }
 
 }

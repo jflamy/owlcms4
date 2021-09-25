@@ -63,6 +63,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     /** The id. */
     @Id
+    private
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
@@ -106,10 +107,12 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
      * Instantiates a new category.
      */
     public Category() {
+        // manually generate the Id to avoid issues when creating many-to-many Participations
+        //setId((System.currentTimeMillis() << 20) | (System.nanoTime() & 0xFFFFFL));
     }
 
     public Category(Category c) {
-        this(c.id, c.minimumWeight, c.maximumWeight, c.gender, c.active, c.getWrYth(), c.getWrJr(), c.getWrSr(),
+        this(c.getId(), c.minimumWeight, c.maximumWeight, c.gender, c.active, c.getWrYth(), c.getWrJr(), c.getWrSr(),
                 c.ageGroup, c.qualifyingTotal);
     }
 
@@ -168,7 +171,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass()) {
-            //logger.warn("equals quick fail {} {} {} from {}", o, getClass(), o != null ? o.getClass() : "");
+            // logger.warn("equals quick fail {} {} {} from {}", o, getClass(), o != null ? o.getClass() : "");
             return false;
         }
         Category cat = (Category) o;
@@ -185,8 +188,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 //        List<Participation> p2 = cat.getParticipations();
 //        boolean equal3 = ObjectUtils.equals(p1, p2);
 
-        //logger.trace("equals {} {} {} {} {}", this, cat, equal1, equal2, equal3);
-        return equal1 && equal2 ;// && equal3;
+        // logger.trace("equals {} {} {} {} {}", this, cat, equal1, equal2, equal3);
+        return equal1 && equal2;// && equal3;
     }
 
     @Override
@@ -383,11 +386,25 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     }
 
     public String longDump() {
-        return "Category [name=" + getName() + ", active=" + active + ", id=" + id
+        return "Category " + System.identityHashCode(this)
+                + " [name=" + getName() 
+                + ", active=" + active 
+                + ", id=" + getId()
                 + ", minimumWeight=" + minimumWeight
                 + ", maximumWeight=" + maximumWeight + ", ageGroup=" + ageGroup.getName()
                 + ", gender="
                 + gender + ", wr=" + getWrSr() + ", code=" + code + "]";
+    }
+    
+    public String fullDump() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.longDump());
+        for (Participation p : getParticipations()) {
+            sb.append("    ");
+            sb.append(p.long_dump());
+            sb.append(System.lineSeparator());
+        }
+        return sb.toString();
     }
 
     public void setActive(boolean active) {

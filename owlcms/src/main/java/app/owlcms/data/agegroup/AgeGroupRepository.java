@@ -151,7 +151,15 @@ public class AgeGroupRepository {
         } catch (FileNotFoundException e1) {
             throw new RuntimeException(e1);
         }
-
+    }
+    
+    public static void insertAgeGroups(EntityManager em, EnumSet<AgeDivision> es, String resourceName) {
+        try {
+            String localizedName = ResourceWalker.getLocalizedResourceName(resourceName);
+            AgeGroupDefinitionReader.doInsertAgeGroup(es, localizedName);
+        } catch (FileNotFoundException e1) {
+            throw new RuntimeException(e1);
+        }
     }
 
     public static void reloadDefinitions(String localizedFileName) {

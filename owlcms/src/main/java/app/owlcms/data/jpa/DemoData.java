@@ -105,13 +105,6 @@ public class DemoData {
         p.setFullBirthDate(fullBirthDate);
         
         // category computed automatically according to birth date etc.
-//        int age = LocalDate.now().getYear() - fullBirthDate.getYear();
-
-//        List<Category> cat = CategoryRepository.findByGenderDivisionAgeBW(gender, ageDivision, age, bodyWeight);
-//        logger.trace("athlete {} matches {}", p.getFullName(),
-//                cat.stream().map(Category::getName).collect(Collectors.joining(", ")));
-//        Category categOrNull = cat.stream().findFirst().orElse(null);
-//        p.setCategory(categOrNull == null ? null : em.contains(categOrNull) ? categOrNull : em.merge(categOrNull));
 
         // respect 20kg rule
         p.setQualifyingTotal((int) (isd + icjd - 15));

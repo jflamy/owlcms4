@@ -202,6 +202,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     public Collection<Athlete> findAll() {
         List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(getGroupFilter().getValue(),
                 genderFilter.getValue(), true);
+        //FIXME
         AthleteSorter.resultsOrder(athletes, Ranking.SNATCH, false);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
         AthleteSorter.resultsOrder(athletes, Ranking.CLEANJERK, false);
@@ -212,7 +213,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         Boolean medals = medalsOnly.getValue();
         if (medals != null && medals) {
             return athletes.stream()
-                    .filter(a -> a.getTotalRank() >= 1 && a.getTotalRank() <= 3)
+                    .filter(a -> a.getMainRankings().getTotalRank() >= 1 && a.getMainRankings().getTotalRank() <= 3)
                     .collect(Collectors.toList());
         } else {
             return athletes;
