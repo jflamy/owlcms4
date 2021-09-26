@@ -104,8 +104,7 @@ public class AthleteSorter implements Serializable {
     private static void assignEligibleCategoryRanks(List<Athlete> absoluteOrderList, Ranking rankingType) {
         MultiCategoryRankSetter rt = new MultiCategoryRankSetter();
         for (Athlete curLifter : absoluteOrderList) {
-            // TODO fix team points
-            setPoints(curLifter, 0, rankingType);
+
             if (curLifter.isEligibleForIndividualRanking()) {
                 final double rankingValue = getRankingValue(curLifter, rankingType);
                 rt.increment(curLifter, rankingType, rankingValue);
@@ -593,7 +592,25 @@ public class AthleteSorter implements Serializable {
      * @param curLifter
      * @return
      */
-    private static float pointsFormula(Integer rank, Athlete curLifter) {
+    public static float pointsFormula(Integer rank, Athlete curLifter) {
+        if (rank == null || rank <= 0) {
+            return 0;
+        }
+        if (rank == 1) {
+            return 28;
+        }
+        if (rank == 2) {
+            return 25;
+        }
+        return 26 - rank;
+    }
+    
+    /**
+     * @param rank
+     * @param curLifter
+     * @return
+     */
+    public static int pointsFormula(Integer rank) {
         if (rank == null || rank <= 0) {
             return 0;
         }
@@ -606,28 +623,28 @@ public class AthleteSorter implements Serializable {
         return 26 - rank;
     }
 
-    /**
-     * @param curLifter
-     * @param Math.round(points
-     * @param rankingType
-     */
-    private static void setPoints(Athlete curLifter, float points, Ranking rankingType) {
-        logger.trace(curLifter + " " + rankingType + " points=" + points);
-        switch (rankingType) {
-        case SNATCH:
-            curLifter.setSnatchPoints(Math.round(points));
-            break;
-        case CLEANJERK:
-            curLifter.setCleanJerkPoints(Math.round(points));
-            break;
-        case TOTAL:
-            curLifter.setTotalPoints(Math.round(points));
-            break;
-        case CUSTOM:
-            curLifter.setCustomPoints(Math.round(points));
-            break;
-        default:
-            break;// computed
-        }
-    }
+//    /**
+//     * @param curLifter
+//     * @param Math.round(points
+//     * @param rankingType
+//     */
+//    private static void setPoints(Athlete curLifter, float points, Ranking rankingType) {
+//        logger.trace(curLifter + " " + rankingType + " points=" + points);
+//        switch (rankingType) {
+//        case SNATCH:
+//            curLifter.setSnatchPoints(Math.round(points));
+//            break;
+//        case CLEANJERK:
+//            curLifter.setCleanJerkPoints(Math.round(points));
+//            break;
+//        case TOTAL:
+//            curLifter.setTotalPoints(Math.round(points));
+//            break;
+//        case CUSTOM:
+//            curLifter.setCustomPoints(Math.round(points));
+//            break;
+//        default:
+//            break;// computed
+//        }
+//    }
 }

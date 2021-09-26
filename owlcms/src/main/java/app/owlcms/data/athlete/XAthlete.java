@@ -871,15 +871,6 @@ public class XAthlete extends Athlete {
 
     /**
      * @return
-     * @see app.owlcms.data.athlete.Athlete#getSinclairPoints()
-     */
-    @Override
-    public Float getSinclairPoints() {
-        return a.getSinclairPoints();
-    }
-
-    /**
-     * @return
      * @see app.owlcms.data.athlete.Athlete#getSinclairRank()
      */
     @Override
@@ -1545,7 +1536,7 @@ public class XAthlete extends Athlete {
      */
     @Override
     public void setCleanJerkPoints(Integer cleanJerkPoints) {
-        a.setCleanJerkPoints(cleanJerkPoints);
+        throw new UnsupportedOperationException();
     }
 
 //    /**
@@ -1592,7 +1583,7 @@ public class XAthlete extends Athlete {
      */
     @Override
     public void setCustomPoints(Integer customPoints) {
-        a.setCustomPoints(customPoints);
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -1759,11 +1750,6 @@ public class XAthlete extends Athlete {
     @Override
     public void setRobiRank(Integer robiRank) {
         a.setRobiRank(robiRank);
-    }
-
-    @Override
-    public void setSinclairPoints(Float sinclairPoints) {
-        a.setSinclairPoints(sinclairPoints);
     }
 
     /**
@@ -1955,7 +1941,7 @@ public class XAthlete extends Athlete {
      */
     @Override
     public void setSnatchPoints(Integer snatchPoints) {
-        a.setSnatchPoints(snatchPoints);
+        throw new UnsupportedOperationException();
     }
 
 //    /**
@@ -2069,7 +2055,7 @@ public class XAthlete extends Athlete {
      */
     @Override
     public void setTotalPoints(Integer totalPoints) {
-        a.setTotalPoints(totalPoints);
+        throw new UnsupportedOperationException();
     }
 
 //    /**

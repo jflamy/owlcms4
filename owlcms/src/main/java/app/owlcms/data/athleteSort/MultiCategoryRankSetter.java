@@ -36,6 +36,7 @@ public class MultiCategoryRankSetter {
         boolean zero = rankingValue <= 0;
         //logger.warn("a {} v {} z {} e {}", a.getShortName(), rankingValue, zero, eligible);
 
+        int value = eligible ? (zero ? 0 : ++rank) : -1;
         switch (r) {
         case SNATCH:
         case CLEANJERK:
@@ -43,22 +44,22 @@ public class MultiCategoryRankSetter {
             doCategoryBasedRankings(a, r, category, zero);
             break;
         case BW_SINCLAIR:
-            a.setSinclairRank(eligible ? (zero ? 0 : ++rank) : -1);
+            a.setSinclairRank(value);
             break;
         case CAT_SINCLAIR:
-            a.setCatSinclairRank(eligible ? (zero ? 0 : ++rank) : -1);
+            a.setCatSinclairRank(value);
             break;
         case COMBINED:
-            a.setCombinedRank(eligible ? (zero ? 0 : ++rank) : -1);
+            a.setCombinedRank(value);
             break;
         case CUSTOM:
-            a.setCustomRank(eligible ? (zero ? 0 : ++rank) : -1);
+            a.setCustomRank(value);
             break;
         case ROBI:
-            a.setRobiRank(eligible ? (zero ? 0 : ++rank) : -1);
+            a.setRobiRank(value);
             break;
         case SMM:
-            a.setSmmRank(eligible ? (zero ? 0 : ++rank) : -1);
+            a.setSmmRank(value);
             break;
         }
     }

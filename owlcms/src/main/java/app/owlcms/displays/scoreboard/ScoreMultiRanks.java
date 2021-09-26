@@ -615,7 +615,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         ja.put("total", formatInt(a.getTotal()));
 
         ja.put("snatchRank", formatInt(a.getMainRankings().getSnatchRank()));
-        //FIXME
+        //FIXME dynamically allocate for groups
 //        ja.put("snatchRankYth", formatInt(a.getSnatchRankYth()));
 //        ja.put("snatchRankJr", formatInt(a.getSnatchRankJr()));
 //        ja.put("snatchRankSr", formatInt(a.getSnatchRankSr()));

@@ -293,43 +293,31 @@ public class Athlete {
     @JoinColumn(name = "fk_group", nullable = true)
     private Group group;
 
-    /* Should check with https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa-and-hibernate/ */
+    /* eager does not hurt for us.
+     * https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa-and-hibernate/ */
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_categ", nullable = true)
     private Category category = null;
 
-//    @ManyToMany(cascade = {
-//            CascadeType.PERSIST,
-//            CascadeType.MERGE,  CascadeType.REFRESH
-//    }, fetch = FetchType.EAGER)
-//    @JoinTable(name = "athlete_eligiblecategory", joinColumns = @JoinColumn(name = "athlete_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
-//    private Set<Category> eligibleCategories = new HashSet<>();
-
     @OneToMany(mappedBy = "athlete", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Participation> participations = new ArrayList<>();
 
     /**
-     * Using separate fileds is brute force, but having embedded classes does not bring much and we don't want joins or
+     * Using separate fields is brute force, but having embedded classes does not bring much and we don't want joins or
      * other such logic for the Athlete card. Since the Athlete card is 6 x 4 items, we take the simple route.
      *
      * The use of Strings is historical. It was extremely cumbersome to handle conversions to/from Integer in Vaadin 6
-     * circa 2009
+     * circa 2009, and migration of databases would be annoying to users.
      */
     private String snatch1Declaration;
-
     private String snatch1Change1;
-
     private String snatch1Change2;
-
     private String snatch1ActualLift;
-
     private LocalDateTime snatch1LiftTime;
 
     private String snatch2Declaration;
-
     private String snatch2Change1;
-
     private String snatch2Change2;
     private String snatch2ActualLift;
     private LocalDateTime snatch2LiftTime;
@@ -358,37 +346,16 @@ public class Athlete {
     private String cleanJerk3ActualLift;
     private LocalDateTime cleanJerk3LiftTime;
 
-//    private Integer snatchRank;
-//    private Integer snatchRankJr;
-//    private Integer snatchRankSr;
-//    private Integer snatchRankYth;
-//    private Integer cleanJerkRank;
-
-//    private Integer cleanJerkRankJr;
-//    private Integer cleanJerkRankSr;
-//    private Integer cleanJerkRankYth;
-//
-//    private Integer totalRank;
-//    private Integer totalRankJr;
-//    private Integer totalRankSr;
-//    private Integer totalRankYth;
-
     private Integer sinclairRank;
     private Integer robiRank;
     private Integer customRank;
-
-    private Integer snatchPoints;
-    private Integer cleanJerkPoints;
-    private Integer totalPoints; // points based on totalRank
-    private Float sinclairPoints;
-    private Integer customPoints;
-
     private Integer teamSinclairRank;
     private Integer teamRobiRank;
     private Integer teamSnatchRank;
     private Integer teamCleanJerkRank;
     private Integer teamTotalRank;
     private Integer teamCombinedRank;
+    
     @Column(columnDefinition = "integer default 0")
     private int catSinclairRank;
     @Column(columnDefinition = "integer default 0")
@@ -1111,10 +1078,9 @@ public class Athlete {
      * @return the clean jerk points
      */
     public Integer getCleanJerkPoints() {
-        if (cleanJerkPoints == null) {
-            return 0;
-        }
-        return cleanJerkPoints;
+        Participation mr = getMainRankings();   
+        int points = (mr != null ? mr.getSnatchPoints() : 0);
+        return points;
     }
 
     /**
@@ -1225,7 +1191,9 @@ public class Athlete {
      * @return the customPoints
      */
     public Integer getCustomPoints() {
-        return customPoints;
+        Participation mr = getMainRankings();   
+        int points = (mr != null ? mr.getCustomPoints() : 0);
+        return points;
     }
 
     /**
@@ -1824,15 +1792,6 @@ public class Athlete {
     }
 
     /**
-     * Gets the sinclair points.
-     *
-     * @return the sinclairPoints
-     */
-    public Float getSinclairPoints() {
-        return sinclairPoints;
-    }
-
-    /**
      * Gets the sinclair rank.
      *
      * @return the sinclair rank
@@ -2104,10 +2063,9 @@ public class Athlete {
      * @return the snatch points
      */
     public Integer getSnatchPoints() {
-        if (snatchPoints == null) {
-            return 0;
-        }
-        return snatchPoints;
+        Participation mr = getMainRankings();   
+        int points = (mr != null ? mr.getSnatchPoints() : 0);
+        return points;
     }
 
     /**
@@ -2249,9 +2207,8 @@ public class Athlete {
      * @return the total points
      */
     public Integer getTotalPoints() {
-        if (totalPoints == null) {
-            return 0;
-        }
+        Participation mr = getMainRankings();   
+        int totalPoints = (mr != null ? mr.getTotalPoints() : 0);
         return totalPoints;
     }
 
@@ -2517,7 +2474,6 @@ public class Athlete {
             setPresumedBodyWeight(category.getMaximumWeight());
         }
         // the category is already from the eligible set
-        // TODO add assertion
         // this.addEligibleCategory(category);
         logger.trace("{} category {} {}", System.identityHashCode(this),
                 category != null ? category.getParticipations() : null, LoggerUtils.stackTrace());
@@ -2854,7 +2810,7 @@ public class Athlete {
      * @param points the new clean jerk points
      */
     public void setCleanJerkPoints(Integer points) {
-        this.cleanJerkPoints = points;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -2876,7 +2832,7 @@ public class Athlete {
      * @param customPoints the new custom points
      */
     public void setCustomPoints(Integer customPoints) {
-        this.customPoints = customPoints;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -3090,19 +3046,6 @@ public class Athlete {
      */
     public void setRobiRank(Integer robiRank) {
         this.robiRank = robiRank;
-    }
-
-//    /**
-//     * Sets the rank.
-//     *
-//     * @param i the new rank
-//     */
-//    public void setRank(Integer i) {
-//        this.totalRank = i;
-//    }
-
-    public void setSinclairPoints(Float sinclairPoints) {
-        this.sinclairPoints = sinclairPoints;
     }
 
     /**
@@ -3424,7 +3367,7 @@ public class Athlete {
      * @param snatchPoints the new snatch points
      */
     public void setSnatchPoints(Integer snatchPoints) {
-        this.snatchPoints = snatchPoints;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -3534,7 +3477,7 @@ public class Athlete {
      * @param totalPoints the new total points
      */
     public void setTotalPoints(Integer totalPoints) {
-        this.totalPoints = totalPoints;
+        throw new UnsupportedOperationException();
     }
 
     // /**

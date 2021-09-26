@@ -7,32 +7,47 @@
 package app.owlcms.data.category;
 
 /**
- * Used to tally category-specific rankings.
- * 
+ * Used to compute category-specific rankings.
+ *
  * @author Jean-François Lamy
  *
  */
 public class CategoryRankingHolder {
-    public int getSnatchRank() {
-        return snatchRank;
+    protected int snatchRank = 0;
+    protected int cleanJerkRank = 0;
+    protected int totalRank = 0;
+    protected int customRank = 0;
+
+    public int getCustomRank() {
+        return customRank;
     }
-    public void setSnatchRank(int snatchRank) {
-        this.snatchRank = snatchRank;
+
+    public void setCustomRank(int customRank) {
+        this.customRank = customRank;
     }
+
     public int getCleanJerkRank() {
         return cleanJerkRank;
     }
-    public void setCleanJerkRank(int cleanJerkRank) {
-        this.cleanJerkRank = cleanJerkRank;
+
+    public int getSnatchRank() {
+        return snatchRank;
     }
+
     public int getTotalRank() {
         return totalRank;
     }
+
+    public void setCleanJerkRank(int cleanJerkRank) {
+        this.cleanJerkRank = cleanJerkRank;
+    }
+
+    public void setSnatchRank(int snatchRank) {
+        this.snatchRank = snatchRank;
+    }
+
     public void setTotalRank(int totalRank) {
         this.totalRank = totalRank;
     }
-    private int snatchRank = 0;
-    private int cleanJerkRank = 0;
-    private int totalRank = 0;
 
 }
