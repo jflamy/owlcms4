@@ -58,7 +58,6 @@ public class AthleteSorterTest {
         //Collections.shuffle(athletes);
 
         List<Athlete> sorted = AthleteSorter.liftingOrderCopy(athletes);
-        System.err.println("lifting order \n"+DebugUtils.longDump(sorted));
         final String actual = DebugUtils.shortDump(sorted);
         assertEqualsToReferenceFile(resName, actual);
     }

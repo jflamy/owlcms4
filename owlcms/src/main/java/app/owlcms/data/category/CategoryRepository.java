@@ -175,9 +175,7 @@ public class CategoryRepository {
         return JPAService.runInTransaction(em -> {
             List<Category> doFindFiltered = doFindFiltered(em, name, gender, ageDivision, ageGroup, age, bodyWeight,
                     active, offset, limit);
-//            logger.trace("found {} searching for {} {} {} {} {}", doFindFiltered.size(), gender, ageDivision, age, bodyWeight, active);
-//            System.err .println("findFiltered "+ doFindFiltered.size()+" "+gender+" "+ageDivision+" "+age+" "+bodyWeight+" "+active);
-//            System.err .println("first="+doFindFiltered.get(0).longDump());
+            //logger.trace("found {} searching for {} {} {} {} {}", doFindFiltered.size(), gender, ageDivision, age, bodyWeight, active);
             return doFindFiltered;
         });
     }

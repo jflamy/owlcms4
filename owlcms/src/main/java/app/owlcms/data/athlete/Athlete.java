@@ -4373,7 +4373,7 @@ public class Athlete {
                 logger.warn("    removing {}", part);
                 iterator.remove();
             } else {
-                logger.warn("    ok {} {}-{} {}-{}", part, athId, partAthId, catId, partCatId);
+                //logger.trace("    ok {} {}-{} {}-{}", part, athId, partAthId, catId, partCatId);
             }
         }
     }

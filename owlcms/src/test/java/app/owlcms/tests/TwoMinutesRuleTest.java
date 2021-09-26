@@ -85,8 +85,6 @@ public class TwoMinutesRuleTest {
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);
 
-        System.err.println("sequence3 initial lifting order \n" + DebugUtils.longDump(fopState.getLiftingOrder()));
-
         // competition start
         assertEquals(60000, fopState.getTimeAllowed());
         logger.debug("(1)\n{}", DebugUtils.shortDump(fopState.getLiftingOrder()));

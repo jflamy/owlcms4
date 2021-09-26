@@ -17,7 +17,6 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
@@ -248,8 +247,7 @@ public class AgeGroupRepository {
             return null;
         } else {
             try {
-                Category newCat = new Category();
-                BeanUtils.copyProperties(newCat, template);
+                Category newCat = new Category(template);
                 newCat.setMinimumWeight(curMin);
                 newCat.setCode(ag.getCode() + "_" + template.getCode());
                 ag.addCategory(newCat);

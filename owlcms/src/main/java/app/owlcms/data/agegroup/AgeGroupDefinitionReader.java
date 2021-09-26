@@ -182,11 +182,15 @@ public class AgeGroupDefinitionReader {
                                     curMin = cat.getMaximumWeight();
                                 }
                             } catch (Exception e) {
-                                Throwable cause = e.getCause();
-                                String msg = MessageFormat.format("cannot process cell {0} (content = \"{1}\") {2} {3}", cellName(iColumn, iRow), cellValue, cause.getClass().getSimpleName(), cause.getMessage());
-                                logger.error(msg);
-                                NotificationUtils.errorNotification(msg);
-                                throw new RuntimeException(msg);
+                                try {
+                                    Throwable cause = e.getCause();
+                                    String msg = MessageFormat.format("cannot process cell {0} (content = \"{1}\") {2} {3}", cellName(iColumn, iRow), cellValue, cause.getClass().getSimpleName(), cause.getMessage());
+                                    logger.error(msg);
+                                    NotificationUtils.errorNotification(msg);
+                                    throw new RuntimeException(msg);
+                                } catch (Exception e1) {
+                                    throw new RuntimeException(e);
+                                }
                             }
 
                         }
