@@ -133,7 +133,7 @@ public class AthleteRepository {
         List<Athlete> findFiltered = findFiltered((String) null, group, (Category) null, (AgeGroup) null,
                 (AgeDivision) null, (Gender) null, weighedIn,
                 -1, -1);
-        logger.warn("findFiltered found {}", findFiltered.size());
+        logger.debug("findFiltered found {}", findFiltered.size());
         return findFiltered;
     }
 

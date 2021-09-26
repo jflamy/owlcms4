@@ -181,7 +181,31 @@ public class Athlete {
             src.setLoggerLevel(prevSrcLevel);
         }
     }
-
+    
+    public int getTotalRank() {
+        return (getMainRankings() != null ? getMainRankings().getTotalRank() : -1);
+    }
+    
+    public int getSnatchRank() {
+        return (getMainRankings() != null ? getMainRankings().getSnatchRank() : -1);
+    }
+    
+    public int getCleanJerkRank() {
+        return (getMainRankings() != null ? getMainRankings().getCleanJerkRank() : -1);
+    }
+    
+    public void setTotalRank(int ignored) {
+        throw new UnsupportedOperationException();
+    }
+    
+    public void setSnatchRank(int ignored) {
+        throw new UnsupportedOperationException();
+    }
+    
+    public void setCleanJerkRank(int ignored ) {
+        throw new UnsupportedOperationException();
+    }
+ 
     /**
      * Copy lift values to/from another athlete object used as editing scratchpad.
      *
