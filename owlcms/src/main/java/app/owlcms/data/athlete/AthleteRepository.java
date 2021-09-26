@@ -99,7 +99,7 @@ public class AthleteRepository {
             AgeGroup ageGroup,
             AgeDivision ageDivision, Gender gender, Boolean weighedIn, int offset, int limit) {
         String qlString = "select a from Athlete a"
-                + filteringSelection(lastName, group, category, ageGroup, ageDivision, gender, weighedIn);
+                + filteringSelection(lastName, group, category, ageGroup, ageDivision, gender, weighedIn) + " order by a.category";
         logger.debug("find query = {}", qlString);
         Query query = em.createQuery(qlString);
         setFilteringParameters(lastName, group, category, ageGroup, ageDivision, gender, query);
