@@ -7,7 +7,9 @@
 package app.owlcms.spreadsheet;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -100,6 +102,9 @@ public class RAthlete {
         }
 
         List<Category> found = CategoryRepository.findByGenderAgeBW(a.getGender(), age, searchBodyWeight);
+        Set<Category> eligibles = new LinkedHashSet<>();
+        eligibles.addAll(found);
+        a.setEligibleCategories(eligibles);
         Category category = found.size() > 0 ? found.get(0) : null;
         if (category == null) {
             throw new Exception(
@@ -107,7 +112,9 @@ public class RAthlete {
                             "Upload.CategoryNotFound", age, a.getGender(),
                             legacyResult.group(2) + legacyResult.group(3)));
         }
+
         a.setCategory(category);
+        logger.warn("setting category to {} athlete {}",category.longDump(), a.longDump());
     }
 
     /**

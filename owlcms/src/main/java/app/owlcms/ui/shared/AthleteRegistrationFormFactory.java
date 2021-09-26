@@ -124,7 +124,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
         if (operation == CrudOperation.ADD) {
             Athlete editedAthlete2 = new Athlete();
-            logger.warn("created new Athlete {}",System.identityHashCode(editedAthlete2));
+            logger.debug("created new Athlete {}",System.identityHashCode(editedAthlete2));
             setEditedAthlete(editedAthlete2);
         } else if (aFromList != null) {
             setEditedAthlete(AthleteRepository.findById(aFromList.getId()));
@@ -574,11 +574,11 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         eligibleField.addValueChangeListener((vc) -> {
             if (!isChangeListenersEnabled())
                 return;
-            logger.warn(">>> vc eligibleField start");
+            logger.debug(">>> vc eligibleField start");
             setChangeListenersEnabled(false); // prevent recursion.
             updateCategoryFields(categoryField.getValue(), categoryField, eligibleField, allEligible, true);
             setChangeListenersEnabled(true);
-            logger.warn("<<< vc eligibleField end");
+            logger.debug("<<< vc eligibleField end");
         });
 
         setChangeListenersEnabled(true);
@@ -586,12 +586,20 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     private void recomputeCategories(ComboBox<Gender> genderField, BodyWeightField bodyWeightField,
             ComboBox<Category> categoryField,  MultiselectComboBox<Category> eligibleField, HasValue<?, ?> dateField) {
-        //TODO reinsert check for 3 values being set
-        //if (genderField.getValue() != null && bodyWeightField.getValue() != null && dateField.getValue() != null) {
+        if (genderField.getValue() != null && bodyWeightField.getValue() != null && dateField.getValue() != null) {
             allEligible = findEligibleCategories(genderField, bodyWeightField);
             Category category2 = bestMatch(allEligible);
             updateCategoryFields(category2, categoryField, eligibleField, allEligible, true);
-        //}
+        } else if (genderField.getValue() != null && dateField.getValue() != null && categoryField.getValue() != null && bodyWeightField.getValue() == null) {
+            Double bw = categoryField.getValue().getMaximumWeight();
+            Integer ageFromFields = getAgeFromFields();
+            if (ageFromFields != null && ageFromFields > 5 && ageFromFields < 120) {
+                allEligible = CategoryRepository.findByGenderAgeBW(genderField.getValue(),
+                        ageFromFields, bw);
+                Category category2 = bestMatch(allEligible);
+                updateCategoryFields(category2, categoryField, eligibleField, allEligible, true);
+            }
+        }
     }
 
     private Category bestMatch(List<Category> allEligible2) {
@@ -615,7 +623,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         } else {
             prevEligibles = eligibleField.getValue();
         }
-        logger.warn("updateCategoryFields {} - {} {} {}", prevEligibles, category, allEligible,
+        logger.debug("updateCategoryFields {} - {} {} {}", prevEligibles, category, allEligible,
                 LoggerUtils.whereFrom());
 
         if (prevEligibles != null) {
@@ -625,13 +633,13 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             for (Category oldEligible : prevEligibles) {
                 for (Category newEligible : allEligible) {
                     if (ObjectUtils.compare(newEligible.getName(), oldEligible.getName()) == 0) {
-                        logger.warn("substituting eligibles {} {}", newEligible.longDump(), System.identityHashCode(newEligible));
+                        logger.debug("substituting eligibles {} {}", newEligible.longDump(), System.identityHashCode(newEligible));
                         newEligibles.add(newEligible);
                         break;
                     }
                 }
             }
-            logger.warn("new eligibles {}", newEligibles.stream().map(v -> v.longDump()).collect(Collectors.toList()));
+            logger.debug("new eligibles {}", newEligibles.stream().map(v -> v.longDump()).collect(Collectors.toList()));
             categoryField.setItems(newEligibles);
             eligibleField.setItems(allEligible);
             eligibleField.setValue(newEligibles);
@@ -650,10 +658,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 }
             }
             categoryField.setValue(matchingEligible);
-            logger.warn("category {} {} matching eligible {} {}", category, System.identityHashCode(category),
+            logger.debug("category {} {} matching eligible {} {}", category, System.identityHashCode(category),
                     matchingEligible, System.identityHashCode(matchingEligible));
         } else {
-            logger.warn("category is null");
+            logger.debug("category is null");
         }
     }
 
