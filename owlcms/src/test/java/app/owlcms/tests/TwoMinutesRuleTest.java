@@ -201,6 +201,7 @@ public class TwoMinutesRuleTest {
         });        
         fopState.loadGroup(gA, this, true);
     }
+    
     public void prepState4(FieldOfPlay fopState, EventBus fopBus, Logger logger2) {
         fopState.beforeTest();
         fopState.loadGroup(gA, this, true);

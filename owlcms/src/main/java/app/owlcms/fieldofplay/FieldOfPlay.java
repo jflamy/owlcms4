@@ -751,6 +751,7 @@ public class FieldOfPlay {
     public void recomputeOrderAndRanks() {
         Group g = getGroup();
         List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(g);
+        logger.warn("rankedAthletes {}", rankedAthletes);
         if (rankedAthletes == null) {
             setDisplayOrder(null);
             setCurAthlete(null);
