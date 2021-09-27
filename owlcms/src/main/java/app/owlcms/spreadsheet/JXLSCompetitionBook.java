@@ -37,7 +37,6 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
     @SuppressWarnings("unused")
     private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
-//    private byte[] finalPackageTemplate;
 
     public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
         super(ui);
@@ -51,12 +50,6 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     @Override
     public InputStream getTemplate(Locale locale) throws IOException {
         Competition current = Competition.getCurrent();
-//        finalPackageTemplate = current.getFinalPackageTemplate();
-//        if (finalPackageTemplate == null) {
-//            finalPackageTemplate = loadDefaultPackageTemplate(locale, current);
-//        }
-//        InputStream stream = new ByteArrayInputStream(finalPackageTemplate);
-//        return stream;
         String protocolTemplateFileName = current.getFinalPackageTemplateFileName();
 
         int stripIndex = protocolTemplateFileName.indexOf("_");
