@@ -1444,11 +1444,9 @@ public class FieldOfPlay {
                                     // sometimes happens).
         } else {
             loadGroup(group2, e.getOrigin(), true);
-            // updateGlobalRankings(); // done by loadGroup which calls init which calls recomputeLiftingOrder.@m
             setState(CURRENT_ATHLETE_DISPLAYED);
         }
         if (stopBreakTimer) {
-
             getBreakTimer().stop();
             setBreakType(null);
         }
