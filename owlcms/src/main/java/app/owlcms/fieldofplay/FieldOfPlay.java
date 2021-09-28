@@ -780,7 +780,7 @@ public class FieldOfPlay {
         setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
 
         List<Athlete> liftingOrder2 = getLiftingOrder();
-        if (logger.isEnabledFor(Level.ERROR)) {
+        if (logger.isEnabledFor(Level.TRACE)) {
             for (Athlete a : getLiftingOrder()) {
                 Participation p = a.getMainRankings();
                 logger.debug("**** {} {} {} {} {} {}", a, p.getCategory(), p.getSnatchRank(), p.getCleanJerkRank(),
@@ -803,19 +803,19 @@ public class FieldOfPlay {
                     .filter(a -> a.getCategory().equals(category)).collect(Collectors.toList());
 
             boolean cjStarted2 = isCjStarted();
-            logger.trace("!!! currentCategoryAthletes {} {}", currentCategoryAthletes, cjStarted2);
+            //logger.trace("currentCategoryAthletes {} {}", currentCategoryAthletes, cjStarted2);
             if (!cjStarted2) {
                 List<Athlete> snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
                         .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
                         .collect(Collectors.toList());
                 setLeaders(snatchLeaders);
-                logger.debug("snatch leaders {} {}", snatchLeaders, currentCategoryAthletes);
+                //logger.trace("snatch leaders {} {}", snatchLeaders, currentCategoryAthletes);
             } else {
                 List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
                         .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
                         .collect(Collectors.toList());
                 setLeaders(totalLeaders);
-                logger.debug("total leaders {} {}", totalLeaders, currentCategoryAthletes);
+                //logger.trace("total leaders {} {}", totalLeaders, currentCategoryAthletes);
             }
         } else {
             setLeaders(null);
