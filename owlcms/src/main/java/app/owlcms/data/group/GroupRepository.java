@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.data.group;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -14,6 +15,7 @@ import javax.persistence.TypedQuery;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.jpa.JPAService;
@@ -126,14 +128,16 @@ public class GroupRepository {
         return JPAService.runInTransaction((em) -> {
             // this is the only case where group needs to know its athletes, so we do a
             // query instead of adding a relationship.
-            TypedQuery<Athlete> aQ = em.createQuery("select a from Athlete a join a.group g where g.id = :groupId", Athlete.class);
+            TypedQuery<Athlete> aQ = em.createQuery("select a from Athlete a join a.group g where g.id = :groupId",
+                    Athlete.class);
             aQ.setParameter("groupId", g.getId());
             return aQ.getResultList();
         });
     }
-    
+
     /**
      * List all athletes for the categories present in the group
+     * 
      * @param g
      * @return
      */
@@ -141,15 +145,17 @@ public class GroupRepository {
         return JPAService.runInTransaction((em) -> {
             String categoriesFromCurrentGroup = "(select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId and c2.id = c.id)";
             TypedQuery<Athlete> q = em.createQuery(
-                    "select distinct a from Athlete a join a.participations p join p.category c where exists "+ categoriesFromCurrentGroup,
+                    "select distinct a from Athlete a join a.participations p join p.category c where exists "
+                            + categoriesFromCurrentGroup,
                     Athlete.class);
             q.setParameter("groupId", g.getId());
             return q.getResultList();
         });
     }
-    
+
     /**
      * List all athletes needed for leader board
+     * 
      * @param g
      * @return
      */
@@ -162,7 +168,19 @@ public class GroupRepository {
             return q.getResultList();
         });
     }
-    
-    
+
+    public List<AgeGroup> allAgeGroups(Group g) {
+        if (g == null) {
+            return new ArrayList<AgeGroup>();
+        } else {
+            return JPAService.runInTransaction((em) -> {
+                TypedQuery<AgeGroup> q = em.createQuery(
+                        "select distinct ag from Athlete a join a.group g join a.participations p join p.category c join c.ageGroup ag where g.id = :groupId order by ag.maxAge, ag.minAge",
+                        AgeGroup.class);
+                q.setParameter("groupId", g.getId());
+                return q.getResultList();
+            });
+        }
+    }
 
 }

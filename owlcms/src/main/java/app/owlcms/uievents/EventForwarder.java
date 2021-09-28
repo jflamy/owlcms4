@@ -420,12 +420,12 @@ public class EventForwarder implements BreakDisplay {
 
     private void computeCurrentGroup(Competition competition) {
         Group group = fop.getGroup();
-        List<Athlete> globalRankingsForCurrentGroup = competition.getGlobalCategoryRankingsForGroup(group);
-        int liftsDone = AthleteSorter.countLiftsDone(globalRankingsForCurrentGroup);
+        List<Athlete> displayOrder = fop.getDisplayOrder();
+        int liftsDone = AthleteSorter.countLiftsDone(displayOrder);
         setGroupName(computeSecondLine(fop.getCurAthlete(), group != null ? group.getName() : null));
         setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
-        if (globalRankingsForCurrentGroup != null && globalRankingsForCurrentGroup.size() > 0) {
-            setGroupAthletes(getAthletesJson(globalRankingsForCurrentGroup, fop.getLiftingOrder()));
+        if (displayOrder != null && displayOrder.size() > 0) {
+            setGroupAthletes(getAthletesJson(displayOrder, fop.getLiftingOrder()));
         } else {
             setGroupAthletes(null);
         }

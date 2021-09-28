@@ -15,6 +15,7 @@ import static app.owlcms.fieldofplay.FOPState.TIME_RUNNING;
 import static app.owlcms.fieldofplay.FOPState.TIME_STOPPED;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -31,6 +32,7 @@ import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -39,6 +41,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.FOPEvent.BarbellOrPlatesChanged;
 import app.owlcms.fieldofplay.FOPEvent.BreakPaused;
@@ -157,6 +160,12 @@ public class FieldOfPlay {
     private int liftsDoneAtLastStart;
 
     private List<Athlete> leaders;
+    
+    private LinkedHashMap<String,Participation> ageGroupMap = new LinkedHashMap<>();
+
+    public LinkedHashMap<String, Participation> getAgeGroupMap() {
+        return ageGroupMap;
+    }
 
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
@@ -667,6 +676,12 @@ public class FieldOfPlay {
         this.setClockOwnerInitialTimeAllowed(0);
         this.previousAthlete = null;
         this.setLiftingOrder(athletes);
+        List<AgeGroup> allAgeGroups = new GroupRepository().allAgeGroups(getGroup());
+        this.ageGroupMap = new LinkedHashMap<>();
+        for (AgeGroup ag : allAgeGroups) {
+            ageGroupMap.put(ag.getCode(),null);
+        }
+        
         if (athletes != null && athletes.size() > 0) {
             recomputeLiftingOrder();
         }
@@ -879,7 +894,7 @@ public class FieldOfPlay {
 
     public void setWeightAtLastStart(Integer nextAttemptRequestedWeight) {
         weightAtLastStart = nextAttemptRequestedWeight;
-        setLiftsDoneAtLastStart(((curAthlete != null) ? curAthlete.getAttemptsDone() : 0));
+        setLiftsDoneAtLastStart(((getCurAthlete() != null) ? getCurAthlete().getAttemptsDone() : 0));
     }
 
     /**
@@ -1210,7 +1225,7 @@ public class FieldOfPlay {
     }
 
     private void setCurAthlete(Athlete athlete) {
-        logger.trace("changing curAthlete to {} [{}]", athlete, LoggerUtils.whereFrom());
+        logger.warn("changing curAthlete to {} [{}]", athlete, LoggerUtils.whereFrom());
         this.curAthlete = athlete;
     }
 
@@ -1519,15 +1534,7 @@ public class FieldOfPlay {
         logger./**/warn(getLoggingName() + " " + Translator.translate("Unexpected_Logging"),
                 e.getClass().getSimpleName(), state);
 
-        pushOut(new UIEvent.Notification(this.curAthlete, e.getOrigin(), e, state));
-    }
-
-    @SuppressWarnings("unused")
-    private void updateGlobalRankings() {
-        logger.trace("{}update rankings {}", getLoggingName(), LoggerUtils.whereFrom());
-        Competition competition = Competition.getCurrent();
-        competition.computeGlobalRankings(false);
-        uiShowUpdatedRankings();
+        pushOut(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, state));
     }
 
     private void updateRefereeDecisions(FOPEvent.DecisionFullUpdate e) {
@@ -1558,5 +1565,6 @@ public class FieldOfPlay {
         uiDisplayCurrentAthleteAndTime(false, e, false);
         // updateGlobalRankings(); // now done in recomputeOrderAndRanks
     }
+
 
 }

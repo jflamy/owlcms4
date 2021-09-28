@@ -345,9 +345,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     @Subscribe
     public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
         uiLog(e);
-        Competition competition = Competition.getCurrent();
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            computeLeaders(competition);
+            computeLeaders();
         });
     }
 
@@ -368,7 +367,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         uiEventLogger.debug("### {} isDisplayToggle={}", this.getClass().getSimpleName(), e.isDisplayToggle());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Athlete a = e.getAthlete();
-            order = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
+            order = e.getDisplayOrder();
             liftsDone = AthleteSorter.countLiftsDone(order);
             doUpdate(a, e);
         });
@@ -469,12 +468,11 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
 
         // fop obtained via FOPParameters interface default methods.
-        Competition competition = Competition.getCurrent();
         OwlcmsSession.withFop(fop -> {
             init();
 
             // get the global category rankings for the group
-            order = competition.getGlobalCategoryRankingsForGroup(fop.getGroup());
+            order = fop.getDisplayOrder();
 
             liftsDone = AthleteSorter.countLiftsDone(order);
             syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
@@ -483,7 +481,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         });
         switchLightingMode(this, isDarkMode(), true);
         SoundUtils.enableAudioContextNotification(this.getElement());
-        computeLeaders(competition);
     }
 
     protected void setTranslationMap() {
@@ -498,7 +495,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         this.getElement().setPropertyJson("t", translations);
     }
 
-    private void computeLeaders(Competition competition) {
+    private void computeLeaders() {
         logger.debug("computeLeaders");
         OwlcmsSession.withFop(fop -> {
             Athlete curAthlete = fop.getCurAthlete();
@@ -752,6 +749,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             }
             this.getElement().setPropertyJson("athletes",
                     getAthletesJson(fop.getDisplayOrder(), fop.getLiftingOrder()));
+            computeLeaders();
         });
     }
 }

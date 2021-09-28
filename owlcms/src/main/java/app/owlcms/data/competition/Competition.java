@@ -330,6 +330,7 @@ public class Competition {
         }
     }
 
+    @Deprecated
     synchronized public List<Athlete> getGlobalCategoryRankingsForGroup(Group group) {
         if (group == null || group.getName() == null) {
             logger.debug("null group");
