@@ -211,27 +211,6 @@ public class AthleteSorter implements Serializable {
         }
     }
 
-    // /**
-    // * Sort athletes according to official rules (in place) for the technical
-    // * meeting <tableToolbar> <li>by registration category</li> <li>by lot
-    // * number</li> </tableToolbar>
-    // */
-    // static public void weighInOrder(List<Athlete> toBeSorted) {
-    // Collections.sort(toBeSorted, new WeighInOrderComparator());
-    // }
-    //
-    // /**
-    // * Sort athletes according to official rules, creating a new list.
-    // *
-    // * @see #liftingOrder(List)
-    // * @return athletes, ordered according to their standard order for the
-    // * technical meeting
-    // */
-    // static public List<Athlete> weighInOrderCopy(List<Athlete> toBeSorted) {
-    // List<Athlete> sorted = new ArrayList<Athlete>(toBeSorted);
-    // weighInOrder(sorted);
-    // return sorted;
-    // }
 
     /**
      * Sort athletes according to official rules (in place) <tableToolbar>

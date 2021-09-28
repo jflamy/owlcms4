@@ -208,7 +208,9 @@ public class AthleteRepository {
     public static Athlete save(Athlete athlete) {
         return JPAService.runInTransaction((em) -> {
             Competition.getCurrent().setRankingsInvalid(true);
-            return em.merge(athlete);
+            Athlete merged = em.merge(athlete);
+            logger.warn("isForcedAsCurrent({}) {}", athlete, athlete.isForcedAsCurrent());
+            return merged;
         });
     }
 

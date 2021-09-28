@@ -766,7 +766,7 @@ public class FieldOfPlay {
     public void recomputeOrderAndRanks() {
         Group g = getGroup();
         List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(g);
-        logger.warn("rankedAthletes {}", rankedAthletes);
+        //logger.trace("rankedAthletes {}", rankedAthletes);
         if (rankedAthletes == null) {
             setDisplayOrder(null);
             setCurAthlete(null);
@@ -780,16 +780,15 @@ public class FieldOfPlay {
         setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
 
         List<Athlete> liftingOrder2 = getLiftingOrder();
-        setCurAthlete(liftingOrder2 != null && liftingOrder2.size() > 0 ? liftingOrder2.get(0) : null);
-        recomputeCurrentLeaders(rankedAthletes);
-
         if (logger.isEnabledFor(Level.ERROR)) {
-            for (Athlete a : getDisplayOrder()) {
+            for (Athlete a : getLiftingOrder()) {
                 Participation p = a.getMainRankings();
-                logger.debug("**** {} {} {} {} {}", a, p.getCategory(), p.getSnatchRank(), p.getCleanJerkRank(),
-                        p.getTotalRank());
+                logger.debug("**** {} {} {} {} {} {}", a, p.getCategory(), p.getSnatchRank(), p.getCleanJerkRank(),
+                        p.getTotalRank(), a.isForcedAsCurrent());
             }
         }
+        setCurAthlete(liftingOrder2 != null && liftingOrder2.size() > 0 ? liftingOrder2.get(0) : null);
+        recomputeCurrentLeaders(rankedAthletes);
     }
 
     private void recomputeCurrentLeaders(List<Athlete> rankedAthletes) {
@@ -804,7 +803,7 @@ public class FieldOfPlay {
                     .filter(a -> a.getCategory().equals(category)).collect(Collectors.toList());
 
             boolean cjStarted2 = isCjStarted();
-            logger.debug("!!! currentCategoryAthletes {} {}", currentCategoryAthletes, cjStarted2);
+            logger.trace("!!! currentCategoryAthletes {} {}", currentCategoryAthletes, cjStarted2);
             if (!cjStarted2) {
                 List<Athlete> snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
                         .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
