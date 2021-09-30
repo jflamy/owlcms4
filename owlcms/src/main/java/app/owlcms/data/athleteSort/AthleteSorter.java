@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import javax.persistence.Entity;
 
@@ -41,7 +42,7 @@ public class AthleteSorter implements Serializable {
     public enum Ranking {
         SNATCH, CLEANJERK, TOTAL,
         /** combined (men + women). */
-        COMBINED,
+        SNATCH_CJ_TOTAL,
         CAT_SINCLAIR, // legacy Quebec federation, Sinclair computed at category boundary
         BW_SINCLAIR, // normal sinclair
         SMM, // Sinclair Malone-Meltzer
@@ -405,7 +406,7 @@ public class AthleteSorter implements Serializable {
         switch (rankingType) {
         case BW_SINCLAIR:
         case CAT_SINCLAIR:
-        case COMBINED:
+        case SNATCH_CJ_TOTAL:
         case ROBI:
         case SMM:
             resultsOrder(sorted, rankingType, true);
@@ -433,7 +434,7 @@ public class AthleteSorter implements Serializable {
         switch (rankingType) {
         case BW_SINCLAIR:
         case CAT_SINCLAIR:
-        case COMBINED:
+        case SNATCH_CJ_TOTAL:
         case ROBI:
         case SMM:
             resultsOrder(sorted, rankingType, true);
@@ -515,7 +516,7 @@ public class AthleteSorter implements Serializable {
             return pointsFormula(curLifter.getMainRankings().getTotalRank(), curLifter);
         case CUSTOM:
             return pointsFormula(curLifter.getCustomRank(), curLifter);
-        case COMBINED:
+        case SNATCH_CJ_TOTAL:
             return pointsFormula(curLifter.getMainRankings().getSnatchRank(), curLifter)
                     + pointsFormula(curLifter.getMainRankings().getCleanJerkRank(), curLifter)
                     + pointsFormula(curLifter.getMainRankings().getTotalRank(), curLifter);
@@ -552,7 +553,7 @@ public class AthleteSorter implements Serializable {
             return curLifter.getRobi();
         case CUSTOM:
             return curLifter.getCustomScoreComputed();
-        case COMBINED:
+        case SNATCH_CJ_TOTAL:
             return 0D; // no such thing
         case BW_SINCLAIR:
             return curLifter.getSinclair();
@@ -601,6 +602,16 @@ public class AthleteSorter implements Serializable {
         }
         return 26 - rank;
     }
+
+
+    public static List<Athlete> teamPointsOrderParticipations(List<Participation> mwAgeGroupParticipations,
+            Ranking rankingType) {
+        mwAgeGroupParticipations.sort(new TeamPointsPComparator(rankingType));
+        List<Athlete> res = mwAgeGroupParticipations.stream().map(p -> p.getAthlete()).collect(Collectors.toList());
+        return res;
+    }
+
+
 
 //    /**
 //     * @param curLifter

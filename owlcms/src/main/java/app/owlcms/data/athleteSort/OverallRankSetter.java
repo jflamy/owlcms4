@@ -28,7 +28,7 @@ public class OverallRankSetter {
             a.setCatSinclairRank(eligible ? (zero ? 0 : ++rank) : -1);
             break;
 
-        case COMBINED:
+        case SNATCH_CJ_TOTAL:
             a.setCombinedRank(eligible ? (zero ? 0 : ++rank) : -1);
             break;
         case CUSTOM:

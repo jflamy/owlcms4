@@ -49,7 +49,7 @@ public class MultiCategoryRankSetter {
         case CAT_SINCLAIR:
             a.setCatSinclairRank(value);
             break;
-        case COMBINED:
+        case SNATCH_CJ_TOTAL:
             a.setCombinedRank(value);
             break;
         case CUSTOM:

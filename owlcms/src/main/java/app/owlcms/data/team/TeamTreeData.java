@@ -8,6 +8,7 @@ package app.owlcms.data.team;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -70,7 +71,11 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
             }
 
             TeamTreeItem curTeamItem = null;
-            List<Athlete> athletes = (List<Athlete>) Competition.getCurrent().getGlobalTeamsRanking(gender);
+            String key =  (gender == Gender.F ? "wTeamSR" : "mTeamSR");
+            HashMap<String, Object> reportingBeans = Competition.getCurrent().getReportingBeans();
+
+            @SuppressWarnings("unchecked")
+            List<Athlete> athletes = (List<Athlete>) reportingBeans.get(key);
             String prevTeamName = null;
             // count points for each team
             for (Athlete a : athletes) {
@@ -79,7 +84,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                 // gender.
                 Integer maxCount = getTopNTeamSize(a.getGender());
                 String curTeamName = a.getTeam();
-                // logger.warn("a={} curTeam = {}",a, a.getTeam());
+                //logger.warn("a={} curTeam = {}",a, a.getTeam());
                 curTeamItem = findCurTeamItem(getTeamItemsByGender(), gender, curGenderTeams, prevTeamName, curTeamItem,
                         curTeamName != null ? curTeamName : "-");
                 boolean groupIsDone = groupIsDone(a);
@@ -87,7 +92,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                 double curScore = a.getSinclairForDelta();
 
                 int curTeamCount = 0;
-                logger.debug("Athlete {} {} {} {} {} {}", curTeamName, a, a.getGender(), curPoints, curTeamCount,
+                logger.warn("Athlete {} {} {} {} {} {}", curTeamName, a, a.getGender(), curPoints, curTeamCount,
                         groupIsDone);
                 // results are ordered by total points
 
@@ -177,10 +182,13 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
         if (debug) {
             logger.setLevel(Level.DEBUG);
         }
+        
+        Competition.getCurrent().computeReportingInfo(true);
         buildTeamItemTree();
         if (debug) {
             dumpTeams();
         }
+
         for (Gender g : Gender.values()) {
             List<TeamTreeItem> teams = getTeamItemsByGender().get(g);
             if (teams != null) {

@@ -12,22 +12,23 @@ package app.owlcms.data.category;
  * @author Jean-François Lamy
  *
  */
-public class CategoryRankingHolder {
+public class CategoryRankingHolder implements IRankHolder {
     protected int snatchRank = 0;
     protected int cleanJerkRank = 0;
     protected int totalRank = 0;
     protected int customRank = 0;
-
-    public int getCustomRank() {
-        return customRank;
-    }
-
-    public void setCustomRank(int customRank) {
-        this.customRank = customRank;
-    }
+    protected int combinedRank = 0;
 
     public int getCleanJerkRank() {
         return cleanJerkRank;
+    }
+
+    public int getCombinedRank() {
+        return combinedRank;
+    }
+
+    public int getCustomRank() {
+        return customRank;
     }
 
     public int getSnatchRank() {
@@ -42,6 +43,14 @@ public class CategoryRankingHolder {
         this.cleanJerkRank = cleanJerkRank;
     }
 
+    public void setCombinedRank(int combinedRank) {
+        this.combinedRank = combinedRank;
+    }
+
+    public void setCustomRank(int customRank) {
+        this.customRank = customRank;
+    }
+
     public void setSnatchRank(int snatchRank) {
         this.snatchRank = snatchRank;
     }
@@ -49,5 +58,4 @@ public class CategoryRankingHolder {
     public void setTotalRank(int totalRank) {
         this.totalRank = totalRank;
     }
-
 }

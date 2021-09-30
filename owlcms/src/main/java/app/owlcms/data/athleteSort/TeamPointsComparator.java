@@ -83,7 +83,7 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
             final int compareCustom = customPoints1.compareTo(customPoints2);
             logger.trace(lifter1 + " " + customPoints1 + " [" + compareCustom + "]" + lifter2 + " " + customPoints2);
             return compareCustom;
-        case COMBINED:
+        case SNATCH_CJ_TOTAL:
             final Integer combinedPoints1 = lifter1.getCombinedPoints();
             final Integer combinedPoints2 = lifter2.getCombinedPoints();
             final int compareCombined = combinedPoints1.compareTo(combinedPoints2);

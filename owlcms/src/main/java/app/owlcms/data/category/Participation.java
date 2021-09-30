@@ -8,6 +8,7 @@ package app.owlcms.data.category;
 
 import java.util.Objects;
 
+import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -31,7 +32,7 @@ import ch.qos.logback.classic.Logger;
  */
 @Entity(name = "Participation")
 @Table(name = "participation")
-public class Participation extends CategoryRankingHolder {
+public class Participation implements IRankHolder {
 
     final static Logger logger = (Logger) LoggerFactory.getLogger(Participation.class);
 
@@ -45,6 +46,21 @@ public class Participation extends CategoryRankingHolder {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("categoryId")
     private Category category;
+
+    @Column(columnDefinition = "integer default 0") 
+    private int cleanJerkRank;
+
+    @Column(columnDefinition = "integer default 0")
+    private int customRank;
+
+    @Column(columnDefinition = "integer default 0")
+    private int snatchRank;
+
+    @Column(columnDefinition = "integer default 0")
+    private int totalRank;
+
+    @Column(columnDefinition = "integer default 0")
+    private int combinedRank;
 
     public Participation(Athlete athlete, Category category) {
         this();
@@ -83,8 +99,24 @@ public class Participation extends CategoryRankingHolder {
         return AthleteSorter.pointsFormula(cleanJerkRank);
     }
 
+    public int getCleanJerkRank() {
+        return cleanJerkRank;
+    }
+
+    public Integer getCombinedPoints() {
+        return getSnatchPoints() + getCleanJerkPoints() + getTotalPoints();
+    }
+
+    public int getCombinedRank() {
+        return combinedRank;
+    }
+
     public int getCustomPoints() {
         return AthleteSorter.pointsFormula(customRank);
+    }
+
+    public int getCustomRank() {
+        return customRank;
     }
 
     public ParticipationId getId() {
@@ -95,8 +127,16 @@ public class Participation extends CategoryRankingHolder {
         return AthleteSorter.pointsFormula(snatchRank);
     }
 
+    public int getSnatchRank() {
+        return snatchRank;
+    }
+
     public int getTotalPoints() {
         return AthleteSorter.pointsFormula(totalRank);
+    }
+
+    public int getTotalRank() {
+        return totalRank;
     }
 
     @Override
@@ -122,25 +162,27 @@ public class Participation extends CategoryRankingHolder {
         this.category = category;
     }
 
-    @Override
     public void setCleanJerkRank(int cleanJerkRank) {
-        super.setCleanJerkRank(cleanJerkRank);
+        this.cleanJerkRank = cleanJerkRank;
         logger.trace("cleanJerkRank {}", long_dump());
     }
 
-    /**
-     * @param snatchRank the snatchRank to set
-     */
-    @Override
-    public void setSnatchRank(int categoryRank) {
-        super.setSnatchRank(categoryRank);
+    public void setCombinedRank(int combinedRank) {
+        this.combinedRank = combinedRank;
+        logger.trace("combinedRank {}", long_dump());
+    }
+
+    public void setCustomRank(int customRank) {
+        this.customRank = customRank;
+    }
+
+    public void setSnatchRank(int snatchRank) {
+        this.snatchRank = snatchRank;
         logger.trace("snatchRank {}", long_dump());
     }
 
-
-    @Override
     public void setTotalRank(int totalRank) {
-        super.setTotalRank(totalRank);
+        this.totalRank = totalRank;
         logger.trace("totalRank {}", long_dump());
     }
 

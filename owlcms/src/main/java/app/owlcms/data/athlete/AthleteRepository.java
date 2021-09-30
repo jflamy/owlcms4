@@ -94,6 +94,13 @@ public class AthleteRepository {
                 weighedIn,
                 -1, -1);
     }
+    
+    public static List<Athlete> doFindAllByAgeroupGroupAndWeighIn(EntityManager em, AgeGroup ageGroup, Group group, Boolean weighedIn,
+            Gender gender) {
+        return doFindFiltered(em, (String) null, (Group) group, (Category) null, (AgeGroup) ageGroup, (AgeDivision) null, gender,
+                weighedIn,
+                -1, -1);
+    }
 
     public static List<Athlete> doFindFiltered(EntityManager em, String lastName, Group group, Category category,
             AgeGroup ageGroup,

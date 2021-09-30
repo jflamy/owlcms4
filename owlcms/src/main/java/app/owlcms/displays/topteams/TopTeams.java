@@ -7,6 +7,7 @@
 package app.owlcms.displays.topteams;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -414,6 +415,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     private List<TeamTreeItem> topN(List<TeamTreeItem> list) {
+        if (list == null) return new ArrayList<TeamTreeItem>();
         int size = list.size();
         if (size > 0) {
             int min = Math.min(size, TOP_N);

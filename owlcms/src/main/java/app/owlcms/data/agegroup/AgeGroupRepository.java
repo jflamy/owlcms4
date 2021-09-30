@@ -16,6 +16,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
@@ -338,6 +340,46 @@ public class AgeGroupRepository {
         if (gender != null) {
             query.setParameter("gender", gender);
         }
+    }
+    
+//    /**
+//     * List all athletes for the categories present in the age group
+//     * 
+//     * @param agPrefix  age group code (JR, SR, U15) etc, excluding gender.
+//     * @param g the gender needed.
+//     * @return
+//     */
+//    private static List<Athlete> allAthletesForGlobalRanking(String agPrefix, Gender g) {
+//        return JPAService.runInTransaction((em) -> {
+//            String categoriesFromAgegroup = "(select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 join c2.ageGroup ag where ag.code = :ageGroupCode and c2.id = c.id)";
+//            TypedQuery<Athlete> q = em.createQuery(
+//                    "select distinct a from Athlete a join a.participations p join p.category c where a.gender = :gender and exists "
+//                            + categoriesFromAgegroup,
+//                    Athlete.class);
+//            q.setParameter("ageGroupCode", agPrefix);
+//            q.setParameter("gender", g);
+//            return q.getResultList();
+//        });
+//    }
+    
+    /**
+     * List all participations for the categories present in the age group
+     * 
+     * @param agPrefix age range (no gender) ex: JR, SR, YTH, U15, M55
+     * @param g  gender
+     * @return
+     */
+    public static List<Participation> allParticipationsForAgeGroup(String agPrefix, Gender g) {
+        return (List<Participation>) JPAService.runInTransaction((em) -> {
+            String categoriesFromAgegroup = "(select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 join c2.ageGroup ag where ag.code = :ageGroupCode and c2.id = c.id)";
+            TypedQuery<Participation> q = em.createQuery(
+                    "select distinct p from Participation p join p.athlete a join p.category c where a.gender = :gender and exists "
+                            + categoriesFromAgegroup, Participation.class);
+            q.setParameter("ageGroupCode", agPrefix);
+            q.setParameter("gender", g);
+            List<Participation> resultSet =  q.getResultList();
+            return resultSet;
+        });
     }
 
 }

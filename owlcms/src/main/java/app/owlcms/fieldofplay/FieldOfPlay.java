@@ -39,9 +39,9 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.FOPEvent.BarbellOrPlatesChanged;
 import app.owlcms.fieldofplay.FOPEvent.BreakPaused;
@@ -160,8 +160,8 @@ public class FieldOfPlay {
     private int liftsDoneAtLastStart;
 
     private List<Athlete> leaders;
-    
-    private LinkedHashMap<String,Participation> ageGroupMap = new LinkedHashMap<>();
+
+    private LinkedHashMap<String, Participation> ageGroupMap = new LinkedHashMap<>();
 
     public LinkedHashMap<String, Participation> getAgeGroupMap() {
         return ageGroupMap;
@@ -679,9 +679,9 @@ public class FieldOfPlay {
         List<AgeGroup> allAgeGroups = new GroupRepository().allAgeGroups(getGroup());
         this.ageGroupMap = new LinkedHashMap<>();
         for (AgeGroup ag : allAgeGroups) {
-            ageGroupMap.put(ag.getCode(),null);
+            ageGroupMap.put(ag.getCode(), null);
         }
-        
+
         if (athletes != null && athletes.size() > 0) {
             recomputeLiftingOrder();
         }
@@ -765,8 +765,20 @@ public class FieldOfPlay {
      */
     public void recomputeOrderAndRanks() {
         Group g = getGroup();
-        List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(g);
-        //logger.trace("rankedAthletes {}", rankedAthletes);
+        // we update the ranks of affected athletes in the database
+        JPAService.runInTransaction(em -> {
+            List<Athlete> l = AthleteSorter.assignCategoryRanks(g);
+            for (Athlete a : l) {
+                em.merge(a);
+            }
+            em.flush();
+            return null;
+        });
+        List<Athlete> rankedAthletes = new GroupRepository().allAthletesForGlobalRanking(g);
+        // logger.trace("rankedAthletes {}", rankedAthletes);
+        for (Athlete a : rankedAthletes) {
+            logger.warn("{} {}", a.getShortName(), a.getTotalRank());
+        }
         if (rankedAthletes == null) {
             setDisplayOrder(null);
             setCurAthlete(null);
@@ -803,19 +815,19 @@ public class FieldOfPlay {
                     .filter(a -> a.getCategory().equals(category)).collect(Collectors.toList());
 
             boolean cjStarted2 = isCjStarted();
-            //logger.trace("currentCategoryAthletes {} {}", currentCategoryAthletes, cjStarted2);
+            // logger.trace("currentCategoryAthletes {} {}", currentCategoryAthletes, cjStarted2);
             if (!cjStarted2) {
                 List<Athlete> snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
                         .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
                         .collect(Collectors.toList());
                 setLeaders(snatchLeaders);
-                //logger.trace("snatch leaders {} {}", snatchLeaders, currentCategoryAthletes);
+                // logger.trace("snatch leaders {} {}", snatchLeaders, currentCategoryAthletes);
             } else {
                 List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
                         .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
                         .collect(Collectors.toList());
                 setLeaders(totalLeaders);
-                //logger.trace("total leaders {} {}", totalLeaders, currentCategoryAthletes);
+                // logger.trace("total leaders {} {}", totalLeaders, currentCategoryAthletes);
             }
         } else {
             setLeaders(null);
@@ -1282,8 +1294,8 @@ public class FieldOfPlay {
                 // set the state now, otherwise attempt board will ignore request to display if
                 // in a break
                 setState(newState);
-                Competition competition = Competition.getCurrent();
-                competition.computeGlobalRankings(true);
+//                Competition competition = Competition.getCurrent();
+//                competition.computeGlobalRankings(true);
                 if (newState == CURRENT_ATHLETE_DISPLAYED) {
                     uiStartLifting(group, this);
                 } else {
@@ -1562,6 +1574,5 @@ public class FieldOfPlay {
         uiDisplayCurrentAthleteAndTime(false, e, false);
         // updateGlobalRankings(); // now done in recomputeOrderAndRanks
     }
-
 
 }

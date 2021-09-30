@@ -116,7 +116,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     protected void setReportingInfo() {
         super.setReportingInfo();
         Competition competition = Competition.getCurrent();
-        competition.computeGlobalRankings(true);
+        competition.computeReportingInfo(true);
         setReportingBeans(competition.getReportingBeans());
     }
 
