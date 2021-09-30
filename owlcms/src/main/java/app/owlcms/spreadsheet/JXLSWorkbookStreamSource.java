@@ -87,11 +87,12 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
             configureTransformer(transformer);
             Workbook workbook = null;
             try {
+                logger.warn("wsss setReportingInfo");
                 setReportingInfo();
-                HashMap<String, Object> reportingBeans2 = getReportingBeans();
-                List<Athlete> athletes = (List<Athlete>) reportingBeans2.get("athletes");
+                HashMap<String, Object> reportingInfo = getReportingBeans();
+                List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
                 if (athletes != null && athletes.size() > 0) {
-                    workbook = transformer.transformXLS(getTemplate(locale), reportingBeans2);
+                    workbook = transformer.transformXLS(getTemplate(locale), reportingInfo);
                     if (workbook != null) {
                         postProcess(workbook);
                     }

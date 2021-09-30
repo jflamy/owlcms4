@@ -92,7 +92,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                 double curScore = a.getSinclairForDelta();
 
                 int curTeamCount = 0;
-                logger.warn("Athlete {} {} {} {} {} {}", curTeamName, a, a.getGender(), curPoints, curTeamCount,
+                logger.warn("---- Athlete {} {} {} {} {} {}", curTeamName, a, a.getGender(), curPoints, curTeamCount,
                         groupIsDone);
                 // results are ordered by total points
 

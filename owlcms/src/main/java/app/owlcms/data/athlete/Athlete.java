@@ -1013,7 +1013,7 @@ public class Athlete {
      *
      * @return the clean jerk points
      */
-    public Integer getCleanJerkPoints() {
+    public int getCleanJerkPoints() {
         Participation mr = getMainRankings();
         int points = (mr != null ? mr.getSnatchPoints() : 0);
         return points;
@@ -1151,7 +1151,7 @@ public class Athlete {
      *
      * @return the customPoints
      */
-    public Integer getCustomPoints() {
+    public int getCustomPoints() {
         Participation mr = getMainRankings();
         int points = (mr != null ? mr.getCustomPoints() : 0);
         return points;
@@ -1162,7 +1162,7 @@ public class Athlete {
      *
      * @return the custom rank
      */
-    public Integer getCustomRank() {
+    public int getCustomRank() {
         return this.customRank;
     }
 
@@ -2001,7 +2001,7 @@ public class Athlete {
      *
      * @return the snatch points
      */
-    public Integer getSnatchPoints() {
+    public int getSnatchPoints() {
         Participation mr = getMainRankings();
         int points = (mr != null ? mr.getSnatchPoints() : 0);
         return points;
@@ -2150,7 +2150,7 @@ public class Athlete {
      *
      * @return the total points
      */
-    public Integer getTotalPoints() {
+    public int getTotalPoints() {
         Participation mr = getMainRankings();
         int totalPoints = (mr != null ? mr.getTotalPoints() : 0);
         return totalPoints;
@@ -2758,11 +2758,11 @@ public class Athlete {
      * @param points the new clean jerk points
      */
     public void setCleanJerkPoints(Integer points) {
-        throw new UnsupportedOperationException();
+        // ignored. computed property. setter needed for beans introspection.
     }
 
     public void setCleanJerkRank(int ignored) {
-        throw new UnsupportedOperationException();
+        // ignored. computed property. setter needed for beans introspection.
     }
 
 //    /**
@@ -2805,7 +2805,7 @@ public class Athlete {
      * @param customPoints the new custom points
      */
     public void setCustomPoints(Integer customPoints) {
-        throw new UnsupportedOperationException();
+        // ignored. computed property. setter needed for beans introspection.
     }
 
     /**
@@ -3340,11 +3340,11 @@ public class Athlete {
      * @param snatchPoints the new snatch points
      */
     public void setSnatchPoints(Integer snatchPoints) {
-        throw new UnsupportedOperationException();
+        // ignored. computed property. setter needed for beans introspection.
     }
 
     public void setSnatchRank(int ignored) {
-        throw new UnsupportedOperationException();
+        // ignored. computed property. setter needed for beans introspection.
     }
 
     /**
@@ -3454,11 +3454,11 @@ public class Athlete {
      * @param totalPoints the new total points
      */
     public void setTotalPoints(Integer totalPoints) {
-        throw new UnsupportedOperationException();
+        // ignored. computed property. setter needed for beans introspection.
     }
 
     public void setTotalRank(int ignored) {
-        throw new UnsupportedOperationException();
+        // ignored. computed property. setter needed for beans introspection.
     }
 
     // /**

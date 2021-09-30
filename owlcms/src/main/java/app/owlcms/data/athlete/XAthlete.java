@@ -413,33 +413,9 @@ public class XAthlete extends Athlete {
      * @see app.owlcms.data.athlete.Athlete#getCleanJerkPoints()
      */
     @Override
-    public Integer getCleanJerkPoints() {
+    public int getCleanJerkPoints() {
         return a.getCleanJerkPoints();
     }
-
-//    /**
-//     * @return
-//     * @see app.owlcms.data.athlete.Athlete#getCleanJerkRank()
-//     */
-//    @Override
-//    public Integer getCleanJerkRank() {
-//        return a.getCleanJerkRank();
-//    }
-//
-//    @Override
-//    public Integer getCleanJerkRankJr() {
-//        return a.getCleanJerkRankJr();
-//    }
-//
-//    @Override
-//    public Integer getCleanJerkRankSr() {
-//        return a.getCleanJerkRankSr();
-//    }
-//
-//    @Override
-//    public Integer getCleanJerkRankYth() {
-//        return a.getCleanJerkRankYth();
-//    }
 
     /**
      * @return
@@ -509,7 +485,7 @@ public class XAthlete extends Athlete {
      * @see app.owlcms.data.athlete.Athlete#getCustomPoints()
      */
     @Override
-    public Integer getCustomPoints() {
+    public int getCustomPoints() {
         return a.getCustomPoints();
     }
 
@@ -518,7 +494,7 @@ public class XAthlete extends Athlete {
      * @see app.owlcms.data.athlete.Athlete#getCustomRank()
      */
     @Override
-    public Integer getCustomRank() {
+    public int getCustomRank() {
         return a.getCustomRank();
     }
 
@@ -1095,33 +1071,9 @@ public class XAthlete extends Athlete {
      * @see app.owlcms.data.athlete.Athlete#getSnatchPoints()
      */
     @Override
-    public Integer getSnatchPoints() {
+    public int getSnatchPoints() {
         return a.getSnatchPoints();
     }
-
-//    /**
-//     * @return
-//     * @see app.owlcms.data.athlete.Athlete#getSnatchRank()
-//     */
-//    @Override
-//    public Integer getSnatchRank() {
-//        return a.getSnatchRank();
-//    }
-//
-//    @Override
-//    public Integer getSnatchRankJr() {
-//        return a.getSnatchRankJr();
-//    }
-//
-//    @Override
-//    public Integer getSnatchRankSr() {
-//        return a.getSnatchRankSr();
-//    }
-//
-//    @Override
-//    public Integer getSnatchRankYth() {
-//        return a.getSnatchRankYth();
-//    }
 
     /**
      * @return
@@ -1218,33 +1170,9 @@ public class XAthlete extends Athlete {
      * @see app.owlcms.data.athlete.Athlete#getTotalPoints()
      */
     @Override
-    public Integer getTotalPoints() {
+    public int getTotalPoints() {
         return a.getTotalPoints();
     }
-
-//    /**
-//     * @return
-//     * @see app.owlcms.data.athlete.Athlete#getTotalRank()
-//     */
-//    @Override
-//    public Integer getTotalRank() {
-//        return a.getTotalRank();
-//    }
-//
-//    @Override
-//    public Integer getTotalRankJr() {
-//        return a.getTotalRankJr();
-//    }
-//
-//    @Override
-//    public Integer getTotalRankSr() {
-//        return a.getTotalRankSr();
-//    }
-//
-//    @Override
-//    public Integer getTotalRankYth() {
-//        return a.getTotalRankYth();
-//    }
 
     /**
      * @return

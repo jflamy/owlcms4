@@ -8,6 +8,7 @@ package app.owlcms.spreadsheet;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
 
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
@@ -35,8 +37,9 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
     private static final long serialVersionUID = 1L;
 
-    @SuppressWarnings("unused")
     private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
+
+    private String ageGroupPrefix;
 
     public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
         super(ui);
@@ -114,10 +117,17 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
     @Override
     protected void setReportingInfo() {
-        super.setReportingInfo();
         Competition competition = Competition.getCurrent();
-        competition.computeReportingInfo(true);
-        setReportingBeans(competition.getReportingBeans());
+        competition.computeReportingInfo(AgeGroupRepository.allPAthletesForAgeGroup(getAgeGroupPrefix()), true, getAgeGroupPrefix());
+        logger.warn("after compute {}", competition.getReportingBeans().keySet());
+        super.setReportingInfo();
+        HashMap<String, Object> reportingBeans = competition.getReportingBeans();
+        reportingBeans.put("t", Translator.getMap());
+        if (ageGroupPrefix != null && !ageGroupPrefix.isBlank()) {
+            reportingBeans.put("mTeam", reportingBeans.get("mTeam"+ageGroupPrefix));
+            reportingBeans.put("wTeam", reportingBeans.get("wTeam"+ageGroupPrefix));
+        }
+        setReportingBeans(reportingBeans);
     }
 
 
@@ -169,5 +179,13 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
                 curSheet.getFooter().setRight(rightFooter);
             }
         }
+    }
+
+    public void setAgeGroupPrefix(String ageGroupPrefix) {
+        this.ageGroupPrefix = ageGroupPrefix;
+    }
+
+    public String getAgeGroupPrefix() {
+        return ageGroupPrefix;
     }
 }

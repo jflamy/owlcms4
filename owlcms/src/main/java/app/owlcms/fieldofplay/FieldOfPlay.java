@@ -1294,8 +1294,6 @@ public class FieldOfPlay {
                 // set the state now, otherwise attempt board will ignore request to display if
                 // in a break
                 setState(newState);
-//                Competition competition = Competition.getCurrent();
-//                competition.computeGlobalRankings(true);
                 if (newState == CURRENT_ATHLETE_DISPLAYED) {
                     uiStartLifting(group, this);
                 } else {

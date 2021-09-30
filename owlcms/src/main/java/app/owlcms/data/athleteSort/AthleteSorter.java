@@ -22,6 +22,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.spreadsheet.PAthlete;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -218,10 +219,10 @@ public class AthleteSorter implements Serializable {
      * <li>by category</li>
      * <li>by lot number</li> </tableToolbar>.
      *
-     * @param toBeSorted the to be sorted
+     * @param athletes the to be sorted
      */
-    static public void displayOrder(List<Athlete> toBeSorted) {
-        Collections.sort(toBeSorted, new DisplayOrderComparator());
+    static public void displayOrder(List<? extends Athlete> athletes) {
+        Collections.sort(athletes, new DisplayOrderComparator());
     }
 
     /**
@@ -396,13 +397,13 @@ public class AthleteSorter implements Serializable {
     /**
      * Sort athletes according to winning order, creating a new list.
      *
-     * @param toBeSorted  the to be sorted
+     * @param athletes  the to be sorted
      * @param rankingType the ranking type
      * @return athletes, ordered according to their category and totalRank order
      * @see #liftingOrder(List)
      */
-    static public List<Athlete> resultsOrderCopy(List<Athlete> toBeSorted, Ranking rankingType) {
-        List<Athlete> sorted = new ArrayList<>(toBeSorted);
+    static public List<Athlete> resultsOrderCopy(List<? extends Athlete> athletes, Ranking rankingType) {
+        List<Athlete> sorted = new ArrayList<>(athletes);
         switch (rankingType) {
         case BW_SINCLAIR:
         case CAT_SINCLAIR:
@@ -487,12 +488,12 @@ public class AthleteSorter implements Serializable {
     /**
      * Sort athletes by team, gender and totalRank so team totals can be computed.
      *
-     * @param toBeSorted  the to be sorted
+     * @param athletes  the to be sorted
      * @param rankingType what type of lift or total is being ranked
      * @return the list
      */
-    public static List<Athlete> teamPointsOrderCopy(List<Athlete> toBeSorted, Ranking rankingType) {
-        List<Athlete> sorted = new ArrayList<>(toBeSorted);
+    public static List<Athlete> teamPointsOrderCopy(List<? extends Athlete> athletes, Ranking rankingType) {
+        List<Athlete> sorted = new ArrayList<>(athletes);
         teamPointsOrder(sorted, rankingType);
         return sorted;
     }
@@ -604,10 +605,10 @@ public class AthleteSorter implements Serializable {
     }
 
 
-    public static List<Athlete> teamPointsOrderParticipations(List<Participation> mwAgeGroupParticipations,
+    public static List<PAthlete> teamPointsOrderedPAthletes(List<Participation> mwAgeGroupParticipations,
             Ranking rankingType) {
         mwAgeGroupParticipations.sort(new TeamPointsPComparator(rankingType));
-        List<Athlete> res = mwAgeGroupParticipations.stream().map(p -> p.getAthlete()).collect(Collectors.toList());
+        List<PAthlete> res = mwAgeGroupParticipations.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
         return res;
     }
 

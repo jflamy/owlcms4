@@ -69,7 +69,7 @@ public class Participation implements IRankHolder {
         this.id = new ParticipationId(athlete.getId(), category.getId());
     }
 
-    private Participation() {
+    protected Participation() {
     }
 
     @Override
