@@ -960,6 +960,9 @@ public class Competition {
         reportingBeans.put("athletes", athletes);
 
         if (ageGroupPrefix == null || ageGroupPrefix.isBlank()) {
+            // each athlete gets points according to his/her main category
+            // suitable for Masters
+            
             // extract club lists
             TreeSet<String> teams = new TreeSet<>();
             for (Athlete curAthlete : athletes) {
