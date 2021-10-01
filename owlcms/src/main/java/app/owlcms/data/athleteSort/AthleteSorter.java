@@ -77,7 +77,7 @@ public class AthleteSorter implements Serializable {
         if (logger.isEnabledFor(Level.TRACE)) {
             for (Athlete a : impactedAthletes) {
                 Participation p = a.getMainRankings();
-                //logger.debug("** {} {}", a, p.long_dump());
+                logger.debug("** {} {}", a, p.long_dump());
             }
         }
         return impactedAthletes;

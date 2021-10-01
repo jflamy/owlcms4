@@ -37,6 +37,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
     private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("unused")
     private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
 
     private String ageGroupPrefix;
