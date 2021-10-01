@@ -8,9 +8,7 @@ package app.owlcms.data.agegroup;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -254,33 +252,33 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         this.ageDivision = ageDivision;
     }
 
-    /**
-     * Set the categories.
-     *
-     * We preserve existing category Ids so as not to pollute the database. Categories with no age group will be removed
-     * when saving. New categories will be persisted by the save.
-     *
-     * @param nCats
-     * @see AgeGroupRepository#save(AgeGroup)
-     */
-    public void setCategories(List<Category> nCats) {
-        logger.debug("ageGroup {} setting categories {}", System.identityHashCode(this), nCats);
-        Map<Long, Category> curCatMap = new HashMap<>();
-        categories.forEach(c -> curCatMap.put(c.getId(), c));
-        for (Category nc : nCats) {
-            Category curCat = curCatMap.get(nc.getId());
-            if (curCat != null) {
-                curCat.setActive(nc.getActive());
-                curCat.setMaximumWeight(nc.getMaximumWeight());
-                curCat.setMinimumWeight(nc.getMinimumWeight());
-                curCat.setAgeGroup(nc.getAgeGroup());
-                curCat.setGender(this.getGender()); // category gets gender of age group
-            } else {
-                categories.add(new Category(nc));
-            }
-        }
-        categories.sort((c1, c2) -> ObjectUtils.compare(c1.getMaximumWeight(), c2.getMaximumWeight()));
-    }
+//    /**
+//     * Set the categories.
+//     *
+//     * We preserve existing category Ids so as not to pollute the database. Categories with no age group will be removed
+//     * when saving. New categories will be persisted by the save.
+//     *
+//     * @param nCats
+//     * @see AgeGroupRepository#save(AgeGroup)
+//     */
+//    public void setCategories(List<Category> nCats) {
+//        logger.debug("ageGroup {} setting categories {}", System.identityHashCode(this), nCats);
+//        Map<Long, Category> curCatMap = new HashMap<>();
+//        categories.forEach(c -> curCatMap.put(c.getId(), c));
+//        for (Category nc : nCats) {
+//            Category curCat = curCatMap.get(nc.getId());
+//            if (curCat != null) {
+//                curCat.setActive(nc.getActive());
+//                curCat.setMaximumWeight(nc.getMaximumWeight());
+//                curCat.setMinimumWeight(nc.getMinimumWeight());
+//                curCat.setAgeGroup(nc.getAgeGroup());
+//                curCat.setGender(this.getGender()); // category gets gender of age group
+//            } else {
+//                categories.add(new Category(nc));
+//            }
+//        }
+//        categories.sort((c1, c2) -> ObjectUtils.compare(c1.getMaximumWeight(), c2.getMaximumWeight()));
+//    }
 
     public void setCode(String code) {
         this.code = code;
@@ -322,6 +320,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
      */
     public void setQualificationTotal(Integer qualificationTotal) {
         this.qualificationTotal = qualificationTotal;
+    }
+
+    public void setCategories(List<Category> value) {
+        this.categories = value;
     }
 
 }

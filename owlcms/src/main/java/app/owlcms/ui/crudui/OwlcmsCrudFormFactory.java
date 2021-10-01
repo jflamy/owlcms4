@@ -62,7 +62,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
     protected Label errorLabel;
     private boolean valid = false;
     protected TextField operationTrigger;
-    private ClickEvent<Button> operationTriggerEvent;
+    protected ClickEvent<Button> operationTriggerEvent;
 
     /**
      * Instantiates a new Form Factory

@@ -386,9 +386,9 @@ public class Competition {
 ////                    athletes = Collections.emptyList();
 ////                }
 ////            }
-////            logger.warn("team rankings recomputed {} size {}", gender, athletes != null ? athletes.size() : null);
+////            logger.debug("team rankings recomputed {} size {}", gender, athletes != null ? athletes.size() : null);
 ////        } else {
-////            logger.warn("found team rankings {} size {}", gender, athletes != null ? athletes.size() : null);
+////            logger.debug("found team rankings {} size {}", gender, athletes != null ? athletes.size() : null);
 ////        }
 ////        return athletes;
 ////    }
@@ -1027,8 +1027,8 @@ public class Competition {
                 .collect(Collectors.toSet());
 
         for (String curAGPrefix : nonMastersAgePrefixes) {
-            logger.warn("");
-            logger.warn("{}", curAGPrefix);
+            logger.debug("");
+            logger.debug("{}", curAGPrefix);
 
             List<Participation> wAgeGroupParticipations = AgeGroupRepository
                     .allParticipationsForAgeGroup(curAGPrefix, Gender.F);
@@ -1038,7 +1038,7 @@ public class Competition {
             mwAgeGroupParticipations.addAll(wAgeGroupParticipations);
             mwAgeGroupParticipations.addAll(mAgeGroupParticipations);
             for (Participation p : mwAgeGroupParticipations) {
-                logger.warn("participation {} {}", p.getCategory(), p.long_dump());
+                logger.debug("participation {} {}", p.getCategory(), p.long_dump());
             }
 
             List<PAthlete> sortedMen;

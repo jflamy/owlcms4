@@ -443,7 +443,12 @@ public class Athlete {
                 weight = presumedBodyWeight - 0.01D;
                 List<Category> categories = CategoryRepository.findByGenderAgeBW(
                         this.getGender(), this.getAge(), weight);
-                categories = categories.stream().filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
+                categories = categories.stream()
+                        .peek((c) -> {
+                            logger.warn("a {} aq {} cq {}", this.getShortName(), this.getQualifyingTotal(),
+                                    c.getQualifyingTotal());
+                        })
+                        .filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
                 setEligibles(this, categories);
                 this.setCategory(bestMatch(categories));
 
@@ -451,7 +456,12 @@ public class Athlete {
         } else {
             List<Category> categories = CategoryRepository.findByGenderAgeBW(
                     this.getGender(), this.getAge(), weight);
-            categories = categories.stream().filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
+            categories = categories.stream()
+                    .peek((c) -> {
+                        logger.warn("a {} aq {} cq {}", this.getShortName(), this.getQualifyingTotal(),
+                                c.getQualifyingTotal());
+                    })
+                    .filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
             setEligibles(this, categories);
             this.setCategory(bestMatch(categories));
         }

@@ -202,31 +202,8 @@ public class AgeGroupRepository {
 
         // first clean up the age group
         AgeGroup nAgeGroup = JPAService.runInTransaction(em -> {
-            // the category objects that have a null age group must be removed.
             try {
-                AgeGroup mAgeGroup = em.merge(ageGroup);
-                List<Category> ageGroupCategories = mAgeGroup.getAllCategories();
-                List<Category> obsolete = new ArrayList<>();
-                for (Category c : ageGroupCategories) {
-                    Category nc = em.contains(c) ? c : em.merge(c);
-                    if (nc.getAgeGroup() == null) {
-                        cascadeAthleteCategoryDisconnect(em, nc);
-                        obsolete.add(nc);
-                    } else if (nc.getId() == null) {
-                        // new category
-                        logger.debug("creating category for {}-{}", nc.getMinimumWeight(), nc.getMaximumWeight());
-                        em.persist(nc);
-                    } else {
-                        logger.debug("updating category for {}-{}", nc.getMinimumWeight(), nc.getMaximumWeight());
-                    }
-                }
-
-                for (Category nc : obsolete) {
-                    cascadeCategoryRemoval(em, mAgeGroup, nc);
-                }
-
-                em.flush();
-                return mAgeGroup;
+                return cleanUp(ageGroup, em);
             } catch (Exception e) {
                 logger.error(LoggerUtils.stackTrace(e));
             }
@@ -234,6 +211,51 @@ public class AgeGroupRepository {
         });
 
         return nAgeGroup;
+    }
+
+    private static AgeGroup cleanUp(AgeGroup ageGroup, EntityManager em) {
+        // cascade carefully the deleted categories.
+        AgeGroup old = em.find(AgeGroup.class,ageGroup.getId());
+        List<Category> oldCats = old.getAllCategories();
+        logger.warn("old categories {}", oldCats);
+        List<Category> newCats = ageGroup.getAllCategories();
+        logger.warn("new categories {}", newCats);
+
+        List<Category> obsolete = new ArrayList<>();
+        for (Category oldC : oldCats) {
+            boolean found = false;
+            for (Category newC : newCats) {
+                Long newId = newC.getId();
+                if (newId == null) {
+                    // new category without an Id. Not obsolete.
+                    continue;
+                }
+                found = Long.compare(newId, oldC.getId()) == 0;
+                if (found) {
+                    break;
+                }
+            }
+            if (!found) {
+                obsolete.add(oldC);
+            }
+        }
+        
+        for (Category newC : newCats) {
+            em.merge(newC);
+        }
+         
+        logger.warn("obsolete categories {}",obsolete);
+        for (Category obs : obsolete) {
+            cascadeAthleteCategoryDisconnect(em, obs);
+            cascadeCategoryRemoval(em, old, obs);
+        }
+        
+        AgeGroup mAgeGroup = em.merge(ageGroup);
+        List<Category> mergedCats = mAgeGroup.getCategories();
+        logger.warn("merged categories {}", mergedCats);
+
+        em.flush();
+        return mAgeGroup;
     }
 
     static void cascadeCategoryRemoval(EntityManager em, AgeGroup mAgeGroup, Category nc) {
@@ -343,26 +365,6 @@ public class AgeGroupRepository {
             query.setParameter("gender", gender);
         }
     }
-
-//    /**
-//     * List all athletes for the categories present in the age group
-//     * 
-//     * @param agPrefix  age group code (JR, SR, U15) etc, excluding gender.
-//     * @param g the gender needed.
-//     * @return
-//     */
-//    private static List<Athlete> allAthletesForGlobalRanking(String agPrefix, Gender g) {
-//        return JPAService.runInTransaction((em) -> {
-//            String categoriesFromAgegroup = "(select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 join c2.ageGroup ag where ag.code = :ageGroupCode and c2.id = c.id)";
-//            TypedQuery<Athlete> q = em.createQuery(
-//                    "select distinct a from Athlete a join a.participations p join p.category c where a.gender = :gender and exists "
-//                            + categoriesFromAgegroup,
-//                    Athlete.class);
-//            q.setParameter("ageGroupCode", agPrefix);
-//            q.setParameter("gender", g);
-//            return q.getResultList();
-//        });
-//    }
 
     /**
      * List all participations for the categories present in the age group

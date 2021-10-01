@@ -178,7 +178,7 @@ public class AgeGroupDefinitionReader {
                                         curMin, qualTotal);
                                 if (cat != null) {
                                     em.persist(cat);
-                                    AgeGroupRepository.logger.trace(cat.longDump());
+                                    //logger.debug(cat.longDump());
                                     curMin = cat.getMaximumWeight();
                                 }
                             } catch (Exception e) {

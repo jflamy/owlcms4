@@ -27,6 +27,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroup;
@@ -178,7 +179,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
         String name2 = getName();
         String name3 = cat.getName();
-        boolean equal1 = name2.contentEquals(name3);
+        boolean equal1 = StringUtils.equals(name2,name3);
 
         Long id1 = getId();
         Long id2 = cat.getId();
@@ -391,9 +392,11 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
                 + ", active=" + active 
                 + ", id=" + getId()
                 + ", minimumWeight=" + minimumWeight
-                + ", maximumWeight=" + maximumWeight + ", ageGroup=" + ageGroup.getName()
-                + ", gender="
-                + gender + ", wr=" + getWrSr() + ", code=" + code + "]";
+                + ", maximumWeight=" + maximumWeight + ", ageGroup=" + (ageGroup != null ? ageGroup.getName() : null)
+                + ", gender=" + gender 
+                + ", qualifying=" + qualifyingTotal
+                + ", wr=" + getWrSr() 
+                + ", code=" + code + "]";
     }
     
     public String fullDump() {
@@ -502,7 +505,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
      * @return the string
      */
     public String shortDump() {
-        return getName() + "_" + active + "_" + gender + "_" + ageGroup;
+        return getName() + "_" + System.identityHashCode(this) +"_"+ active + "_" + gender + "_" + ageGroup;
     }
 
     /*
