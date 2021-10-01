@@ -156,9 +156,8 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
         this.getElement().callJsFunction("reset");
 
         // create copies because we want to change the list
-        //FIXME get from Competition
-//        setSortedMen(competition.getGlobalSinclairRanking(Gender.M));
-//        setSortedWomen(competition.getGlobalSinclairRanking(Gender.F));
+        setSortedMen(competition.getGlobalSinclairRanking(Gender.M));
+        setSortedWomen(competition.getGlobalSinclairRanking(Gender.F));
 
         topManSinclair = 0.0D;
         List<Athlete> sortedMen2 = getSortedMen();

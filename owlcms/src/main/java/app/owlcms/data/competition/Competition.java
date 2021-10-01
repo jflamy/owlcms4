@@ -47,7 +47,6 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.ui.results.Resource;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
@@ -206,7 +205,7 @@ public class Competition {
     
     private void doComputeReportingInfo(boolean full, List<? extends Athlete> athletes, String ageGroupPrefix) {
         Thread t = new Thread(() -> {
-            logger.warn("computeReportingInfo {}", LoggerUtils.whereFrom());
+//            logger.trace("computeReportingInfo {}", LoggerUtils.whereFrom());
             if (athletes.isEmpty()) {
                 // prevent outputting silliness.
                 logger./**/warn("no athletes");
@@ -214,7 +213,7 @@ public class Competition {
                 return;
             }
             sortGroupResults(athletes);
-            logger.warn("computeReportingInfo full = {}", full);
+//            logger.trace("computeReportingInfo full = {}", full);
             if (full) {
                 sortTeamResults(athletes, ageGroupPrefix);
             }
@@ -364,10 +363,10 @@ public class Competition {
 //        return getListOrElseRecompute(group.getName());
 //    }
 //
-//    synchronized public List<Athlete> getGlobalSinclairRanking(Gender gender) {
-//        return getListOrElseRecompute(gender == Gender.F ? "wSinclair" : "mSinclair");
-//    }
-//
+    synchronized public List<Athlete> getGlobalSinclairRanking(Gender gender) {
+        return getListOrElseRecompute(gender == Gender.F ? "wSinclair" : "mSinclair");
+    }
+
 //    synchronized public List<Athlete> getGlobalSnatchRanking(Gender gender) {
 //        return getListOrElseRecompute(gender == Gender.F ? "wSn" : "mSn");
 //    }
@@ -395,7 +394,7 @@ public class Competition {
 ////    }
 
     synchronized public List<Athlete> getGlobalTotalRanking(Gender gender) {
-        return null;// getListOrElseRecompute(gender == Gender.F ? "wTot" : "mTot");
+        return getListOrElseRecompute(gender == Gender.F ? "wTot" : "mTot");
     }
 
     /**
@@ -417,7 +416,7 @@ public class Competition {
     }
 
     @SuppressWarnings("unchecked")
-    synchronized public List<Athlete> getListOrElseRecomputeX(String listName) {
+    synchronized public List<Athlete> getListOrElseRecompute(String listName) {
         List<Athlete> athletes = (List<Athlete>) reportingBeans.get(listName);
         if (isRankingsInvalid() || athletes == null) {
             setRankingsInvalid(true);
@@ -949,7 +948,7 @@ public class Competition {
             Group group = a.getGroup();
             if (group != null && group.getName() != null) {
                 List<Athlete> list = (List<Athlete>) reportingBeans.get(group.getName());
-                logger.warn("adding {} to {}", a.getShortName(), group.getName());
+                //logger.trace("adding {} to {}", a.getShortName(), group.getName());
                 list.add(a);
             }
         }

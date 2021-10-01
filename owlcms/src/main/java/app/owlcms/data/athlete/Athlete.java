@@ -20,6 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -442,14 +443,17 @@ public class Athlete {
                 weight = presumedBodyWeight - 0.01D;
                 List<Category> categories = CategoryRepository.findByGenderAgeBW(
                         this.getGender(), this.getAge(), weight);
+                categories = categories.stream().filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
                 setEligibles(this, categories);
                 this.setCategory(bestMatch(categories));
+
             }
         } else {
             List<Category> categories = CategoryRepository.findByGenderAgeBW(
                     this.getGender(), this.getAge(), weight);
-            this.setCategory(bestMatch(categories));
+            categories = categories.stream().filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
             setEligibles(this, categories);
+            this.setCategory(bestMatch(categories));
         }
     }
 

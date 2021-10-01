@@ -776,9 +776,9 @@ public class FieldOfPlay {
         });
         List<Athlete> rankedAthletes = new GroupRepository().allAthletesForGlobalRanking(g);
         // logger.trace("rankedAthletes {}", rankedAthletes);
-        for (Athlete a : rankedAthletes) {
-            logger.warn("{} {}", a.getShortName(), a.getTotalRank());
-        }
+//        for (Athlete a : rankedAthletes) {
+//            logger.warn("{} {}", a.getShortName(), a.getTotalRank());
+//        }
         if (rankedAthletes == null) {
             setDisplayOrder(null);
             setCurAthlete(null);

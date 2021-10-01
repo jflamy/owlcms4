@@ -440,8 +440,7 @@ public class EventForwarder implements BreakDisplay {
                 setCategoryName(curAthlete.getCategory().getName());
 
                 categoryRankings = competition.getGlobalTotalRanking(curAthlete.getGender());
-                // logger.debug("rankings for current gender {}
-                // size={}",curAthlete.getGender(),globalRankingsForCurrentGroup.size());
+                //logger.debug("rankings for current gender {} size={}",curAthlete.getGender(),categoryRankings != null ? categoryRankings.size() : "null");
                 categoryRankings = filterToCategory(curAthlete.getCategory(), categoryRankings);
                 int size = categoryRankings.size();
                 // logger.debug("rankings for current category {}
@@ -457,12 +456,6 @@ public class EventForwarder implements BreakDisplay {
                 } else {
                     // no one has totaled, so we show the snatch leaders
                     if (!fop.isCjStarted()) {
-//                        categoryRankings = Competition.getCurrent()
-//                                .getGlobalSnatchRanking(curAthlete.getGender());
-//                        categoryRankings = filterToCategory(curAthlete.getCategory(),
-//                                categoryRankings);
-//                        categoryRankings = categoryRankings.stream()
-//                                .filter(a -> a.getSnatchTotal() > 0).limit(3).collect(Collectors.toList());
                         if (categoryRankings.size() > 0) {
                             setLeaders(getAthletesJson(categoryRankings, null));
                         } else {
