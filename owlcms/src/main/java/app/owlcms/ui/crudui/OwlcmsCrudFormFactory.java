@@ -381,20 +381,20 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         setValid(binder.writeBeanIfValid(domainObject));
         if (isValid()) {
             if (operation == CrudOperation.ADD) {
-                logger.warn("adding {} {}", System.identityHashCode(domainObject), domainObject);
+                logger.debug("adding {} {}", System.identityHashCode(domainObject), domainObject);
                 this.add(domainObject);
                 gridCallback.onComponentEvent(operationTriggerEvent);
             } else if (operation == CrudOperation.UPDATE) {
-                logger.warn("updating 	{}", domainObject);
+                logger.debug("updating 	{}", domainObject);
                 this.update(domainObject);
                 gridCallback.onComponentEvent(operationTriggerEvent);
             } else if (operation == CrudOperation.DELETE) {
-                logger.warn("deleting 	{}", domainObject);
+                logger.debug("deleting 	{}", domainObject);
                 this.delete(domainObject);
                 gridCallback.onComponentEvent(operationTriggerEvent);
             }
         } else {
-            logger.warn("not valid {}", domainObject);
+            logger.error("not valid {}", domainObject);
         }
     }
 

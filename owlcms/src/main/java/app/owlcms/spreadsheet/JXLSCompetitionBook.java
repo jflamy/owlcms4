@@ -119,7 +119,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     protected void setReportingInfo() {
         Competition competition = Competition.getCurrent();
         competition.computeReportingInfo(AgeGroupRepository.allPAthletesForAgeGroup(getAgeGroupPrefix()), true, getAgeGroupPrefix());
-        logger.warn("after compute {}", competition.getReportingBeans().keySet());
+        //logger.debug("after compute {}", competition.getReportingBeans().keySet());
         super.setReportingInfo();
         HashMap<String, Object> reportingBeans = competition.getReportingBeans();
         reportingBeans.put("t", Translator.getMap());

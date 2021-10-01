@@ -112,7 +112,7 @@ public class TwoMinutesRuleTest {
         // so now schneider should be back on top at 61, with two minutes because
         // there was no time started.
         curLifter = fopState.getCurAthlete();
-        logger.warn("curLifter = {}", curLifter);
+        logger.info("curLifter = {}", curLifter);
         previousLifter = fopState.getPreviousAthlete();
         assertEquals(schneiderF, curLifter);
         assertEquals(schneiderF, previousLifter);
@@ -191,7 +191,7 @@ public class TwoMinutesRuleTest {
             for (int i = 2; i < size; i++) {
                 Athlete athlete = athletes.get(i);
                 athlete.setGroup(null);
-                logger.warn("athlete {}, group {}",athlete,athlete.getGroup());
+                logger.info("athlete {}, group {}",athlete,athlete.getGroup());
                 em.merge(athlete);
             }
             em.flush();
@@ -223,7 +223,7 @@ public class TwoMinutesRuleTest {
             for (int i = 2; i < size; i++) {
                 Athlete athlete = athletes.get(i);
                 athlete.setGroup(null);
-                logger.warn("athlete {}, group {}",athlete,athlete.getGroup());
+                logger.info("athlete {}, group {}",athlete,athlete.getGroup());
                 em.merge(athlete);
             }
             em.flush();

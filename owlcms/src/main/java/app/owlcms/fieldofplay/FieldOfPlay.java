@@ -730,12 +730,12 @@ public class FieldOfPlay {
         boolean alreadyLoaded = thisGroupName == loadGroupName;
         if (loadGroupName != null && alreadyLoaded && !forceLoad) {
             // already loaded
-            logger.warn("group {} already loaded", loadGroupName);
+            logger.trace("group {} already loaded", loadGroupName);
             return;
         }
         this.setGroup(group);
         if (group != null) {
-            logger.warn("{}current group {} loading data for group {} [{} {} {} {}]",
+            logger.trace("{}current group {} loading data for group {} [{} {} {} {}]",
                     getLoggingName(),
                     thisGroupName,
                     loadGroupName,
@@ -775,9 +775,9 @@ public class FieldOfPlay {
             return null;
         });
         List<Athlete> rankedAthletes = new GroupRepository().allAthletesForGlobalRanking(g);
-        // logger.trace("rankedAthletes {}", rankedAthletes);
+//      logger.debug("rankedAthletes {}", rankedAthletes);
 //        for (Athlete a : rankedAthletes) {
-//            logger.warn("{} {}", a.getShortName(), a.getTotalRank());
+//            logger.debug("{} {}", a.getShortName(), a.getTotalRank());
 //        }
         if (rankedAthletes == null) {
             setDisplayOrder(null);
@@ -1227,7 +1227,7 @@ public class FieldOfPlay {
     }
 
     private void setClockOwner(Athlete athlete) {
-        logger.trace("***setting clock owner to {} [{}]", athlete, LoggerUtils.whereFrom());
+        logger.trace("setting clock owner to {} [{}]", athlete, LoggerUtils.whereFrom());
         this.clockOwner = athlete;
     }
 
@@ -1236,7 +1236,7 @@ public class FieldOfPlay {
     }
 
     private void setCurAthlete(Athlete athlete) {
-        logger.warn("changing curAthlete to {} [{}]", athlete, LoggerUtils.whereFrom());
+        logger.debug("setting curAthlete to {} [{}]", athlete, LoggerUtils.whereFrom());
         this.curAthlete = athlete;
     }
 

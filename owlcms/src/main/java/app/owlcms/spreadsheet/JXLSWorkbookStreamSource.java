@@ -87,7 +87,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
             configureTransformer(transformer);
             Workbook workbook = null;
             try {
-                logger.warn("wsss setReportingInfo");
+                //logger.debug("wsss setReportingInfo");
                 setReportingInfo();
                 HashMap<String, Object> reportingInfo = getReportingBeans();
                 List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
@@ -98,7 +98,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
                     }
                 } else {
                     String noAthletes = "No Athletes";
-                    logger.warn("no athletes: empty report.");
+                    logger. warn("no athletes: empty report.");
                     ui.access(() -> {
                         Notification notif = new Notification();
                         notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -221,7 +221,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         for (String suffix : tryList) {
             String name = templateName + suffix + extension;
             final InputStream resourceAsStream = this.getClass().getResourceAsStream(name);
-            // logger.warn("trying {} : {}", name, resourceAsStream);
+            //logger.debug("trying {} : {}", name, resourceAsStream);
             if (resourceAsStream != null) {
                 return resourceAsStream;
             }

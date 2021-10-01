@@ -114,7 +114,7 @@ public class RAthlete {
         }
 
         a.setCategory(category);
-        logger.warn("setting category to {} athlete {}",category.longDump(), a.longDump());
+        //logger.debug("setting category to {} athlete {}",category.longDump(), a.longDump());
     }
 
     /**

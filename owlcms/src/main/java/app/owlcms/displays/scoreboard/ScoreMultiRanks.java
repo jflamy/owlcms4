@@ -625,18 +625,18 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                 cape.setValue(null);
             }
             if (a != null) {
-                logger.warn(">>>setCurrentAthleteParticipations begin");
-                logger.warn("setting {}", a.getShortName());
+                //logger,debug(">>>setCurrentAthleteParticipations begin");
+                //logger,debug("setting {}", a.getShortName());
                 for (Participation p : a.getParticipations()) {
                     AgeGroup ag = p.getCategory() != null ? p.getCategory().getAgeGroup() : null;
                     if (ag != null) {
-                        logger.warn("athlete {} curRankings {} {}", a, ag.getCode(), p);
+                        //logger,debug("athlete {} curRankings {} {}", a, ag.getCode(), p);
                         ageGroupMap.put(ag.getCode(), p);
                     }
                 }
-                logger.warn("<<<setCurrentAthleteParticipations end");
+                //logger,debug("<<<setCurrentAthleteParticipations end");
             } else {
-                logger.warn("+++ cleared");
+                //logger,debug("+++ cleared");
             }
         });
     }
@@ -751,7 +751,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         int i = 0;
         for (Entry<String, Participation> e : ageGroupMap.entrySet()) {
             Participation p = e.getValue();
-            logger.warn("a {} k {} v {}", a.getShortName(), e.getKey(), p);
+            //logger,debug("a {} k {} v {}", a.getShortName(), e.getKey(), p);
             if (p == null) {
                 ranks.set(i, "");
             } else {

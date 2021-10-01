@@ -34,7 +34,7 @@ public class MultiCategoryRankSetter {
         Category category = a.getCategory();
         boolean eligible = a.isEligibleForIndividualRanking();
         boolean zero = rankingValue <= 0;
-        //logger.warn("a {} v {} z {} e {}", a.getShortName(), rankingValue, zero, eligible);
+        //logger.debug("a {} v {} z {} e {}", a.getShortName(), rankingValue, zero, eligible);
 
         int value = eligible ? (zero ? 0 : ++rank) : -1;
         switch (r) {
@@ -120,7 +120,7 @@ public class MultiCategoryRankSetter {
     }
 
     CategoryRankingHolder getCategoryRankings(Category category) {
-        //logger.warn("Category {} {}",category, System.identityHashCode(category));
+        //logger.debug("Category {} {}",category, System.identityHashCode(category));
         CategoryRankingHolder bestCategoryRanks = rankings.get(category.getCode());
         if (bestCategoryRanks == null) {
             bestCategoryRanks = new CategoryRankingHolder();

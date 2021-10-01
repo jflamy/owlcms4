@@ -217,9 +217,9 @@ public class AgeGroupRepository {
         // cascade carefully the deleted categories.
         AgeGroup old = em.find(AgeGroup.class,ageGroup.getId());
         List<Category> oldCats = old.getAllCategories();
-        logger.warn("old categories {}", oldCats);
+        //logger.debug("old categories {}", oldCats);
         List<Category> newCats = ageGroup.getAllCategories();
-        logger.warn("new categories {}", newCats);
+        //logger.debug("new categories {}", newCats);
 
         List<Category> obsolete = new ArrayList<>();
         for (Category oldC : oldCats) {
@@ -244,15 +244,15 @@ public class AgeGroupRepository {
             em.merge(newC);
         }
          
-        logger.warn("obsolete categories {}",obsolete);
+        //logger.debug("obsolete categories {}",obsolete);
         for (Category obs : obsolete) {
             cascadeAthleteCategoryDisconnect(em, obs);
             cascadeCategoryRemoval(em, old, obs);
         }
         
         AgeGroup mAgeGroup = em.merge(ageGroup);
-        List<Category> mergedCats = mAgeGroup.getCategories();
-        logger.warn("merged categories {}", mergedCats);
+        //List<Category> mergedCats = mAgeGroup.getCategories();
+        //logger.debug("merged categories {}", mergedCats);
 
         em.flush();
         return mAgeGroup;

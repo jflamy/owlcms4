@@ -749,7 +749,7 @@ public class MovingDownTest {
     private Athlete declaration(final Athlete lifter, final String weight, EventBus eventBus) {
         Athlete updated = JPAService.runInTransaction(em -> {
             int attempt = lifter.getAttemptsDone() + 1;
-            logger.warn("*** attempt {} declaration for athlete {}: {}", attempt, lifter, weight);
+            logger.info("*** attempt {} declaration for athlete {}: {}", attempt, lifter, weight);
             switch (attempt) {
             case 1:
                 lifter.setSnatch1Declaration(weight);
@@ -931,7 +931,7 @@ public class MovingDownTest {
         } catch (RuleViolationException e) {
             thrown = true;
             message = e.getLocalizedMessage();
-            logger.warn("{}{}", OwlcmsSession.getFopLoggingName(), message);
+            logger.info("{}{}", OwlcmsSession.getFopLoggingName(), message);
             assertEquals(expectedException, e.getClass());
         } finally {
             if (expectedException != null && !thrown) {

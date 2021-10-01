@@ -314,10 +314,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
             boolean valid = isValid();
             boolean ignoreErrors = isIgnoreErrors();
             if (valid || ignoreErrors) {
-                // logger.warn("updating {} {}", valid, ignoreErrors);
+                //logger.debug("updating {} {}", valid, ignoreErrors);
                 doUpdate();
             } else {
-                // logger.warn("not updating {} {}", valid, ignoreErrors);
+                //logger.debug("not updating {} {}", valid, ignoreErrors);
             }
         });
         // field must visible and added to the layout for focus() to work, so we hide it

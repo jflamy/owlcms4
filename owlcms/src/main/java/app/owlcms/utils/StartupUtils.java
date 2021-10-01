@@ -133,7 +133,7 @@ public class StartupUtils {
             }
             return true;
         } else {
-            logger.warn("cannot open expected URL {}", testingURL.toExternalForm());
+            logger.error("cannot open expected URL {}", testingURL.toExternalForm());
             return false;
         }
     }

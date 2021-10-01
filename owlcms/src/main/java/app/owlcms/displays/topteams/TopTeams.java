@@ -299,7 +299,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         if (e == null) {
             uiEventLogger.debug("### {} {}", this.getClass().getSimpleName(), LoggerUtils.whereFrom());
         } else {
-            uiEventLogger.warn("### {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+            uiEventLogger.debug("### {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                     LoggerUtils.whereFrom());
         }
     }

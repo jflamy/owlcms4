@@ -322,7 +322,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         getRouterLayout().closeDrawer();
 //        GroupRepository gr = new GroupRepository();
 //        Group g = GroupRepository.findByName("M1");
-//        logger.warn(gr.allAthletesForGlobalRanking(g).toString());
+//        logger.debug(gr.allAthletesForGlobalRanking(g).toString());
     }
 
     /**

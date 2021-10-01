@@ -64,7 +64,7 @@ public class CategoryGridField extends CustomField<List<Category>> {
     public CategoryGridField(AgeGroup ag) {
         super(new ArrayList<Category>());
         this.ageGroup = ag;
-        
+
         validationStatus = new Div();
 
         catGrid = new Grid<>();
@@ -89,81 +89,23 @@ public class CategoryGridField extends CustomField<List<Category>> {
         button.addClickListener((click) -> {
             react(ag, newCategoryField);
         });
-        
+
         button.setIcon(new Icon(VaadinIcon.PLUS));
         button.setThemeName("primary success");
         button.addClickShortcut(Key.ENTER);
         adder.add(newCategoryField, button);
-        
+
         updatePresentation();
-        
+
         add(adder);
         add(validationStatus);
         add(catGrid);
 
     }
 
-    private void setupEditing(Grid<Category> grid) {
-        catBinder = new Binder<>(Category.class);
-        catEditor = grid.getEditor();
-        catEditor.setBinder(catBinder);
-        catEditor.setBuffered(true);
-
-        catBinder
-                .forField(qualTotField)
-                .withConverter(
-                        new StringToIntegerConverter("Qualifying total must be a number."))
-                .withStatusLabel(validationStatus).bind("qualifyingTotal");
-        qualTotColumn.setEditorComponent(qualTotField);
-
-        Grid.Column<Category> editorColumn = catGrid.addComponentColumn(cat -> {
-            Button edit = new Button(Translator.translate("Edit"));
-            edit.addClassName("edit");
-            edit.addClickListener(e -> {
-                catEditor.editItem(cat);
-                //logger.trace("editing {} {}",cat != null ? cat.shortDump() : null, presentationCategories.contains(cat));
-                qualTotField.focus();
-            });
-            Button delete = new Button(Translator.translate("Delete"));
-            delete.addClassName("delete");
-            delete.addClickListener(e -> {
-                //logger.trace("deleting {} {}",cat != null ? cat.shortDump() : null, presentationCategories.contains(cat));
-                if (cat.getMaximumWeight() >= 998.9D) {
-                    return; // leave the sentinel.
-                }
-                cat.setMaximumWeight(0D); // disconnect
-                updatePresentation();
-                updateValue();
-            });
-            edit.setEnabled(!catEditor.isOpen());
-            delete.setEnabled(!catEditor.isOpen());
-            editButtons.add(edit);
-            editButtons.add(delete);
-            Div div = new Div();
-            div.add(edit, delete);
-            return div;
-        });
-        
-        catEditor.addOpenListener(e -> editButtons.stream()
-                .forEach(button -> button.setEnabled(!catEditor.isOpen())));
-        catEditor.addCloseListener(e -> editButtons.stream()
-                .forEach(button -> button.setEnabled(!catEditor.isOpen())));
-        
-        Button save = new Button("Update", e -> catEditor.save());
-        save.addClassName("save");
-        Button cancel = new Button("Cancel", e -> catEditor.cancel());
-        cancel.addClassName("cancel");
-        Div buttons = new Div(save, cancel);
-        editorColumn.setEditorComponent(buttons);
-        
-        catEditor.addSaveListener(
-                event -> {
-                    //Category cat = event.getItem();
-                    updatePresentation();
-                    updateValue();
-                });
-        
-        
+    @Override
+    public List<Category> getValue() {
+        return presentationCategories;
     }
 
     @Override
@@ -171,11 +113,6 @@ public class CategoryGridField extends CustomField<List<Category>> {
         // the presentation objects are already model values and no conversion is necessary
         // the business model can use them as is; the model ignores the categories with no age group
         // the database ids are also preserved in the copy, and used to update the database
-        return presentationCategories;
-    }
-    
-    @Override
-    public List<Category> getValue() {
         return presentationCategories;
     }
 
@@ -198,10 +135,7 @@ public class CategoryGridField extends CustomField<List<Category>> {
             notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
             notif.setText(getTranslation("SaveAgeGroupBefore"));
         }
-        if (value == null) {
-            return;
-        }
-        if (value.trim().isEmpty()) {
+        if ((value == null) || value.trim().isEmpty()) {
             return;
         }
         double newMax = Double.parseDouble(value);
@@ -211,6 +145,69 @@ public class CategoryGridField extends CustomField<List<Category>> {
         updatePresentation();
         updateValue();
         newCategoryField.clear();
+    }
+
+    private void setupEditing(Grid<Category> grid) {
+        catBinder = new Binder<>(Category.class);
+        catEditor = grid.getEditor();
+        catEditor.setBinder(catBinder);
+        catEditor.setBuffered(true);
+
+        catBinder
+                .forField(qualTotField)
+                .withConverter(
+                        new StringToIntegerConverter("Qualifying total must be a number."))
+                .withStatusLabel(validationStatus).bind("qualifyingTotal");
+        qualTotColumn.setEditorComponent(qualTotField);
+
+        Grid.Column<Category> editorColumn = catGrid.addComponentColumn(cat -> {
+            Button edit = new Button(Translator.translate("Edit"));
+            edit.addClassName("edit");
+            edit.addClickListener(e -> {
+                catEditor.editItem(cat);
+                // logger.trace("editing {} {}",cat != null ? cat.shortDump() : null,
+                // presentationCategories.contains(cat));
+                qualTotField.focus();
+            });
+            Button delete = new Button(Translator.translate("Delete"));
+            delete.addClassName("delete");
+            delete.addClickListener(e -> {
+                // logger.trace("deleting {} {}",cat != null ? cat.shortDump() : null,
+                // presentationCategories.contains(cat));
+                if (cat.getMaximumWeight() >= 998.9D) {
+                    return; // leave the sentinel.
+                }
+                cat.setMaximumWeight(0D); // disconnect
+                updatePresentation();
+                updateValue();
+            });
+            edit.setEnabled(!catEditor.isOpen());
+            delete.setEnabled(!catEditor.isOpen());
+            editButtons.add(edit);
+            editButtons.add(delete);
+            Div div = new Div();
+            div.add(edit, delete);
+            return div;
+        });
+
+        catEditor.addOpenListener(e -> editButtons.stream()
+                .forEach(button -> button.setEnabled(!catEditor.isOpen())));
+        catEditor.addCloseListener(e -> editButtons.stream()
+                .forEach(button -> button.setEnabled(!catEditor.isOpen())));
+
+        Button save = new Button("Update", e -> catEditor.save());
+        save.addClassName("save");
+        Button cancel = new Button("Cancel", e -> catEditor.cancel());
+        cancel.addClassName("cancel");
+        Div buttons = new Div(save, cancel);
+        editorColumn.setEditorComponent(buttons);
+
+        catEditor.addSaveListener(
+                event -> {
+                    // Category cat = event.getItem();
+                    updatePresentation();
+                    updateValue();
+                });
     }
 
     private void updatePresentation() {

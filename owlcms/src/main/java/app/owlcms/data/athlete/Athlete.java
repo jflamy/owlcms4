@@ -444,10 +444,10 @@ public class Athlete {
                 List<Category> categories = CategoryRepository.findByGenderAgeBW(
                         this.getGender(), this.getAge(), weight);
                 categories = categories.stream()
-                        .peek((c) -> {
-                            logger.warn("a {} aq {} cq {}", this.getShortName(), this.getQualifyingTotal(),
-                                    c.getQualifyingTotal());
-                        })
+//                        .peek((c) -> {
+//                            logger.debug("a {} aq {} cq {}", this.getShortName(), this.getQualifyingTotal(),
+//                                    c.getQualifyingTotal());
+//                        })
                         .filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
                 setEligibles(this, categories);
                 this.setCategory(bestMatch(categories));
@@ -457,10 +457,10 @@ public class Athlete {
             List<Category> categories = CategoryRepository.findByGenderAgeBW(
                     this.getGender(), this.getAge(), weight);
             categories = categories.stream()
-                    .peek((c) -> {
-                        logger.warn("a {} aq {} cq {}", this.getShortName(), this.getQualifyingTotal(),
-                                c.getQualifyingTotal());
-                    })
+//                    .peek((c) -> {
+//                        logger.debug("a {} aq {} cq {}", this.getShortName(), this.getQualifyingTotal(),
+//                                c.getQualifyingTotal());
+//                    })
                     .filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
             setEligibles(this, categories);
             this.setCategory(bestMatch(categories));
@@ -3957,7 +3957,7 @@ public class Athlete {
             int clock = fop.getAthleteTimer().liveTimeRemaining();
             if (declaration == null || declaration.isBlank()) {
                 // there was no declaration made in time
-                logger.warn("{}{} change without declaration (not owning clock)", fop.getLoggingName(),
+                logger. warn("{}{} change without declaration (not owning clock)", fop.getLoggingName(),
                         this.getShortName());
                 throw new RuleViolationException.MustDeclareFirst(clock);
             }
@@ -4067,7 +4067,7 @@ public class Athlete {
         if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
             // validate declaration
             if (clock < initialTime - 30000) {
-                logger.warn("{}{} late declaration denied ({})", fop.getLoggingName(), this.getShortName(),
+                logger. warn("{}{} late declaration denied ({})", fop.getLoggingName(), this.getShortName(),
                         clock / 1000.0);
                 throw new RuleViolationException.LateDeclaration(clock);
             }
@@ -4075,7 +4075,7 @@ public class Athlete {
             return;
         } else {
             if (clock < 30000) {
-                logger.warn("{}{} late change denied after final warning ({})", fop.getLoggingName(),
+                logger. warn("{}{} late change denied after final warning ({})", fop.getLoggingName(),
                         this.getShortName(), clock / 1000.0);
                 throw new RuleViolationException.MustChangeBeforeFinalWarning(clock);
             }
@@ -4333,7 +4333,7 @@ public class Athlete {
             long partAthId = part.getAthlete().getId();
             long partCatId = part.getCategory().getId();
             if (partAthId == athId && partCatId == catId) {
-                logger.warn("    removing {}", part);
+                //logger.debug("    removing {}", part);
                 iterator.remove();
             } else {
                 // logger.trace(" ok {} {}-{} {}-{}", part, athId, partAthId, catId, partCatId);
