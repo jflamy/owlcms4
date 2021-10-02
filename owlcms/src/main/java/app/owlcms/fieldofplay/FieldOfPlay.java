@@ -33,6 +33,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -40,7 +41,6 @@ import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.group.Group;
-import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.FOPEvent.BarbellOrPlatesChanged;
@@ -676,7 +676,7 @@ public class FieldOfPlay {
         this.setClockOwnerInitialTimeAllowed(0);
         this.previousAthlete = null;
         this.setLiftingOrder(athletes);
-        List<AgeGroup> allAgeGroups = new GroupRepository().allAgeGroups(getGroup());
+        List<AgeGroup> allAgeGroups = AgeGroupRepository.findAgeGroups(getGroup());
         this.ageGroupMap = new LinkedHashMap<>();
         for (AgeGroup ag : allAgeGroups) {
             ageGroupMap.put(ag.getCode(), null);
@@ -774,8 +774,8 @@ public class FieldOfPlay {
             em.flush();
             return null;
         });
-        List<Athlete> rankedAthletes = new GroupRepository().allAthletesForGlobalRanking(g);
-//      logger.debug("rankedAthletes {}", rankedAthletes);
+        List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
+//        logger.debug("rankedAthletes {}", rankedAthletes);
 //        for (Athlete a : rankedAthletes) {
 //            logger.debug("{} {}", a.getShortName(), a.getTotalRank());
 //        }
@@ -795,7 +795,7 @@ public class FieldOfPlay {
         if (logger.isEnabledFor(Level.TRACE)) {
             for (Athlete a : getLiftingOrder()) {
                 Participation p = a.getMainRankings();
-                logger.debug("**** {} {} {} {} {} {}", a, p.getCategory(), p.getSnatchRank(), p.getCleanJerkRank(),
+                logger. warn("**** {} {} {} {} {} {}", a, p.getCategory(), p.getSnatchRank(), p.getCleanJerkRank(),
                         p.getTotalRank(), a.isForcedAsCurrent());
             }
         }
@@ -819,12 +819,14 @@ public class FieldOfPlay {
             if (!cjStarted2) {
                 List<Athlete> snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
                         .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
+                        .limit(3)
                         .collect(Collectors.toList());
                 setLeaders(snatchLeaders);
                 // logger.trace("snatch leaders {} {}", snatchLeaders, currentCategoryAthletes);
             } else {
                 List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
                         .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
+                        .limit(3)
                         .collect(Collectors.toList());
                 setLeaders(totalLeaders);
                 // logger.trace("total leaders {} {}", totalLeaders, currentCategoryAthletes);

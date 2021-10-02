@@ -29,6 +29,7 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.LoggerUtils;
@@ -432,6 +433,26 @@ public class AgeGroupRepository {
                 return resultSet;
             });
             return parts.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
+        }
+    }
+    
+
+    /**
+     * Fetch all age groups present in the current group
+     * @param g
+     * @return
+     */
+    public static List<AgeGroup> findAgeGroups(Group g) {
+        if (g == null) {
+            return new ArrayList<AgeGroup>();
+        } else {
+            return JPAService.runInTransaction((em) -> {
+                TypedQuery<AgeGroup> q = em.createQuery(
+                        "select distinct ag from Athlete a join a.group g join a.participations p join p.category c join c.ageGroup ag where g.id = :groupId order by ag.maxAge, ag.minAge",
+                        AgeGroup.class);
+                q.setParameter("groupId", g.getId());
+                return q.getResultList();
+            });
         }
     }
 }

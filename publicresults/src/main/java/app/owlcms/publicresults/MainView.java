@@ -42,7 +42,7 @@ public class MainView extends VerticalLayout {
     private UI ui;
 
     public MainView() {
-        logger.warn("mainView");
+        logger.debug("mainView");
         text = new Text(Translator.translate("WaitingForSite"));
         ui = UI.getCurrent();
         if (ui != null) {
@@ -52,7 +52,6 @@ public class MainView extends VerticalLayout {
 
     @Subscribe
     public void update(UpdateEvent e) {
-        logger.warn("update");
         if (ui == null) {
             logger.error("ui is null!?");
             return;
@@ -64,7 +63,7 @@ public class MainView extends VerticalLayout {
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        logger.warn("onAttach");
+        logger.debug("onAttach");
         super.onAttach(attachEvent);
         ui = UI.getCurrent();
         UpdateReceiverServlet.getEventBus().register(this);
@@ -79,12 +78,11 @@ public class MainView extends VerticalLayout {
     private void buildHomePage() {
         // we cache the last update received for each field of play, indexed by fop name
         Set<String> fopNames = UpdateReceiverServlet.updateCache.keySet();
-        logger.warn("buildHomePage {} {}", fopNames.size(), ui);
         if (fopNames.size() == 0 || ui == null) {
             removeAll();
             add(text);
         } else if (fopNames.size() == 1) {
-            logger.warn("single platform, go to scoreboard");
+            logger.debug("single platform, proceeding to scoreboard");
             Map<String, String> parameterMap = new HashMap<>();
             String fop = fopNames.stream().findFirst().get();
             parameterMap.put("FOP", fop);

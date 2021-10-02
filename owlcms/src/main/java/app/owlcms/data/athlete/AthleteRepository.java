@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.slf4j.LoggerFactory;
 
@@ -216,7 +217,6 @@ public class AthleteRepository {
         return JPAService.runInTransaction((em) -> {
             Competition.getCurrent().setRankingsInvalid(true);
             Athlete merged = em.merge(athlete);
-            logger. warn("isForcedAsCurrent({}) {}", athlete, athlete.isForcedAsCurrent());
             return merged;
         });
     }
@@ -303,4 +303,39 @@ public class AthleteRepository {
         }
     }
 
+    /**
+     * Fetch all athletes and participations for the categories present in the group
+     * 
+     * @param g
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public static List<Athlete> findAthletesForGlobalRanking(Group g) {
+        return JPAService.runInTransaction((em) -> {
+            String categoriesFromCurrentGroup = "(select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId and c2.id = c.id)";
+            Query q = em.createQuery(
+                    "select distinct a, p from Athlete a join fetch a.participations p join p.category c where exists "
+                            + categoriesFromCurrentGroup);
+            q.setParameter("groupId", g.getId());
+            @SuppressWarnings("rawtypes")
+            List resultList = q.getResultList();
+            return resultList;
+        });
+    }
+
+    /**
+     * Fetch all athletes needed for leader board
+     * 
+     * @param g
+     * @return
+     */
+    public static List<Athlete> findAthletesForCategory(Category c) {
+        return JPAService.runInTransaction((em) -> {
+            TypedQuery<Athlete> q = em.createQuery(
+                    "select distinct a from Athlete a join a.participations p join p.category c where c.id = :catId",
+                    Athlete.class);
+            q.setParameter("catId", c.getId());
+            return q.getResultList();
+        });
+    }
 }

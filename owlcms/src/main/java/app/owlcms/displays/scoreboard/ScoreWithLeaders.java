@@ -70,7 +70,7 @@ import elemental.json.JsonValue;
 /**
  * Class Scoreboard
  *
- * Show athlete 6-attempt results
+ * Show athlete 6-attempt results and leaders for the athlete's category
  *
  */
 @SuppressWarnings("serial")
@@ -352,8 +352,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveGroupDone(UIEvent.GroupDone e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
+        uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
 //          Group g = e.getGroup();
@@ -363,8 +362,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-        // uiLog(e);
-        uiEventLogger.debug("### {} isDisplayToggle={}", this.getClass().getSimpleName(), e.isDisplayToggle());
+        uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Athlete a = e.getAthlete();
             order = e.getDisplayOrder();
@@ -375,8 +373,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveStartBreak(UIEvent.BreakStarted e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
+        uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
             doBreak();
@@ -394,8 +391,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveStopBreak(UIEvent.BreakDone e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
+        uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
             Athlete a = e.getAthlete();
@@ -406,14 +402,13 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
+        uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             syncWithFOP(e);
         });
     }
 
-    public void uiLog(UIEvent e) {
+    private void uiLog(UIEvent e) {
         uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
     }
@@ -496,7 +491,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     }
 
     private void computeLeaders() {
-        logger.debug("computeLeaders");
         OwlcmsSession.withFop(fop -> {
             Athlete curAthlete = fop.getCurAthlete();
             if (curAthlete != null && curAthlete.getGender() != null) {

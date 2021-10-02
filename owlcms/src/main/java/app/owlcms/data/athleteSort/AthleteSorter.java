@@ -18,10 +18,10 @@ import javax.persistence.Entity;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.group.Group;
-import app.owlcms.data.group.GroupRepository;
 import app.owlcms.spreadsheet.PAthlete;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -64,7 +64,7 @@ public class AthleteSorter implements Serializable {
      * @return
      */
     public static List<Athlete> assignCategoryRanks(Group g) {
-        List<Athlete> impactedAthletes = new GroupRepository().allAthletesForGlobalRanking(g);
+        List<Athlete> impactedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
         logger.debug("all athletes in group's categories {}", impactedAthletes);
         List<Athlete> sortedAthletes;
         sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.SNATCH, true);
