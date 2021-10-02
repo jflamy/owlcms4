@@ -394,7 +394,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
                 gridCallback.onComponentEvent(operationTriggerEvent);
             }
         } else {
-            logger.error("not valid {}", domainObject);
+            logger.debug("not valid {}", domainObject);
         }
     }
 

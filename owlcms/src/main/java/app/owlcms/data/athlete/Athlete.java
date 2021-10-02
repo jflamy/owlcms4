@@ -33,6 +33,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
@@ -1425,9 +1426,11 @@ public class Athlete {
     public Participation getMainRankings() {
         Participation curRankings = null;
         List<Participation> participations2 = getParticipations();
-        logger.trace("athlete {} category {} participations {}", this, category, participations2);
+        logger.debug("athlete {} category {} participations {}", this, category, participations2);
         for (Participation eligible : participations2) {
-            if (category != null && eligible.getCategory().getCode().equals(category.getCode())) {
+            Category eligibleCat = eligible.getCategory();
+            if (category != null && eligibleCat != null
+                    && StringUtils.equals(eligibleCat.getCode(), category.getCode())) {
                 curRankings = eligible;
                 break;
             }
@@ -3957,7 +3960,7 @@ public class Athlete {
             int clock = fop.getAthleteTimer().liveTimeRemaining();
             if (declaration == null || declaration.isBlank()) {
                 // there was no declaration made in time
-                logger. warn("{}{} change without declaration (not owning clock)", fop.getLoggingName(),
+                logger.warn("{}{} change without declaration (not owning clock)", fop.getLoggingName(),
                         this.getShortName());
                 throw new RuleViolationException.MustDeclareFirst(clock);
             }
@@ -4067,7 +4070,7 @@ public class Athlete {
         if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
             // validate declaration
             if (clock < initialTime - 30000) {
-                logger. warn("{}{} late declaration denied ({})", fop.getLoggingName(), this.getShortName(),
+                logger.warn("{}{} late declaration denied ({})", fop.getLoggingName(), this.getShortName(),
                         clock / 1000.0);
                 throw new RuleViolationException.LateDeclaration(clock);
             }
@@ -4075,7 +4078,7 @@ public class Athlete {
             return;
         } else {
             if (clock < 30000) {
-                logger. warn("{}{} late change denied after final warning ({})", fop.getLoggingName(),
+                logger.warn("{}{} late change denied after final warning ({})", fop.getLoggingName(),
                         this.getShortName(), clock / 1000.0);
                 throw new RuleViolationException.MustChangeBeforeFinalWarning(clock);
             }
@@ -4333,7 +4336,7 @@ public class Athlete {
             long partAthId = part.getAthlete().getId();
             long partCatId = part.getCategory().getId();
             if (partAthId == athId && partCatId == catId) {
-                //logger.debug("    removing {}", part);
+                // logger.debug(" removing {}", part);
                 iterator.remove();
             } else {
                 // logger.trace(" ok {} {}-{} {}-{}", part, athId, partAthId, catId, partCatId);
