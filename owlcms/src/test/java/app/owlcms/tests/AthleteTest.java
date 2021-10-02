@@ -60,7 +60,7 @@ public class AthleteTest {
         athlete.setCleanJerk1Declaration("80");
         athlete.setYearOfBirth(1900);
         Category registrationCategory = new Category(0L, 67.0, 73.0, Gender.M, true, 0, 0, 348,
-                new AgeGroup("SR", true, 15, 999, Gender.M, AgeDivision.IWF));
+                new AgeGroup("SR", true, 15, 999, Gender.M, AgeDivision.IWF, 0), 0);
         athlete.setCategory(registrationCategory);
     }
 

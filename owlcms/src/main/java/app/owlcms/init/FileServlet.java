@@ -121,7 +121,7 @@ public class FileServlet extends HttpServlet {
      * @param ignoreCaching the ignoreCaching to set
      */
     public static void setIgnoreCaching(boolean ignoreCaching) {
-        logger.warn("{} caching settings from browser", ignoreCaching ? "Ignoring" : "Obeying");
+        logger.debug("{} caching settings from browser", ignoreCaching ? "Ignoring" : "Obeying");
         FileServlet.ignoreCaching = ignoreCaching;
     }
 

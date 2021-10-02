@@ -543,9 +543,9 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         ja.put("sattempts", sattempts);
         ja.put("cattempts", cattempts);
         ja.put("total", formatInt(a.getTotal()));
-        ja.put("snatchRank", formatInt(a.getSnatchRank()));
-        ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
-        ja.put("totalRank", formatInt(a.getTotalRank()));
+        ja.put("snatchRank", formatInt(a.getMainRankings().getSnatchRank()));
+        ja.put("cleanJerkRank", formatInt(a.getMainRankings().getCleanJerkRank()));
+        ja.put("totalRank", formatInt(a.getMainRankings().getTotalRank()));
         Integer liftOrderRank = a.getLiftOrderRank();
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");

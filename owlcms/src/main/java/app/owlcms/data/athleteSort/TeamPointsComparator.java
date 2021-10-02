@@ -68,9 +68,9 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
     private int comparePointsOrder(Athlete lifter1, Athlete lifter2) {
         switch (rankingType) {
         case SNATCH:
-            return lifter1.getSnatchPoints().compareTo(lifter2.getSnatchPoints());
+            return Integer.compare(lifter1.getSnatchPoints(),lifter2.getSnatchPoints());
         case CLEANJERK:
-            return lifter1.getCleanJerkPoints().compareTo(lifter2.getCleanJerkPoints());
+            return Integer.compare(lifter1.getCleanJerkPoints(),lifter2.getCleanJerkPoints());
         case TOTAL:
             final Integer totalPoints1 = lifter1.getTotalPoints();
             final Integer totalPoints2 = lifter2.getTotalPoints();
@@ -83,7 +83,7 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
             final int compareCustom = customPoints1.compareTo(customPoints2);
             logger.trace(lifter1 + " " + customPoints1 + " [" + compareCustom + "]" + lifter2 + " " + customPoints2);
             return compareCustom;
-        case COMBINED:
+        case SNATCH_CJ_TOTAL:
             final Integer combinedPoints1 = lifter1.getCombinedPoints();
             final Integer combinedPoints2 = lifter2.getCombinedPoints();
             final int compareCombined = combinedPoints1.compareTo(combinedPoints2);

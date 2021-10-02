@@ -60,7 +60,7 @@ public class RecordDefinitionReader {
                     RecordEvent rec = new RecordEvent();
 
                     for (Cell cell : row) {
-                        // System.err.println("[" + iSheet + "," + iRow + "," + iColumn + "]");
+                        // logger.trace("[" + iSheet + "," + iRow + "," + iColumn + "]");
                         switch (iColumn) {
                         case 0: {
                             String cellValue = cell.getStringCellValue();
@@ -151,7 +151,7 @@ public class RecordDefinitionReader {
 
                         iColumn++;
                     }
-                    // System.err.println(rec);
+                    // logger.trace(rec);
 
                     try {
                         em.persist(rec);

@@ -13,6 +13,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.impl.GridCrud;
@@ -40,11 +42,14 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
+import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
@@ -84,6 +89,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     private Group currentGroup;
     private JXLSCompetitionBook xlsWriter;
     private ComboBox<Resource> templateSelect;
+    private String ageGroupPrefix;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
@@ -106,9 +112,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
                 AthleteRepository.findAllByGroupAndWeighIn(getGroupFilter().getValue(), genderFilter.getValue(), true),
                 Ranking.TOTAL);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-        AthleteSorter.resultsOrder(athletes, Ranking.SNATCH);
+        AthleteSorter.resultsOrder(athletes, Ranking.SNATCH, false);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
-        AthleteSorter.resultsOrder(athletes, Ranking.CLEANJERK);
+        AthleteSorter.resultsOrder(athletes, Ranking.CLEANJERK, false);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.CLEANJERK);
         return athletes;
     }
@@ -267,6 +273,21 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         topBarGroupSelect.setValue(null);
         topBarGroupSelect.setWidth("8em");
         setGroupSelectionListener();
+        
+        topBarAgeGroupPrefixSelect = new ComboBox<>();
+        topBarAgeGroupPrefixSelect.setPlaceholder(getTranslation("AgeGroup"));
+        List<AgeGroup> nonMastersAgeGroups = AgeGroupRepository.findActive();
+        Set<String> nonMastersAgePrefixes = nonMastersAgeGroups.stream()
+                .filter(g -> !(g.getAgeDivision() == AgeDivision.MASTERS))
+                .map(ag -> ag.getCode())
+                .collect(Collectors.toSet());
+        topBarAgeGroupPrefixSelect.setItems(nonMastersAgePrefixes);
+        topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
+        topBarAgeGroupPrefixSelect.setValue(null);
+        topBarAgeGroupPrefixSelect.setWidth("8em");
+        topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
+        topBarAgeGroupPrefixSelect.getStyle().set("margin-left", "1em");
+        setAgeGroupPrefixSelectionListener();
 
         xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
         StreamResource href = new StreamResource("finalResults.xls", xlsWriter);
@@ -290,7 +311,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
         topBar.getStyle().set("flex", "100 1");
         topBar.removeAll();
-        topBar.add(title, topBarGroupSelect, templateSelect, buttons);
+        topBar.add(title, topBarGroupSelect, topBarAgeGroupPrefixSelect, templateSelect, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         topBar.setFlexGrow(0.2, title);
 //        topBar.setSpacing(true);
@@ -352,6 +373,22 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             finalPackage.getElement().setAttribute("download",
                     "results" + (currentGroup != null ? "_" + currentGroup : "_all") + ".xls");
         });
+    }
+    
+    protected void setAgeGroupPrefixSelectionListener() {
+        topBarAgeGroupPrefixSelect.addValueChangeListener(e -> {
+            // the name of the resulting file is set as an attribute on the <a href tag that
+            // surrounds
+            // the download button.
+            setAgeGroupPrefix(e.getValue());
+            xlsWriter.setAgeGroupPrefix(ageGroupPrefix);
+            finalPackage.getElement().setAttribute("download",
+                    "results" + (ageGroupPrefix != null ? "_" + ageGroupPrefix : "_all") + ".xls");
+        });
+    }
+
+    private void setAgeGroupPrefix(String value) {
+        this.ageGroupPrefix = value;
     }
 
     /**

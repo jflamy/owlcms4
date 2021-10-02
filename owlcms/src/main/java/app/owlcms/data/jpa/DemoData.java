@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -29,8 +28,6 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
-import app.owlcms.data.category.Category;
-import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
@@ -69,6 +66,8 @@ public class DemoData {
             setupDemoData(em, nbAthletes, ageDivisions);
             return null;
         });
+        
+        AthleteRepository.resetCategories();
     }
 
     protected static void assignStartNumbers(EntityManager em, Group groupA) {
@@ -104,13 +103,8 @@ public class DemoData {
         long weeksToSubtract = (long) ((minAge * 52) + Math.floor(r.nextDouble() * (maxAge - minAge) * 52));
         LocalDate fullBirthDate = baseDate.minusWeeks(weeksToSubtract);
         p.setFullBirthDate(fullBirthDate);
-        int age = LocalDate.now().getYear() - fullBirthDate.getYear();
-
-        List<Category> cat = CategoryRepository.findByGenderDivisionAgeBW(gender, ageDivision, age, bodyWeight);
-        logger.trace("athlete {} matches {}", p.getFullName(),
-                cat.stream().map(Category::getName).collect(Collectors.joining(", ")));
-        Category categOrNull = cat.stream().findFirst().orElse(null);
-        p.setCategory(categOrNull == null ? null : em.contains(categOrNull) ? categOrNull : em.merge(categOrNull));
+        
+        // category computed automatically according to birth date etc.
 
         // respect 20kg rule
         p.setQualifyingTotal((int) (isd + icjd - 15));

@@ -124,6 +124,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected AthleteTimerElement timer;
     protected FlexLayout topBar;
     protected ComboBox<Group> topBarGroupSelect;
+    protected ComboBox<String> topBarAgeGroupPrefixSelect;
     private Athlete displayedAthlete;
     protected boolean initialBar;
     protected H3 warning;

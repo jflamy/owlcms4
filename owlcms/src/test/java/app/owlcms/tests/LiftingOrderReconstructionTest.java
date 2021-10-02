@@ -46,7 +46,7 @@ public class LiftingOrderReconstructionTest {
     public void liftSequence3() throws InterruptedException {
         FieldOfPlay fopState = OwlcmsSession.getFop();
         EventBus fopBus = fopState.getFopEventBus();
-        
+            
         liftSequence.doSequence3(fopState, fopBus, logger);
         
         LiftOrderReconstruction liftOrderReconstruction = new LiftOrderReconstruction(fopState);

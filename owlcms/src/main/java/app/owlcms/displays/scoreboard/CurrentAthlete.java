@@ -152,7 +152,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
 
     private EventBus uiEventBus;
     private List<Athlete> order;
-    private Group curGroup;
 
     JsonArray sattempts;
     JsonArray cattempts;
@@ -359,7 +358,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         uiEventLogger.debug("### {} isDisplayToggle={}", this.getClass().getSimpleName(), e.isDisplayToggle());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Athlete a = e.getAthlete();
-            order = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
+            order = e.getDisplayOrder();
             // liftsDone = AthleteSorter.countLiftsDone(order);
             doUpdate(a, e);
         });
@@ -461,8 +460,8 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         OwlcmsSession.withFop(fop -> {
             init();
 
-            // get the global category rankings for the group
-            order = competition.getGlobalCategoryRankingsForGroup(fop.getGroup());
+            // get the global category rankings attached to each athlete
+            order = fop.getDisplayOrder();
 
             // liftsDone = AthleteSorter.countLiftsDone(order);
             syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
@@ -576,9 +575,9 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         ja.put("sattempts", sattempts);
         ja.put("cattempts", cattempts);
         ja.put("total", formatInt(a.getTotal()));
-        ja.put("snatchRank", formatInt(a.getSnatchRank()));
-        ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
-        ja.put("totalRank", formatInt(a.getTotalRank()));
+        ja.put("snatchRank", formatInt(a.getMainRankings().getSnatchRank()));
+        ja.put("cleanJerkRank", formatInt(a.getMainRankings().getCleanJerkRank()));
+        ja.put("totalRank", formatInt(a.getMainRankings().getTotalRank()));
         ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
@@ -687,7 +686,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         OwlcmsSession.withFop(fop -> {
             logger.trace("{}Starting result board", fop.getLoggingName());
             setId("scoreboard-" + fop.getName());
-            curGroup = fop.getGroup();
             getModel().setWideTeamNames(false);
             getModel().setCompetitionName(Competition.getCurrent().getCompetitionName());
         });
@@ -723,7 +721,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
 
     private void updateBottom(ScoreboardModel model, String liftType) {
         OwlcmsSession.withFop((fop) -> {
-            curGroup = fop.getGroup();
             if (liftType != null) {
                 model.setGroupName("");
                 model.setLiftsDone("");
