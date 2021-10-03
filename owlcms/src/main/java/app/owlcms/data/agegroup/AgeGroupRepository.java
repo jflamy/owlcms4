@@ -214,17 +214,36 @@ public class AgeGroupRepository {
         return nAgeGroup;
     }
 
+    /**
+     * Save.
+     *
+     * @param AgeGroup the group
+     * @return the group
+     */
+    public static AgeGroup add(AgeGroup ageGroup) {
+        // first clean up the age group
+        AgeGroup nAgeGroup = JPAService.runInTransaction(em -> {
+            try {
+                em.persist(ageGroup);
+            } catch (Exception e) {
+                logger.error(LoggerUtils.stackTrace(e));
+            }
+            return null;
+        });
+        return nAgeGroup;
+    }
+
     private static AgeGroup cleanUp(AgeGroup ageGroup, EntityManager em) {
         // cascade carefully the deleted categories.
         Long id = ageGroup.getId();
         if (id == null) {
             return null;
         }
-        AgeGroup old = em.find(AgeGroup.class,id);
+        AgeGroup old = em.find(AgeGroup.class, id);
         List<Category> oldCats = old.getAllCategories();
-        //logger.debug("old categories {}", oldCats);
+        // logger.debug("old categories {}", oldCats);
         List<Category> newCats = ageGroup.getAllCategories();
-        //logger.debug("new categories {}", newCats);
+        // logger.debug("new categories {}", newCats);
 
         List<Category> obsolete = new ArrayList<>();
         for (Category oldC : oldCats) {
@@ -244,20 +263,20 @@ public class AgeGroupRepository {
                 obsolete.add(oldC);
             }
         }
-        
+
         for (Category newC : newCats) {
             em.merge(newC);
         }
-         
-        //logger.debug("obsolete categories {}",obsolete);
+
+        // logger.debug("obsolete categories {}",obsolete);
         for (Category obs : obsolete) {
             cascadeAthleteCategoryDisconnect(em, obs);
             cascadeCategoryRemoval(em, old, obs);
         }
-        
+
         AgeGroup mAgeGroup = em.merge(ageGroup);
-        //List<Category> mergedCats = mAgeGroup.getCategories();
-        //logger.debug("merged categories {}", mergedCats);
+        // List<Category> mergedCats = mAgeGroup.getCategories();
+        // logger.debug("merged categories {}", mergedCats);
 
         em.flush();
         return mAgeGroup;
@@ -439,10 +458,10 @@ public class AgeGroupRepository {
             return parts.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
         }
     }
-    
 
     /**
      * Fetch all age groups present in the current group
+     * 
      * @param g
      * @return
      */

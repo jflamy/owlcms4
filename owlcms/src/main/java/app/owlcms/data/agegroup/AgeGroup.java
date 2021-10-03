@@ -98,10 +98,9 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     @Transient
     public String categoriesAsString;
 
-    @OneToMany(mappedBy = "ageGroup", cascade = { CascadeType.PERSIST, CascadeType.MERGE,
-            CascadeType.REFRESH },
-//        orphanRemoval = true,
-            fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "ageGroup", cascade = { CascadeType.ALL },
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
     private List<Category> categories = new ArrayList<>();
 
     private Integer qualificationTotal;
