@@ -2,7 +2,7 @@ Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/i
 
 - [x] Compute eligible categories when loading Excel registration file with qualifying total
 - [x] Adjust eligible categories when qualifying total is edited in registration form.
-- [x] Fixed remote scoreboard end of group behaviour
+- [x] Fixed remote scoreboard end of group behavior
 
 Prior changes in release 4.23
 

@@ -110,7 +110,7 @@ If you look at the installation directory under the `local/agegroups` directory,
 1. The first Tab in each file defines the bodyweight categories in use for a given federation or club.  
 2. The second Tab says which bodyweight categories are active for each age group.
 
-This step needs to be done on a local installation.  Once you are ready, you can upload you local settings to a cloud installation, as explained in [UploadingLocalSettings].
+This step needs to be done on a local installation.  Once you are ready, you can upload you local settings to a cloud installation, as explained in [this page](UploadingLocalSettings)
 
 Let's say we want to create age groups for our annual U15 U17 competition.  We go to the local/agegroups directory, and copy the `AgeGroups.xlsx` file to another name (for example `AgeGroupsU15U17.xlsx` or whatever suits you).
 

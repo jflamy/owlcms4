@@ -23,6 +23,7 @@
 * Advanced Topics
   * [Updating Cloud-based Applications](UpdatingCloudApplications)
   * [Configuration Parameters](Configuration)
+  * [Customization](UploadingLocalSettings)
   * [Excel Template Variables](TemplateVariables)
   * [Translations](Translation)
   * [Contributing to the code](Gitpod)
