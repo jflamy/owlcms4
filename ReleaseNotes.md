@@ -1,19 +1,21 @@
-Changes for release 4.23.0-alpha01  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+Changes for release 4.23.0-alpha02  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Compute eligible categories when loading Excel registration file with qualifying total
-- [x] Adjust eligible categories when qualifying total is edited in registration form.
-- [x] Fixed remote scoreboard end of group behaviour
+- [x] Fixed age group editing layout, age group creation, and associated documentation
 
 Prior changes in release 4.23
 
-- [x] Explicit support for participation to multiple age groups (#433)
+- [x] Compute eligible categories when loading Excel registration file with qualifying total
+
+- [x] Adjust eligible categories when qualifying total is edited in registration form.
+
+- [x] Fixed remote scoreboard end of group behaviorExplicit support for participation to multiple age groups (#433)
 
   - An athlete will, by default, be eligible and ranked separately in all the active categories in which the age and qualifying total are met.   Participation to an eligible category can be removed or added back on the registration page for the athlete.
   - Multiple age group scoreboard option shows ranks for all age groups present in the currently lifting group.
   - Final results packages can be produced for each age group, or combined for all age groups (when all age groups contribute to team points)
   - Qualifying totals can be entered in the AgeGroup definition file for each age group category, and then edited from the Age Group preparation web page.
   - Group results always show the rank for all athletes in the same category.  Each athlete has a group category selected on the registration page for the purpose of computing start numbers.
-  
+
 - [x] Marshall screen now shows decisions (#411). This is for setups where athlete cards are used and where it is difficult to see the scoreboard or inconvenient to switch tabs.
 
 - [x] Clearer error message when athlete A cannot move down because B has attempted same weight on a bigger attempt number (if so, A should have lifted before B, cannot move down.)
