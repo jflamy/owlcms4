@@ -367,7 +367,7 @@ public class ResourceWalker {
         }
 
         // name ends with _en or _en_CA or _en_CA_variant
-        String regex = "^.*?_([a-zA-Z]{2,3}(_[a-zA-Z]{2,3})?(_[a-zA-Z]+)?)$";
+        String regex = "^.*?_([a-zA-Z]{2}(_[a-zA-Z]{2})?(_[a-zA-Z]+)?)$";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(noExtension);
 
@@ -396,9 +396,7 @@ public class ResourceWalker {
                 }
                 localeString = locale.getLanguage();
                 result = resourceSuffix.contentEquals(localeString);
-                if (result) {
-                    return true;
-                }
+                return result;
             } else if (!locale.getCountry().isEmpty()) {
                 // accept all variants for country
                 localeString = locale.getLanguage() + "_" + locale.getCountry();
@@ -408,24 +406,19 @@ public class ResourceWalker {
                 }
                 localeString = locale.getLanguage();
                 result = resourceSuffix.contentEquals(localeString);
-                if (result) {
-                    return true;
-                }
+                return result;
             } else if (!locale.getLanguage().isEmpty()) {
                 localeString = locale.getLanguage();
                 result = resourceSuffix.contentEquals(localeString);
-                if (result) {
-                    return true;
-                }
+                return result;
             } else {
                 return true;
             }
         } catch (IllegalStateException e) {
             resourceSuffix = "";
-            logger.trace("resourceSuffix({}) empty", noExtension);
+            logger.trace("{} resourceSuffix({}) empty", resourceName, noExtension);
+            return true;
         }
-
-        return false;
     }
 
     /**
