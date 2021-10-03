@@ -186,7 +186,12 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         })).setHeader(getTranslation("Active")).setWidth("0");
         grid.addColumn(AgeGroup::getName).setHeader(getTranslation("Name"));
         grid.addColumn(new TextRenderer<AgeGroup>(
-                item -> getTranslation("Division." + item.getAgeDivision().name())))
+                item -> {
+                    AgeDivision ageDivision = item.getAgeDivision();
+                    logger.trace("createGrid age division {}", ageDivision);
+                    String tr = getTranslation("Division." + (ageDivision != null ? ageDivision.name() : "?"));
+                    return tr;
+                }))
                 .setHeader(getTranslation("AgeDivision"));
         grid.addColumn(AgeGroup::getGender).setHeader(getTranslation("Gender"));
         grid.addColumn(AgeGroup::getMinAge).setHeader(getTranslation("MinimumAge"));
