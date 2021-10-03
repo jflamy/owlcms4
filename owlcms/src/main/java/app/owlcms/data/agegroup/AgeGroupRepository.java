@@ -216,7 +216,11 @@ public class AgeGroupRepository {
 
     private static AgeGroup cleanUp(AgeGroup ageGroup, EntityManager em) {
         // cascade carefully the deleted categories.
-        AgeGroup old = em.find(AgeGroup.class,ageGroup.getId());
+        Long id = ageGroup.getId();
+        if (id == null) {
+            return null;
+        }
+        AgeGroup old = em.find(AgeGroup.class,id);
         List<Category> oldCats = old.getAllCategories();
         //logger.debug("old categories {}", oldCats);
         List<Category> newCats = ageGroup.getAllCategories();
