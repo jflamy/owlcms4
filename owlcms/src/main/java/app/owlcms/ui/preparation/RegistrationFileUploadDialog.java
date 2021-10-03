@@ -224,6 +224,7 @@ public class RegistrationFileUploadDialog extends Dialog {
         }
 
         processAthletes(inputStream, ta);
+        AthleteRepository.resetCategories();
         listGroups("after processAthletes real");
         return;
     }
