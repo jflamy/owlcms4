@@ -49,7 +49,7 @@ public class AgeGroupDefinitionReader {
         Sheet sheet = workbook.getSheetAt(0);
         Iterator<Row> rowIterator = sheet.rowIterator();
         int iRow = 0;
-        while (rowIterator.hasNext()) {
+        rows: while (rowIterator.hasNext()) {
             int iColumn = 0;
             Row row;
             if (iRow == 0) {
@@ -67,7 +67,11 @@ public class AgeGroupDefinitionReader {
                 switch (iColumn) {
                 case 0: {
                     String cellValue = dataFormatter.formatCellValue(cell);
-                    c.setCode(cellValue.trim());
+                    String trim = cellValue.trim();
+                    if (trim.isBlank()) {
+                        break rows;
+                    }
+                    c.setCode(trim);
                     categoryMap.put(cellValue, c);
                 }
                     break;
@@ -110,7 +114,7 @@ public class AgeGroupDefinitionReader {
             Sheet sheet = workbook.getSheetAt(1);
             Iterator<Row> rowIterator = sheet.rowIterator();
             int iRow = 0;
-            while (rowIterator.hasNext()) {
+            rows: while (rowIterator.hasNext()) {
                 int iColumn = 0;
                 Row row;
                 if (iRow == 0) {
@@ -129,6 +133,9 @@ public class AgeGroupDefinitionReader {
                     case 0: {
                         String cellValue = cell.getStringCellValue();
                         String trim = cellValue.trim();
+                        if (trim.isBlank()) {
+                            break rows;
+                        }
                         ag.setCode(trim);
                     }
                         break;
