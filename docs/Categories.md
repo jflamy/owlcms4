@@ -37,8 +37,8 @@ The changes to the age group are only registered when you click on the blue "Upd
 
 Let's now say we want a 41kg category instead of a 40kg.  This is done in two steps
 
-1. Remove the 40kg category by clicking on Delete
-2. Adding the 41kg category by typing 41 in the `max kg` box and clicking on the green `Add Category` button.
+1. Remove the 40kg category by clicking on Delete, as we did before
+2. Adding the new 41kg category by typing 41 in the `max kg` box and clicking on the green `Add Category` button.
 
 ![040_addCategory](img/Categories/040_addCategory.png)
 
