@@ -58,7 +58,7 @@ public class AgeGroupEditingFormFactory
 
     @Override
     public AgeGroup add(AgeGroup AgeGroup) {
-        AgeGroupRepository.save(AgeGroup);
+        AgeGroupRepository.add(AgeGroup);
         return AgeGroup;
     }
 
@@ -96,9 +96,6 @@ public class AgeGroupEditingFormFactory
         FormLayout formLayout = new FormLayout();
         formLayout.setResponsiveSteps(new ResponsiveStep("0", 1, LabelsPosition.ASIDE));
         formLayout.setWidth("50em");
-//        if (this.responsiveSteps != null) {
-//            formLayout.setResponsiveSteps(this.responsiveSteps);
-//        }
 
         binder = buildBinder(null, aFromDb);
         String message = Translator.translate("AgeFormat");

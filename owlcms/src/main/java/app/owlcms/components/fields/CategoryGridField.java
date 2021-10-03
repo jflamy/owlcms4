@@ -74,6 +74,7 @@ public class CategoryGridField extends CustomField<List<Category>> {
         qualTotColumn = catGrid
                 .addColumn(Category::getQualifyingTotal)
                 .setHeader(Translator.translate("Category.QualificationTotal"));
+        catGrid.setHeightByRows(true);
 
         setupEditing(catGrid);
 

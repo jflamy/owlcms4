@@ -22,14 +22,18 @@ For the sake of the example, let's assume that we want to change the settings so
 
 ![030_beforeRemoveCategory](img/Categories/030_beforeRemoveCategory.png)
 
-The first thing we want is to remove the 109kg category so we have 102kg as the last category with an upper limit.   We simply click "Delete" on the 109 row.
+What want is to remove the 109kg category so we have 102kg as the last category with an upper limit.   We simply click "Delete" on the 109 row.
 
-- the 109 category is removed,
+![031_beforeRemoveCategory](img/Categories/031_beforeRemoveCategory.png)
+
+After clicking on the Delete button
+
+- the 109 category is slated for removal,
 - the heaviest category is automatically changed to >102. The system always adjust the last "X and above" category based on the heaviest category with an upper limit.
 
-The list is automatically updated.
+The changes to the age group are only registered when you click on the blue "Update" button at the bottom of the form.
 
-![031_AfterRemoveCategory](img/Categories/031_AfterRemoveCategory.png)
+![032_AfterRemoveCategory](img/Categories/032_AfterRemoveCategory.png)
 
 Let's now say we want a 41kg category instead of a 40kg.  This is done in two steps
 

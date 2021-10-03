@@ -97,7 +97,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     // combines age group and bw category (which includes gender).
     private String code;
 
-    // we need EAGER due to the way the CRUD updater works.
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Participation> participations = new ArrayList<>();
 
