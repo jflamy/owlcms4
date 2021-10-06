@@ -8,13 +8,12 @@
 package app.owlcms.ui.results;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.impl.GridCrud;
@@ -42,10 +41,8 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
-import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
@@ -55,6 +52,7 @@ import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
@@ -91,6 +89,12 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     private ComboBox<Resource> templateSelect;
     private String ageGroupPrefix;
 
+    private String getAgeGroupPrefix() {
+        return ageGroupPrefix;
+    }
+
+    private AgeDivision ageDivision;
+
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
      * {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
@@ -108,15 +112,32 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     public Collection<Athlete> findAll() {
-        List<Athlete> athletes = AthleteSorter.resultsOrderCopy(
-                AthleteRepository.findAllByGroupAndWeighIn(getGroupFilter().getValue(), genderFilter.getValue(), true),
-                Ranking.TOTAL);
-        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-        AthleteSorter.resultsOrder(athletes, Ranking.SNATCH, false);
-        AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
-        AthleteSorter.resultsOrder(athletes, Ranking.CLEANJERK, false);
-        AthleteSorter.assignCategoryRanks(athletes, Ranking.CLEANJERK);
-        return athletes;
+        if (getAgeGroupPrefix() == null && getAgeDivision() == null) {
+            return new ArrayList<Athlete>();
+        }
+//        List<PAthlete> allPAthletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),
+//                getAgeDivision());
+//        List<Athlete> athletes = allPAthletes.stream().map(pa -> (Athlete) pa).collect(Collectors.toList());
+//        AthleteSorter.resultsOrder(athletes, Ranking.TOTAL, false);
+//        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
+//        AthleteSorter.resultsOrder(athletes, Ranking.SNATCH, false);
+//        AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
+//        AthleteSorter.resultsOrder(athletes, Ranking.CLEANJERK, false);
+//        AthleteSorter.assignCategoryRanks(athletes, Ranking.CLEANJERK);
+        
+        Competition competition = Competition.getCurrent();
+        String suffix = (getAgeGroupPrefix() != null) ? getAgeGroupPrefix() : getAgeDivision().name();
+        
+        HashMap<String, Object> beans = competition.computeReportingInfo(ageGroupPrefix, ageDivision);
+        String key = "mwTeam"+suffix;
+        logger.warn("looking for {}",key);
+        @SuppressWarnings("unchecked")
+        List<Athlete> athletes = (List<Athlete>) beans.get(key);
+        List<Athlete> ranked = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL, false);
+        for (Athlete a : ranked) {
+            logger.warn("{} {}",key, a.longDump());
+        }
+        return ranked;
     }
 
     public Group getGridGroup() {
@@ -258,30 +279,21 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         getAppLayout().setMenuVisible(true);
         getAppLayout().closeDrawer();
 
-        topBar = getAppLayout().getAppBarElementWrapper();
-
         H3 title = new H3();
         title.setText(getTranslation("FinalResultsPackage"));
         title.add();
         title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
 
-        topBarGroupSelect = new ComboBox<>();
-        topBarGroupSelect.setPlaceholder(getTranslation("Group"));
-        topBarGroupSelect.setItems(GroupRepository.findAll());
-        topBarGroupSelect.setItemLabelGenerator(Group::getName);
-        topBarGroupSelect.setClearButtonVisible(true);
-        topBarGroupSelect.setValue(null);
-        topBarGroupSelect.setWidth("8em");
-        setGroupSelectionListener();
-        
+        topBar = getAppLayout().getAppBarElementWrapper();
+        xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
+        StreamResource href = new StreamResource("finalResults.xls", xlsWriter);
+        finalPackage = new Anchor(href, "");
+        finalPackage.getStyle().set("margin-left", "1em");
+        download = new Button(getTranslation("FinalResultsPackage"), new Icon(VaadinIcon.DOWNLOAD_ALT));
+
         topBarAgeGroupPrefixSelect = new ComboBox<>();
         topBarAgeGroupPrefixSelect.setPlaceholder(getTranslation("AgeGroup"));
-        List<AgeGroup> nonMastersAgeGroups = AgeGroupRepository.findActive();
-        Set<String> nonMastersAgePrefixes = nonMastersAgeGroups.stream()
-                .filter(g -> !(g.getAgeDivision() == AgeDivision.MASTERS))
-                .map(ag -> ag.getCode())
-                .collect(Collectors.toSet());
-        topBarAgeGroupPrefixSelect.setItems(nonMastersAgePrefixes);
+        topBarAgeGroupPrefixSelect.setEnabled(false);
         topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
         topBarAgeGroupPrefixSelect.setValue(null);
         topBarAgeGroupPrefixSelect.setWidth("8em");
@@ -289,12 +301,18 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         topBarAgeGroupPrefixSelect.getStyle().set("margin-left", "1em");
         setAgeGroupPrefixSelectionListener();
 
-        xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
-        StreamResource href = new StreamResource("finalResults.xls", xlsWriter);
-        finalPackage = new Anchor(href, "");
-        finalPackage.getStyle().set("margin-left", "1em");
-        download = new Button(getTranslation("FinalResultsPackage"), new Icon(VaadinIcon.DOWNLOAD_ALT));
-        finalPackage.add(download);
+        topBarAgeDivisionSelect = new ComboBox<>();
+        topBarAgeDivisionSelect.setPlaceholder(getTranslation("AgeDivision"));
+        List<AgeDivision> adItems = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
+        topBarAgeDivisionSelect.setItems(adItems);
+        topBarAgeDivisionSelect.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
+        topBarAgeDivisionSelect.setClearButtonVisible(true);
+        topBarAgeDivisionSelect.setWidth("8em");
+        topBarAgeDivisionSelect.getStyle().set("margin-left", "1em");
+        setAgeDivisionSelectionListener();
+        AgeDivision value = (adItems != null && adItems.size() > 0) ? adItems.get(0) : null;
+        logger.debug("value {} items {}", value, adItems);
+        topBarAgeDivisionSelect.setValue(value);
 
         templateSelect = new ComboBox<>();
         templateSelect.setPlaceholder(getTranslation("AvailableTemplates"));
@@ -306,23 +324,30 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         templateSelect.getStyle().set("margin-left", "1em");
         setTemplateSelectionListener(resourceList);
 
+        topBarGroupSelect = new ComboBox<>();
+        topBarGroupSelect.setPlaceholder(getTranslation("Group"));
+        topBarGroupSelect.setItems(GroupRepository.findAll());
+        topBarGroupSelect.setItemLabelGenerator(Group::getName);
+        topBarGroupSelect.setClearButtonVisible(true);
+        topBarGroupSelect.setValue(null);
+        topBarGroupSelect.setWidth("8em");
+        setGroupSelectionListener();
+
+        finalPackage.add(download);
+
         HorizontalLayout buttons = new HorizontalLayout(finalPackage);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
         topBar.getStyle().set("flex", "100 1");
         topBar.removeAll();
-        topBar.add(title, topBarGroupSelect, topBarAgeGroupPrefixSelect, templateSelect, buttons);
+        topBar.add(title,
+                /* topBarGroupSelect, */
+                topBarAgeDivisionSelect, topBarAgeGroupPrefixSelect, templateSelect, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         topBar.setFlexGrow(0.2, title);
-//        topBar.setSpacing(true);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
     }
 
-    /**
-     * We do not control the groups on other screens/displays
-     *
-     * @param crudGrid the crudGrid that will be filtered.
-     */
     @Override
     protected void defineFilters(GridCrud<Athlete> crud) {
         getGroupFilter().setPlaceholder(getTranslation("Group"));
@@ -330,12 +355,12 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         getGroupFilter().setItemLabelGenerator(Group::getName);
         // hide because the top bar has it
         getGroupFilter().getStyle().set("display", "none");
-        getGroupFilter().addValueChangeListener(e -> {
-            logger.debug("updating filters: group={}", e.getValue());
-            currentGroup = e.getValue();
-            updateURLLocation(getLocationUI(), getLocation(), currentGroup);
-            subscribeIfLifting(e.getValue());
-        });
+//        getGroupFilter().addValueChangeListener(e -> {
+//            logger.debug("updating filters: group={}", e.getValue());
+//            currentGroup = e.getValue();
+//            updateURLLocation(getLocationUI(), getLocation(), currentGroup);
+//            subscribeIfLifting(e.getValue());
+//        });
         crud.getCrudLayout().addFilterComponent(getGroupFilter());
 
         genderFilter.setPlaceholder(getTranslation("Gender"));
@@ -361,20 +386,45 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         createTopBar();
     }
 
-    protected void setGroupSelectionListener() {
-        topBarGroupSelect.setValue(getGridGroup());
-        topBarGroupSelect.addValueChangeListener(e -> {
-            setGridGroup(e.getValue());
-            currentGroup = e.getValue();
+    protected void setAgeDivisionSelectionListener() {
+        topBarAgeDivisionSelect.addValueChangeListener(e -> {
             // the name of the resulting file is set as an attribute on the <a href tag that
-            // surrounds
-            // the download button.
-            xlsWriter.setGroup(currentGroup);
+            // surrounds the download button.
+            AgeDivision ageDivisionValue = e.getValue();
+            setAgeDivision(ageDivisionValue);
+            if (ageDivisionValue == null) {
+                topBarAgeGroupPrefixSelect.setValue(null);
+                topBarAgeGroupPrefixSelect.setItems(new ArrayList<String>());
+                topBarAgeGroupPrefixSelect.setEnabled(false);
+                topBarAgeGroupPrefixSelect.setValue(null);
+                crudGrid.refreshGrid();
+                return;
+            }
+
+            List<String> ageDivisionAgeGroupPrefixes;
+            if (ageDivisionValue == AgeDivision.MASTERS) {
+                ageDivisionAgeGroupPrefixes = new ArrayList<>();
+            } else {
+                ageDivisionAgeGroupPrefixes = AgeGroupRepository.findActiveAndUsed(ageDivisionValue);
+            }
+            //FIXME unusable result set when IWF and no age group.
+
+            topBarAgeGroupPrefixSelect.setItems(ageDivisionAgeGroupPrefixes);
+            boolean notEmpty = ageDivisionAgeGroupPrefixes.size() > 0;
+            topBarAgeGroupPrefixSelect.setEnabled(notEmpty);
+            String first = notEmpty ? ageDivisionAgeGroupPrefixes.get(0) : null;
+            logger.debug("ad {} ag {} first {} select {}", ageDivisionValue, ageDivisionAgeGroupPrefixes, first,
+                    topBarAgeGroupPrefixSelect);
+            topBarAgeGroupPrefixSelect.setValue(notEmpty ? first : null);
+
+            xlsWriter.setAgeDivision(ageDivisionValue);
             finalPackage.getElement().setAttribute("download",
-                    "results" + (currentGroup != null ? "_" + currentGroup : "_all") + ".xls");
+                    "results" + (getAgeDivision() != null ? "_" + getAgeDivision().name()
+                            : (ageGroupPrefix != null ? "_" + ageGroupPrefix : "_all")) + ".xls");
+            crudGrid.refreshGrid();
         });
     }
-    
+
     protected void setAgeGroupPrefixSelectionListener() {
         topBarAgeGroupPrefixSelect.addValueChangeListener(e -> {
             // the name of the resulting file is set as an attribute on the <a href tag that
@@ -383,12 +433,23 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             setAgeGroupPrefix(e.getValue());
             xlsWriter.setAgeGroupPrefix(ageGroupPrefix);
             finalPackage.getElement().setAttribute("download",
-                    "results" + (ageGroupPrefix != null ? "_" + ageGroupPrefix : "_all") + ".xls");
+                    "results" + (getAgeDivision() != null ? "_" + getAgeDivision().name()
+                            : (ageGroupPrefix != null ? "_" + ageGroupPrefix : "_all")) + ".xls");
+            crudGrid.refreshGrid();
         });
     }
 
-    private void setAgeGroupPrefix(String value) {
-        this.ageGroupPrefix = value;
+    protected void setGroupSelectionListener() {
+        topBarGroupSelect.setValue(getGridGroup());
+        topBarGroupSelect.addValueChangeListener(e -> {
+            setGridGroup(e.getValue());
+            currentGroup = e.getValue();
+            // the name of the resulting file is set as an attribute on the <a href tag that
+            // surrounds the download button.
+            xlsWriter.setGroup(currentGroup);
+            finalPackage.getElement().setAttribute("download",
+                    "results" + (currentGroup != null ? "_" + currentGroup : "_all") + ".xls");
+        });
     }
 
     /**
@@ -415,6 +476,10 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         return liftingFop != null;
     }
 
+    private AgeDivision getAgeDivision() {
+        return ageDivision;
+    }
+
     private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
         Resource found = null;
         Resource totalTemplate = null;
@@ -436,17 +501,20 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         }
     }
 
+    private void setAgeDivision(AgeDivision ageDivision) {
+        this.ageDivision = ageDivision;
+    }
+
+    private void setAgeGroupPrefix(String value) {
+        this.ageGroupPrefix = value;
+    }
+
     private void setTemplateSelectionListener(List<Resource> resourceList) {
         try {
             String curTemplateName = Competition.getCurrent().getFinalPackageTemplateFileName();
             Resource found = searchMatch(resourceList, curTemplateName);
             templateSelect.addValueChangeListener((e) -> {
                 Competition.getCurrent().setFinalPackageTemplateFileName(e.getValue().getFileName());
-//                try {
-//                    Competition.getCurrent().setFinalPackageTemplate(e.getValue().getByteArray());
-//                } catch (IOException e1) {
-//                    throw new RuntimeException(e1);
-//                }
                 CompetitionRepository.save(Competition.getCurrent());
             });
             templateSelect.setValue(found);

@@ -390,6 +390,16 @@ public class AgeGroupRepository {
         }
     }
 
+    public static List<AgeDivision> allAgeDivisionsForAllAgeGroups() {
+        return (List<AgeDivision>) JPAService.runInTransaction((em) -> {
+            TypedQuery<AgeDivision> q = em.createQuery(
+                    "select distinct ag.ageDivision from Participation p join p.category c join c.ageGroup ag",
+                    AgeDivision.class);
+            List<AgeDivision> resultSet = q.getResultList();
+            return resultSet;
+        });
+    }
+
     /**
      * List all participations for the categories present in the age group
      * 
@@ -410,6 +420,7 @@ public class AgeGroupRepository {
             return resultSet;
         });
     }
+    // allParticipationsForAgeDivision
 
     /**
      * List all participations for the categories present in the age group
@@ -459,6 +470,38 @@ public class AgeGroupRepository {
         }
     }
 
+    public static List<PAthlete> allPAthletesForAgeGroupAgeDivision(String ageGroupPrefix, AgeDivision ageDivision) {
+        List<Participation> participations = JPAService.runInTransaction(em -> {
+
+            List<String> whereList = new ArrayList<>();
+            if (ageGroupPrefix != null && !ageGroupPrefix.isBlank()) {
+                whereList.add("ag.code = :ageGroupPrefix");
+            }
+            if (ageDivision != null) {
+                whereList.add("ag.ageDivision = :ageDivision");
+            }
+            String whereClause = "";
+            if (whereList.size() > 0) {
+                whereClause = " where " + whereList.stream().collect(Collectors.joining(" and "));
+            }
+            
+            TypedQuery<Participation> q = em.createQuery(
+                    "select distinct p from Participation p join p.category c join c.ageGroup ag "
+                            + whereClause,
+                    Participation.class);
+            if (ageGroupPrefix != null && !ageGroupPrefix.isBlank()) {
+                q.setParameter("ageGroupPrefix",ageGroupPrefix);
+            }
+            if (ageDivision != null) {
+                q.setParameter("ageDivision",ageDivision);
+            }
+
+            List<Participation> resultSet = q.getResultList();
+            return resultSet;
+        });
+        return participations.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
+    }
+
     /**
      * Fetch all age groups present in the current group
      * 
@@ -478,4 +521,16 @@ public class AgeGroupRepository {
             });
         }
     }
+
+    public static List<String> findActiveAndUsed(AgeDivision ageDivisionValue) {
+        return (List<String>) JPAService.runInTransaction((em) -> {
+            TypedQuery<String> q = em.createQuery(
+                    "select distinct ag.code from Participation p join p.category c join c.ageGroup ag where ag.ageDivision = :agv",
+                    String.class);
+            q.setParameter("agv", ageDivisionValue);
+            List<String> resultSet = q.getResultList();
+            return resultSet;
+        });
+    }
+
 }

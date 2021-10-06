@@ -89,16 +89,17 @@ public class AthleteRepository {
         return em.createQuery("select distinct a from Athlete a").getResultList();
     }
 
-    public static List<Athlete> doFindAllByGroupAndWeighIn(EntityManager em, Group group, Boolean weighedIn,
+    public static List<Athlete> doFindAllByAgeroupGroupAndWeighIn(EntityManager em, AgeGroup ageGroup, Group group,
+            Boolean weighedIn,
             Gender gender) {
-        return doFindFiltered(em, (String) null, group, (Category) null, (AgeGroup) null, (AgeDivision) null, gender,
+        return doFindFiltered(em, (String) null, group, (Category) null, ageGroup, (AgeDivision) null, gender,
                 weighedIn,
                 -1, -1);
     }
-    
-    public static List<Athlete> doFindAllByAgeroupGroupAndWeighIn(EntityManager em, AgeGroup ageGroup, Group group, Boolean weighedIn,
+
+    public static List<Athlete> doFindAllByGroupAndWeighIn(EntityManager em, Group group, Boolean weighedIn,
             Gender gender) {
-        return doFindFiltered(em, (String) null, (Group) group, (Category) null, (AgeGroup) ageGroup, (AgeDivision) null, gender,
+        return doFindFiltered(em, (String) null, group, (Category) null, (AgeGroup) null, (AgeDivision) null, gender,
                 weighedIn,
                 -1, -1);
     }
@@ -107,7 +108,8 @@ public class AthleteRepository {
             AgeGroup ageGroup,
             AgeDivision ageDivision, Gender gender, Boolean weighedIn, int offset, int limit) {
         String qlString = "select a from Athlete a"
-                + filteringSelection(lastName, group, category, ageGroup, ageDivision, gender, weighedIn) + " order by a.category";
+                + filteringSelection(lastName, group, category, ageGroup, ageDivision, gender, weighedIn)
+                + " order by a.category";
         logger.debug("find query = {}", qlString);
         Query query = em.createQuery(qlString);
         setFilteringParameters(lastName, group, category, ageGroup, ageDivision, gender, query);
@@ -148,6 +150,42 @@ public class AthleteRepository {
     public static List<Athlete> findAllByGroupAndWeighIn(Group group, Gender gender, boolean weighedIn) {
         return JPAService.runInTransaction(em -> {
             return doFindAllByGroupAndWeighIn(em, group, weighedIn, gender);
+        });
+    }
+
+    /**
+     * Fetch all athletes needed for leader board
+     *
+     * @param g
+     * @return
+     */
+    public static List<Athlete> findAthletesForCategory(Category c) {
+        return JPAService.runInTransaction((em) -> {
+            TypedQuery<Athlete> q = em.createQuery(
+                    "select distinct a from Athlete a join a.participations p join p.category c where c.id = :catId",
+                    Athlete.class);
+            q.setParameter("catId", c.getId());
+            return q.getResultList();
+        });
+    }
+
+    /**
+     * Fetch all athletes and participations for the categories present in the group
+     *
+     * @param g
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public static List<Athlete> findAthletesForGlobalRanking(Group g) {
+        return JPAService.runInTransaction((em) -> {
+            String categoriesFromCurrentGroup = "(select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId and c2.id = c.id)";
+            Query q = em.createQuery(
+                    "select distinct a, p from Athlete a join fetch a.participations p join p.category c where exists "
+                            + categoriesFromCurrentGroup);
+            q.setParameter("groupId", g.getId());
+            @SuppressWarnings("rawtypes")
+            List resultList = q.getResultList();
+            return resultList;
         });
     }
 
@@ -301,41 +339,5 @@ public class AthleteRepository {
         if (gender != null) {
             query.setParameter("gender", gender);
         }
-    }
-
-    /**
-     * Fetch all athletes and participations for the categories present in the group
-     * 
-     * @param g
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public static List<Athlete> findAthletesForGlobalRanking(Group g) {
-        return JPAService.runInTransaction((em) -> {
-            String categoriesFromCurrentGroup = "(select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId and c2.id = c.id)";
-            Query q = em.createQuery(
-                    "select distinct a, p from Athlete a join fetch a.participations p join p.category c where exists "
-                            + categoriesFromCurrentGroup);
-            q.setParameter("groupId", g.getId());
-            @SuppressWarnings("rawtypes")
-            List resultList = q.getResultList();
-            return resultList;
-        });
-    }
-
-    /**
-     * Fetch all athletes needed for leader board
-     * 
-     * @param g
-     * @return
-     */
-    public static List<Athlete> findAthletesForCategory(Category c) {
-        return JPAService.runInTransaction((em) -> {
-            TypedQuery<Athlete> q = em.createQuery(
-                    "select distinct a from Athlete a join a.participations p join p.category c where c.id = :catId",
-                    Athlete.class);
-            q.setParameter("catId", c.getId());
-            return q.getResultList();
-        });
     }
 }

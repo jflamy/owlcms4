@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -31,15 +30,12 @@ import javax.persistence.Transient;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.category.AgeDivision;
-import app.owlcms.data.category.Participation;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
@@ -81,13 +77,26 @@ public class Competition {
         competition = c;
     }
 
-    public static void splitByGender(List<Athlete> sortedAthletes, List<Athlete> sortedMen, List<Athlete> sortedWomen) {
-        for (Athlete l : sortedAthletes) {
+    public static void splitByGender(List<Athlete> athletes, List<Athlete> sortedMen, List<Athlete> sortedWomen) {
+        for (Athlete l : athletes) {
             Gender gender = l.getGender();
             if (Gender.M == gender) {
                 sortedMen.add(l);
             } else if (Gender.F == gender) {
                 sortedWomen.add(l);
+            } else {
+                throw new RuntimeException("gender is " + gender);
+            }
+        }
+    }
+
+    public static void splitPByGender(List<PAthlete> athletes, List<Athlete> men, List<Athlete> women) {
+        for (PAthlete l : athletes) {
+            Gender gender = l.getGender();
+            if (Gender.M == gender) {
+                men.add(l);
+            } else if (Gender.F == gender) {
+                women.add(l);
             } else {
                 throw new RuntimeException("gender is " + gender);
             }
@@ -194,38 +203,23 @@ public class Competition {
     private boolean rankingsInvalid = true;
     private String timeZoneId;
 
-    synchronized public void computeReportingInfo(boolean full) {
-        List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
-        doComputeReportingInfo(full, athletes, (String)null);
+    synchronized public HashMap<String, Object> computeReportingInfo() {
+        List<PAthlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(null, null);
+        doComputeReportingInfo(false, athletes, (String) null, null);
+        return reportingBeans;
     }
 
-    synchronized public void computeReportingInfo(List<PAthlete> athletes, boolean full, String ageGroupPrefix) {
-        doComputeReportingInfo(full, athletes, ageGroupPrefix);
+    synchronized public HashMap<String, Object> computeReportingInfo(String ageGroupPrefix, AgeDivision ad) {
+        List<PAthlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(ageGroupPrefix, ad);
+        doComputeReportingInfo(true, athletes, (String) ageGroupPrefix, ad);
+        return reportingBeans;
     }
-    
-    private void doComputeReportingInfo(boolean full, List<? extends Athlete> athletes, String ageGroupPrefix) {
-        Thread t = new Thread(() -> {
-//            logger.trace("computeReportingInfo {}", LoggerUtils.whereFrom());
-            if (athletes.isEmpty()) {
-                // prevent outputting silliness.
-                logger./**/warn("no athletes");
-                reportingBeans.clear();
-                return;
-            }
-            sortGroupResults(athletes);
-//            logger.trace("computeReportingInfo full = {}", full);
-            if (full) {
-                sortTeamResults(athletes, ageGroupPrefix);
-            }
-        });
-        // take your time.  Caller of this method can wait
-        t.setPriority(Thread.MIN_PRIORITY);
-        t.start();
-        try {
-            t.join();
-        } catch (InterruptedException e) {
-            // ignore
-        }
+
+    synchronized public HashMap<String, Object> computeReportingInfo(List<PAthlete> athletes, boolean full,
+            String ageGroupPrefix,
+            AgeDivision ad) {
+        doComputeReportingInfo(full, athletes, ageGroupPrefix, ad);
+        return reportingBeans;
     }
 
     @Override
@@ -233,10 +227,7 @@ public class Competition {
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if ((obj == null) || (getClass() != obj.getClass())) {
             return false;
         }
         Competition other = (Competition) obj;
@@ -354,44 +345,9 @@ public class Competition {
         }
     }
 
-//    @Deprecated
-//    synchronized public List<Athlete> getGlobalCategoryRankingsForGroup(Group group) {
-//        if (group == null || group.getName() == null) {
-//            logger.debug("null group");
-//            return null;
-//        }
-//        return getListOrElseRecompute(group.getName());
-//    }
-//
     synchronized public List<Athlete> getGlobalSinclairRanking(Gender gender) {
         return getListOrElseRecompute(gender == Gender.F ? "wSinclair" : "mSinclair");
     }
-
-//    synchronized public List<Athlete> getGlobalSnatchRanking(Gender gender) {
-//        return getListOrElseRecompute(gender == Gender.F ? "wSn" : "mSn");
-//    }
-//
-////    private Collection<Athlete> getGlobalTeamsRanking(Gender gender) {
-////        List<Athlete> athletes = getAthletes(gender);
-////        if (isRankingsInvalid() || athletes == null) {
-////            setRankingsInvalid(true);
-////            while (isRankingsInvalid()) { // could be made invalid again while we compute
-////                setRankingsInvalid(false);
-////                // recompute because an athlete has been saved (new weight requested, good/bad lift, etc.)
-////                computeReportingInfo(true);
-////                athletes = getAthletes(gender);
-////                if (athletes == null) {
-////                    String error = MessageFormat.format("team list not found for gender {0}", gender);
-////                    logger./**/warn(error);
-////                    athletes = Collections.emptyList();
-////                }
-////            }
-////            logger.debug("team rankings recomputed {} size {}", gender, athletes != null ? athletes.size() : null);
-////        } else {
-////            logger.debug("found team rankings {} size {}", gender, athletes != null ? athletes.size() : null);
-////        }
-////        return athletes;
-////    }
 
     synchronized public List<Athlete> getGlobalTotalRanking(Gender gender) {
         return getListOrElseRecompute(gender == Gender.F ? "wTot" : "mTot");
@@ -423,7 +379,7 @@ public class Competition {
             while (isRankingsInvalid()) { // could be made invalid again while we compute
                 setRankingsInvalid(false);
                 // recompute because an athlete has been saved (new weight requested, good/bad lift, etc.)
-                computeReportingInfo(false);
+                computeReportingInfo();
                 athletes = (List<Athlete>) reportingBeans.get(listName);
                 if (athletes == null) {
                     String error = MessageFormat.format("list {0} not found", listName);
@@ -788,61 +744,7 @@ public class Competition {
                 + useRegistrationCategory + ", reportingBeans=" + reportingBeans + "]";
     }
 
-    private String doFindFinalPackageTemplateFileName(String absoluteRoot) {
-        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
-                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
-        for (Resource r : resourceList) {
-            logger.trace("checking {}", r.getFilePath());
-            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
-                return r.getFileName();
-            } else if (r.getFileName().startsWith("Total")) {
-                return r.getFileName();
-            }
-        }
-        throw new RuntimeException("final package templates not found under " + absoluteRoot);
-    }
-
-    private String doFindProtocolFileName(String absoluteRoot) {
-        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
-                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
-        for (Resource r : resourceList) {
-            logger.trace("checking {}", r.getFilePath());
-            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
-                return r.getFileName();
-            } else if (r.getFileName().startsWith("Protocol")) {
-                return r.getFileName();
-            }
-        }
-        throw new RuntimeException("result templates not found under " + absoluteRoot);
-    }
-
-//    @SuppressWarnings("unchecked")
-//    private List<Athlete> getAthletes(Gender gender) {
-//        List<Athlete> athletes = null;
-//        List<Athlete> mTeam = (List<Athlete>) reportingBeans.get("mTeam");
-//        List<Athlete> wTeam = (List<Athlete>) reportingBeans.get("wTeam");
-//        switch (gender) {
-//        case M:
-//            athletes = mTeam;
-//            break;
-//        case F:
-//            athletes = wTeam;
-//            break;
-//        case MIXED:
-//            athletes = new ArrayList<>();
-//            if (mTeam != null) {
-//                athletes.addAll(mTeam);
-//            }
-//            if (wTeam != null) {
-//                athletes.addAll(wTeam);
-//            }
-//            break;
-//        }
-//        return athletes;
-//    }
-
-    @SuppressWarnings("unchecked")
-    private void sortGroupResults(List<? extends Athlete> athletes) {
+    private void sortAthletes(List<PAthlete> athletes) {
         List<Athlete> sortedAthletes;
         List<Athlete> sortedMen = null;
         List<Athlete> sortedWomen = null;
@@ -860,7 +762,7 @@ public class Competition {
         reportingBeans.put("t", Translator.getMap());
 
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SNATCH);
-        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.SNATCH);
+//        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.SNATCH);
         sortedMen = new ArrayList<>(sortedAthletes.size());
         sortedWomen = new ArrayList<>(sortedAthletes.size());
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
@@ -868,7 +770,7 @@ public class Competition {
         reportingBeans.put("wSn", sortedWomen);
 
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CLEANJERK);
-        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
+//        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
         sortedMen = new ArrayList<>(sortedAthletes.size());
         sortedWomen = new ArrayList<>(sortedAthletes.size());
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
@@ -876,16 +778,22 @@ public class Competition {
         reportingBeans.put("wCJ", sortedWomen);
 
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL);
-        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.TOTAL);
+//        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.TOTAL);
         sortedMen = new ArrayList<>(sortedAthletes.size());
         sortedWomen = new ArrayList<>(sortedAthletes.size());
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
         reportingBeans.put("mTot", sortedMen);
         reportingBeans.put("wTot", sortedWomen);
+        logger.debug("mTot {}", sortedMen);
+        logger.debug("wTot {}", sortedWomen);
+//        for (Athlete a : sortedMen) {
+//            logger.warn("{}", a.getMainRankings().long_dump());
+//            debugRanks("mTot", a);
+//        }
 
         if (Competition.getCurrent().isCustomScore()) {
             sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CUSTOM);
-            AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CUSTOM);
+//            AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CUSTOM);
             sortedMen = new ArrayList<>(sortedAthletes.size());
             sortedWomen = new ArrayList<>(sortedAthletes.size());
             splitByGender(sortedAthletes, sortedMen, sortedWomen);
@@ -933,7 +841,105 @@ public class Competition {
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
         reportingBeans.put("mRobi", sortedMen);
         reportingBeans.put("wRobi", sortedWomen);
+    }
 
+    private void doComputeReportingInfo(boolean full, List<PAthlete> athletes, String ageGroupPrefix,
+            AgeDivision ad) {
+        @SuppressWarnings("unchecked")
+        Thread t = new Thread(() -> {
+            if (athletes.isEmpty()) {
+                // prevent outputting silliness.
+                logger./**/warn("no athletes");
+                reportingBeans.clear();
+                return;
+            }
+            
+            // these the ranks within a category are not recomputed
+            sortAthletes(athletes);
+            for (PAthlete a: (List<PAthlete>)reportingBeans.get("mTot")) {
+                debugRanks("after sorting",a);
+            }
+            
+            // splitResultsByGroups(athletes);
+            if (full) {
+                logger.warn("{} {} {} {}", full, ageGroupPrefix, ad, athletes);
+                reportingBeans.put("athletes", athletes);
+                if (ageGroupPrefix == null || ageGroupPrefix.isBlank()) {
+                    // iterate over all age groups present in age division ad
+                    teamRankingsForAgeDivision(ad);
+                } else {
+                    teamRankings(athletes, ageGroupPrefix);
+                }
+            }
+        });
+        // take your time. Caller of this method can wait
+        t.setPriority(Thread.MIN_PRIORITY);
+        t.start();
+        try {
+            t.join();
+        } catch (InterruptedException e) {
+            // ignore
+        }
+    }
+
+    private String doFindFinalPackageTemplateFileName(String absoluteRoot) {
+        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
+                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
+        for (Resource r : resourceList) {
+            logger.trace("checking {}", r.getFilePath());
+            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
+                return r.getFileName();
+            } else if (r.getFileName().startsWith("Total")) {
+                return r.getFileName();
+            }
+        }
+        throw new RuntimeException("final package templates not found under " + absoluteRoot);
+    }
+
+    private String doFindProtocolFileName(String absoluteRoot) {
+        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
+                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
+        for (Resource r : resourceList) {
+            logger.trace("checking {}", r.getFilePath());
+            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
+                return r.getFileName();
+            } else if (r.getFileName().startsWith("Protocol")) {
+                return r.getFileName();
+            }
+        }
+        throw new RuntimeException("result templates not found under " + absoluteRoot);
+    }
+
+    private void reportTeams(List<Athlete> sortedAthletes, List<Athlete> sortedMen,
+            List<Athlete> sortedWomen) {
+        // only needed once
+        reportingBeans.put("nbMen", sortedMen.size());
+        reportingBeans.put("nbWomen", sortedWomen.size());
+        reportingBeans.put("nbAthletes", sortedMen.size() + sortedWomen.size());
+        // extract club lists
+        TreeSet<String> teams = new TreeSet<>();
+        for (Athlete curAthlete : sortedAthletes) {
+            if (curAthlete.getTeam() != null) {
+                teams.add(curAthlete.getTeam());
+            }
+        }
+
+        reportingBeans.put("clubs", teams);
+        reportingBeans.put("nbClubs", teams.size());
+        if (sortedMen.size() > 0) {
+            reportingBeans.put("mClubs", teams);
+        } else {
+            reportingBeans.put("mClubs", new ArrayList<String>());
+        }
+        if (sortedWomen.size() > 0) {
+            reportingBeans.put("wClubs", teams);
+        } else {
+            reportingBeans.put("wClubs", new ArrayList<String>());
+        }
+    }
+
+    @SuppressWarnings({ "unchecked", "unused" })
+    private void splitResultsByGroups(List<PAthlete> athletes) {
         // create one list per competition group
         for (Group g : GroupRepository.findAll()) {
             String name = g.getName();
@@ -948,153 +954,126 @@ public class Competition {
             Group group = a.getGroup();
             if (group != null && group.getName() != null) {
                 List<Athlete> list = (List<Athlete>) reportingBeans.get(group.getName());
-                //logger.trace("adding {} to {}", a.getShortName(), group.getName());
+                // logger.trace("adding {} to {}", a.getShortName(), group.getName());
                 list.add(a);
             }
         }
         logger.debug("updated reporting data");
     }
 
-    private void sortTeamResults(List<? extends Athlete> athletes, String ageGroupPrefix) {
-        reportingBeans.put("athletes", athletes);
+    private void teamRankings(List<PAthlete> athletes,
+            String ageGroupPrefix) {
+        clearTeamReportingBeans(ageGroupPrefix);
+        doTeamRankings(athletes, ageGroupPrefix, "");
+    }
 
-        if (ageGroupPrefix == null || ageGroupPrefix.isBlank()) {
-            // each athlete gets points according to his/her main category
-            // suitable for Masters
-            
-            // extract club lists
-            TreeSet<String> teams = new TreeSet<>();
-            for (Athlete curAthlete : athletes) {
-                if (curAthlete.getTeam() != null) {
-                    teams.add(curAthlete.getTeam());
-                }
-            }
+    private void clearTeamReportingBeans(String ageGroupPrefix) {
+        List<Athlete> bean = getOrCreateBean("mCombined" + ageGroupPrefix);
+        bean.clear();
+        getOrCreateBean("wCombined" + ageGroupPrefix).clear();
+        getOrCreateBean("mwCombined" + ageGroupPrefix).clear();
+        getOrCreateBean("mTeam" + ageGroupPrefix).clear();
+        getOrCreateBean("wTeam" + ageGroupPrefix).clear();
+        getOrCreateBean("mwTeam" + ageGroupPrefix).clear();
+        getOrCreateBean("mCustom" + ageGroupPrefix).clear();
+        getOrCreateBean("wCustom" + ageGroupPrefix).clear();
+        getOrCreateBean("mwCustom" + ageGroupPrefix).clear();
+    }
 
-            reportingBeans.put("clubs", teams);
-            List<Athlete> sortedAthletes = null;
-            List<Athlete> sortedMen = null;
-            List<Athlete> sortedWomen = null;
-
-            // the age groups don't matter
-
-            // team-oriented rankings. These rankings put all the athletes from the same team
-            // together, sorted according to their points, so the top n can be kept if needed.
-            // substitutes are not included -- they should be marked as !isEligibleForTeamRanking
-
-            sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.SNATCH_CJ_TOTAL);
-            sortedMen = new ArrayList<>(sortedAthletes.size());
-            sortedWomen = new ArrayList<>(sortedAthletes.size());
-            splitByGender(sortedAthletes, sortedMen, sortedWomen);
-
-            reportingBeans.put("nbMen", sortedMen.size());
-            reportingBeans.put("nbWomen", sortedWomen.size());
-            reportingBeans.put("nbAthletes", sortedAthletes.size());
-            reportingBeans.put("nbClubs", teams.size());
-            if (sortedMen.size() > 0) {
-                reportingBeans.put("mClubs", teams);
-            } else {
-                reportingBeans.put("mClubs", new ArrayList<String>());
-            }
-            if (sortedWomen.size() > 0) {
-                reportingBeans.put("wClubs", teams);
-            } else {
-                reportingBeans.put("wClubs", new ArrayList<String>());
-            }
-
-            reportingBeans.put("mCombined", sortedMen);
-            reportingBeans.put("wCombined", sortedWomen);
-            reportingBeans.put("mwCombined", sortedAthletes);
-
-            AthleteSorter.teamPointsOrder(sortedAthletes, Ranking.TOTAL);
-            sortedMen = new ArrayList<>(sortedAthletes.size());
-            sortedWomen = new ArrayList<>(sortedAthletes.size());
-            splitByGender(sortedAthletes, sortedMen, sortedWomen);
-            reportingBeans.put("mTeam", sortedMen);
-            reportingBeans.put("wTeam", sortedWomen);
-            reportingBeans.put("mwTeam", sortedAthletes);
+    @SuppressWarnings("unchecked")
+    private List<Athlete> getOrCreateBean(String string) {
+        List<Athlete> list = (List<Athlete>) reportingBeans.get(string);
+        if (list == null) {
+            list = new ArrayList<Athlete>();
+            reportingBeans.put(string, list);
         }
+        return list;
+    }
 
-        // one team point tally per age group
+    /**
+     * Compute a team-ranking for the specified PAthletes.
+     * 
+     * PAthletes have a single participation, which is the one that will be used for ranking. Caller is responsible for
+     * putting several age groups together (e.g. for Masters), or using a single age group (e.g. SR)
+     * 
+     * Reporting beans are modified. Caller must clear them beforehand if needed.
+     *
+     * @param athletes
+     * @param ageGroupPrefix
+     */
+    private void doTeamRankings(List<PAthlete> athletes,
+            String ageDivisionCode, String ageGroupPrefix) {
 
         // team-oriented rankings. These rankings put all the athletes from the same team
         // together, sorted according to their points, so the top n can be kept if needed.
         // substitutes are not included -- they should be marked as !isEligibleForTeamRanking
 
-        List<AgeGroup> nonMastersAgeGroups = AgeGroupRepository.findActive();
-        Set<String> nonMastersAgePrefixes = nonMastersAgeGroups.stream()
-                .filter(g -> !(g.getAgeDivision() == AgeDivision.MASTERS))
-                .map(ag -> ag.getCode())
-                .collect(Collectors.toSet());
+        List<Athlete> sortedAthletes;
+        List<Athlete> sortedMen = new ArrayList<>();
+        List<Athlete> sortedWomen = new ArrayList<>();
+        splitPByGender(athletes, sortedMen, sortedWomen);
 
-        for (String curAGPrefix : nonMastersAgePrefixes) {
-            logger.debug("");
-            logger.debug("{}", curAGPrefix);
+        //FIXME intentionally not a team order for web page.
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL);
+        sortedMen = AthleteSorter.resultsOrderCopy(sortedMen, Ranking.TOTAL);
+        for (Athlete a : sortedMen) {
+            debugRanks("teamRankings", a);
+        }
+        sortedWomen = AthleteSorter.resultsOrderCopy(sortedWomen, Ranking.TOTAL);
+        addToReportingBean("mTeam" + ageDivisionCode, sortedMen);
+        addToReportingBean("wTeam" + ageDivisionCode, sortedWomen);
+        addToReportingBean("mwTeam" + ageDivisionCode, sortedAthletes);
 
-            List<Participation> wAgeGroupParticipations = AgeGroupRepository
-                    .allParticipationsForAgeGroup(curAGPrefix, Gender.F);
-            List<Participation> mAgeGroupParticipations = AgeGroupRepository
-                    .allParticipationsForAgeGroup(curAGPrefix, Gender.M);
-            List<Participation> mwAgeGroupParticipations = new ArrayList<>();
-            mwAgeGroupParticipations.addAll(wAgeGroupParticipations);
-            mwAgeGroupParticipations.addAll(mAgeGroupParticipations);
-            for (Participation p : mwAgeGroupParticipations) {
-                logger.debug("participation {} {}", p.getCategory(), p.long_dump());
+        sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.SNATCH_CJ_TOTAL);
+        sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Ranking.SNATCH_CJ_TOTAL);
+        sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, Ranking.SNATCH_CJ_TOTAL);
+        addToReportingBean("mCombined" + ageDivisionCode, sortedMen);
+        addToReportingBean("wCombined" + ageDivisionCode, sortedWomen);
+        addToReportingBean("mwCombined" + ageDivisionCode, sortedAthletes);
+
+        if (Competition.getCurrent().isCustomScore()) {
+            sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.CUSTOM);
+            sortedMen = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.CUSTOM);
+            sortedWomen = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.CUSTOM);
+            addToReportingBean("mCustom" + ageDivisionCode, sortedMen);
+            addToReportingBean("wCustom" + ageDivisionCode, sortedWomen);
+            addToReportingBean("mwCustom" + ageDivisionCode, sortedAthletes);
+        }
+
+        //FIXME not inside loop !?
+        reportTeams(sortedAthletes, sortedMen, sortedWomen);
+
+    }
+
+    private static void debugRanks(String label, Athlete a) {
+        logger.warn("{} {} {} {} {} {}", label, System.identityHashCode(a), a.getId(), a.getShortName(), a.toStringRanks(), a.getCategory(), a.getParticipations().size());
+    }
+
+    private void addToReportingBean(String string, List<Athlete> sorted) {
+        List<Athlete> athletes = getOrCreateBean(string);
+        athletes.addAll(sorted);
+    }
+
+    /**
+     * Iterate over all age prefixes in the age division and accumulate results.
+     * 
+     * @param athletes
+     * @param ageGroupPrefix
+     */
+    // FIXME: this does not yield a team order - top "n" would not work.
+    private void teamRankingsForAgeDivision(AgeDivision ad) {
+        List<String> agePrefixes = AgeGroupRepository.findActiveAndUsed(ad);
+
+        for (String curAGPrefix : agePrefixes) {
+            List<PAthlete> athletes = AgeGroupRepository.allPAthletesForAgeGroup(curAGPrefix);
+
+            logger.warn("");
+            logger.warn("{}", curAGPrefix);
+            for (PAthlete a : athletes) {
+                logger.warn("before {} {} {} {}", a.getShortName(), a.toStringRanks(), a.getCategory(), a.getRegistrationCategory());
             }
-
-            List<PAthlete> sortedMen;
-            List<PAthlete> sortedWomen;
-            List<PAthlete> sortedAthletes;
-
-            sortedAthletes = AthleteSorter.teamPointsOrderedPAthletes(mwAgeGroupParticipations,
-                    Ranking.SNATCH_CJ_TOTAL);
-            sortedMen = AthleteSorter.teamPointsOrderedPAthletes(mAgeGroupParticipations, Ranking.SNATCH_CJ_TOTAL);
-            sortedWomen = AthleteSorter.teamPointsOrderedPAthletes(wAgeGroupParticipations, Ranking.SNATCH_CJ_TOTAL);
-            reportingBeans.put("mCombined" + curAGPrefix, sortedMen);
-            reportingBeans.put("wCombined" + curAGPrefix, sortedWomen);
-            reportingBeans.put("mwCombined" + curAGPrefix, sortedAthletes);
-
-            sortedAthletes = AthleteSorter.teamPointsOrderedPAthletes(mwAgeGroupParticipations, Ranking.TOTAL);
-            sortedMen = AthleteSorter.teamPointsOrderedPAthletes(mAgeGroupParticipations, Ranking.TOTAL);
-            sortedWomen = AthleteSorter.teamPointsOrderedPAthletes(wAgeGroupParticipations, Ranking.TOTAL);
-            reportingBeans.put("mTeam" + curAGPrefix, sortedMen);
-            reportingBeans.put("wTeam" + curAGPrefix, sortedWomen);
-            reportingBeans.put("mwTeam" + curAGPrefix, sortedAthletes);
-
-            if (Competition.getCurrent().isCustomScore()) {
-                sortedAthletes = AthleteSorter.teamPointsOrderedPAthletes(mwAgeGroupParticipations, Ranking.CUSTOM);
-                sortedMen = AthleteSorter.teamPointsOrderedPAthletes(mAgeGroupParticipations, Ranking.CUSTOM);
-                sortedWomen = AthleteSorter.teamPointsOrderedPAthletes(wAgeGroupParticipations, Ranking.CUSTOM);
-                reportingBeans.put("mCustom" + curAGPrefix, sortedMen);
-                reportingBeans.put("wCustom" + curAGPrefix, sortedWomen);
-                reportingBeans.put("mwCustom" + curAGPrefix, sortedAthletes);
-            }
-
-            // only needed once
-            reportingBeans.put("nbMen", mAgeGroupParticipations.size());
-            reportingBeans.put("nbWomen", wAgeGroupParticipations.size());
-            reportingBeans.put("nbAthletes", mwAgeGroupParticipations.size());
-            // extract club lists
-            TreeSet<String> teams = new TreeSet<>();
-            for (Athlete curAthlete : athletes) {
-                if (curAthlete.getTeam() != null) {
-                    teams.add(curAthlete.getTeam());
-                }
-            }
-
-            // intentional : show all clubs on both genders-- non participating will see 0 athletes listed
-            reportingBeans.put("clubs", teams);
-            reportingBeans.put("nbClubs", teams.size());
-            if (mAgeGroupParticipations.size() > 0) {
-                reportingBeans.put("mClubs", teams);
-            } else {
-                reportingBeans.put("mClubs", new ArrayList<String>());
-            }
-            if (wAgeGroupParticipations.size() > 0) {
-                reportingBeans.put("wClubs", teams);
-            } else {
-                reportingBeans.put("wClubs", new ArrayList<String>());
-            }
-
+            doTeamRankings(athletes, ad.name(), curAGPrefix);
+            
         }
     }
 

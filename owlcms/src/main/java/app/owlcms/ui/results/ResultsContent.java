@@ -46,7 +46,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
@@ -92,9 +91,10 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         themes.add("compact");
         themes.add("row-stripes");
 
-        grid.addColumn("category").setHeader(Translator.translate("Category"))
-                .setComparator(new WinningOrderComparator(Ranking.TOTAL, false));
-        grid.addColumn("total").setHeader(Translator.translate("Total"));
+        grid.addColumn("category").setHeader(Translator.translate("Category"));
+            
+        grid.addColumn("total").setHeader(Translator.translate("Total"))
+            .setComparator(new WinningOrderComparator(Ranking.TOTAL, true));
         grid.addColumn("totalRank").setHeader(Translator.translate("TotalRank"))
                 .setComparator(new WinningOrderComparator(Ranking.TOTAL, false));
 
@@ -200,23 +200,33 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     public Collection<Athlete> findAll() {
-        List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(getGroupFilter().getValue(),
-                genderFilter.getValue(), true);
+        Group currentGroup = getGroupFilter().getValue();
+        Gender currentGender = genderFilter.getValue();
 
-        AthleteSorter.resultsOrder(athletes, Ranking.SNATCH, false);
-        AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
-        AthleteSorter.resultsOrder(athletes, Ranking.CLEANJERK, false);
-        AthleteSorter.assignCategoryRanks(athletes, Ranking.CLEANJERK);
-        AthleteSorter.resultsOrder(athletes, Ranking.TOTAL, false);
-        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
+        List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(currentGroup);
+
+        if (currentGroup != null) {
+            rankedAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
+                    .filter(a -> a.getGroup() != null ? a.getGroup().equals(currentGroup) : false)
+                    .filter(a -> a.getGender() != null
+                            ? (currentGender != null ? currentGender.equals(a.getGender()) : true)
+                            : false)
+                    .collect(Collectors.toList());
+        } else {
+            rankedAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
+                    .filter(a -> a.getGender() != null
+                            ? (currentGender != null ? currentGender.equals(a.getGender()) : true)
+                            : false)
+                    .collect(Collectors.toList());
+        }
 
         Boolean medals = medalsOnly.getValue();
         if (medals != null && medals) {
-            return athletes.stream()
+            return rankedAthletes.stream()
                     .filter(a -> a.getMainRankings().getTotalRank() >= 1 && a.getMainRankings().getTotalRank() <= 3)
                     .collect(Collectors.toList());
         } else {
-            return athletes;
+            return rankedAthletes;
         }
     }
 
@@ -436,7 +446,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     protected void onAttach(AttachEvent attachEvent) {
         createTopBar();
         Competition competition = Competition.getCurrent();
-        competition.computeReportingInfo(false);
+        competition.computeReportingInfo();
     }
 
     protected void setGroupSelectionListener() {

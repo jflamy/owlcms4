@@ -85,7 +85,7 @@ import ch.qos.logback.classic.Logger;
 public class Athlete {
     private static final int YEAR = LocalDateTime.now().getYear();
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
+    protected final static Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
 
     public static void conditionalCopy(Athlete dest, Athlete src, boolean copyResults) {
         boolean validation = dest.isValidation();
@@ -1612,11 +1612,10 @@ public class Athlete {
     }
 
     /**
-     * Gets the registration category. Deprecated. Only used in reports.
+     * Gets the registration category. Only used in reports.
      *
      * @return the registration category
      */
-    @Deprecated
     public Category getRegistrationCategory() {
         return category;
     }
@@ -2189,27 +2188,6 @@ public class Athlete {
             return null;
         }
     }
-
-//    /**
-//     * Gets the total rank.
-//     *
-//     * @return the total rank
-//     */
-//    public Integer getTotalRank() {
-//        return totalRank;
-//    }
-//
-//    public Integer getTotalRankJr() {
-//        return totalRankJr;
-//    }
-//
-//    public Integer getTotalRankSr() {
-//        return totalRankSr;
-//    }
-//
-//    public Integer getTotalRankYth() {
-//        return totalRankYth;
-//    }
 
     @Override
     public int hashCode() {
@@ -4465,6 +4443,10 @@ public class Athlete {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    public String toStringRanks() {
+        return getSnatchRank() + " " + getCleanJerkRank() + " " + getTotalRank();
     }
 
 }

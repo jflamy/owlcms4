@@ -2,7 +2,9 @@ package app.owlcms.spreadsheet;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import app.owlcms.data.agegroup.AgeGroup;
@@ -15,9 +17,9 @@ import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Athlete that pretends to be in an other category where he/she is eligible
+ * Fake athlete that belongs to a single category.
  *
- * Used to produce results and team rankings for a given eligibility category. Use athlete as a basis, but use the
+ * Used to produce results and team rankings for a given eligibility category. Use athlete as a basis, and a copy of the
  * participation to the eligible category to recover ranks and points.
  *
  * @author Jean-François Lamy
@@ -28,13 +30,27 @@ public class PAthlete extends Athlete implements IRankHolder {
 
     private Participation p;
     private Athlete a;
+    private Category c;
 
     public PAthlete(Participation p) {
         this.a = p.getAthlete();
-        this.p = p;
+        this.c = p.getCategory();
+        this.p = new Participation(p, a, c);
     }
 
 // the methods used for ranking come from the participation to an eligible category
+
+    @Override
+    public Participation getMainRankings() {
+        return p;
+    }
+
+    @Override
+    public List<Participation> getParticipations() {
+        List<Participation> lp = new ArrayList<>(1);
+        lp.add(p);
+        return lp;
+    }
 
     @Override
     public AgeGroup getAgeGroup() {
@@ -44,6 +60,11 @@ public class PAthlete extends Athlete implements IRankHolder {
     @Override
     public Category getCategory() {
         return p.getCategory();
+    }
+
+    @Override
+    public Category getRegistrationCategory() {
+        return a.getCategory();
     }
 
     @Override
@@ -95,6 +116,11 @@ public class PAthlete extends Athlete implements IRankHolder {
     public int getTotalRank() {
         return p.getTotalRank();
     }
+    
+    @Override
+    public String toStringRanks() {
+        return super.toStringRanks();
+    }
 
     public void computeMainCategory() {
         a.getCategory();
@@ -103,7 +129,7 @@ public class PAthlete extends Athlete implements IRankHolder {
     public String getDisplayCategory() {
         return p.getCategory().getName();
     }
-    
+
     // the remaining methods come from athlete
     public Integer getAge() {
         return a.getAge();
@@ -277,8 +303,6 @@ public class PAthlete extends Athlete implements IRankHolder {
         return a.getCustomScoreComputed();
     }
 
- 
-
     public Set<Category> getEligibleCategories() {
         return a.getEligibleCategories();
     }
@@ -351,10 +375,6 @@ public class PAthlete extends Athlete implements IRankHolder {
         return a.getLotNumber();
     }
 
-    public Participation getMainRankings() {
-        return a.getMainRankings();
-    }
-
     public String getMastersAgeGroup() {
         return a.getMastersAgeGroup();
     }
@@ -383,10 +403,6 @@ public class PAthlete extends Athlete implements IRankHolder {
         return a.getNextAttemptRequestedWeight();
     }
 
-    public List<Participation> getParticipations() {
-        return a.getParticipations();
-    }
-
     public Double getPresumedBodyWeight() {
         return a.getPresumedBodyWeight();
     }
@@ -401,10 +417,6 @@ public class PAthlete extends Athlete implements IRankHolder {
 
     public Integer getRank() {
         return a.getRank();
-    }
-
-    public Category getRegistrationCategory() {
-        return a.getRegistrationCategory();
     }
 
     public Integer getRequestedWeightForAttempt(int attempt) {
@@ -595,8 +607,24 @@ public class PAthlete extends Athlete implements IRankHolder {
         return a.getYearOfBirth();
     }
 
+    @Override
     public int hashCode() {
-        return a.hashCode();
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + Objects.hash(a, c, p);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PAthlete other = (PAthlete) obj;
+        return Objects.equals(a, other.a) && Objects.equals(c, other.c) && Objects.equals(p, other.p);
     }
 
     public boolean isATeamMember() {
@@ -630,5 +658,6 @@ public class PAthlete extends Athlete implements IRankHolder {
     public String longDump() {
         return a.longDump();
     }
+
 
 }

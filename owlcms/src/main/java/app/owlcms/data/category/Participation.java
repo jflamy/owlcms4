@@ -72,6 +72,16 @@ public class Participation implements IRankHolder {
     protected Participation() {
     }
 
+    public Participation(Participation p, Athlete a, Category c) {
+        this.athlete = a;
+        this.category = c;
+        this.cleanJerkRank = p.cleanJerkRank;
+        this.customRank = p.customRank;
+        this.snatchRank = p.snatchRank;
+        this.totalRank = p.totalRank;
+        this.combinedRank = p.combinedRank;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

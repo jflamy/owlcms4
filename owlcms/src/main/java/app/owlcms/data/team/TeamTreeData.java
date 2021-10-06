@@ -182,7 +182,8 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
             logger.setLevel(Level.DEBUG);
         }
         
-        Competition.getCurrent().computeReportingInfo(true);
+        //FIXME : will need parameters to determine which team do display and how
+        Competition.getCurrent().computeReportingInfo(null, null);
         buildTeamItemTree();
         if (debug) {
             dumpTeams();

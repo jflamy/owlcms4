@@ -22,6 +22,7 @@ import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -41,6 +42,8 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
 
     private String ageGroupPrefix;
+    
+    private AgeDivision ageDivision;
 
     public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
         super(ui);
@@ -119,8 +122,9 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     @Override
     protected void setReportingInfo() {
         Competition competition = Competition.getCurrent();
-        competition.computeReportingInfo(AgeGroupRepository.allPAthletesForAgeGroup(getAgeGroupPrefix()), true, getAgeGroupPrefix());
-        //logger.debug("after compute {}", competition.getReportingBeans().keySet());
+        List<PAthlete> allPAthletesForAgeGroupAgeDivision = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),getAgeDivision());
+        competition.computeReportingInfo(allPAthletesForAgeGroupAgeDivision, true, getAgeGroupPrefix(), getAgeDivision());
+
         super.setReportingInfo();
         HashMap<String, Object> reportingBeans = competition.getReportingBeans();
         reportingBeans.put("t", Translator.getMap());
@@ -189,4 +193,20 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     public String getAgeGroupPrefix() {
         return ageGroupPrefix;
     }
+
+    /**
+     * @return the ageDivision
+     */
+    public AgeDivision getAgeDivision() {
+        return ageDivision;
+    }
+
+    /**
+     * @param ageDivision the ageDivision to set
+     */
+    public void setAgeDivision(AgeDivision ageDivision) {
+        this.ageDivision = ageDivision;
+    }
+    
+    
 }

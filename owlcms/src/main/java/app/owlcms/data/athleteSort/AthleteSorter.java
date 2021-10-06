@@ -23,7 +23,6 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.group.Group;
 import app.owlcms.spreadsheet.PAthlete;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -64,8 +63,15 @@ public class AthleteSorter implements Serializable {
      * @return
      */
     public static List<Athlete> assignCategoryRanks(Group g) {
-        List<Athlete> impactedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
-        logger.debug("all athletes in group's categories {}", impactedAthletes);
+        List<Athlete> impactedAthletes;
+        if (g != null) {
+            impactedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
+            logger.warn("all athletes in group's categories {}", impactedAthletes);
+        } else {
+            impactedAthletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
+            logger.warn("all athletes in all groups {}", impactedAthletes);
+        }
+
         List<Athlete> sortedAthletes;
         sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.SNATCH, true);
         AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.SNATCH);
@@ -74,12 +80,12 @@ public class AthleteSorter implements Serializable {
         sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.TOTAL, true);
         AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.TOTAL);
         
-        if (logger.isEnabledFor(Level.TRACE)) {
-            for (Athlete a : impactedAthletes) {
-                Participation p = a.getMainRankings();
-                logger.debug("** {} {}", a, p.long_dump());
-            }
-        }
+//        if (logger.isEnabledFor(Level.WARN)) {
+//            for (Athlete a : impactedAthletes) {
+//                Participation p = a.getMainRankings();
+//                logger.debug("** {} {}", a, p.long_dump());
+//            }
+//        }
         return impactedAthletes;
     }
 
@@ -106,7 +112,6 @@ public class AthleteSorter implements Serializable {
     private static void assignEligibleCategoryRanks(List<Athlete> absoluteOrderList, Ranking rankingType) {
         MultiCategoryRankSetter rt = new MultiCategoryRankSetter();
         for (Athlete curLifter : absoluteOrderList) {
-
             if (curLifter.isEligibleForIndividualRanking()) {
                 final double rankingValue = getRankingValue(curLifter, rankingType);
                 rt.increment(curLifter, rankingType, rankingValue);

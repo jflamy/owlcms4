@@ -766,6 +766,7 @@ public class FieldOfPlay {
     public void recomputeOrderAndRanks() {
         Group g = getGroup();
         // we update the ranks of affected athletes in the database
+        //FIXME needed also after resetting categories
         JPAService.runInTransaction(em -> {
             List<Athlete> l = AthleteSorter.assignCategoryRanks(g);
             for (Athlete a : l) {
@@ -775,10 +776,6 @@ public class FieldOfPlay {
             return null;
         });
         List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
-//        logger.debug("rankedAthletes {}", rankedAthletes);
-//        for (Athlete a : rankedAthletes) {
-//            logger.debug("{} {}", a.getShortName(), a.getTotalRank());
-//        }
         if (rankedAthletes == null) {
             setDisplayOrder(null);
             setCurAthlete(null);
