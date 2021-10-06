@@ -435,7 +435,7 @@ public class AthleteSorter implements Serializable {
      * @return athletes, ordered according to their category and totalRank order
      * @see #liftingOrder(List)
      */
-    static public List<Athlete> resultsOrderCopy(List<Athlete> toBeSorted, Ranking rankingType, boolean absoluteOrder) {
+    static public List<Athlete> resultsOrderCopy(List<? extends Athlete> toBeSorted, Ranking rankingType, boolean absoluteOrder) {
         List<Athlete> sorted = new ArrayList<>(toBeSorted);
         switch (rankingType) {
         case BW_SINCLAIR:

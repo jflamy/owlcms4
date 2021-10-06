@@ -435,13 +435,19 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
         // if equality within a group, smallest lot number wins (same session, same
         // category, same weight, same attempt) -- smaller lot lifted first.
         compare = compareLotNumber(lifter1, lifter2);
+        if (compare != 0) {
+            return compare; // compare attempted weights (prior to best attempt), smaller first
+        }
+        
+        // if no lot number, we get weird results. we need a stable comparison
+        compare = ObjectUtils.compare(lifter1.getId(), lifter2.getId());
         return compare;
 
     }
 
     private void traceComparison(String where, Athlete lifter1, Athlete lifter2, int compare) {
         if (logger.isTraceEnabled()) {
-            logger.trace("{} {} {} {}", where, lifter1, (compare < 0 ? "<" : (compare == 0 ? "=" : ">")), lifter2);
+            logger.warn("{} {} {} {}", where, lifter1, (compare < 0 ? "<" : (compare == 0 ? "=" : ">")), lifter2);
         }
     }
 

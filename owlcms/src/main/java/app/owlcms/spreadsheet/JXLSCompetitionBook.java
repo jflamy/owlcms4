@@ -8,7 +8,6 @@ package app.owlcms.spreadsheet;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -126,13 +125,14 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
         competition.computeReportingInfo(allPAthletesForAgeGroupAgeDivision, true, getAgeGroupPrefix(), getAgeDivision());
 
         super.setReportingInfo();
-        HashMap<String, Object> reportingBeans = competition.getReportingBeans();
-        reportingBeans.put("t", Translator.getMap());
-        if (ageGroupPrefix != null && !ageGroupPrefix.isBlank()) {
-            reportingBeans.put("mTeam", reportingBeans.get("mTeam"+ageGroupPrefix));
-            reportingBeans.put("wTeam", reportingBeans.get("wTeam"+ageGroupPrefix));
+        setReportingBeans(competition.getReportingBeans());
+        @SuppressWarnings("unchecked")
+        List<Athlete> mTot = (List<Athlete>)getReportingBeans().get("mTeam");
+        for (Athlete a : mTot) {
+            Competition.debugRanks("book mTeam",a);
         }
-        setReportingBeans(reportingBeans);
+        
+        getReportingBeans().put("t", Translator.getMap());
     }
 
 

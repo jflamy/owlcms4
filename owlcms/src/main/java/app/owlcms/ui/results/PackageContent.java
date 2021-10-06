@@ -44,8 +44,6 @@ import com.vaadin.flow.server.StreamResource;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
@@ -61,6 +59,7 @@ import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AthleteCrudGrid;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -115,29 +114,17 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         if (getAgeGroupPrefix() == null && getAgeDivision() == null) {
             return new ArrayList<Athlete>();
         }
-//        List<PAthlete> allPAthletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),
-//                getAgeDivision());
-//        List<Athlete> athletes = allPAthletes.stream().map(pa -> (Athlete) pa).collect(Collectors.toList());
-//        AthleteSorter.resultsOrder(athletes, Ranking.TOTAL, false);
-//        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-//        AthleteSorter.resultsOrder(athletes, Ranking.SNATCH, false);
-//        AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
-//        AthleteSorter.resultsOrder(athletes, Ranking.CLEANJERK, false);
-//        AthleteSorter.assignCategoryRanks(athletes, Ranking.CLEANJERK);
         
         Competition competition = Competition.getCurrent();
-//        String suffix = (getAgeGroupPrefix() != null) ? getAgeGroupPrefix() : getAgeDivision().name();
-        
         HashMap<String, Object> beans = competition.computeReportingInfo(ageGroupPrefix, ageDivision);
-//        String key = "mwTot"+suffix;
+        
+        // String suffix = (getAgeGroupPrefix() != null) ? getAgeGroupPrefix() : getAgeDivision().name();
+        // String key = "mwTot"+suffix;
+        // List<Athlete> ranked = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL, false);
+        
         String key = "mwTot";
-        logger.warn("looking for {}",key);
         @SuppressWarnings("unchecked")
         List<Athlete> ranked = (List<Athlete>) beans.get(key);
-//        List<Athlete> ranked = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL, false);
-        for (Athlete a : ranked) {
-            logger.warn("{} {}",key, a.longDump());
-        }
         return ranked;
     }
 
@@ -276,6 +263,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     protected void createTopBar() {
+        logger.warn("createTopBar {}", LoggerUtils.stackTrace());
         // show arrow but close menu
         getAppLayout().setMenuVisible(true);
         getAppLayout().closeDrawer();
@@ -384,7 +372,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        createTopBar();
+        if (topBar == null) {
+            createTopBar();
+        }
     }
 
     protected void setAgeDivisionSelectionListener() {
