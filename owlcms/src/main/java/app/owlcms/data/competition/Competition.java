@@ -784,6 +784,7 @@ public class Competition {
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
         reportingBeans.put("mTot", sortedMen);
         reportingBeans.put("wTot", sortedWomen);
+        reportingBeans.put("mwTot", sortedAthletes);
         logger.debug("mTot {}", sortedMen);
         logger.debug("wTot {}", sortedWomen);
 //        for (Athlete a : sortedMen) {
@@ -845,7 +846,8 @@ public class Competition {
 
     private void doComputeReportingInfo(boolean full, List<PAthlete> athletes, String ageGroupPrefix,
             AgeDivision ad) {
-        @SuppressWarnings("unchecked")
+        
+        // many database queries. fork a low-priority thread.
         Thread t = new Thread(() -> {
             if (athletes.isEmpty()) {
                 // prevent outputting silliness.
@@ -854,11 +856,9 @@ public class Competition {
                 return;
             }
             
-            // these the ranks within a category are not recomputed
+            // the ranks within a category are stored in the database and
+            // not recomputed
             sortAthletes(athletes);
-            for (PAthlete a: (List<PAthlete>)reportingBeans.get("mTot")) {
-                debugRanks("after sorting",a);
-            }
             
             // splitResultsByGroups(athletes);
             if (full) {
@@ -872,7 +872,7 @@ public class Competition {
                 }
             }
         });
-        // take your time. Caller of this method can wait
+
         t.setPriority(Thread.MIN_PRIORITY);
         t.start();
         try {

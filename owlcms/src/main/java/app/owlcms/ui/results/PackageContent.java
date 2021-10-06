@@ -126,14 +126,15 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 //        AthleteSorter.assignCategoryRanks(athletes, Ranking.CLEANJERK);
         
         Competition competition = Competition.getCurrent();
-        String suffix = (getAgeGroupPrefix() != null) ? getAgeGroupPrefix() : getAgeDivision().name();
+//        String suffix = (getAgeGroupPrefix() != null) ? getAgeGroupPrefix() : getAgeDivision().name();
         
         HashMap<String, Object> beans = competition.computeReportingInfo(ageGroupPrefix, ageDivision);
-        String key = "mwTeam"+suffix;
+//        String key = "mwTot"+suffix;
+        String key = "mwTot";
         logger.warn("looking for {}",key);
         @SuppressWarnings("unchecked")
-        List<Athlete> athletes = (List<Athlete>) beans.get(key);
-        List<Athlete> ranked = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL, false);
+        List<Athlete> ranked = (List<Athlete>) beans.get(key);
+//        List<Athlete> ranked = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL, false);
         for (Athlete a : ranked) {
             logger.warn("{} {}",key, a.longDump());
         }
