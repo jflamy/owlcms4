@@ -778,7 +778,7 @@ public class Competition {
         reportingBeans.put("wCJ", sortedWomen);
 
         // sort only, use ranks stored in database
-        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL, true);
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL, false);
         sortedMen = new ArrayList<>(sortedAthletes.size());
         sortedWomen = new ArrayList<>(sortedAthletes.size());
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
@@ -1067,12 +1067,12 @@ public class Competition {
 
         for (String curAGPrefix : agePrefixes) {
             List<PAthlete> athletes = AgeGroupRepository.allPAthletesForAgeGroup(curAGPrefix);
-            logger.warn("");
-            logger.warn("{}", curAGPrefix);
-            for (PAthlete a : athletes) {
-                logger.warn("before {} {} {} {}", a.getShortName(), a.toStringRanks(), a.getCategory(),
-                        a.getRegistrationCategory());
-            }
+//            logger.warn("");
+//            logger.warn("{}", curAGPrefix);
+//            for (PAthlete a : athletes) {
+//                logger.warn("before {} {} {} {}", a.getShortName(), a.toStringRanks(), a.getCategory(),
+//                        a.getRegistrationCategory());
+//            }
             doTeamRankings(athletes, ad.name(), false);
         }
 

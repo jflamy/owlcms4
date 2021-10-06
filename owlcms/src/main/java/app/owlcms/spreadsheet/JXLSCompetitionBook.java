@@ -126,13 +126,11 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
         super.setReportingInfo();
         setReportingBeans(competition.getReportingBeans());
-        @SuppressWarnings("unchecked")
-        List<Athlete> mTot = (List<Athlete>)getReportingBeans().get("mTeam");
-        for (Athlete a : mTot) {
-            Competition.debugRanks("book mTeam",a);
-        }
-        
-        getReportingBeans().put("t", Translator.getMap());
+//        @SuppressWarnings("unchecked")
+//        List<Athlete> mTot = (List<Athlete>)getReportingBeans().get("mTeam");
+//        for (Athlete a : mTot) {
+//            Competition.debugRanks("book mTeam",a);
+//        }
     }
 
 

@@ -263,7 +263,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     protected void createTopBar() {
-        logger.warn("createTopBar {}", LoggerUtils.stackTrace());
+        //logger.trace("createTopBar {}", LoggerUtils.stackTrace());
         // show arrow but close menu
         getAppLayout().setMenuVisible(true);
         getAppLayout().closeDrawer();
