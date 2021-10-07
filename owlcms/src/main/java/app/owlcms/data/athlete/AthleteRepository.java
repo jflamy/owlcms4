@@ -16,6 +16,7 @@ import javax.persistence.TypedQuery;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
@@ -241,6 +242,19 @@ public class AthleteRepository {
             }
             em.flush();
             Competition.getCurrent().setRankingsInvalid(true);
+            return null;
+        });
+        assignCategoryRanks();
+    }
+
+    private static void assignCategoryRanks() {
+        JPAService.runInTransaction(em -> {
+            // assign ranks to all groups.
+            List<Athlete> l = AthleteSorter.assignCategoryRanks(null);
+            for (Athlete a : l) {
+                em.merge(a);
+            }
+            em.flush();
             return null;
         });
     }
