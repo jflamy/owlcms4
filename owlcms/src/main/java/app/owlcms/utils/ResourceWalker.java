@@ -63,8 +63,7 @@ public class ResourceWalker {
      * @return an input stream with the requested content, null if not found.
      */
     public static InputStream getFileOrResource(String name) {
-        //FIXME remove after fix
-        logger.setLevel(Level.TRACE);
+        logger.setLevel(Level.TRACE);        //FIXME remove after fix for locale overrides
         InputStream is = null;
         String relativeName;
         if (name.startsWith("/")) {

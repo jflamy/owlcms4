@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -38,6 +39,7 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import net.sf.jxls.transformer.XLSTransformer;
@@ -87,7 +89,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
             configureTransformer(transformer);
             Workbook workbook = null;
             try {
-                //logger.debug("wsss setReportingInfo");
+                // logger.debug("wsss setReportingInfo");
                 setReportingInfo();
                 HashMap<String, Object> reportingInfo = getReportingBeans();
                 List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
@@ -98,7 +100,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
                     }
                 } else {
                     String noAthletes = "No Athletes";
-                    logger. warn("no athletes: empty report.");
+                    logger.warn("no athletes: empty report.");
                     ui.access(() -> {
                         Notification notif = new Notification();
                         notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -217,13 +219,21 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
     protected InputStream getLocalizedTemplate(String templateName, String extension, Locale locale)
             throws IOException {
         List<String> tryList = getSuffixes(locale);
+        List<String> extensionList;
+        if (extension.equals(".xls")) {
+            extensionList = Arrays.asList(".xlsx", ".xls");
+        } else {
+            extensionList = Arrays.asList(extension);
+        }
 
-        for (String suffix : tryList) {
-            String name = templateName + suffix + extension;
-            final InputStream resourceAsStream = this.getClass().getResourceAsStream(name);
-            //logger.debug("trying {} : {}", name, resourceAsStream);
-            if (resourceAsStream != null) {
-                return resourceAsStream;
+        for (String ext : extensionList) {
+            for (String suffix : tryList) {
+                String name = templateName + suffix + ext;
+                final InputStream resourceAsStream = ResourceWalker.getFileOrResource(name);
+                // logger.debug("trying {} : {}", name, resourceAsStream);
+                if (resourceAsStream != null) {
+                    return resourceAsStream;
+                }
             }
         }
         throw new IOException("no template found for : " + templateName + extension + " tried with suffix " + tryList);
