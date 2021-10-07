@@ -43,7 +43,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
     private long clicked = 0L;
 
-    private boolean clickable;
+    private boolean clickable = true;
 
     public void setClickable(boolean clickable) {
         this.clickable = clickable;
