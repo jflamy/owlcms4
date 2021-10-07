@@ -1,14 +1,18 @@
-Changes for release 4.23.0-alpha02  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+Changes for release 4.23.0-alpha03  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Fixed age group editing layout, age group creation, and associated documentation
+- [x] Result packages for multiple age group competitions.  Results page can now produce separate packages for YTH, JR, SR, or individual age groups as needed.  Also possible to produce a combined age group package if several age group rankings are grouped together (for example, in Masters) (#433)
 
 Prior changes in release 4.23
+
+- [x] 4.23.0-alpha02: age group editing layout, age group creation, and associated documentation
 
 - [x] Compute eligible categories when loading Excel registration file with qualifying total
 
 - [x] Adjust eligible categories when qualifying total is edited in registration form.
 
-- [x] Fixed remote scoreboard end of group behaviorExplicit support for participation to multiple age groups (#433)
+- [x] Fixed remote scoreboard end of group behavior
+
+- [x] Explicit support for participation to multiple age groups (#433)
 
   - An athlete will, by default, be eligible and ranked separately in all the active categories in which the age and qualifying total are met.   Participation to an eligible category can be removed or added back on the registration page for the athlete.
   - Multiple age group scoreboard option shows ranks for all age groups present in the currently lifting group.
