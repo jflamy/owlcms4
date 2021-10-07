@@ -141,17 +141,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         return getTranslation("Preparation_Registration");
     }
 
-//    private Collection<Athlete> doExtraFiltering(List<Athlete> all) {
-//        String filterValue = ageGroupFilter != null ? ageGroupFilter.getValue() : null;
-//        if (filterValue == null) {
-//            return all;
-//        } else {
-//            List<Athlete> some = all.stream().filter(a -> a.getMastersAgeGroup().startsWith(filterValue))
-//                    .collect(Collectors.toList());
-//            return some;
-//        }
-//    }
-
     @Override
     public OwlcmsRouterLayout getRouterLayout() {
         return routerLayout;
