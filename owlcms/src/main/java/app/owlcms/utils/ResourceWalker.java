@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.results.Resource;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -62,6 +63,8 @@ public class ResourceWalker {
      * @return an input stream with the requested content, null if not found.
      */
     public static InputStream getFileOrResource(String name) {
+        //FIXME remove after fix
+        logger.setLevel(Level.TRACE);
         InputStream is = null;
         String relativeName;
         if (name.startsWith("/")) {
@@ -266,7 +269,7 @@ public class ResourceWalker {
         try {
             ZipUtils.unzip(new ByteArrayInputStream(localContent2), f.toFile());
             setLocalDirPath(f);
-            logger.debug("new local override path {}", getLocalDirPath().normalize());
+            logger.info("new local override path {}", getLocalDirPath().normalize());
         } catch (IOException e) {
             throw new Exception("cannot unzip", e);
         }
