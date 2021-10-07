@@ -1061,18 +1061,11 @@ public class Competition {
      * @param athletes
      * @param ageGroupPrefix
      */
-    // FIXME: this does not yield a team order - top "n" would not work.
     private void teamRankingsForAgeDivision(AgeDivision ad) {
         List<String> agePrefixes = AgeGroupRepository.findActiveAndUsed(ad);
 
         for (String curAGPrefix : agePrefixes) {
             List<PAthlete> athletes = AgeGroupRepository.allPAthletesForAgeGroup(curAGPrefix);
-//            logger.warn("");
-//            logger.warn("{}", curAGPrefix);
-//            for (PAthlete a : athletes) {
-//                logger.warn("before {} {} {} {}", a.getShortName(), a.toStringRanks(), a.getCategory(),
-//                        a.getRegistrationCategory());
-//            }
             doTeamRankings(athletes, ad.name(), false);
         }
 
