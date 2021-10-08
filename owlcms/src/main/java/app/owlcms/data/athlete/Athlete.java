@@ -2321,6 +2321,10 @@ public class Athlete {
         return !isEligibleForIndividualRanking();
     }
 
+    public boolean isTeamMember() {
+        return (getMainRankings() != null ? getMainRankings().isTeamMember() : false);
+    }
+
     public boolean isValidation() {
         return validation;
     }
@@ -2756,10 +2760,6 @@ public class Athlete {
         // ignored. computed property. setter needed for beans introspection.
     }
 
-    public void setCleanJerkRank(int ignored) {
-        // ignored. computed property. setter needed for beans introspection.
-    }
-
 //    /**
 //     * Sets the clean jerk rank.
 //     *
@@ -2780,6 +2780,10 @@ public class Athlete {
 //    public void setCleanJerkRankYth(Integer cleanJerkRankYth) {
 //        this.cleanJerkRankYth = cleanJerkRankYth;
 //    }
+
+    public void setCleanJerkRank(int ignored) {
+        // ignored. computed property. setter needed for beans introspection.
+    }
 
     /**
      * Sets the club.
@@ -2889,15 +2893,6 @@ public class Athlete {
         this.gender = gender;
     }
 
-    /**
-     * Sets the competition session.
-     *
-     * @param group the group to set
-     */
-    public void setGroup(Group group) {
-        this.group = group;
-    }
-
 //  /**
 //   * Sets the result order rank.
 //   *
@@ -2907,6 +2902,15 @@ public class Athlete {
 //  public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
 //      this.resultOrderRank = resultOrderRank;
 //  }
+
+    /**
+     * Sets the competition session.
+     *
+     * @param group the group to set
+     */
+    public void setGroup(Group group) {
+        this.group = group;
+    }
 
     /**
      * Sets the last name.
@@ -2948,6 +2952,12 @@ public class Athlete {
         this.membership = membership;
     }
 
+    /*
+     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
+     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
+     * register/unregister itself.
+     */
+
     /**
      * Sets the next attempt requested weight.
      *
@@ -2955,12 +2965,6 @@ public class Athlete {
      */
     public void setNextAttemptRequestedWeight(Integer i) {
     }
-
-    /*
-     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
-     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
-     * register/unregister itself.
-     */
 
     public void setParticipations(List<Participation> participations) {
         this.participations = participations;
@@ -3360,15 +3364,6 @@ public class Athlete {
         this.team = club;
     }
 
-    /**
-     * Sets the team clean jerk rank.
-     *
-     * @param teamCJRank the new team clean jerk rank
-     */
-    public void setTeamCleanJerkRank(Integer teamCJRank) {
-        this.teamCleanJerkRank = teamCJRank;
-    }
-
 //    /**
 //     * Sets the snatch rank.
 //     *
@@ -3389,6 +3384,15 @@ public class Athlete {
 //    public void setSnatchRankYth(Integer snatchRankYth) {
 //        this.snatchRankYth = snatchRankYth;
 //    }
+
+    /**
+     * Sets the team clean jerk rank.
+     *
+     * @param teamCJRank the new team clean jerk rank
+     */
+    public void setTeamCleanJerkRank(Integer teamCJRank) {
+        this.teamCleanJerkRank = teamCJRank;
+    }
 
     /**
      * Sets the team combined rank.
@@ -3530,6 +3534,10 @@ public class Athlete {
         } else {
             return prefix + suffix;
         }
+    }
+
+    public String toStringRanks() {
+        return getSnatchRank() + " " + getCleanJerkRank() + " " + getTotalRank();
     }
 
     /**
@@ -4215,6 +4223,17 @@ public class Athlete {
         }
     }
 
+//    /**
+//     * Null-safe comparison for longs.
+//     *
+//     * @param o1
+//     * @param o2
+//     * @return
+//     */
+//    private boolean LongEquals(Long o1, Long o2) {
+//        return o1 == o2 || o1 != null && o2 != null && o1.longValue() == (o2.longValue());
+//    }
+
     /**
      * 20kg rule or 80% rule for Masters
      *
@@ -4270,17 +4289,6 @@ public class Athlete {
         return false;
 
     }
-
-//    /**
-//     * Null-safe comparison for longs.
-//     *
-//     * @param o1
-//     * @param o2
-//     * @return
-//     */
-//    private boolean LongEquals(Long o1, Long o2) {
-//        return o1 == o2 || o1 != null && o2 != null && o1.longValue() == (o2.longValue());
-//    }
 
     private Integer max(Integer... items) {
         List<Integer> itemList = Arrays.asList(items);
@@ -4443,10 +4451,6 @@ public class Athlete {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-    
-    public String toStringRanks() {
-        return getSnatchRank() + " " + getCleanJerkRank() + " " + getTotalRank();
     }
 
 }

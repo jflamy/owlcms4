@@ -1004,7 +1004,7 @@ public class Competition {
      * Reporting beans are modified. Caller must clear them beforehand if needed.
      *
      * @param athletes
-     * @param singleAgeGroup TODO
+     * @param singleAgeGroup true if not called in a loop, can compute team stats.
      * @param ageGroupPrefix
      */
     private void doTeamRankings(List<PAthlete> athletes, String suffix, boolean singleAgeGroup) {
@@ -1023,6 +1023,10 @@ public class Competition {
         addToReportingBean("mTeam" + suffix, sortedMen);
         addToReportingBean("wTeam" + suffix, sortedWomen);
         addToReportingBean("mwTeam" + suffix, sortedAthletes);
+        
+        if (singleAgeGroup) {
+            reportTeams(sortedAthletes, sortedMen, sortedWomen);
+        }
 
         sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.SNATCH_CJ_TOTAL);
         sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Ranking.SNATCH_CJ_TOTAL);
@@ -1038,10 +1042,6 @@ public class Competition {
             addToReportingBean("mCustom" + suffix, sortedMen);
             addToReportingBean("wCustom" + suffix, sortedWomen);
             addToReportingBean("mwCustom" + suffix, sortedAthletes);
-        }
-
-        if (singleAgeGroup) {
-            reportTeams(sortedAthletes, sortedMen, sortedWomen);
         }
     }
 

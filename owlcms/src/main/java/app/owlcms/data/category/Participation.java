@@ -47,7 +47,7 @@ public class Participation implements IRankHolder {
     @MapsId("categoryId")
     private Category category;
 
-    @Column(columnDefinition = "integer default 0") 
+    @Column(columnDefinition = "integer default 0")
     private int cleanJerkRank;
 
     @Column(columnDefinition = "integer default 0")
@@ -62,14 +62,18 @@ public class Participation implements IRankHolder {
     @Column(columnDefinition = "integer default 0")
     private int combinedRank;
 
+    /**
+     * Athlete is member of team for the age group. Points will be scored according to ranks. An athlete can be
+     * qualified for JR and SR, but only on the JR team for example.
+     */
+    @Column(columnDefinition = "boolean default true")
+    private boolean teamMember;
+
     public Participation(Athlete athlete, Category category) {
         this();
         this.athlete = athlete;
         this.category = category;
         this.id = new ParticipationId(athlete.getId(), category.getId());
-    }
-
-    protected Participation() {
     }
 
     public Participation(Participation p, Athlete a, Category c) {
@@ -80,6 +84,9 @@ public class Participation implements IRankHolder {
         this.snatchRank = p.snatchRank;
         this.totalRank = p.totalRank;
         this.combinedRank = p.combinedRank;
+    }
+
+    protected Participation() {
     }
 
     @Override
@@ -141,6 +148,10 @@ public class Participation implements IRankHolder {
         return snatchRank;
     }
 
+    public boolean isTeamMember() {
+        return teamMember;
+    }
+
     public int getTotalPoints() {
         return AthleteSorter.pointsFormula(totalRank);
     }
@@ -189,6 +200,10 @@ public class Participation implements IRankHolder {
     public void setSnatchRank(int snatchRank) {
         this.snatchRank = snatchRank;
         logger.trace("snatchRank {}", long_dump());
+    }
+
+    public void setTeamMember(boolean teamMember) {
+        this.teamMember = teamMember;
     }
 
     public void setTotalRank(int totalRank) {

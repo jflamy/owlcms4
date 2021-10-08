@@ -119,7 +119,14 @@ public class PAthlete extends Athlete implements IRankHolder {
     
     @Override
     public String toStringRanks() {
+        // super is used because we want the methods from PAthlete to be called
+        // and we don't want to copy the code.
         return super.toStringRanks();
+    }
+    
+    @Override
+    public boolean isTeamMember() {
+        return p.isTeamMember();
     }
 
     public void computeMainCategory() {
