@@ -37,6 +37,14 @@ public class PAthlete extends Athlete implements IRankHolder {
         this.c = p.getCategory();
         this.p = new Participation(p, a, c);
     }
+    
+    public Athlete _getAthlete() {
+        return a;
+    }
+    
+    public Participation _getParticipation() {
+        return p;
+    }
 
 // the methods used for ranking come from the participation to an eligible category
 
@@ -126,7 +134,12 @@ public class PAthlete extends Athlete implements IRankHolder {
     
     @Override
     public boolean isTeamMember() {
-        return p.isTeamMember();
+        return p.getTeamMember();
+    }
+    
+    @Override
+    public void setTeamMember(boolean member) {
+        p.setTeamMember(member);
     }
 
     public void computeMainCategory() {
@@ -665,6 +678,8 @@ public class PAthlete extends Athlete implements IRankHolder {
     public String longDump() {
         return a.longDump();
     }
+
+
 
 
 }

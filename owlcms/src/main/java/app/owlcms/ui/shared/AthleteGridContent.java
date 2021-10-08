@@ -57,7 +57,6 @@ import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FOPEvent;
@@ -125,8 +124,6 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected AthleteTimerElement timer;
     protected FlexLayout topBar;
     protected ComboBox<Group> topBarGroupSelect;
-    protected ComboBox<String> topBarAgeGroupPrefixSelect;
-    protected ComboBox<AgeDivision> topBarAgeDivisionSelect;
     private Athlete displayedAthlete;
     protected boolean initialBar;
     protected H3 warning;

@@ -15,12 +15,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.LoggerFactory;
+import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
@@ -30,8 +32,9 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
@@ -41,22 +44,19 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
-import app.owlcms.data.group.Group;
-import app.owlcms.data.group.GroupRepository;
-import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
-import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.results.Resource;
-import app.owlcms.ui.results.ResultsContent;
-import app.owlcms.ui.shared.AthleteCrudGrid;
-import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
+import app.owlcms.ui.shared.OwlcmsContent;
+import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -67,9 +67,9 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/teams", layout = AthleteGridLayout.class)
-public class TeamSelectionContent extends AthleteGridContent implements HasDynamicTitle {
+public class TeamSelectionContent extends VerticalLayout implements CrudListener<Participation>, OwlcmsContent {
 
-    static final String TITLE = "TeamMembership";
+    static final String TITLE = "TeamMembership.Title";
     final private static Logger logger = (Logger) LoggerFactory.getLogger(TeamSelectionContent.class);
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
     static {
@@ -79,37 +79,41 @@ public class TeamSelectionContent extends AthleteGridContent implements HasDynam
 
     private Button download;
     private Anchor finalPackage;
-    private Group currentGroup;
     private JXLSCompetitionBook xlsWriter;
     private ComboBox<Resource> templateSelect;
     private String ageGroupPrefix;
 
     private AgeDivision ageDivision;
 
+    private FlexLayout topBar;
+    private GridCrud<Participation> crudGrid;
     private ComboBox<Category> categoryFilter;
+    private ComboBox<Gender> genderFilter;
+    protected ComboBox<String> topBarAgeGroupPrefixSelect;
+    protected ComboBox<AgeDivision> topBarAgeDivisionSelect;
+    private OwlcmsRouterLayout routerLayout;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
      * {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
      */
     public TeamSelectionContent() {
-        super();
+        OwlcmsCrudFormFactory<Participation> crudFormFactory = createFormFactory();
+        crudGrid = createGrid(crudFormFactory);
+        // setTopBarTitle(getTranslation(TITLE));
         defineFilters(crudGrid);
-        crudGrid.setClickable(true);
         crudGrid.getGrid().setMultiSort(true);
-        setTopBarTitle(getTranslation(TITLE));
+        fillHW(crudGrid, this);
+
     }
-    
+
     /**
-     * Define the form used to edit a given athlete's participation
-     * The Athlete will in fact be a PAthlete so we only get the specific participation for the
-     * age group selected by the page filters.
+     * No editing for Team membership, direct unbuffered modification.
      *
      * @return the form factory that will create the actual form on demand
      */
-    @Override
-    protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-        return new TeamParticipationFormFactory(Athlete.class, this);
+    private OwlcmsCrudFormFactory<Participation> createFormFactory() {
+        return null; // not used.
     }
 
     /**
@@ -118,32 +122,32 @@ public class TeamSelectionContent extends AthleteGridContent implements HasDynam
      * @see org.vaadin.crudui.crud.CrudListener#findAll()
      */
     @Override
-    public Collection<Athlete> findAll() {
+    public Collection<Participation> findAll() {
         if (getAgeGroupPrefix() == null && getAgeDivision() == null) {
             return new ArrayList<>();
         }
 
-        List<PAthlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(ageGroupPrefix, ageDivision);
+        List<Participation> participations = AgeGroupRepository.allParticipationsForAgeGroupAgeDivision(ageGroupPrefix,
+                ageDivision);
 
-        Stream<PAthlete> stream = athletes.stream()
-                .filter(a -> {
+        Stream<Participation> stream = participations.stream()
+                .filter(p -> {
                     Category catFilterValue = categoryFilter.getValue();
                     String catCode = catFilterValue != null ? catFilterValue.getCode() : null;
-                    String athleteCode = a.getCategory().getCode();
+                    String athleteCode = p.getCategory().getCode();
 
-                    Gender genderFilterValue = genderFilter != null ?  genderFilter.getValue() : null;
-                    Gender athleteGender = a.getGender();
-                    
-                    boolean catOk = (catFilterValue == null || athleteCode.contentEquals(catCode)) 
+                    Gender genderFilterValue = genderFilter != null ? genderFilter.getValue() : null;
+                    Gender athleteGender = p.getAthlete().getGender();
+
+                    boolean catOk = (catFilterValue == null || athleteCode.contentEquals(catCode))
                             && (genderFilterValue == null || genderFilterValue == athleteGender);
-                    //logger.trace("filter {} : {} {} {} | {} {}", catOk, catFilterValue, catCode, athleteCode, genderFilterValue, athleteGender);
+                    // logger.trace("filter {} : {} {} {} | {} {}", catOk, catFilterValue, catCode, athleteCode,
+                    // genderFilterValue, athleteGender);
                     return catOk;
-                });
+                })
+                //.peek(p -> logger.trace("findAll {}", p.long_dump()))
+                ;
         return stream.collect(Collectors.toList());
-    }
-
-    public Group getGridGroup() {
-        return getGroupFilter().getValue();
     }
 
     /**
@@ -154,24 +158,8 @@ public class TeamSelectionContent extends AthleteGridContent implements HasDynam
         return getTranslation(TITLE);
     }
 
-    @Override
-    public boolean isIgnoreGroupFromURL() {
-        return false;
-    }
-
     public void refresh() {
         crudGrid.refreshGrid();
-    }
-
-    public void setGridGroup(Group group) {
-        subscribeIfLifting(group);
-        getGroupFilter().setValue(group);
-        refresh();
-    }
-
-    @Override
-    protected HorizontalLayout announcerButtons(FlexLayout topBar2) {
-        return null;
     }
 
     /**
@@ -181,12 +169,35 @@ public class TeamSelectionContent extends AthleteGridContent implements HasDynam
      *
      * @see app.owlcms.ui.shared.AthleteGridContent#createCrudGrid(app.owlcms.ui.crudui.OwlcmsCrudFormFactory)
      */
-    @Override
-    protected AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-        Grid<Athlete> grid = ResultsContent.createResultGrid();
-
+    protected OwlcmsCrudGrid<Participation> createGrid(OwlcmsCrudFormFactory<Participation> crudFormFactory) {
+        Grid<Participation> grid = new Grid<>(Participation.class, false);
+        grid.addColumn(new ComponentRenderer<>(p -> {
+            // checkbox to avoid entering in the form
+            Checkbox activeBox = new Checkbox("Name");
+            activeBox.setLabel(null);
+            activeBox.getElement().getThemeList().set("secondary", true);
+            activeBox.setValue(p.getTeamMember());
+            activeBox.addValueChangeListener(click -> {
+                Boolean value = click.getValue();
+                activeBox.setValue(value);
+                // we have in fact updated the participation of the athlete.
+                JPAService.runInTransaction(em -> {
+                    p.setTeamMember(value);
+                    em.merge(p);
+                    return null;
+                });
+                crudGrid.getGrid().getDataProvider().refreshItem(p);
+            });
+            return activeBox;
+        })).setHeader(Translator.translate("TeamMembership.TeamMember")).setWidth("0");
+        grid.addColumn(p -> p.getAthlete().getTeam()).setHeader(Translator.translate("Team"));
+        grid.addColumn(p -> p.getCategory()).setHeader(Translator.translate("Category"));
+        grid.addColumn(p -> p.getAthlete().getFullName()).setHeader(Translator.translate("Name"));
+        grid.addColumn(p -> p.getAthlete().getGender()).setHeader(Translator.translate("Gender"));
+        
         OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
-        AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, gridLayout, crudFormFactory, grid) {
+        OwlcmsCrudGrid<Participation> crudGrid = new OwlcmsCrudGrid<>(Participation.class, gridLayout, crudFormFactory,
+                grid) {
             @Override
             protected void initToolbar() {
             }
@@ -200,11 +211,10 @@ public class TeamSelectionContent extends AthleteGridContent implements HasDynam
             }
         };
 
-        defineFilters(crudGrid);
+        // defineFilters(crudGrid);
 
         crudGrid.setCrudListener(this);
         crudGrid.setClickRowToUpdate(true);
-        crudGrid.getCrudLayout().addToolbarComponent(getGroupFilter());
 
         return crudGrid;
     }
@@ -218,8 +228,7 @@ public class TeamSelectionContent extends AthleteGridContent implements HasDynam
      *
      * @param topBar
      */
-    @Override
-    protected void createTopBar() {
+    private void createTopBar() {
         // logger.trace("createTopBar {}", LoggerUtils.stackTrace());
         // show arrow but close menu
         getAppLayout().setMenuVisible(true);
@@ -232,10 +241,10 @@ public class TeamSelectionContent extends AthleteGridContent implements HasDynam
 
         topBar = getAppLayout().getAppBarElementWrapper();
         xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
-        StreamResource href = new StreamResource(TITLE+"Report"+".xls", xlsWriter);
+        StreamResource href = new StreamResource(TITLE + "Report" + ".xls", xlsWriter);
         finalPackage = new Anchor(href, "");
         finalPackage.getStyle().set("margin-left", "1em");
-        download = new Button(getTranslation(TITLE+".Report"), new Icon(VaadinIcon.DOWNLOAD_ALT));
+        download = new Button(getTranslation(TITLE + ".Report"), new Icon(VaadinIcon.DOWNLOAD_ALT));
 
         topBarAgeGroupPrefixSelect = new ComboBox<>();
         topBarAgeGroupPrefixSelect.setPlaceholder(getTranslation("AgeGroup"));
@@ -260,43 +269,23 @@ public class TeamSelectionContent extends AthleteGridContent implements HasDynam
         setAgeDivision(value);
         topBarAgeDivisionSelect.setValue(value);
 
-//        templateSelect = new ComboBox<>();
-//        templateSelect.setPlaceholder(getTranslation("AvailableTemplates"));
-//        List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/competitionBook",
-//                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
-//        templateSelect.setItems(resourceList);
-//        templateSelect.setValue(null);
-//        templateSelect.setWidth("15em");
-//        templateSelect.getStyle().set("margin-left", "1em");
-//        setTemplateSelectionListener(resourceList);
-
-        topBarGroupSelect = new ComboBox<>();
-        topBarGroupSelect.setPlaceholder(getTranslation("Group"));
-        topBarGroupSelect.setItems(GroupRepository.findAll());
-        topBarGroupSelect.setItemLabelGenerator(Group::getName);
-        topBarGroupSelect.setClearButtonVisible(true);
-        topBarGroupSelect.setValue(null);
-        topBarGroupSelect.setWidth("8em");
-        setGroupSelectionListener();
-
         finalPackage.add(download);
-
         HorizontalLayout buttons = new HorizontalLayout(finalPackage);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
         topBar.getStyle().set("flex", "100 1");
         topBar.removeAll();
         topBar.add(title,
-                topBarAgeDivisionSelect, topBarAgeGroupPrefixSelect, 
-                /* templateSelect, */ 
-                buttons);
+                topBarAgeDivisionSelect, topBarAgeGroupPrefixSelect
+        /* , templateSelect */
+        /* , buttons */
+        );
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         topBar.setFlexGrow(0.2, title);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
     }
 
-    @Override
-    protected void defineFilters(GridCrud<Athlete> crud) {
+    protected void defineFilters(GridCrud<Participation> crud) {
 
         if (categoryFilter == null) {
             categoryFilter = new ComboBox<>();
@@ -311,28 +300,19 @@ public class TeamSelectionContent extends AthleteGridContent implements HasDynam
 
         crud.getCrudLayout().addFilterComponent(categoryFilter);
 
-        getGroupFilter().setPlaceholder(getTranslation("Group"));
-        getGroupFilter().setItems(GroupRepository.findAll());
-        getGroupFilter().setItemLabelGenerator(Group::getName);
-        getGroupFilter().addValueChangeListener(e -> {
-            logger.debug("updating filters: group={}", e.getValue());
-            currentGroup = e.getValue();
-            updateURLLocation(getLocationUI(), getLocation(), currentGroup);
-            subscribeIfLifting(e.getValue());
-        });
-        getGroupFilter().setVisible(false);
-        crud.getCrudLayout().addFilterComponent(getGroupFilter());
-
-        genderFilter.setPlaceholder(getTranslation("Gender"));
-        genderFilter.setItems(Gender.M, Gender.F);
-        genderFilter.setItemLabelGenerator((i) -> {
-            return i == Gender.M ? getTranslation("Gender.M") : getTranslation("Gender.F");
-        });
-        genderFilter.setClearButtonVisible(true);
-        genderFilter.addValueChangeListener(e -> {
-            crud.refreshGrid();
-        });
-        genderFilter.setWidth("10em");
+        if (genderFilter == null) {
+            genderFilter = new ComboBox<>();
+            genderFilter.setPlaceholder(getTranslation("Gender"));
+            genderFilter.setItems(Gender.M, Gender.F);
+            genderFilter.setItemLabelGenerator((i) -> {
+                return i == Gender.M ? getTranslation("Gender.M") : getTranslation("Gender.F");
+            });
+            genderFilter.setClearButtonVisible(true);
+            genderFilter.addValueChangeListener(e -> {
+                crud.refreshGrid();
+            });
+            genderFilter.setWidth("10em");
+        }
         crud.getCrudLayout().addFilterComponent(genderFilter);
     }
 
@@ -369,7 +349,8 @@ public class TeamSelectionContent extends AthleteGridContent implements HasDynam
             topBarAgeGroupPrefixSelect.setItems(ageDivisionAgeGroupPrefixes);
             boolean notEmpty = ageDivisionAgeGroupPrefixes.size() > 0;
             topBarAgeGroupPrefixSelect.setEnabled(notEmpty);
-            String first = (notEmpty && ageDivisionValue == AgeDivision.IWF) ? ageDivisionAgeGroupPrefixes.get(0) : null;
+            String first = (notEmpty && ageDivisionValue == AgeDivision.IWF) ? ageDivisionAgeGroupPrefixes.get(0)
+                    : null;
             logger.debug("ad {} ag {} first {} select {}", ageDivisionValue, ageDivisionAgeGroupPrefixes, first,
                     topBarAgeGroupPrefixSelect);
             topBarAgeGroupPrefixSelect.setValue(notEmpty ? first : null);
@@ -391,7 +372,7 @@ public class TeamSelectionContent extends AthleteGridContent implements HasDynam
             // surrounds
             // the download button.
             setAgeGroupPrefix(e.getValue());
-            updateFilters(getAgeDivision(), getAgeGroupPrefix());
+            // updateFilters(getAgeDivision(), getAgeGroupPrefix());
             xlsWriter.setAgeGroupPrefix(ageGroupPrefix);
             finalPackage.getElement().setAttribute("download",
                     "results" + (getAgeDivision() != null ? "_" + getAgeDivision().name()
@@ -407,21 +388,8 @@ public class TeamSelectionContent extends AthleteGridContent implements HasDynam
             categories = categories.stream().filter((c) -> c.getAgeGroup().getCode().equals(getAgeGroupPrefix()))
                     .collect(Collectors.toList());
         }
-        //logger.trace("updateFilters {}, {}, {}", ageDivision2, ageGroupPrefix2, categories);
+        // logger.trace("updateFilters {}, {}, {}", ageDivision2, ageGroupPrefix2, categories);
         categoryFilter.setItems(categories);
-    }
-
-    protected void setGroupSelectionListener() {
-        topBarGroupSelect.setValue(getGridGroup());
-        topBarGroupSelect.addValueChangeListener(e -> {
-            setGridGroup(e.getValue());
-            currentGroup = e.getValue();
-            // the name of the resulting file is set as an attribute on the <a href tag that
-            // surrounds the download button.
-            xlsWriter.setGroup(currentGroup);
-            finalPackage.getElement().setAttribute("download",
-                    "results" + (currentGroup != null ? "_" + currentGroup : "_all") + ".xls");
-        });
     }
 
     private AgeDivision getAgeDivision() {
@@ -476,40 +444,36 @@ public class TeamSelectionContent extends AthleteGridContent implements HasDynam
         }
     }
 
-    private void subscribeIfLifting(Group nGroup) {
-        logger.debug("subscribeIfLifting {}", nGroup);
-        Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
-        currentGroup = nGroup;
-
-        // go through all the FOPs
-        for (FieldOfPlay fop : fops) {
-            // unsubscribe from FOP -- ensures that we clean up if no group is lifting
-            try {
-                fop.getUiEventBus().unregister(this);
-            } catch (Exception ex) {
-            }
-            try {
-                fop.getFopEventBus().unregister(this);
-            } catch (Exception ex) {
-            }
-
-            // subscribe to fop and start tracking if actually lifting
-            if (fop.getGroup() != null && fop.getGroup().equals(nGroup)) {
-                logger.debug("subscribing to {} {}", fop, nGroup);
-                try {
-                    fopEventBusRegister(this, fop);
-                } catch (Exception ex) {
-                }
-                try {
-                    uiEventBusRegister(this, fop);
-                } catch (Exception ex) {
-                }
-            }
-        }
-    }
-
     public void highlightResetButton() {
         // TODO add button to recompute team points.
+    }
+
+    @Override
+    public OwlcmsRouterLayout getRouterLayout() {
+        return routerLayout;
+    }
+
+    @Override
+    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+        this.routerLayout = routerLayout;
+    }
+
+    @Override
+    public Participation add(Participation domainObjectToAdd) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Participation update(Participation domainObjectToUpdate) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void delete(Participation domainObjectToDelete) {
+        // TODO Auto-generated method stub
+
     }
 
 }

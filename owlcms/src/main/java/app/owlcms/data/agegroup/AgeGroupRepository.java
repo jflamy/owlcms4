@@ -471,6 +471,12 @@ public class AgeGroupRepository {
     }
 
     public static List<PAthlete> allPAthletesForAgeGroupAgeDivision(String ageGroupPrefix, AgeDivision ageDivision) {
+        List<Participation> participations = allParticipationsForAgeGroupAgeDivision(ageGroupPrefix, ageDivision);
+        return participations.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
+    }
+
+    public static List<Participation> allParticipationsForAgeGroupAgeDivision(String ageGroupPrefix,
+            AgeDivision ageDivision) {
         List<Participation> participations = JPAService.runInTransaction(em -> {
 
             List<String> whereList = new ArrayList<>();
@@ -499,7 +505,7 @@ public class AgeGroupRepository {
             List<Participation> resultSet = q.getResultList();
             return resultSet;
         });
-        return participations.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
+        return participations;
     }
 
     /**

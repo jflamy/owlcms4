@@ -94,6 +94,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     private AgeDivision ageDivision;
 
     private ComboBox<Category> categoryFilter;
+    protected ComboBox<String> topBarAgeGroupPrefixSelect;
+    protected ComboBox<AgeDivision> topBarAgeDivisionSelect;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in

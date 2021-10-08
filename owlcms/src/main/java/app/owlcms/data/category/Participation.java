@@ -148,7 +148,7 @@ public class Participation implements IRankHolder {
         return snatchRank;
     }
 
-    public boolean isTeamMember() {
+    public boolean getTeamMember() {
         return teamMember;
     }
 
@@ -172,7 +172,8 @@ public class Participation implements IRankHolder {
                 + ", category=" + category + "(" + System.identityHashCode(category) + ")"
                 + ", snatchRank=" + getSnatchRank()
                 + ", cleanJerkRank=" + getCleanJerkRank()
-                + ", totalRank=" + getTotalRank() + "]";
+                + ", totalRank=" + getTotalRank()
+                + ", teamMember=" + getTeamMember() + "]";
     }
 
     public void setAthlete(Athlete athlete) {

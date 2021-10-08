@@ -2322,7 +2322,11 @@ public class Athlete {
     }
 
     public boolean isTeamMember() {
-        return (getMainRankings() != null ? getMainRankings().isTeamMember() : false);
+        return (getMainRankings() != null ? getMainRankings().getTeamMember() : false);
+    }
+    
+    public void setTeamMember(boolean member) {
+        throw new UnsupportedOperationException("Team Membership should be updated via PAthlete");
     }
 
     public boolean isValidation() {
@@ -4452,5 +4456,9 @@ public class Athlete {
             throw new RuntimeException(e);
         }
     }
+
+
+
+
 
 }
