@@ -78,13 +78,12 @@ public class ConfigRepository {
      * @return the config
      */
     static Config save(Config config) {
-        JPAService.runInTransaction(em -> {
-            Config nc = em.merge(config);
-            // needed because some classes get config parameters from getCurrent()
-//            Config.setCurrent(nc);
-            return nc;
+        @SuppressWarnings("unused")
+        Config merged = JPAService.runInTransaction(em -> {
+            return em.merge(config);
         });
 
+        // should return merged copy, or else set is as current?
         Config current = Config.getCurrent();
         return current;
     }

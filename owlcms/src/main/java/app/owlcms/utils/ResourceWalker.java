@@ -82,7 +82,7 @@ public class ResourceWalker {
                         LoggerUtils.whereFrom(1));
                 return new FileInputStream(file);
             } catch (FileNotFoundException e) {
-                // can't happen, Files.exists()...
+                // can't happen, we tested that Files.exists()...
                 throw new RuntimeException("can't happen", e);
             }
         } else {
@@ -239,14 +239,15 @@ public class ResourceWalker {
         localDirPath = curDir;
     }
 
-    private static void checkForLocalOverrideDirectory() {
+    public static void checkForLocalOverrideDirectory() {
         Path curDir = Paths.get(".", "local");
         curDir = curDir.normalize();
         if (Files.exists(curDir)) {
-            logger.debug("local override directory = {}", curDir.toAbsolutePath());
+            logger.info("local override directory = {}", curDir.toAbsolutePath());
             ResourceWalker.setLocalDirPath(curDir);
         } else {
-            logger.debug("no override directory {}", curDir.toAbsolutePath());
+            logger.info("no override directory {}", curDir.toAbsolutePath());
+            ResourceWalker.setLocalDirPath(null);
         }
     }
 
