@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -89,9 +91,11 @@ public class TeamSelectionContent extends VerticalLayout implements CrudListener
     private GridCrud<Participation> crudGrid;
     private ComboBox<Category> categoryFilter;
     private ComboBox<Gender> genderFilter;
-    protected ComboBox<String> topBarAgeGroupPrefixSelect;
-    protected ComboBox<AgeDivision> topBarAgeDivisionSelect;
+    private ComboBox<String> teamFilter;
+    private ComboBox<String> topBarAgeGroupPrefixSelect;
+    private ComboBox<AgeDivision> topBarAgeDivisionSelect;
     private OwlcmsRouterLayout routerLayout;
+    private boolean teamFilterRecusion;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
@@ -130,23 +134,32 @@ public class TeamSelectionContent extends VerticalLayout implements CrudListener
         List<Participation> participations = AgeGroupRepository.allParticipationsForAgeGroupAgeDivision(ageGroupPrefix,
                 ageDivision);
 
+        Set<String> teamNames = new TreeSet<>();
         Stream<Participation> stream = participations.stream()
                 .filter(p -> {
                     Category catFilterValue = categoryFilter.getValue();
                     String catCode = catFilterValue != null ? catFilterValue.getCode() : null;
-                    String athleteCode = p.getCategory().getCode();
+                    String athleteCatCode = p.getCategory().getCode();
+                    
+                    String teamFilterValue = teamFilter.getValue();
+                    String athleteTeamName = p.getAthlete().getTeam();
+                    teamNames.add(athleteTeamName);
 
                     Gender genderFilterValue = genderFilter != null ? genderFilter.getValue() : null;
                     Gender athleteGender = p.getAthlete().getGender();
 
-                    boolean catOk = (catFilterValue == null || athleteCode.contentEquals(catCode))
-                            && (genderFilterValue == null || genderFilterValue == athleteGender);
-                    // logger.trace("filter {} : {} {} {} | {} {}", catOk, catFilterValue, catCode, athleteCode,
-                    // genderFilterValue, athleteGender);
+                    boolean catOk = (catFilterValue == null || athleteCatCode.contentEquals(catCode))
+                            && (genderFilterValue == null || genderFilterValue == athleteGender) 
+                            && (teamFilterValue == null || teamFilterValue.contentEquals(athleteTeamName));
                     return catOk;
                 })
                 //.peek(p -> logger.trace("findAll {}", p.long_dump()))
                 ;
+        String teamValue = teamFilter.getValue();
+        teamFilterRecusion = false;
+        teamFilter.setItems(teamNames);
+        teamFilter.setValue(teamValue);
+        teamFilterRecusion = true;
         return stream.collect(Collectors.toList());
     }
 
@@ -180,9 +193,8 @@ public class TeamSelectionContent extends VerticalLayout implements CrudListener
             activeBox.addValueChangeListener(click -> {
                 Boolean value = click.getValue();
                 activeBox.setValue(value);
-                // we have in fact updated the participation of the athlete.
                 JPAService.runInTransaction(em -> {
-                    p.setTeamMember(value);
+                    p.setTeamMember(Boolean.TRUE.equals(value));
                     em.merge(p);
                     return null;
                 });
@@ -210,8 +222,6 @@ public class TeamSelectionContent extends VerticalLayout implements CrudListener
             protected void updateButtons() {
             }
         };
-
-        // defineFilters(crudGrid);
 
         crudGrid.setCrudListener(this);
         crudGrid.setClickRowToUpdate(true);
@@ -286,19 +296,17 @@ public class TeamSelectionContent extends VerticalLayout implements CrudListener
     }
 
     protected void defineFilters(GridCrud<Participation> crud) {
-
-        if (categoryFilter == null) {
-            categoryFilter = new ComboBox<>();
-            categoryFilter.setClearButtonVisible(true);
-            categoryFilter.setPlaceholder(getTranslation("Category"));
-            categoryFilter.setClearButtonVisible(true);
-            categoryFilter.addValueChangeListener(e -> {
+        if (teamFilter == null) {
+            teamFilter = new ComboBox<>();
+            teamFilter.setPlaceholder(getTranslation("Team"));
+            teamFilter.setClearButtonVisible(true);
+            teamFilter.addValueChangeListener(e -> {
+                if (!teamFilterRecusion) return;
                 crud.refreshGrid();
             });
-            categoryFilter.setWidth("10em");
+            teamFilter.setWidth("10em");
         }
-
-        crud.getCrudLayout().addFilterComponent(categoryFilter);
+        crud.getCrudLayout().addFilterComponent(teamFilter);
 
         if (genderFilter == null) {
             genderFilter = new ComboBox<>();
@@ -312,8 +320,20 @@ public class TeamSelectionContent extends VerticalLayout implements CrudListener
                 crud.refreshGrid();
             });
             genderFilter.setWidth("10em");
-        }
+        } 
         crud.getCrudLayout().addFilterComponent(genderFilter);
+        
+        if (categoryFilter == null) {
+            categoryFilter = new ComboBox<>();
+            categoryFilter.setClearButtonVisible(true);
+            categoryFilter.setPlaceholder(getTranslation("Category"));
+            categoryFilter.setClearButtonVisible(true);
+            categoryFilter.addValueChangeListener(e -> {
+                crud.refreshGrid();
+            });
+            categoryFilter.setWidth("10em");
+        }
+        crud.getCrudLayout().addFilterComponent(categoryFilter);
     }
 
     /**
@@ -460,20 +480,19 @@ public class TeamSelectionContent extends VerticalLayout implements CrudListener
 
     @Override
     public Participation add(Participation domainObjectToAdd) {
-        // TODO Auto-generated method stub
+        // no-op
         return null;
     }
 
     @Override
     public Participation update(Participation domainObjectToUpdate) {
-        // TODO Auto-generated method stub
+        // no-op
         return null;
     }
 
     @Override
     public void delete(Participation domainObjectToDelete) {
-        // TODO Auto-generated method stub
-
+        // no-op
     }
 
 }
