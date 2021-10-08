@@ -37,6 +37,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
 import app.owlcms.ui.shared.DownloadButtonFactory;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -187,6 +188,10 @@ public class ConfigEditingFormFactory
 
     @Override
     public Config update(Config config) {
+        if (config.isClearZip()) {
+            config.setLocalOverride(null);
+            ResourceWalker.checkForLocalOverrideDirectory();
+        }
         Config saved = Config.setCurrent(config);
         try {
             Thread.sleep(1000);

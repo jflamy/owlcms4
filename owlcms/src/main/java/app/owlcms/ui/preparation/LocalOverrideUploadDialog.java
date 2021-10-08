@@ -10,6 +10,7 @@ import java.io.InputStream;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -17,6 +18,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
@@ -45,13 +47,15 @@ public class LocalOverrideUploadDialog extends Dialog {
                 this.close();
             }
         });
+        
+        upload.setUploadButton(new Button(Translator.translate("Config.Select")));
 
         upload.addStartedListener(event -> {
             ta.clear();
             ta.setVisible(false);
         });
 
-        H3 title = new H3(getTranslation("Config.Upload"));
+        H3 title = new H3(getTranslation("Config.Select"));
         VerticalLayout vl = new VerticalLayout(title, upload, ta);
         add(vl);
     }
