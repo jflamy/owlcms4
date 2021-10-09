@@ -252,7 +252,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         // on some other screen.
         originalAthlete = aFromList;
         Athlete aFromDb = AthleteRepository.findById(aFromList.getId());
-        Athlete.copy(getEditedAthlete(), aFromDb);
+        Athlete.conditionalCopy(getEditedAthlete(), aFromDb, isUpdatingResults());
         getEditedAthlete().setValidation(false); // turn off validation in the Athlete setters; binder will call
                                                  // the validation routines explicitly
 
@@ -743,7 +743,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
     private Button buildWithdrawButton() {
         Button withdrawalButton = new Button(Translator.translate("Withdrawal"), IronIcons.EXIT_TO_APP.create(),
                 (e) -> {
-                    Athlete.copy(originalAthlete, getEditedAthlete());
+                    Athlete.conditionalCopy(originalAthlete, getEditedAthlete(), isUpdatingResults());
                     originalAthlete.withdraw();
                     AthleteRepository.save(originalAthlete);
                     OwlcmsSession.withFop((fop) -> {

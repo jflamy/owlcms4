@@ -92,6 +92,7 @@ public class Athlete {
         Level prevSrcLevel = src.getLogger().getLevel();
         Level prevDestLevel = dest.getLogger().getLevel();
         try {
+            dest.setId(src.getId());
             dest.setValidation(false);
             dest.setLoggerLevel(Level.OFF);
             dest.setCopyId(src.getId());
@@ -159,28 +160,17 @@ public class Athlete {
             dest.setForcedAsCurrent(src.isForcedAsCurrent());
 
             if (copyResults) {
-
-                dest.setCustomScore(src.getCustomScore());
-
+                // Category-specific results are in the participation objects
+                // Category-independent scores are here
+                dest.setSinclairRank(src.getSinclairRank());
+                dest.setSmmRank(src.getSmmRank());
+                dest.setTeamSinclairRank(src.getTeamSinclairRank());
             }
         } finally {
             dest.setValidation(validation);
             dest.setLoggerLevel(prevDestLevel);
             src.setLoggerLevel(prevSrcLevel);
         }
-    }
-
-    /**
-     * Copy lift values to/from another athlete object used as editing scratchpad.
-     *
-     * The methods must be called in the proper order otherwise validation errors will occur (e.g. actual lift must
-     * match last requested change)
-     *
-     * @param dest
-     * @param src
-     */
-    public static void copy(Athlete dest, Athlete src) {
-        conditionalCopy(dest, src, true);
     }
 
     /**
@@ -540,7 +530,7 @@ public class Athlete {
     public void failedLift() {
         OwlcmsSession.withFop(fop -> {
             try {
-                getLogger().info("{}no lift for {}", fop.getLoggingName(), this.getShortName());
+                getLogger().info("{}no lift for {}", OwlcmsSession.getFopLoggingName(), this.getShortName());
                 final String weight = Integer.toString(-getNextAttemptRequestedWeight());
                 doLift(weight);
             } catch (Exception e) {
@@ -1214,7 +1204,7 @@ public class Athlete {
             Category category2 = p.getCategory();
             s.add(category2);
         }
-        // logger.trace("{} getEligibleCategories {} from {}", this.getShortName(), s.toString(),
+        // logger.trace("{}{} getEligibleCategories {} from {}", OwlcmsSession.getFopLoggingName(), this.getShortName(), s.toString(),
         // LoggerUtils.whereFrom());
         return s;
     }
@@ -1651,12 +1641,13 @@ public class Athlete {
     }
 
     /**
-     * Gets the robi.
+     * Gets the robi. In a multiple age group competition, the Robi shown in the final package will depend on the age
+     * group
      *
      * @return the robi
      */
     public Double getRobi() {
-        Category c = getCategory();
+        Category c = getMainRankings().getCategory();
         if (c == null) {
             return 0.0;
         }
@@ -2324,7 +2315,7 @@ public class Athlete {
     public boolean isTeamMember() {
         return (getMainRankings() != null ? getMainRankings().getTeamMember() : false);
     }
-    
+
     public void setTeamMember(boolean member) {
         throw new UnsupportedOperationException("Team Membership should be updated via PAthlete");
     }
@@ -2447,7 +2438,7 @@ public class Athlete {
         }
         // the category is already from the eligible set
         // this.addEligibleCategory(category);
-        logger.trace("{} category {} {}", System.identityHashCode(this),
+        logger.trace("{}{} category {} {}", OwlcmsSession.getFopLoggingName(), System.identityHashCode(this),
                 category != null ? category.getParticipations() : null, LoggerUtils.stackTrace());
         this.category = category;
     }
@@ -2843,7 +2834,8 @@ public class Athlete {
                 addEligibleCategory(cat); // creates new join table entry, links from category as well.
             }
         }
-        logger.trace("{} {} after set eligible {}", System.identityHashCode(this), getShortName(),
+        logger.trace("{}{} {} after set eligible {}", OwlcmsSession.getFopLoggingName(), System.identityHashCode(this),
+                getShortName(),
                 getEligibleCategories());
     }
 
@@ -3504,7 +3496,7 @@ public class Athlete {
     public void successfulLift() {
         OwlcmsSession.withFop(fop -> {
             try {
-                getLogger().info("{}good lift for {}", fop.getLoggingName(), this.getShortName());
+                getLogger().info("{}good lift for {}", OwlcmsSession.getFopLoggingName(), this.getShortName());
                 final String weight = Integer.toString(getNextAttemptRequestedWeight());
                 doLift(weight);
             } catch (Exception e) {
@@ -3884,19 +3876,21 @@ public class Athlete {
         int currentLiftNo = getAttemptedLifts() + 1;
 
         if (requestedWeight > referenceWeight) {
-            getLogger().debug("{} attempt {}: requested {} > previous {}", this, currentLiftNo, requestedWeight,
+            getLogger().debug("{}{} attempt {}: requested {} > previous {}", OwlcmsSession.getFopLoggingName(), this, currentLiftNo,
+                    requestedWeight,
                     referenceWeight);
             // lifting order is respected
             return;
         }
         if (referenceAttemptNo == 3 && currentLiftNo == 4) {
-            getLogger().debug("start of CJ");
+            getLogger().debug("{}start of CJ", OwlcmsSession.getFopLoggingName());
             // first attempt for C&J, no check
             return;
         }
 
         if (requestedWeight < referenceWeight) {
-            getLogger().debug("requestedWeight {} < referenceWeight {}", requestedWeight, referenceWeight);
+            getLogger().debug("{}requestedWeight {} < referenceWeight {}", OwlcmsSession.getFopLoggingName(), requestedWeight,
+                    referenceWeight);
             // someone has already lifted heavier previously
             throw new RuleViolationException.WeightBelowAlreadyLifted(requestedWeight,
                     reference.getAthlete(), referenceWeight, referenceAttemptNo);
@@ -3950,7 +3944,7 @@ public class Athlete {
             int clock = fop.getAthleteTimer().liveTimeRemaining();
             if (declaration == null || declaration.isBlank()) {
                 // there was no declaration made in time
-                logger./**/warn("{}{} change without declaration (not owning clock)", fop.getLoggingName(),
+                logger./**/warn("{}{} change without declaration (not owning clock)", OwlcmsSession.getFopLoggingName(),
                         this.getShortName());
                 throw new RuleViolationException.MustDeclareFirst(clock);
             }
@@ -4047,10 +4041,10 @@ public class Athlete {
             int clock, int initialTime) {
         if ((declaration != null && !declaration.isBlank()) && (change1 == null || change1.isBlank())
                 && (change2 == null || change2.isBlank())) {
-            logger.debug("{}{} declaration accepted (not owning clock)", fop.getLoggingName(), this.getShortName());
+            logger.debug("{}{} declaration accepted (not owning clock)", OwlcmsSession.getFopLoggingName(), this.getShortName());
             return;
         } else {
-            logger.debug("{}{} change accepted (not owning clock)", fop.getLoggingName(), this.getShortName());
+            logger.debug("{}{} change accepted (not owning clock)", OwlcmsSession.getFopLoggingName(), this.getShortName());
             return;
         }
     }
@@ -4060,19 +4054,19 @@ public class Athlete {
         if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
             // validate declaration
             if (clock < initialTime - 30000) {
-                logger./**/warn("{}{} late declaration denied ({})", fop.getLoggingName(), this.getShortName(),
+                logger./**/warn("{}{} late declaration denied ({})", OwlcmsSession.getFopLoggingName(), this.getShortName(),
                         clock / 1000.0);
                 throw new RuleViolationException.LateDeclaration(clock);
             }
-            logger.debug("{}{}valid declaration", fop.getLoggingName(), this.getShortName(), clock / 1000.0);
+            logger.debug("{}{}valid declaration", OwlcmsSession.getFopLoggingName(), this.getShortName(), clock / 1000.0);
             return;
         } else {
             if (clock < 30000) {
-                logger./**/warn("{}{} late change denied after final warning ({})", fop.getLoggingName(),
+                logger./**/warn("{}{} late change denied after final warning ({})", OwlcmsSession.getFopLoggingName(),
                         this.getShortName(), clock / 1000.0);
                 throw new RuleViolationException.MustChangeBeforeFinalWarning(clock);
             }
-            logger.debug("{}change before final warning", fop.getLoggingName(), clock);
+            logger.debug("{}change before final warning", OwlcmsSession.getFopLoggingName(), clock);
             return;
         }
     }
@@ -4101,11 +4095,11 @@ public class Athlete {
                 if (clockOwner != null) {
                     // if clock is running, reference becomes the clock owner instead of last good/bad lift.
                     reference = clockOwner.getRunningLiftOrderInfo();
-                    //getLogger().debug("lastLift info clock running\n{}",pastOrder.shortDump());
+                    pastOrder.shortDump("lastLift info clock running", getLogger());
                 } else {
                     reference = pastOrder.getLastLift();
                     // *******************************************
-                    //getLogger().debug("lastLift info no clock\n{}",pastOrder.shortDump());
+                    pastOrder.shortDump("lastLift info no clock", getLogger());
                 }
 
                 if (reference != null) {
@@ -4143,8 +4137,8 @@ public class Athlete {
             int clock = fop.getAthleteTimer().liveTimeRemaining();
             Athlete owner = fop.getClockOwner();
             int initialTime = fop.getClockOwnerInitialTimeAllowed();
-            logger.warn("{} athlete={} owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}",
-                    fop.getLoggingName(), this, owner,
+            logger.warn("{}athlete={} owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}",
+                    OwlcmsSession.getFopLoggingName(), this, owner,
                     clock, initialTime, declaration, change1, change2);
             if (!this.isSameAthleteAs(owner)) {
                 // clock is not running for us
@@ -4268,15 +4262,16 @@ public class Athlete {
     }
 
     private boolean isSameAthleteAs(Athlete other) {
-        if (other == null) return false;
+        if (other == null)
+            return false;
         boolean weak = Integer.compare(this.getStartNumber(), other.getStartNumber()) == 0
                 && Integer.compare(this.getLotNumber(), other.getLotNumber()) == 0;
         boolean strong = Long.compare(this.getId(), other.getId()) == 0;
         if (weak && !strong) {
-            logger.error("same athlete, different ids {} ",this);
+            logger.error("same athlete, different ids {} ", this);
         }
         return weak;
-        
+
     }
 
     private Integer max(Integer... items) {
@@ -4425,7 +4420,7 @@ public class Athlete {
      */
     private void validateDeclaration(int curLift, String automaticProgression, String declaration, String change1,
             String change2, String actualLift) throws RuleViolationException {
-        getLogger().trace("{} validateDeclaration", this, declaration);
+        getLogger().trace("{}{} validateDeclaration", OwlcmsSession.getFopLoggingName(), this, declaration);
         int newVal = zeroIfInvalid(declaration);
         int iAutomaticProgression = zeroIfInvalid(automaticProgression);
         // allow null declaration for reloading old results.
@@ -4441,9 +4436,5 @@ public class Athlete {
             throw new RuntimeException(e);
         }
     }
-
-
-
-
 
 }
