@@ -1,14 +1,21 @@
-Changes for release 4.23.0-alpha04  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+Changes for release 4.23.0-alpha06  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Fix: allow locale extension (ex: _hy, _ru, _fr) to override the Excel templates for Weigh-in, Starting Sheet, Marshal cards, etc.  This had been lost when the sheets were changed to include the translations from the translation sheet.
-- [x] Fix: Athlete selection grids were accidentally made read-only in version alpha03.
-- [x] Handling of zip file containing local overrides for visual styles, templates, etc. now uses better wording (the selected zip is only applied when the Update button is triggered).  Clearing the zip did not actually reset things.  It is now correctly possible to test the zip on a local install.
+- [x] Fix: ranks for Sinclair, Robi were not shown in the final package in alpha04
+- [x] Fix: the program was not signaling late changes correctly in alpha04 (did not correctly identify clock owner)
+- [x] Enhancement: the program now forces start numbers when lifting starts if they have not been attributed at weigh-in (useful for small competitions not using cards with novice users)
+- [x] Enhancement: new page for assigning persons to teams.  The same person can be on the JR team but not the SR team, for example. The JR team points are included in the JR final package, and the SR points in the SR package. For Age Group competitions, if no specific age group is selected, the points are added up.  If the package is produced for a single age group, then only that age group is tallied.
 
 Prior changes in release 4.23
 
-- [x] 4.23.0-alpha03: Result packages for multiple age group competitions.  Results page can now produce separate packages for YTH, JR, SR, or individual age groups as needed.  Also possible to produce a combined age group package if several age group rankings are grouped together (for example, in Masters) (#433)
+- [x] Fix: allow locale extension (ex: _hy, _ru, _fr) to override the Excel templates for Weigh-in, Starting Sheet, Marshal cards, etc.  This had been lost when the sheets were changed to include the translations from the translation sheet.
 
-- [x] 4.23.0-alpha02: Age group editing layout, age group creation, and associated documentation
+- [x] Fix: Athlete selection grids were accidentally made read-only in version alpha03.
+
+- [x] Handling of zip file containing local overrides for visual styles, templates, etc. now uses better wording (the selected zip is only applied when the Update button is triggered).  Clearing the zip did not actually reset things.  It is now correctly possible to test the zip on a local install.
+
+- [x] Result packages for multiple age group competitions.  Results page can now produce separate packages for YTH, JR, SR, or individual age groups as needed.  Also possible to produce a combined age group package if several age group rankings are grouped together (for example, in Masters) (#433)
+
+- [x] Age group editing layout, age group creation, and associated documentation
 
 - [x] Compute eligible categories when loading Excel registration file with qualifying total
 
