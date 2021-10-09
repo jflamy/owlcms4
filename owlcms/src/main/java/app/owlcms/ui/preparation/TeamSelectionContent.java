@@ -464,10 +464,6 @@ public class TeamSelectionContent extends VerticalLayout implements CrudListener
         }
     }
 
-    public void highlightResetButton() {
-        // TODO add button to recompute team points.
-    }
-
     @Override
     public OwlcmsRouterLayout getRouterLayout() {
         return routerLayout;
