@@ -743,8 +743,13 @@ public class FieldOfPlay {
                     forceLoad,
                     origin.getClass().getSimpleName(),
                     LoggerUtils.whereFrom());
-            List<Athlete> findAllByGroupAndWeighIn = AthleteRepository.findAllByGroupAndWeighIn(group, true);
-            init(findAllByGroupAndWeighIn, athleteTimer, breakTimer, alreadyLoaded);
+            List<Athlete> groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true);
+            if (groupAthletes.stream().map(Athlete::getStartNumber).anyMatch(sn -> sn == 0)) {
+                logger.warn("start numbers were not assigned correctly");
+                AthleteRepository.assignStartNumbers(group);
+                groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true);
+            }
+            init(groupAthletes, athleteTimer, breakTimer, alreadyLoaded);
         } else {
             init(new ArrayList<Athlete>(), athleteTimer, breakTimer, alreadyLoaded);
         }
@@ -780,11 +785,11 @@ public class FieldOfPlay {
             setCurAthlete(null);
             return;
         }
-
         List<Athlete> currentGroupAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
                 .filter(a -> a.getGroup() != null ? a.getGroup().equals(g) : false)
                 .collect(Collectors.toList());
         setDisplayOrder(currentGroupAthletes);
+        
         setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
 
         List<Athlete> liftingOrder2 = getLiftingOrder();
@@ -1225,7 +1230,7 @@ public class FieldOfPlay {
     }
 
     private void setClockOwner(Athlete athlete) {
-        logger.trace("setting clock owner to {} [{}]", athlete, LoggerUtils.whereFrom());
+        logger.debug("{}setting clock owner to {} [{}]", getLoggingName(), athlete, LoggerUtils.whereFrom());
         this.clockOwner = athlete;
     }
 
@@ -1234,7 +1239,7 @@ public class FieldOfPlay {
     }
 
     private void setCurAthlete(Athlete athlete) {
-        logger.debug("setting curAthlete to {} [{}]", athlete, LoggerUtils.whereFrom());
+        //logger.trace("setting curAthlete to {} [{}]", athlete, LoggerUtils.whereFrom());
         this.curAthlete = athlete;
     }
 

@@ -35,7 +35,6 @@ import com.vaadin.flow.server.StreamResource;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -230,13 +229,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
             errorNotification();
             return;
         }
-        JPAService.runInTransaction((em) -> {
-            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, true,
-                    (Gender) null);
-            AthleteSorter.displayOrder(currentGroupAthletes);
-            AthleteSorter.assignStartNumbers(currentGroupAthletes);
-            return currentGroupAthletes;
-        });
+        AthleteRepository.assignStartNumbers(group);
         ((WeighinContent) getLayoutComponentContent()).refresh();
     }
 }

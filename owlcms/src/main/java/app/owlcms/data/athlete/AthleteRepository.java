@@ -354,4 +354,14 @@ public class AthleteRepository {
             query.setParameter("gender", gender);
         }
     }
+
+    public static void assignStartNumbers(Group group) {
+        JPAService.runInTransaction((em) -> {
+            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, true,
+                    (Gender) null);
+            AthleteSorter.displayOrder(currentGroupAthletes);
+            AthleteSorter.assignStartNumbers(currentGroupAthletes);
+            return currentGroupAthletes;
+        });
+    }
 }

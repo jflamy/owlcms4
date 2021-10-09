@@ -4101,11 +4101,11 @@ public class Athlete {
                 if (clockOwner != null) {
                     // if clock is running, reference becomes the clock owner instead of last good/bad lift.
                     reference = clockOwner.getRunningLiftOrderInfo();
-                    // getLogger().debug("lastLift info clock running\n{}",pastOrder.shortDump());
+                    //getLogger().debug("lastLift info clock running\n{}",pastOrder.shortDump());
                 } else {
                     reference = pastOrder.getLastLift();
                     // *******************************************
-                    // getLogger().debug("lastLift info no clock\n{}",pastOrder.shortDump());
+                    //getLogger().debug("lastLift info no clock\n{}",pastOrder.shortDump());
                 }
 
                 if (reference != null) {
@@ -4144,7 +4144,7 @@ public class Athlete {
             Athlete owner = fop.getClockOwner();
             int initialTime = fop.getClockOwnerInitialTimeAllowed();
             logger.warn("{} athlete={} owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}",
-                    fop.getLoggingName(), this.getShortName(), owner,
+                    fop.getLoggingName(), this, owner,
                     clock, initialTime, declaration, change1, change2);
             if (!this.isSameAthleteAs(owner)) {
                 // clock is not running for us
@@ -4160,6 +4160,7 @@ public class Athlete {
         return (value == null ? "" : value);
     }
 
+    @SuppressWarnings("unused")
     private Long getCopyId() {
         return copyId;
     }
@@ -4267,31 +4268,15 @@ public class Athlete {
     }
 
     private boolean isSameAthleteAs(Athlete other) {
-        if (other == null) {
-            return false;
+        if (other == null) return false;
+        boolean weak = Integer.compare(this.getStartNumber(), other.getStartNumber()) == 0
+                && Integer.compare(this.getLotNumber(), other.getLotNumber()) == 0;
+        boolean strong = Long.compare(this.getId(), other.getId()) == 0;
+        if (weak && !strong) {
+            logger.error("same athlete, different ids {} ",this);
         }
-        Long id = getId();
-        Long oId = other.getId();
-        if (id != null && oId != null) {
-            logger.trace("both non-null {}. {}", id, oId);
-            return id == oId;
-        }
-
-        // one of the two items is a copy.
-        Long copyId = getCopyId();
-        Long oCopyId = other.getCopyId();
-        logger.trace("one is a copy");
-        if (copyId != null) {
-            return copyId.equals(oId);
-        }
-        if (oCopyId != null) {
-            return oCopyId.equals(id);
-        }
-
-        // can't happen
-        logger.error("can't happen: no comparison id");
-        return false;
-
+        return weak;
+        
     }
 
     private Integer max(Integer... items) {
