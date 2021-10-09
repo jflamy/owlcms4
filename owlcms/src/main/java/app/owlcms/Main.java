@@ -193,7 +193,7 @@ public class Main {
         // read override value from database, if it was previously created.
         Locale l = null;
         try {
-            l = Competition.getCurrent().getDefaultLocale();
+            l = Config.getCurrent().getDefaultLocale();
         } catch (Exception e) {
         }
 
@@ -220,7 +220,7 @@ public class Main {
     private static void overrideTimeZone() {
         // read override value from database, if it was previously created.
         TimeZone tz = null;
-        tz = Competition.getCurrent().getTimeZone();
+        tz = Config.getCurrent().getTimeZone();
         if (tz != null) {
             TimeZone.setDefault(tz);
         }

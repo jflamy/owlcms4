@@ -7,6 +7,7 @@
 package app.owlcms.data.config;
 
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -78,14 +79,15 @@ public class ConfigRepository {
      * @return the config
      */
     static Config save(Config config) {
-        @SuppressWarnings("unused")
         Config merged = JPAService.runInTransaction(em -> {
-            return em.merge(config);
+            Config nc = em.merge(config);
+            TimeZone tz = nc.getTimeZone();
+            if (tz != null) {
+                TimeZone.setDefault(tz);
+            }
+            return nc;
         });
-
-        // should return merged copy, or else set is as current?
-        Config current = Config.getCurrent();
-        return current;
+        return merged;
     }
 
 }

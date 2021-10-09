@@ -6,8 +6,12 @@
  *******************************************************************************/
 package app.owlcms.data.config;
 
+import java.util.Locale;
+import java.util.TimeZone;
+
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -17,6 +21,7 @@ import javax.persistence.Lob;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.jpa.LocaleAttributeConverter;
 import app.owlcms.init.FileServlet;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
@@ -31,6 +36,8 @@ import ch.qos.logback.classic.Logger;
 public class Config {
 
     public static final int SHORT_TEAM_LENGTH = 6;
+    
+    private String timeZoneId;
 
     @SuppressWarnings("unused")
     final static private Logger logger = (Logger) LoggerFactory.getLogger(Config.class);
@@ -85,6 +92,9 @@ public class Config {
 
     @Column(columnDefinition = "boolean default false")
     private boolean clearZip;
+
+    @Convert(converter = LocaleAttributeConverter.class)
+    private Locale defaultLocale = null;
     
     public boolean isClearZip() {
         if (localOverride == null || localOverride.length == 0) {
@@ -288,8 +298,43 @@ public class Config {
         }
     }
 
+    public void setDefaultLocale(Locale defaultLocale) {
+        this.defaultLocale = defaultLocale;
+    }
 
+    /**
+     * Gets the default locale.
+     *
+     * @return the default locale
+     */
+    public Locale getDefaultLocale() {
+        return defaultLocale;
+    }
 
-
+    /**
+     * Gets the locale.
+     *
+     * @return the locale
+     */
+    public Locale getLocale() {
+        return getDefaultLocale();
+    }
+    
+    public TimeZone getTimeZone() {
+        if (timeZoneId == null) {
+            return null;
+        } else {
+            return TimeZone.getTimeZone(timeZoneId);
+        }
+    }
+    
+    public void setTimeZone(TimeZone timeZone) {
+        if (timeZone == null) {
+            this.timeZoneId = null;
+            return;
+        } else {
+            this.timeZoneId = timeZone.getID();
+        }
+    }
 
 }

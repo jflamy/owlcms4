@@ -222,7 +222,6 @@ public class RuleViolationException extends RuntimeException {
         }
     }
 
-    @SuppressWarnings("unused")
     private static final Logger logger = (Logger) LoggerFactory.getLogger(RuleViolationException.class);
     private static final long serialVersionUID = 8965943679108964933L;
     protected String messageKey;

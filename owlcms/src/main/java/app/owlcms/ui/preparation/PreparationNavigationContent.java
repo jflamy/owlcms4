@@ -63,10 +63,10 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
     public PreparationNavigationContent() {
 
         Button competition = openInNewTabNoParam(CompetitionContent.class, getTranslation("CompetitionInformation"));
+        Button config = openInNewTabNoParam(ConfigContent.class, getTranslation("Config.Title"));
         Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, getTranslation("DefineAgeGroups"));
         Button groups = openInNewTabNoParam(GroupContent.class, getTranslation("DefineGroups"));
         Button platforms = openInNewTabNoParam(PlatformContent.class, getTranslation("DefineFOP"));
-        Button config = openInNewTabNoParam(ConfigContent.class, getTranslation("Config.Title"));
 
         Div downloadDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("registration",
                 getTranslation("DownloadRegistrationTemplate"), new JXLSRegistration(UI.getCurrent()));
@@ -79,14 +79,13 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         Button athletes = openInNewTabNoParam(RegistrationContent.class, getTranslation("EditAthletes"));
         Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
 
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, ageGroups, groups, platforms,
-                config,
-                downloadDiv, upload);
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, groups,
+                platforms, downloadDiv, upload);
         doGroup(getTranslation("PreCompetitionSetup"), grid1, this);
-        
+
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload);
         doGroup(getTranslation("Registration"), grid2, this);
-        
+
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams);
         doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
 

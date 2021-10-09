@@ -13,14 +13,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -38,7 +35,6 @@ import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.data.jpa.LocaleAttributeConverter;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.PAthlete;
@@ -126,9 +122,6 @@ public class Competition {
     @Column(columnDefinition = "boolean default true")
     private boolean announcerLiveDecisions;
 
-    @Convert(converter = LocaleAttributeConverter.class)
-    private Locale defaultLocale = null;
-
     private boolean enforce20kgRule;
 
     private String federation;
@@ -201,7 +194,6 @@ public class Competition {
 
     @Transient
     private boolean rankingsInvalid = true;
-    private String timeZoneId;
 
     synchronized public HashMap<String, Object> computeReportingInfo() {
         List<PAthlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(null, null);
@@ -283,14 +275,6 @@ public class Competition {
         return competitionSite;
     }
 
-    /**
-     * Gets the default locale.
-     *
-     * @return the default locale
-     */
-    public Locale getDefaultLocale() {
-        return defaultLocale;
-    }
 
     /**
      * Gets the federation.
@@ -395,15 +379,6 @@ public class Competition {
     }
 
     /**
-     * Gets the locale.
-     *
-     * @return the locale
-     */
-    public Locale getLocale() {
-        return getDefaultLocale();
-    }
-
-    /**
      * Gets the masters.
      *
      * @return the masters
@@ -439,14 +414,6 @@ public class Competition {
 
     public HashMap<String, Object> getReportingBeans() {
         return reportingBeans;
-    }
-
-    public TimeZone getTimeZone() {
-        if (timeZoneId == null) {
-            return null;
-        } else {
-            return TimeZone.getTimeZone(timeZoneId);
-        }
     }
 
     public Integer getWomenPerTeamElseDefault() {
@@ -601,9 +568,7 @@ public class Competition {
         this.customScore = customScore;
     }
 
-    public void setDefaultLocale(Locale defaultLocale) {
-        this.defaultLocale = defaultLocale;
-    }
+
 
     public void setEnforce20kgRule(boolean enforce20kgRule) {
         this.enforce20kgRule = enforce20kgRule;
@@ -695,15 +660,6 @@ public class Competition {
         this.roundRobinOrder = roundRobinOrder;
     }
 
-    public void setTimeZone(TimeZone timeZone) {
-        if (timeZone == null) {
-            this.timeZoneId = null;
-            return;
-        } else {
-            this.timeZoneId = timeZone.getID();
-        }
-    }
-
     /**
      * Sets the use birth year.
      *
@@ -734,7 +690,7 @@ public class Competition {
                 + ", competitionOrganizer=" + competitionOrganizer + ", competitionSite=" + competitionSite
                 + ", competitionCity=" + competitionCity + ", federation=" + federation + ", federationAddress="
                 + federationAddress + ", federationEMail=" + federationEMail + ", federationWebSite="
-                + federationWebSite + ", defaultLocale=" + defaultLocale + ", protocolFileName=" + protocolFileName
+                + federationWebSite + ", protocolFileName=" + protocolFileName
                 + ", finalPackageTemplateFileName=" + finalPackageTemplateFileName
                 + ", ageGroupsFileName=" + ageGroupsFileName + ", enforce20kgRule="
                 + enforce20kgRule + ", masters=" + masters + ", mensTeamSize=" + mensTeamSize + ", womensTeamSize="
