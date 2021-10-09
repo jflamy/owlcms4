@@ -9,6 +9,8 @@ package app.owlcms.tests;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -61,6 +63,7 @@ public class AthleteTest {
         athlete.setYearOfBirth(1900);
         Category registrationCategory = new Category(0L, 67.0, 73.0, Gender.M, true, 0, 0, 348,
                 new AgeGroup("SR", true, 15, 999, Gender.M, AgeDivision.IWF, 0), 0);
+        athlete.setEligibleCategories(new LinkedHashSet<>(Arrays.asList(registrationCategory)));
         athlete.setCategory(registrationCategory);
     }
 
