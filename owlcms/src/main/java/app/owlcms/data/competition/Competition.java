@@ -973,8 +973,7 @@ public class Competition {
     }
 
     private void clearTeamReportingBeans(String suffix) {
-        List<Athlete> bean = getOrCreateBean("mCombined" + suffix);
-        bean.clear();
+        getOrCreateBean("mCombined" + suffix).clear();
         getOrCreateBean("wCombined" + suffix).clear();
         getOrCreateBean("mwCombined" + suffix).clear();
         getOrCreateBean("mTeam" + suffix).clear();

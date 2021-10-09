@@ -165,6 +165,7 @@ public class Athlete {
                 dest.setSinclairRank(src.getSinclairRank());
                 dest.setSmmRank(src.getSmmRank());
                 dest.setTeamSinclairRank(src.getTeamSinclairRank());
+                dest.setCatSinclairRank(src.getCatSinclairRank());
             }
         } finally {
             dest.setValidation(validation);

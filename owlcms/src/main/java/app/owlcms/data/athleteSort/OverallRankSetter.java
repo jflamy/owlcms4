@@ -25,18 +25,14 @@ public class OverallRankSetter {
         case SNATCH:
         case CLEANJERK:
         case TOTAL:
+        case SNATCH_CJ_TOTAL:
+        case CUSTOM:
             throw new RuntimeException("using OverallRankSetter on a category-specific ranking");
         case BW_SINCLAIR:
             a.setSinclairRank(eligible ? (zero ? 0 : ++rank) : -1);
             break;
         case CAT_SINCLAIR:
             a.setCatSinclairRank(eligible ? (zero ? 0 : ++rank) : -1);
-            break;
-        case SNATCH_CJ_TOTAL:
-            a.setCombinedRank(eligible ? (zero ? 0 : ++rank) : -1);
-            break;
-        case CUSTOM:
-            a.setCustomRank(eligible ? (zero ? 0 : ++rank) : -1);
             break;
         case ROBI:
             a.setRobiRank(eligible ? (zero ? 0 : ++rank) : -1);
