@@ -66,10 +66,10 @@ public class AthleteSorter implements Serializable {
         List<Athlete> impactedAthletes;
         if (g != null) {
             impactedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
-            logger.warn("all athletes in group's categories {}", impactedAthletes);
+            logger.trace("all athletes in group's categories {}", impactedAthletes);
         } else {
             impactedAthletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
-            logger.warn("all athletes in all groups {}", impactedAthletes);
+            logger.trace("all athletes in all groups {}", impactedAthletes);
         }
 
         List<Athlete> sortedAthletes;
@@ -141,7 +141,7 @@ public class AthleteSorter implements Serializable {
      */
     public static void assignOverallRanksAndPoints(List<Athlete> sortedList, Ranking rankingType) {
         Gender prevGender = null;
-        // String prevAgeGroup = null;
+
         OverallRankSetter rs = new OverallRankSetter();
         for (Athlete curLifter : sortedList) {
             final Gender curGender = curLifter.getGender();

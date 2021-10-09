@@ -3950,7 +3950,7 @@ public class Athlete {
             int clock = fop.getAthleteTimer().liveTimeRemaining();
             if (declaration == null || declaration.isBlank()) {
                 // there was no declaration made in time
-                logger.warn("{}{} change without declaration (not owning clock)", fop.getLoggingName(),
+                logger./**/warn("{}{} change without declaration (not owning clock)", fop.getLoggingName(),
                         this.getShortName());
                 throw new RuleViolationException.MustDeclareFirst(clock);
             }
@@ -4060,7 +4060,7 @@ public class Athlete {
         if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
             // validate declaration
             if (clock < initialTime - 30000) {
-                logger.warn("{}{} late declaration denied ({})", fop.getLoggingName(), this.getShortName(),
+                logger./**/warn("{}{} late declaration denied ({})", fop.getLoggingName(), this.getShortName(),
                         clock / 1000.0);
                 throw new RuleViolationException.LateDeclaration(clock);
             }
@@ -4068,7 +4068,7 @@ public class Athlete {
             return;
         } else {
             if (clock < 30000) {
-                logger.warn("{}{} late change denied after final warning ({})", fop.getLoggingName(),
+                logger./**/warn("{}{} late change denied after final warning ({})", fop.getLoggingName(),
                         this.getShortName(), clock / 1000.0);
                 throw new RuleViolationException.MustChangeBeforeFinalWarning(clock);
             }
@@ -4143,7 +4143,7 @@ public class Athlete {
             int clock = fop.getAthleteTimer().liveTimeRemaining();
             Athlete owner = fop.getClockOwner();
             int initialTime = fop.getClockOwnerInitialTimeAllowed();
-            logger.debug("{} athlete={} owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}",
+            logger.warn("{} athlete={} owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}",
                     fop.getLoggingName(), this.getShortName(), owner,
                     clock, initialTime, declaration, change1, change2);
             if (!this.isSameAthleteAs(owner)) {

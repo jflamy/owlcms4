@@ -6,16 +6,21 @@
  *******************************************************************************/
 package app.owlcms.data.athleteSort;
 
+import org.slf4j.LoggerFactory;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
+import ch.qos.logback.classic.Logger;
 
 public class OverallRankSetter {
+    
+    Logger logger = (Logger) LoggerFactory.getLogger(OverallRankSetter.class);
 
     private int rank = 0;
     
 
     public void increment(Athlete a, Ranking r, boolean eligible, boolean zero) {
-
+        //logger.trace("increment {} {}",a.getShortName(), rank, r);
         switch (r) {
         case SNATCH:
         case CLEANJERK:
@@ -27,7 +32,6 @@ public class OverallRankSetter {
         case CAT_SINCLAIR:
             a.setCatSinclairRank(eligible ? (zero ? 0 : ++rank) : -1);
             break;
-
         case SNATCH_CJ_TOTAL:
             a.setCombinedRank(eligible ? (zero ? 0 : ++rank) : -1);
             break;

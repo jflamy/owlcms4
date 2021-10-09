@@ -1046,7 +1046,7 @@ public class Competition {
     }
 
     public static void debugRanks(String label, Athlete a) {
-        logger.warn("{} {} {} {} {} {}", label, System.identityHashCode(a), a.getId(), a.getShortName(),
+        logger./**/warn("{} {} {} {} {} {}", label, System.identityHashCode(a), a.getId(), a.getShortName(),
                 a.getTotalRank(), a.getCategory(), a.getParticipations().size());
     }
 

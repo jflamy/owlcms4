@@ -105,7 +105,7 @@ public class MultiCategoryRankSetter {
                     rank = rank + 1;
                     p.setTotalRank(rank);
                     curRankings.setTotalRank(rank);
-                    logger.warn("setting total rank {} {} {} {} {}", a, curCat, rank, System.identityHashCode(p), System.identityHashCode(curRankings));
+                    logger.debug("setting total rank {} {} {} {} {}", a, curCat, rank, System.identityHashCode(p), System.identityHashCode(curRankings));
                 } else {
                     p.setTotalRank(0);
                     logger.debug("skipping total rank {} {} {}", a, curCat, 0);

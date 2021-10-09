@@ -69,6 +69,24 @@ public class Participation implements IRankHolder {
     @Column(columnDefinition = "boolean default true")
     private boolean teamMember;
 
+    @Column(columnDefinition = "integer default 0")
+    private int teamTotalRank;
+
+    @Column(columnDefinition = "integer default 0")
+    private int teamCJRank;
+
+    @Column(columnDefinition = "integer default 0")
+    private int teamCombinedRank;
+
+    @Column(columnDefinition = "integer default 0")
+    private int teamRobiRank;
+
+    @Column(columnDefinition = "integer default 0")
+    private int teamSinclairRank;
+
+    @Column(columnDefinition = "integer default 0")
+    private int teamSnatchRank;
+
     public Participation(Athlete athlete, Category category) {
         this();
         this.athlete = athlete;
@@ -148,8 +166,32 @@ public class Participation implements IRankHolder {
         return snatchRank;
     }
 
+    public int getTeamCJRank() {
+        return teamCJRank;
+    }
+
+    public int getTeamCombinedRank() {
+        return teamCombinedRank;
+    }
+
     public boolean getTeamMember() {
         return teamMember;
+    }
+
+    public int getTeamRobiRank() {
+        return teamRobiRank;
+    }
+
+    public int getTeamSinclairRank() {
+        return teamSinclairRank;
+    }
+
+    public int getTeamSnatchRank() {
+        return teamSnatchRank;
+    }
+
+    public int getTeamTotalRank() {
+        return teamTotalRank;
     }
 
     public int getTotalPoints() {
@@ -203,8 +245,38 @@ public class Participation implements IRankHolder {
         logger.trace("snatchRank {}", long_dump());
     }
 
+    public void setTeamCJRank(int teamCJRank) {
+        this.teamCJRank = teamCJRank;
+    }
+
+    public void setTeamCleanJerkRank(int teamCJRank) {
+        this.teamCJRank = teamCJRank;
+    }
+
+    public void setTeamCombinedRank(int teamCombinedRank) {
+        this.teamCombinedRank = teamCombinedRank;
+
+    }
+
     public void setTeamMember(boolean teamMember) {
         this.teamMember = teamMember;
+    }
+
+    public void setTeamRobiRank(int teamRobiRank) {
+        this.teamRobiRank = teamRobiRank;
+
+    }
+
+    public void setTeamSinclairRank(int teamSinclairRank) {
+        this.teamSinclairRank = teamSinclairRank;
+    }
+
+    public void setTeamSnatchRank(int teamSnatchRank) {
+        this.teamSnatchRank = teamSnatchRank;
+    }
+
+    public void setTeamTotalRank(int teamTotalRank) {
+        this.teamTotalRank = teamTotalRank;
     }
 
     public void setTotalRank(int totalRank) {

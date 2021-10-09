@@ -447,7 +447,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
     private void traceComparison(String where, Athlete lifter1, Athlete lifter2, int compare) {
         if (logger.isTraceEnabled()) {
-            logger.warn("{} {} {} {}", where, lifter1, (compare < 0 ? "<" : (compare == 0 ? "=" : ">")), lifter2);
+            logger./**/warn("{} {} {} {}", where, lifter1, (compare < 0 ? "<" : (compare == 0 ? "=" : ">")), lifter2);
         }
     }
 

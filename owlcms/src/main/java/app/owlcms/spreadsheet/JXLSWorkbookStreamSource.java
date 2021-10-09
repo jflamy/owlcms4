@@ -100,7 +100,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
                     }
                 } else {
                     String noAthletes = "No Athletes";
-                    logger.warn("no athletes: empty report.");
+                    logger./**/warn("no athletes: empty report.");
                     ui.access(() -> {
                         Notification notif = new Notification();
                         notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
