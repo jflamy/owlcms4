@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.LazyCrudListener;
@@ -50,7 +49,6 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.team.TeamTreeData;
@@ -293,7 +291,7 @@ public class TeamResultsContent extends VerticalLayout
                 if (topBar == null) {
                     return;
                 }
-                logger.warn("refreshing grid {} {} {}",getAgeGroupPrefix(), getAgeDivision(), genderFilter.getValue());
+                //logger.debug("refreshing grid {} {} {}",getAgeGroupPrefix(), getAgeDivision(), genderFilter.getValue());
                 TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), genderFilter.getValue());
                 grid.setDataProvider(new TreeDataProvider<>(teamTreeData));
             }
@@ -412,17 +410,17 @@ public class TeamResultsContent extends VerticalLayout
      * @param crudGrid the crudGrid that will be filtered.
      */
     protected void defineFilters(OwlcmsCrudGrid<TeamTreeItem> crudGrid2) {
-        if (teamFilter == null) {
-            teamFilter = new ComboBox<>();
-            teamFilter.setPlaceholder(getTranslation("Team"));
-            teamFilter.setClearButtonVisible(true);
-            teamFilter.addValueChangeListener(e -> {
-                if (!teamFilterRecusion) return;
-                crudGrid2.refreshGrid();
-            });
-            teamFilter.setWidth("10em");
-        }
-        crudGrid2.getCrudLayout().addFilterComponent(teamFilter);
+//        if (teamFilter == null) {
+//            teamFilter = new ComboBox<>();
+//            teamFilter.setPlaceholder(getTranslation("Team"));
+//            teamFilter.setClearButtonVisible(true);
+//            teamFilter.addValueChangeListener(e -> {
+//                if (!teamFilterRecusion) return;
+//                crudGrid2.refreshGrid();
+//            });
+//            teamFilter.setWidth("10em");
+//        }
+//        crudGrid2.getCrudLayout().addFilterComponent(teamFilter);
 
         if (genderFilter == null) {
             genderFilter = new ComboBox<>();
@@ -439,17 +437,17 @@ public class TeamResultsContent extends VerticalLayout
         } 
         crudGrid2.getCrudLayout().addFilterComponent(genderFilter);
         
-        if (categoryFilter == null) {
-            categoryFilter = new ComboBox<>();
-            categoryFilter.setClearButtonVisible(true);
-            categoryFilter.setPlaceholder(getTranslation("Category"));
-            categoryFilter.setClearButtonVisible(true);
-            categoryFilter.addValueChangeListener(e -> {
-                crudGrid2.refreshGrid();
-            });
-            categoryFilter.setWidth("10em");
-        }
-        crudGrid2.getCrudLayout().addFilterComponent(categoryFilter);
+//        if (categoryFilter == null) {
+//            categoryFilter = new ComboBox<>();
+//            categoryFilter.setClearButtonVisible(true);
+//            categoryFilter.setPlaceholder(getTranslation("Category"));
+//            categoryFilter.setClearButtonVisible(true);
+//            categoryFilter.addValueChangeListener(e -> {
+//                crudGrid2.refreshGrid();
+//            });
+//            categoryFilter.setWidth("10em");
+//        }
+//        crudGrid2.getCrudLayout().addFilterComponent(categoryFilter);
     }
 
 
@@ -466,7 +464,7 @@ public class TeamResultsContent extends VerticalLayout
         
         if (topBar == null) {
             createTopBar();
-            logger.warn("after createTopBar {}",getAgeDivision());
+            //logger.debug("after createTopBar {}",getAgeDivision());
         }
         
         AgeDivision value = (adItems != null && adItems.size() > 0) ? adItems.get(0) : null;
@@ -574,7 +572,7 @@ public class TeamResultsContent extends VerticalLayout
             // surrounds the download button.
             AgeDivision ageDivisionValue = e.getValue();
             setAgeDivision(ageDivisionValue);
-            logger.warn("ageDivisionSelectionListener {}",ageDivisionValue);
+            //logger.debug("ageDivisionSelectionListener {}",ageDivisionValue);
             if (ageDivisionValue == null) {
                 topBarAgeGroupPrefixSelect.setValue(null);
                 topBarAgeGroupPrefixSelect.setItems(new ArrayList<String>());
@@ -592,8 +590,7 @@ public class TeamResultsContent extends VerticalLayout
             topBarAgeGroupPrefixSelect.setEnabled(notEmpty);
             String first = (notEmpty && ageDivisionValue == AgeDivision.IWF) ? ageDivisionAgeGroupPrefixes.get(0)
                     : null;
-            logger.warn("ad {} ag {} first {} select {}", ageDivisionValue, ageDivisionAgeGroupPrefixes, first,
-                    topBarAgeGroupPrefixSelect);
+            //logger.debug("ad {} ag {} first {} select {}", ageDivisionValue, ageDivisionAgeGroupPrefixes, first, topBarAgeGroupPrefixSelect);
 
             xlsWriter.setAgeDivision(ageDivisionValue);
             finalPackage.getElement().setAttribute("download",
@@ -601,7 +598,7 @@ public class TeamResultsContent extends VerticalLayout
                             : (ageGroupPrefix != null ? "_" + ageGroupPrefix : "_all")) + ".xls");
             
             String value = notEmpty ? first : null;
-            logger.warn("setting prefix to {}", value);
+            //logger.debug("setting prefix to {}", value);
             topBarAgeGroupPrefixSelect.setValue(value);
             updateFilters(ageDivisionValue, first);
             
@@ -620,7 +617,7 @@ public class TeamResultsContent extends VerticalLayout
             String prefix = e.getValue();
             setAgeGroupPrefix(prefix);
             
-            logger.warn("ageGroupPrefixSelectionListener {}",prefix);
+            //logger.debug("ageGroupPrefixSelectionListener {}",prefix);
             // updateFilters(getAgeDivision(), getAgeGroupPrefix());
             xlsWriter.setAgeGroupPrefix(ageGroupPrefix);
             finalPackage.getElement().setAttribute("download",
@@ -636,14 +633,14 @@ public class TeamResultsContent extends VerticalLayout
     }
 
     private void updateFilters(AgeDivision ageDivision2, String ageGroupPrefix2) {
-        List<Category> categories = CategoryRepository.findByGenderDivisionAgeBW(genderFilter.getValue(),
-                getAgeDivision(), null, null);
-        if (getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank()) {
-            categories = categories.stream().filter((c) -> c.getAgeGroup().getCode().equals(getAgeGroupPrefix()))
-                    .collect(Collectors.toList());
-        }
-        // logger.trace("updateFilters {}, {}, {}", ageDivision2, ageGroupPrefix2, categories);
-        categoryFilter.setItems(categories);
+//        List<Category> categories = CategoryRepository.findByGenderDivisionAgeBW(genderFilter.getValue(),
+//                getAgeDivision(), null, null);
+//        if (getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank()) {
+//            categories = categories.stream().filter((c) -> c.getAgeGroup().getCode().equals(getAgeGroupPrefix()))
+//                    .collect(Collectors.toList());
+//        }
+//         logger.trace("updateFilters {}, {}, {}", ageDivision2, ageGroupPrefix2, categories);
+//        categoryFilter.setItems(categories);
     }
 
 }
