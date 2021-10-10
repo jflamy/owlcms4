@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import javax.persistence.Cacheable;
@@ -801,21 +802,19 @@ public class Competition {
 
     private void doComputeReportingInfo(boolean full, List<PAthlete> athletes, String ageGroupPrefix,
             AgeDivision ad) {
-        // logger.trace("doComputeReportingInfo {} {} {} {} {}", LoggerUtils.stackTrace(), full, ageGroupPrefix, ad,
-        // athletes);
-        // many database queries. fork a low-priority thread.
-        Thread t = new Thread(() -> {
+        // reporting does many database queries. fork a low-priority thread.
+        runInThread(() -> {
             if (athletes.isEmpty()) {
                 // prevent outputting silliness.
                 logger./**/warn("no athletes");
                 reportingBeans.clear();
                 return;
             }
-
+        
             // the ranks within a category are stored in the database and
             // not recomputed
             sortAthletes(athletes);
-
+        
             // splitResultsByGroups(athletes);
             if (full) {
                 reportingBeans.put("athletes", athletes);
@@ -826,14 +825,25 @@ public class Competition {
                     teamRankings(athletes, ageGroupPrefix);
                 }
             }
-        });
+        }, Thread.MIN_PRIORITY);
+    }
 
-        t.setPriority(Thread.MIN_PRIORITY);
-        t.start();
+    private void runInThread(Runnable runnable, int priority) {
+        Thread t = new Thread(runnable);
+        AtomicReference<Throwable> errorReference = new AtomicReference<>();
+        t.setUncaughtExceptionHandler((th, ex) -> {
+            errorReference.set(ex);
+        });
+        t.setPriority(priority);
         try {
+            t.start();
             t.join();
+            Throwable throwable = errorReference.get();
+            if (throwable!= null) {
+                throw new RuntimeException(throwable);
+            }
         } catch (InterruptedException e) {
-            // ignore
+            throw new RuntimeException(e);
         }
     }
 
@@ -1017,6 +1027,9 @@ public class Competition {
      * @param ageGroupPrefix
      */
     private void teamRankingsForAgeDivision(AgeDivision ad) {
+        if (ad == null) {
+            return;
+        }
         List<String> agePrefixes = AgeGroupRepository.findActiveAndUsed(ad);
 
         for (String curAGPrefix : agePrefixes) {

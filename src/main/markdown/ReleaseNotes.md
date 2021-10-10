@@ -1,11 +1,13 @@
 Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+- [x] Moved the Language and Time Zone settings to the Configuration section, since they concern the system and not the weightlifting rules.  Renamed pages accordingly.
+
+Prior changes in release 4.23
+
 - [x] Fix: ranks for Sinclair, Robi were not shown in the final package in alpha04
 - [x] Fix: the program was not signaling late changes correctly in alpha04 (did not correctly identify clock owner)
 - [x] Enhancement: the program now forces start numbers when lifting starts if they have not been attributed at weigh-in (useful for small competitions not using cards with novice users)
 - [x] Enhancement: new page for assigning persons to teams.  The same person can be on the JR team but not the SR team, for example. The JR team points are included in the JR final package, and the SR points in the SR package. For Age Group competitions, if no specific age group is selected, the points are added up.  If the package is produced for a single age group, then only that age group is tallied.
-
-Prior changes in release 4.23
 
 - [x] Fix: allow locale extension (ex: _hy, _ru, _fr) to override the Excel templates for Weigh-in, Starting Sheet, Marshal cards, etc.  This had been lost when the sheets were changed to include the translations from the translation sheet.
 

@@ -38,6 +38,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.team.Team;
 import app.owlcms.data.team.TeamTreeData;
@@ -157,7 +158,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     public void doUpdate(Competition competition) {
         this.getElement().callJsFunction("reset");
 
-        TeamTreeData teamTreeData = new TeamTreeData();
+        TeamTreeData teamTreeData = new TeamTreeData("SR", AgeDivision.IWF, (Gender)null);
         Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamItemsByGender();
 
         mensTeams = teamsByGender.get(Gender.M);

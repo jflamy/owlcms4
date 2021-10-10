@@ -37,6 +37,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.team.Team;
 import app.owlcms.data.team.TeamTreeData;
@@ -156,7 +157,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     public void doUpdate(Competition competition) {
         this.getElement().callJsFunction("reset");
 
-        TeamTreeData teamTreeData = new TeamTreeData();
+        TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), getGender());
         Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamItemsByGender();
 
         mensTeams = teamsByGender.get(Gender.M);
@@ -172,6 +173,21 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         womensTeams = topN(womensTeams);
 
         updateBottom(getModel());
+    }
+
+    private Gender getGender() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    private AgeDivision getAgeDivision() {
+        // TODO Auto-generated method stub
+        return AgeDivision.IWF;
+    }
+
+    private String getAgeGroupPrefix() {
+        // TODO Auto-generated method stub
+        return "SR";
     }
 
     /**
