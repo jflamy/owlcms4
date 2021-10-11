@@ -791,13 +791,13 @@ public class Competition {
         logger.debug("wSmm {}", sortedWomen);
 
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.ROBI);
-        reportingBeans.put("athletes", sortedAthletes);
         AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, Ranking.ROBI);
         sortedMen = new ArrayList<>(sortedAthletes.size());
         sortedWomen = new ArrayList<>(sortedAthletes.size());
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
         reportingBeans.put("mRobi", sortedMen);
         reportingBeans.put("wRobi", sortedWomen);
+        reportingBeans.put("mwRobi", sortedAthletes);
     }
 
     private void doComputeReportingInfo(boolean full, List<PAthlete> athletes, String ageGroupPrefix,

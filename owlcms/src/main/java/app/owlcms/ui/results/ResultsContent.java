@@ -449,7 +449,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         competition.computeReportingInfo();
     }
 
-    protected void setGroupSelectionListener() {
+    private void setGroupSelectionListener() {
         topBarGroupSelect.setValue(getGridGroup());
         topBarGroupSelect.addValueChangeListener(e -> {
             setGridGroup(e.getValue());

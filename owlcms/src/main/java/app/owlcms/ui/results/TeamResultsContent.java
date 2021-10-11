@@ -48,7 +48,6 @@ import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
-import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.team.TeamTreeData;
@@ -103,9 +102,9 @@ public class TeamResultsContent extends VerticalLayout
     private AgeDivision ageDivision;
 
 
-    private ComboBox<Category> categoryFilter;
+    //private ComboBox<Category> categoryFilter;
     private ComboBox<Gender> genderFilter;
-    private ComboBox<String> teamFilter;
+    //private ComboBox<String> teamFilter;
     private ComboBox<String> topBarAgeGroupPrefixSelect;
     private ComboBox<AgeDivision> topBarAgeDivisionSelect;
     
@@ -113,7 +112,7 @@ public class TeamResultsContent extends VerticalLayout
     private Location location;
     private UI locationUI;
     private DecimalFormat floatFormat;
-    private boolean teamFilterRecusion;
+    //private boolean teamFilterRecusion;
     private List<AgeDivision> adItems;
 
     /**

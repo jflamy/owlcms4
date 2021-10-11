@@ -2868,7 +2868,7 @@ public class Athlete {
      * @param forcedAsCurrent the new forced as current
      */
     public void setForcedAsCurrent(boolean forcedAsCurrent) {
-        getLogger().warn("setForcedAsCurrent({}) from {}", forcedAsCurrent, LoggerUtils.whereFrom());
+        //logger.trace("setForcedAsCurrent({}) from {}", forcedAsCurrent, LoggerUtils.whereFrom());
         this.forcedAsCurrent = forcedAsCurrent;
     }
 

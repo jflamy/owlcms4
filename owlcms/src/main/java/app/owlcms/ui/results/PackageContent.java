@@ -136,12 +136,13 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
                     String catCode = catFilterValue != null ? catFilterValue.getCode() : null;
                     String athleteCode = a.getCategory().getCode();
 
-                    Gender genderFilterValue = genderFilter != null ?  genderFilter.getValue() : null;
+                    Gender genderFilterValue = genderFilter != null ? genderFilter.getValue() : null;
                     Gender athleteGender = a.getGender();
-                    
-                    boolean catOk = (catFilterValue == null || athleteCode.contentEquals(catCode)) 
+
+                    boolean catOk = (catFilterValue == null || athleteCode.contentEquals(catCode))
                             && (genderFilterValue == null || genderFilterValue == athleteGender);
-                    //logger.trace("filter {} : {} {} {} | {} {}", catOk, catFilterValue, catCode, athleteCode, genderFilterValue, athleteGender);
+                    // logger.trace("filter {} : {} {} {} | {} {}", catOk, catFilterValue, catCode, athleteCode,
+                    // genderFilterValue, athleteGender);
                     return catOk;
                 });
         return stream.collect(Collectors.toList());
@@ -430,19 +431,15 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             topBarAgeGroupPrefixSelect.setItems(ageDivisionAgeGroupPrefixes);
             boolean notEmpty = ageDivisionAgeGroupPrefixes.size() > 0;
             topBarAgeGroupPrefixSelect.setEnabled(notEmpty);
-            String first = (notEmpty && ageDivisionValue == AgeDivision.IWF) ? ageDivisionAgeGroupPrefixes.get(0) : null;
-            logger.debug("ad {} ag {} first {} select {}", ageDivisionValue, ageDivisionAgeGroupPrefixes, first,
-                    topBarAgeGroupPrefixSelect);
+            String first = (notEmpty && ageDivisionValue == AgeDivision.IWF) ? ageDivisionAgeGroupPrefixes.get(0)
+                    : null;
+            //logger.debug("ad {} ag {} first {} select {}", ageDivisionValue, ageDivisionAgeGroupPrefixes, first, topBarAgeGroupPrefixSelect);
             topBarAgeGroupPrefixSelect.setValue(notEmpty ? first : null);
 
-            xlsWriter.setAgeDivision(ageDivisionValue);
-            finalPackage.getElement().setAttribute("download",
-                    "results" + (getAgeDivision() != null ? "_" + getAgeDivision().name()
-                            : (ageGroupPrefix != null ? "_" + ageGroupPrefix : "_all")) + ".xls");
-
+            xlsWriter.setAgeDivision(getAgeDivision());
             updateFilters(ageDivisionValue, first);
 
-            crudGrid.refreshGrid();
+            //crudGrid.refreshGrid();
         });
     }
 
@@ -454,9 +451,18 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             setAgeGroupPrefix(e.getValue());
             updateFilters(getAgeDivision(), getAgeGroupPrefix());
             xlsWriter.setAgeGroupPrefix(ageGroupPrefix);
+
+            String label;
+            if (getAgeGroupPrefix() != null) {
+                label = getAgeGroupPrefix();
+            } else if (getAgeDivision() != null) {
+                label = getAgeDivision().name();
+            } else {
+                label = "all";
+            }
             finalPackage.getElement().setAttribute("download",
-                    "results" + (getAgeDivision() != null ? "_" + getAgeDivision().name()
-                            : (ageGroupPrefix != null ? "_" + ageGroupPrefix : "_all")) + ".xls");
+                    "results_" + label + ".xls");
+            
             crudGrid.refreshGrid();
         });
     }
@@ -469,7 +475,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             categories = categories.stream().filter((c) -> c.getAgeGroup().getCode().equals(getAgeGroupPrefix()))
                     .collect(Collectors.toList());
         }
-        //logger.trace("updateFilters {}, {}, {}", ageDivision2, ageGroupPrefix2, categories);
+        // logger.trace("updateFilters {}, {}, {}", ageDivision2, ageGroupPrefix2, categories);
         categoryFilter.setItems(categories);
     }
 

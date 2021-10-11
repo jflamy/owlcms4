@@ -495,7 +495,11 @@ public class PAthlete extends Athlete implements IRankHolder {
 
     @Override
     public Double getRobi() {
-        return a.getRobi();
+        // we want the getMainRanking from this class which uses
+        // the participation, not the real athlete's category
+        Double robi = super.getRobi();
+        //logger.trace("getRobi {} {} {} {}", _getAthlete().getShortName(), _getAthlete().getCategory(), getCategory(), robi);
+        return robi;
     }
 
     @Override
@@ -555,7 +559,9 @@ public class PAthlete extends Athlete implements IRankHolder {
 
     @Override
     public String getSnatch1ActualLift() {
-        return a.getSnatch1ActualLift();
+        String snatch1ActualLift = a.getSnatch1ActualLift();
+        logger.warn("PAthlete snatch1ActualLift = ",snatch1ActualLift);
+        return snatch1ActualLift;
     }
 
     @Override
