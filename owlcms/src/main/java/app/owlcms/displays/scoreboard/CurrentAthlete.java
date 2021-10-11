@@ -9,7 +9,6 @@ package app.owlcms.displays.scoreboard;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -335,10 +334,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     @Subscribe
     public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
         uiLog(e);
-        Competition competition = Competition.getCurrent();
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            computeLeaders(competition);
-        });
     }
 
     @Subscribe
@@ -456,7 +451,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         // fop obtained via FOPParameters interface default methods.
-        Competition competition = Competition.getCurrent();
         OwlcmsSession.withFop(fop -> {
             init();
 
@@ -469,7 +463,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
             uiEventBus = uiEventBusRegister(this, fop);
         });
         switchLightingMode(this, isDarkMode(), true);
-        computeLeaders(competition);
     }
 
     protected void setTranslationMap() {
@@ -482,26 +475,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
             }
         }
         this.getElement().setPropertyJson("t", translations);
-    }
-
-    private void computeLeaders(Competition competition) {
-        logger.debug("computeLeaders");
-        OwlcmsSession.withFop(fop -> {
-            Athlete curAthlete = fop.getCurAthlete();
-            if (curAthlete != null && curAthlete.getGender() != null) {
-                getModel().setCategoryName(curAthlete.getCategory().getName());
-                order = competition.getGlobalTotalRanking(curAthlete.getGender());
-                // logger.debug("rankings for current gender {}
-                // size={}",curAthlete.getGender(),globalRankingsForCurrentGroup.size());
-                order = filterToCategory(curAthlete.getCategory(),
-                        order);
-                // logger.debug("rankings for current category {}
-                // size={}",curAthlete.getCategory(),globalRankingsForCurrentGroup.size());
-                order = order.stream().filter(a -> a.getTotal() > 0)
-                        .collect(Collectors.toList());
-                this.getElement().setPropertyJson("leaders", Json.createNull());
-            }
-        });
     }
 
     private String computeLiftType(Athlete a) {
@@ -530,14 +503,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         ScoreboardModel model = getModel();
         Athlete a = e.getAthlete();
         updateBottom(model, computeLiftType(a));
-    }
-
-    private List<Athlete> filterToCategory(Category category, List<Athlete> order) {
-        return order
-                .stream()
-                .filter(a -> category != null && category.equals(a.getCategory()))
-                .limit(3)
-                .collect(Collectors.toList());
     }
 
     private String formatAttempt(Integer attemptNo) {

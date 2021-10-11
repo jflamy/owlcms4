@@ -77,7 +77,6 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
         Button topTeams = openInNewTab(TopTeams.class, getTranslation("Scoreboard.TopTeams"));
         Button topTeamsSinclair = openInNewTab(TopTeamsSinclair.class, getTranslation("Scoreboard.TopTeamsSinclair"));
-        topSinclair.setEnabled(false); //FIXME top sinclair
         topTeams.setEnabled(false); //FIXME top teams
         topTeamsSinclair.setEnabled(false); // top teams sinclair
 
