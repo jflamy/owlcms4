@@ -203,8 +203,8 @@ public class TeamSelectionContent extends VerticalLayout implements CrudListener
             return activeBox;
         })).setHeader(Translator.translate("TeamMembership.TeamMember")).setWidth("0");
         grid.addColumn(p -> p.getAthlete().getTeam()).setHeader(Translator.translate("Team"));
-        grid.addColumn(p -> p.getCategory()).setHeader(Translator.translate("Category"));
         grid.addColumn(p -> p.getAthlete().getFullName()).setHeader(Translator.translate("Name"));
+        grid.addColumn(p -> p.getCategory()).setHeader(Translator.translate("Category"));
         grid.addColumn(p -> p.getAthlete().getGender()).setHeader(Translator.translate("Gender"));
         
         OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
@@ -380,8 +380,6 @@ public class TeamSelectionContent extends VerticalLayout implements CrudListener
                     "results" + (getAgeDivision() != null ? "_" + getAgeDivision().name()
                             : (ageGroupPrefix != null ? "_" + ageGroupPrefix : "_all")) + ".xls");
 
-            updateFilters(ageDivisionValue, first);
-
             crudGrid.refreshGrid();
         });
     }
@@ -397,6 +395,7 @@ public class TeamSelectionContent extends VerticalLayout implements CrudListener
             finalPackage.getElement().setAttribute("download",
                     "results" + (getAgeDivision() != null ? "_" + getAgeDivision().name()
                             : (ageGroupPrefix != null ? "_" + ageGroupPrefix : "_all")) + ".xls");
+            updateFilters(getAgeDivision(), getAgeGroupPrefix());
             crudGrid.refreshGrid();
         });
     }
