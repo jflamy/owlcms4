@@ -191,9 +191,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
             vl.setSizeUndefined();
             vl.setPadding(false);
             vl.setMargin(false);
-            vl.add(forcedCurrentCheckbox);
-            vl.add(allowResultsEditing);
             vl.add(validateEntries);
+            vl.add(allowResultsEditing);
+            vl.add(forcedCurrentCheckbox);
             footerLayout.add(vl);
 
         }
@@ -252,7 +252,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         // on some other screen.
         originalAthlete = aFromList;
         Athlete aFromDb = AthleteRepository.findById(aFromList.getId());
-        Athlete.conditionalCopy(getEditedAthlete(), aFromDb, isUpdatingResults());
+        Athlete.conditionalCopy(getEditedAthlete(), aFromDb, true);
         getEditedAthlete().setValidation(false); // turn off validation in the Athlete setters; binder will call
                                                  // the validation routines explicitly
 
@@ -743,7 +743,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
     private Button buildWithdrawButton() {
         Button withdrawalButton = new Button(Translator.translate("Withdrawal"), IronIcons.EXIT_TO_APP.create(),
                 (e) -> {
-                    Athlete.conditionalCopy(originalAthlete, getEditedAthlete(), isUpdatingResults());
+                    Athlete.conditionalCopy(originalAthlete, getEditedAthlete(), true);
                     originalAthlete.withdraw();
                     AthleteRepository.save(originalAthlete);
                     OwlcmsSession.withFop((fop) -> {
@@ -779,8 +779,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
      * Update the original athlete so that the lifting order picks up the change.
      */
     private void doUpdate() {
-        // do not overwrite results if acting as Marshall
-        Athlete.conditionalCopy(originalAthlete, getEditedAthlete(), isUpdatingResults());
+        // do not overwrite results if acting as Marshal
+        // marshall has the ability to edit, but must click explicitly
+        Athlete.conditionalCopy(originalAthlete, getEditedAthlete(), true);
         AthleteRepository.save(originalAthlete);
         OwlcmsSession.withFop((fop) -> {
             fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
