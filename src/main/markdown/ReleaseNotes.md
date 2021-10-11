@@ -1,6 +1,8 @@
 Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+- [x] Robi score is now computed according to the correct age group in the final package (JR Robi is different from the SR Robi so JR and SR final packages use the respective value).  When age groups overlap and the full age division is requested (e.g. all three IWF age groups), multiple entries will be shown with the different Robi scores for each eligible category.
 - [x] Moved the Language and Time Zone settings to the Configuration section, since they concern the system and not the weightlifting rules.  Renamed pages accordingly.
+- [x] Fix: alpha-06 broke the ability to fix athlete results from the Marshal or Group Results screens.
 
 Prior changes in release 4.23
 
