@@ -7,8 +7,10 @@
 package app.owlcms.displays.topteams;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -68,11 +70,9 @@ import elemental.json.JsonValue;
 /**
  * Class TopTeamsSinclair
  *
- * Show athlete lifting order
+ * Show best sinclair team scores
  *
- */
-/**
- * @author JF
+ * @author Jean-François Lamu
  *
  */
 @SuppressWarnings("serial")
@@ -140,6 +140,8 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
      */
     @Override
     public void addDialogContent(Component target, VerticalLayout vl) {
+        //logger.debug("addDialogContent ad={} ag={} darkMode={}", getAgeDivision(), getAgeGroupPrefix(), isDarkMode());
+
         DisplayOptions.addLightingEntries(vl, target, this);
         ComboBox<AgeDivision> ageDivisionComboBox = new ComboBox<>();
         ComboBox<String> ageGroupPrefixComboBox = new ComboBox<>();
@@ -148,10 +150,13 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         ageDivisionComboBox.setPlaceholder(getTranslation("AgeDivision"));
         ageDivisionComboBox.setClearButtonVisible(true);
         ageDivisionComboBox.addValueChangeListener(e -> {
-            List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsed(e.getValue());
-            setAgeDivision(e.getValue());
-            ageGroupPrefixComboBox.setItems(activeAgeGroups);
-            if (activeAgeGroups != null && !activeAgeGroups.isEmpty() && ageDivision != AgeDivision.MASTERS) {
+            AgeDivision ageDivision = e.getValue();
+            setAgeDivision(ageDivision);
+            String existingAgeGroupPrefix = getAgeGroupPrefix();
+            List<String> activeAgeGroups = setAgeGroupPrefixItems(ageGroupPrefixComboBox, ageDivision);
+            if (existingAgeGroupPrefix != null) {
+                ageGroupPrefixComboBox.setValue(existingAgeGroupPrefix);
+            } else if (activeAgeGroups != null && !activeAgeGroups.isEmpty() && ageDivision != AgeDivision.MASTERS) {
                 ageGroupPrefixComboBox.setValue(activeAgeGroups.get(0));
             }
         });
@@ -159,11 +164,13 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         ageGroupPrefixComboBox.setClearButtonVisible(true);
         ageGroupPrefixComboBox.addValueChangeListener(e -> {
             setAgeGroupPrefix(e.getValue());
+            updateURLLocations();
             doUpdate(Competition.getCurrent());
         });
-        if (ageDivisions != null && !ageDivisions.isEmpty()) {
-            ageDivisionComboBox.setValue(ageDivisions.get(0));
-        }
+        setAgeGroupPrefixItems(ageGroupPrefixComboBox, getAgeDivision());
+        ageGroupPrefixComboBox.setValue(getAgeGroupPrefix());
+        ageDivisionComboBox.setValue(getAgeDivision());
+
         vl.add(new Label("Select Age Group"),
                 new HorizontalLayout(ageDivisionComboBox, ageGroupPrefixComboBox));
     }
@@ -282,6 +289,51 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         return true;
     }
 
+    @Override
+    public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
+        HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
+
+        List<String> darkParams = params1.get(DARK);
+        // dark is the default. dark=false or dark=no or ... will turn off dark mode.
+        boolean darkMode = darkParams == null || darkParams.isEmpty() || darkParams.get(0).toLowerCase().equals("true");
+        setDarkMode(darkMode);
+        updateParam(params1, DARK, !isDarkMode() ? "false" : null);
+
+        List<String> silentParams = params1.get(SILENT);
+        // dark is the default. dark=false or dark=no or ... will turn off dark mode.
+        boolean silentMode = silentParams == null || silentParams.isEmpty()
+                || silentParams.get(0).toLowerCase().equals("true");
+        setSilenced(silentMode);
+        updateParam(params1, SILENT, !isSilenced() ? "false" : null);
+
+        List<String> ageDivisionParams = params1.get("ad");
+        // no age division
+        String ageDivisionName = (ageDivisionParams != null && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0)
+                : null);
+        try {
+            setAgeDivision(AgeDivision.valueOf(ageDivisionName));
+        } catch (Exception e) {
+            List<AgeDivision> ageDivisions = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
+            setAgeDivision((ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null);
+        }
+        // remove if now null
+        String value = getAgeDivision() != null ? getAgeDivision().name() : null;
+        updateParam(params1, "ad", value);
+
+        List<String> ageGroupParams = params1.get("ag");
+        // no age group is the default
+        String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
+        setAgeGroupPrefix(ageGroupPrefix);
+        String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
+        updateParam(params1, "ag", value2);
+
+        switchLightingMode(this, darkMode, false);
+        updateURLLocations();
+
+        buildDialog(this);
+        return params1;
+    }
+
     public void setAgeDivision(AgeDivision ageDivision) {
         this.ageDivision = ageDivision;
     }
@@ -340,6 +392,24 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
             getModel().setHidden(false);
             this.getElement().callJsFunction("reset");
         });
+    }
+
+    @Override
+    public void switchLightingMode(Component target, boolean dark, boolean updateURL) {
+        target.getElement().getClassList().set(DARK, dark);
+        target.getElement().getClassList().set(LIGHT, !dark);
+        setDarkMode(dark);
+        if (updateURL) {
+            updateURLLocation(getLocationUI(), getLocation(), DARK, dark ? null : "false");
+        }
+    }
+
+    @Override
+    public void switchSoundMode(Component target, boolean silent, boolean updateURL) {
+        setSilenced(silent);
+        if (updateURL) {
+            updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? null : "false");
+        }
     }
 
     public void uiLog(UIEvent e) {
@@ -472,11 +542,21 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         return jath;
     }
 
+    private List<String> setAgeGroupPrefixItems(ComboBox<String> ageGroupPrefixComboBox,
+            AgeDivision ageDivision2) {
+        List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsed(ageDivision2);
+        ageGroupPrefixComboBox.setItems(activeAgeGroups);
+        return activeAgeGroups;
+    }
+
     private void setWide(boolean b) {
         getModel().setWideTeamNames(b);
     }
 
     private List<TeamTreeItem> topN(List<TeamTreeItem> list) {
+        if (list == null) {
+            return new ArrayList<>();
+        }
         int size = list.size();
         if (size > 0) {
             int min = Math.min(size, TOP_N);
@@ -486,7 +566,6 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     }
 
     private void updateBottom(TopTeamsSinclairModel model) {
-        getModel().setFullName(getTranslation("Scoreboard.TopTeamsSinclair"));
         this.getElement().setProperty("topTeamsMen",
                 mensTeams != null && mensTeams.size() > 0
                         ? getTranslation("Scoreboard.TopTeamsSinclairMen") + computeAgeGroupSuffix()
@@ -499,4 +578,14 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
                         : "");
         this.getElement().setPropertyJson("womensTeams", getTeamsJson(womensTeams, false));
     }
+
+    private void updateURLLocations() {
+        updateURLLocation(UI.getCurrent(), getLocation(), DARK,
+                !isDarkMode() ? Boolean.TRUE.toString() : null);
+        updateURLLocation(UI.getCurrent(), getLocation(), "ag",
+                getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null);
+        updateURLLocation(UI.getCurrent(), getLocation(), "ad",
+                getAgeDivision() != null ? getAgeDivision().name() : null);
+    }
+
 }
