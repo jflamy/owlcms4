@@ -4323,7 +4323,6 @@ public class Athlete {
         TreeSet<Category> eligibles = new TreeSet<>(
                 (x, y) -> ObjectUtils.compare(x.getAgeGroup(), y.getAgeGroup()));
         eligibles.addAll(categories);
-        logger.debug("eligible categories: {}", eligibles);
         a.setEligibleCategories(eligibles);
     }
 

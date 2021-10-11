@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import org.slf4j.LoggerFactory;
+
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -27,6 +29,8 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("deprecation")
 public class PAthlete extends Athlete implements IRankHolder {
+    
+    Logger logger = (Logger) LoggerFactory.getLogger(PAthlete.class);
 
     private Participation p;
 
