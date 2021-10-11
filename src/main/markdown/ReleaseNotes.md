@@ -1,10 +1,16 @@
 Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+- [x] All previously available features and all new features appear work for developer.  Moving to beta testing.
+- [x] Updated the scoreboards for Top Sinclair, Top Teams, and Top Sinclair Teams.  The Team-oriented displays allow the selection of the team or age division displayed (since JR team is not the same as senior team in a multi-category meet)
+- [x] Fix:  in alpha07, Final Package documents including combined points from snatch, cj and total were failing.
+
+Prior changes in release 4.23
+
 - [x] Robi score is now computed according to the correct age group in the final package (JR Robi is different from the SR Robi so JR and SR final packages use the respective value).  When age groups overlap and the full age division is requested (e.g. all three IWF age groups), multiple entries will be shown with the different Robi scores for each eligible category.
 - [x] Moved the Language and Time Zone settings to the Configuration section, since they concern the system and not the weightlifting rules.  Renamed pages accordingly.
 - [x] Fix: alpha-06 broke the ability to fix athlete results from the Marshal or Group Results screens.
 
-Prior changes in release 4.23
+
 
 - [x] Fix: ranks for Sinclair, Robi were not shown in the final package in alpha04
 - [x] Fix: the program was not signaling late changes correctly in alpha04 (did not correctly identify clock owner)
