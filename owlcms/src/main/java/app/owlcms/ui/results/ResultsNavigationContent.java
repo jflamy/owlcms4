@@ -45,7 +45,6 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
     public ResultsNavigationContent() {
         Button groupResults = openInNewTab(ResultsContent.class, getTranslation("GroupResults"));
         Button teamResults = openInNewTabNoParam(TeamResultsContent.class, getTranslation("TeamResults.Title"));
-        teamResults.setEnabled(true);//FIXME team results page
         Button finalPackage = openInNewTabNoParam(PackageContent.class, getTranslation("CategoryResults"));
 
         Div timingStats = DownloadButtonFactory.createDynamicXLSDownloadButton("timingStats",

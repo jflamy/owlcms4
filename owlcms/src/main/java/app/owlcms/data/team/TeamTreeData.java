@@ -70,7 +70,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 
             TeamTreeItem curTeamItem = null;
             String key = computeGenderKey(gender) + "Team" + (ageGroupPrefix != null ? ageGroupPrefix : ageDivision.name());
-            logger.warn("looking for {} in {}",key, reportingBeans.keySet());
+            //logger.trace("looking for {} in {}",key, reportingBeans.keySet());
 
 
             @SuppressWarnings("unchecked")
@@ -200,7 +200,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
         if (debug) {
             logger.setLevel(Level.DEBUG);
         }
-        logger.warn("init tree {} {}", ageGroupPrefix, ageDivision);
+        //logger.debug("init tree {} {}", ageGroupPrefix, ageDivision);
         reportingBeans = Competition.getCurrent().computeReportingInfo(ageGroupPrefix, ageDivision);
         buildTeamItemTree(reportingBeans, ageGroupPrefix, ageDivision);
         if (debug) {

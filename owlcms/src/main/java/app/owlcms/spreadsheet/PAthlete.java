@@ -560,7 +560,6 @@ public class PAthlete extends Athlete implements IRankHolder {
     @Override
     public String getSnatch1ActualLift() {
         String snatch1ActualLift = a.getSnatch1ActualLift();
-        logger.warn("PAthlete snatch1ActualLift = ",snatch1ActualLift);
         return snatch1ActualLift;
     }
 

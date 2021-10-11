@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
 
-import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
@@ -121,16 +120,10 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     @Override
     protected void setReportingInfo() {
         Competition competition = Competition.getCurrent();
-        List<PAthlete> allPAthletesForAgeGroupAgeDivision = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),getAgeDivision());
-        competition.computeReportingInfo(allPAthletesForAgeGroupAgeDivision, true, getAgeGroupPrefix(), getAgeDivision());
+        competition.computeReportingInfo(getAgeGroupPrefix(), getAgeDivision());
 
         super.setReportingInfo();
         setReportingBeans(competition.getReportingBeans());
-//        @SuppressWarnings("unchecked")
-//        List<Athlete> mTot = (List<Athlete>)getReportingBeans().get("mTeam");
-//        for (Athlete a : mTot) {
-//            Competition.debugRanks("book mTeam",a);
-//        }
     }
 
 

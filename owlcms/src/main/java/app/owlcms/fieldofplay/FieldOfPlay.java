@@ -163,10 +163,6 @@ public class FieldOfPlay {
 
     private LinkedHashMap<String, Participation> ageGroupMap = new LinkedHashMap<>();
 
-    public LinkedHashMap<String, Participation> getAgeGroupMap() {
-        return ageGroupMap;
-    }
-
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
      * be used to provide the athletes and set the athleteTimer
@@ -261,6 +257,10 @@ public class FieldOfPlay {
             }
             setTimeoutEmitted(true);
         }
+    }
+
+    public LinkedHashMap<String, Participation> getAgeGroupMap() {
+        return ageGroupMap;
     }
 
     /**
@@ -789,52 +789,19 @@ public class FieldOfPlay {
                 .filter(a -> a.getGroup() != null ? a.getGroup().equals(g) : false)
                 .collect(Collectors.toList());
         setDisplayOrder(currentGroupAthletes);
-        
+
         setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
 
         List<Athlete> liftingOrder2 = getLiftingOrder();
         if (logger.isEnabledFor(Level.TRACE)) {
             for (Athlete a : getLiftingOrder()) {
                 Participation p = a.getMainRankings();
-                logger. warn("**** {} {} {} {} {} {}", a, p.getCategory(), p.getSnatchRank(), p.getCleanJerkRank(),
+                logger.warn("**** {} {} {} {} {} {}", a, p.getCategory(), p.getSnatchRank(), p.getCleanJerkRank(),
                         p.getTotalRank(), a.isForcedAsCurrent());
             }
         }
         setCurAthlete(liftingOrder2 != null && liftingOrder2.size() > 0 ? liftingOrder2.get(0) : null);
         recomputeCurrentLeaders(rankedAthletes);
-    }
-
-    private void recomputeCurrentLeaders(List<Athlete> rankedAthletes) {
-        if (rankedAthletes == null || rankedAthletes.size() == 0) {
-            setLeaders(null);
-            return;
-        }
-
-        if (getCurAthlete() != null) {
-            Category category = getCurAthlete().getCategory();
-            List<Athlete> currentCategoryAthletes = (rankedAthletes).stream()
-                    .filter(a -> a.getCategory().equals(category)).collect(Collectors.toList());
-
-            boolean cjStarted2 = isCjStarted();
-            // logger.trace("currentCategoryAthletes {} {}", currentCategoryAthletes, cjStarted2);
-            if (!cjStarted2) {
-                List<Athlete> snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
-                        .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
-                        .limit(3)
-                        .collect(Collectors.toList());
-                setLeaders(snatchLeaders);
-                // logger.trace("snatch leaders {} {}", snatchLeaders, currentCategoryAthletes);
-            } else {
-                List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
-                        .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
-                        .limit(3)
-                        .collect(Collectors.toList());
-                setLeaders(totalLeaders);
-                // logger.trace("total leaders {} {}", totalLeaders, currentCategoryAthletes);
-            }
-        } else {
-            setLeaders(null);
-        }
     }
 
     /**
@@ -1099,16 +1066,16 @@ public class FieldOfPlay {
         return finalWarningEmitted;
     }
 
+    private synchronized boolean isInitialWarningEmitted() {
+        return initialWarningEmitted;
+    }
+
 //    private void recomputeAndRefresh(FOPEvent e) {
 //        recomputeLiftingOrder();
 //        updateGlobalRankings();
 //        pushOut(new UIEvent.SwitchGroup(this.getGroup(), this.getState(), this.getCurAthlete(),
 //                e.getOrigin()));
 //    }
-
-    private synchronized boolean isInitialWarningEmitted() {
-        return initialWarningEmitted;
-    }
 
     private void prepareDownSignal() {
         if (isEmitSoundsOnServer()) {
@@ -1161,6 +1128,39 @@ public class FieldOfPlay {
         setState(BREAK);
         setBreakType(BreakType.GROUP_DONE);
         pushOut(event);
+    }
+
+    private void recomputeCurrentLeaders(List<Athlete> rankedAthletes) {
+        if (rankedAthletes == null || rankedAthletes.size() == 0) {
+            setLeaders(null);
+            return;
+        }
+
+        if (getCurAthlete() != null) {
+            Category category = getCurAthlete().getCategory();
+            List<Athlete> currentCategoryAthletes = (rankedAthletes).stream()
+                    .filter(a -> a.getCategory().equals(category)).collect(Collectors.toList());
+
+            boolean cjStarted2 = isCjStarted();
+            // logger.trace("currentCategoryAthletes {} {}", currentCategoryAthletes, cjStarted2);
+            if (!cjStarted2) {
+                List<Athlete> snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
+                        .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
+                        .limit(3)
+                        .collect(Collectors.toList());
+                setLeaders(snatchLeaders);
+                // logger.trace("snatch leaders {} {}", snatchLeaders, currentCategoryAthletes);
+            } else {
+                List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
+                        .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
+                        .limit(3)
+                        .collect(Collectors.toList());
+                setLeaders(totalLeaders);
+                // logger.trace("total leaders {} {}", totalLeaders, currentCategoryAthletes);
+            }
+        } else {
+            setLeaders(null);
+        }
     }
 
     private void recomputeLiftingOrder(boolean currentDisplayAffected) {
@@ -1239,7 +1239,7 @@ public class FieldOfPlay {
     }
 
     private void setCurAthlete(Athlete athlete) {
-        //logger.trace("setting curAthlete to {} [{}]", athlete, LoggerUtils.whereFrom());
+        // logger.trace("setting curAthlete to {} [{}]", athlete, LoggerUtils.whereFrom());
         this.curAthlete = athlete;
     }
 

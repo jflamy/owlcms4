@@ -22,8 +22,11 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
@@ -36,6 +39,7 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
@@ -121,6 +125,8 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     private DecimalFormat floatFormat;
     private Dialog dialog;
     private boolean initializationNeeded;
+    private AgeDivision ageDivision = null;
+    private String ageGroupPrefix = null;
 
     /**
      * Instantiates a new results board.
@@ -136,6 +142,39 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     @Override
     public void addDialogContent(Component target, VerticalLayout vl) {
         DisplayOptions.addLightingEntries(vl, target, this);
+        ComboBox<AgeDivision> ageDivisionComboBox = new ComboBox<>();
+        ComboBox<String> ageGroupPrefixComboBox = new ComboBox<>();
+        List<AgeDivision> ageDivisions = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
+        ageDivisionComboBox.setItems(ageDivisions);
+        ageDivisionComboBox.setPlaceholder(getTranslation("AgeDivision"));
+        ageDivisionComboBox.setClearButtonVisible(true);
+        ageDivisionComboBox.addValueChangeListener(e -> {
+            List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsed(e.getValue());
+            setAgeDivision(e.getValue());
+            ageGroupPrefixComboBox.setItems(activeAgeGroups);
+            if (activeAgeGroups != null && !activeAgeGroups.isEmpty() && ageDivision != AgeDivision.MASTERS) {
+                ageGroupPrefixComboBox.setValue(activeAgeGroups.get(0));
+            }
+        });
+        ageGroupPrefixComboBox.setPlaceholder(getTranslation("AgeGroup"));
+        ageGroupPrefixComboBox.setClearButtonVisible(true);
+        ageGroupPrefixComboBox.addValueChangeListener(e -> {
+            setAgeGroupPrefix(e.getValue());
+            doUpdate(Competition.getCurrent());
+        });
+        if (ageDivisions != null && !ageDivisions.isEmpty()) {
+            ageDivisionComboBox.setValue(ageDivisions.get(0));
+        }
+        vl.add( new Label("Select Age Group"),
+                new HorizontalLayout(ageDivisionComboBox, ageGroupPrefixComboBox));  
+    }
+
+    public void setAgeDivision(AgeDivision ageDivision) {
+        this.ageDivision = ageDivision;
+    }
+
+    public void setAgeGroupPrefix(String ageGroupPrefix) {
+        this.ageGroupPrefix = ageGroupPrefix;
     }
 
     @Override
@@ -158,7 +197,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     public void doUpdate(Competition competition) {
         this.getElement().callJsFunction("reset");
 
-        TeamTreeData teamTreeData = new TeamTreeData("SR", AgeDivision.IWF, (Gender)null);
+        TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), (Gender) null);
         Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamItemsByGender();
 
         mensTeams = teamsByGender.get(Gender.M);
@@ -175,6 +214,15 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
 
         updateBottom(getModel());
     }
+    
+    private AgeDivision getAgeDivision() {
+        return ageDivision;
+    }
+
+    private String getAgeGroupPrefix() {
+        return ageGroupPrefix;
+    }
+
 
     /**
      * return dialog, but only on first call.
@@ -191,31 +239,49 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         }
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocation()
+     */
     @Override
     public Location getLocation() {
         return this.location;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocationUI()
+     */
     @Override
     public UI getLocationUI() {
         return this.locationUI;
     }
 
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
     @Override
     public String getPageTitle() {
         return getTranslation("Scoreboard.TopTeams");
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isDarkMode()
+     */
     @Override
     public boolean isDarkMode() {
         return this.darkMode;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#isIgnoreFopFromURL()
+     */
     @Override
     public boolean isIgnoreFopFromURL() {
         return true;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#isIgnoreGroupFromURL()
+     */
     @Override
     public boolean isIgnoreGroupFromURL() {
         return true;
@@ -256,16 +322,6 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     public void setShowInitialDialog(boolean b) {
         this.initializationNeeded = true;
     }
-
-//    @Subscribe
-//    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
-//        uiLog(e);
-//        Competition competition = Competition.getCurrent();
-//
-//        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-//            doUpdate(competition);
-//        });
-//    }
 
     /**
      * @see app.owlcms.utils.queryparameters.DisplayParameters#setSilenced(boolean)
@@ -315,10 +371,17 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             TopTeamsModel model = getModel();
             if (a != null) {
-                model.setFullName(getTranslation("Scoreboard.TopTeams"));
                 updateBottom(model);
             }
         });
+    }
+
+    private String computeAgeGroupSuffix() {
+        String suffix = null;
+        if (getAgeGroupPrefix() != null) {
+            suffix = getAgeGroupPrefix();
+        }
+        return (suffix != null ? " &ndash; "+ suffix : "");
     }
 
     /*
@@ -426,13 +489,12 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     private void updateBottom(TopTeamsModel model) {
-        getModel().setFullName(getTranslation("Scoreboard.TopTeams"));
         this.getElement().setProperty("topTeamsMen",
-                mensTeams != null && mensTeams.size() > 0 ? getTranslation("Scoreboard.TopTeamsMen") : "");
+                mensTeams != null && mensTeams.size() > 0 ? getTranslation("Scoreboard.TopTeamsMen") + computeAgeGroupSuffix() : "");
         this.getElement().setPropertyJson("mensTeams", getTeamsJson(mensTeams, true));
 
         this.getElement().setProperty("topTeamsWomen",
-                womensTeams != null && womensTeams.size() > 0 ? getTranslation("Scoreboard.TopTeamsWomen") : "");
+                womensTeams != null && womensTeams.size() > 0 ? getTranslation("Scoreboard.TopTeamsWomen") + computeAgeGroupSuffix() : "");
         this.getElement().setPropertyJson("womensTeams", getTeamsJson(womensTeams, false));
     }
 
