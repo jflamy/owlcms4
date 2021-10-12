@@ -27,6 +27,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
@@ -140,7 +141,7 @@ public class TeamSelectionContent extends VerticalLayout implements CrudListener
                     Category catFilterValue = categoryFilter.getValue();
                     String catCode = catFilterValue != null ? catFilterValue.getCode() : null;
                     String athleteCatCode = p.getCategory().getCode();
-                    
+
                     String teamFilterValue = teamFilter.getValue();
                     String athleteTeamName = p.getAthlete().getTeam();
                     teamNames.add(athleteTeamName);
@@ -149,12 +150,12 @@ public class TeamSelectionContent extends VerticalLayout implements CrudListener
                     Gender athleteGender = p.getAthlete().getGender();
 
                     boolean catOk = (catFilterValue == null || athleteCatCode.contentEquals(catCode))
-                            && (genderFilterValue == null || genderFilterValue == athleteGender) 
+                            && (genderFilterValue == null || genderFilterValue == athleteGender)
                             && (teamFilterValue == null || teamFilterValue.contentEquals(athleteTeamName));
                     return catOk;
                 })
-                //.peek(p -> logger.trace("findAll {}", p.long_dump()))
-                ;
+        // .peek(p -> logger.trace("findAll {}", p.long_dump()))
+        ;
         String teamValue = teamFilter.getValue();
         teamFilterRecusion = false;
         teamFilter.setItems(teamNames);
@@ -198,15 +199,26 @@ public class TeamSelectionContent extends VerticalLayout implements CrudListener
                     em.merge(p);
                     return null;
                 });
-                crudGrid.getGrid().getDataProvider().refreshItem(p);
+                // crudGrid.getGrid().getDataProvider().refreshItem(p);
+                crudGrid.refreshGrid();
             });
             return activeBox;
-        })).setHeader(Translator.translate("TeamMembership.TeamMember")).setWidth("0");
-        grid.addColumn(p -> p.getAthlete().getTeam()).setHeader(Translator.translate("Team"));
-        grid.addColumn(p -> p.getAthlete().getFullName()).setHeader(Translator.translate("Name"));
-        grid.addColumn(p -> p.getCategory()).setHeader(Translator.translate("Category"));
-        grid.addColumn(p -> p.getAthlete().getGender()).setHeader(Translator.translate("Gender"));
+        })).setHeader(Translator.translate("TeamMembership.TeamMember")).setWidth("0").setSortable(true);
+        grid.addColumn(p -> p.getAthlete().getTeam())
+                .setHeader(Translator.translate("Team"))
+                .setSortable(true);
+        grid.addColumn(p -> p.getAthlete().getFullName())
+                .setHeader(Translator.translate("Name"))
+                .setSortable(true);
+        grid.addColumn(p -> p.getCategory())
+                .setHeader(Translator.translate("Category"))
+                .setSortable(true);
+        grid.addColumn(p -> p.getAthlete().getGender())
+                .setHeader(Translator.translate("Gender"))
+                .setSortable(true);
         
+
+
         OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
         OwlcmsCrudGrid<Participation> crudGrid = new OwlcmsCrudGrid<>(Participation.class, gridLayout, crudFormFactory,
                 grid) {
@@ -301,7 +313,8 @@ public class TeamSelectionContent extends VerticalLayout implements CrudListener
             teamFilter.setPlaceholder(getTranslation("Team"));
             teamFilter.setClearButtonVisible(true);
             teamFilter.addValueChangeListener(e -> {
-                if (!teamFilterRecusion) return;
+                if (!teamFilterRecusion)
+                    return;
                 crud.refreshGrid();
             });
             teamFilter.setWidth("10em");
@@ -320,9 +333,9 @@ public class TeamSelectionContent extends VerticalLayout implements CrudListener
                 crud.refreshGrid();
             });
             genderFilter.setWidth("10em");
-        } 
+        }
         crud.getCrudLayout().addFilterComponent(genderFilter);
-        
+
         if (categoryFilter == null) {
             categoryFilter = new ComboBox<>();
             categoryFilter.setClearButtonVisible(true);
