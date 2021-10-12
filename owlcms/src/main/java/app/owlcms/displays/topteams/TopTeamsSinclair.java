@@ -289,6 +289,9 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         return true;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location, java.util.Map)
+     */
     @Override
     public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
         HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
