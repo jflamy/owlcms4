@@ -1,9 +1,7 @@
 Specific changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Armenian and Danish translations
-- [x] Team membership selection page: sorting enabled and URL parameters are updated so refresh works.
-- [x] Top L20eams allow selection of the age group and their URL so refresh goes back to the same display. In a multi-age group meet, teams are different according to age group
-- [x] Updated the scoreboards for Top Sinclair, Top Teams, and Top Sinclair Teams.  The Team-oriented displays allow the selection of the team or age division displayed (since JR team is not the same as senior team in a multi-category meet)
+- [x] Russian and Portuguese translations
+- [x] Fixed an issue with category comparison that could affect scoreboards, category results, and final packages.
 
 Changes for release 4.23
 
