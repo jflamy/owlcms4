@@ -1139,7 +1139,7 @@ public class FieldOfPlay {
         if (getCurAthlete() != null) {
             Category category = getCurAthlete().getCategory();
             List<Athlete> currentCategoryAthletes = (rankedAthletes).stream()
-                    .filter(a -> a.getCategory().equals(category)).collect(Collectors.toList());
+                    .filter(a -> a.getCategory().sameAs(category)).collect(Collectors.toList());
 
             boolean cjStarted2 = isCjStarted();
             // logger.trace("currentCategoryAthletes {} {}", currentCategoryAthletes, cjStarted2);

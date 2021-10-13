@@ -27,7 +27,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroup;
@@ -175,15 +174,15 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         }
         Category cat = (Category) o;
 
-        String name2 = getName();
-        String name3 = cat.getName();
-        boolean equal1 = StringUtils.equals(name2,name3);
+//        String name2 = getCode();
+//        String name3 = cat.getCode();
+//        boolean equal1 = StringUtils.equals(name2,name3);
 
         Long id1 = getId();
         Long id2 = cat.getId();
         boolean equal2 = id1 == id2;
 
-        return equal1 && equal2;// && equal3;
+        return equal2;
     }
 
     @Override
@@ -509,6 +508,10 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     @Override
     public String toString() {
         return getName();
+    }
+
+    public boolean sameAs(Category prevCat) {
+        return this.compareTo(prevCat) == 0;
     }
 
 }

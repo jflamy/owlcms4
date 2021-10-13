@@ -710,7 +710,7 @@ public class Competition {
         reportingBeans.put("t", Translator.getMap());
 
         // sort only, use ranks stored in database
-        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SNATCH);
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SNATCH, false);
         sortedMen = new ArrayList<>(sortedAthletes.size());
         sortedWomen = new ArrayList<>(sortedAthletes.size());
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
@@ -718,7 +718,8 @@ public class Competition {
         reportingBeans.put("wSn", sortedWomen);
 
         // sort only, use ranks stored in database
-        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CLEANJERK);
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CLEANJERK, false);
+        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
         sortedMen = new ArrayList<>(sortedAthletes.size());
         sortedWomen = new ArrayList<>(sortedAthletes.size());
         splitByGender(sortedAthletes, sortedMen, sortedWomen);

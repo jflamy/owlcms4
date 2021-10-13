@@ -656,7 +656,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         for (Athlete a : athletes) {
             JsonObject ja = Json.createObject();
             Category curCat = a.getCategory();
-            if (curCat != null && !curCat.equals(prevCat)) {
+            if (curCat != null && !curCat.sameAs(prevCat)) {
                 // changing categories, put marker before athlete
                 ja.put("isSpacer", true);
                 jath.set(athx, ja);
