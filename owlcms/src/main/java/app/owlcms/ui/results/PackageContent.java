@@ -133,16 +133,13 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         Stream<Athlete> stream = ranked.stream()
                 .filter(a -> {
                     Category catFilterValue = categoryFilter.getValue();
-                    String catCode = catFilterValue != null ? catFilterValue.getCode() : null;
-                    String athleteCode = a.getCategory().getCode();
-
                     Gender genderFilterValue = genderFilter != null ? genderFilter.getValue() : null;
                     Gender athleteGender = a.getGender();
+                    
 
-                    boolean catOk = (catFilterValue == null || athleteCode.contentEquals(catCode))
+                    boolean catOk = (catFilterValue == null || catFilterValue.toString().equals(a.getCategory().toString()))
                             && (genderFilterValue == null || genderFilterValue == athleteGender);
-                    // logger.trace("filter {} : {} {} {} | {} {}", catOk, catFilterValue, catCode, athleteCode,
-                    // genderFilterValue, athleteGender);
+                    //logger.debug("filter {} : {} {} {} | {} {}", catOk, catFilterValue, a.getCategory(), genderFilterValue, athleteGender);
                     return catOk;
                 });
         return stream.collect(Collectors.toList());
