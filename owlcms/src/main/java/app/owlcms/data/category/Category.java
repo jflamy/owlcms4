@@ -25,6 +25,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
@@ -57,6 +58,7 @@ import ch.qos.logback.classic.Logger;
 public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     @SuppressWarnings("unused")
+    @Transient
     final private static Logger logger = (Logger) LoggerFactory.getLogger(Category.class);
 
     public final static Double ROBI_B = 3.321928095;

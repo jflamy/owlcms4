@@ -85,6 +85,7 @@ import ch.qos.logback.classic.Logger;
 public class Athlete {
     private static final int YEAR = LocalDateTime.now().getYear();
 
+    @Transient
     protected final static Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
 
     public static void conditionalCopy(Athlete dest, Athlete src, boolean copyResults) {

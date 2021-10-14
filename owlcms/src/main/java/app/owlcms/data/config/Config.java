@@ -17,6 +17,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,7 @@ public class Config {
     private String timeZoneId;
 
     @SuppressWarnings("unused")
+    @Transient
     final static private Logger logger = (Logger) LoggerFactory.getLogger(Config.class);
 
     private static Config current;

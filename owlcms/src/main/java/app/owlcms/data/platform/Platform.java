@@ -51,6 +51,7 @@ import ch.qos.logback.classic.Logger;
 @Cacheable
 public class Platform implements Serializable, Comparable<Platform> {
 
+    @Transient
     private static final Logger logger = (Logger) LoggerFactory.getLogger(Platform.class);
 
     /**

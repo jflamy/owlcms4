@@ -21,6 +21,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +45,8 @@ public class Group implements Comparable<Group> {
 
     private final static DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder().parseLenient()
             .appendPattern(DATE_FORMAT).toFormatter();
+    
+    @Transient
     final private Logger logger = (Logger) LoggerFactory.getLogger(Group.class);
 
     @Id

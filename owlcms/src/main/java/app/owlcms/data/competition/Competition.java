@@ -57,6 +57,7 @@ public class Competition {
     public static final int SHORT_TEAM_LENGTH = 6;
     private static Competition competition;
 
+    @Transient
     final static private Logger logger = (Logger) LoggerFactory.getLogger(Competition.class);
 
     /**

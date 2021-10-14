@@ -15,6 +15,7 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,8 @@ import ch.qos.logback.classic.Logger;
 @Table(name = "participation")
 public class Participation implements IRankHolder {
 
-    final static Logger logger = (Logger) LoggerFactory.getLogger(Participation.class);
+    @Transient
+    private final static Logger logger = (Logger) LoggerFactory.getLogger(Participation.class);
 
     @EmbeddedId
     private ParticipationId id;
