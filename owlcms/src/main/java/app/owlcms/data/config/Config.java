@@ -40,7 +40,6 @@ public class Config {
     
     private String timeZoneId;
 
-    @SuppressWarnings("unused")
     @Transient
     final static private Logger logger = (Logger) LoggerFactory.getLogger(Config.class);
 

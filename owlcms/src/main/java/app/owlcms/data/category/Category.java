@@ -57,7 +57,6 @@ import ch.qos.logback.classic.Logger;
 @Cacheable
 public class Category implements Serializable, Comparable<Category>, Cloneable {
 
-    @SuppressWarnings("unused")
     @Transient
     final private static Logger logger = (Logger) LoggerFactory.getLogger(Category.class);
 
