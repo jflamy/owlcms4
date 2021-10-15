@@ -65,6 +65,7 @@ import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AthleteCrudGrid;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -113,7 +114,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         super();
         defineFilters(crudGrid);
         crudGrid.setClickable(false);
-        //crudGrid.getGrid().setMultiSort(true);
+        // crudGrid.getGrid().setMultiSort(true);
         setTopBarTitle(getTranslation("CategoryResults"));
     }
 
@@ -298,7 +299,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     protected void createTopBar() {
-        // logger.trace("createTopBar {}", LoggerUtils.stackTrace());
+        logger.warn("createTopBar {}", LoggerUtils.stackTrace());
         // show arrow but close menu
         getAppLayout().setMenuVisible(true);
         getAppLayout().closeDrawer();
@@ -343,7 +344,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         setAgeDivisionSelectionListener();
         AgeDivision value = (adItems != null && adItems.size() > 0) ? adItems.get(0) : null;
         setAgeDivision(value);
-        topBarAgeDivisionSelect.setValue(value);
+
+        topBarAgeDivisionSelect.setValue(getAgeDivision());
 
         templateSelect = new ComboBox<>();
         templateSelect.setPlaceholder(getTranslation("AvailableTemplates"));
@@ -372,7 +374,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
     @Override
     protected void defineFilters(GridCrud<Athlete> crud) {
-
         if (categoryFilter == null) {
             categoryFilter = new ComboBox<>();
             categoryFilter.setClearButtonVisible(true);
@@ -380,7 +381,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             categoryFilter.setClearButtonVisible(true);
             categoryFilter.setValue(getCategoryValue());
             categoryFilter.addValueChangeListener(e -> {
-                //logger.debug("categoryFilter set {} {}",e.getValue(),LoggerUtils.stackTrace());
+                logger.warn("categoryFilter set {} {}", e.getValue(), LoggerUtils.stackTrace());
                 setCategoryValue(e.getValue());
                 crud.refreshGrid();
             });
@@ -391,7 +392,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
         // hidden group filter
         getGroupFilter().setVisible(false);
-
 
         genderFilter.setPlaceholder(getTranslation("Gender"));
         genderFilter.setItems(Gender.M, Gender.F);
@@ -441,13 +441,16 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             topBarAgeGroupPrefixSelect.setEnabled(notEmpty);
             String first = (notEmpty && ageDivisionValue == AgeDivision.IWF) ? ageDivisionAgeGroupPrefixes.get(0)
                     : null;
-            // logger.debug("ad {} ag {} first {} select {}", ageDivisionValue, ageDivisionAgeGroupPrefixes, first,
-            // topBarAgeGroupPrefixSelect);
-            
+
             xlsWriter.setAgeDivision(getAgeDivision());
-            
-            // this will trigger other changes and eventually, refresh the grid
-            topBarAgeGroupPrefixSelect.setValue(notEmpty ? first : null);
+
+            if (ageDivisionAgeGroupPrefixes.contains(getAgeGroupPrefix())) {
+                // prefix is valid
+                topBarAgeGroupPrefixSelect.setValue(getAgeGroupPrefix());
+            } else {
+                // this will trigger other changes and eventually, refresh the grid
+                topBarAgeGroupPrefixSelect.setValue(notEmpty ? first : null);
+            }
         });
     }
 
@@ -496,7 +499,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     private Category getCategoryValue() {
-        //logger.trace("categoryValue = {} {}", categoryValue, LoggerUtils.whereFrom());
+        // logger.trace("categoryValue = {} {}", categoryValue, LoggerUtils.whereFrom());
         return categoryValue;
     }
 
@@ -576,15 +579,28 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     private void updateFilters(AgeDivision ageDivision2, String ageGroupPrefix2) {
+        logger.warn("updateFilters {} {} {} {}", ageDivision2, ageGroupPrefix2, getCategoryValue(),
+                LoggerUtils.whereFrom());
         List<Category> categories = CategoryRepository.findByGenderDivisionAgeBW(genderFilter.getValue(),
                 getAgeDivision(), null, null);
         if (getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank()) {
             categories = categories.stream().filter((c) -> c.getAgeGroup().getCode().equals(getAgeGroupPrefix()))
                     .collect(Collectors.toList());
         }
-        Category prevValue = getCategoryValue();
-        categoryFilter.setItems(categories);
-        categoryFilter.setValue(prevValue);
+        if (ageGroupPrefix == null || ageGroupPrefix.isBlank()) {
+            categoryFilter.setItems(new ArrayList<>());
+        } else {
+            Category prevValue = getCategoryValue();
+            categoryFilter.setItems(categories);
+            // contains is not reliable for Categories, check codes
+            if (categories != null && prevValue != null
+                    && categories.stream().anyMatch(c -> c.getCode().contentEquals(prevValue.getCode()))) {
+                categoryFilter.setValue(prevValue);
+            } else {
+                categoryFilter.setValue(null);
+            }
+
+        }
     }
 
     @Override
@@ -660,6 +676,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         String catValue = getCategoryValue() != null ? getCategoryValue().toString() : null;
         updateParam(params1, "cat", catValue);
 
+        logger.warn("{}", params1);
         return params1;
     }
 
