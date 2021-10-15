@@ -745,7 +745,7 @@ public class FieldOfPlay {
                     LoggerUtils.whereFrom());
             List<Athlete> groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true);
             if (groupAthletes.stream().map(Athlete::getStartNumber).anyMatch(sn -> sn == 0)) {
-                logger.warn("start numbers were not assigned correctly");
+                logger./**/warn("start numbers were not assigned correctly");
                 AthleteRepository.assignStartNumbers(group);
                 groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true);
             }
@@ -796,7 +796,8 @@ public class FieldOfPlay {
         if (logger.isEnabledFor(Level.TRACE)) {
             for (Athlete a : getLiftingOrder()) {
                 Participation p = a.getMainRankings();
-                logger.warn("**** {} {} {} {} {} {}", a, p.getCategory(), p.getSnatchRank(), p.getCleanJerkRank(),
+                logger./**/warn("{}{} {} {} {} {} {}", getLoggingName(), a, p.getCategory(), p.getSnatchRank(),
+                        p.getCleanJerkRank(),
                         p.getTotalRank(), a.isForcedAsCurrent());
             }
         }

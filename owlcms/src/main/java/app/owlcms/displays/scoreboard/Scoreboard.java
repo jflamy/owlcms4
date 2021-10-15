@@ -567,7 +567,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         for (Athlete a : list3) {
             JsonObject ja = Json.createObject();
             Category curCat = a.getCategory();
-               logger.warn("{} {} {} {}", a, curCat, curCat.getId(), prevCat, prevCat != null ? prevCat.getId() : null);
+            //logger.debug("{} {} {} {}", a, curCat, curCat.getId(), prevCat, prevCat != null ? prevCat.getId() : null);
             if (curCat != null && !curCat.sameAs(prevCat)) {
                 // changing categories, put marker before athlete
                 ja.put("isSpacer", true);

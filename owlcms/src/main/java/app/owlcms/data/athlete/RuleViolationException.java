@@ -238,7 +238,7 @@ public class RuleViolationException extends RuntimeException {
         super(s);
         this.messageKey = s;
         this.messageFormatData = objs;
-        logger.warn("{}{}", OwlcmsSession.getFopLoggingName(), getLocalizedMessage(Locale.ENGLISH));
+        logger./**/warn("{}{}", OwlcmsSession.getFopLoggingName(), getLocalizedMessage(Locale.ENGLISH));
     }
 
     /*

@@ -4139,7 +4139,7 @@ public class Athlete {
             int clock = fop.getAthleteTimer().liveTimeRemaining();
             Athlete owner = fop.getClockOwner();
             int initialTime = fop.getClockOwnerInitialTimeAllowed();
-            logger.warn("{}athlete={} owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}",
+            logger.debug("{}athlete={} owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}",
                     OwlcmsSession.getFopLoggingName(), this, owner,
                     clock, initialTime, declaration, change1, change2);
             if (!this.isSameAthleteAs(owner)) {
