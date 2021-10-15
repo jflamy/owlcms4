@@ -71,7 +71,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Class ResultsContent.
+ * Class PackageContent.
  *
  * @author Jean-François Lamy
  */
@@ -79,6 +79,7 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "results/finalpackage", layout = AthleteGridLayout.class)
 public class PackageContent extends AthleteGridContent implements HasDynamicTitle {
 
+    private static final String TITLE = "CategoryResults";
     final private static Logger logger = (Logger) LoggerFactory.getLogger(PackageContent.class);
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
     static {
@@ -114,7 +115,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         defineFilters(crudGrid);
         crudGrid.setClickable(false);
         // crudGrid.getGrid().setMultiSort(true);
-        setTopBarTitle(getTranslation("CategoryResults"));
+        setTopBarTitle(getTranslation(TITLE));
     }
 
     /**
@@ -161,27 +162,24 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         return found;
     }
 
-    private void computeAnchors() {
-        String label;
-        if (getAgeGroupPrefix() != null) {
-            label = getAgeGroupPrefix();
-        } else if (getAgeDivision() != null) {
-            label = getAgeDivision().name();
-        } else {
-            label = "all";
-        }
-        if (getCategoryValue() != null) {
-            catLabel = getCategoryValue().getCode().replaceAll(" ", "_");
-        } else {
-            catLabel = label;
-        }
-        finalPackageAnchor.getElement().setAttribute("download", "results_" + label + ".xls");
-        catResultsAnchor.getElement().setAttribute("download", "category_" + catLabel + ".xls");
-        catXlsWriter.setCategory(getCategoryValue());
-    }
-
     public Group getGridGroup() {
         return getGroupFilter().getValue();
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocation()
+     */
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocationUI()
+     */
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
     }
 
     /**
@@ -189,12 +187,63 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("Results");
+        return getTranslation(TITLE);
+    }
+
+    @Override
+    public boolean isIgnoreFopFromURL() {
+        return true;
     }
 
     @Override
     public boolean isIgnoreGroupFromURL() {
         return false;
+    }
+
+    @Override
+    public boolean isShowInitialDialog() {
+        return false;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
+     *      java.util.Map)
+     */
+    @Override
+    public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
+        HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
+
+        List<String> ageDivisionParams = params1.get("ad");
+        // no age division
+        String ageDivisionName = (ageDivisionParams != null
+                && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
+        try {
+            setAgeDivision(AgeDivision.valueOf(ageDivisionName));
+        } catch (Exception e) {
+            List<AgeDivision> ageDivisions = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
+            setAgeDivision((ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null);
+        }
+        // remove if now null
+        String value = getAgeDivision() != null ? getAgeDivision().name() : null;
+        updateParam(params1, "ad", value);
+
+        List<String> ageGroupParams = params1.get("ag");
+        // no age group is the default
+        String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
+        setAgeGroupPrefix(ageGroupPrefix);
+        String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
+        updateParam(params1, "ag", value2);
+
+        List<String> catParams = params1.get("cat");
+        String catParam = (catParams != null && !catParams.isEmpty() ? catParams.get(0) : null);
+        catParam = catParam != null ? URLDecoder.decode(catParam, StandardCharsets.UTF_8) : null;
+
+        setCategoryValue(CategoryRepository.findByCode(catParam));
+        String catValue = getCategoryValue() != null ? getCategoryValue().toString() : null;
+        updateParam(params1, "cat", catValue);
+
+        logger.debug("{}", params1);
+        return params1;
     }
 
     public void refresh() {
@@ -203,6 +252,16 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
     public void setCategoryValue(Category category) {
         this.categoryValue = category;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
     }
 
     /*
@@ -228,6 +287,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
         event.getUI().getPage().getHistory().replaceState(null,
                 new Location(location.getPath(), new QueryParameters(params)));
+    }
+
+    @Override
+    public void setShowInitialDialog(boolean b) {
+        return;
     }
 
     @Override
@@ -303,7 +367,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         getAppLayout().closeDrawer();
 
         H3 title = new H3();
-        title.setText(getTranslation("CategoryResults"));
+        title.setText(getTranslation(TITLE));
         title.add();
         title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
 
@@ -318,7 +382,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         StreamResource hrefC = new StreamResource("catResultsAnchor.xls", catXlsWriter);
         catResultsAnchor = new Anchor(hrefC, "");
         catResultsAnchor.getStyle().set("margin-left", "1em");
-        catDownloadButton = new Button(getTranslation("CategoryResults"), new Icon(VaadinIcon.DOWNLOAD_ALT));
+        catDownloadButton = new Button(getTranslation(TITLE), new Icon(VaadinIcon.DOWNLOAD_ALT));
         catResultsAnchor.add(catDownloadButton);
 
         topBarAgeGroupPrefixSelect = new ComboBox<>();
@@ -379,7 +443,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             categoryFilter.setClearButtonVisible(true);
             categoryFilter.setValue(getCategoryValue());
             categoryFilter.addValueChangeListener(e -> {
-                //logger.warn("categoryFilter set {}", e.getValue());
+                // logger.warn("categoryFilter set {}", e.getValue());
                 setCategoryValue(e.getValue());
                 crud.refreshGrid();
             });
@@ -464,6 +528,16 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         });
     }
 
+    protected void updateURLLocations() {
+        updateURLLocation(UI.getCurrent(), getLocation(), "fop", null);
+        updateURLLocation(UI.getCurrent(), getLocation(), "ag",
+                getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null);
+        updateURLLocation(UI.getCurrent(), getLocation(), "ad",
+                getAgeDivision() != null ? getAgeDivision().name() : null);
+        updateURLLocation(UI.getCurrent(), getLocation(), "cat",
+                getCategoryValue() != null ? getCategoryValue().getCode() : null);
+    }
+
     /**
      * @return true if the current group is safe for editing -- i.e. not lifting currently
      */
@@ -486,6 +560,25 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             logger.debug(getTranslation("EditingResults_logging"), currentGroup, liftingFop);
         }
         return liftingFop != null;
+    }
+
+    private void computeAnchors() {
+        String label;
+        if (getAgeGroupPrefix() != null) {
+            label = getAgeGroupPrefix();
+        } else if (getAgeDivision() != null) {
+            label = getAgeDivision().name();
+        } else {
+            label = "all";
+        }
+        if (getCategoryValue() != null) {
+            catLabel = getCategoryValue().getCode().replaceAll(" ", "_");
+        } else {
+            catLabel = label;
+        }
+        finalPackageAnchor.getElement().setAttribute("download", "results_" + label + ".xls");
+        catResultsAnchor.getElement().setAttribute("download", "category_" + catLabel + ".xls");
+        catXlsWriter.setCategory(getCategoryValue());
     }
 
     private AgeDivision getAgeDivision() {
@@ -577,7 +670,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     private void updateFilters(AgeDivision ageDivision2, String ageGroupPrefix2) {
-        //logger.debug("updateFilters {} {} {} {}", ageDivision2, ageGroupPrefix2, getCategoryValue(),LoggerUtils.whereFrom());
+        // logger.debug("updateFilters {} {} {} {}", ageDivision2, ageGroupPrefix2,
+        // getCategoryValue(),LoggerUtils.whereFrom());
         List<Category> categories = CategoryRepository.findByGenderDivisionAgeBW(genderFilter.getValue(),
                 getAgeDivision(), null, null);
         if (getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank()) {
@@ -598,98 +692,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             }
 
         }
-    }
-
-    @Override
-    public boolean isShowInitialDialog() {
-        return false;
-    }
-
-    @Override
-    public void setShowInitialDialog(boolean b) {
-        return;
-    }
-
-    /**
-     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocation()
-     */
-    @Override
-    public Location getLocation() {
-        return this.location;
-    }
-
-    /**
-     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocationUI()
-     */
-    @Override
-    public UI getLocationUI() {
-        return this.locationUI;
-    }
-
-    @Override
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    @Override
-    public void setLocationUI(UI locationUI) {
-        this.locationUI = locationUI;
-    }
-
-    /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
-     *      java.util.Map)
-     */
-    @Override
-    public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
-        HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
-
-        List<String> ageDivisionParams = params1.get("ad");
-        // no age division
-        String ageDivisionName = (ageDivisionParams != null
-                && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
-        try {
-            setAgeDivision(AgeDivision.valueOf(ageDivisionName));
-        } catch (Exception e) {
-            List<AgeDivision> ageDivisions = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
-            setAgeDivision((ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null);
-        }
-        // remove if now null
-        String value = getAgeDivision() != null ? getAgeDivision().name() : null;
-        updateParam(params1, "ad", value);
-
-        List<String> ageGroupParams = params1.get("ag");
-        // no age group is the default
-        String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
-        setAgeGroupPrefix(ageGroupPrefix);
-        String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
-        updateParam(params1, "ag", value2);
-
-        List<String> catParams = params1.get("cat");
-        String catParam = (catParams != null && !catParams.isEmpty() ? catParams.get(0) : null);
-        catParam = catParam != null ? URLDecoder.decode(catParam, StandardCharsets.UTF_8) : null;
-
-        setCategoryValue(CategoryRepository.findByCode(catParam));
-        String catValue = getCategoryValue() != null ? getCategoryValue().toString() : null;
-        updateParam(params1, "cat", catValue);
-
-        logger.debug("{}", params1);
-        return params1;
-    }
-
-    protected void updateURLLocations() {
-        updateURLLocation(UI.getCurrent(), getLocation(), "fop", null);
-        updateURLLocation(UI.getCurrent(), getLocation(), "ag",
-                getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null);
-        updateURLLocation(UI.getCurrent(), getLocation(), "ad",
-                getAgeDivision() != null ? getAgeDivision().name() : null);
-        updateURLLocation(UI.getCurrent(), getLocation(), "cat",
-                getCategoryValue() != null ? getCategoryValue().getCode() : null);
-    }
-
-    @Override
-    public boolean isIgnoreFopFromURL() {
-        return true;
     }
 
 }
