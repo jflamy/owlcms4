@@ -40,9 +40,9 @@ public class RunResults {
             }
 
             if (POLLING_DELAY > 0) {
-                // run until killed externally.
+                // periodically poll the browsers to check content.
+                // loop forever, we must be killed externally.
                 while (true) {
-                    // periodically poll the browsers to check content.
                     try {
                         Thread.sleep(POLLING_DELAY);
                     } catch (InterruptedException e) {
@@ -62,7 +62,8 @@ public class RunResults {
                     System.out.println();
                 }
             } else {
-                // just wait for external kill.  There is a single thread, so the wait for 2 threads never terminates.
+                // run to create load. Just wait for external kill.  
+                // There is a single thread, so the wait for 2 threads never terminates.
                 try {
                     new CyclicBarrier(2).await();
                 } catch (InterruptedException | BrokenBarrierException e) {
