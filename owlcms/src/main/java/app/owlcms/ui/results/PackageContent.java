@@ -299,7 +299,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     protected void createTopBar() {
-        logger.warn("createTopBar {}", LoggerUtils.stackTrace());
         // show arrow but close menu
         getAppLayout().setMenuVisible(true);
         getAppLayout().closeDrawer();
@@ -381,7 +380,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             categoryFilter.setClearButtonVisible(true);
             categoryFilter.setValue(getCategoryValue());
             categoryFilter.addValueChangeListener(e -> {
-                logger.warn("categoryFilter set {} {}", e.getValue(), LoggerUtils.stackTrace());
+                //logger.warn("categoryFilter set {}", e.getValue());
                 setCategoryValue(e.getValue());
                 crud.refreshGrid();
             });
@@ -579,8 +578,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     private void updateFilters(AgeDivision ageDivision2, String ageGroupPrefix2) {
-        logger.warn("updateFilters {} {} {} {}", ageDivision2, ageGroupPrefix2, getCategoryValue(),
-                LoggerUtils.whereFrom());
+        //logger.debug("updateFilters {} {} {} {}", ageDivision2, ageGroupPrefix2, getCategoryValue(),LoggerUtils.whereFrom());
         List<Category> categories = CategoryRepository.findByGenderDivisionAgeBW(genderFilter.getValue(),
                 getAgeDivision(), null, null);
         if (getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank()) {
@@ -676,7 +674,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         String catValue = getCategoryValue() != null ? getCategoryValue().toString() : null;
         updateParam(params1, "cat", catValue);
 
-        logger.warn("{}", params1);
+        logger.debug("{}", params1);
         return params1;
     }
 
