@@ -104,7 +104,7 @@ public class JPAService {
         String userName = System.getenv("JDBC_DATABASE_USERNAME");
         String password = System.getenv("JDBC_DATABASE_PASSWORD");
 
-        if (dbUrl != null) {
+        if (dbUrl != null && !dbUrl.isBlank()) {
             // explicit url provided
             if (inMemory || dbUrl.startsWith("jdbc:h2:mem")) {
                 embeddedH2Server = true;
@@ -121,7 +121,7 @@ public class JPAService {
             } else {
                 throw new RuntimeException("Unsupported database: " + dbUrl);
             }
-        } else if (postgresHost != null) {
+        } else if (postgresHost != null && !postgresHost.isBlank()) {
             // postgres container configuration
             String postgresPort = System.getenv("POSTGRES_PORT");
             String postgresDb = System.getenv("POSTGRES_DB");
