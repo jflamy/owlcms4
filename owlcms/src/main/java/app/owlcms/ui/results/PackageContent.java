@@ -379,7 +379,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         packageDownloadButton = new Button(getTranslation("FinalResultsPackage"), new Icon(VaadinIcon.DOWNLOAD_ALT));
 
         catXlsWriter = new JXLSCatResults(UI.getCurrent());
-        StreamResource hrefC = new StreamResource("catResultsAnchor.xls", catXlsWriter);
+        StreamResource hrefC = new StreamResource("catResults.xls", catXlsWriter);
         catResultsAnchor = new Anchor(hrefC, "");
         catResultsAnchor.getStyle().set("margin-left", "1em");
         catDownloadButton = new Button(getTranslation(TITLE), new Icon(VaadinIcon.DOWNLOAD_ALT));
