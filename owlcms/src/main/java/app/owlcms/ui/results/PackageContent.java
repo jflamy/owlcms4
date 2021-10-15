@@ -8,6 +8,8 @@
 package app.owlcms.ui.results;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,7 +54,6 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
-import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -102,7 +103,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     private Anchor catResultsAnchor;
     private Button catDownloadButton;
     private String catLabel;
-    private Category category;
+    private Category categoryValue;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
@@ -112,7 +113,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         super();
         defineFilters(crudGrid);
         crudGrid.setClickable(false);
-        crudGrid.getGrid().setMultiSort(true);
+        //crudGrid.getGrid().setMultiSort(true);
         setTopBarTitle(getTranslation("CategoryResults"));
     }
 
@@ -137,7 +138,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         String key = "mwTot";
         @SuppressWarnings("unchecked")
         List<Athlete> ranked = (List<Athlete>) beans.get(key);
-        Category catFilterValue = categoryFilter.getValue();
+        Category catFilterValue = getCategoryValue();
         Stream<Athlete> stream = ranked.stream()
                 .filter(a -> {
 
@@ -151,10 +152,12 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
                     return catOk;
                 });
         List<Athlete> found = stream.collect(Collectors.toList());
-        setCategory(catFilterValue);
 
-        computeAnchors();
-        catXlsWriter.setSortedAthletes(found);
+        if (topBar != null) {
+            computeAnchors();
+            catXlsWriter.setSortedAthletes(found);
+        }
+        updateURLLocations();
         return found;
     }
 
@@ -167,14 +170,14 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         } else {
             label = "all";
         }
-        if (getCategory() != null) {
-            catLabel = getCategory().getCode().replaceAll(" ", "_");
+        if (getCategoryValue() != null) {
+            catLabel = getCategoryValue().getCode().replaceAll(" ", "_");
         } else {
             catLabel = label;
         }
         finalPackageAnchor.getElement().setAttribute("download", "results_" + label + ".xls");
         catResultsAnchor.getElement().setAttribute("download", "category_" + catLabel + ".xls");
-        catXlsWriter.setCategory(category);
+        catXlsWriter.setCategory(getCategoryValue());
     }
 
     public Group getGridGroup() {
@@ -198,54 +201,33 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         crudGrid.refreshGrid();
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    public void setCategoryValue(Category category) {
+        this.categoryValue = category;
     }
 
-    public void setGridGroup(Group group) {
-        subscribeIfLifting(group);
-        getGroupFilter().setValue(group);
-        refresh();
-    }
-
-    /**
-     * Parse the http query parameters
+    /*
+     * Process query parameters
      *
-     * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
-     *
-     * @param event     Vaadin navigation event
-     * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
-     *                  parameters instead.
+     * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path. We use the old-style
+     * Query parameters for our purposes.
      *
      * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
-     *      java.lang.String)
+     * java.lang.String)
      */
     @Override
-    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-        setLocation(event.getLocation());
+    public void setParameter(BeforeEvent event, @OptionalParameter String unused) {
+        Location location = event.getLocation();
+        setLocation(location);
         setLocationUI(event.getUI());
-        QueryParameters queryParameters = getLocation().getQueryParameters();
-        Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
-        HashMap<String, List<String>> params = new HashMap<>(parametersMap);
 
-        logger.debug("parsing query parameters");
-        List<String> groupNames = params.get("group");
-        if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
-            String groupName = groupNames.get(0);
-            currentGroup = GroupRepository.findByName(groupName);
-        } else {
-            currentGroup = null;
-        }
-        if (currentGroup != null) {
-            params.put("group", Arrays.asList(URLUtils.urlEncode(currentGroup.getName())));
-        } else {
-            params.remove("group");
-        }
-        params.remove("fop");
+        // the OptionalParameter string is the part of the URL path that can be interpreted as REST arguments
+        // we use the ? query parameters instead.
+        QueryParameters queryParameters = location.getQueryParameters();
+        Map<String, List<String>> parametersMap = queryParameters.getParameters();
+        HashMap<String, List<String>> params = readParams(location, parametersMap);
 
-        // change the URL to reflect group
         event.getUI().getPage().getHistory().replaceState(null,
-                new Location(getLocation().getPath(), new QueryParameters(params)));
+                new Location(location.getPath(), new QueryParameters(params)));
     }
 
     @Override
@@ -337,7 +319,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         StreamResource hrefC = new StreamResource("catResultsAnchor.xls", catXlsWriter);
         catResultsAnchor = new Anchor(hrefC, "");
         catResultsAnchor.getStyle().set("margin-left", "1em");
-        catDownloadButton = new Button(getTranslation("GroupResults"), new Icon(VaadinIcon.DOWNLOAD_ALT));
+        catDownloadButton = new Button(getTranslation("CategoryResults"), new Icon(VaadinIcon.DOWNLOAD_ALT));
         catResultsAnchor.add(catDownloadButton);
 
         topBarAgeGroupPrefixSelect = new ComboBox<>();
@@ -396,8 +378,10 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             categoryFilter.setClearButtonVisible(true);
             categoryFilter.setPlaceholder(getTranslation("Category"));
             categoryFilter.setClearButtonVisible(true);
+            categoryFilter.setValue(getCategoryValue());
             categoryFilter.addValueChangeListener(e -> {
-                setCategory(e.getValue());
+                //logger.debug("categoryFilter set {} {}",e.getValue(),LoggerUtils.stackTrace());
+                setCategoryValue(e.getValue());
                 crud.refreshGrid();
             });
             categoryFilter.setWidth("10em");
@@ -405,17 +389,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
         crud.getCrudLayout().addFilterComponent(categoryFilter);
 
-        getGroupFilter().setPlaceholder(getTranslation("Group"));
-        getGroupFilter().setItems(GroupRepository.findAll());
-        getGroupFilter().setItemLabelGenerator(Group::getName);
-        getGroupFilter().addValueChangeListener(e -> {
-            logger.debug("updating filters: group={}", e.getValue());
-            currentGroup = e.getValue();
-            updateURLLocation(getLocationUI(), getLocation(), currentGroup);
-            subscribeIfLifting(e.getValue());
-        });
+        // hidden group filter
         getGroupFilter().setVisible(false);
-        crud.getCrudLayout().addFilterComponent(getGroupFilter());
+
 
         genderFilter.setPlaceholder(getTranslation("Gender"));
         genderFilter.setItems(Gender.M, Gender.F);
@@ -467,12 +443,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
                     : null;
             // logger.debug("ad {} ag {} first {} select {}", ageDivisionValue, ageDivisionAgeGroupPrefixes, first,
             // topBarAgeGroupPrefixSelect);
-            topBarAgeGroupPrefixSelect.setValue(notEmpty ? first : null);
-
+            
             xlsWriter.setAgeDivision(getAgeDivision());
-            updateFilters(ageDivisionValue, first);
-
-            // crudGrid.refreshGrid();
+            
+            // this will trigger other changes and eventually, refresh the grid
+            topBarAgeGroupPrefixSelect.setValue(notEmpty ? first : null);
         });
     }
 
@@ -520,8 +495,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         return ageGroupPrefix;
     }
 
-    private Category getCategory() {
-        return category;
+    private Category getCategoryValue() {
+        //logger.trace("categoryValue = {} {}", categoryValue, LoggerUtils.whereFrom());
+        return categoryValue;
     }
 
     private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
@@ -600,15 +576,106 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     private void updateFilters(AgeDivision ageDivision2, String ageGroupPrefix2) {
-
         List<Category> categories = CategoryRepository.findByGenderDivisionAgeBW(genderFilter.getValue(),
                 getAgeDivision(), null, null);
         if (getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank()) {
             categories = categories.stream().filter((c) -> c.getAgeGroup().getCode().equals(getAgeGroupPrefix()))
                     .collect(Collectors.toList());
         }
-        // logger.trace("updateFilters {}, {}, {}", ageDivision2, ageGroupPrefix2, categories);
+        Category prevValue = getCategoryValue();
         categoryFilter.setItems(categories);
+        categoryFilter.setValue(prevValue);
+    }
+
+    @Override
+    public boolean isShowInitialDialog() {
+        return false;
+    }
+
+    @Override
+    public void setShowInitialDialog(boolean b) {
+        return;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocation()
+     */
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocationUI()
+     */
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
+     *      java.util.Map)
+     */
+    @Override
+    public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
+        HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
+
+        List<String> ageDivisionParams = params1.get("ad");
+        // no age division
+        String ageDivisionName = (ageDivisionParams != null
+                && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
+        try {
+            setAgeDivision(AgeDivision.valueOf(ageDivisionName));
+        } catch (Exception e) {
+            List<AgeDivision> ageDivisions = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
+            setAgeDivision((ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null);
+        }
+        // remove if now null
+        String value = getAgeDivision() != null ? getAgeDivision().name() : null;
+        updateParam(params1, "ad", value);
+
+        List<String> ageGroupParams = params1.get("ag");
+        // no age group is the default
+        String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
+        setAgeGroupPrefix(ageGroupPrefix);
+        String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
+        updateParam(params1, "ag", value2);
+
+        List<String> catParams = params1.get("cat");
+        String catParam = (catParams != null && !catParams.isEmpty() ? catParams.get(0) : null);
+        catParam = catParam != null ? URLDecoder.decode(catParam, StandardCharsets.UTF_8) : null;
+
+        setCategoryValue(CategoryRepository.findByCode(catParam));
+        String catValue = getCategoryValue() != null ? getCategoryValue().toString() : null;
+        updateParam(params1, "cat", catValue);
+
+        return params1;
+    }
+
+    protected void updateURLLocations() {
+        updateURLLocation(UI.getCurrent(), getLocation(), "fop", null);
+        updateURLLocation(UI.getCurrent(), getLocation(), "ag",
+                getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null);
+        updateURLLocation(UI.getCurrent(), getLocation(), "ad",
+                getAgeDivision() != null ? getAgeDivision().name() : null);
+        updateURLLocation(UI.getCurrent(), getLocation(), "cat",
+                getCategoryValue() != null ? getCategoryValue().getCode() : null);
+    }
+
+    @Override
+    public boolean isIgnoreFopFromURL() {
+        return true;
     }
 
 }

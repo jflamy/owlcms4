@@ -144,6 +144,7 @@ public interface FOPParameters extends HasUrlParameter<String> {
     }
 
     public default void updateURLLocation(UI ui, Location location, String parameter, String value) {
+        //logger.debug("{} {} {} {}", ui, location, parameter, value);
         TreeMap<String, List<String>> parametersMap = new TreeMap<>(location.getQueryParameters().getParameters());
         // get current values
         if (!this.isIgnoreFopFromURL()) {

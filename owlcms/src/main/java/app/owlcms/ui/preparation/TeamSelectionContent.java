@@ -609,19 +609,6 @@ public class TeamSelectionContent extends VerticalLayout
     public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
         HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
 
-//        List<String> darkParams = params1.get(DARK);
-//        // dark is the default. dark=false or dark=no or ... will turn off dark mode.
-//        boolean darkMode = darkParams == null || darkParams.isEmpty() || darkParams.get(0).toLowerCase().equals("true");
-//        setDarkMode(darkMode);
-//        updateParam(params1, DARK, !isDarkMode() ? "false" : null);
-//
-//        List<String> silentParams = params1.get(SILENT);
-//        // dark is the default. dark=false or dark=no or ... will turn off dark mode.
-//        boolean silentMode = silentParams == null || silentParams.isEmpty()
-//                || silentParams.get(0).toLowerCase().equals("true");
-//        setSilenced(silentMode);
-//        updateParam(params1, SILENT, !isSilenced() ? "false" : null);
-
         List<String> ageDivisionParams = params1.get("ad");
         // no age division
         String ageDivisionName = (ageDivisionParams != null && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0)

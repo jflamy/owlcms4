@@ -71,6 +71,13 @@ public class CategoryRepository {
     }
 
     @SuppressWarnings("unchecked")
+    public static Category doFindByCode(String code, EntityManager em) {
+        Query query = em.createQuery("select c from Category c where lower(code) = lower(:string)");
+        query.setParameter("string", code);
+        return (Category) query.getResultList().stream().findFirst().orElse(null);
+    }
+
+    @SuppressWarnings("unchecked")
     public static Category doFindByName(String string, EntityManager em) {
         Query query = em.createQuery("select c from Category c where lower(name) = lower(:string) order by c.name");
         query.setParameter("string", string);
@@ -129,6 +136,18 @@ public class CategoryRepository {
                 .runInTransaction(em -> em.createQuery("select c from Category c order by c.name").getResultList());
     }
 
+    /**
+     * Find by code.
+     *
+     * @param string the code
+     * @return the category
+     */
+    public static Category findByCode(String string) {
+        return JPAService.runInTransaction(em -> {
+            return doFindByCode(string, em);
+        });
+    }
+
     public static List<Category> findByGenderAgeBW(Gender gender, Integer age, Double bodyWeight) {
         Boolean active = true;
         List<Category> findFiltered = findFiltered((String) null, gender, (AgeDivision) null, (AgeGroup) null, age,
@@ -175,7 +194,8 @@ public class CategoryRepository {
         return JPAService.runInTransaction(em -> {
             List<Category> doFindFiltered = doFindFiltered(em, name, gender, ageDivision, ageGroup, age, bodyWeight,
                     active, offset, limit);
-            //logger.trace("found {} searching for {} {} {} {} {}", doFindFiltered.size(), gender, ageDivision, age, bodyWeight, active);
+            // logger.trace("found {} searching for {} {} {} {} {}", doFindFiltered.size(), gender, ageDivision, age,
+            // bodyWeight, active);
             return doFindFiltered;
         });
     }

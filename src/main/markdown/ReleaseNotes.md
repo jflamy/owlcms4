@@ -1,7 +1,9 @@
 Specific changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Russian and Portuguese translations
-- [x] Fixed an issue with category comparison that could affect scoreboards, category results, and final packages.
+- [x] Spanish (Spain) translation
+- [x] Category Results improvements:
+  - Ability to produce an individual Excel sheet for a category. 
+  - The page now remembers its filters so it can be refreshed.
 
 Changes for release 4.23
 
