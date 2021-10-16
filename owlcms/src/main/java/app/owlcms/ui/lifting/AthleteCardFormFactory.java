@@ -454,7 +454,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                         ValidationUtils.checkUsingException(
                                 v -> isIgnoreErrors() || getEditedAthlete().validateSnatch1Declaration(v)))
                 .withValidationStatusHandler(status -> {
-                }).bind(Athlete::getSnatch1Declaration, Athlete::setSnatch1Declaration);
+                    checkWithdrawal(status, snatch1Declaration, snatch1ActualLift);
+                })
+                .bind(Athlete::getSnatch1Declaration, Athlete::setSnatch1Declaration);
         atRowAndColumn(gridLayout, snatch1Declaration, DECLARATION, SNATCH1);
 
         TextField snatch1Change1 = createPositiveWeightField(CHANGE1, SNATCH1);
@@ -462,7 +464,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                 .withValidator(ValidationUtils
                         .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch1Change1(v)))
                 .withValidationStatusHandler(status -> {
-                }).bind(Athlete::getSnatch1Change1, Athlete::setSnatch1Change1);
+                    checkWithdrawal(status, snatch1Change1, snatch1ActualLift);
+                })
+                .bind(Athlete::getSnatch1Change1, Athlete::setSnatch1Change1);
         atRowAndColumn(gridLayout, snatch1Change1, CHANGE1, SNATCH1);
 
         TextField snatch1Change2 = createPositiveWeightField(CHANGE2, SNATCH1);
@@ -470,7 +474,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                 .withValidator(ValidationUtils
                         .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch1Change2(v)))
                 .withValidationStatusHandler(status -> {
-                }).bind(Athlete::getSnatch1Change2, Athlete::setSnatch1Change2);
+                    checkWithdrawal(status, snatch1Change2, snatch1ActualLift);
+                })
+                .bind(Athlete::getSnatch1Change2, Athlete::setSnatch1Change2);
         atRowAndColumn(gridLayout, snatch1Change2, CHANGE2, SNATCH1);
 
         snatch1ActualLift = createActualWeightField(ACTUAL, SNATCH1);
@@ -496,7 +502,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                         ValidationUtils.checkUsingException(
                                 v -> isIgnoreErrors() || getEditedAthlete().validateSnatch2Declaration(v)))
                 .withValidationStatusHandler(status -> {
-                }).bind(Athlete::getSnatch2Declaration, Athlete::setSnatch2Declaration);
+                    checkWithdrawal(status, snatch2Declaration, snatch2ActualLift);
+                })
+                .bind(Athlete::getSnatch2Declaration, Athlete::setSnatch2Declaration);
         atRowAndColumn(gridLayout, snatch2Declaration, DECLARATION, SNATCH2);
 
         TextField snatch2Change1 = createPositiveWeightField(CHANGE1, SNATCH2);
@@ -504,7 +512,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                 .withValidator(ValidationUtils
                         .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch2Change1(v)))
                 .withValidationStatusHandler(status -> {
-                }).bind(Athlete::getSnatch2Change1, Athlete::setSnatch2Change1);
+                    checkWithdrawal(status, snatch2Change1, snatch2ActualLift);
+                })
+                .bind(Athlete::getSnatch2Change1, Athlete::setSnatch2Change1);
         atRowAndColumn(gridLayout, snatch2Change1, CHANGE1, SNATCH2);
 
         TextField snatch2Change2 = createPositiveWeightField(CHANGE2, SNATCH2);
@@ -512,7 +522,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                 .withValidator(ValidationUtils
                         .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch2Change2(v)))
                 .withValidationStatusHandler(status -> {
-                }).bind(Athlete::getSnatch2Change2, Athlete::setSnatch2Change2);
+                    checkWithdrawal(status, snatch2Change2, snatch2ActualLift);
+                })
+                .bind(Athlete::getSnatch2Change2, Athlete::setSnatch2Change2);
         atRowAndColumn(gridLayout, snatch2Change2, CHANGE2, SNATCH2);
 
         snatch2ActualLift = createActualWeightField(ACTUAL, SNATCH2);
@@ -538,6 +550,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                         ValidationUtils.checkUsingException(
                                 v -> isIgnoreErrors() || getEditedAthlete().validateSnatch3Declaration(v)))
                 .withValidationStatusHandler(status -> {
+                    checkWithdrawal(status, snatch3Declaration, snatch3ActualLift);
                 }).bind(Athlete::getSnatch3Declaration, Athlete::setSnatch3Declaration);
         atRowAndColumn(gridLayout, snatch3Declaration, DECLARATION, SNATCH3);
 
@@ -546,6 +559,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                 .withValidator(ValidationUtils
                         .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch3Change1(v)))
                 .withValidationStatusHandler(status -> {
+                    checkWithdrawal(status, snatch3Change1, snatch3ActualLift);
                 }).bind(Athlete::getSnatch3Change1, Athlete::setSnatch3Change1);
         atRowAndColumn(gridLayout, snatch3Change1, CHANGE1, SNATCH3);
 
@@ -554,7 +568,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                 .withValidator(ValidationUtils
                         .checkUsingException(v -> isIgnoreErrors() || getEditedAthlete().validateSnatch3Change2(v)))
                 .withValidationStatusHandler(status -> {
-                }).bind(Athlete::getSnatch3Change2, Athlete::setSnatch3Change2);
+                    checkWithdrawal(status, snatch3Change2, snatch3ActualLift);
+                })
+                .bind(Athlete::getSnatch3Change2, Athlete::setSnatch3Change2);
         atRowAndColumn(gridLayout, snatch3Change2, CHANGE2, SNATCH3);
 
         snatch3ActualLift = createActualWeightField(ACTUAL, SNATCH3);
@@ -572,7 +588,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                         ValidationUtils.checkUsingException(
                                 v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk1Declaration(v)))
                 .withValidationStatusHandler(status -> {
-                }).bind(Athlete::getCleanJerk1Declaration, Athlete::setCleanJerk1Declaration);
+                    checkWithdrawal(status, cj1Declaration, cj1ActualLift);
+                })
+                .bind(Athlete::getCleanJerk1Declaration, Athlete::setCleanJerk1Declaration);
         atRowAndColumn(gridLayout, cj1Declaration, DECLARATION, CJ1);
 
         TextField cj1Change1 = createPositiveWeightField(CHANGE1, CJ1);
@@ -581,6 +599,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                         ValidationUtils.checkUsingException(
                                 v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk1Change1(v)))
                 .withValidationStatusHandler(status -> {
+                    checkWithdrawal(status, cj1Change1, cj1ActualLift);
                 }).bind(Athlete::getCleanJerk1Change1, Athlete::setCleanJerk1Change1);
         atRowAndColumn(gridLayout, cj1Change1, CHANGE1, CJ1);
 
@@ -590,6 +609,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                         ValidationUtils.checkUsingException(
                                 v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk1Change2(v)))
                 .withValidationStatusHandler(status -> {
+                    checkWithdrawal(status, cj1Change2, cj1ActualLift);
                 }).bind(Athlete::getCleanJerk1Change2, Athlete::setCleanJerk1Change2);
         atRowAndColumn(gridLayout, cj1Change2, CHANGE2, CJ1);
 
@@ -616,6 +636,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                         ValidationUtils.checkUsingException(
                                 v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk2Declaration(v)))
                 .withValidationStatusHandler(status -> {
+                    checkWithdrawal(status, cj2Declaration, cj2ActualLift);
                 }).bind(Athlete::getCleanJerk2Declaration, Athlete::setCleanJerk2Declaration);
         atRowAndColumn(gridLayout, cj2Declaration, DECLARATION, CJ2);
 
@@ -625,6 +646,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                         ValidationUtils.checkUsingException(
                                 v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk2Change1(v)))
                 .withValidationStatusHandler(status -> {
+                    checkWithdrawal(status, cj2Change1, cj2ActualLift);
                 }).bind(Athlete::getCleanJerk2Change1, Athlete::setCleanJerk2Change1);
         atRowAndColumn(gridLayout, cj2Change1, CHANGE1, CJ2);
 
@@ -634,6 +656,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                         ValidationUtils.checkUsingException(
                                 v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk2Change2(v)))
                 .withValidationStatusHandler(status -> {
+                    checkWithdrawal(status, cj2Change2, cj2ActualLift);
                 }).bind(Athlete::getCleanJerk2Change2, Athlete::setCleanJerk2Change2);
         atRowAndColumn(gridLayout, cj2Change2, CHANGE2, CJ2);
 
@@ -660,7 +683,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                         ValidationUtils.checkUsingException(
                                 v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk3Declaration(v)))
                 .withValidationStatusHandler(status -> {
-                }).bind(Athlete::getCleanJerk3Declaration, Athlete::setCleanJerk3Declaration);
+                    checkWithdrawal(status, cj3Declaration, cj3ActualLift);
+                })
+                .bind(Athlete::getCleanJerk3Declaration, Athlete::setCleanJerk3Declaration);
         atRowAndColumn(gridLayout, cj3Declaration, DECLARATION, CJ3);
 
         TextField cj3Change1 = createPositiveWeightField(CHANGE1, CJ3);
@@ -669,7 +694,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                         ValidationUtils.checkUsingException(
                                 v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk3Change1(v)))
                 .withValidationStatusHandler(status -> {
-                }).bind(Athlete::getCleanJerk3Change1, Athlete::setCleanJerk3Change1);
+                    checkWithdrawal(status, cj3Change1, cj3ActualLift);
+                })
+                .bind(Athlete::getCleanJerk3Change1, Athlete::setCleanJerk3Change1);
         atRowAndColumn(gridLayout, cj3Change1, CHANGE1, CJ3);
 
         TextField cj3Change2 = createPositiveWeightField(CHANGE2, CJ3);
@@ -678,7 +705,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                         ValidationUtils.checkUsingException(
                                 v -> isIgnoreErrors() || getEditedAthlete().validateCleanJerk3Change2(v)))
                 .withValidationStatusHandler(status -> {
-                }).bind(Athlete::getCleanJerk3Change2, Athlete::setCleanJerk3Change2);
+                    checkWithdrawal(status, cj3Change2, cj3ActualLift);
+                })
+                .bind(Athlete::getCleanJerk3Change2, Athlete::setCleanJerk3Change2);
         atRowAndColumn(gridLayout, cj3Change2, CHANGE2, CJ3);
 
         cj3ActualLift = createActualWeightField(ACTUAL, CJ3);
@@ -708,6 +737,16 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
             adjustResultsFields(true);
         }
         setFocus(getEditedAthlete());
+    }
+
+    private void checkWithdrawal(BindingValidationStatus<?> status, TextField change,
+            TextField lift) {
+        if (!status.isError()) {
+            if (change.getValue() != null && change.getValue().contentEquals("0")) {
+                lift.setValue("0");
+                setFocus(getEditedAthlete());
+            }
+        }
     }
 
     private Checkbox buildAllowResultsEditingCheckbox() {
@@ -868,6 +907,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         // figure out whether we are searching for snatch or CJ
         int rightCol;
         int leftCol;
+
         if (a.getAttemptsDone() >= 3) {
             rightCol = CJ3;
             leftCol = CJ1;
@@ -894,6 +934,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
             // a suitable empty cell was found, set focus
             textfields[targetRow][targetCol].setAutofocus(true);
             textfields[targetRow][targetCol].setAutoselect(true);
+            textfields[targetRow][targetCol].focus();
         }
     }
 
