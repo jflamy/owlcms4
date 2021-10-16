@@ -1,10 +1,6 @@
 Specific changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Spanish (Spain) translation
-- [x] Results improvements and fixes:
-  - The Protocol sheet and the Final Package result pages shows header for each category.  The old flat protocol sheet is still available as "6Attempts" template for copy-paste needs.
-  - From the Category Results page, ability to produce a result sheet for the selected category, age group, or age division.
-  - The Category Results page now remembers its filters so it can be refreshed or bookmarked.
+- [x] Fix: custom scores work again (typically used in kid competitions where bonus points or technical scores are awarded).
 
 Changes for release 4.23
 
@@ -20,6 +16,9 @@ Changes for release 4.23
 
   - Teams can be defined by Age Group (e.g. JR, SR, U15, U17) or by Age Division together (e.g. Masters, or all age Uxx age groups combined)
   - Team-oriented scoreboards allow selecting which age group is shown (e.g. JR Team is different from the SR team)
+- [x] Results improvements and fixes:
+  - The Protocol sheet and the Final Package result pages shows header for each category.  The old flat protocol sheet is still available as "6Attempts" template for copy-paste needs.
+  - From the Category Results page, ability to produce a result sheet for the selected category, age group, or age division.
 - [x] Moved the Language and Time Zone settings to the Configuration section, since they concern the system and not the weightlifting rules.  Renamed pages accordingly.
 - [x] Enhancement: the program now forces start numbers when lifting starts if they have not been attributed at weigh-in (useful for small competitions not using cards with novice users)
 - [x] All resources in the local directory take precedence over the built-in ones (visual styles, templates, age group definitions, sounds, etc.)
