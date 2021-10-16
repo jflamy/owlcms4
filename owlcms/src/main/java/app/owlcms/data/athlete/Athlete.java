@@ -469,7 +469,12 @@ public class Athlete {
      * @param weight
      */
     public void doLift(final String weight) {
-        switch (this.getAttemptsDone() + 1) {
+        int liftNo = this.getAttemptsDone() + 1;
+        doLift(liftNo, weight);
+    }
+
+    private void doLift(int liftNo, final String weight) {
+        switch (liftNo) {
         case 1:
             this.setSnatch1ActualLift(weight);
             this.setSnatch1LiftTime(LocalDateTime.now());
@@ -3554,16 +3559,6 @@ public class Athlete {
             // Athlete is not taking try; always ok no matter what was declared.
             return;
         }
-//      if (declaredChanges == 0 && iAutomaticProgression > 0) {
-//          // assume data entry is being done without reference to
-//          // declarations, check if > progression
-//          if (Math.abs(liftedWeight) >= iAutomaticProgression) {
-//              return;
-//          } else {
-//              throw RuleViolation.liftValueBelowProgression(curLift, actualLift, iAutomaticProgression);
-//          }
-//      } else {
-
         // allow empty declaration (declaration == automatic progression).
         // if (validation) validateDeclaration(curLift, automaticProgression,
         // declaration, change1, change2, actualLift);
@@ -3581,7 +3576,6 @@ public class Athlete {
             }
             return;
         }
-//      }
     }
 
     public boolean validateCleanJerk1ActualLift(String cleanJerk1ActualLift) throws RuleViolationException {
