@@ -137,6 +137,11 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
         // }
     }
 
+    /**
+     * jxls does not translate sheet names and header/footers. 
+     * 
+     * @param workbook
+     */
     private void translateSheets(Workbook workbook) {
         int nbSheets = workbook.getNumberOfSheets();
         for (int sheetIndex = 0; sheetIndex < nbSheets; sheetIndex++) {
@@ -145,7 +150,8 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
             workbook.setSheetName(sheetIndex,
                     Translator.translate("CompetitionBook." + sheetName, OwlcmsSession.getLocale()));
 
-            String leftHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_LeftHeader",
+            // use translate so this shows as missing on the sheet.
+            String leftHeader = Translator.translate("CompetitionBook." + sheetName + "_LeftHeader",
                     OwlcmsSession.getLocale());
             if (leftHeader != null) {
                 curSheet.getHeader().setLeft(leftHeader);
@@ -155,7 +161,8 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
             if (centerHeader != null) {
                 curSheet.getHeader().setCenter(centerHeader);
             }
-            String rightHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_RightHeader",
+            // use translate so this shows as missing on the sheet.
+            String rightHeader = Translator.translate("CompetitionBook." + sheetName + "_RightHeader",
                     OwlcmsSession.getLocale());
             if (rightHeader != null) {
                 curSheet.getHeader().setRight(rightHeader);
