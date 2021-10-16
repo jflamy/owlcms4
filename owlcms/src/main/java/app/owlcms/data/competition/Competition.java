@@ -742,19 +742,14 @@ public class Competition {
 //        }
 
         // sort only, use ranks stored in database
-
-        boolean customScore2 = Competition.getCurrent().isCustomScore();
-        logger.warn("isCustomScore {}", customScore2);
-        if (customScore2) {
-            sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CUSTOM);
-            sortedMen = new ArrayList<>(sortedAthletes.size());
-            sortedWomen = new ArrayList<>(sortedAthletes.size());
-            splitByGender(sortedAthletes, sortedMen, sortedWomen);
-            reportingBeans.put("mCus", sortedMen);
-            reportingBeans.put("wCus", sortedWomen);
-            logger.debug("mCus {}", sortedMen);
-            logger.debug("wCus {}", sortedWomen);
-        }
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CUSTOM);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reportingBeans.put("mCus", sortedMen);
+        reportingBeans.put("wCus", sortedWomen);
+        logger.debug("mCus {}", sortedMen);
+        logger.debug("wCus {}", sortedWomen);
 
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CAT_SINCLAIR);
         AthleteSorter.assignOverallRanksAndPoints(sortedAthletes, Ranking.CAT_SINCLAIR);
@@ -923,7 +918,7 @@ public class Competition {
         getOrCreateBean("mwCombined");
         reportingBeans.put("mwCombined", sortedAthletes);
     }
-    
+
     private void reportCustom(List<Athlete> sortedAthletes, List<Athlete> sortedMen, List<Athlete> sortedWomen) {
         getOrCreateBean("mCustom");
         reportingBeans.put("mCustom", sortedMen);
@@ -932,7 +927,7 @@ public class Competition {
         getOrCreateBean("mwCustom");
         reportingBeans.put("mwCustom", sortedAthletes);
     }
-    
+
     private void reportSinclair(List<Athlete> sortedMen, List<Athlete> sortedWomen) {
         getOrCreateBean("mSinclair");
         reportingBeans.put("mSinclair", sortedMen);
@@ -1017,7 +1012,7 @@ public class Competition {
         sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, Ranking.TOTAL);
         addToReportingBean("mTeam" + suffix, sortedMen);
         addToReportingBean("wTeam" + suffix, sortedWomen);
-        addToReportingBean("mwTeam" + suffix, sortedAthletes);       
+        addToReportingBean("mwTeam" + suffix, sortedAthletes);
         if (singleAgeGroup) {
             reportTeams(sortedAthletes, sortedMen, sortedWomen);
         }
@@ -1032,19 +1027,16 @@ public class Competition {
             reportCombined(sortedAthletes, sortedMen, sortedWomen);
         }
 
-        if (Competition.getCurrent().isCustomScore()) {
-            sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.CUSTOM);
-            sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Ranking.CUSTOM);
-            sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, Ranking.CUSTOM);
-            addToReportingBean("mCustom" + suffix, sortedMen);
-            addToReportingBean("wCustom" + suffix, sortedWomen);
-            addToReportingBean("mwCustom" + suffix, sortedAthletes);
-            if (singleAgeGroup) {
-                reportCustom(sortedAthletes, sortedMen, sortedWomen);
-            }
+        sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.CUSTOM);
+        sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Ranking.CUSTOM);
+        sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, Ranking.CUSTOM);
+        addToReportingBean("mCustom" + suffix, sortedMen);
+        addToReportingBean("wCustom" + suffix, sortedWomen);
+        addToReportingBean("mwCustom" + suffix, sortedAthletes);
+        if (singleAgeGroup) {
+            reportCustom(sortedAthletes, sortedMen, sortedWomen);
         }
 
-        
         sortedMen = getOrCreateBean("mTeamSinclair" + suffix);
         sortedWomen = getOrCreateBean("wTeamSinclair" + suffix);
         AthleteSorter.teamPointsOrder(sortedMen, Ranking.BW_SINCLAIR);
@@ -1097,7 +1089,7 @@ public class Competition {
         AthleteSorter.teamPointsOrder(sortedMen, Ranking.SNATCH_CJ_TOTAL);
         AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SNATCH_CJ_TOTAL);
         AthleteSorter.teamPointsOrder(sortedAthletes, Ranking.SNATCH_CJ_TOTAL);
-        
+
         reportCombined(sortedAthletes, sortedMen, sortedWomen);
 
         sortedMen = getOrCreateBean("mCustom" + ad.name());
@@ -1106,14 +1098,14 @@ public class Competition {
         AthleteSorter.teamPointsOrder(sortedMen, Ranking.CUSTOM);
         AthleteSorter.teamPointsOrder(sortedWomen, Ranking.CUSTOM);
         AthleteSorter.teamPointsOrder(sortedAthletes, Ranking.CUSTOM);
-        
+
         reportCustom(sortedAthletes, sortedMen, sortedWomen);
 
         sortedMen = getOrCreateBean("mTeamSinclair" + ad.name());
         sortedWomen = getOrCreateBean("wTeamSinclair" + ad.name());
         AthleteSorter.teamPointsOrder(sortedMen, Ranking.BW_SINCLAIR);
         AthleteSorter.teamPointsOrder(sortedWomen, Ranking.BW_SINCLAIR);
-        
+
         reportSinclair(sortedMen, sortedWomen);
     }
 }
