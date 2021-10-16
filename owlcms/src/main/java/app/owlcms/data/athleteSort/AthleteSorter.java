@@ -21,7 +21,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Participation;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.spreadsheet.PAthlete;
 import ch.qos.logback.classic.Logger;
@@ -57,8 +56,8 @@ public class AthleteSorter implements Serializable {
     private static final Logger logger = (Logger) LoggerFactory.getLogger(AthleteSorter.class);
 
     /**
-     * Assign ranks within each category, for all athletes in categories present in group.
-     * Returns the list of these athletes (i.e. not only these in group g)
+     * Assign ranks within each category, for all athletes in categories present in group. Returns the list of these
+     * athletes (i.e. not only these in group g)
      * 
      * @param g
      * @return
@@ -80,11 +79,9 @@ public class AthleteSorter implements Serializable {
         AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
         sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.TOTAL, true);
         AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.TOTAL);
-        if (Competition.getCurrent().isCustomScore()) {
-            sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.CUSTOM, true);
-            AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.CUSTOM);
-        }
-        
+        sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.CUSTOM, true);
+        AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.CUSTOM);
+
 //        if (logger.isEnabledFor(Level.WARN)) {
 //            for (Athlete a : impactedAthletes) {
 //                Participation p = a.getMainRankings();
@@ -93,7 +90,6 @@ public class AthleteSorter implements Serializable {
 //        }
         return impactedAthletes;
     }
-
 
     /**
      * Assign ranks, sequentially.
@@ -110,9 +106,9 @@ public class AthleteSorter implements Serializable {
     /**
      * Assign ranks, sequentially.
      *
-     * @param absoluteOrderList  list sorted without taking categories into accountoui
+     * @param absoluteOrderList list sorted without taking categories into accountoui
      * 
-     * @param rankingType the ranking type
+     * @param rankingType       the ranking type
      */
     private static void assignEligibleCategoryRanks(List<Athlete> absoluteOrderList, Ranking rankingType) {
         MultiCategoryRankSetter rt = new MultiCategoryRankSetter();
@@ -222,7 +218,6 @@ public class AthleteSorter implements Serializable {
             return 0;
         }
     }
-
 
     /**
      * Sort athletes according to official rules (in place) <tableToolbar>
@@ -407,7 +402,7 @@ public class AthleteSorter implements Serializable {
     /**
      * Sort athletes according to winning order, creating a new list.
      *
-     * @param athletes  the to be sorted
+     * @param athletes    the to be sorted
      * @param rankingType the ranking type
      * @return athletes, ordered according to their category and totalRank order
      * @see #liftingOrder(List)
@@ -440,7 +435,8 @@ public class AthleteSorter implements Serializable {
      * @return athletes, ordered according to their category and totalRank order
      * @see #liftingOrder(List)
      */
-    static public List<Athlete> resultsOrderCopy(List<? extends Athlete> toBeSorted, Ranking rankingType, boolean absoluteOrder) {
+    static public List<Athlete> resultsOrderCopy(List<? extends Athlete> toBeSorted, Ranking rankingType,
+            boolean absoluteOrder) {
         List<Athlete> sorted = new ArrayList<>(toBeSorted);
         switch (rankingType) {
         case BW_SINCLAIR:
@@ -498,7 +494,7 @@ public class AthleteSorter implements Serializable {
     /**
      * Sort athletes by team, gender and totalRank so team totals can be computed.
      *
-     * @param athletes  the to be sorted
+     * @param athletes    the to be sorted
      * @param rankingType what type of lift or total is being ranked
      * @return the list
      */
@@ -595,7 +591,7 @@ public class AthleteSorter implements Serializable {
         }
         return 26 - rank;
     }
-    
+
     /**
      * @param rank
      * @param curLifter
@@ -613,7 +609,6 @@ public class AthleteSorter implements Serializable {
         }
         return 26 - rank;
     }
-
 
     public static List<PAthlete> teamPointsOrderedPAthletes(List<Participation> mwAgeGroupParticipations,
             Ranking rankingType) {
