@@ -183,7 +183,10 @@ public class AthleteRepository {
             Query q = em.createQuery(
                     "select distinct a, p from Athlete a join fetch a.participations p join p.category c where exists "
                             + categoriesFromCurrentGroup);
-            q.setParameter("groupId", g.getId());
+            try {
+                q.setParameter("groupId", g.getId());
+            } catch (Exception e) {
+            }
             @SuppressWarnings("rawtypes")
             List resultList = q.getResultList();
             return resultList;
