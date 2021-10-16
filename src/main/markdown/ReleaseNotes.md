@@ -1,6 +1,10 @@
 Specific changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Fix: custom scores work again (typically used in kid competitions where bonus points or technical scores are awarded).
+- [x] First release candidate.  No additional features expected.
+- [x] Swedish translation updated.
+- [x] The list of reachable addresses on the home page was incomplete or missing.  The connectivity self-tests are now included in the logs to assist in diagnosing networking issues.
+- [x] Simpler way to decline a lift: declaring or making a change to 0 sets the lifted weight to 0.
+- [x] Cleaned-up the Final Package Excel templates: fixed formatting, added missing translations.  Also finished converting the template tabs for Custom score competitions from the previous language-specific format.
 
 Changes for release 4.23
 
