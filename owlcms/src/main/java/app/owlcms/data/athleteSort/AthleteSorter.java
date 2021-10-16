@@ -21,6 +21,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.spreadsheet.PAthlete;
 import ch.qos.logback.classic.Logger;
@@ -79,6 +80,10 @@ public class AthleteSorter implements Serializable {
         AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
         sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.TOTAL, true);
         AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.TOTAL);
+        if (Competition.getCurrent().isCustomScore()) {
+            sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.CUSTOM, true);
+            AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.CUSTOM);
+        }
         
 //        if (logger.isEnabledFor(Level.WARN)) {
 //            for (Athlete a : impactedAthletes) {
@@ -280,7 +285,7 @@ public class AthleteSorter implements Serializable {
         case TOTAL:
             return curLifter.getMainRankings().getTotalRank();
         case CUSTOM:
-            return curLifter.getCustomRank();
+            return curLifter.getMainRankings().getCustomRank();
         default:
             break;
         }
@@ -521,7 +526,7 @@ public class AthleteSorter implements Serializable {
         case TOTAL:
             return pointsFormula(curLifter.getMainRankings().getTotalRank(), curLifter);
         case CUSTOM:
-            return pointsFormula(curLifter.getCustomRank(), curLifter);
+            return pointsFormula(curLifter.getMainRankings().getCustomRank(), curLifter);
         case SNATCH_CJ_TOTAL:
             return pointsFormula(curLifter.getMainRankings().getSnatchRank(), curLifter)
                     + pointsFormula(curLifter.getMainRankings().getCleanJerkRank(), curLifter)
@@ -616,31 +621,4 @@ public class AthleteSorter implements Serializable {
         List<PAthlete> res = mwAgeGroupParticipations.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
         return res;
     }
-
-
-
-//    /**
-//     * @param curLifter
-//     * @param Math.round(points
-//     * @param rankingType
-//     */
-//    private static void setPoints(Athlete curLifter, float points, Ranking rankingType) {
-//        logger.trace(curLifter + " " + rankingType + " points=" + points);
-//        switch (rankingType) {
-//        case SNATCH:
-//            curLifter.setSnatchPoints(Math.round(points));
-//            break;
-//        case CLEANJERK:
-//            curLifter.setCleanJerkPoints(Math.round(points));
-//            break;
-//        case TOTAL:
-//            curLifter.setTotalPoints(Math.round(points));
-//            break;
-//        case CUSTOM:
-//            curLifter.setCustomPoints(Math.round(points));
-//            break;
-//        default:
-//            break;// computed
-//        }
-//    }
 }

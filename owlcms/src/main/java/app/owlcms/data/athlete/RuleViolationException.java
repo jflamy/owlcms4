@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -108,7 +109,7 @@ public class RuleViolationException extends RuntimeException {
          */
         public LiftValueNotWhatWasRequested(int curLift, String actualLift, int lastDeclarationOrChange,
                 int liftedWeight) {
-            super("RuleViolation.liftValueNotWhatWasRequested", curLift, actualLift, lastDeclarationOrChange,
+            super("RuleViolation.liftValueNotWhatWasRequested", (curLift % 3) + 1, actualLift, lastDeclarationOrChange,
                     liftedWeight);
         }
     }
@@ -238,7 +239,7 @@ public class RuleViolationException extends RuntimeException {
         super(s);
         this.messageKey = s;
         this.messageFormatData = objs;
-        logger./**/warn("{}{}", OwlcmsSession.getFopLoggingName(), getLocalizedMessage(Locale.ENGLISH));
+        logger./**/warn("{}{} [{}]", OwlcmsSession.getFopLoggingName(), getLocalizedMessage(Locale.ENGLISH), LoggerUtils.whereFrom(1));
     }
 
     /*

@@ -40,7 +40,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
 
     private String ageGroupPrefix;
-    
+
     private AgeDivision ageDivision;
 
     public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
@@ -57,17 +57,20 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
         Competition current = Competition.getCurrent();
         String protocolTemplateFileName = current.getFinalPackageTemplateFileName();
 
-        int stripIndex = protocolTemplateFileName.indexOf("_");
+        int stripIndex;
+        stripIndex = protocolTemplateFileName.indexOf(".xlsx");
         if (stripIndex > 0) {
             protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
+            return getLocalizedTemplate("/templates/competitionBook/" + protocolTemplateFileName, ".xlsx", locale);
         }
 
         stripIndex = protocolTemplateFileName.indexOf(".xls");
         if (stripIndex > 0) {
             protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
+            return getLocalizedTemplate("/templates/competitionBook/" + protocolTemplateFileName, ".xls", locale);
         }
 
-        return getLocalizedTemplate("/templates/competitionBook/" + protocolTemplateFileName, ".xls", locale);
+        throw new RuntimeException("template " + protocolTemplateFileName + " not found");
     }
 
     @Override
@@ -125,7 +128,6 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
         super.setReportingInfo();
         setReportingBeans(competition.getReportingBeans());
     }
-
 
     private void setTeamSheetPrintArea(Workbook workbook, String sheetName, int nbClubs) {
         // int sheetIndex = workbook.getSheetIndex(sheetName);
@@ -198,6 +200,5 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     public void setAgeDivision(AgeDivision ageDivision) {
         this.ageDivision = ageDivision;
     }
-    
-    
+
 }

@@ -230,21 +230,22 @@ public class Participation implements IRankHolder {
 
     public void setCleanJerkRank(int cleanJerkRank) {
         this.cleanJerkRank = cleanJerkRank;
-        logger.trace("cleanJerkRank {}", long_dump());
+        //logger.trace("cleanJerkRank {}", long_dump());
     }
 
     public void setCombinedRank(int combinedRank) {
         this.combinedRank = combinedRank;
-        logger.trace("combinedRank {}", long_dump());
+        //logger.trace("combinedRank {}", long_dump());
     }
 
     public void setCustomRank(int customRank) {
         this.customRank = customRank;
+        //logger.trace("customRank {}", long_dump());
     }
 
     public void setSnatchRank(int snatchRank) {
         this.snatchRank = snatchRank;
-        logger.trace("snatchRank {}", long_dump());
+        //logger.trace("snatchRank {}", long_dump());
     }
 
     public void setTeamCJRank(int teamCJRank) {
@@ -283,7 +284,7 @@ public class Participation implements IRankHolder {
 
     public void setTotalRank(int totalRank) {
         this.totalRank = totalRank;
-        logger.trace("totalRank {}", long_dump());
+        //logger.trace("totalRank {}", long_dump());
     }
 
     @Override

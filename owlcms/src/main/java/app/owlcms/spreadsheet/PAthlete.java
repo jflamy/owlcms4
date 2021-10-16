@@ -731,6 +731,11 @@ public class PAthlete extends Athlete implements IRankHolder {
     public Integer getTeamTotalRank() {
         return a.getTeamTotalRank();
     }
+    
+    @Override
+    public Integer getTeamCustomRank() {
+        return a.getTeamCustomRank();
+    }
 
     @Override
     public Integer getTotal() {

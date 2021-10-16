@@ -742,7 +742,10 @@ public class Competition {
 //        }
 
         // sort only, use ranks stored in database
-        if (Competition.getCurrent().isCustomScore()) {
+
+        boolean customScore2 = Competition.getCurrent().isCustomScore();
+        logger.warn("isCustomScore {}", customScore2);
+        if (customScore2) {
             sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CUSTOM);
             sortedMen = new ArrayList<>(sortedAthletes.size());
             sortedWomen = new ArrayList<>(sortedAthletes.size());
@@ -1031,8 +1034,8 @@ public class Competition {
 
         if (Competition.getCurrent().isCustomScore()) {
             sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.CUSTOM);
-            sortedMen = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.CUSTOM);
-            sortedWomen = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.CUSTOM);
+            sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Ranking.CUSTOM);
+            sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, Ranking.CUSTOM);
             addToReportingBean("mCustom" + suffix, sortedMen);
             addToReportingBean("wCustom" + suffix, sortedWomen);
             addToReportingBean("mwCustom" + suffix, sortedAthletes);
