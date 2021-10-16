@@ -158,7 +158,7 @@ public class Translator implements I18NProvider {
     }
 
     public static String translate(String string, Locale locale, Object... params) {
-        return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
+        return helper.getTranslation(string, locale, params);
     }
 
     public static String translate(String string, Object... params) {
@@ -387,9 +387,14 @@ public class Translator implements I18NProvider {
         logger./**/warn("null translation key");
     }
 
-    private String format(String value, Object... params) {
+    private String format(String pattern, Object... params) {
+        String value = pattern;
         if (params.length > 0) {
-            value = MessageFormat.format(value, params);
+            // single quotes must be doubled.  If already doubled in the input, fix back.
+            pattern = pattern.replaceAll("'", "''");
+            pattern = pattern.replaceAll("''''", "''");
+            value = MessageFormat.format(pattern, params);
+            //logger.trace("format {} input={} params={} \\n result={}", params.getClass(), pattern, params, value);
         }
         return value;
     }

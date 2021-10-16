@@ -156,6 +156,7 @@ public class Athlete {
             if (copyResults) {
                 dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
                 dest.setCleanJerk3LiftTime(src.getCleanJerk3LiftTime());
+                dest.setCustomScore(src.getCustomScoreComputed());
             }
 
             dest.setForcedAsCurrent(src.isForcedAsCurrent());
@@ -305,12 +306,12 @@ public class Athlete {
 
     private Integer sinclairRank;
     private Integer robiRank;
-    private Integer customRank;
     private Integer teamSinclairRank;
     private Integer teamRobiRank;
     private Integer teamSnatchRank;
     private Integer teamCleanJerkRank;
     private Integer teamTotalRank;
+    private Integer teamCustomRank;
     private Integer teamCombinedRank;
 
     @Column(columnDefinition = "integer default 0")
@@ -1170,7 +1171,7 @@ public class Athlete {
      * @return the custom rank
      */
     public int getCustomRank() {
-        return this.customRank;
+        return (getMainRankings() != null ? getMainRankings().getCustomRank() : -1);
     }
 
     public Double getCustomScore() {
@@ -2134,6 +2135,10 @@ public class Athlete {
     public Integer getTeamTotalRank() {
         return teamTotalRank;
     }
+    
+    public Integer getTeamCustomRank() {
+        return teamCustomRank;
+    }
 
     /**
      * Total is zero if all three snatches or all three clean&jerks are failed. Failed lifts are indicated as negative
@@ -2810,7 +2815,7 @@ public class Athlete {
      * @param customRank the new custom rank
      */
     public void setCustomRank(Integer customRank) {
-        this.customRank = customRank;
+        // ignored. computed property. setter needed for beans introspection
     }
 
     /**
@@ -3436,6 +3441,16 @@ public class Athlete {
     public void setTeamTotalRank(Integer teamTotalRank) {
         this.teamTotalRank = teamTotalRank;
     }
+    
+    /**
+     * Sets the team total rank.
+     *
+     * @param teamTotalRank the new team total rank
+     */
+    public void setTeamCustomRank(Integer teamCustomRank) {
+        this.teamCustomRank = teamCustomRank;
+    }
+
 
     /**
      * Sets the total.
@@ -3458,27 +3473,6 @@ public class Athlete {
         // ignored. computed property. setter needed for beans introspection.
     }
 
-    // /**
-//     * Sets the total rank.
-//     *
-//     * @param totalRank the new total rank
-//     */
-//    public void setTotalRank(Integer totalRank) {
-//        this.totalRank = totalRank;
-//    }
-//
-//    public void setTotalRankJr(Integer totalRankJr) {
-//        this.totalRankJr = totalRankJr;
-//    }
-//
-//    public void setTotalRankSr(Integer totalRankSr) {
-//        this.totalRankSr = totalRankSr;
-//    }
-//
-//    public void setTotalRankYth(Integer totalRankYth) {
-//        this.totalRankYth = totalRankYth;
-//    }
-//
     public void setValidation(boolean validation) {
         this.validation = validation;
     }
@@ -3894,7 +3888,7 @@ public class Athlete {
             getLogger().debug("{}requestedWeight {} < referenceWeight {}", OwlcmsSession.getFopLoggingName(), requestedWeight,
                     referenceWeight);
             // someone has already lifted heavier previously
-            throw new RuleViolationException.WeightBelowAlreadyLifted(requestedWeight,
+            if (requestedWeight > 0) throw new RuleViolationException.WeightBelowAlreadyLifted(requestedWeight,
                     reference.getAthlete(), referenceWeight, referenceAttemptNo);
         } else {
             checkSameWeightAsReference(reference, requestedWeight, referenceWeight, referenceAttemptNo, currentLiftNo);
