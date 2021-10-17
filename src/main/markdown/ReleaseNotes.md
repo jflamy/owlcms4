@@ -1,8 +1,7 @@
 Specific changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Release candidate.  Should be the same as the official release.  Major problems are very unlikely, but thorough practice runs are recommended because of the new features.
-- [x] Fix: The list of reachable addresses on the home page was incomplete or empty. 
-- [x] For troubleshooting, entering the "Language and System Settings" page prints the networking interfaces and addresses in the log.
+- [x] Release candidate.  Should be the same as the official release.  Major problems are unlikely, but thorough practice runs are recommended because of the new features.
+- [x] Fix: Sounds are now emitted correctly.
 
 Changes for release 4.23
 
@@ -23,7 +22,8 @@ Changes for release 4.23
 - [x] Results improvements and fixes:
   - The Protocol sheet and the Final Package result pages shows header for each category.  The old flat protocol sheet is still available as "6Attempts" template for copy-paste needs.
   - From the Category Results page, ability to produce a result sheet for the selected category, age group, or age division.
-- [x] Moved the Language and Time Zone settings to the Configuration section, since they concern the system and not the weightlifting rules.  Renamed pages accordingly.
+- [x] Moved the Language and Time Zone settings together with the technical settings to a renamed "Language and System Settings" page reachable from the "Preparation" section.
+  - [x] For troubleshooting, entering the "Language and System Settings" page prints the networking interfaces and addresses in the log.
 - [x] Enhancement: the program now forces start numbers when lifting starts if they have not been attributed at weigh-in (useful for small competitions not using cards with novice users)
 - [x] All resources in the local directory take precedence over the built-in ones (visual styles, templates, age group definitions, sounds, etc.)
   - You can also add a file with an extension for your locale (e.g. ex: _hy, _ru, _fr) and it will be used for things like marshal cards, starting list, etc.
