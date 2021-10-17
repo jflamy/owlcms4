@@ -1,7 +1,8 @@
 Specific changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
 - [x] Release candidate.  Should be the same as the official release.  Major problems are very unlikely, but thorough practice runs are recommended because of the new features.
-- [x] Fix: The list of reachable addresses on the home page was incomplete or missing.  The connectivity self-tests are now included in the logs to assist in diagnosing networking issues.
+- [x] Fix: The list of reachable addresses on the home page was incomplete or empty. 
+- [x] For troubleshooting, entering the "Language and System Settings" page prints the networking interfaces and addresses in the log.
 
 Changes for release 4.23
 
