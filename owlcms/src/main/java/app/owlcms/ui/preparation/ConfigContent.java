@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.ui.preparation;
 
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -25,6 +26,9 @@ import app.owlcms.data.config.Config;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.utils.IPInterfaceUtils;
+import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -45,6 +49,12 @@ public class ConfigContent extends Composite<VerticalLayout>
      */
     public ConfigContent() {
         initLoggers();
+        IPInterfaceUtils urlFinder = new IPInterfaceUtils();
+        try {
+            urlFinder.checkInterfaces("http", StartupUtils.getServerPort(), false);
+        } catch (SocketException e) {
+            logger.error(LoggerUtils.stackTrace(e));
+        }
         factory = createFormFactory();
         Component form = factory.buildNewForm(CrudOperation.UPDATE, Config.getCurrent(), false, null, event -> {
         });

@@ -1,16 +1,15 @@
 Specific changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] First release candidate.  No additional features expected.
-- [x] Swedish translation updated.
-- [x] The list of reachable addresses on the home page was incomplete or missing.  The connectivity self-tests are now included in the logs to assist in diagnosing networking issues.
-- [x] Simpler way to decline a lift: declaring or making a change to 0 sets the lifted weight to 0.
-- [x] Cleaned-up the Final Package Excel templates: fixed formatting, added missing translations.  Also finished converting the template tabs for Custom score competitions from the previous language-specific format.
+- [x] Release candidate.  Should be the same as the official release.  Major problems are very unlikely, but thorough practice runs are recommended because of the new features.
+- [x] Fix: The list of reachable addresses on the home page was incomplete or missing.  The connectivity self-tests are now included in the logs to assist in diagnosing networking issues.
 
 Changes for release 4.23
 
+- [x] Translations updated (French, Danish, Portuguese, Russian, Armenian, Spanish, Swedish)
+- [x] Simpler way to decline a lift: declaring or making a change to 0 sets the lifted weight to 0.
+- [x] Cleaned-up the Final Package Excel templates: fixed formatting, added missing translations.  Also finished converting the template tabs for Custom score competitions from the previous language-specific format.
 - [x] Explicit support for participation to multiple age groups (#433)
-
-  - An athlete will, by default, be eligible and ranked separately in all the active categories in which the age and qualifying total are met.   
+- An athlete will, by default, be eligible and ranked separately in all the active categories in which the age and qualifying total are met.   
   - Participation to an eligible category can be removed or added back on the registration page for the athlete.
   - Multiple age group scoreboard option shows ranks for all age groups present in the currently lifting group.
   - Final results packages can be produced for each age group, or combined for all age groups (when all age groups contribute to team points)

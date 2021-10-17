@@ -183,6 +183,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
     private VerticalLayout buildIntro() {
         VerticalLayout intro = new VerticalLayout();
         IPInterfaceUtils urlFinder = new IPInterfaceUtils();
+        urlFinder.checkRequest();
         addP(intro, getTranslation("SystemURL"));
         for (String url : urlFinder.getRecommended()) {
             intro.add(new Div(new Anchor(url, url)));
