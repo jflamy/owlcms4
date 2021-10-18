@@ -4097,7 +4097,7 @@ public class Athlete {
                 } else {
                     // no last lift, go ahead
                 }
-            } else if (newVal < weightAtLastStart) {
+            } else if (newVal > 0 && newVal < weightAtLastStart) {
                 // check that we are comparing the value for the same lift
                 boolean cjClock = fop.getLiftsDoneAtLastStart() >= 3;
                 boolean cjStarted = getAttemptsDone() >= 3;
