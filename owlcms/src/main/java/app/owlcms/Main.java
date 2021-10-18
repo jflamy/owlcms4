@@ -55,26 +55,31 @@ public class Main {
 
     private static InitialData initialData;
 
+
+
     /**
      * This method is actually called from EmbeddedJetty immediately after starting the server
      */
     public static void initData() {
-        // open jar as filesystem; cannot use /; any resource inside the jar will do
-        // cannot open the same jar twice.
-//        ResourceWalker.openFileSystem("/templates");
-
         // Vaadin configs
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
 
-        // setup database
-        JPAService.init(memoryMode, resetMode);
+        initConfig();
 
         // read locale from database and overrrde if needed
         Locale l = overrideDisplayLanguage();
         injectData(initialData, l);
         overrideTimeZone();
 
-        OwlcmsFactory.getDefaultFOP(true); // initialization, don't push out to browsers
+        // initialization, don't push out to browsers
+        OwlcmsFactory.getDefaultFOP(true);
+    }
+
+    public static void initConfig() {
+        // setup database
+        JPAService.init(memoryMode, resetMode);
+        // check for database override of resource files
+        Config.initConfig();
     }
 
     /**
@@ -188,7 +193,7 @@ public class Main {
         // read override value from database, if it was previously created.
         Locale l = null;
         try {
-            l = Competition.getCurrent().getDefaultLocale();
+            l = Config.getCurrent().getDefaultLocale();
         } catch (Exception e) {
         }
 
@@ -215,7 +220,7 @@ public class Main {
     private static void overrideTimeZone() {
         // read override value from database, if it was previously created.
         TimeZone tz = null;
-        tz = Competition.getCurrent().getTimeZone();
+        tz = Config.getCurrent().getTimeZone();
         if (tz != null) {
             TimeZone.setDefault(tz);
         }

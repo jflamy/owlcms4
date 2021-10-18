@@ -12,8 +12,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
-public class Resource {
+public class Resource implements Comparable<Resource> {
 
     String fileName;
     Path filePath;
@@ -42,5 +43,10 @@ public class Resource {
     @Override
     public String toString() {
         return getFileName();
+    }
+
+    @Override
+    public int compareTo(Resource o) {
+        return ObjectUtils.compare(toString(),o.toString());
     }
 }

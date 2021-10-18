@@ -16,8 +16,6 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
-import app.owlcms.data.config.Config;
-import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.i18n.Translator;
@@ -40,11 +38,8 @@ public class ProdData {
         JPAService.runInTransaction(em -> {
             Competition competition = createDefaultCompetition();
             CompetitionRepository.save(competition);
+
             AgeGroupRepository.insertAgeGroups(em, null);
-            if (ConfigRepository.findAll().isEmpty()) {
-                Config config = createDefaultConfig();
-                Config.setCurrent(config);
-            }
             return null;
         });
         JPAService.runInTransaction(em -> {
@@ -141,10 +136,6 @@ public class ProdData {
 
         em.persist(platform1);
 
-    }
-
-    private static Config createDefaultConfig() {
-        return new Config();
     }
 
     private static Locale getLocale() {

@@ -150,8 +150,10 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         cards.add(cardsButton);
         cardsButton.setEnabled(true);
 
-        Button resetCats = new Button(getTranslation("ResetCategories.ResetCategories"), (e) -> {
-            new ConfirmationDialog(getTranslation(""), getTranslation("ResetCategories.Warning_ResetCategories"),
+        Button resetCats = new Button(getTranslation("ResetCategories.ResetAthletes"), (e) -> {
+            new ConfirmationDialog(
+                    getTranslation("ResetCategories.ResetCategories"),
+                    getTranslation("ResetCategories.Warning_ResetCategories"),
                     getTranslation("ResetCategories.CategoriesReset"), () -> {
                         resetCategories();
                     }).open();

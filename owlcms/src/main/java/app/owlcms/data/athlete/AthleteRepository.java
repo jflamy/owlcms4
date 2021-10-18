@@ -11,13 +11,14 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
@@ -86,7 +87,15 @@ public class AthleteRepository {
 
     @SuppressWarnings("unchecked")
     public static List<Athlete> doFindAll(EntityManager em) {
-        return em.createQuery("select a from Athlete a").getResultList();
+        return em.createQuery("select distinct a from Athlete a").getResultList();
+    }
+
+    public static List<Athlete> doFindAllByAgeroupGroupAndWeighIn(EntityManager em, AgeGroup ageGroup, Group group,
+            Boolean weighedIn,
+            Gender gender) {
+        return doFindFiltered(em, (String) null, group, (Category) null, ageGroup, (AgeDivision) null, gender,
+                weighedIn,
+                -1, -1);
     }
 
     public static List<Athlete> doFindAllByGroupAndWeighIn(EntityManager em, Group group, Boolean weighedIn,
@@ -100,7 +109,8 @@ public class AthleteRepository {
             AgeGroup ageGroup,
             AgeDivision ageDivision, Gender gender, Boolean weighedIn, int offset, int limit) {
         String qlString = "select a from Athlete a"
-                + filteringSelection(lastName, group, category, ageGroup, ageDivision, gender, weighedIn);
+                + filteringSelection(lastName, group, category, ageGroup, ageDivision, gender, weighedIn)
+                + " order by a.category";
         logger.debug("find query = {}", qlString);
         Query query = em.createQuery(qlString);
         setFilteringParameters(lastName, group, category, ageGroup, ageDivision, gender, query);
@@ -141,6 +151,45 @@ public class AthleteRepository {
     public static List<Athlete> findAllByGroupAndWeighIn(Group group, Gender gender, boolean weighedIn) {
         return JPAService.runInTransaction(em -> {
             return doFindAllByGroupAndWeighIn(em, group, weighedIn, gender);
+        });
+    }
+
+    /**
+     * Fetch all athletes needed for leader board
+     *
+     * @param g
+     * @return
+     */
+    public static List<Athlete> findAthletesForCategory(Category c) {
+        return JPAService.runInTransaction((em) -> {
+            TypedQuery<Athlete> q = em.createQuery(
+                    "select distinct a from Athlete a join a.participations p join p.category c where c.id = :catId",
+                    Athlete.class);
+            q.setParameter("catId", c.getId());
+            return q.getResultList();
+        });
+    }
+
+    /**
+     * Fetch all athletes and participations for the categories present in the group
+     *
+     * @param g
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public static List<Athlete> findAthletesForGlobalRanking(Group g) {
+        return JPAService.runInTransaction((em) -> {
+            String categoriesFromCurrentGroup = "(select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId and c2.id = c.id)";
+            Query q = em.createQuery(
+                    "select distinct a, p from Athlete a join fetch a.participations p join p.category c where exists "
+                            + categoriesFromCurrentGroup);
+            try {
+                q.setParameter("groupId", g.getId());
+            } catch (Exception e) {
+            }
+            @SuppressWarnings("rawtypes")
+            List resultList = q.getResultList();
+            return resultList;
         });
     }
 
@@ -191,25 +240,24 @@ public class AthleteRepository {
         JPAService.runInTransaction(em -> {
             List<Athlete> athletes = AthleteRepository.doFindAll(em);
             for (Athlete a : athletes) {
-                Double weight = a.getBodyWeight();
-                if (weight == null) {
-                    Double presumedBodyWeight = a.getPresumedBodyWeight();
-                    if (presumedBodyWeight != null) {
-                        weight = presumedBodyWeight - 0.01D;
-                        List<Category> categories = CategoryRepository.findByGenderAgeBW(
-                                a.getGender(), a.getAge(), weight);
-                        a.setPresumedCategory(categories.isEmpty() ? null : categories.get(0));
-                    }
-                } else {
-                    List<Category> categories = CategoryRepository.findByGenderAgeBW(
-                            a.getGender(), a.getAge(), weight);
-                    a.setCategory(categories.isEmpty() ? null : categories.get(0));
-                }
-
+                a.computeMainCategory();
                 em.merge(a);
             }
             em.flush();
             Competition.getCurrent().setRankingsInvalid(true);
+            return null;
+        });
+        assignCategoryRanks();
+    }
+
+    private static void assignCategoryRanks() {
+        JPAService.runInTransaction(em -> {
+            // assign ranks to all groups.
+            List<Athlete> l = AthleteSorter.assignCategoryRanks(null);
+            for (Athlete a : l) {
+                em.merge(a);
+            }
+            em.flush();
             return null;
         });
     }
@@ -223,7 +271,8 @@ public class AthleteRepository {
     public static Athlete save(Athlete athlete) {
         return JPAService.runInTransaction((em) -> {
             Competition.getCurrent().setRankingsInvalid(true);
-            return em.merge(athlete);
+            Athlete merged = em.merge(athlete);
+            return merged;
         });
     }
 
@@ -309,4 +358,13 @@ public class AthleteRepository {
         }
     }
 
+    public static void assignStartNumbers(Group group) {
+        JPAService.runInTransaction((em) -> {
+            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, true,
+                    (Gender) null);
+            AthleteSorter.displayOrder(currentGroupAthletes);
+            AthleteSorter.assignStartNumbers(currentGroupAthletes);
+            return currentGroupAthletes;
+        });
+    }
 }

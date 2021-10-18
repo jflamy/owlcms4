@@ -85,7 +85,7 @@ public class CategoryListField extends CustomField<List<Category>> {
 
     private void addSentinel() {
         Category newCat = new Category(null, 0.0, 999.0D, ageGroup.getGender(),
-                true, 0, 0, 0, ageGroup);
+                true, 0, 0, 0, ageGroup, 0);
         presentationCategories.add(newCat);
     }
 
@@ -104,7 +104,7 @@ public class CategoryListField extends CustomField<List<Category>> {
         }
         double newMax = Double.parseDouble(value);
         Category newCat = new Category(null, 0.0, newMax, ag.getGender(),
-                true, 0, 0, 0, ag);
+                true, 0, 0, 0, ag, 0);
         presentationCategories.add(newCat);
         updatePresentation();
         newCategoryField.clear();

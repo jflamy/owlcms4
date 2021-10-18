@@ -180,8 +180,6 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
         } else {
             setSortedMen(new ArrayList<Athlete>());
         }
-//        Athlete topMan = (getSortedMen().size() > 0 ? getSortedMen().get(0) : null);
-//        topManSinclair = (topMan != null ? topMan.getSinclairForDelta() : 999.0D);
 
         topWomanSinclair = 0.0D;
         List<Athlete> sortedWomen2 = getSortedWomen();

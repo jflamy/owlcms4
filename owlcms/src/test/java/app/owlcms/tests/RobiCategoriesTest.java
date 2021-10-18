@@ -19,6 +19,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.RobiCategories;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.init.OwlcmsSession;
 
@@ -27,6 +28,7 @@ public class RobiCategoriesTest {
     @BeforeClass
     public static void setupTests() {
         JPAService.init(true, true);
+        Config.initConfig();
         TestData.insertInitialData(5, true);
     }
 

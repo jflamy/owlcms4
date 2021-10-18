@@ -89,7 +89,7 @@
                                     <groupId>app.owlcms</groupId>
                                     <artifactId>owlcms</artifactId>
                                     <outputDirectory>${project.build.directory}/owlcms-win32/local</outputDirectory>
-                                    <includes>i18n**/**,templates**/**,config**/**,styles**/**</includes>
+                                    <includes>i18n**/**,templates**/**,config**/**,styles**/**,agegroups**/**,sinclair**/**</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -111,7 +111,7 @@
                         <configuration>
                             <headerType>console</headerType>
                             <outfile>${project.build.directory}/owlcms-win32/owlcms.exe</outfile>
-                            <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before the 
+                            <!-- fake jar; the one we actually run is in postCp below; we want the "classes" directory to be seen before the 
                                 owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
                                 jar at the front... -->
 
@@ -123,7 +123,7 @@
                             <classPath>
                                 <mainClass>app.owlcms.Main</mainClass>
                                 <addDependencies>false</addDependencies>
-                                <preCp>local</preCp>
+                                <preCp>classes</preCp>
                                 <postCp>owlcms.jar</postCp>
                             </classPath>
                             <icon>src/main/install/owlcms.ico</icon>

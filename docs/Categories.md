@@ -6,9 +6,7 @@ The age groups and categories are fully customizable.  This section explains the
 
 ## Default Age Groups and Categories
 
-In order to keep things simple for club or regional meets, by default there are are simply two divisions active:  one for men and one for women. These divisions cover all ages and all bodyweight categories.
-
-Many meets can start with this default setting and only adjust the bodyweight categories.  We start with this situation and discuss more sophisticated situations further on.
+In order to keep things simple for club or regional meets, by default there are are two divisions active:  one for men and one for women. These divisions cover all ages and all bodyweight categories.  Meets with IWF requirements or multiple age groups are discussed further down this page.
 
 ## Editing Age Groups
 
@@ -18,27 +16,29 @@ This leads to a list of currently defined age groups.  By default, we see that t
 
 ![020_ageGroupList](img/Categories/020_ageGroupList.png)
 
-
-
 ## Editing the Categories
 
-For the sake of the example, let's assume that we want to change the settings so that our male categories to stop at >102. Let's select the `M` age group and notice that there is a blue tag for each bodyweight category.
+For the sake of the example, let's assume that we want to change the settings so that our male categories to stop at >102. Let's select the `M` age group and scroll down until we see all of the grid at the bottom.
 
 ![030_beforeRemoveCategory](img/Categories/030_beforeRemoveCategory.png)
 
-The first thing we want is to remove the 109kg category so we have 102kg as the last category with an upper limit.   This is actually very simple: just click on the `X` next to 109.  If we do so,
+What want is to remove the 109kg category so we have 102kg as the last category with an upper limit.   We simply click "Delete" on the 109 row.
 
-- the 109 category is removed,
+![031_beforeRemoveCategory](img/Categories/031_beforeRemoveCategory.png)
+
+After clicking on the Delete button
+
+- the 109 category is slated for removal,
 - the heaviest category is automatically changed to >102. The system always adjust the last "X and above" category based on the heaviest category with an upper limit.
 
-So there is nothing else to do, as shown on the next screen shot.
+The changes to the age group are only registered when you click on the blue "Update" button at the bottom of the form.
 
-![031_AfterRemoveCategory](img/Categories/031_AfterRemoveCategory.png)
+![032_AfterRemoveCategory](img/Categories/032_AfterRemoveCategory.png)
 
 Let's now say we want a 41kg category instead of a 40kg.  This is done in two steps
 
-1. Remove the 40kg category by clicking on its X
-2. Adding the 41kg category by typing 41 in the `max kg` box and clicking on the green `Add Category` button.
+1. Remove the 40kg category by clicking on Delete, as we did before
+2. Adding the new 41kg category by typing 41 in the `max kg` box and clicking on the green `Add Category` button.
 
 ![040_addCategory](img/Categories/040_addCategory.png)
 
@@ -48,26 +48,45 @@ The list is updated with the new bodyweight category. We can now update the defi
 
 ## Reassigning the athletes
 
-After updating an age group with new categories, the program highlights the `Reassign Athletes` button at the top.  It is usually wise to determine age groups and categories prior to importing or entering athletes, but you can actually change the categories and re-compute the categories for each athlete at anytime.
+After updating an age group with new categories, the program highlights the `Reassign Athletes` button at the top.  You can actually change the categories and re-compute the categories for each athlete at anytime.
 
-For athletes that have not been weighed-in, the program records the presumed weight for the athlete based on the information read from the registration file, or the category information explicitly entered for the athlete.  For example, if you enter a child in a 40kg category, and later delete the 40kg category, the program remembers that the best weight information available about the child is 40kg, and will place him in a category according to this presumed weight.
-
-The presumed weight is used until you actually edit the athlete's registration to change the category, or change the category at weigh-in.
+For athletes that have not been weighed-in, the program uses the presumed weight of the athlete (either the weight of the category, or the weight of the athlete given at registration)..
 
 ![050_afterUpdate](img/Categories/050_afterUpdate.png)
 
-## Selecting the active age groups
+## IWF Categories and Overlapping Age Groups
 
-Let's now assume we want to hold a IWF Junior Championship.  The categories are already defined in the default setting, so all that is required is
+Let's now assume we want to hold a national championship with IWF Categories.  The categories are already defined in the default setting, so all that is required is
 
 - Unselect the two default groups
-- Click on the checkbox next to the IWF definitions for the JR F and JR M age groups and reassign the categories
+- Click on the checkbox next to the IWF definitions
+- Note that overlapping age groups can compete in the same meet.  A youth athlete that meets the eligibility criteria for junior (or even senior) would be ranked in the eligible categories.  The athlete will be shown in the youngest category for the purpose of starting numbers and scoreboards, but ranked in all categories.
+- Separate final results with ranks and team points are produced for each age group.
 
 ![060_selectingIWF](img/Categories/060_selectingIWF.png)
 
+## Editing Qualifying Totals
+
+If your championship has qualifying totals, you can edit the qualifying totals by going to the age group and clicking on the category. For example, lets create a qualifying total of 100 for Junior Men 55kg.  We click on the age group, then click on edit next to the category.
+
+![062_editQTotal](img/Categories/062_editQTotal.png)
+
+We type the desired total and click "Update".  You can do the same with the other categories.
+
+NOTES: 
+
+1. Once we are done with all the categories, we click the blue Update at the bottom to save the Age Group.
+2. Because this is time consuming, you may prefer to enter the qualifying totals using a spreadsheet.  See further down on this page.
+
+![062_editQTotal](img/Categories/062_editQTotal.png)
+
+When an athlete is eligible for multiple age groups, the registration editing form for the athlete will show the eligible categories based on age and qualifying total. The athlete's category will be the most specific one based on the actual age, for the purpose of calculating the start numbers.
+
+![100_registrationForm](img/Categories/100_registrationForm.png)
+
 ## Age Group Competitions
 
-In order to hold a competition with age groups, you can select the predefined age groups, as follows:
+Another common scenario is to have multiple non-overlapping age groups.  In such a competition, the athlete scores points once, in his or her age group, and a team is made up of athletes from several age groups.  You can add or delete or edit age groups as needed.    This task can instead be done using a spreadsheet if you want to share your definitions between members of your federation (see further down this page).
 
 ![070_ageGroups](img/Categories/070_ageGroups.png)
 
@@ -81,24 +100,39 @@ We now fill in the information, and select Add.
 
 ![072_addingU23](img/Categories/072_addingU23.png)
 
-Note that we would also need to change O21 to become an "over 23" group.  If we do not make that change, the program will make the most specific choice.  A 22-year old will be considered first to be a U23; you could use the `Edit Athletes` page to assign them to the O21 category manually.
-
-This situation often arises when a Masters championship takes place together with a Senior championship. Some 35-year old athlete will not want to lift in a Masters group, and will want to be registered as Senior.
-
 ## Notes for Masters Age Groups
 
 The default list contains non-standard age groups.  Some federations accept 30-34 year-olds in their Masters meets. If you don't want these age groups, simply leave them unselected.   Similarly, some federations have gender-equality rules and include the same age groups for women as for men.  The default list allows you to select a W70 for 70-74 and a W75 group if you so desire..
 
-The applicability of the 15/10kg rule (as opposed to the 20kg rule) is based on the category in which the athlete is registered.
+- The applicability of the 15/10kg rule (as opposed to the 20kg rule) is based on the category in which the athlete is registered.
 
-## Using a Definition File for Local or Federation Settings
 
-If you look at the installation directory under the `local/config` directory, you will notice files with a name similar to `AgeGroups.xlsx` .  The first Tab in each file defines the bodyweight categories in use for a given federation or club.  The second Tab says which bodyweight categories are active for each age group.
+## Creating a Definition File for Local or Federation Settings
 
-The suffix on each file follows the same conventions as for the [Translation](Translation) files.  You can therefore add a file for your specific language and location that will be loaded by default when the program is first started with no database.  You can also add a file to the config directory and load it at any time -- this will however force a recalculation of the athlete categories, which is most likely what you need.
+If you look at the installation directory under the `local/agegroups` directory, you will notice files with a name similar to `AgeGroups.xlsx` .  
 
-The drop-down at the top of the page shows the available files in the order they would be considered based on your current locale:
+1. The first Tab in each file defines the bodyweight categories in use for a given federation or club.  
+2. The second Tab says which bodyweight categories are active for each age group.
+
+This step needs to be done on a local installation.  Once you are ready, you can upload you local settings to a cloud installation, as explained in [this page](UploadingLocalSettings)
+
+Let's say we want to create age groups for our annual U15 U17 competition.  We go to the local/agegroups directory, and copy the `AgeGroups.xlsx` file to another name (for example `AgeGroupsU15U17.xlsx` or whatever suits you).
+
+![090_spreadsheet_qtot](img/Categories/090_spreadsheet_qtot.png)
+
+In the example above, the cells outilned in red means that in women's <u>category U17 F59, the qualifying total is 77</u>
+
+- there are four age groups defined (U15 and U17 for women, U15 and U17 for men)
+- the four groups are active (column G)
+- from column H onward, each cell defines the bodyweight categories and (if present, the qualifying total)
+  - The U17 female group has bodyweight categories F40, F45, F49, F55, F59, F83 and so on.
+  - The first part of each cell is a code that comes from the first tab called `BW Categories`.  If you need additional categories, add them there, or edit the ones that are already present.
+  - When a number is present after the category, it is the qualifying total
+  - Empty cells are ignored
+
+## Loading the Age Group  Definition File
+
+The drop-down at the top of the page shows the available files.  After loading the file, the athletes will automatically be reassigned.
 
 ![080_loadDefinitionFile](img/Categories/080_loadDefinitionFile.png)
 
-Local federations are encouraged to send their definitions to the author for inclusion in the package, so that local clubs don't have to deal with the categories.

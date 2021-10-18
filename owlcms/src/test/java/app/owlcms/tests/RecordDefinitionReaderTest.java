@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.records.RecordDefinitionReader;
 import ch.qos.logback.classic.Level;
@@ -30,6 +31,7 @@ public class RecordDefinitionReaderTest {
     @BeforeClass
     public static void setupTests() {
         JPAService.init(true, true);
+        Config.initConfig();
         TestData.insertInitialData(5, true);
     }
 

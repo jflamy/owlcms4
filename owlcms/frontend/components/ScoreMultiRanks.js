@@ -61,11 +61,9 @@ class ScoreMultiRanks extends PolymerElement {
                         <th rowspan="2" class="category" inner-h-t-m-l="[[t.Category]]"></th>
                         <th rowspan="2" class="narrow" inner-h-t-m-l="[[t.Birth]]"></th>
                         <th rowspan="2" class="club" inner-h-t-m-l="[[t.Team]]"></th>
-                        <th colspan="6" inner-h-t-m-l="[[t.Snatch]]"></th>
-                        <!-- th colspan="3" class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th -->
-                        <th colspan="6" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
-                        <!-- th colspan="3" class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th -->
-                        <th colspan="4" class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
+                        <th colspan$=[[liftColspan]] inner-h-t-m-l="[[t.Snatch]]"></th>
+                        <th colspan$=[[liftColspan]] inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
+                        <th colspan$="[[totalColspan]]" class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
                         <!-- th colspan="3" class="thRank" inner-h-t-m-l="[[t.Rank]]"></th -->
                     </tr>
                     <tr>
@@ -73,19 +71,19 @@ class ScoreMultiRanks extends PolymerElement {
                         <th>1</th>
                         <th>2</th>
                         <th>3</th>
-                        <th>[[t.Yth]]</th>
-                        <th>[[t.Jr]]</th>
-                        <th>[[t.Sr]]</th>
+                        <template is="dom-repeat" id="snatchAgeGroups" items="[[ageGroups]]" as="sag">
+                            <th>[[sag]]</th>
+                        </template>
                         <th>1</th>
                         <th>2</th>
                         <th>3</th>
-                        <th>[[t.Yth]]</th>
-                        <th>[[t.Jr]]</th>
-                        <th>[[t.Sr]]</th>
+                        <template is="dom-repeat" id="cjAgeGroups" items="[[ageGroups]]" as="cjag">
+                            <th>[[cjag]]</th>
+                        </template>
                         <th>[[t.Total]]</th>
-                        <th>[[t.Yth]]</th>
-                        <th>[[t.Jr]]</th>
-                        <th>[[t.Sr]]</th>
+                        <template is="dom-repeat" id="totalAgeGroups" items="[[ageGroups]]" as="tag">
+                            <th>[[tag]]</th>
+                        </template>
                     </tr>
                 </thead>
                 <template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
@@ -116,39 +114,27 @@ class ScoreMultiRanks extends PolymerElement {
                                     <div>[[attempt.stringValue]]</div>
                                 </td>
                             </template>
-                            <td class="showRank">
-                                <div>[[l.snatchRankYth]]</div>
-                            </td>
-                            <td class="showRank">
-                                <div>[[l.snatchRankJr]]</div>
-                            </td>
-                            <td class="showRank">
-                                <div>[[l.snatchRankSr]]</div>
-                            </td>
+                            <template is="dom-repeat" id="snatchRanks" items="[[l.snatchRanks]]" as="sr">
+                                <td class="showRank">
+                                    <div>[[sr]]</div>
+                                </td>
+                            </template>
                             <template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
                                 <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
                                     <div>[[attempt.stringValue]]</div>
                                 </td>
                             </template>
-                            <td class="showRank">
-                                <div>[[l.cleanJerkRankYth]]</div>
-                            </td>
-                            <td class="showRank">
-                                <div>[[l.cleanJerkRankJr]]</div>
-                            </td>
-                            <td class="showRank">
-                                <div>[[l.cleanJerkRankSr]]</div>
-                            </td>
+                            <template is="dom-repeat" id="cleanJerkRanks" items="[[l.cleanJerkRanks]]" as="cjr">
+                                <td class="showRank">
+                                    <div>[[cjr]]</div>
+                                </td>
+                            </template>
                             <td class="narrow">[[l.total]]</td>
-                            <td class="thRank">
-                                <div>[[l.totalRankYth]]</div>
-                            </td>
-                            <td class="thRank">
-                                <div>[[l.totalRankJr]]</div>
-                            </td>
-                            <td class="thRank">
-                                <div>[[l.totalRankSr]]</div>
-                            </td>
+                            <template is="dom-repeat" id="totalRanks" items="[[l.totalRanks]]" as="tr">
+                                <td class="thRank">
+                                    <div>[[tr]]</div>
+                                </td>
+                            </template>
                         </tr>
                     </template>
                 </template>
@@ -205,39 +191,27 @@ class ScoreMultiRanks extends PolymerElement {
                                     <div>[[attempt.stringValue]]</div>
                                 </td>
                             </template>
-                            <td class="showRank">
-                                <div>[[l.snatchRankYth]]</div>
-                            </td>
-                            <td class="showRank">
-                                <div>[[l.snatchRankJr]]</div>
-                            </td>
-                            <td class="showRank">
-                                <div>[[l.snatchRankSr]]</div>
-                            </td>
+                            <template is="dom-repeat" id="snatchRanks" items="[[l.snatchRanks]]" as="sr">
+                                <td class="showRank">
+                                    <div>[[sr]]</div>
+                                </td>
+                            </template>
                             <template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
                                 <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
                                     <div>[[attempt.stringValue]]</div>
                                 </td>
                             </template>
-                            <td class="showRank">
-                                <div>[[l.cleanJerkRankYth]]</div>
-                            </td>
-                            <td class="showRank">
-                                <div>[[l.cleanJerkRankJr]]</div>
-                            </td>
-                            <td class="showRank">
-                                <div>[[l.cleanJerkRankSr]]</div>
-                            </td>
+                            <template is="dom-repeat" id="cleanJerkRanks" items="[[l.cleanJerkRanks]]" as="cjr">
+                                <td class="showRank">
+                                    <div>[[cjr]]</div>
+                                </td>
+                            </template>
                             <td class="narrow">[[l.total]]</td>
-                            <td class="thRank">
-                                <div>[[l.totalRankYth]]</div>
-                            </td>
-                            <td class="thRank">
-                                <div>[[l.totalRankJr]]</div>
-                            </td>
-                            <td class="thRank">
-                                <div>[[l.totalRankSr]]</div>
-                            </td>
+                            <template is="dom-repeat" id="totalRanks" items="[[l.totalRanks]]" as="tr">
+                                <td class="thRank">
+                                    <div>[[tr]]</div>
+                                </td>
+                            </template>
                         </tr>
                     </template>
                 </template>

@@ -7,8 +7,10 @@
 package app.owlcms.displays.topteams;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,8 +23,11 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
@@ -35,8 +40,10 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.team.Team;
 import app.owlcms.data.team.TeamTreeData;
@@ -63,7 +70,9 @@ import elemental.json.JsonValue;
 /**
  * Class TopTeams
  *
- * Show athlete lifting order
+ * Show Best teams point scores
+ *
+ * @author Jean-François Lamu
  *
  */
 @SuppressWarnings("serial")
@@ -119,6 +128,8 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     private DecimalFormat floatFormat;
     private Dialog dialog;
     private boolean initializationNeeded;
+    private AgeDivision ageDivision = null;
+    private String ageGroupPrefix = null;
 
     /**
      * Instantiates a new results board.
@@ -133,7 +144,39 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
      */
     @Override
     public void addDialogContent(Component target, VerticalLayout vl) {
+        //logger.debug("addDialogContent ad={} ag={} darkMode={}", getAgeDivision(), getAgeGroupPrefix(), isDarkMode());
+
         DisplayOptions.addLightingEntries(vl, target, this);
+        ComboBox<AgeDivision> ageDivisionComboBox = new ComboBox<>();
+        ComboBox<String> ageGroupPrefixComboBox = new ComboBox<>();
+        List<AgeDivision> ageDivisions = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
+        ageDivisionComboBox.setItems(ageDivisions);
+        ageDivisionComboBox.setPlaceholder(getTranslation("AgeDivision"));
+        ageDivisionComboBox.setClearButtonVisible(true);
+        ageDivisionComboBox.addValueChangeListener(e -> {
+            AgeDivision ageDivision = e.getValue();
+            setAgeDivision(ageDivision);
+            String existingAgeGroupPrefix = getAgeGroupPrefix();
+            List<String> activeAgeGroups = setAgeGroupPrefixItems(ageGroupPrefixComboBox, ageDivision);
+            if (existingAgeGroupPrefix != null) {
+                ageGroupPrefixComboBox.setValue(existingAgeGroupPrefix);
+            } else if (activeAgeGroups != null && !activeAgeGroups.isEmpty() && ageDivision != AgeDivision.MASTERS) {
+                ageGroupPrefixComboBox.setValue(activeAgeGroups.get(0));
+            }
+        });
+        ageGroupPrefixComboBox.setPlaceholder(getTranslation("AgeGroup"));
+        ageGroupPrefixComboBox.setClearButtonVisible(true);
+        ageGroupPrefixComboBox.addValueChangeListener(e -> {
+            setAgeGroupPrefix(e.getValue());
+            updateURLLocations();
+            doUpdate(Competition.getCurrent());
+        });
+        setAgeGroupPrefixItems(ageGroupPrefixComboBox, getAgeDivision());
+        ageGroupPrefixComboBox.setValue(getAgeGroupPrefix());
+        ageDivisionComboBox.setValue(getAgeDivision());
+
+        vl.add(new Label("Select Age Group"),
+                new HorizontalLayout(ageDivisionComboBox, ageGroupPrefixComboBox));
     }
 
     @Override
@@ -156,7 +199,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     public void doUpdate(Competition competition) {
         this.getElement().callJsFunction("reset");
 
-        TeamTreeData teamTreeData = new TeamTreeData();
+        TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), (Gender) null);
         Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamItemsByGender();
 
         mensTeams = teamsByGender.get(Gender.M);
@@ -189,31 +232,49 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         }
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocation()
+     */
     @Override
     public Location getLocation() {
         return this.location;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocationUI()
+     */
     @Override
     public UI getLocationUI() {
         return this.locationUI;
     }
 
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
     @Override
     public String getPageTitle() {
         return getTranslation("Scoreboard.TopTeams");
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#isDarkMode()
+     */
     @Override
     public boolean isDarkMode() {
         return this.darkMode;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#isIgnoreFopFromURL()
+     */
     @Override
     public boolean isIgnoreFopFromURL() {
         return true;
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.FOPParameters#isIgnoreGroupFromURL()
+     */
     @Override
     public boolean isIgnoreGroupFromURL() {
         return true;
@@ -230,6 +291,59 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     @Override
     public boolean isSilenced() {
         return true;
+    }
+
+    @Override
+    public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
+        HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
+
+        List<String> darkParams = params1.get(DARK);
+        // dark is the default. dark=false or dark=no or ... will turn off dark mode.
+        boolean darkMode = darkParams == null || darkParams.isEmpty() || darkParams.get(0).toLowerCase().equals("true");
+        setDarkMode(darkMode);
+        updateParam(params1, DARK, !isDarkMode() ? "false" : null);
+
+        List<String> silentParams = params1.get(SILENT);
+        // dark is the default. dark=false or dark=no or ... will turn off dark mode.
+        boolean silentMode = silentParams == null || silentParams.isEmpty()
+                || silentParams.get(0).toLowerCase().equals("true");
+        setSilenced(silentMode);
+        updateParam(params1, SILENT, !isSilenced() ? "false" : null);
+
+        List<String> ageDivisionParams = params1.get("ad");
+        // no age division
+        String ageDivisionName = (ageDivisionParams != null && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0)
+                : null);
+        try {
+            setAgeDivision(AgeDivision.valueOf(ageDivisionName));
+        } catch (Exception e) {
+            List<AgeDivision> ageDivisions = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
+            setAgeDivision((ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null);
+        }
+        // remove if now null
+        String value = getAgeDivision() != null ? getAgeDivision().name() : null;
+        updateParam(params1, "ad", value);
+
+        List<String> ageGroupParams = params1.get("ag");
+        // no age group is the default
+        String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
+        setAgeGroupPrefix(ageGroupPrefix);
+        String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
+        updateParam(params1, "ag", value2);
+
+        switchLightingMode(this, darkMode, false);
+        updateURLLocations();
+
+        buildDialog(this);
+        return params1;
+    }
+
+    public void setAgeDivision(AgeDivision ageDivision) {
+        this.ageDivision = ageDivision;
+    }
+
+    public void setAgeGroupPrefix(String ageGroupPrefix) {
+        this.ageGroupPrefix = ageGroupPrefix;
     }
 
     @Override
@@ -254,16 +368,6 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     public void setShowInitialDialog(boolean b) {
         this.initializationNeeded = true;
     }
-
-//    @Subscribe
-//    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
-//        uiLog(e);
-//        Competition competition = Competition.getCurrent();
-//
-//        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-//            doUpdate(competition);
-//        });
-//    }
 
     /**
      * @see app.owlcms.utils.queryparameters.DisplayParameters#setSilenced(boolean)
@@ -294,6 +398,24 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         });
     }
 
+    @Override
+    public void switchLightingMode(Component target, boolean dark, boolean updateURL) {
+        target.getElement().getClassList().set(DARK, dark);
+        target.getElement().getClassList().set(LIGHT, !dark);
+        setDarkMode(dark);
+        if (updateURL) {
+            updateURLLocation(getLocationUI(), getLocation(), DARK, dark ? null : "false");
+        }
+    }
+
+    @Override
+    public void switchSoundMode(Component target, boolean silent, boolean updateURL) {
+        setSilenced(silent);
+        if (updateURL) {
+            updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? null : "false");
+        }
+    }
+
     public void uiLog(UIEvent e) {
         if (e == null) {
             uiEventLogger.debug("### {} {}", this.getClass().getSimpleName(), LoggerUtils.whereFrom());
@@ -313,7 +435,6 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             TopTeamsModel model = getModel();
             if (a != null) {
-                model.setFullName(getTranslation("Scoreboard.TopTeams"));
                 updateBottom(model);
             }
         });
@@ -347,6 +468,14 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         this.getElement().setPropertyJson("t", translations);
     }
 
+    private String computeAgeGroupSuffix() {
+        String suffix = null;
+        if (getAgeGroupPrefix() != null) {
+            suffix = getAgeGroupPrefix();
+        }
+        return (suffix != null ? " &ndash; " + suffix : "");
+    }
+
     private String formatDouble(double d) {
         if (floatFormat == null) {
             floatFormat = new DecimalFormat();
@@ -367,6 +496,14 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         } else {
             return total.toString();
         }
+    }
+
+    private AgeDivision getAgeDivision() {
+        return ageDivision;
+    }
+
+    private String getAgeGroupPrefix() {
+        return ageGroupPrefix;
     }
 
     @SuppressWarnings("unused")
@@ -409,11 +546,21 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         return jath;
     }
 
+    private List<String> setAgeGroupPrefixItems(ComboBox<String> ageGroupPrefixComboBox,
+            AgeDivision ageDivision2) {
+        List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsed(ageDivision2);
+        ageGroupPrefixComboBox.setItems(activeAgeGroups);
+        return activeAgeGroups;
+    }
+
     private void setWide(boolean b) {
         getModel().setWideTeamNames(b);
     }
 
     private List<TeamTreeItem> topN(List<TeamTreeItem> list) {
+        if (list == null) {
+            return new ArrayList<>();
+        }
         int size = list.size();
         if (size > 0) {
             int min = Math.min(size, TOP_N);
@@ -423,14 +570,26 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     private void updateBottom(TopTeamsModel model) {
-        getModel().setFullName(getTranslation("Scoreboard.TopTeams"));
         this.getElement().setProperty("topTeamsMen",
-                mensTeams != null && mensTeams.size() > 0 ? getTranslation("Scoreboard.TopTeamsMen") : "");
+                mensTeams != null && mensTeams.size() > 0
+                        ? getTranslation("Scoreboard.TopTeamsMen") + computeAgeGroupSuffix()
+                        : "");
         this.getElement().setPropertyJson("mensTeams", getTeamsJson(mensTeams, true));
 
         this.getElement().setProperty("topTeamsWomen",
-                womensTeams != null && womensTeams.size() > 0 ? getTranslation("Scoreboard.TopTeamsWomen") : "");
+                womensTeams != null && womensTeams.size() > 0
+                        ? getTranslation("Scoreboard.TopTeamsWomen") + computeAgeGroupSuffix()
+                        : "");
         this.getElement().setPropertyJson("womensTeams", getTeamsJson(womensTeams, false));
+    }
+
+    private void updateURLLocations() {
+        updateURLLocation(UI.getCurrent(), getLocation(), DARK,
+                !isDarkMode() ? Boolean.TRUE.toString() : null);
+        updateURLLocation(UI.getCurrent(), getLocation(), "ag",
+                getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null);
+        updateURLLocation(UI.getCurrent(), getLocation(), "ad",
+                getAgeDivision() != null ? getAgeDivision().name() : null);
     }
 
 }

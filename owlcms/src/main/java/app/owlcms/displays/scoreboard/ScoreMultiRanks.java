@@ -8,8 +8,9 @@ package app.owlcms.displays.scoreboard;
 
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map.Entry;
 
 import org.slf4j.LoggerFactory;
 
@@ -37,12 +38,15 @@ import com.vaadin.flow.theme.lumo.Lumo;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.options.DisplayOptions;
@@ -153,7 +157,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     private DecisionElement decisions; // Flow creates it
 
     private EventBus uiEventBus;
-    private List<Athlete> order;
+    private List<Athlete> displayOrder;
     private Group curGroup;
     private int liftsDone;
 
@@ -166,6 +170,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     private Dialog dialog;
     private boolean silenced = true;
     private boolean initializationNeeded;
+    private LinkedHashMap<String, Participation> ageGroupMap;
 
     /**
      * Instantiates a new results board.
@@ -260,7 +265,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
      * Reset.
      */
     public void reset() {
-        order = ImmutableList.of();
+        displayOrder = ImmutableList.of();
     }
 
     @Override
@@ -300,12 +305,12 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             Athlete a = e.getAthlete();
             getModel().setHidden(false);
             if (a == null) {
-                order = fop.getLiftingOrder();
-                a = order.size() > 0 ? order.get(0) : null;
-                liftsDone = AthleteSorter.countLiftsDone(order);
+                displayOrder = fop.getLiftingOrder();
+                a = displayOrder.size() > 0 ? displayOrder.get(0) : null;
+                liftsDone = AthleteSorter.countLiftsDone(displayOrder);
                 doUpdate(a, e);
             } else {
-                liftsDone = AthleteSorter.countLiftsDone(order);
+                liftsDone = AthleteSorter.countLiftsDone(displayOrder);
                 doUpdate(a, e);
             }
         }));
@@ -346,9 +351,8 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     @Subscribe
     public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
         uiLog(e);
-        Competition competition = Competition.getCurrent();
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            computeLeaders(competition);
+            computeLeaders();
         });
     }
 
@@ -369,8 +373,8 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         uiEventLogger.debug("### {} isDisplayToggle={}", this.getClass().getSimpleName(), e.isDisplayToggle());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Athlete a = e.getAthlete();
-            order = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
-            liftsDone = AthleteSorter.countLiftsDone(order);
+            displayOrder = e.getDisplayOrder();
+            liftsDone = AthleteSorter.countLiftsDone(displayOrder);
             doUpdate(a, e);
         });
     }
@@ -470,21 +474,19 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
 
         // fop obtained via FOPParameters interface default methods.
-        Competition competition = Competition.getCurrent();
         OwlcmsSession.withFop(fop -> {
             init();
 
-            // get the global category rankings for the group
-            order = competition.getGlobalCategoryRankingsForGroup(fop.getGroup());
+            // get the global category rankings (attached to each athlete)
+            displayOrder = fop.getDisplayOrder();
 
-            liftsDone = AthleteSorter.countLiftsDone(order);
+            liftsDone = AthleteSorter.countLiftsDone(displayOrder);
             syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
         SoundUtils.enableAudioContextNotification(this.getElement());
         switchLightingMode(this, isDarkMode(), true);
-        computeLeaders(competition);
     }
 
     protected void setTranslationMap() {
@@ -499,44 +501,20 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         this.getElement().setPropertyJson("t", translations);
     }
 
-    private void computeLeaders(Competition competition) {
+    private void computeLeaders() {
         logger.debug("computeLeaders");
         OwlcmsSession.withFop(fop -> {
             Athlete curAthlete = fop.getCurAthlete();
             if (curAthlete != null && curAthlete.getGender() != null) {
                 getModel().setCategoryName(curAthlete.getCategory().getName());
-                order = competition.getGlobalTotalRanking(curAthlete.getGender());
-                // logger.debug("rankings for current gender {}
-                // size={}",curAthlete.getGender(),globalRankingsForCurrentGroup.size());
-                order = filterToCategory(curAthlete.getCategory(),
-                        order);
-                // logger.debug("rankings for current category {}
-                // size={}",curAthlete.getCategory(),globalRankingsForCurrentGroup.size());
-                order = order.stream().filter(a -> a.getTotal() > 0)
-                        .collect(Collectors.toList());
-                if (order.size() > 0) {
+
+                List<Athlete> order = fop.getLeaders();
+                if (order != null && order.size() > 0) {
                     // null as second argument because we do not highlight current athletes in the leaderboard
                     this.getElement().setPropertyJson("leaders", getAthletesJson(order, null));
                 } else {
-                    // no one has totaled, so we show the snatch stats
-                    if (!fop.isCjStarted()) {
-                        order = Competition.getCurrent()
-                                .getGlobalSnatchRanking(curAthlete.getGender());
-                        order = filterToCategory(curAthlete.getCategory(),
-                                order);
-                        order = order.stream()
-                                .filter(a -> a.getSnatchTotal() > 0).collect(Collectors.toList());
-                        if (order.size() > 0) {
-                            this.getElement().setPropertyJson("leaders",
-                                    getAthletesJson(order, null));
-                        } else {
-                            // nothing to show
-                            this.getElement().setPropertyJson("leaders", Json.createNull());
-                        }
-                    } else {
-                        // nothing to show
-                        this.getElement().setPropertyJson("leaders", Json.createNull());
-                    }
+                    // nothing to show
+                    this.getElement().setPropertyJson("leaders", Json.createNull());
                 }
             }
         });
@@ -570,14 +548,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         updateBottom(model, computeLiftType(a));
     }
 
-    private List<Athlete> filterToCategory(Category category, List<Athlete> order) {
-        return order
-                .stream()
-                .filter(a -> category != null && category.equals(a.getCategory()))
-                .limit(3)
-                .collect(Collectors.toList());
-    }
-
     private String formatAttempt(Integer attemptNo) {
         String translate = Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
         return translate;
@@ -595,9 +565,31 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         }
     }
 
+    private String formatRank(Integer total) {
+        if (total == null || total == 0) {
+            return "";
+        } else if (total == -1) {
+            return "inv.";// invited lifter, not eligible.
+        } else {
+            return total.toString();
+        }
+    }
+
     private String formatKg(String total) {
         return (total == null || total.trim().isEmpty()) ? "-"
                 : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
+    }
+
+    private JsonArray getAgeGroupNamesJson(LinkedHashMap<String, Participation> currentAthleteParticipations) {
+        JsonArray ageGroups = Json.createArray();
+        int i = 0;
+        for (Entry<String, Participation> e : OwlcmsSession.getFop().getAgeGroupMap().entrySet()) {
+            ageGroups.set(i, e.getKey());
+            i++;
+        }
+        getElement().setPropertyJson("liftColspan", Json.create("" + (3 + i)));
+        getElement().setPropertyJson("totalColspan", Json.create("" + (1 + i)));
+        return ageGroups;
     }
 
     private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
@@ -613,21 +605,10 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         ja.put("sattempts", sattempts);
         ja.put("cattempts", cattempts);
         ja.put("total", formatInt(a.getTotal()));
-
-        ja.put("snatchRank", formatInt(a.getSnatchRank()));
-        ja.put("snatchRankYth", formatInt(a.getSnatchRankYth()));
-        ja.put("snatchRankJr", formatInt(a.getSnatchRankJr()));
-        ja.put("snatchRankSr", formatInt(a.getSnatchRankSr()));
-
-        ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
-        ja.put("cleanJerkRankYth", formatInt(a.getCleanJerkRankYth()));
-        ja.put("cleanJerkRankJr", formatInt(a.getCleanJerkRankJr()));
-        ja.put("cleanJerkRankSr", formatInt(a.getCleanJerkRankSr()));
-
-        ja.put("totalRank", formatInt(a.getTotalRank()));
-        ja.put("totalRankYth", formatInt(a.getTotalRankYth()));
-        ja.put("totalRankJr", formatInt(a.getTotalRankJr()));
-        ja.put("totalRankSr", formatInt(a.getTotalRankSr()));
+        setCurrentAthleteParticipations(a);
+        ja.put("snatchRanks", getRanksJson(a, Ranking.SNATCH, ageGroupMap));
+        ja.put("cleanJerkRanks", getRanksJson(a, Ranking.CLEANJERK, ageGroupMap));
+        ja.put("totalRanks", getRanksJson(a, Ranking.TOTAL, ageGroupMap));
 
         ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
         boolean notDone = a.getAttemptsDone() < 6;
@@ -637,22 +618,45 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         }
     }
 
+    private void setCurrentAthleteParticipations(Athlete a) {
+        OwlcmsSession.withFop(fop -> {
+            ageGroupMap = new LinkedHashMap<String, Participation>(fop.getAgeGroupMap());
+            for (Entry<String, Participation> cape : ageGroupMap.entrySet()) {
+                cape.setValue(null);
+            }
+            if (a != null) {
+                //logger,debug(">>>setCurrentAthleteParticipations begin");
+                //logger,debug("setting {}", a.getShortName());
+                for (Participation p : a.getParticipations()) {
+                    AgeGroup ag = p.getCategory() != null ? p.getCategory().getAgeGroup() : null;
+                    if (ag != null) {
+                        //logger,debug("athlete {} curRankings {} {}", a, ag.getCode(), p);
+                        ageGroupMap.put(ag.getCode(), p);
+                    }
+                }
+                //logger,debug("<<<setCurrentAthleteParticipations end");
+            } else {
+                //logger,debug("+++ cleared");
+            }
+        });
+    }
+
     /**
      * @param groupAthletes, List<Athlete> liftOrder
      * @return
      */
-    private JsonValue getAthletesJson(List<Athlete> groupAthletes, List<Athlete> liftOrder) {
+    private JsonValue getAthletesJson(List<Athlete> displayOrder, List<Athlete> liftOrder) {
         JsonArray jath = Json.createArray();
         int athx = 0;
         Category prevCat = null;
         long currentId = (liftOrder != null && liftOrder.size() > 0) ? liftOrder.get(0).getId() : -1L;
         long nextId = (liftOrder != null && liftOrder.size() > 1) ? liftOrder.get(1).getId() : -1L;
-        List<Athlete> athletes = groupAthletes != null ? Collections.unmodifiableList(groupAthletes)
+        List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
                 : Collections.emptyList();
         for (Athlete a : athletes) {
             JsonObject ja = Json.createObject();
             Category curCat = a.getCategory();
-            if (curCat != null && !curCat.equals(prevCat)) {
+            if (curCat != null && !curCat.sameAs(prevCat)) {
                 // changing categories, put marker before athlete
                 ja.put("isSpacer", true);
                 jath.set(athx, ja);
@@ -660,7 +664,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                 prevCat = curCat;
                 athx++;
             }
-            // compute the blinking rank
+            // compute the blinking rank (1 = current, 2 = next)
             getAthleteJson(a, ja, curCat, (a.getId() == currentId)
                     ? 1
                     : ((a.getId() == nextId)
@@ -742,6 +746,34 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         return this;
     }
 
+    private JsonValue getRanksJson(Athlete a, Ranking r, LinkedHashMap<String, Participation> ageGroupMap2) {
+        JsonArray ranks = Json.createArray();
+        int i = 0;
+        for (Entry<String, Participation> e : ageGroupMap.entrySet()) {
+            Participation p = e.getValue();
+            //logger,debug("a {} k {} v {}", a.getShortName(), e.getKey(), p);
+            if (p == null) {
+                ranks.set(i, "");
+            } else {
+                switch (r) {
+                case CLEANJERK:
+                    ranks.set(i, formatRank(p.getCleanJerkRank()));
+                    break;
+                case SNATCH:
+                    ranks.set(i, formatRank(p.getSnatchRank()));
+                    break;
+                case TOTAL:
+                    ranks.set(i, formatRank(p.getTotalRank()));
+                    break;
+                default:
+                    break;
+                }
+            }
+            i++;
+        }
+        return ranks;
+    }
+
     private void init() {
         OwlcmsSession.withFop(fop -> {
             logger.trace("{}Starting result board.", fop.getLoggingName());
@@ -751,7 +783,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             getModel().setCompetitionName(Competition.getCurrent().getCompetitionName());
         });
         setTranslationMap();
-        order = ImmutableList.of();
+        displayOrder = ImmutableList.of();
     }
 
     private boolean isDone() {
@@ -783,21 +815,24 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     private void updateBottom(ScoreboardModel model, String liftType) {
         OwlcmsSession.withFop((fop) -> {
             curGroup = fop.getGroup();
-            order = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
+            displayOrder = fop.getDisplayOrder();
+
             if (liftType != null) {
                 model.setGroupName(
                         curGroup != null
                                 ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
                                 : "");
-                liftsDone = AthleteSorter.countLiftsDone(order);
+                liftsDone = AthleteSorter.countLiftsDone(displayOrder);
                 model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
             } else {
                 model.setGroupName("X");
                 model.setLiftsDone("Y");
                 this.getElement().callJsFunction("groupDone");
             }
+            this.getElement().setPropertyJson("ageGroups", getAgeGroupNamesJson(fop.getAgeGroupMap()));
             this.getElement().setPropertyJson("athletes",
-                    getAthletesJson(order, fop.getLiftingOrder()));
+                    getAthletesJson(displayOrder, fop.getLiftingOrder()));
+            computeLeaders();
         });
     }
 

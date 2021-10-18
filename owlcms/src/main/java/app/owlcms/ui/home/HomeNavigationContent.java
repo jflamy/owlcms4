@@ -80,7 +80,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
     String PREPARE_COMPETITION = Translator.translate("PrepareCompetition");
     String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup");
     String START_DISPLAYS = Translator.translate("StartDisplays");
-    String RESULT_DOCUMENTS = Translator.translate("ResultDocuments");
+    String RESULT_DOCUMENTS = Translator.translate("Results");
 
     String INFO = Translator.translate("About");
 
@@ -183,6 +183,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
     private VerticalLayout buildIntro() {
         VerticalLayout intro = new VerticalLayout();
         IPInterfaceUtils urlFinder = new IPInterfaceUtils();
+        urlFinder.checkRequest();
         addP(intro, getTranslation("SystemURL"));
         for (String url : urlFinder.getRecommended()) {
             intro.add(new Div(new Anchor(url, url)));

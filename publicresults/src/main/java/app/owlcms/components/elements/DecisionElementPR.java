@@ -80,29 +80,29 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
 
     @Subscribe
     public void slaveDecision(DecisionEvent de) {
-        logger.warn("DecisionElement DecisionEvent {} {}", de.getEventType(), System.identityHashCode(de));
+        logger.debug("DecisionElement DecisionEvent {} {}", de.getEventType(), System.identityHashCode(de));
         if (ui == null || ui.isClosing()) {
             return;
         }
         ui.access(() -> {
             if (de.isBreak()) {
-                logger.warn("break: slaveDecision disable");
+                logger.debug("break: slaveDecision disable");
                 getModel().setEnabled(false);
             } else {
                 switch (de.getEventType()) {
                 case DOWN_SIGNAL:
-                    logger.warn("showing down");
+                    logger.debug("showing down");
                     this.getElement().callJsFunction("showDown", false, false);
                     break;
                 case FULL_DECISION:
-                    logger.warn("calling full decision");
+                    logger.debug("calling full decision");
                     this.getElement().callJsFunction("showDecisions", false, de.getDecisionLight1(),
                             de.getDecisionLight2(),
                             de.getDecisionLight3());
                     getModel().setEnabled(false);
                     break;
                 case RESET:
-                    logger.warn("calling reset");
+                    logger.debug("calling reset");
                     getElement().callJsFunction("reset", false);
                     break;
                 default:

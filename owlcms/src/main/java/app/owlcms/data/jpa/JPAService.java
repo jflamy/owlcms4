@@ -48,6 +48,7 @@ import app.owlcms.Main;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
@@ -69,16 +70,16 @@ public class JPAService {
         logger.setLevel(Level.INFO);
     }
 
-    protected static EntityManagerFactory factory;
+    private static EntityManagerFactory factory;
 
     /**
      * Close.
      */
     public static void close() {
-        if (factory != null) {
-            factory.close();
+        if (getFactory() != null) {
+            getFactory().close();
         }
-        factory = null;
+        setFactory(null);
     }
 
     /**
@@ -87,8 +88,8 @@ public class JPAService {
      * @param inMemory if true, start with in-memory database
      */
     public static void init(boolean inMemory, boolean reset) {
-        if (factory == null) {
-            factory = getFactory(inMemory, reset);
+        if (getFactory() == null) {
+            setFactory(getFactory(inMemory, reset));
         }
     }
 
@@ -103,7 +104,7 @@ public class JPAService {
         String userName = System.getenv("JDBC_DATABASE_USERNAME");
         String password = System.getenv("JDBC_DATABASE_PASSWORD");
 
-        if (dbUrl != null) {
+        if (dbUrl != null && !dbUrl.isBlank()) {
             // explicit url provided
             if (inMemory || dbUrl.startsWith("jdbc:h2:mem")) {
                 embeddedH2Server = true;
@@ -120,7 +121,7 @@ public class JPAService {
             } else {
                 throw new RuntimeException("Unsupported database: " + dbUrl);
             }
-        } else if (postgresHost != null) {
+        } else if (postgresHost != null && !postgresHost.isBlank()) {
             // postgres container configuration
             String postgresPort = System.getenv("POSTGRES_PORT");
             String postgresDb = System.getenv("POSTGRES_DB");
@@ -156,13 +157,42 @@ public class JPAService {
         EntityManager entityManager = null;
 
         try {
-            if (factory == null) {
+            if (getFactory() == null) {
                 logger.debug("JPAService {}", LoggerUtils.stackTrace());
             }
-            entityManager = factory.createEntityManager();
+            entityManager = getFactory().createEntityManager();
             entityManager.getTransaction().begin();
 
             T result = function.apply(entityManager);
+
+            entityManager.getTransaction().commit();
+            return result;
+
+        } finally {
+            if (entityManager != null) {
+                entityManager.close();
+            }
+        }
+    }
+    
+    /**
+     * Run in transaction.
+     *
+     * @param <T>      the generic type
+     * @param function the function
+     * @return the t
+     */
+    public static List<Object[]> runInTransactionMultipleResults(Function<EntityManager, List<Object[]>> function) {
+        EntityManager entityManager = null;
+
+        try {
+            if (getFactory() == null) {
+                logger.debug("JPAService {}", LoggerUtils.stackTrace());
+            }
+            entityManager = getFactory().createEntityManager();
+            entityManager.getTransaction().begin();
+
+            List<Object[]> result = function.apply(entityManager);
 
             entityManager.getTransaction().commit();
             return result;
@@ -189,6 +219,7 @@ public class JPAService {
                 .add(AgeGroup.class.getName())
                 .add(Config.class.getName())
                 .add(RecordEvent.class.getName())
+                .add(Participation.class.getName())
                 .build();
         return vals;
     }
@@ -298,6 +329,7 @@ public class JPAService {
                 .put("hibernate.javax.cache.provider", "org.ehcache.jsr107.EhcacheCachingProvider")
                 .put("hibernate.javax.cache.missing_cache_strategy", "create")
                 .put("javax.persistence.sharedCache.mode", "ALL").put("hibernate.c3p0.min_size", 5)
+                .put("hibernate.enable_lazy_load_no_trans",true)
 //                .put("hibernate.c3p0.max_size", 20).put("hibernate.c3p0.acquire_increment", 5)
 //                .put("hibernate.c3p0.timeout", 84200).put("hibernate.c3p0.preferredTestQuery", "SELECT 1")
 //                .put("hibernate.c3p0.testConnectionOnCheckout", true).put("hibernate.c3p0.idle_test_period", 500)
@@ -376,6 +408,20 @@ public class JPAService {
         } catch (SQLException e) {
             logger.error(LoggerUtils.stackTrace(e));
         }
+    }
+
+    /**
+     * @return the factory
+     */
+    public static EntityManagerFactory getFactory() {
+        return factory;
+    }
+
+    /**
+     * @param factory the factory to set
+     */
+    protected static void setFactory(EntityManagerFactory factory) {
+        JPAService.factory = factory;
     }
 
 }

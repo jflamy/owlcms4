@@ -84,7 +84,7 @@ public class Speakers {
                     AudioFormat af = new AudioFormat(44100f, 8, 1, true, false);
                     if (AudioSystem.getSourceDataLine(af, info) != null) {
                         mixers.add(mixer);
-                        logger.info("Mixer {} detected", mixer.getMixerInfo().getName());
+                        logger.debug("Mixer {} detected", mixer.getMixerInfo().getName());
                     }
                 }
             } catch (LineUnavailableException | IllegalArgumentException e) {

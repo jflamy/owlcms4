@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -108,7 +109,7 @@ public class RuleViolationException extends RuntimeException {
          */
         public LiftValueNotWhatWasRequested(int curLift, String actualLift, int lastDeclarationOrChange,
                 int liftedWeight) {
-            super("RuleViolation.liftValueNotWhatWasRequested", curLift, actualLift, lastDeclarationOrChange,
+            super("RuleViolation.liftValueNotWhatWasRequested", (curLift % 3) + 1, actualLift, lastDeclarationOrChange,
                     liftedWeight);
         }
     }
@@ -216,13 +217,12 @@ public class RuleViolationException extends RuntimeException {
          * @param startNumber
          * @param referenceWeight
          */
-        public WeightBelowAlreadyLifted(Integer requestedWeight, Athlete athlete, int referenceWeight) {
+        public WeightBelowAlreadyLifted(Integer requestedWeight, Athlete athlete, int referenceWeight, int attemptNo) {
             super("RuleViolation.weightBelowAlreadyLifted", requestedWeight,
-                    athlete.getShortName(), referenceWeight);
+                    athlete.getShortName(), referenceWeight, attemptNo);
         }
     }
 
-    @SuppressWarnings("unused")
     private static final Logger logger = (Logger) LoggerFactory.getLogger(RuleViolationException.class);
     private static final long serialVersionUID = 8965943679108964933L;
     protected String messageKey;
@@ -239,6 +239,7 @@ public class RuleViolationException extends RuntimeException {
         super(s);
         this.messageKey = s;
         this.messageFormatData = objs;
+        logger./**/warn("{}{} [{}]", OwlcmsSession.getFopLoggingName(), getLocalizedMessage(Locale.ENGLISH), LoggerUtils.whereFrom(1));
     }
 
     /*

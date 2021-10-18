@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.ui.preparation;
 
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -25,6 +26,9 @@ import app.owlcms.data.config.Config;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.utils.IPInterfaceUtils;
+import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -45,6 +49,12 @@ public class ConfigContent extends Composite<VerticalLayout>
      */
     public ConfigContent() {
         initLoggers();
+        IPInterfaceUtils urlFinder = new IPInterfaceUtils();
+        try {
+            urlFinder.checkInterfaces("http", StartupUtils.getServerPort(), false);
+        } catch (SocketException e) {
+            logger.error(LoggerUtils.stackTrace(e));
+        }
         factory = createFormFactory();
         Component form = factory.buildNewForm(CrudOperation.UPDATE, Config.getCurrent(), false, null, event -> {
         });
@@ -113,34 +123,6 @@ public class ConfigContent extends Composite<VerticalLayout>
         this.routerLayout = routerLayout;
     }
 
-//    /**
-//     * The content and ordering of the editing form
-//     *
-//     * @param crudFormFactory the factory that will create the form using this information
-//     */
-//    private void createFormLayout(DefaultCrudFormFactory<Config> crudFormFactory) {
-//        crudFormFactory.setVisibleProperties("competitionName", "competitionDate", "competitionOrganizer",
-//                "competitionSite", "competitionCity", "federation", "federationAddress", "federationEMail",
-//                "federationWebSite", "defaultLocale", "enforce20kgRule", "masters", "useBirthYear", "customScore");
-//        crudFormFactory.setFieldCaptions(Translator.translate("Config.competitionName"),
-//                Translator.translate("Config.competitionDate"),
-//                Translator.translate("Config.competitionOrganizer"),
-//                Translator.translate("Config.competitionSite"),
-//                Translator.translate("Config.competitionCity"),
-//                Translator.translate("Config.federation"),
-//                Translator.translate("Config.federationAddress"),
-//                Translator.translate("Config.federationEMail"),
-//                Translator.translate("Config.federationWebSite"),
-//                Translator.translate("Config.defaultLocale"),
-//                Translator.translate("Config.enforce20kgRule"),
-//                Translator.translate("Config.masters"),
-//                Translator.translate("Config.useBirthYear"),
-//                Translator.translate("Config.customScore"));
-//        ItemLabelGenerator<Locale> nameGenerator = (locale) -> locale.getDisplayName(locale);
-//        crudFormFactory.setFieldProvider("defaultLocale", new OwlcmsComboBoxProvider<>(getTranslation("Locale"),
-//                Translator.getAllAvailableLocales(), new TextRenderer<>(nameGenerator), nameGenerator));
-//        crudFormFactory.setFieldType("competitionDate", DatePicker.class);
-//    }
 
     @Override
     public void showDialog(String caption, Component form) {

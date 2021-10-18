@@ -240,7 +240,7 @@ class TimerElement extends PolymerElement {
 		}
 		if (!window.finalWarning /* && ! this.loadingFinalWarning */) {
 			this.loadingFinalWarning = true;
-			const finalWarning = await this._playTrack("../sounds/finalWarning.mp3", null, false, 0);
+			const finalWarning = await this._playTrack("../local/sounds/finalWarning.mp3", null, false, 0);
 			window.finalWarning = finalWarning;
 			console.warn("loaded finalWarning = " + window.finalWarning);
 		} else {
@@ -250,7 +250,7 @@ class TimerElement extends PolymerElement {
 
 		if (!window.initialWarning /* && ! this.loadingInitialWarning */) {
 			this.loadingInitialWarning = true;
-			const initialWarning = await this._playTrack("../sounds/initialWarning.mp3", null, false, 0);
+			const initialWarning = await this._playTrack("../local/sounds/initialWarning.mp3", null, false, 0);
 			window.initialWarning = initialWarning;
 			console.warn("loaded initialWarning = " + window.initialWarning);
 		} else {
@@ -260,7 +260,7 @@ class TimerElement extends PolymerElement {
 
 		if (!window.timeOver /* && ! this.loadingTimeOver */) {
 			this.loadingTimeOver = true;
-			const timeOver = await this._playTrack("../sounds/timeOver.mp3", null, false, 0);
+			const timeOver = await this._playTrack("../local/sounds/timeOver.mp3", null, false, 0);
 			window.timeOver = timeOver;
 			console.warn("loaded timeOver = " + window.timeOver);
 		} else {

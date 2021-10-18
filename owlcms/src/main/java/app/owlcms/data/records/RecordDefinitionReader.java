@@ -17,12 +17,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -60,7 +60,7 @@ public class RecordDefinitionReader {
                     RecordEvent rec = new RecordEvent();
 
                     for (Cell cell : row) {
-                        // System.err.println("[" + iSheet + "," + iRow + "," + iColumn + "]");
+                        // logger.trace("[" + iSheet + "," + iRow + "," + iColumn + "]");
                         switch (iColumn) {
                         case 0: {
                             String cellValue = cell.getStringCellValue();
@@ -151,7 +151,7 @@ public class RecordDefinitionReader {
 
                         iColumn++;
                     }
-                    // System.err.println(rec);
+                    // logger.trace(rec);
 
                     try {
                         em.persist(rec);
@@ -173,7 +173,7 @@ public class RecordDefinitionReader {
     }
 
     static void doInsertRecords(EnumSet<AgeDivision> es, String localizedName) {
-        InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
+        InputStream localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory
                 .create(localizedResourceAsStream)) {
             RecordRepository.logger.info("loading configuration file {}", localizedName);

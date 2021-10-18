@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.ui.shared;
 
+import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -38,7 +39,7 @@ public class DownloadButtonFactory {
      * @param xlsSource the xls source
      * @return the div
      */
-    public static Div createDynamicDownloadButton(String prefix, String label, JXLSWorkbookStreamSource xlsSource) {
+    public static Div createDynamicXLSDownloadButton(String prefix, String label, JXLSWorkbookStreamSource xlsSource) {
         final LazyDownloadButton downloadButton = new LazyDownloadButton(
                 label,
                 new Icon(VaadinIcon.DOWNLOAD_ALT),
@@ -52,6 +53,21 @@ public class DownloadButtonFactory {
 
         return new Div(downloadButton);
     }
+    
+    public static Div createDynamicZipDownloadButton(String prefix, String label, byte[] content) {
+        final LazyDownloadButton downloadButton = new LazyDownloadButton(
+                label,
+                new Icon(VaadinIcon.DOWNLOAD_ALT),
+                () -> {
+                    LocalDateTime now = LocalDateTime.now().withNano(0);
+                    return prefix
+                            + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
+                            + ".zip";
+                },
+                () -> {return new ByteArrayInputStream(content);});
+
+        return new Div(downloadButton);
+    }
 
     /**
      * Creates a new Download Button object for a static resource
@@ -61,7 +77,7 @@ public class DownloadButtonFactory {
      * @param templateNamePrefix the template name prefix
      * @return the div
      */
-    public static Div createStaticDownloadButton(String prefix, String label, String templateNamePrefix) {
+    public static Div createStaticXLSDownloadButton(String prefix, String label, String templateNamePrefix) {
         String templateFileName = templateNamePrefix + OwlcmsSession.getLocale().getLanguage() + ".xls";
         logger.debug("templateFileName = {} href={}", templateFileName);
         StreamResource href = new StreamResource(prefix + ".xls",

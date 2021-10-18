@@ -19,13 +19,13 @@ public class LambdaUtils {
 
         return i -> {
             try {
-                System.err.println("calling wrapped consumer " + i);
+                //System. err.println("calling wrapped consumer " + i);
                 throwingConsumer.accept(i);
             } catch (Exception ex) {
-                System.err.println("Exception " + ex);
+                //System. err.println("Exception " + ex);
                 throw new RuntimeException(ex);
             } catch (Throwable e) {
-                System.err.println("Throwable " + e);
+                //System. err.println("Throwable " + e);
                 throw new RuntimeException(e);
             }
         };

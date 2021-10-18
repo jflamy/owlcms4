@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.ui.lifting;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -47,6 +48,7 @@ import app.owlcms.ui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
+import app.owlcms.ui.crudui.OwlcmsMultiSelectComboBoxProvider;
 import app.owlcms.ui.shared.AthleteRegistrationFormFactory;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
@@ -295,23 +297,28 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         List<String> props = new LinkedList<>();
         List<String> captions = new LinkedList<>();
 
-        props.add("bodyWeight");
-        captions.add(getTranslation("BodyWeight"));
-        props.add("category");
-        captions.add(getTranslation("Category"));
-        props.add("snatch1Declaration");
-        captions.add(getTranslation("SnatchDecl_"));
-        props.add("cleanJerk1Declaration");
-        captions.add(getTranslation("C_and_J_decl"));
-        props.add("group");
-        captions.add(getTranslation("Group"));
-        props.add("qualifyingTotal");
-        captions.add(getTranslation("EntryTotal"));
-
         props.add("lastName");
         captions.add(getTranslation("LastName"));
         props.add("firstName");
         captions.add(getTranslation("FirstName"));
+
+        props.add("bodyWeight");
+        captions.add(getTranslation("BodyWeight"));
+        props.add("snatch1Declaration");
+        captions.add(getTranslation("SnatchDecl_"));
+        props.add("cleanJerk1Declaration");
+        captions.add(getTranslation("C_and_J_decl"));
+
+        props.add("qualifyingTotal");
+        captions.add(getTranslation("EntryTotal"));
+        props.add("category");
+        captions.add(getTranslation("Category"));
+        props.add("eligibleCategories");
+        captions.add(getTranslation("Registration.EligibleCategories"));
+        props.add("group");
+        captions.add(getTranslation("Group"));
+
+
         props.add("gender");
         captions.add(getTranslation("Gender"));
         props.add("team");
@@ -346,6 +353,8 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
                 GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
         crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
                 CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName));
+        crudFormFactory.setFieldProvider("eligibleCategories", new OwlcmsMultiSelectComboBoxProvider<>(getTranslation("Registration.EligibleCategories"),
+                new ArrayList<Category>(), new TextRenderer<>(Category::getName), Category::getName));
 //        crudFormFactory.setFieldProvider("ageDivision",
 //                new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
 //                        new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));

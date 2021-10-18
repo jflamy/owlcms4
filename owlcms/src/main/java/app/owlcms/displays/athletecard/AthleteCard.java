@@ -238,9 +238,9 @@ public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
         } else {
             model.setCleanJerk1Declaration("");
         }
-        Integer qualifyingTotal = athlete.getQualifyingTotal();
-        if (qualifyingTotal != null && qualifyingTotal > 0) {
-            model.setEntryTotal(qualifyingTotal.toString());
+        Integer entryTotal = athlete.getEntryTotal();
+        if (entryTotal != null && entryTotal > 0) {
+            model.setEntryTotal(entryTotal.toString());
         } else {
             model.setEntryTotal("");
         }

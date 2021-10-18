@@ -87,6 +87,7 @@ public class EmbeddedJetty {
         scHandler.getServletHandler().addFilterWithMapping(HttpsEnforcer.class, "/*",
                 EnumSet.of(DispatcherType.REQUEST));
 
+        Main.initConfig();
         try {
             // start the server so that kubernetes ingress does not complain due to long initialization.
             server.start();

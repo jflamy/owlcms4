@@ -6,6 +6,8 @@
  *******************************************************************************/
 package app.owlcms.tests;
 
+import static app.owlcms.data.category.AgeDivision.MASTERS;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
@@ -22,9 +24,8 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
-import app.owlcms.data.category.Category;
-import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
@@ -56,9 +57,18 @@ public class TestData {
      */
     public static void insertInitialData(int nbAthletes, boolean testMode) {
         JPAService.runInTransaction(em -> {
+            EnumSet<AgeDivision> divisions = EnumSet.of(AgeDivision.IWF);
+            Competition competition = createDefaultCompetition(divisions);
+            CompetitionRepository.save(competition);
+            AgeGroupRepository.insertAgeGroups(em, divisions,"/agegroups/AgeGroups_Tests.xlsx");
+            return null;
+        });
+        JPAService.runInTransaction(em -> {
             setupTestData(em, nbAthletes);
             return null;
         });
+        AthleteRepository.resetCategories();
+ 
     }
 
     public static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupA,
@@ -73,6 +83,7 @@ public class TestData {
 
         Random r = new Random(0);
 
+        lotNumber = 1;
         createGroup(em, groupA, fnames, lnames, r, 81, 73, liftersToLoad);
         createGroup(em, groupB, fnames, lnames, r, 73, 67, liftersToLoad);
 
@@ -87,10 +98,13 @@ public class TestData {
     protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catLimit) {
         p.setBodyWeight(81 - nextDouble);
         p.setGender(Gender.M);
-        Category categ = CategoryRepository.findByGenderAgeBW(Gender.M, 40, p.getBodyWeight()).get(0);
-        p.setCategory(em.contains(categ) ? categ : em.merge(categ));
+//        Category categ = CategoryRepository.findByGenderAgeBW(Gender.M, 40, p.getBodyWeight()).get(0);
+//        p.addEligibleCategory(em.contains(categ) ? categ : em.merge(categ));
+//        p.setCategory(categ);
+        logger.debug("athlete {} category {} participations {}",p, p.getCategory(), p.getParticipations());
     }
 
+    static int lotNumber = 1;
     protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames,
             Random r,
             int cat1, int cat2, int liftersToLoad) {
@@ -100,7 +114,9 @@ public class TestData {
             p.setGroup(mg);
             p.setFirstName(fnames[r.nextInt(fnames.length)]);
             p.setLastName(lnames[r.nextInt(lnames.length)]);
-            p.setFullBirthDate(LocalDate.of(LocalDate.now().getYear()-40,1,1));
+            p.setFullBirthDate(LocalDate.of(LocalDate.now().getYear() - 40, 1, 1));
+            p.setLotNumber(lotNumber);
+            lotNumber++;
             createAthlete(em, r, p, 0.0D, cat1);
             em.persist(p);
         }
@@ -126,8 +142,6 @@ public class TestData {
         // needed because some classes such as Athlete refer to the current competition
         Competition.setCurrent(new Competition());
 
-        AgeGroupRepository.insertAgeGroups(em, EnumSet.of(AgeDivision.IWF));
-
         LocalDateTime w = LocalDateTime.now();
         LocalDateTime c = w.plusHours((long) 2.0);
 
@@ -148,6 +162,27 @@ public class TestData {
         em.persist(groupA);
         em.persist(groupB);
         em.persist(groupC);
+    }
+    
+    protected static Competition createDefaultCompetition(EnumSet<AgeDivision> ageDivisions) {
+        Competition competition = new Competition();
+
+        competition.setCompetitionName("Spring Equinox Open");
+        competition.setCompetitionCity("Sometown, Lower FOPState");
+        competition.setCompetitionDate(LocalDate.of(2019, 03, 23));
+        competition.setCompetitionOrganizer("Giant Weightlifting Club");
+        competition.setCompetitionSite("West-End Gym");
+        competition.setFederation("National Weightlifting Federation");
+        competition.setFederationAddress("22 River Street, Othertown, Upper FOPState,  J0H 1J8");
+        competition.setFederationEMail("results@national-weightlifting.org");
+        competition.setFederationWebSite("http://national-weightlifting.org");
+
+        competition.setEnforce20kgRule(true);
+        competition.setMasters(ageDivisions != null && ageDivisions.contains(MASTERS));
+        competition.setUseBirthYear(true);
+        competition.setAnnouncerLiveDecisions(true);
+
+        return competition;
     }
 
 }

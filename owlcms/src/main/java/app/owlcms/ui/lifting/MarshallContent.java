@@ -13,17 +13,23 @@ import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.eventbus.Subscribe;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
+import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -110,4 +116,61 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
         HorizontalLayout decisions = new HorizontalLayout();
         return decisions;
     }
+    
+    @Subscribe
+    public void slaveRefereeDecision(UIEvent.Decision e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            hideLiveDecisions();
+
+            int d = e.decision ? 1 : 0;
+            String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
+
+            Notification n = new Notification();
+            String themeName = e.decision ? "success" : "error";
+            n.getElement().getThemeList().add(themeName);
+
+            Div label = new Div();
+            label.add(text);
+            label.addClickListener((event) -> n.close());
+            label.setSizeFull();
+            label.getStyle().set("font-size", "large");
+            n.add(label);
+            n.setPosition(Position.TOP_START);
+            n.setDuration(5000);
+            n.open();
+        });
+    }
+    
+    @Subscribe
+    public void slaveStartTime(UIEvent.StartTime e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            buttonsTimeStarted();
+            displayLiveDecisions();
+        });
+    }
+    
+    protected void displayLiveDecisions() {
+        if (decisionLights == null) {
+            getTopBarLeft().removeAll();
+            createDecisionLights();
+            getTopBarLeft().add(decisionLights);
+        }
+    }
+    
+    private void createDecisionLights() {
+        JuryDisplayDecisionElement decisionDisplay = new JuryDisplayDecisionElement();
+//        Icon silenceIcon = AvIcons.MIC_OFF.create();
+        decisionLights = new HorizontalLayout(decisionDisplay);
+        decisionLights.addClassName("announcerLeft");
+        // decisionLights.setWidth("12em");
+        decisionLights.getStyle().set("line-height", "2em");
+    }
+
+    private void hideLiveDecisions() {
+        getTopBarLeft().removeAll();
+        fillTopBarLeft();
+        decisionLights = null;
+    }
+    
+    private HorizontalLayout decisionLights;
 }

@@ -18,6 +18,7 @@ import javax.sound.sampled.Mixer;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -26,7 +27,7 @@ import ch.qos.logback.classic.Logger;
  * @author jflamy
  */
 public class Sound {
-    static final String SOUND_PREFIX = "/META-INF/resources/sounds/";
+    static final String SOUND_PREFIX = "/sounds/";
 
     final Logger logger = (Logger) LoggerFactory.getLogger(Sound.class);
     private Mixer mixer;
@@ -37,7 +38,7 @@ public class Sound {
     public Sound(Mixer mixer, String soundRelativeURL) throws IllegalArgumentException {
         this.mixer = mixer;
         this.soundURL = SOUND_PREFIX + soundRelativeURL;
-        this.resource = Sound.class.getResourceAsStream(soundURL);
+        this.resource = ResourceWalker.getResourceAsStream(soundURL);
     }
 
     public synchronized void emit() {

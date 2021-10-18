@@ -36,6 +36,7 @@ import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.ui.parameters.DarkModeParameters;
 import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.uievents.BreakTimerEvent;
+import app.owlcms.uievents.BreakTimerEvent.BreakStart;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.DecisionEvent;
 import app.owlcms.uievents.DecisionEventType;
@@ -133,6 +134,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     private UI ui;
     private String fopName;
     private boolean needReset = false;
+    private boolean decisionVisible;
 
     /**
      * Instantiates a new results board.
@@ -140,25 +142,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     public ScoreWithLeaders() {
         setDarkMode(true);
     }
-
-//    private void doBreak(UpdateEvent bte) {
-//        if (ui == null || ui.isClosing())
-//            return;
-//        ui.access(() -> {
-//            logger.warn("starting break");
-//            ScoreboardModel model = getModel();
-//            BreakType breakType = bte.getBreakType();
-//            String groupName = bte.getGroupName();
-//            model.setFullName(Translator.translate("Group_number", groupName) + " &ndash; " + inferMessage(breakType));
-//            model.setTeamName("");
-//            model.setAttempt("");
-//            model.setHidden(false);
-//
-////            updateBottom(model, computeLiftType(fop.getCurAthlete()));
-//            logger.warn("$$$ scoreWithLeaders calling doBreak()");
-//            this.getElement().callJsFunction("doBreak");
-//        });
-//    }
 
     @Override
     public ContextMenu getContextMenu() {
@@ -218,17 +201,18 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveBreakDone(BreakTimerEvent.BreakDone e) {
-        logger.warn("scoreWithLeaders BreakDone");
+        logger.debug("### received BreakDone {}");
         this.getElement().callJsFunction("reset");
         needReset = false;
     }
 
     @Subscribe
     public void slaveDecisionEvent(DecisionEvent e) {
-        logger.warn("received DecisionEvent {}", e.getEventType());
+        logger.debug("### received DecisionEvent {}", e.getEventType());
         DecisionEventType eventType = e.getEventType();
         switch (eventType) {
         case DOWN_SIGNAL:
+            this.decisionVisible = true;
             if (ui == null || ui.isClosing()) {
                 return;
             }
@@ -238,10 +222,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             });
             break;
         case RESET:
-//            if (e.isDone()) {
-//                doDone(e.getGroupName());
-//            } else
-        {
+            this.decisionVisible = false;
             if (ui == null || ui.isClosing()) {
                 return;
             }
@@ -249,9 +230,9 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 getModel().setHidden(false);
                 this.getElement().callJsFunction("reset");
             });
-        }
             break;
         case FULL_DECISION:
+            this.decisionVisible = true;
             if (ui == null || ui.isClosing()) {
                 return;
             }
@@ -268,7 +249,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     @Subscribe
     public void slaveGlobalRankingUpdated(UpdateEvent e) {
         String fopState = e.getFopState();
-        logger.warn("received UpdateEvent {}", e);
+        logger.debug("### received UpdateEvent {}", e);
         ui.access(() -> {
             String athletes = e.getAthletes();
             String leaders = e.getLeaders();
@@ -295,21 +276,29 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             getModel().setWideTeamNames(e.getWideTeamNames());
             String liftsDone = e.getLiftsDone();
             getModel().setLiftsDone(liftsDone);
-            
-            logger.debug("state {} {}", fopState, e.getBreakType() );
 
-            if ("INACTIVE".equals(fopState) || ("BREAK".equals(fopState) && e.getBreakType() == BreakType.GROUP_DONE)) {
-                logger.warn("not in a group");
+            logger.debug("### state {} {}", fopState, e.getBreakType());
+
+            if (decisionVisible) {
+                // wait for next event before doing anything.
+                logger.debug("### waiting for decision reset");
+            } else if ("INACTIVE".equals(fopState)
+                    || ("BREAK".equals(fopState) && e.getBreakType() == BreakType.GROUP_DONE)) {
+                logger.debug("### not in a group");
                 doDone(e.getFullName());
                 needReset = true;
             } else if ("BREAK".equals(fopState)) {
-                logger.warn("in a break {}", e.getBreakType());
+                logger.debug("### in a break {}", e.getBreakType());
                 this.getElement().callJsFunction("doBreak");
+                // also trigger a break timer event to make sure we are in sync with owlcms
+                BreakStart breakStart = new BreakStart(e.getBreakRemaining(), e.isIndefinite());
+                breakStart.setFopName(e.getFopName());
+                TimerReceiverServlet.getEventBus().post(breakStart);
                 needReset = true;
             } else if (!needReset) {
-                // logger.warn("no reset");
+                // logger.debug("no reset");
             } else {
-                logger.warn("resetting becase of ranking update");
+                logger.debug("### resetting becase of ranking update");
                 this.getElement().callJsFunction("reset");
                 needReset = false;
             }
@@ -325,7 +314,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     protected void onAttach(AttachEvent attachEvent) {
         // crude workaround -- randomly getting light or dark due to multiple themes detected in app.
         getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
-        
+
         logger.trace("registering ScoreWithLeaders {}", System.identityHashCode(this));
         UpdateReceiverServlet.getEventBus().register(this);
         DecisionReceiverServlet.getEventBus().register(this);

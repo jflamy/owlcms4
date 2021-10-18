@@ -19,6 +19,8 @@ import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
+import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -29,7 +31,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 
-import app.owlcms.components.fields.CategoryListField;
+import app.owlcms.components.fields.CategoryGridField;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Gender;
@@ -47,6 +49,7 @@ public class AgeGroupEditingFormFactory
     private AgeGroupContent origin;
     @SuppressWarnings("unused")
     private Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupRepository.class);
+    private CategoryGridField catField;
 
     AgeGroupEditingFormFactory(Class<AgeGroup> domainType, AgeGroupContent origin) {
         super(domainType);
@@ -55,7 +58,7 @@ public class AgeGroupEditingFormFactory
 
     @Override
     public AgeGroup add(AgeGroup AgeGroup) {
-        AgeGroupRepository.save(AgeGroup);
+        AgeGroupRepository.add(AgeGroup);
         return AgeGroup;
     }
 
@@ -91,10 +94,8 @@ public class AgeGroupEditingFormFactory
             ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
 
         FormLayout formLayout = new FormLayout();
-        formLayout.setWidth("550px");
-//        if (this.responsiveSteps != null) {
-//            formLayout.setResponsiveSteps(this.responsiveSteps);
-//        }
+        formLayout.setResponsiveSteps(new ResponsiveStep("0", 1, LabelsPosition.ASIDE));
+        formLayout.setWidth("50em");
 
         binder = buildBinder(null, aFromDb);
         String message = Translator.translate("AgeFormat");
@@ -133,7 +134,8 @@ public class AgeGroupEditingFormFactory
         binder.forField(genderField).bind(AgeGroup::getGender, AgeGroup::setGender);
         formLayout.addFormItem(genderField, Translator.translate("Gender"));
 
-        CategoryListField catField = new CategoryListField(aFromDb);
+        catField = new CategoryGridField(aFromDb);
+        catField.setWidthFull();
 
         binder.forField(catField).bind(AgeGroup::getCategories, AgeGroup::setCategories);
         formLayout.addFormItem(catField, Translator.translate("BodyWeightCategories"));
@@ -190,9 +192,13 @@ public class AgeGroupEditingFormFactory
         return super.setErrorLabel(validationStatus, showErrorOnFields);
     }
 
+    /**
+     * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
+     */
     @Override
     public AgeGroup update(AgeGroup ageGroup) {
         AgeGroup saved = AgeGroupRepository.save(ageGroup);
+        //logger.trace("saved {}", saved.getCategories().get(0).longDump());
         origin.closeDialog();
         origin.highlightResetButton();
         return saved;
@@ -204,5 +210,5 @@ public class AgeGroupEditingFormFactory
         binder.forField(field);
         super.bindField(field, property, propertyType);
     }
-
+    
 }

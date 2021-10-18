@@ -62,7 +62,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
     protected Label errorLabel;
     private boolean valid = false;
     protected TextField operationTrigger;
-    private ClickEvent<Button> operationTriggerEvent;
+    protected ClickEvent<Button> operationTriggerEvent;
 
     /**
      * Instantiates a new Form Factory
@@ -381,7 +381,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         setValid(binder.writeBeanIfValid(domainObject));
         if (isValid()) {
             if (operation == CrudOperation.ADD) {
-                logger.debug("adding 	{}", domainObject);
+                logger.debug("adding {} {}", System.identityHashCode(domainObject), domainObject);
                 this.add(domainObject);
                 gridCallback.onComponentEvent(operationTriggerEvent);
             } else if (operation == CrudOperation.UPDATE) {

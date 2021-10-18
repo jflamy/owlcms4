@@ -30,7 +30,6 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -50,6 +49,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -108,6 +108,23 @@ public class FileServlet extends HttpServlet {
 
     // Actions ------------------------------------------------------------------------------------
 
+    private static boolean ignoreCaching = false;
+
+    /**
+     * @return the ignoreCaching
+     */
+    public static boolean isIgnoreCaching() {
+        return ignoreCaching;
+    }
+
+    /**
+     * @param ignoreCaching the ignoreCaching to set
+     */
+    public static void setIgnoreCaching(boolean ignoreCaching) {
+        logger.debug("{} caching settings from browser", ignoreCaching ? "Ignoring" : "Obeying");
+        FileServlet.ignoreCaching = ignoreCaching;
+    }
+
     /**
      * Returns true if the given accept header accepts the given value.
      *
@@ -122,6 +139,8 @@ public class FileServlet extends HttpServlet {
                 || Arrays.binarySearch(acceptValues, toAccept.replaceAll("/.*$", "/*")) > -1
                 || Arrays.binarySearch(acceptValues, "*/*") > -1;
     }
+
+    // Helpers (can be refactored to public utility class) ----------------------------------------
 
     /**
      * Close the given resource.
@@ -188,8 +207,6 @@ public class FileServlet extends HttpServlet {
                 || Arrays.binarySearch(matchValues, "*") > -1;
     }
 
-    // Helpers (can be refactored to public utility class) ----------------------------------------
-
     /**
      * Returns a substring of the given string value from the given begin index to the given end index as a long. If the
      * substring is empty, then -1 will be returned
@@ -204,8 +221,7 @@ public class FileServlet extends HttpServlet {
         return (substring.length() > 0) ? Long.parseLong(substring) : -1;
     }
 
-    private Logger logger = (Logger) LoggerFactory.getLogger(FileServlet.class);
-    private Path basePath;
+    private static Logger logger = (Logger) LoggerFactory.getLogger(FileServlet.class);
 
     /**
      * Initialize the servlet.
@@ -214,30 +230,9 @@ public class FileServlet extends HttpServlet {
      */
     @Override
     public void init() throws ServletException {
-
-        // Get base path (path to get all resources from) as init parameter.
-        String basePathName = getInitParameter("basePath");
-
-        // Validate base path.
-        if (basePathName == null) {
-            basePathName = "./local";
-//            throw new ServletException("FileServlet init param 'basePath' is required.");
-        }
-        basePath = Paths.get(basePathName);
-        basePath = basePath.normalize().toAbsolutePath();
-        logger.debug("base path = {} {}", basePath, Files.exists(basePath));
-        if (!Files.exists(basePath)) {
-            // ignore exception, we will look on classpath.
-//            throw new ServletException("FileServlet init param 'basePath' value '"
-//                    + basePathName + "' does not exist in file system.");
-        } else if (!Files.isDirectory(basePath)) {
-            throw new ServletException("FileServlet init param 'basePath' value '"
-                    + basePathName + "' is not a directory in file system.");
-        } else if (!Files.isReadable(basePath)) {
-            throw new ServletException("FileServlet init param 'basePath' value '"
-                    + basePathName + "' is not readable in file system.");
-        }
     }
+
+    // Inner classes ------------------------------------------------------------------------------
 
     /**
      * Resolves an untrusted user-specified path against the API's base directory. Paths that try to escape the base
@@ -281,8 +276,6 @@ public class FileServlet extends HttpServlet {
         processRequest(request, response, true);
     }
 
-    // Inner classes ------------------------------------------------------------------------------
-
     /**
      * Process HEAD request. This returns the same headers as GET request, but without content.
      *
@@ -309,45 +302,18 @@ public class FileServlet extends HttpServlet {
             requestedFile = requestedFile.substring(1);
         }
 
-        Path finalPath;
         try {
             // URL-decode the file name (might contain spaces and on) and prepare file object.
             logger.debug("requestedFile {}", requestedFile);
             String relativeFileName = URLDecoder.decode(requestedFile, "UTF-8");
-            Path relativePath = Paths.get(relativeFileName);
-
-            // check that file is inside basepath
-            finalPath = resolvePath(basePath, relativePath);
-            logger.debug("looking for {}", finalPath);
-
-            if (Files.exists(finalPath)) {
-                logger.debug("found Filesystem File: {}", finalPath.toRealPath());
-                return finalPath.toFile();
-            } else {
-                // if there is no override in /local on disk, look for resource on classpath
-                String resourceName = "/" + relativeFileName;
-
-//                boolean useTemp = true;
-//                if (useTemp) {
-                    return getFileFromResource(response, finalPath, resourceName);
-//                } 
-//                else {
-//                    return getFileFromZip(response, resourceName);
-//                }
-            }
+            Path finalPath = Paths.get(relativeFileName);
+            return getFileFromResource(response, finalPath, "/" + relativeFileName);
         } catch (IllegalArgumentException e) {
             logger.error(e.getLocalizedMessage());
             response.getWriter().print(e.getLocalizedMessage());
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return null;
-        } 
-//        catch (URISyntaxException e) {
-//            logger.error(e.getLocalizedMessage());
-//            response.getWriter().print(e.getLocalizedMessage());
-//            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-//            return null;
-//        } 
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error(LoggerUtils.stackTrace(e));
             response.getWriter().print(e.getLocalizedMessage());
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -357,7 +323,7 @@ public class FileServlet extends HttpServlet {
 
     private File getFileFromResource(HttpServletResponse response, Path finalPath, String resourceName)
             throws IOException, FileNotFoundException {
-        InputStream in = getClass().getResourceAsStream(resourceName);
+        InputStream in = ResourceWalker.getResourceAsStream(resourceName);
         if (in != null) {
             final String fullFileName = finalPath.getFileName().toString();
             final String extension = FilenameUtils.getExtension(fullFileName);
@@ -371,34 +337,11 @@ public class FileServlet extends HttpServlet {
             tempFile.setReadable(true);
             return tempFile;
         } else {
-            logger./**/error("resource not found on classpath {}", resourceName);
+            logger./**/error("resource or override not found {}", resourceName);
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
         }
     }
-
-//    private File getFileFromZip(HttpServletResponse response, String resourceName)
-//            throws URISyntaxException, IOException {
-//        // we need a file so we use the zipfilesystem.
-//        // this does not work on older Java?
-//        URL resource = getClass().getResource(resourceName);
-//        if (resource != null) {
-//            URI resourcesURI = resource.toURI();
-//            Path resourcePath = Paths.get(resourcesURI);
-//            if (!Files.exists(resourcePath)) {
-//                logger./**/error("file not found on classpath {}", resourcePath);
-//                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-//                return null;
-//            } else {
-//                logger.debug("found Classpath/Jar File: {}", resourcePath.toRealPath());
-//                return resourcePath.toFile();
-//            }
-//        } else {
-//            logger./**/error("resource not found on classpath {}", resourceName);
-//            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-//            return null;
-//        }
-//    }
 
     /**
      * Process the actual request.
@@ -426,7 +369,12 @@ public class FileServlet extends HttpServlet {
         long length = file.length();
         long lastModified = file.lastModified();
         String eTag = fileName + "_" + length + "_" + lastModified;
-        long expires = System.currentTimeMillis() + DEFAULT_EXPIRE_TIME;
+        long expires;
+        if (isIgnoreCaching()) {
+            expires = System.currentTimeMillis() - 2000; // already expired to force reload
+        } else {
+            expires = System.currentTimeMillis() + DEFAULT_EXPIRE_TIME;
+        }
 
         // Validate request headers for caching ---------------------------------------------------
 
@@ -435,7 +383,7 @@ public class FileServlet extends HttpServlet {
         String pragma = request.getHeader("pragma");
         logger.debug("headers: {} {}", pragma, cacheControl);
         boolean noCache = (cacheControl != null && matches(cacheControl, "no-cache"))
-                || (pragma != null && matches(pragma, "no-cache"));
+                || (pragma != null && matches(pragma, "no-cache")) || isIgnoreCaching();
         if (!noCache) {
             // If-None-Match header should contain "*" or ETag. If so, then return 304.
             String ifNoneMatch = request.getHeader("If-None-Match");

@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -29,12 +28,8 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
-import app.owlcms.data.category.Category;
-import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
-import app.owlcms.data.config.Config;
-import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.utils.LoggerUtils;
@@ -60,15 +55,10 @@ public class DemoData {
      * @param ageDivisions
      */
     public static void insertInitialData(int nbAthletes, EnumSet<AgeDivision> ageDivisions) {
-//        logger.info("inserting initial data");
         JPAService.runInTransaction(em -> {
             Competition competition = createDefaultCompetition(ageDivisions);
             CompetitionRepository.save(competition);
             AgeGroupRepository.insertAgeGroups(em, ageDivisions);
-            if (ConfigRepository.findAll().isEmpty()) {
-                Config config = createDefaultConfig();
-                Config.setCurrent(config);
-            }
             return null;
         });
 
@@ -76,6 +66,8 @@ public class DemoData {
             setupDemoData(em, nbAthletes, ageDivisions);
             return null;
         });
+        
+        AthleteRepository.resetCategories();
     }
 
     protected static void assignStartNumbers(EntityManager em, Group groupA) {
@@ -111,13 +103,8 @@ public class DemoData {
         long weeksToSubtract = (long) ((minAge * 52) + Math.floor(r.nextDouble() * (maxAge - minAge) * 52));
         LocalDate fullBirthDate = baseDate.minusWeeks(weeksToSubtract);
         p.setFullBirthDate(fullBirthDate);
-        int age = LocalDate.now().getYear() - fullBirthDate.getYear();
-
-        List<Category> cat = CategoryRepository.findByGenderDivisionAgeBW(gender, ageDivision, age, bodyWeight);
-        logger.trace("athlete {} matches {}", p.getFullName(),
-                cat.stream().map(Category::getName).collect(Collectors.joining(", ")));
-        Category categOrNull = cat.stream().findFirst().orElse(null);
-        p.setCategory(categOrNull == null ? null : em.contains(categOrNull) ? categOrNull : em.merge(categOrNull));
+        
+        // category computed automatically according to birth date etc.
 
         // respect 20kg rule
         p.setQualifyingTotal((int) (isd + icjd - 15));
@@ -251,10 +238,6 @@ public class DemoData {
 
         insertSampleLifters(em, liftersToLoad, groupM1, groupM2, groupF1, groupY1, ageDivisions);
         em.flush();
-    }
-
-    private static Config createDefaultConfig() {
-        return new Config();
     }
 
     private static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupM1, Group groupM2,

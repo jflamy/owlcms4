@@ -20,9 +20,9 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroupDefinitionReader;
-import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -41,18 +41,18 @@ public class RobiCategories {
 
                 if (c2.getGender() != c1.getGender()) {
                     int compare = ObjectUtils.compare(c2, c1);
-//                    System.err.println(dumpCat(c2) + " " + compare + " " + dumpCat(c1));
+//                    logger.trace(dumpCat(c2) + " " + compare + " " + dumpCat(c1));
                     return -compare;
                 }
                 // c2 is a fake category where the upper and lower bounds are the athlete's weight
                 if (c2.getMinimumWeight() >= c1.getMinimumWeight() && c2.getMaximumWeight() <= c1.getMaximumWeight()) {
-//                    System.err.println(dumpCat(c2)+" == "+dumpCat(c1));
+//                    logger.trace(dumpCat(c2)+" == "+dumpCat(c1));
                     return 0;
                 } else if (c2.getMinimumWeight() > c1.getMaximumWeight()) {
-//                    System.err.println(dumpCat(c2)+" >  "+dumpCat(c1));
+//                    logger.trace(dumpCat(c2)+" >  "+dumpCat(c1));
                     return -1;
                 } else {
-//                    System.err.println(dumpCat(c2)+" <  "+dumpCat(c1));
+//                    logger.trace(dumpCat(c2)+" <  "+dumpCat(c1));
                     return 1;
                 }
             } catch (Exception e) {
@@ -82,9 +82,9 @@ public class RobiCategories {
         } else {
             categories = jrSrReferenceCategories;
         }
-//        System.err.println("before search " + categories.size());
+//        logger.trace("before search " + categories.size());
         int index = Collections.binarySearch(categories,
-                new Category(null, a.getBodyWeight(), a.getBodyWeight(), a.getGender(), true, 0, 0, 0, null),
+                new Category(null, a.getBodyWeight(), a.getBodyWeight(), a.getGender(), true, 0, 0, 0, null, 0),
                 x.new RobiComparator());
 
         if (index >= 0) {
@@ -109,8 +109,8 @@ public class RobiCategories {
     }
 
     private static void loadJrSrReferenceCategories() {
-        String localizedName = "/config/AgeGroups.xlsx";
-        InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
+        String localizedName = "/agegroups/AgeGroups.xlsx";
+        InputStream localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
             Map<String, Category> referenceCategoryMap = AgeGroupDefinitionReader.createCategoryTemplates(workbook);
             // get the IWF categories, sorted.
@@ -118,7 +118,7 @@ public class RobiCategories {
                     .stream()
                     .filter(c -> c.getWrSr() > 0)
                     .sorted()
-                    // .peek(c -> {System.err.println(c.getCode());})
+                    // .peek(c -> {logger.trace(c.getCode());})
                     .collect(Collectors.toCollection(ArrayList::new));
             workbook.close();
         } catch (Exception e) {
@@ -128,7 +128,7 @@ public class RobiCategories {
 //        int i = 0;
         for (Category refCat : jrSrReferenceCategories) {
             refCat.setMinimumWeight(prevMax);
-//            System.err.println(i + " " + dumpCat(referenceCategories.get(i)));
+//            logger.trace(i + " " + dumpCat(referenceCategories.get(i)));
             prevMax = refCat.getMaximumWeight();
             if (prevMax >= 998.00D) {
                 prevMax = 0.0D;
@@ -138,8 +138,8 @@ public class RobiCategories {
     }
 
     private static void loadYthReferenceCategories() {
-        String localizedName = "/config/AgeGroups.xlsx";
-        InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
+        String localizedName = "/agegroups/AgeGroups.xlsx";
+        InputStream localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
             Map<String, Category> referenceCategoryMap = AgeGroupDefinitionReader.createCategoryTemplates(workbook);
             // get the IWF categories, sorted.
@@ -147,7 +147,7 @@ public class RobiCategories {
                     .stream()
                     .filter(c -> c.getWrYth() > 0)
                     .sorted()
-                    // .peek(c -> {System.err.println(c.getCode());})
+                    // .peek(c -> {logger.trace(c.getCode());})
                     .collect(Collectors.toCollection(ArrayList::new));
             workbook.close();
         } catch (Exception e) {
@@ -157,7 +157,7 @@ public class RobiCategories {
 //        int i = 0;
         for (Category refCat : ythReferenceCategories) {
             refCat.setMinimumWeight(prevMax);
-//            System.err.println(i + " " + dumpCat(ythReferenceCategories.get(i)));
+//            logger.trace(i + " " + dumpCat(ythReferenceCategories.get(i)));
             prevMax = refCat.getMaximumWeight();
             if (prevMax >= 998.00D) {
                 prevMax = 0.0D;

@@ -31,13 +31,16 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
     private Ranking rankingType;
 
+    private boolean absoluteOrder;
+
     /**
      * Instantiates a new winning order comparator.
      *
      * @param rankingType the ranking type
      */
-    public WinningOrderComparator(Ranking rankingType) {
+    public WinningOrderComparator(Ranking rankingType, boolean absoluteOrder) {
         this.rankingType = rankingType;
+        this.absoluteOrder = absoluteOrder;
     }
 
     /*
@@ -51,13 +54,13 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
         switch (rankingType) {
         case SNATCH:
-            return compareSnatchResultOrder(lifter1, lifter2);
+            return compareSnatchResultOrder(lifter1, lifter2, absoluteOrder);
         case CLEANJERK:
-            return compareCleanJerkResultOrder(lifter1, lifter2);
+            return compareCleanJerkResultOrder(lifter1, lifter2, absoluteOrder);
         case TOTAL:
-            return compareTotalResultOrder(lifter1, lifter2);
+            return compareTotalResultOrder(lifter1, lifter2, absoluteOrder);
         case CUSTOM:
-            return compareCustomResultOrder(lifter1, lifter2);
+            return compareCustomResultOrder(lifter1, lifter2, absoluteOrder);
         case ROBI:
             return compareRobiResultOrder(lifter1, lifter2);
         case CAT_SINCLAIR:
@@ -103,16 +106,19 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     /**
      * Compare clean jerk result order.
      *
-     * @param lifter1 the lifter 1
-     * @param lifter2 the lifter 2
+     * @param lifter1       the lifter 1
+     * @param lifter2       the lifter 2
+     * @param absoluteOrder do not take categories into account
      * @return the int
      */
-    public int compareCleanJerkResultOrder(Athlete lifter1, Athlete lifter2) {
+    public int compareCleanJerkResultOrder(Athlete lifter1, Athlete lifter2, boolean absoluteOrder) {
         int compare = 0;
 
-        compare = compareCategory(lifter1, lifter2);
-        if (compare != 0) {
-            return compare;
+        if (!absoluteOrder) {
+            compare = compareCategory(lifter1, lifter2);
+            if (compare != 0) {
+                return compare;
+            }
         }
 
         compare = compareBestCleanJerk(lifter1, lifter2);
@@ -129,16 +135,19 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
      * This variant allows judges to award a score based on a formula, with bonuses or penalties, manually. Used for the
      * U12 championship in Quebec.
      *
-     * @param lifter1 the lifter 1
-     * @param lifter2 the lifter 2
+     * @param lifter1       the lifter 1
+     * @param lifter2       the lifter 2
+     * @param absoluteOrder do not take category into account
      * @return the int
      */
-    public int compareCustomResultOrder(Athlete lifter1, Athlete lifter2) {
+    public int compareCustomResultOrder(Athlete lifter1, Athlete lifter2, boolean absoluteOrder) {
         int compare = 0;
 
-        compare = ObjectUtils.compare(lifter1.getCategory(), lifter2.getCategory(), true);
-        if (compare != 0) {
-            return compare;
+        if (!absoluteOrder) {
+            compare = ObjectUtils.compare(lifter1.getCategory(), lifter2.getCategory(), true);
+            if (compare != 0) {
+                return compare;
+            }
         }
 
         compare = compareCustomScore(lifter1, lifter2);
@@ -233,11 +242,12 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     /**
      * Compare snatch result order.
      *
-     * @param lifter1 the lifter 1
-     * @param lifter2 the lifter 2
+     * @param lifter1       the lifter 1
+     * @param lifter2       the lifter 2
+     * @param absoluteOrder do not take categories into account
      * @return the int
      */
-    public int compareSnatchResultOrder(Athlete lifter1, Athlete lifter2) {
+    public int compareSnatchResultOrder(Athlete lifter1, Athlete lifter2, boolean absoluteOrder) {
         boolean trace = false;
         int compare = 0;
 
@@ -245,12 +255,14 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
             logger.trace("lifter1 {};  lifter2 {}", lifter1.getFirstName(), lifter2.getFirstName());
         }
 
-        compare = compareCategory(lifter1, lifter2);
-        if (trace) {
-            logger.trace("compareCategory {}", compare);
-        }
-        if (compare != 0) {
-            return compare;
+        if (!absoluteOrder) {
+            compare = compareCategory(lifter1, lifter2);
+            if (trace) {
+                logger.trace("compareCategory {}", compare);
+            }
+            if (compare != 0) {
+                return compare;
+            }
         }
 
         compare = compareBestSnatch(lifter1, lifter2);
@@ -314,16 +326,19 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     /**
      * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
      *
-     * @param lifter1 the lifter 1
-     * @param lifter2 the lifter 2
+     * @param lifter1       the lifter 1
+     * @param lifter2       the lifter 2
+     * @param absoluteOrder do not take categories into account
      * @return the int
      */
-    public int compareTotalResultOrder(Athlete lifter1, Athlete lifter2) {
+    public int compareTotalResultOrder(Athlete lifter1, Athlete lifter2, boolean absoluteOrder) {
         int compare = 0;
 
-        compare = compareCategory(lifter1, lifter2);
-        if (compare != 0) {
-            return compare;
+        if (!absoluteOrder) {
+            compare = compareCategory(lifter1, lifter2);
+            if (compare != 0) {
+                return compare;
+            }
         }
 
         compare = compareTotal(lifter1, lifter2);
@@ -420,13 +435,19 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
         // if equality within a group, smallest lot number wins (same session, same
         // category, same weight, same attempt) -- smaller lot lifted first.
         compare = compareLotNumber(lifter1, lifter2);
+        if (compare != 0) {
+            return compare; // compare attempted weights (prior to best attempt), smaller first
+        }
+        
+        // if no lot number, we get weird results. we need a stable comparison
+        compare = ObjectUtils.compare(lifter1.getId(), lifter2.getId());
         return compare;
 
     }
 
     private void traceComparison(String where, Athlete lifter1, Athlete lifter2, int compare) {
         if (logger.isTraceEnabled()) {
-            logger.trace("{} {} {} {}", where, lifter1, (compare < 0 ? "<" : (compare == 0 ? "=" : ">")), lifter2);
+            logger./**/warn("{} {} {} {}", where, lifter1, (compare < 0 ? "<" : (compare == 0 ? "=" : ">")), lifter2);
         }
     }
 

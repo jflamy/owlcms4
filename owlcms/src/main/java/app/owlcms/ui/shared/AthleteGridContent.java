@@ -108,8 +108,8 @@ public abstract class AthleteGridContent extends VerticalLayout
                 : Translator.translate("Snatch_number", attemptNumber);
     }
 
-    private Location location;
-    private UI locationUI;
+    protected Location location;
+    protected UI locationUI;
     protected EventBus uiEventBus;
 
     /**

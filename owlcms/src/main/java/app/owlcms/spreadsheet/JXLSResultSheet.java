@@ -9,6 +9,7 @@ package app.owlcms.spreadsheet;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.LoggerFactory;
@@ -16,9 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Level;
@@ -68,17 +67,17 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 
     @Override
     protected List<Athlete> getSortedAthletes() {
-        final Group currentGroup = getGroup();
-        List<Athlete> athletes;
+        final Group currentGroup =  getGroup();
+        List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(currentGroup);
+
         if (currentGroup != null) {
-            athletes = AthleteSorter.resultsOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, true),
-                    Ranking.TOTAL);
+            List<Athlete> currentGroupAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
+                    .filter(a -> a.getGroup() != null ? a.getGroup().equals(currentGroup) : false)
+                    .collect(Collectors.toList());
+            return currentGroupAthletes;
         } else {
-            athletes = AthleteSorter.resultsOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, true),
-                    Ranking.TOTAL);
+            return rankedAthletes;
         }
-        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-        return athletes;
     }
 
     /*
@@ -94,23 +93,5 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
             zapCellPair(workbook, 3, 9);
         }
     }
-
-//    private byte[] loadDefaultProtocolTemplate(Locale locale, Competition current) {
-//        JPAService.runInTransaction((em) -> {
-//            String protocolTemplateFileName = "/templates/protocol/Protocol_" + locale.getLanguage()
-//                    + ".xls";
-//            InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);
-//            try {
-//                protocolTemplate = ByteStreams.toByteArray(stream);
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//            current.setProtocolTemplate(protocolTemplate);
-//            Competition merge = em.merge(current);
-//            Competition.setCurrent(merge);
-//            return merge;
-//        });
-//        return protocolTemplate;
-//    }
 
 }

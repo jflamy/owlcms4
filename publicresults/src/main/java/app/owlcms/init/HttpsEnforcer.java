@@ -32,28 +32,32 @@ public class HttpsEnforcer implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
-        HttpServletResponse response = (HttpServletResponse) servletResponse;
+        try {
+            HttpServletRequest request = (HttpServletRequest) servletRequest;
+            HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        if (request.getHeader(X_FORWARDED_PROTO) != null) {
-            if (request.getHeader(X_FORWARDED_PROTO).indexOf("https") != 0) {
-                String url = request.getRequestURL().toString();
-                // request was not sent with https; redirect to https unless running locally
-                if (request instanceof HttpServletRequest) {
-                    String serverName = request.getServerName();
-                    if (serverName.endsWith(".localhost") || serverName.endsWith("localhost")) {
-                        logger.debug("{} received, local path, not redirecting to https", url);
-                    } else {
-                        logger.info("{} received, forcing redirect to https", url);
-                        String pathInfo = (request.getPathInfo() != null) ? request.getPathInfo() : "";
-                        response.sendRedirect("https://" + serverName + pathInfo);
-                        return;
+            if (request.getHeader(X_FORWARDED_PROTO) != null) {
+                if (request.getHeader(X_FORWARDED_PROTO).indexOf("https") != 0) {
+                    String url = request.getRequestURL().toString();
+                    // request was not sent with https; redirect to https unless running locally
+                    if (request instanceof HttpServletRequest) {
+                        String serverName = request.getServerName();
+                        if (serverName.endsWith(".localhost") || serverName.endsWith("localhost")) {
+                            logger.debug("{} received, local path, not redirecting to https", url);
+                        } else {
+                            logger.info("{} received, forcing redirect to https", url);
+                            String pathInfo = (request.getPathInfo() != null) ? request.getPathInfo() : "";
+                            response.sendRedirect("https://" + serverName + pathInfo);
+                            return;
+                        }
                     }
                 }
             }
-        }
 
-        filterChain.doFilter(request, response);
+            filterChain.doFilter(request, response);
+        } catch (Throwable t) {
+            // ignored
+        }
     }
 
     @Override

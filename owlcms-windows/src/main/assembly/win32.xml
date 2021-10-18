@@ -17,16 +17,17 @@
 				<include>conf**/**</include>
 			</includes>
 		</fileSet>
-		<fileSet>
-			<directory>${project.basedir}/src/main/resources</directory>
-			<outputDirectory>local</outputDirectory>
-			<includes>
-				<include>i18n**/**</include>
-				<include>templates**/**</include>
-				<include>config**/**</include>
-				<include>styles**/**</include>
-			</includes>
-		</fileSet>
+<!-- 		<fileSet> -->
+<!-- 			<directory>${project.basedir}/src/main/resources</directory> -->
+<!-- 			<outputDirectory>local</outputDirectory> -->
+<!-- 			<includes> -->
+<!-- 				<include>i18n**/**</include> -->
+<!-- 				<include>templates**/**</include> -->
+<!-- 				<include>sinclair**/**</include> -->
+<!-- 				<include>styles**/**</include> -->
+<!--                 <include>agegroups**/**</include> -->
+<!-- 			</includes> -->
+<!-- 		</fileSet> -->
 	</fileSets>
 	<files>
 		<file>
@@ -41,7 +42,7 @@
         </file> 
         <file>
             <source>${project.basedir}/src/main/assembly/logback.xml</source>
-            <outputDirectory>local</outputDirectory>
+            <outputDirectory>classes</outputDirectory>
             <filtered>true</filtered>
         </file>         
 	</files>

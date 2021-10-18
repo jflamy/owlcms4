@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.ui.preparation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -48,6 +49,7 @@ import app.owlcms.ui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
+import app.owlcms.ui.crudui.OwlcmsMultiSelectComboBoxProvider;
 import app.owlcms.ui.shared.AthleteRegistrationFormFactory;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
@@ -138,17 +140,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     public String getPageTitle() {
         return getTranslation("Preparation_Registration");
     }
-
-//    private Collection<Athlete> doExtraFiltering(List<Athlete> all) {
-//        String filterValue = ageGroupFilter != null ? ageGroupFilter.getValue() : null;
-//        if (filterValue == null) {
-//            return all;
-//        } else {
-//            List<Athlete> some = all.stream().filter(a -> a.getMastersAgeGroup().startsWith(filterValue))
-//                    .collect(Collectors.toList());
-//            return some;
-//        }
-//    }
 
     @Override
     public OwlcmsRouterLayout getRouterLayout() {
@@ -318,6 +309,9 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         getRouterLayout().closeDrawer();
+//        GroupRepository gr = new GroupRepository();
+//        Group g = GroupRepository.findByName("M1");
+//        logger.debug(gr.allAthletesForGlobalRanking(g).toString());
     }
 
     /**
@@ -346,22 +340,27 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
             props.add("fullBirthDate");
             captions.add(getTranslation("BirthDate_yyyy"));
         }
-        props.add("membership");
-        captions.add(getTranslation("Membership"));
+        props.add("group");
+        captions.add(getTranslation("Group"));
+
 
         props.add("bodyWeight");
         captions.add(getTranslation("BodyWeight"));
-        props.add("category");
-        captions.add(getTranslation("Category"));
         props.add("snatch1Declaration");
         captions.add(getTranslation("SnatchDecl_"));
         props.add("cleanJerk1Declaration");
         captions.add(getTranslation("C_and_J_decl"));
-        props.add("group");
-        captions.add(getTranslation("Group"));
         props.add("qualifyingTotal");
         captions.add(getTranslation("EntryTotal"));
+        
 
+        props.add("category");
+        captions.add(getTranslation("Category"));
+        props.add("eligibleCategories");
+        captions.add(getTranslation("Registration.EligibleCategories"));
+
+        props.add("membership");
+        captions.add(getTranslation("Membership"));
         props.add("lotNumber");
         captions.add(getTranslation("Lot"));
         props.add("eligibleForIndividualRanking");
@@ -377,10 +376,12 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(getTranslation("Group"),
                 GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
         crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
-                CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName));
-        crudFormFactory.setFieldProvider("ageDivision",
-                new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
-                        new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));
+                CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName, false));
+        crudFormFactory.setFieldProvider("eligibleCategories", new OwlcmsMultiSelectComboBoxProvider<>(getTranslation("Registration.EligibleCategories"),
+                new ArrayList<Category>(), new TextRenderer<>(Category::getName), Category::getName));
+//        crudFormFactory.setFieldProvider("ageDivision",
+//                new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
+//                        new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));
 
         crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
         crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);

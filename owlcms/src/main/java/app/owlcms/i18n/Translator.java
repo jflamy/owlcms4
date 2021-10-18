@@ -38,6 +38,7 @@ import org.supercsv.prefs.CsvPreference;
 import com.vaadin.flow.i18n.I18NProvider;
 
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -157,7 +158,7 @@ public class Translator implements I18NProvider {
     }
 
     public static String translate(String string, Locale locale, Object... params) {
-        return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
+        return helper.getTranslation(string, locale, params);
     }
 
     public static String translate(String string, Object... params) {
@@ -201,8 +202,7 @@ public class Translator implements I18NProvider {
 
         if (i18nloader == null) {
             logger.debug("reloading translation bundles");
-
-            InputStream csvStream = helper.getClass().getResourceAsStream(csvName);
+            InputStream csvStream = ResourceWalker.getResourceAsStream(csvName);
             ICsvListReader listReader = null;
             try {
                 CsvPreference[] preferences = new CsvPreference[] { CsvPreference.STANDARD_PREFERENCE,
@@ -217,7 +217,7 @@ public class Translator implements I18NProvider {
                         throw new RuntimeException(csvName + " file is empty");
                     } else if (stringList.size() <= 2) {
                         // reset stream
-                        csvStream = helper.getClass().getResourceAsStream(csvName);
+                        csvStream = ResourceWalker.getResourceAsStream(csvName);
                     } else {
                         logger.debug(stringList.toString());
                         break;
@@ -387,9 +387,14 @@ public class Translator implements I18NProvider {
         logger./**/warn("null translation key");
     }
 
-    private String format(String value, Object... params) {
+    private String format(String pattern, Object... params) {
+        String value = pattern;
         if (params.length > 0) {
-            value = MessageFormat.format(value, params);
+            // single quotes must be doubled.  If already doubled in the input, fix back.
+            pattern = pattern.replaceAll("'", "''");
+            pattern = pattern.replaceAll("''''", "''");
+            value = MessageFormat.format(pattern, params);
+            //logger.trace("format {} input={} params={} \\n result={}", params.getClass(), pattern, params, value);
         }
         return value;
     }

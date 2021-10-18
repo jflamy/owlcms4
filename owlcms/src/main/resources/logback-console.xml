@@ -17,7 +17,10 @@
 
     <!-- silence spurious warning messages -->
     <logger name="org.eclipse.jetty.annotations.AnnotationParser" level="ERROR" />
-    <logger name="org.eclipse.jetty.io.EofException" level="OFF" />
+    <logger name="org.eclipse.jetty.io.EofException" level="ERROR" />
+    <logger name="javax.servlet.ServletException" level="ERROR" />
+    <logger name="app.owlcms.init.HttpsEnforcer" level="OFF" />
+    <logger name="com.vaadin.flow.server.ServiceException" level="OFF" />
     <logger name="org.eclipse.jetty.server.HttpChannel" level="ERROR" />
     <logger name="com.vaadin.flow.server.communication" level="ERROR" />
     <logger name="com.vaadin.flow.server.DefaultDeploymentConfiguration" level="ERROR" />
@@ -34,7 +37,6 @@
     <logger name="app.owlcms.fieldofplay.FOPEvent" level="DEBUG" />
 
     <!-- additional tracing/debugging (set level to DEBUG or TRACE) -->
-    <logger name="app.owlcms.components.elements.AthleteTimerElement" level="INFO" />
+    <logger name="app.owlcms.data.config.Config" level="INFO" />
     <logger name="app.owlcms.utils.ResourceWalker" level="INFO" />
-    
 </configuration>

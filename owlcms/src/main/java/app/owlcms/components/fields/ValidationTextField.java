@@ -27,7 +27,6 @@ public class ValidationTextField extends TextField {
     public void setInvalid(boolean invalid) {
         if (this.invalid && !invalid) {
             // ignore setting invalid to false if current state is false.
-            // System.err .println("overriding invalid "+LoggerUtils.stackTrace());
         } else {
             super.setInvalid(invalid);
         }

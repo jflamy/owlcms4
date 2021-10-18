@@ -43,6 +43,12 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
     private long clicked = 0L;
 
+    private boolean clickable = true;
+
+    public void setClickable(boolean clickable) {
+        this.clickable = clickable;
+    }
+
     /**
      * Instantiates a new owlcms crudGrid crudGrid.
      *
@@ -114,6 +120,9 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
         // We do not use a selection listener; instead we handle clicks explicitely.
         // grid.addSelectionListener(e -> gridSelectionChanged());
         grid.addItemClickListener((e) -> {
+            if (!this.isClickable()) {
+                return;
+            }
             long delta = System.currentTimeMillis() - clicked;
             if (delta > DOUBLE_CLICK_MS_DELTA) {
                 grid.select(e.getItem());
@@ -125,6 +134,10 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
         });
 
         crudLayout.setMainComponent(grid);
+    }
+
+    public boolean isClickable() {
+        return clickable;
     }
 
     /**

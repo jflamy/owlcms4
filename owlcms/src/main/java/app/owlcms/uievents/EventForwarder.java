@@ -16,7 +16,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
@@ -43,6 +42,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.UIEvent.BreakDone;
@@ -64,6 +64,9 @@ public class EventForwarder implements BreakDisplay {
 
     private static HashMap<String, EventForwarder> registeredFop = new HashMap<>();
 
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(EventForwarder.class);
+    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+
     public static void listenToFOP(FieldOfPlay fop) {
         String fopName = fop.getName();
         if (registeredFop.get(fopName) == null) {
@@ -74,15 +77,14 @@ public class EventForwarder implements BreakDisplay {
     private EventBus postBus;
     private EventBus fopEventBus;
     private FieldOfPlay fop;
-    private String categoryName;
-    private List<Athlete> categoryRankings;
 
+    private String categoryName;
+    private List<Athlete> groupLeaders;
     private boolean wideTeamNames;
     private JsonValue leaders;
     private JsonValue groupAthletes;
     private JsonArray sattempts;
     private JsonArray cattempts;
-    private Logger logger = (Logger) LoggerFactory.getLogger(EventForwarder.class);
     private String liftsDone;
     private String attempt;
     private String fullName;
@@ -238,6 +240,7 @@ public class EventForwarder implements BreakDisplay {
 
     @Subscribe
     public void slaveBreakDone(UIEvent.BreakDone e) {
+        uiLog(e);
         Athlete a = e.getAthlete();
         setHidden(false);
         doUpdate(a, e);
@@ -246,16 +249,19 @@ public class EventForwarder implements BreakDisplay {
 
     @Subscribe
     public void slaveBreakPause(UIEvent.BreakPaused e) {
+        uiLog(e);
         pushTimer(e);
     }
 
     @Subscribe
     public void slaveBreakSet(UIEvent.BreakSetTime e) {
+        uiLog(e);
         pushTimer(e);
     }
 
     @Subscribe
     public void slaveBreakStart(UIEvent.BreakStarted e) {
+        uiLog(e);
         setHidden(false);
         doBreak();
         pushUpdate();
@@ -264,6 +270,7 @@ public class EventForwarder implements BreakDisplay {
 
     @Subscribe
     public void slaveDecision(UIEvent.Decision e) {
+        uiLog(e);
         setDecisionLight1(e.ref1);
         setDecisionLight2(e.ref2);
         setDecisionLight3(e.ref3);
@@ -274,6 +281,7 @@ public class EventForwarder implements BreakDisplay {
 
     @Subscribe
     public void slaveDecisionReset(UIEvent.DecisionReset e) {
+        uiLog(e);
         setDecisionLight1(null);
         setDecisionLight2(null);
         setDecisionLight3(null);
@@ -284,6 +292,7 @@ public class EventForwarder implements BreakDisplay {
 
     @Subscribe
     public void slaveDownSignal(UIEvent.DownSignal e) {
+        uiLog(e);
         setDecisionLightsVisible(false);
         setDown(true);
         pushDecision(DecisionEventType.DOWN_SIGNAL);
@@ -291,70 +300,71 @@ public class EventForwarder implements BreakDisplay {
 
     @Subscribe
     public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
-        Competition competition = Competition.getCurrent();
-        computeLeaders(competition);
-        computeCurrentGroup(competition);
+        uiLog(e);
+        computeCurrentGroup();
         pushUpdate();
     }
 
     @Subscribe
     public void slaveGroupDone(UIEvent.GroupDone e) {
+        uiLog(e);
         Group g = e.getGroup();
+        if (isDown()) {
+            // wait until next event.
+            return;
+        } else if (isDecisionLightsVisible()) {
+            computeCurrentGroup();
+            // wait until next event.
+            return;
+        }
         if (g == null) {
             setHidden(true);
         } else {
+            setHidden(false);
             // done is a special kind of break.
             // the done event can be triggered when the decision is being given
             // we need to wait until after the decision is shown and reset.
-            OwlcmsSession.withFop(fop -> {
-                if (fop.getState() != FOPState.BREAK) {
-                    return;
-                }
-                setFullName(groupResults(g));
-                setTeamName("");
-                setAttempt("");
-                setHidden(false);
-            });
-
-            pushUpdate();
+            doBreak(g);
         }
     }
 
     @Subscribe
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+        uiLog(e);
         Athlete a = e.getAthlete();
-        Competition competition = Competition.getCurrent();
-        computeCurrentGroup(competition);
+        computeCurrentGroup();
         doUpdate(a, e);
         pushUpdate();
     }
 
     @Subscribe
     public void slaveSetTime(UIEvent.SetTime e) {
+        uiLog(e);
         pushTimer(e);
     }
 
     @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
+        uiLog(e);
         setHidden(false);
         pushUpdate();
     }
 
     @Subscribe
     public void slaveStartTime(UIEvent.StartTime e) {
+        uiLog(e);
         pushTimer(e);
     }
 
     @Subscribe
     public void slaveStopTime(UIEvent.StopTime e) {
+        uiLog(e);
         pushTimer(e);
     }
 
     @Subscribe
     public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
-        Competition competition = Competition.getCurrent();
-        computeLeaders(competition);
-        computeCurrentGroup(competition);
+        computeCurrentGroup();
         switch (e.getState()) {
         case INACTIVE:
             setHidden(true);
@@ -417,52 +427,37 @@ public class EventForwarder implements BreakDisplay {
         this.weight = weight;
     }
 
-    private void computeCurrentGroup(Competition competition) {
+    private void computeCurrentGroup() {
         Group group = fop.getGroup();
-        List<Athlete> globalRankingsForCurrentGroup = competition.getGlobalCategoryRankingsForGroup(group);
-        int liftsDone = AthleteSorter.countLiftsDone(globalRankingsForCurrentGroup);
+        List<Athlete> displayOrder = fop.getDisplayOrder();
+        int liftsDone = AthleteSorter.countLiftsDone(displayOrder);
         setGroupName(computeSecondLine(fop.getCurAthlete(), group != null ? group.getName() : null));
         setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
-        if (globalRankingsForCurrentGroup != null && globalRankingsForCurrentGroup.size() > 0) {
-            setGroupAthletes(getAthletesJson(globalRankingsForCurrentGroup, fop.getLiftingOrder()));
+        if (displayOrder != null && displayOrder.size() > 0) {
+            setGroupAthletes(getAthletesJson(displayOrder, fop.getLiftingOrder()));
         } else {
             setGroupAthletes(null);
         }
+        computeLeaders();
     }
 
-    private void computeLeaders(Competition competition) {
-        logger.debug("computeLeaders");
+    private void computeLeaders() {
         OwlcmsSession.withFop(fop -> {
             Athlete curAthlete = fop.getCurAthlete();
             if (curAthlete != null && curAthlete.getGender() != null) {
                 setCategoryName(curAthlete.getCategory().getName());
-
-                categoryRankings = competition.getGlobalTotalRanking(curAthlete.getGender());
-                // logger.debug("rankings for current gender {}
-                // size={}",curAthlete.getGender(),globalRankingsForCurrentGroup.size());
-                categoryRankings = filterToCategory(curAthlete.getCategory(), categoryRankings);
-                int size = categoryRankings.size();
-                // logger.debug("rankings for current category {}
-                // size={}",curAthlete.getCategory(),globalRankingsForCurrentGroup.size());
-                categoryRankings = categoryRankings.stream().filter(a -> a.getTotal() > 0).limit(3)
-                        .collect(Collectors.toList());
-
+                groupLeaders = fop.getLeaders();
+                int size = groupLeaders.size();
                 if (size > 15) {
                     setLeaders(null);
-                } else if (categoryRankings.size() > 0) {
+                } else if (groupLeaders.size() > 0) {
                     // null as second argument because we do not highlight current athletes in the leaderboard
-                    setLeaders(getAthletesJson(categoryRankings, null));
+                    setLeaders(getAthletesJson(groupLeaders, null));
                 } else {
                     // no one has totaled, so we show the snatch leaders
                     if (!fop.isCjStarted()) {
-                        categoryRankings = Competition.getCurrent()
-                                .getGlobalSnatchRanking(curAthlete.getGender());
-                        categoryRankings = filterToCategory(curAthlete.getCategory(),
-                                categoryRankings);
-                        categoryRankings = categoryRankings.stream()
-                                .filter(a -> a.getSnatchTotal() > 0).limit(3).collect(Collectors.toList());
-                        if (categoryRankings.size() > 0) {
-                            setLeaders(getAthletesJson(categoryRankings, null));
+                        if (groupLeaders.size() > 0) {
+                            setLeaders(getAthletesJson(groupLeaders, null));
                         } else {
                             // nothing to show
                             setLeaders(null);
@@ -536,7 +531,7 @@ public class EventForwarder implements BreakDisplay {
             BreakStarted bst = (BreakStarted) e;
             milliseconds = bst.isIndefinite() ? null : bst.getTimeRemaining();
         } else if (e instanceof BreakPaused) {
-            logger.debug("????? break paused {}", LoggerUtils.whereFrom());
+            logger.trace("????? break paused {}", LoggerUtils.whereFrom());
             BreakPaused bst = (BreakPaused) e;
             milliseconds = bst.isIndefinite() ? null : bst.getTimeRemaining();
         } else if (e instanceof BreakDone) {
@@ -574,8 +569,10 @@ public class EventForwarder implements BreakDisplay {
 
         mapPut(sb, "breakType", bts);
         logger.trace("***** break {} breakType {}", isBreak, bts);
-        int breakTimeRemaining = fop.getBreakTimer().liveTimeRemaining();
+        IBreakTimer breakTimer = fop.getBreakTimer();
+        int breakTimeRemaining = breakTimer.liveTimeRemaining();
         mapPut(sb, "breakRemaining", Integer.toString(breakTimeRemaining));
+        mapPut(sb, "breakIsIndefinite", Boolean.toString(breakTimer.isIndefinite()));
 
         // current athlete & attempt
         mapPut(sb, "startNumber", startNumber != null ? startNumber.toString() : null);
@@ -606,8 +603,26 @@ public class EventForwarder implements BreakDisplay {
         return sb;
     }
 
+    private void doBreak(Group g) {
+        OwlcmsSession.withFop(fop -> {
+            createUpdate();
+            if (fop.getState() != FOPState.BREAK) {
+                logger.debug("### done not break");
+                return;
+            } else {
+                logger.debug("### done but break");
+                setFullName(groupResults(g));
+                setTeamName("");
+                setAttempt("");
+                setHidden(false);
+            }
+        });
+        pushUpdate();
+    }
+
     private void doDone(Group g) {
         logger.debug("forwarding doDone {}", g == null ? null : g.getName());
+        computeCurrentGroup();
         if (g == null) {
             setHidden(true);
         } else {
@@ -615,6 +630,7 @@ public class EventForwarder implements BreakDisplay {
             setGroupName("");
             setLiftsDone("");
         }
+        pushUpdate();
     }
 
     private void doPost(String url, Map<String, String> parameters) {
@@ -644,7 +660,7 @@ public class EventForwarder implements BreakDisplay {
     }
 
     private void doUpdate(Athlete a, UIEvent e) {
-        logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+        logger.trace("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
         boolean leaveTopAlone = false;
         if (e instanceof UIEvent.LiftingOrderUpdated) {
             LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
@@ -656,7 +672,7 @@ public class EventForwarder implements BreakDisplay {
         }
         if (a != null && a.getAttemptsDone() < 6) {
             if (!leaveTopAlone) {
-                logger.debug("ef updating top {}", a.getFullName());
+                logger.trace("ef updating top {}", a.getFullName());
                 setFullName(a.getFullName());
                 setTeamName(a.getTeam());
                 setStartNumber(a.getStartNumber());
@@ -674,7 +690,7 @@ public class EventForwarder implements BreakDisplay {
             }
         } else {
             if (!leaveTopAlone) {
-                logger.debug("ef doUpdate doDone");
+                logger.trace("ef doUpdate doDone");
                 Group g = (a != null ? a.getGroup() : null);
                 doDone(g);
             }
@@ -682,18 +698,18 @@ public class EventForwarder implements BreakDisplay {
         }
     }
 
-    private List<Athlete> filterToCategory(Category category, List<Athlete> order) {
-        return order
-                .stream()
-                .filter(a -> category != null && category.equals(a.getCategory()))
-                .limit(3)
-                .collect(Collectors.toList());
-    }
-
     private String formatAttempt(Integer attemptNo) {
         String translate = Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
         return translate;
     }
+
+//    private List<Athlete> filterToCategory(Category category, List<Athlete> order) {
+//        return order
+//                .stream()
+//                .filter(a -> category != null && category.equals(a.getCategory()))
+//                .limit(3)
+//                .collect(Collectors.toList());
+//    }
 
     private String formatInt(Integer total) {
         if (total == null || total == 0) {
@@ -725,9 +741,9 @@ public class EventForwarder implements BreakDisplay {
         ja.put("sattempts", sattempts);
         ja.put("cattempts", cattempts);
         ja.put("total", formatInt(a.getTotal()));
-        ja.put("snatchRank", formatInt(a.getSnatchRank()));
-        ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
-        ja.put("totalRank", formatInt(a.getTotalRank()));
+        ja.put("snatchRank", formatInt(a.getMainRankings().getSnatchRank()));
+        ja.put("cleanJerkRank", formatInt(a.getMainRankings().getCleanJerkRank()));
+        ja.put("totalRank", formatInt(a.getMainRankings().getTotalRank()));
         ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
@@ -751,7 +767,7 @@ public class EventForwarder implements BreakDisplay {
         for (Athlete a : athletes) {
             JsonObject ja = Json.createObject();
             Category curCat = a.getCategory();
-            if (curCat != null && !curCat.equals(prevCat)) {
+            if (curCat != null && !curCat.sameAs(prevCat)) {
                 // changing categories, put marker before athlete
                 ja.put("isSpacer", true);
                 jath.set(athx, ja);
@@ -857,7 +873,7 @@ public class EventForwarder implements BreakDisplay {
             return;
         }
         try {
-            logger.debug("pushing {}", det);
+            logger.trace("pushing {}", det);
             sendPost(decisionUrl, createDecision(det));
         } catch (IOException e) {
             logger./**/warn("cannot push: {} {}", decisionUrl, e.getMessage());
@@ -877,6 +893,7 @@ public class EventForwarder implements BreakDisplay {
     }
 
     private void pushUpdate() {
+        logger.debug("### pushing update");
         String updateUrl = Config.getCurrent().getParamUpdateUrl();
         if (updateUrl == null) {
             return;
@@ -926,6 +943,11 @@ public class EventForwarder implements BreakDisplay {
 
     private void setWideTeamNames(boolean b) {
         wideTeamNames = b;
+    }
+
+    private void uiLog(UIEvent e) {
+        uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                null, e.getOrigin(), LoggerUtils.whereFrom());
     }
 
 }

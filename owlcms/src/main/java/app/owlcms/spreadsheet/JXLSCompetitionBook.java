@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -37,7 +38,10 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
     @SuppressWarnings("unused")
     private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
-//    private byte[] finalPackageTemplate;
+
+    private String ageGroupPrefix;
+
+    private AgeDivision ageDivision;
 
     public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
         super(ui);
@@ -51,25 +55,22 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     @Override
     public InputStream getTemplate(Locale locale) throws IOException {
         Competition current = Competition.getCurrent();
-//        finalPackageTemplate = current.getFinalPackageTemplate();
-//        if (finalPackageTemplate == null) {
-//            finalPackageTemplate = loadDefaultPackageTemplate(locale, current);
-//        }
-//        InputStream stream = new ByteArrayInputStream(finalPackageTemplate);
-//        return stream;
         String protocolTemplateFileName = current.getFinalPackageTemplateFileName();
 
-        int stripIndex = protocolTemplateFileName.indexOf("_");
+        int stripIndex;
+        stripIndex = protocolTemplateFileName.indexOf(".xlsx");
         if (stripIndex > 0) {
             protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
+            return getLocalizedTemplate("/templates/competitionBook/" + protocolTemplateFileName, ".xlsx", locale);
         }
 
         stripIndex = protocolTemplateFileName.indexOf(".xls");
         if (stripIndex > 0) {
             protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
+            return getLocalizedTemplate("/templates/competitionBook/" + protocolTemplateFileName, ".xls", locale);
         }
 
-        return getLocalizedTemplate("/templates/competitionBook/" + protocolTemplateFileName, ".xls", locale);
+        throw new RuntimeException("template " + protocolTemplateFileName + " not found");
     }
 
     @Override
@@ -121,29 +122,12 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
     @Override
     protected void setReportingInfo() {
-        super.setReportingInfo();
         Competition competition = Competition.getCurrent();
-        competition.computeGlobalRankings(true);
+        competition.computeReportingInfo(getAgeGroupPrefix(), getAgeDivision());
+
+        super.setReportingInfo();
         setReportingBeans(competition.getReportingBeans());
     }
-
-//    private byte[] loadDefaultPackageTemplate(Locale locale, Competition current) {
-//        JPAService.runInTransaction((em) -> {
-//            String protocolTemplateFileName = "/templates/competitionBook/CompetitionBook_Total_" + locale.getLanguage()
-//                    + ".xls";
-//            InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);
-//            try {
-//                finalPackageTemplate = ByteStreams.toByteArray(stream);
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//            current.setFinalPackageTemplate(finalPackageTemplate);
-//            Competition merge = em.merge(current);
-//            Competition.setCurrent(merge);
-//            return merge;
-//        });
-//        return finalPackageTemplate;
-//    }
 
     private void setTeamSheetPrintArea(Workbook workbook, String sheetName, int nbClubs) {
         // int sheetIndex = workbook.getSheetIndex(sheetName);
@@ -153,6 +137,11 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
         // }
     }
 
+    /**
+     * jxls does not translate sheet names and header/footers. 
+     * 
+     * @param workbook
+     */
     private void translateSheets(Workbook workbook) {
         int nbSheets = workbook.getNumberOfSheets();
         for (int sheetIndex = 0; sheetIndex < nbSheets; sheetIndex++) {
@@ -161,7 +150,8 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
             workbook.setSheetName(sheetIndex,
                     Translator.translate("CompetitionBook." + sheetName, OwlcmsSession.getLocale()));
 
-            String leftHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_LeftHeader",
+            // use translate so this shows as missing on the sheet.
+            String leftHeader = Translator.translate("CompetitionBook." + sheetName + "_LeftHeader",
                     OwlcmsSession.getLocale());
             if (leftHeader != null) {
                 curSheet.getHeader().setLeft(leftHeader);
@@ -171,7 +161,8 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
             if (centerHeader != null) {
                 curSheet.getHeader().setCenter(centerHeader);
             }
-            String rightHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_RightHeader",
+            // use translate so this shows as missing on the sheet.
+            String rightHeader = Translator.translate("CompetitionBook." + sheetName + "_RightHeader",
                     OwlcmsSession.getLocale());
             if (rightHeader != null) {
                 curSheet.getHeader().setRight(rightHeader);
@@ -194,4 +185,27 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
             }
         }
     }
+
+    public void setAgeGroupPrefix(String ageGroupPrefix) {
+        this.ageGroupPrefix = ageGroupPrefix;
+    }
+
+    public String getAgeGroupPrefix() {
+        return ageGroupPrefix;
+    }
+
+    /**
+     * @return the ageDivision
+     */
+    public AgeDivision getAgeDivision() {
+        return ageDivision;
+    }
+
+    /**
+     * @param ageDivision the ageDivision to set
+     */
+    public void setAgeDivision(AgeDivision ageDivision) {
+        this.ageDivision = ageDivision;
+    }
+
 }

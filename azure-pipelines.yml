@@ -1,11 +1,10 @@
 trigger:
   - none
-
-
+  
 parameters:
   - name: Revision
     type: string
-    default: 4.21.3
+    default: 4.23.0-rc03
   - name: SkipTests
     type: string
     default: 'false'
@@ -61,7 +60,9 @@ jobs:
   - template: src/main/azure-pipelines/job-herokuRelease.yml
     parameters:
       jobName: ReleasePublicResultsHeroku
-      dependsOn: BuildPublicResultsUberJar
+      dependsOn: 
+        - BuildPublicResultsUberJar
+        - BuildOwlcmsUberJar
       moduleName: publicresults
 
   # release the installers to github repositories

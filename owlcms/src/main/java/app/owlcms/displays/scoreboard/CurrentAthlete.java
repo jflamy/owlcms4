@@ -9,7 +9,6 @@ package app.owlcms.displays.scoreboard;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -152,7 +151,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
 
     private EventBus uiEventBus;
     private List<Athlete> order;
-    private Group curGroup;
 
     JsonArray sattempts;
     JsonArray cattempts;
@@ -336,10 +334,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     @Subscribe
     public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
         uiLog(e);
-        Competition competition = Competition.getCurrent();
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            computeLeaders(competition);
-        });
     }
 
     @Subscribe
@@ -359,7 +353,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         uiEventLogger.debug("### {} isDisplayToggle={}", this.getClass().getSimpleName(), e.isDisplayToggle());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Athlete a = e.getAthlete();
-            order = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
+            order = e.getDisplayOrder();
             // liftsDone = AthleteSorter.countLiftsDone(order);
             doUpdate(a, e);
         });
@@ -457,12 +451,11 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         // fop obtained via FOPParameters interface default methods.
-        Competition competition = Competition.getCurrent();
         OwlcmsSession.withFop(fop -> {
             init();
 
-            // get the global category rankings for the group
-            order = competition.getGlobalCategoryRankingsForGroup(fop.getGroup());
+            // get the global category rankings attached to each athlete
+            order = fop.getDisplayOrder();
 
             // liftsDone = AthleteSorter.countLiftsDone(order);
             syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
@@ -470,7 +463,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
             uiEventBus = uiEventBusRegister(this, fop);
         });
         switchLightingMode(this, isDarkMode(), true);
-        computeLeaders(competition);
     }
 
     protected void setTranslationMap() {
@@ -483,26 +475,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
             }
         }
         this.getElement().setPropertyJson("t", translations);
-    }
-
-    private void computeLeaders(Competition competition) {
-        logger.debug("computeLeaders");
-        OwlcmsSession.withFop(fop -> {
-            Athlete curAthlete = fop.getCurAthlete();
-            if (curAthlete != null && curAthlete.getGender() != null) {
-                getModel().setCategoryName(curAthlete.getCategory().getName());
-                order = competition.getGlobalTotalRanking(curAthlete.getGender());
-                // logger.debug("rankings for current gender {}
-                // size={}",curAthlete.getGender(),globalRankingsForCurrentGroup.size());
-                order = filterToCategory(curAthlete.getCategory(),
-                        order);
-                // logger.debug("rankings for current category {}
-                // size={}",curAthlete.getCategory(),globalRankingsForCurrentGroup.size());
-                order = order.stream().filter(a -> a.getTotal() > 0)
-                        .collect(Collectors.toList());
-                this.getElement().setPropertyJson("leaders", Json.createNull());
-            }
-        });
     }
 
     private String computeLiftType(Athlete a) {
@@ -531,14 +503,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         ScoreboardModel model = getModel();
         Athlete a = e.getAthlete();
         updateBottom(model, computeLiftType(a));
-    }
-
-    private List<Athlete> filterToCategory(Category category, List<Athlete> order) {
-        return order
-                .stream()
-                .filter(a -> category != null && category.equals(a.getCategory()))
-                .limit(3)
-                .collect(Collectors.toList());
     }
 
     private String formatAttempt(Integer attemptNo) {
@@ -576,9 +540,9 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         ja.put("sattempts", sattempts);
         ja.put("cattempts", cattempts);
         ja.put("total", formatInt(a.getTotal()));
-        ja.put("snatchRank", formatInt(a.getSnatchRank()));
-        ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
-        ja.put("totalRank", formatInt(a.getTotalRank()));
+        ja.put("snatchRank", formatInt(a.getMainRankings().getSnatchRank()));
+        ja.put("cleanJerkRank", formatInt(a.getMainRankings().getCleanJerkRank()));
+        ja.put("totalRank", formatInt(a.getMainRankings().getTotalRank()));
         ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
@@ -687,7 +651,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         OwlcmsSession.withFop(fop -> {
             logger.trace("{}Starting result board", fop.getLoggingName());
             setId("scoreboard-" + fop.getName());
-            curGroup = fop.getGroup();
             getModel().setWideTeamNames(false);
             getModel().setCompetitionName(Competition.getCurrent().getCompetitionName());
         });
@@ -723,7 +686,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
 
     private void updateBottom(ScoreboardModel model, String liftType) {
         OwlcmsSession.withFop((fop) -> {
-            curGroup = fop.getGroup();
             if (liftType != null) {
                 model.setGroupName("");
                 model.setLiftsDone("");

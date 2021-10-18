@@ -125,9 +125,11 @@ public class UpdateReceiverServlet extends HttpServlet {
             String breakString = req.getParameter("break");
             String breakTypeString = req.getParameter("breakType");
             String breakRemainingString = req.getParameter("breakRemaining");
+            String breakIsIndefiniteString = req.getParameter("breakIsIndefinite");
             updateEvent.setBreak(breakString != null ? Boolean.valueOf(breakString) : null);
             updateEvent.setBreakType(breakTypeString != null ? BreakType.valueOf(breakTypeString) : null);
             updateEvent.setBreakRemaining(breakRemainingString != null ? Integer.parseInt(breakRemainingString) : null);
+            updateEvent.setIndefinite(Boolean.parseBoolean(breakIsIndefiniteString));
 
             String fopName = updateEvent.getFopName();
             // put in the cache first so events can know which FOPs are active;

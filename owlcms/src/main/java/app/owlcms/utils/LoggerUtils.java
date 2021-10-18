@@ -53,7 +53,7 @@ public class LoggerUtils {
         int i = 0;
         for (StackTraceElement ste : trace) {
             String string = ste.toString();
-            if (string.startsWith("com.vaadin.flow.server.communication")) {
+            if (string.startsWith("com.vaadin.flow.server.communication") || string.startsWith("com.vaadin.flow.internal")) {
                 break;
             }
             if (i > 1) {

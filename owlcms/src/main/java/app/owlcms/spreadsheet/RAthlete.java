@@ -7,7 +7,9 @@
 package app.owlcms.spreadsheet;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +23,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
-import app.owlcms.ui.preparation.UploadDialog;
+import app.owlcms.ui.preparation.RegistrationFileUploadDialog;
 import app.owlcms.utils.DateTimeUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -100,6 +102,9 @@ public class RAthlete {
         }
 
         List<Category> found = CategoryRepository.findByGenderAgeBW(a.getGender(), age, searchBodyWeight);
+        Set<Category> eligibles = new LinkedHashSet<>();
+        eligibles.addAll(found);
+        a.setEligibleCategories(eligibles);
         Category category = found.size() > 0 ? found.get(0) : null;
         if (category == null) {
             throw new Exception(
@@ -107,7 +112,9 @@ public class RAthlete {
                             "Upload.CategoryNotFound", age, a.getGender(),
                             legacyResult.group(2) + legacyResult.group(3)));
         }
+
         a.setCategory(category);
+        //logger.debug("setting category to {} athlete {}",category.longDump(), a.longDump());
     }
 
     /**
@@ -195,7 +202,7 @@ public class RAthlete {
             Group nGroup = GroupRepository.save(group);
             a.setGroup(nGroup);
             logger.debug("creating group {}", groupName);
-            UploadDialog.listGroups("group creation");
+            RegistrationFileUploadDialog.listGroups("group creation");
 //            throw new Exception(
 //                    Translator.translate("Upload.GroupNotDefined", groupName));
         } else {

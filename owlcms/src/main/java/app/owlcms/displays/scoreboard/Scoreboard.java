@@ -543,9 +543,9 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         ja.put("sattempts", sattempts);
         ja.put("cattempts", cattempts);
         ja.put("total", formatInt(a.getTotal()));
-        ja.put("snatchRank", formatInt(a.getSnatchRank()));
-        ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
-        ja.put("totalRank", formatInt(a.getTotalRank()));
+        ja.put("snatchRank", formatInt(a.getMainRankings().getSnatchRank()));
+        ja.put("cleanJerkRank", formatInt(a.getMainRankings().getCleanJerkRank()));
+        ja.put("totalRank", formatInt(a.getMainRankings().getTotalRank()));
         Integer liftOrderRank = a.getLiftOrderRank();
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
@@ -567,7 +567,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         for (Athlete a : list3) {
             JsonObject ja = Json.createObject();
             Category curCat = a.getCategory();
-            if (curCat != null && !curCat.equals(prevCat)) {
+            //logger.debug("{} {} {} {}", a, curCat, curCat.getId(), prevCat, prevCat != null ? prevCat.getId() : null);
+            if (curCat != null && !curCat.sameAs(prevCat)) {
                 // changing categories, put marker before athlete
                 ja.put("isSpacer", true);
                 jath.set(athx, ja);

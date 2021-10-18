@@ -19,6 +19,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 public class OwlcmsComboBoxProvider<T> extends ComboBoxProvider<T> {
 
     private ItemLabelGenerator<T> itemLabelGenerator;
+    private boolean clearButtonVisible = false;
 
     public OwlcmsComboBoxProvider(Collection<T> items) {
         super(items);
@@ -26,12 +27,21 @@ public class OwlcmsComboBoxProvider<T> extends ComboBoxProvider<T> {
 
     public OwlcmsComboBoxProvider(String caption, Collection<T> items) {
         super(caption, items);
+        this.clearButtonVisible = true;
     }
 
     public OwlcmsComboBoxProvider(String caption, Collection<T> items,
             ComponentRenderer<? extends Component, T> renderer, ItemLabelGenerator<T> itemLabelGenerator) {
         super(caption, items, renderer, itemLabelGenerator);
         this.itemLabelGenerator = itemLabelGenerator;
+        this.clearButtonVisible = true;
+    }
+    
+    public OwlcmsComboBoxProvider(String caption, Collection<T> items,
+            ComponentRenderer<? extends Component, T> renderer, ItemLabelGenerator<T> itemLabelGenerator, boolean clearButtonVisible) {
+        super(caption, items, renderer, itemLabelGenerator);
+        this.itemLabelGenerator = itemLabelGenerator;
+        this.clearButtonVisible = clearButtonVisible;
     }
 
     @Override
@@ -43,7 +53,7 @@ public class OwlcmsComboBoxProvider<T> extends ComboBoxProvider<T> {
         if (itemLabelGenerator != null) {
             field.setItemLabelGenerator(itemLabelGenerator);
         }
-        field.setClearButtonVisible(true);
+        field.setClearButtonVisible(clearButtonVisible);
         field.setItems(items);
         return field;
     }

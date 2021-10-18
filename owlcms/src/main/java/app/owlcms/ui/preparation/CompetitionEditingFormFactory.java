@@ -8,9 +8,6 @@ package app.owlcms.ui.preparation;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -19,10 +16,8 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
@@ -30,19 +25,15 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosi
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
-import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
@@ -51,7 +42,6 @@ import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
-import app.owlcms.utils.TimeZoneUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -61,6 +51,7 @@ public class CompetitionEditingFormFactory
 
     @SuppressWarnings("unused")
     private CompetitionContent origin;
+    @SuppressWarnings("unused")
     private Logger logger = (Logger) LoggerFactory.getLogger(CompetitionEditingFormFactory.class);
 
     String browserZoneId;
@@ -126,9 +117,7 @@ public class CompetitionEditingFormFactory
         FormLayout competitionLayout = competitionForm();
         FormLayout federationLayout = federationForm();
         FormLayout rulesLayout = rulesForm();
-        FormLayout presentationLayout = presentationForm();
         FormLayout specialLayout = specialRulesForm();
-        FormLayout tzLayout = tzForm();
 
         // footerLayout1 callbacks are not actually used -- footerLayout2 overwrites the callbacks.
 //        Component footerLayout1 = this.buildFooter(operation, competition, cancelButtonClickListener,
@@ -140,12 +129,7 @@ public class CompetitionEditingFormFactory
 //                }, deleteButtonClickListener, false);
         Component footerLayout2 = this.buildFooter(operation, comp, cancelButtonClickListener,
                 c -> {
-                    Competition nCompetition = this.update(comp);
-                    Locale defaultLocale = nCompetition.getDefaultLocale();
-                    Translator.reset();
-                    Translator.setForcedLocale(defaultLocale);
-                    logger.debug("competition locale {} {} {}", Competition.getCurrent().getDefaultLocale(),
-                            defaultLocale, Translator.getForcedLocale());
+                    this.update(comp);
                 }, deleteButtonClickListener, false);
 
         VerticalLayout mainLayout = new VerticalLayout(
@@ -153,8 +137,6 @@ public class CompetitionEditingFormFactory
                 competitionLayout, separator(),
                 federationLayout, separator(),
                 rulesLayout, separator(),
-                presentationLayout, separator(),
-                tzLayout, separator(),
                 specialLayout);
         mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout2);
         mainLayout.setMargin(false);
@@ -313,27 +295,27 @@ public class CompetitionEditingFormFactory
         return span;
     }
 
-    private FormLayout presentationForm() {
-        FormLayout layout = createLayout();
-        Component title = createTitle("Competition.presentationTitle");
-        layout.add(title);
-        layout.setColspan(title, 2);
-
-        ComboBox<Locale> defaultLocaleField = new ComboBox<>();
-        defaultLocaleField.setClearButtonVisible(true);
-        defaultLocaleField.setDataProvider(new ListDataProvider<>(Translator.getAllAvailableLocales()));
-        defaultLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
-        binder.forField(defaultLocaleField).bind(Competition::getDefaultLocale, Competition::setDefaultLocale);
-        layout.addFormItem(defaultLocaleField, Translator.translate("Competition.defaultLocale"));
-
-        Checkbox customScoreField = new Checkbox();
-        layout.addFormItem(customScoreField,
-                labelWithHelp("Competition.announcerLiveDecisions", "Competition.announceLiverDecisionsExplanation"));
-        binder.forField(customScoreField)
-                .bind(Competition::isAnnouncerLiveDecisions, Competition::setAnnouncerLiveDecisions);
-
-        return layout;
-    }
+//    private FormLayout presentationForm() {
+//        FormLayout layout = createLayout();
+//        Component title = createTitle("Competition.presentationTitle");
+//        layout.add(title);
+//        layout.setColspan(title, 2);
+//
+//        ComboBox<Locale> defaultLocaleField = new ComboBox<>();
+//        defaultLocaleField.setClearButtonVisible(true);
+//        defaultLocaleField.setDataProvider(new ListDataProvider<>(Translator.getAllAvailableLocales()));
+//        defaultLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
+//        binder.forField(defaultLocaleField).bind(Competition::getDefaultLocale, Competition::setDefaultLocale);
+//        layout.addFormItem(defaultLocaleField, Translator.translate("Competition.defaultLocale"));
+//
+////        Checkbox announcerLiveDecisionsField = new Checkbox();
+////        layout.addFormItem(announcerLiveDecisionsField,
+////                labelWithHelp("Competition.announcerLiveDecisions", "Competition.announceLiverDecisionsExplanation"));
+////        binder.forField(announcerLiveDecisionsField)
+////                .bind(Competition::isAnnouncerLiveDecisions, Competition::setAnnouncerLiveDecisions);
+//
+//        return layout;
+//    }
 
     private FormLayout rulesForm() {
         FormLayout layout = createLayout();
@@ -398,73 +380,26 @@ public class CompetitionEditingFormFactory
                 .withValidator(new IntegerRangeValidator(message, 0, 99))
                 .bind(Competition::getWomensTeamSize, Competition::setWomensTeamSize);
 
-        Checkbox customScoreField = new Checkbox();
-        layout.addFormItem(customScoreField,
-                labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));
-        binder.forField(customScoreField)
-                .bind(Competition::isCustomScore, Competition::setCustomScore);
-
+        Checkbox roundRobinOrderField = new Checkbox();
+        layout.addFormItem(roundRobinOrderField,
+                labelWithHelp("Competition.roundRobinOrder", "Competition.roundRobinOrderExplanation"));
+        binder.forField(roundRobinOrderField)
+                .bind(Competition::isRoundRobinOrder, Competition::setRoundRobinOrder);
+        
         Checkbox genderOrderField = new Checkbox();
         layout.addFormItem(genderOrderField,
                 labelWithHelp("Competition.genderOrder", "Competition.genderOrderExplanation"));
         binder.forField(genderOrderField)
                 .bind(Competition::isGenderOrder, Competition::setGenderOrder);
 
-        Checkbox roundRobinOrderField = new Checkbox();
-        layout.addFormItem(roundRobinOrderField,
-                labelWithHelp("Competition.roundRobinOrder", "Competition.roundRobinOrderExplanation"));
-        binder.forField(roundRobinOrderField)
-                .bind(Competition::isRoundRobinOrder, Competition::setRoundRobinOrder);
+        Checkbox customScoreField = new Checkbox();
+        layout.addFormItem(customScoreField,
+                labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));
+        binder.forField(customScoreField)
+                .bind(Competition::isCustomScore, Competition::setCustomScore);
 
         return layout;
     }
 
-    private FormLayout tzForm() {
 
-        FormLayout layout = createLayout();
-        ComboBox<TimeZone> tzCombo = new ComboBox<>();
-        tzCombo.setWidthFull();
-
-        Component title = createTitle("Config.TZTitle");
-        layout.add(title);
-        layout.setColspan(title, 2);
-
-        UnorderedList ulTZ = new UnorderedList();
-        ListItem defaultTZ = new ListItem();
-        ListItem browserTZ = new ListItem();
-        Span browserTZText = new Span();
-        Button browserTZButton = new Button("", (e) -> {
-            tzCombo.setValue(browserZoneId != null ? TimeZone.getTimeZone(browserZoneId) : null);
-        });
-        browserTZ.add(browserTZText, browserTZButton);
-        ListItem explainTZ = new ListItem();
-        explainTZ.getElement().setProperty("innerHTML", Translator.translate("Config.TZExplain"));
-        ulTZ.add(defaultTZ, browserTZ, explainTZ);
-        layout.add(ulTZ);
-        layout.setColspan(ulTZ, 2);
-
-        layout.addFormItem(tzCombo, Translator.translate("Config.TZ_Selection"));
-
-        List<TimeZone> tzList = TimeZoneUtils.allTimeZones();
-        tzCombo.setItems(tzList);
-        tzCombo.setItemLabelGenerator((tzone) -> TimeZoneUtils.toIdWithOffsetString(tzone));
-        tzCombo.setClearButtonVisible(true);
-        binder.forField(tzCombo)
-                // .withNullRepresentation("Etc/GMT")
-                .bind(Competition::getTimeZone, Competition::setTimeZone);
-
-        PendingJavaScriptResult pendingResult = UI.getCurrent().getPage()
-                .executeJs("return Intl.DateTimeFormat().resolvedOptions().timeZone");
-        pendingResult.then(String.class, (res) -> {
-            browserZoneId = res;
-            String defZone = TimeZoneUtils.toIdWithOffsetString(TimeZone.getDefault());
-            String browserZoneText = TimeZoneUtils.toIdWithOffsetString(TimeZone.getTimeZone(res));
-            browserTZText.getElement().setProperty("innerHTML",
-                    Translator.translate("Config.TZ_FromBrowser", browserZoneText) + "&nbsp;");
-            browserTZButton.setText(browserZoneText);
-            defaultTZ.setText(Translator.translate("Config.TZ_FromServer", defZone));
-        });
-
-        return layout;
-    }
 }

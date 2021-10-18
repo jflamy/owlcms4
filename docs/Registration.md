@@ -18,29 +18,37 @@ Unless you are running from a new installation, your database will contain infor
 
 ## Uploading a list of athletes
 
-Because entering athletes is somewhat tedious, it is often easier to upload a list prepared with Excel which allows copy-and-paste in an easier way.  In order to do so, three steps are involved
+Because entering athletes is somewhat tedious, it is easier to upload a list prepared with Excel which allows copy-and-paste in an easier way.  In order to do so, three steps are involved
 
 1. Obtaining an up-to-date form to capture information.  From the `Prepare Competition` page, click on the `Download Empty Registration Template` button.  Open the downloaded file and **SAVE IT** somewhere in your own documents.
 
    ![072_Download_Upload](img/Preparation/072_Download_Upload.png)
 
-2. Fill-in the Excel with the information about your athletes.  Assign each athlete to a group and a weight category.  Note that if you are using multiple age divisions you must use the correct code for the category (for example `yM67` for youth M67 as opposed to `sM67` for senior M67).
-   Note that the Date must be entered as an Excel Date using your regional settings.
+2. Fill-in the Excel with the information about your athletes.  Assign each athlete to a group and a weight category. Note that this is a presumed category, for the purpose of creating your groups.  
+   
+> - When you load the file, the program will assign the athlete to the age groups and categories where he or she is eligible. If you have multiple overlapping age groups (for example IWF Junior and Senior) present, the athlete will be added to both categories.  You can instead put the expected body weight if you prefer.
+   > - The program will create groups with the code names you use.  You can use numbers, or any short combinations.  Some people use the categories present (ex: M81B-M77A)
+
+3. Note that the Date must be entered as an Excel Date using your regional settings.
 
    ![073_excel](img/Preparation/073_excel.png)
 
-3. Upload the completed form.  Note that this does not delete previous entries.  The system has no way of knowing that previous athletes match new athletes, so new entries are always created.  It is therefore up to you to [clear the athletes](#clearing-athletes-from-a-previous-competition) if needed.
+4. Upload the completed form.  Note that this **deletes the previous entries**.
 
-   If there are errors detected on the upload, they will be shown (for example, wrong category codes, or undefined groups).  The athlete will still be created, but without the faulty information.  You can either upload again after correcting and clearing, or fix by hand (see below)
+   > The recommended practice is to keep the Excel registration sheet until AFTER the verification of final entries.  You can move athletes from group to group and adjust their entry total faster on the sheet.
+   >
+   > You should therefore **keep all athletes from all groups** on your Excel
+
+5. Fix errors, if any. If there are errors detected on the upload, they will be shown (for example, wrong category codes).  The athlete will still be created, but without the faulty information.  You can either upload again after correcting and clearing, or fix by hand (see below)
    ![074_Upload](img/Preparation/074_Upload.png)
 
-## Adding or Editing Athletes
+## Adding or Editing Athletes after loading
 
 In order to add or edit athletes, use again the `Edit Athlete Entries` button on the `Prepare Competition` page.  Above the list of athletes, using the `+` button allows you to add an athlete, whereas selecting an existing athlete by clicking ONCE allows you to edit.
 
 ![080_adding](img/Preparation/080_adding.png)
 
-You may then fill the form.  Various validations will be made (matching athlete gender with category gender, matching declared weights with entry total, etc.).  You will not be allowed to save illogical data.
+You may then fill the form.  The eligible categories will be computed automatically, and if the athlete is eligible to several categories the most specific category will be assigned based on the age (this is in order to compute start numbers, and will be used on scoreboards).
 
 ![082_edition](img/Preparation/082_edition.png)
 

@@ -31,18 +31,6 @@ public class StartupUtils {
     static Integer serverPort = null;
 
     public static void disableWarning() {
-        // https://stackoverflow.com/questions/46454995/how-to-hide-warning-illegal-reflective-access-in-java-9-without-jvm-argument
-//        try {
-//            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
-//            theUnsafe.setAccessible(true);
-//            Unsafe u = (Unsafe) theUnsafe.get(null);
-//
-//            Class<?> cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
-//            Field logger = cls.getDeclaredField("logger");
-//            u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
-//        } catch (Exception e) {
-//            // ignore
-//        }
     }
 
     /**
@@ -124,7 +112,8 @@ public class StartupUtils {
         }
 
         int response;
-        URL testingURL = new URL("http", hostName, serverPort, "/sounds/timeOver.mp3");
+        
+        URL testingURL = new URL("http", hostName, serverPort, "/local/sounds/timeOver.mp3");
         HttpURLConnection huc = (HttpURLConnection) testingURL.openConnection();
         logger.debug("checking for {}", testingURL.toExternalForm());
         huc.setRequestMethod("GET");
@@ -143,8 +132,10 @@ public class StartupUtils {
                 return false;
             }
             return true;
+        } else {
+            logger.error("cannot open expected URL {}", testingURL.toExternalForm());
+            return false;
         }
-        return false;
     }
 
     public static void setMainLogger(Logger mainLogger) {

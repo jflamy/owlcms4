@@ -52,12 +52,12 @@ import net.sf.jxls.reader.XLSReadStatus;
 import net.sf.jxls.reader.XLSReader;
 
 @SuppressWarnings("serial")
-public class UploadDialog extends Dialog {
+public class RegistrationFileUploadDialog extends Dialog {
 
     private static final String REGISTRATION_READER_SPEC = "/templates/registration/RegistrationReader.xml";
     private static final String GROUPS_READER_SPEC = "/templates/registration/GroupsReader.xml";
 
-    final static Logger logger = (Logger) LoggerFactory.getLogger(UploadDialog.class);
+    final static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationFileUploadDialog.class);
     final static Logger jxlsLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.reader.SimpleBlockReaderImpl");
     static {
         jxlsLogger.setLevel(Level.ERROR);
@@ -75,7 +75,7 @@ public class UploadDialog extends Dialog {
 //        });
     }
 
-    public UploadDialog() {
+    public RegistrationFileUploadDialog() {
 
         H5 label = new H5(Translator.translate("Upload.WarningWillReplaceAll"));
         label.getStyle().set("color", "red");
@@ -224,6 +224,7 @@ public class UploadDialog extends Dialog {
         }
 
         processAthletes(inputStream, ta);
+        AthleteRepository.resetCategories();
         listGroups("after processAthletes real");
         return;
     }

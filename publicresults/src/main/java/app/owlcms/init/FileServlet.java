@@ -228,7 +228,7 @@ public class FileServlet extends HttpServlet {
         }
         basePath = Paths.get(basePathName);
         basePath = basePath.normalize().toAbsolutePath();
-        logger.warn("base path = {} {}", basePath, Files.exists(basePath));
+        logger.debug("base path = {} {}", basePath, Files.exists(basePath));
         if (!Files.exists(basePath)) {
             // ignore exception, we will look on classpath.
 //            throw new ServletException("FileServlet init param 'basePath' value '"
@@ -363,7 +363,7 @@ public class FileServlet extends HttpServlet {
             final String extension = FilenameUtils.getExtension(fullFileName);
             final String baseName = FilenameUtils.getBaseName(fullFileName);
             final File tempFile = File.createTempFile(baseName, "."+extension);
-            logger.warn("creating {}", tempFile.getAbsolutePath());
+            logger.debug("creating {}", tempFile.getAbsolutePath());
             tempFile.deleteOnExit();
             try (FileOutputStream out = new FileOutputStream(tempFile)) {
                 IOUtils.copy(in, out);
@@ -390,7 +390,7 @@ public class FileServlet extends HttpServlet {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return null;
             } else {
-                logger.warn("found Classpath/Jar File: {}", resourcePath.toRealPath());
+                logger.debug("found Classpath/Jar File: {}", resourcePath.toRealPath());
                 return resourcePath.toFile();
             }
         } else {
@@ -414,7 +414,7 @@ public class FileServlet extends HttpServlet {
 
         // Get requested file by path info.
         String requestedFileName = request.getPathInfo();
-        logger.warn("requested file = {}", requestedFileName);
+        logger.debug("requested file = {}", requestedFileName);
 
         File file = getFileFromPathInfo(response, requestedFileName);
         if (file == null) {

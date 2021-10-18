@@ -47,32 +47,32 @@ public class HttpsEnforcer implements Filter {
                     String serverName = request.getServerName();
                     // local server behind proxy, don't redirect.
                     if (serverName.endsWith(".localhost") || serverName.endsWith("localhost")) {
-//                        logger.warn("{} received on '{}', not redirecting to https", serverName, url);
+                        //logger.debug("{} received on '{}', not redirecting to https", serverName, url);
                     } else {
-//                        logger.warn("{} received on '{}', forcing redirect to https", serverName, url);
+                        //logger.debug("{} received on '{}', forcing redirect to https", serverName, url);
                         String pathInfo = (request.getPathInfo() != null) ? request.getPathInfo() : "";
                         response.sendRedirect("https://" + serverName + pathInfo);
                         return;
                     }
                 } else {
-//                    logger.warn("{} received, do nothing instance type {}", url,request.getClass().getName());
+                    //logger.debug("{} received, do nothing instance type {}", url,request.getClass().getName());
                 }
             } else {
-//                logger.warn("{} received, do nothing because already https '{}'", url,forwarding);
+                //logger.debug("{} received, do nothing because already https '{}'", url,forwarding);
             }
         } else {
-//            logger.warn("{} received, do nothing not through proxy", url);
+            //logger.debug("{} received, do nothing not through proxy", url);
         }
 
         try {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
-            logger.warn(LoggerUtils.stackTrace(e));
+            logger.error(LoggerUtils.stackTrace(e));
             if (StartupUtils.isDebugSetting()) {
                 Enumeration<String> headerNames = request.getHeaderNames();
                 while (headerNames.hasMoreElements()) {
                     String headerName = headerNames.nextElement();
-                    logger.warn("    {} {}", headerName, request.getHeader(headerName));
+                    logger.error("    {} {}", headerName, request.getHeader(headerName));
                 }
             }
         }

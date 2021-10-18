@@ -45,9 +45,9 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
     public ResultsNavigationContent() {
         Button groupResults = openInNewTab(ResultsContent.class, getTranslation("GroupResults"));
         Button teamResults = openInNewTabNoParam(TeamResultsContent.class, getTranslation("TeamResults.Title"));
-        Button finalPackage = openInNewTabNoParam(PackageContent.class, getTranslation("FinalResultsPackage"));
+        Button finalPackage = openInNewTabNoParam(PackageContent.class, getTranslation("CategoryResults"));
 
-        Div timingStats = DownloadButtonFactory.createDynamicDownloadButton("timingStats",
+        Div timingStats = DownloadButtonFactory.createDynamicXLSDownloadButton("timingStats",
                 getTranslation("TimingStatistics"), new JXLSTimingStats(UI.getCurrent()));
 
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(groupResults);
@@ -98,7 +98,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 
     @Override
     protected String getTitle() {
-        return getTranslation("ResultDocuments");
+        return getTranslation("Results");
     }
 
 }

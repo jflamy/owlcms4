@@ -63,48 +63,30 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
     public PreparationNavigationContent() {
 
         Button competition = openInNewTabNoParam(CompetitionContent.class, getTranslation("CompetitionInformation"));
+        Button config = openInNewTabNoParam(ConfigContent.class, getTranslation("Config.Title"));
         Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, getTranslation("DefineAgeGroups"));
         Button groups = openInNewTabNoParam(GroupContent.class, getTranslation("DefineGroups"));
         Button platforms = openInNewTabNoParam(PlatformContent.class, getTranslation("DefineFOP"));
-        Button config = openInNewTabNoParam(ConfigContent.class, getTranslation("Config.Title"));
 
-//        StreamResource href = new StreamResource("registration.xls",
-//                () -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
-//        Anchor download = new Anchor(href, "");
-//        Button downloadButton = new Button(getTranslation("DownloadRegistrationTemplate"),
-//                new Icon(VaadinIcon.DOWNLOAD_ALT));
-//        downloadButton.setWidth("93%"); // don't ask. this is a kludge.
-//        download.add(downloadButton);
-//        download.setWidth("100%");
-//
-
-//        LazyDownloadButton downloadButton = new LazyDownloadButton(
-//                getTranslation("DownloadRegistrationTemplate"),
-//                new Icon(VaadinIcon.DOWNLOAD_ALT),
-//                () -> "registration"
-//                        // + "_" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
-//                        + ".xls",
-//                () -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
-
-        Div downloadDiv = DownloadButtonFactory.createDynamicDownloadButton("registration",
+        Div downloadDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("registration",
                 getTranslation("DownloadRegistrationTemplate"), new JXLSRegistration(UI.getCurrent()));
-//        Div downloadDiv = new Div(downloadButton);
         Optional<Component> content = downloadDiv.getChildren().findFirst();
         content.ifPresent(c -> ((Button) c).setWidth("93%"));
         downloadDiv.setWidthFull();
         Button upload = new Button(getTranslation("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
-                buttonClickEvent -> new UploadDialog().open());
+                buttonClickEvent -> new RegistrationFileUploadDialog().open());
 
         Button athletes = openInNewTabNoParam(RegistrationContent.class, getTranslation("EditAthletes"));
+        Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
 
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, ageGroups, groups, platforms,
-                config,
-                downloadDiv, upload);
-        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload);
-        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes);
-
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, groups,
+                platforms, downloadDiv, upload);
         doGroup(getTranslation("PreCompetitionSetup"), grid1, this);
+
+        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload);
         doGroup(getTranslation("Registration"), grid2, this);
+
+        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams);
         doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
 
         DebugUtils.gc();
