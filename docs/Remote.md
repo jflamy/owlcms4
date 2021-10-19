@@ -20,7 +20,7 @@ The other common configuration is when both owlcms and publicresults are in the 
 
 2. Click on the purple button below to start the installation on Heroku Cloud.
 
-    [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/owlcms/owlcms-publicresults)
+    [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/jflamy/owlcms-publicresults)
 
 3. Enter your Heroku account (or create one if you haven't)
 
@@ -57,7 +57,7 @@ The other common configuration is when both owlcms and publicresults are in the 
 
 ## Configure Updates from `owlcms`
 
-1. Open the owlcms application on Heroku and go to the `Prepare Competition` - `Technical Configuration ` page.
+1. Open the owlcms application on Heroku and go to the `Prepare Competition` - `Language and System Settings ` page.
 
      - paste the secret key on the right-hand side -- use the "eye" icon to see what you pasted.
      - copy and paste the correct URL for the publicresults application we opened in step 5.
@@ -88,5 +88,5 @@ The other common configuration is when both owlcms and publicresults are in the 
 
 ## Check for updates
 
-Once you have created the application once, you can download a program that will check for updates and remote control Heroku to grab them.   See [Instructions](https://github.com/owlcms/owlcms-heroku-updater) and [Releases · owlcms/owlcms4-heroku-updater (github.com)](https://github.com/owlcms/owlcms4-heroku-updater/releases)
+Once you have created the application once, you can download a program that will check for updates and remote control Heroku to grab them.   See [Instructions](https://github.com/jflamy/owlcms-heroku-updater) and [Releases · owlcms/owlcms4-heroku-updater (github.com)](https://github.com/owlcms/owlcms4-heroku-updater/releases)
 

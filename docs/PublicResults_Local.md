@@ -59,7 +59,7 @@ If you need to stream video, the streaming machine will be on the competition ne
 3. We can test the connection by going to the owlcms laptop and trying the the destination address with a browser
    ![05_checkConnectivity](img/PublicResults/LocalPublicResults/05_checkConnectivity.png)
    
-4. You can now test actual updates from the owlcms application. Configure owlcms on the `Prepare Competition`/`Technical Configuration` 
+4. You can now test actual updates from the owlcms application. Configure owlcms on the `Prepare Competition`/`Language and System Settings` 
    
    - set the destination url for publicresults to the tested IP address (http://10.0.0.234:8080 in our example)
    - set the shared secret update key to what you used in the l4j.ini file (SomeVeryLongStringYouWillConfigureAlsoInOwlcms in our example)

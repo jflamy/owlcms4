@@ -1,9 +1,11 @@
 * [Home](index)
-* Getting Started
+* Installation
+  * [Downloads](Downloads)
   * [Installation](InstallationOverview)
   * [Equipment Setup](EquipmentSetup)
 * Competitions
   * [Preparation](Preparation)
+  * [Language and System Settings](SystemSettings)
   * [Age Groups and Categories](Categories)
   * [Athlete Registration](Registration)
   * [Weigh-in and Start Numbers](WeighIn)
@@ -14,7 +16,7 @@
   * [Result Documents](Documents)
 * Virtual Competitions
   * [Overview](VirtualOverview)
-  * [Setup Applications](HerokuLarge)
+  * [Virtual or Hybrid Setup](HerokuLarge)
   * [Running a Virtual Competition](Zoom)
   * [Preparing the Zoom Setup](PrepareZoomBroadcasting)
   * [Preparing the Video Setup](OBS)
@@ -27,6 +29,7 @@
   * [Excel Template Variables](TemplateVariables)
   * [Translations](Translation)
   * [Contributing to the code](Gitpod)
+* [Licensing and Notes](Licensing)
 * Downloads
-  * [Releases](https://github.com/jflamy/owlcms4/releases)
+  * [Downloads](Downloads)
   * [Source Repository](https://github.com/jflamy/owlcms4)

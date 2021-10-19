@@ -18,22 +18,10 @@ See the following for instructions
 
   * [Heroku Cloud Installation Instructions](Heroku)
 
-For large competitions, you can change the configuration on the competition days to use a paying tier, at a cost of about 12$ per day, and once done go back to the 0$ free tier.
+For large competitions, you can change the configuration on the competition days to use a paying tier, at a cost of about 5$ per day, and once done go back to the 0$ free tier.
 
   * [Large Competition Heroku Setup](HerokuLarge)
-
-## Cloud-Based Virtual Competitions
-
-In a virtual competition, the officials are in multiple locations.  In order to allow access by all officials, `owlcms` is run in the cloud with [remote refereeing](Refereeing#Mobile-Device-Refereeing). Remote referees need to use a laptop to get a good-size screen and because iPads are not permitted to show video together with the refereeing screen.
-
-![Slide5](img/PublicResults/CloudExplained/Slide5.SVG)
-
-The following pages will guide you through setting up a virtual competition. 
-
-1. Configure Heroku: [Large Competition Heroku Setup](HerokuLarge)
-2. Configure for Videoconferencing and Streaming:  see [this page](VirtualOverview) for the full process.
-
-If you wish to control the full setup and are technology-savvy, alternatives to using Heroku are possible, for example, [Kubernetes on Digital Ocean Cloud](DigitalOcean) or [Home Kubernetes Hosting with Secure Internet Access](k3d)
+  * [Virtual Competition Setup](VirtualOverview)
 
 ## Stand-alone: Laptop installation
 

@@ -4,7 +4,7 @@
 
 `owlcms` needs to know where its remote `publicresults` mirror is located.  See [this page](Remote) for installation instructions for `publicresults`.
 
-In order to configure the URL for publicresults and the associated secretkey, go to the `Prepare Competition` page and use the `Technical Configuration` button.
+In order to configure the URL for publicresults and the associated secretkey, go to the `Prepare Competition` page and use the `Language and System Settings` button.
 
 ![050_technicalConfig](img/PublicResults/050_technicalConfig.png)
 

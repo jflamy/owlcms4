@@ -42,7 +42,7 @@ Once you have created the application once, you can download a program that will
 ## Control access to the application
 
 In a gym setting, people can read the web addresses on the screens, and one day, some "funny" person will log in to the system and be tempted to mess things up.
-- We suggest that you set a PIN or Password that officials will be required to type when first logging in.  This is done on via the `Prepare Competition` page, using the `Technical Configuration` button.
+- We suggest that you set a PIN or Password that officials will be required to type when first logging in.  This is done on via the `Prepare Competition` page, using the `Language and System Settings` button.
 
 ![053_editPIN](img/PublicResults/053_editPIN.png)
 
