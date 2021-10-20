@@ -16,7 +16,7 @@
         <mapEntry key="H_REPO_NAME" value="owlcms-heroku"/>
         <mapEntry key="O_REPO_NAME" value="owlcms4"/>
         <mapEntry key="P_REPO_NAME" value="publicresults-heroku"/>
-        <mapEntry key="REPO_OWNER" value="jflamy"/>
+        <mapEntry key="REPO_OWNER" value="owlcms"/>
     </mapAttribute>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
