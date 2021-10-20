@@ -16,7 +16,7 @@
   * [Result Documents](Documents)
 * Virtual Competitions
   * [Overview](VirtualOverview)
-  * [Virtual or Hybrid Setup](HerokuLarge)
+  * [Full Cloud Setup](HerokuLarge)
   * [Running a Virtual Competition](Zoom)
   * [Preparing the Zoom Setup](PrepareZoomBroadcasting)
   * [Preparing the Video Setup](OBS)
