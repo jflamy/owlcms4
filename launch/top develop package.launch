@@ -17,8 +17,10 @@
         <mapEntry key="O_REPO_NAME" value="owlcms4"/>
         <mapEntry key="P_REPO_NAME" value="publicresults-heroku"/>
         <mapEntry key="REPO_OWNER" value="owlcms"/>
+        <mapEntry key="REVISION" value="4.23.0"/>
     </mapAttribute>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Drevision=${string_prompt}"/>
     <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:/owlcms4top}"/>
 </launchConfiguration>

@@ -1,4 +1,4 @@
-**Changes for release 4.23.1-SNAPSHOT**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+**Changes for release 4.23.0**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
 - [x] Explicit support for participation to multiple age groups (#433)
   - An athlete will, by default, be eligible and ranked separately in all the active categories in which the age and qualifying total are met.   
