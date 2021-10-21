@@ -19,13 +19,20 @@ import java.time.format.FormatStyle;
 import java.util.Date;
 import java.util.Locale;
 
+import org.slf4j.LoggerFactory;
+
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import ch.qos.logback.classic.Logger;
 
 public class DateTimeUtils {
+    
+    static Logger logger = (Logger) LoggerFactory.getLogger(DateTimeUtils.class);
 
-    public static LocalDateTime parseExcelDateTime(String competitionTime) throws NumberFormatException {
+    public static LocalDateTime parseExcelFractionalDate(String competitionTime) throws NumberFormatException {
+        //logger.debug("parseExcelDateTime {} {}", competitionTime);
         double doubleDays = Double.parseDouble(competitionTime);
+        //logger.debug("parseExcelDateTime {} {}", competitionTime, doubleDays);
         long minutes = (long) (doubleDays * 24 * 60);
         return LocalDateTime
                 .of(1899, Month.DECEMBER, 30, 0, 0) // Specify epoch reference date used by *some* versions of Excel.
@@ -72,20 +79,35 @@ public class DateTimeUtils {
         }
     }
 
-    public static LocalDate parseExcelDate(String content) throws Exception {
+    /**
+     * Parse an Excel date, not knowing whether a 4-digit year, an ISO format date, or a native Excel days elapsed format is present
+     * 
+     * @param content something that we try to interpret as a date
+     * @return
+     * @throws Exception
+     */
+    public static LocalDate parseExcelDate(String content) throws Exception { //logger.debug("parseExcelDate {}", content);
         try {
             long l = Long.parseLong(content);
             if (l < 3000) {
+                // year without month and day typed directly.
                 return LocalDate.of((int) l, 1, 1);
             } else {
-                LocalDate epoch = LocalDate.of(1900, 1, 1);
-                // Excel quirkiness: 1 is 1900-01-01 and 1900-02-29 did not exist.
-                LocalDate plusDays = epoch.plusDays(l - 2);
-                return plusDays;
+                // an Excel date in days elapsed since 1900 format
+                LocalDateTime ldt = parseExcelFractionalDate(content);
+                return ldt.toLocalDate();
             }
         } catch (NumberFormatException e) {
-            LocalDate parse = DateTimeUtils.parseLocalizedOrISO8601Date(content);
-            return parse;
+            // not a long
+            try {
+                LocalDateTime ldt = parseExcelFractionalDate(content);
+                LocalDate localDate = ldt.toLocalDate();
+                //logger.debug("parsed date {} {}",content,localDate);
+                return localDate;
+            } catch (NumberFormatException e1) {
+                LocalDate parse = DateTimeUtils.parseLocalizedOrISO8601Date(content);
+                return parse;
+            }
         }
     }
     

@@ -77,7 +77,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         Button upload = new Button(getTranslation("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
                 buttonClickEvent -> new RegistrationFileUploadDialog().open());
         Div exportDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("exportRegistration",
-                getTranslation("ExportRegistrationTemplate"), new JXLSRegistrationExport(UI.getCurrent()));
+                getTranslation("ExportRegistrationData"), new JXLSRegistrationExport(UI.getCurrent()));
         Optional<Component> content1 = exportDiv.getChildren().findFirst();
         content1.ifPresent(c -> ((Button) c).setWidth("93%"));
         exportDiv.setWidthFull();

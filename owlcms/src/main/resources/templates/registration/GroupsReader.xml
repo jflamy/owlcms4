@@ -25,6 +25,7 @@
                 <mapping row="2" col="16">g.jury3</mapping>
                 <mapping row="2" col="17">g.jury4</mapping>
                 <mapping row="2" col="18">g.jury5</mapping>
+                <mapping row="2" col="19">g.reserve</mapping>
             </section>
             <loopbreakcondition>
                 <rowcheck offset="0">

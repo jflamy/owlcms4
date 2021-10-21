@@ -443,7 +443,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             categoryFilter.setClearButtonVisible(true);
             categoryFilter.setValue(getCategoryValue());
             categoryFilter.addValueChangeListener(e -> {
-                // logger.warn("categoryFilter set {}", e.getValue());
+                // logger.debug("categoryFilter set {}", e.getValue());
                 setCategoryValue(e.getValue());
                 crud.refreshGrid();
             });

@@ -45,6 +45,7 @@ public class RGroup {
     String jury3;
     String jury4;
     String jury5;
+    String reserve;
 
     public String getAnnouncer() {
         return announcer;
@@ -106,6 +107,10 @@ public class RGroup {
         return ref3;
     }
 
+    public String getReserve() {
+        return reserve;
+    }
+
     public String getTechController() {
         return techController;
     }
@@ -136,7 +141,7 @@ public class RGroup {
             this.competitionTime = "";
             return;
         }
-        LocalDateTime parseExcelDateTime = DateTimeUtils.parseExcelDateTime(competitionTime);
+        LocalDateTime parseExcelDateTime = DateTimeUtils.parseExcelFractionalDate(competitionTime);
         parseExcelDateTime = parseExcelDateTime.withSecond(0).withNano(0);
         group.setCompetitionTime(parseExcelDateTime);
         this.competitionTime = parseExcelDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + " "
@@ -149,7 +154,6 @@ public class RGroup {
 
     public void setGroupName(String groupName) {
         group.setName(groupName);
-        logger.debug("setting group name", groupName);
         this.groupName = groupName;
     }
 
@@ -207,6 +211,11 @@ public class RGroup {
         this.ref3 = ref3;
     }
 
+    public void setReserve(String reserve) {
+        group.setReserve(reserve);
+        this.reserve = reserve;
+    }
+
     public void setTechController(String techController) {
         group.setTechnicalController(techController);
         this.techController = techController;
@@ -222,7 +231,7 @@ public class RGroup {
             weighinTime = "";
             return;
         }
-        LocalDateTime parseExcelDateTime = DateTimeUtils.parseExcelDateTime(weighinTime);
+        LocalDateTime parseExcelDateTime = DateTimeUtils.parseExcelFractionalDate(weighinTime);
         parseExcelDateTime = parseExcelDateTime.withSecond(0).withNano(0);
         group.setWeighInTime(parseExcelDateTime);
         this.weighinTime = parseExcelDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + " "

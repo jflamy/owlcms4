@@ -79,6 +79,8 @@ public class Group implements Comparable<Group> {
     private String jury3;
     private String jury4;
     private String jury5;
+    
+    private String reserve;
 
     @Column(columnDefinition = "boolean default false")
     private boolean done;
@@ -552,6 +554,20 @@ public class Group implements Comparable<Group> {
     @Override
     public String toString() {
         return getName();
+    }
+
+    /**
+     * @return the reserve
+     */
+    public String getReserve() {
+        return reserve;
+    }
+
+    /**
+     * @param reserve the reserve to set
+     */
+    public void setReserve(String reserve) {
+        this.reserve = reserve;
     }
 
 }
