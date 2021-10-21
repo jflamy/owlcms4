@@ -19,7 +19,9 @@ The competition router protects the competition network.
   - *We suggest that you change the default network to something different.*  This will make it easier to take your competition router and plug it into another router (see below.)  In our example, we have changed the network used to 192.168.4.x.
   - The Competition Network should have a strong WPA2 security key configured that cannot be easily guessed.
 - **Important**: The competition network is connected to the coaches network by running a wire <u>**from** the WAN/Internet port on the competition router **to** a LAN port on the coaches router</u>.  
-  - By making the connection in that way, the competition router will prevent anything coming in on its WAN port from reaching the 192.168.4 private network *except* if the connection originated from the private network.  So only connections initiated from the blue competition network to the orange competition network are possible, not the other way around
+  - By making the connection in that way, the competition router will prevent anything coming in on its WAN port from reaching the 192.168.4 private network *except* if the connection originated from the private network.  
+  - So only connections initiated from the blue competition network to the orange competition network are possible, not the other way around
+  - And because it is the (blue) owlcms server that opens the http connection to the (brown) publicserver machine, things work without any further setup.
 
 ### Coaches/Attendance Network
 
@@ -34,7 +36,7 @@ A second router provides WiFi access to the coaches and/or the public at the com
 - You will provide the WPA key to the coaches so they can connect to the WiFi router
 - You will need to tell the coaches the URL to use to reach the publicresults application.  In our example, that would be http://10.0.0.234:8080 (assuming the publicresults application has been configured on port 8080)
 
-### Inter-network Traffic Flow
+### Inter-network Traffic Flow Explained
 
 The traffic between the routers works as follows
 
@@ -66,3 +68,16 @@ If you need to stream video, the streaming machine will be on the competition ne
    
 4. ![06_actualTest](img/PublicResults/LocalPublicResults/06_actualTest.png)
 
+### Hybrid Usage: Adding other devices on the Attendance Network
+
+If you need to add other devices on the attendance network (a scoreboard, the marshall laptop, etc) they will not be able to reach the blue owlcms server.
+
+You will need to configure the competition router to expose a port to the outside world.  This is the same process as used for gaming ports. 
+
+1. Connect to the main router in admin mode
+2. Locate the "Port Redirection" menu for your LAN
+3. Designate a port number - we suggest you use a non-obvious one
+4. Direct the traffic on that port to the owlcms server, on the port that owlcms uses (typically 8080)
+    - For example, if owlcms is running on 192.162.1.100 port 8080, you would redirect some port (for example, 8978 to that address)
+5. The main router appears as an ordinary machine on the secondary network.  It should normally be reachable under its own original address, as it is the one that gave the secondary network its address.
+7. You should now be able to connect, from the secondary network, to the port exposed by the main router.
