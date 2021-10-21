@@ -12,35 +12,51 @@ These steps are performed from the `Prepare Competition` page
 
 ## Clearing athletes from a previous competition
 
-Unless you are running from a new installation, your database will contain information from the previous competition.  In order to clear the database, use to the **`Edit Athlete Entries`** button on the `Prepare Competition` page.   At the top of the page, use the `Delete Athletes` button and Confirm.
+If you have more than a dozen athletes, we suggest that you enter your athletes using an Excel spreadsheet (see below), and this step is not necessary.
+
+In order to clear the database from a previous competition, use to the **`Edit Athlete Entries`** button on the `Prepare Competition` page.   At the top of the page, use the `Delete Athletes` button and Confirm.
 
 ![070_Delete](img/Preparation/070_Delete.png)
 
 ## Uploading a list of athletes
 
-Because entering athletes is somewhat tedious, it is easier to upload a list prepared with Excel which allows copy-and-paste in an easier way.  In order to do so, three steps are involved
+Because entering athletes is tedious, it is easier to upload a list prepared with Excel which allows copy-and-paste in an easier way.  
 
-1. Obtaining an up-to-date form to capture information.  From the `Prepare Competition` page, click on the `Download Empty Registration Template` button.  Open the downloaded file and **SAVE IT** somewhere in your own documents.
+1. Getting started. Obtain an up-to-date empty form to capture information. The format is occasionally updated, so it is always best to get the current version. 
+   From the `Prepare Competition` page, click on the `Download Empty Registration Template` button.  Open the downloaded file and **SAVE IT** somewhere in your own documents.
 
    ![072_Download_Upload](img/Preparation/072_Download_Upload.png)
 
-2. Fill-in the Excel with the information about your athletes.  Assign each athlete to a group and a weight category. Note that this is a presumed category, for the purpose of creating your groups.  
-   
-> - When you load the file, the program will assign the athlete to the age groups and categories where he or she is eligible. If you have multiple overlapping age groups (for example IWF Junior and Senior) present, the athlete will be added to both categories.  You can instead put the expected body weight if you prefer.
-   > - The program will create groups with the code names you use.  You can use numbers, or any short combinations.  Some people use the categories present (ex: M81B-M77A)
+   Note: If you have an existing database and want to start from that list, you can export the current content.
 
-3. Note that the Date must be entered as an Excel Date using your regional settings.
+2. Fill-in the Excel with the information about your athletes.  
+> - For each athlete, you need to provide at least the birth year, the gender, and the expected body weight.
+> - The program will automatically assign the athlete to the age groups and categories where he or she is eligible. If you have multiple overlapping age groups (for example IWF Junior and Senior) present, the athlete will be added to both categories.  If there are additional eligibility requirements that mean an athlete is not eligible, you can remove the eligibility using the registration page in the program.
+
+3. When entering dates and times, <u>please use the same format as the one proposed</u> by the Excel sheet.
 
    ![073_excel](img/Preparation/073_excel.png)
 
-4. Upload the completed form.  Note that this **deletes the previous entries**.
+4. The groups that you list on the "Athletes" tab should be defined on the second "Groups" tab.  The minimum is to provide the group code.
 
-   > The recommended practice is to keep the Excel registration sheet until AFTER the verification of final entries.  You can move athletes from group to group and adjust their entry total faster on the sheet.
+   > - The program will create groups with the code names you use.  You can use numbers, or any short combinations.  Some people use the categories present in the group (ex: M81B-M77A)
+   > - When entering dates and times, <u>we recommend that you use the format that Excel shows you</u> (which may vary based on your Office and operating system settings).  The program will also accept an international `yyyy-MM-dd hh:mm`  format (4-digit year, month, day, 24-hour hour, minutes) as an alternative.
+
+   ![073b_excel](img/Preparation/073b_excel.png)
+
+5. Upload the completed form.  Note that this **deletes the previous athletes and groups**.
+
+   > The recommended practice is to keep the Excel registration sheet until the verification of final entries is done.  You can then move athletes from group to group and adjust their entry total faster on the sheet.
    >
-   > You should therefore **keep all athletes from all groups** on your Excel
+   > The Excel sheet should contain all the athletes that will compete.
 
-5. Fix errors, if any. If there are errors detected on the upload, they will be shown (for example, wrong category codes).  The athlete will still be created, but without the faulty information.  You can either upload again after correcting and clearing, or fix by hand (see below)
-   ![074_Upload](img/Preparation/074_Upload.png)
+6. Fix errors, if any. If there are errors detected on the upload, they will be shown (for example, unreadable dates in a cell, or a missing group).  The athlete will still be created, but without the faulty information.  You can either upload again after correcting.  If you use the program to fix the errors, make sure you export the information so you can reload it later.
+
+## Reloading information
+
+If you need to make important changes, such as adding a new team of athletes, reorganizing the groups, and so on, you can export what you have already loaded back to an Excel sheet, do the changes in Excel, and reload.
+
+As stated earlier, this will recreate the athletes and groups from scratch, so this needs to be done *before* the competition.
 
 ## Adding or Editing Athletes after loading
 
