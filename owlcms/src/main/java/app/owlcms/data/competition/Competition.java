@@ -11,6 +11,7 @@ import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
@@ -41,6 +42,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.ui.results.Resource;
+import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
@@ -242,6 +244,10 @@ public class Competition {
      */
     public LocalDate getCompetitionDate() {
         return competitionDate;
+    }
+    
+    public Date getCompetitionDateAsDate() {
+        return DateTimeUtils.dateFromLocalDate(competitionDate);
     }
 
     /**

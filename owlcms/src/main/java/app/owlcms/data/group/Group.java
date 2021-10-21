@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Cacheable;
@@ -29,6 +30,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
 import app.owlcms.data.platform.Platform;
+import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -218,6 +220,10 @@ public class Group implements Comparable<Group> {
     public LocalDateTime getCompetitionTime() {
         return competitionTime;
     }
+    
+    public Date getCompetitionTimeAsDate() {
+        return DateTimeUtils.dateFromLocalDateTime(competitionTime);
+    }
 
     /**
      * Gets the id.
@@ -377,6 +383,10 @@ public class Group implements Comparable<Group> {
      */
     public LocalDateTime getWeighInTime() {
         return weighInTime;
+    }
+    
+    public Date getWeighInTimeAsDate() {
+        return DateTimeUtils.dateFromLocalDateTime(weighInTime);
     }
 
     @Override

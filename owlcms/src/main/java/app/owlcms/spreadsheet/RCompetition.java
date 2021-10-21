@@ -6,17 +6,20 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.utils.DateTimeUtils;
+import ch.qos.logback.classic.Logger;
 
 public class RCompetition {
+    
+    Logger logger = (Logger) LoggerFactory.getLogger(RCompetition.class);
 
     static Map<String, Category> activeCategories = new HashMap<>();
 
@@ -42,12 +45,13 @@ public class RCompetition {
      * @see app.owlcms.data.competition.Competition#setCompetitionCity(java.lang.String)
      */
     public void setCompetitionCity(String competitionCity) {
+        if (competitionCity == null || competitionCity.isBlank()) return;
         c.setCompetitionCity(competitionCity);
     }
 
-    public void setCompetitionDate(Date date) {
-        LocalDate cd = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        c.setCompetitionDate(cd);
+    public void setCompetitionDate(String date) throws Exception {
+        if (date == null || date.isBlank()) return;
+        c.setCompetitionDate(DateTimeUtils.parseExcelDate(date));
     }
 
     /**
@@ -55,6 +59,7 @@ public class RCompetition {
      * @see app.owlcms.data.competition.Competition#setCompetitionName(java.lang.String)
      */
     public void setCompetitionName(String competitionName) {
+        if (competitionName == null || competitionName.isBlank()) return;
         c.setCompetitionName(competitionName);
     }
 
@@ -63,6 +68,7 @@ public class RCompetition {
      * @see app.owlcms.data.competition.Competition#setCompetitionOrganizer(java.lang.String)
      */
     public void setCompetitionOrganizer(String competitionOrganizer) {
+        if (competitionOrganizer == null || competitionOrganizer.isBlank()) return;
         c.setCompetitionOrganizer(competitionOrganizer);
     }
 
@@ -71,6 +77,7 @@ public class RCompetition {
      * @see app.owlcms.data.competition.Competition#setCompetitionSite(java.lang.String)
      */
     public void setCompetitionSite(String competitionSite) {
+        if (competitionSite == null || competitionSite.isBlank()) return;
         c.setCompetitionSite(competitionSite);
     }
 

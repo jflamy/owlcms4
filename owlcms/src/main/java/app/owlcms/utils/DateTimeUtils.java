@@ -6,14 +6,17 @@
  *******************************************************************************/
 package app.owlcms.utils;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.ZoneId;
 import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
+import java.util.Date;
 import java.util.Locale;
 
 import app.owlcms.i18n.Translator;
@@ -21,7 +24,7 @@ import app.owlcms.init.OwlcmsSession;
 
 public class DateTimeUtils {
 
-    public static LocalDateTime parseExcelDateTime(String competitionTime) {
+    public static LocalDateTime parseExcelDateTime(String competitionTime) throws NumberFormatException {
         double doubleDays = Double.parseDouble(competitionTime);
         long minutes = (long) (doubleDays * 24 * 60);
         return LocalDateTime
@@ -38,6 +41,7 @@ public class DateTimeUtils {
                 null,
                 IsoChronology.INSTANCE,
                 locale);
+        // force 4 digit year.
         if (shortPattern.contains("y") && !shortPattern.contains("yy")) {
             shortPattern = shortPattern.replace("y", "yyyy");
         } else if (shortPattern.contains("yy") && !shortPattern.contains("yyy")) {
@@ -66,6 +70,34 @@ public class DateTimeUtils {
                 throw new Exception(message);
             }
         }
+    }
+
+    public static LocalDate parseExcelDate(String content) throws Exception {
+        try {
+            long l = Long.parseLong(content);
+            if (l < 3000) {
+                return LocalDate.of((int) l, 1, 1);
+            } else {
+                LocalDate epoch = LocalDate.of(1900, 1, 1);
+                // Excel quirkiness: 1 is 1900-01-01 and 1900-02-29 did not exist.
+                LocalDate plusDays = epoch.plusDays(l - 2);
+                return plusDays;
+            }
+        } catch (NumberFormatException e) {
+            LocalDate parse = DateTimeUtils.parseLocalizedOrISO8601Date(content);
+            return parse;
+        }
+    }
+    
+    public static Date dateFromLocalDate(LocalDate ld) {
+        Instant instant = ld.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Date date = Date.from(instant);
+        return date;
+    }
+    
+    public static Date dateFromLocalDateTime(LocalDateTime ldt) {
+        Instant instant = ldt.atZone(ZoneId.systemDefault()).toInstant();
+        return Date.from(instant);
     }
 
 }
