@@ -6,6 +6,14 @@
   - Only registration data is exported.  This does not export the lifts and requested changes.  The file should not be loaded after the competition has started as it recreates the athletes from scratch.
   - Note that the format has changed to reflect the fact that category allocation is now automatic - only the gender and expected weight of the athlete are used. You need to download a new empty template, or export existing data. 
   - The new format makes it easier to cut and paste athletes (no hidden columns). Both the empty sheet and the exported sheet are now translated in the current language.
+- [x] The jury console now allows direct reversal/confirmation of lifts (#435, #427)  
+  - The jury chief can confirm and reverse lifts directly and can ask the announcer to call the technical controller.  Jury actions are shown to the other technical officials consoles to keep them informed.
+  - In order to support a physical jury keypad, the following shortcuts are bound:
+    - "D" opens the deliberation dialog and starts a jury break
+    - "G" to indicate a good lift
+    - "B" to indicate a bad lift
+    - "C" to call the technical controller (ex: for a loading error where the athlete will need to make a decision)
+    - "ESC" (Escape key) to close the dialog and ends the jury break
 
 **Key Highlights from recent stable releases**
 

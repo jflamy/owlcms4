@@ -13,6 +13,7 @@ import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -34,14 +35,11 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
-import app.owlcms.ui.shared.BreakDialog;
-import app.owlcms.ui.shared.BreakManagement.CountdownType;
-import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -67,6 +65,12 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private Boolean[] juryVotes;
     private int nbJurors;
     private Notification decisionNotification;
+    private JuryDialog juryDialog;
+    private Button juryDeliberationButton;
+    private Athlete athleteUnderReview;
+    private HorizontalLayout refContainer;
+    private Label juryLabel;
+    private Component refereeLabelWrapper;
 
     public JuryContent() {
         // we don't actually inherit behaviour from the superclass because
@@ -104,22 +108,27 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         // Ignore down signal
     }
 
-    /**
-     * @see app.owlcms.ui.shared.AthleteGridContent#slaveGroupDone(app.owlcms.uievents.UIEvent.GroupDone)
-     */
-    @Override
-    @Subscribe
-    public void slaveGroupDone(UIEvent.GroupDone e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
-        OwlcmsSession.withFop((fop) -> doUpdateTopBar(fop.getCurAthlete(), 0));
-    }
+//    /**
+//     * @see app.owlcms.ui.shared.AthleteGridContent#slaveGroupDone(app.owlcms.uievents.UIEvent.GroupDone)
+//     */
+//    @Override
+//    @Subscribe
+//    public void slaveGroupDone(UIEvent.GroupDone e) {
+//        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+//                this.getOrigin(), e.getOrigin());
+//        OwlcmsSession.withFop((fop) -> doUpdateTopBar(fop.getCurAthlete(), 0));
+//    }
 
     @Subscribe
     public void slaveRefereeDecision(UIEvent.Decision e) {
+        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                e.getAthlete());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            // juryDeliberationButton.setEnabled(true);
             int d = e.decision ? 1 : 0;
             String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
+            logger.warn("setting athleteUnderReview2 {}", e.getAthlete());
+            athleteUnderReview = e.getAthlete();
 
             decisionNotification = new Notification();
             // Notification theme styling is done in
@@ -136,28 +145,44 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             decisionNotification.setPosition(Position.TOP_START);
             // decisionNotification.setDuration(5000);
             decisionNotification.open();
+
+            swapRefereeLabel(e.getAthlete());
         });
+    }
+
+    private void swapRefereeLabel(Athlete athlete) {
+        Component nc = createRefereeLabel(athlete);
+        this.replace(refereeLabelWrapper, nc);
+        refereeLabelWrapper = nc;
     }
 
     @Subscribe
     public void slaveTimeStarted(UIEvent.StartTime e) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            // juryDeliberationButton.setEnabled(false);
             juryVotingButtons.removeAll();
             resetJuryVoting();
             if (decisionNotification != null) {
                 decisionNotification.close();
             }
             // referee decisions handle reset on their own, nothing to do.
+            // reset referee decision label
+            swapRefereeLabel(null);
         });
     }
 
-    /**
-     * @see app.owlcms.ui.shared.AthleteGridContent#updateGrid(app.owlcms.uievents.UIEvent.LiftingOrderUpdated)
-     */
-    @Override
-    public void slaveUpdateGrid(LiftingOrderUpdated e) {
-        // ignore
+    public String athleteFullId(final Athlete athlete) {
+        Integer startNumber = athlete.getStartNumber();
+        return (startNumber != null ? "[" + startNumber + "] " : "") + athlete.getFullId();
     }
+
+//    /**
+//     * @see app.owlcms.ui.shared.AthleteGridContent#updateGrid(app.owlcms.uievents.UIEvent.LiftingOrderUpdated)
+//     */
+//    @Override
+//    public void slaveUpdateGrid(LiftingOrderUpdated e) {
+//        // ignore
+//    }
 
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#update(app.owlcms.data.athlete.Athlete)
@@ -186,15 +211,15 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         return new HorizontalLayout(); // juryDeliberationButtons();
     }
 
-    /**
-     * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar()
-     */
-    @Override
-    protected void createTopBar() {
-        super.createTopBar();
-        // this hides the back arrow
-        getAppLayout().setMenuVisible(false);
-    }
+//    /**
+//     * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar()
+//     */
+//    @Override
+//    protected void createTopBar() {
+//        super.createTopBar();
+//        // this hides the back arrow
+//        getAppLayout().setMenuVisible(false);
+//    }
 
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
@@ -228,7 +253,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     private void buildJuryBox(VerticalLayout juryContainer) {
         HorizontalLayout topRow = new HorizontalLayout();
-        Label juryLabel = new Label(getTranslation("JuryDecisions"));
+        juryLabel = new Label(getTranslation("JuryDecisions"));
         H3 labelWrapper = new H3(juryLabel);
         labelWrapper.setWidth("15em");
         Label spacer = new Label();
@@ -246,6 +271,16 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         juryContainer.setAlignSelf(Alignment.START, topRow);
         juryContainer.add(juryVotingCenterHorizontally);
 
+    }
+
+    protected void doSync() {
+        syncWithFOP(false);
+        decisions.slaveReset(null);
+
+        OwlcmsSession.getFop().getFopEventBus().post(new FOPEvent.StartLifting(this));
+        if (decisionNotification != null) {
+            decisionNotification.close();
+        }
     }
 
     private void buildJuryVoting() {
@@ -275,9 +310,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     private void buildRefereeBox(VerticalLayout container) {
-        Label label = new Label(getTranslation("RefereeDecisions"));
-        H3 labelWrapper = new H3(label);
-        labelWrapper.setHeight("5%");
+        refereeLabelWrapper = createRefereeLabel(null);
 
         decisions = new JuryDisplayDecisionElement();
         decisions.getElement().setAttribute("theme", "dark");
@@ -285,7 +318,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         decisionWrapper.getStyle().set("width", "50%");
         decisionWrapper.getStyle().set("height", "max-content");
 
-        HorizontalLayout refContainer = new HorizontalLayout(decisionWrapper);
+        refContainer = new HorizontalLayout(decisionWrapper);
         refContainer.setBoxSizing(BoxSizing.BORDER_BOX);
         refContainer.setJustifyContentMode(JustifyContentMode.CENTER);
         refContainer.getStyle().set("background-color", "black");
@@ -295,9 +328,27 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         refContainer.setMargin(true);
 
         container.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-        container.add(labelWrapper);
-        container.setAlignSelf(Alignment.START, labelWrapper);
+        container.add(refereeLabelWrapper);
+        container.setAlignSelf(Alignment.START, refereeLabelWrapper);
         container.add(refContainer);
+    }
+
+    private Component createRefereeLabel(Athlete athlete) {
+        Html refereeLabel = new Html("<span>" +
+                getTranslation("RefereeDecisions")
+                + (athlete != null
+                        ? "&nbsp;&nbsp;&nbsp;" + athleteFullId(athlete) + "&nbsp;&nbsp;&nbsp;"
+                                + formatAttempt(athlete.getAttemptsDone() - 1)
+                        : "")
+                + "</span>");
+        H3 refereeLabelWrapper = new H3(refereeLabel);
+        refereeLabelWrapper.setHeight("5%");
+        return refereeLabelWrapper;
+    }
+
+    private String formatAttempt(Integer attemptNo) {
+        String translate = Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
+        return translate;
     }
 
     private void checkAllVoted() {
@@ -388,17 +439,24 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     private HorizontalLayout juryDeliberationButtons() {
-        breakDialog = new BreakDialog(this, BreakType.JURY, CountdownType.INDEFINITE);
-        breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
-            breakDialog.open();
+        juryDeliberationButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+            openJuryDialog();
         });
-        quietBreakButton(true);
+        // juryDeliberationButton.setEnabled(false);
+        juryDeliberationButton.getElement().setAttribute("theme", "primary");
+        juryDeliberationButton.setText(getTranslation("BreakButton.JuryDeliberation"));
+        juryDeliberationButton.getElement().setAttribute("title", getTranslation("BreakButton.JuryDeliberation"));
 
         // HorizontalLayout buttons = new HorizontalLayout(stopCompetition,
         // resumeCompetition);
-        HorizontalLayout buttons = new HorizontalLayout(breakButton);
+        HorizontalLayout buttons = new HorizontalLayout(juryDeliberationButton);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
         return buttons;
+    }
+
+    private void openJuryDialog() {
+        juryDialog = new JuryDialog(JuryContent.this, athleteUnderReview);
+        juryDialog.open();
     }
 
     private Component jurySelectionButtons() {
@@ -444,6 +502,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
                     juryVotes[ix] = false;
                     checkAllVoted();
                 }, getBadKey(i));
+                UI.getCurrent().addShortcutListener(() -> openJuryDialog(), Key.KEY_Q);
             }
         });
     }

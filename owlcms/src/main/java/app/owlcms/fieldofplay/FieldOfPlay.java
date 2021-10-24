@@ -52,6 +52,7 @@ import app.owlcms.fieldofplay.FOPEvent.DecisionUpdate;
 import app.owlcms.fieldofplay.FOPEvent.DownSignal;
 import app.owlcms.fieldofplay.FOPEvent.ExplicitDecision;
 import app.owlcms.fieldofplay.FOPEvent.ForceTime;
+import app.owlcms.fieldofplay.FOPEvent.JuryDecision;
 import app.owlcms.fieldofplay.FOPEvent.StartLifting;
 import app.owlcms.fieldofplay.FOPEvent.SwitchGroup;
 import app.owlcms.fieldofplay.FOPEvent.TimeOver;
@@ -59,12 +60,15 @@ import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.EventForwarder;
+import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.uievents.UIEvent.JuryNotification;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -532,6 +536,8 @@ public class FieldOfPlay {
                 transitionToBreak((BreakStarted) e);
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
+            } else if (e instanceof JuryDecision) {
+                doJuryDecision((JuryDecision) e);
             } else {
                 unexpectedEventInState(e, BREAK);
             }
@@ -664,6 +670,21 @@ public class FieldOfPlay {
                 unexpectedEventInState(e, DECISION_VISIBLE);
             }
             break;
+        }
+    }
+
+    private void doJuryDecision(JuryDecision e) {
+        Athlete a = e.getAthlete();
+        Integer actualLift = a.getActualLift(a.getAttemptsDone());
+        if (actualLift != null) {
+            Integer curValue = Math.abs(actualLift);
+            a.doLift(a.getAttemptsDone(),e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
+            AthleteRepository.save(a);
+            JuryNotification event = new UIEvent.JuryNotification(a, e.getOrigin(), 
+                    e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
+                    e.success && actualLift <= 0 || !e.success && actualLift > 0);
+            OwlcmsSession.getFop().getUiEventBus().post(event);
+            recomputeLiftingOrder();
         }
     }
 
@@ -943,13 +964,13 @@ public class FieldOfPlay {
             if (group != null) {
                 group.setDone(a == null || a.getAttemptsDone() >= 6);
             }
-        } else if (state == BREAK) {
+        } else if (state == BREAK && group != null) {
             group.setDone(breakType == BreakType.GROUP_DONE);
         }
         this.state = state;
     }
 
-    private void broadcast(String string) {
+    public void broadcast(String string) {
         getUiEventBus().post(new UIEvent.Broadcast(string, this));
     }
 
@@ -1513,7 +1534,7 @@ public class FieldOfPlay {
 
     private void uiShowRefereeDecisionOnSlaveDisplays(Athlete athlete2, Boolean goodLift2, Boolean[] refereeDecision2,
             Integer[] shownTimes, Object origin2) {
-        uiEventLogger.trace("showRefereeDecisionOnSlaveDisplays");
+        uiEventLogger.warn("### showRefereeDecisionOnSlaveDisplays {}", athlete2);
         pushOut(new UIEvent.Decision(athlete2, goodLift2, refereeForcedDecision ? null : refereeDecision2[0],
                 refereeDecision2[1],
                 refereeForcedDecision ? null : refereeDecision2[2], origin2));
@@ -1524,7 +1545,7 @@ public class FieldOfPlay {
     }
 
     private void uiShowUpdateOnJuryScreen() {
-        uiEventLogger.trace("uiShowUpdateOnJuryScreen");
+        uiEventLogger.warn("### uiShowUpdateOnJuryScreen");
         pushOut(new UIEvent.RefereeUpdate(getCurAthlete(), refereeForcedDecision ? null : refereeDecision[0],
                 refereeDecision[1],
                 refereeForcedDecision ? null : refereeDecision[2], refereeTime[0], refereeTime[1], refereeTime[2],

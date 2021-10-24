@@ -78,7 +78,12 @@
             <artifactId>multiselect-combo-box-flow</artifactId>
             <version>3.0.2</version> <!-- use appropriate version -->
         </dependency>
-
+        <dependency>
+           <groupId>com.vaadin.componentfactory</groupId>
+           <artifactId>enhanced-dialog</artifactId>
+           <version>1.0.4</version>
+        </dependency>        
+        
         <!-- iron-icons -->
         <dependency>
             <groupId>com.flowingcode.addons</groupId>
