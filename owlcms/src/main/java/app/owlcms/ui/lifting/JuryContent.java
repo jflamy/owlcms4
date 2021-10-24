@@ -124,7 +124,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 e.getAthlete());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            //juryDeliberationButton.setEnabled(true);
+            // juryDeliberationButton.setEnabled(true);
             int d = e.decision ? 1 : 0;
             String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
             logger.warn("setting athleteUnderReview2 {}", e.getAthlete());
@@ -159,7 +159,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     @Subscribe
     public void slaveTimeStarted(UIEvent.StartTime e) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            juryDeliberationButton.setEnabled(false);
+            // juryDeliberationButton.setEnabled(false);
             juryVotingButtons.removeAll();
             resetJuryVoting();
             if (decisionNotification != null) {
@@ -440,10 +440,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     private HorizontalLayout juryDeliberationButtons() {
         juryDeliberationButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
-            juryDialog = new JuryDialog(JuryContent.this, athleteUnderReview);
-            juryDialog.open();
+            openJuryDialog();
         });
-        //juryDeliberationButton.setEnabled(false);
+        // juryDeliberationButton.setEnabled(false);
         juryDeliberationButton.getElement().setAttribute("theme", "primary");
         juryDeliberationButton.setText(getTranslation("BreakButton.JuryDeliberation"));
         juryDeliberationButton.getElement().setAttribute("title", getTranslation("BreakButton.JuryDeliberation"));
@@ -453,6 +452,11 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         HorizontalLayout buttons = new HorizontalLayout(juryDeliberationButton);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
         return buttons;
+    }
+
+    private void openJuryDialog() {
+        juryDialog = new JuryDialog(JuryContent.this, athleteUnderReview);
+        juryDialog.open();
     }
 
     private Component jurySelectionButtons() {
@@ -498,6 +502,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
                     juryVotes[ix] = false;
                     checkAllVoted();
                 }, getBadKey(i));
+                UI.getCurrent().addShortcutListener(() -> openJuryDialog(), Key.KEY_Q);
             }
         });
     }

@@ -536,9 +536,8 @@ public class Athlete {
             }
             return value == null ? null : Integer.valueOf(value);
         } catch (NumberFormatException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return -1;
+            logger.error(LoggerUtils.stackTrace(e));
+            return 0;
         }
     }
 

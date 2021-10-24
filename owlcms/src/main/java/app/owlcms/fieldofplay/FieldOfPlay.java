@@ -60,12 +60,15 @@ import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.EventForwarder;
+import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.uievents.UIEvent.JuryNotification;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -672,10 +675,15 @@ public class FieldOfPlay {
 
     private void doJuryDecision(JuryDecision e) {
         Athlete a = e.getAthlete();
-        Integer curValue = Math.abs(a.getActualLift(a.getAttemptsDone()));
-        if (curValue != null) {
+        Integer actualLift = a.getActualLift(a.getAttemptsDone());
+        if (actualLift != null) {
+            Integer curValue = Math.abs(actualLift);
             a.doLift(a.getAttemptsDone(),e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
             AthleteRepository.save(a);
+            JuryNotification event = new UIEvent.JuryNotification(a, e.getOrigin(), 
+                    e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
+                    e.success && actualLift <= 0 || !e.success && actualLift > 0);
+            OwlcmsSession.getFop().getUiEventBus().post(event);
             recomputeLiftingOrder();
         }
     }
@@ -962,7 +970,7 @@ public class FieldOfPlay {
         this.state = state;
     }
 
-    private void broadcast(String string) {
+    public void broadcast(String string) {
         getUiEventBus().post(new UIEvent.Broadcast(string, this));
     }
 

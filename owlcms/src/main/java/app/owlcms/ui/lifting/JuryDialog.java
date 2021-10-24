@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.componentfactory.EnhancedDialog;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
@@ -21,10 +23,14 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.JuryDeliberationEventType;
+import app.owlcms.uievents.UIEvent;
+import app.owlcms.uievents.UIEvent.JuryNotification;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -43,10 +49,12 @@ public class JuryDialog extends EnhancedDialog {
      * Used by the announcer -- tries to guess what type of break is pertinent based on field of play.
      *
      * @param origin             the origin
-     * @param athleteUnderReview TODO
+     * @param athleteUnderReview
      */
     public JuryDialog(Object origin, Athlete athleteUnderReview) {
         this.origin = origin;
+
+
         logger.debug("reviewedAthlete {}", athleteUnderReview);
         this.reviewedAthlete = athleteUnderReview;
 
@@ -54,27 +62,23 @@ public class JuryDialog extends EnhancedDialog {
         OwlcmsSession.getFop().getFopEventBus()
                 .post(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, this));
 
-        // TODO warn announcer
+        JuryNotification event = new UIEvent.JuryNotification(athleteUnderReview, origin, JuryDeliberationEventType.START_DELIBERATION, null);
+        OwlcmsSession.getFop().getUiEventBus().post(event);
 
-        Button endBreak = new Button("JuryDialog.EndDeliberation", (e) -> {
-            doClose();
-        });
-        Button goodLift = new Button(IronIcons.DONE.create(), (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.JuryDecision(athleteUnderReview, this, true));
-            });
-        });
-        Button badLift = new Button(IronIcons.CLOSE.create(), (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.JuryDecision(athleteUnderReview, this, false));
-            });
-        });
-        Button loadingError = new Button("JuryDialog.LoadingError", (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.JuryDecision(athleteUnderReview, this, false));
-            });
-        });
+        Button endBreak = new Button(Translator.translate("JuryDialog.EndDeliberation"), (e) -> doClose(true));
+        UI.getCurrent().addShortcutListener(() -> doClose(true), Key.ESCAPE);
 
+        Button goodLift = new Button(IronIcons.DONE.create(),
+                (e) -> doGoodLift(athleteUnderReview, OwlcmsSession.getFop()));
+        UI.getCurrent().addShortcutListener(() -> doGoodLift(athleteUnderReview, OwlcmsSession.getFop()), Key.KEY_G);
+
+        Button badLift = new Button(IronIcons.CLOSE.create(),
+                (e) -> doBadLift(athleteUnderReview, OwlcmsSession.getFop()));
+        UI.getCurrent().addShortcutListener(() -> doBadLift(athleteUnderReview, OwlcmsSession.getFop()), Key.KEY_B);
+        
+        Button loadingError = new Button(Translator.translate("JuryDialog.CallController"),
+                (e) -> doLoadingError(athleteUnderReview, OwlcmsSession.getFop()));
+        UI.getCurrent().addShortcutListener(() -> doLoadingError(athleteUnderReview, OwlcmsSession.getFop()), Key.KEY_C);
         goodLift.getElement().setAttribute("theme", "primary success icon");
         goodLift.setWidth("8em");
         badLift.getElement().setAttribute("theme", "primary error icon");
@@ -85,13 +89,13 @@ public class JuryDialog extends EnhancedDialog {
         FormLayout layoutRed = new FormLayout();
         FormLayout layout3 = new FormLayout();
         FormItem red, green, loading;
-        Label redLabel = new Label("JuryDialog.BadLiftLabel");
+        Label redLabel = new Label(Translator.translate("JuryDialog.BadLiftLabel"));
         red = layoutGreen.addFormItem(badLift, redLabel);
         fixItemFormat(layoutGreen, red);
-        Label greenLabel = new Label("JuryDialog.GoodLiftLabel");
+        Label greenLabel = new Label(Translator.translate("JuryDialog.GoodLiftLabel"));
         green = layoutRed.addFormItem(goodLift, greenLabel);
         fixItemFormat(layoutRed, green);
-        loading = layout3.addFormItem(loadingError, "JuryDialog.LoadingErrorLabel");
+        loading = layout3.addFormItem(loadingError, Translator.translate("JuryDialog.CallControllerLabel"));
         fixItemFormat(layout3, loading);
         this.add(layoutGreen, layoutRed, layout3);
         this.setWidth("50em");
@@ -107,15 +111,15 @@ public class JuryDialog extends EnhancedDialog {
                 liftValue = reviewedAthlete.getActualLift(reviewedLift);
                 String status;
                 if (liftValue != null) {
-                    status = (liftValue < 0 ? "JuryDialog.Denied" : "JuryDialog.Accepted");
-                    redLabel.setText(liftValue < 0 ? "JuryDialog.Accept" : "JuryDialog.Reverse");
-                    greenLabel.setText(liftValue < 0 ? "JuryDialog.Reverse" : "JuryDialog.Accept");
+                    status = (liftValue < 0 ? Translator.translate("JuryDialog.RefGoodLift") : Translator.translate("JuryDialog.RefBadLift"));
+                    redLabel.setText(liftValue < 0 ? Translator.translate("JuryDialog.Accept") : Translator.translate("JuryDialog.Reverse"));
+                    greenLabel.setText(liftValue < 0 ? Translator.translate("JuryDialog.Reverse") : Translator.translate("JuryDialog.Accept"));
                     layoutGreen.setEnabled(true);
                     layoutRed.setEnabled(true);
                 } else {
-                    status = "JuryDialog.NotLiftedYet";
-                    redLabel.setText("JuryDialog.NotLiftedYet");
-                    greenLabel.setText("JuryDialog.NotLiftedYet");
+                    status = Translator.translate("JuryDialog.NotLiftedYet");
+                    redLabel.setText(Translator.translate("JuryDialog.NotLiftedYet"));
+                    greenLabel.setText(Translator.translate("JuryDialog.NotLiftedYet"));
                     layoutGreen.setEnabled(false);
                     layoutRed.setEnabled(false);
                 }
@@ -131,29 +135,49 @@ public class JuryDialog extends EnhancedDialog {
                 header.setPadding(true);
                 this.setHeader(header);
             } else {
-                this.setHeader("JuryDialog.NoCurrentAthlete");
-                redLabel.setText("JuryDialog.NotLiftedYet");
-                greenLabel.setText("JuryDialog.NotLiftedYet");
+                this.setHeader(Translator.translate("JuryDialog.NoCurrentAthlete"));
+                redLabel.setText(Translator.translate("JuryDialog.NotLiftedYet"));
+                greenLabel.setText(Translator.translate("JuryDialog.NotLiftedYet"));
                 layoutGreen.setEnabled(false);
                 layoutRed.setEnabled(false);
             }
         });
 
         this.addDialogCloseActionListener((e) -> {
-            doClose();
+            doClose(false);
         });
     }
 
-    private void doClose() {
-        OwlcmsSession.withFop(fop -> {
-            // TODO inform announcer
-            this.close();
-            logger.info("{}end of jury deliberation",fop.getLoggingName());
-            ((JuryContent) origin).doSync();
+    private Object doLoadingError(Athlete athleteUnderReview, FieldOfPlay fop) {
+        JuryNotification event = new UIEvent.JuryNotification(athleteUnderReview, origin, JuryDeliberationEventType.LOADING_ERROR, null);
+        OwlcmsSession.getFop().getUiEventBus().post(event);
+        return null;
+    }
 
+    private void doBadLift(Athlete athleteUnderReview, FieldOfPlay fop) {
+        fop.getFopEventBus().post(new FOPEvent.JuryDecision(athleteUnderReview, this, false));
+        doClose(false);
+    }
+
+    private void doGoodLift(Athlete athleteUnderReview, FieldOfPlay fop) {
+        fop.getFopEventBus().post(new FOPEvent.JuryDecision(athleteUnderReview, this, true));
+        doClose(false);
+    }
+
+    public void doClose(boolean noAction) {
+        UI.getCurrent().access(() -> {
+            if (noAction) {
+                JuryNotification event = new UIEvent.JuryNotification(reviewedAthlete, origin, 
+                        JuryDeliberationEventType.END_DELIBERATION,
+                        null);
+                OwlcmsSession.getFop().getUiEventBus().post(event);
+            }
+            this.close();
+
+            logger.info("{}end of jury deliberation", OwlcmsSession.getFop().getLoggingName());
+            ((JuryContent) origin).doSync();
+            this.close();
         });
-        this.removeAll();
-        this.close();
     }
 
     private void fixItemFormat(FormLayout layout, FormItem f) {
