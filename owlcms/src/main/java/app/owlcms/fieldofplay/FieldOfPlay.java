@@ -52,6 +52,7 @@ import app.owlcms.fieldofplay.FOPEvent.DecisionUpdate;
 import app.owlcms.fieldofplay.FOPEvent.DownSignal;
 import app.owlcms.fieldofplay.FOPEvent.ExplicitDecision;
 import app.owlcms.fieldofplay.FOPEvent.ForceTime;
+import app.owlcms.fieldofplay.FOPEvent.JuryDecision;
 import app.owlcms.fieldofplay.FOPEvent.StartLifting;
 import app.owlcms.fieldofplay.FOPEvent.SwitchGroup;
 import app.owlcms.fieldofplay.FOPEvent.TimeOver;
@@ -532,6 +533,8 @@ public class FieldOfPlay {
                 transitionToBreak((BreakStarted) e);
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
+            } else if (e instanceof JuryDecision) {
+                doJuryDecision((JuryDecision) e);
             } else {
                 unexpectedEventInState(e, BREAK);
             }
@@ -664,6 +667,16 @@ public class FieldOfPlay {
                 unexpectedEventInState(e, DECISION_VISIBLE);
             }
             break;
+        }
+    }
+
+    private void doJuryDecision(JuryDecision e) {
+        Athlete a = e.getAthlete();
+        Integer curValue = Math.abs(a.getActualLift(a.getAttemptsDone()));
+        if (curValue != null) {
+            a.doLift(a.getAttemptsDone(),e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
+            AthleteRepository.save(a);
+            recomputeLiftingOrder();
         }
     }
 
@@ -943,7 +956,7 @@ public class FieldOfPlay {
             if (group != null) {
                 group.setDone(a == null || a.getAttemptsDone() >= 6);
             }
-        } else if (state == BREAK) {
+        } else if (state == BREAK && group != null) {
             group.setDone(breakType == BreakType.GROUP_DONE);
         }
         this.state = state;
@@ -1513,7 +1526,7 @@ public class FieldOfPlay {
 
     private void uiShowRefereeDecisionOnSlaveDisplays(Athlete athlete2, Boolean goodLift2, Boolean[] refereeDecision2,
             Integer[] shownTimes, Object origin2) {
-        uiEventLogger.trace("showRefereeDecisionOnSlaveDisplays");
+        uiEventLogger.warn("### showRefereeDecisionOnSlaveDisplays {}", athlete2);
         pushOut(new UIEvent.Decision(athlete2, goodLift2, refereeForcedDecision ? null : refereeDecision2[0],
                 refereeDecision2[1],
                 refereeForcedDecision ? null : refereeDecision2[2], origin2));
@@ -1524,7 +1537,7 @@ public class FieldOfPlay {
     }
 
     private void uiShowUpdateOnJuryScreen() {
-        uiEventLogger.trace("uiShowUpdateOnJuryScreen");
+        uiEventLogger.warn("### uiShowUpdateOnJuryScreen");
         pushOut(new UIEvent.RefereeUpdate(getCurAthlete(), refereeForcedDecision ? null : refereeDecision[0],
                 refereeDecision[1],
                 refereeForcedDecision ? null : refereeDecision[2], refereeTime[0], refereeTime[1], refereeTime[2],

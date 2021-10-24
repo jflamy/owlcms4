@@ -473,7 +473,13 @@ public class Athlete {
         doLift(liftNo, weight);
     }
 
-    private void doLift(int liftNo, final String weight) {
+    /**
+     * used for jury overrides and for testing
+     * 
+     * @param liftNo
+     * @param weight
+     */
+    public void doLift(int liftNo, final String weight) {
         switch (liftNo) {
         case 1:
             this.setSnatch1ActualLift(weight);
@@ -499,6 +505,40 @@ public class Athlete {
             this.setCleanJerk3ActualLift(weight);
             this.setCleanJerk3LiftTime(LocalDateTime.now());
             break;
+        }
+    }
+
+    public Integer getActualLift(int liftNo) {
+        try {
+            String value = null;
+            switch (liftNo) {
+            case 1:
+                value = this.getSnatch1ActualLift();
+                break;
+            case 2:
+                value = this.getSnatch2ActualLift();
+                break;
+            case 3:
+                value = this.getSnatch3ActualLift();
+                break;
+            case 4:
+                value = this.getCleanJerk1ActualLift();
+                break;
+            case 5:
+                value = this.getCleanJerk2ActualLift();
+                break;
+            case 6:
+                value = this.getCleanJerk3ActualLift();
+                break;
+            default:
+                value = null;
+                break;
+            }
+            return value == null ? null : Integer.valueOf(value);
+        } catch (NumberFormatException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return -1;
         }
     }
 
@@ -1212,7 +1252,8 @@ public class Athlete {
             Category category2 = p.getCategory();
             s.add(category2);
         }
-        // logger.trace("{}{} getEligibleCategories {} from {}", OwlcmsSession.getFopLoggingName(), this.getShortName(), s.toString(),
+        // logger.trace("{}{} getEligibleCategories {} from {}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+        // s.toString(),
         // LoggerUtils.whereFrom());
         return s;
     }
@@ -2140,7 +2181,7 @@ public class Athlete {
     public Integer getTeamTotalRank() {
         return teamTotalRank;
     }
-    
+
     public Integer getTeamCustomRank() {
         return teamCustomRank;
     }
@@ -2879,7 +2920,7 @@ public class Athlete {
      * @param forcedAsCurrent the new forced as current
      */
     public void setForcedAsCurrent(boolean forcedAsCurrent) {
-        //logger.trace("setForcedAsCurrent({}) from {}", forcedAsCurrent, LoggerUtils.whereFrom());
+        // logger.trace("setForcedAsCurrent({}) from {}", forcedAsCurrent, LoggerUtils.whereFrom());
         this.forcedAsCurrent = forcedAsCurrent;
     }
 
@@ -3446,7 +3487,7 @@ public class Athlete {
     public void setTeamTotalRank(Integer teamTotalRank) {
         this.teamTotalRank = teamTotalRank;
     }
-    
+
     /**
      * Sets the team total rank.
      *
@@ -3455,7 +3496,6 @@ public class Athlete {
     public void setTeamCustomRank(Integer teamCustomRank) {
         this.teamCustomRank = teamCustomRank;
     }
-
 
     /**
      * Sets the total.
@@ -3866,7 +3906,8 @@ public class Athlete {
         int currentLiftNo = getAttemptedLifts() + 1;
 
         if (requestedWeight > referenceWeight) {
-            getLogger().debug("{}{} attempt {}: requested {} > previous {}", OwlcmsSession.getFopLoggingName(), this, currentLiftNo,
+            getLogger().debug("{}{} attempt {}: requested {} > previous {}", OwlcmsSession.getFopLoggingName(), this,
+                    currentLiftNo,
                     requestedWeight,
                     referenceWeight);
             // lifting order is respected
@@ -3879,11 +3920,13 @@ public class Athlete {
         }
 
         if (requestedWeight < referenceWeight) {
-            getLogger().debug("{}requestedWeight {} < referenceWeight {}", OwlcmsSession.getFopLoggingName(), requestedWeight,
+            getLogger().debug("{}requestedWeight {} < referenceWeight {}", OwlcmsSession.getFopLoggingName(),
+                    requestedWeight,
                     referenceWeight);
             // someone has already lifted heavier previously
-            if (requestedWeight > 0) throw new RuleViolationException.WeightBelowAlreadyLifted(requestedWeight,
-                    reference.getAthlete(), referenceWeight, referenceAttemptNo);
+            if (requestedWeight > 0)
+                throw new RuleViolationException.WeightBelowAlreadyLifted(requestedWeight,
+                        reference.getAthlete(), referenceWeight, referenceAttemptNo);
         } else {
             checkSameWeightAsReference(reference, requestedWeight, referenceWeight, referenceAttemptNo, currentLiftNo);
         }
@@ -4031,10 +4074,12 @@ public class Athlete {
             int clock, int initialTime) {
         if ((declaration != null && !declaration.isBlank()) && (change1 == null || change1.isBlank())
                 && (change2 == null || change2.isBlank())) {
-            logger.debug("{}{} declaration accepted (not owning clock)", OwlcmsSession.getFopLoggingName(), this.getShortName());
+            logger.debug("{}{} declaration accepted (not owning clock)", OwlcmsSession.getFopLoggingName(),
+                    this.getShortName());
             return;
         } else {
-            logger.debug("{}{} change accepted (not owning clock)", OwlcmsSession.getFopLoggingName(), this.getShortName());
+            logger.debug("{}{} change accepted (not owning clock)", OwlcmsSession.getFopLoggingName(),
+                    this.getShortName());
             return;
         }
     }
@@ -4044,11 +4089,13 @@ public class Athlete {
         if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
             // validate declaration
             if (clock < initialTime - 30000) {
-                logger./**/warn("{}{} late declaration denied ({})", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+                logger./**/warn("{}{} late declaration denied ({})", OwlcmsSession.getFopLoggingName(),
+                        this.getShortName(),
                         clock / 1000.0);
                 throw new RuleViolationException.LateDeclaration(clock);
             }
-            logger.debug("{}{}valid declaration", OwlcmsSession.getFopLoggingName(), this.getShortName(), clock / 1000.0);
+            logger.debug("{}{}valid declaration", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+                    clock / 1000.0);
             return;
         } else {
             if (clock < 30000) {

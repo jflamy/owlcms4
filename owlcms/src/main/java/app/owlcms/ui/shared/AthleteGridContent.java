@@ -448,7 +448,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     public void slaveUpdateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
         Athlete athlete = e.getAthlete();
         OwlcmsSession.withFop(fop -> {
-            uiEventLogger.trace("slaveUpdateAnnouncerBar in {}  origin {}", this, e.getOrigin());
+            //uiEventLogger.debug("slaveUpdateAnnouncerBar in {}  origin {}", this, LoggerUtils.stackTrace());
             // do not send weight change notification if we are the source of the weight
             // change
             UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
@@ -613,7 +613,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     protected void createInitialBar() {
-        logger.debug("AthleteGridContent creating top bar {}", LoggerUtils.whereFrom());
+        //logger.debug("{} {} creating top bar {}", this.getClass().getSimpleName(), LoggerUtils.whereFrom());
         topBar = getAppLayout().getAppBarElementWrapper();
         topBar.removeAll();
         initialBar = true;
@@ -817,6 +817,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
+        //logger.debug("{} updateTopBar {}\\n{}", this.getClass().getSimpleName(), athlete/*,LoggerUtils.stackTrace()*/);
         if (title == null) {
             return;
         }
@@ -827,7 +828,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                 Group group = fop.getGroup();
                 topBarGroupSelect.setValue(group); // does nothing if already correct
                 Integer attemptsDone = (athlete != null ? athlete.getAttemptsDone() : 0);
-                logger.debug("doUpdateTopBar {} {} {}", LoggerUtils.whereFrom(), athlete, attemptsDone);
+                //logger.debug("doUpdateTopBar {} {} {}", LoggerUtils.whereFrom(), athlete, attemptsDone);
                 if (athlete != null && attemptsDone < 6) {
                     if (!initialBar) {
                         String lastName2 = athlete.getLastName();
@@ -913,8 +914,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        logger.debug("attaching {} initial={}", System.identityHashCode(attachEvent.getSource()),
-                attachEvent.isInitialAttach());
+        //logger.debug("attaching {} initial={} \\n{}", this.getClass().getSimpleName(), attachEvent.isInitialAttach(), LoggerUtils.stackTrace());
         OwlcmsSession.withFop(fop -> {
             // create the top bar.
             syncWithFOP(true);
@@ -943,7 +943,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected void syncWithFOP(boolean refreshGrid) {
         OwlcmsSession.withFop((fop) -> {
             Group fopGroup = fop.getGroup();
-            logger.debug("syncing FOP, group = {}, {}", fopGroup, LoggerUtils.whereFrom(2));
+            //logger.debug("syncing FOP, group = {}, {}", fopGroup, LoggerUtils.whereFrom(2));
             createTopBarGroupSelect();
 
             if (refreshGrid) {
@@ -957,8 +957,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             Athlete curAthlete2 = fop.getCurAthlete();
             FOPState state = fop.getState();
             if (state == FOPState.INACTIVE || (state == FOPState.BREAK && fop.getGroup() == null)) {
-                logger.debug("initial: {} {} {} {}", state, fop.getGroup(), curAthlete2,
-                        curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
+                //logger.debug("initial: {} {} {} {}", state, fop.getGroup(), curAthlete2, curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
                 createInitialBar();
                 warning.setText(getTranslation("IdlePlatform"));
                 if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6 || fop.getLiftingOrder().size() == 0) {
@@ -966,9 +965,10 @@ public abstract class AthleteGridContent extends VerticalLayout
                             fop.getState(), fop.getLiftingOrder());
                 }
             } else {
-                logger.debug("active: {}", state);
+                //logger.debug("active: {}", state);
                 createTopBar();
                 if (state == FOPState.BREAK) {
+                    //logger.debug("break");
                     if (buttons != null) {
                         buttons.setVisible(false);
                     }
@@ -982,6 +982,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                     }
 
                 } else {
+                    //logger.debug("notBreak");
                     if (buttons != null) {
                         buttons.setVisible(true);
                     }
@@ -990,14 +991,16 @@ public abstract class AthleteGridContent extends VerticalLayout
                     }
                     if (breakButton == null) {
                         logger.debug("breakButton is null\n{}", LoggerUtils.stackTrace());
-                        return;
                     }
-                    breakButton.setText("");
-                    quietBreakButton(this instanceof JuryContent);
+                    if (breakButton != null) {
+                        breakButton.setText("");
+                        quietBreakButton(this instanceof JuryContent);
+                    }
                 }
-                breakButton.setEnabled(true);
-
-                Athlete curAthlete = curAthlete2;
+                if (breakButton != null) {
+                    breakButton.setEnabled(true);
+                }
+                Athlete curAthlete = fop.getCurAthlete();
                 int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
                 doUpdateTopBar(curAthlete, timeRemaining);
             }
