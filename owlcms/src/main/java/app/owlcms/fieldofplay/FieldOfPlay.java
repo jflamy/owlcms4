@@ -1534,7 +1534,7 @@ public class FieldOfPlay {
 
     private void uiShowRefereeDecisionOnSlaveDisplays(Athlete athlete2, Boolean goodLift2, Boolean[] refereeDecision2,
             Integer[] shownTimes, Object origin2) {
-        uiEventLogger.warn("### showRefereeDecisionOnSlaveDisplays {}", athlete2);
+        uiEventLogger.debug("### showRefereeDecisionOnSlaveDisplays {}", athlete2);
         pushOut(new UIEvent.Decision(athlete2, goodLift2, refereeForcedDecision ? null : refereeDecision2[0],
                 refereeDecision2[1],
                 refereeForcedDecision ? null : refereeDecision2[2], origin2));
@@ -1545,7 +1545,7 @@ public class FieldOfPlay {
     }
 
     private void uiShowUpdateOnJuryScreen() {
-        uiEventLogger.warn("### uiShowUpdateOnJuryScreen");
+        uiEventLogger.debug("### uiShowUpdateOnJuryScreen");
         pushOut(new UIEvent.RefereeUpdate(getCurAthlete(), refereeForcedDecision ? null : refereeDecision[0],
                 refereeDecision[1],
                 refereeForcedDecision ? null : refereeDecision[2], refereeTime[0], refereeTime[1], refereeTime[2],

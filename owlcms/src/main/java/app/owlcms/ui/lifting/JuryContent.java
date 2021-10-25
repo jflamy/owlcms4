@@ -71,6 +71,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private HorizontalLayout refContainer;
     private Label juryLabel;
     private Component refereeLabelWrapper;
+    private long lastOpen;
 
     public JuryContent() {
         // we don't actually inherit behaviour from the superclass because
@@ -121,13 +122,13 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     @Subscribe
     public void slaveRefereeDecision(UIEvent.Decision e) {
-        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 e.getAthlete());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             // juryDeliberationButton.setEnabled(true);
             int d = e.decision ? 1 : 0;
             String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
-            logger.warn("setting athleteUnderReview2 {}", e.getAthlete());
+            //logger.debug("setting athleteUnderReview2 {}", e.getAthlete());
             athleteUnderReview = e.getAthlete();
 
             decisionNotification = new Notification();
@@ -455,8 +456,12 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     private void openJuryDialog() {
-        juryDialog = new JuryDialog(JuryContent.this, athleteUnderReview);
-        juryDialog.open();
+        long now = System.currentTimeMillis();
+        if (now - lastOpen > 500) {
+            juryDialog = new JuryDialog(JuryContent.this, athleteUnderReview);
+            juryDialog.open();
+            lastOpen = now;
+        }
     }
 
     private Component jurySelectionButtons() {
@@ -502,7 +507,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
                     juryVotes[ix] = false;
                     checkAllVoted();
                 }, getBadKey(i));
-                UI.getCurrent().addShortcutListener(() -> openJuryDialog(), Key.KEY_Q);
+                UI.getCurrent().addShortcutListener(() -> openJuryDialog(), Key.KEY_D);
             }
         });
     }

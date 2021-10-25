@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -31,6 +32,7 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.JuryNotification;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -41,6 +43,7 @@ public class JuryDialog extends EnhancedDialog {
     private Integer reviewedLift;
     private Integer liftValue;
     private Object origin;
+    private long lastShortcut;
     {
         logger.setLevel(Level.INFO);
     }
@@ -53,8 +56,7 @@ public class JuryDialog extends EnhancedDialog {
      */
     public JuryDialog(Object origin, Athlete athleteUnderReview) {
         this.origin = origin;
-
-
+        this.setCloseOnEsc(false);
         logger.debug("reviewedAthlete {}", athleteUnderReview);
         this.reviewedAthlete = athleteUnderReview;
 
@@ -62,23 +64,30 @@ public class JuryDialog extends EnhancedDialog {
         OwlcmsSession.getFop().getFopEventBus()
                 .post(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, this));
 
-        JuryNotification event = new UIEvent.JuryNotification(athleteUnderReview, origin, JuryDeliberationEventType.START_DELIBERATION, null);
+        JuryNotification event = new UIEvent.JuryNotification(athleteUnderReview, origin,
+                JuryDeliberationEventType.START_DELIBERATION, null);
         OwlcmsSession.getFop().getUiEventBus().post(event);
 
         Button endBreak = new Button(Translator.translate("JuryDialog.EndDeliberation"), (e) -> doClose(true));
-        UI.getCurrent().addShortcutListener(() -> doClose(true), Key.ESCAPE);
+        Shortcuts.addShortcutListener(this, () -> {
+            if (shortcutTooSoon()) {
+                return;
+            }
+            doClose(true);
+        }, Key.ESCAPE);
 
         Button goodLift = new Button(IronIcons.DONE.create(),
                 (e) -> doGoodLift(athleteUnderReview, OwlcmsSession.getFop()));
-        UI.getCurrent().addShortcutListener(() -> doGoodLift(athleteUnderReview, OwlcmsSession.getFop()), Key.KEY_G);
+        Shortcuts.addShortcutListener(this, () -> doGoodLift(athleteUnderReview, OwlcmsSession.getFop()), Key.KEY_G);
 
         Button badLift = new Button(IronIcons.CLOSE.create(),
                 (e) -> doBadLift(athleteUnderReview, OwlcmsSession.getFop()));
-        UI.getCurrent().addShortcutListener(() -> doBadLift(athleteUnderReview, OwlcmsSession.getFop()), Key.KEY_B);
-        
+        Shortcuts.addShortcutListener(this, () -> doBadLift(athleteUnderReview, OwlcmsSession.getFop()), Key.KEY_B);
+
         Button loadingError = new Button(Translator.translate("JuryDialog.CallController"),
-                (e) -> doLoadingError(athleteUnderReview, OwlcmsSession.getFop()));
-        UI.getCurrent().addShortcutListener(() -> doLoadingError(athleteUnderReview, OwlcmsSession.getFop()), Key.KEY_C);
+                (e) -> doCallController(athleteUnderReview, OwlcmsSession.getFop()));
+        Shortcuts.addShortcutListener(this, () -> doCallController(athleteUnderReview, OwlcmsSession.getFop()),
+                Key.KEY_C);
         goodLift.getElement().setAttribute("theme", "primary success icon");
         goodLift.setWidth("8em");
         badLift.getElement().setAttribute("theme", "primary error icon");
@@ -111,9 +120,12 @@ public class JuryDialog extends EnhancedDialog {
                 liftValue = reviewedAthlete.getActualLift(reviewedLift);
                 String status;
                 if (liftValue != null) {
-                    status = (liftValue < 0 ? Translator.translate("JuryDialog.RefGoodLift") : Translator.translate("JuryDialog.RefBadLift"));
-                    redLabel.setText(liftValue < 0 ? Translator.translate("JuryDialog.Accept") : Translator.translate("JuryDialog.Reverse"));
-                    greenLabel.setText(liftValue < 0 ? Translator.translate("JuryDialog.Reverse") : Translator.translate("JuryDialog.Accept"));
+                    status = (liftValue > 0 ? Translator.translate("JuryDialog.RefGoodLift")
+                            : Translator.translate("JuryDialog.RefBadLift"));
+                    redLabel.setText(liftValue < 0 ? Translator.translate("JuryDialog.Accept")
+                            : Translator.translate("JuryDialog.Reverse"));
+                    greenLabel.setText(liftValue < 0 ? Translator.translate("JuryDialog.Reverse")
+                            : Translator.translate("JuryDialog.Accept"));
                     layoutGreen.setEnabled(true);
                     layoutRed.setEnabled(true);
                 } else {
@@ -144,30 +156,17 @@ public class JuryDialog extends EnhancedDialog {
         });
 
         this.addDialogCloseActionListener((e) -> {
+            if (shortcutTooSoon()) {
+                return;
+            }
             doClose(false);
         });
-    }
-
-    private Object doLoadingError(Athlete athleteUnderReview, FieldOfPlay fop) {
-        JuryNotification event = new UIEvent.JuryNotification(athleteUnderReview, origin, JuryDeliberationEventType.LOADING_ERROR, null);
-        OwlcmsSession.getFop().getUiEventBus().post(event);
-        return null;
-    }
-
-    private void doBadLift(Athlete athleteUnderReview, FieldOfPlay fop) {
-        fop.getFopEventBus().post(new FOPEvent.JuryDecision(athleteUnderReview, this, false));
-        doClose(false);
-    }
-
-    private void doGoodLift(Athlete athleteUnderReview, FieldOfPlay fop) {
-        fop.getFopEventBus().post(new FOPEvent.JuryDecision(athleteUnderReview, this, true));
-        doClose(false);
     }
 
     public void doClose(boolean noAction) {
         UI.getCurrent().access(() -> {
             if (noAction) {
-                JuryNotification event = new UIEvent.JuryNotification(reviewedAthlete, origin, 
+                JuryNotification event = new UIEvent.JuryNotification(reviewedAthlete, origin,
                         JuryDeliberationEventType.END_DELIBERATION,
                         null);
                 OwlcmsSession.getFop().getUiEventBus().post(event);
@@ -180,9 +179,48 @@ public class JuryDialog extends EnhancedDialog {
         });
     }
 
+    private void doBadLift(Athlete athleteUnderReview, FieldOfPlay fop) {
+        if (shortcutTooSoon()) {
+            return;
+        }
+        fop.getFopEventBus().post(new FOPEvent.JuryDecision(athleteUnderReview, this, false));
+        doClose(false);
+    }
+
+    private void doCallController(Athlete athleteUnderReview, FieldOfPlay fop) {
+        if (shortcutTooSoon()) {
+            return;
+        }
+        JuryNotification event = new UIEvent.JuryNotification(athleteUnderReview, origin,
+                JuryDeliberationEventType.CALL_TECHNICAL_CONTROLLER, null);
+        OwlcmsSession.getFop().getUiEventBus().post(event);
+        return;
+    }
+
+    private void doGoodLift(Athlete athleteUnderReview, FieldOfPlay fop) {
+        if (shortcutTooSoon()) {
+            return;
+        }
+        fop.getFopEventBus().post(new FOPEvent.JuryDecision(athleteUnderReview, this, true));
+        doClose(false);
+    }
+
     private void fixItemFormat(FormLayout layout, FormItem f) {
         layout.setWidthFull();
         layout.setColspan(f, 1);
         f.getElement().getStyle().set("--vaadin-form-item-label-width", "15em");
+    }
+
+    private synchronized boolean shortcutTooSoon() {
+        long now = System.currentTimeMillis();
+        long delta = now - lastShortcut;
+        if (delta > 350) {
+            //logger.trace("long enough {} {}", delta, LoggerUtils.whereFrom());
+            lastShortcut = now;
+            return false;
+        } else {
+            //logger.trace("too soon {} {}", delta, LoggerUtils.whereFrom());
+            return true;
+        }
     }
 }
