@@ -689,7 +689,7 @@ public class FieldOfPlay {
     }
 
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer, boolean alreadyLoaded) {
-        logger.debug("start of init state={} \\n{}", state, LoggerUtils.stackTrace());
+        //logger.debug("start of init state={} \\n{}", state, LoggerUtils.stackTrace());
         this.athleteTimer = timer;
         this.breakTimer = breakTimer;
         this.setCurAthlete(null);
