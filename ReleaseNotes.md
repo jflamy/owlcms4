@@ -1,4 +1,8 @@
-**Changes for release 4.24.0-alpha01**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+**Specific Changes for release 4.24.0-alpha02**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+
+- [x] Fixed autorepeat issues on keyboard shortcuts for Jury Console.  Tested using Touch Portal iOS app.
+
+**New in in release 4.24**
 
 - [x] It is now possible to export, manipulate and reload the registration data from the database.  
 
