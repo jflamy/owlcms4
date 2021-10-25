@@ -1,6 +1,7 @@
 **Specific Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Fixed autorepeat issues on keyboard shortcuts for Jury Console.  Tested using Touch Portal iOS app.
+- [x] Fixed loss of 2-minute clock when exiting Jury break.
+- [x] Fixed exceptions preventing TimingStats from being produced (ex: athletes with no lifts)
 
 **New in in release 4.24**
 
