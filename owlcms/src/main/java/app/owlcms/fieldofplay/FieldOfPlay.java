@@ -404,7 +404,7 @@ public class FieldOfPlay {
             // the clock was started for us. we own the clock, clock is already set to what time was
             // left
             timeAllowed = getAthleteTimer().getTimeRemainingAtLastStop();
-        } else if (previousAthlete != null && previousAthlete.equals(a)) {
+        } else if (getPreviousAthlete() != null && getPreviousAthlete().equals(a)) {
             resetDecisions();
             if (owner != null || a.getAttemptNumber() == 1) {
                 // clock has started for someone else, one minute
@@ -678,9 +678,9 @@ public class FieldOfPlay {
         Integer actualLift = a.getActualLift(a.getAttemptsDone());
         if (actualLift != null) {
             Integer curValue = Math.abs(actualLift);
-            a.doLift(a.getAttemptsDone(),e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
+            a.doLift(a.getAttemptsDone(), e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
             AthleteRepository.save(a);
-            JuryNotification event = new UIEvent.JuryNotification(a, e.getOrigin(), 
+            JuryNotification event = new UIEvent.JuryNotification(a, e.getOrigin(),
                     e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
                     e.success && actualLift <= 0 || !e.success && actualLift > 0);
             OwlcmsSession.getFop().getUiEventBus().post(event);
@@ -689,13 +689,13 @@ public class FieldOfPlay {
     }
 
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer, boolean alreadyLoaded) {
-        logger.trace("start of init state=" + state);
+        logger.debug("start of init state={} \\n{}", state, LoggerUtils.stackTrace());
         this.athleteTimer = timer;
         this.breakTimer = breakTimer;
         this.setCurAthlete(null);
         this.setClockOwner(null);
         this.setClockOwnerInitialTimeAllowed(0);
-        this.previousAthlete = null;
+        this.setPreviousAthlete(null);
         this.setLiftingOrder(athletes);
         List<AgeGroup> allAgeGroups = AgeGroupRepository.findAgeGroups(getGroup());
         this.ageGroupMap = new LinkedHashMap<>();
@@ -751,19 +751,19 @@ public class FieldOfPlay {
         boolean alreadyLoaded = thisGroupName == loadGroupName;
         if (loadGroupName != null && alreadyLoaded && !forceLoad) {
             // already loaded
-            logger.trace("group {} already loaded", loadGroupName);
+//            logger.trace("{}group {} already loaded", getLoggingName(), loadGroupName);
             return;
         }
         this.setGroup(group);
         if (group != null) {
-            logger.trace("{}current group {} loading data for group {} [{} {} {} {}]",
-                    getLoggingName(),
-                    thisGroupName,
-                    loadGroupName,
-                    alreadyLoaded,
-                    forceLoad,
-                    origin.getClass().getSimpleName(),
-                    LoggerUtils.whereFrom());
+//            logger.trace("{}current group {} loading data for group {} [{} {} {} {}]",
+//                    getLoggingName(),
+//                    thisGroupName,
+//                    loadGroupName,
+//                    alreadyLoaded,
+//                    forceLoad,
+//                    origin.getClass().getSimpleName(),
+//                    LoggerUtils.whereFrom());
             List<Athlete> groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true);
             if (groupAthletes.stream().map(Athlete::getStartNumber).anyMatch(sn -> sn == 0)) {
                 logger./**/warn("start numbers were not assigned correctly");
@@ -906,7 +906,7 @@ public class FieldOfPlay {
      * @param group the group
      */
     public void startLifting(Group group, Object origin) {
-        logger.debug("startLifting {}", LoggerUtils.stackTrace());
+        //logger.debug("startLifting {}", LoggerUtils.stackTrace());
         loadGroup(group, origin, true);
         logger.trace("{} start lifting for group {} origin={}", this.getLoggingName(),
                 (group != null ? group.getName() : group), origin);
@@ -931,9 +931,9 @@ public class FieldOfPlay {
         if (state == FOPState.BREAK) {
             inBreak = ((breakTimer != null && breakTimer.isRunning()));
         }
-        logger.debug("uiDisplayCurrentAthleteAndTime {} {} {} {} {}", getCurAthlete(), inBreak, previousAthlete,
+        logger.trace("uiDisplayCurrentAthleteAndTime {} {} {} {} {}", getCurAthlete(), inBreak, getPreviousAthlete(),
                 nextAthlete, currentDisplayAffected);
-        pushOut(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, previousAthlete, changingAthlete,
+        pushOut(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, getPreviousAthlete(), changingAthlete,
                 getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),
                 inBreak));
 
@@ -1198,7 +1198,7 @@ public class FieldOfPlay {
         logger.trace("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
                 getLoggingName(),
                 getCurAthlete() != null ? getCurAthlete().getFullName() : "",
-                previousAthlete != null ? previousAthlete.getFullName() : "",
+                getPreviousAthlete() != null ? getPreviousAthlete().getFullName() : "",
                 timeAllowed,
                 attemptsDone,
                 LoggerUtils.whereFrom());
@@ -1478,7 +1478,13 @@ public class FieldOfPlay {
             setState(TIME_STOPPED); // allows referees to enter decisions even if time is not restarted (which
                                     // sometimes happens).
         } else {
-            loadGroup(group2, e.getOrigin(), true);
+            if (getCurAthlete() != null) {
+                // group already in progress
+                loadGroup(group2, e.getOrigin(), false);
+            } else {
+                loadGroup(group2, e.getOrigin(), true);
+            }
+
             setState(CURRENT_ATHLETE_DISPLAYED);
         }
         if (stopBreakTimer) {
