@@ -72,8 +72,13 @@ public class CategoryRepository {
 
     @SuppressWarnings("unchecked")
     public static Category doFindByCode(String code, EntityManager em) {
-        Query query = em.createQuery("select c from Category c where lower(code) = lower(:string)");
-        query.setParameter("string", code);
+        Query query;
+        if (code != null) {
+            query = em.createQuery("select c from Category c where lower(code) = lower(:string)");
+            query.setParameter("string", code);
+        } else {
+            return null;
+        }
         return (Category) query.getResultList().stream().findFirst().orElse(null);
     }
 
