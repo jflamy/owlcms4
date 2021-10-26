@@ -147,7 +147,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         }
 
         public void updateMinTime(LocalDateTime newTime) {
-            if (newTime != null & newTime.isBefore(this.minTime)) {
+            if (newTime != null && newTime.isBefore(this.minTime)) {
                 this.minTime = newTime;
             } else {
             }
