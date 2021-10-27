@@ -24,10 +24,11 @@
   * [Optional Modified Competition Rules](ModifiedRules)
 * Advanced Topics
   * [Updating Cloud-based Applications](UpdatingCloudApplications)
-  * [Configuration Parameters](Configuration)
   * [Customization](UploadingLocalSettings)
-  * [Excel Template Variables](TemplateVariables)
+  * [Configuration Parameters](Configuration)
   * [Translations](Translation)
+  * [Importing PostgreSQL Cloud Databases](PostgreSQL)
+  * [Excel Template Variables](TemplateVariables)
   * [Contributing to the code](Gitpod)
 * [Licensing and Notes](Licensing)
 * Downloads

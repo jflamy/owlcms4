@@ -37,7 +37,9 @@ Heroku data centers run on universal time by default (UTC).  So the times appear
 
 ## Check for updates
 
-Once you have created the application once, you can download a program that will check for updates and remote control Heroku to grab them.   See [Instructions](https://github.com/jflamy-dev/owlcms-heroku-updater) and [Releases · owlcms/owlcms4-heroku-updater (github.com)](https://github.com/owlcms/owlcms4-heroku-updater/releases)
+A special application is available to update your Heroku applications.  Please see https://github.com/owlcms/owlcms4-heroku-updater for details.  
+
+Running this application will connect to your Heroku account and compare your application versions with the latest available.  If you are out of date, it will reconfigure Heroku to use the latest versions.
 
 ## Control access to the application
 
