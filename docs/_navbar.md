@@ -11,7 +11,7 @@
   * [Weigh-in and Start Numbers](WeighIn)
   * [Announcing, Marshalling and Timekeeping](Announcing)
   * [Scoreboards and Displays](Displays)
-  * [Refereeing](Refereeing)
+  * [Refereeing and Jury](Refereeing)
   * [Intermissions and Breaks](Breaks)
   * [Result Documents](Documents)
 * Virtual Competitions

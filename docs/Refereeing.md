@@ -1,5 +1,3 @@
-# Refereeing and Jury
-
 OWLCMS supports using refereeing devices, and also supports 3 and 5-person [Jury](#Jury). Refereeing and Jury consoles are started from the `Run Lifting Group` page as shown below.  
 The decisions are displayed to the public and athletes on the displays started on the [Start Displays](Displays) page.
 
