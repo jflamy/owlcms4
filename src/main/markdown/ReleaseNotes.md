@@ -1,7 +1,6 @@
 **Specific Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Documented how to import and use a PostgreSQL database from Heroku to a local machine.  Added the capability to set the database URL, database name, username and password as system properties. See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/PostgreSQL) for details
-- [x] Clarified that the Jury Keypad shortcuts are the keys by themselves, sending a lowercase letter.
+- [x] Added a "t" shortcut to the Jury Console page to initiate a technical break. "Escape" resumes the competition.
 
 **New in in release 4.24**
 
@@ -13,12 +12,9 @@
   - The new format makes it easier to cut and paste athletes (no hidden columns). Both the empty sheet and the exported sheet are now translated in the current language.
 - [x] The jury console now allows direct reversal/confirmation of lifts (#435, #427)  
   - The jury chief can confirm and reverse lifts directly and can ask the announcer to call the technical controller.  Jury actions are shown to the other technical officials consoles to keep them informed.
-  - In order to support a physical jury keypad, the following shortcuts are bound. Notice that the shortcut keys are as defined in the following standard: https://www.w3.org/TR/uievents-code/#key-alphanumeric-writing-system.  To our knowledge, these keys are in the same location on almost all national keyboards.
-    - "d" opens the deliberation dialog and starts a jury break (`KeyD` event code)
-    - "g" to indicate a good lift  (`KeyG` event code)
-    - "b" to indicate a bad lift  (`KeyB` event code)
-    - "c" to call the technical controller (ex: for a loading error where the athlete will need to make a decision) (`KeyC` event code)
-    - "Escape" to close the dialog and ends the jury break (`Escape` event code)
+  - Shortcuts are defined to support a jury keypad. See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Refereeing#jury-console-keypad) for details
+
+- [x] Documented how to import and use a PostgreSQL database from Heroku to a local machine.  Added the capability to set the database URL, database name, username and password as system properties. See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/PostgreSQL) for details
 
 **Key Highlights from recent stable releases**
 
