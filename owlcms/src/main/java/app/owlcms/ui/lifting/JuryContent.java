@@ -66,7 +66,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private int nbJurors;
     private Notification decisionNotification;
     private JuryDialog juryDialog;
-    private Button juryDeliberationButton;
     private Athlete athleteUnderReview;
     private HorizontalLayout refContainer;
     private Label juryLabel;
@@ -440,25 +439,33 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     private HorizontalLayout juryDeliberationButtons() {
-        juryDeliberationButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
-            openJuryDialog();
+        Button juryDeliberationButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+            openJuryDialog(true);
         });
         // juryDeliberationButton.setEnabled(false);
         juryDeliberationButton.getElement().setAttribute("theme", "primary");
         juryDeliberationButton.setText(getTranslation("BreakButton.JuryDeliberation"));
-        juryDeliberationButton.getElement().setAttribute("title", getTranslation("BreakButton.JuryDeliberation"));
+        //juryDeliberationButton.getElement().setAttribute("title", getTranslation("BreakButton.JuryDeliberation"));
+        
+        Button technicalPauseButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+            openJuryDialog(false);
+        });
+        // juryDeliberationButton.setEnabled(false);
+        technicalPauseButton.getElement().setAttribute("theme", "primary");
+        technicalPauseButton.setText(getTranslation("BreakType.TECHNICAL"));
+        //technicalPauseButton.getElement().setAttribute("title", getTranslation("BreakButton.TechnicalPause"));
 
         // HorizontalLayout buttons = new HorizontalLayout(stopCompetition,
         // resumeCompetition);
-        HorizontalLayout buttons = new HorizontalLayout(juryDeliberationButton);
+        HorizontalLayout buttons = new HorizontalLayout(juryDeliberationButton, technicalPauseButton);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
         return buttons;
     }
 
-    private void openJuryDialog() {
+    private void openJuryDialog(boolean deliberation) {
         long now = System.currentTimeMillis();
         if (now - lastOpen > 500) {
-            juryDialog = new JuryDialog(JuryContent.this, athleteUnderReview);
+            juryDialog = new JuryDialog(JuryContent.this, athleteUnderReview, deliberation);
             juryDialog.open();
             lastOpen = now;
         }
@@ -507,7 +514,8 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
                     juryVotes[ix] = false;
                     checkAllVoted();
                 }, getBadKey(i));
-                UI.getCurrent().addShortcutListener(() -> openJuryDialog(), Key.KEY_D);
+                UI.getCurrent().addShortcutListener(() -> openJuryDialog(true), Key.KEY_D);
+                UI.getCurrent().addShortcutListener(() -> openJuryDialog(false), Key.KEY_T);
             }
         });
     }

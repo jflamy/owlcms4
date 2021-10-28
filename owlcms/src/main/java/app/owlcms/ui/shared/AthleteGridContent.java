@@ -373,10 +373,16 @@ public abstract class AthleteGridContent extends VerticalLayout
             case START_DELIBERATION:
                 text = Translator.translate("JuryNotification.JuryDeliberationStart");
                 break;
+            case TECHNICAL_PAUSE:
+                text = Translator.translate("JuryDialog.TechnicalPause");
+                break;
+            case END_TECHNICAL_PAUSE:
+                text = Translator.translate("JuryDialog.EndDeliberation");
+                break;
             default:
                 break;
             }
-            yellowNotification(text);
+            doNotification(text);
         });
     }
 
@@ -1166,11 +1172,11 @@ public abstract class AthleteGridContent extends VerticalLayout
             } else {
                 text = getTranslation("Weight_change_current_athlete", curDisplayAthlete.getFullName());
             }
-            yellowNotification(text);
+            doNotification(text);
         }
     }
 
-    private void yellowNotification(String text) {
+    private void doNotification(String text) {
         Notification n = new Notification();
         // Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
         n.getElement().getThemeList().add("warning");

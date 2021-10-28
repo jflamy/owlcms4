@@ -72,7 +72,7 @@ OWLCMS interprets Even digits as red, and Odd digits as white.  The same devices
 
 ## Jury
 
-In order to use a jury, in the current version, you need 3 or 5 refereeing devices connected to the computer running the Jury console.  You may optionally have a separate keypad for the Head of the Jury (see below) in order to initiate deliberation and transmit decisions.
+In order to use a jury, in the current version, you need 3 or 5 refereeing devices connected to the computer running the Jury console.  You may optionally have a separate keypad for the jury president (see below) in order to initiate deliberation and transmit decisions.
 
 The juror devices are programmed just like for the referees, except that jury 4 uses keys 7 and 8, and jury 5 uses the keys 9 and 0.  As for the referees, even-numbered keys mean "red".
 
@@ -92,11 +92,12 @@ The jury console now allows direct reversal/confirmation of lifts
 Jury decisions are shown to the other technical officials consoles to keep them informed.  The announcer can then inform the public, coaches and athletes of the outcome.
 ![090_JuryReversal](img/Refereeing/090_JuryReversal.png)
 
-## Jury Head Keypad
+## Jury Console Keypad
 
-  - In order to support a physical jury chief keypad, the following shortcuts are bound. Note that the shortcut keys are as defined in the following standard: https://www.w3.org/TR/uievents-code/#key-alphanumeric-writing-system.  To our knowledge, these keys are in the same location on almost all national keyboards.
+  - In order to support a physical jury console keypad, the following shortcuts are bound. Note that the shortcut keys are as defined in the following standard: https://www.w3.org/TR/uievents-code/#key-alphanumeric-writing-system.  To our knowledge, these keys are in the same location on almost all national keyboards.
     - "d" opens the deliberation dialog and starts a jury break (`KeyD` event code)
     - "g" to indicate a good lift  (`KeyG` event code)
     - "b" to indicate a bad lift  (`KeyB` event code)
     - "c" to call the technical controller (ex: for a loading error where the athlete will need to make a decision) (`KeyC` event code)
     - "Escape" to close the dialog and ends the jury break (`Escape` event code)
+    - "t" to start a technical break if the Jury spots a technical issue (`KeyT` event code.)  The process is the same as for a deliberation. "c" can be used to call the controller, and "Escape" ends the technical pause.
