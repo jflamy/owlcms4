@@ -76,16 +76,22 @@ In order to use a jury, in the current version, you need 3 or 5 refereeing devic
 
 The juror devices are programmed just like for the referees, except that jury 4 uses keys 7 and 8, and jury 5 uses the keys 9 and 0.  As for the referees, even-numbered keys mean "red".
 
-The jury console operates according to IWF rules: the referee decisions are shown as soon as they are made, in the bottom part of the screen.  
+The jury console operates according to IWF rules:
 
-In the top part of the screen, the decisions circle for a jury member shows that he or she has made a decision, but the individual decisions are only shown in red or white after they have all been given.
+- In the bottom part of the screen the referee decisions are shown <u>as soon as they are made</u>  
+- In the top part of the screen, the decisions circle for a jury member shows that he or she has made a decision, but the individual decisions are only shown in red or white <u>after they have all been given</u>.
 
 ![070_Jury](img/Refereeing/070_Jury.png)
 
 The jury console now allows direct reversal/confirmation of lifts 
   - The Jury Deliberation button opens a dialog whereby the lift can be confirmed or reversed,
   - The Jury Head can ask the announcer to call the technical controller. 
-  -  Jury actions are shown to the other technical officials consoles to keep them informed.
+
+![080_JuryDeliberation](img/Refereeing/080_JuryDeliberation.png)
+
+Jury decisions are shown to the other technical officials consoles to keep them informed.  The announcer can then inform the public, coaches and athletes of the outcome.
+![090_JuryReversal](img/Refereeing/090_JuryReversal.png)
+
 ## Jury Head Keypad
 
   - In order to support a physical jury chief keypad, the following shortcuts are bound. Note that the shortcut keys are as defined in the following standard: https://www.w3.org/TR/uievents-code/#key-alphanumeric-writing-system.  To our knowledge, these keys are in the same location on almost all national keyboards.
