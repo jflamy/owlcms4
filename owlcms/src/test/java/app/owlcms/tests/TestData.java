@@ -67,7 +67,7 @@ public class TestData {
             setupTestData(em, nbAthletes);
             return null;
         });
-        AthleteRepository.resetCategories();
+        AthleteRepository.resetParticipations();
  
     }
 

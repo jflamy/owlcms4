@@ -20,7 +20,9 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.AgeDivision;
+import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
@@ -182,6 +184,14 @@ public class Main {
                 if (configs.isEmpty()) {
                     logger.info("adding config object");
                     Config.setCurrent(new Config());
+                }
+                
+                int nbParts = CategoryRepository.countParticipations();
+                if (nbParts == 0 && AthleteRepository.countFiltered(null, null, null, null, null, null, null) > 0) {
+                    // database has athletes, but no participations. 4.22 and earlier.
+                    // need to create Participation entries for the Athletes.
+                    logger.info("updating database: computing athlete eligibility to age groups and categories.");
+                    AthleteRepository.resetParticipations();
                 }
             }
         } finally {

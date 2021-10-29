@@ -333,7 +333,7 @@ public class TwoMinutesRuleTest {
             TestData.insertSampleLifters(em, 5, gA, gB, gC);
             return null;
         });
-        AthleteRepository.resetCategories();
+        AthleteRepository.resetParticipations();
         athletes = AthleteRepository.findAll();
         FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
         OwlcmsSession.setFop(fopState);

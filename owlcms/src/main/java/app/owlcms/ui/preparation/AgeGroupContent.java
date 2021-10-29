@@ -328,7 +328,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
     }
 
     private void resetCategories() {
-        AthleteRepository.resetCategories();
+        AthleteRepository.resetParticipations();
         crud.refreshGrid();
         unHighlightResetButton();
     }

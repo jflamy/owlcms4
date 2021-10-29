@@ -149,7 +149,7 @@ public class RecordRepository {
             return null;
         });
         RecordDefinitionReader.doInsertRecords(null, "/records/" + localizedFileName);
-        AthleteRepository.resetCategories();
+        AthleteRepository.resetParticipations();
     }
 
     /**

@@ -67,7 +67,7 @@ public class DemoData {
             return null;
         });
         
-        AthleteRepository.resetCategories();
+        AthleteRepository.resetParticipations();
     }
 
     protected static void assignStartNumbers(EntityManager em, Group groupA) {
