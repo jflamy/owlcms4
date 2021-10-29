@@ -1,6 +1,7 @@
-**Specific Changes for release 4.24.0-beta02**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+**Specific Changes for release 4.24.0-beta03**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Added a "t" shortcut to the Jury Console page to initiate a technical break. "Escape" resumes the competition.
+- [x] Separate translation entries for the jury-initiated technical break (button and notification)
+- [x] Adjusted template names on some federation-specific templates to match the _language_country suffix convention.
 
 **New in in release 4.24**
 
