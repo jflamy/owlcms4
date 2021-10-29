@@ -374,10 +374,10 @@ public abstract class AthleteGridContent extends VerticalLayout
                 text = Translator.translate("JuryNotification.JuryDeliberationStart");
                 break;
             case TECHNICAL_PAUSE:
-                text = Translator.translate("JuryDialog.TechnicalPause");
+                text = Translator.translate("JuryNotification.TechnicalPauseStarted");
                 break;
             case END_TECHNICAL_PAUSE:
-                text = Translator.translate("JuryDialog.EndDeliberation");
+                text = Translator.translate("JuryNotification.TechnicalPauseEnded");
                 break;
             default:
                 break;

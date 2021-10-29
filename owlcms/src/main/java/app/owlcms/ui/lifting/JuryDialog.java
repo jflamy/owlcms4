@@ -48,6 +48,7 @@ public class JuryDialog extends EnhancedDialog {
     private Object origin;
     private long lastShortcut;
     private boolean deliberation;
+    private String endBreakText;
 
 
     /**
@@ -142,6 +143,7 @@ public class JuryDialog extends EnhancedDialog {
         goodLift.setWidth("8em");
         badLift.getElement().setAttribute("theme", "primary error icon");
         badLift.setWidth("8em");
+        endBreakText = Translator.translate("JuryDialog.EndDeliberation");
 
         // workaround for unpredictable behaviour of FormLayout
         FormLayout layoutGreen = new FormLayout();
@@ -200,7 +202,8 @@ public class JuryDialog extends EnhancedDialog {
     }
 
     private void doEnd() {
-        Button endBreak = new Button(Translator.translate("JuryDialog.EndDeliberation"), (e) -> doClose(true));
+
+        Button endBreak = new Button(endBreakText, (e) -> doClose(true));
         Shortcuts.addShortcutListener(this, () -> {
             if (shortcutTooSoon()) {
                 return;
@@ -235,6 +238,7 @@ public class JuryDialog extends EnhancedDialog {
         JuryNotification event = new UIEvent.JuryNotification(null, origin,
                 JuryDeliberationEventType.TECHNICAL_PAUSE, null);
         OwlcmsSession.getFop().getUiEventBus().post(event);
+        endBreakText = Translator.translate("JuryDialog.EndTechnicalPause");
 
         this.addAttachListener((e) -> {
             if (reviewedAthlete != null) {
@@ -259,7 +263,7 @@ public class JuryDialog extends EnhancedDialog {
                 header.setPadding(true);
                 this.setHeader(header);
             } else {
-                this.setHeader(Translator.translate("BreakType.TECHNICAL"));
+                this.setHeader(Translator.translate("JuryDialog.TechnicalPause"));
             }
         });
     }
