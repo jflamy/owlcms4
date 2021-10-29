@@ -313,5 +313,14 @@ public class CategoryRepository {
             query.setParameter("gender", gender);
         }
     }
+    
+    public static int countParticipations() {
+        return (int) JPAService.runInTransaction((em) -> {
+            String qlString = "select count(p) from Participation p";
+            Query query = em.createQuery(qlString);
+            int i = ((Long) query.getSingleResult()).intValue();
+            return i;
+        });
+    }
 
 }

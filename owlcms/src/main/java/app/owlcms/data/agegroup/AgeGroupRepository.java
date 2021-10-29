@@ -190,7 +190,7 @@ public class AgeGroupRepository {
             return null;
         });
         AgeGroupDefinitionReader.doInsertAgeGroup(null, "/agegroups/" + localizedFileName);
-        AthleteRepository.resetCategories();
+        AthleteRepository.resetParticipations();
     }
 
     /**
@@ -490,16 +490,16 @@ public class AgeGroupRepository {
             if (whereList.size() > 0) {
                 whereClause = " where " + whereList.stream().collect(Collectors.joining(" and "));
             }
-            
+
             TypedQuery<Participation> q = em.createQuery(
                     "select distinct p from Participation p join p.category c join c.ageGroup ag "
                             + whereClause,
                     Participation.class);
             if (ageGroupPrefix != null && !ageGroupPrefix.isBlank()) {
-                q.setParameter("ageGroupPrefix",ageGroupPrefix);
+                q.setParameter("ageGroupPrefix", ageGroupPrefix);
             }
             if (ageDivision != null) {
-                q.setParameter("ageDivision",ageDivision);
+                q.setParameter("ageDivision", ageDivision);
             }
 
             List<Participation> resultSet = q.getResultList();
@@ -538,5 +538,6 @@ public class AgeGroupRepository {
             return resultSet;
         });
     }
+
 
 }
