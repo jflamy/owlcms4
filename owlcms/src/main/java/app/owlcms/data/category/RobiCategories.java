@@ -84,7 +84,7 @@ public class RobiCategories {
         }
 //        logger.trace("before search " + categories.size());
         int index = Collections.binarySearch(categories,
-                new Category(null, a.getBodyWeight(), a.getBodyWeight(), a.getGender(), true, 0, 0, 0, null, 0),
+                new Category(a.getBodyWeight(), a.getBodyWeight(), a.getGender(), true, 0, 0, 0, null, 0),
                 x.new RobiComparator());
 
         if (index >= 0) {

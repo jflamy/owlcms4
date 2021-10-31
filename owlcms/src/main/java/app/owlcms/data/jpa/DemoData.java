@@ -12,6 +12,7 @@ import static app.owlcms.data.category.AgeDivision.DEFAULT;
 import static app.owlcms.data.category.AgeDivision.MASTERS;
 import static app.owlcms.data.category.AgeDivision.U;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
@@ -21,6 +22,10 @@ import java.util.Random;
 import javax.persistence.EntityManager;
 
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
@@ -32,6 +37,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.data.xml.CompetitionData;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -48,6 +54,8 @@ public class DemoData {
         logger.setLevel(Level.INFO);
     }
 
+
+    
     /**
      * Insert initial data if the database is empty.
      *
@@ -68,6 +76,19 @@ public class DemoData {
         });
         
         AthleteRepository.resetParticipations();
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        try {
+            ObjectWriter writerWithDefaultPrettyPrinter = mapper.writerWithDefaultPrettyPrinter();
+            String serialized = writerWithDefaultPrettyPrinter.writeValueAsString(new CompetitionData().fromDatabase());
+            logger.warn("serialized {}", serialized);
+            CompetitionData newData = mapper.readValue(serialized, CompetitionData.class);
+            logger.warn("after unmarshall {}",newData.getPlatforms());
+        } catch (IOException e) {;
+            e.printStackTrace();
+        }
+        
     }
 
     protected static void assignStartNumbers(EntityManager em, Group groupA) {

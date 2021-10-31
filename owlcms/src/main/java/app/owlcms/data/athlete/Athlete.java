@@ -37,6 +37,13 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
@@ -82,6 +89,8 @@ import ch.qos.logback.classic.Logger;
 //must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 @Cacheable
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "logger"})
 public class Athlete {
     private static final int YEAR = LocalDateTime.now().getYear();
 
@@ -257,9 +266,12 @@ public class Athlete {
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_categ", nullable = true)
+    @JsonProperty(index=300)
+    @JsonIdentityReference(alwaysAsId = true)
     private Category category = null;
 
     @OneToMany(mappedBy = "athlete", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonProperty(index=200)
     private List<Participation> participations = new ArrayList<>();
     /**
      * Using separate fields is brute force, but having embedded classes does not bring much and we don't want joins or
@@ -508,6 +520,8 @@ public class Athlete {
         }
     }
 
+    @Transient
+    @JsonIgnore
     public Integer getActualLift(int liftNo) {
         try {
             String value = null;
@@ -589,6 +603,8 @@ public class Athlete {
     /**
      * @return age as of current day
      */
+    @Transient
+    @JsonIgnore
     public Integer getAge() {
         // LocalDate date = Competition.getCurrent().getCompetitionDate();
         LocalDate date = null;
@@ -608,6 +624,8 @@ public class Athlete {
      * @return the ageGroup. M80 if male missing birth date, F70 if female missing birth date or missing both gender and
      *         birth.
      */
+    @Transient
+    @JsonIgnore
     public AgeGroup getAgeGroup() {
         Category cat = getCategory();
         return (cat != null ? cat.getAgeGroup() : null);
@@ -618,6 +636,8 @@ public class Athlete {
      *
      * @return the attempted lifts
      */
+    @Transient
+    @JsonIgnore
     public int getAttemptedLifts() {
         int i = 0;
         if (zeroIfInvalid(snatch1ActualLift) != 0) {
@@ -646,6 +666,8 @@ public class Athlete {
      *
      * @return
      */
+    @Transient
+    @JsonIgnore
     public Integer getAttemptNumber() {
         return getAttemptsDone() % 3 + 1;
     }
@@ -655,6 +677,8 @@ public class Athlete {
      *
      * @return the attemptsDone
      */
+    @Transient
+    @JsonIgnore
     public Integer getAttemptsDone() {
         return getSnatchAttemptsDone() + getCleanJerkAttemptsDone();
     }
@@ -664,6 +688,8 @@ public class Athlete {
      *
      * @return the bestCleanJerk
      */
+    @Transient
+    @JsonIgnore
     public Integer getBestCleanJerk() {
         final int cj1 = zeroIfInvalid(cleanJerk1ActualLift);
         final int cj2 = zeroIfInvalid(cleanJerk2ActualLift);
@@ -676,6 +702,8 @@ public class Athlete {
      *
      * @return the best clean jerk attempt number
      */
+    @Transient
+    @JsonIgnore
     public int getBestCleanJerkAttemptNumber() {
         int referenceValue = getBestCleanJerk();
         if (referenceValue > 0) {
@@ -697,6 +725,8 @@ public class Athlete {
      *
      * @return the best result attempt number
      */
+    @Transient
+    @JsonIgnore
     public int getBestResultAttemptNumber() {
         int referenceValue = getBestCleanJerk();
         if (referenceValue > 0) {
@@ -731,6 +761,8 @@ public class Athlete {
      *
      * @return the bestSnatch
      */
+    @Transient
+    @JsonIgnore
     public Integer getBestSnatch() {
         final int sn1 = zeroIfInvalid(snatch1ActualLift);
         final int sn2 = zeroIfInvalid(snatch2ActualLift);
@@ -743,6 +775,8 @@ public class Athlete {
      *
      * @return the best snatch attempt number
      */
+    @Transient
+    @JsonIgnore
     public int getBestSnatchAttemptNumber() {
         int referenceValue = getBestSnatch();
         if (referenceValue > 0) {
@@ -768,6 +802,7 @@ public class Athlete {
      */
     @Deprecated
     @Transient
+    @JsonIgnore
     public Integer getBirthDate() {
         return this.getYearOfBirth();
     }
@@ -786,6 +821,8 @@ public class Athlete {
      *
      * @return the short category
      */
+    @Transient
+    @JsonIgnore
     public String getBWCategory() {
         // logger./**/warn("getBWCategory {}", this.getFullName());
         final Category category = getCategory();
@@ -801,6 +838,7 @@ public class Athlete {
      *
      * @return the category
      */
+    @JsonIdentityReference(alwaysAsId=true)
     public Category getCategory() {
         return category;
     }
@@ -812,6 +850,8 @@ public class Athlete {
      *
      * @return the category sinclair
      */
+    @Transient
+    @JsonIgnore
     public Double getCategorySinclair() {
         Category category = getCategory();
         if (category == null) {
@@ -856,6 +896,8 @@ public class Athlete {
      *
      * @return the clean jerk 1 as integer
      */
+    @Transient
+    @JsonIgnore
     public Integer getCleanJerk1AsInteger() {
         return asInteger(cleanJerk1ActualLift);
     }
@@ -919,6 +961,8 @@ public class Athlete {
      *
      * @return the clean jerk 2 as integer
      */
+    @Transient
+    @JsonIgnore
     public Integer getCleanJerk2AsInteger() {
         return asInteger(cleanJerk2ActualLift);
     }
@@ -983,6 +1027,8 @@ public class Athlete {
      *
      * @return the clean jerk 3 as integer
      */
+    @Transient
+    @JsonIgnore
     public Integer getCleanJerk3AsInteger() {
         return asInteger(cleanJerk3ActualLift);
     }
@@ -1038,6 +1084,8 @@ public class Athlete {
      *
      * @return the cleanJerkAttemptsDone
      */
+    @Transient
+    @JsonIgnore
     public Integer getCleanJerkAttemptsDone() {
         // if Athlete signals he wont take his remaining tries, a zero is entered
         // further lifts are not counted.
@@ -1065,12 +1113,16 @@ public class Athlete {
      *
      * @return the clean jerk points
      */
+    @Transient
+    @JsonIgnore
     public int getCleanJerkPoints() {
         Participation mr = getMainRankings();
         int points = (mr != null ? mr.getSnatchPoints() : 0);
         return points;
     }
 
+    @Transient
+    @JsonIgnore
     public int getCleanJerkRank() {
         return (getMainRankings() != null ? getMainRankings().getCleanJerkRank() : -1);
     }
@@ -1080,6 +1132,8 @@ public class Athlete {
      *
      * @return total for clean and jerk
      */
+    @Transient
+    @JsonIgnore
     public int getCleanJerkTotal() {
         final int cleanJerkTotal = max(0, zeroIfInvalid(cleanJerk1ActualLift), zeroIfInvalid(cleanJerk2ActualLift),
                 zeroIfInvalid(cleanJerk3ActualLift));
@@ -1100,6 +1154,8 @@ public class Athlete {
      *
      * @return the combined points
      */
+    @Transient
+    @JsonIgnore
     public Integer getCombinedPoints() {
         return getSnatchPoints() + getCleanJerkPoints() + getTotalPoints();
     }
@@ -1108,32 +1164,13 @@ public class Athlete {
         return combinedRank;
     }
 
-//    /**
-//     * Gets the clean jerk rank.
-//     *
-//     * @return the clean jerk rank
-//     */
-//    public Integer getCleanJerkRank() {
-//        return cleanJerkRank;
-//    }
-//
-//    public Integer getCleanJerkRankJr() {
-//        return cleanJerkRankJr;
-//    }
-//
-//    public Integer getCleanJerkRankSr() {
-//        return cleanJerkRankSr;
-//    }
-//
-//    public Integer getCleanJerkRankYth() {
-//        return cleanJerkRankYth;
-//    }
-
     /**
      * Gets the current automatic.
      *
      * @return the current automatic
      */
+    @Transient
+    @JsonIgnore
     public String getCurrentAutomatic() {
         switch (this.getAttemptsDone() + 1) {
         case 1:
@@ -1157,6 +1194,8 @@ public class Athlete {
      *
      * @return the current change 1
      */
+    @Transient
+    @JsonIgnore
     public String getCurrentChange1() {
         switch (this.getAttemptsDone() + 1) {
         case 1:
@@ -1180,6 +1219,8 @@ public class Athlete {
      *
      * @return the current declaration
      */
+    @Transient
+    @JsonIgnore
     public String getCurrentDeclaration() {
         switch (this.getAttemptsDone() + 1) {
         case 1:
@@ -1203,6 +1244,8 @@ public class Athlete {
      *
      * @return the customPoints
      */
+    @Transient
+    @JsonIgnore
     public int getCustomPoints() {
         Participation mr = getMainRankings();
         int points = (mr != null ? mr.getCustomPoints() : 0);
@@ -1214,6 +1257,8 @@ public class Athlete {
      *
      * @return the custom rank
      */
+    @Transient
+    @JsonIgnore
     public int getCustomRank() {
         return (getMainRankings() != null ? getMainRankings().getCustomRank() : -1);
     }
@@ -1227,6 +1272,8 @@ public class Athlete {
      *
      * @return the custom score
      */
+    @Transient
+    @JsonIgnore
     public Double getCustomScoreComputed() {
         if (this.customScore == null || this.customScore < 0.01) {
             return Double.valueOf(getTotal());
@@ -1239,10 +1286,13 @@ public class Athlete {
      *
      * @return the display category
      */
+    @Transient
+    @JsonIgnore
     public String getDisplayCategory() {
         return getLongCategory();
     }
 
+    @JsonIdentityReference(alwaysAsId=true)
     public Set<Category> getEligibleCategories() {
         // brain dead version, cannot get query version to work.
         Set<Category> s = new LinkedHashSet<>();
@@ -1267,6 +1317,8 @@ public class Athlete {
      *
      * @return the first attempted lift time
      */
+    @Transient
+    @JsonIgnore
     public LocalDateTime getFirstAttemptedLiftTime() {
         LocalDateTime attemptTime = LocalDateTime.MAX;// forever in the future
         if (zeroIfInvalid(snatch1ActualLift) != 0) {
@@ -1294,6 +1346,8 @@ public class Athlete {
         return firstName;
     }
 
+    @Transient
+    @JsonIgnore
     public String getFormattedBirth() {
         if (Competition.getCurrent().isUseBirthYear()) {
             Integer yearOfBirth = getYearOfBirth();
@@ -1312,6 +1366,8 @@ public class Athlete {
         return fullBirthDate;
     }
 
+    @Transient
+    @JsonIgnore
     public String getFullId() {
         String fullName = getFullName();
         Category category2 = getCategory();
@@ -1323,6 +1379,8 @@ public class Athlete {
         }
     }
 
+    @Transient
+    @JsonIgnore
     public String getFullName() {
         String upperCase = this.getLastName().toUpperCase();
         String firstName2 = this.getFirstName();
@@ -1348,6 +1406,7 @@ public class Athlete {
      *
      * @return the group
      */
+    @JsonIdentityReference(alwaysAsId=true)
     public Group getGroup() {
         return group;
     }
@@ -1366,6 +1425,8 @@ public class Athlete {
      *
      * @return the last attempted lift time
      */
+    @Transient
+    @JsonIgnore
     public LocalDateTime getLastAttemptedLiftTime() {
         if (zeroIfInvalid(cleanJerk3ActualLift) != 0) {
             return getCleanJerk3LiftTime();
@@ -1402,6 +1463,8 @@ public class Athlete {
      *
      * @return the last successful lift time
      */
+    @Transient
+    @JsonIgnore
     public LocalDateTime getLastSuccessfulLiftTime() {
         if (zeroIfInvalid(cleanJerk3ActualLift) > 0) {
             return getCleanJerk3LiftTime();
@@ -1438,6 +1501,8 @@ public class Athlete {
      *
      * @return the logger
      */
+    @Transient
+    @JsonIgnore
     public Logger getLogger() {
         return logger;
     }
@@ -1447,6 +1512,8 @@ public class Athlete {
      *
      * @return the long category
      */
+    @Transient
+    @JsonIgnore
     public String getLongCategory() {
         Category category = getCategory();
         return (category != null ? category.getName() : "");
@@ -1461,6 +1528,8 @@ public class Athlete {
         return (lotNumber == null ? 0 : lotNumber);
     }
 
+    @Transient
+    @JsonIgnore
     public Participation getMainRankings() {
         Participation curRankings = null;
         List<Participation> participations2 = getParticipations();
@@ -1481,6 +1550,8 @@ public class Athlete {
      *
      * @return the masters age group
      */
+    @Transient
+    @JsonIgnore
     public String getMastersAgeGroup() {
         if (this.getGender() == null || this.getAgeGroup() == null) {
             return "";
@@ -1493,6 +1564,8 @@ public class Athlete {
      *
      * @return the ageGroup
      */
+    @Transient
+    @JsonIgnore
     public String getMastersAgeGroupInterval() {
         AgeGroup ag = getAgeGroup();
         if (ag == null) {
@@ -1513,6 +1586,8 @@ public class Athlete {
      *
      * @return the masters gender age group interval
      */
+    @Transient
+    @JsonIgnore
     public String getMastersGenderAgeGroupInterval() {
         String gender2 = getGender().name();
         if (gender2 == "F") {
@@ -1527,6 +1602,8 @@ public class Athlete {
      * @return the masters long category
      */
     @Deprecated
+    @Transient
+    @JsonIgnore
     public String getMastersLongCategory() {
         return getCategory().getName();
     }
@@ -1536,6 +1613,8 @@ public class Athlete {
      *
      * @return the medal rank
      */
+    @Transient
+    @JsonIgnore
     public Integer getMedalRank() {
         Integer i = getRank();
         if (i == null) {
@@ -1558,6 +1637,8 @@ public class Athlete {
      *
      * @return the nextAttemptRequestedWeight
      */
+    @Transient
+    @JsonIgnore
     public Integer getNextAttemptRequestedWeight() {
         int attempt = getAttemptsDone() + 1;
         return getRequestedWeightForAttempt(attempt);
@@ -1567,6 +1648,7 @@ public class Athlete {
         return participations;
     }
 
+    
     public Double getPresumedBodyWeight() {
         Double bodyWeight2 = getBodyWeight();
         if (bodyWeight2 != null && bodyWeight2 >= 0) {
@@ -1581,6 +1663,8 @@ public class Athlete {
      *
      * @return null if Athlete has not lifted
      */
+    @Transient
+    @JsonIgnore
     public LocalDateTime getPreviousLiftTime() {
         LocalDateTime max = null; // long ago
 
@@ -1644,6 +1728,8 @@ public class Athlete {
      *
      * @return the rank
      */
+    @Transient
+    @JsonIgnore
     public Integer getRank() {
         Participation mainRankings = getMainRankings();
         return mainRankings != null ? mainRankings.getTotalRank() : null;
@@ -1654,6 +1740,8 @@ public class Athlete {
      *
      * @return the registration category
      */
+    @Transient
+    @JsonIgnore
     public Category getRegistrationCategory() {
         return category;
     }
@@ -1664,6 +1752,8 @@ public class Athlete {
      * @param attempt the attempt
      * @return the requested weight for attempt
      */
+    @Transient
+    @JsonIgnore
     public Integer getRequestedWeightForAttempt(int attempt) {
         switch (attempt) {
         case 1:
@@ -1694,6 +1784,8 @@ public class Athlete {
      *
      * @return the robi
      */
+    @Transient
+    @JsonIgnore
     public Double getRobi() {
         Category c = getMainRankings().getCategory();
         if (c == null) {
@@ -1730,6 +1822,8 @@ public class Athlete {
         return robiRank;
     }
 
+    @Transient
+    @JsonIgnore
     public String getRoundedBodyWeight() {
         if (df == null) {
             df = new DecimalFormat("#.##");
@@ -1741,10 +1835,14 @@ public class Athlete {
      * @see #getBWCategory()
      */
     @Deprecated
+    @Transient
+    @JsonIgnore
     public String getShortCategory() {
         return getBWCategory();
     }
 
+    @Transient
+    @JsonIgnore
     public String getShortName() {
         String firstName2 = getFirstName();
         Integer startNumber2 = getStartNumber();
@@ -1759,6 +1857,8 @@ public class Athlete {
      *
      * @return the sinclair-adjusted value for the Athlete
      */
+    @Transient
+    @JsonIgnore
     public Double getSinclair() {
         final Double bodyWeight1 = getBodyWeight();
         if (bodyWeight1 == null) {
@@ -1773,6 +1873,8 @@ public class Athlete {
      * @param bodyWeight1 the body weight 1
      * @return the sinclair
      */
+    @Transient
+    @JsonIgnore
     public Double getSinclair(Double bodyWeight1) {
         Integer total1 = getTotal();
         return getSinclair(bodyWeight1, total1);
@@ -1783,6 +1885,8 @@ public class Athlete {
      *
      * @return the sinclair factor
      */
+    @Transient
+    @JsonIgnore
     public Double getSinclairFactor() {
         if (gender == Gender.M) {
             return sinclairFactor(this.bodyWeight, SinclairCoefficients.menCoefficient(),
@@ -1798,6 +1902,8 @@ public class Athlete {
      *
      * @return a Sinclair value even if c&j has not started
      */
+    @Transient
+    @JsonIgnore
     public Double getSinclairForDelta() {
         final Double bodyWeight1 = getBodyWeight();
         if (bodyWeight1 == null) {
@@ -1821,6 +1927,8 @@ public class Athlete {
      *
      * @return the smm
      */
+    @Transient
+    @JsonIgnore
     public Double getSmm() {
         final Integer birthDate1 = getYearOfBirth();
         if (birthDate1 == null) {
@@ -1847,6 +1955,8 @@ public class Athlete {
      *
      * @return the snatch 1 as integer
      */
+    @Transient
+    @JsonIgnore
     public Integer getSnatch1AsInteger() {
         return asInteger(snatch1ActualLift);
     }
@@ -1910,6 +2020,8 @@ public class Athlete {
      *
      * @return the snatch 2 as integer
      */
+    @Transient
+    @JsonIgnore
     public Integer getSnatch2AsInteger() {
         return asInteger(snatch2ActualLift);
     }
@@ -1974,6 +2086,8 @@ public class Athlete {
      *
      * @return the snatch 3 as integer
      */
+    @Transient
+    @JsonIgnore
     public Integer getSnatch3AsInteger() {
         return asInteger(snatch3ActualLift);
     }
@@ -2029,6 +2143,8 @@ public class Athlete {
      *
      * @return how many snatch attempts have been performed
      */
+    @Transient
+    @JsonIgnore
     public Integer getSnatchAttemptsDone() {
         // Athlete signals he wont take his remaining tries, a zero is entered
         // further lifts are not counted.
@@ -2071,6 +2187,8 @@ public class Athlete {
      *
      * @return total for snatch.
      */
+    @Transient
+    @JsonIgnore
     public int getSnatchTotal() {
         final int snatchTotal = max(0, zeroIfInvalid(snatch1ActualLift), zeroIfInvalid(snatch2ActualLift),
                 zeroIfInvalid(snatch3ActualLift));
@@ -2243,6 +2361,8 @@ public class Athlete {
      * @return true, if is a team member
      */
     @Deprecated
+    @Transient
+    @JsonIgnore
     public boolean isATeamMember() {
         return isEligibleForTeamRanking();
     }
@@ -2349,6 +2469,7 @@ public class Athlete {
      *
      * @return true, if is forced as current
      */
+    @JsonIgnore
     public boolean isForcedAsCurrent() {
         return forcedAsCurrent;
     }
@@ -2360,10 +2481,14 @@ public class Athlete {
      * @return true, if is invited
      */
     @Deprecated
+    @Transient
+    @JsonIgnore
     public boolean isInvited() {
         return !isEligibleForIndividualRanking();
     }
 
+    @Transient
+    @JsonIgnore
     public boolean isTeamMember() {
         return (getMainRankings() != null ? getMainRankings().getTeamMember() : false);
     }
@@ -2372,6 +2497,8 @@ public class Athlete {
         throw new UnsupportedOperationException("Team Membership should be updated via PAthlete");
     }
 
+    @Transient
+    @JsonIgnore
     public boolean isValidation() {
         return validation;
     }
@@ -2803,31 +2930,14 @@ public class Athlete {
      *
      * @param points the new clean jerk points
      */
+    @Transient
+    @JsonIgnore
     public void setCleanJerkPoints(Integer points) {
         // ignored. computed property. setter needed for beans introspection.
     }
 
-//    /**
-//     * Sets the clean jerk rank.
-//     *
-//     * @param cleanJerkRank the new clean jerk rank
-//     */
-//    public void setCleanJerkRank(Integer cleanJerkRank) {
-//        this.cleanJerkRank = cleanJerkRank;
-//    }
-//
-//    public void setCleanJerkRankJr(Integer cleanJerkRankJr) {
-//        this.cleanJerkRankJr = cleanJerkRankJr;
-//    }
-//
-//    public void setCleanJerkRankSr(Integer cleanJerkRankSr) {
-//        this.cleanJerkRankSr = cleanJerkRankSr;
-//    }
-//
-//    public void setCleanJerkRankYth(Integer cleanJerkRankYth) {
-//        this.cleanJerkRankYth = cleanJerkRankYth;
-//    }
-
+    @Transient
+    @JsonIgnore
     public void setCleanJerkRank(int ignored) {
         // ignored. computed property. setter needed for beans introspection.
     }
@@ -2850,6 +2960,8 @@ public class Athlete {
      *
      * @param customPoints the new custom points
      */
+    @Transient
+    @JsonIgnore
     public void setCustomPoints(Integer customPoints) {
         // ignored. computed property. setter needed for beans introspection.
     }
@@ -2859,6 +2971,8 @@ public class Athlete {
      *
      * @param customRank the new custom rank
      */
+    @Transient
+    @JsonIgnore
     public void setCustomRank(Integer customRank) {
         // ignored. computed property. setter needed for beans introspection
     }
@@ -3386,10 +3500,14 @@ public class Athlete {
      *
      * @param snatchPoints the new snatch points
      */
+    @Transient
+    @JsonIgnore
     public void setSnatchPoints(Integer snatchPoints) {
         // ignored. computed property. setter needed for beans introspection.
     }
 
+    @Transient
+    @JsonIgnore
     public void setSnatchRank(int ignored) {
         // ignored. computed property. setter needed for beans introspection.
     }
@@ -3509,10 +3627,14 @@ public class Athlete {
      *
      * @param totalPoints the new total points
      */
+    @Transient
+    @JsonIgnore
     public void setTotalPoints(Integer totalPoints) {
         // ignored. computed property. setter needed for beans introspection.
     }
 
+    @Transient
+    @JsonIgnore
     public void setTotalRank(int ignored) {
         // ignored. computed property. setter needed for beans introspection.
     }
@@ -3527,7 +3649,7 @@ public class Athlete {
      * @param birthYear the new year of birth
      */
     public void setYearOfBirth(Integer birthYear) {
-        setFullBirthDate(birthYear);
+        setFullBirthDateFromYear(birthYear);
     }
 
     /**
@@ -4190,27 +4312,29 @@ public class Athlete {
         return (value == null ? "" : value);
     }
 
-    @SuppressWarnings("unused")
-    private Long getCopyId() {
-        return copyId;
-    }
+//    @SuppressWarnings("unused")
+//    private Long getCopyId() {
+//        return copyId;
+//    }
 
-    @SuppressWarnings("unused")
-    private Integer getDeclaredAndActuallyAttempted(Integer... items) {
-        int lastIndex = items.length - 1;
-        if (items.length == 0) {
-            return 0;
-        }
-        while (lastIndex >= 0) {
-            if (items[lastIndex] > 0) {
-                // if went down from declared weight, then return lower weight
-                return (items[lastIndex] < items[0] ? items[lastIndex] : items[0]);
-            }
-            lastIndex--;
-        }
-        return 0;
-    }
+//    @SuppressWarnings("unused")
+//    private Integer getDeclaredAndActuallyAttempted(Integer... items) {
+//        int lastIndex = items.length - 1;
+//        if (items.length == 0) {
+//            return 0;
+//        }
+//        while (lastIndex >= 0) {
+//            if (items[lastIndex] > 0) {
+//                // if went down from declared weight, then return lower weight
+//                return (items[lastIndex] < items[0] ? items[lastIndex] : items[0]);
+//            }
+//            lastIndex--;
+//        }
+//        return 0;
+//    }
 
+    @Transient
+    @JsonIgnore
     private int getProgression(Integer requestedWeight) {
         int attempt = getAttemptsDone() + 1;
         switch (attempt) {
@@ -4230,6 +4354,8 @@ public class Athlete {
         return 0;
     }
 
+    @Transient
+    @JsonIgnore
     private LiftOrderInfo getRunningLiftOrderInfo() {
         LiftOrderInfo loi = new LiftOrderInfo();
         loi.setAthlete(this);
@@ -4245,6 +4371,8 @@ public class Athlete {
         return loi;
     }
 
+    @Transient
+    @JsonIgnore
     private Double getSinclair(Double bodyWeight1, Integer total1) {
         if (total1 == null || total1 < 0.1 || (gender == null)) {
             return 0.0;
@@ -4276,6 +4404,8 @@ public class Athlete {
      * @param entryTotal
      * @return the allowed gap (inclusive) between sum of initial declarations and entry total.
      */
+    @Transient
+    @JsonIgnore
     private int getStartingTotalMargin(Category cat, Integer entryTotal) {
         if (cat != null) {
             AgeGroup ag = cat.getAgeGroup();
@@ -4297,6 +4427,8 @@ public class Athlete {
         return 20;
     }
 
+    @Transient
+    @JsonIgnore
     private boolean isSameAthleteAs(Athlete other) {
         if (other == null)
             return false;
@@ -4367,7 +4499,7 @@ public class Athlete {
      * @param newBirthDateAsDate
      */
 
-    private void setFullBirthDate(Integer yearOfBirth) {
+    private void setFullBirthDateFromYear(Integer yearOfBirth) {
         if (yearOfBirth != null) {
             this.fullBirthDate = LocalDate.of(yearOfBirth, 1, 1);
         } else {
@@ -4388,6 +4520,8 @@ public class Athlete {
      * @param coefficient
      * @param maxWeight
      */
+    @Transient
+    @JsonIgnore
     private Double sinclairFactor(Double bodyWeight1, Double coefficient, Double maxWeight) {
         if (bodyWeight1 == null) {
             return 0.0;
