@@ -32,6 +32,8 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -40,6 +42,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.provider.ListDataProvider;
 
+import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.i18n.Translator;
@@ -113,6 +116,7 @@ public class ConfigEditingFormFactory
         FormLayout languageLayout = presentationForm();
         FormLayout publicResultsLayout = publicResultsForm();
         FormLayout localOverrideLayout = localOverrideForm();
+        FormLayout exportLayout = exportForm();
 
         Component footer = this.buildFooter(operation, config, cancelButtonClickListener,
                 c -> {
@@ -129,9 +133,10 @@ public class ConfigEditingFormFactory
                 footer,
                 languageLayout, separator(),
                 tzLayout, separator(),
+                publicResultsLayout, separator(),
                 localOverrideLayout, separator(),
                 accessLayout, separator(),
-                publicResultsLayout, separator());
+                exportLayout);
         mainLayout.setMargin(false);
         mainLayout.setPadding(false);
 
@@ -247,6 +252,25 @@ public class ConfigEditingFormFactory
 //        binder.forField(ignoreCaching)
 //                .bind(Config::isIgnoreCaching, Config::setIgnoreCaching);
 
+        return layout;
+    }
+    
+    private FormLayout exportForm() {
+        FormLayout layout = createLayout();
+        Component title = createTitle("ExportDatabase.ExportImport");
+        layout.add(title);
+        layout.setColspan(title, 2);
+
+        Button uploadJson = new Button(Translator.translate("ExportDatabase.UploadJson"), new Icon(VaadinIcon.UPLOAD_ALT),
+                buttonClickEvent -> new JsonUploadDialog().open());
+        Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
+                Translator.translate("ExportDatabase.DownloadJson"));
+//        Button clearDatabase = new Button(Translator.translate("ExportDatabase.ClearDatabase"),
+//                new Icon(VaadinIcon.UPLOAD_ALT),
+//                buttonClickEvent -> CompetitionRepository.removeAll());
+        layout.addFormItem(exportJsonDiv, Translator.translate("ExportDatabase.DownloadLabel"));
+        layout.addFormItem(uploadJson, Translator.translate("ExportDatabase.UploadLabel"));
+//        layout.addFormItem(clearDatabase, "");
         return layout;
     }
 

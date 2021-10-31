@@ -81,5 +81,22 @@ public class CompetitionRepository {
         Competition current = Competition.getCurrent();
         return current;
     }
+    
+    public static void removeAll() {
+        JPAService.runInTransaction(em -> {
+            int deletedCount;
+            deletedCount= em.createQuery("DELETE FROM Participation").executeUpdate();
+            logger.info("deleted {} participations",deletedCount);
+            deletedCount = em.createQuery("DELETE FROM Athlete").executeUpdate();
+            logger.info("deleted {} athletes",deletedCount);
+            deletedCount = em.createQuery("DELETE FROM CompetitionGroup").executeUpdate();
+            logger.info("deleted {} groups",deletedCount);
+            deletedCount = em.createQuery("DELETE FROM Category").executeUpdate();
+            logger.info("deleted {} categories",deletedCount);
+            deletedCount = em.createQuery("DELETE FROM AgeGroup").executeUpdate();
+            logger.info("deleted {} age groups",deletedCount);
+            return null;
+        });
+    }
 
 }
