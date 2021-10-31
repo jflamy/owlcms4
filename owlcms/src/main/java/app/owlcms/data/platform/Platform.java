@@ -53,7 +53,7 @@ import ch.qos.logback.classic.Logger;
 //must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 @Cacheable
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name", scope = Platform.class)
 @JsonIgnoreProperties({"hibernateLazyInitializer", "logger"})
 public class Platform implements Serializable, Comparable<Platform> {
 
@@ -653,7 +653,7 @@ public class Platform implements Serializable, Comparable<Platform> {
             }
         }
         if (mixer == null) {
-            logger.info("Platform: {}: changing mixer to {}", this.name, null);
+            logger.info("Platform: {}: changing mixer to {} \\n{}", this.name, null, LoggerUtils.stackTrace());
         }
         mixerChecked = true;
     }

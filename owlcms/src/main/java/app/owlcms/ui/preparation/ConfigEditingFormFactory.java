@@ -42,7 +42,6 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.provider.ListDataProvider;
 
-import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.i18n.Translator;
@@ -262,7 +261,7 @@ public class ConfigEditingFormFactory
         layout.setColspan(title, 2);
 
         Button uploadJson = new Button(Translator.translate("ExportDatabase.UploadJson"), new Icon(VaadinIcon.UPLOAD_ALT),
-                buttonClickEvent -> new JsonUploadDialog().open());
+                buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
         Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
                 Translator.translate("ExportDatabase.DownloadJson"));
 //        Button clearDatabase = new Button(Translator.translate("ExportDatabase.ClearDatabase"),

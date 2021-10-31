@@ -31,7 +31,6 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
-import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.spreadsheet.JXLSRegistration;
@@ -90,11 +89,23 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         doGroup(getTranslation("Registration"), grid2, this);
         
 
-        Button athletes = openInNewTabNoParam(RegistrationContent.class, getTranslation("EditAthletes"));
-        Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
-        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams);
-        doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
-        
+//        Button athletes = openInNewTabNoParam(RegistrationContent.class, getTranslation("EditAthletes"));
+//        Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
+//        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams);
+//        doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
+//        
+//        Button uploadJson = new Button(getTranslation("ExportDatabase.UploadJson"), new Icon(VaadinIcon.UPLOAD_ALT),
+//                buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
+//        Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
+//                getTranslation("ExportDatabase.DownloadJ"));
+//        Optional<Component> exportJsonButton = exportJsonDiv.getChildren().findFirst();
+//        exportJsonButton.ifPresent(c -> ((Button) c).setWidth("93%"));
+//        exportJsonDiv.setWidthFull();
+////        Button clearDatabase = new Button(getTranslation("ExportDatabase.ClearDatabase"), new Icon(VaadinIcon.UPLOAD_ALT),
+////                buttonClickEvent -> CompetitionRepository.removeAll());
+//        FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson/* , clearDatabase */);
+//        doGroup(getTranslation("ExportDatabase.ExportImport"), grid4, this);
+
         DebugUtils.gc();
     }
 

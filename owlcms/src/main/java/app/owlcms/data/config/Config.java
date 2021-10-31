@@ -21,6 +21,8 @@ import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
 import app.owlcms.init.FileServlet;
@@ -37,8 +39,6 @@ import ch.qos.logback.classic.Logger;
 public class Config {
 
     public static final int SHORT_TEAM_LENGTH = 6;
-    
-    private String timeZoneId;
 
     @Transient
     final static private Logger logger = (Logger) LoggerFactory.getLogger(Config.class);
@@ -55,11 +55,6 @@ public class Config {
         return current;
     }
 
-    public static Config setCurrent(Config config) {
-        current = ConfigRepository.save(config);
-        return current;
-    }
-    
     public static void initConfig() {
         JPAService.runInTransaction(em -> {
             if (ConfigRepository.findAll().isEmpty()) {
@@ -69,6 +64,13 @@ public class Config {
             return null;
         });
     }
+
+    public static Config setCurrent(Config config) {
+        current = ConfigRepository.save(config);
+        return current;
+    }
+
+    private String timeZoneId;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -96,24 +98,6 @@ public class Config {
 
     @Convert(converter = LocaleAttributeConverter.class)
     private Locale defaultLocale = null;
-    
-    public boolean isClearZip() {
-        if (localOverride == null || localOverride.length == 0) {
-            clearZip = false;
-        }
-        return clearZip;
-    }
-
-    /**
-     * @return zip file containing a zipped ./local structure to override resources
-     */
-    public byte[] getLocalOverride() {
-        return localOverride;
-    }
-    
-    public void setClearZip(boolean clearZipRequested) {
-        this.clearZip = clearZipRequested;
-    }
 
     @Override
     public boolean equals(Object obj) {
@@ -126,6 +110,15 @@ public class Config {
         }
         Config other = (Config) obj;
         return id != null && id.equals(other.getId());
+    }
+
+    /**
+     * Gets the default locale.
+     *
+     * @return the default locale
+     */
+    public Locale getDefaultLocale() {
+        return defaultLocale;
     }
 
     /**
@@ -145,17 +138,29 @@ public class Config {
         return ipBackdoorList;
     }
 
-    public boolean isIgnoreCaching() {
-        return FileServlet.isIgnoreCaching();
+    /**
+     * Gets the locale.
+     *
+     * @return the locale
+     */
+    @Transient
+    @JsonIgnore
+    public Locale getLocale() {
+        return getDefaultLocale();
     }
 
-    public void setIgnoreCaching(boolean ignoreCaching) {
-        FileServlet.setIgnoreCaching(ignoreCaching);
+    /**
+     * @return zip file containing a zipped ./local structure to override resources
+     */
+    public byte[] getLocalOverride() {
+        return localOverride;
     }
 
     /**
      * @return the current whitelist.
      */
+    @Transient
+    @JsonIgnore
     public String getParamAccessList() {
         String uAccessList = StartupUtils.getStringParam("ip");
         if (uAccessList == null) {
@@ -171,6 +176,8 @@ public class Config {
     /**
      * @return the current whitelist.
      */
+    @Transient
+    @JsonIgnore
     public String getParamBackdoorList() {
         String uAccessList = StartupUtils.getStringParam("backdoor");
         if (uAccessList == null) {
@@ -183,6 +190,8 @@ public class Config {
         return uAccessList;
     }
 
+    @Transient
+    @JsonIgnore
     public String getParamDecisionUrl() {
         String paramPublicResultsURL = getParamPublicResultsURL();
         return paramPublicResultsURL != null ? paramPublicResultsURL + "/decision" : null;
@@ -191,6 +200,8 @@ public class Config {
     /**
      * @return the current password.
      */
+    @Transient
+    @JsonIgnore
     public String getParamPin() {
         String uPin = StartupUtils.getStringParam("pin");
         if (uPin == null) {
@@ -204,6 +215,8 @@ public class Config {
         return uPin;
     }
 
+    @Transient
+    @JsonIgnore
     public String getParamTimerUrl() {
         String paramPublicResultsURL = getParamPublicResultsURL();
         return paramPublicResultsURL != null ? paramPublicResultsURL + "/timer" : null;
@@ -212,6 +225,8 @@ public class Config {
     /**
      * @return the updateKey stored in the database, except if overridden by system property or envariable.
      */
+    @Transient
+    @JsonIgnore
     public String getParamUpdateKey() {
         String uKey = StartupUtils.getStringParam("updateKey");
         if (uKey == null) {
@@ -224,6 +239,8 @@ public class Config {
         return uKey;
     }
 
+    @Transient
+    @JsonIgnore
     public String getParamUpdateUrl() {
         String publicResultsURLParam = getParamPublicResultsURL();
         return publicResultsURLParam != null ? publicResultsURLParam + "/update" : null;
@@ -237,6 +254,14 @@ public class Config {
         return publicResultsURL;
     }
 
+    public TimeZone getTimeZone() {
+        if (timeZoneId == null) {
+            return null;
+        } else {
+            return TimeZone.getTimeZone(timeZoneId);
+        }
+    }
+
     public String getUpdatekey() {
         return updatekey;
     }
@@ -245,6 +270,29 @@ public class Config {
     public int hashCode() {
         // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         return 31;
+    }
+
+    public boolean isClearZip() {
+        if (localOverride == null || localOverride.length == 0) {
+            clearZip = false;
+        }
+        return clearZip;
+    }
+
+    public boolean isIgnoreCaching() {
+        return FileServlet.isIgnoreCaching();
+    }
+
+    public void setClearZip(boolean clearZipRequested) {
+        this.clearZip = clearZipRequested;
+    }
+
+    public void setDefaultLocale(Locale defaultLocale) {
+        this.defaultLocale = defaultLocale;
+    }
+
+    public void setIgnoreCaching(boolean ignoreCaching) {
+        FileServlet.setIgnoreCaching(ignoreCaching);
     }
 
     public void setIpAccessList(String ipAccessList) {
@@ -272,11 +320,18 @@ public class Config {
         this.publicResultsURL = publicResultsURL;
     }
 
+    public void setTimeZone(TimeZone timeZone) {
+        if (timeZone == null) {
+            this.timeZoneId = null;
+            return;
+        } else {
+            this.timeZoneId = timeZone.getID();
+        }
+    }
+
     public void setUpdatekey(String updatekey) {
         this.updatekey = updatekey;
     }
-
-
 
     /**
      * @return the public results url stored in the database, except if overridden by system property or envariable.
@@ -296,45 +351,6 @@ public class Config {
                 uURL = uURL.replaceFirst("/$", "");
                 return uURL;
             }
-        }
-    }
-
-    public void setDefaultLocale(Locale defaultLocale) {
-        this.defaultLocale = defaultLocale;
-    }
-
-    /**
-     * Gets the default locale.
-     *
-     * @return the default locale
-     */
-    public Locale getDefaultLocale() {
-        return defaultLocale;
-    }
-
-    /**
-     * Gets the locale.
-     *
-     * @return the locale
-     */
-    public Locale getLocale() {
-        return getDefaultLocale();
-    }
-    
-    public TimeZone getTimeZone() {
-        if (timeZoneId == null) {
-            return null;
-        } else {
-            return TimeZone.getTimeZone(timeZoneId);
-        }
-    }
-    
-    public void setTimeZone(TimeZone timeZone) {
-        if (timeZone == null) {
-            this.timeZoneId = null;
-            return;
-        } else {
-            this.timeZoneId = timeZone.getID();
         }
     }
 

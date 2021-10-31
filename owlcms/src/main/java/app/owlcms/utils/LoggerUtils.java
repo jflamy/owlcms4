@@ -19,19 +19,19 @@ import app.owlcms.init.OwlcmsSession;
 public class LoggerUtils {
 
     /**
-     * @param e
+     * @param e1
      * @return
      */
-    public static String exceptionMessage(Exception e) {
+    public static String exceptionMessage(Throwable e1) {
         String message = null;
-        if (e.getCause() != null) {
-            message = e.getCause().getMessage();
+        if (e1.getCause() != null) {
+            message = e1.getCause().getMessage();
         }
         if (message == null) {
-            message = e.getMessage();
+            message = e1.getMessage();
         }
         if (message == null) {
-            message = e.getClass().getSimpleName();
+            message = e1.getClass().getSimpleName();
         }
         return message;
     }

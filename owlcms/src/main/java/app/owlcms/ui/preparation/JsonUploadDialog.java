@@ -8,11 +8,13 @@ package app.owlcms.ui.preparation;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H5;
@@ -23,7 +25,9 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
@@ -36,8 +40,10 @@ import ch.qos.logback.classic.Logger;
 public class JsonUploadDialog extends Dialog {
 
     final static Logger logger = (Logger) LoggerFactory.getLogger(JsonUploadDialog.class);
+    private UI ui;
 
-    public JsonUploadDialog() {
+    public JsonUploadDialog(UI ui) {
+        this.ui = ui;
 
         H5 label = new H5(Translator.translate("ExportDatabase.WarningWillReplaceAll"));
         label.getStyle().set("color", "red");
@@ -69,27 +75,49 @@ public class JsonUploadDialog extends Dialog {
         add(vl);
     }
 
-    private void processInput(String fileName, InputStream inputStream, TextArea ta) throws StreamReadException, DatabindException, IOException {
+    private void processInput(String fileName, InputStream inputStream, TextArea ta)
+            throws StreamReadException, DatabindException, IOException {
         CompetitionRepository.removeAll();
 
         CompetitionData current = new CompetitionData();
-        CompetitionData updated = current.importData(inputStream);
 
-        JPAService.runInTransaction(em -> {
-            for (Platform p : updated.getPlatforms()) {
-                em.persist(p);
-            }
-            for (AgeGroup ag : updated.getAgeGroups()) {
-                em.persist(ag);
-            }
-            for (Group g : updated.getGroups()) {
-                em.persist(g);
-            }
-            for (Athlete a : updated.getAthletes()) {
-                em.persist(a);
-            }
-            return null;
-        });
+        CompetitionData updated;
+        try {
+            updated = current.importData(inputStream);
+
+            JPAService.runInTransaction(em -> {
+                try {
+                    Config config = updated.getConfig();
+                    Config.setCurrent(config);
+                    Locale defaultLocale = config.getDefaultLocale();
+                    Translator.reset();
+                    Translator.setForcedLocale(defaultLocale);
+
+                    Competition competition = updated.getCompetition();
+                    Competition.setCurrent(competition);
+
+                    for (Platform p : updated.getPlatforms()) {
+                        em.persist(p);
+                    }
+                    for (AgeGroup ag : updated.getAgeGroups()) {
+                        em.persist(ag);
+                    }
+                    for (Group g : updated.getGroups()) {
+                        em.persist(g);
+                    }
+                    for (Athlete a : updated.getAthletes()) {
+                        em.persist(a);
+                    }
+
+                    ui.getPage().reload();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            });
+        } catch (Throwable e1) {
+            ta.setValue(LoggerUtils.exceptionMessage(e1));
+        }
     }
 
 //    private void resetAthletes() {
