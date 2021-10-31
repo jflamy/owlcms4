@@ -34,7 +34,7 @@ import ch.qos.logback.classic.Logger;
 
 public class CompetitionData {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(CompetitionData.class);
+    final static Logger logger = (Logger) LoggerFactory.getLogger(CompetitionData.class);
 
     private List<AgeGroup> ageGroups;
     private List<Athlete> athletes;
