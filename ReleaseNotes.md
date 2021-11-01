@@ -1,21 +1,22 @@
-**Specific Changes for release 4.24.0-rc02**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+**Specific Changes for release 4.24.0-rc03**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Feature Preview: Added Export/Import database on the Language and Settings page. (#449).  Allows bringing back a Heroku database for troubleshooting without having to install PostgreSQL.  Loading a laptop database to Heroku has not yet been tested extensively.
-- [x] PIN/password is now handled as a salted SHA-256 hash.
+- [x] Jury decisions on good/bad lift are now in the same style as referee decisions (red/green). Clear textual marking of REVERSAL and whether lift is GOOD/BAD remains for color-challenged persons.
 
 **New in in release 4.24**
 
-- [x] It is now possible to export, manipulate and reload the registration data from the database.  
+- [x] It is now possible to export, manipulate and reload the registration data (athletes, groups, referees) in Excel format.  
 
   - Exporting the previously loaded data, rearranging the groups, adding/deleting athletes, changing expected category and entry totals is now possible. Until final verification of entries, the Excel sheet can be used as authoritative list of participating athletes: reloading it erases and recreates the athletes and groups.
   - Only registration data is exported.  This does not export the lifts and requested changes.  The file should not be loaded after the competition has started as it recreates the athletes from scratch.
   - Note that the format has changed to reflect the fact that category allocation is now automatic - only the gender and expected weight of the athlete are used. You need to download a new empty template, or export existing data. 
   - The new format makes it easier to cut and paste athletes (no hidden columns). Both the empty sheet and the exported sheet are now translated in the current language.
 - [x] The jury console now allows direct reversal/confirmation of lifts (#435, #427)  
-  - The jury chief can confirm and reverse lifts directly and can ask the announcer to call the technical controller.  Jury actions are shown to the other technical officials consoles to keep them informed.
-  - Shortcuts are defined to support a jury keypad. See [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Refereeing#jury-console-keypad) for details
-
-- [x] Documented how to import and use a PostgreSQL database from Heroku to a local machine.  Added the capability to set the database URL, database name, username and password as system properties. See [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/PostgreSQL) for details
+  - The jury chief can confirm and reverse lifts directly and can ask the announcer to call the technical controller.  
+  - Jury actions are shown to the other technical officials consoles to keep them informed.
+- Shortcuts are defined to support a jury keypad. See [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Refereeing#jury-console-keypad) for details
+- [x] Export and Import of database content (#449).  Allows bringing back a Heroku database for local use, and conversely, setting up a competition locally prior to loading on Heroku. See the bottom of the Language and System Settings Page.  The export file is in JSON format, and while readable, is not meant for editing.
+- [x] PIN/password is now handled as a salted SHA-256 hash, so it does not appear in clear in the export file.
+- [x] Documented how to import and use a PostgreSQL database from Heroku to a local machine.  Added the capability to set the database URL, database name, username and password as system properties. See [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/PostgreSQL) for details.  Since it is now possible to export the database, this is a backup for investigating PostgreSQL specific issues, or some that would prevent the system from starting.
 
 **Key Highlights from recent stable releases**
 
