@@ -351,9 +351,11 @@ public abstract class AthleteGridContent extends VerticalLayout
                 reversalText = e.getReversal() ? Translator.translate("JuryNotification.Reversal")
                         : Translator.translate("JuryNotification.Confirmed");
             }
+            String style = "warning";
             switch (e.getDeliberationEventType()) {
             case BAD_LIFT:
                 text = Translator.translate("JuryNotification.BadLift", reversalText, e.getAthlete().getFullName(), (e.getAthlete().getAttemptNumber()-1));
+                style = "primary error";
                 break;
             case CALL_REFEREES:
                 text = Translator.translate("JuryNotification.CallReferees");
@@ -366,6 +368,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                 break;
             case GOOD_LIFT:
                 text = Translator.translate("JuryNotification.GoodLift", reversalText, e.getAthlete().getFullName(), (e.getAthlete().getAttemptNumber()-1));
+                style = "primary success";
                 break;
             case LOADING_ERROR:
                 text = Translator.translate("JuryNotification.LoadingError");
@@ -382,7 +385,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             default:
                 break;
             }
-            doNotification(text);
+            doNotification(text, style);
         });
     }
 
@@ -1172,14 +1175,14 @@ public abstract class AthleteGridContent extends VerticalLayout
             } else {
                 text = getTranslation("Weight_change_current_athlete", curDisplayAthlete.getFullName());
             }
-            doNotification(text);
+            doNotification(text, "warning");
         }
     }
 
-    private void doNotification(String text) {
+    private void doNotification(String text, String theme) {
         Notification n = new Notification();
         // Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
-        n.getElement().getThemeList().add("warning");
+        n.getElement().getThemeList().add(theme);
 
         n.setDuration(6000);
         n.setPosition(Position.TOP_START);
