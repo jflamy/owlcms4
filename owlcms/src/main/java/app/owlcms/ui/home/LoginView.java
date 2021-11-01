@@ -18,7 +18,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AppLayoutAware;
 import app.owlcms.ui.shared.ContentWrapping;
@@ -61,7 +60,7 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
         pinField.setWidthFull();
         pinField.addValueChangeListener(event -> {
             String value = event.getValue();
-            if (!checkAuthenticated(value)) {
+            if (!AccessUtils.checkAuthenticated(value)) {
                 pinField.setErrorMessage(getTranslation("LoginDenied"));
                 pinField.setInvalid(true);
             } else {
@@ -105,25 +104,6 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
         this.routerLayout = routerLayout;
     }
 
-    private boolean checkAuthenticated(String password) {
-        boolean isAuthenticated = OwlcmsSession.isAuthenticated();
 
-        if (!isAuthenticated) {
-            boolean whiteListed = AccessUtils.checkWhitelist();
-
-            // check for PIN if one is specified
-            String pin = Config.getCurrent().getParamPin();
-            String hashedPassword = Config.getCurrent().endodePin(password);
-            //logger.debug("about to check PIN whiteListed={} pin={} password={} hashedPassword={}", whiteListed, pin, password, hashedPassword);
-            if (whiteListed && (pin == null || pin.trim().isEmpty() || pin.contentEquals(hashedPassword))) {
-                OwlcmsSession.setAuthenticated(true);
-                return true;
-            } else {
-                OwlcmsSession.setAuthenticated(false);
-                return false;
-            }
-        }
-        return true;
-    }
 
 }

@@ -19,6 +19,7 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -132,9 +133,9 @@ public class ConfigEditingFormFactory
                 footer,
                 languageLayout, separator(),
                 tzLayout, separator(),
+                accessLayout, separator(),
                 publicResultsLayout, separator(),
                 localOverrideLayout, separator(),
-                accessLayout, separator(),
                 exportLayout);
         mainLayout.setMargin(false);
         mainLayout.setPadding(false);
@@ -329,6 +330,15 @@ public class ConfigEditingFormFactory
         Component title = createTitle("Config.AccessControlTitle");
         configLayout.add(title);
         configLayout.setColspan(title, 2);
+        
+        PasswordField passwordField = new PasswordField();
+        passwordField.setWidthFull();
+        configLayout.addFormItem(passwordField, Translator.translate("Config.PasswordOrPIN"));
+        binder.forField(passwordField)
+                .withNullRepresentation("")
+                .bind(Config::getPin, Config::setPin);
+
+        configLayout.addFormItem(new Html("<br/>"), "");
 
         TextField accessListField = new TextField();
         accessListField.setWidthFull();
@@ -336,13 +346,6 @@ public class ConfigEditingFormFactory
         binder.forField(accessListField)
                 .withNullRepresentation("")
                 .bind(Config::getIpAccessList, Config::setIpAccessList);
-
-        PasswordField passwordField = new PasswordField();
-        passwordField.setWidthFull();
-        configLayout.addFormItem(passwordField, Translator.translate("Config.PasswordOrPIN"));
-        binder.forField(passwordField)
-                .withNullRepresentation("")
-                .bind(Config::getPin, Config::setPin);
 
         TextField backdoorField = new TextField();
         backdoorField.setWidthFull();
