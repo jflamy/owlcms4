@@ -157,7 +157,7 @@ public class OwlcmsFactory {
         for (Platform platform : PlatformRepository.findAll()) {
             String name = platform.getName();
             FieldOfPlay fop = new FieldOfPlay(null, platform);
-            logger.warn("{} Initialized", fop.getLoggingName());
+            logger.debug("{} Initialized", fop.getLoggingName());
             // no group selected, no athletes, announcer will need to pick a group.
             fop.init(new LinkedList<Athlete>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop), true);
             fopByName.put(name, fop);

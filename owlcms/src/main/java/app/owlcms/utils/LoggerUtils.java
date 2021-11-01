@@ -12,6 +12,7 @@ import java.io.StringWriter;
 import org.apache.log4j.MDC;
 
 import app.owlcms.init.OwlcmsSession;
+import ch.qos.logback.classic.Logger;
 
 /**
  * The Class LoggerUtils.
@@ -94,5 +95,9 @@ public class LoggerUtils {
     public static String whereFrom(int depth) {
         String where = Thread.currentThread().getStackTrace()[3 + depth].toString();
         return where.replaceFirst(".*\\(", "(");
+    }
+
+    public static void logError(Logger logger, Throwable e) {
+        logger.error(stackTrace(e));
     }
 }

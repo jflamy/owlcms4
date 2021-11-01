@@ -472,7 +472,7 @@ public class FieldOfPlay {
             transitionToBreak((BreakStarted) e);
             return;
         } else if (e instanceof BreakPaused) {
-            // logger.debug("break paused {}", LoggerUtils.stackTrace());
+            // logger.debug("break paused {}", LoggerUtils. stackTrace());
         } else if (e instanceof StartLifting) {
             transitionToLifting(e, getGroup(), true);
         } else if (e instanceof BarbellOrPlatesChanged) {
@@ -689,7 +689,7 @@ public class FieldOfPlay {
     }
 
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer, boolean alreadyLoaded) {
-        logger.debug("start of init state={} \\n{}", state, LoggerUtils.stackTrace());
+        //logger.debug("start of init state={} \\n{}", state, LoggerUtils. stackTrace());
         this.athleteTimer = timer;
         this.breakTimer = breakTimer;
         this.setCurAthlete(null);
@@ -906,7 +906,7 @@ public class FieldOfPlay {
      * @param group the group
      */
     public void startLifting(Group group, Object origin) {
-        //logger.debug("startLifting {}", LoggerUtils.stackTrace());
+        //logger.debug("startLifting {}", LoggerUtils. stackTrace());
         loadGroup(group, origin, true);
         logger.trace("{} start lifting for group {} origin={}", this.getLoggingName(),
                 (group != null ? group.getName() : group), origin);
@@ -957,7 +957,7 @@ public class FieldOfPlay {
     void setState(FOPState state) {
         logger.debug("{}entering {} {}", getLoggingName(), state, LoggerUtils.whereFrom());
         // if (state == INACTIVE) {
-        // logger.debug("entering inactive {}",LoggerUtils.stackTrace());
+        // logger.debug("entering inactive {}",LoggerUtils. stackTrace());
         // }
         if (state == CURRENT_ATHLETE_DISPLAYED) {
             Athlete a = getCurAthlete();
@@ -1104,7 +1104,7 @@ public class FieldOfPlay {
             try {
                 downSignal = new Tone(getSoundMixer(), 1100, 1200, 1.0);
             } catch (IllegalArgumentException | LineUnavailableException e) {
-                logger.error("{}\n{}", e.getCause(), LoggerUtils.stackTrace(e));
+                logger.error("{}\n{}", e.getCause(), LoggerUtils./**/stackTrace(e));
                 broadcast("SoundSystemProblem");
             }
         }

@@ -550,7 +550,7 @@ public class Athlete {
             }
             return value == null ? null : Integer.valueOf(value);
         } catch (NumberFormatException e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            LoggerUtils.logError(logger,e);
             return 0;
         }
     }
@@ -2204,28 +2204,6 @@ public class Athlete {
         return startNumber != null ? startNumber : 0;
     }
 
-//    /**
-//     * Gets the snatch rank.
-//     *
-//     * @return the snatch rank
-//     */
-//    public Integer getSnatchRank() {
-////        if(getFullName().equalsIgnoreCase("Edwards, Christopher")) logger./**/warn("getSnatchRank {} {} {}", System.identityHashCode(this), snatchRank, LoggerUtils.stackTrace());
-//        return snatchRank;
-//    }
-//
-//    public Integer getSnatchRankJr() {
-//        return snatchRankJr;
-//    }
-//
-//    public Integer getSnatchRankSr() {
-//        return snatchRankSr;
-//    }
-//
-//    public Integer getSnatchRankYth() {
-//        return snatchRankYth;
-//    }
-
     /**
      * Gets the team.
      *
@@ -2617,8 +2595,7 @@ public class Athlete {
         }
         // the category is already from the eligible set
         // this.addEligibleCategory(category);
-        logger.trace("{}{} category {} {}", OwlcmsSession.getFopLoggingName(), System.identityHashCode(this),
-                category != null ? category.getParticipations() : null, LoggerUtils.stackTrace());
+        //logger.trace("{}{} category {} {}", OwlcmsSession.getFopLoggingName(), System.identityHashCode(this), category != null ? category.getParticipations() : null, LoggerUtils./**/stackTrace());
         this.category = category;
     }
 

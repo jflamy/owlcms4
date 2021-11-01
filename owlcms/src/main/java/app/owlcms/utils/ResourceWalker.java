@@ -223,10 +223,10 @@ public class ResourceWalker {
                     (fileSystem != null ? "jar" : "classpath folders"));
             return fileSystem;
         } catch (URISyntaxException | IOException e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            LoggerUtils.logError(logger,e);
             throw new RuntimeException(e);
         } catch (Throwable t) {
-            logger.error(LoggerUtils.stackTrace(t));
+            LoggerUtils.logError(logger, t);
             throw t;
         }
     }
@@ -471,7 +471,7 @@ public class ResourceWalker {
 
             return localeNames;
         } catch (IOException e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            LoggerUtils.logError(logger,e);
             throw new RuntimeException(e);
         }
     }

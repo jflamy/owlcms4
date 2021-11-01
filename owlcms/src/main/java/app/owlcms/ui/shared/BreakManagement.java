@@ -238,7 +238,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     public void slaveBreakDone(UIEvent.BreakDone e) {
         synchronized (this) {
             try {
-                logger.debug("Break Done {}", LoggerUtils.stackTrace());
+                //logger.debug("Break Done {}", LoggerUtils. stackTrace());
                 ignoreListeners = true;
                 UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(),
                         () -> parentDialog.close());

@@ -279,7 +279,7 @@ public class TeamSelectionContent extends VerticalLayout
      * @param topBar
      */
     private void createTopBar() {
-        // logger.trace("createTopBar {}", LoggerUtils.stackTrace());
+        // logger.trace("createTopBar {}", LoggerUtils. stackTrace());
         // show arrow but close menu
         getAppLayout().setMenuVisible(true);
         getAppLayout().closeDrawer();

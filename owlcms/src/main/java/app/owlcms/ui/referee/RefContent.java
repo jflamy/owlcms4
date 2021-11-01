@@ -165,7 +165,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
             } catch (NumberFormatException e) {
                 refIndex = null;
                 num = null;
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger, e);
             }
         }
 

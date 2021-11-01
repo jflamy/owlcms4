@@ -156,7 +156,7 @@ public class RecordDefinitionReader {
                     try {
                         em.persist(rec);
                     } catch (Exception e) {
-                        logger.error("could not persist RecordEvent {}", LoggerUtils.stackTrace(e));
+                        logger.error("could not persist RecordEvent {}", LoggerUtils./**/stackTrace(e));
                     }
 
                     iRow++;
@@ -180,7 +180,7 @@ public class RecordDefinitionReader {
             createRecords(workbook, es, localizedName);
             workbook.close();
         } catch (Exception e) {
-            RecordRepository.logger.error("could not process ageGroup configuration\n{}", LoggerUtils.stackTrace(e));
+            RecordRepository.logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
         }
     }
 

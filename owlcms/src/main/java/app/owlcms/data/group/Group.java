@@ -218,7 +218,7 @@ public class Group implements Comparable<Group> {
             LocalDateTime competitionTime2 = getCompetitionTime();
             formatted = competitionTime2 == null ? "" : DATE_TIME_FORMATTER.format(competitionTime2);
         } catch (Exception e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            LoggerUtils.logError(logger,e);
         }
         return formatted;
     }
@@ -387,7 +387,7 @@ public class Group implements Comparable<Group> {
             LocalDateTime weighInTime2 = getWeighInTime();
             formatted = weighInTime2 == null ? "" : DATE_TIME_FORMATTER.format(weighInTime2);
         } catch (Exception e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            LoggerUtils.logError(logger,e);
         }
         return formatted;
     }

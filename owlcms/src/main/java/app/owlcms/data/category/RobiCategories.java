@@ -122,7 +122,7 @@ public class RobiCategories {
                     .collect(Collectors.toCollection(ArrayList::new));
             workbook.close();
         } catch (Exception e) {
-            logger.error("could not process ageGroup configuration\n{}", LoggerUtils.stackTrace(e));
+            logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
         }
         Double prevMax = 0.0D;
 //        int i = 0;
@@ -151,7 +151,7 @@ public class RobiCategories {
                     .collect(Collectors.toCollection(ArrayList::new));
             workbook.close();
         } catch (Exception e) {
-            logger.error("could not process ageGroup configuration\n{}", LoggerUtils.stackTrace(e));
+            logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
         }
         Double prevMax = 0.0D;
 //        int i = 0;

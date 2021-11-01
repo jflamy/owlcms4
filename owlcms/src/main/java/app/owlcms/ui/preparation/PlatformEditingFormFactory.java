@@ -57,7 +57,7 @@ class PlatformEditingFormFactory extends OwlcmsCrudFormFactory<Platform> {
                         if (e.getOldValue() != null && !e.getValue().equals(e.getOldValue())) {
                             Speakers.testSound(curMixer);
                         }
-                        PlatformContent.logger.debug("testing mixer {}", curMixer.getMixerInfo().getName()); // LoggerUtils.stackTrace());
+                        PlatformContent.logger.debug("testing mixer {}", curMixer.getMixerInfo().getName());
                         break;
                     }
                 }

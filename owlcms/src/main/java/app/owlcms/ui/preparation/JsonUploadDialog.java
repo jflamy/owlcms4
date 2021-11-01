@@ -61,7 +61,7 @@ public class JsonUploadDialog extends Dialog {
             try {
                 processInput(event.getFileName(), buffer.getInputStream(), ta);
             } catch (IOException e) {
-                ta.setValue(LoggerUtils.stackTrace(e));
+                ta.setValue(LoggerUtils./**/stackTrace(e));
             }
         });
 

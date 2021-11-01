@@ -188,7 +188,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
                         Notification.show(successMessage);
                         logger.trace("operation performed");
                     } catch (Exception e) {
-                        logger.error(LoggerUtils.stackTrace(e));
+                        LoggerUtils.logError(logger,e);
                     }
                 },
                 deleteButtonClickEvent -> {

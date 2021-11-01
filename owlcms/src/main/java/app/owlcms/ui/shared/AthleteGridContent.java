@@ -191,7 +191,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     public void busyBreakButton() {
         if (breakButton == null) {
-//            logger.error("breakButton is null\n{}", LoggerUtils.stackTrace());
+//            logger.trace("breakButton is null\n{}", LoggerUtils. stackTrace());
             return;
         }
         breakButton.getElement().setAttribute("theme", "primary error");
@@ -403,7 +403,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             }
 
             if (this instanceof AnnouncerContent) {
-                logger.debug("starting break {}", LoggerUtils.stackTrace());
+                logger.debug("starting break {}", LoggerUtils./**/stackTrace());
             }
             syncWithFOP(true);
         });
@@ -492,7 +492,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     public void slaveUpdateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
         Athlete athlete = e.getAthlete();
         OwlcmsSession.withFop(fop -> {
-            // uiEventLogger.debug("slaveUpdateAnnouncerBar in {} origin {}", this, LoggerUtils.stackTrace());
+            // uiEventLogger.debug("slaveUpdateAnnouncerBar in {} origin {}", this, LoggerUtils. stackTrace());
             // do not send weight change notification if we are the source of the weight
             // change
             UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
@@ -842,7 +842,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                         setIgnoreSwitchGroup(false);
                     } else {
                         setIgnoreSwitchGroup(true); // prevent recursion on self-generated event.
-                        // logger.debug("value changed, switching group, from \n{}",LoggerUtils.stackTrace());
+                        // logger.debug("value changed, switching group, from \n{}",LoggerUtils. stackTrace());
                         fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
                     }
                     oldGroup = newGroup;
@@ -851,7 +851,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 //                        // loadGroup will emit FOP SwitchGroup which will emit UI switchgroup that we listen to .
                     // logger.debug("{} loading group {} {} {} {} {}", myId, newGroup,
                     // System.identityHashCode(newGroup), oldGroup, System.identityHashCode(oldGroup),
-                    // LoggerUtils.stackTrace());
+                    // LoggerUtils. stackTrace());
                     // fop.loadGroup(newGroup, this, newGroup != oldGroup);
 //                    }
                 });
@@ -862,7 +862,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
         // logger.debug("{} updateTopBar {}\\n{}", this.getClass().getSimpleName(),
-        // athlete/*,LoggerUtils.stackTrace()*/);
+        // athlete/*,LoggerUtils. stackTrace()*/);
         if (title == null) {
             return;
         }
@@ -960,7 +960,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         // logger.debug("attaching {} initial={} \\n{}", this.getClass().getSimpleName(), attachEvent.isInitialAttach(),
-        // LoggerUtils.stackTrace());
+        // LoggerUtils. stackTrace());
         OwlcmsSession.withFop(fop -> {
             // create the top bar.
             syncWithFOP(true);
@@ -1037,7 +1037,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                         decisions.setVisible(true);
                     }
                     if (breakButton == null) {
-                        logger.debug("breakButton is null\n{}", LoggerUtils.stackTrace());
+                        logger.debug("breakButton is null\n{}", LoggerUtils. stackTrace());
                     }
                     if (breakButton != null) {
                         breakButton.setText("");

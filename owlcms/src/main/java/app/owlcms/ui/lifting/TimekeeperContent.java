@@ -280,7 +280,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
                         decisions.setVisible(true);
                     }
                     if (breakButton == null) {
-                        logger.debug("breakButton is null\n{}", LoggerUtils.stackTrace());
+                        //logger.debug("breakButton is null\n{}", LoggerUtils. stackTrace());
                         return;
                     }
                     breakButton.setText("");

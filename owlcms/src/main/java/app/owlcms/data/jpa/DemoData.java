@@ -159,7 +159,7 @@ public class DemoData {
                 }
                 em.persist(p);
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger,e);
             } finally {
                 p.setLoggerLevel(prevLoggerLevel);
             }

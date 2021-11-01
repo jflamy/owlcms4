@@ -42,7 +42,7 @@ public class BreakTimerElement extends TimerElement {
      * Instantiates a new timer element.
      */
     public BreakTimerElement() {
-        // logger./**/warn(LoggerUtils.stackTrace());
+        // logger./**/warn(LoggerUtils./**/stackTrace());
     }
 
     @Override

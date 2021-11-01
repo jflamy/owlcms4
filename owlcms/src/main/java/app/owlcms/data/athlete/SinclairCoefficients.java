@@ -109,7 +109,7 @@ public class SinclairCoefficients {
             InputStream stream = ResourceWalker.getResourceAsStream("/sinclair/sinclair.properties");
             props.load(stream);
         } catch (IOException e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            LoggerUtils.logError(logger,e);
         }
     }
 
