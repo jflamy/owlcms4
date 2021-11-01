@@ -1,7 +1,7 @@
-**Specific Changes for release 4.24.0-beta04**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+**Specific Changes for release 4.24.0-rc02**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Feature Preview: Added Export/Import database on the Language and Settings page. (#449).  Allows bringing back a Heroku database for troubleshooting without having to install PostgreSQL.  Loading a laptop database to Heroku should work, but has not yet been tested extensively.
-- [x] PIN/password is now handled as a salted SHA-256 hash.  Only way to reset is to zap the entry in the Config table of the database.
+- [x] Feature Preview: Added Export/Import database on the Language and Settings page. (#449).  Allows bringing back a Heroku database for troubleshooting without having to install PostgreSQL.  Loading a laptop database to Heroku has not yet been tested extensively.
+- [x] PIN/password is now handled as a salted SHA-256 hash.
 
 **New in in release 4.24**
 
