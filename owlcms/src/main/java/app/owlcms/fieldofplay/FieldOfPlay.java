@@ -689,7 +689,7 @@ public class FieldOfPlay {
     }
 
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer, boolean alreadyLoaded) {
-        //logger.debug("start of init state={} \\n{}", state, LoggerUtils.stackTrace());
+        logger.debug("start of init state={} \\n{}", state, LoggerUtils.stackTrace());
         this.athleteTimer = timer;
         this.breakTimer = breakTimer;
         this.setCurAthlete(null);
@@ -717,7 +717,7 @@ public class FieldOfPlay {
             logger.info("{}group {} athletes={}", getLoggingName(), getGroup(), athletes.size());
             pushOut(new UIEvent.SwitchGroup(getGroup(), getState(), getCurAthlete(), this));
         }
-        logger.trace("end of init state=" + state);
+        logger.debug("end of init state=" + state);
     }
 
     public boolean isCjStarted() {

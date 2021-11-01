@@ -653,7 +653,7 @@ public class Platform implements Serializable, Comparable<Platform> {
             }
         }
         if (mixer == null) {
-            logger.info("Platform: {}: changing mixer to {} \\n{}", this.name, null, LoggerUtils.stackTrace());
+            logger.debug("Platform: {}: changing mixer to {}", this.name, null);
         }
         mixerChecked = true;
     }

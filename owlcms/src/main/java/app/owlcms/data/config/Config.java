@@ -6,7 +6,9 @@
  *******************************************************************************/
 package app.owlcms.data.config;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import java.util.Random;
 import java.util.TimeZone;
 
 import javax.persistence.Cacheable;
@@ -22,6 +24,7 @@ import javax.persistence.Transient;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.hash.Hashing;
 
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
@@ -98,6 +101,8 @@ public class Config {
 
     @Convert(converter = LocaleAttributeConverter.class)
     private Locale defaultLocale = null;
+
+    private String salt;
 
     @Override
     public boolean equals(Object obj) {
@@ -206,13 +211,15 @@ public class Config {
         String uPin = StartupUtils.getStringParam("pin");
         if (uPin == null) {
             // use pin from database
-            uPin = Config.getCurrent().pin;
+            uPin = Config.getCurrent().getPin();
             // logger.debug("pin = {}", uPin);
             if (uPin == null || uPin.isBlank()) {
                 uPin = null;
             }
+            return uPin;
+        } else {
+            return endodePin(uPin, this.getSalt());
         }
-        return uPin;
     }
 
     @Transient
@@ -247,7 +254,13 @@ public class Config {
     }
 
     public String getPin() {
-        return pin;
+        if (pin == null || (pin.length() == 66 && pin.startsWith("0x"))) {
+            return pin;
+        } else {
+            setPin(pin); // forces encoding if not there.
+            ConfigRepository.save(this);
+            return pin;
+        }
     }
 
     public String getPublicResultsURL() {
@@ -313,7 +326,19 @@ public class Config {
     }
 
     public void setPin(String pin) {
-        this.pin = pin;
+        if (pin.length() != 64+2) {
+            setSalt(null);
+            this.pin = endodePin(pin,getSalt());
+        } else {
+            this.pin = pin;
+        }
+    }
+
+    public String endodePin(String pin, String salt) {
+        String sha256hex = Hashing.sha256()
+                .hashString(pin+getSalt(), StandardCharsets.UTF_8)
+                .toString();
+        return "0x"+sha256hex;
     }
 
     public void setPublicResultsURL(String publicResultsURL) {
@@ -352,6 +377,28 @@ public class Config {
                 return uURL;
             }
         }
+    }
+
+    public String getSalt() {
+        if (salt == null) {
+            this.setSalt(Integer.toString(new Random(System.currentTimeMillis()).nextInt(),16));
+        }
+        logger.debug("salt = {}",this.salt);
+        return this.salt;
+    }
+
+    public String endodePin(String password) {
+        logger.debug("encoding pin with {}", this.getSalt());
+        return endodePin(password, this.getSalt());
+    }
+
+    /**
+     * @param salt the salt to set
+     */
+    private void setSalt(String salt) {
+        this.salt = salt;
+        logger.debug("setting salt to {}",this.salt);
+
     }
 
 }
