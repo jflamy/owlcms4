@@ -4,7 +4,7 @@
 
 **New in in release 4.24**
 
-- [x] It is now possible to export, manipulate and reload the registration data from the database.  
+- [x] It is now possible to export, manipulate and reload the registration data (athletes, groups, referees) in Excel format.  
 
   - Exporting the previously loaded data, rearranging the groups, adding/deleting athletes, changing expected category and entry totals is now possible. Until final verification of entries, the Excel sheet can be used as authoritative list of participating athletes: reloading it erases and recreates the athletes and groups.
   - Only registration data is exported.  This does not export the lifts and requested changes.  The file should not be loaded after the competition has started as it recreates the athletes from scratch.
@@ -14,9 +14,9 @@
   - The jury chief can confirm and reverse lifts directly and can ask the announcer to call the technical controller.  
   - Jury actions are shown to the other technical officials consoles to keep them informed.
 - Shortcuts are defined to support a jury keypad. See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Refereeing#jury-console-keypad) for details
-- [x] Feature Preview: Added Export/Import database on the Language and Settings page. (#449).  Allows bringing back a Heroku database for local use, and conversely, setting up a competition locally prior to loading on Heroku.
+- [x] Export and Import of database content (#449).  Allows bringing back a Heroku database for local use, and conversely, setting up a competition locally prior to loading on Heroku. See the bottom of the Language and System Settings Page.  The export file is in JSON format, and while readable, is not meant for editing.
 - [x] PIN/password is now handled as a salted SHA-256 hash, so it does not appear in clear in the export file.
-- [x] Documented how to import and use a PostgreSQL database from Heroku to a local machine.  Added the capability to set the database URL, database name, username and password as system properties. See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/PostgreSQL) for details.  Not likely to be needed much except for investigating a problem specific to PostgreSQL, since it is now possible to export the database.
+- [x] Documented how to import and use a PostgreSQL database from Heroku to a local machine.  Added the capability to set the database URL, database name, username and password as system properties. See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/PostgreSQL) for details.  Since it is now possible to export the database, this is a backup for investigating PostgreSQL specific issues, or some that would prevent the system from starting.
 
 **Key Highlights from recent stable releases**
 
