@@ -106,7 +106,7 @@ public class AccessUtils {
 
         Config config = Config.getCurrent();
         String salt = config.getSalt();
-        if (salt == null) {
+        if (salt == null || salt.isBlank()) {
             salt = config.defineSalt();
         }
         // SHA256 is 64 hex characters by definition (256 / 4)
