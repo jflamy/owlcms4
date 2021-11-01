@@ -364,7 +364,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     public void slaveStartBreak(UIEvent.BreakStarted e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        uiEventLogger.debug("$$$ slaveStartBreak - scoreboard calling doBreak() {}"/* , LoggerUtils.stackTrace() */);
+        uiEventLogger.debug("$$$ slaveStartBreak - scoreboard calling doBreak() {}"/* , LoggerUtils. stackTrace() */);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
             doBreak();

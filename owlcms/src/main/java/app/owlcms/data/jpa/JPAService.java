@@ -158,7 +158,7 @@ public class JPAService {
 
         try {
             if (getFactory() == null) {
-                logger.debug("JPAService {}", LoggerUtils.stackTrace());
+                logger.debug("JPAService {}", LoggerUtils./**/stackTrace());
             }
             entityManager = getFactory().createEntityManager();
             entityManager.getTransaction().begin();
@@ -187,7 +187,7 @@ public class JPAService {
 
         try {
             if (getFactory() == null) {
-                logger.debug("JPAService {}", LoggerUtils.stackTrace());
+                logger.debug("JPAService {}", LoggerUtils./**/stackTrace());
             }
             entityManager = getFactory().createEntityManager();
             entityManager.getTransaction().begin();
@@ -406,7 +406,7 @@ public class JPAService {
                 }
             }
         } catch (SQLException e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            LoggerUtils.logError(logger,e);
         }
     }
 

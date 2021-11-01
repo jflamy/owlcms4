@@ -113,8 +113,9 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
 
             // check for PIN if one is specified
             String pin = Config.getCurrent().getParamPin();
-            logger.trace("about to check PIN whiteListed={} pin={} password={}", whiteListed, pin, password);
-            if (whiteListed && (pin == null || pin.trim().isEmpty() || pin.contentEquals(password))) {
+            String hashedPassword = Config.getCurrent().endodePin(password);
+            //logger.debug("about to check PIN whiteListed={} pin={} password={} hashedPassword={}", whiteListed, pin, password, hashedPassword);
+            if (whiteListed && (pin == null || pin.trim().isEmpty() || pin.contentEquals(hashedPassword))) {
                 OwlcmsSession.setAuthenticated(true);
                 return true;
             } else {

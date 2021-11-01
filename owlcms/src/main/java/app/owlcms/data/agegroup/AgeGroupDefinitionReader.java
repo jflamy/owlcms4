@@ -231,7 +231,7 @@ public class AgeGroupDefinitionReader {
             createAgeGroups(workbook, templates, es, localizedName);
             workbook.close();
         } catch (Exception e) {
-            AgeGroupRepository.logger.error("could not process ageGroup configuration\n{}", LoggerUtils.stackTrace(e));
+            AgeGroupRepository.logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
         }
     }
 

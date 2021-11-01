@@ -197,8 +197,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 //            computeTimeRemaining();
 //        }
 
-        logger.debug("setting break timeRemaining = {} [{}]", DurationFormatUtils.formatDurationHMS(this.timeRemaining),
-                LoggerUtils.stackTrace());
+        //logger.debug("setting break timeRemaining = {} [{}]", DurationFormatUtils.formatDurationHMS(this.timeRemaining),LoggerUtils. stackTrace());
 
 //        fop.pushOut(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), timeRemaining,
 //                this.indefinite, this));

@@ -19,6 +19,10 @@ import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import ch.qos.logback.classic.Logger;
@@ -33,20 +37,25 @@ import ch.qos.logback.classic.Logger;
  */
 @Entity(name = "Participation")
 @Table(name = "participation")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIgnoreProperties({"hibernateLazyInitializer"})
 public class Participation implements IRankHolder {
 
     @Transient
     private final static Logger logger = (Logger) LoggerFactory.getLogger(Participation.class);
 
     @EmbeddedId
+    @JsonIgnore
     private ParticipationId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("athleteId")
+    @JsonIdentityReference(alwaysAsId=true)
     private Athlete athlete;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("categoryId")
+    @JsonIdentityReference(alwaysAsId=true)
     private Category category;
 
     @Column(columnDefinition = "integer default 0")
@@ -124,6 +133,7 @@ public class Participation implements IRankHolder {
                 Objects.equals(category, that.category);
     }
 
+    @JsonIdentityReference(alwaysAsId = true)
     public Athlete getAthlete() {
         return athlete;
     }
@@ -132,6 +142,8 @@ public class Participation implements IRankHolder {
         return category;
     }
 
+    @Transient
+    @JsonIgnore
     public int getCleanJerkPoints() {
         return AthleteSorter.pointsFormula(cleanJerkRank);
     }
@@ -140,6 +152,8 @@ public class Participation implements IRankHolder {
         return cleanJerkRank;
     }
 
+    @Transient
+    @JsonIgnore
     public Integer getCombinedPoints() {
         return getSnatchPoints() + getCleanJerkPoints() + getTotalPoints();
     }
@@ -148,6 +162,8 @@ public class Participation implements IRankHolder {
         return combinedRank;
     }
 
+    @Transient
+    @JsonIgnore
     public int getCustomPoints() {
         return AthleteSorter.pointsFormula(customRank);
     }
@@ -160,6 +176,8 @@ public class Participation implements IRankHolder {
         return id;
     }
 
+    @Transient
+    @JsonIgnore
     public int getSnatchPoints() {
         return AthleteSorter.pointsFormula(snatchRank);
     }
@@ -196,6 +214,8 @@ public class Participation implements IRankHolder {
         return teamTotalRank;
     }
 
+    @Transient
+    @JsonIgnore
     public int getTotalPoints() {
         return AthleteSorter.pointsFormula(totalRank);
     }

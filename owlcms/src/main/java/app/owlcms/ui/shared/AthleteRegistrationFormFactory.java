@@ -336,7 +336,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 logger.debug("comparing {} ]{},{}] with body weight {}", category.getName(), min, max, bw);
                 return (bw > min && bw <= max);
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger, e);
             }
             return true;
         }, Translator.translate("Category_no_match_body_weight"));
@@ -365,7 +365,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                     return true;
                 }
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger,e);
             }
             return true;
         }, Translator.translate("Category_no_match_age"));
@@ -395,7 +395,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 }
                 return catGender == g;
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger,e);
             }
             return true;
         }, Translator.translate("Category_no_match_gender"));
@@ -438,7 +438,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 }
                 return genderCatOk;
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger,e);
             }
             return true;
         }, Translator.translate("Category_no_match_gender"));

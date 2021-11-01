@@ -19,8 +19,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -29,6 +27,12 @@ import javax.persistence.Transient;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Gender;
@@ -55,6 +59,8 @@ import ch.qos.logback.classic.Logger;
 //must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 @Cacheable
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "code")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "logger" })
 public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     @Transient
@@ -64,9 +70,9 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     /** The id. */
     @Id
-    private
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    //@GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonIgnore
+    private Long id;
 
     /** The minimum weight. */
     Double minimumWeight; // inclusive
@@ -80,6 +86,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     @ManyToOne(fetch = FetchType.LAZY) // ok in this case
     @JoinColumn(name = "agegroup_id")
+    @JsonIdentityReference(alwaysAsId = true)
     private AgeGroup ageGroup;
 
     @Enumerated(EnumType.STRING)
@@ -108,17 +115,17 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
      */
     public Category() {
         // manually generate the Id to avoid issues when creating many-to-many Participations
-        //setId((System.currentTimeMillis() << 20) | (System.nanoTime() & 0xFFFFFL));
+        setId((System.currentTimeMillis() << 20) | (System.nanoTime() & 0xFFFFFL));
     }
 
     public Category(Category c) {
-        this(c.getId(), c.minimumWeight, c.maximumWeight, c.gender, c.active, c.getWrYth(), c.getWrJr(), c.getWrSr(),
-                c.ageGroup, c.qualifyingTotal);
+        this(c.minimumWeight, c.maximumWeight, c.gender, c.active, c.getWrYth(), c.getWrJr(), c.getWrSr(), c.ageGroup,
+                c.qualifyingTotal);
     }
 
-    public Category(Long id, Double minimumWeight, Double maximumWeight, Gender gender, boolean active, Integer wrYth,
-            Integer wrJr, Integer wrSr, AgeGroup ageGroup, Integer qualifyingTotal) {
-        this.setId(id);
+    public Category(Double minimumWeight, Double maximumWeight, Gender gender, boolean active, Integer wrYth, Integer wrJr,
+            Integer wrSr, AgeGroup ageGroup, Integer qualifyingTotal) {
+        this.setId((System.currentTimeMillis() << 20) | (System.nanoTime() & 0xFFFFFL));
         this.setMinimumWeight(minimumWeight);
         this.setMaximumWeight(maximumWeight);
         this.setGender(gender);
@@ -213,6 +220,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 //                && Objects.equals(getWrSr(), other.getWrSr()) && Objects.equals(getWrYth(), other.getWrYth());
 //    }
 
+    @JsonIgnore
     public List<Participation> getParticipations() {
         return participations;
     }
@@ -256,6 +264,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         return id;
     }
 
+    @Transient
+    @JsonIgnore
     public String getLimitString() {
         if (maximumWeight > 110) {
             return Translator.translate("catAboveFormat", String.valueOf((int) (Math.round(minimumWeight))));
@@ -312,6 +322,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
      *
      * @return the wr
      */
+    @Transient
+    @JsonIgnore
     public Integer getWr() {
         if (ageGroup == null) {
             return 0;
@@ -381,17 +393,17 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     public String longDump() {
         return "Category " + System.identityHashCode(this)
-                + " [name=" + getName() 
-                + ", active=" + active 
+                + " [name=" + getName()
+                + ", active=" + active
                 + ", id=" + getId()
                 + ", minimumWeight=" + minimumWeight
                 + ", maximumWeight=" + maximumWeight + ", ageGroup=" + (ageGroup != null ? ageGroup.getName() : null)
-                + ", gender=" + gender 
+                + ", gender=" + gender
                 + ", qualifying=" + qualifyingTotal
-                + ", wr=" + getWrSr() 
+                + ", wr=" + getWrSr()
                 + ", code=" + code + "]";
     }
-    
+
     public String fullDump() {
         StringBuilder sb = new StringBuilder();
         sb.append(this.longDump());
@@ -498,7 +510,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
      * @return the string
      */
     public String shortDump() {
-        return getName() + "_" + System.identityHashCode(this) +"_"+ active + "_" + gender + "_" + ageGroup;
+        return getName() + "_" + System.identityHashCode(this) + "_" + active + "_" + gender + "_" + ageGroup;
     }
 
     /*

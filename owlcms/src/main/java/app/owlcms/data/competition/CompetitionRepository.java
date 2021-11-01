@@ -64,6 +64,31 @@ public class CompetitionRepository {
         return (Competition) query.getResultList().stream().findFirst().orElse(null);
     }
 
+    public static void removeAll() {
+        JPAService.runInTransaction(em -> {
+            int deletedCount;
+            deletedCount = em.createQuery("DELETE FROM Participation").executeUpdate();
+            logger.info("deleted {} participations", deletedCount);
+            deletedCount = em.createQuery("DELETE FROM Athlete").executeUpdate();
+            logger.info("deleted {} athletes", deletedCount);
+            deletedCount = em.createQuery("DELETE FROM CompetitionGroup").executeUpdate();
+            logger.info("deleted {} groups", deletedCount);
+            deletedCount = em.createQuery("DELETE FROM Category").executeUpdate();
+            logger.info("deleted {} categories", deletedCount);
+            deletedCount = em.createQuery("DELETE FROM AgeGroup").executeUpdate();
+            logger.info("deleted {} age groups", deletedCount);
+            deletedCount = em.createQuery("DELETE FROM RecordEvent").executeUpdate();
+            logger.info("deleted {} records", deletedCount);
+            deletedCount = em.createQuery("DELETE FROM Platform").executeUpdate();
+            logger.info("deleted {} platforms", deletedCount);
+            deletedCount = em.createQuery("DELETE FROM Config").executeUpdate();
+            logger.info("deleted {} config", deletedCount);
+            deletedCount = em.createQuery("DELETE FROM Competition").executeUpdate();
+            logger.info("deleted {} competition", deletedCount);
+            return null;
+        });
+    }
+
     /**
      * Save.
      *

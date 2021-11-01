@@ -65,7 +65,7 @@ public class AgeGroupRepository {
                 em.remove(mAgeGroup);
                 em.flush();
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger,e);
             }
             return null;
         });
@@ -185,7 +185,7 @@ public class AgeGroupRepository {
                 upd = em.createQuery("delete from AgeGroup");
                 upd.executeUpdate();
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger,e);
             }
             return null;
         });
@@ -206,7 +206,7 @@ public class AgeGroupRepository {
             try {
                 return cleanUp(ageGroup, em);
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger,e);
             }
             return null;
         });
@@ -226,7 +226,7 @@ public class AgeGroupRepository {
             try {
                 em.persist(ageGroup);
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger,e);
             }
             return null;
         });
@@ -310,7 +310,7 @@ public class AgeGroupRepository {
 //                logger.debug(newCat.dump());
                 return newCat;
             } catch (IllegalAccessException | InvocationTargetException e) {
-                logger.error("cannot create category from template\n{}", LoggerUtils.stackTrace(e));
+                logger.error("cannot create category from template\n{}", LoggerUtils./**/stackTrace(e));
                 return null;
             }
         }

@@ -26,6 +26,10 @@ import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
@@ -41,6 +45,7 @@ import ch.qos.logback.classic.Logger;
 //must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity(name = "CompetitionGroup")
 @Cacheable
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name")
 public class Group implements Comparable<Group> {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
@@ -53,10 +58,12 @@ public class Group implements Comparable<Group> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonIgnore
     private Long id;
 
     /** The platform. */
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, optional = true, fetch = FetchType.EAGER)
+    @JsonIdentityReference(alwaysAsId=true)
     Platform platform;
 
     /** The competition short date time. */
@@ -203,13 +210,15 @@ public class Group implements Comparable<Group> {
      *
      * @return the competition time
      */
+    @Transient
+    @JsonIgnore
     public String getCompetitionShortDateTime() {
         String formatted = "";
         try {
             LocalDateTime competitionTime2 = getCompetitionTime();
             formatted = competitionTime2 == null ? "" : DATE_TIME_FORMATTER.format(competitionTime2);
         } catch (Exception e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            LoggerUtils.logError(logger,e);
         }
         return formatted;
     }
@@ -223,6 +232,8 @@ public class Group implements Comparable<Group> {
         return competitionTime;
     }
     
+    @Transient
+    @JsonIgnore
     public Date getCompetitionTimeAsDate() {
         return DateTimeUtils.dateFromLocalDateTime(competitionTime);
     }
@@ -241,6 +252,7 @@ public class Group implements Comparable<Group> {
      *
      * @return the jury
      */
+    @JsonIgnore
     public String getJury() {
         List<String> jurors = Arrays.asList(jury1, jury2, jury3, jury4, jury5);
         Iterables.removeIf(jurors, Predicates.isNull());
@@ -367,13 +379,15 @@ public class Group implements Comparable<Group> {
      *
      * @return the weigh-in time (two hours before competition, normally)
      */
+    @Transient
+    @JsonIgnore
     public String getWeighInShortDateTime() {
         String formatted = "";
         try {
             LocalDateTime weighInTime2 = getWeighInTime();
             formatted = weighInTime2 == null ? "" : DATE_TIME_FORMATTER.format(weighInTime2);
         } catch (Exception e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            LoggerUtils.logError(logger,e);
         }
         return formatted;
     }
@@ -387,6 +401,8 @@ public class Group implements Comparable<Group> {
         return weighInTime;
     }
     
+    @Transient
+    @JsonIgnore
     public Date getWeighInTimeAsDate() {
         return DateTimeUtils.dateFromLocalDateTime(weighInTime);
     }

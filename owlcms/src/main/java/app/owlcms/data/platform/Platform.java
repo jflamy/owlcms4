@@ -20,6 +20,10 @@ import javax.sound.sampled.Mixer;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -49,6 +53,8 @@ import ch.qos.logback.classic.Logger;
 //must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 @Cacheable
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name", scope = Platform.class)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "logger"})
 public class Platform implements Serializable, Comparable<Platform> {
 
     @Transient
@@ -91,6 +97,7 @@ public class Platform implements Serializable, Comparable<Platform> {
     /** The id. */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonIgnore
     Long id;
 
     /** The name. */
@@ -646,7 +653,7 @@ public class Platform implements Serializable, Comparable<Platform> {
             }
         }
         if (mixer == null) {
-            logger.info("Platform: {}: changing mixer to {}", this.name, null);
+            logger.debug("Platform: {}: changing mixer to {}", this.name, null);
         }
         mixerChecked = true;
     }

@@ -124,8 +124,8 @@ public class CategoryGridField extends CustomField<List<Category>> {
     }
 
     private void addSentinel() {
-        Category newCat = new Category(null, 0.0, 999.0D, ageGroup.getGender(),
-                true, 0, 0, 0, ageGroup, 0);
+        Category newCat = new Category(0.0, 999.0D, ageGroup.getGender(), true,
+                0, 0, 0, ageGroup, 0);
         presentationCategories.add(newCat);
     }
 
@@ -140,8 +140,8 @@ public class CategoryGridField extends CustomField<List<Category>> {
             return;
         }
         double newMax = Double.parseDouble(value);
-        Category newCat = new Category(null, 0.0, newMax, ag.getGender(),
-                true, 0, 0, 0, ag, 0);
+        Category newCat = new Category(0.0, newMax, ag.getGender(), true,
+                0, 0, 0, ag, 0);
         presentationCategories.add(newCat);
         updatePresentation();
         updateValue();

@@ -184,7 +184,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
             maxCount = comp.getWomensTeamSize() != null ? comp.getWomensTeamSize() : Integer.MAX_VALUE;
             break;
         case MIXED:
-            throw new RuntimeException("Can't happen: there is no Top N mixed size");
+            throw new RuntimeException("Can't happen: there is no Top JsonUploadDialog mixed size");
         }
         return maxCount;
     }

@@ -152,7 +152,7 @@ public class AthleteTimerElement extends TimerElement {
             clientSyncTime();
         }
 //		else {
-//			uiEventLogger.trace(LoggerUtils.stackTrace());
+//			uiEventLogger.trace(LoggerUtils./**/stackTrace());
 //		}
     }
 

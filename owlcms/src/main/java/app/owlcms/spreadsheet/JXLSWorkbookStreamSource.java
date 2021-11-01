@@ -113,7 +113,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
                     workbook.createSheet().createRow(1).createCell(1).setCellValue(noAthletes);
                 }
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger,e);
             }
             if (workbook != null) {
                 workbook.write(stream);
@@ -121,7 +121,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         } catch (IOException e) {
             // ignore
         } catch (Throwable t) {
-            logger.error(LoggerUtils.stackTrace(t));
+            logger.error(LoggerUtils./**/stackTrace(t));
         } finally {
             session.unlock();
         }

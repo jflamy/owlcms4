@@ -66,7 +66,7 @@ public class Speakers {
             new Sound(mixer, "initialWarning2.wav").emit();
             new Tone(mixer, 1100, 1200, 1.0).emit();
         } catch (Exception e) {
-            logger.error("failed sound test\n" + LoggerUtils.stackTrace(e));
+            logger.error("failed sound test\n {}", LoggerUtils./**/stackTrace(e));
         }
     }
 

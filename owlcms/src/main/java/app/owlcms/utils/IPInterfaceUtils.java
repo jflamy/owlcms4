@@ -100,7 +100,7 @@ public class IPInterfaceUtils {
 
             checkInterfaces(protocol, requestPort, true);
         } catch (SocketException | UnknownHostException e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            LoggerUtils.logError(logger,e);
         }
         logger.trace("wired = {} {}", wired, wired.size());
         logger.trace("wireless = {} {}", wireless, wireless.size());
@@ -228,7 +228,7 @@ public class IPInterfaceUtils {
                 }
             }
         } catch (Exception e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            LoggerUtils.logError(logger,e);
         }
     }
 

@@ -168,10 +168,10 @@ public class RegistrationFileUploadDialog extends Dialog {
                 appendErrors(ta, sb, status);
                 return athletes.size();
             } catch (InvalidFormatException | IOException e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger, e);
             }
         } catch (IOException | SAXException e1) {
-            logger.error(LoggerUtils.stackTrace(e1));
+            LoggerUtils.logError(logger, e1);
         }
         return 0;
     }
@@ -201,10 +201,10 @@ public class RegistrationFileUploadDialog extends Dialog {
                 appendErrors(ta, sb, status);
                 return groups.size();
             } catch (InvalidFormatException | IOException e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger, e);
             }
         } catch (IOException | SAXException e1) {
-            logger.error(LoggerUtils.stackTrace(e1));
+            LoggerUtils.logError(logger, e1);
         }
         return 0;
     }

@@ -69,7 +69,7 @@ public class OwlcmsFactory {
             return null;
         }
         // logger.debug("OwlcmsFactory {} {} {}", init, fopByName != null ? fopByName.size() : null,
-        // LoggerUtils.stackTrace());
+        // LoggerUtils. stackTrace());
         if (defaultFOP != null) {
             return defaultFOP;
         } else {
