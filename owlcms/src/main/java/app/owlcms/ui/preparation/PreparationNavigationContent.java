@@ -89,11 +89,11 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         doGroup(getTranslation("Registration"), grid2, this);
         
 
-//        Button athletes = openInNewTabNoParam(RegistrationContent.class, getTranslation("EditAthletes"));
-//        Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
-//        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams);
-//        doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
-//        
+        Button athletes = openInNewTabNoParam(RegistrationContent.class, getTranslation("EditAthletes"));
+        Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
+        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams);
+        doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
+        
 //        Button uploadJson = new Button(getTranslation("ExportDatabase.UploadJson"), new Icon(VaadinIcon.UPLOAD_ALT),
 //                buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
 //        Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
