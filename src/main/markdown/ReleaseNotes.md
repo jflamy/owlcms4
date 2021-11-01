@@ -1,7 +1,6 @@
 **Specific Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Feature Preview: Added Export/Import database on the Language and Settings page. (#449).  Allows bringing back a Heroku database for troubleshooting without having to install PostgreSQL.  Loading a laptop database to Heroku has not yet been tested extensively.
-- [x] PIN/password is now handled as a salted SHA-256 hash.
+- [x] Jury decisions on good/bad lift are now in the same style as referee decisions (red/green). Clear textual marking of REVERSAL and whether lift is GOOD/BAD remains for color-challenged persons.
 
 **New in in release 4.24**
 
@@ -12,10 +11,12 @@
   - Note that the format has changed to reflect the fact that category allocation is now automatic - only the gender and expected weight of the athlete are used. You need to download a new empty template, or export existing data. 
   - The new format makes it easier to cut and paste athletes (no hidden columns). Both the empty sheet and the exported sheet are now translated in the current language.
 - [x] The jury console now allows direct reversal/confirmation of lifts (#435, #427)  
-  - The jury chief can confirm and reverse lifts directly and can ask the announcer to call the technical controller.  Jury actions are shown to the other technical officials consoles to keep them informed.
-  - Shortcuts are defined to support a jury keypad. See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Refereeing#jury-console-keypad) for details
-
-- [x] Documented how to import and use a PostgreSQL database from Heroku to a local machine.  Added the capability to set the database URL, database name, username and password as system properties. See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/PostgreSQL) for details
+  - The jury chief can confirm and reverse lifts directly and can ask the announcer to call the technical controller.  
+  - Jury actions are shown to the other technical officials consoles to keep them informed.
+- Shortcuts are defined to support a jury keypad. See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Refereeing#jury-console-keypad) for details
+- [x] Feature Preview: Added Export/Import database on the Language and Settings page. (#449).  Allows bringing back a Heroku database for local use, and conversely, setting up a competition locally prior to loading on Heroku.
+- [x] PIN/password is now handled as a salted SHA-256 hash, so it does not appear in clear in the export file.
+- [x] Documented how to import and use a PostgreSQL database from Heroku to a local machine.  Added the capability to set the database URL, database name, username and password as system properties. See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/PostgreSQL) for details.  Not likely to be needed much except for investigating a problem specific to PostgreSQL, since it is now possible to export the database.
 
 **Key Highlights from recent stable releases**
 
