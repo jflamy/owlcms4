@@ -120,10 +120,10 @@ public class AccessUtils {
         try {
             // check that the 64 characters are valid hexa
             BaseEncoding.base16().lowerCase().decode(pin);
-            logger.warn("hexa ok");
+            logger.debug("hexa ok");
             parsed = true;
         } catch (IllegalArgumentException e) {
-            logger.warn("not hexa");
+            logger.debug("not hexa");
             parsed = false;
         }
         

@@ -85,6 +85,12 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     HasValue<?, ?> dateField = null;
 
+    private BodyWeightField bodyWeightField;
+
+    private Object lastNameValue;
+
+    private TextField lastNameField;
+
     public AthleteRegistrationFormFactory(Class<Athlete> domainType) {
         super(domainType);
     }
@@ -117,6 +123,9 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         return a.getFullId();
     }
 
+    /**
+     * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#buildNewForm(org.vaadin.crudui.crud.CrudOperation, java.lang.Object, boolean, com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.button.Button[])
+     */
     @Override
     public Component buildNewForm(CrudOperation operation, Athlete aFromList, boolean readOnly,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
@@ -160,9 +169,21 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
         // binder has read bean.
         filterCategories(getEditedAthlete().getCategory(), operation != CrudOperation.ADD);
+        
+        lastNameField = null;
+        lastNameValue = null;
+        try {
+            Binding<Athlete, ?> lastNameBinding = binder.getBinding("lastName").get();
+            lastNameField = (TextField) lastNameBinding.getField();
+            lastNameValue = lastNameField.getValue();
+        } catch (Exception e1) {
+        }
+        form.addAttachListener((e) -> { 
+            if (lastNameField != null && lastNameValue == null) ((TextField)lastNameField).focus(); else bodyWeightField.focus();});
 
         return form;
     }
+    
 
     /**
      * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
@@ -507,7 +528,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         ComboBox<Gender> genderField = (ComboBox<Gender>) genderBinding.getField();
 
         Binding<Athlete, ?> bodyWeightBinding = binder.getBinding("bodyWeight").get();
-        BodyWeightField bodyWeightField = (BodyWeightField) bodyWeightBinding.getField();
+        bodyWeightField = (BodyWeightField) bodyWeightBinding.getField();
 
         Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
         ComboBox<Category> categoryField = (ComboBox<Category>) categoryBinding.getField();
@@ -561,6 +582,9 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             birthDateField.addValueChangeListener(listener);
         }
 
+        TextField wrappedBWTextField = bodyWeightField.getWrappedTextField();
+        wrappedBWTextField.setValueChangeMode(ValueChangeMode.ON_BLUR);
+        wrappedBWTextField.setAutoselect(true);
         bodyWeightField.addValueChangeListener((vc) -> {
             if (!isChangeListenersEnabled() || bodyWeightField.isInvalid()) {
                 return;
@@ -704,8 +728,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         } else {
             prevEligibles = eligibleField.getValue();
         }
-        logger.debug("updateCategoryFields {} - {} {} {}", prevEligibles, category, allEligible,
-                LoggerUtils.whereFrom());
+        //logger.debug("updateCategoryFields {} - {} {} {}", prevEligibles, category, allEligible, LoggerUtils.whereFrom());
 
         if (prevEligibles != null) {
             // update the list of eligible categories. Must use the matching items in allEligibles so that
@@ -721,7 +744,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                     }
                 }
             }
-            logger.debug("new eligibles {}", newEligibles.stream().map(v -> v.longDump()).collect(Collectors.toList()));
+            //logger.debug("new eligibles {}", newEligibles.stream().map(v -> v.longDump()).collect(Collectors.toList()));
             categoryField.setItems(newEligibles);
             eligibleField.setItems(allEligible);
             eligibleField.setValue(newEligibles);
