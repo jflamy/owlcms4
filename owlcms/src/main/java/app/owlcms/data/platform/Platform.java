@@ -58,11 +58,14 @@ import ch.qos.logback.classic.Logger;
 public class Platform implements Serializable, Comparable<Platform> {
 
     @Transient
+    @JsonIgnore
     private static final Logger logger = (Logger) LoggerFactory.getLogger(Platform.class);
 
     /**
      * Only used for unit testing when there is no session
      */
+    @Transient
+    @JsonIgnore
     private static Platform testingPlatform;
 
     /**
@@ -70,6 +73,8 @@ public class Platform implements Serializable, Comparable<Platform> {
      *
      * @return the current
      */
+    @Transient
+    @JsonIgnore
     public static Platform getCurrent() {
         FieldOfPlay fop = OwlcmsSession.getFop();
         if (fop != null) {
@@ -85,6 +90,8 @@ public class Platform implements Serializable, Comparable<Platform> {
      *
      * @param p the new current
      */
+    @Transient
+    @JsonIgnore
     public static void setCurrent(Platform p) {
         VaadinSession current = VaadinSession.getCurrent();
         if (current != null) {
@@ -116,11 +123,13 @@ public class Platform implements Serializable, Comparable<Platform> {
      * If mixer is not null, emit sound on the associated device
      */
     @Transient
+    @JsonIgnore
     private Mixer mixer = null;
 
     private String soundMixerName;
 
     @Transient
+    @JsonIgnore
     private boolean mixerChecked;
     // collar
     private Integer nbC_2_5 = 0;
