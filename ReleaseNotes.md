@@ -1,8 +1,9 @@
-**Specific Changes for release 4.24.0-rc03**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Changes for release 4.24.0-rc04**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Jury decisions on good/bad lift are now in the same style as referee decisions (red/green). Clear textual marking of REVERSAL and whether lift is GOOD/BAD remains for color-challenged persons.
+- [x] Fixed export of registration data, improved behavior in Registration forms when presumed weight has been entered via Excel.
+- [x] Updated Swedish and Armenian translations.
 
-**New in in release 4.24**
+###### New in this release**
 
 - [x] It is now possible to export, manipulate and reload the registration data (athletes, groups, referees) in Excel format.  
 
@@ -13,12 +14,12 @@
 - [x] The jury console now allows direct reversal/confirmation of lifts (#435, #427)  
   - The jury chief can confirm and reverse lifts directly and can ask the announcer to call the technical controller.  
   - Jury actions are shown to the other technical officials consoles to keep them informed.
-- Shortcuts are defined to support a jury keypad. See [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Refereeing#jury-console-keypad) for details
-- [x] Export and Import of database content (#449).  Allows bringing back a Heroku database for local use, and conversely, setting up a competition locally prior to loading on Heroku. See the bottom of the Language and System Settings Page.  The export file is in JSON format, and while readable, is not meant for editing.
+  - Shortcuts are defined to support a jury keypad. See [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Refereeing#jury-console-keypad) for details
+- [x] It is now possible to Export and Import the database content (#449).  This allows taking a snapshot of the database in the middle of a competition, for peace of mind, or for future troubleshooting. It also allows bringing back a Heroku database for local use, and conversely, setting up a competition locally prior to loading on Heroku. See the bottom of the "Language and System Settings Page" for the current location of this feature.  The export file is in JSON format, and while readable, is not meant for editing.
 - [x] PIN/password is now handled as a salted SHA-256 hash, so it does not appear in clear in the export file.
-- [x] Documented how to import and use a PostgreSQL database from Heroku to a local machine.  Added the capability to set the database URL, database name, username and password as system properties. See [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/PostgreSQL) for details.  Since it is now possible to export the database, this is a backup for investigating PostgreSQL specific issues, or some that would prevent the system from starting.
+- [x] The procedure to import a PostgreSQL database from Heroku and use it a local machine is now documented. See [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/PostgreSQL) for details.  This is meant as a backup for investigating PostgreSQL specific issues, or something that would prevent a cloud instanceser from starting.
 
-**Key Highlights from recent stable releases**
+###### **Key Highlights from recent stable releases**
 
 - [x] Explicit support for participation to multiple age groups (#433)
   - An athlete will, by default, be eligible and ranked separately in all the active categories in which the age and qualifying total are met.   
