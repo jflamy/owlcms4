@@ -1,7 +1,6 @@
-##### **Changes for release 4.24.0-rc04**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Changes for release 4.24.0-rc05**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Fixed export of registration data, improved behavior in Registration forms when presumed weight has been entered via Excel.
-- [x] Updated Swedish and Armenian translations.
+- [x] Small fix for database export when a sound mixer was present.
 
 ###### New in this release**
 
