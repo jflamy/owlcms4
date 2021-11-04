@@ -364,6 +364,9 @@ public class Athlete {
     }
 
     public void addEligibleCategory(Category category) {
+        if (category == null) {
+            return;
+        }
         Participation participation = new Participation(this, category);
 
         if (participations == null) {
@@ -2513,9 +2516,8 @@ public class Athlete {
             boolean athleteEqual = participation.getAthlete().equals(this);
 
             Category category2 = participation.getCategory();
-            boolean categoryEqual = category2.getName().contentEquals(category.getName());
-            if (athleteEqual &&
-                    categoryEqual) {
+            boolean categoryEqual = category2 != null && category2.getName().contentEquals(category.getName());
+            if (athleteEqual && categoryEqual) {
                 logger.trace("removeCategory removing {} {}", category, participation);
                 iterator.remove();
                 category2.getParticipations().remove(participation);
@@ -4448,13 +4450,25 @@ public class Athlete {
             Participation part = iterator.next();
             long athId = getId();
             long catId = category.getId();
-            long partAthId = part.getAthlete().getId();
-            long partCatId = part.getCategory().getId();
-            if (partAthId == athId && partCatId == catId) {
-                // logger.debug(" removing {}", part);
+            // defensive null checks due to broken import files (not needed otherwise)
+            Athlete athlete = part.getAthlete();
+            Category category2 = part.getCategory();
+            if (category2 == null || athlete == null) {
                 iterator.remove();
+                continue;
             } else {
-                // logger.trace(" ok {} {}-{} {}-{}", part, athId, partAthId, catId, partCatId);
+                Long partAthId = athlete.getId();
+                Long partCatId = category2.getId();
+                if (partAthId == null || partCatId == null) {
+                    iterator.remove();
+                    continue;
+                }
+                if (partAthId == athId && partCatId == catId) {
+                    // logger.debug(" removing {}", part);
+                    iterator.remove();
+                } else {
+                    // logger.trace(" ok {} {}-{} {}-{}", part, athId, partAthId, catId, partCatId);
+                }
             }
         }
     }
@@ -4580,6 +4594,20 @@ public class Athlete {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void checkParticipations() {
+        for (Iterator<Participation> iterator = participations.iterator(); iterator.hasNext();) {
+            Participation p = iterator.next();
+            if (p.getAthlete() == null || p.getAthlete().getId() == null) {
+                iterator.remove();
+                continue;
+            }
+            if (p.getCategory() == null || p.getCategory().getId() == null) {
+                iterator.remove();
+                continue;
+            }
         }
     }
 
