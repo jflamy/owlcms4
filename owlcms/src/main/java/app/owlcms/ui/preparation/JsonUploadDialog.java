@@ -106,6 +106,8 @@ public class JsonUploadDialog extends Dialog {
                         em.persist(g);
                     }
                     for (Athlete a : updated.getAthletes()) {
+                        // defensive programming if import file is corrupt
+                        a.checkParticipations();
                         em.persist(a);
                     }
 
