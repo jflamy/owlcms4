@@ -59,7 +59,7 @@ import ch.qos.logback.classic.Logger;
 //must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 @Cacheable
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "code")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "logger" })
 public class Category implements Serializable, Comparable<Category>, Cloneable {
 
@@ -71,7 +71,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     /** The id. */
     @Id
     //@GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonIgnore
     private Long id;
 
     /** The minimum weight. */

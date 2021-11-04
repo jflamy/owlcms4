@@ -90,7 +90,16 @@ public class CompetitionData {
 
     public CompetitionData fromDatabase() {
         setAgeGroups(AgeGroupRepository.findAll());
-        setAthletes(AthleteRepository.findAll());
+        List<Athlete> allAthletes = AthleteRepository.findAll();
+//        allAthletes.stream()
+//                .filter(a -> a.getLastName().contentEquals("Atoklo"))
+//                .peek(a -> {
+//                    System.err.println("jada {}"+a);
+//                    for (Participation p : a.getParticipations()) {
+//                        System.err.println("    "+p.getId().athleteId+" "+p.getId().categoryId);
+//                    }
+//                }).count();
+        setAthletes(allAthletes);
         setGroups(GroupRepository.findAll());
         setPlatforms(PlatformRepository.findAll());
         setConfig(Config.getCurrent());
@@ -134,7 +143,7 @@ public class CompetitionData {
         CompetitionData newData;
         try {
             newData = mapper.readValue(serialized, CompetitionData.class);
-            //logger.debug("after unmarshall {}", newData.getPlatforms());
+            // logger.debug("after unmarshall {}", newData.getPlatforms());
             return newData;
         } catch (Exception e) {
             e.printStackTrace();
@@ -147,7 +156,7 @@ public class CompetitionData {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         CompetitionData newData = mapper.readValue(serialized, CompetitionData.class);
-        //logger.debug("after unmarshall {}", newData.getPlatforms());
+        // logger.debug("after unmarshall {}", newData.getPlatforms());
         return newData;
     }
 
