@@ -1,8 +1,8 @@
-##### **Changes for release 4.24.0-rc05**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Specific changes for release 4.24.0-rc06**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Small fix for database export when a sound mixer was present.
+- [x] Fix for database exports prior to initial weigh-in.
 
-###### New in this release**
+###### New in this release
 
 - [x] It is now possible to export, manipulate and reload the registration data (athletes, groups, referees) in Excel format.  
 
@@ -10,12 +10,18 @@
   - Only registration data is exported.  This does not export the lifts and requested changes.  The file should not be loaded after the competition has started as it recreates the athletes from scratch.
   - Note that the format has changed to reflect the fact that category allocation is now automatic - only the gender and expected weight of the athlete are used. You need to download a new empty template, or export existing data. 
   - The new format makes it easier to cut and paste athletes (no hidden columns). Both the empty sheet and the exported sheet are now translated in the current language.
+  
 - [x] The jury console now allows direct reversal/confirmation of lifts (#435, #427)  
   - The jury chief can confirm and reverse lifts directly and can ask the announcer to call the technical controller.  
   - Jury actions are shown to the other technical officials consoles to keep them informed.
   - Shortcuts are defined to support a jury keypad. See [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Refereeing#jury-console-keypad) for details
-- [x] It is now possible to Export and Import the database content (#449).  This allows taking a snapshot of the database in the middle of a competition, for peace of mind, or for future troubleshooting. It also allows bringing back a Heroku database for local use, and conversely, setting up a competition locally prior to loading on Heroku. See the bottom of the "Language and System Settings Page" for the current location of this feature.  The export file is in JSON format, and while readable, is not meant for editing.
+  
+- [x] It is now possible to Export and Import the database content (#449).  This allows taking a snapshot of the database in the middle of a competition. It also allows bringing back a Heroku database for local use, and conversely, setting up a competition locally prior to loading on Heroku.
+
+  > This feature is brand new. For now you should still take backups of the actual database (in the database directory on a laptop, or using the PostgreSQL backup on Heroku). Once it is deemed mature, it will be moved to the "Preparation" page. For now, see the bottom of the "Language and System Settings Page" for the current location of this feature.
+
 - [x] PIN/password is now handled as a salted SHA-256 hash, so it does not appear in clear in the export file.
+
 - [x] The procedure to import a PostgreSQL database from Heroku and use it a local machine is now documented. See [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/PostgreSQL) for details.  This is meant as a backup for investigating PostgreSQL specific issues, or something that would prevent a cloud instanceser from starting.
 
 ###### **Key Highlights from recent stable releases**
