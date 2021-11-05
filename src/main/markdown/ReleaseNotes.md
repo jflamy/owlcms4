@@ -1,6 +1,6 @@
 ##### **Specific changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Fix for database exports prior to initial weigh-in.
+- [x] Fix for intermittent group duplication when using the database import feature
 
 ###### New in this release
 
@@ -18,7 +18,7 @@
   
 - [x] It is now possible to Export and Import the database content (#449).  This allows taking a snapshot of the database in the middle of a competition. It also allows bringing back a Heroku database for local use, and conversely, setting up a competition locally prior to loading on Heroku.
 
-  > This feature is brand new. For now you should still take backups of the actual database (in the database directory on a laptop, or using the PostgreSQL backup on Heroku). Once it is deemed mature, it will be moved to the "Preparation" page. For now, see the bottom of the "Language and System Settings Page" for the current location of this feature.
+  > For now you should still take backups of the real database (in the database directory on a laptop, or using the PostgreSQL backup on Heroku).  Until it is fully mature, it is considered a technical feature and is located at on the "Language and System Settings Page".
 
 - [x] PIN/password is now handled as a salted SHA-256 hash, so it does not appear in clear in the export file.
 
