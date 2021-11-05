@@ -18,8 +18,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
@@ -29,12 +27,14 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
 import app.owlcms.data.platform.Platform;
 import app.owlcms.utils.DateTimeUtils;
+import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -45,7 +45,8 @@ import ch.qos.logback.classic.Logger;
 //must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity(name = "CompetitionGroup")
 @Cacheable
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Group.class)
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "logger" })
 public class Group implements Comparable<Group> {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
@@ -57,8 +58,7 @@ public class Group implements Comparable<Group> {
     final private Logger logger = (Logger) LoggerFactory.getLogger(Group.class);
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonIgnore
+    //@GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     /** The platform. */
@@ -99,6 +99,7 @@ public class Group implements Comparable<Group> {
      * Instantiates a new group.
      */
     public Group() {
+        setId(IdUtils.getTimeBasedId());
     }
 
     /**
@@ -107,6 +108,7 @@ public class Group implements Comparable<Group> {
      * @param groupName the group name
      */
     public Group(String groupName) {
+        setId(IdUtils.getTimeBasedId());
         this.name = groupName;
         final LocalDateTime now = LocalDateTime.now();
         this.setWeighInTime(now);
@@ -121,6 +123,7 @@ public class Group implements Comparable<Group> {
      * @param competition the competition
      */
     public Group(String groupName, LocalDateTime weighin, LocalDateTime competition) {
+        setId(IdUtils.getTimeBasedId());
         this.name = groupName;
         this.setWeighInTime(weighin);
         this.setCompetitionTime(competition);
@@ -170,7 +173,7 @@ public class Group implements Comparable<Group> {
             return false;
         }
         Group other = (Group) obj;
-        return id != null && id.equals(other.getId());
+        return getId() != null && getId().equals(other.getId());
 
         // public boolean equals(Object obj) {
         // if (this == obj) {
@@ -435,12 +438,16 @@ public class Group implements Comparable<Group> {
         this.competitionTime = c;
     }
 
-    public void setDone(boolean b) {
+    public void doDone(boolean b) {
         logger.debug("done? {} previous={} done={} {} [{}]", getName(), this.done, b, System.identityHashCode(this), LoggerUtils.whereFrom());
         if (this.done != b) {
-            this.done = b;
+            this.setDone(b);
             GroupRepository.save(this);
         }
+    }
+
+    private void setDone(boolean b) {
+        this.done = b;
     }
 
     /**
@@ -584,6 +591,14 @@ public class Group implements Comparable<Group> {
      */
     public void setReserve(String reserve) {
         this.reserve = reserve;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(Long id) {
+        //logger.debug("settingId {} {}\\n{}",id,name,LoggerUtils.stackTrace());
+        this.id = id;
     }
 
 }

@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.List;
+import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
@@ -25,11 +26,14 @@ import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 public class CompetitionData {
@@ -91,20 +95,87 @@ public class CompetitionData {
     public CompetitionData fromDatabase() {
         setAgeGroups(AgeGroupRepository.findAll());
         List<Athlete> allAthletes = AthleteRepository.findAll();
-//        allAthletes.stream()
-//                .filter(a -> a.getLastName().contentEquals("Atoklo"))
-//                .peek(a -> {
-//                    System.err.println("jada {}"+a);
-//                    for (Participation p : a.getParticipations()) {
-//                        System.err.println("    "+p.getId().athleteId+" "+p.getId().categoryId);
-//                    }
-//                }).count();
         setAthletes(allAthletes);
         setGroups(GroupRepository.findAll());
         setPlatforms(PlatformRepository.findAll());
         setConfig(Config.getCurrent());
         setCompetition(Competition.getCurrent());
         return this;
+    }
+
+    public void restore(InputStream inputStream) {
+        this.removeAll();
+
+
+        CompetitionData updated = this.importData(inputStream);
+        JPAService.runInTransaction(em -> {
+            try {
+                Config config = updated.getConfig();
+
+                Config.setCurrent(config);
+                Locale defaultLocale = config.getDefaultLocale();
+                Translator.reset();
+                Translator.setForcedLocale(defaultLocale);
+
+                Competition competition = updated.getCompetition();
+                Competition.setCurrent(competition);
+                
+                for (AgeGroup ag : updated.getAgeGroups()) {
+                    em.persist(ag);
+                }
+                
+                for (Group g : updated.getGroups()) {
+                    em.merge(g);
+                }
+
+                for (Platform p : updated.getPlatforms()) {
+                    em.persist(p);
+                }
+                
+                for (Athlete a : updated.getAthletes()) {
+                    // defensive programming if import file is corrupt
+                    // a.checkParticipations();
+                    em.persist(a);
+                }
+
+                em.flush();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        });
+    }
+
+    private void removeAll() {
+        JPAService.runInTransaction(em -> {
+            CompetitionRepository.doRemoveAll(em);
+            try {
+                this.fromDatabase();
+                for (Athlete a : this.getAthletes()) {
+                    Athlete aX = em.find(Athlete.class, a.getId());
+                    if (aX != null)
+                        em.remove(aX);
+                }
+                for (Group g : this.getGroups()) {
+                    Group gX = em.find(Group.class, g.getId());
+                    if (gX != null)
+                        em.remove(gX);
+                }
+                for (AgeGroup ag : this.getAgeGroups()) {
+                    AgeGroup agX = em.find(AgeGroup.class, ag.getId());
+                    if (agX != null)
+                        em.remove(agX);
+                }
+                for (Platform p : this.getPlatforms()) {
+                    Platform pX = em.find(Platform.class, p.getId());
+                    if (pX != null)
+                        em.remove(pX);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        });
     }
 
     @JsonProperty(index = 30)
@@ -143,7 +214,7 @@ public class CompetitionData {
         CompetitionData newData;
         try {
             newData = mapper.readValue(serialized, CompetitionData.class);
-            // logger.debug("after unmarshall {}", newData.getPlatforms());
+            logger.debug("after unmarshall {}", newData.getPlatforms());
             return newData;
         } catch (Exception e) {
             e.printStackTrace();

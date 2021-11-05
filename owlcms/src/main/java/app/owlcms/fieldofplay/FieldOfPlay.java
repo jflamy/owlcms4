@@ -962,10 +962,10 @@ public class FieldOfPlay {
         if (state == CURRENT_ATHLETE_DISPLAYED) {
             Athlete a = getCurAthlete();
             if (group != null) {
-                group.setDone(a == null || a.getAttemptsDone() >= 6);
+                group.doDone(a == null || a.getAttemptsDone() >= 6);
             }
         } else if (state == BREAK && group != null) {
-            group.setDone(breakType == BreakType.GROUP_DONE);
+            group.doDone(breakType == BreakType.GROUP_DONE);
         }
         this.state = state;
     }
@@ -978,12 +978,12 @@ public class FieldOfPlay {
         if (getCurAthlete() != null && getCurAthlete().getAttemptsDone() < 6) {
             uiDisplayCurrentAthleteAndTime(true, e, false);
             setState(CURRENT_ATHLETE_DISPLAYED);
-            group.setDone(false);
+            group.doDone(false);
         } else {
             // special kind of break that allows moving back in case of jury reversal
             setBreakType(BreakType.GROUP_DONE);
             setState(BREAK);
-            group.setDone(true);
+            group.doDone(true);
             pushOutDone();
         }
     }
@@ -1213,7 +1213,7 @@ public class FieldOfPlay {
         if (done) {
             pushOutDone();
         }
-        group.setDone(done);
+        group.doDone(done);
     }
 
     /**

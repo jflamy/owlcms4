@@ -8,7 +8,6 @@ package app.owlcms.ui.preparation;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
@@ -23,14 +22,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
-import app.owlcms.data.agegroup.AgeGroup;
-import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.competition.Competition;
-import app.owlcms.data.competition.CompetitionRepository;
-import app.owlcms.data.config.Config;
-import app.owlcms.data.group.Group;
-import app.owlcms.data.jpa.JPAService;
-import app.owlcms.data.platform.Platform;
 import app.owlcms.data.xml.CompetitionData;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
@@ -77,50 +68,14 @@ public class JsonUploadDialog extends Dialog {
 
     private void processInput(String fileName, InputStream inputStream, TextArea ta)
             throws StreamReadException, DatabindException, IOException {
-        CompetitionRepository.removeAll();
-
-        CompetitionData current = new CompetitionData();
-
-        CompetitionData updated;
         try {
-            updated = current.importData(inputStream);
-
-            JPAService.runInTransaction(em -> {
-                try {
-                    Config config = updated.getConfig();
-                    Config.setCurrent(config);
-                    Locale defaultLocale = config.getDefaultLocale();
-                    Translator.reset();
-                    Translator.setForcedLocale(defaultLocale);
-
-                    Competition competition = updated.getCompetition();
-                    Competition.setCurrent(competition);
-
-                    for (Platform p : updated.getPlatforms()) {
-                        em.persist(p);
-                    }
-                    for (AgeGroup ag : updated.getAgeGroups()) {
-                        em.persist(ag);
-                    }
-                    for (Group g : updated.getGroups()) {
-                        em.persist(g);
-                    }
-                    for (Athlete a : updated.getAthletes()) {
-                        // defensive programming if import file is corrupt
-                        a.checkParticipations();
-                        em.persist(a);
-                    }
-
-                    ui.getPage().reload();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return null;
-            });
+            new CompetitionData().restore(inputStream);
+            ui.getPage().reload();
         } catch (Throwable e1) {
             ta.setValue(LoggerUtils.exceptionMessage(e1));
         }
     }
+
 
 //    private void resetAthletes() {
 //        // delete all athletes and groups (naive version).
