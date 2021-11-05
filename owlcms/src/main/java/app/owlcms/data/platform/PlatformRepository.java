@@ -11,16 +11,22 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.slf4j.LoggerFactory;
+
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
+import ch.qos.logback.classic.Logger;
 
 /**
  * PlatformRepository.
  *
  */
 public class PlatformRepository {
+
+    @SuppressWarnings("unused")
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(PlatformRepository.class);
 
     /**
      * Delete.

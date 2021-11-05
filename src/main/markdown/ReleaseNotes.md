@@ -2,6 +2,7 @@
 
 - [x] Fix for intermittent group duplication when using the database import feature
 - [x] Fix for attempt numbering on jury reversal/confirmation notification
+- [x] Fix for duplicated or empty platforms after importing registration information
 
 ###### New in this release
 
