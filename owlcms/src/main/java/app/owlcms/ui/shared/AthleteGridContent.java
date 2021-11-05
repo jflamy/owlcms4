@@ -352,9 +352,11 @@ public abstract class AthleteGridContent extends VerticalLayout
                         : Translator.translate("JuryNotification.Confirmed");
             }
             String style = "warning";
+            int previousAttemptNo; 
             switch (e.getDeliberationEventType()) {
             case BAD_LIFT:
-                text = Translator.translate("JuryNotification.BadLift", reversalText, e.getAthlete().getFullName(), (e.getAthlete().getAttemptNumber()-1));
+                previousAttemptNo= e.getAthlete().getAttemptsDone()-1;
+                text = Translator.translate("JuryNotification.BadLift", reversalText, e.getAthlete().getFullName(), previousAttemptNo%3+1);
                 style = "primary error";
                 break;
             case CALL_REFEREES:
@@ -367,7 +369,8 @@ public abstract class AthleteGridContent extends VerticalLayout
                 text = Translator.translate("JuryNotification.JuryDeliberationEnd");
                 break;
             case GOOD_LIFT:
-                text = Translator.translate("JuryNotification.GoodLift", reversalText, e.getAthlete().getFullName(), (e.getAthlete().getAttemptNumber()-1));
+                previousAttemptNo= e.getAthlete().getAttemptsDone()-1;
+                text = Translator.translate("JuryNotification.GoodLift", reversalText, e.getAthlete().getFullName(), previousAttemptNo%3+1);
                 style = "primary success";
                 break;
             case LOADING_ERROR:
