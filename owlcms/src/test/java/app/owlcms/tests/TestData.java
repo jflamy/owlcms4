@@ -159,9 +159,9 @@ public class TestData {
 
         insertSampleLifters(em, liftersToLoad, groupA, groupB, groupC);
 
-        em.persist(groupA);
-        em.persist(groupB);
-        em.persist(groupC);
+//        em.persist(groupA);
+//        em.persist(groupB);
+//        em.persist(groupC);
     }
     
     protected static Competition createDefaultCompetition(EnumSet<AgeDivision> ageDivisions) {
