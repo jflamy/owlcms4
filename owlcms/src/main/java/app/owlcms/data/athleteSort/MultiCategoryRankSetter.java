@@ -132,10 +132,10 @@ public class MultiCategoryRankSetter {
 
     CategoryRankingHolder getCategoryRankings(Category category) {
         //logger.debug("Category {} {}",category, System.identityHashCode(category));
-        CategoryRankingHolder bestCategoryRanks = rankings.get(category.getCode());
+        CategoryRankingHolder bestCategoryRanks = rankings.get(category.getComputedCode());
         if (bestCategoryRanks == null) {
             bestCategoryRanks = new CategoryRankingHolder();
-            rankings.put(category.getCode(), bestCategoryRanks);
+            rankings.put(category.getComputedCode(), bestCategoryRanks);
         }
         return bestCategoryRanks;
     }

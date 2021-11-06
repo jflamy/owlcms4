@@ -70,7 +70,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     /** The id. */
     @Id
-    //@GeneratedValue(strategy = GenerationType.AUTO)
+    // @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     /** The minimum weight. */
@@ -122,8 +122,10 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
                 c.qualifyingTotal);
     }
 
-    public Category(Double minimumWeight, Double maximumWeight, Gender gender, boolean active, Integer wrYth, Integer wrJr,
+    public Category(Double minimumWeight, Double maximumWeight, Gender gender, boolean active, Integer wrYth,
+            Integer wrJr,
             Integer wrSr, AgeGroup ageGroup, Integer qualifyingTotal) {
+
         this.setId((System.currentTimeMillis() << 20) | (System.nanoTime() & 0xFFFFFL));
         this.setMinimumWeight(minimumWeight);
         this.setMaximumWeight(maximumWeight);
@@ -134,7 +136,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         this.setWrJr(wrJr);
         this.setWrSr(wrSr);
         this.setQualifyingTotal(qualifyingTotal);
-        setCategoryName(minimumWeight, maximumWeight, gender, ageGroup);
+        this.setCode(getComputedCode());
+        //logger.debug("{} Category({},{},{}) [{}]", getComputedCode(), gender, minimumWeight, maximumWeight, LoggerUtils.whereFrom(1));
     }
 
     /*
@@ -266,8 +269,19 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     @Transient
     @JsonIgnore
     public String getLimitString() {
-        if (maximumWeight > 110) {
-            return Translator.translate("catAboveFormat", String.valueOf((int) (Math.round(minimumWeight))));
+        if (maximumWeight > 130) {
+            return Translator.translate("catAboveFormat",
+                    minimumWeight != null ? String.valueOf((int) (Math.round(minimumWeight))) : "");
+        } else {
+            return String.valueOf((int) (Math.round(maximumWeight)));
+        }
+    }
+    
+    @Transient
+    @JsonIgnore
+    public String getCodeLimitString() {
+        if (maximumWeight > 130) {
+            return "999";
         } else {
             return String.valueOf((int) (Math.round(maximumWeight)));
         }
@@ -297,13 +311,32 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
      * @return the name
      */
     public String getName() {
-        if ((ageGroup == null) || (maximumWeight == null)) {
-            return null;
+        if (name == null || name.isBlank()) {
+            return getComputedName();
         }
-        String agName = ageGroup.getName();
+        return name;
+    }
+
+    @JsonIgnore
+    @Transient
+    public String getComputedCode() {
+        String agName = (ageGroup != null ? ageGroup.getName() : "");
+ 
+        if (agName == null || agName.isEmpty()) {
+            String catName = gender+getCodeLimitString();
+            return catName;
+        } else {
+            return ageGroup.getCode() + "_" + gender+getCodeLimitString();
+        }
+    }
+    
+    @JsonIgnore
+    @Transient
+    public String getComputedName() {
+        String agName = (ageGroup != null ? ageGroup.getName() : "");
         String catName = getLimitString();
         if (agName == null || agName.isEmpty()) {
-            return catName;
+            return gender + catName;
         } else {
             return agName + " " + catName;
         }
@@ -431,10 +464,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         this.ageGroup = ageGroup;
     }
 
-    public void setCategoryName(Double minimumWeight, Double maximumWeight, Gender enumGender, AgeGroup ageGroup) {
-        // does nothing
-    }
-
     public void setCode(String cellValue) {
         this.code = cellValue;
     }
@@ -460,15 +489,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     public void setMaximumWeight(Double maximumWeight) {
         this.maximumWeight = maximumWeight;
     }
-
-//    /**
-//     * Sets the name.
-//     *
-//     * @param name the name to set
-//     */
-//    public void setName(String name) {
-//        this.name = name;
-//    }
 
     /**
      * Sets the minimum weight.

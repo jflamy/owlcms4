@@ -355,6 +355,8 @@ public class Athlete {
     @Transient
     DecimalFormat df = null;
 
+    static private boolean skipValidationsDuringImport = false;
+
     /**
      * Instantiates a new athlete.
      */
@@ -1540,7 +1542,7 @@ public class Athlete {
         for (Participation eligible : participations2) {
             Category eligibleCat = eligible.getCategory();
             if (category != null && eligibleCat != null
-                    && StringUtils.equals(eligibleCat.getCode(), category.getCode())) {
+                    && StringUtils.equals(eligibleCat.getComputedCode(), category.getComputedCode())) {
                 curRankings = eligible;
                 break;
             }
@@ -2481,7 +2483,7 @@ public class Athlete {
     @Transient
     @JsonIgnore
     public boolean isValidation() {
-        return validation;
+        return validation && !isSkipValidationsDuringImport() ;
     }
 
     /**
@@ -4609,6 +4611,20 @@ public class Athlete {
                 continue;
             }
         }
+    }
+
+    /**
+     * @return the skipValidationsDuringImport
+     */
+    public static boolean isSkipValidationsDuringImport() {
+        return skipValidationsDuringImport;
+    }
+
+    /**
+     * @param skipValidationsDuringImport the skipValidationsDuringImport to set
+     */
+    public static void setSkipValidationsDuringImport(boolean importAsIs) {
+        Athlete.skipValidationsDuringImport = importAsIs;
     }
 
 }

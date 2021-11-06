@@ -82,7 +82,6 @@ public class RobiCategories {
         } else {
             categories = jrSrReferenceCategories;
         }
-//        logger.trace("before search " + categories.size());
         int index = Collections.binarySearch(categories,
                 new Category(a.getBodyWeight(), a.getBodyWeight(), a.getGender(), true, 0, 0, 0, null, 0),
                 x.new RobiComparator());
@@ -98,7 +97,7 @@ public class RobiCategories {
     private static String dumpCat(Category c) {
         StringBuilder sb = new StringBuilder();
         sb.append("code=");
-        sb.append(c.getCode());
+        sb.append(c.getComputedCode());
         sb.append(" gender=");
         sb.append(c.getGender());
         sb.append(" min=");

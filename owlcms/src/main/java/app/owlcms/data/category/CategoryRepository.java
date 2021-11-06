@@ -142,6 +142,18 @@ public class CategoryRepository {
     }
 
     /**
+     * Find all.
+     *
+     * @return the list
+     */
+    @SuppressWarnings("unchecked")
+    public static List<Category> findNullCodes() {
+        return JPAService
+                .runInTransaction(
+                        em -> em.createQuery("select c from Category c where c.code is null").getResultList());
+    }
+
+    /**
      * Find by code.
      *
      * @param string the code
@@ -223,11 +235,15 @@ public class CategoryRepository {
     /**
      * Save.
      *
-     * @param Category the category
+     * @param category the category
      * @return the category
      */
-    public static Category save(Category Category) {
-        return JPAService.runInTransaction(em -> em.merge(Category));
+    public static Category save(Category category) {
+        return JPAService.runInTransaction(em -> {
+            // code must match inside info for string-based matches in db.
+            category.setCode(category.getComputedCode());
+            return em.merge(category);
+        });
     }
 
     private static String filteringJoins(AgeGroup ag, Integer age) {
@@ -313,7 +329,7 @@ public class CategoryRepository {
             query.setParameter("gender", gender);
         }
     }
-    
+
     public static int countParticipations() {
         return (int) JPAService.runInTransaction((em) -> {
             String qlString = "select count(p) from Participation p";
@@ -321,6 +337,22 @@ public class CategoryRepository {
             int i = ((Long) query.getSingleResult()).intValue();
             return i;
         });
+    }
+
+    public static void fixNullCodes(List<Category> nullCodeCategories) {
+        JPAService.runInTransaction(em -> {
+            for (Category c: nullCodeCategories) {
+                c.setCode(c.getComputedCode());
+                if (c.getName() == null) {
+                    c.setName(c.getComputedName());
+                }
+                logger.info("correcting code: {} {}",c.getCode(), c.getName());
+                em.merge(c);
+            }
+            em.flush();
+            return null;
+        });
+
     }
 
 }

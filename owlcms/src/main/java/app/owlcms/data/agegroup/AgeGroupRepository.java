@@ -300,6 +300,8 @@ public class AgeGroupRepository {
                 Category newCat = new Category(template);
                 newCat.setMinimumWeight(curMin);
                 newCat.setCode(ag.getCode() + "_" + template.getCode());
+                newCat.setAgeGroup(ag);
+                //logger.debug("code = {} {}",newCat.getCode(), newCat.getComputedCode());
                 ag.addCategory(newCat);
                 newCat.setActive(ag.isActive());
                 try {
@@ -307,7 +309,7 @@ public class AgeGroupRepository {
                 } catch (NumberFormatException e) {
                     throw new Exception(e);
                 }
-//                logger.debug(newCat.dump());
+                //logger.debug(newCat.dump());
                 return newCat;
             } catch (IllegalAccessException | InvocationTargetException e) {
                 logger.error("cannot create category from template\n{}", LoggerUtils./**/stackTrace(e));

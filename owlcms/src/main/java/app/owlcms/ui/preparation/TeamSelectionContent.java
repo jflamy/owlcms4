@@ -147,8 +147,8 @@ public class TeamSelectionContent extends VerticalLayout
         Stream<Participation> stream = participations.stream()
                 .filter(p -> {
                     Category catFilterValue = categoryFilter.getValue();
-                    String catCode = catFilterValue != null ? catFilterValue.getCode() : null;
-                    String athleteCatCode = p.getCategory().getCode();
+                    String catCode = catFilterValue != null ? catFilterValue.getComputedCode() : null;
+                    String athleteCatCode = p.getCategory().getComputedCode();
 
                     String teamFilterValue = teamFilter.getValue();
                     String athleteTeamName = p.getAthlete().getTeam();

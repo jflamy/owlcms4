@@ -535,7 +535,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         updateURLLocation(UI.getCurrent(), getLocation(), "ad",
                 getAgeDivision() != null ? getAgeDivision().name() : null);
         updateURLLocation(UI.getCurrent(), getLocation(), "cat",
-                getCategoryValue() != null ? getCategoryValue().getCode() : null);
+                getCategoryValue() != null ? getCategoryValue().getComputedCode() : null);
     }
 
     /**
@@ -572,7 +572,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             label = "all";
         }
         if (getCategoryValue() != null) {
-            catLabel = getCategoryValue().getCode().replaceAll(" ", "_");
+            catLabel = getCategoryValue().getComputedCode().replaceAll(" ", "_");
         } else {
             catLabel = label;
         }
@@ -685,7 +685,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             categoryFilter.setItems(categories);
             // contains is not reliable for Categories, check codes
             if (categories != null && prevValue != null
-                    && categories.stream().anyMatch(c -> c.getCode().contentEquals(prevValue.getCode()))) {
+                    && categories.stream().anyMatch(c -> c.getComputedCode().contentEquals(prevValue.getComputedCode()))) {
                 categoryFilter.setValue(prevValue);
             } else {
                 categoryFilter.setValue(null);

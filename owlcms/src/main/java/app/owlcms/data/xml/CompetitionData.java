@@ -105,11 +105,10 @@ public class CompetitionData {
 
     public void restore(InputStream inputStream) {
         this.removeAll();
-
-
-        CompetitionData updated = this.importData(inputStream);
         JPAService.runInTransaction(em -> {
             try {
+                Athlete.setSkipValidationsDuringImport(true);
+                CompetitionData updated = this.importData(inputStream);
                 Config config = updated.getConfig();
 
                 Config.setCurrent(config);
@@ -141,6 +140,8 @@ public class CompetitionData {
                 em.flush();
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                Athlete.setSkipValidationsDuringImport(false);
             }
             return null;
         });
