@@ -22,6 +22,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.AgeDivision;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
@@ -193,6 +194,13 @@ public class Main {
                     logger.info("updating database: computing athlete eligibility to age groups and categories.");
                     AthleteRepository.resetParticipations();
                 }
+                
+                List<Category> nullCodeCategories = CategoryRepository.findNullCodes();
+                if (!nullCodeCategories.isEmpty()) {
+                    logger.info("updating category codes",nullCodeCategories);
+                    CategoryRepository.fixNullCodes(nullCodeCategories);
+                }
+
             }
         } finally {
             Translator.setForcedLocale(locale);
