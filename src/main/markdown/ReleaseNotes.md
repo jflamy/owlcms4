@@ -1,8 +1,6 @@
 ##### **Specific changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Fix for intermittent group duplication when using the database import feature
-- [x] Fix for attempt numbering on jury reversal/confirmation notification
-- [x] Fix for duplicated or empty platforms after importing registration information
+- [x] Fix: Categories created using the user interface were saved without an identification code, resulting in categories being merged together, leading to erroneous ranks.  The application will now fix any missing code on startup.  To regenerate ranks, either go to the "Age Group" management page and click "Reassign Categories", or enter each competition group as the Announcer.
 
 ###### New in this release
 
