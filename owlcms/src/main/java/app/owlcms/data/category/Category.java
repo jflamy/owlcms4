@@ -106,7 +106,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Participation> participations = new ArrayList<>();
 
-    @SuppressWarnings("unused")
     private String name;
 
     /**

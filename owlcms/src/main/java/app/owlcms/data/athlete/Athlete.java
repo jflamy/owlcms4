@@ -3710,10 +3710,10 @@ public class Athlete {
             return;
         } else {
             if (!lastChangeTooLow) {
-                throw new RuleViolationException.LastChangeTooLow(curLift, lastChange, iAutomaticProgression);
+                throw new RuleViolationException.LastChangeTooLow(this, curLift, lastChange, iAutomaticProgression);
             }
             if (!liftedWeightOk) {
-                throw new RuleViolationException.LiftValueNotWhatWasRequested(curLift, actualLift, lastChange,
+                throw new RuleViolationException.LiftValueNotWhatWasRequested(this, curLift, actualLift, lastChange,
                         liftedWeight);
             }
             return;
@@ -3912,7 +3912,7 @@ public class Athlete {
         if (missing > 0) {
             // logger.debug("FAIL missing {}",missing);
             Integer startNumber2 = this.getStartNumber();
-            rule15_20Violated = new RuleViolationException.Rule15_20Violated(this.getLastName(), this.getFirstName(),
+            rule15_20Violated = new RuleViolationException.Rule15_20Violated(this, this.getLastName(), this.getFirstName(),
                     (startNumber2 != null ? startNumber2.toString() : "-"),
                     snatch1Request, cleanJerk1Request, missing, qualTotal);
             message = rule15_20Violated.getLocalizedMessage(OwlcmsSession.getLocale());
@@ -4027,7 +4027,7 @@ public class Athlete {
                     referenceWeight);
             // someone has already lifted heavier previously
             if (requestedWeight > 0)
-                throw new RuleViolationException.WeightBelowAlreadyLifted(requestedWeight,
+                throw new RuleViolationException.WeightBelowAlreadyLifted(this, requestedWeight,
                         reference.getAthlete(), referenceWeight, referenceAttemptNo);
         } else {
             checkSameWeightAsReference(reference, requestedWeight, referenceWeight, referenceAttemptNo, currentLiftNo);
@@ -4081,7 +4081,7 @@ public class Athlete {
                 // there was no declaration made in time
                 logger./**/warn("{}{} change without declaration (not owning clock)", OwlcmsSession.getFopLoggingName(),
                         this.getShortName());
-                throw new RuleViolationException.MustDeclareFirst(clock);
+                throw new RuleViolationException.MustDeclareFirst(this, clock);
             }
         });
     }
@@ -4096,7 +4096,7 @@ public class Athlete {
             if (reference.getStartNumber() > this.getStartNumber()) {
                 getLogger().debug("{}lastLift.getStartNumber() {} > this.getStartNumber() {}",
                         fopLoggingName, reference.getStartNumber(), this.getStartNumber());
-                throw new RuleViolationException.StartNumberTooHigh(requestedWeight,
+                throw new RuleViolationException.StartNumberTooHigh(this, requestedWeight,
                         reference.getAthlete(), this);
             } else {
                 getLogger().debug("{}lastLift.getStartNumber() {} <= this.getStartNumber() {}",
@@ -4107,7 +4107,7 @@ public class Athlete {
             if (reference.getLotNumber() > this.getLotNumber()) {
                 getLogger().debug("{}lastLift.getLotNumber() {} > this.getLotNumber() {}",
                         fopLoggingName, reference.getLotNumber(), this.getLotNumber());
-                throw new RuleViolationException.LotNumberTooHigh(requestedWeight,
+                throw new RuleViolationException.LotNumberTooHigh(this, requestedWeight,
                         reference.getLotNumber(), this.getLotNumber());
             } else {
                 getLogger().debug("{}lastLift.getLotNumber() {} <= this.getLotNumber() {}",
@@ -4127,7 +4127,7 @@ public class Athlete {
         if (currentLiftNo < referenceAttemptNo) {
             getLogger().debug("{}currentLiftNo {} < prevAttemptNo {}",
                     fopLoggingName, currentLiftNo, referenceAttemptNo);
-            throw new RuleViolationException.AttemptNumberTooLow(requestedWeight,
+            throw new RuleViolationException.AttemptNumberTooLow(this, requestedWeight,
                     reference.getAthlete(), referenceWeight, 1 + (referenceAttemptNo - 1) % 3);
         } else if (currentLiftNo == referenceAttemptNo) {
             getLogger().debug("{}currentLiftNo {} == referenceAttemptNo {}",
@@ -4147,7 +4147,7 @@ public class Athlete {
                 // so we should already have lifted.
                 getLogger().debug("{}{} lifted previous attempt earlier than {}, should already have done attempt",
                         fopLoggingName, reference.getAthlete().getShortName(), this.getShortName());
-                throw new RuleViolationException.LiftedEarlier(requestedWeight, reference.getAthlete(),
+                throw new RuleViolationException.LiftedEarlier(this, requestedWeight, reference.getAthlete(),
                         this);
             } else {
                 getLogger().debug("{}currentProgression {} < referenceProgression {}", fopLoggingName,
@@ -4194,7 +4194,7 @@ public class Athlete {
                 logger./**/warn("{}{} late declaration denied ({})", OwlcmsSession.getFopLoggingName(),
                         this.getShortName(),
                         clock / 1000.0);
-                throw new RuleViolationException.LateDeclaration(clock);
+                throw new RuleViolationException.LateDeclaration(this, clock);
             }
             logger.debug("{}{}valid declaration", OwlcmsSession.getFopLoggingName(), this.getShortName(),
                     clock / 1000.0);
@@ -4203,7 +4203,7 @@ public class Athlete {
             if (clock < 30000) {
                 logger./**/warn("{}{} late change denied after final warning ({})", OwlcmsSession.getFopLoggingName(),
                         this.getShortName(), clock / 1000.0);
-                throw new RuleViolationException.MustChangeBeforeFinalWarning(clock);
+                throw new RuleViolationException.MustChangeBeforeFinalWarning(this, clock);
             }
             logger.debug("{}change before final warning", OwlcmsSession.getFopLoggingName(), clock);
             return;
@@ -4254,7 +4254,7 @@ public class Athlete {
                 logger.trace("lifts done at last start {} current lifts done {}", fop.getLiftsDoneAtLastStart(),
                         getAttemptsDone());
                 if ((!cjClock && !cjStarted) || (cjStarted && cjClock)) {
-                    throw new RuleViolationException.ValueBelowStartedClock(newVal, weightAtLastStart);
+                    throw new RuleViolationException.ValueBelowStartedClock(this, newVal, weightAtLastStart);
                 }
             } else {
                 // ok, nothing to do.
@@ -4538,7 +4538,7 @@ public class Athlete {
         int newVal = zeroIfInvalid(change1);
         int prevVal = zeroIfInvalid(automaticProgression);
         if (newVal < prevVal) {
-            throw new RuleViolationException.LastChangeTooLow(curLift, newVal, prevVal);
+            throw new RuleViolationException.LastChangeTooLow(this, curLift, newVal, prevVal);
         }
         try {
             checkChangeVsTimer(curLift, declaration, change1, change2);
@@ -4563,7 +4563,7 @@ public class Athlete {
         int newVal = zeroIfInvalid(change2);
         int prevVal = zeroIfInvalid(automaticProgression);
         if (newVal < prevVal) {
-            throw new RuleViolationException.LastChangeTooLow(curLift, newVal, prevVal);
+            throw new RuleViolationException.LastChangeTooLow(this, curLift, newVal, prevVal);
         }
         try {
             checkChangeVsTimer(curLift, declaration, change1, change2);
@@ -4587,7 +4587,7 @@ public class Athlete {
         int iAutomaticProgression = zeroIfInvalid(automaticProgression);
         // allow null declaration for reloading old results.
         if (iAutomaticProgression > 0 && newVal > 0 && newVal < iAutomaticProgression) {
-            throw new RuleViolationException.DeclarationValueTooSmall(curLift, newVal, iAutomaticProgression);
+            throw new RuleViolationException.DeclarationValueTooSmall(this, curLift, newVal, iAutomaticProgression);
         }
         try {
             checkChangeVsTimer(curLift, declaration, change1, change2);
