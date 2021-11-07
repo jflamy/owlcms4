@@ -90,7 +90,7 @@ import ch.qos.logback.classic.Logger;
 @Entity
 @Cacheable
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "logger"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "logger" })
 public class Athlete {
     private static final int YEAR = LocalDateTime.now().getYear();
 
@@ -266,12 +266,12 @@ public class Athlete {
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_categ", nullable = true)
-    @JsonProperty(index=300)
+    @JsonProperty(index = 300)
     @JsonIdentityReference(alwaysAsId = true)
     private Category category = null;
 
     @OneToMany(mappedBy = "athlete", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonProperty(index=200)
+    @JsonProperty(index = 200)
     private List<Participation> participations = new ArrayList<>();
     /**
      * Using separate fields is brute force, but having embedded classes does not bring much and we don't want joins or
@@ -555,7 +555,7 @@ public class Athlete {
             }
             return value == null ? null : Integer.valueOf(value);
         } catch (NumberFormatException e) {
-            LoggerUtils.logError(logger,e);
+            LoggerUtils.logError(logger, e);
             return 0;
         }
     }
@@ -843,7 +843,7 @@ public class Athlete {
      *
      * @return the category
      */
-    @JsonIdentityReference(alwaysAsId=true)
+    @JsonIdentityReference(alwaysAsId = true)
     public Category getCategory() {
         return category;
     }
@@ -1297,7 +1297,7 @@ public class Athlete {
         return getLongCategory();
     }
 
-    @JsonIdentityReference(alwaysAsId=true)
+    @JsonIdentityReference(alwaysAsId = true)
     public Set<Category> getEligibleCategories() {
         // brain dead version, cannot get query version to work.
         Set<Category> s = new LinkedHashSet<>();
@@ -1411,7 +1411,7 @@ public class Athlete {
      *
      * @return the group
      */
-    @JsonIdentityReference(alwaysAsId=true)
+    @JsonIdentityReference(alwaysAsId = true)
     public Group getGroup() {
         return group;
     }
@@ -1653,7 +1653,6 @@ public class Athlete {
         return participations;
     }
 
-    
     public Double getPresumedBodyWeight() {
         Double bodyWeight2 = getBodyWeight();
         if (bodyWeight2 != null && bodyWeight2 >= 0) {
@@ -2483,7 +2482,7 @@ public class Athlete {
     @Transient
     @JsonIgnore
     public boolean isValidation() {
-        return validation && !isSkipValidationsDuringImport() ;
+        return validation && !isSkipValidationsDuringImport();
     }
 
     /**
@@ -2599,7 +2598,8 @@ public class Athlete {
         }
         // the category is already from the eligible set
         // this.addEligibleCategory(category);
-        //logger.trace("{}{} category {} {}", OwlcmsSession.getFopLoggingName(), System.identityHashCode(this), category != null ? category.getParticipations() : null, LoggerUtils./**/stackTrace());
+        // logger.trace("{}{} category {} {}", OwlcmsSession.getFopLoggingName(), System.identityHashCode(this),
+        // category != null ? category.getParticipations() : null, LoggerUtils./**/stackTrace());
         this.category = category;
     }
 
@@ -3912,7 +3912,8 @@ public class Athlete {
         if (missing > 0) {
             // logger.debug("FAIL missing {}",missing);
             Integer startNumber2 = this.getStartNumber();
-            rule15_20Violated = new RuleViolationException.Rule15_20Violated(this, this.getLastName(), this.getFirstName(),
+            rule15_20Violated = new RuleViolationException.Rule15_20Violated(this, this.getLastName(),
+                    this.getFirstName(),
                     (startNumber2 != null ? startNumber2.toString() : "-"),
                     snatch1Request, cleanJerk1Request, missing, qualTotal);
             message = rule15_20Violated.getLocalizedMessage(OwlcmsSession.getLocale());
@@ -4001,11 +4002,19 @@ public class Athlete {
         return allEligible2 != null ? (allEligible2.size() > 0 ? allEligible2.get(0) : null) : null;
     }
 
-    private void checkAttemptVsLiftOrderReference(int newVal, LiftOrderInfo reference) {
+    private void checkAttemptVsLiftOrderReference(int curLift, int newVal, LiftOrderInfo reference) {
         Integer requestedWeight = newVal;
         int referenceWeight = reference.getWeight();
         int referenceAttemptNo = reference.getAttemptNo();// this is the lift that was attempted by previous lifter
         int currentLiftNo = getAttemptedLifts() + 1;
+        int checkedLift = curLift+1;
+        if (checkedLift < currentLiftNo) {
+            // we are checking an earlier attempt of the athlete (e.g. when loading the athlete card)
+            logger.trace("ignoring lift {} {}", checkedLift, currentLiftNo);
+            return;
+        } else {
+            logger.trace("checking lift {} {}", checkedLift, currentLiftNo);
+        }
 
         if (requestedWeight > referenceWeight) {
             getLogger().debug("{}{} attempt {}: requested {} > previous {}", OwlcmsSession.getFopLoggingName(), this,
@@ -4038,17 +4047,18 @@ public class Athlete {
      * Check that the change does not allow lifter to lift out of order
      *
      * Changing requested weight and moving back
-     *
+     * 
+     * @param curLift
      * @param newVal
      */
-    private void checkChangeVsLiftOrder(int newVal) {
+    private void checkChangeVsLiftOrder(int curLift, int newVal) {
         Level prevLoggerLevel = getLogger().getLevel();
         if (Competition.getCurrent().isGenderOrder()) {
             return;
         }
         try {
             getLogger().setLevel(Level.DEBUG);
-            doCheckChangeVsLiftOrder(newVal);
+            doCheckChangeVsLiftOrder(curLift, newVal);
         } finally {
             getLogger().setLevel(prevLoggerLevel);
         }
@@ -4210,7 +4220,18 @@ public class Athlete {
         }
     }
 
-    private void doCheckChangeVsLiftOrder(int newVal) throws RuleViolationException {
+    private void doCheckChangeVsLiftOrder(int curLift, int newVal) throws RuleViolationException {
+        
+        int currentLiftNo = getAttemptedLifts() + 1;
+        int checkedLift = curLift+1;
+        if (checkedLift < currentLiftNo) {
+            // we are checking an earlier attempt of the athlete (e.g. when loading the athlete card)
+            logger.trace("doCheckChangeVsLiftOrder ignoring lift {} {}", checkedLift, currentLiftNo);
+            return;
+        } else {
+            logger.trace("doCheckChangeVsLiftOrder checking lift {} {}", checkedLift, currentLiftNo);
+        }
+        
         Object wi = OwlcmsSession.getAttribute("weighIn");
         String fopLoggingName = OwlcmsSession.getFopLoggingName();
         if (wi == this) {
@@ -4242,7 +4263,7 @@ public class Athlete {
                 }
 
                 if (reference != null) {
-                    checkAttemptVsLiftOrderReference(newVal, reference);
+                    checkAttemptVsLiftOrderReference(curLift, newVal, reference);
                 } else {
                     // no last lift, go ahead
                 }
@@ -4543,7 +4564,7 @@ public class Athlete {
         try {
             checkChangeVsTimer(curLift, declaration, change1, change2);
             checkDeclarationWasMade(curLift, declaration);
-            checkChangeVsLiftOrder(newVal);
+            checkChangeVsLiftOrder(curLift, newVal);
         } catch (RuleViolationException e) {
             throw e;
         } catch (Exception e) {
@@ -4568,7 +4589,7 @@ public class Athlete {
         try {
             checkChangeVsTimer(curLift, declaration, change1, change2);
             checkDeclarationWasMade(curLift, declaration);
-            checkChangeVsLiftOrder(newVal);
+            checkChangeVsLiftOrder(curLift, newVal);
         } catch (RuleViolationException e) {
             throw e;
         } catch (Exception e) {
@@ -4591,7 +4612,7 @@ public class Athlete {
         }
         try {
             checkChangeVsTimer(curLift, declaration, change1, change2);
-            checkChangeVsLiftOrder(newVal);
+            checkChangeVsLiftOrder(curLift, newVal);
         } catch (RuleViolationException e) {
             throw e;
         } catch (Exception e) {

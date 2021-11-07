@@ -474,7 +474,15 @@ public class FieldOfPlay {
         } else if (e instanceof BreakPaused) {
             // logger.debug("break paused {}", LoggerUtils. stackTrace());
         } else if (e instanceof StartLifting) {
-            transitionToLifting(e, getGroup(), true);
+            boolean resumed = false;
+            if (state == BREAK && (breakType == BreakType.JURY || breakType == BreakType.TECHNICAL)) {
+               // if group under way, this will try to just keep going.
+               resumed = resumeLifting(e);
+            }
+            if (!resumed) {
+                // group was not under way, full start.
+                transitionToLifting(e, getGroup(), true);
+            }
         } else if (e instanceof BarbellOrPlatesChanged) {
             uiShowPlates((BarbellOrPlatesChanged) e);
             return;
@@ -689,7 +697,7 @@ public class FieldOfPlay {
     }
 
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer, boolean alreadyLoaded) {
-        //logger.debug("start of init state={} \\n{}", state, LoggerUtils. stackTrace());
+        // logger.debug("start of init state={} \\n{}", state, LoggerUtils. stackTrace());
         this.athleteTimer = timer;
         this.breakTimer = breakTimer;
         this.setCurAthlete(null);
@@ -906,7 +914,7 @@ public class FieldOfPlay {
      * @param group the group
      */
     public void startLifting(Group group, Object origin) {
-        //logger.debug("startLifting {}", LoggerUtils. stackTrace());
+        // logger.debug("startLifting {}", LoggerUtils. stackTrace());
         loadGroup(group, origin, true);
         logger.trace("{} start lifting for group {} origin={}", this.getLoggingName(),
                 (group != null ? group.getName() : group), origin);
@@ -1493,6 +1501,32 @@ public class FieldOfPlay {
         }
         uiStartLifting(getGroup(), e.getOrigin());
         uiDisplayCurrentAthleteAndTime(true, e, false);
+    }
+
+    private boolean resumeLifting(FOPEvent e) {
+        // time will be restarted anyway
+        setWeightAtLastStart(0);
+        logger.trace("resumeLifting {} {} from:{}", e.getAthlete(),
+                LoggerUtils.whereFrom());
+
+        boolean resumed = false;
+        if (getCurAthlete() != null) {
+            Athlete clockOwner = getClockOwner();
+            if (getCurAthlete().equals(clockOwner)) {
+                setState(TIME_STOPPED); // allows referees to enter decisions even if time is not restarted (which
+                                        // sometimes happens).
+            } else {
+                setState(CURRENT_ATHLETE_DISPLAYED);
+                recomputeLiftingOrder();
+            }
+
+            getBreakTimer().stop();
+            setBreakType(null);
+            uiStartLifting(getGroup(), e.getOrigin());
+            uiDisplayCurrentAthleteAndTime(true, e, false);
+            resumed = true;
+        }
+        return resumed;
     }
 
     private void transitionToTimeRunning() {
