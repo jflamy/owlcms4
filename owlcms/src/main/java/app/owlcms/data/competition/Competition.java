@@ -119,7 +119,6 @@ public class Competition {
     private LocalDate competitionDate = null;
     private String competitionName;
     private String competitionOrganizer;
-
     private String competitionSite;
 
     /**
@@ -205,6 +204,7 @@ public class Competition {
     private Integer womensTeamSize = 10;
 
     @Transient
+    @JsonIgnore
     private boolean rankingsInvalid = true;
 
     synchronized public HashMap<String, Object> computeReportingInfo() {
@@ -342,7 +342,7 @@ public class Competition {
 //    synchronized public List<Athlete> getGlobalTotalRanking(Gender gender) {
 //        return getListOrElseRecompute(gender == Gender.F ? "wTot" : "mTot");
 //    }
-    
+
     @Transient
     @JsonIgnore
     synchronized public List<Athlete> getGlobalSinclairRanking(Gender gender) {
@@ -428,6 +428,8 @@ public class Competition {
         }
     }
 
+    @Transient
+    @JsonIgnore
     public HashMap<String, Object> getReportingBeans() {
         return reportingBeans;
     }
