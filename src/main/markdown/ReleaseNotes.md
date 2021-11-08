@@ -1,7 +1,6 @@
 ##### **Specific changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Fix: after a jury or technical pause, the group is simply resumed as opposed to fully reloaded. Clock values are kept.
-- [x] Fix: when opening the athlete's card, only validate the entries for the current lift.
+- [x] Fix: on startup, clean-up of duplicate or null platforms resulting from old (now fixed) problem when loading registration files.
 
 ###### New in this release
 
