@@ -76,7 +76,8 @@ public class OwlcmsFactory {
             if (fopByName == null || fopByName.isEmpty()) {
                 initFOPByName();
             }
-            Optional<FieldOfPlay> fop = fopByName.entrySet().stream().sorted(Comparator.comparing(x -> x.getKey()))
+            Optional<FieldOfPlay> fop = fopByName.entrySet().stream()
+                    .sorted(Comparator.comparing(x -> x.getKey()))
                     .map(x -> x.getValue())
                     .findFirst();
             defaultFOP = fop.orElse(null);
@@ -111,7 +112,13 @@ public class OwlcmsFactory {
      * @return the FOP by name
      */
     public static FieldOfPlay getFOPByName(String key) {
+        boolean newReset = false;
         if (fopByName == null) {
+            initFOPByName();
+            newReset = true;
+        }
+        if (fopByName.get(key) == null && !newReset) {
+            // try once to reset
             initFOPByName();
         }
         return fopByName.get(key);
