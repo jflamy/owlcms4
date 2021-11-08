@@ -166,28 +166,6 @@ public class DemoData {
         }
     }
 
-    protected static void defaultPlates(Platform platform1) {
-        // setDefaultMixerName(platform1);
-        platform1.setShowDecisionLights(true);
-        platform1.setShowTimer(true);
-        // collar
-        platform1.setNbC_2_5(1);
-        // small plates
-        platform1.setNbS_0_5(1);
-        platform1.setNbS_1(1);
-        platform1.setNbS_1_5(1);
-        platform1.setNbS_2(1);
-        platform1.setNbS_2_5(1);
-        platform1.setNbS_5(1);
-        // large plates, regulation set-up
-        platform1.setNbL_2_5(0);
-        platform1.setNbL_5(0);
-        platform1.setNbL_10(1);
-        platform1.setNbL_15(1);
-        platform1.setNbL_20(1);
-        platform1.setNbL_25(3);
-    }
-
     protected static void drawLots(EntityManager em) {
         List<Athlete> athletes = AthleteRepository.doFindAll(em);
         AthleteSorter.drawLots(athletes);
@@ -210,9 +188,7 @@ public class DemoData {
         LocalDateTime c = w.plusHours((long) 2.0);
 
         Platform platform1 = new Platform("A");
-        defaultPlates(platform1);
         Platform platform2 = new Platform("B");
-        defaultPlates(platform2);
 
         Group groupM1 = new Group("M1", w, c);
         groupM1.setPlatform(platform1);
