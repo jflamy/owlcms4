@@ -64,7 +64,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 
     public TCContent() {
         super();
-        setTopBarTitle(getTranslation("TechnicalController"));
+        setTopBarTitle(getTranslation("PlatesCollarBarbell"));
     }
 
     @Override
@@ -88,7 +88,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("TechnicalController");
+        return getTranslation("PlatesCollarBarbell");
     }
 
     public void setCrudFormFactory(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
@@ -154,44 +154,67 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
         TextField nbL25 = new TextField();
         largePlates.addFormItem(nbL25, getTranslation("Kg", 25));
         binder.forField(nbL25).withConverter(converter).bind(Platform::getNbL_25, Platform::setNbL_25);
+        nbL25.setAutoselect(true);
+
         TextField nbL20 = new TextField();
         largePlates.addFormItem(nbL20, getTranslation("Kg", 20));
         binder.forField(nbL20).withConverter(converter).bind(Platform::getNbL_20, Platform::setNbL_20);
+        nbL20.setAutoselect(true);
+
         TextField nbL15 = new TextField();
         largePlates.addFormItem(nbL15, getTranslation("Kg", 15));
         binder.forField(nbL15).withConverter(converter).bind(Platform::getNbL_15, Platform::setNbL_15);
+        nbL15.setAutoselect(true);
+
         TextField nbL10 = new TextField();
         largePlates.addFormItem(nbL10, getTranslation("Kg", 10));
         binder.forField(nbL10).withConverter(converter).bind(Platform::getNbL_10, Platform::setNbL_10);
+        nbL10.setAutoselect(true);
+
         TextField nbL5 = new TextField();
         largePlates.addFormItem(nbL5, getTranslation("Kg", 5));
         binder.forField(nbL5).withConverter(converter).bind(Platform::getNbL_10, Platform::setNbL_5);
+        nbL5.setAutoselect(true);
+
         TextField nbL2_5 = new TextField();
         largePlates.addFormItem(nbL2_5, getTranslation("Kg", 2.5));
         binder.forField(nbL2_5).withConverter(converter).bind(Platform::getNbL_2_5, Platform::setNbL_2_5);
+        nbL2_5.setAutoselect(true);
 
         TextField nbS5 = new TextField();
         smallPlates.addFormItem(nbS5, getTranslation("Kg", 5));
         binder.forField(nbS5).withConverter(converter).bind(Platform::getNbS_5, Platform::setNbS_5);
+        nbS5.setAutoselect(true);
+        
         TextField nbS2_5 = new TextField();
         smallPlates.addFormItem(nbS2_5, getTranslation("Kg", 2.5));
         binder.forField(nbS2_5).withConverter(converter).bind(Platform::getNbS_2_5, Platform::setNbS_2_5);
+        nbS2_5.setAutoselect(true);
+        
         TextField nbS2 = new TextField();
         smallPlates.addFormItem(nbS2, getTranslation("Kg", 2));
         binder.forField(nbS2).withConverter(converter).bind(Platform::getNbS_2, Platform::setNbS_2);
+        nbS2.setAutoselect(true);
+        
         TextField nbS1_5 = new TextField();
         smallPlates.addFormItem(nbS1_5, getTranslation("Kg", 1.5));
         binder.forField(nbS1_5).withConverter(converter).bind(Platform::getNbS_1_5, Platform::setNbS_1_5);
+        nbL20.setAutoselect(true);
+        
         TextField nbS1 = new TextField();
         smallPlates.addFormItem(nbS1, getTranslation("Kg", 1));
         binder.forField(nbS1).withConverter(converter).bind(Platform::getNbS_1, Platform::setNbS_1);
+        nbS1.setAutoselect(true);
+        
         TextField nbS0_5 = new TextField();
         smallPlates.addFormItem(nbS0_5, getTranslation("Kg", 0.5));
         binder.forField(nbS0_5).withConverter(converter).bind(Platform::getNbS_0_5, Platform::setNbS_0_5);
-
+        nbS0_5.setAutoselect(true);
+        
         TextField nbC2_5 = new TextField();
         collar.addFormItem(nbC2_5, getTranslation("Kg", 2.5));
         binder.forField(nbC2_5).withConverter(converter).bind(Platform::getNbC_2_5, Platform::setNbC_2_5);
+        nbC2_5.setAutoselect(true);
 
         Checkbox useOtherBar = new Checkbox();
         TextField barWeight = new TextField();
