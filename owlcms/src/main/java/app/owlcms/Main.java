@@ -31,6 +31,7 @@ import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.jpa.DemoData;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.ProdData;
+import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.EmbeddedJetty;
 import app.owlcms.init.InitialData;
@@ -175,7 +176,7 @@ public class Main {
                 logger.info("database not empty: {}", allCompetitions.get(0).getCompetitionName());
                 List<AgeGroup> ags = AgeGroupRepository.findAll();
                 if (ags.isEmpty()) {
-                    logger.info("updating age groups and categories");
+                    logger.info("creating age groups and categories");
                     JPAService.runInTransaction(em -> {
                         AgeGroupRepository.insertAgeGroups(em, null);
                         return null;
@@ -200,6 +201,8 @@ public class Main {
                     logger.info("updating category codes",nullCodeCategories);
                     CategoryRepository.fixNullCodes(nullCodeCategories);
                 }
+                
+                PlatformRepository.checkPlatforms();
 
             }
         } finally {
