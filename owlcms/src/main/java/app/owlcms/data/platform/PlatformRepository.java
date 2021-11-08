@@ -6,7 +6,10 @@
  *******************************************************************************/
 package app.owlcms.data.platform;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -25,7 +28,6 @@ import ch.qos.logback.classic.Logger;
  */
 public class PlatformRepository {
 
-    @SuppressWarnings("unused")
     final private static Logger logger = (Logger) LoggerFactory.getLogger(PlatformRepository.class);
 
     /**
@@ -61,7 +63,7 @@ public class PlatformRepository {
      */
     @SuppressWarnings("unchecked")
     public static List<Platform> findAll() {
-        return JPAService.runInTransaction(em -> em.createQuery("select c from Platform c").getResultList());
+        return JPAService.runInTransaction(em -> em.createQuery("select c from Platform c order by c.id").getResultList());
     }
 
     /**
@@ -111,5 +113,32 @@ public class PlatformRepository {
             }
         }
         return nPlatform;
+    }
+    
+    public static void checkPlatforms() {
+        Set<String> checkPlatforms = PlatformRepository.findAll().stream().map(Platform::getName).collect(Collectors.toSet());
+        if (checkPlatforms.isEmpty()) {
+            JPAService.runInTransaction(em -> {
+                Platform np = new Platform("A");
+                em.persist(np);
+                return np;
+            });
+        } else {
+            logger.debug("to be kept {}", checkPlatforms);
+    
+            Set<String> seen = new HashSet<>();
+            // delete all unused platforms
+            for (Platform pl : PlatformRepository.findAll()) {
+                String name = pl.getName();
+                if (name == null || name.isBlank() || seen.contains(name)) {
+                    // we have already seen a platform with this name
+                    // group will be connected with the first platform created with that name
+                    PlatformRepository.delete(pl);
+                    logger.info("removing duplicate or invalid entry for platform {}",name);
+                } else {
+                    seen.add(name);
+                }
+            }
+        }
     }
 }
