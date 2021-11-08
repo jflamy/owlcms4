@@ -26,6 +26,7 @@ class PlatformEditingFormFactory extends OwlcmsCrudFormFactory<Platform> {
 
     @Override
     public Platform add(Platform platform) {
+        platform.defaultPlates();
         PlatformRepository.save(platform);
         return platform;
     }
