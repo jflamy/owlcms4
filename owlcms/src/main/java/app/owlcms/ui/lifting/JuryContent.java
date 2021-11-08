@@ -238,7 +238,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     protected void init(int nbj) {
         this.setBoxSizing(BoxSizing.BORDER_BOX);
         this.setSizeFull();
-        setTopBarTitle("Jury");
+        setTopBarTitle(getTranslation("Jury"));
         nbJurors = nbj;
         buildJuryBox(this);
         buildRefereeBox(this);
