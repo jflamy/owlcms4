@@ -725,7 +725,6 @@ public class FieldOfPlay {
             logger.info("{}group {} athletes={}", getLoggingName(), getGroup(), athletes.size());
             pushOut(new UIEvent.SwitchGroup(getGroup(), getState(), getCurAthlete(), this));
         }
-        logger.debug("end of init state=" + state);
     }
 
     public boolean isCjStarted() {
