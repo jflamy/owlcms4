@@ -37,7 +37,6 @@ import ch.qos.logback.classic.Logger;
  */
 @Entity(name = "Participation")
 @Table(name = "participation")
-//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @JsonIgnoreProperties({"hibernateLazyInitializer"})
 public class Participation implements IRankHolder {
 
@@ -45,7 +44,6 @@ public class Participation implements IRankHolder {
     private final static Logger logger = (Logger) LoggerFactory.getLogger(Participation.class);
 
     @EmbeddedId
-    @JsonIgnore
     private ParticipationId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -138,6 +136,7 @@ public class Participation implements IRankHolder {
         return athlete;
     }
 
+    @JsonIdentityReference(alwaysAsId = true)
     public Category getCategory() {
         return category;
     }
@@ -265,7 +264,7 @@ public class Participation implements IRankHolder {
 
     public void setSnatchRank(int snatchRank) {
         this.snatchRank = snatchRank;
-        //logger.trace("snatchRank {}", long_dump());
+        logger.warn("snatchRank {}", long_dump());
     }
 
     public void setTeamCJRank(int teamCJRank) {

@@ -42,6 +42,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import app.owlcms.data.agegroup.AgeGroup;
@@ -91,6 +92,7 @@ import ch.qos.logback.classic.Logger;
 @Cacheable
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "logger" })
+@JsonPropertyOrder({ "id", "participations", "category"})
 public class Athlete {
     private static final int YEAR = LocalDateTime.now().getYear();
 
@@ -1297,7 +1299,8 @@ public class Athlete {
         return getLongCategory();
     }
 
-    @JsonIdentityReference(alwaysAsId = true)
+    @Transient
+    @JsonIgnore
     public Set<Category> getEligibleCategories() {
         // brain dead version, cannot get query version to work.
         Set<Category> s = new LinkedHashSet<>();
@@ -1538,7 +1541,7 @@ public class Athlete {
     public Participation getMainRankings() {
         Participation curRankings = null;
         List<Participation> participations2 = getParticipations();
-        logger.debug("athlete {} category {} participations {}", this, category, participations2);
+        logger.warn("athlete {} category {} participations {}", this, category, participations2);
         for (Participation eligible : participations2) {
             Category eligibleCat = eligible.getCategory();
             if (category != null && eligibleCat != null
@@ -2183,7 +2186,15 @@ public class Athlete {
     }
 
     public int getSnatchRank() {
-        return (getMainRankings() != null ? getMainRankings().getSnatchRank() : -1);
+
+        int snatchRank;
+        if (getMainRankings() != null) {
+            snatchRank = getMainRankings().getSnatchRank();
+        } else {
+            snatchRank = -1;
+        }
+        logger.warn("{} snatchRank {}", this.getShortName(), snatchRank);
+        return snatchRank;
     }
 
     /**
@@ -2890,7 +2901,7 @@ public class Athlete {
                     cleanJerk3Change2, cleanJerk3ActualLift);
         }
         this.cleanJerk3Declaration = cleanJerk3Declaration;
-        getLogger().info("{}{}cleanJerk3Declaration={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+        getLogger().info("{}{} cleanJerk3Declaration={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
                 cleanJerk3Declaration);
     }
 
@@ -2981,7 +2992,7 @@ public class Athlete {
                 addEligibleCategory(cat); // creates new join table entry, links from category as well.
             }
         }
-        logger.trace("{}{} {} after set eligible {}", OwlcmsSession.getFopLoggingName(), System.identityHashCode(this),
+        logger.warn("{}{} {} after set eligible {}", OwlcmsSession.getFopLoggingName(), System.identityHashCode(this),
                 getShortName(),
                 getEligibleCategories());
     }
@@ -4007,7 +4018,7 @@ public class Athlete {
         int referenceWeight = reference.getWeight();
         int referenceAttemptNo = reference.getAttemptNo();// this is the lift that was attempted by previous lifter
         int currentLiftNo = getAttemptedLifts() + 1;
-        int checkedLift = curLift+1;
+        int checkedLift = curLift + 1;
         if (checkedLift < currentLiftNo) {
             // we are checking an earlier attempt of the athlete (e.g. when loading the athlete card)
             logger.trace("ignoring lift {} {}", checkedLift, currentLiftNo);
@@ -4221,9 +4232,9 @@ public class Athlete {
     }
 
     private void doCheckChangeVsLiftOrder(int curLift, int newVal) throws RuleViolationException {
-        
+
         int currentLiftNo = getAttemptedLifts() + 1;
-        int checkedLift = curLift+1;
+        int checkedLift = curLift + 1;
         if (checkedLift < currentLiftNo) {
             // we are checking an earlier attempt of the athlete (e.g. when loading the athlete card)
             logger.trace("doCheckChangeVsLiftOrder ignoring lift {} {}", checkedLift, currentLiftNo);
@@ -4231,7 +4242,7 @@ public class Athlete {
         } else {
             logger.trace("doCheckChangeVsLiftOrder checking lift {} {}", checkedLift, currentLiftNo);
         }
-        
+
         Object wi = OwlcmsSession.getAttribute("weighIn");
         String fopLoggingName = OwlcmsSession.getFopLoggingName();
         if (wi == this) {

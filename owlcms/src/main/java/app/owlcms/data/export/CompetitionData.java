@@ -11,6 +11,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,8 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
@@ -94,7 +97,12 @@ public class CompetitionData {
 
     public CompetitionData fromDatabase() {
         setAgeGroups(AgeGroupRepository.findAll());
-        List<Athlete> allAthletes = AthleteRepository.findAll();
+        List<Athlete> allAthletes = AthleteRepository
+                .findAll()
+                .stream()
+                .filter(a -> a.getAgeGroup().getAgeDivision() == AgeDivision.MASTERS && a.getGender() == Gender.F)
+                .collect(Collectors.toList())
+                ;
         setAthletes(allAthletes);
         setGroups(GroupRepository.findAll());
         setPlatforms(PlatformRepository.findAll());
@@ -123,19 +131,21 @@ public class CompetitionData {
                     em.persist(ag);
                 }
                 
-                for (Group g : updated.getGroups()) {
-                    em.merge(g);
-                }
-
-                for (Platform p : updated.getPlatforms()) {
-                    em.persist(p);
-                }
-                
                 for (Athlete a : updated.getAthletes()) {
                     // defensive programming if import file is corrupt
                     // a.checkParticipations();
                     em.persist(a);
                 }
+                
+                for (Group g : updated.getGroups()) {
+                    em.merge(g);
+                }
+//
+//                for (Platform p : updated.getPlatforms()) {
+//                    em.merge(p);
+//                }
+//                
+
 
                 em.flush();
             } catch (Exception e) {
