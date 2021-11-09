@@ -20,7 +20,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.components.elements.LazyDownloadButton;
-import app.owlcms.data.xml.CompetitionData;
+import app.owlcms.data.export.CompetitionData;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import ch.qos.logback.classic.Logger;

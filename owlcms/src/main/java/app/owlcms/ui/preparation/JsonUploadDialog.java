@@ -22,7 +22,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
-import app.owlcms.data.xml.CompetitionData;
+import app.owlcms.data.export.CompetitionData;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
