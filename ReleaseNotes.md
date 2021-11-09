@@ -1,9 +1,8 @@
-##### **Specific changes for release 4.24.0-rc11**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Specific changes for release 4.24.0-rc12**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Fix: on startup, the program will remove duplicate or null entries for platforms.  These are left-overs from an old bug in loading registration files (the bug has since been fixed).
-- [x] Enhancement: Available Plates page can now be reached from the Field of Play/Platforms preparation page.
-- [x] Fix: some unneeded data was being included in the JSON format export.
-- [x] Updated Russian and Spanish translations.
+- [x] Changed the behavior of the Category Results filter to be more intuitive; all results are initially shown, including when athletes are eligible to multiple categories (for example Masters 35 and Senior).  Filtering to produce the Masters package, or the Senior package works as expected.  If athletes are all in separate categories, then you don't need to filter unless you want to.  
+- [x] Fix: ranks are correctly restored after importing a JSON export (no need to force recalculation anymore)
+- [x] Enhancement: added a "Coach" field to the athlete registration and weigh-in forms.  Usable as ${l.coach} in the Excel templates.
 
 ###### New in this release
 
@@ -19,6 +18,10 @@
   - Jury actions are shown to the other technical officials consoles to keep them informed.
   - Shortcuts are defined to support a jury keypad. See [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Refereeing#jury-console-keypad) for details
   
+- [x] Enhancement: Available Plates page can now be reached from the Field of Play/Platforms preparation page.  The button to reach this page has also been renamed (used to be "Technical Controller")
+
+- [x] Fix: if you had imported the registration Excel, there was the possibility that duplicate platforms had been created.  The program now keeps the oldest platform when there are duplicates.
+
 - [x] It is now possible to Export and Import the database content (#449).  This allows taking a snapshot of the database in the middle of a competition. It also allows bringing back a Heroku database for local use, and conversely, setting up a competition locally prior to loading on Heroku.
 
   > For now you should still take backups of the real database (in the database directory on a laptop, or using the PostgreSQL backup on Heroku).  Until it is fully mature, it is considered a technical feature and is located at on the "Language and System Settings Page".
