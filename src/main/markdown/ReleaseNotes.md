@@ -1,6 +1,9 @@
 ##### **Specific changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Fix: on startup, clean-up of duplicate or null platforms resulting from old (now fixed) problem when loading registration files.
+- [x] Fix: on startup, the program will remove duplicate or null entries for platforms.  These are left-overs from an old bug in loading registration files (the bug has since been fixed).
+- [x] Enhancement: Available Plates page can now be reached from the Field of Play/Platforms preparation page.
+- [x] Fix: some unneeded data was being included in the JSON format export.
+- [x] Updated Russian and Spanish translations.
 
 ###### New in this release
 
