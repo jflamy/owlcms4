@@ -994,6 +994,13 @@ public class Competition {
         getOrCreateBean("wSinclair");
         reportingBeans.put("wSinclair", sortedWomen);
     }
+    
+    private void reportSMF(List<Athlete> sortedMen, List<Athlete> sortedWomen) {
+        getOrCreateBean("mSMF");
+        reportingBeans.put("mSMF", sortedMen);
+        getOrCreateBean("wSMF");
+        reportingBeans.put("wSMF", sortedWomen);
+    }
 
     private void reportTeams(List<Athlete> sortedAthletes, List<Athlete> sortedMen,
             List<Athlete> sortedWomen) {
@@ -1131,5 +1138,12 @@ public class Competition {
         AthleteSorter.teamPointsOrder(sortedWomen, Ranking.BW_SINCLAIR);
 
         reportSinclair(sortedMen, sortedWomen);
+        
+        sortedMen = getOrCreateBean("mTeamSMF" + ad.name());
+        sortedWomen = getOrCreateBean("wTeamSMF" + ad.name());
+        AthleteSorter.teamPointsOrder(sortedMen, Ranking.SMM);
+        AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SMM);
+
+        reportSMF(sortedMen, sortedWomen);
     }
 }
