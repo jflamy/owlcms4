@@ -1,7 +1,9 @@
-##### **Specific changes for release 4.24.0-rc10**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Specific changes for release 4.24.0-rc11**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Fix: after a jury or technical pause, the group is simply resumed as opposed to fully reloaded. Clock values are kept.
-- [x] Fix: when opening the athlete's card, only validate the entries for the current lift.
+- [x] Fix: on startup, the program will remove duplicate or null entries for platforms.  These are left-overs from an old bug in loading registration files (the bug has since been fixed).
+- [x] Enhancement: Available Plates page can now be reached from the Field of Play/Platforms preparation page.
+- [x] Fix: some unneeded data was being included in the JSON format export.
+- [x] Updated Russian and Spanish translations.
 
 ###### New in this release
 
