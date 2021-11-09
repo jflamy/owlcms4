@@ -173,6 +173,7 @@ public class Athlete {
             }
 
             dest.setForcedAsCurrent(src.isForcedAsCurrent());
+            dest.setCoach(src.getCoach());
 
             if (copyResults) {
                 // Category-specific results are in the participation objects
@@ -244,6 +245,8 @@ public class Athlete {
         }
     }
 
+    private String coach;
+
     @Transient
     private Long copyId = null;
 
@@ -271,6 +274,7 @@ public class Athlete {
     private Double bodyWeight = null;
 
     private String membership = "";
+
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_group", nullable = true)
@@ -297,38 +301,38 @@ public class Athlete {
      */
     private String snatch1Declaration;
     private String snatch1Change1;
-
     private String snatch1Change2;
+
     private String snatch1ActualLift;
     private LocalDateTime snatch1LiftTime;
     private String snatch2Declaration;
     private String snatch2Change1;
-
     private String snatch2Change2;
+
     private String snatch2ActualLift;
     private LocalDateTime snatch2LiftTime;
     private String snatch3Declaration;
     private String snatch3Change1;
-
     private String snatch3Change2;
+
     private String snatch3ActualLift;
     private LocalDateTime snatch3LiftTime;
     private String cleanJerk1Declaration;
     private String cleanJerk1Change1;
-
     private String cleanJerk1Change2;
+
     private String cleanJerk1ActualLift;
     private LocalDateTime cleanJerk1LiftTime;
     private String cleanJerk2Declaration;
     private String cleanJerk2Change1;
-
     private String cleanJerk2Change2;
+
     private String cleanJerk2ActualLift;
     private LocalDateTime cleanJerk2LiftTime;
     private String cleanJerk3Declaration;
     private String cleanJerk3Change1;
-
     private String cleanJerk3Change2;
+
     private String cleanJerk3ActualLift;
     private LocalDateTime cleanJerk3LiftTime;
     private Integer sinclairRank;
@@ -337,8 +341,8 @@ public class Athlete {
     private Integer teamRobiRank;
     private Integer teamSnatchRank;
     private Integer teamCleanJerkRank;
-
     private Integer teamTotalRank;
+
     private Integer teamCustomRank;
     private Integer teamCombinedRank;
     @Column(columnDefinition = "integer default 0")
@@ -351,16 +355,15 @@ public class Athlete {
     private Double customScore;
     @Column(columnDefinition = "boolean default true")
     private boolean eligibleForIndividualRanking = true;
-
     /** The forced as current. */
     @Column(columnDefinition = "boolean default false")
     private boolean forcedAsCurrent = false;
+
     private boolean eligibleForTeamRanking = true;
     /**
      * body weight inferred from category, used until real bodyweight is known.
      */
     private Double presumedBodyWeight;
-
     /*
      * Non-persistent properties. These properties will be lost as soon as the athlete is saved.
      */
@@ -406,7 +409,8 @@ public class Athlete {
     public void checkParticipations() {
         for (Iterator<Participation> iterator = participations.iterator(); iterator.hasNext();) {
             Participation p = iterator.next();
-            if (p.getAthlete() == null || p.getAthlete().getId() == null || p.getCategory() == null || p.getCategory().getId() == null) {
+            if (p.getAthlete() == null || p.getAthlete().getId() == null || p.getCategory() == null
+                    || p.getCategory().getId() == null) {
                 iterator.remove();
                 continue;
             }
@@ -1178,6 +1182,10 @@ public class Athlete {
      */
     public String getClub() {
         return getTeam();
+    }
+
+    public String getCoach() {
+        return this.coach;
     }
 
     /**
@@ -2963,6 +2971,13 @@ public class Athlete {
         setTeam(club);
     }
 
+    /**
+     * @param coach the coach to set
+     */
+    public void setCoach(String coach) {
+        this.coach = coach;
+    }
+
     public void setCombinedRank(int i) {
         combinedRank = i;
     }
@@ -3038,16 +3053,6 @@ public class Athlete {
         this.firstName = firstName;
     }
 
-    /**
-     * Sets the forced as current.
-     *
-     * @param forcedAsCurrent the new forced as current
-     */
-    public void setForcedAsCurrent(boolean forcedAsCurrent) {
-        // logger.trace("setForcedAsCurrent({}) from {}", forcedAsCurrent, LoggerUtils.whereFrom());
-        this.forcedAsCurrent = forcedAsCurrent;
-    }
-
 //  /**
 //   * Sets the result order rank.
 //   *
@@ -3057,6 +3062,16 @@ public class Athlete {
 //  public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
 //      this.resultOrderRank = resultOrderRank;
 //  }
+
+    /**
+     * Sets the forced as current.
+     *
+     * @param forcedAsCurrent the new forced as current
+     */
+    public void setForcedAsCurrent(boolean forcedAsCurrent) {
+        // logger.trace("setForcedAsCurrent({}) from {}", forcedAsCurrent, LoggerUtils.whereFrom());
+        this.forcedAsCurrent = forcedAsCurrent;
+    }
 
     /**
      * Sets the full birth date.
@@ -3103,15 +3118,15 @@ public class Athlete {
         this.liftOrderRank = liftOrder;
     }
 
-    public void setLoggerLevel(Level newLevel) {
-        getLogger().setLevel(newLevel);
-    }
-
     /*
      * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
      * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
      * register/unregister itself.
      */
+
+    public void setLoggerLevel(Level newLevel) {
+        getLogger().setLevel(newLevel);
+    }
 
     /**
      * Sets the lot number.
@@ -3517,12 +3532,6 @@ public class Athlete {
         // ignored. computed property. setter needed for beans introspection.
     }
 
-    @Transient
-    @JsonIgnore
-    public void setSnatchRank(int ignored) {
-        // ignored. computed property. setter needed for beans introspection.
-    }
-
 //    /**
 //     * Sets the snatch rank.
 //     *
@@ -3543,6 +3552,12 @@ public class Athlete {
 //    public void setSnatchRankYth(Integer snatchRankYth) {
 //        this.snatchRankYth = snatchRankYth;
 //    }
+
+    @Transient
+    @JsonIgnore
+    public void setSnatchRank(int ignored) {
+        // ignored. computed property. setter needed for beans introspection.
+    }
 
     /**
      * Sets the start number.
@@ -4231,6 +4246,27 @@ public class Athlete {
         }
     }
 
+//    @SuppressWarnings("unused")
+//    private Long getCopyId() {
+//        return copyId;
+//    }
+
+//    @SuppressWarnings("unused")
+//    private Integer getDeclaredAndActuallyAttempted(Integer... items) {
+//        int lastIndex = items.length - 1;
+//        if (items.length == 0) {
+//            return 0;
+//        }
+//        while (lastIndex >= 0) {
+//            if (items[lastIndex] > 0) {
+//                // if went down from declared weight, then return lower weight
+//                return (items[lastIndex] < items[0] ? items[lastIndex] : items[0]);
+//            }
+//            lastIndex--;
+//        }
+//        return 0;
+//    }
+
     private void doCheckChangeOwningTimer(String declaration, String change1, String change2, FieldOfPlay fop,
             int clock, int initialTime) {
         if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
@@ -4254,27 +4290,6 @@ public class Athlete {
             return;
         }
     }
-
-//    @SuppressWarnings("unused")
-//    private Long getCopyId() {
-//        return copyId;
-//    }
-
-//    @SuppressWarnings("unused")
-//    private Integer getDeclaredAndActuallyAttempted(Integer... items) {
-//        int lastIndex = items.length - 1;
-//        if (items.length == 0) {
-//            return 0;
-//        }
-//        while (lastIndex >= 0) {
-//            if (items[lastIndex] > 0) {
-//                // if went down from declared weight, then return lower weight
-//                return (items[lastIndex] < items[0] ? items[lastIndex] : items[0]);
-//            }
-//            lastIndex--;
-//        }
-//        return 0;
-//    }
 
     private void doCheckChangeVsLiftOrder(int curLift, int newVal) throws RuleViolationException {
 
@@ -4366,10 +4381,6 @@ public class Athlete {
         });
     }
 
-    private String emptyIfNull(String value) {
-        return (value == null ? "" : value);
-    }
-
 //    /**
 //     * Null-safe comparison for longs.
 //     *
@@ -4380,6 +4391,10 @@ public class Athlete {
 //    private boolean LongEquals(Long o1, Long o2) {
 //        return o1 == o2 || o1 != null && o2 != null && o1.longValue() == (o2.longValue());
 //    }
+
+    private String emptyIfNull(String value) {
+        return (value == null ? "" : value);
+    }
 
     @Transient
     @JsonIgnore

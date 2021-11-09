@@ -835,7 +835,8 @@ public class Competition {
             // splitResultsByGroups(athletes);
             if (full) {
                 reportingBeans.put("athletes", athletes);
-                if (ageGroupPrefix == null || ageGroupPrefix.isBlank()) {
+                //logger.debug("ad={} ageGroupPrefix={}", ad, ageGroupPrefix);
+                if (ad != null && (ageGroupPrefix == null || ageGroupPrefix.isBlank())) {
                     // iterate over all age groups present in age division ad
                     teamRankingsForAgeDivision(ad);
                 } else {

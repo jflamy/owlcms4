@@ -509,6 +509,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     private void configure20kgWeightField(HasValue<?, ?> field) {
         TextField textField = (TextField) field;
+        textField.setAutoselect(true);
         textField.setValueChangeMode(ValueChangeMode.ON_BLUR);
         textField.setPattern("^(-?\\d+)|()$"); // optional minus and at least one digit, or empty.
         textField.setPreventInvalidInput(true);
@@ -611,6 +612,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             recomputeCategories(genderField, bodyWeightField, categoryField, eligibleField, dateField,
                     qualifyingTotalField);
         });
+        qualifyingTotalField.setAutoselect(true);
 
         setChangeListenersEnabled(true);
     }

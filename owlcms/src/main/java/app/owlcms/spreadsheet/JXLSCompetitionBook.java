@@ -24,6 +24,7 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.LoggerUtils;
 import net.sf.jxls.transformer.XLSTransformer;
 
 /**
@@ -205,6 +206,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
      * @param ageDivision the ageDivision to set
      */
     public void setAgeDivision(AgeDivision ageDivision) {
+        //logger.debug("set ad {} \\n{}",ageDivision,LoggerUtils.stackTrace());
         this.ageDivision = ageDivision;
     }
 

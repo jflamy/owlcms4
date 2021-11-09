@@ -125,10 +125,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     public Collection<Athlete> findAll() {
-        if (getAgeGroupPrefix() == null && getAgeDivision() == null) {
-            return new ArrayList<>();
-        }
-
         Competition competition = Competition.getCurrent();
         HashMap<String, Object> beans = competition.computeReportingInfo(ageGroupPrefix, ageDivision);
 
@@ -142,7 +138,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         Category catFilterValue = getCategoryValue();
         Stream<Athlete> stream = ranked.stream()
                 .filter(a -> {
-
                     Gender genderFilterValue = genderFilter != null ? genderFilter.getValue() : null;
                     Gender athleteGender = a.getGender();
                     boolean catOk = (catFilterValue == null
@@ -214,14 +209,14 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
 
         List<String> ageDivisionParams = params1.get("ad");
-        // no age division
-        String ageDivisionName = (ageDivisionParams != null
-                && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
+
         try {
-            setAgeDivision(AgeDivision.valueOf(ageDivisionName));
+            String ageDivisionName = (ageDivisionParams != null
+                    && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
+            AgeDivision valueOf = AgeDivision.valueOf(ageDivisionName);
+            setAgeDivision(valueOf);
         } catch (Exception e) {
-            List<AgeDivision> ageDivisions = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
-            setAgeDivision((ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null);
+            setAgeDivision(null);
         }
         // remove if now null
         String value = getAgeDivision() != null ? getAgeDivision().name() : null;
@@ -237,12 +232,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         List<String> catParams = params1.get("cat");
         String catParam = (catParams != null && !catParams.isEmpty() ? catParams.get(0) : null);
         catParam = catParam != null ? URLDecoder.decode(catParam, StandardCharsets.UTF_8) : null;
-
         setCategoryValue(CategoryRepository.findByCode(catParam));
         String catValue = getCategoryValue() != null ? getCategoryValue().toString() : null;
         updateParam(params1, "cat", catValue);
 
-        logger.debug("{}", params1);
+        //logger.debug("params {}", params1);
         return params1;
     }
 
@@ -404,8 +398,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         topBarAgeDivisionSelect.setWidth("8em");
         topBarAgeDivisionSelect.getStyle().set("margin-left", "1em");
         setAgeDivisionSelectionListener();
-        AgeDivision value = (adItems != null && adItems.size() > 0) ? adItems.get(0) : null;
-        setAgeDivision(value);
+//        AgeDivision value = (adItems != null && adItems.size() > 0) ? adItems.get(0) : null;
+//        setAgeDivision(value);
 
         topBarAgeDivisionSelect.setValue(getAgeDivision());
 
@@ -506,12 +500,17 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
             xlsWriter.setAgeDivision(getAgeDivision());
 
-            if (ageDivisionAgeGroupPrefixes.contains(getAgeGroupPrefix())) {
+            String ageGroupPrefix2 = getAgeGroupPrefix();
+            if (ageDivisionAgeGroupPrefixes.contains(ageGroupPrefix2)) {
                 // prefix is valid
-                topBarAgeGroupPrefixSelect.setValue(getAgeGroupPrefix());
+                topBarAgeGroupPrefixSelect.setValue(ageGroupPrefix2);
             } else {
                 // this will trigger other changes and eventually, refresh the grid
-                topBarAgeGroupPrefixSelect.setValue(notEmpty ? first : null);
+                String value = notEmpty ? first : null;
+                topBarAgeGroupPrefixSelect.setValue(value);
+                if (value == null) {
+                    doAgeGroupPrefixRefresh(null);
+                }
             }
         });
     }
@@ -521,21 +520,30 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             // the name of the resulting file is set as an attribute on the <a href tag that
             // surrounds
             // the packageDownloadButton button.
-            setAgeGroupPrefix(e.getValue());
-            updateFilters(getAgeDivision(), getAgeGroupPrefix());
-            xlsWriter.setAgeGroupPrefix(ageGroupPrefix);
-            crudGrid.refreshGrid();
+            doAgeGroupPrefixRefresh(e.getValue());
         });
     }
 
+    private void doAgeGroupPrefixRefresh(String string) {
+        setAgeGroupPrefix(string);
+        updateFilters(getAgeDivision(), getAgeGroupPrefix());
+        xlsWriter.setAgeGroupPrefix(ageGroupPrefix);
+        crudGrid.refreshGrid();
+    }
+
     protected void updateURLLocations() {
+
         updateURLLocation(UI.getCurrent(), getLocation(), "fop", null);
+        String ag = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
         updateURLLocation(UI.getCurrent(), getLocation(), "ag",
-                getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null);
+                ag);
+        String ad = getAgeDivision() != null ? getAgeDivision().name() : null;
         updateURLLocation(UI.getCurrent(), getLocation(), "ad",
-                getAgeDivision() != null ? getAgeDivision().name() : null);
+                ad);
+        String cat = getCategoryValue() != null ? getCategoryValue().getComputedCode() : null;
         updateURLLocation(UI.getCurrent(), getLocation(), "cat",
-                getCategoryValue() != null ? getCategoryValue().getComputedCode() : null);
+                cat);
+        //logger.debug("update URL {} {} {}",ag,ad,cat);
     }
 
     /**
