@@ -68,6 +68,9 @@ public class RobiCategories {
     private static ArrayList<Category> ythReferenceCategories;
 
     public static Category findRobiCategory(Athlete a) {
+        if (a.getBodyWeight() == null || a.getBodyWeight() < 0.1) {
+            return null;
+        }
         if (jrSrReferenceCategories == null) {
             loadJrSrReferenceCategories();
         }

@@ -10,7 +10,15 @@ public class IdUtils {
      * @return
      */
     public static Long getTimeBasedId() {
-        return (System.currentTimeMillis() << 20) | (System.nanoTime() & 0xFFFFFL);
+        long ix = (System.currentTimeMillis() << 20) | (System.nanoTime() & 0xFFFFFL);
+        //System.out.println("computed "+ix);
+        return ix;
+    }
+    
+    public static Long getTimeBasedId(Object o) {
+        long ix = (System.currentTimeMillis() << 20) | (System.nanoTime() & 0xFFFFFL);
+        //System.out.println("computed "+System.identityHashCode(o)+" "+ix);
+        return ix;
     }
 
 }

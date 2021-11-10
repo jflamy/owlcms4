@@ -65,6 +65,26 @@ public class RobiCategoriesTest {
         assertEquals("M49", cat.getComputedCode());
     }
     
+    @Test
+    public void testNotWeighed() {
+        Athlete a = new Athlete();
+        a.setBodyWeight(null);
+        a.setGender(Gender.M);
+        a.setYearOfBirth(LocalDate.now().getYear() - 17);
+        Category cat = RobiCategories.findRobiCategory(a);
+        assertEquals(null, cat);
+    }
+    
+    @Test
+    public void testTooYoung() {
+        Athlete a = new Athlete();
+        a.setBodyWeight(null);
+        a.setGender(Gender.M);
+        a.setYearOfBirth(LocalDate.now().getYear() - 10);
+        Category cat = RobiCategories.findRobiCategory(a);
+        assertEquals(null, cat);
+    }
+    
     @Before
     public void setupTest() {
         OwlcmsSession.withFop(fop -> fop.beforeTest());
