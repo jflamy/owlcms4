@@ -474,7 +474,7 @@ public class AgeGroupRepository {
 
     public static List<PAthlete> allPAthletesForAgeGroupAgeDivision(String ageGroupPrefix, AgeDivision ageDivision) {
         List<Participation> participations = allParticipationsForAgeGroupAgeDivision(ageGroupPrefix, ageDivision);
-        List<PAthlete> collect = participations.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
+        List<PAthlete> collect = participations.stream().map(p -> new PAthlete(p)).filter(a -> a.getBodyWeight() != null &&  a.getBodyWeight() > 0.1).collect(Collectors.toList());
         return collect;
     }
 
