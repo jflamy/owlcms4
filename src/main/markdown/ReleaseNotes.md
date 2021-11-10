@@ -1,8 +1,4 @@
-##### **Specific changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-
-- [x] Changed the behavior of the Category Results filter to be more intuitive; all results are initially shown, including when athletes are eligible to multiple categories (for example Masters 35 and Senior).  Filtering to produce the Masters package, or the Senior package works as expected.  If athletes are all in separate categories, then you don't need to filter unless you want to.  
-- [x] Fix: ranks are correctly restored after importing a JSON export (no need to force recalculation anymore)
-- [x] Enhancement: added a "Coach" field to the athlete registration and weigh-in forms.  Usable as ${l.coach} in the Excel templates.
+##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
 ###### New in this release
 
@@ -18,7 +14,9 @@
   - Jury actions are shown to the other technical officials consoles to keep them informed.
   - Shortcuts are defined to support a jury keypad. See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Refereeing#jury-console-keypad) for details
   
-- [x] Enhancement: Available Plates page can now be reached from the Field of Play/Platforms preparation page.  The button to reach this page has also been renamed (used to be "Technical Controller")
+- [x] Enhancement: the Available Plates page can now be reached from the Field of Play/Platforms preparation page.  The button to reach this page has also been renamed (used to be "Technical Controller")
+
+- [x] Enhancement: added a "Coach" field to the athlete registration and weigh-in forms.  Usable as ${l.coach} in the Excel templates.
 
 - [x] Fix: if you had imported the registration Excel, there was the possibility that duplicate platforms had been created.  The program now keeps the oldest platform when there are duplicates.
 
