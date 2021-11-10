@@ -49,6 +49,10 @@ public class RAthlete {
         return a;
     }
 
+    public String getCoach() {
+        return a.getCoach();
+    }
+
     /**
      * @param bodyWeight
      */
@@ -114,7 +118,7 @@ public class RAthlete {
         }
 
         a.setCategory(category);
-        //logger.debug("setting category to {} athlete {}",category.longDump(), a.longDump());
+        // logger.debug("setting category to {} athlete {}",category.longDump(), a.longDump());
     }
 
     /**
@@ -122,6 +126,10 @@ public class RAthlete {
      */
     public void setCleanJerk1Declaration(String cleanJerk1Declaration) {
         a.setCleanJerk1Declaration(cleanJerk1Declaration);
+    }
+
+    public void setCoach(String coach) {
+        a.setCoach(coach);
     }
 
     /**
