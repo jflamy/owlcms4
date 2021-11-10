@@ -57,7 +57,7 @@ The other common configuration is when both owlcms and publicresults are in the 
 
 ## Configure Updates from `owlcms`
 
-1. Open the owlcms application on Heroku and go to the `Prepare Competition` - `Technical Configuration ` page.
+1. Open the owlcms application on Heroku and go to the `Prepare Competition` - `Language and System Settings ` page.
 
      - paste the secret key on the right-hand side -- use the "eye" icon to see what you pasted.
      - copy and paste the correct URL for the publicresults application we opened in step 5.

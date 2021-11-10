@@ -94,27 +94,7 @@ public class ProdData {
         return competition;
     }
 
-    protected static void defaultPlates(Platform platform1) {
-        // setDefaultMixerName(platform1);
-        platform1.setShowDecisionLights(true);
-        platform1.setShowTimer(true);
-        // collar
-        platform1.setNbC_2_5(1);
-        // small plates
-        platform1.setNbS_0_5(1);
-        platform1.setNbS_1(1);
-        platform1.setNbS_1_5(1);
-        platform1.setNbS_2(1);
-        platform1.setNbS_2_5(1);
-        platform1.setNbS_5(1);
-        // large plates, regulation set-up
-        platform1.setNbL_2_5(0);
-        platform1.setNbL_5(0);
-        platform1.setNbL_10(1);
-        platform1.setNbL_15(1);
-        platform1.setNbL_20(1);
-        platform1.setNbL_25(3);
-    }
+
 
     /**
      * Create an empty competition. Set-up the defaults for using the timekeeping and refereeing features.
@@ -123,7 +103,6 @@ public class ProdData {
      */
     protected static void setupEmptyCompetition(EntityManager em) {
         Platform platform1 = new Platform("A");
-        defaultPlates(platform1);
 
         em.persist(new Group("M1", null, null));
         em.persist(new Group("M2", null, null));

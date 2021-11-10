@@ -81,6 +81,16 @@ public class StartupUtils {
             return System.getProperty(key);
         }
     }
+    
+    public static String getRawStringParam(String key) {
+        String envVar = key.toUpperCase();
+        String val = System.getenv(envVar);
+        if (val != null) {
+            return val;
+        } else {
+            return System.getProperty(key);
+        }
+    }
 
     public static boolean isDebugSetting() {
         String param = StartupUtils.getStringParam("DEBUG");

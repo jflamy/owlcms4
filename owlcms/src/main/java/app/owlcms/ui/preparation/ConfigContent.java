@@ -53,7 +53,7 @@ public class ConfigContent extends Composite<VerticalLayout>
         try {
             urlFinder.checkInterfaces("http", StartupUtils.getServerPort(), false);
         } catch (SocketException e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            LoggerUtils.logError(logger,e);
         }
         factory = createFormFactory();
         Component form = factory.buildNewForm(CrudOperation.UPDATE, Config.getCurrent(), false, null, event -> {

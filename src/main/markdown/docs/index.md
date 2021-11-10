@@ -12,16 +12,6 @@ The following videos and demos are available
 - [Full setup](Demo2): running a regular or virtual competition with technical officials
 - Live demo: after watching the videos, try the [Live demo](Demo3) site, or better yet, [install your own copy](installationOverview) and experiment.
 
-## Installation
-
-Several options are available for installation, depending on your needs. Additional details and diagrams are available in the [**Installation Overview**](InstallationOverview) and [Equipment Setup](EquipmentSetup) pages.
-
-|                                                              |                                                              |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| **Local Setup** <br />This installs the `owlcms` program to run a competition locally, on a master laptop.  No internet connection is needed.<ul><li>[Windows Installation Instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalWindowsSetup)<li>[Mac/Linux Installation Instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalLinuxMacSetup)<li><nobr>[Release Notes](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/tag/${revision})</nobr></ul> | <nobr><i class="material-icons" style="transform: translatey(0.30em)">file_download</i>  **[Windows Installer](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/download/${revision}/owlcms_setup.exe)**</nobr><br/><i class="material-icons" style="transform: translatey(0.30em)">file_download</i>[Mac/Linux Zip](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/download/${revision}/owlcms.zip) |
-| **Cloud-based Setup**<br />This installs the `owlcms` competition management software in the cloud. Good internet access is needed but no local software is needed. The `publicresults` companion program allows individuals to see the scoreboard on their own phone or tablet no matter where they are located.<ul><li>[Heroku Cloud Installation Instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Heroku)</li><li>Configuration Options for [Large Cloud Competitions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/HerokuLarge)</li><li><nobr>[Release Notes](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/tag/${revision})</nobr></li></ul> | <i class="material-icons" style="transform: translatey(0.30em)">cloud_upload</i> **[Competition Management Cloud Installer](https://github.com/${env.REPO_OWNER}/${env.H_REPO_NAME}/blob/master/README.md)**<br><i class="material-icons" style="transform: translatey(0.30em)">cloud_upload</i> [Public Results Scoreboard Cloud Installer](https://github.com/${env.REPO_OWNER}/${env.P_REPO_NAME}/blob/master/README.md) |
-| **Documentation**                                            | [Documentation site](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/index) |
-
 ## Features
 
 - The following list is a sampling of the many features available.  <u>*Click on the images if you wish to view them full-sized*</u>.  The images are taken from the demo site.
@@ -101,34 +91,3 @@ Several options are available for installation, depending on your needs. Additio
   - [**Multiple languages**](Preparation#display-language). Currently English, French, Danish, Russian, Swedish, German, Portuguese and Spanish.
   
   - Etc.  Refer to the side menu for the full list of topics.
-
-## Reporting Issues and Suggesting Enhancements
-
-For the current work status, see the following links
-
-- [Project board](https://github.com/jflamy/owlcms4/projects/1) This shows what we are working on, and our work priorities.  Check here first, we may actually already be working on it...
-
-- [Issues and enhancement requests](https://github.com/jflamy/owlcms4/issues) This is the complete log of requests and planned enhancements. Use this page to report problems or suggest enhancements.
-
-- [Discussion list](https://groups.google.com/forum/#!forum/owlcms)  If you wish to discuss the program or ask questions, please add yourself to this discussion [group](https://groups.google.com/forum/#!forum/owlcms).  You can withdraw at any time.
-
-## Translation to Other Languages
-
-- You are welcome to translate the screens and reports to your own language, or fix a translation.  Refer to the [translation documentation](Translation) if you wish to contribute. 
-
-
-## Licensing and Notes
-
-This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/jflamy/owlcms4/releases) page and go ahead.  The software is meant to comply with current IWF Technical Competition Rules and Regulations (TCRR) and with the current Masters Weightlifting rules.  TCRR Requirements regarding equipment are outside our scope (such as the presence of indicator lights and buzzers on refereeing devices, etc.)You should perform your own tests to see if the software is fit for your own purposes and circumstances.
-
-If you wish to provide or host the software as a service to others (whether you charge a fee for that service or not), the license *requires* you to make full sources building instructions available for free.  If you host the software as is, the information in the About page is sufficient to meet the requirement.  If however you modify the code, you are **required** to make the code to your modified version and the building instructions available for free to the users of your service.  The intent of the [License](https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt) is that anyone who wants to compile or further modify your version can do so on their own, for free, and not be tied to your services unless they choose to.  You may contact the author to seek alternative licensing agreements.
-
-
-
-## Credits
-
-The software is written and maintained by Jean-François Lamy, IWF International Referee Category 1 (Canada)
-
-Thanks to Anders Bendix Nielsen (Denmark), Alexey Ruchev (Russia) and Brock Pedersen (Canada) for their support, feedback and help testing the software.
-
-The software was built using the open source version of the [Vaadin Flow](https://vaadin.com/flow) framework and several open source libraries. See [this file](https://github.com/jflamy/owlcms4/blob/master/owlcms/pom.xml) for the list of Open Source software used in the project.

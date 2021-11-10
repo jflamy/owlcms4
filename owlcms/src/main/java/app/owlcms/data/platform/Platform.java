@@ -11,8 +11,6 @@ import java.util.List;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 import javax.sound.sampled.Mixer;
@@ -20,12 +18,17 @@ import javax.sound.sampled.Mixer;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.sound.Speakers;
+import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -49,21 +52,55 @@ import ch.qos.logback.classic.Logger;
 //must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 @Cacheable
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Platform.class)
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "logger" })
 public class Platform implements Serializable, Comparable<Platform> {
 
     @Transient
+    @JsonIgnore
     private static final Logger logger = (Logger) LoggerFactory.getLogger(Platform.class);
 
     /**
      * Only used for unit testing when there is no session
      */
+    @Transient
+    @JsonIgnore
     private static Platform testingPlatform;
+
+    public void defaultPlates() {
+        // setDefaultMixerName(platform1);
+        this.setShowDecisionLights(true);
+        this.setShowTimer(true);
+
+        // collar
+        this.setNbC_2_5(1);
+
+        // small plates
+        this.setNbS_0_5(1);
+        this.setNbS_1(1);
+        this.setNbS_1_5(1);
+        this.setNbS_2(1);
+        this.setNbS_2_5(1);
+        this.setNbS_5(1);
+
+        // large plates, regulation set-up
+        this.setNbL_10(1);
+        this.setNbL_15(1);
+        this.setNbL_20(1);
+        this.setNbL_25(3);
+
+        // large plates, kid competitions
+        this.setNbL_2_5(0);
+        this.setNbL_5(0);
+    }
 
     /**
      * Gets the current platform
      *
      * @return the current
      */
+    @Transient
+    @JsonIgnore
     public static Platform getCurrent() {
         FieldOfPlay fop = OwlcmsSession.getFop();
         if (fop != null) {
@@ -79,6 +116,8 @@ public class Platform implements Serializable, Comparable<Platform> {
      *
      * @param p the new current
      */
+    @Transient
+    @JsonIgnore
     public static void setCurrent(Platform p) {
         VaadinSession current = VaadinSession.getCurrent();
         if (current != null) {
@@ -90,12 +129,13 @@ public class Platform implements Serializable, Comparable<Platform> {
 
     /** The id. */
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    private
+    //@GeneratedValue(strategy = GenerationType.AUTO)
+    //@JsonIgnore
     Long id;
 
     /** The name. */
     String name;
-
     /**
      * true if the referee use this application to give decisions, and decision lights need to be shown on the attempt
      * and result boards.
@@ -105,34 +145,40 @@ public class Platform implements Serializable, Comparable<Platform> {
      * true if the time should be displayed
      */
     private Boolean showTimer = false;
+
     /**
      * If mixer is not null, emit sound on the associated device
      */
     @Transient
+    @JsonIgnore
     private Mixer mixer = null;
 
     private String soundMixerName;
-
     @Transient
+    @JsonIgnore
     private boolean mixerChecked;
+
     // collar
-    private Integer nbC_2_5 = 0;
+    private Integer nbC_2_5 = 1;
     // small plates
-    private Integer nbS_0_5 = 0;
-    private Integer nbS_1 = 0;
-    private Integer nbS_1_5 = 0;
-    private Integer nbS_2 = 0;
+    private Integer nbS_0_5 = 1;
+    private Integer nbS_1 = 1;
+    private Integer nbS_1_5 = 1;
+    private Integer nbS_2 = 1;
+    private Integer nbS_2_5 = 1;
 
-    private Integer nbS_2_5 = 0;
-    private Integer nbS_5 = 0;
+    private Integer nbS_5 = 1;
     // large plates
-    private Integer nbL_2_5 = 0;
-    private Integer nbL_5 = 0;
-    private Integer nbL_10 = 0;
-    private Integer nbL_15 = 0;
+    private Integer nbL_10 = 1;
+    private Integer nbL_15 = 1;
+    private Integer nbL_20 = 1;
 
-    private Integer nbL_20 = 0;
-    private Integer nbL_25 = 0;
+    private Integer nbL_25 = 1;
+    // kid plates
+    private Integer nbL_2_5 = 0;
+
+    private Integer nbL_5 = 0;
+
     // bar
     private Integer officialBar = 0;
 
@@ -142,8 +188,10 @@ public class Platform implements Serializable, Comparable<Platform> {
 
     /**
      * Instantiates a new platform.
+     * Used for import, no default values.
      */
     public Platform() {
+        setId(IdUtils.getTimeBasedId());
     }
 
     /**
@@ -152,8 +200,9 @@ public class Platform implements Serializable, Comparable<Platform> {
      * @param name the name
      */
     public Platform(String name) {
-        this();
+        setId(IdUtils.getTimeBasedId());
         this.setName(name);
+        this.defaultPlates();
     }
 
     @Override
@@ -167,14 +216,11 @@ public class Platform implements Serializable, Comparable<Platform> {
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if ((obj == null) || (getClass() != obj.getClass())) {
             return false;
         }
         Platform other = (Platform) obj;
-        return id != null && id.equals(other.getId());
+        return getId() != null && getId().equals(other.getId());
 
         // @Override
         // public boolean equals(Object obj) {
@@ -646,7 +692,7 @@ public class Platform implements Serializable, Comparable<Platform> {
             }
         }
         if (mixer == null) {
-            logger.info("Platform: {}: changing mixer to {}", this.name, null);
+            logger.debug("Platform: {}: changing mixer to {}", this.name, null);
         }
         mixerChecked = true;
     }
@@ -660,6 +706,13 @@ public class Platform implements Serializable, Comparable<Platform> {
         logger.debug("SETTING platform {}: soundMixer={}", System.identityHashCode(this),
                 soundMixer == null ? null : soundMixer.getLineInfo());
         this.mixer = soundMixer;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(Long id) {
+        this.id = id;
     }
 
 }

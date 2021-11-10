@@ -13,8 +13,12 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.platform.Platform;
@@ -24,8 +28,10 @@ import app.owlcms.ui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
+import app.owlcms.ui.lifting.TCContent;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -122,12 +128,29 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
         Grid<Platform> grid = new Grid<>(Platform.class, false);
         grid.addColumn(Platform::getName).setHeader(getTranslation("Name"));
         grid.addColumn(Platform::getSoundMixerName).setHeader(getTranslation("Speakers"));
+        grid.addColumn(new ComponentRenderer<>(p -> {
+            Button technical = openInNewTab(TCContent.class, getTranslation("PlatesCollarBarbell"), p.getName());
+            return technical;
+        })).setHeader(getTranslation("PlatesCollarBarbell")).setWidth("0");
 
         GridCrud<Platform> crud = new OwlcmsCrudGrid<>(Platform.class, new OwlcmsGridLayout(Platform.class),
                 crudFormFactory, grid);
         crud.setCrudListener(this);
         crud.setClickRowToUpdate(true);
         return crud;
+    }
+    
+    private <T extends Component & HasUrlParameter<String>> Button openInNewTab(Class<T> targetClass,
+            String label, String parameter) {
+        Button button = new Button(label);
+        button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
+        return button;
+    }
+    
+    private<T extends Component & HasUrlParameter<String>> String getWindowOpenerFromClass(Class<T> targetClass,
+            String parameter) {
+        return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?fop=" + parameter
+            + "','" + targetClass.getSimpleName()+"')";
     }
 
     /**

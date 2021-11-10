@@ -82,9 +82,8 @@ public class RobiCategories {
         } else {
             categories = jrSrReferenceCategories;
         }
-//        logger.trace("before search " + categories.size());
         int index = Collections.binarySearch(categories,
-                new Category(null, a.getBodyWeight(), a.getBodyWeight(), a.getGender(), true, 0, 0, 0, null, 0),
+                new Category(a.getBodyWeight(), a.getBodyWeight(), a.getGender(), true, 0, 0, 0, null, 0),
                 x.new RobiComparator());
 
         if (index >= 0) {
@@ -98,7 +97,7 @@ public class RobiCategories {
     private static String dumpCat(Category c) {
         StringBuilder sb = new StringBuilder();
         sb.append("code=");
-        sb.append(c.getCode());
+        sb.append(c.getComputedCode());
         sb.append(" gender=");
         sb.append(c.getGender());
         sb.append(" min=");
@@ -122,7 +121,7 @@ public class RobiCategories {
                     .collect(Collectors.toCollection(ArrayList::new));
             workbook.close();
         } catch (Exception e) {
-            logger.error("could not process ageGroup configuration\n{}", LoggerUtils.stackTrace(e));
+            logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
         }
         Double prevMax = 0.0D;
 //        int i = 0;
@@ -151,7 +150,7 @@ public class RobiCategories {
                     .collect(Collectors.toCollection(ArrayList::new));
             workbook.close();
         } catch (Exception e) {
-            logger.error("could not process ageGroup configuration\n{}", LoggerUtils.stackTrace(e));
+            logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
         }
         Double prevMax = 0.0D;
 //        int i = 0;

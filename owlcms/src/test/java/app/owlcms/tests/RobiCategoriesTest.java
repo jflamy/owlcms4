@@ -43,7 +43,7 @@ public class RobiCategoriesTest {
         a.setBodyWeight(57.2D);
         a.setGender(Gender.M);
         Category cat = RobiCategories.findRobiCategory(a);
-        assertEquals("M61", cat.getCode());
+        assertEquals("M61", cat.getComputedCode());
     }
 
     @Test
@@ -52,7 +52,7 @@ public class RobiCategoriesTest {
         a.setBodyWeight(50.2D);
         a.setGender(Gender.M);
         Category cat = RobiCategories.findRobiCategory(a);
-        assertEquals("M55", cat.getCode());
+        assertEquals("M55", cat.getComputedCode());
     }
 
     @Test
@@ -62,7 +62,7 @@ public class RobiCategoriesTest {
         a.setGender(Gender.M);
         a.setYearOfBirth(LocalDate.now().getYear() - 17);
         Category cat = RobiCategories.findRobiCategory(a);
-        assertEquals("M49", cat.getCode());
+        assertEquals("M49", cat.getComputedCode());
     }
     
     @Before

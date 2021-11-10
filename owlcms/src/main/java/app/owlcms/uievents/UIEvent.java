@@ -502,6 +502,57 @@ public class UIEvent {
             this.fopStateString = fopStateString;
         }
     }
+    
+    static public class JuryNotification extends UIEvent {
+
+        private JuryDeliberationEventType deliberationEventType;
+        private Boolean reversal;
+
+        /**
+         * Instantiates a new Notification.
+         *
+         * @param origin the origin
+         */
+        public JuryNotification(Athlete a, Object origin, String fopStateString, String fopEventString) {
+            super(a, origin);
+        }
+
+        public JuryNotification(Athlete athleteUnderReview, Object origin,
+                JuryDeliberationEventType deliberationEventType, Boolean reversal) {
+            super(athleteUnderReview, origin);
+            this.setDeliberationEventType(deliberationEventType);
+            this.setReversal(reversal);
+        }
+
+        /**
+         * @return the deliberationEventType
+         */
+        public JuryDeliberationEventType getDeliberationEventType() {
+            return deliberationEventType;
+        }
+
+        /**
+         * @param deliberationEventType the deliberationEventType to set
+         */
+        public void setDeliberationEventType(JuryDeliberationEventType deliberationEventType) {
+            this.deliberationEventType = deliberationEventType;
+        }
+
+        /**
+         * @return the reversal
+         */
+        public Boolean getReversal() {
+            return reversal;
+        }
+
+        /**
+         * @param reversal the reversal to set
+         */
+        public void setReversal(Boolean reversal) {
+            this.reversal = reversal;
+        }
+
+    }
 
     /**
      * Individual referee decision.

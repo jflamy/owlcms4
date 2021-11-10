@@ -236,7 +236,18 @@ public class AthleteRepository {
     /**
      * Use the athlete bodyweight (or presumed body weight if weigh-in has not taken place) to determine category.
      */
-    public static void resetCategories() {
+    public static void resetParticipations() {
+        JPAService.runInTransaction(em -> {
+            List<Athlete> athletes = AthleteRepository.doFindAll(em);
+            for (Athlete a : athletes) {
+                a.setCategory(null);
+                a.setEligibleCategories(null);
+                em.merge(a);
+            }
+            em.flush();
+            Competition.getCurrent().setRankingsInvalid(true);
+            return null;
+        });
         JPAService.runInTransaction(em -> {
             List<Athlete> athletes = AthleteRepository.doFindAll(em);
             for (Athlete a : athletes) {

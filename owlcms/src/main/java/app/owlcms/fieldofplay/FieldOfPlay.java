@@ -52,6 +52,7 @@ import app.owlcms.fieldofplay.FOPEvent.DecisionUpdate;
 import app.owlcms.fieldofplay.FOPEvent.DownSignal;
 import app.owlcms.fieldofplay.FOPEvent.ExplicitDecision;
 import app.owlcms.fieldofplay.FOPEvent.ForceTime;
+import app.owlcms.fieldofplay.FOPEvent.JuryDecision;
 import app.owlcms.fieldofplay.FOPEvent.StartLifting;
 import app.owlcms.fieldofplay.FOPEvent.SwitchGroup;
 import app.owlcms.fieldofplay.FOPEvent.TimeOver;
@@ -59,12 +60,15 @@ import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.EventForwarder;
+import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.uievents.UIEvent.JuryNotification;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -400,7 +404,7 @@ public class FieldOfPlay {
             // the clock was started for us. we own the clock, clock is already set to what time was
             // left
             timeAllowed = getAthleteTimer().getTimeRemainingAtLastStop();
-        } else if (previousAthlete != null && previousAthlete.equals(a)) {
+        } else if (getPreviousAthlete() != null && getPreviousAthlete().equals(a)) {
             resetDecisions();
             if (owner != null || a.getAttemptNumber() == 1) {
                 // clock has started for someone else, one minute
@@ -468,9 +472,17 @@ public class FieldOfPlay {
             transitionToBreak((BreakStarted) e);
             return;
         } else if (e instanceof BreakPaused) {
-            // logger.debug("break paused {}", LoggerUtils.stackTrace());
+            // logger.debug("break paused {}", LoggerUtils. stackTrace());
         } else if (e instanceof StartLifting) {
-            transitionToLifting(e, getGroup(), true);
+            boolean resumed = false;
+            if (state == BREAK && (breakType == BreakType.JURY || breakType == BreakType.TECHNICAL)) {
+               // if group under way, this will try to just keep going.
+               resumed = resumeLifting(e);
+            }
+            if (!resumed) {
+                // group was not under way, full start.
+                transitionToLifting(e, getGroup(), true);
+            }
         } else if (e instanceof BarbellOrPlatesChanged) {
             uiShowPlates((BarbellOrPlatesChanged) e);
             return;
@@ -532,6 +544,8 @@ public class FieldOfPlay {
                 transitionToBreak((BreakStarted) e);
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
+            } else if (e instanceof JuryDecision) {
+                doJuryDecision((JuryDecision) e);
             } else {
                 unexpectedEventInState(e, BREAK);
             }
@@ -667,14 +681,29 @@ public class FieldOfPlay {
         }
     }
 
+    private void doJuryDecision(JuryDecision e) {
+        Athlete a = e.getAthlete();
+        Integer actualLift = a.getActualLift(a.getAttemptsDone());
+        if (actualLift != null) {
+            Integer curValue = Math.abs(actualLift);
+            a.doLift(a.getAttemptsDone(), e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
+            AthleteRepository.save(a);
+            JuryNotification event = new UIEvent.JuryNotification(a, e.getOrigin(),
+                    e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
+                    e.success && actualLift <= 0 || !e.success && actualLift > 0);
+            OwlcmsSession.getFop().getUiEventBus().post(event);
+            recomputeLiftingOrder();
+        }
+    }
+
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer, boolean alreadyLoaded) {
-        logger.trace("start of init state=" + state);
+        // logger.debug("start of init state={} \\n{}", state, LoggerUtils. stackTrace());
         this.athleteTimer = timer;
         this.breakTimer = breakTimer;
         this.setCurAthlete(null);
         this.setClockOwner(null);
         this.setClockOwnerInitialTimeAllowed(0);
-        this.previousAthlete = null;
+        this.setPreviousAthlete(null);
         this.setLiftingOrder(athletes);
         List<AgeGroup> allAgeGroups = AgeGroupRepository.findAgeGroups(getGroup());
         this.ageGroupMap = new LinkedHashMap<>();
@@ -696,7 +725,6 @@ public class FieldOfPlay {
             logger.info("{}group {} athletes={}", getLoggingName(), getGroup(), athletes.size());
             pushOut(new UIEvent.SwitchGroup(getGroup(), getState(), getCurAthlete(), this));
         }
-        logger.trace("end of init state=" + state);
     }
 
     public boolean isCjStarted() {
@@ -730,19 +758,19 @@ public class FieldOfPlay {
         boolean alreadyLoaded = thisGroupName == loadGroupName;
         if (loadGroupName != null && alreadyLoaded && !forceLoad) {
             // already loaded
-            logger.trace("group {} already loaded", loadGroupName);
+//            logger.trace("{}group {} already loaded", getLoggingName(), loadGroupName);
             return;
         }
         this.setGroup(group);
         if (group != null) {
-            logger.trace("{}current group {} loading data for group {} [{} {} {} {}]",
-                    getLoggingName(),
-                    thisGroupName,
-                    loadGroupName,
-                    alreadyLoaded,
-                    forceLoad,
-                    origin.getClass().getSimpleName(),
-                    LoggerUtils.whereFrom());
+//            logger.trace("{}current group {} loading data for group {} [{} {} {} {}]",
+//                    getLoggingName(),
+//                    thisGroupName,
+//                    loadGroupName,
+//                    alreadyLoaded,
+//                    forceLoad,
+//                    origin.getClass().getSimpleName(),
+//                    LoggerUtils.whereFrom());
             List<Athlete> groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true);
             if (groupAthletes.stream().map(Athlete::getStartNumber).anyMatch(sn -> sn == 0)) {
                 logger./**/warn("start numbers were not assigned correctly");
@@ -885,7 +913,7 @@ public class FieldOfPlay {
      * @param group the group
      */
     public void startLifting(Group group, Object origin) {
-        logger.debug("startLifting {}", LoggerUtils.stackTrace());
+        // logger.debug("startLifting {}", LoggerUtils. stackTrace());
         loadGroup(group, origin, true);
         logger.trace("{} start lifting for group {} origin={}", this.getLoggingName(),
                 (group != null ? group.getName() : group), origin);
@@ -910,9 +938,9 @@ public class FieldOfPlay {
         if (state == FOPState.BREAK) {
             inBreak = ((breakTimer != null && breakTimer.isRunning()));
         }
-        logger.debug("uiDisplayCurrentAthleteAndTime {} {} {} {} {}", getCurAthlete(), inBreak, previousAthlete,
+        logger.trace("uiDisplayCurrentAthleteAndTime {} {} {} {} {}", getCurAthlete(), inBreak, getPreviousAthlete(),
                 nextAthlete, currentDisplayAffected);
-        pushOut(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, previousAthlete, changingAthlete,
+        pushOut(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, getPreviousAthlete(), changingAthlete,
                 getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),
                 inBreak));
 
@@ -936,20 +964,20 @@ public class FieldOfPlay {
     void setState(FOPState state) {
         logger.debug("{}entering {} {}", getLoggingName(), state, LoggerUtils.whereFrom());
         // if (state == INACTIVE) {
-        // logger.debug("entering inactive {}",LoggerUtils.stackTrace());
+        // logger.debug("entering inactive {}",LoggerUtils. stackTrace());
         // }
         if (state == CURRENT_ATHLETE_DISPLAYED) {
             Athlete a = getCurAthlete();
             if (group != null) {
-                group.setDone(a == null || a.getAttemptsDone() >= 6);
+                group.doDone(a == null || a.getAttemptsDone() >= 6);
             }
-        } else if (state == BREAK) {
-            group.setDone(breakType == BreakType.GROUP_DONE);
+        } else if (state == BREAK && group != null) {
+            group.doDone(breakType == BreakType.GROUP_DONE);
         }
         this.state = state;
     }
 
-    private void broadcast(String string) {
+    public void broadcast(String string) {
         getUiEventBus().post(new UIEvent.Broadcast(string, this));
     }
 
@@ -957,12 +985,12 @@ public class FieldOfPlay {
         if (getCurAthlete() != null && getCurAthlete().getAttemptsDone() < 6) {
             uiDisplayCurrentAthleteAndTime(true, e, false);
             setState(CURRENT_ATHLETE_DISPLAYED);
-            group.setDone(false);
+            group.doDone(false);
         } else {
             // special kind of break that allows moving back in case of jury reversal
             setBreakType(BreakType.GROUP_DONE);
             setState(BREAK);
-            group.setDone(true);
+            group.doDone(true);
             pushOutDone();
         }
     }
@@ -1083,7 +1111,7 @@ public class FieldOfPlay {
             try {
                 downSignal = new Tone(getSoundMixer(), 1100, 1200, 1.0);
             } catch (IllegalArgumentException | LineUnavailableException e) {
-                logger.error("{}\n{}", e.getCause(), LoggerUtils.stackTrace(e));
+                logger.error("{}\n{}", e.getCause(), LoggerUtils./**/stackTrace(e));
                 broadcast("SoundSystemProblem");
             }
         }
@@ -1177,7 +1205,7 @@ public class FieldOfPlay {
         logger.trace("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
                 getLoggingName(),
                 getCurAthlete() != null ? getCurAthlete().getFullName() : "",
-                previousAthlete != null ? previousAthlete.getFullName() : "",
+                getPreviousAthlete() != null ? getPreviousAthlete().getFullName() : "",
                 timeAllowed,
                 attemptsDone,
                 LoggerUtils.whereFrom());
@@ -1192,7 +1220,7 @@ public class FieldOfPlay {
         if (done) {
             pushOutDone();
         }
-        group.setDone(done);
+        group.doDone(done);
     }
 
     /**
@@ -1457,7 +1485,13 @@ public class FieldOfPlay {
             setState(TIME_STOPPED); // allows referees to enter decisions even if time is not restarted (which
                                     // sometimes happens).
         } else {
-            loadGroup(group2, e.getOrigin(), true);
+            if (getCurAthlete() != null) {
+                // group already in progress
+                loadGroup(group2, e.getOrigin(), false);
+            } else {
+                loadGroup(group2, e.getOrigin(), true);
+            }
+
             setState(CURRENT_ATHLETE_DISPLAYED);
         }
         if (stopBreakTimer) {
@@ -1466,6 +1500,32 @@ public class FieldOfPlay {
         }
         uiStartLifting(getGroup(), e.getOrigin());
         uiDisplayCurrentAthleteAndTime(true, e, false);
+    }
+
+    private boolean resumeLifting(FOPEvent e) {
+        // time will be restarted anyway
+        setWeightAtLastStart(0);
+        logger.trace("resumeLifting {} {} from:{}", e.getAthlete(),
+                LoggerUtils.whereFrom());
+
+        boolean resumed = false;
+        if (getCurAthlete() != null) {
+            Athlete clockOwner = getClockOwner();
+            if (getCurAthlete().equals(clockOwner)) {
+                setState(TIME_STOPPED); // allows referees to enter decisions even if time is not restarted (which
+                                        // sometimes happens).
+            } else {
+                setState(CURRENT_ATHLETE_DISPLAYED);
+                recomputeLiftingOrder();
+            }
+
+            getBreakTimer().stop();
+            setBreakType(null);
+            uiStartLifting(getGroup(), e.getOrigin());
+            uiDisplayCurrentAthleteAndTime(true, e, false);
+            resumed = true;
+        }
+        return resumed;
     }
 
     private void transitionToTimeRunning() {
@@ -1513,7 +1573,7 @@ public class FieldOfPlay {
 
     private void uiShowRefereeDecisionOnSlaveDisplays(Athlete athlete2, Boolean goodLift2, Boolean[] refereeDecision2,
             Integer[] shownTimes, Object origin2) {
-        uiEventLogger.trace("showRefereeDecisionOnSlaveDisplays");
+        uiEventLogger.debug("### showRefereeDecisionOnSlaveDisplays {}", athlete2);
         pushOut(new UIEvent.Decision(athlete2, goodLift2, refereeForcedDecision ? null : refereeDecision2[0],
                 refereeDecision2[1],
                 refereeForcedDecision ? null : refereeDecision2[2], origin2));
@@ -1524,7 +1584,7 @@ public class FieldOfPlay {
     }
 
     private void uiShowUpdateOnJuryScreen() {
-        uiEventLogger.trace("uiShowUpdateOnJuryScreen");
+        uiEventLogger.debug("### uiShowUpdateOnJuryScreen");
         pushOut(new UIEvent.RefereeUpdate(getCurAthlete(), refereeForcedDecision ? null : refereeDecision[0],
                 refereeDecision[1],
                 refereeForcedDecision ? null : refereeDecision[2], refereeTime[0], refereeTime[1], refereeTime[2],

@@ -70,7 +70,7 @@ public class Sound {
             clip.start();
 
         } catch (Exception e) {
-            logger.error("could not emit {} {}", soundURL, LoggerUtils.stackTrace(e));
+            logger.error("could not emit {} {}", soundURL, LoggerUtils./**/stackTrace(e));
         }
     }
 

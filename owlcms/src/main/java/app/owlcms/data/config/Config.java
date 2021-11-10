@@ -7,6 +7,7 @@
 package app.owlcms.data.config;
 
 import java.util.Locale;
+import java.util.Random;
 import java.util.TimeZone;
 
 import javax.persistence.Cacheable;
@@ -21,9 +22,12 @@ import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
 import app.owlcms.init.FileServlet;
+import app.owlcms.utils.AccessUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -37,8 +41,6 @@ import ch.qos.logback.classic.Logger;
 public class Config {
 
     public static final int SHORT_TEAM_LENGTH = 6;
-    
-    private String timeZoneId;
 
     @Transient
     final static private Logger logger = (Logger) LoggerFactory.getLogger(Config.class);
@@ -55,11 +57,6 @@ public class Config {
         return current;
     }
 
-    public static Config setCurrent(Config config) {
-        current = ConfigRepository.save(config);
-        return current;
-    }
-    
     public static void initConfig() {
         JPAService.runInTransaction(em -> {
             if (ConfigRepository.findAll().isEmpty()) {
@@ -69,6 +66,13 @@ public class Config {
             return null;
         });
     }
+
+    public static Config setCurrent(Config config) {
+        current = ConfigRepository.save(config);
+        return current;
+    }
+
+    private String timeZoneId;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -96,24 +100,8 @@ public class Config {
 
     @Convert(converter = LocaleAttributeConverter.class)
     private Locale defaultLocale = null;
-    
-    public boolean isClearZip() {
-        if (localOverride == null || localOverride.length == 0) {
-            clearZip = false;
-        }
-        return clearZip;
-    }
 
-    /**
-     * @return zip file containing a zipped ./local structure to override resources
-     */
-    public byte[] getLocalOverride() {
-        return localOverride;
-    }
-    
-    public void setClearZip(boolean clearZipRequested) {
-        this.clearZip = clearZipRequested;
-    }
+    private String salt;
 
     @Override
     public boolean equals(Object obj) {
@@ -126,6 +114,15 @@ public class Config {
         }
         Config other = (Config) obj;
         return id != null && id.equals(other.getId());
+    }
+
+    /**
+     * Gets the default locale.
+     *
+     * @return the default locale
+     */
+    public Locale getDefaultLocale() {
+        return defaultLocale;
     }
 
     /**
@@ -145,17 +142,29 @@ public class Config {
         return ipBackdoorList;
     }
 
-    public boolean isIgnoreCaching() {
-        return FileServlet.isIgnoreCaching();
+    /**
+     * Gets the locale.
+     *
+     * @return the locale
+     */
+    @Transient
+    @JsonIgnore
+    public Locale getLocale() {
+        return getDefaultLocale();
     }
 
-    public void setIgnoreCaching(boolean ignoreCaching) {
-        FileServlet.setIgnoreCaching(ignoreCaching);
+    /**
+     * @return zip file containing a zipped ./local structure to override resources
+     */
+    public byte[] getLocalOverride() {
+        return localOverride;
     }
 
     /**
      * @return the current whitelist.
      */
+    @Transient
+    @JsonIgnore
     public String getParamAccessList() {
         String uAccessList = StartupUtils.getStringParam("ip");
         if (uAccessList == null) {
@@ -171,6 +180,8 @@ public class Config {
     /**
      * @return the current whitelist.
      */
+    @Transient
+    @JsonIgnore
     public String getParamBackdoorList() {
         String uAccessList = StartupUtils.getStringParam("backdoor");
         if (uAccessList == null) {
@@ -183,6 +194,8 @@ public class Config {
         return uAccessList;
     }
 
+    @Transient
+    @JsonIgnore
     public String getParamDecisionUrl() {
         String paramPublicResultsURL = getParamPublicResultsURL();
         return paramPublicResultsURL != null ? paramPublicResultsURL + "/decision" : null;
@@ -191,19 +204,34 @@ public class Config {
     /**
      * @return the current password.
      */
+    @Transient
+    @JsonIgnore
     public String getParamPin() {
         String uPin = StartupUtils.getStringParam("pin");
         if (uPin == null) {
-            // use pin from database
-            uPin = Config.getCurrent().pin;
+            // not defined in environment
+            // use pin from database, which is either empty (no password required)
+            // or legacy (not crypted) or current.
+            uPin = Config.getCurrent().getPin();
             // logger.debug("pin = {}", uPin);
             if (uPin == null || uPin.isBlank()) {
                 uPin = null;
             }
+            logger.debug("uPin as is {}", uPin);
+            String encodedPin = AccessUtils.encodePin(uPin, false);
+            return encodedPin;
+        } else if (uPin.isBlank()) {
+            // no password will be expected
+            return null;
+        } else {
+            // if the pin comes from the environment, encrypt if not already
+            String encodedPin = AccessUtils.encodePin(uPin, false);
+            return encodedPin;
         }
-        return uPin;
     }
 
+    @Transient
+    @JsonIgnore
     public String getParamTimerUrl() {
         String paramPublicResultsURL = getParamPublicResultsURL();
         return paramPublicResultsURL != null ? paramPublicResultsURL + "/timer" : null;
@@ -212,6 +240,8 @@ public class Config {
     /**
      * @return the updateKey stored in the database, except if overridden by system property or envariable.
      */
+    @Transient
+    @JsonIgnore
     public String getParamUpdateKey() {
         String uKey = StartupUtils.getStringParam("updateKey");
         if (uKey == null) {
@@ -224,6 +254,8 @@ public class Config {
         return uKey;
     }
 
+    @Transient
+    @JsonIgnore
     public String getParamUpdateUrl() {
         String publicResultsURLParam = getParamPublicResultsURL();
         return publicResultsURLParam != null ? publicResultsURLParam + "/update" : null;
@@ -237,6 +269,14 @@ public class Config {
         return publicResultsURL;
     }
 
+    public TimeZone getTimeZone() {
+        if (timeZoneId == null) {
+            return null;
+        } else {
+            return TimeZone.getTimeZone(timeZoneId);
+        }
+    }
+
     public String getUpdatekey() {
         return updatekey;
     }
@@ -245,6 +285,29 @@ public class Config {
     public int hashCode() {
         // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         return 31;
+    }
+
+    public boolean isClearZip() {
+        if (localOverride == null || localOverride.length == 0) {
+            clearZip = false;
+        }
+        return clearZip;
+    }
+
+    public boolean isIgnoreCaching() {
+        return FileServlet.isIgnoreCaching();
+    }
+
+    public void setClearZip(boolean clearZipRequested) {
+        this.clearZip = clearZipRequested;
+    }
+
+    public void setDefaultLocale(Locale defaultLocale) {
+        this.defaultLocale = defaultLocale;
+    }
+
+    public void setIgnoreCaching(boolean ignoreCaching) {
+        FileServlet.setIgnoreCaching(ignoreCaching);
     }
 
     public void setIpAccessList(String ipAccessList) {
@@ -265,18 +328,29 @@ public class Config {
     }
 
     public void setPin(String pin) {
-        this.pin = pin;
+        if (pin != null && pin.length() != 64) {
+            this.pin = AccessUtils.encodePin(pin, false);
+        } else {
+            this.pin = pin;
+        }
     }
 
     public void setPublicResultsURL(String publicResultsURL) {
         this.publicResultsURL = publicResultsURL;
     }
 
+    public void setTimeZone(TimeZone timeZone) {
+        if (timeZone == null) {
+            this.timeZoneId = null;
+            return;
+        } else {
+            this.timeZoneId = timeZone.getID();
+        }
+    }
+
     public void setUpdatekey(String updatekey) {
         this.updatekey = updatekey;
     }
-
-
 
     /**
      * @return the public results url stored in the database, except if overridden by system property or envariable.
@@ -299,43 +373,32 @@ public class Config {
         }
     }
 
-    public void setDefaultLocale(Locale defaultLocale) {
-        this.defaultLocale = defaultLocale;
+    public String getSalt() {
+        return this.salt;
+    }
+    
+    public String defineSalt() {
+        if (salt == null) {
+            this.setSalt(Integer.toString(new Random(System.currentTimeMillis()).nextInt(), 16));
+        }
+        JPAService.runInTransaction(em -> {
+            Config newConfig = em.merge(this);
+            return newConfig;
+        });
+        return getSalt();
+    }
+
+    public String encodeUserPassword(String password) {
+        String encodedPassword = AccessUtils.encodePin(password, true);
+        return encodedPassword;
     }
 
     /**
-     * Gets the default locale.
-     *
-     * @return the default locale
+     * @param salt the salt to set
      */
-    public Locale getDefaultLocale() {
-        return defaultLocale;
-    }
-
-    /**
-     * Gets the locale.
-     *
-     * @return the locale
-     */
-    public Locale getLocale() {
-        return getDefaultLocale();
-    }
-    
-    public TimeZone getTimeZone() {
-        if (timeZoneId == null) {
-            return null;
-        } else {
-            return TimeZone.getTimeZone(timeZoneId);
-        }
-    }
-    
-    public void setTimeZone(TimeZone timeZone) {
-        if (timeZone == null) {
-            this.timeZoneId = null;
-            return;
-        } else {
-            this.timeZoneId = timeZone.getID();
-        }
+    private void setSalt(String salt) {
+        this.salt = salt;
+        logger.debug("setting salt to {}", this.salt);
     }
 
 }

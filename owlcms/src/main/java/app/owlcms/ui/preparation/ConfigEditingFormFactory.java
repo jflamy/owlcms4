@@ -19,6 +19,7 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -32,6 +33,8 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -113,6 +116,7 @@ public class ConfigEditingFormFactory
         FormLayout languageLayout = presentationForm();
         FormLayout publicResultsLayout = publicResultsForm();
         FormLayout localOverrideLayout = localOverrideForm();
+        FormLayout exportLayout = exportForm();
 
         Component footer = this.buildFooter(operation, config, cancelButtonClickListener,
                 c -> {
@@ -129,9 +133,10 @@ public class ConfigEditingFormFactory
                 footer,
                 languageLayout, separator(),
                 tzLayout, separator(),
-                localOverrideLayout, separator(),
                 accessLayout, separator(),
-                publicResultsLayout, separator());
+                publicResultsLayout, separator(),
+                localOverrideLayout, separator(),
+                exportLayout);
         mainLayout.setMargin(false);
         mainLayout.setPadding(false);
 
@@ -249,6 +254,25 @@ public class ConfigEditingFormFactory
 
         return layout;
     }
+    
+    private FormLayout exportForm() {
+        FormLayout layout = createLayout();
+        Component title = createTitle("ExportDatabase.ExportImport");
+        layout.add(title);
+        layout.setColspan(title, 2);
+
+        Button uploadJson = new Button(Translator.translate("ExportDatabase.UploadJson"), new Icon(VaadinIcon.UPLOAD_ALT),
+                buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
+        Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
+                Translator.translate("ExportDatabase.DownloadJson"));
+//        Button clearDatabase = new Button(Translator.translate("ExportDatabase.ClearDatabase"),
+//                new Icon(VaadinIcon.UPLOAD_ALT),
+//                buttonClickEvent -> CompetitionRepository.removeAll());
+        layout.addFormItem(exportJsonDiv, Translator.translate("ExportDatabase.DownloadLabel"));
+        layout.addFormItem(uploadJson, Translator.translate("ExportDatabase.UploadLabel"));
+//        layout.addFormItem(clearDatabase, "");
+        return layout;
+    }
 
     @Override
     public Button buildOperationButton(CrudOperation operation, Config domainObject,
@@ -306,6 +330,15 @@ public class ConfigEditingFormFactory
         Component title = createTitle("Config.AccessControlTitle");
         configLayout.add(title);
         configLayout.setColspan(title, 2);
+        
+        PasswordField passwordField = new PasswordField();
+        passwordField.setWidthFull();
+        configLayout.addFormItem(passwordField, Translator.translate("Config.PasswordOrPIN"));
+        binder.forField(passwordField)
+                .withNullRepresentation("")
+                .bind(Config::getPin, Config::setPin);
+
+        configLayout.addFormItem(new Html("<br/>"), "");
 
         TextField accessListField = new TextField();
         accessListField.setWidthFull();
@@ -313,13 +346,6 @@ public class ConfigEditingFormFactory
         binder.forField(accessListField)
                 .withNullRepresentation("")
                 .bind(Config::getIpAccessList, Config::setIpAccessList);
-
-        PasswordField passwordField = new PasswordField();
-        passwordField.setWidthFull();
-        configLayout.addFormItem(passwordField, Translator.translate("Config.PasswordOrPIN"));
-        binder.forField(passwordField)
-                .withNullRepresentation("")
-                .bind(Config::getPin, Config::setPin);
 
         TextField backdoorField = new TextField();
         backdoorField.setWidthFull();

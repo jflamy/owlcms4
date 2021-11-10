@@ -1,30 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <workbook>
 	<worksheet idx="0">
-		<section startRow="0" endRow="6">
-			<mapping cell="I1">competition.competitionName</mapping>
-			<mapping cell="I2">competition.competitionSite</mapping>
-			<mapping cell="I3">competition.competitionOrganizer</mapping>
-			<mapping cell="X1">competition.competitionDate</mapping>
-			<mapping cell="X2">competition.competitionCity</mapping>
-		</section>
+<!-- 		<section startRow="0" endRow="6"> -->
+<!-- 			<mapping cell="I1">competition.competitionName</mapping> -->
+<!-- 			<mapping cell="I2">competition.competitionSite</mapping> -->
+<!-- 			<mapping cell="I3">competition.competitionOrganizer</mapping> -->
+<!-- 			<mapping cell="X1">competition.competitionDate</mapping> -->
+<!-- 			<mapping cell="X2">competition.competitionCity</mapping> -->
+<!-- 		</section> -->
+        <!-- export format -->
+        <section startRow="0" endRow="7">
+            <mapping cell="F1">competition.competitionName</mapping>
+            <mapping cell="F3">competition.competitionSite</mapping>
+            <mapping cell="F4">competition.competitionOrganizer</mapping>
+            <mapping cell="M1">competition.competitionDate</mapping>
+            <mapping cell="F2">competition.competitionCity</mapping>
+        </section>
 		<!-- numbers are 0 based: Excel cell number is one more -->
-		<loop startRow="7" endRow="7" items="athletes"
+        <!-- the row numbers are ignored, the loop starts after the section defined above -->
+        <!-- group is read first because it is created if missing  -->
+		<loop startRow="8" endRow="8" items="athletes"
 			var="a" varType="app.owlcms.spreadsheet.RAthlete">
-			<section startRow="7" endRow="7">
-                <mapping row="7" col="22">a.group</mapping>
-                <mapping row="7" col="8">a.fullBirthDate</mapping>
-				<mapping row="7" col="0">a.membership</mapping>
-				<mapping row="7" col="1">a.lotNumber</mapping>
-				<mapping row="7" col="2">a.lastName</mapping>
-				<mapping row="7" col="3">a.firstName</mapping>
-				<mapping row="7" col="4">a.gender</mapping>
-				<mapping row="7" col="5">a.category</mapping>
-                <mapping row="7" col="6">a.bodyWeight</mapping>
-				<mapping row="7" col="7">a.team</mapping>
-                <mapping row="7" col="9">a.snatch1Declaration</mapping>
-                <mapping row="7" col="14">a.cleanJerk1Declaration</mapping>
-				<mapping row="7" col="23">a.qualifyingTotal</mapping>
+			<section startRow="8" endRow="8">
+                <mapping row="8" col="11">a.group</mapping>
+				<mapping row="8" col="0">a.membership</mapping>
+				<mapping row="8" col="1">a.lotNumber</mapping>
+				<mapping row="8" col="2">a.lastName</mapping>
+				<mapping row="8" col="3">a.firstName</mapping>
+                <mapping row="8" col="4">a.team</mapping>
+                <mapping row="8" col="5">a.fullBirthDate</mapping>
+				<mapping row="8" col="6">a.gender</mapping>
+				<mapping row="8" col="7">a.category</mapping>
+                <mapping row="8" col="8">a.bodyWeight</mapping>
+                <mapping row="8" col="9">a.snatch1Declaration</mapping>
+                <mapping row="8" col="10">a.cleanJerk1Declaration</mapping>
+				<mapping row="8" col="12">a.qualifyingTotal</mapping>
 			</section>
 			<loopbreakcondition>
 				<rowcheck offset="0">

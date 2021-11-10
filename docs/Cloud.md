@@ -31,15 +31,18 @@ Enter the name that will be used on all your competition site laptops and displa
 
 ![040_success](img/Heroku/040_success.png)
 
-**6. Optional: Time zone configuration**
-Go back to your https://heroku.com home page.  Select your application, then `Settings`, then `Reveal Config Vars`.
+**6. Time zone configuration**
+By default, Heroku uses the universal UTC time (colloquially known as Greenwich).  You should set the time zone to match the published schedule, so that break timers can be set accordingly.
+Go to the `Prepare Competition`- `Language and System Settings` page. 
+  - If you are in the same time zone as the competition, you can use the button indicated by the arrow to quicky set the time zone.
+  - If not, you need to use the drop down list to select a city in the same time zone as the schedule.
 
-- We strongly suggest you also set `TZ` which is your time zone.   Use [this list.](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) tick a city in the same time zone as your location : this will something similar to `America/New_York` or `Europe/Paris`. 
+![030_timezone](img/SystemSettings/030_timezone.png)
 
 ## Control access to the application
 
 In a gym setting, people can read the web addresses on the screens, and one day, some "funny" person will log in to the system and be tempted to mess things up.
-- You should therefore set a PIN or Password that officials will be required to type when first logging in.  This is done on via the `Prepare Competition` page, using the `Technical Configuration` button.
+- You should therefore set a PIN or Password that officials will be required to type when first logging in.  This is done on via the `Prepare Competition` page, using the `Language and System Settings` button.
 
 ![053_editPIN](img/PublicResults/053_editPIN.png)
 

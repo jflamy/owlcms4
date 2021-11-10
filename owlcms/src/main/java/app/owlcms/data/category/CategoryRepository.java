@@ -72,8 +72,13 @@ public class CategoryRepository {
 
     @SuppressWarnings("unchecked")
     public static Category doFindByCode(String code, EntityManager em) {
-        Query query = em.createQuery("select c from Category c where lower(code) = lower(:string)");
-        query.setParameter("string", code);
+        Query query;
+        if (code != null) {
+            query = em.createQuery("select c from Category c where lower(code) = lower(:string)");
+            query.setParameter("string", code);
+        } else {
+            return null;
+        }
         return (Category) query.getResultList().stream().findFirst().orElse(null);
     }
 
@@ -134,6 +139,18 @@ public class CategoryRepository {
     public static List<Category> findAll() {
         return JPAService
                 .runInTransaction(em -> em.createQuery("select c from Category c order by c.name").getResultList());
+    }
+
+    /**
+     * Find all.
+     *
+     * @return the list
+     */
+    @SuppressWarnings("unchecked")
+    public static List<Category> findNullCodes() {
+        return JPAService
+                .runInTransaction(
+                        em -> em.createQuery("select c from Category c where c.code is null").getResultList());
     }
 
     /**
@@ -218,11 +235,15 @@ public class CategoryRepository {
     /**
      * Save.
      *
-     * @param Category the category
+     * @param category the category
      * @return the category
      */
-    public static Category save(Category Category) {
-        return JPAService.runInTransaction(em -> em.merge(Category));
+    public static Category save(Category category) {
+        return JPAService.runInTransaction(em -> {
+            // code must match inside info for string-based matches in db.
+            category.setCode(category.getComputedCode());
+            return em.merge(category);
+        });
     }
 
     private static String filteringJoins(AgeGroup ag, Integer age) {
@@ -307,6 +328,31 @@ public class CategoryRepository {
         if (gender != null) {
             query.setParameter("gender", gender);
         }
+    }
+
+    public static int countParticipations() {
+        return (int) JPAService.runInTransaction((em) -> {
+            String qlString = "select count(p) from Participation p";
+            Query query = em.createQuery(qlString);
+            int i = ((Long) query.getSingleResult()).intValue();
+            return i;
+        });
+    }
+
+    public static void fixNullCodes(List<Category> nullCodeCategories) {
+        JPAService.runInTransaction(em -> {
+            for (Category c: nullCodeCategories) {
+                c.setCode(c.getComputedCode());
+                if (c.getName() == null) {
+                    c.setName(c.getComputedName());
+                }
+                logger.info("correcting code: {} {}",c.getCode(), c.getName());
+                em.merge(c);
+            }
+            em.flush();
+            return null;
+        });
+
     }
 
 }

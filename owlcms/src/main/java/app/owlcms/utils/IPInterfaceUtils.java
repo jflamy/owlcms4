@@ -100,7 +100,7 @@ public class IPInterfaceUtils {
 
             checkInterfaces(protocol, requestPort, true);
         } catch (SocketException | UnknownHostException e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            LoggerUtils.logError(logger,e);
         }
         logger.trace("wired = {} {}", wired, wired.size());
         logger.trace("wireless = {} {}", wireless, wireless.size());
@@ -212,7 +212,7 @@ public class IPInterfaceUtils {
             String ifaceName = iface.getName();
             String ifaceDisplay = iface.getDisplayName();
             if (response != 200) {
-                logger.warn("{} not reachable: {} {} ({})", testingURLString, response, ifaceName, ifaceDisplay);
+                logger/**/.warn("{} not reachable: {} {} ({})", testingURLString, response, ifaceName, ifaceDisplay);
             } else {
                 if (!silent) {
                     logger.info("networking check: {} OK {} ({}) {}", ip + ":" + requestPort, ifaceName, ifaceDisplay, testingURL);
@@ -224,11 +224,11 @@ public class IPInterfaceUtils {
                 } else if (ifaceName.startsWith("eth")) {
                     wired.add(siteURLString);
                 } else {
-                    logger.warn("inferface type not recognized: {} {}",ifaceName, ifaceDisplay);
+                    logger/**/.warn("inferface type not recognized: {} {}",ifaceName, ifaceDisplay);
                 }
             }
         } catch (Exception e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            LoggerUtils.logError(logger,e);
         }
     }
 

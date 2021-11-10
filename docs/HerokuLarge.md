@@ -25,11 +25,11 @@ These steps are needed a few hours before the competition.  They will cause the 
    4. **IMPORTANT**: Check the dyno count by using the pencil at the right.  **The value should be 1** (the only other value you can use is 0 to turn off the application).  Values larger than 1 will cause the applications to malfunction.
    ![dynocount](img\Heroku\dynocount.png)
    
-2. Update owlcms to the Performance-M dyno type.  Same steps as above.
+2. Update owlcms to the Standard-2X or Performance-M dyno type.  Until you have been billed once by Heroku, you will not be able to get Performance-M.  Standard-2X is sufficient for most meets, but the difference in actual price with Performance-M is small - remember that you only pay for the actual minutes where you are using the high-performance setting.
 
    1. Select the "Resources" section
    2. If you are on the free tier, change the dyno type to "Professional"
-   3. Select "Performance-M" as the performance level by clicking on the hexagon and dropping in the menu.  This will give us the computing we need (and more than enough memory)
+   3. Select "Performance-M" or "Standard-2X" as the performance level by clicking on the hexagon and dropping in the menu.  This will give us the computing we need (and more than enough memory)
    ![perf-m](img\Heroku\perf-m.png)
    4. **IMPORTANT**: Check the dyno count by using the pencil at the right.  **The value should be 1** (the only other value you can use is 0 to turn off the application).  Values larger than 1 will cause the applications to malfunction.
 

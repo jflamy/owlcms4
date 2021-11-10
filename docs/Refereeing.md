@@ -1,5 +1,3 @@
-# Refereeing
-
 OWLCMS supports using refereeing devices, and also supports 3 and 5-person [Jury](#Jury). Refereeing and Jury consoles are started from the `Run Lifting Group` page as shown below.  
 The decisions are displayed to the public and athletes on the displays started on the [Start Displays](Displays) page.
 
@@ -69,15 +67,37 @@ OWLCMS interprets Even digits as red, and Odd digits as white.  The same devices
 |          | 4     | 7    | 8    |
 |          | 5     | 9    | 0    |
 
+- Note that the shortcut keys are as defined according the following standard: https://www.w3.org/TR/uievents-code/#key-alphanumeric-writing-system.   For most countries, hitting the key "Digit1" sends a 1.  But there are exceptions. For example, in France, hitting Digit1 will actually send a "&" and depending on the software you may actually need to use "&" instead of "1".  Fortunately, most national keyboards send the digits directly.
 - Specific notes for [Delcom USB keypads](http://www.delcomproducts.com/productdetails.asp?PartNumber=706502-5M) can be found [here](Delcom)
 
 ## Jury
 
-In order to use a jury, in the current version, you need 3 or 5 refereeing devices connected to the computer with the Jury console.
+In order to use a jury, in the current version, you need 3 or 5 refereeing devices connected to the computer running the Jury console.  You may optionally have a separate keypad for the jury president (see below) in order to initiate deliberation and transmit decisions.
 
-The devices are programmed just like for the referees, except that jury 4 uses keys 7 and 8, and jury 5 uses the keys 9 and 0.  As for the referees, even-numbered keys mean "red".
+The juror devices are programmed just like for the referees, except that jury 4 uses keys 7 and 8, and jury 5 uses the keys 9 and 0.  As for the referees, even-numbered keys mean "red".
 
-The jury console operates according to IWF rules: the referee decisions are shown as soon as they are made, in the bottom part of the screen.  In the top part of the screen, the decisions circle for a jury member shows that he or she has made a decision, but the individual decisions are only shown in red or white after they have all been given.
+The jury console operates according to IWF rules:
+
+- In the bottom part of the screen the referee decisions are shown <u>as soon as they are made</u>  
+- In the top part of the screen, the decisions circle for a jury member shows that he or she has made a decision, but the individual decisions are only shown in red or white <u>after they have all been given</u>.
 
 ![070_Jury](img/Refereeing/070_Jury.png)
 
+The jury console now allows direct reversal/confirmation of lifts 
+  - The Jury Deliberation button opens a dialog whereby the lift can be confirmed or reversed,
+  - The Jury Head can ask the announcer to call the technical controller. 
+
+![080_JuryDeliberation](img/Refereeing/080_JuryDeliberation.png)
+
+Jury decisions are shown to the other technical officials consoles to keep them informed.  The announcer can then inform the public, coaches and athletes of the outcome.
+![090_JuryReversal](img/Refereeing/090_JuryReversal.png)
+
+## Jury Console Keypad
+
+  - In order to support a physical jury console keypad, the following shortcuts are bound. Note that the shortcut keys are as defined in the following standard: https://www.w3.org/TR/uievents-code/#key-alphanumeric-writing-system.  To our knowledge, these keys are in the same location on almost all national keyboards.
+    - "d" opens the deliberation dialog and starts a jury break (`KeyD` event code)
+    - "g" to indicate a good lift  (`KeyG` event code)
+    - "b" to indicate a bad lift  (`KeyB` event code)
+    - "c" to call the technical controller (ex: for a loading error where the athlete will need to make a decision) (`KeyC` event code)
+    - "Escape" to close the dialog and ends the jury break (`Escape` event code)
+    - "t" to start a technical break if the Jury spots a technical issue (`KeyT` event code.)  The process is the same as for a deliberation. "c" can be used to call the controller, and "Escape" ends the technical pause.

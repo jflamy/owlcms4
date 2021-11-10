@@ -48,7 +48,7 @@ public class RecordRepository {
                 em.remove(mRecord);
                 em.flush();
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger,e);
             }
             return null;
         });
@@ -144,12 +144,12 @@ public class RecordRepository {
                 upd.executeUpdate();
                 em.flush();
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger,e);
             }
             return null;
         });
         RecordDefinitionReader.doInsertRecords(null, "/records/" + localizedFileName);
-        AthleteRepository.resetCategories();
+        AthleteRepository.resetParticipations();
     }
 
     /**
@@ -168,7 +168,7 @@ public class RecordRepository {
                 em.flush();
                 return mRecord;
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger,e);
             }
             return null;
         });

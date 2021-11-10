@@ -197,8 +197,8 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()), "bodyWeight")
                 .setHeader(getTranslation("BodyWeight"));
         grid.addColumn("group").setHeader(getTranslation("Group"));
-        grid.addColumn("eligibleForIndividualRanking").setHeader(getTranslation("Eligible"));
-        grid.addColumn("eligibleForTeamRanking").setHeader(getTranslation("TeamMember?"));
+        grid.addColumn("eligibleCategories").setHeader(getTranslation("Registration.EligibleCategories"));
+        grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal"));
         OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
             @Override
             public void hideForm() {
@@ -361,12 +361,14 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 
         props.add("membership");
         captions.add(getTranslation("Membership"));
+        
+        props.add("coach");
+        captions.add(getTranslation("Coach"));
+        
         props.add("lotNumber");
         captions.add(getTranslation("Lot"));
         props.add("eligibleForIndividualRanking");
         captions.add(getTranslation("Eligible for Individual Ranking?"));
-        props.add("eligibleForTeamRanking");
-        captions.add(getTranslation("TeamMember?"));
 
         crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
         crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));

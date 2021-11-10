@@ -24,10 +24,10 @@ public class ParticipationId
     private static final long serialVersionUID = -5619538756170067634L;
 
     @Column(name = "athlete_id")
-    private Long athleteId;
+    public Long athleteId;
 
     @Column(name = "category_id")
-    private Long categoryId;
+    public Long categoryId;
 
     private ParticipationId() {
     }

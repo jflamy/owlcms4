@@ -251,7 +251,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
 
     private void resetCategories() {
         RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
-        AthleteRepository.resetCategories();
+        AthleteRepository.resetParticipations();
         content.refreshCrudGrid();
     }
 }

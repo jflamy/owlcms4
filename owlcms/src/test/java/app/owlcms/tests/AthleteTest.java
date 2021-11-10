@@ -61,8 +61,8 @@ public class AthleteTest {
         athlete.setSnatch1Declaration("60");
         athlete.setCleanJerk1Declaration("80");
         athlete.setYearOfBirth(1900);
-        Category registrationCategory = new Category(0L, 67.0, 73.0, Gender.M, true, 0, 0, 348,
-                new AgeGroup("SR", true, 15, 999, Gender.M, AgeDivision.IWF, 0), 0);
+        Category registrationCategory = new Category(67.0, 73.0, Gender.M, true, 0, 0, 348, new AgeGroup("SR", true, 15, 999, Gender.M, AgeDivision.IWF, 0),
+                0);
         athlete.setEligibleCategories(new LinkedHashSet<>(Arrays.asList(registrationCategory)));
         athlete.setCategory(registrationCategory);
     }

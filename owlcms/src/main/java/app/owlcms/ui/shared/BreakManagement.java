@@ -111,7 +111,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
      * @param brt
      * @param cdt
      */
-    BreakManagement(Object origin, BreakType brt, CountdownType cdt, Dialog parentDialog) {
+    public BreakManagement(Object origin, BreakType brt, CountdownType cdt, Dialog parentDialog) {
         init(origin, brt, cdt, parentDialog);
         if (brt == BreakType.JURY || brt == BreakType.TECHNICAL) {
             setRequestedBreakType(brt);
@@ -125,7 +125,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
      *
      * @param origin the origin
      */
-    BreakManagement(Object origin, Dialog parentDialog) {
+    public BreakManagement(Object origin, Dialog parentDialog) {
         init(origin, null, CountdownType.DURATION, parentDialog);
         setRequestedBreakType(null);
     }
@@ -238,7 +238,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     public void slaveBreakDone(UIEvent.BreakDone e) {
         synchronized (this) {
             try {
-                logger.debug("Break Done {}", LoggerUtils.stackTrace());
+                //logger.debug("Break Done {}", LoggerUtils. stackTrace());
                 ignoreListeners = true;
                 UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(),
                         () -> parentDialog.close());

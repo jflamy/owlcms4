@@ -99,10 +99,10 @@ public class JPAService {
         boolean embeddedH2Server = false;
 
         // Environment variables (set by the operating system or container)
-        String dbUrl = System.getenv("JDBC_DATABASE_URL");
-        String postgresHost = System.getenv("POSTGRES_HOST");
-        String userName = System.getenv("JDBC_DATABASE_USERNAME");
-        String password = System.getenv("JDBC_DATABASE_PASSWORD");
+        String dbUrl = StartupUtils.getRawStringParam("JDBC_DATABASE_URL");
+        String postgresHost = StartupUtils.getRawStringParam("POSTGRES_HOST");
+        String userName = StartupUtils.getRawStringParam("JDBC_DATABASE_USERNAME");
+        String password = StartupUtils.getRawStringParam("JDBC_DATABASE_PASSWORD");
 
         if (dbUrl != null && !dbUrl.isBlank()) {
             // explicit url provided
@@ -158,7 +158,7 @@ public class JPAService {
 
         try {
             if (getFactory() == null) {
-                logger.debug("JPAService {}", LoggerUtils.stackTrace());
+                logger.debug("JPAService {}", LoggerUtils./**/stackTrace());
             }
             entityManager = getFactory().createEntityManager();
             entityManager.getTransaction().begin();
@@ -187,7 +187,7 @@ public class JPAService {
 
         try {
             if (getFactory() == null) {
-                logger.debug("JPAService {}", LoggerUtils.stackTrace());
+                logger.debug("JPAService {}", LoggerUtils./**/stackTrace());
             }
             entityManager = getFactory().createEntityManager();
             entityManager.getTransaction().begin();
@@ -406,7 +406,7 @@ public class JPAService {
                 }
             }
         } catch (SQLException e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            LoggerUtils.logError(logger,e);
         }
     }
 

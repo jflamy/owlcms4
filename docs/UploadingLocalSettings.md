@@ -21,5 +21,5 @@ Cloud-based setups are created on demand, and do not include persistent local fi
 In order to use your customized files in a cloud setup, proceed as follows
 
 1. Create a zip file of the `local` folder
-2. Go to the Preparation > Technical Configuration section of the Cloud-based application
+2. Go to the Preparation > Language and System Settings section of the Cloud-based application
 3. Upload your zip.  You can re-upload the zip as needed, this will reset the remote local override files.

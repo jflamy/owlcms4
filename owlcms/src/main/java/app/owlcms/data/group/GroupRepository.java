@@ -53,7 +53,7 @@ public class GroupRepository {
                 em.remove(em.contains(groupe) ? groupe : em.merge(groupe));
                 em.flush();
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger,e);
             }
             return null;
         });

@@ -78,6 +78,11 @@
             <artifactId>multiselect-combo-box-flow</artifactId>
             <version>3.0.2</version> <!-- use appropriate version -->
         </dependency>
+        <dependency>
+            <groupId>com.vaadin.componentfactory</groupId>
+            <artifactId>enhanced-dialog</artifactId>
+            <version>1.0.4</version>
+        </dependency>
 
         <!-- iron-icons -->
         <dependency>
@@ -252,6 +257,18 @@
             <groupId>com.heroku.agent</groupId>
             <artifactId>heroku-javaagent</artifactId>
             <version>2.0</version>
+        </dependency>
+
+        <!-- xml export -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+            <version>2.13.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.13.0</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.glassfish.external/opendmk_jmxremote_optional_jar -->

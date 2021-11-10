@@ -1,20 +1,23 @@
- [Home](index)
-* Getting Started
+[Home](index)
+* Installation
+  * [Downloads](Downloads)
   * [Installation](InstallationOverview)
   * [Equipment Setup](EquipmentSetup)
-* Competitions
-  * [Preparation](Preparation)
+* Competition Setup
+  * [Competition Information](Preparation)
+  * [Language and System Settings](SystemSettings)
   * [Age Groups and Categories](Categories)
   * [Athlete Registration](Registration)
+* Running a Competition
   * [Weigh-in and Start Numbers](WeighIn)
   * [Announcing, Marshalling and Timekeeping](Announcing)
   * [Scoreboards and Displays](Displays)
-  * [Refereeing](Refereeing)
+  * [Refereeing and Jury](Refereeing)
   * [Intermissions and Breaks](Breaks)
   * [Result Documents](Documents)
 * Virtual Competitions
   * [Overview](VirtualOverview)
-  * [Setup Applications](HerokuLarge)
+  * [Full Cloud Setup](HerokuLarge)
   * [Running a Virtual Competition](Zoom)
   * [Preparing the Zoom Setup](PrepareZoomBroadcasting)
   * [Preparing the Video Setup](OBS)
@@ -22,11 +25,13 @@
   * [Optional Modified Competition Rules](ModifiedRules)
 * Advanced Topics
   * [Updating Cloud-based Applications](UpdatingCloudApplications)
-  * [Configuration Parameters](Configuration)
   * [Customization](UploadingLocalSettings)
-  * [Excel Template Variables](TemplateVariables)
+  * [Configuration Parameters](Configuration)
   * [Translations](Translation)
+  * [Importing PostgreSQL Cloud Databases](PostgreSQL)
+  * [Excel Template Variables](TemplateVariables)
   * [Contributing to the code](Gitpod)
+* [Licensing and Notes](Licensing)
 * Downloads
-  * [Releases](https://github.com/jflamy/owlcms4/releases)
+  * [Downloads](Downloads)
   * [Source Repository](https://github.com/jflamy/owlcms4)

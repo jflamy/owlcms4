@@ -34,9 +34,10 @@ public class RuleViolationException extends RuntimeException {
          * @param referenceWeight
          * @param attemptNo
          */
-        public AttemptNumberTooLow(Integer requestedWeight, Athlete athlete, int referenceWeight, int attemptNo) {
-            super("RuleViolation.attemptNumberTooLow", requestedWeight,
-                    athlete.getShortName(), referenceWeight, attemptNo);
+        public AttemptNumberTooLow(Athlete requestingAthlete, Integer requestedWeight, Athlete athlete,
+                int referenceWeight, int attemptNo) {
+            super(requestingAthlete, "RuleViolation.attemptNumberTooLow",
+                    requestedWeight, athlete.getShortName(), referenceWeight, attemptNo);
         }
     }
 
@@ -48,8 +49,10 @@ public class RuleViolationException extends RuntimeException {
          * @param newVal
          * @param iAutomaticProgression
          */
-        public DeclarationValueTooSmall(int attemptNo, int newVal, int iAutomaticProgression) {
-            super("RuleViolation.declarationValueTooSmall", (attemptNo % 3) + 1, newVal, iAutomaticProgression);
+        public DeclarationValueTooSmall(Athlete requestingAthlete, int attemptNo, int newVal,
+                int iAutomaticProgression) {
+            super(requestingAthlete, "RuleViolation.declarationValueTooSmall", (attemptNo % 3) + 1, newVal,
+                    iAutomaticProgression);
         }
     }
 
@@ -61,8 +64,9 @@ public class RuleViolationException extends RuntimeException {
          * @param lastChange
          * @param iAutomaticProgression
          */
-        public LastChangeTooLow(int attemptNo, int lastChange, int iAutomaticProgression) {
-            super("RuleViolation.declaredChangesNotOk", (attemptNo % 3) + 1, lastChange, iAutomaticProgression);
+        public LastChangeTooLow(Athlete requestingAthlete, int attemptNo, int lastChange, int iAutomaticProgression) {
+            super(requestingAthlete, "RuleViolation.declaredChangesNotOk", (attemptNo % 3) + 1, lastChange,
+                    iAutomaticProgression);
         }
     }
 
@@ -73,8 +77,8 @@ public class RuleViolationException extends RuntimeException {
          *
          * @param clock
          */
-        public LateDeclaration(int clock) {
-            super("RuleViolation.LateDeclaration", clock / 1000.0);
+        public LateDeclaration(Athlete requestingAthlete, int clock) {
+            super(requestingAthlete, "RuleViolation.LateDeclaration", clock / 1000.0);
         }
     }
 
@@ -91,9 +95,10 @@ public class RuleViolationException extends RuntimeException {
          * @param referenceAthlete
          * @param currentAthlete
          */
-        public LiftedEarlier(Integer requestedWeight, Athlete referenceAthlete, Athlete currentAthlete) {
-            super("RuleViolation.liftedEarlier", requestedWeight, referenceAthlete.getShortName(),
-                    currentAthlete.getShortName());
+        public LiftedEarlier(Athlete requestingAthlete, Integer requestedWeight, Athlete referenceAthlete,
+                Athlete currentAthlete) {
+            super(requestingAthlete, "RuleViolation.liftedEarlier", requestedWeight,
+                    referenceAthlete.getShortName(), currentAthlete.getShortName());
         }
     }
 
@@ -107,10 +112,11 @@ public class RuleViolationException extends RuntimeException {
          * @param lastDeclarationOrChange
          * @param liftedWeight
          */
-        public LiftValueNotWhatWasRequested(int curLift, String actualLift, int lastDeclarationOrChange,
+        public LiftValueNotWhatWasRequested(Athlete requestingAthlete, int curLift, String actualLift,
+                int lastDeclarationOrChange,
                 int liftedWeight) {
-            super("RuleViolation.liftValueNotWhatWasRequested", (curLift % 3) + 1, actualLift, lastDeclarationOrChange,
-                    liftedWeight);
+            super(requestingAthlete, "RuleViolation.liftValueNotWhatWasRequested", (curLift % 3) + 1, actualLift,
+                    lastDeclarationOrChange, liftedWeight);
         }
     }
 
@@ -126,9 +132,10 @@ public class RuleViolationException extends RuntimeException {
          * @param referenceLotNumber
          * @param curLotNumber
          */
-        public LotNumberTooHigh(Integer requestedWeight, int referenceLotNumber, int curLotNumber) {
-            super("RuleViolation.lotNumberTooHigh", requestedWeight,
-                    referenceLotNumber, curLotNumber);
+        public LotNumberTooHigh(Athlete requestingAthlete, Integer requestedWeight, int referenceLotNumber,
+                int curLotNumber) {
+            super(requestingAthlete, "RuleViolation.lotNumberTooHigh",
+                    requestedWeight, referenceLotNumber, curLotNumber);
         }
     }
 
@@ -139,8 +146,8 @@ public class RuleViolationException extends RuntimeException {
          *
          * @param clock
          */
-        public MustChangeBeforeFinalWarning(int clock) {
-            super("RuleViolation.MustChangeBeforeFinalWarning", clock / 1000.0);
+        public MustChangeBeforeFinalWarning(Athlete requestingAthlete, int clock) {
+            super(requestingAthlete, "RuleViolation.MustChangeBeforeFinalWarning", clock / 1000.0);
         }
     }
 
@@ -151,8 +158,8 @@ public class RuleViolationException extends RuntimeException {
          *
          * @param clock
          */
-        public MustDeclareFirst(int clock) {
-            super("RuleViolation.MustDeclareFirst", clock / 1000.0);
+        public MustDeclareFirst(Athlete requestingAthlete, int clock) {
+            super(requestingAthlete, "RuleViolation.MustDeclareFirst", clock / 1000.0);
         }
     }
 
@@ -168,10 +175,11 @@ public class RuleViolationException extends RuntimeException {
          * @param missing
          * @param qualTotal
          */
-        public Rule15_20Violated(String lastName, String firstName, String startNumber, Integer snatch1Request,
+        public Rule15_20Violated(Athlete requestingAthlete, String lastName, String firstName, String startNumber,
+                Integer snatch1Request,
                 Integer cleanJerk1Request, int missing, int qualTotal) {
-            super("RuleViolation.rule15_20Violated", lastName, firstName, startNumber, snatch1Request,
-                    cleanJerk1Request, missing, qualTotal);
+            super(requestingAthlete, "RuleViolation.rule15_20Violated", lastName, firstName, startNumber,
+                    snatch1Request, cleanJerk1Request, missing, qualTotal);
         }
     }
 
@@ -186,9 +194,10 @@ public class RuleViolationException extends RuntimeException {
          * @param referenceStartNumber
          * @param curStartNumber
          */
-        public StartNumberTooHigh(Integer requestedWeight, Athlete referenceAthlete, Athlete currentAthlete) {
-            super("RuleViolation.startNumberTooHigh", requestedWeight,
-                    referenceAthlete.getShortName(), currentAthlete.getShortName());
+        public StartNumberTooHigh(Athlete requestingAthlete, Integer requestedWeight, Athlete referenceAthlete,
+                Athlete currentAthlete) {
+            super(requestingAthlete, "RuleViolation.startNumberTooHigh",
+                    requestedWeight, referenceAthlete.getShortName(), currentAthlete.getShortName());
         }
     }
 
@@ -201,8 +210,8 @@ public class RuleViolationException extends RuntimeException {
          * @param newVal
          * @param weightAtLastStart
          */
-        public ValueBelowStartedClock(int newVal, Integer weightAtLastStart) {
-            super("RuleViolation.valueBelowStartedClock", newVal, weightAtLastStart);
+        public ValueBelowStartedClock(Athlete requestingAthlete, int newVal, Integer weightAtLastStart) {
+            super(requestingAthlete, "RuleViolation.valueBelowStartedClock", newVal, weightAtLastStart);
         }
     }
 
@@ -217,9 +226,10 @@ public class RuleViolationException extends RuntimeException {
          * @param startNumber
          * @param referenceWeight
          */
-        public WeightBelowAlreadyLifted(Integer requestedWeight, Athlete athlete, int referenceWeight, int attemptNo) {
-            super("RuleViolation.weightBelowAlreadyLifted", requestedWeight,
-                    athlete.getShortName(), referenceWeight, attemptNo);
+        public WeightBelowAlreadyLifted(Athlete requestingAthlete, Integer requestedWeight, Athlete athlete,
+                int referenceWeight, int attemptNo) {
+            super(requestingAthlete, "RuleViolation.weightBelowAlreadyLifted",
+                    requestedWeight, athlete.getShortName(), referenceWeight, attemptNo);
         }
     }
 
@@ -231,15 +241,20 @@ public class RuleViolationException extends RuntimeException {
 
     /**
      * Instantiates a new rule violation exception.
-     *
-     * @param s    the s
-     * @param objs the objs
+     * 
+     * @param requestingAthlete
+     * @param s                 the s
+     * @param objs              the objs
      */
-    private RuleViolationException(String s, Object... objs) {
+    private RuleViolationException(Athlete requestingAthlete, String s, Object... objs) {
         super(s);
         this.messageKey = s;
         this.messageFormatData = objs;
-        logger./**/warn("{}{} [{}]", OwlcmsSession.getFopLoggingName(), getLocalizedMessage(Locale.ENGLISH), LoggerUtils.whereFrom(1));
+        OwlcmsSession.withFop(fop -> {
+            logger./**/warn("{}{}: {} [{}]",  fop.getLoggingName(), requestingAthlete,
+                    getLocalizedMessage(Locale.ENGLISH), LoggerUtils.stackTrace());
+        });
+
     }
 
     /*

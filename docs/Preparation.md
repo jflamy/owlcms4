@@ -24,30 +24,6 @@ This setting is normally used when running a Masters-only competition, and is no
 
 The determination to apply the IWF 20kg or the IWF Masters 80% rule is individual, based on whether the athlete is registered in a regular or Masters category.  Therefore there is no need to use this setting unless the weigh-in and presentation order matters.
 
-## Time Zone
-
-When running stand-alone on a laptop, the system gets its time zone automatically according to the computer's settings, so you can skip this section.
-
-But when running in the cloud, the cloud provider typically uses universal time (colloquially, "Greenwich").  So the time shown by the intermission break timer (for example) will most likely be wrong.  Since virtual meets often span several time zones, owlcms needs to be told what time zone was used to create the schedule.
-
-- In most circumstances, including in-person meets, the person setting up the meet is in the same time zone as the competition.  Just use the button (see in red below) to set the time zone according to the current location.  The proposed zone will not necessarily be an exact match to your city -- only a subset of major cities is present in the database.  Just make sure the proposed selection has the same time zone rules as yours.
-  Don't forget to click update at the top of the page to save the settings.  
-- In virtual meets spanning several time zones, you may need to explicitly select another zone (for example, the organizer is in the Central zone but the competition schedule was published in Eastern times).  You would then use the dropdown to select an appropriate time zone and update the settings.
-
-![105_TimeZone](img/Preparation/105_TimeZone.png)
-
-## Display Language
-
-In countries where more than one language is spoken, and in a virtual meet, the various computers used in a competition are likely to be configured with different languages.  
-
-By default, owlcms will try to use the language indicated by each browser, if a translation is available for that language.  This could be useful in a virtual meet, where officials could come from different countries.
-
-More likely however is the need force a single language to be used on all displays (owlcms will then ignore the individual language preferences sent by each browser).  The display language can be set via a technical configuration (see [here](Heroku#configure-your-time-zone-and-locale) and [here](LocalSetup#id=defining-the-language)), or via the user interface as follows.  After saving the language new pages will appear in the selected language, pages already open will need to be reloaded.
-
-You can unselect the language to revert to "the browser determines the language".
-
-![032_Language](img/Preparation/032_Language.png)
-
 ## Defining Age Groups and Categories
 
 Different federations have different rules regarding age groups and the bodyweight categories used in each group.
@@ -60,8 +36,6 @@ OWLCMS also supports the IWF scenarios, and more complex scenarios with multiple
 - Official IWF age groups and bodyweight categories.
 - Masters competitions, where athletes are automatically assigned to an age group based on their birth date according to IWF Masters rules
 - Age Group competitions where regional or national federations define the age group boundaries.
-
-
 
 ### Editing Competition Groups
 

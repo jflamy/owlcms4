@@ -168,10 +168,10 @@ public class RegistrationFileUploadDialog extends Dialog {
                 appendErrors(ta, sb, status);
                 return athletes.size();
             } catch (InvalidFormatException | IOException e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger, e);
             }
         } catch (IOException | SAXException e1) {
-            logger.error(LoggerUtils.stackTrace(e1));
+            LoggerUtils.logError(logger, e1);
         }
         return 0;
     }
@@ -201,10 +201,10 @@ public class RegistrationFileUploadDialog extends Dialog {
                 appendErrors(ta, sb, status);
                 return groups.size();
             } catch (InvalidFormatException | IOException e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger, e);
             }
         } catch (IOException | SAXException e1) {
-            logger.error(LoggerUtils.stackTrace(e1));
+            LoggerUtils.logError(logger, e1);
         }
         return 0;
     }
@@ -224,7 +224,7 @@ public class RegistrationFileUploadDialog extends Dialog {
         }
 
         processAthletes(inputStream, ta);
-        AthleteRepository.resetCategories();
+        AthleteRepository.resetParticipations();
         listGroups("after processAthletes real");
         return;
     }
@@ -305,25 +305,27 @@ public class RegistrationFileUploadDialog extends Dialog {
                 afterCleanupPlatforms.add(pl.getName());
             }
         }
-//        Set<String> checkPlatforms = PlatformRepository.findAll().stream().map(Platform::getName).collect(Collectors.toSet());
-//        logger.debug("platforms after cleanup {}",checkPlatforms);
+        Set<String> checkPlatforms = PlatformRepository.findAll().stream().map(Platform::getName).collect(Collectors.toSet());
+        logger.debug("platforms after cleanup {}",checkPlatforms);
 
         JPAService.runInTransaction(em -> {
             groups.stream().forEach(g -> {
                 String platformName = g.getPlatform();
                 Group group = g.getGroup();
-                if (!afterCleanupPlatforms.contains(platformName)) {
+                if (platformName != null && !afterCleanupPlatforms.contains(platformName)) {
                     Platform np = new Platform();
                     np.setName(platformName);
                     group.setPlatform(np);
+                    afterCleanupPlatforms.add(platformName);
+                    logger.debug("adding platform {} for group {}",np.getName(), g.getGroupName());
                     em.persist(np);
                 } else {
                     if (platformName == null || platformName.isBlank()) {
                         platformName = defaultPlatformName;
                     }
                     Platform op = PlatformRepository.findByName(platformName);
+                    logger.debug("setting group {} {} {}", g.getGroupName(), op.getName(), platformName);
                     group.setPlatform(op);
-                    em.merge(op);
                 }
                 em.merge(group);
             });

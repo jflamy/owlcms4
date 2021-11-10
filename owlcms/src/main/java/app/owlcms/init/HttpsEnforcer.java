@@ -67,7 +67,7 @@ public class HttpsEnforcer implements Filter {
         try {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            LoggerUtils.logError(logger,e);
             if (StartupUtils.isDebugSetting()) {
                 Enumeration<String> headerNames = request.getHeaderNames();
                 while (headerNames.hasMoreElements()) {

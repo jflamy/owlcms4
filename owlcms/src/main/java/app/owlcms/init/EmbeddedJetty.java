@@ -109,7 +109,7 @@ public class EmbeddedJetty {
                 System.err.println("another program is already using port " + port
                         + "; set the environment variable OWLCMS_PORT to use another port number");
             } else {
-                logger.error(LoggerUtils.stackTrace());
+                logger.error(LoggerUtils./**/stackTrace());
                 System.err.println("server could not be started");
                 e.printStackTrace();
             }

@@ -20,6 +20,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.components.elements.LazyDownloadButton;
+import app.owlcms.data.export.CompetitionData;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import ch.qos.logback.classic.Logger;
@@ -53,7 +54,7 @@ public class DownloadButtonFactory {
 
         return new Div(downloadButton);
     }
-    
+
     public static Div createDynamicZipDownloadButton(String prefix, String label, byte[] content) {
         final LazyDownloadButton downloadButton = new LazyDownloadButton(
                 label,
@@ -64,7 +65,26 @@ public class DownloadButtonFactory {
                             + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
                             + ".zip";
                 },
-                () -> {return new ByteArrayInputStream(content);});
+                () -> {
+                    return new ByteArrayInputStream(content);
+                });
+
+        return new Div(downloadButton);
+    }
+
+    public static Div createDynamicJsonDownloadButton(String prefix, String label) {
+        final LazyDownloadButton downloadButton = new LazyDownloadButton(
+                label,
+                new Icon(VaadinIcon.DOWNLOAD_ALT),
+                () -> {
+                    LocalDateTime now = LocalDateTime.now().withNano(0);
+                    return prefix
+                            + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
+                            + ".json";
+                },
+                () -> {
+                    return new CompetitionData().exportData();
+                });
 
         return new Div(downloadButton);
     }

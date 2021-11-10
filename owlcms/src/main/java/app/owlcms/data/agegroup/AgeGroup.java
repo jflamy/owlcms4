@@ -27,6 +27,11 @@ import javax.persistence.Transient;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
@@ -44,6 +49,8 @@ import ch.qos.logback.classic.Logger;
 // must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 @Cacheable
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "key", scope = AgeGroup.class)
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "logger" })
 public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     private static final long serialVersionUID = 8154757158144876816L;
@@ -79,11 +86,22 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    @JsonIgnore
+    private Long id;
 
     boolean active;
 
     String code;
+
+    String key;
+
+    public String getKey() {
+        return ageDivision.name() + "_" + gender.name() + "_" + minAge + "_" + maxAge;
+    }
+
+    public void setKey(String key) {
+        // do nothing, this is to fool Json deserialization.
+    }
 
     Integer minAge;
 
@@ -96,11 +114,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     private Gender gender;
 
     @Transient
+    @JsonIgnore
     public String categoriesAsString;
 
-    @OneToMany(mappedBy = "ageGroup", cascade = { CascadeType.ALL },
-            orphanRemoval = true,
-            fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "ageGroup", cascade = { CascadeType.ALL }, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Category> categories = new ArrayList<>();
 
     private Integer qualificationTotal;
@@ -152,10 +169,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if ((obj == null) || (getClass() != obj.getClass())) {
             return false;
         }
         AgeGroup other = (AgeGroup) obj;
@@ -171,6 +185,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         return ageDivision;
     }
 
+    @JsonIgnore
     public List<Category> getAllCategories() {
         return categories;
     }
@@ -211,6 +226,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         return minAge;
     }
 
+    @JsonIgnore
     public String getName() {
         String code2 = this.getCode();
         if (code2 == null) {
@@ -225,6 +241,13 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         } else {
             return translatedCode + " " + getGender();
         }
+    }
+
+    /**
+     * @return the qualificationTotal
+     */
+    public Integer getQualificationTotal() {
+        return qualificationTotal;
     }
 
     @Override
@@ -245,10 +268,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     public void setActive(boolean active) {
         this.active = active;
-    }
-
-    public void setAgeDivision(AgeDivision ageDivision) {
-        this.ageDivision = ageDivision;
     }
 
 //    /**
@@ -279,6 +298,14 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 //        categories.sort((c1, c2) -> ObjectUtils.compare(c1.getMaximumWeight(), c2.getMaximumWeight()));
 //    }
 
+    public void setAgeDivision(AgeDivision ageDivision) {
+        this.ageDivision = ageDivision;
+    }
+
+    public void setCategories(List<Category> value) {
+        this.categories = value;
+    }
+
     public void setCode(String code) {
         this.code = code;
     }
@@ -295,6 +322,13 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         this.minAge = minAge;
     }
 
+    /**
+     * @param qualificationTotal the qualificationTotal to set
+     */
+    public void setQualificationTotal(Integer qualificationTotal) {
+        this.qualificationTotal = qualificationTotal;
+    }
+
     @Override
     public String toString() {
         return getName();
@@ -305,24 +339,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
                 "AgeGroup." + code2,
                 OwlcmsSession.getLocale());
         return translatedCode != null ? translatedCode : code2;
-    }
-
-    /**
-     * @return the qualificationTotal
-     */
-    public Integer getQualificationTotal() {
-        return qualificationTotal;
-    }
-
-    /**
-     * @param qualificationTotal the qualificationTotal to set
-     */
-    public void setQualificationTotal(Integer qualificationTotal) {
-        this.qualificationTotal = qualificationTotal;
-    }
-
-    public void setCategories(List<Category> value) {
-        this.categories = value;
     }
 
 }

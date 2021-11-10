@@ -98,14 +98,14 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         }
 
         public String getSMaxTime() {
-            if (maxTime.isEqual(LocalDateTime.MIN)) {
+            if (maxTime == null || maxTime.isEqual(LocalDateTime.MIN)) {
                 return "-";
             }
             return maxTime.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_LOCAL_TIME);
         }
 
         public String getSMinTime() {
-            if (minTime.isEqual(LocalDateTime.MAX)) {
+            if (minTime == null || minTime.isEqual(LocalDateTime.MAX)) {
                 return "-";
             }
             return minTime.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_LOCAL_TIME);
@@ -139,7 +139,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         }
 
         public void updateMaxTime(LocalDateTime newTime) {
-            if (newTime.isAfter(this.maxTime)) {
+            if (newTime != null && newTime.isAfter(this.maxTime)) {
                 this.maxTime = newTime;
             } else {
             }
@@ -147,7 +147,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         }
 
         public void updateMinTime(LocalDateTime newTime) {
-            if (newTime.isBefore(this.minTime)) {
+            if (newTime != null && newTime.isBefore(this.minTime)) {
                 this.minTime = newTime;
             } else {
             }
@@ -155,7 +155,12 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         }
 
         private Double getHoursForGroup() {
-            Duration delta = Duration.between(minTime, maxTime);
+            Duration delta;
+            if (minTime == null || maxTime == null) {
+                delta = Duration.ZERO;
+            } else {
+                delta = Duration.between(minTime, maxTime);
+            }
             if (delta.isNegative()) {
                 delta = Duration.ZERO;
             }
@@ -165,6 +170,9 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
     }
 
     public static String formatDuration(Duration duration) {
+        if (duration == null) {
+            return "-";
+        }
         long seconds = duration.getSeconds();
         long absSeconds = Math.abs(seconds);
         String positive = String.format("%d:%02d:%02d", absSeconds / 3600, (absSeconds % 3600) / 60, absSeconds % 60);
@@ -208,7 +216,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         SessionStats curStat = null;
         for (Athlete curAthlete : athletes) {
             curGroup = curAthlete.getGroup();
-            logger.debug("athlete = {} {}",curAthlete, curGroup);
+            logger.debug("athlete = {} {}", curAthlete, curGroup);
             if (curGroup == null) {
                 continue; // we simply skip over athletes with no groups
             }

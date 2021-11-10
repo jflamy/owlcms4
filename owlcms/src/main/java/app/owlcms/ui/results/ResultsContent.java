@@ -113,8 +113,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
                 .setHeader(Translator.translate("robi")).setComparator(new WinningOrderComparator(Ranking.ROBI, true));
 
         String protocolFileName = Competition.getCurrent().getProtocolFileName();
-        if (protocolFileName != null && (protocolFileName.toLowerCase().contains("qc")
-                || protocolFileName.toLowerCase().contains("quebec"))) {
+        if (protocolFileName != null && (protocolFileName.toLowerCase().contains("fhq"))) {
             // historical
             grid.addColumn(
                     new NumberRenderer<>(Athlete::getCategorySinclair, "%.3f", OwlcmsSession.getLocale(), "-"),

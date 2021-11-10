@@ -34,6 +34,7 @@ import app.owlcms.components.NavigationPage;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.spreadsheet.JXLSRegistration;
+import app.owlcms.spreadsheet.JXLSRegistrationExport;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.DownloadButtonFactory;
@@ -67,6 +68,10 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, getTranslation("DefineAgeGroups"));
         Button groups = openInNewTabNoParam(GroupContent.class, getTranslation("DefineGroups"));
         Button platforms = openInNewTabNoParam(PlatformContent.class, getTranslation("DefineFOP"));
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, groups,
+                platforms);
+        doGroup(getTranslation("PreCompetitionSetup"), grid1, this);
+
 
         Div downloadDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("registration",
                 getTranslation("DownloadRegistrationTemplate"), new JXLSRegistration(UI.getCurrent()));
@@ -75,19 +80,31 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         downloadDiv.setWidthFull();
         Button upload = new Button(getTranslation("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
                 buttonClickEvent -> new RegistrationFileUploadDialog().open());
+        Div exportDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("exportRegistration",
+                getTranslation("ExportRegistrationData"), new JXLSRegistrationExport(UI.getCurrent()));
+        Optional<Component> exportDivButton = exportDiv.getChildren().findFirst();
+        exportDivButton.ifPresent(c -> ((Button) c).setWidth("93%"));
+        exportDiv.setWidthFull();
+        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload, exportDiv);
+        doGroup(getTranslation("Registration"), grid2, this);
+        
 
         Button athletes = openInNewTabNoParam(RegistrationContent.class, getTranslation("EditAthletes"));
         Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
-
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, groups,
-                platforms, downloadDiv, upload);
-        doGroup(getTranslation("PreCompetitionSetup"), grid1, this);
-
-        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload);
-        doGroup(getTranslation("Registration"), grid2, this);
-
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams);
         doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
+        
+//        Button uploadJson = new Button(getTranslation("ExportDatabase.UploadJson"), new Icon(VaadinIcon.UPLOAD_ALT),
+//                buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
+//        Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
+//                getTranslation("ExportDatabase.DownloadJ"));
+//        Optional<Component> exportJsonButton = exportJsonDiv.getChildren().findFirst();
+//        exportJsonButton.ifPresent(c -> ((Button) c).setWidth("93%"));
+//        exportJsonDiv.setWidthFull();
+////        Button clearDatabase = new Button(getTranslation("ExportDatabase.ClearDatabase"), new Icon(VaadinIcon.UPLOAD_ALT),
+////                buttonClickEvent -> CompetitionRepository.removeAll());
+//        FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson/* , clearDatabase */);
+//        doGroup(getTranslation("ExportDatabase.ExportImport"), grid4, this);
 
         DebugUtils.gc();
     }

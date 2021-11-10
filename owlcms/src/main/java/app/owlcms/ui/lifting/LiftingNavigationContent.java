@@ -57,7 +57,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 
         Button marshall = openInNewTab(MarshallContent.class, getTranslation("Marshall"));
         Button timekeeper = openInNewTab(TimekeeperContent.class, getTranslation("Timekeeper"));
-        Button technical = openInNewTab(TCContent.class, getTranslation("TechnicalController"));
+        Button technical = openInNewTab(TCContent.class, getTranslation("PlatesCollarBarbell"));
 
         VerticalLayout intro = new VerticalLayout();
         addP(intro, getTranslation("AnnouncerSelectsGroup") + getTranslation("ChangesGroupEverywhere")

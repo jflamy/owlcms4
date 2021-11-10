@@ -314,7 +314,7 @@ public class FileServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return null;
         } catch (Exception e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            LoggerUtils.logError(logger,e);
             response.getWriter().print(e.getLocalizedMessage());
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return null;

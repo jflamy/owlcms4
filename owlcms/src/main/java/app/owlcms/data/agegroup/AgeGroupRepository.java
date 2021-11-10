@@ -65,7 +65,7 @@ public class AgeGroupRepository {
                 em.remove(mAgeGroup);
                 em.flush();
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger,e);
             }
             return null;
         });
@@ -185,12 +185,12 @@ public class AgeGroupRepository {
                 upd = em.createQuery("delete from AgeGroup");
                 upd.executeUpdate();
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger,e);
             }
             return null;
         });
         AgeGroupDefinitionReader.doInsertAgeGroup(null, "/agegroups/" + localizedFileName);
-        AthleteRepository.resetCategories();
+        AthleteRepository.resetParticipations();
     }
 
     /**
@@ -206,7 +206,7 @@ public class AgeGroupRepository {
             try {
                 return cleanUp(ageGroup, em);
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger,e);
             }
             return null;
         });
@@ -226,7 +226,7 @@ public class AgeGroupRepository {
             try {
                 em.persist(ageGroup);
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                LoggerUtils.logError(logger,e);
             }
             return null;
         });
@@ -300,6 +300,8 @@ public class AgeGroupRepository {
                 Category newCat = new Category(template);
                 newCat.setMinimumWeight(curMin);
                 newCat.setCode(ag.getCode() + "_" + template.getCode());
+                newCat.setAgeGroup(ag);
+                //logger.debug("code = {} {}",newCat.getCode(), newCat.getComputedCode());
                 ag.addCategory(newCat);
                 newCat.setActive(ag.isActive());
                 try {
@@ -307,10 +309,10 @@ public class AgeGroupRepository {
                 } catch (NumberFormatException e) {
                     throw new Exception(e);
                 }
-//                logger.debug(newCat.dump());
+                //logger.debug(newCat.dump());
                 return newCat;
             } catch (IllegalAccessException | InvocationTargetException e) {
-                logger.error("cannot create category from template\n{}", LoggerUtils.stackTrace(e));
+                logger.error("cannot create category from template\n{}", LoggerUtils./**/stackTrace(e));
                 return null;
             }
         }
@@ -472,7 +474,8 @@ public class AgeGroupRepository {
 
     public static List<PAthlete> allPAthletesForAgeGroupAgeDivision(String ageGroupPrefix, AgeDivision ageDivision) {
         List<Participation> participations = allParticipationsForAgeGroupAgeDivision(ageGroupPrefix, ageDivision);
-        return participations.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
+        List<PAthlete> collect = participations.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
+        return collect;
     }
 
     public static List<Participation> allParticipationsForAgeGroupAgeDivision(String ageGroupPrefix,
@@ -490,16 +493,16 @@ public class AgeGroupRepository {
             if (whereList.size() > 0) {
                 whereClause = " where " + whereList.stream().collect(Collectors.joining(" and "));
             }
-            
+
             TypedQuery<Participation> q = em.createQuery(
                     "select distinct p from Participation p join p.category c join c.ageGroup ag "
                             + whereClause,
                     Participation.class);
             if (ageGroupPrefix != null && !ageGroupPrefix.isBlank()) {
-                q.setParameter("ageGroupPrefix",ageGroupPrefix);
+                q.setParameter("ageGroupPrefix", ageGroupPrefix);
             }
             if (ageDivision != null) {
-                q.setParameter("ageDivision",ageDivision);
+                q.setParameter("ageDivision", ageDivision);
             }
 
             List<Participation> resultSet = q.getResultList();
@@ -538,5 +541,6 @@ public class AgeGroupRepository {
             return resultSet;
         });
     }
+
 
 }
