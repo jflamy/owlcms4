@@ -9,11 +9,14 @@ package app.owlcms.utils.queryparameters;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -68,25 +71,36 @@ public interface DisplayParameters extends FOPParameters {
         buttons.setAlignSelf(Alignment.END, button);
         buttons.setMargin(false);
         vl.setAlignSelf(Alignment.END, buttons);
-        
+
         vl.add(new Div());
         vl.add(buttons);
-
 
         // workaround for compilation glitch
         @SuppressWarnings("rawtypes")
         ComponentEventListener listener = e -> {
-            if (!dialog.isOpened()) {
-                dialog.open();
-            }
+            openDialog(dialog);
         };
         ComponentUtil.addListener(target, ClickEvent.class, listener);
         if (isShowInitialDialog()) {
-            dialog.open();
+            openDialog(dialog);
             setShowInitialDialog(false);
         }
-        
 
+    }
+
+    public default void openDialog(Dialog dialog) {
+        if (!dialog.isOpened()) {
+            dialog.open();
+            UI ui = UI.getCurrent();
+            new Timer().schedule(
+                    new TimerTask() {
+                        public void run() {
+                            ui.access(() -> {
+                                dialog.close();
+                            });
+                        }
+                    }, 8 * 1000L);
+        }
     }
 
     public default void doNotification(boolean dark) {
