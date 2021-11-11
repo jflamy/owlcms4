@@ -181,8 +181,8 @@ public class AthleteRepository {
     }
 
     /**
-     * Fetch all athletes and participations for the categories present in the group.
-     * If group is null, all athletes and their participations.
+     * Fetch all athletes and participations for the categories present in the group. If group is null, all athletes and
+     * their participations.
      *
      * @param g
      * @return
@@ -190,14 +190,15 @@ public class AthleteRepository {
     @SuppressWarnings("unchecked")
     public static List<Athlete> findAthletesForGlobalRanking(Group g) {
         return JPAService.runInTransaction((em) -> {
-            String onlyCategoriesFromCurrentGroup = 
-                    " join p.category c where exists " +
-                    "     (select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId and c2.id = c.id)";
-            if (g == null) {
-                onlyCategoriesFromCurrentGroup = "";
+            String onlyCategoriesFromCurrentGroup = "";
+            if (g != null) {
+                onlyCategoriesFromCurrentGroup = 
+                        " join p.category c where exists " +
+                        "     (select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId and c2.id = c.id)";
             }
             Query q = em.createQuery(
-                    "select distinct a, p from Athlete a join fetch a.participations p" + onlyCategoriesFromCurrentGroup);
+                    "select distinct a, p from Athlete a join fetch a.participations p"
+                            + onlyCategoriesFromCurrentGroup);
             if (g != null) {
                 q.setParameter("groupId", g.getId());
             }
