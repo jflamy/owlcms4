@@ -2,7 +2,8 @@
 
 - [x] Fix: Team results calculation was ignoring the team membership status
 - [x] Fix: Sinclair scoreboard was not updating as lifts were made or athlete cards modified.
-- [x] Enhancement: it is now possible to enter two custom fields on the registration Excel file.  Typical use is for athlete status or other local usage (ex: a patronym). Usable as ${l.custom1} and ${l.custom2} in the Excel templates.  The fields are visible on the registration and weigh-in forms. The headers used are defined in the translation file under "Custom1.Title" and "Custom2.Title".  
+- [x] Enhancement: Two custom fields are available on the registration/weigh-in forms and in the registration Excel file.  Typical use is for athlete status or other local usage (ex: a patronym). Usable as ${l.custom1} and ${l.custom2} in the Excel templates. The headers used are defined in the translation file under "Custom1.Title" and "Custom2.Title".  
+- [x] Enhancement: It is now possible to edit an athlete's results from the Category Results page, and to recompute the rankings.
 
 ###### New in this release
 
