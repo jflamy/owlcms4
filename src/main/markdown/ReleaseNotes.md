@@ -1,7 +1,8 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Fix: Category Results page would not load if young competitors outside IWF age groups were present  (trying to compute a Robi score)
-- [x] Enhancement: it is now possible to enter the athlete's coach on the registration Excel file.
+- [x] Fix: Team results calculation was ignoring the team membership status
+- [x] Fix: Sinclair scoreboard was not updating as lifts were made or athlete cards modified.
+- [x] Enhancement: it is now possible to enter two custom fields on the registration Excel file.  Typical use is for athlete status or other local usage (ex: a patronym). Usable as ${l.custom1} and ${l.custom2} in the Excel templates.  The headers used are defined in the translation file under "Custom1.Title" and "Custom2.Title".  The fields are visible on the registration and weigh-in forms.
 
 ###### New in this release
 

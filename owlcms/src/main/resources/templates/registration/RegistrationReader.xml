@@ -27,6 +27,8 @@
                 <mapping col="10">a.cleanJerk1Declaration</mapping>
 				<mapping col="12">a.qualifyingTotal</mapping>
                 <mapping col="13">a.coach</mapping>
+                <mapping col="14">a.custom1</mapping>
+                <mapping col="15">a.custom2</mapping>
 			</section>
 			<loopbreakcondition>
 				<rowcheck offset="0">

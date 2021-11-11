@@ -335,12 +335,16 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         props.add("membership");
         captions.add(getTranslation("Membership"));
 
+        props.add("coach");
+        captions.add(getTranslation("Coach"));
+        props.add("custom1");
+        captions.add(getTranslation("Custom1.Title"));
+        props.add("custom2");
+        captions.add(getTranslation("Custom2.Title"));
+        
         props.add("lotNumber");
         captions.add(getTranslation("Lot"));
         
-        props.add("coach");
-        captions.add(getTranslation("Coach"));
-
         props.add("eligibleForIndividualRanking");
         captions.add(getTranslation("Eligible for Individual Ranking?"));
 
