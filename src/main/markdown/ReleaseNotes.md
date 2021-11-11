@@ -1,5 +1,8 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+- [x] Fix: Category Results page would not load if young competitors outside IWF age groups were present  (trying to compute a Robi score)
+- [x] Enhancement: it is now possible to enter the athlete's coach on the registration Excel file.
+
 ###### New in this release
 
 - [x] It is now possible to export, manipulate and reload the registration data (athletes, groups, referees) in Excel format.  

@@ -37,6 +37,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.IdUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -113,7 +114,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
      */
     public Category() {
         // manually generate the Id to avoid issues when creating many-to-many Participations
-        setId((System.currentTimeMillis() << 20) | (System.nanoTime() & 0xFFFFFL));
+        setId(IdUtils.getTimeBasedId(this));
+        //logger.debug("category constructor {}, {}",System.identityHashCode(this), this.getId());
     }
 
     public Category(Category c) {
@@ -122,10 +124,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     }
 
     public Category(Double minimumWeight, Double maximumWeight, Gender gender, boolean active, Integer wrYth,
-            Integer wrJr,
-            Integer wrSr, AgeGroup ageGroup, Integer qualifyingTotal) {
-
-        this.setId((System.currentTimeMillis() << 20) | (System.nanoTime() & 0xFFFFFL));
+            Integer wrJr, Integer wrSr, AgeGroup ageGroup, Integer qualifyingTotal) {
+        this();
         this.setMinimumWeight(minimumWeight);
         this.setMaximumWeight(maximumWeight);
         this.setGender(gender);
@@ -268,6 +268,12 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     @Transient
     @JsonIgnore
     public String getLimitString() {
+        //logger.debug("category {} {} {} {}", this.getId(), this.getCode(), this.getMinimumWeight(), this.getMinimumWeight());
+        if (id == null || maximumWeight == null || maximumWeight - Math.round(maximumWeight) > 0.1) {
+            String val = "temp_"+minimumWeight+"_"+maximumWeight;
+            //logger.debug("{} \n{}", val, LoggerUtils.stackTrace());
+            return val;
+        }
         if (maximumWeight > 130) {
             return Translator.translate("catAboveFormat",
                     minimumWeight != null ? String.valueOf((int) (Math.round(minimumWeight))) : "");
@@ -279,6 +285,12 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     @Transient
     @JsonIgnore
     public String getCodeLimitString() {
+        //logger.debug("category {} {} {} {}", this.getId(), this.getCode(), this.getMinimumWeight(), this.getMinimumWeight());
+        if (id == null || maximumWeight == null || maximumWeight - Math.round(maximumWeight) > 0.1) {
+            String val = "temp_"+minimumWeight+"_"+maximumWeight;
+            //logger.debug("{} \n{}", val, LoggerUtils.stackTrace());
+            return val;
+        }
         if (maximumWeight > 130) {
             return "999";
         } else {
