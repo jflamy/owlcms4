@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.slf4j.LoggerFactory;
+import org.vaadin.crudui.crud.CrudOperation;
+import org.vaadin.crudui.crud.CrudOperationException;
 import org.vaadin.crudui.crud.LazyCrudListener;
 
 import com.vaadin.flow.component.AttachEvent;
@@ -310,7 +312,22 @@ public class TeamResultsContent extends VerticalLayout
 
                 // only edit non-lifting groups
                 if (!checkFOP()) {
-                    super.updateButtonClicked();
+                    TeamTreeItem domainObject = grid.asSingleSelect().getValue();
+                    showForm(CrudOperation.UPDATE, domainObject, false, savedMessage, event -> {
+                        try {
+                            TeamTreeItem updatedObject = updateOperation.perform(domainObject);
+                            grid.asSingleSelect().clear();
+                            refreshGrid();
+                            grid.asSingleSelect().setValue(updatedObject);
+                            // TODO: grid.scrollTo(updatedObject);
+                        } catch (IllegalArgumentException ignore) {
+                        } catch (CrudOperationException e1) {
+                            refreshGrid();
+                        } catch (Exception e2) {
+                            refreshGrid();
+                            throw e2;
+                        }
+                    });
                 }
             }
 
