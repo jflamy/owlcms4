@@ -19,14 +19,16 @@ import app.owlcms.data.athlete.Gender;
  */
 public class Team {
 
-    public static Comparator<Team> scoreComparator = ((a, b) -> -ObjectUtils.compare(a.score, b.score, true));
+    public static Comparator<Team> scoreComparator = ((a, b) -> -ObjectUtils.compare(a.sinclairScore, b.sinclairScore, true));
 
     public static Comparator<Team> pointsComparator = ((a,
             b) -> -ObjectUtils.compare(a.getPoints(), b.getPoints(), true));
 
     private String name;
 
-    private double score = 0.0D;
+    private double sinclairScore = 0.0D;
+    
+    private double smfScore = 0.0D;
 
     private int points = 0;
 
@@ -57,8 +59,8 @@ public class Team {
         return points;
     }
 
-    public double getScore() {
-        return score;
+    public double getSinclairScore() {
+        return sinclairScore;
     }
 
     public long getSize() {
@@ -81,12 +83,26 @@ public class Team {
         this.points = points;
     }
 
-    public void setScore(double d) {
-        this.score = d;
+    public void setSinclairScore(double d) {
+        this.sinclairScore = d;
     }
 
     public void setSize(long size) {
         this.size = size;
+    }
+
+    /**
+     * @return the smfScore
+     */
+    public double getSmfScore() {
+        return smfScore;
+    }
+
+    /**
+     * @param smfScore the smfScore to set
+     */
+    public void setSmfScore(double smfScore) {
+        this.smfScore = smfScore;
     }
 
 }

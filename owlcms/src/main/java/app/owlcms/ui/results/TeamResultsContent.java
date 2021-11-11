@@ -280,9 +280,12 @@ public class TeamResultsContent extends VerticalLayout
                 .setTextAlign(ColumnTextAlign.CENTER);
         grid.addColumn(TeamTreeItem::getPoints, "points").setHeader(Translator.translate("TeamResults.Points"))
                 .setTextAlign(ColumnTextAlign.END);
-        grid.addColumn(t -> formatDouble(t.getScore(), 3), "score")
+        grid.addColumn(t -> formatDouble(t.getSinclairScore(), 3), "sinclairScore")
                 .setHeader(Translator.translate("Scoreboard.Sinclair"))
                 .setTextAlign(ColumnTextAlign.END);
+        grid.addColumn(t -> formatDouble(t.getSmfScore(), 3), "smfScore")
+                .setHeader(Translator.translate("smm"))
+                    .setTextAlign(ColumnTextAlign.END);
         grid.addColumn(TeamTreeItem::formatProgress).setHeader(Translator.translate("TeamResults.Status"))
                 .setTextAlign(ColumnTextAlign.END);
 

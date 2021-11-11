@@ -225,7 +225,8 @@ public class TeamSelectionContent extends VerticalLayout
                 Boolean value = click.getValue();
                 activeBox.setValue(value);
                 JPAService.runInTransaction(em -> {
-                    logger.info("{} {} as team member for category {}",value ? "setting" : "removing", p.getAthlete().getShortName(), p.getCategory().getName());
+                    logger.info("{} {} as team member for category {}", value ? "setting" : "removing",
+                            p.getAthlete().getShortName(), p.getCategory().getName());
                     p.setTeamMember(Boolean.TRUE.equals(value));
                     em.merge(p);
                     return null;
@@ -253,6 +254,26 @@ public class TeamSelectionContent extends VerticalLayout
                 grid) {
             @Override
             protected void initToolbar() {
+                Checkbox selectAll = new Checkbox();
+                selectAll.addValueChangeListener(e -> {
+                    JPAService.runInTransaction(em -> {
+                        if (Boolean.TRUE.equals(e.getValue())) {
+                            findAll().forEach(a -> {
+                                a.setTeamMember(true);
+                                em.merge(a);
+                            });
+                        } else {
+                            findAll().forEach(a -> {
+                                a.setTeamMember(false);
+                                em.merge(a);
+                            });
+                        }
+                        em.flush();
+                        return null;
+                    });
+                    refresh();
+                });
+                crudLayout.addToolbarComponent(selectAll);
             }
 
             @Override
@@ -316,7 +337,7 @@ public class TeamSelectionContent extends VerticalLayout
         topBarAgeDivisionSelect.setWidth("8em");
         topBarAgeDivisionSelect.getStyle().set("margin-left", "1em");
         setAgeDivisionSelectionListener();
-        
+
         setAgeGroupPrefixItems(topBarAgeGroupPrefixSelect, getAgeDivision());
         topBarAgeGroupPrefixSelect.setValue(getAgeGroupPrefix());
         topBarAgeDivisionSelect.setValue(getAgeDivision());
@@ -405,20 +426,20 @@ public class TeamSelectionContent extends VerticalLayout
                 crudGrid.refreshGrid();
                 return;
             }
-        
+
             String existingAgeGroupPrefix = getAgeGroupPrefix();
             List<String> activeAgeGroups = setAgeGroupPrefixItems(topBarAgeGroupPrefixSelect, ageDivision);
             if (existingAgeGroupPrefix != null) {
                 topBarAgeGroupPrefixSelect.setValue(existingAgeGroupPrefix);
                 topBarAgeGroupPrefixSelect.setEnabled(true);
             } else if (activeAgeGroups != null && !activeAgeGroups.isEmpty() && ageDivision != AgeDivision.MASTERS) {
-                // no default value 
-                //topBarAgeGroupPrefixSelect.setValue(activeAgeGroups.get(0));
+                // no default value
+                // topBarAgeGroupPrefixSelect.setValue(activeAgeGroups.get(0));
                 topBarAgeGroupPrefixSelect.setEnabled(true);
             } else {
                 topBarAgeGroupPrefixSelect.setEnabled(false);
             }
-            
+
             xlsWriter.setAgeDivision(ageDivisionValue);
             finalPackage.getElement().setAttribute("download",
                     "results" + (getAgeDivision() != null ? "_" + getAgeDivision().name()
@@ -646,7 +667,7 @@ public class TeamSelectionContent extends VerticalLayout
         updateURLLocation(UI.getCurrent(), getLocation(), "ad",
                 getAgeDivision() != null ? getAgeDivision().name() : null);
     }
-    
+
     private List<String> setAgeGroupPrefixItems(ComboBox<String> ageGroupPrefixComboBox,
             AgeDivision ageDivision2) {
         List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsed(ageDivision2);

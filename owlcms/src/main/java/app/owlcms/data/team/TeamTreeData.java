@@ -97,6 +97,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                     boolean groupIsDone = groupIsDone(a);
                     Integer curPoints = a.getTotalPoints();
                     double curScore = a.getSinclairForDelta();
+                    double curSmf = a.getSmm();
 
                     int curTeamCount = 0;
                     // logger.debug("---- Athlete {} {} {} {} {} {}", curTeamName, a, a.getGender(), curPoints,
@@ -110,7 +111,8 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 
                     if (groupIsDone && b && c) {
                         curTeam.setPoints(curTeam.getPoints() + Math.round(curPoints));
-                        curTeam.setScore(curTeam.getScore() + curScore);
+                        curTeam.setSinclairScore(curTeam.getSinclairScore() + curScore);
+                        curTeam.setSmfScore(curTeam.getSmfScore() + curSmf);
                         curTeam.setCounted(curTeam.getCounted() + 1);
                     }
                     curTeamItem.addTreeItemChild(a, groupIsDone);
@@ -147,11 +149,11 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                 continue;
             }
             for (TeamTreeItem item : teamItems) {
-                logger.debug("team: {} {} {}", item.getName(), item.getGender(), item.getPoints(), item.getScore());
+                logger.debug("team: {} {} {}", item.getName(), item.getGender(), item.getPoints(), item.getSinclairScore());
                 List<TeamTreeItem> teamMembers = item.getTeamMembers();
-                teamMembers.sort(TeamTreeItem.scoreComparator);
+                teamMembers.sort(TeamTreeItem.sinclairScoreComparator);
                 for (TeamTreeItem t : teamMembers) {
-                    logger.debug("    {} {}", t.getName(), t.getScore());
+                    logger.debug("    {} {}", t.getName(), t.getSinclairScore());
                 }
             }
         }

@@ -34,13 +34,13 @@ public class TeamTreeItem {
         return compare;
     });
 
-    public static Comparator<TeamTreeItem> scoreComparator = ((a, b) -> {
+    public static Comparator<TeamTreeItem> sinclairScoreComparator = ((a, b) -> {
         int compare = 0;
         compare = ObjectUtils.compare(a.getGender(), b.getGender(), true);
         if (compare != 0) {
             return compare;
         }
-        compare = -ObjectUtils.compare(a.getScore(), b.getScore(), true);
+        compare = -ObjectUtils.compare(a.getSinclairScore(), b.getSinclairScore(), true);
         return compare;
     });
 
@@ -138,8 +138,12 @@ public class TeamTreeItem {
         return pts;
     }
 
-    public Double getScore() {
-        return (team != null ? team.getScore() : athlete.getSinclairForDelta());
+    public Double getSinclairScore() {
+        return (team != null ? team.getSinclairScore() : athlete.getSinclairForDelta());
+    }
+    
+    public Double getSmfScore() {
+        return (team != null ? team.getSmfScore() : athlete.getSmm());
     }
 
     public long getSize() {

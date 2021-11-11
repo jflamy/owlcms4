@@ -515,7 +515,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         ja.put("team", t.getName());
         ja.put("counted", formatInt(t.getCounted()));
         ja.put("size", formatInt((int) t.getSize()));
-        ja.put("score", formatDouble(t.getScore()));
+        ja.put("score", formatDouble(t.getSinclairScore()));
         ja.put("points", formatInt(t.getPoints()));
     }
 
