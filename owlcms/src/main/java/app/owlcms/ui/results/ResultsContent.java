@@ -325,7 +325,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
                     refresh();
                 }));
 
-        reset.getElement().setAttribute("title", getTranslation("Reload_group"));
+        reset.getElement().setAttribute("title", getTranslation("RecomputeRanks"));
         reset.getElement().setAttribute("theme", "secondary contrast small icon");
         return reset;
     }

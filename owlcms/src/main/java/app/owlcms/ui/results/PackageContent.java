@@ -49,7 +49,6 @@ import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
@@ -250,8 +249,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     @Override
     public Athlete update(Athlete a) {
         Athlete a1 = super.update(a);
-        AthleteRepository.assignCategoryRanks();
-        refresh();
         return a1;
     }
 
@@ -332,6 +329,10 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, gridLayout, crudFormFactory, grid) {
             @Override
             protected void initToolbar() {
+                Component reset = createReset();
+                if (reset != null) {
+                    crudLayout.addToolbarComponent(reset);
+                }
             }
 
             @Override
