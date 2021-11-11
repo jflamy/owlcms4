@@ -75,6 +75,12 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 
             @SuppressWarnings("unchecked")
             List<Athlete> athletes = (List<Athlete>) reportingBeans.get(key);
+            athletes = athletes.stream()
+//                    .peek(a -> {
+//                        logger.debug("{} {} {} {}",a.getShortName(), ((PAthlete) a)._getOriginalParticipation().getTeamMember(), a.getClass().getSimpleName(), ((PAthlete) a).getCategory());
+//                    })
+                    .filter(a -> a.isTeamMember())
+                    .collect(Collectors.toList());
             String prevTeamName = null;
             if (athletes != null) {
                 // count points for each team

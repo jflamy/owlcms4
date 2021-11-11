@@ -92,6 +92,10 @@ public class TeamTreeItem {
         return athlete;
     }
 
+    public String getCategory() {
+        return team == null ? athlete.getCategory().getName() : "";
+    }
+
     public Integer getCleanJerkPoints() {
         return athlete.getCleanJerkPoints();
     }

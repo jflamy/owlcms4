@@ -7,7 +7,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.persistence.Transient;
+
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
@@ -33,6 +37,10 @@ public class PAthlete extends Athlete implements IRankHolder {
     Logger logger = (Logger) LoggerFactory.getLogger(PAthlete.class);
 
     private Participation p;
+    
+    @JsonIgnore
+    @Transient
+    private Participation originalParticipation;
 
     private Athlete a;
 
@@ -42,14 +50,37 @@ public class PAthlete extends Athlete implements IRankHolder {
         this.a = p.getAthlete();
         this.c = p.getCategory();
         this.p = new Participation(p, a, c);
+        this.originalParticipation = p;
     }
 
+    /**
+     * used only for debugging
+     * @return
+     */
+    @JsonIgnore
+    @Transient
     public Athlete _getAthlete() {
         return a;
     }
 
+    /**
+     * used only for debugging
+     * @return
+     */
+    @JsonIgnore
+    @Transient
     public Participation _getParticipation() {
         return p;
+    }
+    
+    /**
+     * used only for debugging
+     * @return
+     */
+    @JsonIgnore
+    @Transient
+    public Participation _getOriginalParticipation() {
+        return originalParticipation;
     }
 
     @Override

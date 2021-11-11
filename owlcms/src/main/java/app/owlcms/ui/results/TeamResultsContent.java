@@ -274,6 +274,8 @@ public class TeamResultsContent extends VerticalLayout
         grid.addHierarchyColumn(TeamTreeItem::formatName).setHeader(Translator.translate("Name"));
         grid.addColumn(TeamTreeItem::getGender).setHeader(Translator.translate("Gender"))
                 .setTextAlign(ColumnTextAlign.END);
+        grid.addColumn(TeamTreeItem::getCategory).setHeader(Translator.translate("Category"))
+                .setTextAlign(ColumnTextAlign.CENTER);
         grid.addColumn(TeamTreeItem::getPoints, "points").setHeader(Translator.translate("TeamResults.Points"))
                 .setTextAlign(ColumnTextAlign.END);
         grid.addColumn(t -> formatDouble(t.getScore(), 3), "score")

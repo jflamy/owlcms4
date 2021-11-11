@@ -111,6 +111,7 @@ public class Participation implements IRankHolder {
         this.snatchRank = p.snatchRank;
         this.totalRank = p.totalRank;
         this.combinedRank = p.combinedRank;
+        this.teamMember = p.teamMember;
     }
 
     protected Participation() {
@@ -144,7 +145,7 @@ public class Participation implements IRankHolder {
     @Transient
     @JsonIgnore
     public int getCleanJerkPoints() {
-        return AthleteSorter.pointsFormula(cleanJerkRank);
+        return teamMember ? AthleteSorter.pointsFormula(cleanJerkRank) : 0;
     }
 
     public int getCleanJerkRank() {
@@ -164,7 +165,7 @@ public class Participation implements IRankHolder {
     @Transient
     @JsonIgnore
     public int getCustomPoints() {
-        return AthleteSorter.pointsFormula(customRank);
+        return teamMember ? AthleteSorter.pointsFormula(customRank) : 0;
     }
 
     public int getCustomRank() {
@@ -178,7 +179,7 @@ public class Participation implements IRankHolder {
     @Transient
     @JsonIgnore
     public int getSnatchPoints() {
-        return AthleteSorter.pointsFormula(snatchRank);
+        return teamMember ? AthleteSorter.pointsFormula(snatchRank) : 0;
     }
 
     public int getSnatchRank() {
@@ -216,7 +217,7 @@ public class Participation implements IRankHolder {
     @Transient
     @JsonIgnore
     public int getTotalPoints() {
-        return AthleteSorter.pointsFormula(totalRank);
+        return teamMember ? AthleteSorter.pointsFormula(totalRank) : 0;
     }
 
     public int getTotalRank() {
