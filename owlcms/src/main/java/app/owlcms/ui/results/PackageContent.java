@@ -22,7 +22,9 @@ import java.util.stream.Stream;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
+import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -47,6 +49,7 @@ import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
@@ -113,7 +116,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     public PackageContent() {
         super();
         defineFilters(crudGrid);
-        crudGrid.setClickable(false);
+        //crudGrid.setClickable(false);
         // crudGrid.getGrid().setMultiSort(true);
         setTopBarTitle(getTranslation(TITLE));
     }
@@ -242,6 +245,14 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
     public void refresh() {
         crudGrid.refreshGrid();
+    }
+    
+    @Override
+    public Athlete update(Athlete a) {
+        Athlete a1 = super.update(a);
+        AthleteRepository.assignCategoryRanks();
+        refresh();
+        return a1;
     }
 
     public void setCategoryValue(Category category) {
@@ -428,6 +439,21 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
     }
 
+    /**
+     * @see app.owlcms.ui.shared.AthleteGridContent#createReset()
+     */
+    @Override
+    protected Component createReset() {
+        reset = new Button(getTranslation("RecomputeRanks"), IronIcons.REFRESH.create(),
+                (e) -> OwlcmsSession.withFop((fop) -> {
+                    refresh();
+                }));
+
+        reset.getElement().setAttribute("title", getTranslation("RecomputeRanks"));
+        reset.getElement().setAttribute("theme", "secondary contrast small icon");
+        return reset;
+    }
+    
     @Override
     protected void defineFilters(GridCrud<Athlete> crud) {
         if (categoryFilter == null) {

@@ -291,7 +291,7 @@ public class AthleteRepository {
         });
     }
 
-    private static void assignCategoryRanks() {
+    public static void assignCategoryRanks() {
         JPAService.runInTransaction(em -> {
             // assign ranks to all groups.
             List<Athlete> l = AthleteSorter.assignCategoryRanks(null);

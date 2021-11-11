@@ -319,7 +319,6 @@ public class TeamResultsContent extends VerticalLayout
                             grid.asSingleSelect().clear();
                             refreshGrid();
                             grid.asSingleSelect().setValue(updatedObject);
-                            // TODO: grid.scrollTo(updatedObject);
                         } catch (IllegalArgumentException ignore) {
                         } catch (CrudOperationException e1) {
                             refreshGrid();

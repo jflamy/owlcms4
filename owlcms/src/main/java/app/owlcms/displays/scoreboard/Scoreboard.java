@@ -175,6 +175,9 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         setDarkMode(true);
     }
 
+    /**
+     * @see app.owlcms.utils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component, com.vaadin.flow.component.orderedlayout.VerticalLayout)
+     */
     @Override
     public void addDialogContent(Component target, VerticalLayout vl) {
         DisplayOptions.addLightingEntries(vl, target, this);
