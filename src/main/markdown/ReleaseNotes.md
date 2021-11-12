@@ -1,6 +1,6 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Fix: custom1 field was being overwritten after editing marshal card.
+- [x] Armenian and Spanish translations updated
 
 ###### New in this release
 
@@ -18,11 +18,11 @@
   
 - [x] Enhancement: the Available Plates page can now be reached from the Field of Play/Platforms preparation page.  The button to reach this page has also been renamed (used to be "Technical Controller")
 
-- [x] Enhancement: added a "Coach" field to the athlete registration and weigh-in forms.  Usable as ${l.coach} in the Excel templates. Also added two custom fields. Typical use is for athlete status or other local usage (ex: a patronym). Usable as ${l.custom1} and ${l.custom2} in the Excel templates. The headers used are defined in the translation file under "Custom1.Title" and "Custom2.Title".  
+- [x] Enhancement: added a "Coach" field to the athlete registration and weigh-in forms.  Usable as ${l.coach} in the Excel templates. Also added two custom fields: typical use is for athlete status or other local usage (ex: a patronym). Usable as ${l.custom1} and ${l.custom2} in the Excel templates. You can set the headers in the translation file under "Custom1.Title" and "Custom2.Title".  
 
 - [x] Enhancement: show SMF ranking in Team Results (for Masters competitions)
 
-- [x] Enhancement: select all button on Team Selection page to include all athletes in teams and then deselect non-members.
+- [x] Enhancement: "select all" checkbox on Team Selection page to include all athletes in teams and then deselect non-members.
 
 - [x] Fix: if you had imported the registration Excel, there was the possibility that duplicate platforms had been created.  The program now keeps the oldest platform when there are duplicates.
 
