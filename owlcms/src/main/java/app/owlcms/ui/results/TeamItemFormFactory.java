@@ -21,6 +21,7 @@ import com.vaadin.flow.data.binder.BinderValidationStatus;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.team.TeamTreeItem;
+import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.lifting.AthleteCardFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
@@ -69,7 +70,12 @@ public class TeamItemFormFactory
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
-        return acff.buildNewForm(operation, aFromDb.getAthlete(), readOnly, cancelButtonClickListener,
+        Athlete athlete = aFromDb.getAthlete();
+        if (athlete instanceof PAthlete) {
+            // get the original athlete
+            athlete = ((PAthlete)athlete)._getAthlete();
+        }
+        return acff.buildNewForm(operation, athlete, readOnly, cancelButtonClickListener,
                 updateButtonClickListener, deleteButtonClickListener, buttons);
     }
 

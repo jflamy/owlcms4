@@ -35,6 +35,16 @@ public class AthleteRepository {
         logger.setLevel(Level.INFO);
     }
 
+    public static void assignStartNumbers(Group group) {
+        JPAService.runInTransaction((em) -> {
+            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, true,
+                    (Gender) null);
+            AthleteSorter.displayOrder(currentGroupAthletes);
+            AthleteSorter.assignStartNumbers(currentGroupAthletes);
+            return currentGroupAthletes;
+        });
+    }
+
     /**
      * Count filtered.
      *
@@ -171,7 +181,8 @@ public class AthleteRepository {
     }
 
     /**
-     * Fetch all athletes and participations for the categories present in the group
+     * Fetch all athletes and participations for the categories present in the group. If group is null, all athletes and
+     * their participations.
      *
      * @param g
      * @return
@@ -179,14 +190,19 @@ public class AthleteRepository {
     @SuppressWarnings("unchecked")
     public static List<Athlete> findAthletesForGlobalRanking(Group g) {
         return JPAService.runInTransaction((em) -> {
-            String categoriesFromCurrentGroup = "(select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId and c2.id = c.id)";
-            Query q = em.createQuery(
-                    "select distinct a, p from Athlete a join fetch a.participations p join p.category c where exists "
-                            + categoriesFromCurrentGroup);
-            try {
-                q.setParameter("groupId", g.getId());
-            } catch (Exception e) {
+            String onlyCategoriesFromCurrentGroup = "";
+            if (g != null) {
+                onlyCategoriesFromCurrentGroup = 
+                        " join p.category c where exists " +
+                        "     (select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId and c2.id = c.id)";
             }
+            Query q = em.createQuery(
+                    "select distinct a, p from Athlete a join fetch a.participations p"
+                            + onlyCategoriesFromCurrentGroup);
+            if (g != null) {
+                q.setParameter("groupId", g.getId());
+            }
+
             @SuppressWarnings("rawtypes")
             List resultList = q.getResultList();
             return resultList;
@@ -261,18 +277,6 @@ public class AthleteRepository {
         assignCategoryRanks();
     }
 
-    private static void assignCategoryRanks() {
-        JPAService.runInTransaction(em -> {
-            // assign ranks to all groups.
-            List<Athlete> l = AthleteSorter.assignCategoryRanks(null);
-            for (Athlete a : l) {
-                em.merge(a);
-            }
-            em.flush();
-            return null;
-        });
-    }
-
     /**
      * Save an athlete
      *
@@ -284,6 +288,18 @@ public class AthleteRepository {
             Competition.getCurrent().setRankingsInvalid(true);
             Athlete merged = em.merge(athlete);
             return merged;
+        });
+    }
+
+    public static void assignCategoryRanks() {
+        JPAService.runInTransaction(em -> {
+            // assign ranks to all groups.
+            List<Athlete> l = AthleteSorter.assignCategoryRanks(null);
+            for (Athlete a : l) {
+                em.merge(a);
+            }
+            em.flush();
+            return null;
         });
     }
 
@@ -367,15 +383,5 @@ public class AthleteRepository {
         if (gender != null) {
             query.setParameter("gender", gender);
         }
-    }
-
-    public static void assignStartNumbers(Group group) {
-        JPAService.runInTransaction((em) -> {
-            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, true,
-                    (Gender) null);
-            AthleteSorter.displayOrder(currentGroupAthletes);
-            AthleteSorter.assignStartNumbers(currentGroupAthletes);
-            return currentGroupAthletes;
-        });
     }
 }

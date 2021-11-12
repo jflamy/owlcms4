@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.slf4j.LoggerFactory;
+import org.vaadin.crudui.crud.CrudOperation;
+import org.vaadin.crudui.crud.CrudOperationException;
 import org.vaadin.crudui.crud.LazyCrudListener;
 
 import com.vaadin.flow.component.AttachEvent;
@@ -274,11 +276,16 @@ public class TeamResultsContent extends VerticalLayout
         grid.addHierarchyColumn(TeamTreeItem::formatName).setHeader(Translator.translate("Name"));
         grid.addColumn(TeamTreeItem::getGender).setHeader(Translator.translate("Gender"))
                 .setTextAlign(ColumnTextAlign.END);
+        grid.addColumn(TeamTreeItem::getCategory).setHeader(Translator.translate("Category"))
+                .setTextAlign(ColumnTextAlign.CENTER);
         grid.addColumn(TeamTreeItem::getPoints, "points").setHeader(Translator.translate("TeamResults.Points"))
                 .setTextAlign(ColumnTextAlign.END);
-        grid.addColumn(t -> formatDouble(t.getScore(), 3), "score")
+        grid.addColumn(t -> formatDouble(t.getSinclairScore(), 3), "sinclairScore")
                 .setHeader(Translator.translate("Scoreboard.Sinclair"))
                 .setTextAlign(ColumnTextAlign.END);
+        grid.addColumn(t -> formatDouble(t.getSmfScore(), 3), "smfScore")
+                .setHeader(Translator.translate("smm"))
+                    .setTextAlign(ColumnTextAlign.END);
         grid.addColumn(TeamTreeItem::formatProgress).setHeader(Translator.translate("TeamResults.Status"))
                 .setTextAlign(ColumnTextAlign.END);
 
@@ -308,7 +315,21 @@ public class TeamResultsContent extends VerticalLayout
 
                 // only edit non-lifting groups
                 if (!checkFOP()) {
-                    super.updateButtonClicked();
+                    TeamTreeItem domainObject = grid.asSingleSelect().getValue();
+                    showForm(CrudOperation.UPDATE, domainObject, false, savedMessage, event -> {
+                        try {
+                            TeamTreeItem updatedObject = updateOperation.perform(domainObject);
+                            grid.asSingleSelect().clear();
+                            refreshGrid();
+                            grid.asSingleSelect().setValue(updatedObject);
+                        } catch (IllegalArgumentException ignore) {
+                        } catch (CrudOperationException e1) {
+                            refreshGrid();
+                        } catch (Exception e2) {
+                            refreshGrid();
+                            throw e2;
+                        }
+                    });
                 }
             }
 

@@ -200,13 +200,13 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
 
         mensTeams = teamsByGender.get(Gender.M);
         if (mensTeams != null) {
-            mensTeams.sort(TeamTreeItem.scoreComparator);
+            mensTeams.sort(TeamTreeItem.sinclairScoreComparator);
         }
         mensTeams = topN(mensTeams);
 
         womensTeams = teamsByGender.get(Gender.F);
         if (womensTeams != null) {
-            womensTeams.sort(TeamTreeItem.scoreComparator);
+            womensTeams.sort(TeamTreeItem.sinclairScoreComparator);
         }
         womensTeams = topN(womensTeams);
 
@@ -515,7 +515,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         ja.put("team", t.getName());
         ja.put("counted", formatInt(t.getCounted()));
         ja.put("size", formatInt((int) t.getSize()));
-        ja.put("score", formatDouble(t.getScore()));
+        ja.put("score", formatDouble(t.getSinclairScore()));
         ja.put("points", formatInt(t.getPoints()));
     }
 

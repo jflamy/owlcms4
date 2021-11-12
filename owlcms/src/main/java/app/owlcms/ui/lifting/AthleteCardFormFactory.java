@@ -50,6 +50,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
 import app.owlcms.ui.shared.IAthleteEditing;
@@ -250,7 +251,11 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
         // don't trust the athlete received as parameter. Fetch from database in case the athlete was edited
         // on some other screen.
-        originalAthlete = aFromList;
+        if (aFromList instanceof PAthlete) {
+            originalAthlete = ((PAthlete) aFromList)._getAthlete();
+        } else {
+            originalAthlete = aFromList;
+        }
         Athlete aFromDb = AthleteRepository.findById(aFromList.getId());
         Athlete.conditionalCopy(getEditedAthlete(), aFromDb, true);
         getEditedAthlete().setValidation(false); // turn off validation in the Athlete setters; binder will call

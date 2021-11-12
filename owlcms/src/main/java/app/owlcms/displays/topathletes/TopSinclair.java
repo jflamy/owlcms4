@@ -316,6 +316,21 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
 
     @Subscribe
     public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
+        computeTop(e);
+    }
+
+    @Subscribe
+    public void slaveGroupDone(UIEvent.GroupDone e) {
+        uiLog(e);
+        Competition competition = Competition.getCurrent();
+
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            doUpdate(competition);
+        });
+    }
+
+    @Subscribe
+    public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
         uiLog(e);
         Competition competition = Competition.getCurrent();
 
@@ -447,6 +462,15 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
             }
         }
         this.getElement().setPropertyJson("t", translations);
+    }
+
+    private void computeTop(UIEvent e) {
+        uiLog(e);
+        Competition competition = Competition.getCurrent();
+
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            doUpdate(competition);
+        });
     }
 
     private String formatInt(Integer total) {

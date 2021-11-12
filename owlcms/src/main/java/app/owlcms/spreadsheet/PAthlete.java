@@ -7,7 +7,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.persistence.Transient;
+
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
@@ -29,10 +33,14 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("deprecation")
 public class PAthlete extends Athlete implements IRankHolder {
-    
+
     Logger logger = (Logger) LoggerFactory.getLogger(PAthlete.class);
 
     private Participation p;
+
+    @JsonIgnore
+    @Transient
+    private Participation originalParticipation;
 
     private Athlete a;
 
@@ -42,12 +50,38 @@ public class PAthlete extends Athlete implements IRankHolder {
         this.a = p.getAthlete();
         this.c = p.getCategory();
         this.p = new Participation(p, a, c);
+        this.originalParticipation = p;
     }
 
+    /**
+     * used only for debugging
+     *
+     * @return
+     */
+    @JsonIgnore
+    @Transient
     public Athlete _getAthlete() {
         return a;
     }
 
+    /**
+     * used only for debugging
+     *
+     * @return
+     */
+    @JsonIgnore
+    @Transient
+    public Participation _getOriginalParticipation() {
+        return originalParticipation;
+    }
+
+    /**
+     * used only for debugging
+     *
+     * @return
+     */
+    @JsonIgnore
+    @Transient
     public Participation _getParticipation() {
         return p;
     }
@@ -281,6 +315,11 @@ public class PAthlete extends Athlete implements IRankHolder {
     }
 
     @Override
+    public String getCoach() {
+        return a.getCoach();
+    }
+
+    @Override
     public Integer getCombinedPoints() {
         return p.getCombinedPoints();
     }
@@ -303,6 +342,16 @@ public class PAthlete extends Athlete implements IRankHolder {
     @Override
     public String getCurrentDeclaration() {
         return a.getCurrentDeclaration();
+    }
+
+    @Override
+    public String getCustom1() {
+        return a.getCustom1();
+    }
+
+    @Override
+    public String getCustom2() {
+        return a.getCustom2();
     }
 
     @Override
@@ -502,7 +551,8 @@ public class PAthlete extends Athlete implements IRankHolder {
         // we want the getMainRanking from this class which uses
         // the participation, not the real athlete's category
         Double robi = super.getRobi();
-        //logger.trace("getRobi {} {} {} {}", _getAthlete().getShortName(), _getAthlete().getCategory(), getCategory(), robi);
+        // logger.trace("getRobi {} {} {} {}", _getAthlete().getShortName(), _getAthlete().getCategory(), getCategory(),
+        // robi);
         return robi;
     }
 
@@ -708,6 +758,11 @@ public class PAthlete extends Athlete implements IRankHolder {
     }
 
     @Override
+    public Integer getTeamCustomRank() {
+        return a.getTeamCustomRank();
+    }
+
+    @Override
     public Boolean getTeamMember() {
         return a.getTeamMember();
     }
@@ -730,11 +785,6 @@ public class PAthlete extends Athlete implements IRankHolder {
     @Override
     public Integer getTeamTotalRank() {
         return a.getTeamTotalRank();
-    }
-    
-    @Override
-    public Integer getTeamCustomRank() {
-        return a.getTeamCustomRank();
     }
 
     @Override
@@ -813,6 +863,21 @@ public class PAthlete extends Athlete implements IRankHolder {
     @Override
     public void setCatSinclairRank(int i) {
         a.setCatSinclairRank(i);
+    }
+
+    @Override
+    public void setCoach(String coach) {
+        a.setCoach(coach);
+    }
+
+    @Override
+    public void setCustom1(String v) {
+        a.setCustom1(v);
+    }
+
+    @Override
+    public void setCustom2(String v) {
+        a.setCustom2(v);
     }
 
     @Override

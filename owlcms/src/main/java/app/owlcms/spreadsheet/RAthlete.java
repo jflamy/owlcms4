@@ -53,6 +53,14 @@ public class RAthlete {
         return a.getCoach();
     }
 
+    public String getCustom1() {
+        return a.getCustom1();
+    }
+
+    public String getCustom2() {
+        return a.getCustom2();
+    }
+
     /**
      * @param bodyWeight
      */
@@ -130,6 +138,14 @@ public class RAthlete {
 
     public void setCoach(String coach) {
         a.setCoach(coach);
+    }
+
+    public void setCustom1(String v) {
+        a.setCustom1(v);
+    }
+
+    public void setCustom2(String v) {
+        a.setCustom2(v);
     }
 
     /**

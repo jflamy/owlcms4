@@ -20,6 +20,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.NavigationPage;
 import app.owlcms.spreadsheet.JXLSTimingStats;
 import app.owlcms.ui.home.HomeNavigationContent;
+import app.owlcms.ui.preparation.TeamSelectionContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.DownloadButtonFactory;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
@@ -45,13 +46,14 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
     public ResultsNavigationContent() {
         Button groupResults = openInNewTab(ResultsContent.class, getTranslation("GroupResults"));
         Button teamResults = openInNewTabNoParam(TeamResultsContent.class, getTranslation("TeamResults.Title"));
+        Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
         Button finalPackage = openInNewTabNoParam(PackageContent.class, getTranslation("CategoryResults"));
 
         Div timingStats = DownloadButtonFactory.createDynamicXLSDownloadButton("timingStats",
                 getTranslation("TimingStatistics"), new JXLSTimingStats(UI.getCurrent()));
 
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(groupResults);
-        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(teamResults);
+        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(teamResults, teams);
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(finalPackage, timingStats);
 
         doGroup(getTranslation("ForEachCompetitionGroup"), grid1, this);
