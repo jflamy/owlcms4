@@ -1,11 +1,6 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Enhancement: It is now possible to edit an athlete's results from the Category Results page, and to recompute the rankings.
-- [x] Enhancement: show SMF ranking in Team Results (for Masters competitions)
-- [x] Enhancement: select all button on Team Selection page to include all athletes in teams and then deselect non-members.
-- [x] Fix: Team results calculation was ignoring the team membership status
-- [x] Fix: Sinclair scoreboard was not updating as lifts were made or athlete cards modified.
-- [x] Enhancement: Two custom fields are available on the registration/weigh-in forms and in the registration Excel file.  Typical use is for athlete status or other local usage (ex: a patronym). Usable as ${l.custom1} and ${l.custom2} in the Excel templates. The headers used are defined in the translation file under "Custom1.Title" and "Custom2.Title".  
+- [x] Fix: custom fields were not visible on category result spreadsheets.
 
 ###### New in this release
 
@@ -23,7 +18,11 @@
   
 - [x] Enhancement: the Available Plates page can now be reached from the Field of Play/Platforms preparation page.  The button to reach this page has also been renamed (used to be "Technical Controller")
 
-- [x] Enhancement: added a "Coach" field to the athlete registration and weigh-in forms.  Usable as ${l.coach} in the Excel templates.
+- [x] Enhancement: added a "Coach" field to the athlete registration and weigh-in forms.  Usable as ${l.coach} in the Excel templates. Also added two custom fields. Typical use is for athlete status or other local usage (ex: a patronym). Usable as ${l.custom1} and ${l.custom2} in the Excel templates. The headers used are defined in the translation file under "Custom1.Title" and "Custom2.Title".  
+
+- [x] Enhancement: show SMF ranking in Team Results (for Masters competitions)
+
+- [x] Enhancement: select all button on Team Selection page to include all athletes in teams and then deselect non-members.
 
 - [x] Fix: if you had imported the registration Excel, there was the possibility that duplicate platforms had been created.  The program now keeps the oldest platform when there are duplicates.
 
