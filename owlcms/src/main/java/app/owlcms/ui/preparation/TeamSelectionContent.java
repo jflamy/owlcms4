@@ -78,7 +78,7 @@ import ch.qos.logback.classic.Logger;
 public class TeamSelectionContent extends VerticalLayout
         implements CrudListener<Participation>, OwlcmsContent, DisplayParameters {
 
-    static final String TITLE = "TeamMembership.Title";
+    public static final String TITLE = "TeamMembership.Title";
     final private static Logger logger = (Logger) LoggerFactory.getLogger(TeamSelectionContent.class);
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
     static {
@@ -273,7 +273,9 @@ public class TeamSelectionContent extends VerticalLayout
                     });
                     refresh();
                 });
-                crudLayout.addToolbarComponent(selectAll);
+                HorizontalLayout vl = new HorizontalLayout(selectAll);
+                vl.setAlignItems(Alignment.CENTER);
+                crudLayout.addToolbarComponent(vl);
             }
 
             @Override
