@@ -71,15 +71,15 @@ public class JXLSCards extends JXLSWorkbookStreamSource {
     }
 
     private void setPageBreaks(Workbook workbook) {
-        Sheet sheet = workbook.getSheetAt(0);
-        int lastRowNum = sheet.getLastRowNum();
-        sheet.setAutobreaks(false);
-        int increment = CARDS_PER_PAGE * CARD_SIZE + (CARDS_PER_PAGE - 1);
-
-        for (int curRowNum = increment; curRowNum < lastRowNum;) {
-            sheet.setRowBreak(curRowNum - 1);
-            curRowNum += increment;
-        }
+//        Sheet sheet = workbook.getSheetAt(0);
+//        int lastRowNum = sheet.getLastRowNum();
+//        sheet.setAutobreaks(false);
+//        int increment = CARDS_PER_PAGE * CARD_SIZE + (CARDS_PER_PAGE - 1);
+//
+//        for (int curRowNum = increment; curRowNum < lastRowNum;) {
+//            sheet.setRowBreak(curRowNum - 1);
+//            curRowNum += increment;
+//        }
     }
 
 }
