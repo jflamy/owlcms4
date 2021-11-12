@@ -1,6 +1,11 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Armenian and Spanish translations updated
+- [x] Fix: Team membership is now correctly taken into account
+- [x] Fix: Athletes under 13 were causing issues in results sheets due to the lack of ROBI score.
+- [x] Fix: if you had imported the registration Excel in previous versions of the program, there was the possibility that duplicate platforms had been created.  The program now does a clean-up
+- [x] Enhancement: added a "Coach" field to the athlete registration and weigh-in forms.  Usable as ${l.coach} in the Excel templates. Also added two custom fields: typical use is for athlete status (ex: "elite") or other local usage (ex: a patronym). Usable as ${l.custom1} and ${l.custom2} in the Excel templates. You can set the headers in the translation file under "Custom1.Title" and "Custom2.Title".  
+- [x] Enhancement: show SMF ranking in Team Results (for Masters competitions)
+- [x] Enhancement: "select all" checkbox on Team Selection page to include all athletes in teams and then deselect non-members.
 
 ###### New in this release
 
@@ -17,14 +22,6 @@
   - Shortcuts are defined to support a jury keypad. See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Refereeing#jury-console-keypad) for details
   
 - [x] Enhancement: the Available Plates page can now be reached from the Field of Play/Platforms preparation page.  The button to reach this page has also been renamed (used to be "Technical Controller")
-
-- [x] Enhancement: added a "Coach" field to the athlete registration and weigh-in forms.  Usable as ${l.coach} in the Excel templates. Also added two custom fields: typical use is for athlete status or other local usage (ex: a patronym). Usable as ${l.custom1} and ${l.custom2} in the Excel templates. You can set the headers in the translation file under "Custom1.Title" and "Custom2.Title".  
-
-- [x] Enhancement: show SMF ranking in Team Results (for Masters competitions)
-
-- [x] Enhancement: "select all" checkbox on Team Selection page to include all athletes in teams and then deselect non-members.
-
-- [x] Fix: if you had imported the registration Excel, there was the possibility that duplicate platforms had been created.  The program now keeps the oldest platform when there are duplicates.
 
 - [x] It is now possible to Export and Import the database content (#449).  This allows taking a snapshot of the database in the middle of a competition. It also allows bringing back a Heroku database for local use, and conversely, setting up a competition locally prior to loading on Heroku.
 
