@@ -175,7 +175,7 @@ public class Athlete {
             dest.setForcedAsCurrent(src.isForcedAsCurrent());
             dest.setCoach(src.getCoach());
             dest.setCustom1(src.getCustom1());
-            dest.setCustom1(src.getCustom2());
+            dest.setCustom2(src.getCustom2());
 
             if (copyResults) {
                 // Category-specific results are in the participation objects
