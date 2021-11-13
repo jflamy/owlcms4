@@ -12,16 +12,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
-import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
@@ -30,10 +26,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -47,15 +40,14 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamResource;
 
+import app.owlcms.components.DownloadButtonFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -69,7 +61,6 @@ import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AthleteCrudGrid;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
-import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -135,11 +126,11 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         return grid;
     }
 
-    private Button innerButton;
     private Group currentGroup;
     private JXLSWorkbookStreamSource xlsWriter;
 
     private Checkbox medalsOnly;
+    private DownloadButtonFactory downloadButtonFactory;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
@@ -344,37 +335,30 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     protected void createTopBar() {
-        // show arrow but close menu
+        logger.debug("createTopBar");
+        // show back arrow but close menu
         getAppLayout().setMenuVisible(true);
         getAppLayout().closeDrawer();
 
         topBar = getAppLayout().getAppBarElementWrapper();
 
         H3 title = new H3();
-        title.setText(getTranslation("GroupResults"));
+        title.setText(Translator.translate("GroupResults"));
         title.add();
         title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
+        
+        Button resultsButton = createDownloadButton();
 
         topBarGroupSelect = new ComboBox<>();
         topBarGroupSelect.setPlaceholder(getTranslation("Group"));
         topBarGroupSelect.setItems(GroupRepository.findAll());
         topBarGroupSelect.setItemLabelGenerator(Group::getName);
         topBarGroupSelect.setClearButtonVisible(true);
-        topBarGroupSelect.setValue(null);
-        topBarGroupSelect.setWidth("8em");
         setGroupSelectionListener();
+        topBarGroupSelect.setValue(currentGroup);
+        topBarGroupSelect.setWidth("8em");
 
-        Component gr = createResultsDownloadButton(
-                () -> {
-                    JXLSResultSheet rs = new JXLSResultSheet();
-                    rs.setGroup(currentGroup);
-                    return rs;
-                },
-                "resultSheet.xls", "GroupResults", "/templates/protocol",
-                Competition::getProtocolFileName,
-                Competition::setProtocolFileName);
-
-        HorizontalLayout buttons = new HorizontalLayout(gr);
+        HorizontalLayout buttons = new HorizontalLayout(resultsButton);
         buttons.setPadding(true);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
@@ -387,69 +371,19 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
     }
 
-    /**
-     * @param streamSourceSupplier      lambda that creates a JXLSWorkbookStreamSource and sets its filters
-     * @param templateFileName          stored in the database, will be selected in drop down by default
-     * @param buttonLabel               label used in top bar
-     * @param resourceDirectoryLocation where to look for templates
-     * @param fileNameGetter
-     * @param fileNameSetter
-     * @return
-     */
-    private Component createResultsDownloadButton(
-            Supplier<JXLSWorkbookStreamSource> streamSourceSupplier,
-            String templateFileName,
-            String buttonLabel,
-            String resourceDirectoryLocation,
-            Function<Competition, String> fileNameGetter,
-            BiConsumer<Competition, String> fileNameSetter) {
-
-        // supplier is a lambda that sets the filter values in the xls source
-        xlsWriter = streamSourceSupplier.get();
-        Anchor wrappedButton = new Anchor("", "");
-
-        EnhancedDialog dialog = new EnhancedDialog();
-
-        ComboBox<Resource> templateSelect = new ComboBox<>();
-        templateSelect.setPlaceholder(getTranslation("AvailableTemplates"));
-        List<Resource> resourceList = new ResourceWalker().getResourceList(resourceDirectoryLocation,
-                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
-        templateSelect.setItems(resourceList);
-        templateSelect.setValue(null);
-        templateSelect.setWidth("15em");
-        templateSelect.getStyle().set("margin-left", "1em");
-        try {
-            // Competition.getTemplateFileName()
-            // the getter should return a default if not set.
-            String curTemplateName = fileNameGetter.apply(Competition.getCurrent());
-            // searchMatch should always return something unless the directory is empty.
-            Resource found = searchMatch(resourceList, curTemplateName);
-            wrappedButton.setHref(new StreamResource(found != null ? found.getFileName() : "", xlsWriter));
-
-            templateSelect.addValueChangeListener(e -> {
-                // Competition.setTemplateFileName(...)
-                fileNameSetter.accept(Competition.getCurrent(), e.getValue().getFileName());
-                CompetitionRepository.save(Competition.getCurrent());
-                wrappedButton.setHref(new StreamResource(e.getValue().getFileName(), xlsWriter));
-            });
-            templateSelect.setValue(found);
-        } catch (Exception e1) {
-            throw new RuntimeException(e1);
-        }
-
-        wrappedButton.getStyle().set("margin-left", "1em");
-        innerButton = new Button(getTranslation(buttonLabel), new Icon(VaadinIcon.DOWNLOAD_ALT));
-        wrappedButton.add(innerButton);
-        wrappedButton.getElement().setAttribute("innerButton",
-                "results" + (xlsWriter.getGroup() != null ? "_" + xlsWriter.getGroup() : "_all") + ".xls");
-        
-        dialog.add(templateSelect, wrappedButton);
-
-        Button dialogOpen = new Button(Translator.translate(buttonLabel), new Icon(VaadinIcon.DOWNLOAD_ALT),
-                e -> {
-                    dialog.open();
-                });
-        return dialogOpen;
+    private Button createDownloadButton() {
+        downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
+                () -> {
+                    JXLSResultSheet rs = new JXLSResultSheet();
+                    rs.setGroup(currentGroup);
+                    return rs;
+                },
+                "/templates/protocol",
+                Competition::getComputedProtocolFileName,
+                Competition::setProtocolFileName,
+                Translator.translate("GroupResults"));
+        Button resultsButton = downloadButtonFactory.createResultsDownloadButton();
+        return resultsButton;
     }
 
     /**
@@ -509,15 +443,11 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     private void setGroupSelectionListener() {
-        topBarGroupSelect.setValue(getGridGroup());
+//        topBarGroupSelect.setValue(getGridGroup());
         topBarGroupSelect.addValueChangeListener(e -> {
             setGridGroup(e.getValue());
             currentGroup = e.getValue();
-            // the name of the resulting file is set as an attribute on the <a href tag that
-            // surrounds
-            // the innerButton button.
-            xlsWriter.setGroup(currentGroup);
-
+            downloadButtonFactory.createResultsDownloadButton();
         });
     }
 
@@ -543,18 +473,6 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             logger.debug(getTranslation("EditingResults_logging"), currentGroup, liftingFop);
         }
         return liftingFop != null;
-    }
-
-    private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
-        Resource found = null;
-        for (Resource curResource : resourceList) {
-            String fileName = curResource.getFileName();
-            if (fileName.equals(curTemplateName)) {
-                found = curResource;
-                break;
-            }
-        }
-        return found;
     }
 
     private void subscribeIfLifting(Group nGroup) {

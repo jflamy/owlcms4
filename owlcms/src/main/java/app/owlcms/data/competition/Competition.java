@@ -417,14 +417,13 @@ public class Competition {
      * @return the protocol file name
      * @throws IOException Signals that an I/O exception has occurred.
      */
-    public String getProtocolFileName() {
-        String absoluteRoot = "/templates/protocol";
-        if (protocolFileName == null) {
-            return doFindProtocolFileName(absoluteRoot);
-        } else if (this.getClass().getResource(absoluteRoot + "/" + protocolFileName) != null) {
-            return protocolFileName;
+    @Transient
+    @JsonIgnore
+    public String getComputedProtocolFileName() {
+        if (getProtocolFileName() == null) {
+            return "Protocol.xls";
         } else {
-            return protocolFileName;
+            return getProtocolFileName();
         }
     }
 
@@ -712,7 +711,7 @@ public class Competition {
                 + ", competitionOrganizer=" + competitionOrganizer + ", competitionSite=" + competitionSite
                 + ", competitionCity=" + competitionCity + ", federation=" + federation + ", federationAddress="
                 + federationAddress + ", federationEMail=" + federationEMail + ", federationWebSite="
-                + federationWebSite + ", protocolFileName=" + protocolFileName
+                + federationWebSite + ", protocolFileName=" + getProtocolFileName()
                 + ", finalPackageTemplateFileName=" + finalPackageTemplateFileName
                 + ", ageGroupsFileName=" + ageGroupsFileName + ", enforce20kgRule="
                 + enforce20kgRule + ", masters=" + masters + ", mensTeamSize=" + mensTeamSize + ", womensTeamSize="
@@ -862,19 +861,19 @@ public class Competition {
         throw new RuntimeException("final package templates not found under " + absoluteRoot);
     }
 
-    private String doFindProtocolFileName(String absoluteRoot) {
-        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
-                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
-        for (Resource r : resourceList) {
-            logger.trace("checking {}", r.getFilePath());
-            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
-                return r.getFileName();
-            } else if (r.getFileName().startsWith("Protocol")) {
-                return r.getFileName();
-            }
-        }
-        throw new RuntimeException("result templates not found under " + absoluteRoot);
-    }
+//    private String doFindProtocolFileName(String absoluteRoot) {
+//        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
+//                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
+//        for (Resource r : resourceList) {
+//            logger.trace("checking {}", r.getFilePath());
+//            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
+//                return r.getFileName();
+//            } else if (r.getFileName().startsWith("Protocol")) {
+//                return r.getFileName();
+//            }
+//        }
+//        throw new RuntimeException("result templates not found under " + absoluteRoot);
+//    }
 
     /**
      * Compute a team-ranking for the specified PAthletes.
@@ -1146,5 +1145,12 @@ public class Competition {
         AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SMM);
 
         reportSMF(sortedMen, sortedWomen);
+    }
+
+    /**
+     * @return the protocolFileName
+     */
+    public String getProtocolFileName() {
+        return protocolFileName;
     }
 }
