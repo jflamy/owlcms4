@@ -16,8 +16,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.UI;
-
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -37,8 +35,8 @@ public class JXLSCards extends JXLSWorkbookStreamSource {
     @SuppressWarnings("unused")
     private final static Logger logger = LoggerFactory.getLogger(JXLSCards.class);
 
-    public JXLSCards(boolean excludeNotWeighed, UI ui) {
-        super(ui);
+    public JXLSCards() {
+        super();
     }
 
     @Override

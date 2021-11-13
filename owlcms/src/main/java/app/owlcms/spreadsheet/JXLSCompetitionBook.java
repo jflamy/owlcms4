@@ -44,12 +44,12 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     private AgeDivision ageDivision;
 
     public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
-        super(ui);
+        super();
     }
 
     public JXLSCompetitionBook(UI ui) {
         // by default, we exclude athletes who did not weigh in.
-        super(ui);
+        super();
     }
 
     @Override

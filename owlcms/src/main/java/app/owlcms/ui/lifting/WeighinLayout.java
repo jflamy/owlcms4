@@ -110,7 +110,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         StreamResource href = new StreamResource("startingWeights.xls", startingWeightsWriter);
         startingWeights = new Anchor(href, "");
 
-        JXLSCards cardsWriter = new JXLSCards(true, UI.getCurrent());
+        JXLSCards cardsWriter = new JXLSCards();
         StreamResource href1 = new StreamResource("athleteCards.xls", cardsWriter);
         cards = new Anchor(href1, "");
 

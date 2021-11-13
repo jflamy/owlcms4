@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.UI;
-
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.competition.Competition;
@@ -39,10 +37,8 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         tagLogger.setLevel(Level.ERROR);
     }
 
-//    private byte[] protocolTemplate;
-
-    public JXLSResultSheet(UI ui) {
-        super(ui);
+    public JXLSResultSheet() {
+        super();
     }
 
     @Override

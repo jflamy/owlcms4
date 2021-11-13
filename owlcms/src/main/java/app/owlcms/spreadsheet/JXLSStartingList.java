@@ -40,7 +40,7 @@ public class JXLSStartingList extends JXLSWorkbookStreamSource {
     }
 
     public JXLSStartingList(UI ui) {
-        super(ui);
+        super();
     }
 
     @Override

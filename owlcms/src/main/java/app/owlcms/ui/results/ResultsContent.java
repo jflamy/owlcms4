@@ -12,12 +12,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
+import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
@@ -59,6 +63,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSResultSheet;
+import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AthleteCrudGrid;
@@ -92,9 +97,9 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         themes.add("row-stripes");
 
         grid.addColumn("category").setHeader(Translator.translate("Category"));
-            
+
         grid.addColumn("total").setHeader(Translator.translate("Total"))
-            .setComparator(new WinningOrderComparator(Ranking.TOTAL, true));
+                .setComparator(new WinningOrderComparator(Ranking.TOTAL, true));
         grid.addColumn("totalRank").setHeader(Translator.translate("TotalRank"))
                 .setComparator(new WinningOrderComparator(Ranking.TOTAL, false));
 
@@ -130,11 +135,9 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         return grid;
     }
 
-    private Button download;
-    private Anchor groupResults;
+    private Button innerButton;
     private Group currentGroup;
-    private JXLSResultSheet xlsWriter;
-    private ComboBox<Resource> templateSelect;
+    private JXLSWorkbookStreamSource xlsWriter;
 
     private Checkbox medalsOnly;
 
@@ -361,33 +364,92 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         topBarGroupSelect.setWidth("8em");
         setGroupSelectionListener();
 
-        xlsWriter = new JXLSResultSheet(UI.getCurrent());
-        StreamResource href = new StreamResource("resultSheet.xls", xlsWriter);
-        groupResults = new Anchor(href, "");
-        groupResults.getStyle().set("margin-left", "1em");
-        download = new Button(getTranslation("GroupResults"), new Icon(VaadinIcon.DOWNLOAD_ALT));
-        groupResults.add(download);
+        Component gr = createResultsDownloadButton(
+                () -> {
+                    JXLSResultSheet rs = new JXLSResultSheet();
+                    rs.setGroup(currentGroup);
+                    return rs;
+                },
+                "resultSheet.xls", "GroupResults", "/templates/protocol",
+                Competition::getProtocolFileName,
+                Competition::setProtocolFileName);
 
-        templateSelect = new ComboBox<>();
+        HorizontalLayout buttons = new HorizontalLayout(gr);
+        buttons.setPadding(true);
+        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+
+        topBar.getStyle().set("flex", "100 1");
+        topBar.removeAll();
+        topBar.add(title, topBarGroupSelect, buttons);
+        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+        topBar.setFlexGrow(0.2, title);
+//        topBar.setSpacing(true);
+        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+    }
+
+    /**
+     * @param streamSourceSupplier      lambda that creates a JXLSWorkbookStreamSource and sets its filters
+     * @param templateFileName          stored in the database, will be selected in drop down by default
+     * @param buttonLabel               label used in top bar
+     * @param resourceDirectoryLocation where to look for templates
+     * @param fileNameGetter
+     * @param fileNameSetter
+     * @return
+     */
+    private Component createResultsDownloadButton(
+            Supplier<JXLSWorkbookStreamSource> streamSourceSupplier,
+            String templateFileName,
+            String buttonLabel,
+            String resourceDirectoryLocation,
+            Function<Competition, String> fileNameGetter,
+            BiConsumer<Competition, String> fileNameSetter) {
+
+        // supplier is a lambda that sets the filter values in the xls source
+        xlsWriter = streamSourceSupplier.get();
+        Anchor wrappedButton = new Anchor("", "");
+
+        EnhancedDialog dialog = new EnhancedDialog();
+
+        ComboBox<Resource> templateSelect = new ComboBox<>();
         templateSelect.setPlaceholder(getTranslation("AvailableTemplates"));
-        List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/protocol",
+        List<Resource> resourceList = new ResourceWalker().getResourceList(resourceDirectoryLocation,
                 ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
         templateSelect.setItems(resourceList);
         templateSelect.setValue(null);
         templateSelect.setWidth("15em");
         templateSelect.getStyle().set("margin-left", "1em");
-        setTemplateSelectionListener(resourceList);
+        try {
+            // Competition.getTemplateFileName()
+            // the getter should return a default if not set.
+            String curTemplateName = fileNameGetter.apply(Competition.getCurrent());
+            // searchMatch should always return something unless the directory is empty.
+            Resource found = searchMatch(resourceList, curTemplateName);
+            wrappedButton.setHref(new StreamResource(found != null ? found.getFileName() : "", xlsWriter));
 
-        HorizontalLayout buttons = new HorizontalLayout(groupResults);
-        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+            templateSelect.addValueChangeListener(e -> {
+                // Competition.setTemplateFileName(...)
+                fileNameSetter.accept(Competition.getCurrent(), e.getValue().getFileName());
+                CompetitionRepository.save(Competition.getCurrent());
+                wrappedButton.setHref(new StreamResource(e.getValue().getFileName(), xlsWriter));
+            });
+            templateSelect.setValue(found);
+        } catch (Exception e1) {
+            throw new RuntimeException(e1);
+        }
 
-        topBar.getStyle().set("flex", "100 1");
-        topBar.removeAll();
-        topBar.add(title, topBarGroupSelect, templateSelect, buttons);
-        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
-        topBar.setFlexGrow(0.2, title);
-//        topBar.setSpacing(true);
-        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+        wrappedButton.getStyle().set("margin-left", "1em");
+        innerButton = new Button(getTranslation(buttonLabel), new Icon(VaadinIcon.DOWNLOAD_ALT));
+        wrappedButton.add(innerButton);
+        wrappedButton.getElement().setAttribute("innerButton",
+                "results" + (xlsWriter.getGroup() != null ? "_" + xlsWriter.getGroup() : "_all") + ".xls");
+        
+        dialog.add(templateSelect, wrappedButton);
+
+        Button dialogOpen = new Button(Translator.translate(buttonLabel), new Icon(VaadinIcon.DOWNLOAD_ALT),
+                e -> {
+                    dialog.open();
+                });
+        return dialogOpen;
     }
 
     /**
@@ -453,10 +515,9 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             currentGroup = e.getValue();
             // the name of the resulting file is set as an attribute on the <a href tag that
             // surrounds
-            // the download button.
+            // the innerButton button.
             xlsWriter.setGroup(currentGroup);
-            groupResults.getElement().setAttribute("download",
-                    "results" + (currentGroup != null ? "_" + currentGroup : "_all") + ".xls");
+
         });
     }
 
@@ -494,25 +555,6 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             }
         }
         return found;
-    }
-
-    private void setTemplateSelectionListener(List<Resource> resourceList) {
-        try {
-            String curTemplateName = Competition.getCurrent().getProtocolFileName();
-            Resource found = searchMatch(resourceList, curTemplateName);
-            templateSelect.addValueChangeListener((e) -> {
-                Competition.getCurrent().setProtocolFileName(e.getValue().getFileName());
-//                try {
-//                    Competition.getCurrent().setProtocolTemplate(e.getValue().getByteArray());
-//                } catch (IOException e1) {
-//                    throw new RuntimeException(e1);
-//                }
-                CompetitionRepository.save(Competition.getCurrent());
-            });
-            templateSelect.setValue(found);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private void subscribeIfLifting(Group nGroup) {

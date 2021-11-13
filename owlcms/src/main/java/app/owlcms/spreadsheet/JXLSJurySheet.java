@@ -31,7 +31,7 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
     Logger logger = LoggerFactory.getLogger(JXLSJurySheet.class);
 
     public JXLSJurySheet(UI ui) {
-        super(ui);
+        super();
     }
 
     @Override

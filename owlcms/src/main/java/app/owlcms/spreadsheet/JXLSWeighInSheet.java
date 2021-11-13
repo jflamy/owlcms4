@@ -39,7 +39,7 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
     }
 
     public JXLSWeighInSheet(boolean excludeNotWeighed, UI ui) {
-        super(ui);
+        super();
     }
 
     @Override

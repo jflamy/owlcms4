@@ -33,6 +33,7 @@ import com.vaadin.flow.server.StreamResourceWriter;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -66,9 +67,11 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
     private Group group;
     private UI ui;
+    private List<Athlete> sortedAthletes;
+    private Category category;
 
-    public JXLSWorkbookStreamSource(UI ui) {
-        this.ui = ui;
+    public JXLSWorkbookStreamSource() {
+        this.ui = UI.getCurrent();
         this.setExcludeNotWeighed(true);
         init();
     }
@@ -239,8 +242,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         throw new IOException("no template found for : " + templateName + extension + " tried with suffix " + tryList);
     }
 
-    protected abstract List<Athlete> getSortedAthletes();
-
     protected void init() {
         setReportingBeans(new HashMap<String, Object>());
     }
@@ -271,5 +272,21 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
             }
             return compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
         }).collect(Collectors.toList()));
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public void setSortedAthletes(List<Athlete> sortedAthletes) {
+        this.sortedAthletes = sortedAthletes;
+    }
+
+    protected List<Athlete> getSortedAthletes() {
+        return sortedAthletes;
+    }
+
+    protected Category getCategory() {
+        return category;
     }
 }

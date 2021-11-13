@@ -104,7 +104,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         groupSelect.setItemLabelGenerator(Group::getName);
         groupSelect.setClearButtonVisible(true);
 
-        JXLSCards cardsWriter = new JXLSCards(true, UI.getCurrent());
+        JXLSCards cardsWriter = new JXLSCards();
         StreamResource href1 = new StreamResource("athleteCards.xls", cardsWriter);
         cards = new Anchor(href1, "");
 
