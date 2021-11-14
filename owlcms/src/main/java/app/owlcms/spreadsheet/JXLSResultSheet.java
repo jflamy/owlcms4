@@ -6,9 +6,7 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
-import java.io.InputStream;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Workbook;
@@ -16,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.competition.Competition;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -41,36 +39,48 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         super();
     }
 
-    @Override
-    public InputStream getTemplate(Locale locale) throws Exception {
-        Competition current = Competition.getCurrent();
-        logger.trace("current={}", current);
-        String protocolTemplateFileName = current.getProtocolFileName();
-        logger.trace("protocolTemplateFileName={}", protocolTemplateFileName);
-
-        int stripIndex = protocolTemplateFileName.indexOf("_");
-        if (stripIndex > 0) {
-            protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
-        }
-
-        stripIndex = protocolTemplateFileName.indexOf(".xls");
-        if (stripIndex > 0) {
-            protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
-        }
-
-        return getLocalizedTemplate("/templates/protocol/" + protocolTemplateFileName, ".xls", locale);
-    }
+//    @Override
+//    public InputStream getTemplate(Locale locale) throws Exception {
+//        Competition current = Competition.getCurrent();
+//        logger.trace("current={}", current);
+//        String protocolTemplateFileName = current.getProtocolFileName();
+//        logger.trace("protocolTemplateFileName={}", protocolTemplateFileName);
+//
+//        int stripIndex = protocolTemplateFileName.indexOf("_");
+//        if (stripIndex > 0) {
+//            protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
+//        }
+//
+//        stripIndex = protocolTemplateFileName.indexOf(".xls");
+//        if (stripIndex > 0) {
+//            protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
+//        }
+//
+//        return getLocalizedTemplate("/templates/protocol/" + protocolTemplateFileName, ".xls", locale);
+//    }
 
     @Override
     protected List<Athlete> getSortedAthletes() {
         final Group currentGroup =  getGroup();
+        Category currentCategory = getCategory();
         List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(currentGroup);
-
+        
         if (currentGroup != null) {
             List<Athlete> currentGroupAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
-                    .filter(a -> a.getGroup() != null ? a.getGroup().equals(currentGroup) : false)
+                    //filter(a -> (a.getGroup() != null ? a.getGroup().equals(currentGroup) : false) )
+                    .peek(a -> {
+                        logger.warn("(1) {} {} {}", a.getShortName(), a.getGroup() != null ? a.getGroup().getName() : "", currentGroup.getName());
+                    })
                     .collect(Collectors.toList());
             return currentGroupAthletes;
+        } if (currentCategory != null) {
+            List<Athlete> currentCategoryAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
+                    .peek(a -> {
+                        logger.warn("{} {} {}", a.getShortName(), a.getCategory() != null ? a.getCategory().getCode() : "", currentCategory.getCode());
+                    })
+                    .filter(a -> (a.getCategory() != null ? a.getCategory().getCode().equals(currentCategory.getCode()) : false) )
+                    .collect(Collectors.toList());
+            return currentCategoryAthletes;
         } else {
             return rankedAthletes;
         }

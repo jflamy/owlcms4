@@ -70,6 +70,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
     private List<Athlete> sortedAthletes;
     private Category category;
     private String templateFileName;
+    private InputStream inputStream;
 
     public JXLSWorkbookStreamSource() {
         this.ui = UI.getCurrent();
@@ -159,15 +160,21 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
     }
 
     public InputStream getTemplate(Locale locale) throws IOException, Exception {
+        if (inputStream != null) {
+            logger.warn("explicitly set template {}",inputStream);
+            return inputStream;
+        }
         InputStream resourceAsStream = ResourceWalker.getFileOrResource(getTemplateFileName());
         return resourceAsStream;
     }
     
     public String getTemplateFileName() {
+        logger.warn("getTemplateFileName {}", templateFileName);
         return templateFileName;
     }
     
     public void setTemplateFileName(String templateFileName) {
+        logger.warn("setTemplateFileName {}", templateFileName);
         this.templateFileName = templateFileName;
     }
 
@@ -300,5 +307,9 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
     protected Category getCategory() {
         return category;
+    }
+
+    public void setInputStream(InputStream is) {
+        this.inputStream = is;
     }
 }

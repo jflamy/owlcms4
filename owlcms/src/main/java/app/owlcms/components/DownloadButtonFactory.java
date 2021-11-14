@@ -1,5 +1,7 @@
 package app.owlcms.components;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -45,7 +47,7 @@ public class DownloadButtonFactory {
      * @param buttonLabel
      * @param buttonLabel               label used in top bar
      * @param outputFileName            first part of the downloaded file name (not dependent on template).
-     * @param dialogTitle               
+     * @param dialogTitle
      * @return
      */
     public DownloadButtonFactory(
@@ -71,9 +73,6 @@ public class DownloadButtonFactory {
     public Button createTopBarDownloadButton() {
         Button dialogOpen = new Button(dialogTitle, new Icon(VaadinIcon.DOWNLOAD_ALT),
                 e -> {
-                    // supplier is a lambda that sets the filter values in the xls source
-                    xlsWriter = streamSourceSupplier.get();
-                    logger.debug("filter present = {}", xlsWriter.getGroup());
                     EnhancedDialog dialog = createDialog();
                     dialog.open();
                 });
@@ -98,44 +97,54 @@ public class DownloadButtonFactory {
             // Competition.getTemplateFileName()
             // the getter should return a default if not set.
             String curTemplateName = fileNameGetter.apply(Competition.getCurrent());
+            logger.warn("curTemplateName {}", curTemplateName);
             // searchMatch should always return something unless the directory is empty.
             Resource found = searchMatch(resourceList, curTemplateName);
 
-            String name = found != null ? found.getFileName() : "";
-            logger.debug("setHref set {}",name);
-            wrappedButton.setHref(new StreamResource(name, xlsWriter));
-
             templateSelect.addValueChangeListener(e -> {
-                // Competition.setTemplateFileName(...)
-                String fileName = e.getValue().getFileName();
-                fileNameSetter.accept(Competition.getCurrent(), fileName);
+                try {
+                    // Competition.setTemplateFileName(...)
+                    String fileName = e.getValue().getFileName();
+                    fileNameSetter.accept(Competition.getCurrent(), fileName);
+                    xlsWriter = streamSourceSupplier.get();
+//
+//                    // supplier is a lambda that sets the template and the filter values in the xls source
+//                    Resource res = searchMatch(resourceList, curTemplateName);
+//                    logger.warn("resource found {}", found != null ? found.getFilePath() : null);
+//                    InputStream is;
+//
+//                    is = res.getStream();
+//                    xlsWriter.setInputStream(is);
+//                    logger.debug("filter present = {}", xlsWriter.getGroup());
+//
+//                    CompetitionRepository.save(Competition.getCurrent());
+//                    fileName = genHrefName();
+//                    logger.debug("setHref change {}", fileName);
+//                    wrappedButton.setHref(new StreamResource(fileName, xlsWriter));
+                } catch (Throwable e1) {
+                    e1.printStackTrace();
+                }
                 
-                // supplier is a lambda that sets the template and the filter values in the xls source
-                xlsWriter = streamSourceSupplier.get();
-                logger.debug("filter present = {}", xlsWriter.getGroup());
-                
-                CompetitionRepository.save(Competition.getCurrent());
-                fileName = genHrefName();
-                logger.debug("setHref change {}",fileName);
-                wrappedButton.setHref(new StreamResource(fileName, xlsWriter));
+                templateSelect.setValue(found);
             });
-            templateSelect.setValue(found);
+
         } catch (Exception e1) {
             throw new RuntimeException(e1);
         }
 
         wrappedButton.getStyle().set("margin-left", "1em");
         Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
-        logger.debug("adding dialog button {}",wrappedButton.getHref());
+        logger.debug("adding dialog button {}", wrappedButton.getHref());
         wrappedButton.add(innerButton);
-        innerButton.addClickListener(e -> dialog.close());
+        //innerButton.addClickListener(e -> dialog.close());
 
         dialog.add(templateSelect, wrappedButton);
         return dialog;
     }
 
     private String genHrefName() {
-        String fileName = outputFileName + (xlsWriter.getGroup() != null ? "_" + xlsWriter.getGroup() : "_all") + ".xls";
+        String fileName = outputFileName + (xlsWriter.getGroup() != null ? "_" + xlsWriter.getGroup() : "_all")
+                + ".xls";
         logger.debug(fileName);
         return fileName;
     }
