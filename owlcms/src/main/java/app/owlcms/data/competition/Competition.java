@@ -41,11 +41,8 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.PAthlete;
-import app.owlcms.ui.results.Resource;
 import app.owlcms.utils.DateTimeUtils;
-import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -329,14 +326,11 @@ public class Competition {
      * @return the result template file name
      * @throws IOException Signals that an I/O exception has occurred.
      */
-    public String getFinalPackageTemplateFileName() throws IOException {
-        String absoluteRoot = "/templates/competitionBook";
+    public String getComputedFinalPackageTemplateFileName() {
         if (finalPackageTemplateFileName == null) {
-            return doFindFinalPackageTemplateFileName(absoluteRoot);
-        } else if (this.getClass().getResource(absoluteRoot + "/" + finalPackageTemplateFileName) != null) {
-            return finalPackageTemplateFileName;
+            return "Total.xls";
         } else {
-            return doFindFinalPackageTemplateFileName(absoluteRoot);
+            return finalPackageTemplateFileName;
         }
     }
 
@@ -848,19 +842,19 @@ public class Competition {
         }, Thread.MIN_PRIORITY);
     }
 
-    private String doFindFinalPackageTemplateFileName(String absoluteRoot) {
-        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
-                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
-        for (Resource r : resourceList) {
-            logger.trace("checking {}", r.getFilePath());
-            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
-                return r.getFileName();
-            } else if (r.getFileName().startsWith("Total")) {
-                return r.getFileName();
-            }
-        }
-        throw new RuntimeException("final package templates not found under " + absoluteRoot);
-    }
+//    private String doFindFinalPackageTemplateFileName(String absoluteRoot) {
+//        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
+//                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
+//        for (Resource r : resourceList) {
+//            logger.trace("checking {}", r.getFilePath());
+//            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
+//                return r.getFileName();
+//            } else if (r.getFileName().startsWith("Total")) {
+//                return r.getFileName();
+//            }
+//        }
+//        throw new RuntimeException("final package templates not found under " + absoluteRoot);
+//    }
 
 //    private String doFindProtocolFileName(String absoluteRoot) {
 //        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
@@ -1176,5 +1170,12 @@ public class Competition {
      */
     public void setCardsFileName(String cardsFileName) {
         this.cardsFileName = cardsFileName;
+    }
+
+    /**
+     * @return the finalPackageTemplateFileName
+     */
+    public String getFinalPackageTemplateFileName() {
+        return finalPackageTemplateFileName;
     }
 }

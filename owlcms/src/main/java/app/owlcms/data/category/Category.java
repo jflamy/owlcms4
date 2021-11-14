@@ -244,7 +244,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     }
 
     public String getCode() {
-        return code;
+        return code != null ? code : "";
     }
 
     /**

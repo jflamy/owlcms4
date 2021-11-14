@@ -361,6 +361,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
         HorizontalLayout buttons = new HorizontalLayout(resultsButton);
         buttons.setPadding(true);
+        buttons.getStyle().set("margin-left", "5em");
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
         topBar.getStyle().set("flex", "100 1");

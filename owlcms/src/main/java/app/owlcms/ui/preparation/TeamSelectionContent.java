@@ -7,7 +7,6 @@
 
 package app.owlcms.ui.preparation;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -519,17 +518,13 @@ public class TeamSelectionContent extends VerticalLayout
 
     @SuppressWarnings("unused")
     private void setTemplateSelectionListener(List<Resource> resourceList) {
-        try {
-            String curTemplateName = Competition.getCurrent().getFinalPackageTemplateFileName();
-            Resource found = searchMatch(resourceList, curTemplateName);
-            templateSelect.addValueChangeListener((e) -> {
-                Competition.getCurrent().setFinalPackageTemplateFileName(e.getValue().getFileName());
-                CompetitionRepository.save(Competition.getCurrent());
-            });
-            templateSelect.setValue(found);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        String curTemplateName = Competition.getCurrent().getFinalPackageTemplateFileName();
+        Resource found = searchMatch(resourceList, curTemplateName);
+        templateSelect.addValueChangeListener((e) -> {
+            Competition.getCurrent().setFinalPackageTemplateFileName(e.getValue().getFileName());
+            CompetitionRepository.save(Competition.getCurrent());
+        });
+        templateSelect.setValue(found);
     }
 
     @Override
