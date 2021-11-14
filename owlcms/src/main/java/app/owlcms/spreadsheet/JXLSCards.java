@@ -40,11 +40,6 @@ public class JXLSCards extends JXLSWorkbookStreamSource {
     }
 
     @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/cards/CardTemplate", ".xls", locale);
-    }
-
-    @Override
     protected List<Athlete> getSortedAthletes() {
         if (getGroup() != null) {
             List<Athlete> registrationOrderCopy = AthleteSorter

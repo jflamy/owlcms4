@@ -134,6 +134,7 @@ public class ResourceWalker {
 
         suffix = "";
         result = getResourceAsStream(baseName + suffix + extension);
+        
         return result;
     }
 

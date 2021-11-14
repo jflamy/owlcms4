@@ -33,12 +33,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.components.ConfirmationDialog;
+import app.owlcms.components.DownloadButtonFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSStartingList;
 import app.owlcms.ui.lifting.UIEventProcessor;
@@ -63,10 +66,10 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
     private AppLayout appLayout;
     private ComboBox<Group> groupSelect;
     private Group group;
-    private Anchor cards;
     private Button cardsButton;
     private Anchor startingList;
     private Button startingListButton;
+    private DownloadButtonFactory cardsButtonFactory;
 
     /**
      * The layout is created before the content. This routine has created the content, we can refer to the content using
@@ -105,14 +108,10 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         groupSelect.setClearButtonVisible(true);
 
         JXLSCards cardsWriter = new JXLSCards();
-        StreamResource href1 = new StreamResource("athleteCards.xls", cardsWriter);
-        cards = new Anchor(href1, "");
 
         groupSelect.setValue(null);
-        cards.getElement().setAttribute("download", "cards" + (group != null ? "_" + group : "_all") + ".xls");
         groupSelect.addValueChangeListener(e -> {
             setContentGroup(e);
-            cards.getElement().setAttribute("download", "cards" + (group != null ? "_" + group : "_all") + ".xls");
         });
 
         JXLSStartingList startingListWriter = new JXLSStartingList(UI.getCurrent());
@@ -142,13 +141,8 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
                     }).open();
         });
         deleteAthletes.getElement().setAttribute("title", getTranslation("ClearLifts_forListed"));
-
-        cardsButton = new Button(getTranslation("AthleteCards"), new Icon(VaadinIcon.DOWNLOAD_ALT));
-        cardsButton.addClickListener((e) -> {
-            cardsWriter.setGroup(group);
-        });
-        cards.add(cardsButton);
-        cardsButton.setEnabled(true);
+        
+        cardsButton = createCardsButton(cardsWriter);
 
         Button resetCats = new Button(getTranslation("ResetCategories.ResetAthletes"), (e) -> {
             new ConfirmationDialog(
@@ -160,7 +154,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         });
         resetCats.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
 
-        HorizontalLayout buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts, startingList, cards,
+        HorizontalLayout buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts, startingList, cardsButton,
                 resetCats);
         buttons.setPadding(true);
         buttons.setSpacing(true);
@@ -173,6 +167,25 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
     }
 
+    private Button createCardsButton(JXLSCards cardsWriter) {
+        String resourceDirectoryLocation = "/templates/cards";
+        cardsButtonFactory = new DownloadButtonFactory(cardsWriter,
+                () -> {
+                    JXLSCards rs = new JXLSCards();
+                    rs.setTemplateFileName(resourceDirectoryLocation+"/"+Competition.getCurrent().getCardsFileName());
+                    logger.debug("setting filter={} template={}",group, rs.getTemplateFileName());
+                    rs.setGroup(group);
+                    return rs;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedCardsFileName,
+                Competition::setCardsFileName,
+                Translator.translate("AthleteCards"),
+                "cards",
+                Translator.translate("Download"));
+        return cardsButtonFactory.createTopBarDownloadButton();
+    }
+    
     protected void errorNotification() {
         Label content = new Label(getTranslation("Select_group_first"));
         content.getElement().setAttribute("theme", "error");
@@ -207,6 +220,8 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
     protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
         group = e.getValue();
         gridGroupFilter.setValue(e.getValue());
+        logger.debug("recreating button {}", group);
+        cardsButton = cardsButtonFactory.createTopBarDownloadButton();
     }
 
     private void clearLifts() {
@@ -253,5 +268,19 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
         AthleteRepository.resetParticipations();
         content.refreshCrudGrid();
+    }
+
+    /**
+     * @return the groupSelect
+     */
+    public ComboBox<Group> getGroupSelect() {
+        return groupSelect;
+    }
+
+    /**
+     * @param groupSelect the groupSelect to set
+     */
+    public void setGroupSelect(ComboBox<Group> groupSelect) {
+        this.groupSelect = groupSelect;
     }
 }

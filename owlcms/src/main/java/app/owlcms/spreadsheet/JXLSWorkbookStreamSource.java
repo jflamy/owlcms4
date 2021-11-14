@@ -69,6 +69,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
     private UI ui;
     private List<Athlete> sortedAthletes;
     private Category category;
+    private String templateFileName;
 
     public JXLSWorkbookStreamSource() {
         this.ui = UI.getCurrent();
@@ -157,7 +158,18 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         return tryList;
     }
 
-    abstract public InputStream getTemplate(Locale locale) throws IOException, Exception;
+    public InputStream getTemplate(Locale locale) throws IOException, Exception {
+        InputStream resourceAsStream = ResourceWalker.getFileOrResource(getTemplateFileName());
+        return resourceAsStream;
+    }
+    
+    public String getTemplateFileName() {
+        return templateFileName;
+    }
+    
+    public void setTemplateFileName(String templateFileName) {
+        this.templateFileName = templateFileName;
+    }
 
     public boolean isExcludeNotWeighed() {
         return excludeNotWeighed;

@@ -206,6 +206,7 @@ public class Competition {
     @Transient
     @JsonIgnore
     private boolean rankingsInvalid = true;
+    private String cardsFileName;
 
     synchronized public HashMap<String, Object> computeReportingInfo() {
         List<PAthlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(null, null);
@@ -1152,5 +1153,28 @@ public class Competition {
      */
     public String getProtocolFileName() {
         return protocolFileName;
+    }
+    
+    @Transient
+    @JsonIgnore
+    public String getComputedCardsFileName() {
+        if (cardsFileName == null) {
+            return "CardsTemplate.xls";
+        }
+        return cardsFileName;
+    }
+
+    /**
+     * @return the cardsFileName
+     */
+    public String getCardsFileName() {
+        return cardsFileName;
+    }
+
+    /**
+     * @param cardsFileName the cardsFileName to set
+     */
+    public void setCardsFileName(String cardsFileName) {
+        this.cardsFileName = cardsFileName;
     }
 }

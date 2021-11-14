@@ -271,7 +271,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
         HashMap<String, List<String>> params = new HashMap<>(parametersMap);
 
-        logger.debug("parsing query parameters");
+        logger.debug("parsing query parameters ResultContent");
         List<String> groupNames = params.get("group");
         if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
             String groupName = groupNames.get(0);
@@ -285,6 +285,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             params.remove("group");
         }
         params.remove("fop");
+        logger.debug("params {}",params);
 
         // change the URL to reflect group
         event.getUI().getPage().getHistory().replaceState(null,
@@ -381,8 +382,9 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
                 "/templates/protocol",
                 Competition::getComputedProtocolFileName,
                 Competition::setProtocolFileName,
-                Translator.translate("GroupResults"));
-        Button resultsButton = downloadButtonFactory.createResultsDownloadButton();
+                Translator.translate("GroupResults"),
+                "results", Translator.translate("Download"));
+        Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
         return resultsButton;
     }
 
@@ -447,7 +449,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         topBarGroupSelect.addValueChangeListener(e -> {
             setGridGroup(e.getValue());
             currentGroup = e.getValue();
-            downloadButtonFactory.createResultsDownloadButton();
+            downloadButtonFactory.createTopBarDownloadButton();
         });
     }
 
