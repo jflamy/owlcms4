@@ -4698,5 +4698,11 @@ public class Athlete {
             throw new RuntimeException(e);
         }
     }
+    
+    @Transient
+    @JsonIgnore
+    public String getCategoryCode() {
+        return category != null ? category.getCode() : "-";
+    }
 
 }

@@ -451,6 +451,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
                     JXLSResultSheet rs = new JXLSResultSheet();
 //                    rs.setAgeDivision(ageDivision);
 //                    rs.setAgeGroupPrefix(ageGroupPrefix);
+                    //FIXME category filtering missing.
                     logger.warn("setting category to {}",categoryValue);
                     rs.setCategory(categoryValue);
                     rs.setGroup(currentGroup);
