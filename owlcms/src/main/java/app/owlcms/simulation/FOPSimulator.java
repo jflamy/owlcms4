@@ -52,6 +52,7 @@ public class FOPSimulator implements Runnable {
     private static Random r = new Random(0);
 
     public static void runSimulation() {
+        logger.setLevel(Level.DEBUG);
         uiEventLogger.setLevel(Level.DEBUG);
         try {
             Thread.sleep(15000);
