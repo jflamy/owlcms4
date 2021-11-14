@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Level;
@@ -34,6 +35,9 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         jexlLogger.setLevel(Level.ERROR);
         tagLogger.setLevel(Level.ERROR);
     }
+
+    private AgeDivision ageDivision;
+    private String ageGroupPrefix;
 
     public JXLSResultSheet() {
         super();
@@ -61,29 +65,50 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 
     @Override
     protected List<Athlete> getSortedAthletes() {
-        final Group currentGroup =  getGroup();
+        final Group currentGroup = getGroup();
         Category currentCategory = getCategory();
+        AgeDivision currentAgeDivision = getAgeDivision();
+        String currentAgeGroupPrefix = getAgeGroupPrefix();
         List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(currentGroup);
-        
-        if (currentGroup != null) {
-            List<Athlete> currentGroupAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
-                    //filter(a -> (a.getGroup() != null ? a.getGroup().equals(currentGroup) : false) )
-                    .peek(a -> {
-                        logger.warn("(1) {} {} {}", a.getShortName(), a.getGroup() != null ? a.getGroup().getName() : "", currentGroup.getName());
+
+        List<Athlete> athletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
+                .filter(a -> (
+                        currentGroup != null 
+                            ? (a.getGroup() != null ?
+                                    a.getGroup().equals(currentGroup) 
+                                    : false)
+                            : true))
+                .filter(a -> (
+                        currentCategory != null
+                            ? (a.getCategory() != null ?
+                                    a.getCategory().getCode().equals(currentCategory.getCode())
+                                    : false)
+                            : true))
+                .filter(a -> {
+                    AgeDivision ageDivision2 = a.getAgeGroup().getAgeDivision();
+                    return (
+                        currentAgeDivision != null 
+                            ? (ageDivision2 != null ?
+                                    currentAgeDivision.equals(ageDivision2) 
+                                    : false)
+                            : true);
                     })
-                    .collect(Collectors.toList());
-            return currentGroupAthletes;
-        } if (currentCategory != null) {
-            List<Athlete> currentCategoryAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
-                    .peek(a -> {
-                        logger.warn("{} {} {}", a.getShortName(), a.getCategory() != null ? a.getCategory().getCode() : "", currentCategory.getCode());
+                .filter(a -> {
+                    String ageGroupPrefix2 = a.getAgeGroup().getCode();
+                    return (
+                        currentAgeGroupPrefix != null 
+                            ? (ageGroupPrefix2 != null ?
+                                    currentAgeGroupPrefix.equals(ageGroupPrefix2) 
+                                    : false)
+                            : true);
                     })
-                    .filter(a -> (a.getCategory() != null ? a.getCategory().getCode().equals(currentCategory.getCode()) : false) )
-                    .collect(Collectors.toList());
-            return currentCategoryAthletes;
-        } else {
-            return rankedAthletes;
-        }
+                .collect(Collectors.toList());
+        return athletes;
+
+    }
+
+    public String getAgeGroupPrefix() {
+        return ageGroupPrefix;
     }
 
     /*
@@ -98,6 +123,24 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         if (currentCompetitionSession == null) {
             zapCellPair(workbook, 3, 9);
         }
+    }
+
+    public void setAgeDivision(AgeDivision ageDivision) {
+        this.ageDivision = ageDivision;
+    }
+
+    /**
+     * @return the ageDivision
+     */
+    private AgeDivision getAgeDivision() {
+        return ageDivision;
+    }
+
+    /**
+     * @param ageGroupPrefix the ageGroupPrefix to set
+     */
+    public void setAgeGroupPrefix(String ageGroupPrefix) {
+        this.ageGroupPrefix = ageGroupPrefix;
     }
 
 }

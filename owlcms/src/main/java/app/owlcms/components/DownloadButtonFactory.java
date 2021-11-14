@@ -1,6 +1,5 @@
 package app.owlcms.components;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -97,9 +96,10 @@ public class DownloadButtonFactory {
             // Competition.getTemplateFileName()
             // the getter should return a default if not set.
             String curTemplateName = fileNameGetter.apply(Competition.getCurrent());
-            logger.warn("curTemplateName {}", curTemplateName);
+            logger.warn("(1) curTemplateName {}", curTemplateName);
             // searchMatch should always return something unless the directory is empty.
             Resource found = searchMatch(resourceList, curTemplateName);
+            logger.warn("(1) resource found {}", found != null ? found.getFilePath() : null);
 
             templateSelect.addValueChangeListener(e -> {
                 try {
@@ -107,26 +107,26 @@ public class DownloadButtonFactory {
                     String fileName = e.getValue().getFileName();
                     fileNameSetter.accept(Competition.getCurrent(), fileName);
                     xlsWriter = streamSourceSupplier.get();
-//
-//                    // supplier is a lambda that sets the template and the filter values in the xls source
-//                    Resource res = searchMatch(resourceList, curTemplateName);
-//                    logger.warn("resource found {}", found != null ? found.getFilePath() : null);
-//                    InputStream is;
-//
-//                    is = res.getStream();
-//                    xlsWriter.setInputStream(is);
-//                    logger.debug("filter present = {}", xlsWriter.getGroup());
-//
-//                    CompetitionRepository.save(Competition.getCurrent());
-//                    fileName = genHrefName();
-//                    logger.debug("setHref change {}", fileName);
-//                    wrappedButton.setHref(new StreamResource(fileName, xlsWriter));
+                    logger.warn("(2) xlsWriter {}", xlsWriter);
+
+                    // supplier is a lambda that sets the template and the filter values in the xls source
+                    Resource res = searchMatch(resourceList, curTemplateName);
+                    logger.warn("(2) resource found {}", found != null ? found.getFilePath() : null);
+                    InputStream is;
+
+                    is = res.getStream();
+                    xlsWriter.setInputStream(is);
+                    logger.debug("(2) filter present = {}", xlsWriter.getGroup());
+
+                    CompetitionRepository.save(Competition.getCurrent());
+                    fileName = genHrefName();
+                    logger.debug("(2) setHref change {}", fileName);
+                    wrappedButton.setHref(new StreamResource(fileName, xlsWriter));
                 } catch (Throwable e1) {
                     e1.printStackTrace();
                 }
-                
-                templateSelect.setValue(found);
             });
+            templateSelect.setValue(found);
 
         } catch (Exception e1) {
             throw new RuntimeException(e1);
@@ -136,7 +136,7 @@ public class DownloadButtonFactory {
         Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
         logger.debug("adding dialog button {}", wrappedButton.getHref());
         wrappedButton.add(innerButton);
-        //innerButton.addClickListener(e -> dialog.close());
+        innerButton.addClickListener(e -> dialog.close());
 
         dialog.add(templateSelect, wrappedButton);
         return dialog;

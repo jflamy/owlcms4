@@ -449,9 +449,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
                 () -> {
                     JXLSResultSheet rs = new JXLSResultSheet();
-//                    rs.setAgeDivision(ageDivision);
-//                    rs.setAgeGroupPrefix(ageGroupPrefix);
-                    //FIXME category filtering missing.
+                    rs.setAgeDivision(ageDivision);
+                    rs.setAgeGroupPrefix(ageGroupPrefix);
                     logger.warn("setting category to {}",categoryValue);
                     rs.setCategory(categoryValue);
                     rs.setGroup(currentGroup);

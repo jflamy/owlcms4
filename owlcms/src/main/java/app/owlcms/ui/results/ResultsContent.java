@@ -348,7 +348,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         title.add();
         title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
         
-        Button resultsButton = createDownloadButton();
+        Button resultsButton = createGroupResultsDownloadButton();
 
         topBarGroupSelect = new ComboBox<>();
         topBarGroupSelect.setPlaceholder(getTranslation("Group"));
@@ -373,7 +373,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
     }
 
-    private Button createDownloadButton() {
+    private Button createGroupResultsDownloadButton() {
         downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
                 () -> {
                     JXLSResultSheet rs = new JXLSResultSheet();
