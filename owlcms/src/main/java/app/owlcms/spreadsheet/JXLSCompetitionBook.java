@@ -6,10 +6,7 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Sheet;
@@ -52,26 +49,6 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
         super();
     }
 
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        Competition current = Competition.getCurrent();
-        String protocolTemplateFileName = current.getFinalPackageTemplateFileName();
-
-        int stripIndex;
-        stripIndex = protocolTemplateFileName.indexOf(".xlsx");
-        if (stripIndex > 0) {
-            protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
-            return getLocalizedTemplate("/templates/competitionBook/" + protocolTemplateFileName, ".xlsx", locale);
-        }
-
-        stripIndex = protocolTemplateFileName.indexOf(".xls");
-        if (stripIndex > 0) {
-            protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
-            return getLocalizedTemplate("/templates/competitionBook/" + protocolTemplateFileName, ".xls", locale);
-        }
-
-        throw new RuntimeException("template " + protocolTemplateFileName + " not found");
-    }
 
     @Override
     protected void configureTransformer(XLSTransformer transformer) {

@@ -204,6 +204,7 @@ public class Competition {
     @JsonIgnore
     private boolean rankingsInvalid = true;
     private String cardsFileName;
+    private String startingListFileName;
 
     synchronized public HashMap<String, Object> computeReportingInfo() {
         List<PAthlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(null, null);
@@ -1177,5 +1178,23 @@ public class Competition {
      */
     public String getFinalPackageTemplateFileName() {
         return finalPackageTemplateFileName;
+    }
+    
+    public void setStartingListFileName(String startingListFileName) {
+        this.startingListFileName = startingListFileName;
+    }
+
+    /**
+     * @return the startingListFileName
+     */
+    public String getStartingListFileName() {
+        return startingListFileName;
+    }
+    
+    public String getComputedStartingListFileName() {
+        if (startingListFileName == null) {
+            return "StartSheetTemplate.xls";
+        }
+        return startingListFileName;
     }
 }

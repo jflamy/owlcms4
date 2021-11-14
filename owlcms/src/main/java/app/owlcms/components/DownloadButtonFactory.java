@@ -96,10 +96,10 @@ public class DownloadButtonFactory {
             // Competition.getTemplateFileName()
             // the getter should return a default if not set.
             String curTemplateName = fileNameGetter.apply(Competition.getCurrent());
-            logger.warn("(1) curTemplateName {}", curTemplateName);
+            logger.debug("(1) curTemplateName {}", curTemplateName);
             // searchMatch should always return something unless the directory is empty.
             Resource found = searchMatch(resourceList, curTemplateName);
-            logger.warn("(1) resource found {}", found != null ? found.getFilePath() : null);
+            logger.debug("(1) template found {}", found != null ? found.getFilePath() : null);
 
             templateSelect.addValueChangeListener(e -> {
                 try {
@@ -107,14 +107,13 @@ public class DownloadButtonFactory {
                     String fileName = e.getValue().getFileName();
                     fileNameSetter.accept(Competition.getCurrent(), fileName);
                     xlsWriter = streamSourceSupplier.get();
-                    logger.warn("(2) xlsWriter {}", xlsWriter);
+                    logger.debug("(2) xlsWriter {} {}", xlsWriter, fileName);
 
                     // supplier is a lambda that sets the template and the filter values in the xls source
-                    Resource res = searchMatch(resourceList, curTemplateName);
-                    logger.warn("(2) resource found {}", found != null ? found.getFilePath() : null);
-                    InputStream is;
-
-                    is = res.getStream();
+                    Resource res = searchMatch(resourceList, fileName);
+                    logger.debug("(2) template found {}", res != null ? res.getFileName() : null);
+                   
+                    InputStream is = res.getStream();
                     xlsWriter.setInputStream(is);
                     logger.debug("(2) filter present = {}", xlsWriter.getGroup());
 
@@ -153,6 +152,7 @@ public class DownloadButtonFactory {
         Resource found = null;
         for (Resource curResource : resourceList) {
             String fileName = curResource.getFileName();
+            logger.debug("comparing {} {}",fileName,curTemplateName);
             if (fileName.equals(curTemplateName)) {
                 found = curResource;
                 break;

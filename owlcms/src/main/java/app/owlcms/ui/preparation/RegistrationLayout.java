@@ -15,14 +15,11 @@ import com.github.appreciated.app.layout.component.applayout.AppLayout;
 import com.github.appreciated.app.layout.component.applayout.LeftLayouts;
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.HasElement;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -30,7 +27,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.components.DownloadButtonFactory;
@@ -67,7 +63,6 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
     private ComboBox<Group> groupSelect;
     private Group group;
     private Button cardsButton;
-    private Anchor startingList;
     private Button startingListButton;
     private DownloadButtonFactory cardsButtonFactory;
 
@@ -107,19 +102,10 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         groupSelect.setItemLabelGenerator(Group::getName);
         groupSelect.setClearButtonVisible(true);
 
-        JXLSCards cardsWriter = new JXLSCards();
-
         groupSelect.setValue(null);
         groupSelect.addValueChangeListener(e -> {
             setContentGroup(e);
         });
-
-        JXLSStartingList startingListWriter = new JXLSStartingList(UI.getCurrent());
-        StreamResource href2 = new StreamResource("startingList.xls", startingListWriter);
-        startingList = new Anchor(href2, "");
-        startingListButton = new Button(getTranslation("StartingList"), new Icon(VaadinIcon.DOWNLOAD_ALT));
-        startingList.add(startingListButton);
-        startingListButton.setEnabled(true);
 
         Button drawLots = new Button(getTranslation("DrawLotNumbers"), (e) -> {
             drawLots();
@@ -142,7 +128,11 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         });
         deleteAthletes.getElement().setAttribute("title", getTranslation("ClearLifts_forListed"));
         
+        JXLSCards cardsWriter = new JXLSCards();
+        JXLSStartingList startingListWriter = new JXLSStartingList();
+        
         cardsButton = createCardsButton(cardsWriter);
+        startingListButton = createStartingListButton(startingListWriter);
 
         Button resetCats = new Button(getTranslation("ResetCategories.ResetAthletes"), (e) -> {
             new ConfirmationDialog(
@@ -154,7 +144,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         });
         resetCats.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
 
-        HorizontalLayout buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts, startingList, cardsButton,
+        HorizontalLayout buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts, startingListButton, cardsButton,
                 resetCats);
         buttons.setPadding(true);
         buttons.setSpacing(true);
@@ -169,19 +159,39 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
 
     private Button createCardsButton(JXLSCards cardsWriter) {
         String resourceDirectoryLocation = "/templates/cards";
+        String title = Translator.translate("AthleteCards");
+        String downloadedFilePrefix = "cards";
         cardsButtonFactory = new DownloadButtonFactory(cardsWriter,
                 () -> {
                     JXLSCards rs = new JXLSCards();
-                    rs.setTemplateFileName(resourceDirectoryLocation+"/"+Competition.getCurrent().getCardsFileName());
-                    logger.debug("setting filter={} template={}",group, rs.getTemplateFileName());
                     rs.setGroup(group);
                     return rs;
                 },
                 resourceDirectoryLocation,
                 Competition::getComputedCardsFileName,
                 Competition::setCardsFileName,
-                Translator.translate("AthleteCards"),
-                "cards",
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return cardsButtonFactory.createTopBarDownloadButton();
+    }
+    
+    private Button createStartingListButton(JXLSStartingList startingListWriter) {
+        String resourceDirectoryLocation = "/templates/start";
+        String title = Translator.translate("StartingList");
+        String downloadedFilePrefix = "startingList";
+
+        cardsButtonFactory = new DownloadButtonFactory(startingListWriter,
+                () -> {
+                    JXLSStartingList rs = new JXLSStartingList();
+                    rs.setGroup(group);
+                    return rs;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedStartingListFileName,
+                Competition::setStartingListFileName,
+                title,
+                downloadedFilePrefix,
                 Translator.translate("Download"));
         return cardsButtonFactory.createTopBarDownloadButton();
     }

@@ -161,7 +161,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
     public InputStream getTemplate(Locale locale) throws IOException, Exception {
         if (inputStream != null) {
-            logger.warn("explicitly set template {}",inputStream);
+            logger.debug("explicitly set template {}",inputStream);
             return inputStream;
         }
         InputStream resourceAsStream = ResourceWalker.getFileOrResource(getTemplateFileName());
@@ -169,12 +169,12 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
     }
     
     public String getTemplateFileName() {
-        logger.warn("getTemplateFileName {}", templateFileName);
+        logger.debug("getTemplateFileName {}", templateFileName);
         return templateFileName;
     }
     
     public void setTemplateFileName(String templateFileName) {
-        logger.warn("setTemplateFileName {}", templateFileName);
+        logger.debug("setTemplateFileName {}", templateFileName);
         this.templateFileName = templateFileName;
     }
 

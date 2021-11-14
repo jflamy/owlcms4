@@ -43,26 +43,6 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         super();
     }
 
-//    @Override
-//    public InputStream getTemplate(Locale locale) throws Exception {
-//        Competition current = Competition.getCurrent();
-//        logger.trace("current={}", current);
-//        String protocolTemplateFileName = current.getProtocolFileName();
-//        logger.trace("protocolTemplateFileName={}", protocolTemplateFileName);
-//
-//        int stripIndex = protocolTemplateFileName.indexOf("_");
-//        if (stripIndex > 0) {
-//            protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
-//        }
-//
-//        stripIndex = protocolTemplateFileName.indexOf(".xls");
-//        if (stripIndex > 0) {
-//            protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
-//        }
-//
-//        return getLocalizedTemplate("/templates/protocol/" + protocolTemplateFileName, ".xls", locale);
-//    }
-
     @Override
     protected List<Athlete> getSortedAthletes() {
         final Group currentGroup = getGroup();

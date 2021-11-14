@@ -6,15 +6,10 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
-
-import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -39,13 +34,9 @@ public class JXLSStartingList extends JXLSWorkbookStreamSource {
         tagLogger.setLevel(Level.ERROR);
     }
 
-    public JXLSStartingList(UI ui) {
+    public JXLSStartingList() {
         super();
-    }
-
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/start/StartSheetTemplate", ".xls", locale);
+        this.setExcludeNotWeighed(false);
     }
 
     @Override
