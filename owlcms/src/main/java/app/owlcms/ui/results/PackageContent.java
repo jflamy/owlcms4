@@ -457,8 +457,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
                     return rs;
                 },
                 "/templates/protocol",
-                Competition::getComputedProtocolFileName,
-                Competition::setProtocolFileName,
+                Competition::getComputedProtocolTemplateFileName,
+                Competition::setProtocolTemplateFileName,
                 Translator.translate("CategoryResults"),
                 "results", Translator.translate("Download"));
         Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();

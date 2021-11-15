@@ -108,7 +108,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         grid.addColumn(new NumberRenderer<>(Athlete::getRobi, "%.3f", OwlcmsSession.getLocale(), "-"), "robi")
                 .setHeader(Translator.translate("robi")).setComparator(new WinningOrderComparator(Ranking.ROBI, true));
 
-        String protocolFileName = Competition.getCurrent().getProtocolFileName();
+        String protocolFileName = Competition.getCurrent().getProtocolTemplateFileName();
         if (protocolFileName != null && (protocolFileName.toLowerCase().contains("fhq"))) {
             // historical
             grid.addColumn(
@@ -381,8 +381,8 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
                     return rs;
                 },
                 "/templates/protocol",
-                Competition::getComputedProtocolFileName,
-                Competition::setProtocolFileName,
+                Competition::getComputedProtocolTemplateFileName,
+                Competition::setProtocolTemplateFileName,
                 Translator.translate("GroupResults"),
                 "results", Translator.translate("Download"));
         Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();

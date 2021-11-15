@@ -14,8 +14,6 @@ import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.UI;
-
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -30,7 +28,7 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 
     Logger logger = LoggerFactory.getLogger(JXLSJurySheet.class);
 
-    public JXLSJurySheet(UI ui) {
+    public JXLSJurySheet() {
         super();
     }
 

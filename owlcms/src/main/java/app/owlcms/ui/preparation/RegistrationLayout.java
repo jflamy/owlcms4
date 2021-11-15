@@ -17,7 +17,6 @@ import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
@@ -64,7 +63,6 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
     private Group group;
     private Button cardsButton;
     private Button startingListButton;
-    private DownloadButtonFactory cardsButtonFactory;
 
     /**
      * The layout is created before the content. This routine has created the content, we can refer to the content using
@@ -161,15 +159,15 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         String resourceDirectoryLocation = "/templates/cards";
         String title = Translator.translate("AthleteCards");
         String downloadedFilePrefix = "cards";
-        cardsButtonFactory = new DownloadButtonFactory(cardsWriter,
+        DownloadButtonFactory cardsButtonFactory = new DownloadButtonFactory(cardsWriter,
                 () -> {
                     JXLSCards rs = new JXLSCards();
                     rs.setGroup(group);
                     return rs;
                 },
                 resourceDirectoryLocation,
-                Competition::getComputedCardsFileName,
-                Competition::setCardsFileName,
+                Competition::getComputedCardsTemplateFileName,
+                Competition::setCardsTemplateFileName,
                 title,
                 downloadedFilePrefix,
                 Translator.translate("Download"));
@@ -181,19 +179,19 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         String title = Translator.translate("StartingList");
         String downloadedFilePrefix = "startingList";
 
-        cardsButtonFactory = new DownloadButtonFactory(startingListWriter,
+        DownloadButtonFactory startingListFactory = new DownloadButtonFactory(startingListWriter,
                 () -> {
                     JXLSStartingList rs = new JXLSStartingList();
                     rs.setGroup(group);
                     return rs;
                 },
                 resourceDirectoryLocation,
-                Competition::getComputedStartingListFileName,
-                Competition::setStartingListFileName,
+                Competition::getComputedStartListTemplateFileName,
+                Competition::setStartListTemplateFileName,
                 title,
                 downloadedFilePrefix,
                 Translator.translate("Download"));
-        return cardsButtonFactory.createTopBarDownloadButton();
+        return startingListFactory.createTopBarDownloadButton();
     }
     
     protected void errorNotification() {
@@ -230,8 +228,6 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
     protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
         group = e.getValue();
         gridGroupFilter.setValue(e.getValue());
-        logger.debug("recreating button {}", group);
-        cardsButton = cardsButtonFactory.createTopBarDownloadButton();
     }
 
     private void clearLifts() {

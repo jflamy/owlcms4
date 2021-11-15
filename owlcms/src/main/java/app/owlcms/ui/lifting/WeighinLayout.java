@@ -15,14 +15,10 @@ import com.github.appreciated.app.layout.component.applayout.AppLayout;
 import com.github.appreciated.app.layout.component.applayout.LeftLayouts;
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.HasElement;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -30,17 +26,19 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.server.StreamResource;
 
+import app.owlcms.components.DownloadButtonFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
-import app.owlcms.init.OwlcmsSession;
+import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSJurySheet;
+import app.owlcms.spreadsheet.JXLSStartingList;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
@@ -63,11 +61,8 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
     private AppLayout appLayout;
     private ComboBox<Group> groupSelect;
     private Group group;
-    private Anchor startingWeights;
     private Button startingWeightsButton;
-    private Anchor cards;
     private Button cardsButton;
-    private Anchor jury;
     private Button juryButton;
 
     /**
@@ -106,38 +101,14 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         groupSelect.setItemLabelGenerator(Group::getName);
         groupSelect.setClearButtonVisible(true);
 
-        JXLSWeighInSheet startingWeightsWriter = new JXLSWeighInSheet(true, UI.getCurrent());
-        StreamResource href = new StreamResource("startingWeights.xls", startingWeightsWriter);
-        startingWeights = new Anchor(href, "");
 
         JXLSCards cardsWriter = new JXLSCards();
-        StreamResource href1 = new StreamResource("athleteCards.xls", cardsWriter);
-        cards = new Anchor(href1, "");
-
-        JXLSJurySheet juryWriter = new JXLSJurySheet(UI.getCurrent());
-        StreamResource href2 = new StreamResource("jury.xls", juryWriter);
-        jury = new Anchor(href2, "");
-
-        OwlcmsSession.withFop((fop) -> {
-            groupSelect.setValue(null);
-            startingWeights.getElement().setAttribute("download",
-                    "startingWeights" + (group != null ? "_" + group : "_all") + ".xls");
-            cards.getElement().setAttribute("download", "cards" + (group != null ? "_" + group : "_all") + ".xls");
-        });
-        groupSelect.addValueChangeListener(e -> {
-            setContentGroup(e);
-
-            cardsWriter.setGroup(e.getValue());
-            startingWeightsWriter.setGroup(e.getValue());
-            juryWriter.setGroup(e.getValue());
-
-            startingWeightsButton.setEnabled(e.getValue() != null);
-            juryButton.setEnabled(e.getValue() != null);
-            startingWeights.getElement().setAttribute("download",
-                    "startingWeights" + (group != null ? "_" + group : "_all") + ".xls");
-            cards.getElement().setAttribute("download", "cards" + (group != null ? "_" + group : "_all") + ".xls");
-            jury.getElement().setAttribute("download", "jury" + (group != null ? "_" + group : "_all") + ".xls");
-        });
+        JXLSJurySheet juryWriter = new JXLSJurySheet();
+        JXLSWeighInSheet startingWeightsWriter = new JXLSWeighInSheet();
+        
+        cardsButton = createCardsButton(cardsWriter);
+        startingWeightsButton = createStartingWeightsButton(startingWeightsWriter);
+        juryButton = createJuryButton(juryWriter);
 
         Button start = new Button(getTranslation("GenerateStartNumbers"), (e) -> {
             generateStartNumbers();
@@ -146,19 +117,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
             clearStartNumbers();
         });
 
-        String startingWeightsSheetTranslation = getTranslation("StartingWeightsSheet");
-        startingWeightsButton = new Button(startingWeightsSheetTranslation, new Icon(VaadinIcon.DOWNLOAD_ALT));
-        startingWeights.add(startingWeightsButton);
-
-        cardsButton = new Button(getTranslation("AthleteCards"), new Icon(VaadinIcon.DOWNLOAD_ALT));
-        cards.add(cardsButton);
-        cardsButton.setEnabled(true);
-
-        juryButton = new Button(getTranslation("Jury"), new Icon(VaadinIcon.DOWNLOAD_ALT));
-        jury.add(juryButton);
-        juryButton.setEnabled(true);
-
-        HorizontalLayout buttons = new HorizontalLayout(start, clear, startingWeights, cards, jury);
+        HorizontalLayout buttons = new HorizontalLayout(start, clear, startingWeightsButton, cardsButton, juryButton);
         buttons.setPadding(true);
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
@@ -168,6 +127,65 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         topBar.add(title, groupSelect, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+    }
+    
+    private Button createCardsButton(JXLSCards cardsWriter) {
+        String resourceDirectoryLocation = "/templates/cards";
+        String title = Translator.translate("AthleteCards");
+        String downloadedFilePrefix = "cards";
+        DownloadButtonFactory cardsButtonFactory = new DownloadButtonFactory(cardsWriter,
+                () -> {
+                    JXLSCards rs = new JXLSCards();
+                    rs.setGroup(group);
+                    return rs;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedCardsTemplateFileName,
+                Competition::setCardsTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return cardsButtonFactory.createTopBarDownloadButton();
+    }
+    
+    private Button createStartingWeightsButton(JXLSWeighInSheet weighinListWriter) {
+        String resourceDirectoryLocation = "/templates/weighin";
+        String title = Translator.translate("StartingWeightsSheet");
+        String downloadedFilePrefix = "startingWeights";
+
+        DownloadButtonFactory startingWeightsButton = new DownloadButtonFactory(weighinListWriter,
+                () -> {
+                    JXLSWeighInSheet rs = new JXLSWeighInSheet();
+                    rs.setGroup(group);
+                    return rs;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedStartingWeightsSheetTemplateFileName,
+                Competition::setStartingWeightsSheetTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return startingWeightsButton.createTopBarDownloadButton();
+    }
+    
+    private Button createJuryButton(JXLSJurySheet juryWriter) {
+        String resourceDirectoryLocation = "/templates/jury";
+        String title = Translator.translate("Jury");
+        String downloadedFilePrefix = "jury";
+
+        DownloadButtonFactory startingWeightsButton = new DownloadButtonFactory(juryWriter,
+                () -> {
+                    JXLSStartingList rs = new JXLSStartingList();
+                    rs.setGroup(group);
+                    return rs;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedJuryTemplateFileName,
+                Competition::setJuryTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return startingWeightsButton.createTopBarDownloadButton();
     }
 
     protected void errorNotification() {

@@ -135,13 +135,9 @@ public class Competition {
 
     private String federationAddress;
     private String federationEMail = "";
-
-//    @Lob
-//    private byte[] finalPackageTemplate;
-
     private String federationWebSite;
 
-    private String finalPackageTemplateFileName;
+
 
     /**
      * In a mixed group, call all female lifters then all male lifters
@@ -165,10 +161,7 @@ public class Competition {
     @Column(columnDefinition = "integer default 10")
     private Integer mensTeamSize = 10;
 
-//    @Lob
-//    private byte[] protocolTemplate;
 
-    private String protocolFileName;
 
     @Transient
     private HashMap<String, Object> reportingBeans = new HashMap<>();
@@ -203,8 +196,13 @@ public class Competition {
     @Transient
     @JsonIgnore
     private boolean rankingsInvalid = true;
-    private String cardsFileName;
-    private String startingListFileName;
+    
+    private String protocolTemplateFileName;
+    private String cardsTemplateFileName;
+    private String startListTemplateFileName;
+    private String juryTemplateFileName;
+    private String startingWeightsSheetTemplateFileName;
+    private String finalPackageTemplateFileName;
 
     synchronized public HashMap<String, Object> computeReportingInfo() {
         List<PAthlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(null, null);
@@ -232,6 +230,13 @@ public class Competition {
 
     public String getAgeGroupsFileName() {
         return ageGroupsFileName;
+    }
+
+    /**
+     * @return the cardsTemplateFileName
+     */
+    public String getCardsTemplateFileName() {
+        return cardsTemplateFileName;
     }
 
     /**
@@ -285,6 +290,76 @@ public class Competition {
         return competitionSite;
     }
 
+    @Transient
+    @JsonIgnore
+    public String getComputedCardsTemplateFileName() {
+        if (cardsTemplateFileName == null) {
+            return "CardTemplate.xls";
+        }
+        return cardsTemplateFileName;
+    }
+
+    /**
+     * Gets the result template file name.
+     *
+     * @return the result template file name
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
+    public String getComputedFinalPackageTemplateFileName() {
+        if (finalPackageTemplateFileName == null) {
+            return "Total.xls";
+        } else {
+            return finalPackageTemplateFileName;
+        }
+    }
+
+    @Transient
+    @JsonIgnore
+    public String getComputedJuryTemplateFileName() {
+        if (juryTemplateFileName == null) {
+            return "JurySheetTemplate.xls";
+        }
+        return juryTemplateFileName;
+    }
+
+    /**
+     * Gets the protocol file name.
+     *
+     * @return the protocol file name
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
+    @Transient
+    @JsonIgnore
+    public String getComputedProtocolTemplateFileName() {
+        if (getProtocolTemplateFileName() == null) {
+            return "Protocol.xls";
+        } else {
+            return getProtocolTemplateFileName();
+        }
+    }
+
+//    synchronized public List<Athlete> getGlobalTotalRanking(Gender gender) {
+//        return getListOrElseRecompute(gender == Gender.F ? "wTot" : "mTot");
+//    }
+
+    @Transient
+    @JsonIgnore
+    public String getComputedStartListTemplateFileName() {
+        if (startListTemplateFileName == null) {
+            return "StartSheetTemplate.xls";
+        }
+        return startListTemplateFileName;
+    }
+
+    @Transient
+    @JsonIgnore
+    public String getComputedStartingWeightsSheetTemplateFileName() {
+        if (startingWeightsSheetTemplateFileName == null) {
+            return "WeighInSheetTemplate.xls";
+        }
+        return startingWeightsSheetTemplateFileName;
+    }
+
     /**
      * Gets the federation.
      *
@@ -322,22 +397,11 @@ public class Competition {
     }
 
     /**
-     * Gets the result template file name.
-     *
-     * @return the result template file name
-     * @throws IOException Signals that an I/O exception has occurred.
+     * @return the finalPackageTemplateFileName
      */
-    public String getComputedFinalPackageTemplateFileName() {
-        if (finalPackageTemplateFileName == null) {
-            return "Total.xls";
-        } else {
-            return finalPackageTemplateFileName;
-        }
+    public String getFinalPackageTemplateFileName() {
+        return finalPackageTemplateFileName;
     }
-
-//    synchronized public List<Athlete> getGlobalTotalRanking(Gender gender) {
-//        return getListOrElseRecompute(gender == Gender.F ? "wTot" : "mTot");
-//    }
 
     @Transient
     @JsonIgnore
@@ -361,6 +425,13 @@ public class Competition {
      */
     public Integer getInvitedIfBornBefore() {
         return 0;
+    }
+
+    /**
+     * @return the juryTemplateFileName
+     */
+    public String getJuryTemplateFileName() {
+        return juryTemplateFileName;
     }
 
     @SuppressWarnings("unchecked")
@@ -408,25 +479,30 @@ public class Competition {
     }
 
     /**
-     * Gets the protocol file name.
-     *
-     * @return the protocol file name
-     * @throws IOException Signals that an I/O exception has occurred.
+     * @return the protocolTemplateFileName
      */
-    @Transient
-    @JsonIgnore
-    public String getComputedProtocolFileName() {
-        if (getProtocolFileName() == null) {
-            return "Protocol.xls";
-        } else {
-            return getProtocolFileName();
-        }
+    public String getProtocolTemplateFileName() {
+        return protocolTemplateFileName;
     }
 
     @Transient
     @JsonIgnore
     public HashMap<String, Object> getReportingBeans() {
         return reportingBeans;
+    }
+
+    /**
+     * @return the startListTemplateFileName
+     */
+    public String getStartListTemplateFileName() {
+        return startListTemplateFileName;
+    }
+
+    /**
+     * @return the startingWeightsSheetTemplateFileName
+     */
+    public String getStartingWeightsSheetTemplateFileName() {
+        return startingWeightsSheetTemplateFileName;
     }
 
     @Transient
@@ -534,6 +610,13 @@ public class Competition {
 
     public void setAnnouncerLiveDecisions(boolean announcerLiveDecisions) {
         this.announcerLiveDecisions = announcerLiveDecisions;
+    }
+
+    /**
+     * @param cardsTemplateFileName the cardsTemplateFileName to set
+     */
+    public void setCardsTemplateFileName(String cardsFileName) {
+        this.cardsTemplateFileName = cardsFileName;
     }
 
     /**
@@ -646,6 +729,10 @@ public class Competition {
     public void setInvitedIfBornBefore(Integer invitedIfBornBefore) {
     }
 
+    public void setJuryTemplateFileName(String juryTemplateFileName) {
+        this.juryTemplateFileName = juryTemplateFileName;
+    }
+
     public void setMasters(boolean masters) {
         this.masters = masters;
     }
@@ -654,6 +741,34 @@ public class Competition {
         this.mastersGenderEquality = mastersGenderEquality;
     }
 
+//    private String doFindFinalPackageTemplateFileName(String absoluteRoot) {
+//        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
+//                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
+//        for (Resource r : resourceList) {
+//            logger.trace("checking {}", r.getFilePath());
+//            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
+//                return r.getFileName();
+//            } else if (r.getFileName().startsWith("Total")) {
+//                return r.getFileName();
+//            }
+//        }
+//        throw new RuntimeException("final package templates not found under " + absoluteRoot);
+//    }
+
+//    private String doFindProtocolFileName(String absoluteRoot) {
+//        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
+//                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
+//        for (Resource r : resourceList) {
+//            logger.trace("checking {}", r.getFilePath());
+//            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
+//                return r.getFileName();
+//            } else if (r.getFileName().startsWith("Protocol")) {
+//                return r.getFileName();
+//            }
+//        }
+//        throw new RuntimeException("result templates not found under " + absoluteRoot);
+//    }
+
     public void setMensTeamSize(Integer mensTeamSize) {
         this.mensTeamSize = mensTeamSize;
     }
@@ -661,10 +776,10 @@ public class Competition {
     /**
      * Sets the protocol file name.
      *
-     * @param protocolFileName the new protocol file name
+     * @param protocolTemplateFileName the new protocol file name
      */
-    public void setProtocolFileName(String protocolFileName) {
-        this.protocolFileName = protocolFileName;
+    public void setProtocolTemplateFileName(String protocolFileName) {
+        this.protocolTemplateFileName = protocolFileName;
     }
 
     synchronized public void setRankingsInvalid(boolean invalid) {
@@ -673,6 +788,14 @@ public class Competition {
 
     public void setRoundRobinOrder(boolean roundRobinOrder) {
         this.roundRobinOrder = roundRobinOrder;
+    }
+
+    public void setStartListTemplateFileName(String startingListFileName) {
+        this.startListTemplateFileName = startingListFileName;
+    }
+
+    public void setStartingWeightsSheetTemplateFileName(String startingWeightsSheetTemplateFileName) {
+        this.startingWeightsSheetTemplateFileName = startingWeightsSheetTemplateFileName;
     }
 
     /**
@@ -707,7 +830,7 @@ public class Competition {
                 + ", competitionOrganizer=" + competitionOrganizer + ", competitionSite=" + competitionSite
                 + ", competitionCity=" + competitionCity + ", federation=" + federation + ", federationAddress="
                 + federationAddress + ", federationEMail=" + federationEMail + ", federationWebSite="
-                + federationWebSite + ", protocolFileName=" + getProtocolFileName()
+                + federationWebSite + ", protocolTemplateFileName=" + getProtocolTemplateFileName()
                 + ", finalPackageTemplateFileName=" + finalPackageTemplateFileName
                 + ", ageGroupsFileName=" + ageGroupsFileName + ", enforce20kgRule="
                 + enforce20kgRule + ", masters=" + masters + ", mensTeamSize=" + mensTeamSize + ", womensTeamSize="
@@ -830,7 +953,7 @@ public class Competition {
             // splitResultsByGroups(athletes);
             if (full) {
                 reportingBeans.put("athletes", athletes);
-                //logger.debug("ad={} ageGroupPrefix={}", ad, ageGroupPrefix);
+                // logger.debug("ad={} ageGroupPrefix={}", ad, ageGroupPrefix);
                 if (ad != null && (ageGroupPrefix == null || ageGroupPrefix.isBlank())) {
                     // iterate over all age groups present in age division ad
                     teamRankingsForAgeDivision(ad);
@@ -842,34 +965,6 @@ public class Competition {
             globalRankings();
         }, Thread.MIN_PRIORITY);
     }
-
-//    private String doFindFinalPackageTemplateFileName(String absoluteRoot) {
-//        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
-//                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
-//        for (Resource r : resourceList) {
-//            logger.trace("checking {}", r.getFilePath());
-//            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
-//                return r.getFileName();
-//            } else if (r.getFileName().startsWith("Total")) {
-//                return r.getFileName();
-//            }
-//        }
-//        throw new RuntimeException("final package templates not found under " + absoluteRoot);
-//    }
-
-//    private String doFindProtocolFileName(String absoluteRoot) {
-//        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
-//                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
-//        for (Resource r : resourceList) {
-//            logger.trace("checking {}", r.getFilePath());
-//            if (this.isMasters() && r.getFileName().startsWith("Masters")) {
-//                return r.getFileName();
-//            } else if (r.getFileName().startsWith("Protocol")) {
-//                return r.getFileName();
-//            }
-//        }
-//        throw new RuntimeException("result templates not found under " + absoluteRoot);
-//    }
 
     /**
      * Compute a team-ranking for the specified PAthletes.
@@ -990,7 +1085,7 @@ public class Competition {
         getOrCreateBean("wSinclair");
         reportingBeans.put("wSinclair", sortedWomen);
     }
-    
+
     private void reportSMF(List<Athlete> sortedMen, List<Athlete> sortedWomen) {
         getOrCreateBean("mSMF");
         reportingBeans.put("mSMF", sortedMen);
@@ -1134,67 +1229,12 @@ public class Competition {
         AthleteSorter.teamPointsOrder(sortedWomen, Ranking.BW_SINCLAIR);
 
         reportSinclair(sortedMen, sortedWomen);
-        
+
         sortedMen = getOrCreateBean("mTeamSMF" + ad.name());
         sortedWomen = getOrCreateBean("wTeamSMF" + ad.name());
         AthleteSorter.teamPointsOrder(sortedMen, Ranking.SMM);
         AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SMM);
 
         reportSMF(sortedMen, sortedWomen);
-    }
-
-    /**
-     * @return the protocolFileName
-     */
-    public String getProtocolFileName() {
-        return protocolFileName;
-    }
-    
-    @Transient
-    @JsonIgnore
-    public String getComputedCardsFileName() {
-        if (cardsFileName == null) {
-            return "CardsTemplate.xls";
-        }
-        return cardsFileName;
-    }
-
-    /**
-     * @return the cardsFileName
-     */
-    public String getCardsFileName() {
-        return cardsFileName;
-    }
-
-    /**
-     * @param cardsFileName the cardsFileName to set
-     */
-    public void setCardsFileName(String cardsFileName) {
-        this.cardsFileName = cardsFileName;
-    }
-
-    /**
-     * @return the finalPackageTemplateFileName
-     */
-    public String getFinalPackageTemplateFileName() {
-        return finalPackageTemplateFileName;
-    }
-    
-    public void setStartingListFileName(String startingListFileName) {
-        this.startingListFileName = startingListFileName;
-    }
-
-    /**
-     * @return the startingListFileName
-     */
-    public String getStartingListFileName() {
-        return startingListFileName;
-    }
-    
-    public String getComputedStartingListFileName() {
-        if (startingListFileName == null) {
-            return "StartSheetTemplate.xls";
-        }
-        return startingListFileName;
     }
 }
