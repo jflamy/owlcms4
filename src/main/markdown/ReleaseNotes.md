@@ -2,7 +2,8 @@
 
 ###### New in this release
 
-- [x] Excel outputs now support choosing between templates. This includes competitions cards, the start list, the starting weight sheet, etc. (previously only the Protocol and Competition book were customizable). 
+- [x] Excel outputs now support choosing between templates. This includes competitions cards, the start list, the starting weight sheet, etc. (previously only the Protocol and Competition book were customizable).
+- [x] New available IWF-style layout that is meant to be printed and folded to give bigger areas for writing (both North American Letter and international A4 formats available)
 
 ###### Key Highlights from recent stable releases
 
