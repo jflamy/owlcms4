@@ -8,7 +8,6 @@ package app.owlcms.spreadsheet;
 
 import java.util.List;
 
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,19 +56,19 @@ public class JXLSCards extends JXLSWorkbookStreamSource {
      */
     @Override
     protected void postProcess(Workbook workbook) {
-        setPageBreaks(workbook);
+//        setPageBreaks(workbook);
     }
 
-    private void setPageBreaks(Workbook workbook) {
-        Sheet sheet = workbook.getSheetAt(0);
-        int lastRowNum = sheet.getLastRowNum();
-        sheet.setAutobreaks(false);
-        int increment = CARDS_PER_PAGE * CARD_SIZE + (CARDS_PER_PAGE - 1);
-
-        for (int curRowNum = increment; curRowNum < lastRowNum;) {
-            sheet.setRowBreak(curRowNum - 1);
-            curRowNum += increment;
-        }
-    }
+//    private void setPageBreaks(Workbook workbook) {
+//        Sheet sheet = workbook.getSheetAt(0);
+//        int lastRowNum = sheet.getLastRowNum();
+//        sheet.setAutobreaks(false);
+//        int increment = CARDS_PER_PAGE * CARD_SIZE + (CARDS_PER_PAGE - 1);
+//
+//        for (int curRowNum = increment; curRowNum < lastRowNum;) {
+//            sheet.setRowBreak(curRowNum - 1);
+//            curRowNum += increment;
+//        }
+//    }
 
 }
