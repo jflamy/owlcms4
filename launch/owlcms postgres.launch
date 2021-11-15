@@ -7,7 +7,7 @@
         <listEntry value="1"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-        <mapEntry key="JDBC_DATABASE_URL" value="jdbc:postgresql://localhost:5432/"/>
+        <mapEntry key="JDBC_DATABASE_URL" value="jdbc:postgresql://localhost:5432/owlcms_db"/>
         <mapEntry key="JDBC_DATABASE_USERNAME" value="postgres"/>
         <mapEntry key="OWLCMS_RESETMODE" value="false"/>
         <mapEntry key="_OWLCMS_REMOTE" value="http://127.0.0.1:8081/update"/>
