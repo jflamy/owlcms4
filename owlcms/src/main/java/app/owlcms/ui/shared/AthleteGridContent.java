@@ -839,10 +839,6 @@ public abstract class AthleteGridContent extends VerticalLayout
                     if (newGroup == null && oldGroup == null) {
                         return;
                     }
-//                    if ((newGroup == null && oldGroup != null) || !newGroup.equals(oldGroup)) {
-//                        logger.debug("filter switching group from {} to {}",
-//                                oldGroup != null ? oldGroup.getName() : null,
-//                                newGroup != null ? newGroup.getName() : null);
                     if (isIgnoreSwitchGroup()) {
                         // logger.debug("ignoring self-originating change");
                         setIgnoreSwitchGroup(false);
@@ -852,14 +848,6 @@ public abstract class AthleteGridContent extends VerticalLayout
                         fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
                     }
                     oldGroup = newGroup;
-//                        // we listen to the UI switch group that will result from the FOP switchgroup
-//                    } else {
-//                        // loadGroup will emit FOP SwitchGroup which will emit UI switchgroup that we listen to .
-                    // logger.debug("{} loading group {} {} {} {} {}", myId, newGroup,
-                    // System.identityHashCode(newGroup), oldGroup, System.identityHashCode(oldGroup),
-                    // LoggerUtils. stackTrace());
-                    // fop.loadGroup(newGroup, this, newGroup != oldGroup);
-//                    }
                 });
             });
         });

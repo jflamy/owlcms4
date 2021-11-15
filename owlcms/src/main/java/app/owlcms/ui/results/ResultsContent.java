@@ -285,7 +285,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             params.remove("group");
         }
         params.remove("fop");
-        logger.debug("params {}",params);
+        logger.debug("params {}", params);
 
         // change the URL to reflect group
         event.getUI().getPage().getHistory().replaceState(null,
@@ -347,7 +347,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         title.setText(Translator.translate("GroupResults"));
         title.add();
         title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
-        
+
         Button resultsButton = createGroupResultsDownloadButton();
 
         topBarGroupSelect = new ComboBox<>();
@@ -371,22 +371,6 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         topBar.setFlexGrow(0.2, title);
 //        topBar.setSpacing(true);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-    }
-
-    private Button createGroupResultsDownloadButton() {
-        downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
-                () -> {
-                    JXLSResultSheet rs = new JXLSResultSheet();
-                    rs.setGroup(currentGroup);
-                    return rs;
-                },
-                "/templates/protocol",
-                Competition::getComputedProtocolTemplateFileName,
-                Competition::setProtocolTemplateFileName,
-                Translator.translate("GroupResults"),
-                "results", Translator.translate("Download"));
-        Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
-        return resultsButton;
     }
 
     /**
@@ -445,15 +429,6 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         createTopBar();
     }
 
-    private void setGroupSelectionListener() {
-//        topBarGroupSelect.setValue(getGridGroup());
-        topBarGroupSelect.addValueChangeListener(e -> {
-            setGridGroup(e.getValue());
-            currentGroup = e.getValue();
-            downloadButtonFactory.createTopBarDownloadButton();
-        });
-    }
-
     /**
      * @return true if the current group is safe for editing -- i.e. not lifting currently
      */
@@ -476,6 +451,31 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             logger.debug(getTranslation("EditingResults_logging"), currentGroup, liftingFop);
         }
         return liftingFop != null;
+    }
+
+    private Button createGroupResultsDownloadButton() {
+        downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
+                () -> {
+                    JXLSResultSheet rs = new JXLSResultSheet();
+                    rs.setGroup(currentGroup);
+                    return rs;
+                },
+                "/templates/protocol",
+                Competition::getComputedProtocolTemplateFileName,
+                Competition::setProtocolTemplateFileName,
+                Translator.translate("GroupResults"),
+                "results", Translator.translate("Download"));
+        Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
+        return resultsButton;
+    }
+
+    private void setGroupSelectionListener() {
+//        topBarGroupSelect.setValue(getGridGroup());
+        topBarGroupSelect.addValueChangeListener(e -> {
+            setGridGroup(e.getValue());
+            currentGroup = e.getValue();
+            downloadButtonFactory.createTopBarDownloadButton();
+        });
     }
 
     private void subscribeIfLifting(Group nGroup) {

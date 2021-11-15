@@ -78,7 +78,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         WeighinContent weighinContent = (WeighinContent) getLayoutComponentContent();
         gridGroupFilter = weighinContent.getGroupFilter();
     }
-
+    
     /**
      * Create the top bar.
      *
@@ -100,12 +100,14 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         groupSelect.setItems(GroupRepository.findAll());
         groupSelect.setItemLabelGenerator(Group::getName);
         groupSelect.setClearButtonVisible(true);
-
+        groupSelect.addValueChangeListener(e -> {
+            setContentGroup(e);
+        });
 
         JXLSCards cardsWriter = new JXLSCards();
         JXLSJurySheet juryWriter = new JXLSJurySheet();
         JXLSWeighInSheet startingWeightsWriter = new JXLSWeighInSheet();
-        
+
         cardsButton = createCardsButton(cardsWriter);
         startingWeightsButton = createStartingWeightsButton(startingWeightsWriter);
         juryButton = createJuryButton(juryWriter);
@@ -128,64 +130,9 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
     }
-    
-    private Button createCardsButton(JXLSCards cardsWriter) {
-        String resourceDirectoryLocation = "/templates/cards";
-        String title = Translator.translate("AthleteCards");
-        String downloadedFilePrefix = "cards";
-        DownloadButtonFactory cardsButtonFactory = new DownloadButtonFactory(cardsWriter,
-                () -> {
-                    JXLSCards rs = new JXLSCards();
-                    rs.setGroup(group);
-                    return rs;
-                },
-                resourceDirectoryLocation,
-                Competition::getComputedCardsTemplateFileName,
-                Competition::setCardsTemplateFileName,
-                title,
-                downloadedFilePrefix,
-                Translator.translate("Download"));
-        return cardsButtonFactory.createTopBarDownloadButton();
-    }
-    
-    private Button createStartingWeightsButton(JXLSWeighInSheet weighinListWriter) {
-        String resourceDirectoryLocation = "/templates/weighin";
-        String title = Translator.translate("StartingWeightsSheet");
-        String downloadedFilePrefix = "startingWeights";
 
-        DownloadButtonFactory startingWeightsButton = new DownloadButtonFactory(weighinListWriter,
-                () -> {
-                    JXLSWeighInSheet rs = new JXLSWeighInSheet();
-                    rs.setGroup(group);
-                    return rs;
-                },
-                resourceDirectoryLocation,
-                Competition::getComputedStartingWeightsSheetTemplateFileName,
-                Competition::setStartingWeightsSheetTemplateFileName,
-                title,
-                downloadedFilePrefix,
-                Translator.translate("Download"));
-        return startingWeightsButton.createTopBarDownloadButton();
-    }
-    
-    private Button createJuryButton(JXLSJurySheet juryWriter) {
-        String resourceDirectoryLocation = "/templates/jury";
-        String title = Translator.translate("Jury");
-        String downloadedFilePrefix = "jury";
-
-        DownloadButtonFactory startingWeightsButton = new DownloadButtonFactory(juryWriter,
-                () -> {
-                    JXLSStartingList rs = new JXLSStartingList();
-                    rs.setGroup(group);
-                    return rs;
-                },
-                resourceDirectoryLocation,
-                Competition::getComputedJuryTemplateFileName,
-                Competition::setJuryTemplateFileName,
-                title,
-                downloadedFilePrefix,
-                Translator.translate("Download"));
-        return startingWeightsButton.createTopBarDownloadButton();
+    public ComboBox<Group> getGroupSelect() {
+        return groupSelect;
     }
 
     protected void errorNotification() {
@@ -239,6 +186,65 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
             return currentGroupAthletes;
         });
         ((WeighinContent) getLayoutComponentContent()).refresh();
+    }
+
+    private Button createCardsButton(JXLSCards cardsWriter) {
+        String resourceDirectoryLocation = "/templates/cards";
+        String title = Translator.translate("AthleteCards");
+        String downloadedFilePrefix = "cards";
+        DownloadButtonFactory cardsButtonFactory = new DownloadButtonFactory(cardsWriter,
+                () -> {
+                    JXLSCards rs = new JXLSCards();
+                    rs.setGroup(group);
+                    return rs;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedCardsTemplateFileName,
+                Competition::setCardsTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return cardsButtonFactory.createTopBarDownloadButton();
+    }
+
+    private Button createJuryButton(JXLSJurySheet juryWriter) {
+        String resourceDirectoryLocation = "/templates/jury";
+        String title = Translator.translate("Jury");
+        String downloadedFilePrefix = "jury";
+
+        DownloadButtonFactory startingWeightsButton = new DownloadButtonFactory(juryWriter,
+                () -> {
+                    JXLSStartingList rs = new JXLSStartingList();
+                    rs.setGroup(group);
+                    return rs;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedJuryTemplateFileName,
+                Competition::setJuryTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return startingWeightsButton.createTopBarDownloadButton();
+    }
+
+    private Button createStartingWeightsButton(JXLSWeighInSheet weighinListWriter) {
+        String resourceDirectoryLocation = "/templates/weighin";
+        String title = Translator.translate("StartingWeightsSheet");
+        String downloadedFilePrefix = "startingWeights";
+
+        DownloadButtonFactory startingWeightsButton = new DownloadButtonFactory(weighinListWriter,
+                () -> {
+                    JXLSWeighInSheet rs = new JXLSWeighInSheet();
+                    rs.setGroup(group);
+                    return rs;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedStartingWeightsSheetTemplateFileName,
+                Competition::setStartingWeightsSheetTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return startingWeightsButton.createTopBarDownloadButton();
     }
 
     private void generateStartNumbers() {

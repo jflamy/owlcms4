@@ -65,6 +65,20 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
     private Button startingListButton;
 
     /**
+     * @return the groupSelect
+     */
+    public ComboBox<Group> getGroupSelect() {
+        return groupSelect;
+    }
+
+    /**
+     * @param groupSelect the groupSelect to set
+     */
+    public void setGroupSelect(ComboBox<Group> groupSelect) {
+        this.groupSelect = groupSelect;
+    }
+
+    /**
      * The layout is created before the content. This routine has created the content, we can refer to the content using
      * {@link #getLayoutComponentContent()} and the content can refer to us via
      * {@link AppLayoutContent#getParentLayout()}
@@ -125,10 +139,10 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
                     }).open();
         });
         deleteAthletes.getElement().setAttribute("title", getTranslation("ClearLifts_forListed"));
-        
+
         JXLSCards cardsWriter = new JXLSCards();
         JXLSStartingList startingListWriter = new JXLSStartingList();
-        
+
         cardsButton = createCardsButton(cardsWriter);
         startingListButton = createStartingListButton(startingListWriter);
 
@@ -142,7 +156,8 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         });
         resetCats.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
 
-        HorizontalLayout buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts, startingListButton, cardsButton,
+        HorizontalLayout buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts, startingListButton,
+                cardsButton,
                 resetCats);
         buttons.setPadding(true);
         buttons.setSpacing(true);
@@ -155,45 +170,6 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
     }
 
-    private Button createCardsButton(JXLSCards cardsWriter) {
-        String resourceDirectoryLocation = "/templates/cards";
-        String title = Translator.translate("AthleteCards");
-        String downloadedFilePrefix = "cards";
-        DownloadButtonFactory cardsButtonFactory = new DownloadButtonFactory(cardsWriter,
-                () -> {
-                    JXLSCards rs = new JXLSCards();
-                    rs.setGroup(group);
-                    return rs;
-                },
-                resourceDirectoryLocation,
-                Competition::getComputedCardsTemplateFileName,
-                Competition::setCardsTemplateFileName,
-                title,
-                downloadedFilePrefix,
-                Translator.translate("Download"));
-        return cardsButtonFactory.createTopBarDownloadButton();
-    }
-    
-    private Button createStartingListButton(JXLSStartingList startingListWriter) {
-        String resourceDirectoryLocation = "/templates/start";
-        String title = Translator.translate("StartingList");
-        String downloadedFilePrefix = "startingList";
-
-        DownloadButtonFactory startingListFactory = new DownloadButtonFactory(startingListWriter,
-                () -> {
-                    JXLSStartingList rs = new JXLSStartingList();
-                    rs.setGroup(group);
-                    return rs;
-                },
-                resourceDirectoryLocation,
-                Competition::getComputedStartListTemplateFileName,
-                Competition::setStartListTemplateFileName,
-                title,
-                downloadedFilePrefix,
-                Translator.translate("Download"));
-        return startingListFactory.createTopBarDownloadButton();
-    }
-    
     protected void errorNotification() {
         Label content = new Label(getTranslation("Select_group_first"));
         content.getElement().setAttribute("theme", "error");
@@ -243,6 +219,45 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         });
     }
 
+    private Button createCardsButton(JXLSCards cardsWriter) {
+        String resourceDirectoryLocation = "/templates/cards";
+        String title = Translator.translate("AthleteCards");
+        String downloadedFilePrefix = "cards";
+        DownloadButtonFactory cardsButtonFactory = new DownloadButtonFactory(cardsWriter,
+                () -> {
+                    JXLSCards rs = new JXLSCards();
+                    rs.setGroup(group);
+                    return rs;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedCardsTemplateFileName,
+                Competition::setCardsTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return cardsButtonFactory.createTopBarDownloadButton();
+    }
+
+    private Button createStartingListButton(JXLSStartingList startingListWriter) {
+        String resourceDirectoryLocation = "/templates/start";
+        String title = Translator.translate("StartingList");
+        String downloadedFilePrefix = "startingList";
+
+        DownloadButtonFactory startingListFactory = new DownloadButtonFactory(startingListWriter,
+                () -> {
+                    JXLSStartingList rs = new JXLSStartingList();
+                    rs.setGroup(group);
+                    return rs;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedStartListTemplateFileName,
+                Competition::setStartListTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return startingListFactory.createTopBarDownloadButton();
+    }
+
     private void deleteAthletes() {
         RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
         JPAService.runInTransaction(em -> {
@@ -274,19 +289,5 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
         AthleteRepository.resetParticipations();
         content.refreshCrudGrid();
-    }
-
-    /**
-     * @return the groupSelect
-     */
-    public ComboBox<Group> getGroupSelect() {
-        return groupSelect;
-    }
-
-    /**
-     * @param groupSelect the groupSelect to set
-     */
-    public void setGroupSelect(ComboBox<Group> groupSelect) {
-        this.groupSelect = groupSelect;
     }
 }

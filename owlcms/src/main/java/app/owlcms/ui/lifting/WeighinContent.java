@@ -9,13 +9,17 @@ package app.owlcms.ui.lifting;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -26,6 +30,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.fields.BodyWeightField;
@@ -52,6 +60,8 @@ import app.owlcms.ui.crudui.OwlcmsMultiSelectComboBoxProvider;
 import app.owlcms.ui.shared.AthleteRegistrationFormFactory;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.utils.URLUtils;
+import app.owlcms.utils.queryparameters.FOPParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -64,7 +74,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/weighin", layout = WeighinLayout.class)
 @CssImport(value = "./styles/shared-styles.css")
-public class WeighinContent extends VerticalLayout implements CrudListener<Athlete>, OwlcmsContent {
+public class WeighinContent extends VerticalLayout implements CrudListener<Athlete>, OwlcmsContent, FOPParameters {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(WeighinContent.class);
     static {
@@ -82,6 +92,9 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     private OwlcmsCrudGrid<Athlete> crudGrid;
     private OwlcmsRouterLayout routerLayout;
     private OwlcmsCrudFormFactory<Athlete> crudFormFactory;
+    private Location location;
+    private UI locationUI;
+    private Group currentGroup;
 
     /**
      * Instantiates the athlete crudGrid
@@ -126,6 +139,16 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         return groupFilter;
     }
 
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
+    }
+
     /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
@@ -139,8 +162,70 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         return routerLayout;
     }
 
+    @Override
+    public boolean isIgnoreFopFromURL() {
+        return true;
+    }
+
+    @Override
+    public boolean isIgnoreGroupFromURL() {
+        return false;
+    }
+
     public void refresh() {
         crudGrid.refreshGrid();
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
+    /**
+     * Parse the http query parameters
+     *
+     * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
+     *
+     * @param event     Vaadin navigation event
+     * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
+     *                  parameters instead.
+     *
+     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+     *      java.lang.String)
+     */
+    @Override
+    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+        setLocation(event.getLocation());
+        setLocationUI(event.getUI());
+        QueryParameters queryParameters = getLocation().getQueryParameters();
+        Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
+        HashMap<String, List<String>> params = new HashMap<>(parametersMap);
+
+        logger.debug("parsing query parameters RegistrationContent");
+        List<String> groupNames = params.get("group");
+        logger.debug("groupNames = {}", groupNames);
+        if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
+            String groupName = groupNames.get(0);
+            currentGroup = GroupRepository.findByName(groupName);
+        } else {
+            currentGroup = null;
+        }
+        if (currentGroup != null) {
+            params.put("group", Arrays.asList(URLUtils.urlEncode(currentGroup.getName())));
+        } else {
+            params.remove("group");
+        }
+
+        params.remove("fop");
+
+        // change the URL to reflect group
+        event.getUI().getPage().getHistory().replaceState(null,
+                new Location(getLocation().getPath(), new QueryParameters(params)));
     }
 
     @Override
@@ -247,11 +332,12 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         groupFilter.setClearButtonVisible(true);
         groupFilter.addValueChangeListener(e -> {
             crudGrid.refreshGrid();
+            currentGroup = e.getValue();
+            updateURLLocation(getLocationUI(), getLocation(), e.getValue());
         });
+        crudGrid.getCrudLayout().addFilterComponent(groupFilter);
         // hide because the top bar has it
         groupFilter.getStyle().set("display", "none");
-
-        crudGrid.getCrudLayout().addFilterComponent(groupFilter);
 
         weighedInFilter.setPlaceholder(getTranslation("Weighed_in_p"));
         weighedInFilter.setItems(Boolean.TRUE, Boolean.FALSE);
@@ -288,6 +374,13 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crudGrid.getCrudLayout().addFilterComponent(clearFilters);
     }
 
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        getRouterLayout().closeDrawer();
+        ((WeighinLayout) getRouterLayout()).getGroupSelect().setValue(currentGroup);
+    }
+
     /**
      * The content and ordering of the editing form
      *
@@ -318,7 +411,6 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         props.add("group");
         captions.add(getTranslation("Group"));
 
-
         props.add("gender");
         captions.add(getTranslation("Gender"));
         props.add("team");
@@ -341,10 +433,10 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         captions.add(getTranslation("Custom1.Title"));
         props.add("custom2");
         captions.add(getTranslation("Custom2.Title"));
-        
+
         props.add("lotNumber");
         captions.add(getTranslation("Lot"));
-        
+
         props.add("eligibleForIndividualRanking");
         captions.add(getTranslation("Eligible for Individual Ranking?"));
 
@@ -357,8 +449,9 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
                 GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
         crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
                 CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName));
-        crudFormFactory.setFieldProvider("eligibleCategories", new OwlcmsMultiSelectComboBoxProvider<>(getTranslation("Registration.EligibleCategories"),
-                new ArrayList<Category>(), new TextRenderer<>(Category::getName), Category::getName));
+        crudFormFactory.setFieldProvider("eligibleCategories",
+                new OwlcmsMultiSelectComboBoxProvider<>(getTranslation("Registration.EligibleCategories"),
+                        new ArrayList<Category>(), new TextRenderer<>(Category::getName), Category::getName));
 //        crudFormFactory.setFieldProvider("ageDivision",
 //                new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
 //                        new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));
@@ -376,5 +469,17 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crudFormFactory.setFieldCreationListener("bodyWeight", (e) -> {
             ((BodyWeightField) e).focus();
         });
+    }
+
+    private void updateURLLocation(UI ui, Location location, Group newGroup) {
+        // change the URL to reflect fop group
+        HashMap<String, List<String>> params = new HashMap<>(
+                location.getQueryParameters().getParameters());
+        if (!isIgnoreGroupFromURL() && newGroup != null) {
+            params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
+        } else {
+            params.remove("group");
+        }
+        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
 }

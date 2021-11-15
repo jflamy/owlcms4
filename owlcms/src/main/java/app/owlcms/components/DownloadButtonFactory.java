@@ -24,7 +24,6 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.ui.results.Resource;
 import app.owlcms.utils.ResourceWalker;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class DownloadButtonFactory {
@@ -37,7 +36,6 @@ public class DownloadButtonFactory {
     private String buttonLabel;
     private String outputFileName;
     private Logger logger = (Logger) LoggerFactory.getLogger(DownloadButtonFactory.class);
-    { logger.setLevel(Level.DEBUG); }
     private String dialogTitle;
 
     /**

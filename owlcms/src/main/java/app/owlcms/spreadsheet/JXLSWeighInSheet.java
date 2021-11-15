@@ -6,10 +6,7 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
-import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
@@ -38,11 +35,6 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
 
     public JXLSWeighInSheet() {
         super();
-    }
-
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/weighin/WeighInSheetTemplate", ".xls", locale);
     }
 
     @Override

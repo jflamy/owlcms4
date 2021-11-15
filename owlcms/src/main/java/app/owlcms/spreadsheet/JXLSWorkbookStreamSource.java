@@ -118,7 +118,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
                     workbook.createSheet().createRow(1).createCell(1).setCellValue(noAthletes);
                 }
             } catch (Exception e) {
-                LoggerUtils.logError(logger,e);
+                LoggerUtils.logError(logger, e);
             }
             if (workbook != null) {
                 workbook.write(stream);
@@ -159,27 +159,17 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         return tryList;
     }
 
-    public InputStream getTemplate(Locale locale) throws IOException, Exception {
-        if (inputStream != null) {
-            logger.debug("explicitly set template {}",inputStream);
-            return inputStream;
-        }
-        InputStream resourceAsStream = ResourceWalker.getFileOrResource(getTemplateFileName());
-        return resourceAsStream;
-    }
-    
     public String getTemplateFileName() {
         logger.debug("getTemplateFileName {}", templateFileName);
         return templateFileName;
     }
-    
-    public void setTemplateFileName(String templateFileName) {
-        logger.debug("setTemplateFileName {}", templateFileName);
-        this.templateFileName = templateFileName;
-    }
 
     public boolean isExcludeNotWeighed() {
         return excludeNotWeighed;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     public void setExcludeNotWeighed(boolean excludeNotWeighed) {
@@ -190,8 +180,21 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         this.group = group;
     }
 
+    public void setInputStream(InputStream is) {
+        this.inputStream = is;
+    }
+
     public void setReportingBeans(HashMap<String, Object> jXLSBeans) {
         this.reportingBeans = jXLSBeans;
+    }
+
+    public void setSortedAthletes(List<Athlete> sortedAthletes) {
+        this.sortedAthletes = sortedAthletes;
+    }
+
+    public void setTemplateFileName(String templateFileName) {
+        logger.debug("setTemplateFileName {}", templateFileName);
+        this.templateFileName = templateFileName;
     }
 
     /**
@@ -225,6 +228,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
     protected void configureTransformer(XLSTransformer transformer) {
         // do nothing, to be overridden as needed,
+    }
+
+    protected Category getCategory() {
+        return category;
     }
 
     /**
@@ -261,6 +268,19 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         throw new IOException("no template found for : " + templateName + extension + " tried with suffix " + tryList);
     }
 
+    protected List<Athlete> getSortedAthletes() {
+        return sortedAthletes;
+    }
+
+    protected InputStream getTemplate(Locale locale) throws IOException, Exception {
+        if (inputStream != null) {
+            logger.debug("explicitly set template {}", inputStream);
+            return inputStream;
+        }
+        InputStream resourceAsStream = ResourceWalker.getFileOrResource(getTemplateFileName());
+        return resourceAsStream;
+    }
+
     protected void init() {
         setReportingBeans(new HashMap<String, Object>());
     }
@@ -291,25 +311,5 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
             }
             return compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
         }).collect(Collectors.toList()));
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public void setSortedAthletes(List<Athlete> sortedAthletes) {
-        this.sortedAthletes = sortedAthletes;
-    }
-
-    protected List<Athlete> getSortedAthletes() {
-        return sortedAthletes;
-    }
-
-    protected Category getCategory() {
-        return category;
-    }
-
-    public void setInputStream(InputStream is) {
-        this.inputStream = is;
     }
 }

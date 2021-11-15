@@ -66,9 +66,9 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Class AthleteContent
+ * Class RegistrationContent
  *
- * Defines the toolbar and the table for editing data on athletes.
+ * Defines the toolbar and the table for editing registration data on athletes.
  *
  */
 @SuppressWarnings("serial")
@@ -105,11 +105,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         defineFilters(crudGrid);
         fillHW(crudGrid, this);
     }
-    
-    @Override
-    public boolean isIgnoreFopFromURL() {
-        return true;
-    }
 
     @Override
     public Athlete add(Athlete Athlete) {
@@ -129,7 +124,78 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
                 genderFilter.getValue(), weighedInFilter.getValue(), -1, -1);
         return all;
     }
-    
+
+    /**
+     * The refresh button on the toolbar; also called by refreshGrid when the group is changed.
+     *
+     * @see org.vaadin.crudui.crud.CrudListener#findAll()
+     */
+    @Override
+    public Collection<Athlete> findAll() {
+        List<Athlete> all = AthleteRepository.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
+                categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(),
+                genderFilter.getValue(), weighedInFilter.getValue(), -1, -1);
+        return all;
+    }
+
+    /**
+     * @return the groupFilter
+     */
+    public ComboBox<Group> getGroupFilter() {
+        return groupFilter;
+    }
+
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Preparation_Registration");
+    }
+
+    @Override
+    public OwlcmsRouterLayout getRouterLayout() {
+        return routerLayout;
+    }
+
+    @Override
+    public boolean isIgnoreFopFromURL() {
+        return true;
+    }
+
+    @Override
+    public boolean isIgnoreGroupFromURL() {
+        return false;
+    }
+
+    public void refresh() {
+        crudGrid.refreshGrid();
+    }
+
+    public void refreshCrudGrid() {
+        crudGrid.refreshGrid();
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
     /**
      * Parse the http query parameters
      *
@@ -152,7 +218,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 
         logger.debug("parsing query parameters RegistrationContent");
         List<String> groupNames = params.get("group");
-        logger.debug("groupNames = {}",groupNames);
+        logger.debug("groupNames = {}", groupNames);
         if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
             String groupName = groupNames.get(0);
             currentGroup = GroupRepository.findByName(groupName);
@@ -164,59 +230,12 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         } else {
             params.remove("group");
         }
-        
+
         params.remove("fop");
- 
+
         // change the URL to reflect group
         event.getUI().getPage().getHistory().replaceState(null,
                 new Location(getLocation().getPath(), new QueryParameters(params)));
-    }
-    
-    @Override
-    public boolean isIgnoreGroupFromURL() {
-        return false;
-    }
-
-
-    /**
-     * The refresh button on the toolbar; also called by refreshGrid when the group is changed.
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#findAll()
-     */
-    @Override
-    public Collection<Athlete> findAll() {
-        List<Athlete> all = AthleteRepository.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
-                categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(),
-                genderFilter.getValue(), weighedInFilter.getValue(), -1, -1);
-        return all;
-    }
-
-    /**
-     * @return the groupFilter
-     */
-    public ComboBox<Group> getGroupFilter() {
-        return groupFilter;
-    }
-
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Preparation_Registration");
-    }
-
-    @Override
-    public OwlcmsRouterLayout getRouterLayout() {
-        return routerLayout;
-    }
-
-    public void refresh() {
-        crudGrid.refreshGrid();
-    }
-
-    public void refreshCrudGrid() {
-        crudGrid.refreshGrid();
     }
 
     @Override
@@ -328,6 +347,8 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         groupFilter.setItemLabelGenerator(Group::getName);
         groupFilter.addValueChangeListener(e -> {
             crudGrid.refreshGrid();
+            currentGroup = e.getValue();
+            updateURLLocation(getLocationUI(), getLocation(), e.getValue());
         });
         groupFilter.setWidth("10em");
         crudGrid.getCrudLayout().addFilterComponent(groupFilter);
@@ -374,11 +395,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         getRouterLayout().closeDrawer();
-        ((RegistrationLayout)getRouterLayout()).getGroupSelect().setValue(currentGroup);
-        //getGroupFilter().setValue(currentGroup);
-//        GroupRepository gr = new GroupRepository();
-//        Group g = GroupRepository.findByName("M1");
-//        logger.debug(gr.allAthletesForGlobalRanking(g).toString());
+        ((RegistrationLayout) getRouterLayout()).getGroupSelect().setValue(currentGroup);
     }
 
     /**
@@ -466,23 +483,15 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         crudFormFactory.setFieldType("yearOfBirth", ValidationTextField.class);
     }
 
-    @Override
-    public Location getLocation() {
-        return this.location;
-    }
-
-    @Override
-    public UI getLocationUI() {
-        return this.locationUI;
-    }
-
-    @Override
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    @Override
-    public void setLocationUI(UI locationUI) {
-        this.locationUI = locationUI;
+    private void updateURLLocation(UI ui, Location location, Group newGroup) {
+        // change the URL to reflect fop group
+        HashMap<String, List<String>> params = new HashMap<>(
+                location.getQueryParameters().getParameters());
+        if (!isIgnoreGroupFromURL() && newGroup != null) {
+            params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
+        } else {
+            params.remove("group");
+        }
+        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
 }

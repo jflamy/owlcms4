@@ -6,10 +6,7 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
-import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +27,6 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 
     public JXLSJurySheet() {
         super();
-    }
-
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/jury/JurySheetTemplate", ".xls", locale);
     }
 
     /*
