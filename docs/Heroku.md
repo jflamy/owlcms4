@@ -15,7 +15,7 @@ The free tier is fine for running club or regional competitions with about 50 at
 
 Click on this purple button to start installation of owlcms on Heroku cloud.
 
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/jflamy-dev/owlcms-heroku)
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/jflamy-dev/owlcms-heroku-prerelease)
 
 **3. Name your application and deploy**
 
