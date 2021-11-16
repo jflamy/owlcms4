@@ -102,9 +102,12 @@ We now fill in the information, and select Add.
 
 ## Notes for Masters Age Groups
 
-The default list contains non-standard age groups.  Some federations accept 30-34 year-olds in their Masters meets. If you don't want these age groups, simply leave them unselected.   Similarly, some federations have gender-equality rules and include the same age groups for women as for men.  The default list allows you to select a W70 for 70-74 and a W75 group if you so desire..
+The default list contains non-standard Masters age groups:
 
-- The applicability of the 15/10kg rule (as opposed to the 20kg rule) is based on the category in which the athlete is registered.
+-  some federations accept 30-34 year-olds in their Masters meets. If you don't want these age groups, simply leave them unselected.   
+- Similarly, some federations have gender-equality rules and include the same age groups for women as for men.  The default list allows you to select a W70 for 70-74 and a W75 group if you so desire..
+
+- The applicability of the percentage rule (as opposed to the 20kg rule) is based on the category in which the athlete is registered.  If an athlete has a Masters category selected, he is expected to lift in a Masters group, where the rule will apply to all lifters.  In a mixed group with senior and Masters lifters, the which rule applies would depend on the lifter.  The fairest rule would be to set the category to Senior for all athletes: Because they are qualified as Masters, the dual eligibility athletes can still appear in the Masters result sheets.
 
 
 ## Creating a Definition File for Local or Federation Settings

@@ -32,6 +32,7 @@ Because entering athletes is tedious, it is easier to upload a list prepared wit
 2. Fill-in the Excel with the information about your athletes.  
 > - For each athlete, you need to provide at least the birth year, the gender, and the expected body weight.
 > - The program will automatically assign the athlete to the age groups and categories where he or she is eligible. If you have multiple overlapping age groups (for example IWF Junior and Senior) present, the athlete will be added to both categories.  If there are additional eligibility requirements that mean an athlete is not eligible, you can remove the eligibility using the registration page in the program.
+> - This will set the weight of the athlete in the program.   You can export the list of athletes, clear the weights, and reload.  If there is no weight but the category is present, the category will be kept.
 
 3. When entering dates and times, <u>please use the same format as the one proposed</u> by the Excel sheet.
 
@@ -42,7 +43,7 @@ Because entering athletes is tedious, it is easier to upload a list prepared wit
    > - The program will create groups with the code names you use.  You can use numbers, or any short combinations.  Some people use the categories present in the group (ex: M81B-M77A)
    > - When entering dates and times, <u>we recommend that you use the format that Excel shows you</u> (which may vary based on your Office and operating system settings).  The program will also accept an international `yyyy-MM-dd hh:mm`  format (4-digit year, month, day, 24-hour hour, minutes) as an alternative.
 
-   ![073b_excel](img/Preparation/073b_excel.png)
+   <img src="img/Preparation/073b_excel.png" alt="073b_excel" style="zoom: 67%;" />
 
 5. Upload the completed form.  Note that this **deletes the previous athletes and groups**.
 
