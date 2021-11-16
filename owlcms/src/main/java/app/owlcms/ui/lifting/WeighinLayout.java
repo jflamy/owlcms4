@@ -38,7 +38,6 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSJurySheet;
-import app.owlcms.spreadsheet.JXLSStartingList;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
@@ -212,9 +211,9 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         String title = Translator.translate("Jury");
         String downloadedFilePrefix = "jury";
 
-        DownloadButtonFactory startingWeightsButton = new DownloadButtonFactory(juryWriter,
+        DownloadButtonFactory juryButton = new DownloadButtonFactory(juryWriter,
                 () -> {
-                    JXLSStartingList rs = new JXLSStartingList();
+                    JXLSJurySheet rs = new JXLSJurySheet();
                     rs.setGroup(group);
                     return rs;
                 },
@@ -224,7 +223,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
                 title,
                 downloadedFilePrefix,
                 Translator.translate("Download"));
-        return startingWeightsButton.createTopBarDownloadButton();
+        return juryButton.createTopBarDownloadButton();
     }
 
     private Button createStartingWeightsButton(JXLSWeighInSheet weighinListWriter) {
