@@ -37,7 +37,7 @@ import ch.qos.logback.classic.Logger;
  */
 @Entity(name = "Participation")
 @Table(name = "participation")
-@JsonIgnoreProperties({"hibernateLazyInitializer"})
+@JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 public class Participation implements IRankHolder {
 
     @Transient

@@ -46,7 +46,7 @@ import ch.qos.logback.classic.Logger;
 @Entity(name = "CompetitionGroup")
 @Cacheable
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Group.class)
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "logger" })
+@JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 public class Group implements Comparable<Group> {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";

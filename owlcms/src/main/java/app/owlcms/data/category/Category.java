@@ -61,7 +61,7 @@ import ch.qos.logback.classic.Logger;
 @Entity
 @Cacheable
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "logger" })
+@JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     @Transient

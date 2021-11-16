@@ -50,7 +50,7 @@ import ch.qos.logback.classic.Logger;
 @Entity
 @Cacheable
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "key", scope = AgeGroup.class)
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "logger" })
+@JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     private static final long serialVersionUID = 8154757158144876816L;
