@@ -1,9 +1,12 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+- [x] Export files from 4.24 could not be read by 4.25 due to obsolete attributes having been removed.  Obsolete attributes will now be ignored.
+- [x] Heroku deploy button was broken in the prerelease documentation (missing -prerelease in link)
+
 ###### New in this release
 
 - [x] Excel outputs now support choosing between templates. This includes competitions cards, the start list, the starting weight sheet, etc. (previously only the Protocol and Competition book were customizable).
-- [x] New available IWF-style layout that is meant to be printed and folded to give bigger areas for writing (both North American Letter and international A4 formats available)
+  - New available IWF-style layout that is meant to be printed and folded to give bigger areas for writing (both North American Letter and international A4 formats available)
 
 ###### Key Highlights from recent stable releases
 
