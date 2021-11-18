@@ -45,7 +45,7 @@
         <guava.version>30.1.1-jre</guava.version>
 
         <!-- Plugins -->
-        <jetty.version>9.4.25.v20191220</jetty.version>
+        <jetty.version>9.4.44.v20210927</jetty.version>
 
         <rootOutputDir>${project.build.directory}</rootOutputDir>
     </properties>
