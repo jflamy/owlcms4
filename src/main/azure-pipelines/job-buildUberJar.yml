@@ -20,7 +20,7 @@ jobs:
     steps:
       - template: steps-prepare-maven.yml
       - task: Maven@3
-        displayName: build owlcms uberJar and deploy to bintray
+        displayName: build ${{ parameters.moduleName }} uberJar and publish to maven repository
         inputs:
           mavenPomFile: pom.xml
           mavenOptions: -Xmx3072m $(MavenOpts)
