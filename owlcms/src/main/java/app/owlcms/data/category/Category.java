@@ -36,9 +36,9 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.i18n.Translator;
 import app.owlcms.utils.IdUtils;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * Contains information regarding each competition category.

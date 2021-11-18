@@ -43,7 +43,6 @@ import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IBreakTimer;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.UIEvent.BreakDone;
 import app.owlcms.uievents.UIEvent.BreakPaused;
@@ -59,6 +58,7 @@ import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
+import app.owlcms.i18n.Translator;
 
 public class EventForwarder implements BreakDisplay {
 

@@ -18,8 +18,8 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
-import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * Production data.

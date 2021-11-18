@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.utils;
+package app.owlcms.apputils;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.Component;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 public class DebugUtils {

@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.category.Category;
-import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * @author jflamy

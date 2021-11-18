@@ -33,6 +33,8 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import app.owlcms.apputils.SoundUtils;
+import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
@@ -46,7 +48,6 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
@@ -58,14 +59,13 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.Decision;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.SoundUtils;
-import app.owlcms.utils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
+import app.owlcms.i18n.Translator;
 
 /**
  * Class Scoreboard
@@ -176,7 +176,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component, com.vaadin.flow.component.orderedlayout.VerticalLayout)
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component, com.vaadin.flow.component.orderedlayout.VerticalLayout)
      */
     @Override
     public void addDialogContent(Component target, VerticalLayout vl) {
@@ -203,7 +203,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     /**
      * return dialog, but only on first call.
      *
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#getDialog()
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#getDialog()
      */
     @Override
     public Dialog getDialog() {
@@ -241,7 +241,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#isShowInitialDialog()
      */
     @Override
     public boolean isShowInitialDialog() {
@@ -276,7 +276,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
      */
     @Override
     public void setShowInitialDialog(boolean b) {

@@ -10,10 +10,10 @@ import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * The Class RuleViolationException.

@@ -28,20 +28,20 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
-import app.owlcms.utils.queryparameters.FOPParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonObject;
+import app.owlcms.i18n.Translator;
 
 /**
  * Attempt board.
@@ -165,7 +165,7 @@ public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      *      java.lang.String)
      */
     @Override

@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import app.owlcms.Main;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -35,6 +36,7 @@ public class AthleteTest {
     
     @BeforeClass
     public static void setupTests() {
+        Main.injectSuppliers();
         JPAService.init(true, true);
         Config.initConfig();
         TestData.insertInitialData(5, true);

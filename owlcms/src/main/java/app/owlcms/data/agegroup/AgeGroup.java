@@ -35,9 +35,9 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * An AgeGroup designates an age range and the associated bodyweight categories, for a given gender.

@@ -44,6 +44,7 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
+import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -54,18 +55,17 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.jpa.JPAService;
-import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
-import app.owlcms.ui.results.Resource;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
-import app.owlcms.utils.queryparameters.DisplayParameters;
+import app.owlcms.utils.Resource;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * Class ResultsContent.
@@ -595,7 +595,7 @@ public class TeamSelectionContent extends VerticalLayout
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocation()
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#getLocation()
      */
     @Override
     public Location getLocation() {
@@ -603,7 +603,7 @@ public class TeamSelectionContent extends VerticalLayout
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocationUI()
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#getLocationUI()
      */
     @Override
     public UI getLocationUI() {
@@ -621,7 +621,7 @@ public class TeamSelectionContent extends VerticalLayout
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
      *      java.util.Map)
      */
     @Override

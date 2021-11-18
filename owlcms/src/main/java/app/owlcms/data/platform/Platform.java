@@ -25,12 +25,12 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.sound.Speakers;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * Data on a lifting site.

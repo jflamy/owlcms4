@@ -30,18 +30,18 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.DebugUtils;
 import app.owlcms.components.NavigationPage;
-import app.owlcms.i18n.Translator;
 import app.owlcms.ui.displayselection.DisplayNavigationContent;
 import app.owlcms.ui.lifting.LiftingNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
 import app.owlcms.ui.results.ResultsNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
-import app.owlcms.utils.DebugUtils;
 import app.owlcms.utils.IPInterfaceUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * The Class HomeNavigationContent.
@@ -126,7 +126,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.FOPParameters#isIgnoreFopFromURL()
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#isIgnoreFopFromURL()
      */
     @Override
     public boolean isIgnoreFopFromURL() {

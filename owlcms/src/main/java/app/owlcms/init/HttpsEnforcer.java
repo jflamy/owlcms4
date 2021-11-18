@@ -20,8 +20,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.apputils.StartupUtils;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 public class HttpsEnforcer implements Filter {

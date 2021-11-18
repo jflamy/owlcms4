@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.utils;
+package app.owlcms.apputils;
 
 import org.slf4j.LoggerFactory;
 
@@ -16,9 +16,9 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.dom.Element;
 
-import app.owlcms.i18n.Translator;
-import app.owlcms.utils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 public class SoundUtils {
 

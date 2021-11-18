@@ -10,12 +10,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 
+import app.owlcms.apputils.SoundUtils;
+import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.utils.SoundUtils;
-import app.owlcms.utils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 public class DisplayOptions {
     final static Logger logger = (Logger) LoggerFactory.getLogger(DisplayOptions.class);

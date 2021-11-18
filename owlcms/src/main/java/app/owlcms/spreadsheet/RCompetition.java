@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.DateTimeUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -51,7 +52,7 @@ public class RCompetition {
 
     public void setCompetitionDate(String date) throws Exception {
         if (date == null || date.isBlank()) return;
-        c.setCompetitionDate(DateTimeUtils.parseExcelDate(date));
+        c.setCompetitionDate(DateTimeUtils.parseExcelDate(date,  OwlcmsSession.getLocale()));
     }
 
     /**

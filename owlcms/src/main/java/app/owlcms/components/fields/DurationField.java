@@ -22,9 +22,9 @@ import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.function.ValueProvider;
 
-import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * Duration field with conversion, validation and rendering.

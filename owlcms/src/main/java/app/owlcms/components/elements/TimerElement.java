@@ -21,10 +21,10 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
+import app.owlcms.apputils.DebugUtils;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
-import app.owlcms.utils.DebugUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;

@@ -19,8 +19,8 @@ import com.vaadin.flow.component.UI;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.i18n.Translator;
 import net.sf.jxls.transformer.XLSTransformer;
 
 /**

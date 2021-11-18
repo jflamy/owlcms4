@@ -19,12 +19,12 @@ import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
-import app.owlcms.ui.results.Resource;
+import app.owlcms.utils.Resource;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 public class DownloadButtonFactory {
 

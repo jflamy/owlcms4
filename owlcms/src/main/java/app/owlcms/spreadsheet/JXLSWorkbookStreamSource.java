@@ -37,12 +37,12 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 import net.sf.jxls.transformer.XLSTransformer;
 
 /**

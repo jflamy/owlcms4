@@ -22,13 +22,13 @@ import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.StartupUtils;
 import app.owlcms.data.config.Config;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.utils.IPInterfaceUtils;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 

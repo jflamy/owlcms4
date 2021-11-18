@@ -17,6 +17,7 @@ import static app.owlcms.fieldofplay.FOPState.TIME_STOPPED;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
@@ -25,7 +26,6 @@ import java.util.stream.Collectors;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.AsyncEventBus;
@@ -59,7 +59,6 @@ import app.owlcms.fieldofplay.FOPEvent.TimeOver;
 import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
@@ -72,6 +71,7 @@ import app.owlcms.uievents.UIEvent.JuryNotification;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * This class describes one field of play at runtime.
@@ -492,7 +492,7 @@ public class FieldOfPlay {
             Group newGroup = switchGroup.getGroup();
 
             boolean inBreak = state == BREAK || state == INACTIVE;
-            if (ObjectUtils.equals(oldGroup, newGroup)) {
+            if (Objects.equals(oldGroup, newGroup)) {
                 loadGroup(newGroup, this, true);
                 if (inBreak) {
                     pushOut(new UIEvent.SwitchGroup(this.getGroup(), this.getState(), this.getCurAthlete(),

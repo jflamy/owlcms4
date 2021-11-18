@@ -21,12 +21,13 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import app.owlcms.Main;
+import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.spreadsheet.RAthlete;
 import app.owlcms.spreadsheet.RCompetition;
-import app.owlcms.utils.DebugUtils;
 import ch.qos.logback.classic.Logger;
 import net.sf.jxls.reader.ReaderBuilder;
 import net.sf.jxls.reader.ReaderConfig;
@@ -40,6 +41,7 @@ public class RegistrationReaderTest {
 
     @BeforeClass
     public static void setupTests() {
+        Main.injectSuppliers();
         JPAService.init(true, true);
         Config.initConfig();
         TestData.insertInitialData(5, true);

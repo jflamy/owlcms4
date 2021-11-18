@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import app.owlcms.apputils.StartupUtils;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -41,11 +42,10 @@ import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.DateTimeUtils;
-import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * Class Competition.

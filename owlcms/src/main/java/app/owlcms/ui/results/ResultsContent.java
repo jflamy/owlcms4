@@ -51,7 +51,6 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSResultSheet;
@@ -64,6 +63,7 @@ import app.owlcms.ui.shared.AthleteGridLayout;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * Class ResultsContent.
@@ -260,7 +260,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
      * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
      *                  parameters instead.
      *
-     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      *      java.lang.String)
      */
     @Override

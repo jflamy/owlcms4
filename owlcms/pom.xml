@@ -45,6 +45,11 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>app.owlcms</groupId>
+            <artifactId>shared</artifactId>
+        </dependency>
+
         <!-- user interface -->
         <dependency>
             <groupId>com.github.appreciated</groupId>
@@ -164,7 +169,11 @@
             <artifactId>commons-io</artifactId>
             <version>2.8.0</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.9</version>
+        </dependency>
 
         <!-- event bus -->
         <dependency>
@@ -296,6 +305,17 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
                     <version>3.0.0-M1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>3.2.1</version>
+                </plugin>
+                <!-- https://mvnrepository.com/artifact/com.coderplus.maven.plugins/copy-rename-maven-plugin -->
+                <plugin>
+                    <groupId>com.coderplus.maven.plugins</groupId>
+                    <artifactId>copy-rename-maven-plugin</artifactId>
+                    <version>1.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -658,6 +678,7 @@
                         </configuration>
                     </plugin>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
                         <version>3.3.0</version>
                         <executions>

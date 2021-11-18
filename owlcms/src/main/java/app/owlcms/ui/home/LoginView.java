@@ -18,12 +18,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.AccessUtils;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AppLayoutAware;
 import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.ui.shared.RequireLogin;
-import app.owlcms.utils.AccessUtils;
 import ch.qos.logback.classic.Logger;
 
 /**

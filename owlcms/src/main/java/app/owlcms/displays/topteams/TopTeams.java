@@ -40,6 +40,7 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -50,7 +51,6 @@ import app.owlcms.data.team.TeamTreeData;
 import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
@@ -59,13 +59,13 @@ import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
+import app.owlcms.i18n.Translator;
 
 /**
  * Class TopTeams
@@ -139,7 +139,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
      *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
      */
     @Override
@@ -220,7 +220,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     /**
      * return dialog, but only on first call.
      *
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#getDialog()
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#getDialog()
      */
     @Override
     public Dialog getDialog() {
@@ -233,7 +233,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocation()
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#getLocation()
      */
     @Override
     public Location getLocation() {
@@ -241,7 +241,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocationUI()
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#getLocationUI()
      */
     @Override
     public UI getLocationUI() {
@@ -257,7 +257,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#isDarkMode()
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#isDarkMode()
      */
     @Override
     public boolean isDarkMode() {
@@ -265,7 +265,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.FOPParameters#isIgnoreFopFromURL()
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#isIgnoreFopFromURL()
      */
     @Override
     public boolean isIgnoreFopFromURL() {
@@ -273,7 +273,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.FOPParameters#isIgnoreGroupFromURL()
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#isIgnoreGroupFromURL()
      */
     @Override
     public boolean isIgnoreGroupFromURL() {
@@ -281,7 +281,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#isShowInitialDialog()
      */
     @Override
     public boolean isShowInitialDialog() {
@@ -362,7 +362,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
      */
     @Override
     public void setShowInitialDialog(boolean b) {
@@ -370,7 +370,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#setSilenced(boolean)
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#setSilenced(boolean)
      */
     @Override
     public void setSilenced(boolean silent) {

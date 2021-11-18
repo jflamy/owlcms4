@@ -55,7 +55,6 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.team.TeamTreeData;
 import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
@@ -69,6 +68,7 @@ import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * Class ResultsContent.
@@ -213,7 +213,7 @@ public class TeamResultsContent extends VerticalLayout
      * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
      *                  parameters instead.
      *
-     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      *      java.lang.String)
      */
     public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {

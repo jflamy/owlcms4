@@ -53,6 +53,7 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
+import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -62,7 +63,6 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
@@ -76,9 +76,9 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
-import app.owlcms.utils.queryparameters.FOPParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * Class AthleteGridContent.
@@ -323,7 +323,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     /**
      * Process URL parameters, including query parameters
      *
-     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      *      java.lang.String)
      */
     @Override

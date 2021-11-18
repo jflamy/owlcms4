@@ -45,13 +45,13 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
-import app.owlcms.i18n.Translator;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
 import app.owlcms.ui.shared.DownloadButtonFactory;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.TimeZoneUtils;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class ConfigEditingFormFactory

@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 
+import app.owlcms.apputils.AccessUtils;
 import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.home.LoginView;
-import app.owlcms.utils.AccessUtils;
 import ch.qos.logback.classic.Logger;
 
 public interface RequireLogin extends BeforeEnterObserver {

@@ -34,6 +34,8 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import app.owlcms.apputils.SoundUtils;
+import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
@@ -52,8 +54,6 @@ import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.SoundUtils;
-import app.owlcms.utils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -169,7 +169,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
      *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
      */
     @Override
@@ -205,7 +205,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     /**
      * return dialog, but only on first call.
      *
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#getDialog()
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#getDialog()
      */
     @Override
     public Dialog getDialog() {
@@ -248,7 +248,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#isShowInitialDialog()
      */
     @Override
     public boolean isShowInitialDialog() {
@@ -261,7 +261,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#setDarkMode(boolean)
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#setDarkMode(boolean)
      */
     @Override
     public void setDarkMode(boolean dark) {
@@ -279,7 +279,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
      */
     @Override
     public void setShowInitialDialog(boolean b) {
@@ -446,7 +446,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.FOPParameters#updateURLLocation(com.vaadin.flow.component.UI,
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#updateURLLocation(com.vaadin.flow.component.UI,
      *      com.vaadin.flow.router.Location, java.lang.String, java.lang.String)
      */
     @Override

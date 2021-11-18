@@ -45,6 +45,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import app.owlcms.Main;
+import app.owlcms.apputils.StartupUtils;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
@@ -55,7 +56,6 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 

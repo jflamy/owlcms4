@@ -33,8 +33,8 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.server.startup.ServletContextListeners;
 
 import app.owlcms.Main;
+import app.owlcms.apputils.StartupUtils;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 /**

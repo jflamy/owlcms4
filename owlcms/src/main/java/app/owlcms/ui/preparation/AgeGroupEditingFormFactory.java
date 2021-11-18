@@ -36,10 +36,10 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
-import app.owlcms.i18n.Translator;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class AgeGroupEditingFormFactory

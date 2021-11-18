@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.utils.queryparameters;
+package app.owlcms.apputils.queryparameters;
 
 import java.util.HashMap;
 import java.util.List;
@@ -159,7 +159,7 @@ public interface DisplayParameters extends FOPParameters {
      * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path. We use the old-style
      * Query parameters for our purposes.
      *
-     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      * java.lang.String)
      */
     @Override

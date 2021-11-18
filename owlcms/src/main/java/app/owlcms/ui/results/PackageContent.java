@@ -56,7 +56,6 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSCatResults;
@@ -70,6 +69,7 @@ import app.owlcms.ui.shared.AthleteGridLayout;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * Class PackageContent.
@@ -160,7 +160,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocation()
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#getLocation()
      */
     @Override
     public Location getLocation() {
@@ -168,7 +168,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocationUI()
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#getLocationUI()
      */
     @Override
     public UI getLocationUI() {
@@ -199,7 +199,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
      *      java.util.Map)
      */
     @Override
@@ -268,7 +268,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
      * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path. We use the old-style
      * Query parameters for our purposes.
      *
-     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      * java.lang.String)
      */
     @Override

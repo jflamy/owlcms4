@@ -55,11 +55,11 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.displays.athletecard.AthleteCard;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<Athlete> implements NavigationPage {

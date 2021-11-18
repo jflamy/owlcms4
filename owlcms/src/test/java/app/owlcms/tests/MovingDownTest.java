@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 
+import app.owlcms.Main;
+import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.RuleViolationException;
@@ -35,7 +37,6 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.utils.DebugUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -52,6 +53,7 @@ public class MovingDownTest {
 
     @BeforeClass
     public static void setupTests() {
+        Main.injectSuppliers();
         JPAService.init(true, true);
         Config.initConfig();
     }
@@ -376,7 +378,7 @@ public class MovingDownTest {
 //        TestData.insertInitialData(5, true);
 //        AthleteRepository.resetCategories();
 //    }
-    
+
     @Before
     public void setupTest() {
         TestData.insertInitialData(5, true);

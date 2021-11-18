@@ -37,6 +37,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.components.fields.BodyWeightField;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.ValidationTextField;
@@ -61,7 +62,6 @@ import app.owlcms.ui.shared.AthleteRegistrationFormFactory;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.utils.URLUtils;
-import app.owlcms.utils.queryparameters.FOPParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -205,7 +205,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
      * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
      *                  parameters instead.
      *
-     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      *      java.lang.String)
      */
     @Override

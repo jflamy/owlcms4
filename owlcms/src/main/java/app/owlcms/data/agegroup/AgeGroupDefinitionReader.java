@@ -22,13 +22,13 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.NotificationUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
