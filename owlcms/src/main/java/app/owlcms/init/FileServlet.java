@@ -222,6 +222,7 @@ public class FileServlet extends HttpServlet {
     }
 
     private static Logger logger = (Logger) LoggerFactory.getLogger(FileServlet.class);
+//    { logger.setLevel(Level.DEBUG); }
 
     /**
      * Initialize the servlet.
@@ -306,7 +307,10 @@ public class FileServlet extends HttpServlet {
             // URL-decode the file name (might contain spaces and on) and prepare file object.
             logger.debug("requestedFile {}", requestedFile);
             String relativeFileName = URLDecoder.decode(requestedFile, "UTF-8");
+            
+            // @webservlet processing takes care of preventing .. escaping
             Path finalPath = Paths.get(relativeFileName);
+            logger.debug("getting {}",relativeFileName);
             return getFileFromResource(response, finalPath, "/" + relativeFileName);
         } catch (IllegalArgumentException e) {
             logger.error(e.getLocalizedMessage());
@@ -545,6 +549,7 @@ public class FileServlet extends HttpServlet {
                         // So only add it if there is no means of GZIP, else browser will hang.
                         response.setHeader("Content-Length", String.valueOf(r.length));
                     }
+                    response.setStatus(HttpServletResponse.SC_OK);
 
                     // Copy full range.
                     copy(input, output, r.start, r.length);

@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.init;
 
+import java.io.IOException;
 import java.net.BindException;
 import java.net.URI;
 import java.net.URL;
@@ -13,12 +14,19 @@ import java.util.EnumSet;
 import java.util.concurrent.CountDownLatch;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler.Context;
+import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.Configuration;
@@ -41,6 +49,7 @@ import ch.qos.logback.classic.Logger;
  * jetty web server
  */
 public class EmbeddedJetty {
+
     private final static Logger logger = (Logger) LoggerFactory.getLogger(EmbeddedJetty.class);
     private final static Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
 
@@ -77,6 +86,8 @@ public class EmbeddedJetty {
                 new PlusConfiguration(),
                 new JettyWebXmlConfiguration()
         });
+        context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
+        context.setErrorHandler(new ErrorHandler());
         Context servletContext = context.getServletContext();
         servletContext.setExtendedListenerTypes(true);
         context.addEventListener(new ServletContextListeners());
@@ -90,7 +101,9 @@ public class EmbeddedJetty {
         Main.initConfig();
         try {
             // start the server so that kubernetes ingress does not complain due to long initialization.
+
             server.start();
+            disableServerVersionHeader(server);
             startLogger.info("started on port {}", port);
 
             // start JPA+Hibernate, initialize database if needed, etc.
@@ -115,6 +128,38 @@ public class EmbeddedJetty {
             }
         }
     }
+
+    /**
+     * Don't reveal version number in headers.
+     * @param server
+     */
+    private void disableServerVersionHeader(Server server) {
+        for (Connector y : server.getConnectors()) {
+            y.getConnectionFactories().stream()
+                    .filter(cf -> cf instanceof HttpConnectionFactory)
+                    .forEach(cf -> {
+                        HttpConfiguration httpConfiguration = ((HttpConnectionFactory) cf)
+                                .getHttpConfiguration();
+                        httpConfiguration.setSendServerVersion(false);
+                    });
+        }
+    }
+    
+    /**
+     * Dummy error handler that disables any error pages or jetty related messages and returns our
+     * ERROR status JSON with plain HTTP status instead. All original error messages (from our code) are preserved
+     * as they are not handled by this code.
+     */
+    static class ErrorHandler extends ErrorPageErrorHandler {
+        @Override
+        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
+            response.getWriter()
+                .append("{\"status\":\"ERROR\",\"message\":\"HTTP ")
+                .append(String.valueOf(response.getStatus()))
+                .append("\"}");
+        }
+    }
+    
 
     private CountDownLatch getLatch() {
         return latch;
