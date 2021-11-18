@@ -96,8 +96,12 @@ public class ResourceWalker {
                         LoggerUtils.whereFrom(1));
                 return new FileInputStream(file);
             } catch (FileNotFoundException e) {
-                // can't happen, we tested that Files.exists()...
-                throw new RuntimeException("can't happen", e);
+                if (name.trim().contentEquals("/") || name.isBlank()) {
+                    // exists but is top level
+                    return null;
+                } else {
+                    throw new RuntimeException("can't happen '" + name + "'", e);
+                }
             }
         } else {
             is = ResourceWalker.class.getResourceAsStream(name);
