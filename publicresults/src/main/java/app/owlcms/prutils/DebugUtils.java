@@ -4,10 +4,11 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.utils;
+package app.owlcms.prutils;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 public class DebugUtils {

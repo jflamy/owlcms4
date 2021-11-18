@@ -16,7 +16,8 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.EmbeddedJetty;
-import app.owlcms.utils.StartupUtils;
+import app.owlcms.prutils.StartupUtils;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -74,6 +75,14 @@ public class Main {
         // Vaadin configs
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
 
+        // app config injection
+        Translator.setLocaleSupplier(() -> Locale.FRENCH);
+        ResourceWalker.setLocaleSupplier(Translator.getLocaleSupplier());
+        ResourceWalker.setLocalOverrideSupplier(() -> {
+            ResourceWalker.checkForLocalOverrideDirectory();
+            return null;
+        });
+
         // technical initializations
         System.setProperty("java.net.preferIPv4Stack", "true");
         return;
@@ -88,10 +97,10 @@ public class Main {
         // default is 8080
         serverPort = StartupUtils.getIntegerParam("port", 8080);
         StartupUtils.setServerPort(serverPort);
-        
+
         overrideDisplayLanguage();
     }
-    
+
     private static Locale overrideDisplayLanguage() {
         // read override value from database
         Locale l = null;

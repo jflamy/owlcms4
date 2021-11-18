@@ -52,6 +52,11 @@ public class URLUtils {
         return result.toString();
     }
 
+    public static String buildAbsoluteURL(String string) {
+        return URLUtils.buildAbsoluteURL(VaadinServletRequest.getCurrent().getHttpServletRequest(),
+                string);
+    }
+
     public static String cleanURL(URL siteURL, String siteExternalForm) {
         if (siteURL.getProtocol().equals("http")) {
             siteExternalForm = siteExternalForm.replaceFirst(":80/", "");
@@ -66,18 +71,18 @@ public class URLUtils {
         return siteExternalForm;
     }
 
-    public static String getClientIp(HttpServletRequest request) {
-        String remoteAddr = "";
-
-        if (request != null) {
-            remoteAddr = request.getHeader("X-Forwarded-For");
-            if (remoteAddr == null || "".equals(remoteAddr)) {
-                remoteAddr = request.getRemoteAddr();
-            }
-        }
-
-        return remoteAddr;
-    }
+//    private static String getClientIp(HttpServletRequest request) {
+//        String remoteAddr = "";
+//
+//        if (request != null) {
+//            remoteAddr = request.getHeader("X-FORWARDED-FOR");
+//            if (remoteAddr == null || "".equals(remoteAddr)) {
+//                remoteAddr = request.getRemoteAddr();
+//            }
+//        }
+//
+//        return remoteAddr;
+//    }
 
     public static <T extends Component> String getRelativeURLFromTargetClass(Class<T> class1) {
         RouteConfiguration routeResolver = RouteConfiguration.forApplicationScope();

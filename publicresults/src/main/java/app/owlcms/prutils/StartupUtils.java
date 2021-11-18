@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.utils;
+package app.owlcms.prutils;
 
 import java.awt.Desktop;
 import java.io.IOException;
@@ -20,6 +20,7 @@ import java.util.Properties;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 public class StartupUtils {
@@ -30,18 +31,6 @@ public class StartupUtils {
     static Integer serverPort = null;
 
     public static void disableWarning() {
-//        // https://stackoverflow.com/questions/46454995/how-to-hide-warning-illegal-reflective-access-in-java-9-without-jvm-argument
-//        try {
-//            Field theUnsafe = UnsafeAPI.class.getDeclaredField("theUnsafe");
-//            theUnsafe.setAccessible(true);
-//            u = theUnsafe.get(null);
-//
-//            Class<?> cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
-//            Field logger = cls.getDeclaredField("logger");
-//            u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
-//        } catch (Exception e) {
-//            // ignore
-//        }
     }
 
     /**
