@@ -26,10 +26,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import app.owlcms.apputils.AccessUtils;
-import app.owlcms.apputils.StartupUtils;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
-import app.owlcms.init.FileServlet;
+import app.owlcms.servlet.FileServlet;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 /**

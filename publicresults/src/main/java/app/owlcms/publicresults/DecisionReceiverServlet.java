@@ -21,9 +21,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 
-import app.owlcms.prutils.StartupUtils;
 import app.owlcms.uievents.DecisionEvent;
 import app.owlcms.uievents.DecisionEventType;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 @WebServlet("/decision")

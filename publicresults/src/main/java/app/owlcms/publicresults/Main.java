@@ -10,14 +10,15 @@ package app.owlcms.publicresults;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.EmbeddedJetty;
-import app.owlcms.prutils.StartupUtils;
+import app.owlcms.servlet.EmbeddedJetty;
 import app.owlcms.utils.ResourceWalker;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -41,7 +42,11 @@ public class Main {
 
         try {
             init();
-            new EmbeddedJetty().run(serverPort, "/");
+            EmbeddedJetty embeddedJetty = new EmbeddedJetty(new CountDownLatch(0));
+            embeddedJetty.setStartLogger(logger);
+            embeddedJetty.setInitConfig(() -> {});
+            embeddedJetty.setInitData(() -> {});
+            embeddedJetty.run(serverPort, "/");
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

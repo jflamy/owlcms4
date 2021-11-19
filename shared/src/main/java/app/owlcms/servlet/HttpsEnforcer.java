@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.init;
+package app.owlcms.servlet;
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.apputils.StartupUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -68,11 +67,11 @@ public class HttpsEnforcer implements Filter {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             LoggerUtils.logError(logger,e);
-            if (StartupUtils.isDebugSetting()) {
+            if (logger.isDebugEnabled()) {
                 Enumeration<String> headerNames = request.getHeaderNames();
                 while (headerNames.hasMoreElements()) {
                     String headerName = headerNames.nextElement();
-                    logger.error("    {} {}", headerName, request.getHeader(headerName));
+                    logger.debug("    {} {}", headerName, request.getHeader(headerName));
                 }
             }
         }

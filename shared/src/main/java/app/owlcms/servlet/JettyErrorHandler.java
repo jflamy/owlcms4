@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.init;
+package app.owlcms.servlet;
 
 import org.slf4j.LoggerFactory;
 
@@ -16,13 +16,14 @@ import ch.qos.logback.classic.Logger;
 /**
  * The Class JettyErrorHandler.
  */
+@SuppressWarnings("serial")
 public class JettyErrorHandler extends DefaultErrorHandler {
     private final static Logger logger = (Logger) LoggerFactory.getLogger(JettyErrorHandler.class);
 
     /*
      * (non-Javadoc)
      *
-     * @see com.vaadin.flow.server.DefaultErrorHandler#error(com.vaadin.flow.server.ErrorEvent)
+     * @see com.vaadin.flow.server.DefaultErrorHandler#error(com.vaadin.flow.server. ErrorEvent)
      */
     @Override
     public void error(ErrorEvent event) {

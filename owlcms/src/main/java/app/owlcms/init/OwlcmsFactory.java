@@ -23,6 +23,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.ProxyAthleteTimer;
 import app.owlcms.fieldofplay.ProxyBreakTimer;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -46,12 +47,10 @@ public class OwlcmsFactory {
 
     /** The fop by name. */
     static Map<String, FieldOfPlay> fopByName = null;
-    private static String version;
-    private static String buildTimestamp;
     private static FieldOfPlay defaultFOP;
 
     public static String getBuildTimestamp() {
-        return buildTimestamp;
+        return StartupUtils.getBuildTimestamp();
     }
 
     /**
@@ -137,15 +136,7 @@ public class OwlcmsFactory {
     }
 
     public static String getVersion() {
-        return version;
-    }
-
-    public static void setBuildTimestamp(String sBuildTimestamp) {
-        buildTimestamp = sBuildTimestamp;
-    }
-
-    public static void setVersion(String sVersion) {
-        version = sVersion;
+        return StartupUtils.getVersion();
     }
 
     public static void waitDBInitialized() {

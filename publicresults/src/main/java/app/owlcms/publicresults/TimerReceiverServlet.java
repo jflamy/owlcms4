@@ -24,11 +24,11 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 
-import app.owlcms.prutils.StartupUtils;
 import app.owlcms.uievents.BreakTimerEvent;
 import app.owlcms.uievents.TimerEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ProxyUtils;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 @WebServlet("/timer")

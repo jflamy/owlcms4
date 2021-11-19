@@ -18,7 +18,6 @@ import org.apache.commons.beanutils.converters.DateConverter;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import app.owlcms.apputils.StartupUtils;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -34,11 +33,12 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.ProdData;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.EmbeddedJetty;
 import app.owlcms.init.InitialData;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.servlet.EmbeddedJetty;
 import app.owlcms.utils.ResourceWalker;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -104,7 +104,11 @@ public class Main {
         try {
             init();
             startRemoteMonitoring();
-            new EmbeddedJetty(OwlcmsFactory.getInitializationLatch()).run(serverPort, "/");
+            EmbeddedJetty embeddedJetty = new EmbeddedJetty(OwlcmsFactory.getInitializationLatch());
+            embeddedJetty.setStartLogger(logger);
+            embeddedJetty.setInitConfig(Main::initConfig);
+            embeddedJetty.setInitData(Main::initData);
+            embeddedJetty.run(serverPort, "/");
         } finally {
             tearDown();
         }

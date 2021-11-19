@@ -10,8 +10,8 @@ import java.util.concurrent.CountDownLatch;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.init.EmbeddedJetty;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.servlet.EmbeddedJetty;
 import app.owlcms.simulation.FOPSimulator;
 import ch.qos.logback.classic.Logger;
 
