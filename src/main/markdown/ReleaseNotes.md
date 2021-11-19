@@ -1,7 +1,6 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Export files from 4.24 could not be read by 4.25 due to obsolete attributes having been removed.  Obsolete attributes will now be ignored.
-- [x] Heroku deploy button was broken in the prerelease documentation (missing -prerelease in link)
+- [x] Technical build: testing build process after moving code to a shared module. No new features or fixes.
 
 ###### New in this release
 
