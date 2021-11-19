@@ -49,34 +49,39 @@ import ch.qos.logback.classic.Logger;
  */
 public class EmbeddedJetty {
 
+    /**
+     * Dummy error handler that disables any error pages or jetty related messages and returns our ERROR status JSON
+     * with plain HTTP status instead. All original error messages (from our code) are preserved as they are not handled
+     * by this code.
+     */
+    static class ErrorHandler extends ErrorPageErrorHandler {
+        @Override
+        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
+                throws IOException {
+            response.getWriter()
+                    .append("{\"status\":\"ERROR\",\"message\":\"HTTP ")
+                    .append(String.valueOf(response.getStatus()))
+                    .append("\"}");
+        }
+    }
+
     private final static Logger logger = (Logger) LoggerFactory.getLogger(EmbeddedJetty.class);
+
     private static Logger startLogger;
 
     public static Logger getStartLogger() {
         return startLogger;
     }
 
-    public void setStartLogger(Logger startLogger) {
-        EmbeddedJetty.startLogger = startLogger;
-    }
-
     private CountDownLatch latch;
+
+    private Runnable initConfig;
+
+    private Runnable initData;
 
     public EmbeddedJetty(CountDownLatch latch) {
         this.setLatch(latch);
     }
-
-    Runnable initConfig;
-
-    public void setInitConfig(Runnable initConfig) {
-        this.initConfig = initConfig;
-    }
-
-    public void setInitData(Runnable initData) {
-        this.initData = initData;
-    }
-
-    Runnable initData;
 
     /**
      * Run.
@@ -148,6 +153,21 @@ public class EmbeddedJetty {
         }
     }
 
+    public EmbeddedJetty setInitConfig(Runnable initConfig) {
+        this.initConfig = initConfig;
+        return this;
+    }
+
+    public EmbeddedJetty setInitData(Runnable initData) {
+        this.initData = initData;
+        return this;
+    }
+
+    public EmbeddedJetty setStartLogger(Logger startLogger) {
+        EmbeddedJetty.startLogger = startLogger;
+        return this;
+    }
+
     /**
      * Don't reveal version number in headers.
      *
@@ -162,22 +182,6 @@ public class EmbeddedJetty {
                                 .getHttpConfiguration();
                         httpConfiguration.setSendServerVersion(false);
                     });
-        }
-    }
-
-    /**
-     * Dummy error handler that disables any error pages or jetty related messages and returns our ERROR status JSON
-     * with plain HTTP status instead. All original error messages (from our code) are preserved as they are not handled
-     * by this code.
-     */
-    static class ErrorHandler extends ErrorPageErrorHandler {
-        @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-                throws IOException {
-            response.getWriter()
-                    .append("{\"status\":\"ERROR\",\"message\":\"HTTP ")
-                    .append(String.valueOf(response.getStatus()))
-                    .append("\"}");
         }
     }
 

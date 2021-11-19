@@ -15,6 +15,8 @@ import java.util.concurrent.CountDownLatch;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import com.google.common.util.concurrent.Runnables;
+
 import app.owlcms.i18n.Translator;
 import app.owlcms.servlet.EmbeddedJetty;
 import app.owlcms.utils.ResourceWalker;
@@ -42,11 +44,11 @@ public class Main {
 
         try {
             init();
-            EmbeddedJetty embeddedJetty = new EmbeddedJetty(new CountDownLatch(0));
-            embeddedJetty.setStartLogger(logger);
-            embeddedJetty.setInitConfig(() -> {});
-            embeddedJetty.setInitData(() -> {});
-            embeddedJetty.run(serverPort, "/");
+            new EmbeddedJetty(new CountDownLatch(0))
+                    .setStartLogger(logger)
+                    .setInitConfig(Runnables::doNothing)
+                    .setInitData(Runnables::doNothing)
+                    .run(serverPort, "/");
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -81,7 +83,7 @@ public class Main {
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
 
         // app config injection
-        Translator.setLocaleSupplier(() -> Locale.FRENCH);
+        Translator.setLocaleSupplier(Main::computeLocale);
         ResourceWalker.setLocaleSupplier(Translator.getLocaleSupplier());
         ResourceWalker.setLocalOverrideSupplier(() -> {
             ResourceWalker.checkForLocalOverrideDirectory();
@@ -91,6 +93,15 @@ public class Main {
         // technical initializations
         System.setProperty("java.net.preferIPv4Stack", "true");
         return;
+    }
+
+    private static Locale computeLocale() {
+        String stringParam = StartupUtils.getStringParam("locale");
+        if (stringParam == null) {
+            return Locale.getDefault();
+        } else {
+            return Translator.createLocale(stringParam);
+        }
     }
 
     /**

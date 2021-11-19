@@ -104,11 +104,11 @@ public class Main {
         try {
             init();
             startRemoteMonitoring();
-            EmbeddedJetty embeddedJetty = new EmbeddedJetty(OwlcmsFactory.getInitializationLatch());
-            embeddedJetty.setStartLogger(logger);
-            embeddedJetty.setInitConfig(Main::initConfig);
-            embeddedJetty.setInitData(Main::initData);
-            embeddedJetty.run(serverPort, "/");
+            new EmbeddedJetty(OwlcmsFactory.getInitializationLatch())
+                    .setStartLogger(logger)
+                    .setInitConfig(Main::initConfig)
+                    .setInitData(Main::initData)
+                    .run(serverPort, "/");
         } finally {
             tearDown();
         }
