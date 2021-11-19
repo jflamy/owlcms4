@@ -13,9 +13,9 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 public class DisplayOptions {
     final static Logger logger = (Logger) LoggerFactory.getLogger(DisplayOptions.class);

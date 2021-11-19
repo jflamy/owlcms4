@@ -17,8 +17,8 @@ import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.dom.Element;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
-import ch.qos.logback.classic.Logger;
 import app.owlcms.i18n.Translator;
+import ch.qos.logback.classic.Logger;
 
 public class SoundUtils {
 
