@@ -1,8 +1,9 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Technical build: testing build process after moving code to a shared module. No new features or fixes.
+- [x] Fix:  after a version update, external time formatting library started rejecting value used for jury and technical pauses
+- [x] Non-regression testing: checking that code reorganization and library version updates did not break anything.
 
-###### New in this release
+###### New in release 4.25
 
 - [x] Excel outputs now support choosing between templates. This includes competitions cards, the start list, the starting weight sheet, etc. (previously only the Protocol and Competition book were customizable).
   - New available IWF-style layout that is meant to be printed and folded to give bigger areas for writing (both North American Letter and international A4 formats available)

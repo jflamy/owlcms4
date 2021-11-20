@@ -139,7 +139,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
             return tr;
         } else {
             int tr = getTimeRemaining();
-            logger.debug("liveTimeRemaining stopped {} {}", DurationFormatUtils.formatDurationHMS(tr),
+            logger.debug("liveTimeRemaining stopped {} {}", tr > 0 ? DurationFormatUtils.formatDurationHMS(tr) : tr,
                     LoggerUtils.whereFrom());
             return tr;
         }
