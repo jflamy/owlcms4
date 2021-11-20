@@ -1,6 +1,6 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Fix:  after a version update, external time formatting library started rejecting value used for jury and technical pauses
+- [x] Russian and Armenian translations
 - [x] Non-regression testing: checking that code reorganization and library version updates did not break anything.
 
 ###### New in release 4.25
