@@ -1,6 +1,6 @@
-##### **Changes for release 4.25.0-beta01**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Changes for release 4.25.0-beta02**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Russian and Armenian translations
+- [x] Fix: during the display of the decision for snatch #3, the athlete's requested clean&jerk weight would blink even though snatch was not over.
 
 ###### New in release 4.25
 
