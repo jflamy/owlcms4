@@ -1,14 +1,12 @@
 cd owlcms-heroku
 git checkout develop
 git pull
-git merge
 git commit -m "sync submodules [skip ci]" .
 git push
 
 cd ..\publicresults-heroku
 git checkout develop
 git pull
-git merge
 git commit -m "sync submodules [skip ci]" .
 git push
 
