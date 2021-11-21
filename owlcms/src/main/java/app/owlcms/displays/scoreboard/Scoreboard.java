@@ -635,8 +635,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                     break;
                 default:
                     if (stringValue != null && !trim.isEmpty()) {
-//                        logger.debug("{} {} during {} {} cjstarted {}  {}", fop.getState(), x.getShortName(), fop.isDuringSnatch(),
-//                                fop.isDuringCJ(), curLift, fop.isCjStarted());
+                        //logger.debug("{}  {}  {}", fop.getState(), x.getShortName(), curLift);
                         String highlight = "";
                         
                         // don't set blinking until decision has been shown and lifting order recomputed
