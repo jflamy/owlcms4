@@ -52,6 +52,7 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.options.DisplayOptions;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -75,7 +76,7 @@ import elemental.json.JsonValue;
 /**
  * Class Scoreboard
  *
- * Show athlete 6-attempt results
+ * Show athlete 6-attempt results plus ranks for all age groups present in the lifting group
  *
  */
 @SuppressWarnings("serial")
@@ -202,7 +203,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             model.setAttempt("");
             model.setHidden(false);
 
-            updateBottom(model, computeLiftType(fop.getCurAthlete()));
+            updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
             uiEventLogger.debug("$$$ ScoreMultiRanks calling doBreak()");
             this.getElement().callJsFunction("doBreak");
         }));
@@ -358,8 +359,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
 
     @Subscribe
     public void slaveGroupDone(UIEvent.GroupDone e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
+        uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
 //          Group g = e.getGroup();
@@ -369,8 +369,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
 
     @Subscribe
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-        // uiLog(e);
-        uiEventLogger.debug("### {} isDisplayToggle={}", this.getClass().getSimpleName(), e.isDisplayToggle());
+        uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Athlete a = e.getAthlete();
             displayOrder = e.getDisplayOrder();
@@ -381,8 +380,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
 
     @Subscribe
     public void slaveStartBreak(UIEvent.BreakStarted e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
+        uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
             doBreak();
@@ -400,8 +398,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
 
     @Subscribe
     public void slaveStopBreak(UIEvent.BreakDone e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
+        uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
             Athlete a = e.getAthlete();
@@ -412,14 +409,13 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
 
     @Subscribe
     public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
+        uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             syncWithFOP(e);
         });
     }
 
-    public void uiLog(UIEvent e) {
+    private void uiLog(UIEvent e) {
         uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
     }
@@ -462,7 +458,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             this.getElement().callJsFunction("reset");
         }
         logger.debug("updating bottom");
-        updateBottom(model, computeLiftType(a));
+        updateBottom(model, computeLiftType(a), fop);
     }
 
     /*
@@ -485,8 +481,8 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
-        SoundUtils.enableAudioContextNotification(this.getElement());
         switchLightingMode(this, isDarkMode(), true);
+        SoundUtils.enableAudioContextNotification(this.getElement());
     }
 
     protected void setTranslationMap() {
@@ -502,16 +498,15 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     }
 
     private void computeLeaders() {
-        logger.debug("computeLeaders");
         OwlcmsSession.withFop(fop -> {
             Athlete curAthlete = fop.getCurAthlete();
             if (curAthlete != null && curAthlete.getGender() != null) {
                 getModel().setCategoryName(curAthlete.getCategory().getName());
 
-                List<Athlete> order = fop.getLeaders();
-                if (order != null && order.size() > 0) {
+                displayOrder = fop.getLeaders();
+                if (displayOrder != null && displayOrder.size() > 0) {
                     // null as second argument because we do not highlight current athletes in the leaderboard
-                    this.getElement().setPropertyJson("leaders", getAthletesJson(order, null));
+                    this.getElement().setPropertyJson("leaders", getAthletesJson(displayOrder, null, fop));
                 } else {
                     // nothing to show
                     this.getElement().setPropertyJson("leaders", Json.createNull());
@@ -535,7 +530,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             doEmpty();
         } else {
             OwlcmsSession.withFop(fop -> {
-                updateBottom(getModel(), null);
+                updateBottom(getModel(), null, fop);
                 getModel().setFullName(getTranslation("Group_number_results", g.toString()));
                 this.getElement().callJsFunction("groupDone");
             });
@@ -545,7 +540,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     private void doUpdateBottomPart(Decision e) {
         ScoreboardModel model = getModel();
         Athlete a = e.getAthlete();
-        updateBottom(model, computeLiftType(a));
+        updateBottom(model, computeLiftType(a), OwlcmsSession.getFop());
     }
 
     private String formatAttempt(Integer attemptNo) {
@@ -592,7 +587,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         return ageGroups;
     }
 
-    private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
+    private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
         String category;
         category = curCat != null ? curCat.getName() : "";
         ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
@@ -601,7 +596,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         Integer startNumber = a.getStartNumber();
         ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
         ja.put("category", category != null ? category : "");
-        getAttemptsJson(a, liftOrderRank);
+        getAttemptsJson(a, liftOrderRank, fop);
         ja.put("sattempts", sattempts);
         ja.put("cattempts", cattempts);
         ja.put("total", formatInt(a.getTotal()));
@@ -625,18 +620,18 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                 cape.setValue(null);
             }
             if (a != null) {
-                //logger,debug(">>>setCurrentAthleteParticipations begin");
-                //logger,debug("setting {}", a.getShortName());
+                // logger,debug(">>>setCurrentAthleteParticipations begin");
+                // logger,debug("setting {}", a.getShortName());
                 for (Participation p : a.getParticipations()) {
                     AgeGroup ag = p.getCategory() != null ? p.getCategory().getAgeGroup() : null;
                     if (ag != null) {
-                        //logger,debug("athlete {} curRankings {} {}", a, ag.getCode(), p);
+                        // logger,debug("athlete {} curRankings {} {}", a, ag.getCode(), p);
                         ageGroupMap.put(ag.getCode(), p);
                     }
                 }
-                //logger,debug("<<<setCurrentAthleteParticipations end");
+                // logger,debug("<<<setCurrentAthleteParticipations end");
             } else {
-                //logger,debug("+++ cleared");
+                // logger,debug("+++ cleared");
             }
         });
     }
@@ -645,7 +640,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
      * @param groupAthletes, List<Athlete> liftOrder
      * @return
      */
-    private JsonValue getAthletesJson(List<Athlete> displayOrder, List<Athlete> liftOrder) {
+    private JsonValue getAthletesJson(List<Athlete> displayOrder, List<Athlete> liftOrder, FieldOfPlay fop) {
         JsonArray jath = Json.createArray();
         int athx = 0;
         Category prevCat = null;
@@ -669,7 +664,8 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                     ? 1
                     : ((a.getId() == nextId)
                             ? 2
-                            : 0));
+                            : 0),
+                    fop);
             String team = a.getTeam();
             if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
                 logger.trace("long team {}", team);
@@ -690,7 +686,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
      * @param liftOrderRank2
      * @return json string with nested attempts values
      */
-    private void getAttemptsJson(Athlete a, int liftOrderRank) {
+    private void getAttemptsJson(Athlete a, int liftOrderRank, FieldOfPlay fop) {
         sattempts = Json.createArray();
         cattempts = Json.createArray();
         XAthlete x = new XAthlete(a);
@@ -721,8 +717,24 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                     break;
                 default:
                     if (stringValue != null && !trim.isEmpty()) {
-                        String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? (" current" + blink)
-                                : (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
+                        // logger.debug("{} {} {}", fop.getState(), x.getShortName(), curLift);
+                        String highlight = "";
+
+                        // don't set blinking until decision has been shown and lifting order recomputed
+                        // in theory this would mean CURRENT_ATHLETE_DISPLAYED but also all the break conditions.
+                        if (i.getLiftNo() == curLift && !(fop.getState() == FOPState.TIME_STOPPED
+                                || fop.getState() == FOPState.TIME_RUNNING)) {
+                            switch (liftOrderRank) {
+                            case 1:
+                                highlight = (" current" + blink);
+                                break;
+                            case 2:
+                                highlight = " next";
+                                break;
+                            default:
+                                highlight = "";
+                            }
+                        }
                         jri.put("goodBadClassName", "narrow request");
                         if (notDone) {
                             jri.put("className", highlight);
@@ -751,7 +763,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         int i = 0;
         for (Entry<String, Participation> e : ageGroupMap.entrySet()) {
             Participation p = e.getValue();
-            //logger,debug("a {} k {} v {}", a.getShortName(), e.getKey(), p);
+            // logger,debug("a {} k {} v {}", a.getShortName(), e.getKey(), p);
             if (p == null) {
                 ranks.set(i, "");
             } else {
@@ -776,7 +788,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
 
     private void init() {
         OwlcmsSession.withFop(fop -> {
-            logger.trace("{}Starting result board.", fop.getLoggingName());
+            logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
             setId("scoreboard-" + fop.getName());
             curGroup = fop.getGroup();
             getModel().setWideTeamNames(false);
@@ -812,28 +824,26 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         }
     }
 
-    private void updateBottom(ScoreboardModel model, String liftType) {
-        OwlcmsSession.withFop((fop) -> {
-            curGroup = fop.getGroup();
-            displayOrder = fop.getDisplayOrder();
+    private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {
+        curGroup = fop.getGroup();
+        displayOrder = fop.getDisplayOrder();
 
-            if (liftType != null) {
-                model.setGroupName(
-                        curGroup != null
-                                ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
-                                : "");
-                liftsDone = AthleteSorter.countLiftsDone(displayOrder);
-                model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
-            } else {
-                model.setGroupName("X");
-                model.setLiftsDone("Y");
-                this.getElement().callJsFunction("groupDone");
-            }
-            this.getElement().setPropertyJson("ageGroups", getAgeGroupNamesJson(fop.getAgeGroupMap()));
-            this.getElement().setPropertyJson("athletes",
-                    getAthletesJson(displayOrder, fop.getLiftingOrder()));
-            computeLeaders();
-        });
+        if (liftType != null) {
+            model.setGroupName(
+                    curGroup != null
+                            ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
+                            : "");
+            liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+            model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
+        } else {
+            model.setGroupName("X");
+            model.setLiftsDone("Y");
+            this.getElement().callJsFunction("groupDone");
+        }
+        this.getElement().setPropertyJson("ageGroups", getAgeGroupNamesJson(fop.getAgeGroupMap()));
+        this.getElement().setPropertyJson("athletes",
+                getAthletesJson(displayOrder, fop.getLiftingOrder(), fop));
+        computeLeaders();
     }
 
 }

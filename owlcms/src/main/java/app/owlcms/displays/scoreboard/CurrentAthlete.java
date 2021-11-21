@@ -45,7 +45,9 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.options.DisplayOptions;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
@@ -54,7 +56,6 @@ import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.uievents.UIEvent.Decision;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -63,7 +64,6 @@ import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
-import app.owlcms.i18n.Translator;
 
 /**
  * Class Scoreboard
@@ -317,6 +317,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
             if (isDone()) {
                 doDone(e.getAthlete().getGroup());
             } else {
+                doUpdateBottomPart(e);
                 this.getElement().callJsFunction("reset");
             }
         });
@@ -409,8 +410,8 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     }
 
     protected void doUpdate(Athlete a, UIEvent e) {
-        logger.debug("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event", a,
-                a != null ? a.getAttemptsDone() : null);
+//        logger.debug("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event", a,
+//                a != null ? a.getAttemptsDone() : null);
         ScoreboardModel model = getModel();
         boolean leaveTopAlone = false;
         if (e instanceof UIEvent.LiftingOrderUpdated) {
@@ -440,9 +441,20 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
                 }
             }
             this.getElement().callJsFunction("reset");
+
+            // current athlete bottom should only change when top does
+            if (fop.getState() != FOPState.DECISION_VISIBLE) {
+//                logger.warn("updating bottom {}", fop.getState());
+                updateBottom(model, computeLiftType(a));
+            } else {
+//                logger.warn("not updating bottom {}", fop.getState());
+            }
+
         }
-        logger.debug("updating bottom");
-        updateBottom(model, computeLiftType(a));
+//        logger.warn("{} {}", leaveTopAlone, fop.getState());
+        if (leaveTopAlone && fop.getState() == FOPState.CURRENT_ATHLETE_DISPLAYED)
+            updateBottom(model, computeLiftType(a));
+
     }
 
     /*
@@ -499,7 +511,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         }
     }
 
-    private void doUpdateBottomPart(Decision e) {
+    private void doUpdateBottomPart(UIEvent e) {
         ScoreboardModel model = getModel();
         Athlete a = e.getAthlete();
         updateBottom(model, computeLiftType(a));
