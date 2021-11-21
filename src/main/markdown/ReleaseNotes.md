@@ -1,6 +1,6 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Fix:  Scoreboard with leaderboard and score with multiple ranks scoreboard also had the glitch with the blinking C&J declaration during Snatch 3 decision.
+- [x] Fixed "Scoreboard with leaderboard" and "Scoreboard with multiple ranks" blinking C&J declaration during Snatch 3 decision.
 - [x] Fix: Current athlete display was switching the bottom part portion prematurely instead of waiting for decision lights reset.
 
 ###### New in release 4.25

@@ -1,3 +1,5 @@
+git pull
+
 cd owlcms-heroku
 git checkout develop
 git pull
@@ -11,7 +13,7 @@ git commit -m "sync submodules [skip ci]" .
 git push
 
 cd ..
-git commit -m "sync submodules [skip ci]" .
+git commit -m "sync submodules [skip ci]" owlcms-heroku publicresults-heroku
 git push
 echo Done. synced develop submodules.
 
