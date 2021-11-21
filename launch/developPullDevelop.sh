@@ -1,9 +1,20 @@
 git pull --recurse-submodules
-git add .
-git commit -m "sync submodules [skip ci]" publicresults-heroku
-git commit -m "sync submodules [skip ci]" owlcms-heroku
-(cd publicresults-heroku; git push)
-(cd owlcms-heroku; git push)
+
+cd owlcms-heroku
+git checkout develop
+git merge
+git commit -m "sync submodules [skip ci]" .
+git push
+
+cd ..\publicresults-heroku
+git checkout develop
+git merge
+git commit -m "sync submodules [skip ci]" .
+git push
+
+cd ..
+git commit -m "sync submodules [skip ci]" .
+git push
 echo Done. synced develop submodules.
-pause
+
 
