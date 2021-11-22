@@ -1,5 +1,6 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+- [x] Fix: Team membership is true by default.
 - [x] Updated Danish translation
 - [x] Fix: default number of children 5kg bumper plates was 1 instead of 0.
 
