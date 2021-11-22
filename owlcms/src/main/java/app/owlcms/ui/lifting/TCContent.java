@@ -173,7 +173,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 
         TextField nbL5 = new TextField();
         largePlates.addFormItem(nbL5, getTranslation("Kg", 5));
-        binder.forField(nbL5).withConverter(converter).bind(Platform::getNbL_10, Platform::setNbL_5);
+        binder.forField(nbL5).withConverter(converter).bind(Platform::getNbL_5, Platform::setNbL_5);
         nbL5.setAutoselect(true);
 
         TextField nbL2_5 = new TextField();
