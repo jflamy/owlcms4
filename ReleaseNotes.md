@@ -1,7 +1,7 @@
-##### **Changes for release 4.25.0-beta03**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Changes for release 4.25.0-beta04**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Fixed "Scoreboard with leaderboard" and "Scoreboard with multiple ranks" blinking C&J declaration during Snatch 3 decision.
-- [x] Fix: Current athlete display was switching the bottom part portion prematurely instead of waiting for decision lights reset.
+- [x] Updated Danish translation
+- [x] Fix: default number of children 5kg bumper plates was 1 instead of 0.
 
 ###### New in release 4.25
 
