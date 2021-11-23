@@ -63,7 +63,6 @@ import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.uievents.UIEvent.Decision;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -204,7 +203,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             model.setHidden(false);
 
             updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
-            uiEventLogger.debug("$$$ ScoreMultiRanks calling doBreak()");
             this.getElement().callJsFunction("doBreak");
         }));
     }
@@ -335,6 +333,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             if (isDone()) {
                 doDone(e.getAthlete().getGroup());
             } else {
+                doUpdateBottomPart(e);
                 this.getElement().callJsFunction("reset");
             }
         });
@@ -537,7 +536,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         }
     }
 
-    private void doUpdateBottomPart(Decision e) {
+    private void doUpdateBottomPart(UIEvent e) {
         ScoreboardModel model = getModel();
         Athlete a = e.getAthlete();
         updateBottom(model, computeLiftType(a), OwlcmsSession.getFop());
@@ -604,13 +603,25 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         ja.put("snatchRanks", getRanksJson(a, Ranking.SNATCH, ageGroupMap));
         ja.put("cleanJerkRanks", getRanksJson(a, Ranking.CLEANJERK, ageGroupMap));
         ja.put("totalRanks", getRanksJson(a, Ranking.TOTAL, ageGroupMap));
-
         ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
+        
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
-        if (notDone) {
-            ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
+        String highlight = "";
+        if (fop.getState() != FOPState.DECISION_VISIBLE && notDone) {
+            switch (liftOrderRank) {
+            case 1:
+                highlight = (" current" + blink);
+                break;
+            case 2:
+                highlight = " next";
+                break;
+            default:
+                highlight = "";
+            }
         }
+        logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
+        ja.put("classname", highlight);
     }
 
     private void setCurrentAthleteParticipations(Athlete a) {
@@ -683,7 +694,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
      * CSS classes are pre-computed and passed along with the values; weights are formatted.
      *
      * @param a
-     * @param liftOrderRank2
+     * @param fop
      * @return json string with nested attempts values
      */
     private void getAttemptsJson(Athlete a, int liftOrderRank, FieldOfPlay fop) {
@@ -718,12 +729,12 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                 default:
                     if (stringValue != null && !trim.isEmpty()) {
                         // logger.debug("{} {} {}", fop.getState(), x.getShortName(), curLift);
-                        String highlight = "";
-
-                        // don't set blinking until decision has been shown and lifting order recomputed
-                        // in theory this would mean CURRENT_ATHLETE_DISPLAYED but also all the break conditions.
-                        if (i.getLiftNo() == curLift && !(fop.getState() == FOPState.TIME_STOPPED
-                                || fop.getState() == FOPState.TIME_RUNNING)) {
+                        
+                        String highlight = "";           
+                        // don't blink while decision is visible. wait until lifting displayOrder has been
+                        // recomputed and we get DECISION_RESET
+                        int liftBeingDisplayed = i.getLiftNo();
+                        if (liftBeingDisplayed == curLift && (fop.getState() != FOPState.DECISION_VISIBLE)) {
                             switch (liftOrderRank) {
                             case 1:
                                 highlight = (" current" + blink);

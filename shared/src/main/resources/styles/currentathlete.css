@@ -429,27 +429,27 @@ th, td {
     font-style: italic;
 }
 
-//:host(.dark) td.current {
-//  color: yellow;
-//  font-weight: bold;
-//}
-//
-//:host(.light) td.current {
-//  background-color: yellow;
-//  font-weight: bold;
-//}
+:host(.dark) td.current {
+  color: yellow;
+  font-weight: bold;
+}
+
+:host(.light) td.current {
+  background-color: yellow;
+  font-weight: bold;
+}
 
 
-//.blink {
-//  animation: blink 1.5s step-start 0s infinite;
-//  -webkit-animation: blink 1.5s step-start 0s infinite;
-//}
-//@keyframes blink {
-// 50% {opacity: 0.0;}
-//}
-//@-webkit-keyframes blink {
-// 50% {opacity: 0.0;}
-//}
+.blink {
+    animation: blink 1.5s step-start 0s infinite;
+    -webkit-animation: blink 1.5s step-start 0s infinite;
+}
+@keyframes blink {
+   50% {opacity: 0.0;}
+}
+@-webkit-keyframes blink {
+   50% {opacity: 0.0;}
+}
 
 :host(.dark) .next {
     color: orange;

@@ -58,7 +58,6 @@ import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.uievents.UIEvent.Decision;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -153,7 +152,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     private DecisionElement decisions; // Flow creates it
 
     private EventBus uiEventBus;
-    private List<Athlete> order;
+    private List<Athlete> displayOrder;
     private Group curGroup;
     private int liftsDone;
 
@@ -163,9 +162,9 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     private Location location;
     private UI locationUI;
     private boolean groupDone;
-    private boolean silenced = true;
     private Dialog dialog;
-    private boolean showInitialDialog;
+    private boolean silenced = true;
+    private boolean initializationNeeded;
 
     /**
      * Instantiates a new results board.
@@ -247,7 +246,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
      */
     @Override
     public boolean isShowInitialDialog() {
-        return this.showInitialDialog;
+        return this.initializationNeeded;
     }
 
     @Override
@@ -259,7 +258,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
      * Reset.
      */
     public void reset() {
-        order = ImmutableList.of();
+        displayOrder = ImmutableList.of();
     }
 
     @Override
@@ -282,7 +281,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
      */
     @Override
     public void setShowInitialDialog(boolean b) {
-        this.showInitialDialog = true;
+        this.initializationNeeded = true;
     }
 
     @Override
@@ -299,12 +298,12 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             Athlete a = e.getAthlete();
             getModel().setHidden(false);
             if (a == null) {
-                order = fop.getLiftingOrder();
-                a = order.size() > 0 ? order.get(0) : null;
-                liftsDone = AthleteSorter.countLiftsDone(order);
+                displayOrder = fop.getLiftingOrder();
+                a = displayOrder.size() > 0 ? displayOrder.get(0) : null;
+                liftsDone = AthleteSorter.countLiftsDone(displayOrder);
                 doUpdate(a, e);
             } else {
-                liftsDone = AthleteSorter.countLiftsDone(order);
+                liftsDone = AthleteSorter.countLiftsDone(displayOrder);
                 doUpdate(a, e);
             }
         }));
@@ -328,6 +327,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             if (isDone()) {
                 doDone(e.getAthlete().getGroup());
             } else {
+                doUpdateBottomPart(e);
                 this.getElement().callJsFunction("reset");
             }
         });
@@ -344,8 +344,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 
     @Subscribe
     public void slaveGroupDone(UIEvent.GroupDone e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
+        uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
 //          Group g = e.getGroup();
@@ -355,21 +354,18 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 
     @Subscribe
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-        // uiLog(e);
-        uiEventLogger.debug("### {} isDisplayToggle={}", this.getClass().getSimpleName(), e.isDisplayToggle());
+        uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Athlete a = e.getAthlete();
-            order = e.getDisplayOrder();
-            liftsDone = AthleteSorter.countLiftsDone(order);
+            displayOrder = e.getDisplayOrder();
+            liftsDone = AthleteSorter.countLiftsDone(displayOrder);
             doUpdate(a, e);
         });
     }
 
     @Subscribe
     public void slaveStartBreak(UIEvent.BreakStarted e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
-        uiEventLogger.debug("$$$ slaveStartBreak - scoreboard calling doBreak() {}"/* , LoggerUtils. stackTrace() */);
+        uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
             doBreak();
@@ -387,8 +383,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 
     @Subscribe
     public void slaveStopBreak(UIEvent.BreakDone e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
+        uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
             Athlete a = e.getAthlete();
@@ -399,14 +394,13 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 
     @Subscribe
     public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
+        uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             syncWithFOP(e);
         });
     }
 
-    public void uiLog(UIEvent e) {
+    private void uiLog(UIEvent e) {
         uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
     }
@@ -460,10 +454,11 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         // fop hase been obtained via FOPParameters interface default methods.
         OwlcmsSession.withFop(fop -> {
             init();
-            // sync with current status of FOP
-            order = fop.getDisplayOrder();
-            liftsDone = AthleteSorter.countLiftsDone(order);
-            syncWithFOP(null);
+
+            // get the global category rankings (attached to each athlete)
+            displayOrder = fop.getDisplayOrder();
+            liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+            syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
@@ -507,7 +502,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         }
     }
 
-    private void doUpdateBottomPart(Decision e) {
+    private void doUpdateBottomPart(UIEvent e) {
         ScoreboardModel model = getModel();
         Athlete a = e.getAthlete();
         updateBottom(model, computeLiftType(a), OwlcmsSession.getFop());
@@ -525,6 +520,16 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             return "inv.";// invited lifter, not eligible.
         } else if (total < 0) {
             return "(" + Math.abs(total) + ")";
+        } else {
+            return total.toString();
+        }
+    }
+
+    private String formatRank(Integer total) {
+        if (total == null || total == 0) {
+            return "";
+        } else if (total == -1) {
+            return "inv.";// invited lifter, not eligible.
         } else {
             return total.toString();
         }
@@ -548,15 +553,28 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         ja.put("sattempts", sattempts);
         ja.put("cattempts", cattempts);
         ja.put("total", formatInt(a.getTotal()));
-        ja.put("snatchRank", formatInt(a.getMainRankings().getSnatchRank()));
-        ja.put("cleanJerkRank", formatInt(a.getMainRankings().getCleanJerkRank()));
-        ja.put("totalRank", formatInt(a.getMainRankings().getTotalRank()));
+        ja.put("snatchRank", formatRank(a.getMainRankings().getSnatchRank()));
+        ja.put("cleanJerkRank", formatRank(a.getMainRankings().getCleanJerkRank()));
+        ja.put("totalRank", formatRank(a.getMainRankings().getTotalRank()));
         Integer liftOrderRank = a.getLiftOrderRank();
+
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
-        if (notDone) {
-            ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
+        String highlight = "";
+        if (fop.getState() != FOPState.DECISION_VISIBLE && notDone) {
+            switch (liftOrderRank) {
+            case 1:
+                highlight = (" current" + blink);
+                break;
+            case 2:
+                highlight = " next";
+                break;
+            default:
+                highlight = "";
+            }
         }
+        //logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
+        ja.put("classname", highlight);
     }
 
     /**
@@ -635,12 +653,13 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                     break;
                 default:
                     if (stringValue != null && !trim.isEmpty()) {
-                        //logger.debug("{}  {}  {}", fop.getState(), x.getShortName(), curLift);
+                        // logger.debug("{} {} {}", fop.getState(), x.getShortName(), curLift);
+
                         String highlight = "";
-                        
-                        // don't set blinking until decision has been shown and lifting order recomputed
-                        // in theory this would mean CURRENT_ATHLETE_DISPLAYED but also all the break conditions.
-                        if (i.getLiftNo() == curLift && !(fop.getState() == FOPState.TIME_STOPPED || fop.getState() == FOPState.TIME_RUNNING)) {
+                        // don't blink while decision is visible. wait until lifting displayOrder has been
+                        // recomputed and we get DECISION_RESET
+                        int liftBeingDisplayed = i.getLiftNo();
+                        if (liftBeingDisplayed == curLift && (fop.getState() != FOPState.DECISION_VISIBLE)) {
                             switch (liftOrderRank) {
                             case 1:
                                 highlight = (" current" + blink);
@@ -684,7 +703,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             getModel().setCompetitionName(Competition.getCurrent().getCompetitionName());
         });
         setTranslationMap();
-        order = ImmutableList.of();
+        displayOrder = ImmutableList.of();
     }
 
     private boolean isDone() {
@@ -695,30 +714,28 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         this.groupDone = b;
     }
 
+
     private void syncWithFOP(UIEvent.SwitchGroup e) {
-        OwlcmsSession.withFop(fop -> {
-            switch (fop.getState()) {
-            case INACTIVE:
+        switch (e.getState()) {
+        case INACTIVE:
+            doEmpty();
+            break;
+        case BREAK:
+            if (e.getGroup() == null) {
                 doEmpty();
-                break;
-            case BREAK:
-                if (fop.getGroup() == null) {
-                    doEmpty();
-                } else {
-                    doUpdate(fop.getCurAthlete(), e);
-                    uiEventLogger.debug("$$$ scoreboard calling doBreak() {}", LoggerUtils.whereFrom());
-                    doBreak();
-                }
-                break;
-            default:
-                doUpdate(fop.getCurAthlete(), e);
+            } else {
+                doUpdate(e.getAthlete(), e);
+                doBreak();
             }
-        });
+            break;
+        default:
+            doUpdate(e.getAthlete(), e);
+        }
     }
 
     private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {
         curGroup = fop.getGroup();
-        order = fop.getDisplayOrder();
+        displayOrder = fop.getDisplayOrder();
         if (liftType != null) {
             model.setGroupName(
                     curGroup != null
@@ -730,7 +747,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             model.setLiftsDone("B");
             this.getElement().callJsFunction("groupDone");
         }
-        this.getElement().setPropertyJson("athletes", getAthletesJson(order, fop));
+        this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder, fop));
     }
 
 }

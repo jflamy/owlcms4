@@ -476,8 +476,8 @@ public class FieldOfPlay {
         } else if (e instanceof StartLifting) {
             boolean resumed = false;
             if (state == BREAK && (breakType == BreakType.JURY || breakType == BreakType.TECHNICAL)) {
-               // if group under way, this will try to just keep going.
-               resumed = resumeLifting(e);
+                // if group under way, this will try to just keep going.
+                resumed = resumeLifting(e);
             }
             if (!resumed) {
                 // group was not under way, full start.
@@ -546,6 +546,8 @@ public class FieldOfPlay {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof JuryDecision) {
                 doJuryDecision((JuryDecision) e);
+            } else if (e instanceof DecisionReset) {
+                doDecisionReset(e);
             } else {
                 unexpectedEventInState(e, BREAK);
             }
@@ -670,15 +672,22 @@ public class FieldOfPlay {
                 weightChangeDoNotDisturb((WeightChange) e);
                 setState(DECISION_VISIBLE);
             } else if (e instanceof DecisionReset) {
-                logger.debug("{}resetting decisions", getLoggingName());
-                pushOut(new UIEvent.DecisionReset(getCurAthlete(), e.origin));
-                setClockOwner(null);
-                displayOrBreakIfDone(e);
+                doDecisionReset(e);
             } else {
                 unexpectedEventInState(e, DECISION_VISIBLE);
             }
             break;
         }
+    }
+
+    private void doDecisionReset(FOPEvent e) {
+        logger.debug("{}resetting decisions", getLoggingName());
+        // the state will be rewritten in displayOrBreakIfDone
+        // this is so the decision reset knows that the decision is no longer displayed.
+        setState(CURRENT_ATHLETE_DISPLAYED);
+        pushOut(new UIEvent.DecisionReset(getCurAthlete(), e.origin));
+        setClockOwner(null);
+        displayOrBreakIfDone(e);
     }
 
     private void doJuryDecision(JuryDecision e) {
@@ -1382,9 +1391,12 @@ public class FieldOfPlay {
         getCurAthlete().resetForcedAsCurrent();
         AthleteRepository.save(getCurAthlete());
         uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), goodLift, refereeDecision, refereeTime, origin);
+
+        // must set state before recomputing order so that scoreboards stop blinking.
+        setState(DECISION_VISIBLE);
         recomputeLiftingOrder();
         // updateGlobalRankings(); // now done in recomputeLiftingOrder
-        setState(DECISION_VISIBLE);
+
         // tell ourself to reset after 3 secs.
         new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), DECISION_VISIBLE_DURATION);
     }
