@@ -619,8 +619,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         return;
     }
 
-    private String formattedDuration(Long timeRemaining2) {
-        return (timeRemaining2 != null && timeRemaining2 >= 0) ? DurationFormatUtils.formatDurationHMS(timeRemaining2) : "null";
+    private String formattedDuration(Long milliseconds) {
+        return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds) : (milliseconds != null ? milliseconds.toString() : "-");
     }
 
     private void setCtValue(CountdownType ct2) {

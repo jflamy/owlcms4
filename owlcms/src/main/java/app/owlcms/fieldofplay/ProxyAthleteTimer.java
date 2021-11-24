@@ -100,8 +100,8 @@ public class ProxyAthleteTimer implements IProxyTimer {
         }
     }
 
-    private String formattedDuration(Integer timeRemaining2) {
-        return (timeRemaining2 != null && timeRemaining2 >= 0) ? DurationFormatUtils.formatDurationHMS(timeRemaining2) : timeRemaining2.toString();
+    private String formattedDuration(Integer milliseconds) {
+        return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds) : (milliseconds != null ? milliseconds.toString() : "-");
     }
 
     /**
