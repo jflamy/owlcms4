@@ -1,8 +1,6 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Blinking fixes:  
-  - highlighting was lost when a change was made to another athlete.
-  - on the scoreboards, highlighting/blinking is now stopped during decision display until the new lifting order is known (to ensure that the blinking athlete is the same as shown at the top)
+- [x] Swedish Translation
 
 ###### New in release 4.25
 
