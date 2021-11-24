@@ -89,15 +89,19 @@ public class ProxyAthleteTimer implements IProxyTimer {
             stopMillis = System.currentTimeMillis();
             long elapsed = stopMillis - startMillis;
             int tr = (int) (getTimeRemaining() - elapsed);
-            logger.debug("liveTimeRemaining running {} {}", DurationFormatUtils.formatDurationHMS(tr),
+            logger.debug("liveTimeRemaining running {} {}", formattedDuration(tr),
                     LoggerUtils.whereFrom());
             return tr;
         } else {
             int tr = getTimeRemaining();
-            logger.debug("liveTimeRemaining stopped {} {}", DurationFormatUtils.formatDurationHMS(tr),
+            logger.debug("liveTimeRemaining stopped {} {}", formattedDuration(tr),
                     LoggerUtils.whereFrom());
             return tr;
         }
+    }
+
+    private String formattedDuration(Integer timeRemaining2) {
+        return (timeRemaining2 != null && timeRemaining2 >= 0) ? DurationFormatUtils.formatDurationHMS(timeRemaining2) : timeRemaining2.toString();
     }
 
     /**

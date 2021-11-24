@@ -282,7 +282,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     }
 
     private String formatDuration(Integer milliseconds) {
-        return milliseconds != null ? DurationFormatUtils.formatDurationHMS(milliseconds) : null;
+        return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds) : milliseconds.toString();
     }
 
     private Integer getMsRemaining() {

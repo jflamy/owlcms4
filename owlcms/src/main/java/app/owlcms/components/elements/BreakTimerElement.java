@@ -187,7 +187,7 @@ public class BreakTimerElement extends TimerElement {
     }
 
     private String formatDuration(Integer milliseconds) {
-        return milliseconds != null ? DurationFormatUtils.formatDurationHMS(milliseconds) : "null";
+        return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds) : milliseconds.toString();
     }
 
 }

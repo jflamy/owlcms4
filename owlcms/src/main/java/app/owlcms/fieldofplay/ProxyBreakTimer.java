@@ -127,19 +127,19 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     public int liveTimeRemaining() {
         if (end != null) {
             int until = (int) LocalDateTime.now().until(end, ChronoUnit.MILLIS);
-            logger.debug("liveTimeRemaining target {} {}", DurationFormatUtils.formatDurationHMS(until),
+            logger.debug("liveTimeRemaining target {} {}", until >=0 ? DurationFormatUtils.formatDurationHMS(until) : until,
                     LoggerUtils.whereFrom());
             return until;
         } else if (running) {
             stopMillis = System.currentTimeMillis();
             long elapsed = stopMillis - startMillis;
             int tr = (int) (getTimeRemaining() - elapsed);
-            logger.debug("liveTimeRemaining running {} {}", DurationFormatUtils.formatDurationHMS(tr),
+            logger.debug("liveTimeRemaining running {} {}", tr >=0 ? DurationFormatUtils.formatDurationHMS(tr) : tr,
                     LoggerUtils.whereFrom());
             return tr;
         } else {
             int tr = getTimeRemaining();
-            logger.debug("liveTimeRemaining stopped {} {}", tr > 0 ? DurationFormatUtils.formatDurationHMS(tr) : tr,
+            logger.debug("liveTimeRemaining stopped {} {}", tr >=0 ? DurationFormatUtils.formatDurationHMS(tr) : tr,
                     LoggerUtils.whereFrom());
             return tr;
         }
@@ -191,16 +191,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     @Override
     public void setTimeRemaining(int timeRemaining2) {
         indefinite = false;
-
         this.timeRemaining = timeRemaining2;
-//        if (running) {
-//            computeTimeRemaining();
-//        }
-
-        //logger.debug("setting break timeRemaining = {} [{}]", DurationFormatUtils.formatDurationHMS(this.timeRemaining),LoggerUtils. stackTrace());
-
-//        fop.pushOut(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), timeRemaining,
-//                this.indefinite, this));
         running = false;
     }
 

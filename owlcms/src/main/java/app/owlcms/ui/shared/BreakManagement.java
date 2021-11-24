@@ -595,7 +595,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 LocalDateTime target = getTarget();
                 timeRemaining = now.until(target, ChronoUnit.MILLIS);
                 logger.debug("setBreakTimerFromFields target-derived duration {}",
-                        DurationFormatUtils.formatDurationHMS(timeRemaining));
+                        formattedDuration(timeRemaining));
                 breakTimerElement.slaveBreakSet(
                         new BreakSetTime(bType, cType, timeRemaining.intValue(), target, false, this.getOrigin()));
             } else if (cType == CountdownType.INDEFINITE) {
@@ -610,13 +610,17 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 fop.getBreakTimer().setTimeRemaining(timeRemaining.intValue());
                 fop.getBreakTimer().setBreakDuration(timeRemaining.intValue());
                 logger.debug("setBreakTimerFromFields explicit duration {}",
-                        DurationFormatUtils.formatDurationHMS(timeRemaining));
+                        formattedDuration(timeRemaining));
                 // this sets time locally only
                 breakTimerElement.slaveBreakSet(
                         new BreakSetTime(bType, cType, timeRemaining.intValue(), null, false, this.getOrigin()));
             }
         });
         return;
+    }
+
+    private String formattedDuration(Long timeRemaining2) {
+        return (timeRemaining2 != null && timeRemaining2 >= 0) ? DurationFormatUtils.formatDurationHMS(timeRemaining2) : "null";
     }
 
     private void setCtValue(CountdownType ct2) {
