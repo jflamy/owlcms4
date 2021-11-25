@@ -484,13 +484,23 @@ public class Athlete {
 
     public void computeMainCategory() {
         Double weight = this.getBodyWeight();
+        Integer age = this.getAge();
         if (weight == null || weight < 0.01) {
+//            logger.debug("no weight {}", this.getShortName());
             Double presumedBodyWeight = this.getPresumedBodyWeight();
 //            logger.debug("presumed weight {} {} {}",this.getShortName(), presumedBodyWeight, this.getCategory());
             if (presumedBodyWeight != null) {
                 weight = presumedBodyWeight - 0.01D;
+                if (age == null || age == 0) {
+
+                    // try to set category to match sheet, with coherent eligibles
+                    if (this.category != null) {    
+                        age = category.getAgeGroup().getMaxAge();
+                    }
+                }
+
                 List<Category> categories = CategoryRepository.findByGenderAgeBW(
-                        this.getGender(), this.getAge(), weight);
+                        this.getGender(), age, weight);
 
                 categories = categories.stream()
 //                        .peek((c) -> {
@@ -498,8 +508,7 @@ public class Athlete {
 //                                    c.getQualifyingTotal());
 //                        })
                         .filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
-                
-
+//                logger.debug("{} presumed weight {} age {} {} {}",this.getShortName(), presumedBodyWeight, age, this.getCategory(), categories);
                 setEligibles(this, categories);
                 this.setCategory(bestMatch(categories));
                 
@@ -507,8 +516,9 @@ public class Athlete {
 
             }
         } else {
+//            logger.debug("weight {}", this.getShortName());
             List<Category> categories = CategoryRepository.findByGenderAgeBW(
-                    this.getGender(), this.getAge(), weight);
+                    this.getGender(), age, weight);
             categories = categories.stream()
 //                    .peek((c) -> {
 //                        logger.debug("a {} aq {} cq {}", this.getShortName(), this.getQualifyingTotal(),
