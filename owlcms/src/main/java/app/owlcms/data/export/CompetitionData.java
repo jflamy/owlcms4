@@ -142,7 +142,7 @@ public class CompetitionData {
 //                    em.merge(p);
 //                }
 //                
-
+                em.merge(competition);
 
                 em.flush();
             } catch (Exception e) {
