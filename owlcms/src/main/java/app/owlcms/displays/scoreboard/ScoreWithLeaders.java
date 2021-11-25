@@ -325,10 +325,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             getModel().setHidden(false);
             if (isDone()) {
-                logger.warn("done");
                 doDone(e.getAthlete().getGroup());
             } else {
-                logger.warn("not done");
                 doUpdateBottomPart(e);
                 this.getElement().callJsFunction("reset");
             }

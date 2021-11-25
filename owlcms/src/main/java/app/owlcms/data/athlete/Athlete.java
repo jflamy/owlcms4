@@ -484,20 +484,26 @@ public class Athlete {
 
     public void computeMainCategory() {
         Double weight = this.getBodyWeight();
-        if (weight == null) {
+        if (weight == null || weight < 0.01) {
             Double presumedBodyWeight = this.getPresumedBodyWeight();
+//            logger.debug("presumed weight {} {} {}",this.getShortName(), presumedBodyWeight, this.getCategory());
             if (presumedBodyWeight != null) {
                 weight = presumedBodyWeight - 0.01D;
                 List<Category> categories = CategoryRepository.findByGenderAgeBW(
                         this.getGender(), this.getAge(), weight);
+
                 categories = categories.stream()
 //                        .peek((c) -> {
-//                            logger.debug("a {} aq {} cq {}", this.getShortName(), this.getQualifyingTotal(),
+//                            logger.debug("no weight a {} aq {} cq {}", this.getShortName(), this.getQualifyingTotal(),
 //                                    c.getQualifyingTotal());
 //                        })
                         .filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
+                
+
                 setEligibles(this, categories);
                 this.setCategory(bestMatch(categories));
+                
+//                logger.debug("{} {} gender {} age {} weight {} category *{}* categories {}", this.getId(), this.getShortName(), this.getGender(), this.getAge(), weight, this.getCategory(), categories);
 
             }
         } else {
@@ -1712,6 +1718,9 @@ public class Athlete {
         Double bodyWeight2 = getBodyWeight();
         if (bodyWeight2 != null && bodyWeight2 >= 0) {
             return bodyWeight2;
+        }
+        if (category != null) {
+            return category.getMaximumWeight();
         }
         return presumedBodyWeight;
     }

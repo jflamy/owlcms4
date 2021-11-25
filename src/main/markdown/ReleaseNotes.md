@@ -2,6 +2,7 @@
 
 - [x] Russian Translation adjustments
 - [x] Registration export template fix for translation
+- [x] Fix exceptions while writing durations to log file
 
 ###### New in release 4.25
 

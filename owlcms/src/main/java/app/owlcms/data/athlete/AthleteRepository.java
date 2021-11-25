@@ -121,7 +121,7 @@ public class AthleteRepository {
         String qlString = "select a from Athlete a"
                 + filteringSelection(lastName, group, category, ageGroup, ageDivision, gender, weighedIn)
                 + " order by a.category";
-        logger.debug("find query = {}", qlString);
+        //logger.debug("find query = {}", qlString);
         Query query = em.createQuery(qlString);
         setFilteringParameters(lastName, group, category, ageGroup, ageDivision, gender, query);
         if (offset >= 0) {
@@ -192,8 +192,7 @@ public class AthleteRepository {
         return JPAService.runInTransaction((em) -> {
             String onlyCategoriesFromCurrentGroup = "";
             if (g != null) {
-                onlyCategoriesFromCurrentGroup = 
-                        " join p.category c where exists " +
+                onlyCategoriesFromCurrentGroup = " join p.category c where exists " +
                         "     (select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId and c2.id = c.id)";
             }
             Query q = em.createQuery(
@@ -253,10 +252,12 @@ public class AthleteRepository {
      * Use the athlete bodyweight (or presumed body weight if weigh-in has not taken place) to determine category.
      */
     public static void resetParticipations() {
+        //logger.debug("recomputing eligibles");
         JPAService.runInTransaction(em -> {
             List<Athlete> athletes = AthleteRepository.doFindAll(em);
             for (Athlete a : athletes) {
-                a.setCategory(null);
+                // do not clear category, required if no body weight
+                // a.setCategory(null);
                 a.setEligibleCategories(null);
                 em.merge(a);
             }
@@ -264,6 +265,7 @@ public class AthleteRepository {
             Competition.getCurrent().setRankingsInvalid(true);
             return null;
         });
+        //logger.debug("recomputing main cat");
         JPAService.runInTransaction(em -> {
             List<Athlete> athletes = AthleteRepository.doFindAll(em);
             for (Athlete a : athletes) {

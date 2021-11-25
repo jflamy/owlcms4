@@ -46,6 +46,7 @@ import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
@@ -132,10 +133,11 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
      */
     @Override
     public Collection<Athlete> findAll() {
-        List<Athlete> all = AthleteRepository.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
+        List<Athlete> findFiltered = AthleteRepository.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
                 categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(),
                 genderFilter.getValue(), weighedInFilter.getValue(), -1, -1);
-        return all;
+        AthleteSorter.registrationOrder(findFiltered);
+        return findFiltered;
     }
 
     /**
