@@ -104,7 +104,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
                         postProcess(workbook);
                     }
                 } else {
-                    String noAthletes = "No Athletes";
+                    String noAthletes = Translator.translate("NoAthletes");
                     logger./**/warn("no athletes: empty report.");
                     ui.access(() -> {
                         Notification notif = new Notification();
