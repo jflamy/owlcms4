@@ -52,6 +52,7 @@ public class PlatformRepository {
                 g.setPlatform(null);
             }
             em.remove(em.contains(platform) ? platform : em.merge(platform));
+            OwlcmsFactory.unregisterFOP(platform);
             return null;
         });
     }
@@ -110,6 +111,8 @@ public class PlatformRepository {
             FieldOfPlay fop = OwlcmsFactory.getFOPByName(name);
             if (fop != null) {
                 fop.setPlatform(nPlatform);
+            } else {
+                OwlcmsFactory.registerFOP(nPlatform);
             }
         }
         return nPlatform;
