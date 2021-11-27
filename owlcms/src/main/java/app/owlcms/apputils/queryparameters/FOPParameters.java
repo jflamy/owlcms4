@@ -132,6 +132,12 @@ public interface FOPParameters extends HasUrlParameter<String> {
                 new Location(location.getPath(), new QueryParameters(params)));
     }
 
+    
+    /**
+     * By default, there is no initial dialog.
+     * Classes that need one must override.
+     * @param b
+     */
     public default void setShowInitialDialog(boolean b) {
     }
 
