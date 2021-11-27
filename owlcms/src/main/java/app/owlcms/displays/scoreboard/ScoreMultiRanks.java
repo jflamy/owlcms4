@@ -293,6 +293,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     @Override
     public void setSilenced(boolean silenced) {
         this.timer.setSilenced(silenced);
+        this.decisions.setSilenced(silenced);
         this.breakTimer.setSilenced(silenced);
         this.silenced = silenced;
     }

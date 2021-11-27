@@ -23,6 +23,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -63,6 +64,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
     protected EventBus uiEventBus;
     protected EventBus fopEventBus;
+    private boolean silenced;
 
     public DecisionElement() {
     }
@@ -133,7 +135,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
             uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
                     this.getParent().get().getClass().getSimpleName());
-            this.getElement().callJsFunction("showDown", false, OwlcmsSession.getFop().isEmitSoundsOnServer());
+            this.getElement().callJsFunction("showDown", false, isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
         });
     }
 
@@ -209,5 +211,17 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         elem.addPropertyChangeListener("decision", "decision-changed", (e) -> {
             uiEventLogger.debug(e.getPropertyName() + " changed to " + e.getValue());
         });
+    }
+
+    public void setSilenced(boolean b) {
+        logger.debug("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
+        silenced = b;
+    }
+
+    /**
+     * @return the silenced
+     */
+    public boolean isSilenced() {
+        return silenced;
     }
 }

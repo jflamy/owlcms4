@@ -288,6 +288,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     public void setSilenced(boolean silenced) {
         this.timer.setSilenced(silenced);
         this.breakTimer.setSilenced(silenced);
+        this.decisions.setSilenced(silenced);
         this.silenced = silenced;
     }
 
