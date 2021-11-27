@@ -19,7 +19,6 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
-import app.owlcms.utils.LoggerUtils;
 
 /**
  * The Class AbstractLifterComparator.
