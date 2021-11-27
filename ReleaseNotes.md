@@ -1,6 +1,9 @@
-##### **Changes for release 4.25.0-rc07**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Changes for release 4.25.0-rc08**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Enhancement: new start list template for multi-platform competitions (shows the platform)
+- [x] Enhancement: new Start List template for multi-platform competitions (shows the platform)
+- [x] Fix: the scoreboards no longer emit sound on the down signal when in silent mode
+- [x] Fix: on page refresh, athlete timers fetch the remaining time from the server and resume counting down as appropriate.
+- [x] Fix: the demonstration data had wrong start numbers (calculation was before allocation of categories)
 
 ###### New in release 4.25
 
