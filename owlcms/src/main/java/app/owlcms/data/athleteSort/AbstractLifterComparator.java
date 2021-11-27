@@ -19,6 +19,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.utils.LoggerUtils;
 
 /**
  * The Class AbstractLifterComparator.
@@ -363,6 +364,7 @@ public class AbstractLifterComparator {
         LocalDateTime lifter2Date = lifter2Group.getWeighInTime();
         compare = ObjectUtils.compare(lifter1Date, lifter2Date, true);
         if (compare != 0) {
+            //logger.trace("different date {} {}", lifter1Date, lifter1Date);
             return compare;
         }
         
@@ -370,16 +372,17 @@ public class AbstractLifterComparator {
         Platform p2 = lifter2Group.getPlatform();
         String name1 = p1 != null ? p1.getName() : null;
         String name2 = p2 != null ? p2.getName() : null;
-        compare = ObjectUtils.compare(name1, name2, true);
+        compare = ObjectUtils.compare(name1, name2, false);
         if (compare != 0) {
+            //logger.trace("different platform {} {} {}", name1, name2, LoggerUtils.whereFrom(10));
             return compare;
         }
-
 
         String lifter1String = lifter1Group.getName();
         String lifter2String = lifter2Group.getName();
         compare = ObjectUtils.compare(lifter1String, lifter2String, true);
         if (compare != 0) {
+            //logger.trace("different group {} {} {}", lifter1String, lifter2String, LoggerUtils.whereFrom(10));
             return compare;
         }
 

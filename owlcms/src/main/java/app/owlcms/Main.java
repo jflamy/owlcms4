@@ -83,7 +83,7 @@ public class Main {
         overrideTimeZone();
 
         // initialization, don't push out to browsers
-        OwlcmsFactory.getDefaultFOP(true);
+        OwlcmsFactory.initDefaultFOP();
     }
 
     public static void injectSuppliers() {
