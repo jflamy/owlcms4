@@ -164,21 +164,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin>
-                        <!-- Skip execution - top level project does all the release handling -->
-                        <groupId>com.ragedunicorn.tools.maven</groupId>
-                        <artifactId>github-release-maven-plugin</artifactId>
-                        <version>1.0.4.2</version>
-                        <inherited>false</inherited>
-                        <executions>
-                            <execution>
-                                <id>default-cli</id>
-                                <configuration>
-                                    <skip>true</skip>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
                 </plugins>
             </build>
         </profile>
