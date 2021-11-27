@@ -168,17 +168,19 @@ public class BreakTimerElement extends TimerElement {
         OwlcmsSession.withFop(fop -> {
             // sync with current status of FOP
             IBreakTimer breakTimer = fop.getBreakTimer();
-            if (breakTimer.isRunning()) {
-                if (breakTimer.isIndefinite()) {
-                    doStartTimer(null, fop.isEmitSoundsOnServer());
+            if (breakTimer != null) {
+                if (breakTimer.isRunning()) {
+                    if (breakTimer.isIndefinite()) {
+                        doStartTimer(null, fop.isEmitSoundsOnServer());
+                    } else {
+                        doStartTimer(breakTimer.liveTimeRemaining(), isSilenced() || fop.isEmitSoundsOnServer());
+                    }
                 } else {
-                    doStartTimer(breakTimer.liveTimeRemaining(), fop.isEmitSoundsOnServer());
-                }
-            } else {
-                if (breakTimer.isIndefinite()) {
-                    doSetTimer(null);
-                } else {
-                    doSetTimer(breakTimer.getTimeRemainingAtLastStop());
+                    if (breakTimer.isIndefinite()) {
+                        doSetTimer(null);
+                    } else {
+                        doSetTimer(breakTimer.getTimeRemainingAtLastStop());
+                    }
                 }
             }
             // we listen on uiEventBus; this method ensures we stop when detached.

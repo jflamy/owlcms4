@@ -12,6 +12,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 
+import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
@@ -197,14 +198,23 @@ public class AthleteTimerElement extends TimerElement {
     /*
      * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
      */
+    /*
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+     */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        logger.trace("attaching to {}", this.getOrigin());
         init();
         OwlcmsSession.withFop(fop -> {
             // sync with current status of FOP
-            doSetTimer(fop.getAthleteTimer().getTimeRemaining());
-            // we listen on uiEventBus; this method ensures we stop when detached.
+            IProxyTimer athleteTimer = fop.getAthleteTimer();
+            if (athleteTimer != null) {
+                if (athleteTimer.isRunning()) {
+                    doStartTimer(athleteTimer.liveTimeRemaining(), isSilenced() || fop.isEmitSoundsOnServer());
+                } else {
+                    doSetTimer(athleteTimer.getTimeRemaining());
+                }
+            }
+            // we listen on uiEventBus.
             uiEventBusRegister(this, fop);
         });
     }
