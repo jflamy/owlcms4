@@ -139,7 +139,16 @@ class DecisionElement extends PolymerElement {
             fopName: {
                 type: String,
                 notify: true
-            }
+            },
+			/**
+			 * Set to true to have no sound on down signal
+			 * 
+			 * @default false
+			 */
+			silent: {
+				type: Boolean,
+				value: false
+			}
 		}
 	}
 
@@ -313,7 +322,7 @@ class DecisionElement extends PolymerElement {
 		//	this.$server.masterShowDown(this.fopName, this.decision, this.ref1, this.ref2, this.ref3);
 		//}
 		console.warn("de server told");
-		if (this.audio && !silent) {
+		if (this.audio && !silent && !this.silent) {
 			this.oscillator.start(0);
 			this.oscillator.stop(this.context.currentTime + 2);
 			this._setupAudio();

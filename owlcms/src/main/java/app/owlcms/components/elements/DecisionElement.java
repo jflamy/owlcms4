@@ -54,6 +54,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         void setPublicFacing(boolean publicFacing);
         
         void setFopName(String fopName);
+
+        void setSilent(boolean b);
     }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
@@ -221,6 +223,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
     public void setSilenced(boolean b) {
         logger.debug("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
+        getModel().setSilent(b);
         silenced = b;
     }
 

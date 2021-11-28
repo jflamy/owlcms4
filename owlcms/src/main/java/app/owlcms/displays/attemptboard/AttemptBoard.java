@@ -291,6 +291,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         logger.debug("{} setSilenced = {} from {}", this.getClass().getSimpleName(), silenced, LoggerUtils.whereFrom());
         this.athleteTimer.setSilenced(silenced);
         this.breakTimer.setSilenced(silenced);
+        this.decisions.setSilenced(silenced);
         this.silenced = silenced;
     }
 

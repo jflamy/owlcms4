@@ -215,6 +215,7 @@ public class AthleteTimerElement extends TimerElement {
         });
     }
 
+    @SuppressWarnings("unused")
     private long delta(long lastMillis) {
         if (lastMillis == 0) {
             return 0;
