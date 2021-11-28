@@ -436,7 +436,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         if (!leaveTopAlone) {
             if (a != null) {
                 Group group = fop.getGroup();
-                if (!group.isDone()) {
+                if (group != null && !group.isDone()) {
                     logger.debug("updating top {} {} {}", a.getFullName(), group, System.identityHashCode(group));
                     model.setFullName(a.getFullName());
                     model.setTeamName(a.getTeam());
