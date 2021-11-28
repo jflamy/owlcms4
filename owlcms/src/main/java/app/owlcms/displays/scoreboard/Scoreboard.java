@@ -464,7 +464,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             uiEventBus = uiEventBusRegister(this, fop);
         });
         SoundUtils.enableAudioContextNotification(this.getElement());
-        buildDialog(this);
+        //buildDialog(this);
     }
 
     protected void setTranslationMap() {

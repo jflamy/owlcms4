@@ -548,7 +548,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             // we send on fopEventBus, listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
-//        buildDialog(this);
     }
 
     private void doDone(Group g) {
