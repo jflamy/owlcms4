@@ -247,7 +247,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
                     platesDisplay.removeAll();
                     plates.computeImageArea(fop, false);
                     platesDisplay.add(plates);
-                    fop.getFopEventBus().post(new FOPEvent.BarbellOrPlatesChanged(this));
+                    fop.fopEventPost(new FOPEvent.BarbellOrPlatesChanged(this));
                 });
             } catch (ValidationException e1) {
             }

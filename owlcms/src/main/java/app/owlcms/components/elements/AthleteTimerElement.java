@@ -37,11 +37,13 @@ public class AthleteTimerElement extends TimerElement {
      * Instantiates a new timer element.
      */
     public AthleteTimerElement() {
+        super();
         this.setOrigin(null); // force exception
         logger.trace("### AthleteTimerElement new {}", origin);
     }
 
     public AthleteTimerElement(Object origin) {
+        super();
         this.setOrigin(origin);
         logger.trace("### AthleteTimerElement new {} {}", origin, LoggerUtils.whereFrom());
     }
@@ -51,9 +53,10 @@ public class AthleteTimerElement extends TimerElement {
      */
     @Override
     @ClientCallable
-    public void clientFinalWarning() {
-        logger.trace("Received final warning.");
+    public void clientFinalWarning(String fopName) {
         OwlcmsSession.withFop(fop -> {
+            if (!fopName.contentEquals(fop.getName())) return;
+            logger.trace("{} Received final warning.", fop.getName());
             fop.getAthleteTimer().finalWarning(this);
         });
     }
@@ -63,9 +66,10 @@ public class AthleteTimerElement extends TimerElement {
      */
     @Override
     @ClientCallable
-    public void clientInitialWarning() {
-        logger.trace("Received initial warning.");
+    public void clientInitialWarning(String fopName) {
         OwlcmsSession.withFop(fop -> {
+            if (!fopName.contentEquals(fop.getName())) return;
+            logger.trace("Received initial warning.");
             fop.getAthleteTimer().initialWarning(this);
         });
     }
@@ -77,8 +81,9 @@ public class AthleteTimerElement extends TimerElement {
      */
     @Override
     @ClientCallable
-    public void clientSyncTime() {
+    public void clientSyncTime(String fopName) {
         OwlcmsSession.withFop(fop -> {
+            if (!fopName.contentEquals(fop.getName())) return;
             int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
             // logger./**/warn("Fetched time = {} for {}", timeRemaining, fop.getCurAthlete());
             doSetTimer(timeRemaining);
@@ -91,9 +96,10 @@ public class AthleteTimerElement extends TimerElement {
      */
     @Override
     @ClientCallable
-    public void clientTimeOver() {
-        logger.trace("Received time over.");
+    public void clientTimeOver(String fopName) {
         OwlcmsSession.withFop(fop -> {
+            if (!fopName.contentEquals(fop.getName())) return;
+            logger.trace("Received time over.");
             fop.getAthleteTimer().timeOver(this);
         });
     }
@@ -105,9 +111,9 @@ public class AthleteTimerElement extends TimerElement {
      */
     @Override
     @ClientCallable
-    public void clientTimerStarting(double remainingTime, double lateMillis, String from) {
-        logger.debug("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime,
-                lateMillis, delta(lastStartMillis));
+    public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
+//        logger.debug("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime,
+//                lateMillis, delta(lastStartMillis));
     }
 
     /*
@@ -117,9 +123,10 @@ public class AthleteTimerElement extends TimerElement {
      */
     @Override
     @ClientCallable
-    public void clientTimerStopped(double remainingTime, String from) {
-        logger.debug("timer {} stopped on client: remaining = {}, roundtrip={}", from, remainingTime,
-                delta(lastStopMillis));
+    public void clientTimerStopped(String fopName, double remainingTime, String from) {
+//        logger.debug("{} timer {} stopped on client: remaining = {}, roundtrip={}", fopName, from, remainingTime,
+//                delta(lastStopMillis));
+        
         // do not stop the server-side timer, this is getting called as a result of the
         // server-side timer issuing a command. Otherwise we create an infinite loop.
     }
@@ -150,7 +157,7 @@ public class AthleteTimerElement extends TimerElement {
         uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 (e.isCurrentDisplayAffected() ? "stop_timer" : "leave_asis"), this.getOrigin(), e.getOrigin());
         if (e.isCurrentDisplayAffected()) {
-            clientSyncTime();
+            clientSyncTime(fopName);
         }
 //		else {
 //			uiEventLogger.trace(LoggerUtils./**/stackTrace());
@@ -183,17 +190,6 @@ public class AthleteTimerElement extends TimerElement {
         doStopTimer(milliseconds);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see app.owlcms.displays.attemptboard.TimerElement#init()
-     */
-    @Override
-    protected void init() {
-        super.init();
-//        setSilenced(false);
-//        getModel().setSilent(false); // emit sounds
-    }
 
     /*
      * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
@@ -203,8 +199,8 @@ public class AthleteTimerElement extends TimerElement {
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        init();
         OwlcmsSession.withFop(fop -> {
+            init(fop.getName());
             // sync with current status of FOP
             IProxyTimer athleteTimer = fop.getAthleteTimer();
             if (athleteTimer != null) {

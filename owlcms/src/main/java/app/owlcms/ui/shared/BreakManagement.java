@@ -149,7 +149,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         return (e) -> {
             OwlcmsSession.withFop(fop -> {
                 logger.debug("endBreak start lifting");
-                fop.getFopEventBus().post(new FOPEvent.StartLifting(this.getOrigin()));
+                fop.fopEventPost(new FOPEvent.StartLifting(this.getOrigin()));
                 logger.debug("endbreak enabling start");
                 breakStart.setEnabled(true);
                 breakPause.setEnabled(false);
@@ -198,8 +198,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             IBreakTimer breakTimer = fop.getBreakTimer();
             if (breakTimer.isRunning()) {
                 breakTimer.stop();
-                fop.getFopEventBus()
-                        .post(new FOPEvent.BreakPaused(breakTimer.getTimeRemainingAtLastStop(), this.getOrigin()));
+                fop.fopEventPost(new FOPEvent.BreakPaused(breakTimer.getTimeRemainingAtLastStop(), this.getOrigin()));
             }
         });
         logger.debug("paused; enabling start");
@@ -547,7 +546,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             IBreakTimer breakTimer = fop.getBreakTimer();
             if (breakTimer.isRunning()) {
                 breakTimer.stop();
-                fop.getFopEventBus().post(new FOPEvent.BreakPaused(tr, this.getOrigin()));
+                fop.fopEventPost(new FOPEvent.BreakPaused(tr, this.getOrigin()));
             }
         });
         logger.debug("paused; enabling start");

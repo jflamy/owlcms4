@@ -52,6 +52,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         void setJury(boolean juryMode);
 
         void setPublicFacing(boolean publicFacing);
+        
+        void setFopName(String fopName);
     }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
@@ -84,11 +86,14 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
      * @param ref2Time
      * @param ref3Time
      */
-    public void masterRefereeUpdate(Boolean ref1, Boolean ref2, Boolean ref3, Integer ref1Time, Integer ref2Time,
+    public void masterRefereeUpdate(String fopName, Boolean ref1, Boolean ref2, Boolean ref3, Integer ref1Time, Integer ref2Time,
             Integer ref3Time) {
         logger.debug("master referee decision update");
         Object origin = this.getOrigin();
         OwlcmsSession.withFop((fop) -> {
+            if (!fopName.contentEquals(fop.getName())) {
+                return;
+            }
             logger.debug("master referee update {} ({} {} {})", fop.getCurAthlete(), ref1, ref2, ref3, ref1Time,
                     ref2Time,
                     ref3Time);
@@ -107,7 +112,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
      * @param ref2
      * @param ref3
      */
-    public void masterShowDown(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
+    public void masterShowDown(String fopName, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
         Object origin = this.getOrigin();
         logger.debug("=== master {} down: decision={} ({} {} {})", origin, decision.getClass().getSimpleName(), ref1,
                 ref2, ref3);
@@ -186,17 +191,18 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        init();
         OwlcmsSession.withFop(fop -> {
+            init(fop.getName());
             // we send on fopEventBus, listen on uiEventBus.
             fopEventBus = fop.getFopEventBus();
             uiEventBus = uiEventBusRegister(this, fop);
         });
     }
 
-    private void init() {
+    private void init(String fopName) {
         DecisionModel model = getModel();
         model.setPublicFacing(true);
+        model.setFopName(fopName);
 
         Element elem = this.getElement();
         elem.addPropertyChangeListener("ref1", "ref1-changed", (e) -> {

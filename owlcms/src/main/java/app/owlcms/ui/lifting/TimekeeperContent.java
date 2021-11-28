@@ -314,7 +314,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         startTimeButton = new Button(startIcon);
         startTimeButton.addClickListener(e -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
+                fop.fopEventPost(new FOPEvent.TimeStarted(this.getOrigin()));
             });
         });
         startTimeButton.getElement().setAttribute("theme", "primary success");
@@ -323,7 +323,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         stopTimeButton = new Button();
         stopTimeButton.addClickListener(e1 -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.TimeStopped(this.getOrigin()));
+                fop.fopEventPost(new FOPEvent.TimeStopped(this.getOrigin()));
             });
         });
         stopTimeButton.getElement().setAttribute("theme", "secondary");
@@ -332,14 +332,14 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
         _1min = new Button("1:00", (e2) -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.ForceTime(60000, this.getOrigin()));
+                fop.fopEventPost(new FOPEvent.ForceTime(60000, this.getOrigin()));
             });
         });
         _1min.getElement().setAttribute("theme", "icon");
 
         _2min = new Button("2:00", (e3) -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.ForceTime(120000, this.getOrigin()));
+                fop.fopEventPost(new FOPEvent.ForceTime(120000, this.getOrigin()));
             });
         });
         _2min.getElement().setAttribute("theme", "icon");

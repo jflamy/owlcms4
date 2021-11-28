@@ -12,10 +12,6 @@ import java.time.temporal.ChronoUnit;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.eventbus.EventBus;
-
-import app.owlcms.ui.shared.BreakManagement.CountdownType;
-import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -56,7 +52,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
      * @param fop the fop
      */
     public ProxyBreakTimer(FieldOfPlay fop) {
-        this.fop = fop;
+        this.setFop(fop);
     }
 
     @Override
@@ -173,7 +169,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
         logger.debug("setting breaktimer indefinite = {} [{}]", indefinite, LoggerUtils.whereFrom());
         this.setTimeRemaining(0);
         this.setEnd(null);
-        fop.pushOut(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), getTimeRemaining(), null,
+        getFop().pushOut(new UIEvent.BreakSetTime(getFop().getBreakType(), getFop().getCountdownType(), getTimeRemaining(), null,
                 true, this));
         running = false;
         indefinite = true;
@@ -202,9 +198,9 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     public void start() {
         startMillis = System.currentTimeMillis();
         UIEvent.BreakStarted event = new UIEvent.BreakStarted(isIndefinite() ? null : getMillis(), getOrigin(), false,
-                fop.getBreakType(), fop.getCountdownType());
+                getFop().getBreakType(), getFop().getCountdownType());
         logger.debug("posting {}", event);
-        fop.pushOut(event);
+        getFop().pushOut(event);
         running = true;
     }
 
@@ -223,8 +219,8 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
         logger.debug("break stop = {} [{}]", liveTimeRemaining(), LoggerUtils.whereFrom());
         UIEvent.BreakPaused event = new UIEvent.BreakPaused(isIndefinite() ? null : getTimeRemaining(), getOrigin(),
                 false,
-                fop.getBreakType(), fop.getCountdownType());
-        fop.pushOut(event);
+                getFop().getBreakType(), getFop().getCountdownType());
+        getFop().pushOut(event);
     }
 
     /*
@@ -251,16 +247,15 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
                 LoggerUtils.whereFrom());
 
         // should emit sound at end of break
-        fop.pushOut(new UIEvent.BreakDone(origin));
-
-        EventBus fopEventBus = fop.getFopEventBus();
-        BreakType breakType = fop.getBreakType();
-        if (breakType == BreakType.FIRST_SNATCH || breakType == BreakType.FIRST_CJ) {
-            fopEventBus.post(new FOPEvent.StartLifting(origin));
-        } else if (breakType == BreakType.BEFORE_INTRODUCTION) {
-            fopEventBus.post(new FOPEvent.BreakStarted(BreakType.DURING_INTRODUCTION, CountdownType.INDEFINITE, null,
-                    null, origin));
-        }
+        getFop().pushOut(new UIEvent.BreakDone(origin));
+        getFop().fopEventPost(new FOPEvent.BreakDone(origin));
+//        BreakType breakType = getFop().getBreakType();
+//        if (breakType == BreakType.FIRST_SNATCH || breakType == BreakType.FIRST_CJ) {
+//            fopEventBus.post(new FOPEvent.StartLifting(origin));
+//        } else if (breakType == BreakType.BEFORE_INTRODUCTION) {
+//            fopEventBus.post(new FOPEvent.BreakStarted(BreakType.DURING_INTRODUCTION, CountdownType.INDEFINITE, null,
+//                    null, origin));
+//        }
     }
 
     /**
@@ -280,6 +275,20 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     private int getMillis() {
         return (int) (this.getEnd() != null ? LocalDateTime.now().until(getEnd(), ChronoUnit.MILLIS)
                 : getTimeRemaining());
+    }
+
+    /**
+     * @return the fop
+     */
+    FieldOfPlay getFop() {
+        return fop;
+    }
+
+    /**
+     * @param fop the fop to set
+     */
+    public void setFop(FieldOfPlay fop) {
+        this.fop = fop;
     }
 
 }

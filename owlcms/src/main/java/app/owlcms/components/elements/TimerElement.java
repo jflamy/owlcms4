@@ -123,6 +123,8 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
          * @param seconds the new start time
          */
         void setStartTime(double seconds);
+        
+        void setFopName(String fopName);
     }
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
@@ -142,6 +144,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     public long lastStartMillis;
     public long lastStopMillis;
     private boolean serverSound;
+    protected String fopName;
 
     /**
      * Instantiates a new timer element.
@@ -150,26 +153,26 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     }
 
     @ClientCallable
-    abstract public void clientFinalWarning();
+    abstract public void clientFinalWarning(String fopName);
 
     @ClientCallable
-    abstract public void clientInitialWarning();
+    abstract public void clientInitialWarning(String fopName);
 
     /**
      * Client requests that the server send back the remaining time. Intended to be used after client has been hidden
      * and is made visible again.
      */
     @ClientCallable
-    abstract public void clientSyncTime();
+    abstract public void clientSyncTime(String fopName);
 
     /**
      * Timer ran down to zero.
      */
     @ClientCallable
-    abstract public void clientTimeOver();
+    abstract public void clientTimeOver(String fopName);
 
     @ClientCallable
-    abstract public void clientTimerStarting(double remainingTime, double lateMillis, String from);
+    abstract public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from);
 
     /**
      * Timer has been stopped on the client side.
@@ -177,7 +180,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
      * @param remainingTime
      */
     @ClientCallable
-    abstract public void clientTimerStopped(double remainingTime, String from);
+    abstract public void clientTimerStopped(String fopName, double remainingTime, String from);
 
     public boolean isServerSound() {
         return serverSound;
@@ -223,7 +226,8 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         return timerElement;
     }
 
-    protected void init() {
+    protected void init(String fopName) {
+        this.fopName = fopName;
         setTimerElement(this.getElement());
         double seconds = 0.00D;
         setMsRemaining(0);
@@ -239,6 +243,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
             model.setCountUp(false);
             model.setRunning(false);
             model.setSilent(true);
+            model.setFopName(fopName);
         });
         vsession = VaadinSession.getCurrent();
     }
@@ -256,8 +261,8 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        init();
         OwlcmsSession.withFop(fop -> {
+            init(fop.getName());
             // sync with current status of FOP
             doSetTimer(fop.getAthleteTimer().getTimeRemaining());
             // we listen on uiEventBus.

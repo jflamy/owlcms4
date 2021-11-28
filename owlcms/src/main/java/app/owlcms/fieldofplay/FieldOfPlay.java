@@ -44,6 +44,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.FOPEvent.BarbellOrPlatesChanged;
+import app.owlcms.fieldofplay.FOPEvent.BreakDone;
 import app.owlcms.fieldofplay.FOPEvent.BreakPaused;
 import app.owlcms.fieldofplay.FOPEvent.BreakStarted;
 import app.owlcms.fieldofplay.FOPEvent.DecisionFullUpdate;
@@ -59,6 +60,7 @@ import app.owlcms.fieldofplay.FOPEvent.TimeOver;
 import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
@@ -71,7 +73,6 @@ import app.owlcms.uievents.UIEvent.JuryNotification;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 /**
  * This class describes one field of play at runtime.
@@ -176,14 +177,16 @@ public class FieldOfPlay {
      */
     public FieldOfPlay(Group group, Platform platform2) {
         this.name = platform2.getName();
+
+        // we listen on this bus, and sometimes post to change our own state
         this.fopEventBus = new EventBus("FOP-" + name);
+
+        // we post on these buses
+        this.uiEventBus = new AsyncEventBus("UI-" + name, Executors.newCachedThreadPool());
         this.postBus = new EventBus("POST-" + name);
 
-        // this.uiEventBus = new EventBus("UI-" + name);
-        this.uiEventBus = new AsyncEventBus(Executors.newCachedThreadPool());
-
         this.athleteTimer = null;
-        this.breakTimer = new ProxyBreakTimer(this);
+        this.breakTimer = null;
         this.setPlatform(platform2);
 
         this.fopEventBus.register(this);
@@ -454,6 +457,11 @@ public class FieldOfPlay {
      */
     @Subscribe
     public void handleFOPEvent(FOPEvent e) {
+        if (e.getFop() != this) {
+            logger./**/warn("wrong event subscription {} {}\n{}", e, e.getFop(), this, e.getStackTrace());
+            return;
+            //throw new RuntimeException("wrong event subscription");
+        }
         int newHash = e.hashCode();
         if (prevHash != null && newHash == prevHash) {
             prevHash = newHash;
@@ -467,7 +475,7 @@ public class FieldOfPlay {
             prevHash = newHash;
         }
         // it is always possible to explicitly interrupt competition (break between the
-        // two lifts, technical incident, etc.)
+        // two lifts, technical incident, etc.). Even switching break type is allowed.
         if (e instanceof BreakStarted) {
             transitionToBreak((BreakStarted) e);
             return;
@@ -540,6 +548,18 @@ public class FieldOfPlay {
                         false,
                         this.getBreakType(),
                         this.getCountdownType()));
+            } else if (e instanceof BreakDone) {
+//                logger.debug("break done {} {} \n{}", this.getName(), e.getFop().getName(), e.getStackTrace());
+                BreakType breakType = getBreakType();
+                if (breakType == BreakType.FIRST_SNATCH || breakType == BreakType.FIRST_CJ) {
+                    transitionToLifting(e, getGroup(), false);
+                } else if (breakType == BreakType.BEFORE_INTRODUCTION) {
+                    transitionToBreak(
+                            new FOPEvent.BreakStarted(BreakType.DURING_INTRODUCTION, CountdownType.INDEFINITE, null,
+                                    null, this));
+                } else {
+                    transitionToLifting(e, getGroup(), false);
+                }
             } else if (e instanceof BreakStarted) {
                 transitionToBreak((BreakStarted) e);
             } else if (e instanceof WeightChange) {
@@ -685,7 +705,7 @@ public class FieldOfPlay {
         // the state will be rewritten in displayOrBreakIfDone
         // this is so the decision reset knows that the decision is no longer displayed.
         setState(CURRENT_ATHLETE_DISPLAYED);
-        pushOut(new UIEvent.DecisionReset(getCurAthlete(), e.origin));
+        pushOut(new UIEvent.DecisionReset(getCurAthlete(), this));
         setClockOwner(null);
         displayOrBreakIfDone(e);
     }
@@ -708,7 +728,9 @@ public class FieldOfPlay {
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer, boolean alreadyLoaded) {
         // logger.debug("start of init state={} \\n{}", state, LoggerUtils. stackTrace());
         this.athleteTimer = timer;
+        this.athleteTimer.setFop(this);
         this.breakTimer = breakTimer;
+        this.breakTimer.setFop(this);
         this.setCurAthlete(null);
         this.setClockOwner(null);
         this.setClockOwnerInitialTimeAllowed(0);
@@ -926,7 +948,12 @@ public class FieldOfPlay {
         loadGroup(group, origin, true);
         logger.trace("{} start lifting for group {} origin={}", this.getLoggingName(),
                 (group != null ? group.getName() : group), origin);
-        getFopEventBus().post(new StartLifting(origin));
+        fopEventPost(new StartLifting(origin));
+    }
+
+    public void fopEventPost(FOPEvent e) {
+        e.setFop(this);
+        getFopEventBus().post(e);
     }
 
     public void uiDisplayCurrentAthleteAndTime(boolean currentDisplayAffected, FOPEvent e, boolean displayToggle) {
@@ -1398,7 +1425,7 @@ public class FieldOfPlay {
         // updateGlobalRankings(); // now done in recomputeLiftingOrder
 
         // tell ourself to reset after 3 secs.
-        new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), DECISION_VISIBLE_DURATION);
+        new DelayTimer().schedule(() -> fopEventPost(new DecisionReset(this)), DECISION_VISIBLE_DURATION);
     }
 
     /**
@@ -1421,33 +1448,6 @@ public class FieldOfPlay {
         this.setClockOwner(null);
         this.setClockOwnerInitialTimeAllowed(0);
     }
-
-    /**
-     * The decision is confirmed as official after the 3 second delay following majority. After this delay, manual
-     * announcer intervention is required to change and announce.
-     */
-//    private void showExplicitDecision(ExplicitDecision e, Object origin) {
-//        logger.trace("explicit decision display");
-//        refereeDecision[0] = null;
-//        refereeDecision[2] = null;
-//        if (e.success) {
-//            goodLift = true;
-//            refereeDecision[1] = true;
-//            getCurAthlete().successfulLift();
-//        } else {
-//            goodLift = false;
-//            refereeDecision[1] = false;
-//            getCurAthlete().failedLift();
-//        }
-//        getCurAthlete().resetForcedAsCurrent();
-//        AthleteRepository.save(getCurAthlete());
-//        uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), goodLift, refereeDecision, refereeTime, origin);
-//        recomputeLiftingOrder();
-//        updateGlobalRankings();
-//        setState(DECISION_VISIBLE);
-//        // tell ourself to reset after 3 secs.
-//        new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), DECISION_VISIBLE_DURATION);
-//    }
 
     private void transitionToBreak(BreakStarted e) {
         IBreakTimer breakTimer2 = getBreakTimer();

@@ -40,12 +40,19 @@ public class ProxyAthleteTimer implements IProxyTimer {
      * @param fop
      */
     public ProxyAthleteTimer(FieldOfPlay fop) {
-        this.fop = fop;
+        this.setFop(fop);
     }
 
     @Override
     public void finalWarning(Object origin) {
-        fop.emitFinalWarning();
+        getFop().emitFinalWarning();
+    }
+
+    /**
+     * @return the fop
+     */
+    public FieldOfPlay getFop() {
+        return fop;
     }
 
     /**
@@ -69,7 +76,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
      */
     @Override
     public void initialWarning(Object origin) {
-        fop.emitInitialWarning();
+        getFop().emitInitialWarning();
     }
 
     /**
@@ -100,8 +107,12 @@ public class ProxyAthleteTimer implements IProxyTimer {
         }
     }
 
-    private String formattedDuration(Integer milliseconds) {
-        return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds) : (milliseconds != null ? milliseconds.toString() : "-");
+    /**
+     * @param fop the fop to set
+     */
+    @Override
+    public void setFop(FieldOfPlay fop) {
+        this.fop = fop;
     }
 
     /**
@@ -112,9 +123,9 @@ public class ProxyAthleteTimer implements IProxyTimer {
         if (running) {
             computeTimeRemaining();
         }
-        logger.info("{}setting Time -- timeRemaining = {}", fop.getLoggingName(), timeRemaining);
+        logger.info("{}setting Time -- timeRemaining = {}", getFop().getLoggingName(), timeRemaining);
         this.timeRemaining = timeRemaining;
-        fop.pushOut(new UIEvent.SetTime(timeRemaining, null));
+        getFop().pushOut(new UIEvent.SetTime(timeRemaining, null));
         running = false;
     }
 
@@ -125,10 +136,10 @@ public class ProxyAthleteTimer implements IProxyTimer {
     public void start() {
         if (!running) {
             startMillis = System.currentTimeMillis();
-            logger.info("{}starting Time -- timeRemaining = {}", fop.getLoggingName(), timeRemaining);
+            logger.info("{}starting Time -- timeRemaining = {}", getFop().getLoggingName(), timeRemaining);
             timeRemainingAtLastStop = timeRemaining;
         }
-        fop.pushOut(new UIEvent.StartTime(timeRemaining, null, fop.isEmitSoundsOnServer()));
+        getFop().pushOut(new UIEvent.StartTime(timeRemaining, null, getFop().isEmitSoundsOnServer()));
         running = true;
     }
 
@@ -140,19 +151,19 @@ public class ProxyAthleteTimer implements IProxyTimer {
         if (running) {
             computeTimeRemaining();
         }
-        logger.info("{}stopping Time -- timeRemaining = {}", fop.getLoggingName(), timeRemaining);
+        logger.info("{}stopping Time -- timeRemaining = {}", getFop().getLoggingName(), timeRemaining);
         timeRemainingAtLastStop = timeRemaining;
-        fop.pushOut(new UIEvent.StopTime(timeRemaining, null));
+        getFop().pushOut(new UIEvent.StopTime(timeRemaining, null));
         running = false;
     }
 
     @Override
     public void timeOver(Object origin) {
         // avoid sending multiple events to FOP
-        boolean needToSendEvent = !fop.isTimeoutEmitted();
+        boolean needToSendEvent = !getFop().isTimeoutEmitted();
         if (needToSendEvent) {
-            fop.emitTimeOver();
-            fop.getFopEventBus().post(new FOPEvent.TimeOver(origin));
+            getFop().emitTimeOver();
+            getFop().fopEventPost(new FOPEvent.TimeOver(origin));
         }
         // leave enough time for buzzer event to propagate allowing for some clock drift
         if (running) {
@@ -172,5 +183,10 @@ public class ProxyAthleteTimer implements IProxyTimer {
         stopMillis = System.currentTimeMillis();
         long elapsed = stopMillis - startMillis;
         timeRemaining = (int) (timeRemaining - elapsed);
+    }
+
+    private String formattedDuration(Integer milliseconds) {
+        return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds)
+                : (milliseconds != null ? milliseconds.toString() : "-");
     }
 }

@@ -97,6 +97,10 @@ class TimerElement extends PolymerElement {
 			_timeOverWarningGiven: {
 				type: Boolean,
 				value: false
+			},
+			fopName: {
+				type: String,
+				notify: true
 			}
 		}
 	}
@@ -125,7 +129,7 @@ class TimerElement extends PolymerElement {
 			}
 		}
 		console.warn("timer start " + seconds + " late = " + lateMillis + "ms");
-		this.$server.clientTimerStarting(seconds, lateMillis, (this.isIOS() ? "iPad" : "browser") +" "+from);
+		this.$server.clientTimerStarting(this.fopName, seconds, lateMillis, (this.isIOS() ? "iPad" : "browser") +" "+from);
 
 		this._prepareAudio();
 
@@ -161,7 +165,7 @@ class TimerElement extends PolymerElement {
 		// }
 		this.running = false;
 		// if (this.$server != null) {
-		this.$server.clientTimerStopped(this.currentTime, (this.isIOS() ? "iPad" : "browser") +" "+from);
+		this.$server.clientTimerStopped(this.fopName, this.currentTime, (this.isIOS() ? "iPad" : "browser") +" "+from);
 		// } else {
 		// 	console.warn("no server$");
 		// }
@@ -342,7 +346,7 @@ class TimerElement extends PolymerElement {
 				this._playTrack("../sounds/timeOver.mp3", window.timeOver, true, this.currentTime);
 			}
 			// tell server to emit sound if server-side sounds
-			if (this.$server != null) this.$server.clientTimeOver();
+			if (this.$server != null) this.$server.clientTimeOver(this.fopName);
 			this._timeOverWarningGiven = true;
 		}
 		if (this.currentTime <= 30.05 && !this._finalWarningGiven) {
@@ -353,7 +357,7 @@ class TimerElement extends PolymerElement {
 				this._playTrack("../sounds/finalWarning.mp3", window.finalWarning, true, this.currentTime - 30);
 			}
 			// tell server to emit sound if server-side sounds
-			if (this.$server != null) this.$server.clientFinalWarning();
+			if (this.$server != null) this.$server.clientFinalWarning(this.fopName);
 			this._finalWarningGiven = true;
 		}
 		if (this.currentTime <= 90.05 && !this._initialWarningGiven) {
@@ -363,7 +367,7 @@ class TimerElement extends PolymerElement {
 				this._playTrack("../sounds/initialWarning.mp3", window.initialWarning, true, this.currentTime - 90);
 			}
 			// tell server to emit sound if server-side sounds
-			if (this.$server != null) this.$server.clientInitialWarning();
+			if (this.$server != null) this.$server.clientInitialWarning(this.fopName);
 			this._initialWarningGiven = true;
 		}
 
@@ -375,7 +379,7 @@ class TimerElement extends PolymerElement {
 			|| (this.currentTime >= this.startTime && this.countUp)) {
 			console.warn("time over stop running " + this.$server);
 			// timer is over; tell server to emit sound if server-side sounds
-			if (this.$server != null) this.$server.clientTimeOver();
+			if (this.$server != null) this.$server.clientTimeOver(this.fopName);
 			this.running = false;
 			this.formatted_time = this._formatTime(0);
 			// this.dispatchEvent(new CustomEvent('timer-element-end', {bubbles:

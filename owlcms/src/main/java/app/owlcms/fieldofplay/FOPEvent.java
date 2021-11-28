@@ -13,8 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -34,6 +36,17 @@ public class FOPEvent {
         }
     }
 
+    
+    /**
+     * Class BreakDone.
+     */
+    static public class BreakDone extends FOPEvent {
+
+        public BreakDone(Object origin) {
+            super(origin);
+        }
+    }
+    
     /**
      * Class BreakPaused.
      */
@@ -506,10 +519,23 @@ public class FOPEvent {
 
     private long timestamp;
 
+    private FieldOfPlay fop;
+
+    private String stackTrace;
+
     public FOPEvent(Athlete athlete, Object origin) {
+        this.fop = OwlcmsSession.getFop();
+//        if (this.fop == null) {
+//            logger.error("no fop  {}",LoggerUtils.stackTrace());
+//        }
+        this.stackTrace = LoggerUtils.stackTrace();
         this.athlete = athlete;
         this.origin = origin;
         this.timestamp = System.currentTimeMillis();
+    }
+
+    public String getStackTrace() {
+        return stackTrace;
     }
 
     FOPEvent(Object origin) {
@@ -549,6 +575,17 @@ public class FOPEvent {
 
     public void setAthlete(Athlete athlete) {
         this.athlete = athlete;
+    }
+
+    /**
+     * @return the fop
+     */
+    public FieldOfPlay getFop() {
+        return fop;
+    }
+
+    void setFop(FieldOfPlay fieldOfPlay) {
+        this.fop = fieldOfPlay;
     }
 
 }

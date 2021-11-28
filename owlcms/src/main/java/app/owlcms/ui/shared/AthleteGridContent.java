@@ -593,7 +593,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected void create1minButton() {
         _1min = new Button("1:00", (e) -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.ForceTime(60000, this.getOrigin()));
+                fop.fopEventPost(new FOPEvent.ForceTime(60000, this.getOrigin()));
             });
         });
         _1min.getElement().setAttribute("theme", "icon");
@@ -602,7 +602,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected void create2MinButton() {
         _2min = new Button("2:00", (e) -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.ForceTime(120000, this.getOrigin()));
+                fop.fopEventPost(new FOPEvent.ForceTime(120000, this.getOrigin()));
             });
         });
         _2min.getElement().setAttribute("theme", "icon");
@@ -697,7 +697,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                 boolean running = fop.getAthleteTimer().isRunning();
                 if (timeElapsed > 50 && !running) {
                     logger.debug("clock start {}ms running={}", timeElapsed, running);
-                    fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
+                    fop.fopEventPost(new FOPEvent.TimeStarted(this.getOrigin()));
                     buttonsTimeStarted();
                 } else {
                     logger.debug("discarding duplicate clock start {}ms running={}", timeElapsed, running);
@@ -712,7 +712,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         stopTimeButton = new Button(AvIcons.PAUSE.create());
         stopTimeButton.addClickListener(e -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.TimeStopped(this.getOrigin()));
+                fop.fopEventPost(new FOPEvent.TimeStopped(this.getOrigin()));
                 buttonsTimeStopped();
             });
         });
@@ -845,7 +845,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                     } else {
                         setIgnoreSwitchGroup(true); // prevent recursion on self-generated event.
                         // logger.debug("value changed, switching group, from \n{}",LoggerUtils. stackTrace());
-                        fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
+                        fop.fopEventPost(new FOPEvent.SwitchGroup(newGroup, this));
                     }
                     oldGroup = newGroup;
                 });

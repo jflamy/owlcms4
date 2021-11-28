@@ -38,6 +38,8 @@ public interface IProxyTimer {
      */
     public boolean isRunning();
 
+    public void setFop(FieldOfPlay fieldOfPlay);
+
     /**
      * Sets the time remaining.
      *
