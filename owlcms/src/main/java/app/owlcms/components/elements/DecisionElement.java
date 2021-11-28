@@ -99,7 +99,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
             logger.debug("master referee update {} ({} {} {})", fop.getCurAthlete(), ref1, ref2, ref3, ref1Time,
                     ref2Time,
                     ref3Time);
-            fopEventBus.post(new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3, ref1Time,
+            fop.fopEventPost(new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3, ref1Time,
                     ref2Time, ref3Time));
         });
 
@@ -118,7 +118,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         Object origin = this.getOrigin();
         logger.debug("=== master {} down: decision={} ({} {} {})", origin, decision.getClass().getSimpleName(), ref1,
                 ref2, ref3);
-        fopEventBus.post(new FOPEvent.DownSignal(origin));
+        OwlcmsSession.getFop().fopEventPost(new FOPEvent.DownSignal(origin));
     }
 
     public void setJury(boolean juryMode) {

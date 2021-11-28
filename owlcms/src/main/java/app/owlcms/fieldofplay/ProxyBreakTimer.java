@@ -251,9 +251,9 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
         getFop().fopEventPost(new FOPEvent.BreakDone(origin));
 //        BreakType breakType = getFop().getBreakType();
 //        if (breakType == BreakType.FIRST_SNATCH || breakType == BreakType.FIRST_CJ) {
-//            fopEventBus.post(new FOPEvent.StartLifting(origin));
+//            fop.fopEventPost(new FOPEvent.StartLifting(origin));
 //        } else if (breakType == BreakType.BEFORE_INTRODUCTION) {
-//            fopEventBus.post(new FOPEvent.BreakStarted(BreakType.DURING_INTRODUCTION, CountdownType.INDEFINITE, null,
+//            fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.DURING_INTRODUCTION, CountdownType.INDEFINITE, null,
 //                    null, origin));
 //        }
     }
