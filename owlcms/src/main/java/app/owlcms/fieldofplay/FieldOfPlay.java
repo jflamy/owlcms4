@@ -60,7 +60,6 @@ import app.owlcms.fieldofplay.FOPEvent.TimeOver;
 import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
@@ -481,15 +480,17 @@ public class FieldOfPlay {
             return;
         } else if (e instanceof BreakPaused) {
             // logger.debug("break paused {}", LoggerUtils. stackTrace());
-        } else if (e instanceof StartLifting) {
+        } else if (e instanceof StartLifting || e instanceof BreakDone) {
             boolean resumed = false;
             if (state == BREAK && (breakType == BreakType.JURY || breakType == BreakType.TECHNICAL)) {
                 // if group under way, this will try to just keep going.
                 resumed = resumeLifting(e);
+                return;
             }
             if (!resumed) {
                 // group was not under way, full start.
                 transitionToLifting(e, getGroup(), true);
+                return;
             }
         } else if (e instanceof BarbellOrPlatesChanged) {
             uiShowPlates((BarbellOrPlatesChanged) e);
@@ -549,6 +550,7 @@ public class FieldOfPlay {
                         this.getBreakType(),
                         this.getCountdownType()));
             } else if (e instanceof BreakDone) {
+                pushOut(new UIEvent.BreakDone(e.getOrigin()));
 //                logger.debug("break done {} {} \n{}", this.getName(), e.getFop().getName(), e.getStackTrace());
                 BreakType breakType = getBreakType();
                 if (breakType == BreakType.FIRST_SNATCH || breakType == BreakType.FIRST_CJ) {
@@ -1489,7 +1491,7 @@ public class FieldOfPlay {
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {
         setWeightAtLastStart(0);
-        logger.trace("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
+        logger.warn("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
                 LoggerUtils.whereFrom());
 
         Athlete clockOwner = getClockOwner();
@@ -1614,8 +1616,8 @@ public class FieldOfPlay {
             return;
         }
 
-        logger./**/warn(getLoggingName() + " " + Translator.translate("Unexpected_Logging"),
-                e.getClass().getSimpleName(), state);
+        logger./**/warn("{}unexpected event {} in state {}\n{}",getLoggingName(),
+                e.getClass().getSimpleName(), state, e.getStackTrace());
 
         pushOut(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, state));
     }
