@@ -209,12 +209,12 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      */
     @Override
     public Dialog getDialog() {
-        if (dialog == null) {
+//        if (dialog == null) {
             dialog = new Dialog();
             return dialog;
-        } else {
-            return null;
-        }
+//        } else {
+//            return null;
+//        }
     }
 
     @Override
@@ -288,7 +288,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     @Override
     public void setSilenced(boolean silenced) {
-        logger.debug("{} setSilenced = {} from {}", this.getClass().getSimpleName(), silenced, LoggerUtils.whereFrom());
+        //logger.debug("{} setSilenced = {} from {}", this.getClass().getSimpleName(), silenced, LoggerUtils.whereFrom());
         this.athleteTimer.setSilenced(silenced);
         this.breakTimer.setSilenced(silenced);
         this.decisions.setSilenced(silenced);
@@ -548,7 +548,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             // we send on fopEventBus, listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
-        buildDialog(this);
+//        buildDialog(this);
     }
 
     private void doDone(Group g) {

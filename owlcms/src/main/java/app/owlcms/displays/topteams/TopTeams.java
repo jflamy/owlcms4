@@ -195,7 +195,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
             doUpdate(fop.getCurAthlete(), null);
         }));
     }
-
+    
     public void doUpdate(Competition competition) {
         this.getElement().callJsFunction("reset");
 
@@ -333,6 +333,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
 
         switchLightingMode(this, darkMode, false);
         updateURLLocations();
+        setShowInitialDialog(darkParams == null && ageDivisionParams == null && ageGroupParams == null && silentParams == null);
 
         buildDialog(this);
         return params1;
@@ -366,7 +367,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
      */
     @Override
     public void setShowInitialDialog(boolean b) {
-        this.initializationNeeded = true;
+        this.initializationNeeded = b;
     }
 
     /**
@@ -454,6 +455,8 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         }
         Competition competition = Competition.getCurrent();
         doUpdate(competition);
+
+        buildDialog(this);
     }
 
     protected void setTranslationMap() {

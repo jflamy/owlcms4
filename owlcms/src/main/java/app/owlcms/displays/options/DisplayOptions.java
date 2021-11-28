@@ -44,6 +44,7 @@ public class DisplayOptions {
     }
 
     public static void addSoundEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
+        //logger.debug("addSoundEntries {}",LoggerUtils.stackTrace());
         
         FieldOfPlay fop = OwlcmsSession.getFop();
         if (fop != null) {
@@ -64,7 +65,7 @@ public class DisplayOptions {
         rbgroup.setLabel(Translator.translate("DisplayParameters.SoundSettings"));
         rbgroup.setHelperText(Translator.translate("DisplayParameters.SoundHelper"));
         rbgroup.setItems(Boolean.TRUE, Boolean.FALSE);
-        rbgroup.setValue(Boolean.valueOf(silentMode));
+        rbgroup.setValue(silentMode);
         rbgroup.setRenderer(new ComponentRenderer<Button, Boolean>((mn) -> mn ? silentButton : soundButton));
         rbgroup.addValueChangeListener(e -> {
             Boolean silenced = e.getValue();

@@ -142,11 +142,11 @@ public interface DisplayParameters extends FOPParameters {
         updateParam(params, DARK, !isDarkMode() ? "false" : null);
 
         List<String> silentParams = params.get(SILENT);
-        // dark is the default. dark=false or dark=no or ... will turn off dark mode.
+        // silent is the default. silent=false will cause sound
         boolean silentMode = silentParams == null || silentParams.isEmpty()
                 || silentParams.get(0).toLowerCase().equals("true");
         switchSoundMode((Component) this, silentMode, false);
-        updateParam(params, SILENT, !isSilenced() ? "false" : null);
+        updateParam(params, SILENT, !isSilenced() ? "false" : "true");
 
         return params;
     }
@@ -193,11 +193,11 @@ public interface DisplayParameters extends FOPParameters {
         }
     }
 
-    public default void switchSoundMode(Component target, boolean silent, boolean updateURL) {
+    public default void switchSoundMode(Component target, boolean silent, boolean updateURL) {    
         setSilenced(silent);
         buildDialog(target);
-        if (updateURL) {
-            updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? null : "false");
+         if (updateURL) {
+            updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? "true" : "false");
         }
     }
 
