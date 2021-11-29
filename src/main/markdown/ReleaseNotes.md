@@ -1,9 +1,10 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Multi-platform fix: timer events such as the end of a break on one platform were (occasionally) being propagated to the other platforms.
+- [x] Multi-platform fix: prevent cases where timer events could be forwarded to the wrong platform.
 - [x] Enhancement: new Start List template for multi-platform competitions (shows the platform)
-- [x] Fix: the scoreboards and attempt board no longer emit sound on the down signal when in silent mode
-- [x] Fix: on page refresh, athlete timers fetch the remaining time from the server and resume counting down as appropriate.
+- [x] Fix: in silent mode, the scoreboards and attempt board no longer make sound on the down signal
+- [x] Enhancement: the athlete-facing display has sound enabled by default (is the only display to do so, since it is where speakers would normally be plugged in)
+- [x] Fix: on page refresh, lift clocks resume counting down as appropriate.
 - [x] Fix: the demonstration data had wrong start numbers (calculation was before allocation of categories)
 
 ###### New in release 4.25
