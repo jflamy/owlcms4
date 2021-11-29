@@ -480,7 +480,7 @@ public class FieldOfPlay {
             return;
         } else if (e instanceof BreakPaused) {
             // logger.debug("break paused {}", LoggerUtils. stackTrace());
-        } else if (e instanceof StartLifting || e instanceof BreakDone) {
+        } else if (e instanceof StartLifting) {
             boolean resumed = false;
             if (state == BREAK && (breakType == BreakType.JURY || breakType == BreakType.TECHNICAL)) {
                 // if group under way, this will try to just keep going.
@@ -1491,8 +1491,8 @@ public class FieldOfPlay {
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {
         setWeightAtLastStart(0);
-        logger.warn("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
-                LoggerUtils.whereFrom());
+//        logger.debug("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
+//                LoggerUtils.whereFrom());
 
         Athlete clockOwner = getClockOwner();
         if (getCurAthlete() != null && getCurAthlete().equals(clockOwner)) {
