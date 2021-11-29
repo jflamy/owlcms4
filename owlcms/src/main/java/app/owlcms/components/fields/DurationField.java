@@ -20,11 +20,12 @@ import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
 
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 /**
  * Duration field with conversion, validation and rendering.
@@ -46,6 +47,10 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
     public static <S> Renderer<S> getRenderer(ValueProvider<String, S> v, Locale locale) {
         return new TextRenderer<>(
                 d -> helper.getConverter().convertToPresentation((Duration) d, new ValueContext(locale)));
+    }
+    
+    public DurationField() {
+        getWrappedTextField().setValueChangeMode(ValueChangeMode.ON_BLUR);
     }
 
     Logger overrideLogger = (Logger) LoggerFactory.getLogger(DurationField.class);
