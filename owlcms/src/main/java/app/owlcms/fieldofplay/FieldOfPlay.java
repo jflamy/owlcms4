@@ -189,7 +189,7 @@ public class FieldOfPlay {
         this.setPlatform(platform2);
 
         this.fopEventBus.register(this);
-        EventForwarder.listenToFOP(this);
+        new EventForwarder(this);
     }
 
     /**
