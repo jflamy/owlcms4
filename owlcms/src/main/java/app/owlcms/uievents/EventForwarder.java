@@ -62,17 +62,17 @@ import app.owlcms.i18n.Translator;
 
 public class EventForwarder implements BreakDisplay {
 
-    private static HashMap<String, EventForwarder> registeredFop = new HashMap<>();
+//    private static HashMap<String, EventForwarder> registeredFop = new HashMap<>();
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(EventForwarder.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
-    public static void listenToFOP(FieldOfPlay fop) {
-        String fopName = fop.getName();
-        if (registeredFop.get(fopName) == null) {
-            registeredFop.put(fopName, new EventForwarder(fop));
-        }
-    }
+//    public static void listenToFOP(FieldOfPlay fop) {
+//        String fopName = fop.getName();
+//        if (registeredFop.get(fopName) == null) {
+//            registeredFop.put(fopName, new EventForwarder(fop));
+//        }
+//    }
 
     private EventBus postBus;
     private EventBus fopEventBus;
@@ -127,9 +127,9 @@ public class EventForwarder implements BreakDisplay {
         String updateUrl = Config.getCurrent().getParamUpdateUrl();
         if (updateUrl == null || updateKey == null || updateUrl.trim().isEmpty()
                 || updateKey.trim().isEmpty()) {
-            logger.info("Pushing results to remote site not enabled.");
+            logger.info("{}Pushing results to remote site not enabled.", fop.getLoggingName());
         } else {
-            logger.info("Pushing to remote site {}", updateUrl);
+            logger.info("{}Pushing to remote site {}", fop.getLoggingName(), updateUrl);
         }
         pushUpdate();
     }
@@ -570,9 +570,9 @@ public class EventForwarder implements BreakDisplay {
         mapPut(sb, "breakType", bts);
         logger.trace("***** break {} breakType {}", isBreak, bts);
         IBreakTimer breakTimer = fop.getBreakTimer();
-        int breakTimeRemaining = breakTimer.liveTimeRemaining();
+        int breakTimeRemaining = breakTimer != null ? breakTimer.liveTimeRemaining() : 0;
         mapPut(sb, "breakRemaining", Integer.toString(breakTimeRemaining));
-        mapPut(sb, "breakIsIndefinite", Boolean.toString(breakTimer.isIndefinite()));
+        mapPut(sb, "breakIsIndefinite", Boolean.toString(breakTimer != null ? breakTimer.isIndefinite() : false));
 
         // current athlete & attempt
         mapPut(sb, "startNumber", startNumber != null ? startNumber.toString() : null);
