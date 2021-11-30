@@ -1,6 +1,7 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
 - [x] Fix: when multiple platforms were in use, the public result displays would not restrict themselves to the events coming from the selected platform.
+- [x] Armenian translation
 
 ###### New in release 4.25
 
