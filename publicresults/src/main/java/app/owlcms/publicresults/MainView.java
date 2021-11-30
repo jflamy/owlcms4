@@ -72,7 +72,10 @@ public class MainView extends VerticalLayout {
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
-        UpdateReceiverServlet.getEventBus().unregister(this);
+        try {
+            UpdateReceiverServlet.getEventBus().unregister(this);
+        } catch (Exception e) {
+        }
     }
 
     private void buildHomePage() {

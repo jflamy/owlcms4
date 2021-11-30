@@ -104,19 +104,6 @@ public class Main {
         }
     }
 
-    /**
-     * get configuration from environment variables and if not found, from system properties.
-     */
-    private static void parseConfig() {
-        // read server.port parameter from -D"server.port"=9999 on java command line
-        // this is required for running on Heroku which assigns us the port at run time.
-        // default is 8080
-        serverPort = StartupUtils.getIntegerParam("port", 8080);
-        StartupUtils.setServerPort(serverPort);
-
-        overrideDisplayLanguage();
-    }
-
     private static Locale overrideDisplayLanguage() {
         // read override value from database
         Locale l = null;
@@ -137,6 +124,19 @@ public class Main {
             logger.info("forcing display language to {}", l);
         }
         return l;
+    }
+
+    /**
+     * get configuration from environment variables and if not found, from system properties.
+     */
+    private static void parseConfig() {
+        // read server.port parameter from -D"server.port"=9999 on java command line
+        // this is required for running on Heroku which assigns us the port at run time.
+        // default is 8080
+        serverPort = StartupUtils.getIntegerParam("port", 8080);
+        StartupUtils.setServerPort(serverPort);
+
+        overrideDisplayLanguage();
     }
 
 }

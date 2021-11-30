@@ -61,7 +61,7 @@ public class ServiceListener implements VaadinServiceInitListener {
 
 //		// ignore browser-specific settings based on configuration
 //		session.setLocale(Locale.ENGLISH);
-//		
+//
     }
 
 }

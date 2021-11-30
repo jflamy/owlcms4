@@ -14,6 +14,7 @@ import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.publicresults.TimerReceiverServlet;
 import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.uievents.TimerEvent;
@@ -105,29 +106,46 @@ public class AthleteTimerElement extends TimerElement {
         this.origin = origin;
     }
 
-//    @Subscribe
-    // we do not listen to the bus for this event.  Score with leaders forwards this event
+    // we do not listen to the bus for this event. Score with leaders forwards this event
     // when appropriate
     public void slaveOrderUpdated(UpdateEvent e) {
+        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
+            // event is not for us
+            return;
+        }
         doSetTimer(e.getTimeAllowed());
     }
 
     @Subscribe
     public void slaveSetTimer(TimerEvent.SetTime e) {
         Integer milliseconds = e.getTimeRemaining();
-        uiEventLogger.debug(">>> set received {} {}", e, milliseconds);
+        uiEventLogger.debug(">>> set received {} {} {} {}", e, milliseconds, e.getFopName(), getFopName());
+        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
+            // event is not for us
+            return;
+        }
+
         doSetTimer(milliseconds);
     }
 
     @Subscribe
     public void slaveStartTimer(TimerEvent.StartTime e) {
         Integer milliseconds = e.getTimeRemaining();
-        uiEventLogger.debug(">>> start received {} {}", e, milliseconds);
+        // uiEventLogger.debug(">>> start received {} {} {} {}", e, milliseconds, e.getFopName(), getFopName());
+        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
+            // event is not for us
+            return;
+        }
+
         doStartTimer(milliseconds, e.isSilent());
     }
 
     @Subscribe
     public void slaveStopTimer(TimerEvent.StopTime e) {
+        if (getFopName() == null || e.getFopName() == null || !getFopName().contains(e.getFopName())) {
+            // event is not for us
+            return;
+        }
         doStopTimer();
     }
 
@@ -152,6 +170,7 @@ public class AthleteTimerElement extends TimerElement {
         UpdateReceiverServlet.getEventBus().register(this);
         TimerReceiverServlet.getEventBus().register(this);
         ui = UI.getCurrent();
+        this.setFopName((String) OwlcmsSession.getAttribute("fopName"));
     }
 
     @Override

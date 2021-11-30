@@ -84,7 +84,7 @@ public class OwlcmsSession {
         if (locale == null && currentUi != null) {
             locale = currentUi.getLocale();
         }
-        
+
         // get first defined locale from translation file, else default
         if (locale == null) {
             List<Locale> locales = Translator.getAvailableLocales();
@@ -116,6 +116,7 @@ public class OwlcmsSession {
      * @param o the o
      */
     public static void setAttribute(String s, Object o) {
+        // logger.trace("{} setting Attribute {} to {}",getCurrent(), s, o);
         getCurrent().attributes.put(s, o);
     }
 

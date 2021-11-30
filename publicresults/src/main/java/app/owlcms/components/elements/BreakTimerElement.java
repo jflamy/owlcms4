@@ -14,6 +14,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.DetachEvent;
 
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.publicresults.TimerReceiverServlet;
 import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.uievents.BreakTimerEvent;
@@ -88,18 +89,31 @@ public class BreakTimerElement extends TimerElement {
 
     @Subscribe
     public void slaveBreakDone(BreakTimerEvent.BreakDone e) {
+        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
+            // event is not for us
+            return;
+        }
         uiEventLogger.debug("&&& break done {} {}", parentName);
         doStopTimer();
     }
 
     @Subscribe
     public void slaveBreakPause(BreakTimerEvent.BreakPaused e) {
+        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
+            // event is not for us
+            return;
+        }
         uiEventLogger.debug("&&& breakTimer pause {} {}", parentName);
         doStopTimer();
     }
 
     @Subscribe
     public void slaveBreakSet(BreakTimerEvent.BreakSetTime e) {
+        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
+            // event is not for us
+            return;
+        }
+
         Integer milliseconds;
 
         milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
@@ -110,6 +124,10 @@ public class BreakTimerElement extends TimerElement {
 
     @Subscribe
     public void slaveBreakStart(BreakTimerEvent.BreakStart e) {
+        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
+            // event is not for us
+            return;
+        }
         Integer tr = e.isIndefinite() ? null : e.getTimeRemaining();
         uiEventLogger.debug("&&& breakTimer start {} {} {}", parentName, tr, LoggerUtils.whereFrom());
         doStartTimer(tr, true); // true means "silent".
@@ -118,6 +136,10 @@ public class BreakTimerElement extends TimerElement {
     @Subscribe
     // not clear why we listen to this event.
     public void slaveOrderUpdated(UpdateEvent e) {
+        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
+            // event is not for us
+            return;
+        }
         Integer breakRemaining = e.getBreakRemaining();
         if (e.isBreak() && breakRemaining > 0) {
             doSetTimer(breakRemaining);
@@ -147,6 +169,7 @@ public class BreakTimerElement extends TimerElement {
 
         UpdateReceiverServlet.getEventBus().register(this);
         TimerReceiverServlet.getEventBus().register(this);
+        setFopName((String) OwlcmsSession.getAttribute("fopName"));
     }
 
     @Override

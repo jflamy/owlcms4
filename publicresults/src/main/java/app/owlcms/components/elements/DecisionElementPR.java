@@ -18,6 +18,7 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.publicresults.DecisionReceiverServlet;
 import app.owlcms.publicresults.TimerReceiverServlet;
 import app.owlcms.uievents.BreakTimerEvent;
@@ -31,7 +32,7 @@ import ch.qos.logback.classic.Logger;
  */
 @Tag("decision-element-pr")
 @JsModule("./components/DecisionElement.js")
-public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.DecisionModel> {
+public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.DecisionModel> implements IFopName {
 
     /**
      * The Interface DecisionModel.
@@ -62,12 +63,25 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
     protected EventBus uiEventBus;
     protected EventBus fopEventBus;
     private UI ui;
+    private String fopName;
 
     public DecisionElementPR() {
     }
 
+    /** @see app.owlcms.components.elements.IFopName#getFopName() */
+    @Override
+    public String getFopName() {
+        return this.fopName;
+    }
+
     public boolean isPublicFacing() {
-        return Boolean.TRUE.equals(getModel().isPublicFacing());
+        return getModel().isPublicFacing();
+    }
+
+    /** @see app.owlcms.components.elements.IFopName#setFopName(java.lang.String) */
+    @Override
+    public void setFopName(String fopName) {
+        this.fopName = fopName;
     }
 
     public void setJury(boolean juryMode) {
@@ -80,6 +94,10 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
 
     @Subscribe
     public void slaveDecision(DecisionEvent de) {
+        if (getFopName() == null || de.getFopName() == null || !getFopName().contentEquals(de.getFopName())) {
+            // event is not for us
+            return;
+        }
         logger.debug("DecisionElement DecisionEvent {} {}", de.getEventType(), System.identityHashCode(de));
         if (ui == null || ui.isClosing()) {
             return;
@@ -115,6 +133,11 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
 
     @Subscribe
     public void slaveStartBreakTimer(BreakTimerEvent.BreakStart e) {
+        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
+            // event is not for us
+            return;
+        }
+
         if (ui == null || ui.isClosing()) {
             return;
         }
@@ -125,6 +148,10 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
 
     @Subscribe
     public void slaveStartTimer(TimerEvent.StartTime e) {
+        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
+            // event is not for us
+            return;
+        }
         if (ui == null || ui.isClosing()) {
             return;
         }
@@ -135,6 +162,10 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
 
     @Subscribe
     public void slaveStopBreakTimer(BreakTimerEvent.BreakDone e) {
+        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
+            // event is not for us
+            return;
+        }
         if (ui == null || ui.isClosing()) {
             return;
         }
@@ -145,6 +176,10 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
 
     @Subscribe
     public void slaveStopBreakTimer(BreakTimerEvent.BreakPaused e) {
+        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
+            // event is not for us
+            return;
+        }
         if (ui == null || ui.isClosing()) {
             return;
         }
@@ -155,6 +190,10 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
 
     @Subscribe
     public void slaveStopTimer(TimerEvent.StopTime e) {
+        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
+            // event is not for us
+            return;
+        }
         if (ui == null || ui.isClosing()) {
             return;
         }
@@ -180,6 +219,7 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
 
         DecisionReceiverServlet.getEventBus().register(this);
         TimerReceiverServlet.getEventBus().register(this);
+        setFopName((String) OwlcmsSession.getAttribute("fopName"));
     }
 
     @Override

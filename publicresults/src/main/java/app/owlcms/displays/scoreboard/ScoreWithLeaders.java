@@ -201,6 +201,10 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveBreakDone(BreakTimerEvent.BreakDone e) {
+        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
+            // event is not for us
+            return;
+        }
         logger.debug("### received BreakDone {}");
         this.getElement().callJsFunction("reset");
         needReset = false;
@@ -208,6 +212,10 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveDecisionEvent(DecisionEvent e) {
+        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
+            // event is not for us
+            return;
+        }
         logger.debug("### received DecisionEvent {}", e.getEventType());
         DecisionEventType eventType = e.getEventType();
         switch (eventType) {
@@ -248,6 +256,10 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveGlobalRankingUpdated(UpdateEvent e) {
+        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
+            // event is not for us
+            return;
+        }
         String fopState = e.getFopState();
         logger.debug("### received UpdateEvent {}", e);
         ui.access(() -> {
@@ -325,9 +337,15 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             logger.trace("closing {}: unregister {} from event busses", e.getSource(), this);
             try {
                 UpdateReceiverServlet.getEventBus().unregister(this);
-                DecisionReceiverServlet.getEventBus().unregister(this);
-                TimerReceiverServlet.getEventBus().unregister(this);
             } catch (Exception ex) {
+            }
+            try {
+                DecisionReceiverServlet.getEventBus().unregister(this);
+            } catch (Exception e1) {
+            }
+            try {
+                TimerReceiverServlet.getEventBus().unregister(this);
+            } catch (Exception e1) {
             }
             UnloadObserver.remove();
         });
@@ -350,9 +368,18 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
-        UpdateReceiverServlet.getEventBus().unregister(this);
-        DecisionReceiverServlet.getEventBus().unregister(this);
-        TimerReceiverServlet.getEventBus().unregister(this);
+        try {
+            UpdateReceiverServlet.getEventBus().unregister(this);
+        } catch (Exception e) {
+        }
+        try {
+            DecisionReceiverServlet.getEventBus().unregister(this);
+        } catch (Exception e) {
+        }
+        try {
+            TimerReceiverServlet.getEventBus().unregister(this);
+        } catch (Exception e) {
+        }
     }
 
     private void doDone(String str) {
