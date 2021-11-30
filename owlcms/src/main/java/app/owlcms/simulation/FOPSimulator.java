@@ -65,31 +65,38 @@ public class FOPSimulator implements Runnable {
 
         int i = 0;
         for (Group g : gs) {
-            logger.info("group {}", g.getName());
+
+            List<Athlete> as = AthleteRepository.findAllByGroupAndWeighIn(g, true);
+
+            if (as.size() == 0) {
+                as = weighIn(g);
+            }
+            as = AthleteRepository.findAllByGroupAndWeighIn(g, true);
+            if (as.size() == 0) {
+                logger.info("skipping group {} size {}", g.getName(), as.size());
+                continue;
+            }
+            logger.info("group {} size {}", g.getName(), as.size());
+
             int index = i % ps.size();
             Platform curP = ps.get(index);
             List<Group> curGroupList = groupsByPlatform.get(curP);
             if (curGroupList == null) {
                 curGroupList = new ArrayList<>();
             }
+            
             logger.info("platform {} {}", index, curP.getName());
-            List<Athlete> as = AthleteRepository.findAllByGroupAndWeighIn(g, true);
-            logger.info("group {}size {}", g.getName(), as.size());
-            if (as.size() == 0) {
-                as = weighIn(g);
-            }
-
             if (as.size() > 0) {
                 curGroupList.add(g);
                 groupsByPlatform.put(curP, curGroupList);
-                logger.debug("platform {} groups {}", curP.getName(), groupsByPlatform.get(curP));
+                logger.info("platform {} groups {}", curP.getName(), groupsByPlatform.get(curP));
             }
             i++;
         }
 
         try {
-            logger.info("waiting for compile");
-            Thread.sleep(10 * 1000);
+            logger.info("waiting 30s for compile");
+            Thread.sleep(30 * 1000);
         } catch (InterruptedException e) {
         }
         for (Platform p : ps) {
