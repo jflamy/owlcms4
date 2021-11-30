@@ -60,7 +60,7 @@ public class DecisionReceiverServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 //        if (StartupUtils.isDebugSetting()) {
 //            Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-//            logger./**/warn("++++ decision received from {}", URLUtils.getClientIp(req));
+//            logger./**/warn("++++ decision received from {}", ProxyUtils.getClientIp(req));
 //            for (Entry<String, String[]> pair : pairs) {
 //                logger./**/warn("{} = {}", pair.getKey(), pair.getValue()[0]);
 //            }

@@ -91,7 +91,7 @@ import ch.qos.logback.classic.Logger;
 @Entity
 @Cacheable
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "logger" })
+@JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 @JsonPropertyOrder({ "id", "participations", "category" })
 public class Athlete {
     private static final int YEAR = LocalDateTime.now().getYear();
@@ -484,25 +484,41 @@ public class Athlete {
 
     public void computeMainCategory() {
         Double weight = this.getBodyWeight();
-        if (weight == null) {
+        Integer age = this.getAge();
+        if (weight == null || weight < 0.01) {
+//            logger.debug("no weight {}", this.getShortName());
             Double presumedBodyWeight = this.getPresumedBodyWeight();
+//            logger.debug("presumed weight {} {} {}",this.getShortName(), presumedBodyWeight, this.getCategory());
             if (presumedBodyWeight != null) {
                 weight = presumedBodyWeight - 0.01D;
+                if (age == null || age == 0) {
+
+                    // try to set category to match sheet, with coherent eligibles
+                    if (this.category != null) {    
+                        age = category.getAgeGroup().getMaxAge();
+                    }
+                }
+
                 List<Category> categories = CategoryRepository.findByGenderAgeBW(
-                        this.getGender(), this.getAge(), weight);
+                        this.getGender(), age, weight);
+
                 categories = categories.stream()
 //                        .peek((c) -> {
-//                            logger.debug("a {} aq {} cq {}", this.getShortName(), this.getQualifyingTotal(),
+//                            logger.debug("no weight a {} aq {} cq {}", this.getShortName(), this.getQualifyingTotal(),
 //                                    c.getQualifyingTotal());
 //                        })
                         .filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
+//                logger.debug("{} presumed weight {} age {} {} {}",this.getShortName(), presumedBodyWeight, age, this.getCategory(), categories);
                 setEligibles(this, categories);
                 this.setCategory(bestMatch(categories));
+                
+//                logger.debug("{} {} gender {} age {} weight {} category *{}* categories {}", this.getId(), this.getShortName(), this.getGender(), this.getAge(), weight, this.getCategory(), categories);
 
             }
         } else {
+//            logger.debug("weight {}", this.getShortName());
             List<Category> categories = CategoryRepository.findByGenderAgeBW(
-                    this.getGender(), this.getAge(), weight);
+                    this.getGender(), age, weight);
             categories = categories.stream()
 //                    .peek((c) -> {
 //                        logger.debug("a {} aq {} cq {}", this.getShortName(), this.getQualifyingTotal(),
@@ -1712,6 +1728,9 @@ public class Athlete {
         Double bodyWeight2 = getBodyWeight();
         if (bodyWeight2 != null && bodyWeight2 >= 0) {
             return bodyWeight2;
+        }
+        if (category != null) {
+            return category.getMaximumWeight();
         }
         return presumedBodyWeight;
     }
@@ -4697,6 +4716,12 @@ public class Athlete {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    @Transient
+    @JsonIgnore
+    public String getCategoryCode() {
+        return category != null ? category.getCode() : "-";
     }
 
 }

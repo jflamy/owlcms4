@@ -34,6 +34,7 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
@@ -42,7 +43,6 @@ import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
@@ -51,13 +51,13 @@ import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
+import app.owlcms.i18n.Translator;
 
 /**
  * Class TopSinclair
@@ -127,7 +127,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
      *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
      */
     @Override
@@ -228,7 +228,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     /**
      * return dialog, but only on first call.
      *
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#getDialog()
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#getDialog()
      */
     @Override
     public Dialog getDialog() {
@@ -271,7 +271,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#isShowInitialDialog()
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#isShowInitialDialog()
      */
     @Override
     public boolean isShowInitialDialog() {
@@ -299,7 +299,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
      */
     @Override
     public void setShowInitialDialog(boolean b) {
@@ -307,7 +307,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#setSilenced(boolean)
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#setSilenced(boolean)
      */
     @Override
     public void setSilenced(boolean silent) {

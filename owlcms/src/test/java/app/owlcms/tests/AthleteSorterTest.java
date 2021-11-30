@@ -18,6 +18,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import app.owlcms.Main;
+import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -28,7 +30,6 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.utils.DebugUtils;
 import ch.qos.logback.classic.Level;
 
 public class AthleteSorterTest {
@@ -37,6 +38,7 @@ public class AthleteSorterTest {
 
     @BeforeClass
     public static void setupTests() {
+        Main.injectSuppliers();
         JPAService.init(true, true);
         Config.initConfig();
         TestData.insertInitialData(5, true);

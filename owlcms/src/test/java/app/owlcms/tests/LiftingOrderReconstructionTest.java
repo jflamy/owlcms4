@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 
+import app.owlcms.Main;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -28,6 +29,7 @@ public class LiftingOrderReconstructionTest {
 
     @BeforeClass
     public static void setupTests() {
+        Main.injectSuppliers();
         JPAService.init(true, true);
         Config.initConfig();
     }

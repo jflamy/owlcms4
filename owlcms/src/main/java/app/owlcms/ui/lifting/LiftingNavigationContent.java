@@ -19,6 +19,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.DebugUtils;
 import app.owlcms.components.NavigationPage;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
@@ -26,7 +27,6 @@ import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.referee.RefContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
-import app.owlcms.utils.DebugUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 

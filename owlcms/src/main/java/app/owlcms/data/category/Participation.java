@@ -37,7 +37,7 @@ import ch.qos.logback.classic.Logger;
  */
 @Entity(name = "Participation")
 @Table(name = "participation")
-@JsonIgnoreProperties({"hibernateLazyInitializer"})
+@JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 public class Participation implements IRankHolder {
 
     @Transient
@@ -76,7 +76,7 @@ public class Participation implements IRankHolder {
      * qualified for JR and SR, but only on the JR team for example.
      */
     @Column(columnDefinition = "boolean default true")
-    private boolean teamMember;
+    private boolean teamMember = true;
 
     @Column(columnDefinition = "integer default 0")
     private int teamTotalRank;

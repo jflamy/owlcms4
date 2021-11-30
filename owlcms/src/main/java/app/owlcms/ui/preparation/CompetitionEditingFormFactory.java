@@ -39,10 +39,10 @@ import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
-import app.owlcms.i18n.Translator;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class CompetitionEditingFormFactory

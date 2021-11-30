@@ -27,8 +27,8 @@ import com.google.common.eventbus.EventBus;
 import app.owlcms.uievents.BreakTimerEvent;
 import app.owlcms.uievents.TimerEvent;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ProxyUtils;
 import app.owlcms.utils.StartupUtils;
-import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 @WebServlet("/timer")
@@ -68,7 +68,7 @@ public class TimerReceiverServlet extends HttpServlet {
             resp.setCharacterEncoding("UTF-8");
             if (StartupUtils.isTraceSetting()) {
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-                logger./**/warn("---- timer received from {}", URLUtils.getClientIp(req));
+                logger./**/warn("---- timer received from {}", ProxyUtils.getClientIp(req));
                 for (Entry<String, String[]> pair : pairs) {
                     logger./**/warn("{} = {}", pair.getKey(), pair.getValue()[0]);
                 }

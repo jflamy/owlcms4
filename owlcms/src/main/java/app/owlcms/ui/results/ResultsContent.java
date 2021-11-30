@@ -26,10 +26,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -43,31 +40,30 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamResource;
 
+import app.owlcms.components.DownloadButtonFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSResultSheet;
+import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AthleteCrudGrid;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
-import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * Class ResultsContent.
@@ -92,9 +88,9 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         themes.add("row-stripes");
 
         grid.addColumn("category").setHeader(Translator.translate("Category"));
-            
+
         grid.addColumn("total").setHeader(Translator.translate("Total"))
-            .setComparator(new WinningOrderComparator(Ranking.TOTAL, true));
+                .setComparator(new WinningOrderComparator(Ranking.TOTAL, true));
         grid.addColumn("totalRank").setHeader(Translator.translate("TotalRank"))
                 .setComparator(new WinningOrderComparator(Ranking.TOTAL, false));
 
@@ -112,7 +108,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         grid.addColumn(new NumberRenderer<>(Athlete::getRobi, "%.3f", OwlcmsSession.getLocale(), "-"), "robi")
                 .setHeader(Translator.translate("robi")).setComparator(new WinningOrderComparator(Ranking.ROBI, true));
 
-        String protocolFileName = Competition.getCurrent().getProtocolFileName();
+        String protocolFileName = Competition.getCurrent().getProtocolTemplateFileName();
         if (protocolFileName != null && (protocolFileName.toLowerCase().contains("fhq"))) {
             // historical
             grid.addColumn(
@@ -130,13 +126,11 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         return grid;
     }
 
-    private Button download;
-    private Anchor groupResults;
     private Group currentGroup;
-    private JXLSResultSheet xlsWriter;
-    private ComboBox<Resource> templateSelect;
+    private JXLSWorkbookStreamSource xlsWriter;
 
     private Checkbox medalsOnly;
+    private DownloadButtonFactory downloadButtonFactory;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
@@ -266,7 +260,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
      * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
      *                  parameters instead.
      *
-     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      *      java.lang.String)
      */
     @Override
@@ -277,7 +271,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
         HashMap<String, List<String>> params = new HashMap<>(parametersMap);
 
-        logger.debug("parsing query parameters");
+        logger.debug("parsing query parameters ResultContent");
         List<String> groupNames = params.get("group");
         if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
             String groupName = groupNames.get(0);
@@ -291,6 +285,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             params.remove("group");
         }
         params.remove("fop");
+        logger.debug("params {}", params);
 
         // change the URL to reflect group
         event.getUI().getPage().getHistory().replaceState(null,
@@ -341,49 +336,37 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     protected void createTopBar() {
-        // show arrow but close menu
+        logger.debug("createTopBar");
+        // show back arrow but close menu
         getAppLayout().setMenuVisible(true);
         getAppLayout().closeDrawer();
 
         topBar = getAppLayout().getAppBarElementWrapper();
 
         H3 title = new H3();
-        title.setText(getTranslation("GroupResults"));
+        title.setText(Translator.translate("GroupResults"));
         title.add();
         title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
+
+        Button resultsButton = createGroupResultsDownloadButton();
 
         topBarGroupSelect = new ComboBox<>();
         topBarGroupSelect.setPlaceholder(getTranslation("Group"));
         topBarGroupSelect.setItems(GroupRepository.findAll());
         topBarGroupSelect.setItemLabelGenerator(Group::getName);
         topBarGroupSelect.setClearButtonVisible(true);
-        topBarGroupSelect.setValue(null);
-        topBarGroupSelect.setWidth("8em");
         setGroupSelectionListener();
+        topBarGroupSelect.setValue(currentGroup);
+        topBarGroupSelect.setWidth("8em");
 
-        xlsWriter = new JXLSResultSheet(UI.getCurrent());
-        StreamResource href = new StreamResource("resultSheet.xls", xlsWriter);
-        groupResults = new Anchor(href, "");
-        groupResults.getStyle().set("margin-left", "1em");
-        download = new Button(getTranslation("GroupResults"), new Icon(VaadinIcon.DOWNLOAD_ALT));
-        groupResults.add(download);
-
-        templateSelect = new ComboBox<>();
-        templateSelect.setPlaceholder(getTranslation("AvailableTemplates"));
-        List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/protocol",
-                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
-        templateSelect.setItems(resourceList);
-        templateSelect.setValue(null);
-        templateSelect.setWidth("15em");
-        templateSelect.getStyle().set("margin-left", "1em");
-        setTemplateSelectionListener(resourceList);
-
-        HorizontalLayout buttons = new HorizontalLayout(groupResults);
+        HorizontalLayout buttons = new HorizontalLayout(resultsButton);
+        buttons.setPadding(true);
+        buttons.getStyle().set("margin-left", "5em");
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
         topBar.getStyle().set("flex", "100 1");
         topBar.removeAll();
-        topBar.add(title, topBarGroupSelect, templateSelect, buttons);
+        topBar.add(title, topBarGroupSelect, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         topBar.setFlexGrow(0.2, title);
 //        topBar.setSpacing(true);
@@ -446,20 +429,6 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         createTopBar();
     }
 
-    private void setGroupSelectionListener() {
-        topBarGroupSelect.setValue(getGridGroup());
-        topBarGroupSelect.addValueChangeListener(e -> {
-            setGridGroup(e.getValue());
-            currentGroup = e.getValue();
-            // the name of the resulting file is set as an attribute on the <a href tag that
-            // surrounds
-            // the download button.
-            xlsWriter.setGroup(currentGroup);
-            groupResults.getElement().setAttribute("download",
-                    "results" + (currentGroup != null ? "_" + currentGroup : "_all") + ".xls");
-        });
-    }
-
     /**
      * @return true if the current group is safe for editing -- i.e. not lifting currently
      */
@@ -484,35 +453,29 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         return liftingFop != null;
     }
 
-    private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
-        Resource found = null;
-        for (Resource curResource : resourceList) {
-            String fileName = curResource.getFileName();
-            if (fileName.equals(curTemplateName)) {
-                found = curResource;
-                break;
-            }
-        }
-        return found;
+    private Button createGroupResultsDownloadButton() {
+        downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
+                () -> {
+                    JXLSResultSheet rs = new JXLSResultSheet();
+                    rs.setGroup(currentGroup);
+                    return rs;
+                },
+                "/templates/protocol",
+                Competition::getComputedProtocolTemplateFileName,
+                Competition::setProtocolTemplateFileName,
+                Translator.translate("GroupResults"),
+                "results", Translator.translate("Download"));
+        Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
+        return resultsButton;
     }
 
-    private void setTemplateSelectionListener(List<Resource> resourceList) {
-        try {
-            String curTemplateName = Competition.getCurrent().getProtocolFileName();
-            Resource found = searchMatch(resourceList, curTemplateName);
-            templateSelect.addValueChangeListener((e) -> {
-                Competition.getCurrent().setProtocolFileName(e.getValue().getFileName());
-//                try {
-//                    Competition.getCurrent().setProtocolTemplate(e.getValue().getByteArray());
-//                } catch (IOException e1) {
-//                    throw new RuntimeException(e1);
-//                }
-                CompetitionRepository.save(Competition.getCurrent());
-            });
-            templateSelect.setValue(found);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    private void setGroupSelectionListener() {
+//        topBarGroupSelect.setValue(getGridGroup());
+        topBarGroupSelect.addValueChangeListener(e -> {
+            setGridGroup(e.getValue());
+            currentGroup = e.getValue();
+            downloadButtonFactory.createTopBarDownloadButton();
+        });
     }
 
     private void subscribeIfLifting(Group nGroup) {

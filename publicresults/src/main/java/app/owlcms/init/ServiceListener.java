@@ -13,6 +13,7 @@ import com.vaadin.flow.server.SessionInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.vaadin.flow.server.VaadinSession;
 
+import app.owlcms.servlet.JettyErrorHandler;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -60,7 +61,7 @@ public class ServiceListener implements VaadinServiceInitListener {
 
 //		// ignore browser-specific settings based on configuration
 //		session.setLocale(Locale.ENGLISH);
-//		
+//
     }
 
 }

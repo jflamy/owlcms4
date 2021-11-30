@@ -1,13 +1,19 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Fix: Team membership is now correctly taken into account
-- [x] Fix: Athletes under 13 were causing issues in results sheets due to the lack of ROBI score.
-- [x] Fix: if you had imported the registration Excel in previous versions of the program, there was the possibility that duplicate platforms had been created.  The program now does a clean-up
-- [x] Enhancement: added a "Coach" field to the athlete registration and weigh-in forms.  Usable as ${l.coach} in the Excel templates. Also added two custom fields: typical use is for athlete status (ex: "elite") or other local usage (ex: a patronym). Usable as ${l.custom1} and ${l.custom2} in the Excel templates. You can set the headers in the translation file under "Custom1.Title" and "Custom2.Title".  
-- [x] Enhancement: show SMF ranking in Team Results (for Masters competitions)
-- [x] Enhancement: "select all" checkbox on Team Selection page to include all athletes in teams and then deselect non-members.
+- [x] Fix: when multiple platforms were in use, the public result displays would not restrict themselves to the events coming from the selected platform.
+- [x] Armenian translation
 
-###### New in this release
+###### New in release 4.25
+
+- [x] It is now possible to choose and override the Excel templates for competitions cards, the start list, the starting weight sheet, the results (protocol), and the final package (attempts, sinclair, robi, team results, etc.).
+  - New available IWF-style layout for athlete cards that is meant to be printed and folded to give bigger areas for writing (both North American Letter and international A4 formats available)
+- [x] Multi-platform fix: prevent cases where timer events could be forwarded to the wrong platform.
+- [x] Enhancement: new Start List template for multi-platform competitions (shows the platform)
+- [x] Fixes to import/export of the database for edge cases
+- [x] Enhancement: You can now import the registration file with only the category and no birth date.
+- [x] Fix: on page refresh, lift clocks resume counting down as appropriate.
+
+###### Key Highlights from recent stable releases
 
 - [x] It is now possible to export, manipulate and reload the registration data (athletes, groups, referees) in Excel format.  
 
@@ -23,6 +29,8 @@
   
 - [x] Enhancement: the Available Plates page can now be reached from the Field of Play/Platforms preparation page.  The button to reach this page has also been renamed (used to be "Technical Controller")
 
+- [x] Enhancement: added a "Coach" field to the athlete registration and weigh-in forms.  Usable as ${l.coach} in the Excel templates. Also added two custom fields: typical use is for athlete status (ex: "elite") or other local usage (ex: a patronym). Usable as ${l.custom1} and ${l.custom2} in the Excel templates. You can set the headers in the translation file under "Custom1.Title" and "Custom2.Title". 
+
 - [x] It is now possible to Export and Import the database content (#449).  This allows taking a snapshot of the database in the middle of a competition. It also allows bringing back a Heroku database for local use, and conversely, setting up a competition locally prior to loading on Heroku.
 
   > For now you should still take backups of the real database (in the database directory on a laptop, or using the PostgreSQL backup on Heroku).  Until it is fully mature, it is considered a technical feature and is located at on the "Language and System Settings Page".
@@ -31,7 +39,7 @@
 
 - [x] The procedure to import a PostgreSQL database from Heroku and use it a local machine is now documented. See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/PostgreSQL) for details.  This is meant as a backup for investigating PostgreSQL specific issues, or something that would prevent a cloud instanceser from starting.
 
-###### **Key Highlights from recent stable releases**
+###### 
 
 - [x] Explicit support for participation to multiple age groups (#433)
   - An athlete will, by default, be eligible and ranked separately in all the active categories in which the age and qualifying total are met.   

@@ -27,55 +27,55 @@
             </properties>
 
             <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <version>3.8.1</version>
+                            <configuration>
+                                <release>11</release>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <artifactId>maven-assembly-plugin</artifactId>
+                            <version>3.1.0</version>
+                            <executions>
+                                <execution>
+                                    <id>zip-innosetup</id>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>single</goal>
+                                    </goals>
+                                    <configuration>
+                                        <finalName>innosetup</finalName>
+                                        <appendAssemblyId>false</appendAssemblyId>
+                                        <descriptors>
+                                            <descriptor>src/main/assembly/zip-innosetup.xml</descriptor>
+                                        </descriptors>
+                                        <attach>false</attach>
+                                    </configuration>
+                                </execution>
+                                <execution>
+                                    <id>zip-jre</id>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>single</goal>
+                                    </goals>
+                                    <configuration>
+                                        <finalName>jre</finalName>
+                                        <appendAssemblyId>false</appendAssemblyId>
+                                        <descriptors>
+                                            <descriptor>src/main/assembly/zip-jre.xml</descriptor>
+                                        </descriptors>
+                                        <attach>false</attach>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
                 <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.8.1</version>
-                        <configuration>
-                            <release>11</release>
-                            <!-- <compilerArgs> should no longer be needed when moving to JDK 11 -->
-                            <!-- <arg>- -add-exports=java.desktop/com.sun.media.sound=ALL-UNNAMED</arg> -->
-                            <!-- </compilerArgs> -->
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <id>zip-innosetup</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                                <configuration>
-                                    <finalName>innosetup</finalName>
-                                    <appendAssemblyId>false</appendAssemblyId>
-                                    <descriptors>
-                                        <descriptor>src/main/assembly/zip-innosetup.xml</descriptor>
-                                    </descriptors>
-                                    <attach>false</attach>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>zip-jre</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                                <configuration>
-                                    <finalName>jre</finalName>
-                                    <appendAssemblyId>false</appendAssemblyId>
-                                    <descriptors>
-                                        <descriptor>src/main/assembly/zip-jre.xml</descriptor>
-                                    </descriptors>
-                                    <attach>false</attach>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-install-plugin</artifactId>
@@ -160,21 +160,6 @@
                                     <classifier>jre</classifier>
                                     <generatePom>false</generatePom>
                                     <!-- pomFile>target/installtools/deployment-pom.xml</pomFile> -->
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <!-- Skip execution - top level project does all the release handling -->
-                        <groupId>com.ragedunicorn.tools.maven</groupId>
-                        <artifactId>github-release-maven-plugin</artifactId>
-                        <version>1.0.4.2</version>
-                        <inherited>false</inherited>
-                        <executions>
-                            <execution>
-                                <id>default-cli</id>
-                                <configuration>
-                                    <skip>true</skip>
                                 </configuration>
                             </execution>
                         </executions>

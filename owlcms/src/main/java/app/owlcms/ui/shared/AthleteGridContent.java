@@ -53,6 +53,7 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
+import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -62,7 +63,6 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
@@ -76,9 +76,9 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
-import app.owlcms.utils.queryparameters.FOPParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * Class AthleteGridContent.
@@ -323,7 +323,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     /**
      * Process URL parameters, including query parameters
      *
-     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      *      java.lang.String)
      */
     @Override
@@ -593,7 +593,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected void create1minButton() {
         _1min = new Button("1:00", (e) -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.ForceTime(60000, this.getOrigin()));
+                fop.fopEventPost(new FOPEvent.ForceTime(60000, this.getOrigin()));
             });
         });
         _1min.getElement().setAttribute("theme", "icon");
@@ -602,7 +602,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected void create2MinButton() {
         _2min = new Button("2:00", (e) -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.ForceTime(120000, this.getOrigin()));
+                fop.fopEventPost(new FOPEvent.ForceTime(120000, this.getOrigin()));
             });
         });
         _2min.getElement().setAttribute("theme", "icon");
@@ -697,7 +697,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                 boolean running = fop.getAthleteTimer().isRunning();
                 if (timeElapsed > 50 && !running) {
                     logger.debug("clock start {}ms running={}", timeElapsed, running);
-                    fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
+                    fop.fopEventPost(new FOPEvent.TimeStarted(this.getOrigin()));
                     buttonsTimeStarted();
                 } else {
                     logger.debug("discarding duplicate clock start {}ms running={}", timeElapsed, running);
@@ -712,7 +712,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         stopTimeButton = new Button(AvIcons.PAUSE.create());
         stopTimeButton.addClickListener(e -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.TimeStopped(this.getOrigin()));
+                fop.fopEventPost(new FOPEvent.TimeStopped(this.getOrigin()));
                 buttonsTimeStopped();
             });
         });
@@ -839,27 +839,15 @@ public abstract class AthleteGridContent extends VerticalLayout
                     if (newGroup == null && oldGroup == null) {
                         return;
                     }
-//                    if ((newGroup == null && oldGroup != null) || !newGroup.equals(oldGroup)) {
-//                        logger.debug("filter switching group from {} to {}",
-//                                oldGroup != null ? oldGroup.getName() : null,
-//                                newGroup != null ? newGroup.getName() : null);
                     if (isIgnoreSwitchGroup()) {
                         // logger.debug("ignoring self-originating change");
                         setIgnoreSwitchGroup(false);
                     } else {
                         setIgnoreSwitchGroup(true); // prevent recursion on self-generated event.
                         // logger.debug("value changed, switching group, from \n{}",LoggerUtils. stackTrace());
-                        fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
+                        fop.fopEventPost(new FOPEvent.SwitchGroup(newGroup, this));
                     }
                     oldGroup = newGroup;
-//                        // we listen to the UI switch group that will result from the FOP switchgroup
-//                    } else {
-//                        // loadGroup will emit FOP SwitchGroup which will emit UI switchgroup that we listen to .
-                    // logger.debug("{} loading group {} {} {} {} {}", myId, newGroup,
-                    // System.identityHashCode(newGroup), oldGroup, System.identityHashCode(oldGroup),
-                    // LoggerUtils. stackTrace());
-                    // fop.loadGroup(newGroup, this, newGroup != oldGroup);
-//                    }
                 });
             });
         });

@@ -48,13 +48,13 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FOPEvent;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
 import app.owlcms.ui.shared.IAthleteEditing;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> implements CustomFormFactory<Athlete> {
@@ -791,7 +791,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                     originalAthlete.withdraw();
                     AthleteRepository.save(originalAthlete);
                     OwlcmsSession.withFop((fop) -> {
-                        fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
+                        fop.fopEventPost(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
                     });
                     origin.closeDialog();
                 });
@@ -828,7 +828,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         Athlete.conditionalCopy(originalAthlete, getEditedAthlete(), true);
         AthleteRepository.save(originalAthlete);
         OwlcmsSession.withFop((fop) -> {
-            fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
+            fop.fopEventPost(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
         });
         origin.closeDialog();
     }

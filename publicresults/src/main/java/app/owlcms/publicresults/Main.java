@@ -10,12 +10,16 @@ package app.owlcms.publicresults;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import com.google.common.util.concurrent.Runnables;
+
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.EmbeddedJetty;
+import app.owlcms.servlet.EmbeddedJetty;
+import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -40,7 +44,11 @@ public class Main {
 
         try {
             init();
-            new EmbeddedJetty().run(serverPort, "/");
+            new EmbeddedJetty(new CountDownLatch(0))
+                    .setStartLogger(logger)
+                    .setInitConfig(Runnables::doNothing)
+                    .setInitData(Runnables::doNothing)
+                    .run(serverPort, "/");
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -74,24 +82,28 @@ public class Main {
         // Vaadin configs
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
 
+        // app config injection
+        Translator.setLocaleSupplier(Main::computeLocale);
+        ResourceWalker.setLocaleSupplier(Translator.getLocaleSupplier());
+        ResourceWalker.setLocalOverrideSupplier(() -> {
+            ResourceWalker.checkForLocalOverrideDirectory();
+            return null;
+        });
+
         // technical initializations
         System.setProperty("java.net.preferIPv4Stack", "true");
         return;
     }
 
-    /**
-     * get configuration from environment variables and if not found, from system properties.
-     */
-    private static void parseConfig() {
-        // read server.port parameter from -D"server.port"=9999 on java command line
-        // this is required for running on Heroku which assigns us the port at run time.
-        // default is 8080
-        serverPort = StartupUtils.getIntegerParam("port", 8080);
-        StartupUtils.setServerPort(serverPort);
-        
-        overrideDisplayLanguage();
+    private static Locale computeLocale() {
+        String stringParam = StartupUtils.getStringParam("locale");
+        if (stringParam == null) {
+            return Locale.getDefault();
+        } else {
+            return Translator.createLocale(stringParam);
+        }
     }
-    
+
     private static Locale overrideDisplayLanguage() {
         // read override value from database
         Locale l = null;
@@ -112,6 +124,19 @@ public class Main {
             logger.info("forcing display language to {}", l);
         }
         return l;
+    }
+
+    /**
+     * get configuration from environment variables and if not found, from system properties.
+     */
+    private static void parseConfig() {
+        // read server.port parameter from -D"server.port"=9999 on java command line
+        // this is required for running on Heroku which assigns us the port at run time.
+        // default is 8080
+        serverPort = StartupUtils.getIntegerParam("port", 8080);
+        StartupUtils.setServerPort(serverPort);
+
+        overrideDisplayLanguage();
     }
 
 }

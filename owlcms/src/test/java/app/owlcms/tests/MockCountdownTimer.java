@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.utils.LoggerUtils;
@@ -142,6 +143,10 @@ public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
 
     @Override
     public void setOrigin(Object origin) {
+    }
+
+    @Override
+    public void setFop(FieldOfPlay fieldOfPlay) {
     }
 
 }

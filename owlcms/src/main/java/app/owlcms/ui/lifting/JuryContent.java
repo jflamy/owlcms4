@@ -35,13 +35,13 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FOPEvent;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import app.owlcms.uievents.UIEvent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * Class AnnouncerContent.
@@ -277,7 +277,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         syncWithFOP(false);
         decisions.slaveReset(null);
 
-        OwlcmsSession.getFop().getFopEventBus().post(new FOPEvent.StartLifting(this));
+        OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this));
         if (decisionNotification != null) {
             decisionNotification.close();
         }
@@ -418,7 +418,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private HorizontalLayout juryDecisionButtons() {
         Button good = new Button(IronIcons.DONE.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.JuryDecision(fop.getCurAthlete(), this.getOrigin(), true));
+                fop.fopEventPost(new FOPEvent.JuryDecision(fop.getCurAthlete(), this.getOrigin(), true));
             });
         });
         good.getElement().setAttribute("theme", "success");
@@ -427,7 +427,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
         Button bad = new Button(IronIcons.CLOSE.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.JuryDecision(fop.getCurAthlete(), this.getOrigin(), false));
+                fop.fopEventPost(new FOPEvent.JuryDecision(fop.getCurAthlete(), this.getOrigin(), false));
             });
         });
         bad.getElement().setAttribute("theme", "error");

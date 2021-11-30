@@ -35,8 +35,8 @@ import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
-import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class CategoryGridField extends CustomField<List<Category>> {

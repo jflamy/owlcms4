@@ -43,6 +43,7 @@ import app.owlcms.spreadsheet.RAthlete;
 import app.owlcms.spreadsheet.RCompetition;
 import app.owlcms.spreadsheet.RGroup;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import net.sf.jxls.reader.ReaderBuilder;
@@ -141,9 +142,9 @@ public class RegistrationFileUploadDialog extends Dialog {
         }
     }
 
-    private int processAthletes(InputStream inputStream, TextArea ta) {
+    private int processAthletes(InputStream inputStream, TextArea ta, boolean dryRun) {
         StringBuffer sb = new StringBuffer();
-        try (InputStream xmlInputStream = this.getClass().getResourceAsStream(REGISTRATION_READER_SPEC)) {
+        try (InputStream xmlInputStream = ResourceWalker.getResourceAsStream(REGISTRATION_READER_SPEC)) {
             inputStream.reset();
             ReaderConfig readerConfig = ReaderConfig.getInstance();
             readerConfig.setUseDefaultValuesForPrimitiveTypes(true);
@@ -163,9 +164,16 @@ public class RegistrationFileUploadDialog extends Dialog {
                 XLSReadStatus status = reader.read(inputStream, beans);
 
                 logger.info(getTranslation("DataRead") + " " + athletes.size() + " athletes");
-                updateAthletes(sb, c, athletes);
+                if (dryRun) {
+                    return athletes.size();
+                }
 
-                appendErrors(ta, sb, status);
+                if (athletes.size() > 0) {
+                    updateAthletes(sb, c, athletes);
+                    appendErrors(ta, sb, status);
+                } else {
+                    ta.setValue(Translator.translate("NoAthletes"));
+                }
                 return athletes.size();
             } catch (InvalidFormatException | IOException e) {
                 LoggerUtils.logError(logger, e);
@@ -178,7 +186,7 @@ public class RegistrationFileUploadDialog extends Dialog {
 
     private int processGroups(InputStream inputStream, TextArea ta, boolean dryRun) {
         StringBuffer sb = new StringBuffer();
-        try (InputStream xmlInputStream = this.getClass().getResourceAsStream(GROUPS_READER_SPEC)) {
+        try (InputStream xmlInputStream = ResourceWalker.getResourceAsStream(GROUPS_READER_SPEC)) {
             inputStream.reset();
             ReaderConfig readerConfig = ReaderConfig.getInstance();
             readerConfig.setUseDefaultValuesForPrimitiveTypes(true);
@@ -214,16 +222,18 @@ public class RegistrationFileUploadDialog extends Dialog {
         resetAthletes();
         listGroups("after reset athletes");
 
+        // dry run to count groups
         int nbGroups = processGroups(inputStream, ta, true);
         listGroups("after processGroups dryRun");
-        if (nbGroups >= 0) {
+        if (nbGroups > 0) {
             // new format, reset groups from spreadsheet
             resetGroups();
             processGroups(inputStream, ta, false);
             listGroups("after processGroups real");
         }
 
-        processAthletes(inputStream, ta);
+        // process athletes now that groups have been adjusted
+        processAthletes(inputStream, ta, false);
         AthleteRepository.resetParticipations();
         listGroups("after processAthletes real");
         return;
@@ -305,8 +315,9 @@ public class RegistrationFileUploadDialog extends Dialog {
                 afterCleanupPlatforms.add(pl.getName());
             }
         }
-        Set<String> checkPlatforms = PlatformRepository.findAll().stream().map(Platform::getName).collect(Collectors.toSet());
-        logger.debug("platforms after cleanup {}",checkPlatforms);
+        Set<String> checkPlatforms = PlatformRepository.findAll().stream().map(Platform::getName)
+                .collect(Collectors.toSet());
+        logger.debug("platforms after cleanup {}", checkPlatforms);
 
         JPAService.runInTransaction(em -> {
             groups.stream().forEach(g -> {
@@ -317,7 +328,7 @@ public class RegistrationFileUploadDialog extends Dialog {
                     np.setName(platformName);
                     group.setPlatform(np);
                     afterCleanupPlatforms.add(platformName);
-                    logger.debug("adding platform {} for group {}",np.getName(), g.getGroupName());
+                    logger.debug("adding platform {} for group {}", np.getName(), g.getGroupName());
                     em.persist(np);
                 } else {
                     if (platformName == null || platformName.isBlank()) {
@@ -334,7 +345,8 @@ public class RegistrationFileUploadDialog extends Dialog {
         });
 
         groups.stream().forEach(g -> {
-            logger.debug("group {} weighIn {} competition {}", g.getGroup(), g.getWeighinTime(), g.getCompetitionTime());
+            logger.debug("group {} weighIn {} competition {}", g.getGroup(), g.getWeighinTime(),
+                    g.getCompetitionTime());
         });
     }
 }

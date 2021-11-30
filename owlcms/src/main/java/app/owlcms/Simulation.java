@@ -10,8 +10,8 @@ import java.util.concurrent.CountDownLatch;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.init.EmbeddedJetty;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.servlet.EmbeddedJetty;
 import app.owlcms.simulation.FOPSimulator;
 import ch.qos.logback.classic.Logger;
 
@@ -44,7 +44,10 @@ public class Simulation extends Main {
 
                 try {
 
-                    EmbeddedJetty embeddedJetty = new EmbeddedJetty(latch);
+                    EmbeddedJetty embeddedJetty = new EmbeddedJetty(latch)
+                            .setStartLogger(logger)
+                            .setInitConfig(Main::initConfig)
+                            .setInitData(Main::initData);
                     embeddedJetty.run(serverPort, "/");
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -55,7 +58,7 @@ public class Simulation extends Main {
             latch.await();
 
             try {
-                Thread.sleep(10000);
+                Thread.sleep(15 * 1000);
             } catch (InterruptedException e1) {
             }
             FOPSimulator.runSimulation();

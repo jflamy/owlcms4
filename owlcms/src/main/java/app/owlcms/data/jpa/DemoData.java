@@ -42,14 +42,16 @@ import ch.qos.logback.classic.Logger;
 public class DemoData {
 
     private static Logger logger = (Logger) LoggerFactory.getLogger(DemoData.class);
+    private static Group groupM1;
+    private static Group groupM2;
+    private static Group groupF1;
+    private static Group groupY1;
 
 //    private static Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
     static {
         logger.setLevel(Level.INFO);
     }
 
-
-    
     /**
      * Insert initial data if the database is empty.
      *
@@ -68,14 +70,24 @@ public class DemoData {
             setupDemoData(em, nbAthletes, ageDivisions);
             return null;
         });
-        
+
         AthleteRepository.resetParticipations();
+
+        JPAService.runInTransaction(em -> {
+            startNumbers(em, groupM1, groupM2, groupF1, groupY1);
+            return null;
+        });
     }
 
     protected static void assignStartNumbers(EntityManager em, Group groupA) {
         List<Athlete> athletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, groupA, true, (Gender) null);
         AthleteSorter.registrationOrder(athletes);
         AthleteSorter.assignStartNumbers(athletes);
+//        logger.debug("---- {}", groupA);
+//        athletes.stream().forEach(a -> {
+//            logger.debug("{} {}", a.getShortName(), a.getCategory());
+//        });
+//        logger.debug("----");
     }
 
     protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catMax,
@@ -105,8 +117,8 @@ public class DemoData {
         long weeksToSubtract = (long) ((minAge * 52) + Math.floor(r.nextDouble() * (maxAge - minAge) * 52));
         LocalDate fullBirthDate = baseDate.minusWeeks(weeksToSubtract);
         p.setFullBirthDate(fullBirthDate);
-        
-        // category computed automatically according to birth date etc.
+
+        // category not assigned here, will be computed automatically according to birth date etc.
 
         // respect 20kg rule
         p.setQualifyingTotal((int) (isd + icjd - 15));
@@ -159,7 +171,7 @@ public class DemoData {
                 }
                 em.persist(p);
             } catch (Exception e) {
-                LoggerUtils.logError(logger,e);
+                LoggerUtils.logError(logger, e);
             } finally {
                 p.setLoggerLevel(prevLoggerLevel);
             }
@@ -190,16 +202,16 @@ public class DemoData {
         Platform platform1 = new Platform("A");
         Platform platform2 = new Platform("B");
 
-        Group groupM1 = new Group("M1", w, c);
+        groupM1 = new Group("M1", w, c);
         groupM1.setPlatform(platform1);
 
-        Group groupM2 = new Group("M2", w, c);
+        groupM2 = new Group("M2", w, c);
         groupM2.setPlatform(platform2);
 
-        Group groupF1 = new Group("F1", w, c);
+        groupF1 = new Group("F1", w, c);
         groupF1.setPlatform(platform1);
 
-        Group groupY1 = new Group("Y1", w, c);
+        groupY1 = new Group("Y1", w, c);
         groupY1.setPlatform(platform2);
 
         em.persist(groupM1);
@@ -255,7 +267,9 @@ public class DemoData {
             createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, DEFAULT, 13, 17, F);
 
         }
+    }
 
+    private static void startNumbers(EntityManager em, Group groupM1, Group groupM2, Group groupF1, Group groupY1) {
         drawLots(em);
 
         assignStartNumbers(em, groupM1);

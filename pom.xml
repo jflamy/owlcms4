@@ -7,6 +7,7 @@
     <version>4.9.0.1</version>
     <packaging>pom</packaging>
     <modules>
+        <module>shared</module>
         <module>owlcms</module>
         <module>publicresults</module>
         <module>publicresults-heroku</module>
@@ -25,8 +26,8 @@
 
     <properties>
         <!-- revision is overridden by azure-pipelines.yml for the official builds. this value is only used for local development -->
-        <revision>4.24.2</revision>
-        
+        <revision>4.25.0-rc10</revision>
+
         <owlcms-maven-url>http://maven.owlcms.mywire.org:8088</owlcms-maven-url>
         <owlcms-maven-suffix>/releases</owlcms-maven-suffix><!-- /snapshots if revision is -SNAPSHOT -->
         <owlcms-docker>docker.io/owlcms</owlcms-docker>
@@ -44,7 +45,7 @@
         <guava.version>30.1.1-jre</guava.version>
 
         <!-- Plugins -->
-        <jetty.version>9.4.25.v20191220</jetty.version>
+        <jetty.version>9.4.44.v20210927</jetty.version>
 
         <rootOutputDir>${project.build.directory}</rootOutputDir>
     </properties>
@@ -143,7 +144,13 @@
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.1.0</version>
             </dependency>
+            <dependency>
+                <groupId>app.owlcms</groupId>
+                <artifactId>shared</artifactId>
+                <version>${revision}</version>
+            </dependency>
         </dependencies>
+
     </dependencyManagement>
 
     <!-- note that you must use mvn command line to deploy, does not work with embedded eclipse maven -->

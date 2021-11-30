@@ -42,16 +42,17 @@ public class BreakTimerElement extends TimerElement {
      * Instantiates a new timer element.
      */
     public BreakTimerElement() {
+        super();
         // logger./**/warn(LoggerUtils./**/stackTrace());
     }
 
     @Override
-    public void clientFinalWarning() {
+    public void clientFinalWarning(String fopName) {
         // ignored
     }
 
     @Override
-    public void clientInitialWarning() {
+    public void clientInitialWarning(String fopName) {
         // ignored
     }
 
@@ -60,9 +61,10 @@ public class BreakTimerElement extends TimerElement {
      */
     @Override
     @ClientCallable
-    public void clientSyncTime() {
-        logger.debug("break timer element fetching time");
+    public void clientSyncTime(String fopName) {
         OwlcmsSession.withFop(fop -> {
+            if (!fopName.contentEquals(fop.getName())) return;
+            logger.debug("break timer element fetching time");
             IBreakTimer breakTimer = fop.getBreakTimer();
             doSetTimer(breakTimer.isIndefinite() ? null : breakTimer.liveTimeRemaining());
         });
@@ -76,10 +78,12 @@ public class BreakTimerElement extends TimerElement {
      */
     @Override
     @ClientCallable
-    public void clientTimeOver() {
+    public void clientTimeOver(String fopName) {
         OwlcmsSession.withFop(fop -> {
+            if (!fopName.contentEquals(fop.getName())) return;
+//            logger.debug("clientTimeOver", fopName);
             IBreakTimer breakTimer = fop.getBreakTimer();
-            logger.debug("break time over {}", breakTimer.isIndefinite());
+//            logger.debug("{} {} break time over {}", fopName, fop.getName(), breakTimer.isIndefinite());
             if (!breakTimer.isIndefinite()) {
                 fop.getBreakTimer().timeOver(this);
             }
@@ -93,7 +97,7 @@ public class BreakTimerElement extends TimerElement {
      */
     @Override
     @ClientCallable
-    public void clientTimerStarting(double remainingTime, double lateMillis, String from) {
+    public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
         logger.debug("break timer {} starting on client: remaining = {}", from, remainingTime);
     }
 
@@ -104,7 +108,7 @@ public class BreakTimerElement extends TimerElement {
      */
     @Override
     @ClientCallable
-    public void clientTimerStopped(double remainingTime, String from) {
+    public void clientTimerStopped(String fopName, double remainingTime, String from) {
         logger.debug("break timer {} stopped on client: remaining = {}", from, remainingTime);
     }
 
@@ -148,37 +152,27 @@ public class BreakTimerElement extends TimerElement {
     }
 
     /*
-     * (non-Javadoc)
-     *
-     * @see app.owlcms.displays.attemptboard.TimerElement#init()
-     */
-    @Override
-    protected void init() {
-        super.init();
-//        setSilenced(true);
-//        getModel().setSilent(true); // do not emit sounds
-    }
-
-    /*
      * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        init();
         OwlcmsSession.withFop(fop -> {
+            init(fop.getName());
             // sync with current status of FOP
             IBreakTimer breakTimer = fop.getBreakTimer();
-            if (breakTimer.isRunning()) {
-                if (breakTimer.isIndefinite()) {
-                    doStartTimer(null, fop.isEmitSoundsOnServer());
+            if (breakTimer != null) {
+                if (breakTimer.isRunning()) {
+                    if (breakTimer.isIndefinite()) {
+                        doStartTimer(null, fop.isEmitSoundsOnServer());
+                    } else {
+                        doStartTimer(breakTimer.liveTimeRemaining(), isSilenced() || fop.isEmitSoundsOnServer());
+                    }
                 } else {
-                    doStartTimer(breakTimer.liveTimeRemaining(), fop.isEmitSoundsOnServer());
-                }
-            } else {
-                if (breakTimer.isIndefinite()) {
-                    doSetTimer(null);
-                } else {
-                    doSetTimer(breakTimer.getTimeRemainingAtLastStop());
+                    if (breakTimer.isIndefinite()) {
+                        doSetTimer(null);
+                    } else {
+                        doSetTimer(breakTimer.getTimeRemainingAtLastStop());
+                    }
                 }
             }
             // we listen on uiEventBus; this method ensures we stop when detached.
@@ -187,7 +181,7 @@ public class BreakTimerElement extends TimerElement {
     }
 
     private String formatDuration(Integer milliseconds) {
-        return milliseconds != null ? DurationFormatUtils.formatDurationHMS(milliseconds) : "null";
+        return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds) : (milliseconds != null ? milliseconds.toString() : "-");
     }
 
 }

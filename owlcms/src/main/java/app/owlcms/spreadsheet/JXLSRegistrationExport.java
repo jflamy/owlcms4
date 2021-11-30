@@ -38,7 +38,7 @@ public class JXLSRegistrationExport extends JXLSWorkbookStreamSource {
     }
 
     public JXLSRegistrationExport(UI ui) {
-        super(ui);
+        super();
     }
 
     @Override

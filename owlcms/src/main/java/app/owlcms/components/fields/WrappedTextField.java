@@ -184,7 +184,7 @@ public abstract class WrappedTextField<T> extends AbstractCompositeField<Validat
     protected abstract String invalidFormatErrorMessage(Locale locale);
 
     protected void logConversionError(String e) {
-        getLogger().error(e);
+        getLogger().debug(e);
     }
 
     /**

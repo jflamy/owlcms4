@@ -40,9 +40,9 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.server.PageConfigurator;
 
+import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
@@ -50,9 +50,9 @@ import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.queryparameters.FOPParameters;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * Class AnnouncerContent.
@@ -141,7 +141,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
      * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
      *                  parameters instead.
      *
-     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      *      java.lang.String)
      */
     @Override
@@ -341,14 +341,14 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 
     private void doRed() {
         OwlcmsSession.withFop(fop -> {
-            fop.getFopEventBus().post(new FOPEvent.DecisionUpdate(getOrigin(), refIndex - 1, false));
+            fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), refIndex - 1, false));
         });
         good.getStyle().set("color", "grey");
     }
 
     private void doWhite() {
         OwlcmsSession.withFop(fop -> {
-            fop.getFopEventBus().post(new FOPEvent.DecisionUpdate(getOrigin(), refIndex - 1, true));
+            fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), refIndex - 1, true));
         });
         bad.getStyle().set("color", "grey");
     }

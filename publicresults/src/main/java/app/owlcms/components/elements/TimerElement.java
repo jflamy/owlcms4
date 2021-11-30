@@ -19,6 +19,7 @@ import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.publicresults.TimerReceiverServlet;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -29,7 +30,7 @@ import ch.qos.logback.classic.Logger;
  */
 @Tag("timer-element")
 @JsModule("./components/TimerElement.js")
-public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerModel> {
+public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerModel> implements IFopName {
 
     /**
      * TimerModel Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties.
@@ -118,6 +119,8 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         void setStartTime(double seconds);
     }
 
+    private String fopName;
+
     final private Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
@@ -164,6 +167,18 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
      */
     @ClientCallable
     abstract public void clientTimerStopped(double remainingTime);
+
+    /** @see app.owlcms.components.elements.IFopName#getFopName() */
+    @Override
+    public String getFopName() {
+        return this.fopName;
+    }
+
+    /** @see app.owlcms.components.elements.IFopName#setFopName(java.lang.String) */
+    @Override
+    public void setFopName(String fopName) {
+        this.fopName = fopName;
+    }
 
     protected final void doSetTimer(Integer milliseconds) {
         if (ui == null || ui.isClosing()) {
@@ -233,6 +248,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         init();
 
         TimerReceiverServlet.getEventBus().register(this);
+        setFopName((String) OwlcmsSession.getAttribute("fopName"));
     }
 
     @Override
@@ -240,7 +256,10 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         super.onDetach(detachEvent);
         this.ui = null;
 
-        TimerReceiverServlet.getEventBus().unregister(this);
+        try {
+            TimerReceiverServlet.getEventBus().unregister(this);
+        } catch (Exception e) {
+        }
 
         // tell the javascript to stay quiet
         setSilent(true);
@@ -315,5 +334,4 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
             timerElement2.callJsFunction("pause", seconds, indefinite, silent, timerElement2);
         }
     }
-
 }

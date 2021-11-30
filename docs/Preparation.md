@@ -20,9 +20,9 @@ The `Edit Competition Information` button leads to a page where the information 
 This setting is normally used when running a Masters-only competition, and is not required for competitions that have both Masters and non-Masters groups.
 
 - The Masters settings changes the sorting order for displays and weigh-ins -- Masters traditionally start with the older lifters, whereas in an age-group competition the younger age groups are typically listed and weighed-in first.
-- The setting also changes which template is used by default when producing results.  Masters use the Sinclair-Meltzer-Faber (SMF) age-ratio rankings to determine the best-in-competition lifter.
 
-The determination to apply the IWF 20kg or the IWF Masters 80% rule is individual, based on whether the athlete is registered in a regular or Masters category.  Therefore there is no need to use this setting unless the weigh-in and presentation order matters.
+- The determination to apply the IWF 20kg or the IWF Masters 80% rule is individual, based on whether the athlete is registered in a regular or Masters category.  The "Masters" setting  does not affect this behavior.
+
 
 ## Defining Age Groups and Categories
 
@@ -61,12 +61,15 @@ The `Define Fields of Play` button on the prepare competition page allows you to
 
 ### Associating an Audio output with a platform
 
-Normally, the decision and attempt board on each field of play will emit sounds for the various timer warnings and for the down signal.  However, in certain circumstances, this may not work (for example, some computer-browser combinations produce garbled sound).  You can then use the main laptop to produce the sounds instead (which is how owlcms2 operated).  This is done by using a dropdown on the platform editing card. 
+Normally, the decision and attempt board on each field of play will emit sounds for the various timer warnings and for the down signal. 
+
+> The recommended setup is to connect the speakers directly to the athlete-facing display.  This minimizes the delay between the visual down and the audible sound.  You do not want the down visual display to come from a different browser than the sound signal (as there can be a slight, confusing, delay between the two)
+
+ However, in certain circumstances, this may not work (for example, some computer-browser combinations produce garbled sound).  You can then use the main laptop to produce the sounds instead.  If you are running locally on a laptop, then you can get the computer to generate the sound. 
 
 ![062_SetSound](img/Preparation/062_SetSound.png)
 
 Notes:
 
 - if you need to produce sound from the main laptop for more than one platform, you will need one audio output per source.  The easiest way to add more (in addition to the audio headset jack) is to use an [*analog* USB converter](https://www.amazon.com/UGREEN-External-Headphone-Microphone-Desktops/dp/B01N905VOY/ref=lp_3015427011_1_5?s=pc&ie=UTF8&qid=1564421688&sr=1-5) -- do not use digital or wireless connections, they introduce perceptible lags and are needlessly expensive.  The various adapters available will appear in the list, you need to assign each platform with an adapter.
-- This technique does not work if you are running OWLCMS in the cloud.  In that case, find a computer with proper sound, and run the attempt board on that computer.  Just make sure that the attempt board is running in its own browser window, and that it is the selected tab.  You can bring other windows in front, the attempt board will still emit the sounds.
 

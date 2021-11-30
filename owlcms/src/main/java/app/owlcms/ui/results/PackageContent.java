@@ -7,7 +7,6 @@
 
 package app.owlcms.ui.results;
 
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -47,6 +46,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
+import app.owlcms.components.DownloadButtonFactory;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -54,23 +54,22 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSCatResults;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
+import app.owlcms.spreadsheet.JXLSResultSheet;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AthleteCrudGrid;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
-import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * Class PackageContent.
@@ -89,12 +88,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         jexlLogger.setLevel(Level.ERROR);
     }
 
-    private Button packageDownloadButton;
-    private Anchor finalPackageAnchor;
     private Group currentGroup;
     private JXLSCompetitionBook xlsWriter;
     private JXLSCatResults catXlsWriter;
-    private ComboBox<Resource> templateSelect;
     private String ageGroupPrefix;
 
     private AgeDivision ageDivision;
@@ -105,8 +101,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
     private Anchor catResultsAnchor;
     private Button catDownloadButton;
-    private String catLabel;
     private Category categoryValue;
+    private DownloadButtonFactory downloadButtonFactory;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
@@ -115,7 +111,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     public PackageContent() {
         super();
         defineFilters(crudGrid);
-        //crudGrid.setClickable(false);
+        // crudGrid.setClickable(false);
         // crudGrid.getGrid().setMultiSort(true);
         setTopBarTitle(getTranslation(TITLE));
     }
@@ -152,7 +148,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         List<Athlete> found = stream.collect(Collectors.toList());
 
         if (topBar != null) {
-            computeAnchors();
+//            computeAnchors();
             catXlsWriter.setSortedAthletes(found);
         }
         updateURLLocations();
@@ -164,7 +160,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocation()
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#getLocation()
      */
     @Override
     public Location getLocation() {
@@ -172,7 +168,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.FOPParameters#getLocationUI()
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#getLocationUI()
      */
     @Override
     public UI getLocationUI() {
@@ -203,7 +199,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     /**
-     * @see app.owlcms.utils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
      *      java.util.Map)
      */
     @Override
@@ -238,14 +234,14 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         String catValue = getCategoryValue() != null ? getCategoryValue().toString() : null;
         updateParam(params1, "cat", catValue);
 
-        //logger.debug("params {}", params1);
+        // logger.debug("params {}", params1);
         return params1;
     }
 
     public void refresh() {
         crudGrid.refreshGrid();
     }
-    
+
     @Override
     public Athlete update(Athlete a) {
         Athlete a1 = super.update(a);
@@ -272,7 +268,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
      * Note: what Vaadin calls a parameter is in the REST style, actually part of the URL path. We use the old-style
      * Query parameters for our purposes.
      *
-     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      * java.lang.String)
      */
     @Override
@@ -379,10 +375,10 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
         topBar = getAppLayout().getAppBarElementWrapper();
         xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
-        StreamResource href = new StreamResource("finalResults.xls", xlsWriter);
-        finalPackageAnchor = new Anchor(href, "");
-        finalPackageAnchor.getStyle().set("margin-left", "1em");
-        packageDownloadButton = new Button(getTranslation("FinalResultsPackage"), new Icon(VaadinIcon.DOWNLOAD_ALT));
+//        StreamResource href = new StreamResource("finalResults.xls", xlsWriter);
+//        finalPackageAnchor = new Anchor(href, "");
+//        finalPackageAnchor.getStyle().set("margin-left", "1em");
+//        packageDownloadButton = new Button(getTranslation("FinalResultsPackage"), new Icon(VaadinIcon.DOWNLOAD_ALT));
 
         catXlsWriter = new JXLSCatResults(UI.getCurrent());
         StreamResource hrefC = new StreamResource("catResults.xls", catXlsWriter);
@@ -410,34 +406,63 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         topBarAgeDivisionSelect.setWidth("8em");
         topBarAgeDivisionSelect.getStyle().set("margin-left", "1em");
         setAgeDivisionSelectionListener();
-//        AgeDivision value = (adItems != null && adItems.size() > 0) ? adItems.get(0) : null;
-//        setAgeDivision(value);
 
         topBarAgeDivisionSelect.setValue(getAgeDivision());
 
-        templateSelect = new ComboBox<>();
-        templateSelect.setPlaceholder(getTranslation("AvailableTemplates"));
-        List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/competitionBook",
-                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
-        templateSelect.setItems(resourceList);
-        templateSelect.setValue(null);
-        templateSelect.setWidth("15em");
-        templateSelect.getStyle().set("margin-left", "1em");
-        setTemplateSelectionListener(resourceList);
+        Button finalPackageDownloadButton = createFinalPackageDownloadButton();
+        Button categoryResultsDownloadButton = createCategoryResultsDownloadButton();
 
-        finalPackageAnchor.add(packageDownloadButton);
-
-        HorizontalLayout buttons = new HorizontalLayout(finalPackageAnchor, catResultsAnchor);
+        HorizontalLayout buttons = new HorizontalLayout(finalPackageDownloadButton, categoryResultsDownloadButton);
+        buttons.getStyle().set("margin-left", "5em");
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
         topBar.getStyle().set("flex", "100 1");
         topBar.removeAll();
         topBar.add(title,
                 /* topBarGroupSelect, */
-                topBarAgeDivisionSelect, topBarAgeGroupPrefixSelect, templateSelect, buttons);
+                topBarAgeDivisionSelect, topBarAgeGroupPrefixSelect,  buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         topBar.setFlexGrow(0.2, title);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+    }
+
+    private Button createFinalPackageDownloadButton() {
+        downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
+                () -> {
+                    JXLSCompetitionBook rs = new JXLSCompetitionBook(locationUI);
+                    rs.setGroup(currentGroup);
+                    rs.setAgeDivision(ageDivision);
+                    rs.setAgeGroupPrefix(ageGroupPrefix);
+                    rs.setCategory(categoryValue);
+                    return rs;
+                },
+                "/templates/competitionBook",
+                Competition::getComputedFinalPackageTemplateFileName,
+                Competition::setFinalPackageTemplateFileName,
+                Translator.translate("FinalResultsPackage"),
+                "finalPackage", Translator.translate("Download"));
+        Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
+        return resultsButton;
+    }
+    
+    private Button createCategoryResultsDownloadButton() {
+        downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
+                () -> {
+                    JXLSResultSheet rs = new JXLSResultSheet();
+                    rs.setAgeDivision(ageDivision);
+                    rs.setAgeGroupPrefix(ageGroupPrefix);
+                    logger.debug("setting category to {}",categoryValue);
+                    rs.setCategory(categoryValue);
+                    rs.setGroup(currentGroup);
+                    return rs;
+                },
+                "/templates/protocol",
+                Competition::getComputedProtocolTemplateFileName,
+                Competition::setProtocolTemplateFileName,
+                Translator.translate("CategoryResults"),
+                "results", Translator.translate("Download"));
+        Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
+        return resultsButton;
     }
 
     /**
@@ -454,7 +479,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         reset.getElement().setAttribute("theme", "secondary contrast small icon");
         return reset;
     }
-    
+
     @Override
     protected void defineFilters(GridCrud<Athlete> crud) {
         if (categoryFilter == null) {
@@ -570,7 +595,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         String cat = getCategoryValue() != null ? getCategoryValue().getComputedCode() : null;
         updateURLLocation(UI.getCurrent(), getLocation(), "cat",
                 cat);
-        //logger.debug("update URL {} {} {}",ag,ad,cat);
+        // logger.debug("update URL {} {} {}",ag,ad,cat);
     }
 
     /**
@@ -597,24 +622,23 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         return liftingFop != null;
     }
 
-    private void computeAnchors() {
-        String label;
-        if (getAgeGroupPrefix() != null) {
-            label = getAgeGroupPrefix();
-        } else if (getAgeDivision() != null) {
-            label = getAgeDivision().name();
-        } else {
-            label = "all";
-        }
-        if (getCategoryValue() != null) {
-            catLabel = getCategoryValue().getComputedCode().replaceAll(" ", "_");
-        } else {
-            catLabel = label;
-        }
-        finalPackageAnchor.getElement().setAttribute("download", "results_" + label + ".xls");
-        catResultsAnchor.getElement().setAttribute("download", "category_" + catLabel + ".xls");
-        catXlsWriter.setCategory(getCategoryValue());
-    }
+//    private void computeAnchors() {
+//        String label;
+//        if (getAgeGroupPrefix() != null) {
+//            label = getAgeGroupPrefix();
+//        } else if (getAgeDivision() != null) {
+//            label = getAgeDivision().name();
+//        } else {
+//            label = "all";
+//        }
+//        if (getCategoryValue() != null) {
+//            catLabel = getCategoryValue().getComputedCode().replaceAll(" ", "_");
+//        } else {
+//            catLabel = label;
+//        }
+//        catResultsAnchor.getElement().setAttribute("download", "category_" + catLabel + ".xls");
+//        catXlsWriter.setCategory(getCategoryValue());
+//    }
 
     private AgeDivision getAgeDivision() {
         return ageDivision;
@@ -629,26 +653,26 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         return categoryValue;
     }
 
-    private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
-        Resource found = null;
-        Resource totalTemplate = null;
-        for (Resource curResource : resourceList) {
-            String fileName = curResource.getFileName();
-            if (fileName.equals(curTemplateName)) {
-                found = curResource;
-                break;
-            }
-            if (fileName.startsWith("Total")) {
-                totalTemplate = curResource;
-            }
-        }
-        if (found != null) {
-            return found;
-        } else {
-            // should be non-null, if not there, null is ok.
-            return totalTemplate;
-        }
-    }
+//    private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
+//        Resource found = null;
+//        Resource totalTemplate = null;
+//        for (Resource curResource : resourceList) {
+//            String fileName = curResource.getFileName();
+//            if (fileName.equals(curTemplateName)) {
+//                found = curResource;
+//                break;
+//            }
+//            if (fileName.startsWith("Total")) {
+//                totalTemplate = curResource;
+//            }
+//        }
+//        if (found != null) {
+//            return found;
+//        } else {
+//            // should be non-null, if not there, null is ok.
+//            return totalTemplate;
+//        }
+//    }
 
     private void setAgeDivision(AgeDivision ageDivision) {
         this.ageDivision = ageDivision;
@@ -658,19 +682,15 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         this.ageGroupPrefix = value;
     }
 
-    private void setTemplateSelectionListener(List<Resource> resourceList) {
-        try {
-            String curTemplateName = Competition.getCurrent().getFinalPackageTemplateFileName();
-            Resource found = searchMatch(resourceList, curTemplateName);
-            templateSelect.addValueChangeListener((e) -> {
-                Competition.getCurrent().setFinalPackageTemplateFileName(e.getValue().getFileName());
-                CompetitionRepository.save(Competition.getCurrent());
-            });
-            templateSelect.setValue(found);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    private void setTemplateSelectionListener(List<Resource> resourceList) {
+//        String curTemplateName = Competition.getCurrent().getFinalPackageTemplateFileName();
+//        Resource found = searchMatch(resourceList, curTemplateName);
+//        templateSelect.addValueChangeListener((e) -> {
+//            Competition.getCurrent().setFinalPackageTemplateFileName(e.getValue().getFileName());
+//            CompetitionRepository.save(Competition.getCurrent());
+//        });
+//        templateSelect.setValue(found);
+//    }
 
     private void subscribeIfLifting(Group nGroup) {
         logger.debug("subscribeIfLifting {}", nGroup);
@@ -720,7 +740,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             categoryFilter.setItems(categories);
             // contains is not reliable for Categories, check codes
             if (categories != null && prevValue != null
-                    && categories.stream().anyMatch(c -> c.getComputedCode().contentEquals(prevValue.getComputedCode()))) {
+                    && categories.stream()
+                            .anyMatch(c -> c.getComputedCode().contentEquals(prevValue.getComputedCode()))) {
                 categoryFilter.setValue(prevValue);
             } else {
                 categoryFilter.setValue(null);

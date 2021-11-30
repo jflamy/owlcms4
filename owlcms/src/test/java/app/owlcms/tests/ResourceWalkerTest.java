@@ -1,14 +1,22 @@
 package app.owlcms.tests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Locale;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import app.owlcms.Main;
 import app.owlcms.utils.ResourceWalker;
 
 public class ResourceWalkerTest {
+    
+    @BeforeClass
+    public static void setupTests() {
+        Main.injectSuppliers();
+    }
 
     @Test
     public void test() {

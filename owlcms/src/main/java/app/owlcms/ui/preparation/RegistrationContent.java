@@ -9,8 +9,10 @@ package app.owlcms.ui.preparation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 
@@ -18,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -28,8 +31,13 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.components.fields.BodyWeightField;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.ValidationTextField;
@@ -38,6 +46,7 @@ import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
@@ -53,19 +62,20 @@ import app.owlcms.ui.crudui.OwlcmsMultiSelectComboBoxProvider;
 import app.owlcms.ui.shared.AthleteRegistrationFormFactory;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Class AthleteContent
+ * Class RegistrationContent
  *
- * Defines the toolbar and the table for editing data on athletes.
+ * Defines the toolbar and the table for editing registration data on athletes.
  *
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/athletes", layout = RegistrationLayout.class)
 @CssImport(value = "./styles/shared-styles.css")
-public class RegistrationContent extends VerticalLayout implements CrudListener<Athlete>, OwlcmsContent {
+public class RegistrationContent extends VerticalLayout implements CrudListener<Athlete>, OwlcmsContent, FOPParameters {
 
     final static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationContent.class);
     static {
@@ -83,6 +93,9 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     private OwlcmsRouterLayout routerLayout;
     private OwlcmsCrudGrid<Athlete> crudGrid;
     private OwlcmsCrudFormFactory<Athlete> crudFormFactory;
+    private Location location;
+    private UI locationUI;
+    private Group currentGroup;
 
     /**
      * Instantiates the athlete crudGrid
@@ -120,10 +133,11 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
      */
     @Override
     public Collection<Athlete> findAll() {
-        List<Athlete> all = AthleteRepository.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
+        List<Athlete> findFiltered = AthleteRepository.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
                 categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(),
                 genderFilter.getValue(), weighedInFilter.getValue(), -1, -1);
-        return all;
+        AthleteSorter.registrationOrder(findFiltered);
+        return findFiltered;
     }
 
     /**
@@ -131,6 +145,16 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
      */
     public ComboBox<Group> getGroupFilter() {
         return groupFilter;
+    }
+
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
     }
 
     /**
@@ -146,12 +170,74 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         return routerLayout;
     }
 
+    @Override
+    public boolean isIgnoreFopFromURL() {
+        return true;
+    }
+
+    @Override
+    public boolean isIgnoreGroupFromURL() {
+        return false;
+    }
+
     public void refresh() {
         crudGrid.refreshGrid();
     }
 
     public void refreshCrudGrid() {
         crudGrid.refreshGrid();
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
+    /**
+     * Parse the http query parameters
+     *
+     * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
+     *
+     * @param event     Vaadin navigation event
+     * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
+     *                  parameters instead.
+     *
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+     *      java.lang.String)
+     */
+    @Override
+    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+        setLocation(event.getLocation());
+        setLocationUI(event.getUI());
+        QueryParameters queryParameters = getLocation().getQueryParameters();
+        Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
+        HashMap<String, List<String>> params = new HashMap<>(parametersMap);
+
+        logger.debug("parsing query parameters RegistrationContent");
+        List<String> groupNames = params.get("group");
+        logger.debug("groupNames = {}", groupNames);
+        if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
+            String groupName = groupNames.get(0);
+            currentGroup = GroupRepository.findByName(groupName);
+        } else {
+            currentGroup = null;
+        }
+        if (currentGroup != null) {
+            params.put("group", Arrays.asList(URLUtils.urlEncode(currentGroup.getName())));
+        } else {
+            params.remove("group");
+        }
+
+        params.remove("fop");
+
+        // change the URL to reflect group
+        event.getUI().getPage().getHistory().replaceState(null,
+                new Location(getLocation().getPath(), new QueryParameters(params)));
     }
 
     @Override
@@ -263,6 +349,8 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         groupFilter.setItemLabelGenerator(Group::getName);
         groupFilter.addValueChangeListener(e -> {
             crudGrid.refreshGrid();
+            currentGroup = e.getValue();
+            updateURLLocation(getLocationUI(), getLocation(), e.getValue());
         });
         groupFilter.setWidth("10em");
         crudGrid.getCrudLayout().addFilterComponent(groupFilter);
@@ -309,9 +397,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         getRouterLayout().closeDrawer();
-//        GroupRepository gr = new GroupRepository();
-//        Group g = GroupRepository.findByName("M1");
-//        logger.debug(gr.allAthletesForGlobalRanking(g).toString());
+        ((RegistrationLayout) getRouterLayout()).getGroupSelect().setValue(currentGroup);
     }
 
     /**
@@ -343,7 +429,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         props.add("group");
         captions.add(getTranslation("Group"));
 
-
         props.add("bodyWeight");
         captions.add(getTranslation("BodyWeight"));
         props.add("snatch1Declaration");
@@ -352,7 +437,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         captions.add(getTranslation("C_and_J_decl"));
         props.add("qualifyingTotal");
         captions.add(getTranslation("EntryTotal"));
-        
 
         props.add("category");
         captions.add(getTranslation("Category"));
@@ -361,14 +445,14 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 
         props.add("membership");
         captions.add(getTranslation("Membership"));
-        
+
         props.add("coach");
         captions.add(getTranslation("Coach"));
         props.add("custom1");
         captions.add(getTranslation("Custom1.Title"));
         props.add("custom2");
         captions.add(getTranslation("Custom2.Title"));
-        
+
         props.add("lotNumber");
         captions.add(getTranslation("Lot"));
         props.add("eligibleForIndividualRanking");
@@ -383,8 +467,9 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
                 GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
         crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
                 CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName, false));
-        crudFormFactory.setFieldProvider("eligibleCategories", new OwlcmsMultiSelectComboBoxProvider<>(getTranslation("Registration.EligibleCategories"),
-                new ArrayList<Category>(), new TextRenderer<>(Category::getName), Category::getName));
+        crudFormFactory.setFieldProvider("eligibleCategories",
+                new OwlcmsMultiSelectComboBoxProvider<>(getTranslation("Registration.EligibleCategories"),
+                        new ArrayList<Category>(), new TextRenderer<>(Category::getName), Category::getName));
 //        crudFormFactory.setFieldProvider("ageDivision",
 //                new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
 //                        new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));
@@ -398,5 +483,17 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         crudFormFactory.setFieldType("cleanJerk1Declaration", ValidationTextField.class);
         crudFormFactory.setFieldType("qualifyingTotal", ValidationTextField.class);
         crudFormFactory.setFieldType("yearOfBirth", ValidationTextField.class);
+    }
+
+    private void updateURLLocation(UI ui, Location location, Group newGroup) {
+        // change the URL to reflect fop group
+        HashMap<String, List<String>> params = new HashMap<>(
+                location.getQueryParameters().getParameters());
+        if (!isIgnoreGroupFromURL() && newGroup != null) {
+            params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
+        } else {
+            params.remove("group");
+        }
+        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
 }

@@ -22,11 +22,12 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.PlatformRepository;
-import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.preparation.RegistrationFileUploadDialog;
 import app.owlcms.utils.DateTimeUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * Used for registration. Converts from String to data types as required to simplify Excel/CSV imports
@@ -192,7 +193,7 @@ public class RAthlete {
             }
             return;
         } catch (NumberFormatException e) {
-            LocalDate parse = DateTimeUtils.parseLocalizedOrISO8601Date(content);
+            LocalDate parse = DateTimeUtils.parseLocalizedOrISO8601Date(content, OwlcmsSession.getLocale());
             a.setFullBirthDate(parse);
         }
     }

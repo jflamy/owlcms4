@@ -33,15 +33,16 @@ import com.vaadin.flow.server.StreamResourceWriter;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 import net.sf.jxls.transformer.XLSTransformer;
 
 /**
@@ -66,9 +67,13 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
     private Group group;
     private UI ui;
+    private List<Athlete> sortedAthletes;
+    private Category category;
+    private String templateFileName;
+    private InputStream inputStream;
 
-    public JXLSWorkbookStreamSource(UI ui) {
-        this.ui = ui;
+    public JXLSWorkbookStreamSource() {
+        this.ui = UI.getCurrent();
         this.setExcludeNotWeighed(true);
         init();
     }
@@ -99,7 +104,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
                         postProcess(workbook);
                     }
                 } else {
-                    String noAthletes = "No Athletes";
+                    String noAthletes = Translator.translate("NoAthletes");
                     logger./**/warn("no athletes: empty report.");
                     ui.access(() -> {
                         Notification notif = new Notification();
@@ -113,7 +118,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
                     workbook.createSheet().createRow(1).createCell(1).setCellValue(noAthletes);
                 }
             } catch (Exception e) {
-                LoggerUtils.logError(logger,e);
+                LoggerUtils.logError(logger, e);
             }
             if (workbook != null) {
                 workbook.write(stream);
@@ -154,10 +159,17 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         return tryList;
     }
 
-    abstract public InputStream getTemplate(Locale locale) throws IOException, Exception;
+    public String getTemplateFileName() {
+        logger.debug("getTemplateFileName {}", templateFileName);
+        return templateFileName;
+    }
 
     public boolean isExcludeNotWeighed() {
         return excludeNotWeighed;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     public void setExcludeNotWeighed(boolean excludeNotWeighed) {
@@ -168,8 +180,21 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         this.group = group;
     }
 
+    public void setInputStream(InputStream is) {
+        this.inputStream = is;
+    }
+
     public void setReportingBeans(HashMap<String, Object> jXLSBeans) {
         this.reportingBeans = jXLSBeans;
+    }
+
+    public void setSortedAthletes(List<Athlete> sortedAthletes) {
+        this.sortedAthletes = sortedAthletes;
+    }
+
+    public void setTemplateFileName(String templateFileName) {
+        logger.debug("setTemplateFileName {}", templateFileName);
+        this.templateFileName = templateFileName;
     }
 
     /**
@@ -203,6 +228,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
     protected void configureTransformer(XLSTransformer transformer) {
         // do nothing, to be overridden as needed,
+    }
+
+    protected Category getCategory() {
+        return category;
     }
 
     /**
@@ -239,7 +268,18 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         throw new IOException("no template found for : " + templateName + extension + " tried with suffix " + tryList);
     }
 
-    protected abstract List<Athlete> getSortedAthletes();
+    protected List<Athlete> getSortedAthletes() {
+        return sortedAthletes;
+    }
+
+    protected InputStream getTemplate(Locale locale) throws IOException, Exception {
+        if (inputStream != null) {
+            logger.debug("explicitly set template {}", inputStream);
+            return inputStream;
+        }
+        InputStream resourceAsStream = ResourceWalker.getFileOrResource(getTemplateFileName());
+        return resourceAsStream;
+    }
 
     protected void init() {
         setReportingBeans(new HashMap<String, Object>());

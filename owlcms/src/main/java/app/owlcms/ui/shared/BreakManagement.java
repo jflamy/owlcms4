@@ -149,7 +149,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         return (e) -> {
             OwlcmsSession.withFop(fop -> {
                 logger.debug("endBreak start lifting");
-                fop.getFopEventBus().post(new FOPEvent.StartLifting(this.getOrigin()));
+                fop.fopEventPost(new FOPEvent.StartLifting(this.getOrigin()));
                 logger.debug("endbreak enabling start");
                 breakStart.setEnabled(true);
                 breakPause.setEnabled(false);
@@ -198,8 +198,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             IBreakTimer breakTimer = fop.getBreakTimer();
             if (breakTimer.isRunning()) {
                 breakTimer.stop();
-                fop.getFopEventBus()
-                        .post(new FOPEvent.BreakPaused(breakTimer.getTimeRemainingAtLastStop(), this.getOrigin()));
+                fop.fopEventPost(new FOPEvent.BreakPaused(breakTimer.getTimeRemainingAtLastStop(), this.getOrigin()));
             }
         });
         logger.debug("paused; enabling start");
@@ -547,7 +546,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             IBreakTimer breakTimer = fop.getBreakTimer();
             if (breakTimer.isRunning()) {
                 breakTimer.stop();
-                fop.getFopEventBus().post(new FOPEvent.BreakPaused(tr, this.getOrigin()));
+                fop.fopEventPost(new FOPEvent.BreakPaused(tr, this.getOrigin()));
             }
         });
         logger.debug("paused; enabling start");
@@ -595,7 +594,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 LocalDateTime target = getTarget();
                 timeRemaining = now.until(target, ChronoUnit.MILLIS);
                 logger.debug("setBreakTimerFromFields target-derived duration {}",
-                        DurationFormatUtils.formatDurationHMS(timeRemaining));
+                        formattedDuration(timeRemaining));
                 breakTimerElement.slaveBreakSet(
                         new BreakSetTime(bType, cType, timeRemaining.intValue(), target, false, this.getOrigin()));
             } else if (cType == CountdownType.INDEFINITE) {
@@ -610,13 +609,17 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 fop.getBreakTimer().setTimeRemaining(timeRemaining.intValue());
                 fop.getBreakTimer().setBreakDuration(timeRemaining.intValue());
                 logger.debug("setBreakTimerFromFields explicit duration {}",
-                        DurationFormatUtils.formatDurationHMS(timeRemaining));
+                        formattedDuration(timeRemaining));
                 // this sets time locally only
                 breakTimerElement.slaveBreakSet(
                         new BreakSetTime(bType, cType, timeRemaining.intValue(), null, false, this.getOrigin()));
             }
         });
         return;
+    }
+
+    private String formattedDuration(Long milliseconds) {
+        return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds) : (milliseconds != null ? milliseconds.toString() : "-");
     }
 
     private void setCtValue(CountdownType ct2) {

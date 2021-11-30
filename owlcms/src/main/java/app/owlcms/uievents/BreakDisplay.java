@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 public interface BreakDisplay {
 
@@ -36,11 +36,11 @@ public interface BreakDisplay {
         }
         switch (bt) {
         case FIRST_CJ:
-            return Translator.translate("PublicMsg.TimeBeforeCJ");
+            return Translator.translate("BreakType.FIRST_CJ");
         case FIRST_SNATCH:
-            return Translator.translate("PublicMsg.TimeBeforeSnatch");
+            return Translator.translate("BreakType.FIRST_SNATCH");
         case BEFORE_INTRODUCTION:
-            return Translator.translate("PublicMsg.BeforeIntroduction");
+            return Translator.translate("BreakType.BEFORE_INTRODUCTION");
         case DURING_INTRODUCTION:
             return Translator.translate("PublicMsg.DuringIntroduction");
         case TECHNICAL:

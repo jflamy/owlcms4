@@ -10,11 +10,11 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 
+import app.owlcms.apputils.SoundUtils;
+import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.utils.SoundUtils;
-import app.owlcms.utils.queryparameters.DisplayParameters;
 import ch.qos.logback.classic.Logger;
 
 public class DisplayOptions {
@@ -44,6 +44,7 @@ public class DisplayOptions {
     }
 
     public static void addSoundEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
+        //logger.debug("addSoundEntries {}",LoggerUtils.stackTrace());
         
         FieldOfPlay fop = OwlcmsSession.getFop();
         if (fop != null) {
@@ -64,7 +65,7 @@ public class DisplayOptions {
         rbgroup.setLabel(Translator.translate("DisplayParameters.SoundSettings"));
         rbgroup.setHelperText(Translator.translate("DisplayParameters.SoundHelper"));
         rbgroup.setItems(Boolean.TRUE, Boolean.FALSE);
-        rbgroup.setValue(Boolean.valueOf(silentMode));
+        rbgroup.setValue(silentMode);
         rbgroup.setRenderer(new ComponentRenderer<Button, Boolean>((mn) -> mn ? silentButton : soundButton));
         rbgroup.addValueChangeListener(e -> {
             Boolean silenced = e.getValue();

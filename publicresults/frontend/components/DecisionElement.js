@@ -163,6 +163,7 @@ class DecisionElementPR extends PolymerElement {
 	}
 
 	_setupAudio() {
+		return;
 		if ('webkitAudioContext' in window) {
 			this.audio = false;
 		}

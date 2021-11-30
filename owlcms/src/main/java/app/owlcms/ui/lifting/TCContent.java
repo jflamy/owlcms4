@@ -173,7 +173,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 
         TextField nbL5 = new TextField();
         largePlates.addFormItem(nbL5, getTranslation("Kg", 5));
-        binder.forField(nbL5).withConverter(converter).bind(Platform::getNbL_10, Platform::setNbL_5);
+        binder.forField(nbL5).withConverter(converter).bind(Platform::getNbL_5, Platform::setNbL_5);
         nbL5.setAutoselect(true);
 
         TextField nbL2_5 = new TextField();
@@ -247,7 +247,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
                     platesDisplay.removeAll();
                     plates.computeImageArea(fop, false);
                     platesDisplay.add(plates);
-                    fop.getFopEventBus().post(new FOPEvent.BarbellOrPlatesChanged(this));
+                    fop.fopEventPost(new FOPEvent.BarbellOrPlatesChanged(this));
                 });
             } catch (ValidationException e1) {
             }

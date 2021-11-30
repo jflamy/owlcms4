@@ -33,9 +33,11 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.ProdData;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.EmbeddedJetty;
 import app.owlcms.init.InitialData;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.init.OwlcmsSession;
+import app.owlcms.servlet.EmbeddedJetty;
+import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -59,7 +61,12 @@ public class Main {
 
     private static InitialData initialData;
 
-
+    public static void initConfig() {
+        // setup database
+        JPAService.init(memoryMode, resetMode);
+        // check for database override of resource files
+        Config.initConfig();
+    }
 
     /**
      * This method is actually called from EmbeddedJetty immediately after starting the server
@@ -76,14 +83,14 @@ public class Main {
         overrideTimeZone();
 
         // initialization, don't push out to browsers
-        OwlcmsFactory.getDefaultFOP(true);
+        OwlcmsFactory.initDefaultFOP();
     }
 
-    public static void initConfig() {
-        // setup database
-        JPAService.init(memoryMode, resetMode);
-        // check for database override of resource files
-        Config.initConfig();
+    public static void injectSuppliers() {
+        // app config injection
+        Translator.setLocaleSupplier(() -> OwlcmsSession.getLocale());
+        ResourceWalker.setLocaleSupplier(Translator.getLocaleSupplier());
+        ResourceWalker.setLocalOverrideSupplier(() -> Config.getCurrent().getLocalOverride());
     }
 
     /**
@@ -97,7 +104,11 @@ public class Main {
         try {
             init();
             startRemoteMonitoring();
-            new EmbeddedJetty(OwlcmsFactory.getInitializationLatch()).run(serverPort, "/");
+            new EmbeddedJetty(OwlcmsFactory.getInitializationLatch())
+                    .setStartLogger(logger)
+                    .setInitConfig(Main::initConfig)
+                    .setInitData(Main::initData)
+                    .run(serverPort, "/");
         } finally {
             tearDown();
         }
@@ -135,6 +146,8 @@ public class Main {
         System.setProperty("java.net.preferIPv6Addresses", "false");
         ConvertUtils.register(new DateConverter(null), java.util.Date.class);
         ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
+
+        injectSuppliers();
 
         return;
     }
@@ -187,7 +200,7 @@ public class Main {
                     logger.info("adding config object");
                     Config.setCurrent(new Config());
                 }
-                
+
                 int nbParts = CategoryRepository.countParticipations();
                 if (nbParts == 0 && AthleteRepository.countFiltered(null, null, null, null, null, null, null) > 0) {
                     // database has athletes, but no participations. 4.22 and earlier.
@@ -195,13 +208,13 @@ public class Main {
                     logger.info("updating database: computing athlete eligibility to age groups and categories.");
                     AthleteRepository.resetParticipations();
                 }
-                
+
                 List<Category> nullCodeCategories = CategoryRepository.findNullCodes();
                 if (!nullCodeCategories.isEmpty()) {
-                    logger.info("updating category codes",nullCodeCategories);
+                    logger.info("updating category codes", nullCodeCategories);
                     CategoryRepository.fixNullCodes(nullCodeCategories);
                 }
-                
+
                 PlatformRepository.checkPlatforms();
 
             }

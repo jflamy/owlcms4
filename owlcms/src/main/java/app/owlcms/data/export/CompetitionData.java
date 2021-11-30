@@ -33,8 +33,8 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
-import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 public class CompetitionData {
 
@@ -142,7 +142,7 @@ public class CompetitionData {
 //                    em.merge(p);
 //                }
 //                
-
+                em.merge(competition);
 
                 em.flush();
             } catch (Exception e) {

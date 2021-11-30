@@ -216,7 +216,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         startLiftingButton = new Button(getTranslation("startLifting"), PlacesIcons.FITNESS_CENTER.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
                 UI.getCurrent().access(() -> createTopBar());
-                fop.getFopEventBus().post(new FOPEvent.StartLifting(this));
+                fop.fopEventPost(new FOPEvent.StartLifting(this));
             });
         });
         startLiftingButton.getThemeNames().add("success primary");
@@ -224,7 +224,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         showResultsButton = new Button(getTranslation("ShowResults"), PlacesIcons.FITNESS_CENTER.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
                 UI.getCurrent().access(() -> createTopBar());
-                fop.getFopEventBus().post(
+                fop.fopEventPost(
                         new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null, this));
             });
         });
@@ -259,7 +259,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                     Group group = fop.getGroup();
                     logger.info("resetting {} from database", group);
                     // fop.loadGroup(group, this, true);
-                    fop.getFopEventBus().post(new FOPEvent.SwitchGroup(group, this));
+                    fop.fopEventPost(new FOPEvent.SwitchGroup(group, this));
                     syncWithFOP(true); // loadgroup does not refresh grid, true=ask for refresh
                 }));
 
@@ -277,7 +277,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 long timeElapsed = now - previousStartMillis[0];
                 boolean running = fop.getAthleteTimer().isRunning();
                 if (timeElapsed > 50 && !running) {
-                    fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
+                    fop.fopEventPost(new FOPEvent.TimeStarted(this.getOrigin()));
                 } else {
                     logger.debug("discarding duplicate clock start {}ms running={}", timeElapsed, running);
                 }
@@ -333,7 +333,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 long timeElapsed = now - previousGoodMillis[0];
                 if (timeElapsed > 5000) {
                     // no reason to give two goods within one second...
-                    fop.getFopEventBus().post(
+                    fop.fopEventPost(
                             new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true, true,
                                     true));
                 }
@@ -348,8 +348,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 long timeElapsed = now - previousBadMillis[0];
                 if (timeElapsed > 5000) {
                     // no reason to give two goods within one second...
-                    fop.getFopEventBus()
-                            .post(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
+                    fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
                                     false, false, false));
                 }
                 previousBadMillis[0] = now;

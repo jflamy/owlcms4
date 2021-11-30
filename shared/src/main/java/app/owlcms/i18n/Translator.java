@@ -1,9 +1,9 @@
-/***
- * Copyright (c) 2009-2020 Jean-François Lamy
+/*******************************************************************************
+ * Copyright (c) 2009-2021 Jean-François Lamy
  *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
- * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
- */
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.i18n;
 
 import java.io.File;
@@ -14,27 +14,31 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
+import java.util.function.Supplier;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.ICsvListReader;
 import org.supercsv.prefs.CsvPreference;
 
-import com.google.common.io.Files;
 import com.vaadin.flow.i18n.I18NProvider;
 
-import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -57,6 +61,9 @@ public class Translator implements I18NProvider {
     private static Locale forcedLocale = null;
     private static ClassLoader i18nloader = null;
     private static int line;
+    private static long resetTimeStamp = System.currentTimeMillis();
+
+    private static Supplier<Locale> localeSupplier;
 
     public static Locale createLocale(String localeString) {
         if (localeString == null) {
@@ -78,6 +85,9 @@ public class Translator implements I18NProvider {
     }
 
     public static List<Locale> getAllAvailableLocales() {
+        if (locales == null) {
+            Translator.getBundleFromCSV(Locale.ENGLISH);
+        }
         return locales;
     }
 
@@ -85,8 +95,35 @@ public class Translator implements I18NProvider {
         return helper.getProvidedLocales();
     }
 
+    public static Locale getForcedLocale() {
+        return forcedLocale;
+    }
+
     public static Enumeration<String> getKeys() {
         return Translator.getBundleFromCSV(Locale.ENGLISH).getKeys();
+    }
+
+    /**
+     * @return the localeSupplier
+     */
+    public static Supplier<Locale> getLocaleSupplier() {
+        return localeSupplier;
+    }
+
+    public static Map<String, String> getMap() {
+        final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(getLocaleSupplier().get());
+        Map<String, String> translations = new HashMap<>();
+        Enumeration<String> keys = bundle.getKeys();
+        String key;
+        while (keys.hasMoreElements()) {
+            key = keys.nextElement();
+            translations.put(key, bundle.getString(key));
+        }
+        return translations;
+    }
+
+    public static long getResetTimeStamp() {
+        return resetTimeStamp;
     }
 
     public static List<String> readLine(ICsvListReader listReader) throws IOException {
@@ -98,6 +135,7 @@ public class Translator implements I18NProvider {
      * Force a reload of the translation files
      */
     public static void reset() {
+        resetTimeStamp = System.currentTimeMillis();
         locales = null;
         i18nloader = null;
         helper = new Translator();
@@ -105,15 +143,30 @@ public class Translator implements I18NProvider {
     }
 
     public static void setForcedLocale(Locale locale) {
-        if (locale != null && getAvailableLocales().contains(locale)) {
-            Translator.forcedLocale = locale;
+        if (locale != null) {
+            locales = getAllAvailableLocales();
+
+            for (Locale l : getAllAvailableLocales()) {
+                if (l.getLanguage() == locale.getLanguage()) {
+                    // thing will work no matter what the country and variant
+                    Translator.forcedLocale = locale;
+                    break;
+                }
+            }
         } else {
-            Translator.forcedLocale = null; // default behaviour, first locale in list will be used
+            Translator.forcedLocale = null; // use browser-provided locale
         }
     }
 
+    /**
+     * @param localeSupplier the localeSupplier to set
+     */
+    public static void setLocaleSupplier(Supplier<Locale> localeSupplier) {
+        Translator.localeSupplier = localeSupplier;
+    }
+
     public static String translate(String string) {
-        return helper.getTranslation(string, OwlcmsSession.getLocale());
+        return helper.getTranslation(string, getLocaleSupplier().get());
     }
 
     public static String translate(String string, Locale locale) {
@@ -121,11 +174,11 @@ public class Translator implements I18NProvider {
     }
 
     public static String translate(String string, Locale locale, Object... params) {
-        return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
+        return helper.getTranslation(string, locale, params);
     }
 
     public static String translate(String string, Object... params) {
-        return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
+        return helper.getTranslation(string, getLocaleSupplier().get(), params);
     }
 
     public static String translateNoOverrideOrElseNull(String string, Locale locale) {
@@ -155,13 +208,17 @@ public class Translator implements I18NProvider {
     private static ResourceBundle getBundleFromCSV(Locale locale) {
         String baseName = BUNDLE_BASE;
         String csvName = BUNDLE_PACKAGE_SLASH + baseName + ".csv";
-        File bundleDir = Files.createTempDir();
+        Path bundleDir = null;
+        try {
+            bundleDir = Files.createTempDirectory("bundles");
+        } catch (IOException e1) {
+            throw new RuntimeException(e1);
+        }
         line = 0;
 
         if (i18nloader == null) {
             logger.debug("reloading translation bundles");
-
-            InputStream csvStream = helper.getClass().getResourceAsStream(csvName);
+            InputStream csvStream = ResourceWalker.getResourceAsStream(csvName);
             ICsvListReader listReader = null;
             try {
                 CsvPreference[] preferences = new CsvPreference[] { CsvPreference.STANDARD_PREFERENCE,
@@ -176,7 +233,7 @@ public class Translator implements I18NProvider {
                         throw new RuntimeException(csvName + " file is empty");
                     } else if (stringList.size() <= 2) {
                         // reset stream
-                        csvStream = helper.getClass().getResourceAsStream(csvName);
+                        csvStream = ResourceWalker.getResourceAsStream(csvName);
                     } else {
                         logger.debug(stringList.toString());
                         break;
@@ -186,13 +243,20 @@ public class Translator implements I18NProvider {
                 final File[] outFiles = new File[stringList.size()];
                 final Properties[] languageProperties = new Properties[outFiles.length];
                 locales = new ArrayList<>();
+
+                int nbLanguages = 0;
                 for (int i = 1; i < outFiles.length; i++) {
                     String language = stringList.get(i);
+                    logger.trace("language={} {}", language, i);
+                    if (language == null || language.isBlank()) {
+                        nbLanguages = i - 1;
+                        break;
+                    }
                     locales.add(createLocale(language));
                     if (language != null && !language.isEmpty()) {
                         language = "_" + language;
                     }
-                    final File outfile = new File(bundleDir, baseName + language + ".properties");
+                    final File outfile = new File(bundleDir.toFile(), baseName + language + ".properties");
                     outFiles[i] = outfile;
                     languageProperties[i] = new Properties();
                 }
@@ -206,7 +270,7 @@ public class Translator implements I18NProvider {
                         throw new RuntimeException(message);
                     }
                     logger.debug(stringList.toString());
-                    for (int i = 1; i < languageProperties.length; i++) {
+                    for (int i = 1; i < nbLanguages + 1; i++) {
                         // treat the CSV strings using same rules as Properties files.
                         // u0000 escapes are translated to Java characters
                         String input = stringList.get(i);
@@ -228,11 +292,11 @@ public class Translator implements I18NProvider {
                 }
 
                 // writing
-                for (int i = 1; i < languageProperties.length; i++) {
+                for (int i = 1; i < nbLanguages + 1; i++) {
                     logger.debug("writing to " + outFiles[i].getAbsolutePath());
                     languageProperties[i].store(new FileOutputStream(outFiles[i]), "generated from " + csvName);
                 }
-                final URL[] urls = { bundleDir.toURI().toURL() };
+                final URL[] urls = { bundleDir.toUri().toURL() };
                 i18nloader = new URLClassLoader(urls);
 
             } catch (IOException e) {
@@ -260,13 +324,11 @@ public class Translator implements I18NProvider {
 
     @Override
     public List<Locale> getProvidedLocales() {
-        if (forcedLocale != null) {
-            return Arrays.asList(forcedLocale);
-        } else if (locales == null) {
-            // sets the available locales
-            getBundleFromCSV(Locale.ENGLISH);
+        if (getForcedLocale() != null) {
+            return Arrays.asList(getForcedLocale());
+        } else {
+            return getAllAvailableLocales();
         }
-        return locales;
     }
 
     /**
@@ -341,16 +403,21 @@ public class Translator implements I18NProvider {
         logger./**/warn("null translation key");
     }
 
-    private String format(String value, Object... params) {
+    private String format(String pattern, Object... params) {
+        String value = pattern;
         if (params.length > 0) {
-            value = MessageFormat.format(value, params);
+            // single quotes must be doubled. If already doubled in the input, fix back.
+            pattern = pattern.replaceAll("'", "''");
+            pattern = pattern.replaceAll("''''", "''");
+            value = MessageFormat.format(pattern, params);
+            // logger.trace("format {} input={} params={} \\n result={}", params.getClass(), pattern, params, value);
         }
         return value;
     }
 
     private Locale overrideLocale(Locale locale) {
-        if (forcedLocale != null) {
-            locale = forcedLocale;
+        if (getForcedLocale() != null) {
+            locale = getForcedLocale();
         }
         return locale;
     }

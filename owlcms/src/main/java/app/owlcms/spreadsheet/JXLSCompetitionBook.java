@@ -6,10 +6,7 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Sheet;
@@ -22,8 +19,8 @@ import com.vaadin.flow.component.UI;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.i18n.Translator;
 import net.sf.jxls.transformer.XLSTransformer;
 
 /**
@@ -44,34 +41,14 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     private AgeDivision ageDivision;
 
     public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
-        super(ui);
+        super();
     }
 
     public JXLSCompetitionBook(UI ui) {
         // by default, we exclude athletes who did not weigh in.
-        super(ui);
+        super();
     }
 
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        Competition current = Competition.getCurrent();
-        String protocolTemplateFileName = current.getFinalPackageTemplateFileName();
-
-        int stripIndex;
-        stripIndex = protocolTemplateFileName.indexOf(".xlsx");
-        if (stripIndex > 0) {
-            protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
-            return getLocalizedTemplate("/templates/competitionBook/" + protocolTemplateFileName, ".xlsx", locale);
-        }
-
-        stripIndex = protocolTemplateFileName.indexOf(".xls");
-        if (stripIndex > 0) {
-            protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
-            return getLocalizedTemplate("/templates/competitionBook/" + protocolTemplateFileName, ".xls", locale);
-        }
-
-        throw new RuntimeException("template " + protocolTemplateFileName + " not found");
-    }
 
     @Override
     protected void configureTransformer(XLSTransformer transformer) {

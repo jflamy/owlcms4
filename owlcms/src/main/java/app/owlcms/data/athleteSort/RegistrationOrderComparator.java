@@ -30,18 +30,12 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
     public int compare(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
 
+        // takes into account platform and group name so that groups are not mixed together
         compare = compareGroupWeighInTime(lifter1, lifter2);
         if (compare != 0) {
             return compare;
         }
-
-        // in the unlikely event that two competition groups are weighed-in at the same
-        // time. Don't mix the groups.
-        compare = compareGroup(lifter1, lifter2);
-        if (compare != 0) {
-            return compare;
-        }
-
+        
         if (Competition.getCurrent().isMasters()) {
             compare = compareAgeGroup(lifter1, lifter2);
             if (compare != 0) {

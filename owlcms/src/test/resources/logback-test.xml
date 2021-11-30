@@ -21,7 +21,7 @@ Also used for certain cloud services (e.g. Heroku)
 	<logger name="org.eclipse.jetty.annotations.AnnotationParser" level="ERROR" />
     <logger name="org.eclipse.jetty.io.EofException" level="ERROR" />
     <logger name="javax.servlet.ServletException" level="ERROR" />
-    <logger name="app.owlcms.init.HttpsEnforcer" level="ERROR" />
+    <logger name="app.owlcms.servlet.HttpsEnforcer" level="ERROR" />
     <logger name="com.vaadin.flow.server.ServiceException" level="ERROR" />
 	<logger name="com.vaadin.flow.server.DefaultDeploymentConfiguration" level="ERROR" />
 	<logger name="h2database" level="WARN" />

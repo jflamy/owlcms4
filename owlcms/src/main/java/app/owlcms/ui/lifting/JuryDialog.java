@@ -25,7 +25,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
@@ -34,6 +33,7 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.JuryNotification;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class JuryDialog extends EnhancedDialog {
@@ -95,7 +95,7 @@ public class JuryDialog extends EnhancedDialog {
         if (shortcutTooSoon()) {
             return;
         }
-        fop.getFopEventBus().post(new FOPEvent.JuryDecision(athleteUnderReview, this, false));
+        fop.fopEventPost(new FOPEvent.JuryDecision(athleteUnderReview, this, false));
         doClose(false);
     }
 
@@ -125,8 +125,7 @@ public class JuryDialog extends EnhancedDialog {
 
     private void doDeliberation(Object origin, Athlete athleteUnderReview) {
         // stop competition
-        OwlcmsSession.getFop().getFopEventBus()
-                .post(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, this));
+        OwlcmsSession.getFop().fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, this));
         JuryNotification event = new UIEvent.JuryNotification(athleteUnderReview, origin,
                 JuryDeliberationEventType.START_DELIBERATION, null);
         OwlcmsSession.getFop().getUiEventBus().post(event);
@@ -227,14 +226,13 @@ public class JuryDialog extends EnhancedDialog {
         if (shortcutTooSoon()) {
             return;
         }
-        fop.getFopEventBus().post(new FOPEvent.JuryDecision(athleteUnderReview, this, true));
+        fop.fopEventPost(new FOPEvent.JuryDecision(athleteUnderReview, this, true));
         doClose(false);
     }
 
     private void doTechnicalPause(Object origin) {
         // technical pause from Jury
-        OwlcmsSession.getFop().getFopEventBus()
-                .post(new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null, this));
+        OwlcmsSession.getFop().fopEventPost(new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null, this));
         JuryNotification event = new UIEvent.JuryNotification(null, origin,
                 JuryDeliberationEventType.TECHNICAL_PAUSE, null);
         OwlcmsSession.getFop().getUiEventBus().post(event);

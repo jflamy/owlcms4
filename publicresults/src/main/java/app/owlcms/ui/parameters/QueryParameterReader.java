@@ -23,7 +23,7 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
-import app.owlcms.utils.LoggerUtils;
+import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -74,8 +74,11 @@ public interface QueryParameterReader extends HasUrlParameter<String> {
             params.remove("group");
         }
 
-        logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
-                (fopName != null ? fopName : null), (groupName != null ? groupName : null));
+//        logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
+//                (fopName != null ? fopName : null), (groupName != null ? groupName : null));
+        if (fopName != null) {
+            OwlcmsSession.setAttribute("fopName", fopName);
+        }
         return params;
     }
 

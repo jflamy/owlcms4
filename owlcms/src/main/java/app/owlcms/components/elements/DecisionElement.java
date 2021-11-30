@@ -23,6 +23,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -51,6 +52,10 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         void setJury(boolean juryMode);
 
         void setPublicFacing(boolean publicFacing);
+        
+        void setFopName(String fopName);
+
+        void setSilent(boolean b);
     }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
@@ -63,6 +68,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
     protected EventBus uiEventBus;
     protected EventBus fopEventBus;
+    private boolean silenced;
 
     public DecisionElement() {
     }
@@ -82,15 +88,18 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
      * @param ref2Time
      * @param ref3Time
      */
-    public void masterRefereeUpdate(Boolean ref1, Boolean ref2, Boolean ref3, Integer ref1Time, Integer ref2Time,
+    public void masterRefereeUpdate(String fopName, Boolean ref1, Boolean ref2, Boolean ref3, Integer ref1Time, Integer ref2Time,
             Integer ref3Time) {
         logger.debug("master referee decision update");
         Object origin = this.getOrigin();
         OwlcmsSession.withFop((fop) -> {
+            if (!fopName.contentEquals(fop.getName())) {
+                return;
+            }
             logger.debug("master referee update {} ({} {} {})", fop.getCurAthlete(), ref1, ref2, ref3, ref1Time,
                     ref2Time,
                     ref3Time);
-            fopEventBus.post(new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3, ref1Time,
+            fop.fopEventPost(new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3, ref1Time,
                     ref2Time, ref3Time));
         });
 
@@ -105,11 +114,11 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
      * @param ref2
      * @param ref3
      */
-    public void masterShowDown(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
+    public void masterShowDown(String fopName, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
         Object origin = this.getOrigin();
         logger.debug("=== master {} down: decision={} ({} {} {})", origin, decision.getClass().getSimpleName(), ref1,
                 ref2, ref3);
-        fopEventBus.post(new FOPEvent.DownSignal(origin));
+        OwlcmsSession.getFop().fopEventPost(new FOPEvent.DownSignal(origin));
     }
 
     public void setJury(boolean juryMode) {
@@ -133,7 +142,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
             uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
                     this.getParent().get().getClass().getSimpleName());
-            this.getElement().callJsFunction("showDown", false, OwlcmsSession.getFop().isEmitSoundsOnServer());
+            this.getElement().callJsFunction("showDown", false, isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
         });
     }
 
@@ -184,17 +193,18 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        init();
         OwlcmsSession.withFop(fop -> {
+            init(fop.getName());
             // we send on fopEventBus, listen on uiEventBus.
             fopEventBus = fop.getFopEventBus();
             uiEventBus = uiEventBusRegister(this, fop);
         });
     }
 
-    private void init() {
+    private void init(String fopName) {
         DecisionModel model = getModel();
         model.setPublicFacing(true);
+        model.setFopName(fopName);
 
         Element elem = this.getElement();
         elem.addPropertyChangeListener("ref1", "ref1-changed", (e) -> {
@@ -209,5 +219,18 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         elem.addPropertyChangeListener("decision", "decision-changed", (e) -> {
             uiEventLogger.debug(e.getPropertyName() + " changed to " + e.getValue());
         });
+    }
+
+    public void setSilenced(boolean b) {
+        logger.debug("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
+        getModel().setSilent(b);
+        silenced = b;
+    }
+
+    /**
+     * @return the silenced
+     */
+    public boolean isSilenced() {
+        return silenced;
     }
 }

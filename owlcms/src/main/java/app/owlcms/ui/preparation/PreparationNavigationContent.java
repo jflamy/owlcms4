@@ -30,6 +30,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.DebugUtils;
 import app.owlcms.components.NavigationPage;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -39,7 +40,6 @@ import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.DownloadButtonFactory;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
-import app.owlcms.utils.DebugUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -156,7 +156,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
      * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
      *                  parameters instead.
      *
-     * @see app.owlcms.utils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
      *      java.lang.String)
      */
     @Override

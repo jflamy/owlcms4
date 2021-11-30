@@ -80,7 +80,7 @@
             <artifactId>iron-icons</artifactId>
             <version>2.0.1</version>
         </dependency>
-        
+
         <dependency>
             <groupId>net.sf.supercsv</groupId>
             <artifactId>super-csv</artifactId>
@@ -132,47 +132,23 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- web server -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-plus</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-continuation</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty.websocket</groupId>
-            <artifactId>websocket-server</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty.websocket</groupId>
-            <artifactId>javax-websocket-server-impl</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.heroku.agent</groupId>
-            <artifactId>heroku-javaagent</artifactId>
-            <version>2.0</version>
-        </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.glassfish.external/opendmk_jmxremote_optional_jar -->
         <dependency>
             <groupId>org.glassfish.external</groupId>
             <artifactId>opendmk_jmxremote_optional_jar</artifactId>
             <version>1.0-b01-ea</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>app.owlcms</groupId>
+            <artifactId>shared</artifactId>
         </dependency>
     </dependencies>
 
@@ -193,6 +169,17 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
                     <version>3.0.0-M1</version>
+                </plugin>
+                <!-- https://mvnrepository.com/artifact/com.coderplus.maven.plugins/copy-rename-maven-plugin -->
+                <plugin>
+                    <groupId>com.coderplus.maven.plugins</groupId>
+                    <artifactId>copy-rename-maven-plugin</artifactId>
+                    <version>1.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>3.2.1</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -270,7 +257,7 @@
                                 <systemProperty>
                                     <key>updateKey</key>
                                     <value>thisisaverylongsecretstring</value>
-                                </systemProperty>                                
+                                </systemProperty>
                             </systemProperties>
                         </configuration>
                     </execution>
@@ -280,17 +267,17 @@
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                  <filesets>
-                    <fileset>
-                      <directory>logs</directory>
-                      <includes>
-                        <include>**</include>
-                      </includes>
-                      <followSymlinks>false</followSymlinks>
-                    </fileset>
-                  </filesets>
+                    <filesets>
+                        <fileset>
+                            <directory>logs</directory>
+                            <includes>
+                                <include>**</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
                 </configuration>
-              </plugin>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -321,32 +308,6 @@
                                     <goal>build-frontend</goal>
                                 </goals>
                                 <phase>compile</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>copy</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>copy</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>com.heroku.agent</groupId>
-                                            <artifactId>heroku-javaagent</artifactId>
-                                            <overWrite>true</overWrite>
-                                            <outputDirectory>${project.build.directory}</outputDirectory>
-                                        </artifactItem>
-                                    </artifactItems>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
-                                    <overWriteReleases>true</overWriteReleases>
-                                    <overWriteSnapshots>true</overWriteSnapshots>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -388,6 +349,7 @@
                         </executions>
                     </plugin>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
                         <version>3.1.0</version>
                         <executions>
@@ -448,21 +410,6 @@
                                     <packaging>jar</packaging>
                                     <generatePom>false</generatePom>
                                     <pomFile>target/classes/deployment-pom.xml</pomFile>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <!-- Skip execution - top level project does all the release handling -->
-                        <groupId>com.ragedunicorn.tools.maven</groupId>
-                        <artifactId>github-release-maven-plugin</artifactId>
-                        <version>1.0.4.2</version>
-                        <inherited>false</inherited>
-                        <executions>
-                            <execution>
-                                <id>default-cli</id>
-                                <configuration>
-                                    <skip>true</skip>
                                 </configuration>
                             </execution>
                         </executions>

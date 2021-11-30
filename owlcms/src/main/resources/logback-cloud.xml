@@ -30,7 +30,7 @@
     <logger name="org.eclipse.jetty.annotations.AnnotationParser" level="ERROR" />
     <logger name="org.eclipse.jetty.io.EofException" level="ERROR" />
     <logger name="javax.servlet.ServletException" level="ERROR" />
-    <logger name="app.owlcms.init.HttpsEnforcer" level="OFF" />
+    <logger name="app.owlcms.servlet.HttpsEnforcer" level="OFF" />
     <logger name="com.vaadin.flow.server.ServiceException" level="OFF" />
     <logger name="org.eclipse.jetty.server.HttpChannel" level="ERROR" />
     <logger name="com.vaadin.flow.server.communication" level="ERROR" />

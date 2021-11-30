@@ -6,10 +6,6 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.Locale;
-
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -19,12 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
 
-import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.competition.Competition;
-import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 /**
  * @author jflamy
@@ -42,13 +36,12 @@ public class JXLSCatResults extends JXLSWorkbookStreamSource {
         tagLogger.setLevel(Level.ERROR);
     }
 
-    private List<Athlete> sortedAthletes;
-    private Category category;
+    
 
 //    private byte[] protocolTemplate;
 
     public JXLSCatResults(UI ui) {
-        super(ui);
+        super();
     }
 
     public void fix(Workbook workbook, int rownum, int cellnum, String value) {
@@ -66,34 +59,6 @@ public class JXLSCatResults extends JXLSWorkbookStreamSource {
         }
 
         cellRight.setCellValue(value);
-    }
-
-    @Override
-    public InputStream getTemplate(Locale locale) throws Exception {
-        Competition current = Competition.getCurrent();
-        logger.trace("current={}", current);
-        String protocolTemplateFileName = current.getProtocolFileName();
-        logger.trace("protocolTemplateFileName={}", protocolTemplateFileName);
-
-        int stripIndex = protocolTemplateFileName.indexOf("_");
-        if (stripIndex > 0) {
-            protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
-        }
-
-        stripIndex = protocolTemplateFileName.indexOf(".xls");
-        if (stripIndex > 0) {
-            protocolTemplateFileName = protocolTemplateFileName.substring(0, stripIndex);
-        }
-
-        return getLocalizedTemplate("/templates/protocol/" + protocolTemplateFileName, ".xls", locale);
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public void setSortedAthletes(List<Athlete> sortedAthletes) {
-        this.sortedAthletes = sortedAthletes;
     }
 
     @Override
@@ -119,11 +84,6 @@ public class JXLSCatResults extends JXLSWorkbookStreamSource {
         cellRight.setCellStyle(blank);
     }
 
-    @Override
-    protected List<Athlete> getSortedAthletes() {
-        return sortedAthletes;
-    }
-
     /*
      * (non-Javadoc)
      *
@@ -138,9 +98,5 @@ public class JXLSCatResults extends JXLSWorkbookStreamSource {
         } else {
             fix(workbook, 3, 9, cat.toString());
         }
-    }
-
-    private Category getCategory() {
-        return category;
     }
 }

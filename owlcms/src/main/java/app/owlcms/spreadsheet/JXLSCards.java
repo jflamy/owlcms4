@@ -6,17 +6,11 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
-import java.util.Locale;
 
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -37,13 +31,8 @@ public class JXLSCards extends JXLSWorkbookStreamSource {
     @SuppressWarnings("unused")
     private final static Logger logger = LoggerFactory.getLogger(JXLSCards.class);
 
-    public JXLSCards(boolean excludeNotWeighed, UI ui) {
-        super(ui);
-    }
-
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/cards/CardTemplate", ".xls", locale);
+    public JXLSCards() {
+        super();
     }
 
     @Override
@@ -67,19 +56,19 @@ public class JXLSCards extends JXLSWorkbookStreamSource {
      */
     @Override
     protected void postProcess(Workbook workbook) {
-        setPageBreaks(workbook);
+//        setPageBreaks(workbook);
     }
 
-    private void setPageBreaks(Workbook workbook) {
-        Sheet sheet = workbook.getSheetAt(0);
-        int lastRowNum = sheet.getLastRowNum();
-        sheet.setAutobreaks(false);
-        int increment = CARDS_PER_PAGE * CARD_SIZE + (CARDS_PER_PAGE - 1);
-
-        for (int curRowNum = increment; curRowNum < lastRowNum;) {
-            sheet.setRowBreak(curRowNum - 1);
-            curRowNum += increment;
-        }
-    }
+//    private void setPageBreaks(Workbook workbook) {
+//        Sheet sheet = workbook.getSheetAt(0);
+//        int lastRowNum = sheet.getLastRowNum();
+//        sheet.setAutobreaks(false);
+//        int increment = CARDS_PER_PAGE * CARD_SIZE + (CARDS_PER_PAGE - 1);
+//
+//        for (int curRowNum = increment; curRowNum < lastRowNum;) {
+//            sheet.setRowBreak(curRowNum - 1);
+//            curRowNum += increment;
+//        }
+//    }
 
 }

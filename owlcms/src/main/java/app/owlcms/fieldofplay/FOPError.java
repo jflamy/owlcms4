@@ -12,8 +12,8 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
 import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
-import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.i18n.Translator;
 
 public class FOPError {
 

@@ -23,11 +23,12 @@ import javax.persistence.Transient;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import app.owlcms.apputils.AccessUtils;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
-import app.owlcms.init.FileServlet;
-import app.owlcms.utils.AccessUtils;
+import app.owlcms.servlet.FileServlet;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -38,6 +39,7 @@ import ch.qos.logback.classic.Logger;
 
 //must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
+@JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 public class Config {
 
     public static final int SHORT_TEAM_LENGTH = 6;

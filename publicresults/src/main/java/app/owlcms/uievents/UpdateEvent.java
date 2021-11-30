@@ -114,6 +114,10 @@ public class UpdateEvent {
         return isBreak;
     }
 
+    public boolean isIndefinite() {
+        return this.indefinite;
+    }
+
     public void setAthletes(String athletes) {
         this.athletes = athletes;
     }
@@ -162,6 +166,10 @@ public class UpdateEvent {
         this.hidden = parameter;
     }
 
+    public void setIndefinite(boolean indefinite) {
+        this.indefinite = indefinite;
+    }
+
     public void setLeaders(String leaders) {
         this.leaders = leaders;
     }
@@ -200,15 +208,5 @@ public class UpdateEvent {
                 + ", fopState=" + fopState + ", isBreak=" + isBreak + ", breakType=" + breakType + ", breakRemaining="
                 + breakRemaining + "]";
     }
-
-    public boolean isIndefinite() {
-        return this.indefinite;
-    }
-
-    public void setIndefinite(boolean indefinite) {
-        this.indefinite = indefinite;
-    }
-    
-    
 
 }

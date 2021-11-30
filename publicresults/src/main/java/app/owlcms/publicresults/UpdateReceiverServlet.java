@@ -27,8 +27,8 @@ import com.google.common.eventbus.EventBus;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UpdateEvent;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ProxyUtils;
 import app.owlcms.utils.StartupUtils;
-import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -79,7 +79,7 @@ public class UpdateReceiverServlet extends HttpServlet {
             if (StartupUtils.isDebugSetting()) {
                 logger.setLevel(Level.DEBUG);
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-                logger./**/debug("update received from {}", URLUtils.getClientIp(req));
+                logger./**/debug("update received from {}", ProxyUtils.getClientIp(req));
                 if (StartupUtils.isTraceSetting()) {
                     for (Entry<String, String[]> pair : pairs) {
                         logger./**/debug("    {} = {}", pair.getKey(), pair.getValue()[0]);
