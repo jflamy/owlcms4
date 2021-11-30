@@ -1,18 +1,17 @@
-##### **Changes for release 4.25.0-rc09**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Changes for release 4.25.0-rc10**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Multi-platform fix: prevent cases where timer events could be forwarded to the wrong platform.
-- [x] Enhancement: new Start List template for multi-platform competitions (shows the platform)
-- [x] Fix: in silent mode, the scoreboards and attempt board no longer make sound on the down signal
-- [x] Enhancement: the athlete-facing display has sound enabled by default (is the only display to do so, since it is where speakers would normally be plugged in)
-- [x] Fix: on page refresh, lift clocks resume counting down as appropriate.
-- [x] Fix: the demonstration data had wrong start numbers (calculation was before allocation of categories)
+- [x] Fix: when multiple platforms were in use, the public result displays would not restrict themselves to the events coming from the selected platform.
+- [x] Armenian translation
 
 ###### New in release 4.25
 
 - [x] It is now possible to choose and override the Excel templates for competitions cards, the start list, the starting weight sheet, the results (protocol), and the final package (attempts, sinclair, robi, team results, etc.).
   - New available IWF-style layout for athlete cards that is meant to be printed and folded to give bigger areas for writing (both North American Letter and international A4 formats available)
+- [x] Multi-platform fix: prevent cases where timer events could be forwarded to the wrong platform.
+- [x] Enhancement: new Start List template for multi-platform competitions (shows the platform)
 - [x] Fixes to import/export of the database for edge cases
 - [x] Enhancement: You can now import the registration file with only the category and no birth date.
+- [x] Fix: on page refresh, lift clocks resume counting down as appropriate.
 
 ###### Key Highlights from recent stable releases
 
