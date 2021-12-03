@@ -15,7 +15,7 @@ The free tier is fine for running club or regional competitions with about 50 at
 
 Click on this purple button to start installation of owlcms on Heroku cloud.
 
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/jflamy-dev/owlcms-heroku-prerelease)
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/owlcms/owlcms-heroku)
 
 **3. Name your application and deploy**
 
@@ -37,7 +37,7 @@ Heroku data centers run on universal time by default (UTC).  So the times appear
 
 ## Check for updates
 
-Once you have created the application once, you can download a program that will check for updates and remote control Heroku to grab them.   See [Instructions](https://github.com/jflamy-dev/owlcms-heroku-updater) and [Releases · owlcms/owlcms4-heroku-updater (github.com)](https://github.com/owlcms/owlcms4-heroku-updater/releases)
+Once you have created the application once, you can download a program that will check for updates and remote control Heroku to grab them.   See [Instructions](https://github.com/owlcms/owlcms-heroku-updater) and [Releases · owlcms/owlcms4-heroku-updater (github.com)](https://github.com/owlcms/owlcms4-heroku-updater/releases)
 
 ## Control access to the application
 
