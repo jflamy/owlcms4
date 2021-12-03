@@ -90,7 +90,7 @@ public class MainView extends VerticalLayout {
             String fop = fopNames.stream().findFirst().get();
             parameterMap.put("FOP", fop);
             // ui.navigate("displays/scoreleader", QueryParameters.simple(parameterMap));
-            ui.getPage().executeJs("window.location.href='displays/scoreleader?FOP=" + fop + "'");
+            ui.getPage().executeJs("window.location.href='displays/scoreleader?fop=" + fop + "'");
         } else {
             createButtons(fopNames);
         }

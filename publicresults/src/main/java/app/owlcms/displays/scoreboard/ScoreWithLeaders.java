@@ -37,6 +37,7 @@ import app.owlcms.ui.parameters.DarkModeParameters;
 import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.uievents.BreakTimerEvent;
 import app.owlcms.uievents.BreakTimerEvent.BreakStart;
+import app.owlcms.utils.StartupUtils;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.DecisionEvent;
 import app.owlcms.uievents.DecisionEventType;
@@ -256,12 +257,15 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveGlobalRankingUpdated(UpdateEvent e) {
+        if (StartupUtils.isDebugSetting()) {
+            logger./**/warn("### received UpdateEvent {} {} {}", getFopName(), e.getFopName(), e);
+        }
         if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
             // event is not for us
             return;
         }
         String fopState = e.getFopState();
-        logger.debug("### received UpdateEvent {}", e);
+
         ui.access(() -> {
             String athletes = e.getAthletes();
             String leaders = e.getLeaders();
@@ -288,8 +292,10 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             getModel().setWideTeamNames(e.getWideTeamNames());
             String liftsDone = e.getLiftsDone();
             getModel().setLiftsDone(liftsDone);
-
-            logger.debug("### state {} {}", fopState, e.getBreakType());
+            
+            if (StartupUtils.isDebugSetting()) {
+                logger./**/warn("### state {} {}", fopState, e.getBreakType());
+            }
 
             if (decisionVisible) {
                 // wait for next event before doing anything.
