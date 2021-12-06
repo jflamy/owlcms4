@@ -1609,13 +1609,19 @@ public class Athlete {
     public Participation getMainRankings() {
         Participation curRankings = null;
         List<Participation> participations2 = getParticipations();
-        // logger.debug("athlete {} category {} participations {}", this, category, participations2);
+        //logger.debug("athlete {} category {} participations {}", this, category, participations2);
         for (Participation eligible : participations2) {
             Category eligibleCat = eligible.getCategory();
-            if (category != null && eligibleCat != null
-                    && StringUtils.equals(eligibleCat.getComputedCode(), category.getComputedCode())) {
-                curRankings = eligible;
-                break;
+            if (category != null && eligibleCat != null) {
+                    String eligibleCode = eligibleCat.getComputedCode();
+                    String catCode = category.getComputedCode();
+                    if (StringUtils.equals(eligibleCode, catCode)) {
+                        curRankings = eligible;
+                        //logger.debug("yep eligibleCode '{}' catCode '{}'", eligibleCode, catCode);
+                        break;
+                    } else {
+                        //logger.debug("nope eligibleCode '{}' catCode '{}'", eligibleCode, catCode);
+                    }
             }
         }
         return curRankings;

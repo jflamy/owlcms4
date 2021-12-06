@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
@@ -63,6 +64,7 @@ import app.owlcms.fieldofplay.FOPEvent.WeightChange;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
+import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.EventForwarder;
@@ -841,6 +843,7 @@ public class FieldOfPlay {
             return null;
         });
         List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
+        logger.warn("same eligible: {}",rankedAthletes);
         if (rankedAthletes == null) {
             setDisplayOrder(null);
             setCurAthlete(null);
@@ -1197,6 +1200,21 @@ public class FieldOfPlay {
         pushOut(event);
     }
 
+    /**
+     * Compute the current leaders that match the Athlete's registration category.
+     * 
+     * Assume 16-year old Youth Lifter Y is eligible for Youth, Junior, Senior 
+     * 
+     * If she is lifting, we show youth lifter rankings, and include her if in the top 3 youth.
+     * If a Junior is lifting, Y needs to be ranked as a junior, and include her if in top 3 juniors
+     * If a Senior is lifting, Y needs to be ranked as a senior, and include her if in top 3 seniors
+     * 
+     * So we need to fetch the PAthlete that reflects each athlete's participation in the current lifter's
+     * registration category.
+     * Ouch.
+     * 
+     * @param rankedAthletes
+     */
     private void recomputeCurrentLeaders(List<Athlete> rankedAthletes) {
         if (rankedAthletes == null || rankedAthletes.size() == 0) {
             setLeaders(null);
@@ -1205,8 +1223,16 @@ public class FieldOfPlay {
 
         if (getCurAthlete() != null) {
             Category category = getCurAthlete().getCategory();
-            List<Athlete> currentCategoryAthletes = (rankedAthletes).stream()
-                    .filter(a -> a.getCategory().sameAs(category)).collect(Collectors.toList());
+            
+            List<Athlete> currentCategoryAthletes = new ArrayList<>();
+            for (Athlete a : rankedAthletes) {
+                // fetch the participation that matches the current athlete registration category
+                Optional<Participation> matchingParticipation = a.getParticipations().stream().filter(p -> p.getCategory().sameAs(category)).findFirst();
+                // get an athlete proxy that has the rankings based on that participation
+                if (matchingParticipation.isPresent()) {
+                    currentCategoryAthletes.add(new PAthlete(matchingParticipation.get()));
+                }
+            }
 
             boolean cjStarted2 = isCjStarted();
             // logger.trace("currentCategoryAthletes {} {}", currentCategoryAthletes, cjStarted2);

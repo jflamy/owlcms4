@@ -192,8 +192,12 @@ public class AthleteRepository {
         return JPAService.runInTransaction((em) -> {
             String onlyCategoriesFromCurrentGroup = "";
             if (g != null) {
-                onlyCategoriesFromCurrentGroup = " join p.category c where exists " +
-                        "     (select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId and c2.id = c.id)";
+                String categoriesFromCurrentGroup = "select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId";
+                onlyCategoriesFromCurrentGroup = " join p.category c where exists ("+categoriesFromCurrentGroup+" and c2.id = c.id)";
+//                Query q2 = em.createQuery(categoriesFromCurrentGroup);
+//                q2.setParameter("groupId", g.getId());
+//                List<Category> q2Results = q2.getResultList();
+//                logger.debug("categories for currentGroup {}",q2Results);
             }
             Query q = em.createQuery(
                     "select distinct a, p from Athlete a join fetch a.participations p"

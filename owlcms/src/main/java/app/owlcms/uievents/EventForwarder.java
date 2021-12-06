@@ -37,6 +37,7 @@ import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
@@ -741,9 +742,14 @@ public class EventForwarder implements BreakDisplay {
         ja.put("sattempts", sattempts);
         ja.put("cattempts", cattempts);
         ja.put("total", formatInt(a.getTotal()));
-        ja.put("snatchRank", formatInt(a.getMainRankings().getSnatchRank()));
-        ja.put("cleanJerkRank", formatInt(a.getMainRankings().getCleanJerkRank()));
-        ja.put("totalRank", formatInt(a.getMainRankings().getTotalRank()));
+        Participation mainRankings = a.getMainRankings();
+        if (mainRankings != null) {
+            ja.put("snatchRank", formatInt(mainRankings.getSnatchRank()));
+            ja.put("cleanJerkRank", formatInt(mainRankings.getCleanJerkRank()));
+            ja.put("totalRank", formatInt(mainRankings.getTotalRank()));
+        } else {
+            logger.error("main rankings null for {}",a);
+        }
         ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
