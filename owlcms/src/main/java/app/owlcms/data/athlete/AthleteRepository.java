@@ -8,6 +8,7 @@ package app.owlcms.data.athlete;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -187,7 +188,7 @@ public class AthleteRepository {
      * @param g
      * @return
      */
-    @SuppressWarnings("unchecked")
+
     public static List<Athlete> findAthletesForGlobalRanking(Group g) {
         return JPAService.runInTransaction((em) -> {
             String onlyCategoriesFromCurrentGroup = "";
@@ -206,8 +207,11 @@ public class AthleteRepository {
                 q.setParameter("groupId", g.getId());
             }
 
-            @SuppressWarnings("rawtypes")
-            List resultList = q.getResultList();
+            @SuppressWarnings("unchecked")
+            List<Athlete> resultList = (List<Athlete>) q.getResultList().stream().filter(a -> {
+                Double bw = ((Athlete)a).getBodyWeight();
+                return bw != null && bw >= 0.01;
+            }).collect(Collectors.toList());
             return resultList;
         });
     }
