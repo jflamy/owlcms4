@@ -843,7 +843,7 @@ public class FieldOfPlay {
             return null;
         });
         List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
-        logger.warn("same eligible: {}",rankedAthletes);
+        //logger.debug("same eligible: {}",rankedAthletes);
         if (rankedAthletes == null) {
             setDisplayOrder(null);
             setCurAthlete(null);
