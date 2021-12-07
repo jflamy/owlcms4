@@ -7,8 +7,6 @@
 package app.owlcms.utils;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -88,14 +86,12 @@ public class ResourceWalker {
         if (localDirPath2 != null) {
             target = localDirPath2.resolve(relativeName);
         }
-        logger.trace("checking override {} {}", localDirPath2, target);
         if (target != null && Files.exists(target)) {
             try {
-                File file = target.toFile();
-                logger.debug("found overridden resource {} at {} {}", name, file.getAbsolutePath(),
+                logger.warn("found overridden resource {} at {} {}", name, target.toAbsolutePath(),
                         LoggerUtils.whereFrom(1));
-                return new FileInputStream(file);
-            } catch (FileNotFoundException e) {
+                return Files.newInputStream(target);
+            } catch (IOException e) {
                 if (name.trim().contentEquals("/") || name.isBlank()) {
                     // exists but is top level
                     return null;
@@ -106,7 +102,7 @@ public class ResourceWalker {
         } else {
             is = ResourceWalker.class.getResourceAsStream(name);
             if (is != null) {
-                logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+                logger.warn("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
             }
         }
         return is;
@@ -287,13 +283,13 @@ public class ResourceWalker {
     public static void unzipBlobToTemp(byte[] localContent2) throws Exception {
         Path f = null;
         try {
-            f = TempUtils.createTempDirectory("owlcmsOverride");
+            f = MemTempUtils.createTempDirectory("owlcmsOverride");
             logger.trace("created temp directory " + f);
         } catch (IOException e) {
             throw new Exception("cannot create directory ", e);
         }
         try {
-            ZipUtils.unzip(new ByteArrayInputStream(localContent2), f.toFile());
+            ZipUtils.unzip(new ByteArrayInputStream(localContent2), f);
             setLocalDirPath(f);
             logger.info("new local override path {}", getLocalDirPath().normalize());
         } catch (IOException e) {

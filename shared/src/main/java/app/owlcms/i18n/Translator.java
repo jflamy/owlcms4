@@ -6,14 +6,13 @@
  *******************************************************************************/
 package app.owlcms.i18n;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -37,8 +36,8 @@ import org.supercsv.prefs.CsvPreference;
 
 import com.vaadin.flow.i18n.I18NProvider;
 
+import app.owlcms.utils.MemTempUtils;
 import app.owlcms.utils.ResourceWalker;
-import app.owlcms.utils.TempUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -215,8 +214,7 @@ public class Translator implements I18NProvider {
             line = 0;
 
             if (i18nloader == null) {
-                bundleDir = TempUtils.createTempDirectory("bundles");
-                bundleDir.toFile().deleteOnExit();
+                bundleDir = MemTempUtils.createTempDirectory("bundles");
                 
                 logger.debug("reloading translation bundles");
                 InputStream csvStream = ResourceWalker.getResourceAsStream(csvName);
@@ -241,7 +239,7 @@ public class Translator implements I18NProvider {
                         }
                     }
 
-                    final File[] outFiles = new File[stringList.size()];
+                    final Path[] outFiles = new Path[stringList.size()];
                     final Properties[] languageProperties = new Properties[outFiles.length];
                     locales = new ArrayList<>();
 
@@ -257,8 +255,8 @@ public class Translator implements I18NProvider {
                         if (language != null && !language.isEmpty()) {
                             language = "_" + language;
                         }
-                        final File outfile = new File(bundleDir.toFile(), baseName + language + ".properties");
-                        outfile.deleteOnExit();
+                        final Path outfile = bundleDir.resolve(baseName + language + ".properties");
+                        Files.createFile(outfile);
                         outFiles[i] = outfile;
                         languageProperties[i] = new Properties();
                     }
@@ -295,8 +293,8 @@ public class Translator implements I18NProvider {
 
                     // writing
                     for (int i = 1; i < nbLanguages + 1; i++) {
-                        logger.debug("writing to " + outFiles[i].getAbsolutePath());
-                        languageProperties[i].store(new FileOutputStream(outFiles[i]), "generated from " + csvName);
+                        logger.warn("writing to " + outFiles[i].toAbsolutePath());
+                        languageProperties[i].store(Files.newOutputStream(outFiles[i]), "generated from " + csvName);
                     }
                     final URL[] urls = { bundleDir.toUri().toURL() };
                     i18nloader = new URLClassLoader(urls);

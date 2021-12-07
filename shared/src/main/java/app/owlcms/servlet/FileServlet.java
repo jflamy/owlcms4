@@ -337,7 +337,7 @@ public class FileServlet extends HttpServlet {
 
         try {
             // URL-decode the file name (might contain spaces and on) and prepare file object.
-            logger.debug("requestedFile {}", requestedFile);
+            logger.warn("requestedFile {}", requestedFile);
             String relativeFileName = URLDecoder.decode(requestedFile, "UTF-8");
 
             // @webservlet processing takes care of preventing .. escaping
@@ -365,7 +365,7 @@ public class FileServlet extends HttpServlet {
             final String extension = FilenameUtils.getExtension(fullFileName);
             final String baseName = FilenameUtils.getBaseName(fullFileName);
             final File tempFile = File.createTempFile(baseName, "." + extension);
-            logger.debug("creating {}", tempFile.getAbsolutePath());
+            logger.warn("creating {}", tempFile.getAbsolutePath());
             tempFile.deleteOnExit();
             try (FileOutputStream out = new FileOutputStream(tempFile)) {
                 IOUtils.copy(in, out);

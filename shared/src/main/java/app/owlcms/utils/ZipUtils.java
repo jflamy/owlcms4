@@ -72,7 +72,7 @@ public class ZipUtils {
                 Files.createFile(outputfilePath);
                 
                 //final File nextFile = new File(target, name);
-                logger.warn("unzipping {}", outputfilePath.toAbsolutePath());
+                logger.warn("unzipping {}", outputfilePath);
 
                 // write file
                 try (OutputStream targetStream = Files.newOutputStream(outputfilePath)) {
