@@ -205,115 +205,131 @@ public class Translator implements I18NProvider {
      *
      * @return
      */
-    private static ResourceBundle getBundleFromCSV(Locale locale) {
+    private static synchronized ResourceBundle getBundleFromCSV(Locale locale) {
         String baseName = BUNDLE_BASE;
         String csvName = BUNDLE_PACKAGE_SLASH + baseName + ".csv";
         Path bundleDir = null;
         try {
-            bundleDir = Files.createTempDirectory("bundles");
-        } catch (IOException e1) {
-            throw new RuntimeException(e1);
-        }
-        line = 0;
 
-        if (i18nloader == null) {
-            logger.debug("reloading translation bundles");
-            InputStream csvStream = ResourceWalker.getResourceAsStream(csvName);
-            ICsvListReader listReader = null;
-            try {
-                CsvPreference[] preferences = new CsvPreference[] { CsvPreference.STANDARD_PREFERENCE,
-                        CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE, CsvPreference.TAB_PREFERENCE };
+            
+            line = 0;
 
-                List<String> stringList = new ArrayList<>();
-                for (CsvPreference preference : preferences) {
-                    listReader = new CsvListReader(new InputStreamReader(csvStream, StandardCharsets.UTF_8),
-                            preference);
+            if (i18nloader == null) {
+                bundleDir = Files.createTempDirectory("bundles");
+                bundleDir.toFile().deleteOnExit();
+                
+                logger.debug("reloading translation bundles");
+                InputStream csvStream = ResourceWalker.getResourceAsStream(csvName);
+                ICsvListReader listReader = null;
+                try {
+                    CsvPreference[] preferences = new CsvPreference[] { CsvPreference.STANDARD_PREFERENCE,
+                            CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE, CsvPreference.TAB_PREFERENCE };
 
-                    if ((stringList = readLine(listReader)) == null) {
-                        throw new RuntimeException(csvName + " file is empty");
-                    } else if (stringList.size() <= 2) {
-                        // reset stream
-                        csvStream = ResourceWalker.getResourceAsStream(csvName);
-                    } else {
+                    List<String> stringList = new ArrayList<>();
+                    for (CsvPreference preference : preferences) {
+                        listReader = new CsvListReader(new InputStreamReader(csvStream, StandardCharsets.UTF_8),
+                                preference);
+
+                        if ((stringList = readLine(listReader)) == null) {
+                            throw new RuntimeException(csvName + " file is empty");
+                        } else if (stringList.size() <= 2) {
+                            // reset stream
+                            csvStream = ResourceWalker.getResourceAsStream(csvName);
+                        } else {
+                            logger.debug(stringList.toString());
+                            break;
+                        }
+                    }
+
+                    final File[] outFiles = new File[stringList.size()];
+                    final Properties[] languageProperties = new Properties[outFiles.length];
+                    locales = new ArrayList<>();
+
+                    int nbLanguages = 0;
+                    for (int i = 1; i < outFiles.length; i++) {
+                        String language = stringList.get(i);
+                        logger.trace("language={} {}", language, i);
+                        if (language == null || language.isBlank()) {
+                            nbLanguages = i - 1;
+                            break;
+                        }
+                        locales.add(createLocale(language));
+                        if (language != null && !language.isEmpty()) {
+                            language = "_" + language;
+                        }
+                        final File outfile = new File(bundleDir.toFile(), baseName + language + ".properties");
+                        outfile.deleteOnExit();
+                        outFiles[i] = outfile;
+                        languageProperties[i] = new Properties();
+                    }
+
+                    // reading to properties
+                    while ((stringList = readLine(listReader)) != null) {
+                        final String key = stringList.get(0);
+                        if (key == null) {
+                            String message = MessageFormat.format("{0} line {1}: key is null", csvName, line);
+                            logger.error(message);
+                            throw new RuntimeException(message);
+                        }
                         logger.debug(stringList.toString());
-                        break;
-                    }
-                }
-
-                final File[] outFiles = new File[stringList.size()];
-                final Properties[] languageProperties = new Properties[outFiles.length];
-                locales = new ArrayList<>();
-
-                int nbLanguages = 0;
-                for (int i = 1; i < outFiles.length; i++) {
-                    String language = stringList.get(i);
-                    logger.trace("language={} {}", language, i);
-                    if (language == null || language.isBlank()) {
-                        nbLanguages = i - 1;
-                        break;
-                    }
-                    locales.add(createLocale(language));
-                    if (language != null && !language.isEmpty()) {
-                        language = "_" + language;
-                    }
-                    final File outfile = new File(bundleDir.toFile(), baseName + language + ".properties");
-                    outFiles[i] = outfile;
-                    languageProperties[i] = new Properties();
-                }
-
-                // reading to properties
-                while ((stringList = readLine(listReader)) != null) {
-                    final String key = stringList.get(0);
-                    if (key == null) {
-                        String message = MessageFormat.format("{0} line {1}: key is null", csvName, line);
-                        logger.error(message);
-                        throw new RuntimeException(message);
-                    }
-                    logger.debug(stringList.toString());
-                    for (int i = 1; i < nbLanguages + 1; i++) {
-                        // treat the CSV strings using same rules as Properties files.
-                        // u0000 escapes are translated to Java characters
-                        String input = stringList.get(i);
-                        if (input != null) {
-                            // "\ " is not valid, \u0020 is needed.
-                            String unescapeJava = StringEscapeUtils.unescapeJava(input.trim());
-                            if (!unescapeJava.isEmpty()) {
-                                Properties properties = languageProperties[i];
-                                if (properties == null) {
-                                    String message = MessageFormat
-                                            .format("{0} line {1}: languageProperties[{2}] is null", csvName, line, i);
-                                    logger.error(message);
-                                    throw new RuntimeException(message);
+                        for (int i = 1; i < nbLanguages + 1; i++) {
+                            // treat the CSV strings using same rules as Properties files.
+                            // u0000 escapes are translated to Java characters
+                            String input = stringList.get(i);
+                            if (input != null) {
+                                // "\ " is not valid, \u0020 is needed.
+                                String unescapeJava = StringEscapeUtils.unescapeJava(input.trim());
+                                if (!unescapeJava.isEmpty()) {
+                                    Properties properties = languageProperties[i];
+                                    if (properties == null) {
+                                        String message = MessageFormat
+                                                .format("{0} line {1}: languageProperties[{2}] is null", csvName, line, i);
+                                        logger.error(message);
+                                        throw new RuntimeException(message);
+                                    }
+                                    properties.setProperty(key, unescapeJava);
                                 }
-                                properties.setProperty(key, unescapeJava);
                             }
+                        }
+                    }
+
+                    // writing
+                    for (int i = 1; i < nbLanguages + 1; i++) {
+                        logger.debug("writing to " + outFiles[i].getAbsolutePath());
+                        languageProperties[i].store(new FileOutputStream(outFiles[i]), "generated from " + csvName);
+                    }
+                    final URL[] urls = { bundleDir.toUri().toURL() };
+                    i18nloader = new URLClassLoader(urls);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (listReader != null) {
+                        try {
+                            listReader.close();
+                        } catch (IOException e) {
                         }
                     }
                 }
 
-                // writing
-                for (int i = 1; i < nbLanguages + 1; i++) {
-                    logger.debug("writing to " + outFiles[i].getAbsolutePath());
-                    languageProperties[i].store(new FileOutputStream(outFiles[i]), "generated from " + csvName);
-                }
-                final URL[] urls = { bundleDir.toUri().toURL() };
-                i18nloader = new URLClassLoader(urls);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if (listReader != null) {
-                    try {
-                        listReader.close();
-                    } catch (IOException e) {
-                    }
-                }
             }
-        }
 
-        // reload the files
-        ResourceBundle.clearCache();
-        return ResourceBundle.getBundle(baseName, locale, i18nloader);
+            // reload the files
+            ResourceBundle.clearCache();
+            ResourceBundle bundle = ResourceBundle.getBundle(baseName, locale, i18nloader);
+            return bundle;
+        } catch (IOException e) {
+            logger.error("cannot create bundles directory {}", e);
+            throw new RuntimeException(e);
+        } finally {
+            // cannot clean up, resource bundle keeps the files open
+//            try {
+//                FileUtils.deleteDirectory(bundleDir.toFile());
+//            } catch (IOException e) {
+//                logger.error("cannot delete bundles directory {}", e);
+//                throw new RuntimeException(e);
+//            }
+        }
     }
 
     private static void throwInvalidLocale(String localeString) {

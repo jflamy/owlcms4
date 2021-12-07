@@ -451,9 +451,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
                     JXLSResultSheet rs = new JXLSResultSheet();
                     rs.setAgeDivision(ageDivision);
                     rs.setAgeGroupPrefix(ageGroupPrefix);
-                    logger.debug("setting category to {}",categoryValue);
                     rs.setCategory(categoryValue);
                     rs.setGroup(currentGroup);
+                    rs.setSortedAthletes((List<Athlete>)findAll());
                     return rs;
                 },
                 "/templates/protocol",
@@ -489,7 +489,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             categoryFilter.setClearButtonVisible(true);
             categoryFilter.setValue(getCategoryValue());
             categoryFilter.addValueChangeListener(e -> {
-                // logger.debug("categoryFilter set {}", e.getValue());
+                //logger.debug("categoryFilter set {}", e.getValue());
                 setCategoryValue(e.getValue());
                 crud.refreshGrid();
             });

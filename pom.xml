@@ -26,7 +26,11 @@
 
     <properties>
         <!-- revision is overridden by azure-pipelines.yml for the official builds. this value is only used for local development -->
+<<<<<<< HEAD
         <revision>4.25.1</revision>
+=======
+        <revision>4.25.2-rc02</revision>
+>>>>>>> origin/develop
 
         <owlcms-maven-url>http://maven.owlcms.mywire.org:8088</owlcms-maven-url>
         <owlcms-maven-suffix>/releases</owlcms-maven-suffix><!-- /snapshots if revision is -SNAPSHOT -->

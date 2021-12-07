@@ -1,6 +1,8 @@
 package app.owlcms.components;
 
 import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -112,7 +114,7 @@ public class DownloadButtonFactory {
                     // supplier is a lambda that sets the template and the filter values in the xls source
                     Resource res = searchMatch(resourceList, fileName);
                     logger.debug("(2) template found {}", res != null ? res.getFileName() : null);
-                   
+
                     InputStream is = res.getStream();
                     xlsWriter.setInputStream(is);
                     logger.debug("(2) filter present = {}", xlsWriter.getGroup());
@@ -142,8 +144,27 @@ public class DownloadButtonFactory {
     }
 
     private String genHrefName() {
-        String fileName = outputFileName + (xlsWriter.getGroup() != null ? "_" + xlsWriter.getGroup() : "_all")
-                + ".xls";
+        StringBuilder suffix = new StringBuilder();
+        if (xlsWriter.getCategory() != null) {
+            suffix.append("_");
+            suffix.append(xlsWriter.getCategory().getCode());
+        } else if (xlsWriter.getAgeGroupPrefix() != null) {
+            suffix.append("_");
+            suffix.append(xlsWriter.getAgeGroupPrefix().toString());
+        } else if (xlsWriter.getAgeDivision() != null) {
+            suffix.append("_");
+            suffix.append(xlsWriter.getAgeDivision().toString());
+        }
+
+        if (xlsWriter.getGroup() != null) {
+            suffix.append("_");
+            suffix.append(xlsWriter.getGroup().toString());
+        }
+        LocalDateTime now = LocalDateTime.now().withNano(0);
+        suffix.append("_");
+        suffix.append(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm';'ss")));
+        suffix.append(".xls");
+        String fileName = outputFileName + suffix;
         logger.debug(fileName);
         return fileName;
     }
@@ -152,7 +173,7 @@ public class DownloadButtonFactory {
         Resource found = null;
         for (Resource curResource : resourceList) {
             String fileName = curResource.getFileName();
-            logger.debug("comparing {} {}",fileName,curTemplateName);
+            logger.debug("comparing {} {}", fileName, curTemplateName);
             if (fileName.equals(curTemplateName)) {
                 found = curResource;
                 break;

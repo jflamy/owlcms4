@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -555,6 +556,10 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     public boolean sameAs(Category prevCat) {
         return this.compareTo(prevCat) == 0;
+    }
+    
+    public boolean sameAsAny(Set<Category> set) {
+        return set.stream().anyMatch(c -> this.compareTo(c) == 0);
     }
 
 }
