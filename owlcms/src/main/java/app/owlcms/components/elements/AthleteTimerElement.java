@@ -98,7 +98,7 @@ public class AthleteTimerElement extends TimerElement {
     @ClientCallable
     public void clientTimeOver(String fopName) {
         OwlcmsSession.withFop(fop -> {
-            if (!fopName.contentEquals(fop.getName())) return;
+            if (fopName != null && !fopName.contentEquals(fop.getName())) return;
             logger.trace("Received time over.");
             fop.getAthleteTimer().timeOver(this);
         });

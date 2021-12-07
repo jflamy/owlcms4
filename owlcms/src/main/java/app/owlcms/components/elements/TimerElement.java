@@ -25,7 +25,6 @@ import app.owlcms.apputils.DebugUtils;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
-import app.owlcms.uievents.BreakType;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -124,7 +123,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
          * @param seconds the new start time
          */
         void setStartTime(double seconds);
-        
+
         void setFopName(String fopName);
     }
 
@@ -287,8 +286,10 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         this.timerElement = timerElement;
     }
 
+    @SuppressWarnings("unused")
     private String formatDuration(Integer milliseconds) {
-        return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds) : (milliseconds != null ? milliseconds.toString() : "-");
+        return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds)
+                : (milliseconds != null ? milliseconds.toString() : "-");
     }
 
     private Integer getMsRemaining() {
@@ -297,20 +298,22 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 
     private void initTime(Integer milliseconds) {
         if (this instanceof BreakTimerElement) {
-            //logger.trace("set time remaining = {} from {} ", formatDuration(milliseconds), LoggerUtils.whereFrom());
+            // logger.trace("set time remaining = {} from {} ", formatDuration(milliseconds), LoggerUtils.whereFrom());
         }
         setIndefinite(milliseconds == null);
         setMsRemaining(milliseconds);
 
         if (!isIndefinite()) {
             if (this instanceof BreakTimerElement) {
-               //logger.trace("not indefinite {}", formatDuration(milliseconds));
+                // logger.trace("not indefinite {}", formatDuration(milliseconds));
+
+//                this.getElement()
+//                        .setVisible(OwlcmsSession.getFop().getBreakType() == BreakType.GROUP_DONE && milliseconds <= 0);
             }
-            this.getElement().setVisible(OwlcmsSession.getFop().getBreakType() == BreakType.GROUP_DONE);
             setDisplay(milliseconds, isIndefinite(), isSilenced());
         } else {
             if (this instanceof BreakTimerElement) {
-                //logger.trace("indefinite");
+                // logger.trace("indefinite");
             }
             setDisplay(milliseconds, true, true);
         }
