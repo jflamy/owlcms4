@@ -30,8 +30,11 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -194,6 +197,35 @@ public class FileServlet extends HttpServlet {
     }
 
     /**
+     * Copy the given byte range of the given input to the given output.
+     *
+     * @param input  The input to copy the given range to the given output for.
+     * @param output The output to copy the given range from the given input for.
+     * @param start  Start of the byte range.
+     * @param length Length of the byte range.
+     * @throws IOException If something fails at I/O level.
+     */
+    private static void copy2(FileChannel input, OutputStream output, long start, long length)
+            throws IOException {
+        byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+        int read;
+        ByteBuffer buffer2 = ByteBuffer.allocate(DEFAULT_BUFFER_SIZE);
+
+        // Write partial range.
+        input.position(start);
+        long toRead = length;
+
+        while ((read = input.read(buffer2)) > 0) {
+            if ((toRead -= read) > 0) {
+                output.write(buffer, 0, read);
+            } else {
+                output.write(buffer, 0, (int) toRead + read);
+                break;
+            }
+        }
+    }
+
+    /**
      * Returns true if the given match header matches the given value.
      *
      * @param matchHeader The match header.
@@ -307,10 +339,10 @@ public class FileServlet extends HttpServlet {
             // URL-decode the file name (might contain spaces and on) and prepare file object.
             logger.debug("requestedFile {}", requestedFile);
             String relativeFileName = URLDecoder.decode(requestedFile, "UTF-8");
-            
+
             // @webservlet processing takes care of preventing .. escaping
             Path finalPath = Paths.get(relativeFileName);
-            logger.debug("getting {}",relativeFileName);
+            logger.debug("getting {}", relativeFileName);
             return getFileFromResource(response, finalPath, "/" + relativeFileName);
         } catch (IllegalArgumentException e) {
             logger.error(e.getLocalizedMessage());
@@ -318,7 +350,7 @@ public class FileServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return null;
         } catch (Exception e) {
-            LoggerUtils.logError(logger,e);
+            LoggerUtils.logError(logger, e);
             response.getWriter().print(e.getLocalizedMessage());
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return null;
@@ -531,6 +563,7 @@ public class FileServlet extends HttpServlet {
         try {
             // Open streams.
             input = new RandomAccessFile(file, "r");
+            FileChannel in = FileChannel.open(Path.of(null), StandardOpenOption.READ);
             output = response.getOutputStream();
 
             if (ranges.isEmpty() || ranges.get(0) == full) {
@@ -553,6 +586,7 @@ public class FileServlet extends HttpServlet {
 
                     // Copy full range.
                     copy(input, output, r.start, r.length);
+                    copy2(in, output, r.start, r.length);
                 }
 
             } else if (ranges.size() == 1) {

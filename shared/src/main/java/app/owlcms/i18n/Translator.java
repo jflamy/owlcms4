@@ -14,7 +14,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -39,6 +38,7 @@ import org.supercsv.prefs.CsvPreference;
 import com.vaadin.flow.i18n.I18NProvider;
 
 import app.owlcms.utils.ResourceWalker;
+import app.owlcms.utils.TempUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -215,7 +215,7 @@ public class Translator implements I18NProvider {
             line = 0;
 
             if (i18nloader == null) {
-                bundleDir = Files.createTempDirectory("bundles");
+                bundleDir = TempUtils.createTempDirectory("bundles");
                 bundleDir.toFile().deleteOnExit();
                 
                 logger.debug("reloading translation bundles");

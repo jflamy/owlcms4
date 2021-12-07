@@ -91,5 +91,13 @@
             <artifactId>commons-text</artifactId>
             <version>1.9</version>
         </dependency>
+        
+        
+        <!-- temporary files -->
+        <dependency>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+            <version>1.2</version>
+        </dependency>
     </dependencies>
 </project>

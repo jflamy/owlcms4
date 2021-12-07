@@ -155,4 +155,6 @@ public class OwlcmsFactory {
     private static void setDefaultFOP(FieldOfPlay defaultFOP) {
         OwlcmsFactory.defaultFOP = defaultFOP;
     }
+    
+
 }

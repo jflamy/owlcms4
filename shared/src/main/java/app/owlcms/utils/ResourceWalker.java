@@ -237,12 +237,16 @@ public class ResourceWalker {
     }
 
     /**
-     * open the file system for locating resources.
+     * Register an additional file system for the resources
+     * 
+     * We use the classloader to return the URI where it found a resource.
+     * This will be either a jar (in production) or a regular file system (in development).
+     * If a jar, then we register a file system for the Jar's URI.
      *
      * @param absoluteRootPath
      * @return an open file system (intentionnaly not closed)
      */
-    public static FileSystem openClassPathFileSystem(String absoluteRootPath) {
+    private static FileSystem openClassPathFileSystem(String absoluteRootPath) {
         URL resources = ResourceWalker.class.getResource(absoluteRootPath);
         try {
             URI resourcesURI = resources.toURI();
@@ -283,7 +287,7 @@ public class ResourceWalker {
     public static void unzipBlobToTemp(byte[] localContent2) throws Exception {
         Path f = null;
         try {
-            f = Files.createTempDirectory("owlcms");
+            f = TempUtils.createTempDirectory("owlcmsOverride");
             logger.trace("created temp directory " + f);
         } catch (IOException e) {
             throw new Exception("cannot create directory ", e);
