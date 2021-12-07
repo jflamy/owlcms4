@@ -59,31 +59,6 @@ public class OwlcmsFactory {
         return defaultFOP;
     }
 
-    /**
-     * @return first field of play, sorted alphabetically
-     */
-    public static synchronized FieldOfPlay initDefaultFOP() {
-        // logger.debug("OwlcmsFactory {} {} {}", init, fopByName != null ? fopByName.size() : null,
-        // LoggerUtils. stackTrace());
-        initFOPByName();
-        firstFOP();
-
-//        if (getDefaultFOP() != null) {
-//            // force a wake up on user interfaces
-//            getDefaultFOP().pushOut(new UIEvent.SwitchGroup(getDefaultFOP().getGroup(), getDefaultFOP().getState(),
-//                    getDefaultFOP().getCurAthlete(), null));
-//        }
-        return getDefaultFOP();
-    }
-
-    private static void firstFOP() {
-        Optional<FieldOfPlay> fop = fopByName.entrySet().stream()
-                .sorted(Comparator.comparing(x -> x.getKey()))
-                .map(x -> x.getValue())
-                .findFirst();
-        setDefaultFOP(fop.orElse(null));
-    }
-
     public static FieldOfPlay getFOPByGroupName(String name) {
         if (fopByName == null) {
             return null; // no group is lifting yet.
@@ -120,18 +95,21 @@ public class OwlcmsFactory {
         return StartupUtils.getVersion();
     }
 
-    public static void waitDBInitialized() {
-        try {
-            OwlcmsFactory.getInitializationLatch().await();
-        } catch (InterruptedException e) {
-        }
-    }
+    /**
+     * @return first field of play, sorted alphabetically
+     */
+    public static synchronized FieldOfPlay initDefaultFOP() {
+        // logger.debug("OwlcmsFactory {} {} {}", init, fopByName != null ? fopByName.size() : null,
+        // LoggerUtils. stackTrace());
+        initFOPByName();
+        firstFOP();
 
-    private static synchronized void initFOPByName() {
-        fopByName = new HashMap<>();
-        for (Platform platform : PlatformRepository.findAll()) {
-            registerFOP(platform);
-        }
+//        if (getDefaultFOP() != null) {
+//            // force a wake up on user interfaces
+//            getDefaultFOP().pushOut(new UIEvent.SwitchGroup(getDefaultFOP().getGroup(), getDefaultFOP().getState(),
+//                    getDefaultFOP().getCurAthlete(), null));
+//        }
+        return getDefaultFOP();
     }
 
     public static void registerFOP(Platform platform) {
@@ -142,11 +120,33 @@ public class OwlcmsFactory {
         fop.init(new LinkedList<Athlete>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop), true);
         fopByName.put(name, fop);
     }
-    
+
     public static void unregisterFOP(Platform platform) {
         String name = platform.getName();
         fopByName.remove(name);
         firstFOP();
+    }
+
+    public static void waitDBInitialized() {
+        try {
+            OwlcmsFactory.getInitializationLatch().await();
+        } catch (InterruptedException e) {
+        }
+    }
+
+    private static void firstFOP() {
+        Optional<FieldOfPlay> fop = fopByName.entrySet().stream()
+                .sorted(Comparator.comparing(x -> x.getKey()))
+                .map(x -> x.getValue())
+                .findFirst();
+        setDefaultFOP(fop.orElse(null));
+    }
+
+    private static synchronized void initFOPByName() {
+        fopByName = new HashMap<>();
+        for (Platform platform : PlatformRepository.findAll()) {
+            registerFOP(platform);
+        }
     }
 
     /**
@@ -155,6 +155,5 @@ public class OwlcmsFactory {
     private static void setDefaultFOP(FieldOfPlay defaultFOP) {
         OwlcmsFactory.defaultFOP = defaultFOP;
     }
-    
 
 }
