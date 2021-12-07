@@ -1,7 +1,15 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+4.25.2-rc02
+
+- [x] 4.25.2: Enhancement: Excel results now include the applied filters in the file name (and the time).
+- [x] 4.25.2: Fix: Category Results Excel now shows the same filtered information as on the browser page 
+- [x] 4.25.2: Regression Fix:  restored normal behavior for timers
+
+4.25.2-rc01
+
 - [x]  4.25.2: When computing the leaders for the current athlete's category in order to display it on scoreboards, some eligible athletes could be left out. (#455)
-- [x] 4.25.2: Partial Fix: Too many temporary files are created for translation bundles and not removed.  (#458)
+- [x] 4.25.2: Partial Fix: Too many temporary files are created for translation bundles.  (#458)
 - [x] 4.25.2: Fix: Athletes not weighed-in were being included instead of ignored (#459)
 - [x] 4.25.2: Translations: Russian.
 - [x] 4.25.1: Fix: in some cases, publicresults was not updating its display when receiving updates from owlcms
