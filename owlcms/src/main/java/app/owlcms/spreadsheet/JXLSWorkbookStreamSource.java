@@ -33,6 +33,7 @@ import com.vaadin.flow.server.StreamResourceWriter;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -67,10 +68,12 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
     private Group group;
     private UI ui;
-    private List<Athlete> sortedAthletes;
+    protected List<Athlete> sortedAthletes;
     private Category category;
     private String templateFileName;
     private InputStream inputStream;
+    private AgeDivision ageDivision;
+    private String ageGroupPrefix;
 
     public JXLSWorkbookStreamSource() {
         this.ui = UI.getCurrent();
@@ -230,7 +233,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         // do nothing, to be overridden as needed,
     }
 
-    protected Category getCategory() {
+    public Category getCategory() {
         return category;
     }
 
@@ -311,5 +314,30 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
             }
             return compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
         }).collect(Collectors.toList()));
+    }
+
+    public void setAgeDivision(AgeDivision ageDivision) {
+        this.ageDivision = ageDivision;
+    }
+
+    /**
+     * @param ageGroupPrefix the ageGroupPrefix to set
+     */
+    public void setAgeGroupPrefix(String ageGroupPrefix) {
+        this.ageGroupPrefix = ageGroupPrefix;
+    }
+
+    /**
+     * @return the ageDivision
+     */
+    public AgeDivision getAgeDivision() {
+        return ageDivision;
+    }
+
+    /**
+     * @return the ageGroupPrefix
+     */
+    public String getAgeGroupPrefix() {
+        return ageGroupPrefix;
     }
 }

@@ -36,8 +36,6 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         tagLogger.setLevel(Level.ERROR);
     }
 
-    private AgeDivision ageDivision;
-    private String ageGroupPrefix;
 
     public JXLSResultSheet() {
         super();
@@ -45,6 +43,9 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 
     @Override
     protected List<Athlete> getSortedAthletes() {
+        if (sortedAthletes != null) {
+            return sortedAthletes;
+        }
         final Group currentGroup = getGroup();
         Category currentCategory = getCategory();
         AgeDivision currentAgeDivision = getAgeDivision();
@@ -87,10 +88,6 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 
     }
 
-    public String getAgeGroupPrefix() {
-        return ageGroupPrefix;
-    }
-
     /*
      * (non-Javadoc)
      *
@@ -103,24 +100,6 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         if (currentCompetitionSession == null) {
             zapCellPair(workbook, 3, 9);
         }
-    }
-
-    public void setAgeDivision(AgeDivision ageDivision) {
-        this.ageDivision = ageDivision;
-    }
-
-    /**
-     * @return the ageDivision
-     */
-    private AgeDivision getAgeDivision() {
-        return ageDivision;
-    }
-
-    /**
-     * @param ageGroupPrefix the ageGroupPrefix to set
-     */
-    public void setAgeGroupPrefix(String ageGroupPrefix) {
-        this.ageGroupPrefix = ageGroupPrefix;
     }
 
 }
