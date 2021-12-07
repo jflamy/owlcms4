@@ -39,7 +39,7 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
 
         <!-- Library versions -->
-        <vaadin.version>14.6.8</vaadin.version>
+        <vaadin.version>14.7.7</vaadin.version>
         <logback.version>1.2.3</logback.version>
         <slf4j.version>1.7.26</slf4j.version>
         <hibernate.version>5.4.31.Final</hibernate.version>

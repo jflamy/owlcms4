@@ -57,7 +57,7 @@ import app.owlcms.i18n.Translator;
 /**
  * Class AnnouncerContent.
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 @Route(value = "ref")
 @Push
 public class RefContent extends VerticalLayout implements FOPParameters, SafeEventBusRegistration,

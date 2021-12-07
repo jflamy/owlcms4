@@ -61,6 +61,7 @@ public class CategoryGridField extends CustomField<List<Category>> {
 
     private Div validationStatus;
 
+    @SuppressWarnings("deprecation")
     public CategoryGridField(AgeGroup ag) {
         super(new ArrayList<Category>());
         this.ageGroup = ag;

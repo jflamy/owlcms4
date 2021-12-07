@@ -51,7 +51,7 @@ import app.owlcms.i18n.Translator;
 /**
  * OwlcmsRouterLayout.
  */
-@SuppressWarnings({ "serial", "rawtypes" })
+@SuppressWarnings({ "serial", "rawtypes", "deprecation" })
 @Push
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
 @CssImport(value = "./styles/shared-styles.css")
