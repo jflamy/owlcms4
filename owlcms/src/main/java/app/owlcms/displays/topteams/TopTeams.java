@@ -75,7 +75,7 @@ import app.owlcms.i18n.Translator;
  * @author Jean-François Lamu
  *
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 @Tag("topteams-template")
 @JsModule("./components/TopTeams.js")
 @Route("displays/topteams")
