@@ -107,6 +107,42 @@ public class ResourceWalker {
         }
         return is;
     }
+    
+    /**
+     * Fetch a named file content. First looking in a local override directory structure, and if not found, as a
+     * resource on the classpath.
+     *
+     * @param name
+     * @return an input stream with the requested content, null if not found.
+     */
+    public static Path getFileOrResourcePath(String name) {
+         String relativeName;
+        if (name.startsWith("/")) {
+            relativeName = name.substring(1);
+        } else {
+            relativeName = name;
+        }
+        Path localDirPath2 = getLocalDirPath();
+        Path target = null;
+        if (localDirPath2 != null) {
+            target = localDirPath2.resolve(relativeName);
+        }
+        if (target != null && Files.exists(target)) {
+            logger.warn("found overridden resource {} at {} {}", name, target.toAbsolutePath(),
+                    LoggerUtils.whereFrom(1));
+            return target;
+        } else {
+            String resName = "/"+relativeName;
+            target = getResourcePath(resName);
+            if (target != null) {
+                logger.warn("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+            } else {
+                logger.warn("not found {} {}",target, resName);
+            }
+            
+        }
+        return target;
+    }
 
     public static Path getLocalDirPath() {
         if (!initializedLocalDir) {
@@ -357,7 +393,7 @@ public class ResourceWalker {
     public List<Resource> getResourceList(String absoluteRoot, BiFunction<Path, Path, String> nameGenerator,
             String startsWith, Locale locale) {
         List<Resource> classPathResources = getResourceListFromPath(nameGenerator, startsWith,
-                getResourcesPath(absoluteRoot), locale);
+                getResourcePath(absoluteRoot), locale);
         List<Resource> overrideResources = getLocalOverrideResourceList(absoluteRoot, nameGenerator, startsWith,
                 locale);
         TreeSet<Resource> resourceSet = new TreeSet<>(overrideResources);
@@ -505,33 +541,37 @@ public class ResourceWalker {
         }
     }
 
-    private Path getResourcesPath(String absoluteRoot) {
-        URL resources = getClass().getResource(absoluteRoot);
-        if (resources == null) {
-            logger.error(absoluteRoot + " not found");
-            throw new RuntimeException(absoluteRoot + " not found");
+    public static Path getResourcePath(String resourcePathString) {
+        URL resourceURL = ResourceWalker.class.getResource(resourcePathString);
+        if (resourceURL == null) {
+            logger.error(resourcePathString + " not found");
+            //throw new RuntimeException(resourcePathString + " not found");
+            return null;
         }
-        Path rootPath;
+        Path resourcePath;
         URI resourcesURI;
         try {
             // this will either return a file or a jar URI, depending on
             // expanded classpath (development) or jar classpath (production)
-            resourcesURI = resources.toURI();
+            resourcesURI = resourceURL.toURI();
         } catch (URISyntaxException e1) {
             logger.error(e1.getReason());
             throw new RuntimeException(e1);
         }
         try {
-            rootPath = Paths.get(resourcesURI);
+            resourcePath = Paths.get(resourcesURI);
         } catch (FileSystemNotFoundException e) {
-            // if we are here, the resource is in the jar, and Vaadin has not already
-            // loaded the ZipFileSystem so we do it. Normally Vaadin loads the jar
-            // file system first so we never get here.
-            openClassPathFileSystem("/agegroups"); // any resource we know is in the jar, but not in any previous jar on
-                                                   // classpath
-            rootPath = Paths.get(resourcesURI);
+            // the normal classpath uses the default file system, which is always found.
+            // if the file was in a jar, normally Vaadin has already loaded the zip file system
+            // so we should not get a not found either.
+            
+            // so the only way to get here is if the file is in a jar, and somehow Vaadin has
+            // not opened it yet.  So we use a file that should be in the jar, and expect the
+            // URI to be of the "jar" type.
+            openClassPathFileSystem("/agegroups");
+            resourcePath = Paths.get(resourcesURI);
         }
-        return rootPath;
+        return resourcePath;
     }
 
 }
