@@ -140,6 +140,9 @@ public class EventForwarder implements BreakDisplay {
         OwlcmsSession.withFop(fop -> {
             BreakType breakType = fop.getBreakType();
             Group group = fop.getGroup();
+            if (breakType == null) {
+                breakType = BreakType.BEFORE_INTRODUCTION;
+            }
             switch (breakType) {
             case GROUP_DONE:
                 setFullName(groupResults(group));
