@@ -1871,8 +1871,9 @@ public class Athlete {
     @Transient
     @JsonIgnore
     public Double getRobi() {
-        Category c = getMainRankings().getCategory();
-        if (c == null) {
+        Participation mainRankings;
+        Category c;
+        if ((mainRankings = getMainRankings()) == null || (c = mainRankings.getCategory()) == null) {
             return 0.0;
         }
         Integer wr = c.getWr();

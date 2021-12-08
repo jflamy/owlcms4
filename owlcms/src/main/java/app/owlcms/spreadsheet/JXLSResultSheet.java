@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
@@ -36,7 +37,6 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         tagLogger.setLevel(Level.ERROR);
     }
 
-
     public JXLSResultSheet() {
         super();
     }
@@ -52,11 +52,16 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         String currentAgeGroupPrefix = getAgeGroupPrefix();
         List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(currentGroup);
 
+        // @formatter:off
         List<Athlete> athletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
+                .filter(a -> {
+                    Double bw;
+                    return a.getCategory() != null && (bw = a.getBodyWeight()) != null && bw > 0.01;
+                })
                 .filter(a -> (
-                        currentGroup != null 
+                        currentGroup != null
                             ? (a.getGroup() != null ?
-                                    a.getGroup().equals(currentGroup) 
+                                    a.getGroup().equals(currentGroup)
                                     : false)
                             : true))
                 .filter(a -> (
@@ -66,26 +71,28 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
                                     : false)
                             : true))
                 .filter(a -> {
-                    AgeDivision ageDivision2 = a.getAgeGroup().getAgeDivision();
+                    AgeGroup ageGroup = a.getAgeGroup();
+                    AgeDivision ageDivision2 = ageGroup != null ? ageGroup.getAgeDivision() : null;
                     return (
-                        currentAgeDivision != null 
+                        currentAgeDivision != null
                             ? (ageDivision2 != null ?
-                                    currentAgeDivision.equals(ageDivision2) 
+                                    currentAgeDivision.equals(ageDivision2)
                                     : false)
                             : true);
                     })
                 .filter(a -> {
-                    String ageGroupPrefix2 = a.getAgeGroup().getCode();
+                    AgeGroup ageGroup = a.getAgeGroup();
+                    String ageGroupPrefix2 = ageGroup != null ? ageGroup.getCode() : null;
                     return (
-                        currentAgeGroupPrefix != null 
+                        currentAgeGroupPrefix != null
                             ? (ageGroupPrefix2 != null ?
-                                    currentAgeGroupPrefix.equals(ageGroupPrefix2) 
+                                    currentAgeGroupPrefix.equals(ageGroupPrefix2)
                                     : false)
                             : true);
                     })
                 .collect(Collectors.toList());
         return athletes;
-
+        // @formatter:on
     }
 
     /*
