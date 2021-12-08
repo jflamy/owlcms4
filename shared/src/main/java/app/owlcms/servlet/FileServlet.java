@@ -30,7 +30,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -181,14 +180,12 @@ public class FileServlet extends HttpServlet {
         while (read > 0) {
             if ((toRead -= read) > 0) {
                 output.write(buffer, 0, read);
-                logger.warn("{} {} toread {}", start, length, toRead);
             } else {
                 output.write(buffer, 0, (int) toRead + read);
                 break;
             }
             buffer2.clear();
             read = input.read(buffer2);
-            logger.warn("{} {} read2 {}", start, length, read);
         }
     }
 
@@ -304,25 +301,10 @@ public class FileServlet extends HttpServlet {
 
         try {
             // URL-decode the file name (might contain spaces and on) and prepare file object.
-            logger.warn("requestedFile {}", requestedFile);
-            String relativeFileName = URLDecoder.decode(requestedFile, "UTF-8");
-
             // @webservlet processing takes care of preventing ../.. escaping so we don't have to.
-            Path finalPath = Paths.get(relativeFileName);
-            logger.debug("getting {}", relativeFileName);
-
-            try {
-                Path testing = ResourceWalker.getResourcePath("/"+relativeFileName);
-                FileChannel fc = FileChannel.open(testing, StandardOpenOption.READ);
-                BasicFileAttributes bfa = Files.readAttributes(testing, BasicFileAttributes.class);
-                logger.warn("{} size={} modified={}",testing,bfa.size(),bfa.lastModifiedTime());
-                fc.position(0);
-                fc.position(bfa.size()-1);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            
-            return getFileFromResource(response, finalPath, "/" + relativeFileName);
+            //logger.debug("requestedFile {}", requestedFile);
+            String relativeFileName = URLDecoder.decode(requestedFile, "UTF-8");
+            return getPathForResource(response, "/" + relativeFileName);
         } catch (IllegalArgumentException e) {
             logger.error(e.getLocalizedMessage());
             response.getWriter().print(e.getLocalizedMessage());
@@ -336,37 +318,16 @@ public class FileServlet extends HttpServlet {
         }
     }
 
-    private Path getFileFromResource(HttpServletResponse response, Path finalPath, String resourceName)
+    private Path getPathForResource(HttpServletResponse response, String resourceName)
             throws IOException, FileNotFoundException {
         Path target = ResourceWalker.getFileOrResourcePath(resourceName);
         if (target == null) {
             logger./**/error("resource or override not found {}", resourceName);
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            logger.warn("found {}",target.toString());
+            //logger.debug("found {}",target.toString());
         }
         return target;
-        
-//        InputStream in = ResourceWalker.getResourceAsStream(resourceName);
-//        if (in != null) {
-//            final String fullFileName = finalPath.getFileName().toString();
-//            final String extension = FilenameUtils.getExtension(fullFileName);
-//            final String baseName = FilenameUtils.getBaseName(fullFileName);
-//            
-//            final Path tempPath = MemTempUtils.createTempFile(baseName, "." + extension);
-//            logger.warn("creating {}", tempPath.toAbsolutePath());
-//            try (OutputStream out = Files.newOutputStream(tempPath)) {
-//                IOUtils.copy(in, out);
-//            }
-//            BasicFileAttributes attr =
-//                    Files.readAttributes(tempPath, BasicFileAttributes.class);
-//            logger.warn("{} size = {}",tempPath,attr.size());
-//            return tempPath;
-//        } else {
-//            logger./**/error("resource or override not found {}", resourceName);
-//            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-//            return null;
-//        }
     }
 
     /**
@@ -624,7 +585,6 @@ public class FileServlet extends HttpServlet {
                 }
             }
         } finally {
-            logger.warn("fileSystem({}) = {}", file, file.getFileSystem());
             // Gently close streams.
             close(output);
             close(in);

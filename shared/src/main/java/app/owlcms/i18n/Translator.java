@@ -291,7 +291,7 @@ public class Translator implements I18NProvider {
 
                     // writing
                     for (int i = 1; i < nbLanguages + 1; i++) {
-                        logger.warn("writing to " + outFiles[i].toAbsolutePath());
+                        //logger.debug("writing to " + outFiles[i].toAbsolutePath());
                         languageProperties[i].store(Files.newOutputStream(outFiles[i]), "generated from " + csvName);
                     }
                     final URL[] urls = { bundleDir.toUri().toURL() };

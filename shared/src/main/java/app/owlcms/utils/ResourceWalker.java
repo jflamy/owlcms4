@@ -88,8 +88,7 @@ public class ResourceWalker {
         }
         if (target != null && Files.exists(target)) {
             try {
-                logger.warn("found overridden resource {} at {} {}", name, target.toAbsolutePath(),
-                        LoggerUtils.whereFrom(1));
+                //logger.debug("found overridden resource {} at {} {}", name, target.toAbsolutePath(), LoggerUtils.whereFrom(1));
                 return Files.newInputStream(target);
             } catch (IOException e) {
                 if (name.trim().contentEquals("/") || name.isBlank()) {
@@ -102,7 +101,7 @@ public class ResourceWalker {
         } else {
             is = ResourceWalker.class.getResourceAsStream(name);
             if (is != null) {
-                logger.warn("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+                //logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
             }
         }
         return is;
@@ -128,16 +127,15 @@ public class ResourceWalker {
             target = localDirPath2.resolve(relativeName);
         }
         if (target != null && Files.exists(target)) {
-            logger.warn("found overridden resource {} at {} {}", name, target.toAbsolutePath(),
-                    LoggerUtils.whereFrom(1));
+            //logger.debug("found overridden resource {} at {} {}", name, target.toAbsolutePath(),LoggerUtils.whereFrom(1));
             return target;
         } else {
             String resName = "/"+relativeName;
             target = getResourcePath(resName);
             if (target != null) {
-                logger.warn("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+                //logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
             } else {
-                logger.warn("not found {} {}",target, resName);
+                //logger.debug("not found {} {}",target, resName);
             }
             
         }
