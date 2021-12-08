@@ -58,7 +58,7 @@ public class Simulation extends Main {
             latch.await();
 
             try {
-                Thread.sleep(15 * 1000);
+                Thread.sleep(30 * 1000);
             } catch (InterruptedException e1) {
             }
             FOPSimulator.runSimulation();
