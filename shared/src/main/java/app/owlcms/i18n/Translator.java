@@ -209,8 +209,6 @@ public class Translator implements I18NProvider {
         String csvName = BUNDLE_PACKAGE_SLASH + baseName + ".csv";
         Path bundleDir = null;
         try {
-
-            
             line = 0;
 
             if (i18nloader == null) {
