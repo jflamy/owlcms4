@@ -21,20 +21,18 @@
 package app.owlcms.servlet;
 
 import java.io.Closeable;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,8 +45,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.utils.LoggerUtils;
@@ -161,40 +157,6 @@ public class FileServlet extends HttpServlet {
         }
     }
 
-    /**
-     * Copy the given byte range of the given input to the given output.
-     *
-     * @param input  The input to copy the given range to the given output for.
-     * @param output The output to copy the given range from the given input for.
-     * @param start  Start of the byte range.
-     * @param length Length of the byte range.
-     * @throws IOException If something fails at I/O level.
-     */
-    private static void copy(RandomAccessFile input, OutputStream output, long start, long length)
-            throws IOException {
-        byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-        int read;
-
-        if (input.length() == length) {
-            // Write full range.
-            while ((read = input.read(buffer)) > 0) {
-                output.write(buffer, 0, read);
-            }
-        } else {
-            // Write partial range.
-            input.seek(start);
-            long toRead = length;
-
-            while ((read = input.read(buffer)) > 0) {
-                if ((toRead -= read) > 0) {
-                    output.write(buffer, 0, read);
-                } else {
-                    output.write(buffer, 0, (int) toRead + read);
-                    break;
-                }
-            }
-        }
-    }
 
     /**
      * Copy the given byte range of the given input to the given output.
@@ -205,23 +167,28 @@ public class FileServlet extends HttpServlet {
      * @param length Length of the byte range.
      * @throws IOException If something fails at I/O level.
      */
-    private static void copy2(FileChannel input, OutputStream output, long start, long length)
+    private static void copy(FileChannel input, OutputStream output, long start, long length)
             throws IOException {
         byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
         int read;
-        ByteBuffer buffer2 = ByteBuffer.allocate(DEFAULT_BUFFER_SIZE);
+        ByteBuffer buffer2 = ByteBuffer.wrap(buffer);
 
         // Write partial range.
         input.position(start);
         long toRead = length;
 
-        while ((read = input.read(buffer2)) > 0) {
+        read = input.read(buffer2);
+        while (read > 0) {
             if ((toRead -= read) > 0) {
                 output.write(buffer, 0, read);
+                logger.warn("{} {} toread {}", start, length, toRead);
             } else {
                 output.write(buffer, 0, (int) toRead + read);
                 break;
             }
+            buffer2.clear();
+            read = input.read(buffer2);
+            logger.warn("{} {} read2 {}", start, length, read);
         }
     }
 
@@ -321,7 +288,7 @@ public class FileServlet extends HttpServlet {
         processRequest(request, response, false);
     }
 
-    private File getFileFromPathInfo(HttpServletResponse response, String requestedFile)
+    private Path getFileFromPathInfo(HttpServletResponse response, String requestedFile)
             throws IOException, UnsupportedEncodingException {
 
         // Check if file is actually supplied to the request URL.
@@ -340,9 +307,21 @@ public class FileServlet extends HttpServlet {
             logger.warn("requestedFile {}", requestedFile);
             String relativeFileName = URLDecoder.decode(requestedFile, "UTF-8");
 
-            // @webservlet processing takes care of preventing .. escaping
+            // @webservlet processing takes care of preventing ../.. escaping so we don't have to.
             Path finalPath = Paths.get(relativeFileName);
             logger.debug("getting {}", relativeFileName);
+
+            try {
+                Path testing = ResourceWalker.getResourcePath("/"+relativeFileName);
+                FileChannel fc = FileChannel.open(testing, StandardOpenOption.READ);
+                BasicFileAttributes bfa = Files.readAttributes(testing, BasicFileAttributes.class);
+                logger.warn("{} size={} modified={}",testing,bfa.size(),bfa.lastModifiedTime());
+                fc.position(0);
+                fc.position(bfa.size()-1);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            
             return getFileFromResource(response, finalPath, "/" + relativeFileName);
         } catch (IllegalArgumentException e) {
             logger.error(e.getLocalizedMessage());
@@ -357,26 +336,37 @@ public class FileServlet extends HttpServlet {
         }
     }
 
-    private File getFileFromResource(HttpServletResponse response, Path finalPath, String resourceName)
+    private Path getFileFromResource(HttpServletResponse response, Path finalPath, String resourceName)
             throws IOException, FileNotFoundException {
-        InputStream in = ResourceWalker.getResourceAsStream(resourceName);
-        if (in != null) {
-            final String fullFileName = finalPath.getFileName().toString();
-            final String extension = FilenameUtils.getExtension(fullFileName);
-            final String baseName = FilenameUtils.getBaseName(fullFileName);
-            final File tempFile = File.createTempFile(baseName, "." + extension);
-            logger.warn("creating {}", tempFile.getAbsolutePath());
-            tempFile.deleteOnExit();
-            try (FileOutputStream out = new FileOutputStream(tempFile)) {
-                IOUtils.copy(in, out);
-            }
-            tempFile.setReadable(true);
-            return tempFile;
-        } else {
+        Path target = ResourceWalker.getFileOrResourcePath(resourceName);
+        if (target == null) {
             logger./**/error("resource or override not found {}", resourceName);
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return null;
+        } else {
+            logger.warn("found {}",target.toString());
         }
+        return target;
+        
+//        InputStream in = ResourceWalker.getResourceAsStream(resourceName);
+//        if (in != null) {
+//            final String fullFileName = finalPath.getFileName().toString();
+//            final String extension = FilenameUtils.getExtension(fullFileName);
+//            final String baseName = FilenameUtils.getBaseName(fullFileName);
+//            
+//            final Path tempPath = MemTempUtils.createTempFile(baseName, "." + extension);
+//            logger.warn("creating {}", tempPath.toAbsolutePath());
+//            try (OutputStream out = Files.newOutputStream(tempPath)) {
+//                IOUtils.copy(in, out);
+//            }
+//            BasicFileAttributes attr =
+//                    Files.readAttributes(tempPath, BasicFileAttributes.class);
+//            logger.warn("{} size = {}",tempPath,attr.size());
+//            return tempPath;
+//        } else {
+//            logger./**/error("resource or override not found {}", resourceName);
+//            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+//            return null;
+//        }
     }
 
     /**
@@ -395,15 +385,19 @@ public class FileServlet extends HttpServlet {
         String requestedFileName = request.getPathInfo();
         logger.debug("requested file = {}", requestedFileName);
 
-        File file = getFileFromPathInfo(response, requestedFileName);
+        Path file = getFileFromPathInfo(response, requestedFileName);
         if (file == null) {
             return;
         }
 
         // Prepare some variables. The ETag is an unique identifier of the file.
-        String fileName = file.getName();
-        long length = file.length();
-        long lastModified = file.lastModified();
+        String fileName = file.getFileName().toString();
+        BasicFileAttributes attr =
+                Files.readAttributes(file, BasicFileAttributes.class);
+        
+            
+        long length = attr.size();
+        long lastModified = attr.lastModifiedTime().toMillis();
         String eTag = fileName + "_" + length + "_" + lastModified;
         long expires;
         if (isIgnoreCaching()) {
@@ -557,13 +551,13 @@ public class FileServlet extends HttpServlet {
         // Send requested file (part(s)) to client ------------------------------------------------
 
         // Prepare streams.
-        RandomAccessFile input = null;
         OutputStream output = null;
+        FileChannel in = null;
 
         try {
             // Open streams.
-            input = new RandomAccessFile(file, "r");
-            FileChannel in = FileChannel.open(Path.of(null), StandardOpenOption.READ);
+            //input = new RandomAccessFile(file, "r");
+            in = FileChannel.open(file, StandardOpenOption.READ);
             output = response.getOutputStream();
 
             if (ranges.isEmpty() || ranges.get(0) == full) {
@@ -585,8 +579,7 @@ public class FileServlet extends HttpServlet {
                     response.setStatus(HttpServletResponse.SC_OK);
 
                     // Copy full range.
-                    copy(input, output, r.start, r.length);
-                    copy2(in, output, r.start, r.length);
+                    copy(in, output, r.start, r.length);
                 }
 
             } else if (ranges.size() == 1) {
@@ -600,7 +593,7 @@ public class FileServlet extends HttpServlet {
 
                 if (content) {
                     // Copy single part range.
-                    copy(input, output, r.start, r.length);
+                    copy(in, output, r.start, r.length);
                 }
 
             } else {
@@ -622,7 +615,7 @@ public class FileServlet extends HttpServlet {
                         sos.println("Content-Range: bytes " + r.start + "-" + r.end + "/" + r.total);
 
                         // Copy single part range of multi part range.
-                        copy(input, output, r.start, r.length);
+                        copy(in, output, r.start, r.length);
                     }
 
                     // End with multipart boundary.
@@ -631,9 +624,10 @@ public class FileServlet extends HttpServlet {
                 }
             }
         } finally {
+            logger.warn("fileSystem({}) = {}", file, file.getFileSystem());
             // Gently close streams.
             close(output);
-            close(input);
+            close(in);
         }
     }
 
