@@ -1,7 +1,7 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+- [x] 4.25.3: Fix: there are no longer any temporary files created on disk.
 - [x] 4.25.2: Fix: the Excel for Category Results was not considering eligible athletes from other age groups
-
 - [x]  4.25.2: Fix:  leader scoreboards for the current athlete's category could sometimes be incomplete. (#455)
 - [x] 4.25.2: Fix: Athletes not weighed-in were included in the announcer list instead of being ignored (#459)
 - [x] 4.25.1: Fix: publicresults was not always updating its display when receiving updates from owlcms
