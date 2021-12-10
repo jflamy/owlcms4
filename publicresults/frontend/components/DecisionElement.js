@@ -135,6 +135,19 @@ class DecisionElementPR extends PolymerElement {
 				type: Boolean,
 				reflectToAttribute: false,
 				value: false
+			},
+            fopName: {
+                type: String,
+                notify: true
+            },
+			/**
+			 * Set to true to have no sound on down signal
+			 * 
+			 * @default false
+			 */
+			silent: {
+				type: Boolean,
+				value: false
 			}
 		}
 	}
@@ -163,14 +176,14 @@ class DecisionElementPR extends PolymerElement {
 	}
 
 	_setupAudio() {
-		return;
-		if ('webkitAudioContext' in window) {
-			this.audio = false;
-		}
+		// if ('webkitAudioContext' in window) {
+		// 	this.audio = false;
+		// }
 		if (this.audio) {
 			// setup audio -- an oscillator cannot be reused.
 			if (!this.context) {
 				this.context = new AudioContext();
+				//this.context = window.audioCtx;
 			}
 			this.oscillator = this.context.createOscillator();
 			this.gain = this.context.createGain();
@@ -256,7 +269,7 @@ class DecisionElementPR extends PolymerElement {
          mode to update their displays immediately.  the slaves not operating in jury display mode
          (e.g. the attempt board) will be updated after 3 seconds */
 	masterRefereeUpdate(ref1, ref2, ref3) {
-		this.$server.masterRefereeUpdate(ref1, ref2, ref3, this.ref1Time, this.ref2Time, this.ref3Time);
+		this.$server.masterRefereeUpdate(this.fopName, ref1, ref2, ref3, this.ref1Time, this.ref2Time, this.ref3Time);
 	}
 
 	setColors(parent, ref1, ref2, ref3) {
@@ -306,10 +319,10 @@ class DecisionElementPR extends PolymerElement {
 		// Obsolete - we send the referee updates also, no need to tell the master twice.
 		// if we are the master, tell the server right away
 		//if (isMaster) {
-		//	this.$server.masterShowDown(this.decision, this.ref1, this.ref2, this.ref3);
+		//	this.$server.masterShowDown(this.fopName, this.decision, this.ref1, this.ref2, this.ref3);
 		//}
 		console.warn("de server told");
-		if (this.audio && !silent) {
+		if (this.audio && !silent && !this.silent) {
 			this.oscillator.start(0);
 			this.oscillator.stop(this.context.currentTime + 2);
 			this._setupAudio();

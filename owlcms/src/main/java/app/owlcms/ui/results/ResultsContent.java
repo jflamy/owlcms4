@@ -246,7 +246,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     public void setGridGroup(Group group) {
-        subscribeIfLifting(group);
+//        subscribeIfLifting(group);
         getGroupFilter().setValue(group);
         refresh();
     }
@@ -393,7 +393,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             logger.debug("updating filters: group={}", e.getValue());
             currentGroup = e.getValue();
             updateURLLocation(getLocationUI(), getLocation(), currentGroup);
-            subscribeIfLifting(e.getValue());
+//            subscribeIfLifting(e.getValue());
         });
         crud.getCrudLayout().addFilterComponent(getGroupFilter());
 
@@ -446,7 +446,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
                     getTranslation("Warning_GroupLifting") + liftingFop.getName() + getTranslation("CannotEditResults"),
                     3000, Position.MIDDLE);
             logger.debug(getTranslation("CannotEditResults_logging"), currentGroup, liftingFop);
-            subscribeIfLifting(currentGroup);
+//            subscribeIfLifting(currentGroup);
         } else {
             logger.debug(getTranslation("EditingResults_logging"), currentGroup, liftingFop);
         }
@@ -478,36 +478,36 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         });
     }
 
-    private void subscribeIfLifting(Group nGroup) {
-        logger.debug("subscribeIfLifting {}", nGroup);
-        Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
-        currentGroup = nGroup;
-
-        // go through all the FOPs
-        for (FieldOfPlay fop : fops) {
-            // unsubscribe from FOP -- ensures that we clean up if no group is lifting
-            try {
-                fop.getUiEventBus().unregister(this);
-            } catch (Exception ex) {
-            }
-            try {
-                fop.getFopEventBus().unregister(this);
-            } catch (Exception ex) {
-            }
-
-            // subscribe to fop and start tracking if actually lifting
-            if (fop.getGroup() != null && fop.getGroup().equals(nGroup)) {
-                logger.debug("subscribing to {} {}", fop, nGroup);
-                try {
-                    fopEventBusRegister(this, fop);
-                } catch (Exception ex) {
-                }
-                try {
-                    uiEventBusRegister(this, fop);
-                } catch (Exception ex) {
-                }
-            }
-        }
-    }
+//    private void subscribeIfLifting(Group nGroup) {
+//        logger.debug("subscribeIfLifting {}", nGroup);
+//        Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
+//        currentGroup = nGroup;
+//
+//        // go through all the FOPs
+//        for (FieldOfPlay fop : fops) {
+//            // unsubscribe from FOP -- ensures that we clean up if no group is lifting
+//            try {
+//                fop.getUiEventBus().unregister(this);
+//            } catch (Exception ex) {
+//            }
+//            try {
+//                fop.getFopEventBus().unregister(this);
+//            } catch (Exception ex) {
+//            }
+//
+//            // subscribe to fop and start tracking if actually lifting
+//            if (fop.getGroup() != null && fop.getGroup().equals(nGroup)) {
+//                logger.debug("subscribing to {} {}", fop, nGroup);
+//                try {
+//                    fopEventBusRegister(this, fop);
+//                } catch (Exception ex) {
+//                }
+//                try {
+//                    uiEventBusRegister(this, fop);
+//                } catch (Exception ex) {
+//                }
+//            }
+//        }
+//    }
 
 }

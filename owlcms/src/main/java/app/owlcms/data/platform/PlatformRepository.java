@@ -112,7 +112,7 @@ public class PlatformRepository {
             if (fop != null) {
                 fop.setPlatform(nPlatform);
             } else {
-                OwlcmsFactory.registerFOP(nPlatform);
+                OwlcmsFactory.registerEmptyFOP(nPlatform);
             }
         }
         return nPlatform;

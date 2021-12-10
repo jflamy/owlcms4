@@ -103,16 +103,10 @@ public class OwlcmsFactory {
         // LoggerUtils. stackTrace());
         initFOPByName();
         firstFOP();
-
-//        if (getDefaultFOP() != null) {
-//            // force a wake up on user interfaces
-//            getDefaultFOP().pushOut(new UIEvent.SwitchGroup(getDefaultFOP().getGroup(), getDefaultFOP().getState(),
-//                    getDefaultFOP().getCurAthlete(), null));
-//        }
         return getDefaultFOP();
     }
 
-    public static void registerFOP(Platform platform) {
+    public static void registerEmptyFOP(Platform platform) {
         String name = platform.getName();
         FieldOfPlay fop = new FieldOfPlay(null, platform);
         logger.debug("{} Initialized", fop.getLoggingName());
@@ -145,7 +139,7 @@ public class OwlcmsFactory {
     private static synchronized void initFOPByName() {
         fopByName = new HashMap<>();
         for (Platform platform : PlatformRepository.findAll()) {
-            registerFOP(platform);
+            registerEmptyFOP(platform);
         }
     }
 

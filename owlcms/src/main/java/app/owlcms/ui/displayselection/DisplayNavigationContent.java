@@ -151,14 +151,6 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
     }
 
     /**
-     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarGroupField(java.lang.String, java.lang.String)
-     */
-    @Override
-    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
-        return null;
-    }
-
-    /**
      * @see app.owlcms.ui.shared.BaseNavigationContent#getTitle()
      */
     @Override

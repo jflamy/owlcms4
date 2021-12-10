@@ -76,7 +76,7 @@ public class EventForwarder implements BreakDisplay {
 //    }
 
     private EventBus postBus;
-    private EventBus fopEventBus;
+//    private EventBus fopEventBus;
     private FieldOfPlay fop;
 
     private String categoryName;
@@ -115,9 +115,9 @@ public class EventForwarder implements BreakDisplay {
 
     public EventForwarder(FieldOfPlay emittingFop) {
         this.fop = emittingFop;
-
-        fopEventBus = fop.getFopEventBus();
-        fopEventBus.register(this);
+//
+//        fopEventBus = fop.getFopEventBus();
+//        fopEventBus.register (this);
 
         postBus = fop.getPostEventBus();
         postBus.register(this);

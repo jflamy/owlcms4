@@ -45,7 +45,7 @@ public class RegistrationOrderComparatorTest {
     
     @Before
     public void setupTest() {
-        OwlcmsSession.withFop(fop -> fop.beforeTest());
+        OwlcmsSession.withFop(fop -> fop.testBefore());
     }
 
     @AfterClass

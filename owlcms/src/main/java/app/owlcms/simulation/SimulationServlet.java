@@ -97,8 +97,10 @@ public class SimulationServlet extends HttpServlet {
      */
     private void processRequest(HttpServletRequest request, HttpServletResponse response, boolean content)
             throws IOException {
+        logger.info("processing simulation request");
         String host = request.getRemoteAddr();
-        boolean bd = Config.getCurrent().getIpBackdoorList().contains(host);
+        String ipBackdoorList = Config.getCurrent().getParamBackdoorList();
+        boolean bd = ipBackdoorList != null ? ipBackdoorList.contains(host) : false;
         if (!bd) {
             logger.error("{} not in backdoor list, denied simulation", host);
             response.setStatus(403);
@@ -129,8 +131,7 @@ public class SimulationServlet extends HttpServlet {
             output.flush();
             response.setStatus(200);
             response.flushBuffer();
-            FOPSimulator.runSimulation();
-
+            new CompetitionSimulator().runSimulation();
         } catch (Throwable t) {
             logger.error("{}", LoggerUtils.stackTrace(t));
             response.setStatus(500);

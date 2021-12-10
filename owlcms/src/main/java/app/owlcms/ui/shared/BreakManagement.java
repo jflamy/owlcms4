@@ -176,7 +176,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         setCtValue(cdt);
         assembleDialog(this, buttons);
         OwlcmsSession.withFop(fop -> {
-            fopEventBusRegister((Component) origin, fop);
             uiEventBusRegister((Component) origin, fop);
         });
     }

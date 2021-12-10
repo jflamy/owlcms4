@@ -6,135 +6,43 @@
  *******************************************************************************/
 package app.owlcms.simulation;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athlete.AthleteRepository;
-import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
-import app.owlcms.data.group.GroupRepository;
-import app.owlcms.data.platform.Platform;
-import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.ui.shared.BreakManagement.CountdownType;
-import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
  *
- * Simulate a meet by triggering events and reacting to response.
+ * Simulate the flow of a competition on a field of play.
+ * 
+ * The actions of technical officials are simulated: the the events that the user interface would send (FOPEvents) are
+ * posted The state automaton in the FieldOfPlay triggers the user interface updates as required. It is therefore
+ * possible to create as many real browser windows as required to observe the updates taking place.
  *
  * @author Jean-François Lamy
  *
  */
-public class FOPSimulator implements Runnable {
+public class FOPSimulator {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(FOPSimulator.class);
+    final private Logger logger = (Logger) LoggerFactory.getLogger(FOPSimulator.class);
 
     static private Random r = new Random(0);
 
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("Simulation-" + logger.getName());
-
-    static public void runSimulation() {
-        Map<Platform, List<Group>> groupsByPlatform = new TreeMap<>();
-
-        logger.setLevel(Level.DEBUG);
-        uiEventLogger.setLevel(Level.DEBUG);
-
-        // only use one platform for now.
-        // List<Platform> ps = PlatformRepository.findAll().stream().limit(1).collect(Collectors.toList());
-
-        List<Platform> ps = PlatformRepository.findAll().stream().collect(Collectors.toList());
-        List<Group> gs = GroupRepository.findAll().stream().sorted((a, b) -> {
-            LocalDateTime ta = a.getCompetitionTime();
-            LocalDateTime tb = b.getCompetitionTime();
-            return ObjectUtils.compare(ta, tb, true);
-        }).collect(Collectors.toList());
-
-        int i = 0;
-        for (Group g : gs) {
-
-            List<Athlete> as = AthleteRepository.findAllByGroupAndWeighIn(g, true);
-
-            if (as.size() == 0) {
-                as = weighIn(g);
-            }
-            as = AthleteRepository.findAllByGroupAndWeighIn(g, true);
-            if (as.size() == 0) {
-                logger.info("skipping group {} size {}", g.getName(), as.size());
-                continue;
-            }
-            logger.info("group {} size {} platform {}", g.getName(), as.size(), g.getPlatform());
-
-            int index;
-
-            Platform curP;
-            curP = g.getPlatform();
-            if (curP == null) {
-                index = i % ps.size();
-                curP = ps.get(index);
-                i++;
-            }
-
-            List<Group> curGroupList = groupsByPlatform.get(curP);
-            if (curGroupList == null) {
-                curGroupList = new ArrayList<>();
-            }
-
-            logger.info("platform {}", curP.getName());
-            if (as.size() > 0) {
-                curGroupList.add(g);
-                groupsByPlatform.put(curP, curGroupList);
-                logger.info("platform {} groups {}", curP.getName(), groupsByPlatform.get(curP));
-            } 
-        }
-
-        for (Platform p : ps) {
-            FieldOfPlay f = OwlcmsFactory.getFOPByName(p.getName());
-            FOPSimulator fopSimulator = new FOPSimulator(f, groupsByPlatform.get(p));
-            fopSimulator.run();
-        }
-    }
-
-    private static List<Athlete> weighIn(Group g) {
-        List<Athlete> as = AthleteRepository.findAllByGroupAndWeighIn(g, null);
-        for (Athlete a : as) {
-            Category c = a.getCategory();
-            Double catLimit = c.getMaximumWeight();
-            if (catLimit > 998) {
-                catLimit = c.getMinimumWeight() * 1.1;
-            }
-            double bodyWeight = catLimit - (r.nextDouble() * 2.0);
-            a.setBodyWeight(bodyWeight);
-            double sd = catLimit * (1 + (r.nextGaussian() / 10));
-            long isd = Math.round(sd);
-            a.setSnatch1Declaration(Long.toString(isd));
-            long icjd = Math.round(sd * 1.20D);
-            a.setCleanJerk1Declaration(Long.toString(icjd));
-            AthleteRepository.save(a);
-        }
-        return as;
-    }
+    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("Simulation-" + logger.getName());
 
     private FieldOfPlay fop;
 
-    private EventBus fopEventBus;
+//    private EventBus fopEventBus;
 
     private List<Group> groups;
 
@@ -142,36 +50,36 @@ public class FOPSimulator implements Runnable {
 
     private EventBus uiEventBus;
 
+    private boolean groupDone;
+
     public FOPSimulator(FieldOfPlay f, List<Group> groups) {
         this.fop = f;
         this.groups = groups;
     }
 
-    @Override
-    public void run() {
-        fopEventBus = fop.getFopEventBus();
-        fopEventBus.register(this);
+    public void go() throws InterruptedException {
         uiEventBus = fop.getUiEventBus();
         uiEventBus.register(this);
         this.setOrigin(this);
 
-        logger.debug("simulating fop {}", fop);
+        logger.info("****** simulating fop {}", fop.getName());
         startNextGroup(groups);
     }
 
     @Subscribe
-    public void slaveDecisionReset(UIEvent.DecisionReset e) {
+    public void slaveDecisionReset(UIEvent.DecisionReset e) throws InterruptedException {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        doNextAthlete(e);
+        new Thread(() -> {
+            if (groupDone) {
+                groups.remove(0);
+                startNextGroup(groups);
+            } else {
+                doNextAthlete(e);
+            }
+        }).start();
     }
 
-    /**
-     * Multiple attempt boards and athlete-facing boards can co-exist. We need to show down on the slave devices -- the
-     * master device is the one where refereeing buttons are attached.
-     *
-     * @param e
-     */
     @Subscribe
     public void slaveDownSignal(UIEvent.DownSignal e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
@@ -180,10 +88,19 @@ public class FOPSimulator implements Runnable {
     }
 
     @Subscribe
-    public void slaveGroupDone(UIEvent.GroupDone e) {
+    public void slaveGroupDone(UIEvent.GroupDone e) throws InterruptedException {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        doDone(e.getGroup());
+
+        // this event happens several times per group due to the possibility of jury reversal of the last
+        // lift. So we wait for the first decision after group done (i.e. the decision for the last athlete)
+        // to do anything
+
+        // note that the group is done.
+        groupDone = true;
+        new Thread(() -> {
+            logger.info("########## group {} done", e.getGroup());
+        }).start();
     }
 
     @Subscribe
@@ -202,23 +119,25 @@ public class FOPSimulator implements Runnable {
     }
 
     @Subscribe
-    public void slaveStartLifting(UIEvent.StartLifting e) {
+    public void slaveStartLifting(UIEvent.StartLifting e) throws InterruptedException {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        doNextAthlete(e);
+        new Thread(() -> doNextAthlete(e)).start();
     }
 
     @Subscribe
     public void slaveStopBreak(UIEvent.BreakDone e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
+        // nothing to do
     }
 
     @Subscribe
-    public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
+    public void slaveSwitchGroup(UIEvent.SwitchGroup e) throws InterruptedException {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
+        new Thread(() -> doSwitchGroup(e)).start();
+    }
 
+    private void doSwitchGroup(UIEvent.SwitchGroup e) {
         switch (fop.getState()) {
         case INACTIVE:
             doEmpty();
@@ -231,12 +150,8 @@ public class FOPSimulator implements Runnable {
             }
             break;
         default:
-            doLift(fop.getCurAthlete());
+            // doLift(fop.getCurAthlete());
         }
-    }
-
-    protected void doBreak(FieldOfPlay fop) {
-        fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.FIRST_SNATCH, CountdownType.DURATION, 5000, null, fop));
     }
 
     protected void doEmpty() {
@@ -247,17 +162,21 @@ public class FOPSimulator implements Runnable {
             doEmpty();
             return;
         } else if (a.getAttemptsDone() >= 6) {
-            doDone(fop.getGroup());
+            // do nothing. wait on decision reset for last athlete.
+            // doDone(fop.getGroup());
             return;
         }
 
-        // do a lift in group g
+        // do a lift in group g: start timer
         fop.fopEventPost(new FOPEvent.TimeStarted(this));
+
+        // wait for clock to run down a bit
         try {
-            // wait for clock to run down a bit
             Thread.sleep(2000);
         } catch (InterruptedException e) {
         }
+
+        // stop time and get decisions
         fop.fopEventPost(new FOPEvent.TimeStopped(this));
         fop.fopEventPost(new FOPEvent.DecisionUpdate(this, 0, goodLift(r)));
         fop.fopEventPost(new FOPEvent.DecisionUpdate(this, 1, goodLift(r)));
@@ -268,24 +187,10 @@ public class FOPSimulator implements Runnable {
         return this.origin;
     }
 
-    private Object doDone(Group group) {
-        logger.info("########## group {} done", group);
-        if (groups.size() > 0 && groups.get(0).equals(group)) {
-            groups.remove(0);
-            startNextGroup(groups);
-        } else {
-            try {
-                // wait for decision reset and display to update
-                Thread.sleep(5 * 1000);
-            } catch (InterruptedException e) {
-            }
-        }
-        return null;
-    }
-
     private void doNextAthlete(UIEvent e) {
         List<Athlete> order = fop.getLiftingOrder();
         Athlete athlete = order.size() > 0 ? order.get(0) : null;
+
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e1) {
@@ -304,21 +209,26 @@ public class FOPSimulator implements Runnable {
     private boolean startNextGroup(List<Group> curGs) {
         if (curGs.size() > 0) {
             Group g = curGs.get(0);
+            logger.info("########## waiting to start group {} of {}", g, curGs);
             try {
-                Thread.sleep(5000);
+                Thread.sleep(6000);
             } catch (InterruptedException e) {
             }
-            logger.info("########## starting group {} of {}", g, curGs);
-            fop.loadGroup(g, this, true);
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-            }
-            fop.startLifting(g, this);
+            logger.info("########## switching group {} of {}", g, curGs);
+            fop.fopEventPost(new FOPEvent.SwitchGroup(g, this));
+            logger.info("########## starting group");
+            groupDone = false;
+            fop.fopEventPost(new FOPEvent.StartLifting(this));
+
             return true;
         } else {
             return false;
         }
+    }
+
+    public void unregister() {
+        logger.warn("***** unregister simulator {}", this.fop.getName());
+        uiEventBus.unregister(this);
     }
 
 }

@@ -119,6 +119,9 @@ public interface FOPParameters extends HasUrlParameter<String> {
      *
      * @see com.vaadin.flow.router.HasUrlParameter#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.Object)
      */
+    /**
+     * @see com.vaadin.flow.router.HasUrlParameter#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.Object)
+     */
     @Override
     public default void setParameter(BeforeEvent event, @OptionalParameter String unused) {
         logger.setLevel(Level.INFO);

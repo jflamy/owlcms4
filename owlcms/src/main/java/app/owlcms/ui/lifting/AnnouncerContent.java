@@ -204,15 +204,17 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         createTopBarGroupSelect();
         createTopBarLeft();
 
-        introCountdownButton = new Button(getTranslation("introCountdown"), AvIcons.AV_TIMER.create(), (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.setBreakType(BreakType.BEFORE_INTRODUCTION);
-                fop.setCountdownType(CountdownType.TARGET);
-            });
-            BreakDialog dialog = new BreakDialog(this, BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET);
-            dialog.open();
-        });
+        introCountdownButton = new Button(getTranslation("introCountdown"), AvIcons.AV_TIMER.create(),
+                (e) -> {
+                    OwlcmsSession.withFop(fop -> {
+//                        fop.fopEventPost(
+//                            new FOPEvent.BreakStarted(BreakType.BEFORE_INTRODUCTION, CountdownType.INDEFINITE, null, null, this));
+                        BreakDialog dialog = new BreakDialog(this, BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET);
+                        dialog.open(); 
+                    });
+                });
         introCountdownButton.getElement().setAttribute("theme", "primary contrast");
+        
         startLiftingButton = new Button(getTranslation("startLifting"), PlacesIcons.FITNESS_CENTER.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
                 UI.getCurrent().access(() -> createTopBar());
@@ -349,7 +351,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 if (timeElapsed > 5000) {
                     // no reason to give two goods within one second...
                     fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
-                                    false, false, false));
+                            false, false, false));
                 }
                 previousBadMillis[0] = now;
             });
