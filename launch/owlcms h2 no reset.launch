@@ -7,14 +7,15 @@
         <listEntry value="1"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+        <mapEntry key="OWLCMS_BACKDOOR" value="10.0.0.221"/>
         <mapEntry key="OWLCMS_H2SERVERPORT" value="9092"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="false"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
+        <mapEntry key="OWLCMS_REMOTE" value="http://127.0.0.1:8081/update"/>
         <mapEntry key="OWLCMS_RESETMODE" value="false"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="thisisaverylongsecretstring"/>
         <mapEntry key="_JDBC_DATABASE_URL" value="jdbc:h2:file:${project_loc:owlcms}/src/test/resources/testDatabases/timing.mv.db"/>
         <mapEntry key="_OWLCMS_LOCALE" value="en_CA"/>
-        <mapEntry key="_OWLCMS_REMOTE" value="http://127.0.0.1:8081/update"/>
     </mapAttribute>
     <mapAttribute key="org.eclipse.debug.core.preferred_launchers">
         <mapEntry key="[debug]" value="org.eclipse.jdt.launching.localJavaApplication"/>
