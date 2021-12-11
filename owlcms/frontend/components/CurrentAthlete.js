@@ -14,16 +14,16 @@ class CurrentAthlete extends PolymerElement {
 	static get template() {
 		return html`
 <link rel="stylesheet" type="text/css" href="local/styles/currentathlete.css">
-<div class$="wrapper [[_computeTeamWidth(wideTeamNames)]] [[_showWhenInactiveClass(hidden)]]">
+<div class$="wrapper [[teamWidthClass]] [[inactiveClass]]">
 
 	<!-- this div is SHOWN when the platform is inactive -->
-	<div style$="[[_showWhenInactive(hidden)]]">
+	<div style$="[[inactiveStyle]]">
 		<div class="competitionName">[[competitionName]]</div><br>
 		<div class="nextGroup">[[t.WaitingNextGroup]]</div>
 	</div>
 
 	<!-- the remaining divs are HIDDEN when the platform is inactive -->
-	<div class="attemptBar" style$="[[_hideWhenInactive(hidden)]]">
+	<div class="attemptBar" style$="[[hiddenStyle]]">
 		<div class="athleteInfo" id="athleteInfoDiv">
 			<div class="startNumber" id="startNumberDiv"><span>[[startNumber]]</span></div>
 			<div class="fullName ellipsis" id="fullNameDiv" inner-h-t-m-l="[[fullName]]">[[fullName]]</div>
@@ -43,11 +43,11 @@ class CurrentAthlete extends PolymerElement {
 			</div>
 		</div>
 	</div>
-	<div class="group" style$="[[_hideWhenInactive(hidden)]]">
+	<div class="group" style$="[[hiddenStyle]]">
 	<div id="groupDiv"><span class="groupName">[[groupName]]</span>&nbsp;[[liftsDone]]</div>
 	</div>
-	<div id="results" style$="[[_hideWhenInactive(hidden)]]">
-	<table class="results" style$="[[_hideWhenInactive(hidden)]]">
+	<div id="results" style$="[[hiddenStyle]]">
+	<table class="results" style$="[[hiddenStyle]]">
 		<thead>
 			<tr>
 				<!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
@@ -180,19 +180,6 @@ class CurrentAthlete extends PolymerElement {
 
 	_isEqualTo(title, string) {
 		return title == string;
-	}
-
-	_hideWhenInactive(hidden) {
-		return hidden ? 'display:none' : 'display:block';
-	}
-	_showWhenInactive(hidden) {
-		return hidden ? 'display:block' : 'display:none' ;
-	}
-	_showWhenInactiveClass(hidden) {
-		return hidden ? 'bigTitle' : '';
-	}
-	_computeTeamWidth(w) {
-		return w ? 'wideTeams' : 'narrowTeams';
 	}
 }
 
