@@ -1511,7 +1511,6 @@ public class FieldOfPlay {
         // updateGlobalRankings(); // now done in recomputeLiftingOrder
 
         // tell ourself to reset after 3 secs.
-        logger.warn("scheduling reset");
         new DelayTimer().schedule(() -> fopEventPost(new DecisionReset(this)), DECISION_VISIBLE_DURATION);
     }
 
