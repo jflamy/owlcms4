@@ -227,7 +227,7 @@ public class FOPSimulator {
     }
 
     public void unregister() {
-        logger.warn("***** unregister simulator {}", this.fop.getName());
+        logger.debug("***** unregister simulator {}", this.fop.getName());
         uiEventBus.unregister(this);
     }
 
