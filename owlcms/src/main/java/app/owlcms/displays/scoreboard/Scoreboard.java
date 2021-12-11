@@ -194,11 +194,21 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
             model.setTeamName("");
             model.setAttempt("");
-            model.setHidden(false);
+            setHidden(false);
 
             updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
             this.getElement().callJsFunction("doBreak");
         }));
+    }
+    
+    private void setHidden(boolean hidden) {
+        this.getElement().setProperty("hiddenStyle",(hidden ? "display:none" : "display:block"));
+        this.getElement().setProperty("inactiveStyle",(hidden ? "display:block" : "display:none"));
+        this.getElement().setProperty("inactiveClass",(hidden ? "bigTitle" : ""));
+    }
+    
+    private void setWideTeamNames(boolean wide) {
+        this.getElement().setProperty("teamWidthClass",(wide ? "wideTeams" : "narrowTeams"));
     }
 
     /**
@@ -297,7 +307,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
             Athlete a = e.getAthlete();
-            getModel().setHidden(false);
+            setHidden(false);
             if (a == null) {
                 displayOrder = fop.getLiftingOrder();
                 a = displayOrder.size() > 0 ? displayOrder.get(0) : null;
@@ -314,7 +324,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     public void slaveDecision(UIEvent.Decision e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            getModel().setHidden(false);
+            setHidden(false);
             doUpdateBottomPart(e);
             this.getElement().callJsFunction("refereeDecision");
         });
@@ -324,7 +334,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     public void slaveDecisionReset(UIEvent.DecisionReset e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            getModel().setHidden(false);
+            setHidden(false);
             if (isDone()) {
                 doDone(e.getAthlete().getGroup());
             } else {
@@ -338,7 +348,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     public void slaveDownSignal(UIEvent.DownSignal e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            getModel().setHidden(false);
+            setHidden(false);
             this.getElement().callJsFunction("down");
         });
     }
@@ -347,7 +357,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     public void slaveGroupDone(UIEvent.GroupDone e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setHidden(false);
+            setHidden(false);
 //          Group g = e.getGroup();
             setDone(true);
         });
@@ -368,7 +378,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     public void slaveStartBreak(UIEvent.BreakStarted e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setHidden(false);
+            setHidden(false);
             doBreak();
         });
     }
@@ -377,7 +387,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     public void slaveStartLifting(UIEvent.StartLifting e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            getModel().setHidden(false);
+            setHidden(false);
             this.getElement().callJsFunction("reset");
         });
     }
@@ -386,7 +396,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     public void slaveStopBreak(UIEvent.BreakDone e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setHidden(false);
+            setHidden(false);
             Athlete a = e.getAthlete();
             this.getElement().callJsFunction("reset");
             doUpdate(a, e);
@@ -407,7 +417,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     protected void doEmpty() {
-        this.getModel().setHidden(true);
+        this.setHidden(true);
     }
 
     protected void doUpdate(Athlete a, UIEvent e) {
@@ -588,7 +598,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         int athx = 0;
         Category prevCat = null;
         List<Athlete> list3 = list2 != null ? Collections.unmodifiableList(list2) : Collections.emptyList();
-        getModel().setWideTeamNames(false);
+        setWideTeamNames(false);
         for (Athlete a : list3) {
             JsonObject ja = Json.createObject();
             Category curCat = a.getCategory();
@@ -605,7 +615,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             getAthleteJson(a, ja, curCat, fop);
             String team = a.getTeam();
             if (team != null && team.length() > Competition.SHORT_TEAM_LENGTH) {
-                getModel().setWideTeamNames(true);
+                setWideTeamNames(true);
             }
             jath.set(athx, ja);
             athx++;
@@ -700,7 +710,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
             setId("scoreboard-" + fop.getName());
             curGroup = fop.getGroup();
-            getModel().setWideTeamNames(false);
+            setWideTeamNames(false);
             getModel().setCompetitionName(Competition.getCurrent().getCompetitionName());
         });
         setTranslationMap();

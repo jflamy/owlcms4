@@ -272,6 +272,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             String translationMap = e.getTranslationMap();
 
             JreJsonFactory jreJsonFactory = new JreJsonFactory();
+            logger.warn("pub swl leaders {}", leaders);
             this.getElement().setPropertyJson("leaders",
                     leaders != null ? jreJsonFactory.parse(leaders) : Json.createNull());
             this.getElement().setPropertyJson("athletes",
@@ -285,6 +286,10 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             String groupName = e.getGroupName();
             getModel().setGroupName(groupName);
             getModel().setHidden(e.getHidden());
+            this.getElement().setProperty("hiddenStyle",(e.getHidden() ? "display:none" : "display:block"));
+            this.getElement().setProperty("inactiveStyle",(e.getHidden() ? "display:block" : "display:none"));
+            this.getElement().setProperty("inactiveClass",(e.getHidden() ? "bigTitle" : ""));
+            this.getElement().setProperty("teamWidthClass",(e.getWideTeamNames() ? "wideTeams" : "narrowTeams"));
             getModel().setStartNumber(e.getStartNumber());
             getModel().setTeamName(e.getTeamName());
             getModel().setWeight(e.getWeight());
