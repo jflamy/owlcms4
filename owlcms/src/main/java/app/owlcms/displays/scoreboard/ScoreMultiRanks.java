@@ -842,6 +842,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             }
             break;
         default:
+            setHidden(false);
             doUpdate(e.getAthlete(), e);
         }
     }

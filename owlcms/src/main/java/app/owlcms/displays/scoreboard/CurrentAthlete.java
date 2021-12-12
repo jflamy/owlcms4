@@ -725,6 +725,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
             }
             break;
         default:
+            setHidden(false);
             doUpdate(e.getAthlete(), e);
         }
     }

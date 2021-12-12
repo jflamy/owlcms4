@@ -740,6 +740,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             }
             break;
         default:
+            setHidden(false);
             doUpdate(e.getAthlete(), e);
         }
     }

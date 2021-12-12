@@ -778,6 +778,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             }
             break;
         default:
+            setHidden(false);
             doUpdate(e.getAthlete(), e);
         }
     }
