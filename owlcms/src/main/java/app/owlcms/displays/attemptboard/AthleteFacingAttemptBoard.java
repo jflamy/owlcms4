@@ -14,6 +14,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import app.owlcms.init.OwlcmsSession;
+
 @SuppressWarnings("serial")
 @Tag("attempt-board-template")
 @JsModule("./components/AttemptBoard.js")
@@ -30,7 +32,7 @@ public class AthleteFacingAttemptBoard extends AttemptBoard {
 
     @Override
     public String getPageTitle() {
-        return getTranslation("AttemptAF");
+        return getTranslation("AttemptAF") + OwlcmsSession.getFopNameIfMultiple();
     }
 
     public boolean isPublicFacing() {

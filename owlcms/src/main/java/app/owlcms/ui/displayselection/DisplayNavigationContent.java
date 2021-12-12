@@ -113,7 +113,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("OWLCMS_Displays");
+        return getTranslation("OWLCMS_Displays") + OwlcmsSession.getFopNameIfMultiple();
     }
 
     @Override

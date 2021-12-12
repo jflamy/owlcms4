@@ -238,7 +238,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 
     @Override
     public String getPageTitle() {
-        return getTranslation("Scoreboard");
+        return getTranslation("Scoreboard") + OwlcmsSession.getFopNameIfMultiple();
     }
 
     @Override

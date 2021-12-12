@@ -239,7 +239,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Override
     public String getPageTitle() {
-        return getTranslation("ScoreboardWLeadersTitle");
+        return getTranslation("ScoreboardWLeadersTitle") + OwlcmsSession.getFopNameIfMultiple();
     }
 
     @Override

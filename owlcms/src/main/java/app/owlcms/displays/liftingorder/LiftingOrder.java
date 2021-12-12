@@ -184,7 +184,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
 
     @Override
     public String getPageTitle() {
-        return getTranslation("Scoreboard.LiftingOrder");
+        return getTranslation("Scoreboard.LiftingOrder") + OwlcmsSession.getFopNameIfMultiple();
     }
 
     @Override

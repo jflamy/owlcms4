@@ -88,7 +88,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("PlatesCollarBarbell");
+        return getTranslation("PlatesCollarBarbell") + OwlcmsSession.getFopNameIfMultiple();
     }
 
     public void setCrudFormFactory(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {

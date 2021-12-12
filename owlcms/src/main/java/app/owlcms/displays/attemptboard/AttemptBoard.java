@@ -229,7 +229,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     @Override
     public String getPageTitle() {
-        return getTranslation("Attempt");
+        return getTranslation("Attempt") + OwlcmsSession.getFopNameIfMultiple();
     }
 
     @Override

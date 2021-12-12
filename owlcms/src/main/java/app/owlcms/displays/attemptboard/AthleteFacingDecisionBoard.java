@@ -14,6 +14,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import app.owlcms.init.OwlcmsSession;
+
 @SuppressWarnings("serial")
 @Tag("decision-board-template")
 @JsModule("./components/DecisionBoard.js")
@@ -32,7 +34,7 @@ public class AthleteFacingDecisionBoard extends AttemptBoard {
 
     @Override
     public String getPageTitle() {
-        return getTranslation("Decision_AF_");
+        return getTranslation("Decision_AF_") + OwlcmsSession.getFopNameIfMultiple();
     }
 
     public boolean isPublicFacing() {

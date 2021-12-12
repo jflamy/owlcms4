@@ -244,7 +244,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
 
     @Override
     public String getPageTitle() {
-        return getTranslation("ScoreboardMultiRanksTitle");
+        return getTranslation("ScoreboardMultiRanksTitle") + OwlcmsSession.getFopNameIfMultiple();
     }
 
     @Override

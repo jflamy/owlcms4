@@ -231,7 +231,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
 
     @Override
     public String getPageTitle() {
-        return getTranslation("CurrentAthleteTitle");
+        return getTranslation("CurrentAthleteTitle") + OwlcmsSession.getFopNameIfMultiple();
     }
 
     @Override

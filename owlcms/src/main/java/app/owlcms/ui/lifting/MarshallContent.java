@@ -84,7 +84,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("Marshall");
+        return getTranslation("Marshall") + OwlcmsSession.getFopNameIfMultiple();
     }
 
     /**

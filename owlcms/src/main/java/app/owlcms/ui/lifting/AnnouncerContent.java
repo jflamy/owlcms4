@@ -115,8 +115,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("Announcer");
+        return getTranslation("Announcer") + OwlcmsSession.getFopNameIfMultiple();
     }
+
 
     /**
      * The URL contains the group, contrary to other screens.
@@ -210,11 +211,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 //                        fop.fopEventPost(
 //                            new FOPEvent.BreakStarted(BreakType.BEFORE_INTRODUCTION, CountdownType.INDEFINITE, null, null, this));
                         BreakDialog dialog = new BreakDialog(this, BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET);
-                        dialog.open(); 
+                        dialog.open();
                     });
                 });
         introCountdownButton.getElement().setAttribute("theme", "primary contrast");
-        
+
         startLiftingButton = new Button(getTranslation("startLifting"), PlacesIcons.FITNESS_CENTER.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
                 UI.getCurrent().access(() -> createTopBar());
