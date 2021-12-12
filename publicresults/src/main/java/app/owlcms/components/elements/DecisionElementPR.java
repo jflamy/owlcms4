@@ -97,8 +97,8 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
 
     @Subscribe
     public void slaveDecision(DecisionEvent de) {
-        logger.warn("slaveDecision");
         if (getFopName() == null || de.getFopName() == null || !getFopName().contentEquals(de.getFopName())) {
+            logger.warn("slaveDecision self={}: {} ignored", getFopName(), de.getFopName());
             // event is not for us
             return;
         }
