@@ -25,11 +25,11 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
-import app.owlcms.components.elements.AthleteTimerElement;
-import app.owlcms.components.elements.BreakTimerElement;
+import app.owlcms.components.elements.AthleteTimerElementPR;
+import app.owlcms.components.elements.BreakTimerElementPR;
 import app.owlcms.components.elements.DecisionElementPR;
-import app.owlcms.components.elements.unload.UnloadObserver;
 import app.owlcms.i18n.Translator;
+import app.owlcms.prutils.SafeEventBusRegistrationPR;
 import app.owlcms.publicresults.DecisionReceiverServlet;
 import app.owlcms.publicresults.TimerReceiverServlet;
 import app.owlcms.publicresults.UpdateReceiverServlet;
@@ -37,11 +37,11 @@ import app.owlcms.ui.parameters.DarkModeParameters;
 import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.uievents.BreakTimerEvent;
 import app.owlcms.uievents.BreakTimerEvent.BreakStart;
-import app.owlcms.utils.StartupUtils;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.DecisionEvent;
 import app.owlcms.uievents.DecisionEventType;
 import app.owlcms.uievents.UpdateEvent;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -59,7 +59,7 @@ import elemental.json.impl.JreJsonFactory;
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
 public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.ScoreboardModel>
-        implements QueryParameterReader, DarkModeParameters, HasDynamicTitle {
+        implements QueryParameterReader, DarkModeParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
 
     /**
      * ScoreboardModel
@@ -84,7 +84,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
         Integer getWeight();
 
-        Boolean isHidden();
+//        Boolean isHidden();
 
         Boolean isWideTeamNames();
 
@@ -98,7 +98,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
         void setGroupName(String name);
 
-        void setHidden(boolean b);
+//        void setHidden(boolean b);
 
         void setLiftsDone(String formattedDone);
 
@@ -120,10 +120,10 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     }
 
     @Id("timer")
-    private AthleteTimerElement timer; // Flow creates it
+    private AthleteTimerElementPR timer; // Flow creates it
 
     @Id("breakTimer")
-    private BreakTimerElement breakTimer; // Flow creates it
+    private BreakTimerElementPR breakTimer; // Flow creates it
 
     @Id("decisions")
     private DecisionElementPR decisions; // Flow creates it
@@ -132,10 +132,20 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     private ContextMenu contextMenu;
     private Location location;
     private UI locationUI;
-    private UI ui;
     private String fopName;
     private boolean needReset = false;
     private boolean decisionVisible;
+    private UI ui;
+    
+    private void setHidden(boolean hidden) {
+        this.getElement().setProperty("hiddenStyle",(hidden ? "display:none" : "display:block"));
+        this.getElement().setProperty("inactiveStyle",(hidden ? "display:block" : "display:none"));
+        this.getElement().setProperty("inactiveClass",(hidden ? "bigTitle" : ""));
+    }
+    
+    private void setWideTeamNames(boolean wide) {
+        this.getElement().setProperty("teamWidthClass",(wide ? "wideTeams" : "narrowTeams"));
+    }
 
     /**
      * Instantiates a new results board.
@@ -226,7 +236,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 return;
             }
             ui.access(() -> {
-                getModel().setHidden(false);
+                setHidden(false);
                 this.getElement().callJsFunction("down");
             });
             break;
@@ -236,7 +246,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 return;
             }
             ui.access(() -> {
-                getModel().setHidden(false);
+                setHidden(false);
                 this.getElement().callJsFunction("reset");
             });
             break;
@@ -246,7 +256,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 return;
             }
             ui.access(() -> {
-                getModel().setHidden(false);
+                setHidden(false);
                 this.getElement().callJsFunction("refereeDecision");
             });
             break;
@@ -258,7 +268,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     @Subscribe
     public void slaveGlobalRankingUpdated(UpdateEvent e) {
         if (StartupUtils.isDebugSetting()) {
-            logger./**/warn("### received UpdateEvent {} {} {}", getFopName(), e.getFopName(), e);
+            logger./**/warn("### {} received UpdateEvent {} {} {}", System.identityHashCode(this), getFopName(), e.getFopName(), e);
         }
         if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
             // event is not for us
@@ -272,7 +282,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             String translationMap = e.getTranslationMap();
 
             JreJsonFactory jreJsonFactory = new JreJsonFactory();
-            logger.warn("pub swl leaders {}", leaders);
             this.getElement().setPropertyJson("leaders",
                     leaders != null ? jreJsonFactory.parse(leaders) : Json.createNull());
             this.getElement().setPropertyJson("athletes",
@@ -285,16 +294,12 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             getModel().setFullName(e.getFullName());
             String groupName = e.getGroupName();
             getModel().setGroupName(groupName);
-            getModel().setHidden(e.getHidden());
-            this.getElement().setProperty("hiddenStyle",(e.getHidden() ? "display:none" : "display:block"));
-            this.getElement().setProperty("inactiveStyle",(e.getHidden() ? "display:block" : "display:none"));
-            this.getElement().setProperty("inactiveClass",(e.getHidden() ? "bigTitle" : ""));
-            this.getElement().setProperty("teamWidthClass",(e.getWideTeamNames() ? "wideTeams" : "narrowTeams"));
+            setHidden(e.getHidden());
             getModel().setStartNumber(e.getStartNumber());
             getModel().setTeamName(e.getTeamName());
             getModel().setWeight(e.getWeight());
             getModel().setCategoryName(e.getCategoryName());
-            getModel().setWideTeamNames(e.getWideTeamNames());
+            setWideTeamNames(e.getWideTeamNames());
             String liftsDone = e.getLiftsDone();
             getModel().setLiftsDone(liftsDone);
             
@@ -329,7 +334,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     }
 
     protected void doEmpty() {
-        this.getModel().setHidden(true);
+        setHidden(true);
     }
 
     /** @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
@@ -337,31 +342,11 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     protected void onAttach(AttachEvent attachEvent) {
         // crude workaround -- randomly getting light or dark due to multiple themes detected in app.
         getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
-
-        logger.trace("registering ScoreWithLeaders {}", System.identityHashCode(this));
-        UpdateReceiverServlet.getEventBus().register(this);
-        DecisionReceiverServlet.getEventBus().register(this);
-        TimerReceiverServlet.getEventBus().register(this);
-
-        UnloadObserver unloadObserver = UnloadObserver.get(false);
-        unloadObserver.addUnloadListener((e) -> {
-            logger.trace("closing {}: unregister {} from event busses", e.getSource(), this);
-            try {
-                UpdateReceiverServlet.getEventBus().unregister(this);
-            } catch (Exception ex) {
-            }
-            try {
-                DecisionReceiverServlet.getEventBus().unregister(this);
-            } catch (Exception e1) {
-            }
-            try {
-                TimerReceiverServlet.getEventBus().unregister(this);
-            } catch (Exception e1) {
-            }
-            UnloadObserver.remove();
-        });
         ui = UI.getCurrent();
-        ui.add(unloadObserver);
+        
+        eventBusRegister(this, TimerReceiverServlet.getEventBus());
+        eventBusRegister(this, DecisionReceiverServlet.getEventBus());
+        eventBusRegister(this, UpdateReceiverServlet.getEventBus());
 
         setDarkMode(this, isDarkMode(), false);
         UpdateEvent initEvent = UpdateReceiverServlet.sync(getFopName());
