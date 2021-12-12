@@ -35,7 +35,7 @@ import ch.qos.logback.classic.Logger;
 public class TimerReceiverServlet extends HttpServlet {
 
     private static String defaultFopName;
-    static EventBus eventBus = new AsyncEventBus(Executors.newCachedThreadPool());
+    static EventBus eventBus = new AsyncEventBus(TimerReceiverServlet.class.getSimpleName(), Executors.newCachedThreadPool());
 
     public static EventBus getEventBus() {
         return eventBus;
@@ -68,9 +68,9 @@ public class TimerReceiverServlet extends HttpServlet {
             resp.setCharacterEncoding("UTF-8");
             if (StartupUtils.isTraceSetting()) {
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-                logger./**/warn("---- timer received from {}", ProxyUtils.getClientIp(req));
+                logger./**/warn("---- timer update received from {}", ProxyUtils.getClientIp(req));
                 for (Entry<String, String[]> pair : pairs) {
-                    logger./**/warn("{} = {}", pair.getKey(), pair.getValue()[0]);
+                    logger./**/warn("    {} = {}", pair.getKey(), pair.getValue()[0]);
                 }
             }
 
