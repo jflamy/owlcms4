@@ -26,9 +26,9 @@ import ch.qos.logback.classic.Logger;
 /**
  * Countdown timer element.
  */
-public class BreakTimerElement extends TimerElement {
+public class BreakTimerElementPR extends TimerElementPR {
 
-    final private Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElement.class);
+    final private Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElementPR.class);
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     private String parentName = "";
 
@@ -40,7 +40,7 @@ public class BreakTimerElement extends TimerElement {
     /**
      * Instantiates a new timer element.
      */
-    public BreakTimerElement() {
+    public BreakTimerElementPR() {
         // logger./**/warn(LoggerUtils.stackTrace());
     }
 
@@ -167,8 +167,9 @@ public class BreakTimerElement extends TimerElement {
         this.ui = attachEvent.getUI();
         init();
 
-        UpdateReceiverServlet.getEventBus().register(this);
-        TimerReceiverServlet.getEventBus().register(this);
+        eventBusRegister(this, TimerReceiverServlet.getEventBus());
+        eventBusRegister(this, UpdateReceiverServlet.getEventBus());
+        
         setFopName((String) OwlcmsSession.getAttribute("fopName"));
     }
 

@@ -19,8 +19,10 @@ import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.prutils.SafeEventBusRegistrationPR;
 import app.owlcms.publicresults.DecisionReceiverServlet;
 import app.owlcms.publicresults.TimerReceiverServlet;
+import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.uievents.BreakTimerEvent;
 import app.owlcms.uievents.DecisionEvent;
 import app.owlcms.uievents.TimerEvent;
@@ -32,7 +34,8 @@ import ch.qos.logback.classic.Logger;
  */
 @Tag("decision-element-pr")
 @JsModule("./components/DecisionElement.js")
-public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.DecisionModel> implements IFopName {
+public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.DecisionModel>
+        implements IFopName, SafeEventBusRegistrationPR {
 
     /**
      * The Interface DecisionModel.
@@ -94,14 +97,16 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
 
     @Subscribe
     public void slaveDecision(DecisionEvent de) {
+        logger.warn("slaveDecision");
         if (getFopName() == null || de.getFopName() == null || !getFopName().contentEquals(de.getFopName())) {
             // event is not for us
             return;
         }
-        logger.debug("DecisionElement DecisionEvent {} {}", de.getEventType(), System.identityHashCode(de));
+        logger.warn("DecisionElement DecisionEvent {} {} {}", de.getEventType(), System.identityHashCode(de), ui);
         if (ui == null || ui.isClosing()) {
             return;
         }
+
         ui.access(() -> {
             if (de.isBreak()) {
                 logger.debug("break: slaveDecision disable");
@@ -217,8 +222,11 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
         this.ui = attachEvent.getUI();
         init();
 
-        DecisionReceiverServlet.getEventBus().register(this);
-        TimerReceiverServlet.getEventBus().register(this);
+        ui = attachEvent.getUI();
+        eventBusRegister(this, UpdateReceiverServlet.getEventBus());
+        eventBusRegister(this, DecisionReceiverServlet.getEventBus());
+        eventBusRegister(this, TimerReceiverServlet.getEventBus());
+
         setFopName((String) OwlcmsSession.getAttribute("fopName"));
     }
 

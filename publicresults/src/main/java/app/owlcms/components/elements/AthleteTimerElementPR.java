@@ -15,6 +15,7 @@ import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.publicresults.DecisionReceiverServlet;
 import app.owlcms.publicresults.TimerReceiverServlet;
 import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.uievents.TimerEvent;
@@ -26,9 +27,9 @@ import ch.qos.logback.classic.Logger;
 /**
  * Countdown timer element.
  */
-public class AthleteTimerElement extends TimerElement {
+public class AthleteTimerElementPR extends TimerElementPR {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteTimerElement.class);
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteTimerElementPR.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     static {
         logger.setLevel(Level.INFO);
@@ -40,14 +41,14 @@ public class AthleteTimerElement extends TimerElement {
     /**
      * Instantiates a new timer element.
      */
-    public AthleteTimerElement() {
+    public AthleteTimerElementPR() {
         this.setOrigin(null); // force exception
-        logger.debug("### AthleteTimerElement new {}", origin);
+        logger.debug("### AthleteTimerElementPR new {}", origin);
     }
 
-    public AthleteTimerElement(Object origin) {
+    public AthleteTimerElementPR(Object origin) {
         this.setOrigin(origin);
-        logger.debug("### AthleteTimerElement new {} {}", origin, LoggerUtils.whereFrom());
+        logger.debug("### AthleteTimerElementPR new {} {}", origin, LoggerUtils.whereFrom());
     }
 
     /**
@@ -167,8 +168,10 @@ public class AthleteTimerElement extends TimerElement {
     protected void onAttach(AttachEvent attachEvent) {
         init();
 
-        UpdateReceiverServlet.getEventBus().register(this);
-        TimerReceiverServlet.getEventBus().register(this);
+        eventBusRegister(this, TimerReceiverServlet.getEventBus());
+        eventBusRegister(this, UpdateReceiverServlet.getEventBus());
+        eventBusRegister(this, DecisionReceiverServlet.getEventBus());
+        
         ui = UI.getCurrent();
         this.setFopName((String) OwlcmsSession.getAttribute("fopName"));
     }

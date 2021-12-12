@@ -20,7 +20,10 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.prutils.SafeEventBusRegistrationPR;
+import app.owlcms.publicresults.DecisionReceiverServlet;
 import app.owlcms.publicresults.TimerReceiverServlet;
+import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -30,7 +33,7 @@ import ch.qos.logback.classic.Logger;
  */
 @Tag("timer-element")
 @JsModule("./components/TimerElement.js")
-public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerModel> implements IFopName {
+public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.TimerModel> implements IFopName, SafeEventBusRegistrationPR {
 
     /**
      * TimerModel Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties.
@@ -121,7 +124,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 
     private String fopName;
 
-    final private Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
+    final private Logger logger = (Logger) LoggerFactory.getLogger(TimerElementPR.class);
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     {
@@ -138,7 +141,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     /**
      * Instantiates a new timer element.
      */
-    public TimerElement() {
+    public TimerElementPR() {
     }
 
     @ClientCallable
@@ -247,7 +250,10 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         this.ui = attachEvent.getUI();
         init();
 
-        TimerReceiverServlet.getEventBus().register(this);
+        eventBusRegister(this, TimerReceiverServlet.getEventBus());
+        eventBusRegister(this, UpdateReceiverServlet.getEventBus());
+        eventBusRegister(this, DecisionReceiverServlet.getEventBus());
+        
         setFopName((String) OwlcmsSession.getAttribute("fopName"));
     }
 
@@ -288,19 +294,19 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     }
 
     private void initTime(Integer milliseconds) {
-        if (this instanceof BreakTimerElement) {
+        if (this instanceof BreakTimerElementPR) {
             logger.debug("set time remaining = {} from {} ", formatDuration(milliseconds), LoggerUtils.whereFrom());
         }
         setIndefinite(milliseconds == null);
         setMsRemaining(milliseconds);
 
         if (!isIndefinite()) {
-            if (this instanceof BreakTimerElement) {
+            if (this instanceof BreakTimerElementPR) {
                 logger.debug("not indefinite {}", formatDuration(milliseconds));
             }
             setDisplay(milliseconds, isIndefinite(), isSilent());
         } else {
-            if (this instanceof BreakTimerElement) {
+            if (this instanceof BreakTimerElementPR) {
                 logger.debug("indefinite");
             }
             setDisplay(milliseconds, true, true);
