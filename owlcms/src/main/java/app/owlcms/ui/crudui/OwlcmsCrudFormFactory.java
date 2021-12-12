@@ -208,7 +208,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         dialog.setCloseOnOutsideClick(false);
 
         H3 messageLabel = new H3(
-                Translator.translate("Delete") + domainObject.toString() + Translator.translate("Question"));
+                Translator.translate("Delete") + " " + domainObject.toString() + Translator.translate("Question"));
 
         // create a new delete button for the confirm dialog
         Button confirmButton = doBuildButton(operation);
