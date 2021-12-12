@@ -344,6 +344,7 @@ public class EventForwarder implements BreakDisplay {
     @Subscribe
     public void slaveSetTime(UIEvent.SetTime e) {
         uiLog(e);
+        setHidden(false);
         pushTimer(e);
     }
 
@@ -357,12 +358,14 @@ public class EventForwarder implements BreakDisplay {
     @Subscribe
     public void slaveStartTime(UIEvent.StartTime e) {
         uiLog(e);
+        setHidden(false);
         pushTimer(e);
     }
 
     @Subscribe
     public void slaveStopTime(UIEvent.StopTime e) {
         uiLog(e);
+        setHidden(false);
         pushTimer(e);
     }
 
@@ -382,6 +385,7 @@ public class EventForwarder implements BreakDisplay {
             }
             break;
         default:
+            setHidden(false);
             doUpdate(e.getAthlete(), e);
         }
         pushUpdate();
