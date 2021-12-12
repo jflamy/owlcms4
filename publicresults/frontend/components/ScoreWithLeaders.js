@@ -212,7 +212,7 @@ class ScoreLeader extends PolymerElement {
     }
 
     reset() {
-        console.debug("reset");
+        console.debug("swl-pr reset");
         this.$.timer.reset(this.$.timer);
         this.$.groupDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.visibility = "visible";
@@ -227,7 +227,7 @@ class ScoreLeader extends PolymerElement {
     }
 
     down() {
-        console.debug("refereeDecision");
+        console.debug("swl-pr down");
         this.$.groupDiv.style.visibility = "visible";
         this.$.startNumberDiv.style.display = "flex";
         this.$.teamNameDiv.style.display = "flex";
@@ -239,7 +239,7 @@ class ScoreLeader extends PolymerElement {
     }
 
     doBreak() {
-        console.debug("break");
+        console.debug("swl-pr break");
         this.$.groupDiv.style.visibility = "hidden";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";
@@ -253,7 +253,7 @@ class ScoreLeader extends PolymerElement {
     }
 
     groupDone() {
-        console.debug("done");
+        console.debug("swl-pr done");
         this.$.groupDiv.style.visibility = "hidden";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";
@@ -267,7 +267,7 @@ class ScoreLeader extends PolymerElement {
     }
 
     refereeDecision() {
-        console.debug("refereeDecision");
+        console.debug("swl-pr refereeDecision");
         this.$.groupDiv.style.visibility = "visible";
         this.$.decisionDiv.style.display = "flex";
         this.$.weightDiv.style.display = "flex";
