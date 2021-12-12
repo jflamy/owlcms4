@@ -36,8 +36,9 @@ import ch.qos.logback.classic.Logger;
 public class UpdateReceiverServlet extends HttpServlet {
 
     private static String defaultFopName;
-    static EventBus eventBus = new AsyncEventBus(Executors.newCachedThreadPool());
+    static EventBus eventBus = new AsyncEventBus(UpdateReceiverServlet.class.getSimpleName(), Executors.newCachedThreadPool());
     static Map<String, UpdateEvent> updateCache = new HashMap<>();
+    static long lastUpdate = 0;
 
     public static EventBus getEventBus() {
         return eventBus;
@@ -133,8 +134,21 @@ public class UpdateReceiverServlet extends HttpServlet {
 
             String fopName = updateEvent.getFopName();
             // put in the cache first so events can know which FOPs are active;
-            updateCache.put(fopName, updateEvent);
-            eventBus.post(updateEvent);
+
+            long now = System.currentTimeMillis();
+            if (now - lastUpdate < 500) {
+                // short time range, is this a duplicate?
+                UpdateEvent prevUpdate = updateCache.get(fopName);
+                if (prevUpdate != null && updateEvent.hashCode() == prevUpdate.hashCode()) {
+                    logger.warn("duplicate event ignored");
+                } else {
+                    updateCache.put(fopName, updateEvent);
+                    eventBus.post(updateEvent);
+                }
+            } else {
+                updateCache.put(fopName, updateEvent);
+                eventBus.post(updateEvent);
+            }
 
             if (defaultFopName == null) {
                 defaultFopName = fopName;
