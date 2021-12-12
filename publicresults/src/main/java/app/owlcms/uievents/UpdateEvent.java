@@ -6,6 +6,8 @@
  *******************************************************************************/
 package app.owlcms.uievents;
 
+import java.util.Objects;
+
 public class UpdateEvent {
 
     private String leaders;
@@ -32,6 +34,29 @@ public class UpdateEvent {
 
     public UpdateEvent() {
         setLeaders(leaders);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if ((obj == null) || (getClass() != obj.getClass())) {
+            return false;
+        }
+        UpdateEvent other = (UpdateEvent) obj;
+        return Objects.equals(athletes, other.athletes) && Objects.equals(attempt, other.attempt)
+                && Objects.equals(breakRemaining, other.breakRemaining) && breakType == other.breakType
+                && Objects.equals(categoryName, other.categoryName)
+                && Objects.equals(competitionName, other.competitionName) && Objects.equals(fopName, other.fopName)
+                && Objects.equals(fopState, other.fopState) && Objects.equals(fullName, other.fullName)
+                && Objects.equals(groupName, other.groupName) && hidden == other.hidden
+                && indefinite == other.indefinite && Objects.equals(isBreak, other.isBreak)
+                && Objects.equals(leaders, other.leaders) && Objects.equals(liftsDone, other.liftsDone)
+                && Objects.equals(startNumber, other.startNumber) && Objects.equals(teamName, other.teamName)
+                && Objects.equals(timeAllowed, other.timeAllowed)
+                && Objects.equals(translationMap, other.translationMap) && Objects.equals(weight, other.weight)
+                && wideTeamNames == other.wideTeamNames;
     }
 
     public String getAthletes() {
@@ -108,6 +133,13 @@ public class UpdateEvent {
 
     public boolean getWideTeamNames() {
         return this.wideTeamNames;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(athletes, attempt, breakRemaining, breakType, categoryName, competitionName, fopName,
+                fopState, fullName, groupName, hidden, indefinite, isBreak, leaders, liftsDone, startNumber, teamName,
+                timeAllowed, translationMap, weight, wideTeamNames);
     }
 
     public Boolean isBreak() {
