@@ -24,7 +24,7 @@ public interface SafeEventBusRegistrationPR {
 
 	public default EventBus eventBusRegister(Component c, EventBus bus) {
 
-		{logger.setLevel(Level.DEBUG);}
+		{logger.setLevel(Level.INFO);}
 		
 		logger.debug("registering {} on bus {} {}",c, bus, LoggerUtils.whereFrom());
 		UI ui = c.getUI().get();
