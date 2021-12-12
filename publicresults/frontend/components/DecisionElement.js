@@ -46,15 +46,15 @@ class DecisionElementPR extends PolymerElement {
 }
 
 .none {
-	background-color: var(--lumo-contrast-50pct);
+	background-color: var(--lumo-contrast-20pct);
 }
 
 .down {
 	display: flex;
     align-items: center;
 	justify-content: space-evenly;
-	--iron-icon-height: 40%;
-    --iron-icon-width: 40%;
+	--iron-icon-height: 35%;
+    --iron-icon-width: 35%;
 	font-weight: normal;
 	color: lime;
 	display:block;
@@ -154,7 +154,7 @@ class DecisionElementPR extends PolymerElement {
 
 	ready() {
 		super.ready();
-		console.warn("de decision ready");
+		console.warn("depr decision ready");
 		if (!this.jury) {
 			document.body.addEventListener('keydown', e => this._readRef(e));
 		}
@@ -198,7 +198,7 @@ class DecisionElementPR extends PolymerElement {
 		if (!this.enabled) return;
 
 		var key = e.key;
-		console.warn("de key "+key);
+		console.warn("depr key "+key);
 		switch (e.key) {
 			case '1':
 				this.set('ref1', true);
@@ -236,7 +236,7 @@ class DecisionElementPR extends PolymerElement {
 	}
 
 	_registerVote(code) {
-		console.warn("de vote "+key);
+		console.warn("depr vote "+key);
 	}
 
 	/* this is called from the client side to signal that a decision has been made
@@ -252,7 +252,7 @@ class DecisionElementPR extends PolymerElement {
 		var count = countWhite + countRed;
 		if (!this.downShown && (countWhite == 2 || countRed == 2)) {
 			this.decision = (countWhite >= 2);
-			if (!this.jury) this.showDown(true);
+			//if (!this.jury) this.showDown(true);
 		}
 		if ((countWhite + countRed) >= 3) {
 			this.decision = (countWhite >= 2);
@@ -260,7 +260,7 @@ class DecisionElementPR extends PolymerElement {
 		} else {
 			maj = undefined;
 		}
-		this.masterRefereeUpdate(ref1, ref2, ref3);
+		//this.masterRefereeUpdate(ref1, ref2, ref3);
 		return maj;
 	}
 
@@ -312,7 +312,7 @@ class DecisionElementPR extends PolymerElement {
 	}
 
 	showDown(isMaster, silent) {
-		console.warn("de showDown");
+		console.warn("depr showDown");
 		this.downShown = true;
 		this.$.downDiv.style.display = "flex";
 		this.$.decisionsDiv.style.display = "none";
@@ -321,7 +321,7 @@ class DecisionElementPR extends PolymerElement {
 		//if (isMaster) {
 		//	this.$server.masterShowDown(this.fopName, this.decision, this.ref1, this.ref2, this.ref3);
 		//}
-		console.warn("de server told");
+		console.warn("depr server told");
 		if (this.audio && !silent && !this.silent) {
 			this.oscillator.start(0);
 			this.oscillator.stop(this.context.currentTime + 2);
@@ -342,20 +342,20 @@ class DecisionElementPR extends PolymerElement {
 
 	showDecisions(isMaster, ref1, ref2, ref3) {
 		this.hideDown();
-		console.warn("de showDecision: " + ref1 + " " + ref2 + " " + ref3);
+		console.warn("depr showDecision: " + ref1 + " " + ref2 + " " + ref3);
 		this.setColors(this, ref1, ref2, ref3);
-		console.warn("de colorsShown");
+		console.warn("depr colorsShown");
 	}
 
 	showDecisionsForJury(ref1, ref2, ref3, ref1Time, ref2Time, ref3Time) {
 		this.hideDown();
-		console.warn("de showDecisionForJury: " + ref1 + " " + ref2 + " " + ref3);
+		console.warn("depr showDecisionForJury: " + ref1 + " " + ref2 + " " + ref3);
 		this.setColors(this, ref1, ref2, ref3);
-		console.warn("jury colorsShown");
+		console.warn("depr jury colorsShown");
 	}
 
 	reset(isMaster) {
-		console.warn("de reset " + isMaster);
+		console.warn("depr reset " + isMaster);
 		this.hideDecisions();
 		this._init();
 	}
