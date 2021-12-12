@@ -26,20 +26,20 @@ public interface SafeEventBusRegistrationPR {
 
 		{logger.setLevel(Level.INFO);}
 		
-		logger.debug("registering {} on bus {} {}",c, bus, LoggerUtils.whereFrom());
+		logger.debug("registering {} on bus {} {}",c, bus.identifier(), LoggerUtils.whereFrom());
 		UI ui = c.getUI().get();
 		bus.register(c);
 
         UnloadObserver unloadObserver = UnloadObserver.get(false);
         unloadObserver.addUnloadListener((e) -> {
-            logger.debug("closing {}: unregister {} from {}", e.getSource(), c, bus.identifier());
+            logger.debug("closing: unregister {} from {}", c, bus.identifier());
             try {bus.unregister(c);} catch (Exception ex) {}
             UnloadObserver.remove();
         });
         ui.add(unloadObserver);
 
 		ui.addBeforeLeaveListener((e) -> {
-			logger.debug("leaving {}: unregister {} from {}", e.getSource(), c, bus.identifier());
+			logger.debug("leaving: unregister {} from {}", c, bus.identifier());
 			try {bus.unregister(c);} catch (Exception ex) {}
 		});
 		ui.addDetachListener((e) -> {
