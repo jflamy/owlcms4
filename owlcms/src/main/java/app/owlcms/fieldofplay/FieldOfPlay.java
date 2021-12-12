@@ -185,6 +185,8 @@ public class FieldOfPlay {
 
     private Integer weightAtLastStart;
 
+    private long lastGroupLoaded;
+
     {
         uiEventLogger.setLevel(Level.INFO);
     }
@@ -776,6 +778,7 @@ public class FieldOfPlay {
     public void loadGroup(Group group, Object origin, boolean forceLoad) {
         String thisGroupName = this.getGroup() != null ? this.getGroup().getName() : null;
         String loadGroupName = group != null ? group.getName() : null;
+        
         boolean alreadyLoaded = thisGroupName == loadGroupName;
         if (loadGroupName != null && alreadyLoaded && !forceLoad) {
             // already loaded
@@ -784,6 +787,14 @@ public class FieldOfPlay {
         }
         this.setGroup(group);
         if (group != null) {
+            // protect against possible UI bug where switching group triggers a dropdown selection
+            // which triggers a switchgroup (there may be multiple announcer screens open)
+            long now = System.currentTimeMillis();
+            if (now - this.lastGroupLoaded < 300) {
+                logger./**/warn("ignoring request to load group {}", group);
+                return;
+            }
+            
             logger.debug("{}loading data for group {} [already={} forced={} from={}]",
                     getLoggingName(),
                     loadGroupName,
@@ -797,6 +808,7 @@ public class FieldOfPlay {
                 groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true);
             }
             init(groupAthletes, athleteTimer, breakTimer, alreadyLoaded);
+            this.lastGroupLoaded = now;
         } else {
             logger.debug("{}null group", getLoggingName());
             init(new ArrayList<Athlete>(), athleteTimer, breakTimer, alreadyLoaded);
