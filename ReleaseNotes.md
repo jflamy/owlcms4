@@ -1,9 +1,12 @@
-##### **Changes for release 4.26.0-alpha00**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Changes for release 4.26.0-alpha01**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-> <p style='color:red'>Warning: alpha releases should not be used in actual competitions. They are meant for early testers to check out new features or find problems after maintenance changes.</p>
+> Warning: alpha releases should not be used in actual competitions. They are meant for volunteer testers to check out new features and find problems after maintenance changes.
 >
 > Beta releases are are meant for translators and early adopters. Minor bugs or inconveniences can still be present.  Release candidate ("rc") versions are very close to final and often used in real meets prior to an official release.
 
+- [x] 4.26.0-alpha01: issues arising from moving code shared between owlcms and publicresults to a code library.
+  - Fix classpath issues in windows installers installers preventing publicresults from starting correctly 
+  - Attempted fix for CSS and other resources not retrieved correctly from the jar files under Kubernetes
 - [x] 4.26.0-alpha00: Maintenance/clean-up:
   - Clean-up of the state transitions that governs the competition flow.
   - Clean-up of the logic for end of group
