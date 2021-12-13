@@ -68,13 +68,6 @@ public class EventForwarder implements BreakDisplay {
     final private static Logger logger = (Logger) LoggerFactory.getLogger(EventForwarder.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
-//    public static void listenToFOP(FieldOfPlay fop) {
-//        String fopName = fop.getName();
-//        if (registeredFop.get(fopName) == null) {
-//            registeredFop.put(fopName, new EventForwarder(fop));
-//        }
-//    }
-
     private EventBus postBus;
 //    private EventBus fopEventBus;
     private FieldOfPlay fop;
@@ -114,12 +107,11 @@ public class EventForwarder implements BreakDisplay {
     private long translatorResetTimeStamp;
 
     public EventForwarder(FieldOfPlay emittingFop) {
-        this.fop = emittingFop;
-//
-//        fopEventBus = fop.getFopEventBus();
-//        fopEventBus.register (this);
+        this.setFop(emittingFop);
+        // logger.debug("|||| eventForwarder {} {} {}", System.identityHashCode(this),
+        // emittingFop.getName(),System.identityHashCode(emittingFop));
 
-        postBus = fop.getPostEventBus();
+        postBus = getFop().getPostEventBus();
         postBus.register(this);
 
         translatorResetTimeStamp = 0L;
@@ -128,34 +120,32 @@ public class EventForwarder implements BreakDisplay {
         String updateUrl = Config.getCurrent().getParamUpdateUrl();
         if (updateUrl == null || updateKey == null || updateUrl.trim().isEmpty()
                 || updateKey.trim().isEmpty()) {
-            logger.info("{}Pushing results to remote site not enabled.", fop.getLoggingName());
+            logger.info("{}Pushing results to remote site not enabled.", getFop().getLoggingName());
         } else {
-            logger.info("{}Pushing to remote site {}", fop.getLoggingName(), updateUrl);
+            logger.info("{}Pushing to remote site {}", getFop().getLoggingName(), updateUrl);
         }
         pushUpdate();
     }
 
     @Override
     public void doBreak() {
-        OwlcmsSession.withFop(fop -> {
-            BreakType breakType = fop.getBreakType();
-            Group group = fop.getGroup();
-            if (breakType == null) {
-                breakType = BreakType.BEFORE_INTRODUCTION;
-            }
-            switch (breakType) {
-            case GROUP_DONE:
-                setFullName(groupResults(group));
-                break;
-            default:
-                setFullName((group != null ? (Translator.translate("Group_number", group.getName()) + " &ndash; ") : "")
-                        + inferMessage(breakType));
-                break;
-            }
-            setTeamName("");
-            setAttempt("");
-            setHidden(false);
-        });
+        BreakType breakType = fop.getBreakType();
+        Group group = fop.getGroup();
+        if (breakType == null) {
+            breakType = BreakType.BEFORE_INTRODUCTION;
+        }
+        switch (breakType) {
+        case GROUP_DONE:
+            setFullName(groupResults(group));
+            break;
+        default:
+            setFullName((group != null ? (Translator.translate("Group_number", group.getName()) + " &ndash; ") : "")
+                    + inferMessage(breakType));
+            break;
+        }
+        setTeamName("");
+        setAttempt("");
+        setHidden(false);
     }
 
     public Boolean getDecisionLight1() {
@@ -305,7 +295,7 @@ public class EventForwarder implements BreakDisplay {
     @Subscribe
     public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
         uiLog(e);
-        computeCurrentGroup();
+        computeCurrentGroup(getFop().getGroup());
         pushUpdate();
     }
 
@@ -317,7 +307,7 @@ public class EventForwarder implements BreakDisplay {
             // wait until next event.
             return;
         } else if (isDecisionLightsVisible()) {
-            computeCurrentGroup();
+            computeCurrentGroup(g);
             // wait until next event.
             return;
         }
@@ -336,7 +326,7 @@ public class EventForwarder implements BreakDisplay {
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
         uiLog(e);
         Athlete a = e.getAthlete();
-        computeCurrentGroup();
+        computeCurrentGroup(e.getAthlete().getGroup());
         doUpdate(a, e);
         pushUpdate();
     }
@@ -371,7 +361,7 @@ public class EventForwarder implements BreakDisplay {
 
     @Subscribe
     public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
-        computeCurrentGroup();
+        computeCurrentGroup(e.getGroup());
         switch (e.getState()) {
         case INACTIVE:
             setHidden(true);
@@ -435,14 +425,14 @@ public class EventForwarder implements BreakDisplay {
         this.weight = weight;
     }
 
-    private void computeCurrentGroup() {
-        Group group = fop.getGroup();
-        List<Athlete> displayOrder = fop.getDisplayOrder();
+    private void computeCurrentGroup(Group g) {
+        Group group = getFop().getGroup();
+        List<Athlete> displayOrder = getFop().getDisplayOrder();
         int liftsDone = AthleteSorter.countLiftsDone(displayOrder);
-        setGroupName(computeSecondLine(fop.getCurAthlete(), group != null ? group.getName() : null));
+        setGroupName(computeSecondLine(getFop().getCurAthlete(), group != null ? group.getName() : null));
         setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
         if (displayOrder != null && displayOrder.size() > 0) {
-            setGroupAthletes(getAthletesJson(displayOrder, fop.getLiftingOrder()));
+            setGroupAthletes(getAthletesJson(displayOrder, getFop().getLiftingOrder()));
         } else {
             setGroupAthletes(null);
         }
@@ -450,33 +440,33 @@ public class EventForwarder implements BreakDisplay {
     }
 
     private void computeLeaders() {
-        OwlcmsSession.withFop(fop -> {
-            Athlete curAthlete = fop.getCurAthlete();
-            if (curAthlete != null && curAthlete.getGender() != null) {
-                setCategoryName(curAthlete.getCategory().getName());
-                groupLeaders = fop.getLeaders();
-                int size = groupLeaders.size();
-                if (size > 15) {
-                    setLeaders(null);
-                } else if (groupLeaders.size() > 0) {
-                    // null as second argument because we do not highlight current athletes in the leaderboard
-                    setLeaders(getAthletesJson(groupLeaders, null));
-                } else {
-                    // no one has totaled, so we show the snatch leaders
-                    if (!fop.isCjStarted()) {
-                        if (groupLeaders.size() > 0) {
-                            setLeaders(getAthletesJson(groupLeaders, null));
-                        } else {
-                            // nothing to show
-                            setLeaders(null);
-                        }
+//        logger.debug("|||| computeLeaders {} {} {} {} {} {}", System.identityHashCode(this), fop.getName(),
+//                System.identityHashCode(fop), fop.getGroup(), fop.getCurAthlete(), LoggerUtils.stackTrace());
+        Athlete curAthlete = fop.getCurAthlete();
+        if (curAthlete != null && curAthlete.getGender() != null) {
+            setCategoryName(curAthlete.getCategory().getName());
+            groupLeaders = fop.getLeaders();
+            int size = groupLeaders.size();
+            if (size > 15) {
+                setLeaders(null);
+            } else if (groupLeaders.size() > 0) {
+                // null as second argument because we do not highlight current athletes in the leaderboard
+                setLeaders(getAthletesJson(groupLeaders, null));
+            } else {
+                // no one has totaled, so we show the snatch leaders
+                if (!fop.isCjStarted()) {
+                    if (groupLeaders.size() > 0) {
+                        setLeaders(getAthletesJson(groupLeaders, null));
                     } else {
                         // nothing to show
                         setLeaders(null);
                     }
+                } else {
+                    // nothing to show
+                    setLeaders(null);
                 }
             }
-        });
+        }
 
     }
 
@@ -496,8 +486,8 @@ public class EventForwarder implements BreakDisplay {
 
         // competition state
         mapPut(sb, "competitionName", Competition.getCurrent().getCompetitionName());
-        mapPut(sb, "fop", fop.getName());
-        FOPState state = fop.getState();
+        mapPut(sb, "fop", getFop().getName());
+        FOPState state = getFop().getState();
         mapPut(sb, "fopState", state != null ? state.toString() : FOPState.INACTIVE.name());
         mapPut(sb, "break", String.valueOf(isBreak()));
 
@@ -514,7 +504,7 @@ public class EventForwarder implements BreakDisplay {
     private Map<String, String> createTimer(UIEvent e) {
         Map<String, String> sb = new HashMap<>();
         mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
-        mapPut(sb, "fopName", fop.getName());
+        mapPut(sb, "fopName", getFop().getName());
 
         Integer milliseconds = null;
         boolean indefiniteBreak = false;
@@ -549,7 +539,8 @@ public class EventForwarder implements BreakDisplay {
         mapPut(sb, "milliseconds", milliseconds != null ? milliseconds.toString() : null);
         mapPut(sb, "break", String.valueOf(isBreak()));
         mapPut(sb, "breakType",
-                ((fop.getState() == FOPState.BREAK) && (fop.getBreakType() != null)) ? fop.getBreakType().toString()
+                ((getFop().getState() == FOPState.BREAK) && (getFop().getBreakType() != null))
+                        ? getFop().getBreakType().toString()
                         : null);
         mapPut(sb, "indefiniteBreak", Boolean.toString(indefiniteBreak));
 
@@ -567,17 +558,19 @@ public class EventForwarder implements BreakDisplay {
 
         // competition state
         mapPut(sb, "competitionName", Competition.getCurrent().getCompetitionName());
-        mapPut(sb, "fop", fop.getName());
-        FOPState state = fop.getState();
+        mapPut(sb, "fop", getFop().getName());
+        FOPState state = getFop().getState();
         mapPut(sb, "fopState", state != null ? state.toString() : FOPState.INACTIVE.name());
         String isBreak = String.valueOf(isBreak());
         mapPut(sb, "break", isBreak);
-        BreakType breakType = fop.getBreakType();
-        String bts = ((fop.getState() == FOPState.BREAK) && (breakType != null)) ? fop.getBreakType().toString() : null;
+        BreakType breakType = getFop().getBreakType();
+        String bts = ((getFop().getState() == FOPState.BREAK) && (breakType != null))
+                ? getFop().getBreakType().toString()
+                : null;
 
         mapPut(sb, "breakType", bts);
         logger.trace("***** break {} breakType {}", isBreak, bts);
-        IBreakTimer breakTimer = fop.getBreakTimer();
+        IBreakTimer breakTimer = getFop().getBreakTimer();
         int breakTimeRemaining = breakTimer != null ? breakTimer.liveTimeRemaining() : 0;
         mapPut(sb, "breakRemaining", Integer.toString(breakTimeRemaining));
         mapPut(sb, "breakIsIndefinite", Boolean.toString(breakTimer != null ? breakTimer.isIndefinite() : false));
@@ -630,7 +623,7 @@ public class EventForwarder implements BreakDisplay {
 
     private void doDone(Group g) {
         logger.debug("forwarding doDone {}", g == null ? null : g.getName());
-        computeCurrentGroup();
+        computeCurrentGroup(g);
         if (g == null) {
             setHidden(true);
         } else {
@@ -690,7 +683,7 @@ public class EventForwarder implements BreakDisplay {
                 if (e instanceof UIEvent.LiftingOrderUpdated) {
                     setTimeAllowed(((LiftingOrderUpdated) e).getTimeAllowed());
                 }
-                String groupName = fop.getGroup() != null ? fop.getGroup().getName() : null;
+                String groupName = getFop().getGroup() != null ? getFop().getGroup().getName() : null;
                 String computedName = groupName != null
                         ? computeSecondLine(a, groupName)
                         : "";
@@ -710,14 +703,6 @@ public class EventForwarder implements BreakDisplay {
         String translate = Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
         return translate;
     }
-
-//    private List<Athlete> filterToCategory(Category category, List<Athlete> order) {
-//        return order
-//                .stream()
-//                .filter(a -> category != null && category.equals(a.getCategory()))
-//                .limit(3)
-//                .collect(Collectors.toList());
-//    }
 
     private String formatInt(Integer total) {
         if (total == null || total == 0) {
@@ -755,7 +740,7 @@ public class EventForwarder implements BreakDisplay {
             ja.put("cleanJerkRank", formatInt(mainRankings.getCleanJerkRank()));
             ja.put("totalRank", formatInt(mainRankings.getTotalRank()));
         } else {
-            logger.error("main rankings null for {}",a);
+            logger.error("main rankings null for {}", a);
         }
         ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
         boolean notDone = a.getAttemptsDone() < 6;
@@ -870,7 +855,7 @@ public class EventForwarder implements BreakDisplay {
     }
 
     private boolean isBreak() {
-        return fop.getState() == FOPState.BREAK;
+        return getFop().getState() == FOPState.BREAK;
     }
 
     private void mapPut(Map<String, String> wr, String key, String value) {
@@ -961,6 +946,20 @@ public class EventForwarder implements BreakDisplay {
     private void uiLog(UIEvent e) {
         uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 null, e.getOrigin(), LoggerUtils.whereFrom());
+    }
+
+    /**
+     * @return the fop
+     */
+    private FieldOfPlay getFop() {
+        return fop;
+    }
+
+    /**
+     * @param fop the fop to set
+     */
+    private void setFop(FieldOfPlay fop) {
+        this.fop = fop;
     }
 
 }
