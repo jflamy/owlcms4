@@ -4,9 +4,11 @@
 >
 > Beta releases are are meant for translators and early adopters. Minor bugs or inconveniences can still be present.  Release candidate ("rc") versions are very close to final and often used in real meets prior to an official release.
 
+- [x] 4.26.0-alpha02: fixing publicresults issue preventing startup that is only visible on Heroku
+  - issue is actually present everywhere (different Java versions react gracefully -- or not)
 - [x] 4.26.0-alpha01: issues arising from moving code shared between owlcms and publicresults to a code library.
   - Fix classpath issues in windows installers installers preventing publicresults from starting correctly 
-  - Attempted fix for CSS and other resources not retrieved correctly from the jar files under Kubernetes
+  - Fix for CSS and other resources not retrieved correctly from the jar files under Kubernetes
 - [x] 4.26.0-alpha00: Maintenance/clean-up:
   - Clean-up of the state transitions that governs the competition flow.
   - Clean-up of the logic for end of group
