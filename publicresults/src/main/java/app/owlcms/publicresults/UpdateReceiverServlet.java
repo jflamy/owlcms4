@@ -140,7 +140,7 @@ public class UpdateReceiverServlet extends HttpServlet {
                 // short time range, is this a duplicate?
                 UpdateEvent prevUpdate = updateCache.get(fopName);
                 if (prevUpdate != null && updateEvent.hashCode() == prevUpdate.hashCode()) {
-                    logger.warn("duplicate event ignored");
+                    logger./**/warn("duplicate event ignored");
                 } else {
                     updateCache.put(fopName, updateEvent);
                     eventBus.post(updateEvent);
