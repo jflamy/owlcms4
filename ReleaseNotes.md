@@ -1,22 +1,42 @@
-##### **Changes for release 4.25.2**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Changes for release 4.26.0-alpha00**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] 4.25.2: Fix: the Excel for Category Results was not considering eligible athletes from other age groups
+> <p style='color:red'>Warning: alpha releases should not be used in actual competitions. They are meant for early testers to check out new features or find problems after maintenance changes.</p>
+>
+> Beta releases are are meant for translators and early adopters. Minor bugs or inconveniences can still be present.  Release candidate ("rc") versions are very close to final and often used in real meets prior to an official release.
 
-- [x]  4.25.2: Fix:  leader scoreboards for the current athlete's category could sometimes be incomplete. (#455)
-- [x] 4.25.2: Fix: Athletes not weighed-in were included in the announcer list instead of being ignored (#459)
-- [x] 4.25.1: Fix: publicresults was not always updating its display when receiving updates from owlcms
+- [x] 4.26.0-alpha00: Maintenance/clean-up:
+  - Clean-up of the state transitions that governs the competition flow.
+  - Clean-up of the logic for end of group
+  - Fixed issues with leader board publishing to cloud-based public results
+  - Fixed issues with simulating multiple platforms.
+- [x] 4.26.0-alpha00: Technical: 
+  - removed the need for temporary copies of sounds/templates/styles; 
+  - no temporary files are written to disk by the application
 
-###### New in release 4.25
+###### New in release 4.26
+
+- [x] Enhancement: new web page for simulating a competition. 
+
+  - Add your ip addresses to the Backdoor address section (because of differences in browsers, something like `192.168.0.105,127.0.0.1,[0:0:0:0:0:0:0:1]` could be needed -- replace the first one with your address on your network)
+
+  - Set-up your competition data and take a copy using the *export* function on the system settings page.  
+
+    - ¸Athletes need a category.
+
+  - Navigate to the simulation page (add `/simulation` to the end of your home page).  This will start the simulation
+
+    -  Athletes will get a fake weight based on their category, unless there is weigh-in data already.
+    - The lifts, if any were present in the database, will be cleared.  Fake declarations will be made based on the body weight.
+
+    -  The program will run though all the groups and platforms (referees are simulated and give decisions at random). 
+    - If you refresh that page, the data will be cleared and the simulation will run again.
+
+  - Use the *import database* function to restore your data.
+
+###### Key Highlights from recent stable releases
 
 - [x] It is now possible to choose and override the Excel templates for competitions cards, the start list, the starting weight sheet, the results (protocol), and the final package (attempts, sinclair, robi, team results, etc.)
   - New available IWF-style layout for athlete cards that is meant to be printed and folded to give bigger areas for writing (both North American Letter and international A4 formats available)
-- [x] Multi-platform: fixes for scoreboards and attempt board (both owlcms and publicresults) 
-- [x] Enhancement: new Start List template for multi-platform competitions (shows the platform)
-- [x] Robustness improvements to import/export of the database
-- [x] Enhancement: You can now import the registration file with only the category and no birth date.
-- [x] Fix: it is now possible to refresh a scoreboard while it is counting down (countdown resumes).
-
-###### Key Highlights from recent stable releases
 
 - [x] It is now possible to export, manipulate and reload the registration data (athletes, groups, referees) in Excel format.  
 
@@ -28,59 +48,55 @@
 - [x] The jury console now allows direct reversal/confirmation of lifts (#435, #427)  
   - The jury chief can confirm and reverse lifts directly and can ask the announcer to call the technical controller.  
   - Jury actions are shown to the other technical officials consoles to keep them informed.
-  - Shortcuts are defined to support a jury keypad. See [documentation](https://owlcms.github.io/owlcms4/#/Refereeing#jury-console-keypad) for details
+  - Shortcuts are defined to support a jury keypad. See [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Refereeing#jury-console-keypad) for details
   
-- [x] Enhancement: the Available Plates page can now be reached from the Field of Play/Platforms preparation page.  The button to reach this page has also been renamed (used to be "Technical Controller")
-
-- [x] Enhancement: added a "Coach" field to the athlete registration and weigh-in forms.  Usable as ${l.coach} in the Excel templates. Also added two custom fields: typical use is for athlete status (ex: "elite") or other local usage (ex: a patronym). Usable as ${l.custom1} and ${l.custom2} in the Excel templates. You can set the headers in the translation file under "Custom1.Title" and "Custom2.Title". 
-
 - [x] It is now possible to Export and Import the database content (#449).  This allows taking a snapshot of the database in the middle of a competition. It also allows bringing back a Heroku database for local use, and conversely, setting up a competition locally prior to loading on Heroku.
 
-  > For now you should still take backups of the real database (in the database directory on a laptop, or using the PostgreSQL backup on Heroku).  Until it is fully mature, it is considered a technical feature and is located at on the "Language and System Settings Page".
-
-- [x] PIN/password is now handled as a salted SHA-256 hash, so it does not appear in clear in the export file.
-
-- [x] The procedure to import a PostgreSQL database from Heroku and use it a local machine is now documented. See [documentation](https://owlcms.github.io/owlcms4/#/PostgreSQL) for details.  This is meant as a backup for investigating PostgreSQL specific issues, or something that would prevent a cloud instanceser from starting.
-
-###### 
-
 - [x] Explicit support for participation to multiple age groups (#433)
+
   - An athlete will, by default, be eligible and ranked separately in all the active categories in which the age and qualifying total are met.   
   - Participation to an eligible category can be removed or added back on the registration page for the athlete.
   - "Multiple rank" scoreboard shows ranks for all age groups present in the currently lifting group.
   - Final results packages can be produced for each age group, or combined for all age groups (when all age groups contribute to team points)
   - Qualifying totals can be entered in the AgeGroup Excel file for each age group category, and also from the Age Group web page.
   - Robi scores are now computed based on age group. If an athlete is eligible for JR and SR, the JR Robi will appear in the JR final package, and the SR Robi in the Senior final package.
-- [x] Teams are now separate by age group or age division
+  - Teams are now separate by age group or age division
+    - Teams can be defined by Age Group (e.g. JR, SR, U15, U17) or by Age Division together (e.g. Masters, or all age Uxx age groups combined)
+    - Team-oriented scoreboards allow selecting which age group is shown (e.g. JR Team is different from the SR team)
 
-  - Teams can be defined by Age Group (e.g. JR, SR, U15, U17) or by Age Division together (e.g. Masters, or all age Uxx age groups combined)
-  - Team-oriented scoreboards allow selecting which age group is shown (e.g. JR Team is different from the SR team)
 - [x] Results improvements and fixes:
-  - The Protocol sheet and the Final Package result pages shows header for each category.  The old flat protocol sheet is still available as "6Attempts" template for copy-paste needs.
   - From the Category Results page, ability to produce a result sheet for the selected category, age group, or age division.
-  - Cleaned-up the Final Package Excel templates: fixed formatting, added missing translations. Custom score final package option now present.
-- [x] All resources in the local directory take precedence over the built-in ones (visual styles, templates, age group definitions, sounds, etc.)
-  - You can also add a file with an extension for your locale (e.g. ex: _hy, _ru, _fr) and it will be used for things like marshal cards, starting list, etc.
-  - You can zip the local directory on your laptop and upload the to a cloud-based setup (see the System configuration page from the Preparation section) (#366)
-- [x] Moved the Language and Time Zone settings together with the technical settings to a renamed "Language and System Settings" page reachable from the "Preparation" section.
-  - [x] For troubleshooting, entering the "Language and System Settings" page prints the networking interfaces and addresses in the log.
-- [x] Enhancement: the program now forces start numbers when lifting starts if they have not been attributed at weigh-in (useful for small competitions not using cards with novice users)
-- [x] Marshall screen now shows decisions (#411). This is for setups where athlete cards are used and where it is difficult to see the scoreboard or inconvenient to switch tabs.
-- [x] Clearer error message when athlete A cannot move down because B has attempted same weight on a bigger attempt number (if so, A should have lifted before B, cannot move down.)
 
-- [x] When a display is first started, a dialog offers to enable warning sounds or not.  Warnings are silenced by default; they should normally be enabled on only one display per room, to avoid warnings coming from several directions. See the [documentation](https://owlcms.github.io/owlcms4/#/Displays#display-settings) for details (#407)
-- [x] Implemented the <u>rules to prevent athletes from moving down their requested weight illegally</u>.  Moving down is denied if the athlete should already have attempted that weight according to the official lifting order.  The exact checks resulting from applying the TCRR to that situation are spelled out in the [documentation](https://owlcms.github.io/owlcms4/#/Announcing#rules-for-moving-down). (#418)
-- [x] Violations of <u>rules for timing of declarations</u> (before initial 30 seconds), and for changes (before final warning) are now signaled as errors (#425, #426). Overriding is possible for officiating mistakes.
-- [x] iPads now supported as refereeing device with Bluetooth buttons (running either the athlete-facing time+decision display or the attempt board display.)   iPads require that sound be enabled by touching a screen button once when the board is started. (#408). 
+All resources in the local directory take precedence over the built-in ones (visual styles, templates, age group definitions, sounds, etc.)
+- You can also add a file with an extension for your locale (e.g. ex: _hy, _ru, _fr) and it will be used for things like marshal cards, starting list, etc.
+- You can zip the local directory on your laptop and upload the to a cloud-based setup (see the System configuration page from the Preparation section) (#366)
+
+Moved the Language and Time Zone settings together with the technical settings to a renamed "Language and System Settings" page reachable from the "Preparation" section.
+
+- [x] For troubleshooting, entering the "Language and System Settings" page prints the networking interfaces and addresses in the log.
+
+Enhancement: the program now forces start numbers when lifting starts if they have not been attributed at weigh-in (useful for small competitions not using cards with novice users)
+
+Marshall screen now shows decisions (#411). This is for setups where athlete cards are used and where it is difficult to see the scoreboard or inconvenient to switch tabs.
+
+Clearer error message when athlete A cannot move down because B has attempted same weight on a bigger attempt number (if so, A should have lifted before B, cannot move down.)
+
+When a display is first started, a dialog offers to enable warning sounds or not.  Warnings are silenced by default; they should normally be enabled on only one display per room, to avoid warnings coming from several directions. See the [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Displays#display-settings) for details (#407)
+
+Implemented the <u>rules to prevent athletes from moving down their requested weight illegally</u>.  Moving down is denied if the athlete should already have attempted that weight according to the official lifting order.  The exact checks resulting from applying the TCRR to that situation are spelled out in the [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Announcing#rules-for-moving-down). (#418)
+
+Violations of <u>rules for timing of declarations</u> (before initial 30 seconds), and for changes (before final warning) are now signaled as errors (#425, #426). Overriding is possible for officiating mistakes.
+
+iPads now supported as refereeing device with Bluetooth buttons (running either the athlete-facing time+decision display or the attempt board display.)   iPads require that sound be enabled by touching a screen button once when the board is started. (#408). 
 
 **Installation Instructions :**
 
-  - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
     
-    > If you get a blue window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://owlcms.github.io/owlcms4/#/DefenderOff)
+    > If you get a blue window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/DefenderOff)
     
-  - For **Linux** and **Mac OS**, download the `owlcms.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
-  - For **Heroku** cloud, no download is necessary. Follow the [Heroku Cloud Installation](https://owlcms.github.io/owlcms4/#/Cloud) to deploy your own copy.  See also the [additional configuration steps for large competitions on Heroku](https://owlcms.github.io/owlcms4/#/HerokuLarge).
+  - For **Heroku** cloud, no download is necessary. Follow the [Heroku Cloud Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Cloud) to deploy your own copy.  See also the [additional configuration steps for large competitions on Heroku](https://jflamy-dev.github.io/owlcms4-prerelease/#/HerokuLarge).
 
-  - For **Kubernetes** deployments, see `k3s_setup.yaml` file for [cloud hosting using k3s](https://owlcms.github.io/owlcms4/#/DigitalOcean) or `k3d_setup.yaml` for [home hosting](https://owlcms.github.io/owlcms4/#/k3d).  For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 
+  - For **Kubernetes** deployments, see `k3s_setup.yaml` file for [cloud hosting using k3s](https://jflamy-dev.github.io/owlcms4-prerelease/#/DigitalOcean) or `k3d_setup.yaml` for [home hosting](https://jflamy-dev.github.io/owlcms4-prerelease/#/k3d).  For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 
