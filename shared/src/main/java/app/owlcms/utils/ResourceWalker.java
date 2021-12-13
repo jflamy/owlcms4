@@ -50,7 +50,7 @@ public class ResourceWalker {
 
     private static Path localDirPath = null;
 
-    private static Supplier<byte[]> localOverrideSupplier;
+    private static Supplier<byte[]> localZipBlobSupplier;
 
     private static Supplier<Locale> localeSupplier;
 
@@ -238,18 +238,17 @@ public class ResourceWalker {
         }
     }
 
-    public static Supplier<byte[]> getLocalOverrideSupplier() {
-        return localOverrideSupplier;
+    public static Supplier<byte[]> getLocalZipBlobSupplier() {
+        return localZipBlobSupplier;
     }
 
     public static InputStream getResourceAsStream(String name) {
         return getFileOrResource(name);
     }
 
-    public static void initLocalDir() {
-        logger.trace("initializeLocalDir from {}", LoggerUtils.whereFrom());
+    public static synchronized void initLocalDir() {
         setInitializedLocalDir(true);
-        byte[] localContent2 = getLocalOverrideSupplier().get();
+        byte[] localContent2 = getLocalZipBlobSupplier().get();
         if (localContent2 != null && localContent2.length > 0) {
             logger.trace("override zip blob found");
             try {
@@ -310,8 +309,8 @@ public class ResourceWalker {
         ResourceWalker.localeSupplier = localeSupplier;
     }
 
-    public static void setLocalOverrideSupplier(Supplier<byte[]> localOverrideSupplier) {
-        ResourceWalker.localOverrideSupplier = localOverrideSupplier;
+    public static void setLocalZipBlobSupplier(Supplier<byte[]> localOverrideSupplier) {
+        ResourceWalker.localZipBlobSupplier = localOverrideSupplier;
     }
 
     public static void unzipBlobToTemp(byte[] localContent2) throws Exception {
@@ -325,6 +324,7 @@ public class ResourceWalker {
         try {
             ZipUtils.unzip(new ByteArrayInputStream(localContent2), f);
             setLocalDirPath(f);
+            setInitializedLocalDir(true);
             logger.info("new local override path {}", getLocalDirPath().normalize());
         } catch (IOException e) {
             throw new Exception("cannot unzip", e);
@@ -566,8 +566,11 @@ public class ResourceWalker {
             // so the only way to get here is if the file is in a jar, and somehow Vaadin has
             // not opened it yet.  So we use a file that should be in the jar, and expect the
             // URI to be of the "jar" type.
-            openClassPathFileSystem("/agegroups");
+            
+            // beware: use a resource that is in the shared module
+            openClassPathFileSystem("/i18n");
             resourcePath = Paths.get(resourcesURI);
+            logger.warn("resourcePath: {} {}",resourcesURI, resourcePath);
         }
         return resourcePath;
     }
