@@ -791,7 +791,7 @@ public class FieldOfPlay {
             // protect against possible UI bug where switching group triggers a dropdown selection
             // which triggers a switchgroup (there may be multiple announcer screens open)
             long now = System.currentTimeMillis();
-            if (now - this.lastGroupLoaded < 300) {
+            if (!testingMode && now - this.lastGroupLoaded < 300) {
                 logger./**/warn("ignoring request to load group {}", group);
                 return;
             }
