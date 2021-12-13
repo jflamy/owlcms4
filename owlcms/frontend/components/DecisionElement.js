@@ -47,6 +47,7 @@ class DecisionElement extends PolymerElement {
 
 .none {
 	background-color: var(--lumo-contrast-20pct);
+	border: medium dashed var(--lumo-contrast);
 }
 
 .down {
