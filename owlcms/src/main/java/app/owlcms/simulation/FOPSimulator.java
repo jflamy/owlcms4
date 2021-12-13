@@ -24,7 +24,7 @@ import ch.qos.logback.classic.Logger;
 /**
  *
  * Simulate the flow of a competition on a field of play.
- * 
+ *
  * The actions of technical officials are simulated: the the events that the user interface would send (FOPEvents) are
  * posted The state automaton in the FieldOfPlay triggers the user interface updates as required. It is therefore
  * possible to create as many real browser windows as required to observe the updates taking place.
@@ -34,9 +34,9 @@ import ch.qos.logback.classic.Logger;
  */
 public class FOPSimulator {
 
-    final private Logger logger = (Logger) LoggerFactory.getLogger(FOPSimulator.class);
-
     static private Random r = new Random(0);
+
+    final private Logger logger = (Logger) LoggerFactory.getLogger(FOPSimulator.class);
 
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("Simulation-" + logger.getName());
 
@@ -72,8 +72,12 @@ public class FOPSimulator {
                 this.getOrigin(), e.getOrigin());
         new Thread(() -> {
             if (groupDone) {
-                groups.remove(0);
-                startNextGroup(groups);
+                if (groups.size() > 0) {
+                    groups.remove(0);
+                    startNextGroup(groups);
+                } else {
+                    return;
+                }
             } else {
                 doNextAthlete(e);
             }
@@ -137,21 +141,9 @@ public class FOPSimulator {
         new Thread(() -> doSwitchGroup(e)).start();
     }
 
-    private void doSwitchGroup(UIEvent.SwitchGroup e) {
-        switch (fop.getState()) {
-        case INACTIVE:
-            doEmpty();
-            break;
-        case BREAK:
-            if (e.getGroup() == null) {
-                doEmpty();
-            } else {
-                // doBreak();
-            }
-            break;
-        default:
-            // doLift(fop.getCurAthlete());
-        }
+    public void unregister() {
+        logger.debug("***** unregister simulator {}", this.fop.getName());
+        uiEventBus.unregister(this);
     }
 
     protected void doEmpty() {
@@ -198,6 +190,23 @@ public class FOPSimulator {
         doLift(athlete);
     }
 
+    private void doSwitchGroup(UIEvent.SwitchGroup e) {
+        switch (fop.getState()) {
+        case INACTIVE:
+            doEmpty();
+            break;
+        case BREAK:
+            if (e.getGroup() == null) {
+                doEmpty();
+            } else {
+                // doBreak();
+            }
+            break;
+        default:
+            // doLift(fop.getCurAthlete());
+        }
+    }
+
     private boolean goodLift(Random r) {
         return r.nextFloat() < 0.7;
     }
@@ -224,11 +233,6 @@ public class FOPSimulator {
         } else {
             return false;
         }
-    }
-
-    public void unregister() {
-        logger.debug("***** unregister simulator {}", this.fop.getName());
-        uiEventBus.unregister(this);
     }
 
 }
