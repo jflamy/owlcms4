@@ -1,11 +1,37 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+> <p style='color:red'>Warning: alpha releases should not be used in actual competitions. They are meant for early testers to check out new features or find problems after maintenance changes.</p>
+>
+> Beta releases are are meant for translators and early adopters. Minor bugs or inconveniences can still be present.  Release candidate ("rc") versions are very close to final and often used in real meets prior to an official release.
+
+- [x] 4.26.0-alpha00: Maintenance/clean-up:
+  - Clean-up of the state transitions that governs the competition flow.
+  - Clean-up of the logic for end of group
+  - Fixed issues with leader board publishing to cloud-based public results
+  - Fixed issues with simulating multiple platforms.
+- [x] 4.26.0-alpha00: Technical: 
+  - removed the need for temporary copies of sounds/templates/styles; 
+  - no temporary files are written to disk by the application
+
 ###### New in release 4.26
 
-- [x] Technical: small robustness improvement on scoreboards.
-- [x] Technical: removed the need for temporary copies of sounds/templates/styles; the remaining temporary files are very small and kept in memory.  
-- [x] Enhancement: new web page ".../simulation". Set-up your competition data and take a copy using the export function on the system settings page.  Add your ip address to the Backdoor address section. Setup all the windows you want to observe.  Navigate to the simulation page.  The lifts will be cleared , non weighed-in athletes will get a fake weight. The program will run though all the groups and platforms (referees are simulated and give decisions at random). Use the import function to restore your data.
-- [x] Clean-up of the state transitions that governs the competition flow.
+- [x] Enhancement: new web page for simulating a competition. 
+
+  - Add your ip addresses to the Backdoor address section (because of differences in browsers, something like `192.168.0.105,127.0.0.1,[0:0:0:0:0:0:0:1]` could be needed -- replace the first one with your address on your network)
+
+  - Set-up your competition data and take a copy using the *export* function on the system settings page.  
+
+    - ¸Athletes need a category.
+
+  - Navigate to the simulation page (add `/simulation` to the end of your home page).  This will start the simulation
+
+    -  Athletes will get a fake weight based on their category, unless there is weigh-in data already.
+    - The lifts, if any were present in the database, will be cleared.  Fake declarations will be made based on the body weight.
+
+    -  The program will run though all the groups and platforms (referees are simulated and give decisions at random). 
+    - If you refresh that page, the data will be cleared and the simulation will run again.
+
+  - Use the *import database* function to restore your data.
 
 ###### Key Highlights from recent stable releases
 
