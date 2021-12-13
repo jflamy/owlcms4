@@ -125,7 +125,7 @@ public class FieldOfPlay {
         mFop.uiEventBus = new EventBus("UI-" + mFop.name);
         mFop.postBus = new EventBus("POST-" + mFop.name);
         mFop.setTestingMode(true);
-        mFop.group = new Group();
+        mFop.setGroup(new Group());
         mFop.init(athletes, timer1, breakTimer1, true);
 
         mFop.fopEventBus.register(mFop);
@@ -208,6 +208,7 @@ public class FieldOfPlay {
         this.setPlatform(platform2);
 
         this.fopEventBus.register(this);
+        //logger.debug("||||  fop {} {}", System.identityHashCode(this), this.getName());
         new EventForwarder(this);
     }
 
@@ -778,7 +779,7 @@ public class FieldOfPlay {
     public void loadGroup(Group group, Object origin, boolean forceLoad) {
         String thisGroupName = this.getGroup() != null ? this.getGroup().getName() : null;
         String loadGroupName = group != null ? group.getName() : null;
-        
+
         boolean alreadyLoaded = thisGroupName == loadGroupName;
         if (loadGroupName != null && alreadyLoaded && !forceLoad) {
             // already loaded
@@ -794,7 +795,7 @@ public class FieldOfPlay {
                 logger./**/warn("ignoring request to load group {}", group);
                 return;
             }
-            
+
             logger.debug("{}loading data for group {} [already={} forced={} from={}]",
                     getLoggingName(),
                     loadGroupName,
@@ -1018,12 +1019,12 @@ public class FieldOfPlay {
         if (getCurAthlete() != null && getCurAthlete().getAttemptsDone() < 6) {
             uiDisplayCurrentAthleteAndTime(true, e, false);
             setState(CURRENT_ATHLETE_DISPLAYED);
-            group.doDone(false);
+            getGroup().doDone(false);
         } else {
             // special kind of break that allows moving back in case of jury reversal
             this.setBreakType(BreakType.GROUP_DONE);
             this.setState(BREAK);
-            group.doDone(true);
+            getGroup().doDone(true);
             pushOutDone();
         }
     }
@@ -1056,11 +1057,11 @@ public class FieldOfPlay {
     private void doSetState(FOPState state) {
         if (state == CURRENT_ATHLETE_DISPLAYED) {
             Athlete a = getCurAthlete();
-            if (group != null) {
-                group.doDone(a == null || a.getAttemptsDone() >= 6);
+            if (getGroup() != null) {
+                getGroup().doDone(a == null || a.getAttemptsDone() >= 6);
             }
-        } else if (state == BREAK && group != null) {
-            group.doDone(breakType == BreakType.GROUP_DONE);
+        } else if (state == BREAK && getGroup() != null) {
+            getGroup().doDone(breakType == BreakType.GROUP_DONE);
         }
         this.state = state;
     }
@@ -1225,12 +1226,13 @@ public class FieldOfPlay {
     }
 
     private void pushOutDone() {
-        logger.debug("{}group {} done", getLoggingName(), group);
+        logger.debug("{}group {} done", getLoggingName(), getGroup());
         UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null, LoggerUtils.stackTrace());
         // make sure the publicresults update carries the right state.
         this.setBreakType(BreakType.GROUP_DONE);
         this.setState(BREAK);
         pushOut(event);
+        logger.debug("{}group {} done2", getLoggingName(), getGroup());
     }
 
     private void pushOutStartLifting(Group group2, Object origin) {
@@ -1326,7 +1328,7 @@ public class FieldOfPlay {
         if (done) {
             pushOutDone();
         }
-        group.doDone(done);
+        getGroup().doDone(done);
     }
 
     /**
@@ -1460,7 +1462,7 @@ public class FieldOfPlay {
                 // in a break
                 setState(newState, LoggerUtils.whereFrom());
                 if (newState == CURRENT_ATHLETE_DISPLAYED) {
-                    pushOutStartLifting(group, this);
+                    pushOutStartLifting(getGroup(), this);
                 } else {
                     uiShowUpdatedRankings();
                 }
