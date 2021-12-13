@@ -248,11 +248,11 @@ public class ResourceWalker {
 
     public static synchronized void initLocalDir() {
         setInitializedLocalDir(true);
-        byte[] localContent2 = getLocalZipBlobSupplier().get();
-        if (localContent2 != null && localContent2.length > 0) {
+        byte[] blob = localZipBlobSupplier != null ? localZipBlobSupplier.get() : null;
+        if (blob != null && blob.length > 0) {
             logger.trace("override zip blob found");
             try {
-                unzipBlobToTemp(localContent2);
+                unzipBlobToTemp(blob);
             } catch (Exception e) {
                 checkForLocalOverrideDirectory();
             }
