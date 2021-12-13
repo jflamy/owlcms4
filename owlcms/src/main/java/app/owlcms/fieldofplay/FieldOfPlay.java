@@ -1156,10 +1156,11 @@ public class FieldOfPlay {
 
     private String getWhereFrom(String stackTrace) {
         if (stackTrace != null) {
-            int start = stackTrace.indexOf("\r");
-            start = stackTrace.indexOf("\r", start + 1);
-            start = stackTrace.indexOf("\r", start + 1);
-            return stackTrace.substring(start + 3, stackTrace.indexOf("\r", start + 1));
+            String sep = System.lineSeparator();
+            int start = stackTrace.indexOf(sep);
+            start = stackTrace.indexOf(sep, start + 1);
+            start = stackTrace.indexOf(sep, start + 1);
+            return stackTrace.substring(start + 3, stackTrace.indexOf(sep, start + 1));
         } else {
             return "?";
         }
