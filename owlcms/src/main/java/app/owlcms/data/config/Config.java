@@ -158,7 +158,7 @@ public class Config {
     /**
      * @return zip file containing a zipped ./local structure to override resources
      */
-    public byte[] getLocalOverride() {
+    public byte[] getLocalZipBlob() {
         return localOverride;
     }
 
@@ -320,7 +320,7 @@ public class Config {
         this.ipBackdoorList = ipBackdoorList;
     }
 
-    public void setLocalOverride(byte[] localContent) {
+    public void setLocalZipBlob(byte[] localContent) {
         if (this.clearZip) {
             this.localOverride = null;
             this.clearZip = false;

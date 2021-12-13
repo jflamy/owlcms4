@@ -225,9 +225,9 @@ public class ConfigEditingFormFactory
         accessListField.setWidthFull();
         layout.addFormItem(accessListField, Translator.translate("Config.UploadLabel"));
         binder.forField(accessListField)
-                .bind(Config::getLocalOverride, Config::setLocalOverride);
+                .bind(Config::getLocalZipBlob, Config::setLocalZipBlob);
 
-        byte[] localOverride = Config.getCurrent().getLocalOverride();
+        byte[] localOverride = Config.getCurrent().getLocalZipBlob();
         if (localOverride == null) {
             localOverride = new byte[0];
         }
@@ -305,7 +305,7 @@ public class ConfigEditingFormFactory
     @Override
     public Config update(Config config) {
         if (config.isClearZip()) {
-            config.setLocalOverride(null);
+            config.setLocalZipBlob(null);
             ResourceWalker.checkForLocalOverrideDirectory();
         }
         Config saved = Config.setCurrent(config);
