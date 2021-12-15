@@ -1,42 +1,22 @@
-##### **Changes for release 4.25.2**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Changes for release 4.26.0-beta00**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
 > Warning: alpha releases should not be used in actual competitions. They are meant for volunteer testers to check out new features and find problems after maintenance changes.
 >
 > Beta releases are are meant for translators and early adopters. Minor bugs or inconveniences can still be present.  Release candidate ("rc") versions are very close to final and often used in real meets prior to an official release.
 
-- [x] 4.26.0-alpha02: fixing publicresults issue preventing startup that is only visible on Heroku
-  - issue is actually present everywhere (different Java versions react gracefully -- or not)
-- [x] 4.26.0-alpha01: issues arising from moving code shared between owlcms and publicresults to a code library.
-  - Fix classpath issues in windows installers installers preventing publicresults from starting correctly 
-  - Fix for CSS and other resources not retrieved correctly from the jar files under Kubernetes
-- [x] 4.26.0-alpha00: Maintenance/clean-up:
-  - Clean-up of the state transitions that governs the competition flow.
-  - Clean-up of the logic for end of group
-  - Fixed issues with leader board publishing to cloud-based public results
-  - Fixed issues with simulating multiple platforms.
-- [x] 4.26.0-alpha00: Technical: 
-  - removed the need for temporary copies of sounds/templates/styles; 
-  - no temporary files are written to disk by the application
+- [x] 4.26.0-beta00: Documented the recipe for simulating a competition and perform load testing (see [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Simulation)).  Performed simulations of large competitions as quality control test. No additional features are planned for 4.26, only fixes if problems are reported.
+- [x] 4.26.0-alpha02: fixed publicresults issue preventing startup that is only visible on Heroku
+- [x] 4.26.0-alpha01: classpath and resource location issues arising from moving code shared between owlcms and publicresults to a code library.
 
 ###### New in release 4.26
 
 - [x] Enhancement: new web page for simulating a competition. 
 
-  - Add your ip addresses to the Backdoor address section (because of differences in browsers, something like `192.168.0.105,127.0.0.1,[0:0:0:0:0:0:0:1]` could be needed -- replace the first one with your address on your network)
 
-  - Set-up your competition data and take a copy using the *export* function on the system settings page.  
-
-    - ¸Athletes need a category.
-
-  - Navigate to the simulation page (add `/simulation` to the end of your home page).  This will start the simulation
-
-    -  Athletes will get a fake weight based on their category, unless there is weigh-in data already.
-    - The lifts, if any were present in the database, will be cleared.  Fake declarations will be made based on the body weight.
-
-    -  The program will run though all the groups and platforms (referees are simulated and give decisions at random). 
-    - If you refresh that page, the data will be cleared and the simulation will run again.
-
-  - Use the *import database* function to restore your data.
+- [x] Maintenance/clean-up:
+  - Clean-up of the state transitions that governs the competition flow, esp. the logic for end of group
+  - Fixed issues with leader board publishing to cloud-based public results
+- [x] Optimization: removed temporary disk copies of sounds/templates/styles; no temporary files are written to disk by the application anymore.
 
 ###### Key Highlights from recent stable releases
 
@@ -53,7 +33,7 @@
 - [x] The jury console now allows direct reversal/confirmation of lifts (#435, #427)  
   - The jury chief can confirm and reverse lifts directly and can ask the announcer to call the technical controller.  
   - Jury actions are shown to the other technical officials consoles to keep them informed.
-  - Shortcuts are defined to support a jury keypad. See [documentation](https://owlcms.github.io/owlcms4/#/Refereeing#jury-console-keypad) for details
+  - Shortcuts are defined to support a jury keypad. See [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Refereeing#jury-console-keypad) for details
   
 - [x] It is now possible to Export and Import the database content (#449).  This allows taking a snapshot of the database in the middle of a competition. It also allows bringing back a Heroku database for local use, and conversely, setting up a competition locally prior to loading on Heroku.
 
@@ -86,9 +66,9 @@ Marshall screen now shows decisions (#411). This is for setups where athlete car
 
 Clearer error message when athlete A cannot move down because B has attempted same weight on a bigger attempt number (if so, A should have lifted before B, cannot move down.)
 
-When a display is first started, a dialog offers to enable warning sounds or not.  Warnings are silenced by default; they should normally be enabled on only one display per room, to avoid warnings coming from several directions. See the [documentation](https://owlcms.github.io/owlcms4/#/Displays#display-settings) for details (#407)
+When a display is first started, a dialog offers to enable warning sounds or not.  Warnings are silenced by default; they should normally be enabled on only one display per room, to avoid warnings coming from several directions. See the [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Displays#display-settings) for details (#407)
 
-Implemented the <u>rules to prevent athletes from moving down their requested weight illegally</u>.  Moving down is denied if the athlete should already have attempted that weight according to the official lifting order.  The exact checks resulting from applying the TCRR to that situation are spelled out in the [documentation](https://owlcms.github.io/owlcms4/#/Announcing#rules-for-moving-down). (#418)
+Implemented the <u>rules to prevent athletes from moving down their requested weight illegally</u>.  Moving down is denied if the athlete should already have attempted that weight according to the official lifting order.  The exact checks resulting from applying the TCRR to that situation are spelled out in the [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Announcing#rules-for-moving-down). (#418)
 
 Violations of <u>rules for timing of declarations</u> (before initial 30 seconds), and for changes (before final warning) are now signaled as errors (#425, #426). Overriding is possible for officiating mistakes.
 
@@ -96,12 +76,12 @@ iPads now supported as refereeing device with Bluetooth buttons (running either 
 
 **Installation Instructions :**
 
-  - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
     
-    > If you get a blue window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://owlcms.github.io/owlcms4/#/DefenderOff)
+    > If you get a blue window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/DefenderOff)
     
-  - For **Linux** and **Mac OS**, download the `owlcms.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
-  - For **Heroku** cloud, no download is necessary. Follow the [Heroku Cloud Installation](https://owlcms.github.io/owlcms4/#/Cloud) to deploy your own copy.  See also the [additional configuration steps for large competitions on Heroku](https://owlcms.github.io/owlcms4/#/HerokuLarge).
+  - For **Heroku** cloud, no download is necessary. Follow the [Heroku Cloud Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Cloud) to deploy your own copy.  See also the [additional configuration steps for large competitions on Heroku](https://jflamy-dev.github.io/owlcms4-prerelease/#/HerokuLarge).
 
-  - For **Kubernetes** deployments, see `k3s_setup.yaml` file for [cloud hosting using k3s](https://owlcms.github.io/owlcms4/#/DigitalOcean) or `k3d_setup.yaml` for [home hosting](https://owlcms.github.io/owlcms4/#/k3d).  For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 
+  - For **Kubernetes** deployments, see `k3s_setup.yaml` file for [cloud hosting using k3s](https://jflamy-dev.github.io/owlcms4-prerelease/#/DigitalOcean) or `k3d_setup.yaml` for [home hosting](https://jflamy-dev.github.io/owlcms4-prerelease/#/k3d).  For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 
