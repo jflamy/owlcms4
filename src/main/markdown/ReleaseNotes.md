@@ -4,39 +4,19 @@
 >
 > Beta releases are are meant for translators and early adopters. Minor bugs or inconveniences can still be present.  Release candidate ("rc") versions are very close to final and often used in real meets prior to an official release.
 
-- [x] 4.26.0-alpha02: fixing publicresults issue preventing startup that is only visible on Heroku
-  - issue is actually present everywhere (different Java versions react gracefully -- or not)
-- [x] 4.26.0-alpha01: issues arising from moving code shared between owlcms and publicresults to a code library.
-  - Fix classpath issues in windows installers installers preventing publicresults from starting correctly 
-  - Fix for CSS and other resources not retrieved correctly from the jar files under Kubernetes
-- [x] 4.26.0-alpha00: Maintenance/clean-up:
-  - Clean-up of the state transitions that governs the competition flow.
-  - Clean-up of the logic for end of group
-  - Fixed issues with leader board publishing to cloud-based public results
-  - Fixed issues with simulating multiple platforms.
-- [x] 4.26.0-alpha00: Technical: 
-  - removed the need for temporary copies of sounds/templates/styles; 
-  - no temporary files are written to disk by the application
+- [x] 4.26.0-beta00: Documented the recipe for simulating a competition and perform load testing (see [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Simulation)).  Performed simulations of large competitions as quality control test. No additional features are planned for 4.26, only fixes if problems are reported.
+- [x] 4.26.0-alpha02: fixed publicresults issue preventing startup that is only visible on Heroku
+- [x] 4.26.0-alpha01: classpath and resource location issues arising from moving code shared between owlcms and publicresults to a code library.
 
 ###### New in release 4.26
 
 - [x] Enhancement: new web page for simulating a competition. 
 
-  - Add your ip addresses to the Backdoor address section (because of differences in browsers, something like `192.168.0.105,127.0.0.1,[0:0:0:0:0:0:0:1]` could be needed -- replace the first one with your address on your network)
 
-  - Set-up your competition data and take a copy using the *export* function on the system settings page.  
-
-    - ¸Athletes need a category.
-
-  - Navigate to the simulation page (add `/simulation` to the end of your home page).  This will start the simulation
-
-    -  Athletes will get a fake weight based on their category, unless there is weigh-in data already.
-    - The lifts, if any were present in the database, will be cleared.  Fake declarations will be made based on the body weight.
-
-    -  The program will run though all the groups and platforms (referees are simulated and give decisions at random). 
-    - If you refresh that page, the data will be cleared and the simulation will run again.
-
-  - Use the *import database* function to restore your data.
+- [x] Maintenance/clean-up:
+  - Clean-up of the state transitions that governs the competition flow, esp. the logic for end of group
+  - Fixed issues with leader board publishing to cloud-based public results
+- [x] Optimization: removed temporary disk copies of sounds/templates/styles; no temporary files are written to disk by the application anymore.
 
 ###### Key Highlights from recent stable releases
 
