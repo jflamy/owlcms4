@@ -2654,6 +2654,7 @@ public class Athlete {
      */
     @Deprecated
     @Transient
+    @JsonIgnore
     public void setBirthDate(Integer birthYear) {
         setYearOfBirth(birthYear);
     }
@@ -3732,6 +3733,8 @@ public class Athlete {
      *
      * @param birthYear the new year of birth
      */
+    @Transient
+    @JsonIgnore
     public void setYearOfBirth(Integer birthYear) {
         setFullBirthDateFromYear(birthYear);
     }

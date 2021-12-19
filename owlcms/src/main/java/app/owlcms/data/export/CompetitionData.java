@@ -33,8 +33,8 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
-import ch.qos.logback.classic.Logger;
 import app.owlcms.i18n.Translator;
+import ch.qos.logback.classic.Logger;
 
 public class CompetitionData {
 
@@ -103,8 +103,8 @@ public class CompetitionData {
         setAthletes(allAthletes);
         setGroups(GroupRepository.findAll());
         setPlatforms(PlatformRepository.findAll());
-        setConfig(Config.getCurrent());
-        setCompetition(Competition.getCurrent());
+        setConfigForExport(Config.getCurrent());
+        setCompetitionForExport(Competition.getCurrent());
         return this;
     }
 
@@ -113,16 +113,15 @@ public class CompetitionData {
         JPAService.runInTransaction(em -> {
             try {
                 Athlete.setSkipValidationsDuringImport(true);
+                
                 CompetitionData updated = this.importData(inputStream);
                 Config config = updated.getConfig();
-
-                Config.setCurrent(config);
+                
                 Locale defaultLocale = config.getDefaultLocale();
                 Translator.reset();
                 Translator.setForcedLocale(defaultLocale);
 
                 Competition competition = updated.getCompetition();
-                Competition.setCurrent(competition);
                 
                 for (AgeGroup ag : updated.getAgeGroups()) {
                     em.persist(ag);
@@ -258,14 +257,39 @@ public class CompetitionData {
     /**
      * @param competition the competition to set
      */
-    private void setCompetition(Competition competition) {
+    private void setCompetitionForExport(Competition competition) {
         this.competition = competition;
+    }
+    
+    /**
+     * When importing data, set the imported Competition instance as the current instance.
+     * This is required because it affects how some objects are processed (e.g., birth dates).
+     * 
+     * @param competition the competition to set
+     */
+    public void setCompetition(Competition competition) {
+        this.competition = competition;
+        Competition.setCurrent(this.competition);
+        logger.info("Applied imported Competition settings. useBirthYear={}", Competition.getCurrent().isUseBirthYear());
     }
 
     /**
+     * When importing data, set the imported Competition instance as the current instance.
+     * This is prudent in case the configuration might affect further processing.
+     * 
      * @param config the config to set
      */
-    private void setConfig(Config config) {
+    public void setConfig(Config config) {
+        this.config = config;
+        Config.setCurrent(this.getConfig());
+        logger.info("Applied imported language and system settings.");
+    }
+    
+    /**
+     * 
+     * @param config the config to set
+     */
+    private void setConfigForExport(Config config) {
         this.config = config;
     }
 }
