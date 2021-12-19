@@ -171,8 +171,8 @@ public class Competition {
     /**
      * Do not require month and day for birth.
      */
-    @Column(columnDefinition = "boolean default true")
-    private boolean useBirthYear = true;
+    @Column(columnDefinition = "boolean default false")
+    private boolean useBirthYear = false;
 
     /**
      * Idiosyncratic rule in Québec federation computes best lifter using Sinclair at bodyweight boundary.
