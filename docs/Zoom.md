@@ -8,7 +8,7 @@
 3. Send the following directives to each participating team:
    1. A phone or laptop with Zoom must be setup to show the platform.  The video should be in horizontal mode.
    2. Ideally, a second device with a keyboard, such as a laptop, is used to also connect to Zoom and type weight declarations and changes.
-   3. There needs to be a way to watch the competition scoreboard using an internet browser.  This can usually be done on the second Zoom device.
+   3. Finally, it will be possible to also look at the remote scoreboard through the web, on a laptop or tablet.  The setup below shows the scoreboard on Zoom, but this requires flipping between the two views, as explained in [User instructions for Zoom](UserInstructionsForZoom)
 
 ## Running
 
@@ -22,4 +22,4 @@ The following directives should be sent to each team participating
    2. The bar should be angled 45 degrees such that the small plates and collar are visible to the camera.
    3. Meet-specific rules may state that time starts immediately when the athlete is called, since having the proper weight loaded is entirely under the control of the team. 
 5. Any Zoom session not used to broadcast a platform should turn off video -- all the chat-only sessions for weight changes should be video off.
-   - If this is the case, the video operator can then right-click on a camera image and hide the non-video participants, leaving only the platforms and making athlete switching much easier
+   - This allows the host to hide the non-video participants, leaving only the platforms and making athlete switching much easier

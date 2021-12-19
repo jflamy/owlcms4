@@ -4,30 +4,27 @@ Start Zoom and use the Home icon, and then click on the settings Icon at the top
 
 ![zoomsettings](img/OBS/zoomsettings.png)
 
-#### Setup your Zoom Windows
+#### Setup the host's Zoom Windows
 
-In this example, we use one of our two monitors to have all the Zoom windows.
+In this example, we use one of our two monitors to have all the Zoom control windows.  The other screen shows the scoreboard, which is shared in high resolution to all the participants.
 
 - The general idea is that we will select an athlete from the gallery view, and put the spotlight on that athlete (right-click and select "replace spotlight").  This will change the view for all participants (including ourselves)
-- See the picture below for a sample organization.  We have:
-  - one window with the gallery view and the chat,
-  - a second window with the selected video.  The "Use Dual Monitors" option and the actual presence of a second monitor is what gives us the the second window (with the yellow frame in the screen shot below) -- once the window is shown, it can be moved to any monitor.
-  - Optionally, you can open the participants list as a pop-out.
+- See the picture below for a sample organization of the two screens (you can click on the image to enlarge it).  We have:
+  - one screen at the right with the gallery view and the chat,
+  - one screen at the left which is the host's main Zoom window. This is used to do a screen share of the scoreboard
 
-![ZoomMonitor](img/OBS/ZoomMonitor.png)
+#### ![zoomsplit](img/ZoomVideo/zoomsplit.png)
 
-#### Rehearse Current Athlete Selection
+#### Selection of the current athlete
 
-- For this step, you may need to invite other people.  You need at least two other participants to get all the menu options that will appear in a meet.  In the example window, we used an iPhone and an iPad with dummy accounts.
-
-- Make sure you are in Gallery View - there is an icon at the top right of the Zoom Meeting window that shows all the participants.
+- The current athlete and the next athlete can be monitored on the left screen (they blink or are highlighted)
+- On the right screen, make sure you are in Gallery View - there is an icon at the top right of the Zoom Meeting window for selecting.  In this way you see all the participants.
 - Right-click on the participant that you wish to select.
-- Select "Spotlight" or "Replace Spotlight" - the video preview window will switch accordingly.
+- Select "`Spotlight`" or "`Replace Spotlight`" in the context menu.  This will switch the video output on all the users.  As described below, users can select whether they watch the video of the athlete or the scoreboard.
 
-#### Rehearse the Broadcasting setup
+#### Rehearsal of the Broadcasting setup
 
-The video preview window is shown to the right (with a faint yellow highlight) in the screen shot above. 
+To rehearse this step, you to invite other people.  
 
-- Make the video preview window go full-screen by **double-clicking the white title bar**.  This is what we need for broadcast.
-- Bring back the other windows to be on top (using Alt-tab on Windows).  
-- The full-screen is still present underneath. This full-screen Zoom video window be used as a video source for OBS.
+- You need at least two other participants to get all the menu options that will appear in a meet. 
+- For our example, we used an iPhone and an iPad with dummy accounts, and a second laptop.  Video needs to be active on the participants to allow switching to a participant.  In our example, only Athlete 2 has the camera turned on, so that's the only view that can be selected for spotlighting.
