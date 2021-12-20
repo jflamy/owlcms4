@@ -4,6 +4,10 @@
 >
 > Beta releases are are meant for translators and early adopters. Minor bugs or inconveniences can still be present.  Release candidate ("rc") versions are very close to final and often used in real meets prior to an official release.
 
+- [x] 4.26.0-rc01:
+  - Fixed database import issue where only the birth year was kept
+  - Changed default for birth dates to be full date instead of birth year
+  - Updated documentation for Zoom broadcasts to cover sharing the scoreboard in high resolution and allowing switching between participant and scoreboard views.
 - [x] 4.26.0-beta00: Documented the recipe for simulating a competition and perform load testing (see [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Simulation)).  Performed simulations of large competitions as quality control test. No additional features are planned for 4.26, only fixes if problems are reported.
 - [x] 4.26.0-alpha02: fixed publicresults issue preventing startup that is only visible on Heroku
 - [x] 4.26.0-alpha01: classpath and resource location issues arising from moving code shared between owlcms and publicresults to a code library.
