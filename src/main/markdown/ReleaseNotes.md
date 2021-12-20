@@ -4,18 +4,21 @@
 >
 > Beta releases are are meant for translators and early adopters. Minor bugs or inconveniences can still be present.  Release candidate ("rc") versions are very close to final and often used in real meets prior to an official release.
 
+- [x] 4.26.0-rc02: Fix previously undiscovered issue when registration data creates new platforms.
 - [x] 4.26.0-rc01:
   - Fixed database import issue where only the birth year was kept
   - Changed default for birth dates to be full date instead of birth year
   - Updated documentation for Zoom broadcasts to cover sharing the scoreboard in high resolution and allowing switching between participant and scoreboard views.
-  - Updated logging library "logback" to its current version.
-- [x] 4.26.0-beta00: Documented the recipe for simulating a competition and perform load testing (see [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Simulation)).  Performed simulations of large competitions as quality control test. No additional features are planned for 4.26, only fixes if problems are reported.
-- [x] 4.26.0-alpha02: fixed publicresults issue preventing startup that is only visible on Heroku
-- [x] 4.26.0-alpha01: classpath and resource location issues arising from moving code shared between owlcms and publicresults to a code library.
+  - Updated logging library "logback" to its current version (unapplicable logging vulnerability)
 
 ###### New in release 4.26
 
-- [x] Enhancement: new web page for simulating a competition. 
+- [x] Updated logging library "logback" to its [current version](http://logback.qos.ch/news.html) (vulnerability [CVE-2021-42550](https://cve.report/CVE-2021-42550) )
+- [x] Fix: database import issue where only the birth year was kept
+  - Also changed default for birth dates to be full date instead of birth year, to match IWF TCRR.
+- [x] Fix: registration file import now works correctly when new platforms are added
+- [x] Omicron: Updated documentation for Zoom broadcasts to cover sharing the scoreboard in high resolution and allowing switching between participant and scoreboard views.
+- [x] Enhancement: Capability to simulate a competition and perform load testing (see [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Simulation)). Large (180 athletes) competitions have been tested with one or two platforms and 18 displays.
 
 
 - [x] Maintenance/clean-up:
@@ -57,27 +60,27 @@
 - [x] Results improvements and fixes:
   - From the Category Results page, ability to produce a result sheet for the selected category, age group, or age division.
 
-All resources in the local directory take precedence over the built-in ones (visual styles, templates, age group definitions, sounds, etc.)
-- You can also add a file with an extension for your locale (e.g. ex: _hy, _ru, _fr) and it will be used for things like marshal cards, starting list, etc.
-- You can zip the local directory on your laptop and upload the to a cloud-based setup (see the System configuration page from the Preparation section) (#366)
+- [x] All resources in the local directory take precedence over the built-in ones (visual styles, templates, age group definitions, sounds, etc.)
+  - You can also add a file with an extension for your locale (e.g. ex: _hy, _ru, _fr) and it will be used for things like marshal cards, starting list, etc.
+  - You can zip the local directory on your laptop and upload the to a cloud-based setup (see the System configuration page from the Preparation section) (#366)
 
-Moved the Language and Time Zone settings together with the technical settings to a renamed "Language and System Settings" page reachable from the "Preparation" section.
+- [x] Moved the Language and Time Zone settings together with the technical settings to a renamed "Language and System Settings" page reachable from the "Preparation" section.
+  - For troubleshooting, entering the "Language and System Settings" page prints the networking interfaces and addresses in the log.
 
-- [x] For troubleshooting, entering the "Language and System Settings" page prints the networking interfaces and addresses in the log.
+- [x] Enhancement: the program now forces start numbers when lifting starts if they have not been attributed at weigh-in (useful for small competitions not using cards with novice users)
 
-Enhancement: the program now forces start numbers when lifting starts if they have not been attributed at weigh-in (useful for small competitions not using cards with novice users)
+- [x] Marshall screen now shows decisions (#411). This is for setups where athlete cards are used and where it is difficult to see the scoreboard or inconvenient to switch tabs.
 
-Marshall screen now shows decisions (#411). This is for setups where athlete cards are used and where it is difficult to see the scoreboard or inconvenient to switch tabs.
+- [x] Clearer error message when athlete A cannot move down because B has attempted same weight on a bigger attempt number (if so, A should have lifted before B, cannot move down.)
 
-Clearer error message when athlete A cannot move down because B has attempted same weight on a bigger attempt number (if so, A should have lifted before B, cannot move down.)
+- [x] When a display is first started, a dialog offers to enable warning sounds or not.  Warnings are silenced by default; they should normally be enabled on only one display per room, to avoid warnings coming from several directions. See the [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Displays#display-settings) for details (#407)
 
-When a display is first started, a dialog offers to enable warning sounds or not.  Warnings are silenced by default; they should normally be enabled on only one display per room, to avoid warnings coming from several directions. See the [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Displays#display-settings) for details (#407)
+- [x] Implemented the <u>rules to prevent athletes from moving down their requested weight illegally</u>.  Moving down is denied if the athlete should already have attempted that weight according to the official lifting order.  The exact checks resulting from applying the TCRR to that situation are spelled out in the [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Announcing#rules-for-moving-down). (#418)
 
-Implemented the <u>rules to prevent athletes from moving down their requested weight illegally</u>.  Moving down is denied if the athlete should already have attempted that weight according to the official lifting order.  The exact checks resulting from applying the TCRR to that situation are spelled out in the [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Announcing#rules-for-moving-down). (#418)
+- [x] Violations of <u>rules for timing of declarations</u> (before initial 30 seconds), and for changes (before final warning) are now signaled as errors (#425, #426). Overriding is possible for officiating mistakes.
 
-Violations of <u>rules for timing of declarations</u> (before initial 30 seconds), and for changes (before final warning) are now signaled as errors (#425, #426). Overriding is possible for officiating mistakes.
+- [x] iPads now supported as refereeing device with Bluetooth buttons (running either the athlete-facing time+decision display or the attempt board display.)   iPads require that sound be enabled by touching a screen button once when the board is started. (#408). 
 
-iPads now supported as refereeing device with Bluetooth buttons (running either the athlete-facing time+decision display or the attempt board display.)   iPads require that sound be enabled by touching a screen button once when the board is started. (#408). 
 
 **Installation Instructions :**
 
