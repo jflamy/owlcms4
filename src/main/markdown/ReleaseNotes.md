@@ -4,6 +4,7 @@
 >
 > Beta releases are are meant for translators and early adopters. Minor bugs or inconveniences can still be present.  Release candidate ("rc") versions are very close to final and often used in real meets prior to an official release.
 
+- [x] 4.26.0-rc03: minor defensive programming fix when initializing or resetting the list of platforms.
 - [x] 4.26.0-rc02: Fix previously undiscovered issue when registration data creates new platforms.
 - [x] 4.26.0-rc01:
   - Fixed database import issue where only the birth year was kept
