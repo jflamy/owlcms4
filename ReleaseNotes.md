@@ -1,9 +1,13 @@
-##### **Changes for release 4.26.0-beta00**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Changes for release 4.26.0-rc01**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
 > Warning: alpha releases should not be used in actual competitions. They are meant for volunteer testers to check out new features and find problems after maintenance changes.
 >
 > Beta releases are are meant for translators and early adopters. Minor bugs or inconveniences can still be present.  Release candidate ("rc") versions are very close to final and often used in real meets prior to an official release.
 
+- [x] 4.26.0-rc01:
+  - Fixed database import issue where only the birth year was kept
+  - Changed default for birth dates to be full date instead of birth year
+  - Updated documentation for Zoom broadcasts to cover sharing the scoreboard in high resolution and allowing switching between participant and scoreboard views.
 - [x] 4.26.0-beta00: Documented the recipe for simulating a competition and perform load testing (see [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Simulation)).  Performed simulations of large competitions as quality control test. No additional features are planned for 4.26, only fixes if problems are reported.
 - [x] 4.26.0-alpha02: fixed publicresults issue preventing startup that is only visible on Heroku
 - [x] 4.26.0-alpha01: classpath and resource location issues arising from moving code shared between owlcms and publicresults to a code library.
