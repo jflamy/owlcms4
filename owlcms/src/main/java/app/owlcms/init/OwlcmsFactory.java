@@ -118,7 +118,13 @@ public class OwlcmsFactory {
     }
 
     public static void unregisterFOP(Platform platform) {
+        if (fopByName == null) {
+            return;
+        }
         String name = platform.getName();
+        if (name == null) {
+            throw new RuntimeException("can't happen, platform with no name");
+        }
         try {
             FieldOfPlay fop = fopByName.get(name);
             fop.getFopEventBus().unregister(fop);
