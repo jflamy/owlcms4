@@ -36,11 +36,11 @@ Setup your first screen to be your Zoom input.  You will need to use "Speaker Vi
 
 ## 4. Setup Monitor 2 for OBS
 
-Setup the second screen to include OBS and whatever owlcms screens you would like to monitor.  We suggest that you monitor both the live 
-
-The second browser should show the publicresults screen, so you can confirm that it tracks the current lifter and decisions and time correctly.
+Setup the second screen to include OBS and whatever owlcms screens you would like to monitor.  We suggest that you monitor the scoreboard or the lifting order screen to see in advance who needs to be brought in the spotlight.
 
 ![OBS_screenshot](img/ZoomVideo/OBS_screenshot.png)
+
+
 
 ## 5 Create the Scenes
 
