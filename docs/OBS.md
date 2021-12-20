@@ -1,6 +1,6 @@
 # Broadcasting a Virtual Competition using OBS
 
-This page explains how to broacast a Virtual Meet using Zoom and OBS (Open Broadcast Software).
+This page explains how to broadcast a Virtual Meet using Zoom and OBS (Open Broadcast Software).
 
 Requirements:
 
@@ -30,21 +30,17 @@ In OBS Studio, you combine individual elements called *sources* to create *scene
 
 ## 3. Setup Monitor 1 for Zoom
 
-Setup your first screen to be your Zoom control center.  Follow the steps in [Prepare Zoom Broadcasting](PrepareZoomBroadcasting)
+Setup your first screen to be your Zoom input.  You will need to use "Speaker View" so that you don't see the scoreboard, but rather the athlete.   Once the competition starts you will see the athletes and not the host's background. You need to move the small preview window out of the way on towards your second screen.  
 
-## 4. Setup Monitor 2 for OBS and Competition Monitoring
+![athlete+scoreboard](img/ZoomVideo/athlete+scoreboard.png)
 
-Setup the second screen to include OBS and the owlcms screens you would like to monitor.  We suggest two browsers
+## 4. Setup Monitor 2 for OBS
 
-The first browser can keep several tabs
-
-- The announcer screen -- you will see the actual timer and referee decisions coming in. This also gives you the lifting order. You will also be able to intervene to manually provide a decision, and otherwise assist the marshall.
-
-- The attempt board with the current weight configuration and timer
+Setup the second screen to include OBS and whatever owlcms screens you would like to monitor.  We suggest that you monitor both the live 
 
 The second browser should show the publicresults screen, so you can confirm that it tracks the current lifter and decisions and time correctly.
 
-![OBSmonitor](img/OBS/OBSmonitor.png)
+![OBS_screenshot](img/ZoomVideo/OBS_screenshot.png)
 
 ## 5 Create the Scenes
 
@@ -76,7 +72,7 @@ Hit OK. OBS then displays the current scene, with the source highlighted in red.
 
 Close the definition pane.  Whenever you click on the scene in the list at the left, the video output switches to that scene.
 
-### 5.2 Define a Scene for Live Video and Athlete Info
+### 5.2 Define a Scene combining Live Video and Athlete Info
 
 The second scene will be built with three elements. 
 
@@ -88,15 +84,16 @@ The second scene will be built with three elements.
 
 #### 5.2.1 Add a Live Video Source
 
-**Create the Live Video source:** Create a Window Capture source using the + sign at the bottom of the source pane.
+**Create the Live Video source:** Create a <u>Display Capture</u> source using the + sign at the bottom of the source pane.  Select your Monitor where Zoom is running.  You may alternately, if you are familiar with OBS, use a Window Capture.
 
-![windowCapture](img/OBS/windowCapture.png)
+![DisplayCapture](img/ZoomVideo/DisplayCapture.png)
 
 **Name the source:** Give the source a meaningful name, like "Live" or "ZoomVideo".
 
-**Select the window:** There will be several entries for Zoom.exe.  We do *not* want the one called Zoom Meeting as will show the participant gallery.  One called just Zoom.exe will show the video preview, that's the one we pick.   If you maximize the Zoom window by double-clicking on its title bar, you will see that the full screen area is indeed used.
+**Select the screen** 
 
-![ZoomWindowCapture](img/OBS/ZoomWindowCapture.png)
+- If you use a Display Capture, select the monitor where Zoom is displaying full screen.  <u>This is the simplest option.</u>
+- If you create a window capture, There will be several entries for Zoom.exe.  We do *not* want the one called Zoom Meeting as will show the participant gallery.  One called just Zoom.exe will show the video preview, that's the one we pick.  
 
 Troubleshooting: If you see a black area instead of your screen or window, go to the Troubleshooting section at the bottom of this page.
 
@@ -108,7 +105,7 @@ Troubleshooting: If you see a black area instead of your screen or window, go to
 
 ![AttemptBoardBrowserCapture](img/OBS/AttemptBoardBrowserCapture.png)
 
-**Shrink the view:**  Using the handles, you can shrink the view and also drag it to where you want.
+**Shrink the view:**  Using the handles, you can shrink the view and also drag it to where you want.  In this example, we are using the Zoom host's video as a live background,
 
 ![ShrinkAttempt](img/OBS/ShrinkAttempt.png)
 
