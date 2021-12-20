@@ -20,6 +20,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.spreadsheet.RGroup;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -143,5 +144,45 @@ public class PlatformRepository {
                 }
             }
         }
+    }
+    
+    public static void deleteUnusedPlatforms(Set<String> futurePlatforms) {
+        Set<String> preCheckPlatforms = PlatformRepository.findAll().stream().map(p -> p.getName())
+                .collect(Collectors.toSet());
+        logger.info("platforms before cleanup {}", preCheckPlatforms);
+
+        // delete all unused platforms
+        for (Platform pl : PlatformRepository.findAll()) {
+            if (!futurePlatforms.contains(pl.getName())) {
+                logger.info("removing platform {}", pl.getName());
+                PlatformRepository.delete(pl);
+            } else {
+            }
+        }
+    }
+
+    public static void createMissingPlatforms(List<RGroup> groups) {
+        final Set<String> checkPlatforms = PlatformRepository.findAll().stream().map(p -> p.getName())
+                .collect(Collectors.toSet());
+        logger.debug("platforms after cleanup {}", checkPlatforms);
+
+        // create missing platforms
+        JPAService.runInTransaction(em -> {
+            groups.stream().forEach(g -> {
+                String platformName = g.getPlatform();
+                Group group = g.getGroup();
+                if (platformName != null && !checkPlatforms.contains(platformName)) {
+                    Platform np = new Platform();
+                    np.setName(platformName);
+                    group.setPlatform(np);
+                    // make sure we don't add twice.
+                    checkPlatforms.add(platformName);
+                    logger.info("adding platform '{}'", np.getName());
+                    em.persist(np);
+                }
+            });
+            em.flush();
+            return null;
+        });
     }
 }

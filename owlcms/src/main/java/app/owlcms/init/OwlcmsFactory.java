@@ -9,8 +9,10 @@ package app.owlcms.init;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
@@ -117,10 +119,29 @@ public class OwlcmsFactory {
 
     public static void unregisterFOP(Platform platform) {
         String name = platform.getName();
+        try {
+            FieldOfPlay fop = fopByName.get(name);
+            fop.getFopEventBus().unregister(fop);
+        } catch (Exception e) {
+        }
         fopByName.remove(name);
         firstFOP();
     }
 
+    public static void unregisterAllFOPs() {
+        Iterator<Entry<String, FieldOfPlay>> it = fopByName.entrySet().iterator();
+        while (it.hasNext()) {
+            Entry<String, FieldOfPlay> f = it.next();
+            try {
+                FieldOfPlay fop = f.getValue();
+                fop.getFopEventBus().unregister(fop);
+            } catch (Exception e) {
+            }
+            fopByName.remove(f.getKey());
+        };
+        firstFOP();
+    }
+    
     public static void waitDBInitialized() {
         try {
             OwlcmsFactory.getInitializationLatch().await();
@@ -137,6 +158,9 @@ public class OwlcmsFactory {
     }
 
     private static synchronized void initFOPByName() {
+        if (fopByName != null) {
+            unregisterAllFOPs();
+        }
         fopByName = new HashMap<>();
         for (Platform platform : PlatformRepository.findAll()) {
             registerEmptyFOP(platform);

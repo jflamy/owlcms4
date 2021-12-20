@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +38,7 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.spreadsheet.RAthlete;
 import app.owlcms.spreadsheet.RCompetition;
 import app.owlcms.spreadsheet.RGroup;
@@ -299,45 +299,30 @@ public class RegistrationFileUploadDialog extends Dialog {
         Set<String> futurePlatforms = groups.stream().map(RGroup::getPlatform).filter(p -> (p != null && !p.isBlank()))
                 .collect(Collectors.toSet());
 
-        String defaultPlatformName = PlatformRepository.findAll().get(0).getName();
+        String defaultPlatformName = OwlcmsFactory.getDefaultFOP().getName();
         if (futurePlatforms.isEmpty()) {
-            // keep at least one platform
+            // keep the current default if no group is linked to a platform.
             futurePlatforms.add(defaultPlatformName);
         }
-        logger.debug("to be kept {}", futurePlatforms);
+        logger.debug("to be kept if present: {}", futurePlatforms);
 
-        Set<String> afterCleanupPlatforms = new HashSet<>();
-        // delete all unused platforms
-        for (Platform pl : PlatformRepository.findAll()) {
-            if (!futurePlatforms.contains(pl.getName())) {
-                PlatformRepository.delete(pl);
-            } else {
-                afterCleanupPlatforms.add(pl.getName());
-            }
-        }
-        Set<String> checkPlatforms = PlatformRepository.findAll().stream().map(Platform::getName)
-                .collect(Collectors.toSet());
-        logger.debug("platforms after cleanup {}", checkPlatforms);
-
+        PlatformRepository.deleteUnusedPlatforms(futurePlatforms);
+        PlatformRepository.createMissingPlatforms(groups);
+        
+        // recompute the available platforms, unregister the existing FOPs, etc.
+        OwlcmsFactory.initDefaultFOP();
+        String newDefault = OwlcmsFactory.getDefaultFOP().getName();
+        
         JPAService.runInTransaction(em -> {
             groups.stream().forEach(g -> {
                 String platformName = g.getPlatform();
                 Group group = g.getGroup();
-                if (platformName != null && !afterCleanupPlatforms.contains(platformName)) {
-                    Platform np = new Platform();
-                    np.setName(platformName);
-                    group.setPlatform(np);
-                    afterCleanupPlatforms.add(platformName);
-                    logger.debug("adding platform {} for group {}", np.getName(), g.getGroupName());
-                    em.persist(np);
-                } else {
-                    if (platformName == null || platformName.isBlank()) {
-                        platformName = defaultPlatformName;
-                    }
-                    Platform op = PlatformRepository.findByName(platformName);
-                    logger.debug("setting group {} {} {}", g.getGroupName(), op.getName(), platformName);
-                    group.setPlatform(op);
+                if (platformName == null || platformName.isBlank()) {
+                    platformName = newDefault;
                 }
+                logger.info("setting platform '{}' for group {}", platformName, g.getGroupName());
+                Platform op = PlatformRepository.findByName(platformName);
+                group.setPlatform(op);
                 em.merge(group);
             });
             em.flush();
@@ -349,4 +334,6 @@ public class RegistrationFileUploadDialog extends Dialog {
                     g.getCompetitionTime());
         });
     }
+
+
 }
