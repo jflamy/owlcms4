@@ -18,6 +18,8 @@ import java.util.concurrent.CountDownLatch;
 
 import org.slf4j.LoggerFactory;
 
+import com.google.common.eventbus.EventBus;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
@@ -128,26 +130,34 @@ public class OwlcmsFactory {
         try {
             FieldOfPlay fop = fopByName.get(name);
             fop.getFopEventBus().unregister(fop);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
         }
         fopByName.remove(name);
         firstFOP();
     }
 
     public static void unregisterAllFOPs() {
+        if (fopByName == null) {
+            return;
+        }
         Iterator<Entry<String, FieldOfPlay>> it = fopByName.entrySet().iterator();
         while (it.hasNext()) {
             Entry<String, FieldOfPlay> f = it.next();
-            try {
-                FieldOfPlay fop = f.getValue();
-                fop.getFopEventBus().unregister(fop);
-            } catch (Exception e) {
+
+            FieldOfPlay fop = f.getValue();
+            EventBus fopEventBus = fop.getFopEventBus();
+            if (fopEventBus != null) {
+                try {
+                    fopEventBus.unregister(fop);
+                } catch (IllegalArgumentException e) {
+                    // not registered, or already unregistered
+                }
             }
             fopByName.remove(f.getKey());
-        };
+        }
         firstFOP();
     }
-    
+
     public static void waitDBInitialized() {
         try {
             OwlcmsFactory.getInitializationLatch().await();
@@ -164,9 +174,7 @@ public class OwlcmsFactory {
     }
 
     private static synchronized void initFOPByName() {
-        if (fopByName != null) {
-            unregisterAllFOPs();
-        }
+        unregisterAllFOPs();
         fopByName = new HashMap<>();
         for (Platform platform : PlatformRepository.findAll()) {
             registerEmptyFOP(platform);
