@@ -570,7 +570,7 @@ public class ResourceWalker {
             // beware: use a resource that is in the shared module
             openClassPathFileSystem("/i18n");
             resourcePath = Paths.get(resourcesURI);
-            logger.warn("resourcePath: {} {}",resourcesURI, resourcePath);
+            logger.debug("resourcePath: {} {}",resourcesURI, resourcePath);
         }
         return resourcePath;
     }
