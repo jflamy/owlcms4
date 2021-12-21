@@ -6,8 +6,12 @@
  *******************************************************************************/
 package app.owlcms.init;
 
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.server.BootstrapListener;
+import com.vaadin.flow.server.BootstrapPageResponse;
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.SessionInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
@@ -30,10 +34,32 @@ import ch.qos.logback.classic.Logger;
 public class ServiceListener implements VaadinServiceInitListener {
     private static Logger logger = (Logger) LoggerFactory.getLogger(ServiceListener.class);
 
+    private class CustomBootstrapListener implements BootstrapListener {
+        
+        @Override
+        public void modifyBootstrapPage(BootstrapPageResponse response) {
+            Document document = response.getDocument();
+            Element head = document.head();
+            head.appendChild(createMeta(document, "robots", "noindex"));
+        }
+
+        private Element createMeta(Document document, String property,
+                String content) {
+            Element meta = document.createElement("meta");
+            meta.attr("property", property);
+            meta.attr("content", content);
+            return meta;
+        }
+
+    }
+
+    private CustomBootstrapListener bootStrapEventListener;
+    
     /**
      * Instantiates a new service listener.
      */
     public ServiceListener() {
+        bootStrapEventListener = new CustomBootstrapListener();
     }
 
     /*
@@ -47,7 +73,8 @@ public class ServiceListener implements VaadinServiceInitListener {
         event.getSource().addSessionInitListener(sessionInitEvent -> {
             sessionInit(sessionInitEvent);
         });
-
+        
+        event.addBootstrapListener(bootStrapEventListener);
     }
 
     // session init listener will be called whenever a VaadinSession is created
