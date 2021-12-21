@@ -18,10 +18,10 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 /**
  * Store the current user's settings and choices, across the multiple pages that may be opened.
@@ -175,5 +175,18 @@ public class OwlcmsSession {
     private Properties attributes = new Properties();
 
     private OwlcmsSession() {
+    }
+
+    public static String getFopNameIfMultiple() {
+        if (OwlcmsFactory.getFOPs().size() > 1) {
+            FieldOfPlay fop;
+            if ((fop = getFop()) != null) {
+                return " " + fop.getName();
+            } else {
+                return null;
+            }
+        } else {
+            return "";
+        }
     }
 }

@@ -9,12 +9,16 @@ package app.owlcms.init;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
 import org.slf4j.LoggerFactory;
+
+import com.google.common.eventbus.EventBus;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.platform.Platform;
@@ -22,6 +26,7 @@ import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.ProxyAthleteTimer;
 import app.owlcms.fieldofplay.ProxyBreakTimer;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -57,31 +62,6 @@ public class OwlcmsFactory {
      */
     public static FieldOfPlay getDefaultFOP() {
         return defaultFOP;
-    }
-
-    /**
-     * @return first field of play, sorted alphabetically
-     */
-    public static synchronized FieldOfPlay initDefaultFOP() {
-        // logger.debug("OwlcmsFactory {} {} {}", init, fopByName != null ? fopByName.size() : null,
-        // LoggerUtils. stackTrace());
-        initFOPByName();
-        firstFOP();
-
-//        if (getDefaultFOP() != null) {
-//            // force a wake up on user interfaces
-//            getDefaultFOP().pushOut(new UIEvent.SwitchGroup(getDefaultFOP().getGroup(), getDefaultFOP().getState(),
-//                    getDefaultFOP().getCurAthlete(), null));
-//        }
-        return getDefaultFOP();
-    }
-
-    private static void firstFOP() {
-        Optional<FieldOfPlay> fop = fopByName.entrySet().stream()
-                .sorted(Comparator.comparing(x -> x.getKey()))
-                .map(x -> x.getValue())
-                .findFirst();
-        setDefaultFOP(fop.orElse(null));
     }
 
     public static FieldOfPlay getFOPByGroupName(String name) {
@@ -120,6 +100,64 @@ public class OwlcmsFactory {
         return StartupUtils.getVersion();
     }
 
+    /**
+     * @return first field of play, sorted alphabetically
+     */
+    public static synchronized FieldOfPlay initDefaultFOP() {
+        logger.trace("initDefaultFOP {} {}", fopByName != null ? fopByName.size() : null, LoggerUtils.stackTrace());
+        initFOPByName();
+        setFirstFOPAsDefault();
+        return getDefaultFOP();
+    }
+
+    public static FieldOfPlay registerEmptyFOP(Platform platform) {
+        String name = platform.getName();
+        FieldOfPlay fop = new FieldOfPlay(null, platform);
+        logger.trace("{} Initialized", fop.getLoggingName());
+        // no group selected, no athletes, announcer will need to pick a group.
+        fop.init(new LinkedList<Athlete>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop), true);
+        fopByName.put(name, fop);
+        return fop;
+    }
+
+    public static void unregisterFOP(Platform platform) {
+        if (fopByName == null) {
+            return;
+        }
+        String name = platform.getName();
+        if (name == null) {
+            throw new RuntimeException("can't happen, platform with no name");
+        }
+        try {
+            FieldOfPlay fop = fopByName.get(name);
+            fop.getFopEventBus().unregister(fop);
+        } catch (IllegalArgumentException e) {
+        }
+        logger.trace("unregistering and unmapping fop {}",name);
+        fopByName.remove(name);
+    }
+
+    public static void resetFOPByName() {
+        if (fopByName != null) {
+            Iterator<Entry<String, FieldOfPlay>> it = fopByName.entrySet().iterator();
+            while (it.hasNext()) {
+                Entry<String, FieldOfPlay> f = it.next();
+
+                FieldOfPlay fop = f.getValue();
+                EventBus fopEventBus = fop.getFopEventBus();
+                if (fopEventBus != null) {
+                    try {
+                        fopEventBus.unregister(fop);
+                    } catch (IllegalArgumentException e) {
+                        // not registered, or already unregistered
+                    }
+                }
+            }
+        }
+        fopByName = new HashMap<>();
+        logger.trace("fopByName reset done.");
+    }
+
     public static void waitDBInitialized() {
         try {
             OwlcmsFactory.getInitializationLatch().await();
@@ -127,26 +165,28 @@ public class OwlcmsFactory {
         }
     }
 
-    private static synchronized void initFOPByName() {
-        fopByName = new HashMap<>();
-        for (Platform platform : PlatformRepository.findAll()) {
-            registerFOP(platform);
+    public static void setFirstFOPAsDefault() {
+        Optional<FieldOfPlay> fop = fopByName.entrySet().stream()
+                .sorted(Comparator.comparing(x -> x.getKey()))
+                .map(x -> x.getValue())
+                .findFirst();
+        if (fop.isPresent()) {
+            setDefaultFOP(fop.get());
+        } else {
+            Platform platform = new Platform("Default");
+            PlatformRepository.save(platform);
+            initDefaultFOP();
         }
+        
     }
 
-    public static void registerFOP(Platform platform) {
-        String name = platform.getName();
-        FieldOfPlay fop = new FieldOfPlay(null, platform);
-        logger.debug("{} Initialized", fop.getLoggingName());
-        // no group selected, no athletes, announcer will need to pick a group.
-        fop.init(new LinkedList<Athlete>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop), true);
-        fopByName.put(name, fop);
-    }
-    
-    public static void unregisterFOP(Platform platform) {
-        String name = platform.getName();
-        fopByName.remove(name);
-        firstFOP();
+    private static synchronized void initFOPByName() {
+        resetFOPByName();
+        for (Platform platform : PlatformRepository.findAll()) {
+            logger.trace("registering fop for {}",platform);
+            registerEmptyFOP(platform);
+        }
+        logger.trace("after initFOPByName {}", fopByName != null ? fopByName.size() : null);
     }
 
     /**
@@ -155,4 +195,5 @@ public class OwlcmsFactory {
     private static void setDefaultFOP(FieldOfPlay defaultFOP) {
         OwlcmsFactory.defaultFOP = defaultFOP;
     }
+
 }

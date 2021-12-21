@@ -23,7 +23,7 @@ There are 5 things to be careful with (I am using examples from the Spanish tran
 
 **1) HTML formatting.** 
 
-Some cells contain HTML codes like `<b></b>` for formatting, and use HTML conventions for special characters. For example, &amp; is used instead of &. They should be preserved in your translation, for example:
+Some cells contain HTML codes like `<b></b>` for formatting, and use HTML conventions for special characters. For example, `&amp;` is used instead of `&`. Such codes must be preserved in your translation, for example:
 
 ```html
 El grupo actual para la plataforma se selecciona en la <b><i>Anunciador</i></b> pantalla<br>
@@ -31,13 +31,13 @@ El grupo actual para la plataforma se selecciona en la <b><i>Anunciador</i></b> 
 
 **2) Sentences with substitution slots {0} {1} ...** 
 
-When the program needs to build a sentence where values need to be inserted, the sentence is written with {0} for the first value, {1} for the second value, and so on (counting starting at 0 is frequent in computer programming -- this is a convention used by the tools I am using, not my personal choice)
+When the program needs to build a sentence where values need to be inserted, the sentence is written with `{0}` for the first value, `{1}` for the second value, and so on (counting starting at 0 is frequent in computer programming -- this is a convention used by the tools I am using, not my personal choice)
 
 ```html
 El valor debe estar entre {0} y {1} inclusivo.
 ```
 
-**3) Grammatical variations**
+**3) Grammatical variations for plural**
 
 If you see things like the following, you must NOT translate the word "choice". For example, the following selects what to display depending on whether the try number is 1, 2, or 3. that 1er 2o 3er will be shown in properly formatted format (`<sup>` is for superscript).
 
@@ -88,10 +88,6 @@ If you see a string that starts with `\u`, it is a way to write down characters 
 - By default, OWLCMS obeys your browser settings.  So if your browser is set to have xx as the preferred language, and there are translations available for language `xx`, you will see the `xx` text you provided.
   - If you don't get the right language (for example, my browser is in English, but I need to see French when translating to French), see the [instructions for forcing the language](https://jflamy.github.io/owlcms4/#/LocalSetup?id=defining-the-language)
 
-## Reminder
+## Translation updates
 
-If you are using the Windows installer, uninstalling will also delete the local directory.  **Make a copy before updating **
-
-## Sending your translations back
-
-Once you are happy with your `local` directory, send an e-mail to the author at [jf@jflamy.dev](mailto:jf@jflamy.dev) so the translations are copied to the software source repository.
+After updating your translations, you may wish to send an e-mail to the author at [jf@jflamy.dev](mailto:jf@jflamy.dev) to make sure your changes are pulled in.

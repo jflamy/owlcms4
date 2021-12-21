@@ -177,6 +177,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         DisplayOptions.addSoundEntries(vl, target, this);
     }
 
+
     @Override
     public void doBreak() {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
@@ -185,7 +186,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
             model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
             model.setTeamName("");
             model.setAttempt("");
-            model.setHidden(false);
+            setHidden(false);
 
             updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
             uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
@@ -193,6 +194,16 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         }));
     }
 
+    private void setHidden(boolean hidden) {
+        this.getElement().setProperty("hiddenStyle",(hidden ? "display:none" : "display:block"));
+        this.getElement().setProperty("inactiveStyle",(hidden ? "display:block" : "display:none"));
+        this.getElement().setProperty("inactiveClass",(hidden ? "bigTitle" : ""));
+    }
+    
+    private void setWideTeamNames(boolean wide) {
+        this.getElement().setProperty("teamWidthClass",(wide ? "wideTeams" : "narrowTeams"));
+    }
+    
     /**
      * return dialog, but only on first call.
      *
@@ -220,7 +231,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
 
     @Override
     public String getPageTitle() {
-        return getTranslation("CurrentAthleteTitle");
+        return getTranslation("CurrentAthleteTitle") + OwlcmsSession.getFopNameIfMultiple();
     }
 
     @Override
@@ -286,7 +297,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
             Athlete a = e.getAthlete();
-            getModel().setHidden(false);
+            setHidden(false);
             if (a == null) {
                 order = fop.getLiftingOrder();
                 a = order.size() > 0 ? order.get(0) : null;
@@ -303,7 +314,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     public void slaveDecision(UIEvent.Decision e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            getModel().setHidden(false);
+            setHidden(false);
             doUpdateBottomPart(e);
             this.getElement().callJsFunction("refereeDecision");
         });
@@ -313,7 +324,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     public void slaveDecisionReset(UIEvent.DecisionReset e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            getModel().setHidden(false);
+            setHidden(false);
             if (isDone()) {
                 doDone(e.getAthlete().getGroup());
             } else {
@@ -327,7 +338,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     public void slaveDownSignal(UIEvent.DownSignal e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            getModel().setHidden(false);
+            setHidden(false);
             this.getElement().callJsFunction("down");
         });
     }
@@ -342,7 +353,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setHidden(false);
+            setHidden(false);
 //          Group g = e.getGroup();
             setDone(true);
         });
@@ -365,7 +376,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setHidden(false);
+            setHidden(false);
             doBreak();
         });
     }
@@ -374,7 +385,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     public void slaveStartLifting(UIEvent.StartLifting e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            getModel().setHidden(false);
+            setHidden(false);
             this.getElement().callJsFunction("reset");
         });
     }
@@ -384,7 +395,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setHidden(false);
+            setHidden(false);
             Athlete a = e.getAthlete();
             this.getElement().callJsFunction("reset");
             doUpdate(a, e);
@@ -406,7 +417,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     }
 
     protected void doEmpty() {
-        this.getModel().setHidden(true);
+        this.setHidden(true);
     }
 
     protected void doUpdate(Athlete a, UIEvent e) {
@@ -593,7 +604,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
             String team = a.getTeam();
             if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
                 logger.trace("long team {}", team);
-                getModel().setWideTeamNames(true);
+                setWideTeamNames(true);
             }
             jath.set(athx, ja);
             athx++;
@@ -685,7 +696,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         OwlcmsSession.withFop(fop -> {
             logger.trace("{}Starting result board", fop.getLoggingName());
             setId("scoreboard-" + fop.getName());
-            getModel().setWideTeamNames(false);
+            setWideTeamNames(false);
             getModel().setCompetitionName(Competition.getCurrent().getCompetitionName());
         });
         setTranslationMap();
@@ -714,6 +725,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
             }
             break;
         default:
+            setHidden(false);
             doUpdate(e.getAthlete(), e);
         }
     }

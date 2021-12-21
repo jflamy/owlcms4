@@ -100,7 +100,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("Jury");
+        return getTranslation("Jury") + OwlcmsSession.getFopNameIfMultiple();
     }
 
     @Subscribe

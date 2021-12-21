@@ -57,7 +57,7 @@ public class LiftDefinitionTest {
     }
     @Before
     public void setupTest() {
-        FieldOfPlay fopState = new FieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(), new MockCountdownTimer(), true);
+        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(), new MockCountdownTimer());
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LOGGER_LEVEL);
         // EventBus fopBus = fopState.getFopEventBus();

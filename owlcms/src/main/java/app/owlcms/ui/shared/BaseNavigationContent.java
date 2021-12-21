@@ -205,24 +205,6 @@ public abstract class BaseNavigationContent extends VerticalLayout
         return fopField;
     }
 
-    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
-        Label groupLabel = new Label(label);
-        formatLabel(groupLabel);
-
-        ComboBox<Group> groupSelect = createGroupSelect(placeHolder);
-        OwlcmsSession.withFop((fop) -> {
-            groupSelect.setValue(fop.getGroup());
-        });
-        groupSelect.addValueChangeListener(e -> {
-            OwlcmsSession.withFop((fop) -> {
-                switchGroup(e.getValue(), fop);
-            });
-        });
-
-        HorizontalLayout groupField = new HorizontalLayout(groupLabel, groupSelect);
-        groupField.setAlignItems(Alignment.CENTER);
-        return groupField;
-    }
 
     protected void formatLabel(Label label) {
         label.getStyle().set("font-size", "small");
@@ -254,19 +236,4 @@ public abstract class BaseNavigationContent extends VerticalLayout
         });
     }
 
-    protected void switchGroup(Group group2, FieldOfPlay fop) {
-        Group group = group2;
-        Group currentGroup = fop.getGroup();
-        if (group == null) {
-            fop.startLifting(null, this.getOrigin());
-            if (groupSelect != null) {
-                groupSelect.setValue(null);
-            }
-        } else if (!group.equals(currentGroup)) {
-            fop.startLifting(group, this.getOrigin());
-            if (groupSelect != null) {
-                groupSelect.setValue(group);
-            }
-        }
-    }
 }

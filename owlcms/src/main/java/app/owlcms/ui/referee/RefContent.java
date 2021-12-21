@@ -57,7 +57,7 @@ import app.owlcms.i18n.Translator;
 /**
  * Class AnnouncerContent.
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 @Route(value = "ref")
 @Push
 public class RefContent extends VerticalLayout implements FOPParameters, SafeEventBusRegistration,
@@ -119,7 +119,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
      */
     @Override
     public String getPageTitle() {
-        return Translator.translate("Referee") + (refIndex != null ? (" " + refIndex) : "");
+        return Translator.translate("Referee")  + OwlcmsSession.getFopNameIfMultiple() + (refIndex != null ? (" " + refIndex) : "");
     }
 
     @Override

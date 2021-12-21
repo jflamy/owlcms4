@@ -68,7 +68,7 @@ public class MovingDownTest {
     @Test
     public void cleanJerkCheckAttemptNumber() {
         FieldOfPlay fopState = emptyFieldOfPlay();
-        EventBus fopBus = prepAllSame(fopState, 3);
+        EventBus fopBus = testPrepAllSame(fopState, 3);
 
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
         Athlete schneiderF = groupAthletes.get(0);
@@ -112,7 +112,7 @@ public class MovingDownTest {
     @Test
     public void cleanJerkCheckAttemptNumberWithClock() {
         FieldOfPlay fopState = emptyFieldOfPlay();
-        EventBus fopBus = prepAllSame(fopState, 3);
+        EventBus fopBus = testPrepAllSame(fopState, 3);
 
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
         Athlete schneiderF = groupAthletes.get(0);
@@ -158,7 +158,7 @@ public class MovingDownTest {
     @Test
     public void cleanJerkCheckProgression() {
         FieldOfPlay fopState = emptyFieldOfPlay();
-        EventBus fopBus = prepAllSame(fopState, 3);
+        EventBus fopBus = testPrepAllSame(fopState, 3);
 
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
         Athlete schneiderF = groupAthletes.get(0);
@@ -209,7 +209,7 @@ public class MovingDownTest {
     @Test
     public void cleanJerkCheckProgression2() {
         FieldOfPlay fopState = emptyFieldOfPlay();
-        EventBus fopBus = prepSnatchCheckProgression(fopState, 4);
+        EventBus fopBus = testPrepSnatchCheckProgression(fopState, 4);
 
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
         Athlete schneiderF = groupAthletes.get(0);
@@ -266,7 +266,7 @@ public class MovingDownTest {
     @Test
     public void cleanJerkCheckProgression3() {
         FieldOfPlay fopState = emptyFieldOfPlay();
-        EventBus fopBus = prepSnatchCheckProgression(fopState, 4);
+        EventBus fopBus = testPrepSnatchCheckProgression(fopState, 4);
 
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
         Athlete schneiderF = groupAthletes.get(0);
@@ -321,7 +321,7 @@ public class MovingDownTest {
     @Test
     public void cleanJerkCheckStartNumber() {
         FieldOfPlay fopState = emptyFieldOfPlay();
-        EventBus fopBus = prepAllSame(fopState, 3);
+        EventBus fopBus = testPrepAllSame(fopState, 3);
 
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
         Athlete schneiderF = groupAthletes.get(0);
@@ -357,7 +357,7 @@ public class MovingDownTest {
         final String resName = "/initialCheck.txt";
 
         List<Athlete> allAthletes = AthleteRepository.findAll();
-        FieldOfPlay fopState = new FieldOfPlay(allAthletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
+        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(allAthletes, new MockCountdownTimer(), new MockCountdownTimer());
         OwlcmsSession.setFop(fopState);
         AthleteSorter.displayOrder(allAthletes);
         AthleteSorter.assignStartNumbers(allAthletes);
@@ -396,7 +396,7 @@ public class MovingDownTest {
     @Test
     public void snatchCheckAttemptNumber() {
         FieldOfPlay fopState = emptyFieldOfPlay();
-        EventBus fopBus = prepAllSame(fopState, 3);
+        EventBus fopBus = testPrepAllSame(fopState, 3);
 
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
         Athlete schneiderF = groupAthletes.get(0);
@@ -432,7 +432,7 @@ public class MovingDownTest {
     @Test
     public void snatchCheckAttemptNumberWithClock() {
         FieldOfPlay fopState = emptyFieldOfPlay();
-        EventBus fopBus = prepAllSame(fopState, 3);
+        EventBus fopBus = testPrepAllSame(fopState, 3);
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
         Athlete schneiderF = groupAthletes.get(0);
         Athlete simpsonR = groupAthletes.get(1);
@@ -469,7 +469,7 @@ public class MovingDownTest {
     @Test
     public void snatchCheckProgression() {
         FieldOfPlay fopState = emptyFieldOfPlay();
-        EventBus fopBus = prepAllSame(fopState, 3);
+        EventBus fopBus = testPrepAllSame(fopState, 3);
 
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
         Athlete schneiderF = groupAthletes.get(0);
@@ -511,7 +511,7 @@ public class MovingDownTest {
     @Test
     public void snatchCheckProgression2() {
         FieldOfPlay fopState = emptyFieldOfPlay();
-        EventBus fopBus = prepSnatchCheckProgression(fopState, 4);
+        EventBus fopBus = testPrepSnatchCheckProgression(fopState, 4);
 
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
         // final Athlete schneiderF = allAthletes.get(0);
@@ -553,7 +553,7 @@ public class MovingDownTest {
     @Test
     public void snatchCheckProgression3() {
         FieldOfPlay fopState = emptyFieldOfPlay();
-        EventBus fopBus = prepSnatchCheckProgression(fopState, 4);
+        EventBus fopBus = testPrepSnatchCheckProgression(fopState, 4);
 
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
         // final Athlete schneiderF = allAthletes.get(0);
@@ -593,7 +593,7 @@ public class MovingDownTest {
     @Test
     public void snatchCheckProgression4() {
         FieldOfPlay fopState = emptyFieldOfPlay();
-        EventBus fopBus = prepSnatchCheckProgression(fopState, 3);
+        EventBus fopBus = testPrepSnatchCheckProgression(fopState, 3);
 
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
         Athlete schneiderF = groupAthletes.get(0);
@@ -645,7 +645,7 @@ public class MovingDownTest {
     @Test
     public void snatchCheckStartNumber() {
         FieldOfPlay fopState = emptyFieldOfPlay();
-        EventBus fopBus = prepAllSame(fopState, 3);
+        EventBus fopBus = testPrepAllSame(fopState, 3);
 
         List<Athlete> athletes = fopState.getDisplayOrder();
         Athlete schneiderF = athletes.get(0);
@@ -808,7 +808,7 @@ public class MovingDownTest {
     }
 
     private FieldOfPlay emptyFieldOfPlay() {
-        return new FieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(), new MockCountdownTimer(), true);
+        return FieldOfPlay.mockFieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(), new MockCountdownTimer());
     }
 
     private Athlete failedLift(Athlete expected, EventBus fopBus, FieldOfPlay fopState) {
@@ -841,14 +841,14 @@ public class MovingDownTest {
         }
     }
 
-    private EventBus prepAllSame(FieldOfPlay fopState, int nbAthletes) {
+    private EventBus testPrepAllSame(FieldOfPlay fopState, int nbAthletes) {
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LoggerLevel);
         EventBus fopBus = fopState.getFopEventBus();
 
         logger.setLevel(Level.INFO);
 
-        fopState.beforeTest();
+        fopState.testBefore();
         fopState.loadGroup(gA, this, true);
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
 
@@ -869,14 +869,14 @@ public class MovingDownTest {
         return fopBus;
     }
 
-    private EventBus prepSnatchCheckProgression(FieldOfPlay fopState, int nbAthletes) {
+    private EventBus testPrepSnatchCheckProgression(FieldOfPlay fopState, int nbAthletes) {
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LoggerLevel);
         EventBus fopBus = fopState.getFopEventBus();
 
         logger.setLevel(Level.INFO);
 
-        fopState.beforeTest();
+        fopState.testBefore();
         fopState.loadGroup(gA, this, true);
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
 

@@ -164,14 +164,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
         return null;
     }
 
-    /**
-     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarGroupField(java.lang.String, java.lang.String)
-     */
-    @Override
-    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
-        return null;
-    }
-
+ 
     /**
      * @see app.owlcms.ui.shared.BaseNavigationContent#getTitle()
      */

@@ -46,15 +46,16 @@ class DecisionElement extends PolymerElement {
 }
 
 .none {
-	background-color: var(--lumo-contrast-50pct);
+	background-color: var(--lumo-contrast-20pct);
+	border: medium dashed var(--lumo-contrast);
 }
 
 .down {
 	display: flex;
     align-items: center;
 	justify-content: space-evenly;
-	--iron-icon-height: 40%;
-    --iron-icon-width: 40%;
+	--iron-icon-height: 35%;
+    --iron-icon-width: 35%;
 	font-weight: normal;
 	color: lime;
 	display:block;

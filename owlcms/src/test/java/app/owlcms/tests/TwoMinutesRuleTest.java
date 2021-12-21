@@ -82,7 +82,7 @@ public class TwoMinutesRuleTest {
     }
 
     void doSequence3(FieldOfPlay fopState, EventBus fopBus, Logger logger) {
-        prepState3(fopState, fopBus, logger);
+        testPrepState3(fopState, fopBus, logger);
         athletes = fopState.getDisplayOrder();
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);
@@ -170,8 +170,8 @@ public class TwoMinutesRuleTest {
         assertEquals(remainingTime, fopState.getTimeAllowed());
     }
 
-    public void prepState3(FieldOfPlay fopState, EventBus fopBus, Logger logger2) {
-        fopState.beforeTest();
+    public void testPrepState3(FieldOfPlay fopState, EventBus fopBus, Logger logger2) {
+        fopState.testBefore();
         fopState.loadGroup(gA, this, true);
         athletes = fopState.getDisplayOrder();
         final Athlete schneiderF = athletes.get(0);
@@ -202,8 +202,8 @@ public class TwoMinutesRuleTest {
         fopState.loadGroup(gA, this, true);
     }
     
-    public void prepState4(FieldOfPlay fopState, EventBus fopBus, Logger logger2) {
-        fopState.beforeTest();
+    public void testPrepState4(FieldOfPlay fopState, EventBus fopBus, Logger logger2) {
+        fopState.testBefore();
         fopState.loadGroup(gA, this, true);
         athletes = fopState.getDisplayOrder();
         final Athlete schneiderF = athletes.get(0);
@@ -243,7 +243,7 @@ public class TwoMinutesRuleTest {
     }
 
     void doLiftSequence4(FieldOfPlay fopState, EventBus fopBus, Logger logger) {
-        prepState4(fopState, fopBus, logger);
+        testPrepState4(fopState, fopBus, logger);
         athletes = fopState.getDisplayOrder();
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);
@@ -337,7 +337,7 @@ public class TwoMinutesRuleTest {
         });
         AthleteRepository.resetParticipations();
         athletes = AthleteRepository.findAll();
-        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
+        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer());
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(Level.INFO);
         // EventBus fopBus = fopState.getFopEventBus();

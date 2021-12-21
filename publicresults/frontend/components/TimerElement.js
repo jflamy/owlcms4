@@ -13,9 +13,9 @@ class TimerElement extends PolymerElement {
 
 	static get template() {
 		return html`
-<audio id="initialWarning" preload="auto"><source src="../sounds/initialWarning.mp3"></source></audio>
-<audio id="finalWarning" preload="auto"><source src="../sounds/finalWarning.mp3"></source></audio>
-<audio id="timeOver" preload="auto"><source src="../sounds/timeOver.mp3"></source></audio>
+<audio id="initialWarning" preload="auto"><source src="../local/sounds/initialWarning.mp3"></source></audio>
+<audio id="finalWarning" preload="auto"><source src="../local/sounds/finalWarning.mp3"></source></audio>
+<audio id="timeOver" preload="auto"><source src="../local/sounds/timeOver.mp3"></source></audio>
 <div inner-h-t-m-l="[[_formattedTime]]"></div>`;
 }
 

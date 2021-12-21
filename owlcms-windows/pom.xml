@@ -166,7 +166,7 @@
                             <classPath>
                                 <mainClass>app.owlcms.Main</mainClass>
                                 <addDependencies>false</addDependencies>
-                                <preCp>local</preCp>
+                                <preCp>classes</preCp>
                                 <postCp>owlcms.jar</postCp>
                             </classPath>
                             <icon>src/main/install/owlcms.ico</icon>

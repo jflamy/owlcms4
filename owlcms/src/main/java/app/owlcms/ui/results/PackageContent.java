@@ -375,10 +375,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
         topBar = getAppLayout().getAppBarElementWrapper();
         xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
-//        StreamResource href = new StreamResource("finalResults.xls", xlsWriter);
-//        finalPackageAnchor = new Anchor(href, "");
-//        finalPackageAnchor.getStyle().set("margin-left", "1em");
-//        packageDownloadButton = new Button(getTranslation("FinalResultsPackage"), new Icon(VaadinIcon.DOWNLOAD_ALT));
 
         catXlsWriter = new JXLSCatResults(UI.getCurrent());
         StreamResource hrefC = new StreamResource("catResults.xls", catXlsWriter);
@@ -615,30 +611,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
                     getTranslation("Warning_GroupLifting") + liftingFop.getName() + getTranslation("CannotEditResults"),
                     3000, Position.MIDDLE);
             logger.debug(getTranslation("CannotEditResults_logging"), currentGroup, liftingFop);
-            subscribeIfLifting(currentGroup);
         } else {
             logger.debug(getTranslation("EditingResults_logging"), currentGroup, liftingFop);
         }
         return liftingFop != null;
     }
-
-//    private void computeAnchors() {
-//        String label;
-//        if (getAgeGroupPrefix() != null) {
-//            label = getAgeGroupPrefix();
-//        } else if (getAgeDivision() != null) {
-//            label = getAgeDivision().name();
-//        } else {
-//            label = "all";
-//        }
-//        if (getCategoryValue() != null) {
-//            catLabel = getCategoryValue().getComputedCode().replaceAll(" ", "_");
-//        } else {
-//            catLabel = label;
-//        }
-//        catResultsAnchor.getElement().setAttribute("download", "category_" + catLabel + ".xls");
-//        catXlsWriter.setCategory(getCategoryValue());
-//    }
 
     private AgeDivision getAgeDivision() {
         return ageDivision;
@@ -653,26 +630,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         return categoryValue;
     }
 
-//    private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
-//        Resource found = null;
-//        Resource totalTemplate = null;
-//        for (Resource curResource : resourceList) {
-//            String fileName = curResource.getFileName();
-//            if (fileName.equals(curTemplateName)) {
-//                found = curResource;
-//                break;
-//            }
-//            if (fileName.startsWith("Total")) {
-//                totalTemplate = curResource;
-//            }
-//        }
-//        if (found != null) {
-//            return found;
-//        } else {
-//            // should be non-null, if not there, null is ok.
-//            return totalTemplate;
-//        }
-//    }
 
     private void setAgeDivision(AgeDivision ageDivision) {
         this.ageDivision = ageDivision;
@@ -682,47 +639,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         this.ageGroupPrefix = value;
     }
 
-//    private void setTemplateSelectionListener(List<Resource> resourceList) {
-//        String curTemplateName = Competition.getCurrent().getFinalPackageTemplateFileName();
-//        Resource found = searchMatch(resourceList, curTemplateName);
-//        templateSelect.addValueChangeListener((e) -> {
-//            Competition.getCurrent().setFinalPackageTemplateFileName(e.getValue().getFileName());
-//            CompetitionRepository.save(Competition.getCurrent());
-//        });
-//        templateSelect.setValue(found);
-//    }
-
-    private void subscribeIfLifting(Group nGroup) {
-        logger.debug("subscribeIfLifting {}", nGroup);
-        Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
-        currentGroup = nGroup;
-
-        // go through all the FOPs
-        for (FieldOfPlay fop : fops) {
-            // unsubscribe from FOP -- ensures that we clean up if no group is lifting
-            try {
-                fop.getUiEventBus().unregister(this);
-            } catch (Exception ex) {
-            }
-            try {
-                fop.getFopEventBus().unregister(this);
-            } catch (Exception ex) {
-            }
-
-            // subscribe to fop and start tracking if actually lifting
-            if (fop.getGroup() != null && fop.getGroup().equals(nGroup)) {
-                logger.debug("subscribing to {} {}", fop, nGroup);
-                try {
-                    fopEventBusRegister(this, fop);
-                } catch (Exception ex) {
-                }
-                try {
-                    uiEventBusRegister(this, fop);
-                } catch (Exception ex) {
-                }
-            }
-        }
-    }
 
     private void updateFilters(AgeDivision ageDivision2, String ageGroupPrefix2) {
         // logger.debug("updateFilters {} {} {} {}", ageDivision2, ageGroupPrefix2,

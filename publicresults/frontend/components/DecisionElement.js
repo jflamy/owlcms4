@@ -46,15 +46,16 @@ class DecisionElementPR extends PolymerElement {
 }
 
 .none {
-	background-color: var(--lumo-contrast-50pct);
+	background-color: var(--lumo-contrast-20pct);
+	border: medium dashed var(--lumo-contrast);
 }
 
 .down {
 	display: flex;
     align-items: center;
 	justify-content: space-evenly;
-	--iron-icon-height: 40%;
-    --iron-icon-width: 40%;
+	--iron-icon-height: 35%;
+    --iron-icon-width: 35%;
 	font-weight: normal;
 	color: lime;
 	display:block;
@@ -135,13 +136,26 @@ class DecisionElementPR extends PolymerElement {
 				type: Boolean,
 				reflectToAttribute: false,
 				value: false
+			},
+            fopName: {
+                type: String,
+                notify: true
+            },
+			/**
+			 * Set to true to have no sound on down signal
+			 * 
+			 * @default false
+			 */
+			silent: {
+				type: Boolean,
+				value: false
 			}
 		}
 	}
 
 	ready() {
 		super.ready();
-		console.warn("de decision ready");
+		console.warn("depr decision ready");
 		if (!this.jury) {
 			document.body.addEventListener('keydown', e => this._readRef(e));
 		}
@@ -163,14 +177,14 @@ class DecisionElementPR extends PolymerElement {
 	}
 
 	_setupAudio() {
-		return;
-		if ('webkitAudioContext' in window) {
-			this.audio = false;
-		}
+		// if ('webkitAudioContext' in window) {
+		// 	this.audio = false;
+		// }
 		if (this.audio) {
 			// setup audio -- an oscillator cannot be reused.
 			if (!this.context) {
 				this.context = new AudioContext();
+				//this.context = window.audioCtx;
 			}
 			this.oscillator = this.context.createOscillator();
 			this.gain = this.context.createGain();
@@ -185,7 +199,7 @@ class DecisionElementPR extends PolymerElement {
 		if (!this.enabled) return;
 
 		var key = e.key;
-		console.warn("de key "+key);
+		console.warn("depr key "+key);
 		switch (e.key) {
 			case '1':
 				this.set('ref1', true);
@@ -223,7 +237,7 @@ class DecisionElementPR extends PolymerElement {
 	}
 
 	_registerVote(code) {
-		console.warn("de vote "+key);
+		console.warn("depr vote "+key);
 	}
 
 	/* this is called from the client side to signal that a decision has been made
@@ -239,7 +253,7 @@ class DecisionElementPR extends PolymerElement {
 		var count = countWhite + countRed;
 		if (!this.downShown && (countWhite == 2 || countRed == 2)) {
 			this.decision = (countWhite >= 2);
-			if (!this.jury) this.showDown(true);
+			//if (!this.jury) this.showDown(true);
 		}
 		if ((countWhite + countRed) >= 3) {
 			this.decision = (countWhite >= 2);
@@ -247,7 +261,7 @@ class DecisionElementPR extends PolymerElement {
 		} else {
 			maj = undefined;
 		}
-		this.masterRefereeUpdate(ref1, ref2, ref3);
+		//this.masterRefereeUpdate(ref1, ref2, ref3);
 		return maj;
 	}
 
@@ -256,7 +270,7 @@ class DecisionElementPR extends PolymerElement {
          mode to update their displays immediately.  the slaves not operating in jury display mode
          (e.g. the attempt board) will be updated after 3 seconds */
 	masterRefereeUpdate(ref1, ref2, ref3) {
-		this.$server.masterRefereeUpdate(ref1, ref2, ref3, this.ref1Time, this.ref2Time, this.ref3Time);
+		this.$server.masterRefereeUpdate(this.fopName, ref1, ref2, ref3, this.ref1Time, this.ref2Time, this.ref3Time);
 	}
 
 	setColors(parent, ref1, ref2, ref3) {
@@ -299,17 +313,17 @@ class DecisionElementPR extends PolymerElement {
 	}
 
 	showDown(isMaster, silent) {
-		console.warn("de showDown");
+		console.warn("depr showDown");
 		this.downShown = true;
 		this.$.downDiv.style.display = "flex";
 		this.$.decisionsDiv.style.display = "none";
 		// Obsolete - we send the referee updates also, no need to tell the master twice.
 		// if we are the master, tell the server right away
 		//if (isMaster) {
-		//	this.$server.masterShowDown(this.decision, this.ref1, this.ref2, this.ref3);
+		//	this.$server.masterShowDown(this.fopName, this.decision, this.ref1, this.ref2, this.ref3);
 		//}
-		console.warn("de server told");
-		if (this.audio && !silent) {
+		console.warn("depr server told");
+		if (this.audio && !silent && !this.silent) {
 			this.oscillator.start(0);
 			this.oscillator.stop(this.context.currentTime + 2);
 			this._setupAudio();
@@ -329,20 +343,20 @@ class DecisionElementPR extends PolymerElement {
 
 	showDecisions(isMaster, ref1, ref2, ref3) {
 		this.hideDown();
-		console.warn("de showDecision: " + ref1 + " " + ref2 + " " + ref3);
+		console.warn("depr showDecision: " + ref1 + " " + ref2 + " " + ref3);
 		this.setColors(this, ref1, ref2, ref3);
-		console.warn("de colorsShown");
+		console.warn("depr colorsShown");
 	}
 
 	showDecisionsForJury(ref1, ref2, ref3, ref1Time, ref2Time, ref3Time) {
 		this.hideDown();
-		console.warn("de showDecisionForJury: " + ref1 + " " + ref2 + " " + ref3);
+		console.warn("depr showDecisionForJury: " + ref1 + " " + ref2 + " " + ref3);
 		this.setColors(this, ref1, ref2, ref3);
-		console.warn("jury colorsShown");
+		console.warn("depr jury colorsShown");
 	}
 
 	reset(isMaster) {
-		console.warn("de reset " + isMaster);
+		console.warn("depr reset " + isMaster);
 		this.hideDecisions();
 		this._init();
 	}

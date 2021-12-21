@@ -149,14 +149,6 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
     }
 
     /**
-     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarGroupField(java.lang.String, java.lang.String)
-     */
-    @Override
-    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
-        return null;
-    }
-
-    /**
      * @see app.owlcms.ui.shared.BaseNavigationContent#getTitle()
      */
     @Override

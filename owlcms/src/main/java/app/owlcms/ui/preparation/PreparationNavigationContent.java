@@ -193,11 +193,6 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
     }
 
     @Override
-    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
-        return null;
-    }
-
-    @Override
     protected String getTitle() {
         return getTranslation("PrepareCompetition");
     }

@@ -8,6 +8,8 @@ package app.owlcms.publicresults;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Executors;
 
 import javax.servlet.ServletException;
@@ -23,6 +25,7 @@ import com.google.common.eventbus.EventBus;
 
 import app.owlcms.uievents.DecisionEvent;
 import app.owlcms.uievents.DecisionEventType;
+import app.owlcms.utils.ProxyUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -30,7 +33,7 @@ import ch.qos.logback.classic.Logger;
 public class DecisionReceiverServlet extends HttpServlet {
 
     private static String defaultFopName;
-    static EventBus eventBus = new AsyncEventBus(Executors.newCachedThreadPool());
+    static EventBus eventBus = new AsyncEventBus(DecisionReceiverServlet.class.getSimpleName(), Executors.newCachedThreadPool());
 
     public static EventBus getEventBus() {
         return eventBus;
@@ -58,13 +61,13 @@ public class DecisionReceiverServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        if (StartupUtils.isDebugSetting()) {
-//            Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-//            logger./**/warn("++++ decision received from {}", ProxyUtils.getClientIp(req));
-//            for (Entry<String, String[]> pair : pairs) {
-//                logger./**/warn("{} = {}", pair.getKey(), pair.getValue()[0]);
-//            }
-//        }
+        if (StartupUtils.isDebugSetting()) {
+            Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
+            logger./**/warn("++++ decision update received from {}", ProxyUtils.getClientIp(req));
+            for (Entry<String, String[]> pair : pairs) {
+                logger./**/warn("    {} = {}", pair.getKey(), pair.getValue()[0]);
+            }
+        }
 
         String updateKey = req.getParameter("updateKey");
         if (updateKey == null || !updateKey.equals(secret)) {

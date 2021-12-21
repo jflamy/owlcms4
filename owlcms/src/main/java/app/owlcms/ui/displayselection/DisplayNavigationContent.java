@@ -113,7 +113,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("OWLCMS_Displays");
+        return getTranslation("OWLCMS_Displays") + OwlcmsSession.getFopNameIfMultiple();
     }
 
     @Override
@@ -148,14 +148,6 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);
         fopField.setAlignItems(Alignment.CENTER);
         return fopField;
-    }
-
-    /**
-     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarGroupField(java.lang.String, java.lang.String)
-     */
-    @Override
-    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
-        return null;
     }
 
     /**

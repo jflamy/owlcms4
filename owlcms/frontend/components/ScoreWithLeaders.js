@@ -14,12 +14,12 @@ class ScoreLeader extends PolymerElement {
     static get template() {
         return html`
 	<link rel="stylesheet" type="text/css" href="local/styles/scoreboard.css">
-	<div class$="wrapper [[_computeTeamWidth(wideTeamNames)]] [[_computeInactiveClass(hidden)]]">
-    <div style$="[[_computeInactive(hidden)]]">
+	<div class$="wrapper [[teamWidthClass]] [[inactiveClass]]">
+    <div style$="[[inactiveStyle]]">
         <div class="competitionName">[[competitionName]]</div><br>
         <div class="nextGroup">[[t.WaitingNextGroup]]</div>
     </div>
-    <div class="attemptBar" style$="[[_computeHidden(hidden)]]">
+    <div class="attemptBar" style$="[[hiddenStyle]]">
         <div class="athleteInfo" id="athleteInfoDiv">
             <div class="startNumber" id="startNumberDiv">
                 <span>[[startNumber]]</span>
@@ -45,14 +45,14 @@ class ScoreLeader extends PolymerElement {
             </div>
         </div>
     </div>
-    <div class="group" style$="[[_computeHidden(hidden)]]">
+    <div class="group" style$="[[hiddenStyle]]">
         <div id="groupDiv">
             <span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
         </div>
     </div>
     <template is="dom-if" if="[[athletes]]">
-        <div id="results" style$="[[_computeHidden(hidden)]]">
-            <table class="results" style$="[[_computeHidden(hidden)]]">
+        <div id="results" style$="[[hiddenStyle]]">
+            <table class="results" style$="[[hiddenStyle]]">
                 <thead>
                     <tr>
                         <!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
@@ -119,8 +119,8 @@ class ScoreLeader extends PolymerElement {
         </div>
     </template>
     <template is="dom-if" if="[[leaders]]">
-        <div id="leaders" style$="[[_computeHidden(hidden)]]">
-            <table class="results" id="leaders-table" style$="[[_computeHidden(hidden)]]">
+        <div id="leaders" style$="[[hiddenStyle]]">
+            <table class="results" id="leaders-table" style$="[[hiddenStyle]]">
                 <thead>
                     <tr style="visibility:collapse">
                         <!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
@@ -277,19 +277,6 @@ class ScoreLeader extends PolymerElement {
 
     _isEqualTo(title, string) {
         return title == string;
-    }
-
-    _computeHidden(hidden) {
-        return hidden ? 'display:none' : 'display:block';
-    }
-    _computeInactive(hidden) {
-        return hidden ? 'display:block' : 'display:none';
-    }
-    _computeInactiveClass(hidden) {
-        return hidden ? 'bigTitle' : '';
-    }
-    _computeTeamWidth(w) {
-        return w ? 'wideTeams' : 'narrowTeams';
     }
 }
 

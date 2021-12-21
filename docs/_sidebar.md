@@ -26,6 +26,7 @@
 * Advanced Topics
   * [Updating Cloud-based Applications](UpdatingCloudApplications)
   * [Customization](UploadingLocalSettings)
+  * [Simulation and Load Testing](Simulation)
   * [Configuration Parameters](Configuration)
   * [Translations](Translation)
   * [Importing PostgreSQL Cloud Databases](PostgreSQL)

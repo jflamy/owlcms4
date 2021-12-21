@@ -85,8 +85,8 @@ public class Main {
         // app config injection
         Translator.setLocaleSupplier(Main::computeLocale);
         ResourceWalker.setLocaleSupplier(Translator.getLocaleSupplier());
-        ResourceWalker.setLocalOverrideSupplier(() -> {
-            ResourceWalker.checkForLocalOverrideDirectory();
+        ResourceWalker.setLocalZipBlobSupplier(() -> {
+            // no database, so no override in database.
             return null;
         });
 

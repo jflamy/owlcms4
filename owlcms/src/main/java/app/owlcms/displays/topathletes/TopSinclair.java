@@ -65,7 +65,7 @@ import app.owlcms.i18n.Translator;
  * Show athlete lifting order
  *
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 @Tag("topsinclair-template")
 @JsModule("./components/TopSinclair.js")
 @Route("displays/topsinclair")

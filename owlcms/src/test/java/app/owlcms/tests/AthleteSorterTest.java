@@ -66,7 +66,7 @@ public class AthleteSorterTest {
 
     @Test
     public void medalsEarlierTotals() {
-        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
+        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer());
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LOGGER_LEVEL);
         // EventBus fopBus = fopState.getFopEventBus();
@@ -295,7 +295,7 @@ public class AthleteSorterTest {
 
     @Test
     public void medalsBodyWeight() {
-        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
+        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer());
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LOGGER_LEVEL);
         // EventBus fopBus = fopState.getFopEventBus();
@@ -338,7 +338,7 @@ public class AthleteSorterTest {
 
     @Test
     public void liftSequence2() {
-        FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
+        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer());
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LOGGER_LEVEL);
         // EventBus fopBus = fopState.getFopEventBus();
@@ -381,7 +381,7 @@ public class AthleteSorterTest {
         // for this test, the initial data does not include body weights, so we use false
         // on the constructor to disable exclusion of incomplete data.
         athletes = AthleteRepository.findAll();
-        OwlcmsSession.withFop(fop -> fop.beforeTest());
+        OwlcmsSession.withFop(fop -> fop.testBefore());
     }
 
     /*************************************************************************************

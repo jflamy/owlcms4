@@ -93,10 +93,6 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
         return null;
     }
 
-    @Override
-    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
-        return null;
-    }
 
     @Override
     protected String getTitle() {

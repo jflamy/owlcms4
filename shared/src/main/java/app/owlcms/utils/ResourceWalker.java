@@ -7,8 +7,6 @@
 package app.owlcms.utils;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +50,7 @@ public class ResourceWalker {
 
     private static Path localDirPath = null;
 
-    private static Supplier<byte[]> localOverrideSupplier;
+    private static Supplier<byte[]> localZipBlobSupplier;
 
     private static Supplier<Locale> localeSupplier;
 
@@ -88,14 +86,11 @@ public class ResourceWalker {
         if (localDirPath2 != null) {
             target = localDirPath2.resolve(relativeName);
         }
-        logger.trace("checking override {} {}", localDirPath2, target);
         if (target != null && Files.exists(target)) {
             try {
-                File file = target.toFile();
-                logger.debug("found overridden resource {} at {} {}", name, file.getAbsolutePath(),
-                        LoggerUtils.whereFrom(1));
-                return new FileInputStream(file);
-            } catch (FileNotFoundException e) {
+                //logger.debug("found overridden resource {} at {} {}", name, target.toAbsolutePath(), LoggerUtils.whereFrom(1));
+                return Files.newInputStream(target);
+            } catch (IOException e) {
                 if (name.trim().contentEquals("/") || name.isBlank()) {
                     // exists but is top level
                     return null;
@@ -106,10 +101,45 @@ public class ResourceWalker {
         } else {
             is = ResourceWalker.class.getResourceAsStream(name);
             if (is != null) {
-                logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+                //logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
             }
         }
         return is;
+    }
+    
+    /**
+     * Fetch a named file content. First looking in a local override directory structure, and if not found, as a
+     * resource on the classpath.
+     *
+     * @param name
+     * @return an input stream with the requested content, null if not found.
+     */
+    public static Path getFileOrResourcePath(String name) {
+         String relativeName;
+        if (name.startsWith("/")) {
+            relativeName = name.substring(1);
+        } else {
+            relativeName = name;
+        }
+        Path localDirPath2 = getLocalDirPath();
+        Path target = null;
+        if (localDirPath2 != null) {
+            target = localDirPath2.resolve(relativeName);
+        }
+        if (target != null && Files.exists(target)) {
+            //logger.debug("found overridden resource {} at {} {}", name, target.toAbsolutePath(),LoggerUtils.whereFrom(1));
+            return target;
+        } else {
+            String resName = "/"+relativeName;
+            target = getResourcePath(resName);
+            if (target != null) {
+                //logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+            } else {
+                //logger.debug("not found {} {}",target, resName);
+            }
+            
+        }
+        return target;
     }
 
     public static Path getLocalDirPath() {
@@ -208,22 +238,21 @@ public class ResourceWalker {
         }
     }
 
-    public static Supplier<byte[]> getLocalOverrideSupplier() {
-        return localOverrideSupplier;
+    public static Supplier<byte[]> getLocalZipBlobSupplier() {
+        return localZipBlobSupplier;
     }
 
     public static InputStream getResourceAsStream(String name) {
         return getFileOrResource(name);
     }
 
-    public static void initLocalDir() {
-        logger.trace("initializeLocalDir from {}", LoggerUtils.whereFrom());
+    public static synchronized void initLocalDir() {
         setInitializedLocalDir(true);
-        byte[] localContent2 = getLocalOverrideSupplier().get();
-        if (localContent2 != null && localContent2.length > 0) {
+        byte[] blob = localZipBlobSupplier != null ? localZipBlobSupplier.get() : null;
+        if (blob != null && blob.length > 0) {
             logger.trace("override zip blob found");
             try {
-                unzipBlobToTemp(localContent2);
+                unzipBlobToTemp(blob);
             } catch (Exception e) {
                 checkForLocalOverrideDirectory();
             }
@@ -237,12 +266,16 @@ public class ResourceWalker {
     }
 
     /**
-     * open the file system for locating resources.
+     * Register an additional file system for the resources
+     * 
+     * We use the classloader to return the URI where it found a resource.
+     * This will be either a jar (in production) or a regular file system (in development).
+     * If a jar, then we register a file system for the Jar's URI.
      *
      * @param absoluteRootPath
      * @return an open file system (intentionnaly not closed)
      */
-    public static FileSystem openClassPathFileSystem(String absoluteRootPath) {
+    private static FileSystem openClassPathFileSystem(String absoluteRootPath) {
         URL resources = ResourceWalker.class.getResource(absoluteRootPath);
         try {
             URI resourcesURI = resources.toURI();
@@ -276,21 +309,22 @@ public class ResourceWalker {
         ResourceWalker.localeSupplier = localeSupplier;
     }
 
-    public static void setLocalOverrideSupplier(Supplier<byte[]> localOverrideSupplier) {
-        ResourceWalker.localOverrideSupplier = localOverrideSupplier;
+    public static void setLocalZipBlobSupplier(Supplier<byte[]> localOverrideSupplier) {
+        ResourceWalker.localZipBlobSupplier = localOverrideSupplier;
     }
 
     public static void unzipBlobToTemp(byte[] localContent2) throws Exception {
         Path f = null;
         try {
-            f = Files.createTempDirectory("owlcms");
+            f = MemTempUtils.createTempDirectory("owlcmsOverride");
             logger.trace("created temp directory " + f);
         } catch (IOException e) {
             throw new Exception("cannot create directory ", e);
         }
         try {
-            ZipUtils.unzip(new ByteArrayInputStream(localContent2), f.toFile());
+            ZipUtils.unzip(new ByteArrayInputStream(localContent2), f);
             setLocalDirPath(f);
+            setInitializedLocalDir(true);
             logger.info("new local override path {}", getLocalDirPath().normalize());
         } catch (IOException e) {
             throw new Exception("cannot unzip", e);
@@ -357,7 +391,7 @@ public class ResourceWalker {
     public List<Resource> getResourceList(String absoluteRoot, BiFunction<Path, Path, String> nameGenerator,
             String startsWith, Locale locale) {
         List<Resource> classPathResources = getResourceListFromPath(nameGenerator, startsWith,
-                getResourcesPath(absoluteRoot), locale);
+                getResourcePath(absoluteRoot), locale);
         List<Resource> overrideResources = getLocalOverrideResourceList(absoluteRoot, nameGenerator, startsWith,
                 locale);
         TreeSet<Resource> resourceSet = new TreeSet<>(overrideResources);
@@ -505,33 +539,40 @@ public class ResourceWalker {
         }
     }
 
-    private Path getResourcesPath(String absoluteRoot) {
-        URL resources = getClass().getResource(absoluteRoot);
-        if (resources == null) {
-            logger.error(absoluteRoot + " not found");
-            throw new RuntimeException(absoluteRoot + " not found");
+    public static Path getResourcePath(String resourcePathString) {
+        URL resourceURL = ResourceWalker.class.getResource(resourcePathString);
+        if (resourceURL == null) {
+            logger.error(resourcePathString + " not found");
+            //throw new RuntimeException(resourcePathString + " not found");
+            return null;
         }
-        Path rootPath;
+        Path resourcePath;
         URI resourcesURI;
         try {
             // this will either return a file or a jar URI, depending on
             // expanded classpath (development) or jar classpath (production)
-            resourcesURI = resources.toURI();
+            resourcesURI = resourceURL.toURI();
         } catch (URISyntaxException e1) {
             logger.error(e1.getReason());
             throw new RuntimeException(e1);
         }
         try {
-            rootPath = Paths.get(resourcesURI);
+            resourcePath = Paths.get(resourcesURI);
         } catch (FileSystemNotFoundException e) {
-            // if we are here, the resource is in the jar, and Vaadin has not already
-            // loaded the ZipFileSystem so we do it. Normally Vaadin loads the jar
-            // file system first so we never get here.
-            openClassPathFileSystem("/agegroups"); // any resource we know is in the jar, but not in any previous jar on
-                                                   // classpath
-            rootPath = Paths.get(resourcesURI);
+            // the normal classpath uses the default file system, which is always found.
+            // if the file was in a jar, normally Vaadin has already loaded the zip file system
+            // so we should not get a not found either.
+            
+            // so the only way to get here is if the file is in a jar, and somehow Vaadin has
+            // not opened it yet.  So we use a file that should be in the jar, and expect the
+            // URI to be of the "jar" type.
+            
+            // beware: use a resource that is in the shared module
+            openClassPathFileSystem("/i18n");
+            resourcePath = Paths.get(resourcesURI);
+            logger.debug("resourcePath: {} {}",resourcesURI, resourcePath);
         }
-        return rootPath;
+        return resourcePath;
     }
 
 }

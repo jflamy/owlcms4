@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.servlet.EmbeddedJetty;
-import app.owlcms.simulation.FOPSimulator;
+import app.owlcms.simulation.CompetitionSimulator;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -58,10 +58,10 @@ public class Simulation extends Main {
             latch.await();
 
             try {
-                Thread.sleep(15 * 1000);
+                Thread.sleep(30 * 1000);
             } catch (InterruptedException e1) {
             }
-            FOPSimulator.runSimulation();
+            new CompetitionSimulator().runSimulation();
 
             // wait for server to exit
             server.join();

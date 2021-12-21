@@ -322,6 +322,11 @@ public class UIEvent {
     static public class GroupDone extends UIEvent {
 
         private Group group;
+        private String trace;
+
+        public String getTrace() {
+            return trace;
+        }
 
         /**
          * Instantiates a new athlete announced.
@@ -329,9 +334,14 @@ public class UIEvent {
          * @param athlete the athlete
          * @param ui      the ui
          */
-        public GroupDone(Group group, UI ui) {
+        public GroupDone(Group group, UI ui, String stackTrace) {
             super(ui);
             this.setGroup(group);
+            this.setTrace(stackTrace);
+        }
+
+        private void setTrace(String stackTrace) {
+            this.trace = stackTrace;
         }
 
         public Group getGroup() {

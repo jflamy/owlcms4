@@ -91,7 +91,7 @@
             <plugin>
                 <groupId>com.akathist.maven.plugins.launch4j</groupId>
                 <artifactId>launch4j-maven-plugin</artifactId>
-                <version>1.7.25</version>
+                <version>2.1.1</version>
                 <executions>
                     <execution>
                         <id>l4j</id>
@@ -113,7 +113,6 @@
                             <classPath>
                                 <mainClass>app.owlcms.publicresults.Main</mainClass>
                                 <addDependencies>false</addDependencies>
-                                <preCp>local</preCp>
                                 <postCp>publicresults.jar</postCp>
                             </classPath>
                             <icon>src/main/install/owlcms.ico</icon>
@@ -157,7 +156,6 @@
                             <classPath>
                                 <mainClass>app.owlcms.publicresults.Main</mainClass>
                                 <addDependencies>false</addDependencies>
-                                <preCp>local</preCp>
                                 <postCp>publicresults.jar</postCp>
                             </classPath>
                             <icon>src/main/install/owlcms.ico</icon>

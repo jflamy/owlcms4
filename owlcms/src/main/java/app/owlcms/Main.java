@@ -90,7 +90,7 @@ public class Main {
         // app config injection
         Translator.setLocaleSupplier(() -> OwlcmsSession.getLocale());
         ResourceWalker.setLocaleSupplier(Translator.getLocaleSupplier());
-        ResourceWalker.setLocalOverrideSupplier(() -> Config.getCurrent().getLocalOverride());
+        ResourceWalker.setLocalZipBlobSupplier(() -> Config.getCurrent().getLocalZipBlob());
     }
 
     /**
