@@ -56,6 +56,7 @@ public class PlatformRepository {
             OwlcmsFactory.unregisterFOP(platform);
             return null;
         });
+        OwlcmsFactory.setFirstFOPAsDefault();
     }
 
     /**

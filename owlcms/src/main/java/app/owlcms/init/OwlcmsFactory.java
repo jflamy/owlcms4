@@ -26,6 +26,7 @@ import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.ProxyAthleteTimer;
 import app.owlcms.fieldofplay.ProxyBreakTimer;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -103,20 +104,20 @@ public class OwlcmsFactory {
      * @return first field of play, sorted alphabetically
      */
     public static synchronized FieldOfPlay initDefaultFOP() {
-        // logger.debug("OwlcmsFactory {} {} {}", init, fopByName != null ? fopByName.size() : null,
-        // LoggerUtils. stackTrace());
+        logger.trace("initDefaultFOP {} {}", fopByName != null ? fopByName.size() : null, LoggerUtils.stackTrace());
         initFOPByName();
-        firstFOP();
+        setFirstFOPAsDefault();
         return getDefaultFOP();
     }
 
-    public static void registerEmptyFOP(Platform platform) {
+    public static FieldOfPlay registerEmptyFOP(Platform platform) {
         String name = platform.getName();
         FieldOfPlay fop = new FieldOfPlay(null, platform);
-        logger.debug("{} Initialized", fop.getLoggingName());
+        logger.trace("{} Initialized", fop.getLoggingName());
         // no group selected, no athletes, announcer will need to pick a group.
         fop.init(new LinkedList<Athlete>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop), true);
         fopByName.put(name, fop);
+        return fop;
     }
 
     public static void unregisterFOP(Platform platform) {
@@ -132,30 +133,29 @@ public class OwlcmsFactory {
             fop.getFopEventBus().unregister(fop);
         } catch (IllegalArgumentException e) {
         }
+        logger.trace("unregistering and unmapping fop {}",name);
         fopByName.remove(name);
-        firstFOP();
     }
 
-    public static void unregisterAllFOPs() {
-        if (fopByName == null) {
-            return;
-        }
-        Iterator<Entry<String, FieldOfPlay>> it = fopByName.entrySet().iterator();
-        while (it.hasNext()) {
-            Entry<String, FieldOfPlay> f = it.next();
+    public static void resetFOPByName() {
+        if (fopByName != null) {
+            Iterator<Entry<String, FieldOfPlay>> it = fopByName.entrySet().iterator();
+            while (it.hasNext()) {
+                Entry<String, FieldOfPlay> f = it.next();
 
-            FieldOfPlay fop = f.getValue();
-            EventBus fopEventBus = fop.getFopEventBus();
-            if (fopEventBus != null) {
-                try {
-                    fopEventBus.unregister(fop);
-                } catch (IllegalArgumentException e) {
-                    // not registered, or already unregistered
+                FieldOfPlay fop = f.getValue();
+                EventBus fopEventBus = fop.getFopEventBus();
+                if (fopEventBus != null) {
+                    try {
+                        fopEventBus.unregister(fop);
+                    } catch (IllegalArgumentException e) {
+                        // not registered, or already unregistered
+                    }
                 }
             }
-            fopByName.remove(f.getKey());
         }
-        firstFOP();
+        fopByName = new HashMap<>();
+        logger.trace("fopByName reset done.");
     }
 
     public static void waitDBInitialized() {
@@ -165,20 +165,28 @@ public class OwlcmsFactory {
         }
     }
 
-    private static void firstFOP() {
+    public static void setFirstFOPAsDefault() {
         Optional<FieldOfPlay> fop = fopByName.entrySet().stream()
                 .sorted(Comparator.comparing(x -> x.getKey()))
                 .map(x -> x.getValue())
                 .findFirst();
-        setDefaultFOP(fop.orElse(null));
+        if (fop.isPresent()) {
+            setDefaultFOP(fop.get());
+        } else {
+            Platform platform = new Platform("Default");
+            PlatformRepository.save(platform);
+            initDefaultFOP();
+        }
+        
     }
 
     private static synchronized void initFOPByName() {
-        unregisterAllFOPs();
-        fopByName = new HashMap<>();
+        resetFOPByName();
         for (Platform platform : PlatformRepository.findAll()) {
+            logger.trace("registering fop for {}",platform);
             registerEmptyFOP(platform);
         }
+        logger.trace("after initFOPByName {}", fopByName != null ? fopByName.size() : null);
     }
 
     /**
