@@ -22,6 +22,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -32,10 +33,12 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -53,17 +56,17 @@ public class Group implements Comparable<Group> {
 
     private final static DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder().parseLenient()
             .appendPattern(DATE_FORMAT).toFormatter();
-    
+
     @Transient
     final private Logger logger = (Logger) LoggerFactory.getLogger(Group.class);
 
     @Id
-    //@GeneratedValue(strategy = GenerationType.AUTO)
+    // @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     /** The platform. */
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, optional = true, fetch = FetchType.EAGER)
-    @JsonIdentityReference(alwaysAsId=true)
+    @JsonIdentityReference(alwaysAsId = true)
     Platform platform;
 
     /** The competition short date time. */
@@ -86,7 +89,7 @@ public class Group implements Comparable<Group> {
     private String jury3;
     private String jury4;
     private String jury5;
-    
+
     private String reserve;
 
     @Column(columnDefinition = "boolean default false")
@@ -129,6 +132,8 @@ public class Group implements Comparable<Group> {
         this.setCompetitionTime(competition);
     }
 
+    private final static NaturalOrderComparator<String> c = new NaturalOrderComparator<>();
+    
     /*
      * (non-Javadoc)
      *
@@ -136,6 +141,7 @@ public class Group implements Comparable<Group> {
      */
     @Override
     public int compareTo(Group obj) {
+        
         if (this == obj) {
             return 0;
         }
@@ -151,11 +157,35 @@ public class Group implements Comparable<Group> {
             }
         } else {
             if (other.name != null) {
-                return name.compareTo(other.name);
+                return c.compare(name, other.name);
             } else {
                 return -1;
             }
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    public int compareToWeighIn(Group obj) {
+        if (this == obj) {
+            return 0;
+        }
+        if (obj == null) {
+            return -1;
+        }
+        int compare = ObjectUtils.compare(this.getWeighInTime(), obj.getWeighInTime(), true);
+        if (compare != 0 ) {
+            return compare;
+        }
+        compare = ObjectUtils.compare(this.getPlatform(), obj.getPlatform(), true);
+        if (compare != 0 ) {
+            return compare;
+        }
+        compare = ObjectUtils.compare(this, obj, true);
+        return compare;
     }
 
 //    @Override
@@ -221,7 +251,7 @@ public class Group implements Comparable<Group> {
             LocalDateTime competitionTime2 = getCompetitionTime();
             formatted = competitionTime2 == null ? "" : DATE_TIME_FORMATTER.format(competitionTime2);
         } catch (Exception e) {
-            LoggerUtils.logError(logger,e);
+            LoggerUtils.logError(logger, e);
         }
         return formatted;
     }
@@ -234,7 +264,7 @@ public class Group implements Comparable<Group> {
     public LocalDateTime getCompetitionTime() {
         return competitionTime;
     }
-    
+
     @Transient
     @JsonIgnore
     public Date getCompetitionTimeAsDate() {
@@ -390,7 +420,7 @@ public class Group implements Comparable<Group> {
             LocalDateTime weighInTime2 = getWeighInTime();
             formatted = weighInTime2 == null ? "" : DATE_TIME_FORMATTER.format(weighInTime2);
         } catch (Exception e) {
-            LoggerUtils.logError(logger,e);
+            LoggerUtils.logError(logger, e);
         }
         return formatted;
     }
@@ -403,7 +433,7 @@ public class Group implements Comparable<Group> {
     public LocalDateTime getWeighInTime() {
         return weighInTime;
     }
-    
+
     @Transient
     @JsonIgnore
     public Date getWeighInTimeAsDate() {
@@ -439,7 +469,8 @@ public class Group implements Comparable<Group> {
     }
 
     public void doDone(boolean b) {
-        logger.debug("done? {} previous={} done={} {} [{}]", getName(), this.done, b, System.identityHashCode(this), LoggerUtils.whereFrom());
+        logger.debug("done? {} previous={} done={} {} [{}]", getName(), this.done, b, System.identityHashCode(this),
+                LoggerUtils.whereFrom());
         if (this.done != b) {
             this.setDone(b);
             GroupRepository.save(this);
@@ -597,8 +628,12 @@ public class Group implements Comparable<Group> {
      * @param id the id to set
      */
     public void setId(Long id) {
-        //logger.debug("settingId {} {}\\n{}",id,name,LoggerUtils.stackTrace());
+        // logger.debug("settingId {} {}\\n{}",id,name,LoggerUtils.stackTrace());
         this.id = id;
+    }
+
+    public int size() {
+        return AthleteRepository.findAllByGroupAndWeighIn(this, null).size();
     }
 
 }
