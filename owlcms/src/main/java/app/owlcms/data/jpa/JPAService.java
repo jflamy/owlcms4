@@ -174,7 +174,7 @@ public class JPAService {
             }
         }
     }
-    
+
     /**
      * Run in transaction.
      *
@@ -277,8 +277,8 @@ public class JPAService {
         String url;
         String h2Options = ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4";
         if (dbUrl == null) {
-            String databasePath = new File("database/owlcms.mv.db").getAbsolutePath();
-            databasePath = databasePath.substring(0, databasePath.length() - ".mv.db".length());
+            String databasePath = new File("database/owlcms-h2v2.mv.db").getAbsolutePath();
+            databasePath = databasePath.substring(0, databasePath.length() - ".mv.db".length() );
             url = "jdbc:h2:file:" + databasePath + h2Options;
         } else {
             url = dbUrl.replaceAll("\\.mv\\.db", "") + h2Options;
@@ -329,7 +329,7 @@ public class JPAService {
                 .put("hibernate.javax.cache.provider", "org.ehcache.jsr107.EhcacheCachingProvider")
                 .put("hibernate.javax.cache.missing_cache_strategy", "create")
                 .put("javax.persistence.sharedCache.mode", "ALL").put("hibernate.c3p0.min_size", 5)
-                .put("hibernate.enable_lazy_load_no_trans",true)
+                .put("hibernate.enable_lazy_load_no_trans", true)
 //                .put("hibernate.c3p0.max_size", 20).put("hibernate.c3p0.acquire_increment", 5)
 //                .put("hibernate.c3p0.timeout", 84200).put("hibernate.c3p0.preferredTestQuery", "SELECT 1")
 //                .put("hibernate.c3p0.testConnectionOnCheckout", true).put("hibernate.c3p0.idle_test_period", 500)
@@ -406,7 +406,7 @@ public class JPAService {
                 }
             }
         } catch (SQLException e) {
-            LoggerUtils.logError(logger,e);
+            LoggerUtils.logError(logger, e);
         }
     }
 

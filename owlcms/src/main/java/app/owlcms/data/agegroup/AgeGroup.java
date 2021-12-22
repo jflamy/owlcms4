@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -93,6 +94,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     String code;
 
+    @Column(name = "agkey")
     String key;
 
     public String getKey() {
