@@ -137,7 +137,7 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
     protected GridCrud<Group> createGrid(OwlcmsCrudFormFactory<Group> crudFormFactory) {
         Grid<Group> grid = new Grid<>(Group.class, false);
         grid.addColumn(Group::getName).setHeader(getTranslation("Name")).setComparator(Group::compareTo);
-        grid.addColumn(Group::size).setHeader("#").setTextAlign(ColumnTextAlign.CENTER);
+        grid.addColumn(Group::size).setHeader(getTranslation("Size")).setTextAlign(ColumnTextAlign.CENTER);
         grid.addColumn(LocalDateTimeField.getRenderer(Group::getWeighInTime, this.getLocale()))
                 .setHeader(getTranslation("WeighInTime")).setComparator(Group::compareToWeighIn);
         grid.addColumn(LocalDateTimeField.getRenderer(Group::getCompetitionTime, this.getLocale()))

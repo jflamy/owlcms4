@@ -26,6 +26,7 @@ import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.ProxyAthleteTimer;
 import app.owlcms.fieldofplay.ProxyBreakTimer;
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
@@ -173,7 +174,7 @@ public class OwlcmsFactory {
         if (fop.isPresent()) {
             setDefaultFOP(fop.get());
         } else {
-            Platform platform = new Platform("Default");
+            Platform platform = new Platform(Translator.translate("Default"));
             PlatformRepository.save(platform);
             initDefaultFOP();
         }
