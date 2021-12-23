@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.27.0-alpha01
+    default: 4.27.0-alpha02
   - name: SkipTests
     type: string
     default: 'false'
@@ -149,19 +149,19 @@ jobs:
         inputs:
           ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
             gitHubConnection: github.com_jflamy-dev
-            repositoryName: jflamy-dev/owlcms4-prerelease
+            repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
             isPreRelease: false
           ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
             gitHubConnection: github.com_jflamy-dev
-            repositoryName: owlcms/owlcms4
+            repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
             isPreRelease: false
           ${{ if eq(variables['Build.SourceBranchName'], 'fixrelease') }}:
             gitHubConnection: github.com_jflamy-dev
-            repositoryName: owlcms/owlcms4
+            repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
             isPreRelease: false
           ${{ if eq(variables['Build.SourceBranchName'], 'fixprerelease') }}:
             gitHubConnection: github.com_jflamy-dev
-            repositoryName: jflamy-dev/owlcms4-prerelease
+            repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
             isPreRelease: false
           action: "create" # Options: create, edit, delete
           target: master # all our releases are on the master branch of the release repos.
