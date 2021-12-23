@@ -134,7 +134,7 @@ public class OwlcmsFactory {
             fop.getFopEventBus().unregister(fop);
         } catch (IllegalArgumentException e) {
         }
-        logger.trace("unregistering and unmapping fop {}",name);
+        logger.trace("unregistering and unmapping fop {}", name);
         fopByName.remove(name);
     }
 
@@ -178,13 +178,13 @@ public class OwlcmsFactory {
             PlatformRepository.save(platform);
             initDefaultFOP();
         }
-        
+
     }
 
     private static synchronized void initFOPByName() {
         resetFOPByName();
         for (Platform platform : PlatformRepository.findAll()) {
-            logger.trace("registering fop for {}",platform);
+            logger.trace("registering fop for {}", platform);
             registerEmptyFOP(platform);
         }
         logger.trace("after initFOPByName {}", fopByName != null ? fopByName.size() : null);
