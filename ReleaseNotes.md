@@ -1,4 +1,6 @@
-##### **Changes for release 4.27.0-alpha00**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Changes for release 4.27.0-alpha01**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+
+4.27.0-alpha01: moving all release repositories to github.com/owlcms
 
 4.27.0-alpha00: initial release with new version of H2 and keyboard shortcuts for timekeeping.
 
@@ -7,7 +9,7 @@
 - [x] **<u>Local Database Format Change</u>**  The H2 database is used on local installs.  The H2 team will no longer support their previous database format, so a conversion process is necessary. 
   - If you <u>do **not** need to keep the previous version</u> of your database because you always start use a new registration sheet or start from scratch, <u>you have nothing to do</u> (a new database will be created on first start of the new version.
   - If you are running in the cloud, there is nothing to do, the cloud-based database engine is Postgres.
-  - <u>If you wish to reuse your prior database content</u>, then a conversion is required between the previous format and the new format.  Fortunately, the process is quick and straightforward.  Please follow the [conversion instructions](https://jflamy-dev.github.io/owlcms4-prerelease/#/ImportExport)
+  - <u>If you wish to reuse your prior database content</u>, then a conversion is required between the previous format and the new format.  Fortunately, the process is quick and straightforward.  Please follow the [conversion instructions](https://owlcms.github.io/owlcms4-prerelease/#/ImportExport)
   - If you wish to keep copies of previous meets and have kept database backups, the suggestion is to install version 4.26 and export each of the databases.
 - [x] Enhancement: keyboard shortcuts to start (`,` )and stop (`.`) the clock available on announcer and timekeeper screens.
 
@@ -16,7 +18,7 @@
 - [x] Security updates: updated libraries as new versions were made available.
 - [x] Change: Default for birth dates changed to be full date instead of birth year, to match IWF TCRR.
 - [x] COVID: Updated documentation for Zoom broadcasts to cover sharing the scoreboard in high resolution and allowing participants to switch between athlete and scoreboard views.
-- [x] Enhancement: Capability to simulate a competition and perform load testing (see [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Simulation)). Large (180 athletes) competitions have been tested 18 displays, with one and two platforms, with and without publishing to a publicresults site.
+- [x] Enhancement: Capability to simulate a competition and perform load testing (see [documentation](https://owlcms.github.io/owlcms4-prerelease/#/Simulation)). Large (180 athletes) competitions have been tested 18 displays, with one and two platforms, with and without publishing to a publicresults site.
 
 - [x] It is now possible to choose and override the Excel templates for competitions cards, the start list, the starting weight sheet, the results (protocol), and the final package (attempts, sinclair, robi, team results, etc.)
   - New available IWF-style layout for athlete cards that is meant to be printed and folded to give bigger areas for writing (both North American Letter and international A4 formats available)
@@ -31,7 +33,7 @@
 - [x] The jury console now allows direct reversal/confirmation of lifts (#435, #427)  
   - The jury chief can confirm and reverse lifts directly and can ask the announcer to call the technical controller.  
   - Jury actions are shown to the other technical officials consoles to keep them informed.
-  - Shortcuts are defined to support a jury keypad. See [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Refereeing#jury-console-keypad) for details
+  - Shortcuts are defined to support a jury keypad. See [documentation](https://owlcms.github.io/owlcms4-prerelease/#/Refereeing#jury-console-keypad) for details
   
 - [x] It is now possible to Export and Import the database content (#449).  This allows taking a snapshot of the database in the middle of a competition. It also allows bringing back a Heroku database for local use, and conversely, setting up a competition locally prior to loading on Heroku.
 
@@ -63,9 +65,9 @@
 
 - [x] Clearer error message when athlete A cannot move down because B has attempted same weight on a bigger attempt number (if so, A should have lifted before B, cannot move down.)
 
-- [x] When a display is first started, a dialog offers to enable warning sounds or not.  Warnings are silenced by default; they should normally be enabled on only one display per room, to avoid warnings coming from several directions. See the [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Displays#display-settings) for details (#407)
+- [x] When a display is first started, a dialog offers to enable warning sounds or not.  Warnings are silenced by default; they should normally be enabled on only one display per room, to avoid warnings coming from several directions. See the [documentation](https://owlcms.github.io/owlcms4-prerelease/#/Displays#display-settings) for details (#407)
 
-- [x] Implemented the <u>rules to prevent athletes from moving down their requested weight illegally</u>.  Moving down is denied if the athlete should already have attempted that weight according to the official lifting order.  The exact checks resulting from applying the TCRR to that situation are spelled out in the [documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Announcing#rules-for-moving-down). (#418)
+- [x] Implemented the <u>rules to prevent athletes from moving down their requested weight illegally</u>.  Moving down is denied if the athlete should already have attempted that weight according to the official lifting order.  The exact checks resulting from applying the TCRR to that situation are spelled out in the [documentation](https://owlcms.github.io/owlcms4-prerelease/#/Announcing#rules-for-moving-down). (#418)
 
 - [x] Violations of <u>rules for timing of declarations</u> (before initial 30 seconds), and for changes (before final warning) are now signaled as errors (#425, #426). Overriding is possible for officiating mistakes.
 
@@ -74,12 +76,12 @@
 
 **Installation Instructions :**
 
-  - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
     
-    > If you get a blue window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/DefenderOff)
+    > If you get a blue window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
     
-  - For **Linux** and **Mac OS**, download the `owlcms.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
-  - For **Heroku** cloud, no download is necessary. Follow the [Heroku Cloud Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Cloud) to deploy your own copy.  See also the [additional configuration steps for large competitions on Heroku](https://jflamy-dev.github.io/owlcms4-prerelease/#/HerokuLarge).
+  - For **Heroku** cloud, no download is necessary. Follow the [Heroku Cloud Installation](https://owlcms.github.io/owlcms4-prerelease/#/Cloud) to deploy your own copy.  See also the [additional configuration steps for large competitions on Heroku](https://owlcms.github.io/owlcms4-prerelease/#/HerokuLarge).
 
-  - For **Kubernetes** deployments, see `k3s_setup.yaml` file for [cloud hosting using k3s](https://jflamy-dev.github.io/owlcms4-prerelease/#/DigitalOcean) or `k3d_setup.yaml` for [home hosting](https://jflamy-dev.github.io/owlcms4-prerelease/#/k3d).  For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 
+  - For **Kubernetes** deployments, see `k3s_setup.yaml` file for [cloud hosting using k3s](https://owlcms.github.io/owlcms4-prerelease/#/DigitalOcean) or `k3d_setup.yaml` for [home hosting](https://owlcms.github.io/owlcms4-prerelease/#/k3d).  For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 
