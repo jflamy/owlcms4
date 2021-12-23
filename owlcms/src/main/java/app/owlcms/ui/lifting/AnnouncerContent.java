@@ -18,6 +18,7 @@ import com.flowingcode.vaadin.addons.ironicons.PlacesIcons;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -70,12 +71,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     private HorizontalLayout timerButtons;
     private HorizontalLayout decisionLights;
 
-    // array is used because of Java requires a final;
-    private long[] previousStartMillis = { 0L };
-
-    private long[] previousGoodMillis = { 0L };
-
-    private long[] previousBadMillis = { 0L };
+    private long previousGoodMillis = 0L;
+    private long previousBadMillis = 0L;
 
     public AnnouncerContent() {
         super();
@@ -117,7 +114,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     public String getPageTitle() {
         return getTranslation("Announcer") + OwlcmsSession.getFopNameIfMultiple();
     }
-
 
     /**
      * The URL contains the group, contrary to other screens.
@@ -271,23 +267,24 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         return reset;
     }
 
+    /**
+     * Add key shortcuts to parent
+     * @see app.owlcms.ui.shared.AthleteGridContent#createStartTimeButton()
+     */
     @Override
     protected void createStartTimeButton() {
-        startTimeButton = new Button(AvIcons.PLAY_ARROW.create());
-        startTimeButton.addClickListener(e -> {
-            OwlcmsSession.withFop(fop -> {
-                long now = System.currentTimeMillis();
-                long timeElapsed = now - previousStartMillis[0];
-                boolean running = fop.getAthleteTimer().isRunning();
-                if (timeElapsed > 50 && !running) {
-                    fop.fopEventPost(new FOPEvent.TimeStarted(this.getOrigin()));
-                } else {
-                    logger.debug("discarding duplicate clock start {}ms running={}", timeElapsed, running);
-                }
-                previousStartMillis[0] = now;
-            });
-        });
-        startTimeButton.getElement().setAttribute("theme", "primary success icon");
+        super.createStartTimeButton();
+        UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
+    }
+    
+    /**
+     * Add key shortcuts to parent
+     * @see app.owlcms.ui.shared.AthleteGridContent#createStartTimeButton()
+     */
+    @Override
+    protected void createStopTimeButton() {
+        super.createStopTimeButton();
+        UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
     }
 
     /**
@@ -333,14 +330,14 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         Button good = new Button(IronIcons.DONE.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
                 long now = System.currentTimeMillis();
-                long timeElapsed = now - previousGoodMillis[0];
+                long timeElapsed = now - previousGoodMillis;
                 if (timeElapsed > 5000) {
                     // no reason to give two goods within one second...
                     fop.fopEventPost(
                             new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true, true,
                                     true));
                 }
-                previousGoodMillis[0] = now;
+                previousGoodMillis = now;
             });
         });
         good.getElement().setAttribute("theme", "success icon");
@@ -348,13 +345,13 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         Button bad = new Button(IronIcons.CLOSE.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
                 long now = System.currentTimeMillis();
-                long timeElapsed = now - previousBadMillis[0];
+                long timeElapsed = now - previousBadMillis;
                 if (timeElapsed > 5000) {
                     // no reason to give two goods within one second...
                     fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
                             false, false, false));
                 }
-                previousBadMillis[0] = now;
+                previousBadMillis = now;
             });
         });
         bad.getElement().setAttribute("theme", "error icon");

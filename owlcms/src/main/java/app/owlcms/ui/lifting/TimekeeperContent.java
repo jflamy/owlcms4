@@ -12,10 +12,10 @@ import java.util.Collection;
 import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
-import com.flowingcode.vaadin.addons.ironicons.AvIcons.Icon;
 import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.ShortcutRegistration;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
@@ -310,23 +310,26 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         centerH(timer, time);
         this.add(time);
 
-        Icon startIcon = AvIcons.PLAY_ARROW.create();
-        startTimeButton = new Button(startIcon);
-        startTimeButton.addClickListener(e -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.fopEventPost(new FOPEvent.TimeStarted(this.getOrigin()));
-            });
-        });
-        startTimeButton.getElement().setAttribute("theme", "primary success");
-
-        Icon stopIcon = AvIcons.PAUSE.create();
-        stopTimeButton = new Button();
-        stopTimeButton.addClickListener(e1 -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.fopEventPost(new FOPEvent.TimeStopped(this.getOrigin()));
-            });
-        });
-        stopTimeButton.getElement().setAttribute("theme", "secondary");
+//        Icon startIcon = AvIcons.PLAY_ARROW.create();
+//        startTimeButton = new Button(startIcon);
+//        startTimeButton.addClickListener(e -> {
+//            OwlcmsSession.withFop(fop -> {
+//                fop.fopEventPost(new FOPEvent.TimeStarted(this.getOrigin()));
+//            });
+//        });
+//        startTimeButton.getElement().setAttribute("theme", "primary success");
+//
+//        Icon stopIcon = AvIcons.PAUSE.create();
+//        stopTimeButton = new Button();
+//        stopTimeButton.addClickListener(e1 -> {
+//            OwlcmsSession.withFop(fop -> {
+//                fop.fopEventPost(new FOPEvent.TimeStopped(this.getOrigin()));
+//            });
+//        });
+//        stopTimeButton.getElement().setAttribute("theme", "secondary");
+        
+        createStartTimeButton();
+        createStopTimeButton();
 
         registerShortcuts();
 
@@ -363,11 +366,27 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         buttons.getStyle().set("--lumo-font-size-m", "10vh");
 
         centerHW(buttons, this);
-        // if done earlier, the icons aren't centered in the icon.
-        startTimeButton.setIcon(startIcon);
-        stopTimeButton.setIcon(stopIcon);
     }
-
+    
+    /**
+     * Add key shortcuts to parent
+     * @see app.owlcms.ui.shared.AthleteGridContent#createStartTimeButton()
+     */
+    @Override
+    protected void createStartTimeButton() {
+        super.createStartTimeButton();
+        UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
+    }
+    
+    /**
+     * Add key shortcuts to parent
+     * @see app.owlcms.ui.shared.AthleteGridContent#createStartTimeButton()
+     */
+    @Override
+    protected void createStopTimeButton() {
+        super.createStopTimeButton();
+        UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
+    }
     private void hideButtons() {
         buttons.setVisible(false);
         timer.getElement().setVisible(false);

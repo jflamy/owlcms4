@@ -63,6 +63,7 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
@@ -78,7 +79,6 @@ import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 /**
  * Class AthleteGridContent.
@@ -108,36 +108,51 @@ public abstract class AthleteGridContent extends VerticalLayout
                 : Translator.translate("Snatch_number", attemptNumber);
     }
 
+    protected Button _1min;
+    protected Button _2min;
+    protected H2 attempt;
+
+    protected Button breakButton;
+    protected BreakDialog breakDialog;
+    protected HorizontalLayout breaks;
+    protected HorizontalLayout buttons;
+    protected OwlcmsCrudGrid<Athlete> crudGrid;
+    protected OwlcmsGridLayout crudLayout;
+    protected HorizontalLayout decisions;
+    protected Span firstName;
+    protected ComboBox<Gender> genderFilter = new ComboBox<>();
+    protected boolean initialBar;
+    /*
+     * Initial Bar
+     */
+    protected Button introCountdownButton;
+    protected H1 lastName;
+    protected TextField lastNameFilter = new TextField();
     protected Location location;
     protected UI locationUI;
-    protected EventBus uiEventBus;
+
+    protected Component reset;
+    protected Button showResultsButton;
+    protected Button startLiftingButton;
+
+    protected Span startNumber;
+    protected Button startTimeButton;
+    protected Button stopTimeButton;
+
+    protected AthleteTimerElement timer;
 
     /**
      * Top part content
      */
     protected H3 title;
-    protected H1 lastName;
-    protected Span firstName;
-    protected Span startNumber;
-    protected H2 attempt;
-    protected H2 weight;
-    protected AthleteTimerElement timer;
     protected FlexLayout topBar;
     protected ComboBox<Group> topBarGroupSelect;
-    private Athlete displayedAthlete;
-    protected boolean initialBar;
+    protected EventBus uiEventBus;
     protected H3 warning;
-    protected Button breakButton;
-    protected Button _1min;
-    protected Button _2min;
-
-    /*
-     * Initial Bar
-     */
-    protected Button introCountdownButton;
-    protected Button startLiftingButton;
-    protected Button showResultsButton;
-
+    protected H2 weight;
+    private AthleteCardFormFactory athleteEditingFormFactory;
+    private Athlete displayedAthlete;
+    private H2 firstNameWrapper;
     /**
      * groupFilter points to a hidden field on the crudGrid filtering row, which is slave to the group selection
      * process. this allows us to use the filtering logic used everywhere else to change what is shown in the crudGrid.
@@ -146,32 +161,19 @@ public abstract class AthleteGridContent extends VerticalLayout
      * groupFilter.
      */
     private ComboBox<Group> groupFilter = new ComboBox<>();
-    protected ComboBox<Gender> genderFilter = new ComboBox<>();
-    private String topBarTitle;
-
-    protected TextField lastNameFilter = new TextField();
+    private boolean ignoreSwitchGroup;
+    private Group oldGroup = null;
+    // array is used because of Java requires a final;
+    private long previousStartMillis = 0L;
+    private long previousStopMillis = 0L;
 
     /**
      * Bottom part content
      */
     private OwlcmsRouterLayout routerLayout;
-    protected OwlcmsCrudGrid<Athlete> crudGrid;
-    private AthleteCardFormFactory athleteEditingFormFactory;
-    protected Component reset;
-    private Group oldGroup = null;
-    protected HorizontalLayout buttons;
-    protected HorizontalLayout decisions;
-    protected HorizontalLayout breaks;
-    protected BreakDialog breakDialog;
-    private H2 firstNameWrapper;
-    protected Button startTimeButton;
-    protected Button stopTimeButton;
-    private HorizontalLayout topBarLeft;
-    protected OwlcmsGridLayout crudLayout;
-    private boolean ignoreSwitchGroup;
 
-    // array is used because of Java requires a final;
-    long[] previousStartMillis = { 0L };
+    private HorizontalLayout topBarLeft;
+    private String topBarTitle;
 
     /**
      * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -343,56 +345,6 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     @Subscribe
-    public void slaveJuryNotification(UIEvent.JuryNotification e) {
-        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, () -> {
-            String text = "";
-            String reversalText = "";
-            if (e.getReversal() != null) {
-                reversalText = e.getReversal() ? Translator.translate("JuryNotification.Reversal")
-                        : Translator.translate("JuryNotification.Confirmed");
-            }
-            String style = "warning";
-            int previousAttemptNo; 
-            switch (e.getDeliberationEventType()) {
-            case BAD_LIFT:
-                previousAttemptNo= e.getAthlete().getAttemptsDone()-1;
-                text = Translator.translate("JuryNotification.BadLift", reversalText, e.getAthlete().getFullName(), previousAttemptNo%3+1);
-                style = "primary error";
-                break;
-            case CALL_REFEREES:
-                text = Translator.translate("JuryNotification.CallReferees");
-                break;
-            case CALL_TECHNICAL_CONTROLLER:
-                text = Translator.translate("JuryNotification.CallTechnicalController");
-                break;
-            case END_DELIBERATION:
-                text = Translator.translate("JuryNotification.JuryDeliberationEnd");
-                break;
-            case GOOD_LIFT:
-                previousAttemptNo= e.getAthlete().getAttemptsDone()-1;
-                text = Translator.translate("JuryNotification.GoodLift", reversalText, e.getAthlete().getFullName(), previousAttemptNo%3+1);
-                style = "primary success";
-                break;
-            case LOADING_ERROR:
-                text = Translator.translate("JuryNotification.LoadingError");
-                break;
-            case START_DELIBERATION:
-                text = Translator.translate("JuryNotification.JuryDeliberationStart");
-                break;
-            case TECHNICAL_PAUSE:
-                text = Translator.translate("JuryNotification.TechnicalPauseStarted");
-                break;
-            case END_TECHNICAL_PAUSE:
-                text = Translator.translate("JuryNotification.TechnicalPauseEnded");
-                break;
-            default:
-                break;
-            }
-            doNotification(text, style);
-        });
-    }
-
-    @Subscribe
     public void slaveBreakDone(UIEvent.BreakDone e) {
         UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
             logger.debug("stopping break");
@@ -446,6 +398,58 @@ public abstract class AthleteGridContent extends VerticalLayout
             });
         });
 
+    }
+
+    @Subscribe
+    public void slaveJuryNotification(UIEvent.JuryNotification e) {
+        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, () -> {
+            String text = "";
+            String reversalText = "";
+            if (e.getReversal() != null) {
+                reversalText = e.getReversal() ? Translator.translate("JuryNotification.Reversal")
+                        : Translator.translate("JuryNotification.Confirmed");
+            }
+            String style = "warning";
+            int previousAttemptNo;
+            switch (e.getDeliberationEventType()) {
+            case BAD_LIFT:
+                previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
+                text = Translator.translate("JuryNotification.BadLift", reversalText, e.getAthlete().getFullName(),
+                        previousAttemptNo % 3 + 1);
+                style = "primary error";
+                break;
+            case CALL_REFEREES:
+                text = Translator.translate("JuryNotification.CallReferees");
+                break;
+            case CALL_TECHNICAL_CONTROLLER:
+                text = Translator.translate("JuryNotification.CallTechnicalController");
+                break;
+            case END_DELIBERATION:
+                text = Translator.translate("JuryNotification.JuryDeliberationEnd");
+                break;
+            case GOOD_LIFT:
+                previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
+                text = Translator.translate("JuryNotification.GoodLift", reversalText, e.getAthlete().getFullName(),
+                        previousAttemptNo % 3 + 1);
+                style = "primary success";
+                break;
+            case LOADING_ERROR:
+                text = Translator.translate("JuryNotification.LoadingError");
+                break;
+            case START_DELIBERATION:
+                text = Translator.translate("JuryNotification.JuryDeliberationStart");
+                break;
+            case TECHNICAL_PAUSE:
+                text = Translator.translate("JuryNotification.TechnicalPauseStarted");
+                break;
+            case END_TECHNICAL_PAUSE:
+                text = Translator.translate("JuryNotification.TechnicalPauseEnded");
+                break;
+            default:
+                break;
+            }
+            doNotification(text, style);
+        });
     }
 
     @Subscribe
@@ -690,32 +694,13 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     protected void createStartTimeButton() {
         startTimeButton = new Button(AvIcons.PLAY_ARROW.create());
-        startTimeButton.addClickListener(e -> {
-            OwlcmsSession.withFop(fop -> {
-                long now = System.currentTimeMillis();
-                long timeElapsed = now - previousStartMillis[0];
-                boolean running = fop.getAthleteTimer().isRunning();
-                if (timeElapsed > 50 && !running) {
-                    logger.debug("clock start {}ms running={}", timeElapsed, running);
-                    fop.fopEventPost(new FOPEvent.TimeStarted(this.getOrigin()));
-                    buttonsTimeStarted();
-                } else {
-                    logger.debug("discarding duplicate clock start {}ms running={}", timeElapsed, running);
-                }
-                previousStartMillis[0] = now;
-            });
-        });
+        startTimeButton.addClickListener(e -> doStartTime());
         startTimeButton.getElement().setAttribute("theme", "primary success icon");
     }
 
     protected void createStopTimeButton() {
         stopTimeButton = new Button(AvIcons.PAUSE.create());
-        stopTimeButton.addClickListener(e -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.fopEventPost(new FOPEvent.TimeStopped(this.getOrigin()));
-                buttonsTimeStopped();
-            });
-        });
+        stopTimeButton.addClickListener(e -> doStopTime());
         stopTimeButton.getElement().setAttribute("theme", "secondary icon");
     }
 
@@ -852,6 +837,41 @@ public abstract class AthleteGridContent extends VerticalLayout
             });
         });
         crudLayout.addFilterComponent(getGroupFilter());
+    }
+
+    protected void doStartTime() {
+        OwlcmsSession.withFop(fop -> {
+            long now = System.currentTimeMillis();
+            long timeElapsed = now - previousStartMillis;
+            boolean running = fop.getAthleteTimer().isRunning();
+            if (timeElapsed > 100 && !running) {
+                logger.debug("clock start {}ms running={}", timeElapsed, running);
+                fop.fopEventPost(new FOPEvent.TimeStarted(this.getOrigin()));
+                buttonsTimeStarted();
+            } else {
+                logger.debug("discarding duplicate clock start {}ms running={}", timeElapsed, running);
+            }
+            previousStartMillis = now;
+        });
+    }
+
+    protected void doStopTime() {
+        OwlcmsSession.withFop(fop -> {
+            long now = System.currentTimeMillis();
+            long timeElapsed = now - previousStopMillis;
+            boolean running = fop.getAthleteTimer().isRunning();
+            if (timeElapsed > 100 && running) {
+                logger.debug("clock stop {}ms running={}", timeElapsed, running);
+                fop.fopEventPost(new FOPEvent.TimeStopped(this.getOrigin()));
+                buttonsTimeStopped();
+            } else {
+                logger.debug("discarding duplicate clock stop {}ms running={}", timeElapsed, running);
+            }
+            previousStopMillis = now;
+        });
+        OwlcmsSession.withFop(fop -> {
+
+        });
     }
 
     protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
@@ -1031,7 +1051,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                         decisions.setVisible(true);
                     }
                     if (breakButton == null) {
-                        logger.debug("breakButton is null\n{}", LoggerUtils. stackTrace());
+                        logger.debug("breakButton is null\n{}", LoggerUtils.stackTrace());
                     }
                     if (breakButton != null) {
                         breakButton.setText("");
@@ -1123,6 +1143,23 @@ public abstract class AthleteGridContent extends VerticalLayout
         ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
 
+    private void doNotification(String text, String theme) {
+        Notification n = new Notification();
+        // Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
+        n.getElement().getThemeList().add(theme);
+
+        n.setDuration(6000);
+        n.setPosition(Position.TOP_START);
+        Div label = new Div();
+        label.getElement().setProperty("innerHTML", text);
+        label.addClickListener((event) -> n.close());
+        label.setSizeFull();
+        label.getStyle().set("font-size", "large");
+        n.add(label);
+        n.open();
+        return;
+    }
+
     /**
      * @return the athleteEditingFormFactory
      */
@@ -1168,23 +1205,6 @@ public abstract class AthleteGridContent extends VerticalLayout
             }
             doNotification(text, "warning");
         }
-    }
-
-    private void doNotification(String text, String theme) {
-        Notification n = new Notification();
-        // Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
-        n.getElement().getThemeList().add(theme);
-
-        n.setDuration(6000);
-        n.setPosition(Position.TOP_START);
-        Div label = new Div();
-        label.getElement().setProperty("innerHTML", text);
-        label.addClickListener((event) -> n.close());
-        label.setSizeFull();
-        label.getStyle().set("font-size", "large");
-        n.add(label);
-        n.open();
-        return;
     }
 
 }
