@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.27.0-alpha00
+    default: 4.27.0-alpha01
   - name: SkipTests
     type: string
     default: 'false'
@@ -133,7 +133,7 @@ jobs:
       - script: |
           # publish sources and docs to prerelease repo
           # library group ReleaseRepoCredentials contains github users and tokens
-          git push https://$(prereleaseToken)@github.com/$(prereleaseUser)/owlcms4.git $(Build.SourceBranchName):master --force
+          git push https://$(releaseToken)@github.com/$(releaseUser)/owlcms4$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force
         condition: eq(variables['Build.SourceBranchName'], 'develop')
         displayName: sync prerelease repo
       - script: |
