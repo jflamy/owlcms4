@@ -1,6 +1,6 @@
-##### **Changes for release 4.27.0-alpha01**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Changes for release 4.27.0-alpha02**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.27.0-alpha01: moving all release repositories to github.com/owlcms
+4.27.0-alpha02: moving all release repositories to github.com/owlcms
 
 4.27.0-alpha00: initial release with new version of H2 and keyboard shortcuts for timekeeping.
 
