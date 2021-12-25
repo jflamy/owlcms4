@@ -89,7 +89,25 @@ public class JPAService {
      */
     public static void init(boolean inMemory, boolean reset) {
         if (getFactory() == null) {
-            setFactory(getFactory(inMemory, reset));
+            EntityManagerFactory factory2 = null;
+            
+            // h2 2.0 signals a redundant constraint as an error (behaviour has changed from 1.4
+            // ignore these warnings if any are present.
+            // we don't know what database is being used here, but the code is trivial and used only on init.
+            
+            Logger h2Logger = (Logger) LoggerFactory.getLogger("h2database");
+            Logger hibernateLogger = (Logger) LoggerFactory.getLogger("org.hibernate.tool.schema.internal.ExceptionHandlerLoggedImpl");
+            Level prevH2Level = h2Logger.getLevel();
+            Level prevHibernateLevel = hibernateLogger.getLevel();
+            try {
+                h2Logger.setLevel(Level.OFF);
+                hibernateLogger.setLevel(Level.ERROR);
+                factory2 = getFactory(inMemory, reset);
+            } finally {
+                h2Logger.setLevel(prevH2Level);
+                hibernateLogger.setLevel(prevHibernateLevel);
+            }
+            setFactory(factory2);
         }
     }
 
