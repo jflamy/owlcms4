@@ -1,5 +1,7 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+4.27.0-alpha03: Ability to monitor field of play state to control OBS scene switching.  See [Example video](https://user-images.githubusercontent.com/678663/147373848-89b91086-b16d-48c0-8f48-445f6c1ca828.mp4)
+
 4.27.0-alpha02: moving all release repositories to github.com/owlcms
 
 4.27.0-alpha00: initial release with new version of H2 and keyboard shortcuts for timekeeping.
@@ -11,6 +13,7 @@
   - If you are running in the cloud, there is nothing to do, the cloud-based database engine is Postgres.
   - <u>If you wish to reuse your prior database content</u>, then a conversion is required between the previous format and the new format.  Fortunately, the process is quick and straightforward.  Please follow the [conversion instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/ImportExport)
   - If you wish to keep copies of previous meets and have kept database backups, the suggestion is to install version 4.26 and export each of the databases.
+- [x] Enhancement: ability to monitor field of play state to control OBS scene switching.  See [Example video](https://user-images.githubusercontent.com/678663/147373848-89b91086-b16d-48c0-8f48-445f6c1ca828.mp4).
 - [x] Enhancement: keyboard shortcuts to start (`,` )and stop (`.`) the clock available on announcer and timekeeper screens.
 
 ###### Key Highlights from recent stable releases
