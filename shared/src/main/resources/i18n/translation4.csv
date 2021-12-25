@@ -704,3 +704,5 @@ Download,Download,Ներբեռնել,Descargar,Descargar,Descargar,,Télécharge
 NoAthletes,No Athletes,Մարզիկներ չկան,No Athletes,No Athletes,No Athletes,,Aucun athlète,,,No Athletes,Нет спортсменов,No Athletes,No Athletes,No Athletes,No Athletes,,708,Shown if no athletes match filters for a report
 GroupSize,Size,Size,Size,Size,Size,,Taille,,,Size,Size,Size,Size,Size,Size,,708,Number of athletes in a group
 Default,Default,Default,Default,Default,Default,,Défaut,,,Default,Default,Default,Default,Default,Default,,709,Used if all platforms are deleted.
+BreakType.MEDALS,Medals,Medals,Medals,Medals,Medals,,Médailles,,,Medals,Medals,Medals,Medals,Medals,Medals,,710,Used in break management dialog
+PublicMsg.Medals,Medal Ceremony,Medal Ceremony,Medal Ceremony,Medal Ceremony,Medal Ceremony,,Remise de médailles,,,Medal Ceremony,Medal Ceremony,Medal Ceremony,Medal Ceremony,Medal Ceremony,Medal Ceremony,,711,Used on attempt board

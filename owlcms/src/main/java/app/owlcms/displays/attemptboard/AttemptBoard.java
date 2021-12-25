@@ -536,7 +536,9 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             } else {
                 Athlete curAthlete = fop.getCurAthlete();
                 if (fop.getState() == FOPState.BREAK) {
-                    if (curAthlete != null && curAthlete.getAttemptsDone() >= 6) {
+                    if (fop.getBreakType() == BreakType.MEDALS) {
+                        doBreak(fop);
+                    } else if (curAthlete != null && curAthlete.getAttemptsDone() >= 6) {
                         doDone(fop.getGroup());
                     } else {
                         doBreak(fop);
