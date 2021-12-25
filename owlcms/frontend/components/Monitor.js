@@ -18,10 +18,14 @@ class Monitor extends PolymerElement {
 	}
 
 	ready() {
-		console.debug("monitor ready");
+		//console.debug("monitor is ready");
 		super.ready();
 	}
 
+	setTitle(title) {
+		//console.log("title = "+title);
+		document.title = title;
+	}
 }
 
 customElements.define(Monitor.is, Monitor);

@@ -16,7 +16,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
@@ -49,7 +48,7 @@ import ch.qos.logback.classic.Logger;
 @Theme(value = Lumo.class)
 @Push
 public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FOPParameters,
-        SafeEventBusRegistration, UIEventProcessor, HasDynamicTitle {
+        SafeEventBusRegistration, UIEventProcessor {
 
     /**
      * unused
@@ -92,7 +91,6 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         return this.locationUI;
     }
 
-    @Override
     public String getPageTitle() {
         String string = computePageTitle();
         return string;
@@ -194,6 +192,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     private void doUpdate() {
         String title = computePageTitle();
         this.getElement().setProperty("title", title);
+        this.getElement().callJsFunction("setTitle", title);
         logger.warn(">>>>> {}", title);
     }
 
@@ -227,8 +226,8 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         });
         if (previousState == FOPState.DECISION_VISIBLE && currentState == FOPState.BREAK
                 && currentBreakType == BreakType.GROUP_DONE) {
-            logger.warn("ignoring visible -> done");
-            significant = false;
+//            logger.warn("ignoring visible -> done");
+//            significant = false;
         }
         return significant;
     }
