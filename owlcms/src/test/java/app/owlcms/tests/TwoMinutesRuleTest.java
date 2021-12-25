@@ -83,6 +83,10 @@ public class TwoMinutesRuleTest {
 
     void doSequence3(FieldOfPlay fopState, EventBus fopBus, Logger logger) {
         testPrepState3(fopState, fopBus, logger);
+        Group group = fopState.getGroup();
+        fopBus.post(new FOPEvent.SwitchGroup(group, this));
+        fopBus.post(new FOPEvent.StartLifting(this));
+        
         athletes = fopState.getDisplayOrder();
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);
@@ -244,6 +248,10 @@ public class TwoMinutesRuleTest {
 
     void doLiftSequence4(FieldOfPlay fopState, EventBus fopBus, Logger logger) {
         testPrepState4(fopState, fopBus, logger);
+        Group group = fopState.getGroup();
+        fopBus.post(new FOPEvent.SwitchGroup(group, this));
+        fopBus.post(new FOPEvent.StartLifting(this));
+        
         athletes = fopState.getDisplayOrder();
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);
