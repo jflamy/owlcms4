@@ -72,6 +72,8 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     private FOPState previousState = FOPState.INACTIVE;
     private BreakType currentBreakType;
     private BreakType previousBreakType;
+    private String title;
+    private String prevTitle;
 
     /**
      * Instantiates a new results board.
@@ -190,10 +192,13 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     }
 
     private void doUpdate() {
-        String title = computePageTitle();
-        this.getElement().setProperty("title", title);
-        this.getElement().callJsFunction("setTitle", title);
-        logger.warn(">>>>> {}", title);
+        title = computePageTitle();
+        if (!title.contentEquals(prevTitle)) {
+            this.getElement().setProperty("title", title);
+            this.getElement().callJsFunction("setTitle", title);
+            logger.warn("monitor update {}", title);
+            prevTitle = title;
+        }
     }
 
     private Object getOrigin() {
@@ -226,7 +231,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         });
         if (previousState == FOPState.DECISION_VISIBLE && currentState == FOPState.BREAK
                 && currentBreakType == BreakType.GROUP_DONE) {
-//            logger.warn("ignoring visible -> done");
+//            logger.debug("ignoring visible -> done");
 //            significant = false;
         }
         return significant;
