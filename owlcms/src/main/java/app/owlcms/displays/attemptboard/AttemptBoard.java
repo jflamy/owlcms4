@@ -20,6 +20,9 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
@@ -45,6 +48,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
@@ -530,26 +534,30 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
             SoundUtils.enableAudioContextNotification(this.getElement());
 
-            // sync with current status of FOP
-            if (fop.getState() == FOPState.INACTIVE) {
-                doEmpty();
-            } else {
-                Athlete curAthlete = fop.getCurAthlete();
-                if (fop.getState() == FOPState.BREAK) {
-                    if (fop.getBreakType() == BreakType.MEDALS) {
-                        doBreak(fop);
-                    } else if (curAthlete != null && curAthlete.getAttemptsDone() >= 6) {
-                        doDone(fop.getGroup());
-                    } else {
-                        doBreak(fop);
-                    }
-                } else {
-                    doAthleteUpdate(curAthlete);
-                }
-            }
+            syncWithFOP(fop);
             // we send on fopEventBus, listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
+    }
+
+    private void syncWithFOP(FieldOfPlay fop) {
+        // sync with current status of FOP
+        if (fop.getState() == FOPState.INACTIVE) {
+            doEmpty();
+        } else {
+            Athlete curAthlete = fop.getCurAthlete();
+            if (fop.getState() == FOPState.BREAK) {
+                if (fop.getBreakType() == BreakType.MEDALS) {
+                    doBreak(fop);
+                } else if (curAthlete != null && curAthlete.getAttemptsDone() >= 6) {
+                    doDone(fop.getGroup());
+                } else {
+                    doBreak(fop);
+                }
+            } else {
+                doAthleteUpdate(curAthlete);
+            }
+        }
     }
 
     private void doDone(Group g) {
@@ -622,6 +630,63 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 }
             });
         });
+    }
+    
+    @Subscribe
+    public void slaveJuryNotification(UIEvent.JuryNotification e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            String text = "";
+            String reversalText = "";
+            if (e.getReversal() != null) {
+                reversalText = e.getReversal() ? Translator.translate("JuryNotification.Reversal")
+                        : Translator.translate("JuryNotification.Confirmed");
+            }
+            String style = "warning";
+            int previousAttemptNo;
+            switch (e.getDeliberationEventType()) {
+            case BAD_LIFT:
+                previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
+                text = Translator.translate("JuryNotification.BadLift", reversalText, "<br/>"+e.getAthlete().getFullName(),
+                        previousAttemptNo % 3 + 1);
+                style = "primary error";
+                doNotification(text, style);
+                break;
+            case GOOD_LIFT:
+                previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
+                text = Translator.translate("JuryNotification.GoodLift", reversalText, "<br/>"+e.getAthlete().getFullName(),
+                        previousAttemptNo % 3 + 1);
+                style = "primary success";
+                doNotification(text, style);
+                break;
+            default:
+                break;
+            }
+        });
+    }
+    
+    private void doNotification(String text, String theme) {
+        Notification n = new Notification();
+        // Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
+        n.getElement().getThemeList().add(theme);
+
+        n.setDuration(10000);
+        n.setPosition(Position.MIDDLE);
+        Div label = new Div();
+        label.getElement().setProperty("innerHTML", text);
+        label.getElement().setAttribute("style", "text: align-center");
+        label.addClickListener((event) -> n.close());
+        label.setWidth("20em");
+        label.getStyle().set("font-size", "4em");
+        n.add(label);
+        
+        OwlcmsSession.withFop(fop -> {
+//            this.getElement().callJsFunction("reset");
+//            syncWithFOP(OwlcmsSession.getFop());
+            n.open();
+            return;
+        });
+
+        return;
     }
 
 }

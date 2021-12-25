@@ -61,7 +61,6 @@ import app.owlcms.fieldofplay.FOPEvent.TimeOver;
 import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
 import app.owlcms.spreadsheet.PAthlete;
@@ -208,17 +207,8 @@ public class FieldOfPlay {
         this.setPlatform(platform2);
 
         this.fopEventBus.register(this);
-        //logger.debug("||||  fop {} {}", System.identityHashCode(this), this.getName());
+        // logger.debug("|||| fop {} {}", System.identityHashCode(this), this.getName());
         new EventForwarder(this);
-    }
-
-    public void initEventBuses() {
-        // we listen on this bus, and sometimes post to change our own state
-        this.fopEventBus = new EventBus("FOP-" + name);
-
-        // we post on these buses
-        this.uiEventBus = new AsyncEventBus("UI-" + name, Executors.newCachedThreadPool());
-        this.postBus = new EventBus("POST-" + name);
     }
 
     private FieldOfPlay() {
@@ -504,6 +494,12 @@ public class FieldOfPlay {
                 // if group under way, this will try to just keep going.
                 resumeLifting(e);
                 return;
+            } else if (state == BREAK && (breakType == BreakType.GROUP_DONE)) {
+                // resume lifting only if current athlete has one more lift to do
+                if (curAthlete != null && curAthlete.getAttemptsDone() < 6) {
+                    transitionToLifting(e, getGroup(), true);
+                }
+                return;
             } else if (state == BREAK) {
                 // group was not under way when break started, full start.
                 transitionToLifting(e, getGroup(), true);
@@ -749,6 +745,15 @@ public class FieldOfPlay {
             logger.info("{}group {} athletes={}", getLoggingName(), getGroup(), athletes.size());
             pushOutSwitchGroup(this);
         }
+    }
+
+    public void initEventBuses() {
+        // we listen on this bus, and sometimes post to change our own state
+        this.fopEventBus = new EventBus("FOP-" + name);
+
+        // we post on these buses
+        this.uiEventBus = new AsyncEventBus("UI-" + name, Executors.newCachedThreadPool());
+        this.postBus = new EventBus("POST-" + name);
     }
 
     public boolean isCjStarted() {
@@ -1044,14 +1049,17 @@ public class FieldOfPlay {
         Integer actualLift = a.getActualLift(a.getAttemptsDone());
         if (actualLift != null) {
             Integer curValue = Math.abs(actualLift);
-            a.doLift(a.getAttemptsDone(), e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
-            AthleteRepository.save(a);
+
             JuryNotification event = new UIEvent.JuryNotification(a, e.getOrigin(),
                     e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
                     e.success && actualLift <= 0 || !e.success && actualLift > 0);
-            OwlcmsSession.getFop().getUiEventBus().post(event);
+            pushOut(event);
+
+            a.doLift(a.getAttemptsDone(), e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
+            AthleteRepository.save(a);
             recomputeLiftingOrder();
         }
+        displayOrBreakIfDone(e);
     }
 
     private void doSetState(FOPState state) {
