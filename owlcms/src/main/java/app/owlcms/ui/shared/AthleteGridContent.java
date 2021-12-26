@@ -199,7 +199,8 @@ public abstract class AthleteGridContent extends VerticalLayout
         breakButton.getElement().setAttribute("theme", "primary error");
         breakButton.getStyle().set("color", "white");
         breakButton.getStyle().set("background-color", "var(--lumo-error-color)");
-        breakButton.setText(getTranslation("BreakButton.Paused"));
+        //breakButton.setText(getTranslation("BreakButton.Paused"));
+        breakButton.setText(getTranslation("BreakType."+OwlcmsSession.getFop().getBreakType()));
         breakButton.getElement().setAttribute("title", getTranslation("BreakButton.Caption"));
     }
 

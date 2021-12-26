@@ -349,7 +349,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             masterPauseBreak();
 
             if (bType != null && (bType == BreakType.JURY || bType == BreakType.TECHNICAL
-                    || bType == BreakType.DURING_INTRODUCTION)) {
+                    || bType == BreakType.DURING_INTRODUCTION || bType == BreakType.MEDALS)) {
                 logger.debug("starting break from radiobutton setvalue {}", bType);
                 startIndefiniteBreakImmediately(bType);
             } else {
@@ -488,6 +488,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         fop.uiDisplayCurrentAthleteAndTime(false, new FOPEvent(null, this), true);
                     });
                 });
+        athleteButton.setTabIndex(-1);
         countdownButton = new Button(
                 getTranslation(DisplayType.class.getSimpleName() + "." + DisplayType.COUNTDOWN_INFO.name()), (e) -> {
                     OwlcmsSession.withFop(fop -> {
@@ -497,6 +498,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                                         ct.getValue()));
                     });
                 });
+        countdownButton.setTabIndex(-1);
         athleteButton.getThemeNames().add("secondary contrast");
         countdownButton.getThemeNames().add("secondary contrast");
         dt.add(countdownButton, athleteButton);
