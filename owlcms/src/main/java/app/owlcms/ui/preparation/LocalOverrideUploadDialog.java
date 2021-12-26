@@ -47,6 +47,7 @@ public class LocalOverrideUploadDialog extends Dialog {
                 this.close();
             }
         });
+        upload.setAcceptedFileTypes("application/zip");
         
         upload.setUploadButton(new Button(Translator.translate("Config.Select")));
 

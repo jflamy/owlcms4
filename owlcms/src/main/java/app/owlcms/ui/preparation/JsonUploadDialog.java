@@ -42,6 +42,7 @@ public class JsonUploadDialog extends Dialog {
         MemoryBuffer buffer = new MemoryBuffer();
         Upload upload = new Upload(buffer);
         upload.setWidth("40em");
+        upload.setAcceptedFileTypes("application/json");
 
         TextArea ta = new TextArea(getTranslation("Errors"));
         ta.setHeight("20ex");
