@@ -1,4 +1,11 @@
-##### **Changes for release 4.27.0-alpha03**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Changes for release 4.27.0-alpha04**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+
+4.27.0-alpha04: show notification on attempt board for Jury confirmation/reversal. 
+
+4.27.0-alpha04: added Medals as a break type. 
+
+- Attempt and scoreboards display "Medal Ceremony" message. 
+- New BREAK.MEDALS state to allow for OBS scene switching if desired.
 
 4.27.0-alpha03: Ability to monitor field of play state to control OBS scene switching.  See [Example video](https://user-images.githubusercontent.com/678663/147373848-89b91086-b16d-48c0-8f48-445f6c1ca828.mp4)
 
