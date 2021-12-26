@@ -193,7 +193,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
 
     private void doUpdate() {
         title = computePageTitle();
-        if (!title.contentEquals(prevTitle)) {
+        if (title != null && prevTitle == null ? true : !title.contentEquals(prevTitle)) {
             this.getElement().setProperty("title", title);
             this.getElement().callJsFunction("setTitle", title);
             logger.warn("monitor update {}", title);
