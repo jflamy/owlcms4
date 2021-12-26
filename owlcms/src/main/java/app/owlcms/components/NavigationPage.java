@@ -41,6 +41,7 @@ public interface NavigationPage extends OwlcmsContent {
         Paragraph paragraph = new Paragraph();
         paragraph.getElement().setProperty("innerHTML", text);
         paragraph.getStyle().set("margin-bottom", "0");
+        paragraph.getStyle().set("width", "75%");
         intro.add(paragraph);
         return paragraph;
     }

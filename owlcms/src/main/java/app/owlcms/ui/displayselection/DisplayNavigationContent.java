@@ -25,6 +25,7 @@ import app.owlcms.displays.attemptboard.AthleteFacingAttemptBoard;
 import app.owlcms.displays.attemptboard.AthleteFacingDecisionBoard;
 import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.displays.liftingorder.LiftingOrder;
+import app.owlcms.displays.monitor.Monitor;
 import app.owlcms.displays.scoreboard.CurrentAthlete;
 import app.owlcms.displays.scoreboard.ScoreMultiRanks;
 import app.owlcms.displays.scoreboard.ScoreWithLeaders;
@@ -62,13 +63,12 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         intro.getStyle().set("margin-bottom", "0");
 
         Button attempt = openInNewTab(AttemptBoard.class, getTranslation("AttemptBoard"));
-        Button referee = openInNewTab(AthleteFacingDecisionBoard.class, getTranslation("Athlete_Decisions"));
         Button athleteFacingAttempt = openInNewTab(AthleteFacingAttemptBoard.class, getTranslation("Athlete_Attempt"));
+        Button decisions = openInNewTab(AthleteFacingDecisionBoard.class, getTranslation("Athlete_Decisions"));
 
         Button scoreboard = openInNewTab(Scoreboard.class, getTranslation("Scoreboard"));
         Button scoreboardWLeaders = openInNewTab(ScoreWithLeaders.class, getTranslation("ScoreboardWLeadersButton"));
         scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
-
         Button scoreboardMultiRanks = openInNewTab(ScoreMultiRanks.class, getTranslation("ScoreboardMultiRanksButton"));
 
         Button liftingOrder = openInNewTab(LiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
@@ -77,6 +77,8 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
         Button topTeams = openInNewTab(TopTeams.class, getTranslation("Scoreboard.TopTeams"));
         Button topTeamsSinclair = openInNewTab(TopTeamsSinclair.class, getTranslation("Scoreboard.TopTeamsSinclair"));
+        
+        Button obsMonitor = openInNewTab(Monitor.class, getTranslation("OBS.MonitoringButton"));
 
         fillH(intro, this);
 
@@ -92,8 +94,13 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 
         VerticalLayout intro2 = new VerticalLayout();
         addP(intro2, getTranslation("refereeingDevices"));
-        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee);
+        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(decisions);
         doGroup(getTranslation("Refereeing_Displays"), intro2, grid2, this);
+        
+        VerticalLayout intro4 = new VerticalLayout();
+        addP(intro4, getTranslation("OBS.MonitoringExplanation"));
+        FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(obsMonitor);
+        doGroup(getTranslation("OBS.MonitoringTitle"), intro4, grid4, this);
 
         DebugUtils.gc();
     }
