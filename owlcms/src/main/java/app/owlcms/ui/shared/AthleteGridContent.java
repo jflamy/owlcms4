@@ -55,6 +55,7 @@ import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
+import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -200,8 +201,16 @@ public abstract class AthleteGridContent extends VerticalLayout
         breakButton.getStyle().set("color", "white");
         breakButton.getStyle().set("background-color", "var(--lumo-error-color)");
         //breakButton.setText(getTranslation("BreakButton.Paused"));
-        breakButton.setText(getTranslation("BreakType."+OwlcmsSession.getFop().getBreakType()));
-        breakButton.getElement().setAttribute("title", getTranslation("BreakButton.Caption"));
+        OwlcmsSession.withFop(fop -> {
+            if (fop.getCountdownType() != CountdownType.INDEFINITE) {
+                breakButton.setIcon(new BreakTimerElement());
+                breakButton.setIconAfterText(true);
+            }
+            
+            breakButton.setText(getTranslation("BreakType."+OwlcmsSession.getFop().getBreakType())+"\u00a0\u00a0");
+            breakButton.getElement().setAttribute("title", getTranslation("BreakButton.Caption"));
+        });
+
     }
 
     public void clearVerticalMargins(HasStyle styleable) {
