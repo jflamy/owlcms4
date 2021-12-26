@@ -1,4 +1,8 @@
-##### **Changes for release 4.27.0-alpha04**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Changes for release 4.27.0-alpha05**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+
+4.27.0-alpha05: Experiment: show type of break on the red break management button.
+
+4.27.0-alpha05: fix displays/monitor on initial startup (String.contentEquals() is not null-safe contrary to other similar functions)
 
 4.27.0-alpha04: show notification on attempt board for Jury confirmation/reversal. 
 
