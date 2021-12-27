@@ -1,6 +1,6 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] 4.27.0-alpha07: Updated Java release to version 17LTS (long term support)
+- [x] 4.27.0-alpha08: fixed time started and time stopped transitions to correctly show in the OBS monitor.
 - [x] 4.27.0-alpha07: restrict upload dialogs to the correct type of files (.xls/.xlsx, .json, .zip depending on context)
 - [x] 4.27.0-alpha06: Added Status Monitoring section on the display selection page to start OBS Monitor window
 - [x] 4.27.0-alpha06: Break type and countdown now shown on the announcer's red break management button
