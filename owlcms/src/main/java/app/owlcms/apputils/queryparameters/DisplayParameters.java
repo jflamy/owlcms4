@@ -32,7 +32,6 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
-import app.owlcms.displays.attemptboard.AthleteFacingDecisionBoard;
 import app.owlcms.i18n.Translator;
 
 /**
@@ -128,6 +127,10 @@ public interface DisplayParameters extends FOPParameters {
     public boolean isShowInitialDialog();
 
     public boolean isSilenced();
+    
+    public default boolean isSilencedByDefault() {
+        return true;
+    }
 
     @Override
     public default HashMap<String, List<String>> readParams(Location location,
@@ -146,7 +149,7 @@ public interface DisplayParameters extends FOPParameters {
         // silent is the default. silent=false will cause sound
         boolean silentMode = silentParams == null || silentParams.isEmpty()
                 || silentParams.get(0).toLowerCase().equals("true");
-        if (this instanceof AthleteFacingDecisionBoard) {
+        if (!isSilencedByDefault()) {
             // for referee board, default is noise
             silentMode = silentParams != null && !silentParams.isEmpty() && silentParams.get(0).toLowerCase().equals("true");
         }

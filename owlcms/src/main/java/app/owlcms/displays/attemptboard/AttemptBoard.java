@@ -689,4 +689,9 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         return;
     }
 
+    @Override
+    public boolean isSilencedByDefault() {
+        return true;
+    }
+
 }

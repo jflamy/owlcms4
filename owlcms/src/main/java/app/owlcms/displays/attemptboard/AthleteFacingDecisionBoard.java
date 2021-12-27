@@ -60,4 +60,9 @@ public class AthleteFacingDecisionBoard extends AttemptBoard {
         // unused - web component currently always hides barbell
         getModel().setShowBarbell(b);
     }
+    
+    @Override
+    public boolean isSilencedByDefault() {
+        return false;
+    }
 }

@@ -53,4 +53,9 @@ public class AthleteFacingAttemptBoard extends AttemptBoard {
         super.onAttach(attachEvent);
         decisions.setPublicFacing(false);
     }
+    
+    @Override
+    public boolean isSilencedByDefault() {
+        return false;
+    }
 }
