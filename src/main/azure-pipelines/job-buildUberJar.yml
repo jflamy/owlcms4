@@ -17,7 +17,7 @@ jobs:
   - job: ${{ parameters.jobName }}
     pool:
       vmImage: ubuntu-latest
-    container: maven:eclipse-temurin-17
+    container: maven:3.8.4-eclipse-temurin-17
     steps:
       - template: steps-prepare-maven.yml
       - task: Maven@3
