@@ -19,8 +19,8 @@ jobs:
       vmImage: ubuntu-latest
     container: maven:3.8.1-openjdk-17-slim
     variables:
-      - name: JAVA_HOME_11_X64
-        value: /usr/local/openjdk-1
+      - name: JAVA_HOME_17_X64
+        value: /usr/local/openjdk-17
     steps:
       - template: steps-prepare-maven.yml
       - task: Maven@3
@@ -28,8 +28,9 @@ jobs:
         inputs:
           mavenPomFile: pom.xml
           mavenOptions: -Xmx3072m $(MavenOpts)
-          javaHomeOption: path
+          javaHomeSelection: 'path'
           jdkDirectory: '/usr/local/openjdk-17'
+          jdkVersion: 1.17
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           effectivePomSkip: true
