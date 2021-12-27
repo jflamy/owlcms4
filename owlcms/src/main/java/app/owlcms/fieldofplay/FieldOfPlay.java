@@ -609,8 +609,8 @@ public class FieldOfPlay {
                 emitDown(e);
             } else if (e instanceof TimeStopped) {
                 // athlete lifted the bar
-                getAthleteTimer().stop();
                 setState(TIME_STOPPED);
+                getAthleteTimer().stop();
             } else if (e instanceof DecisionFullUpdate) {
                 // decision board/attempt board sends bulk update
                 updateRefereeDecisions((DecisionFullUpdate) e);
@@ -645,7 +645,6 @@ public class FieldOfPlay {
                 updateRefereeDecisions((DecisionUpdate) e);
                 uiShowUpdateOnJuryScreen();
             } else if (e instanceof TimeStarted) {
-                getAthleteTimer().start();
                 if (!getCurAthlete().equals(getClockOwner())) {
                     setClockOwner(getCurAthlete());
                     setClockOwnerInitialTimeAllowed(getTimeAllowed());
@@ -655,6 +654,7 @@ public class FieldOfPlay {
 
                 // we do not reset decisions or "emitted" flags
                 setState(TIME_RUNNING);
+                getAthleteTimer().start();
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof ExplicitDecision) {
@@ -1629,7 +1629,7 @@ public class FieldOfPlay {
     }
 
     private void transitionToTimeRunning() {
-        getAthleteTimer().start();
+
         if (!getCurAthlete().equals(getClockOwner())) {
             setClockOwner(getCurAthlete());
             setClockOwnerInitialTimeAllowed(getTimeAllowed());
@@ -1640,6 +1640,7 @@ public class FieldOfPlay {
 
         // enable master to listening for decision
         setState(TIME_RUNNING);
+        getAthleteTimer().start();
     }
 
     @SuppressWarnings("unused")

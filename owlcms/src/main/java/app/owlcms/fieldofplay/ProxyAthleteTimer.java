@@ -139,7 +139,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
             logger.info("{}starting Time -- timeRemaining = {}", getFop().getLoggingName(), timeRemaining);
             timeRemainingAtLastStop = timeRemaining;
         }
-        getFop().pushOut(new UIEvent.StartTime(timeRemaining, null, getFop().isEmitSoundsOnServer()));
+        getFop().pushOut(new UIEvent.StartTime(timeRemaining, null, getFop().isEmitSoundsOnServer(),LoggerUtils.stackTrace()));
         running = true;
     }
 

@@ -322,11 +322,6 @@ public class UIEvent {
     static public class GroupDone extends UIEvent {
 
         private Group group;
-        private String trace;
-
-        public String getTrace() {
-            return trace;
-        }
 
         /**
          * Instantiates a new athlete announced.
@@ -340,10 +335,6 @@ public class UIEvent {
             this.setTrace(stackTrace);
         }
 
-        private void setTrace(String stackTrace) {
-            this.trace = stackTrace;
-        }
-
         public Group getGroup() {
             return group;
         }
@@ -351,6 +342,57 @@ public class UIEvent {
         public void setGroup(Group group) {
             this.group = group;
         }
+    }
+
+    static public class JuryNotification extends UIEvent {
+
+        private JuryDeliberationEventType deliberationEventType;
+        private Boolean reversal;
+
+        public JuryNotification(Athlete athleteUnderReview, Object origin,
+                JuryDeliberationEventType deliberationEventType, Boolean reversal) {
+            super(athleteUnderReview, origin);
+            this.setDeliberationEventType(deliberationEventType);
+            this.setReversal(reversal);
+        }
+
+        /**
+         * Instantiates a new Notification.
+         *
+         * @param origin the origin
+         */
+        public JuryNotification(Athlete a, Object origin, String fopStateString, String fopEventString) {
+            super(a, origin);
+        }
+
+        /**
+         * @return the deliberationEventType
+         */
+        public JuryDeliberationEventType getDeliberationEventType() {
+            return deliberationEventType;
+        }
+
+        /**
+         * @return the reversal
+         */
+        public Boolean getReversal() {
+            return reversal;
+        }
+
+        /**
+         * @param deliberationEventType the deliberationEventType to set
+         */
+        public void setDeliberationEventType(JuryDeliberationEventType deliberationEventType) {
+            this.deliberationEventType = deliberationEventType;
+        }
+
+        /**
+         * @param reversal the reversal to set
+         */
+        public void setReversal(Boolean reversal) {
+            this.reversal = reversal;
+        }
+
     }
 
     /**
@@ -512,57 +554,6 @@ public class UIEvent {
             this.fopStateString = fopStateString;
         }
     }
-    
-    static public class JuryNotification extends UIEvent {
-
-        private JuryDeliberationEventType deliberationEventType;
-        private Boolean reversal;
-
-        /**
-         * Instantiates a new Notification.
-         *
-         * @param origin the origin
-         */
-        public JuryNotification(Athlete a, Object origin, String fopStateString, String fopEventString) {
-            super(a, origin);
-        }
-
-        public JuryNotification(Athlete athleteUnderReview, Object origin,
-                JuryDeliberationEventType deliberationEventType, Boolean reversal) {
-            super(athleteUnderReview, origin);
-            this.setDeliberationEventType(deliberationEventType);
-            this.setReversal(reversal);
-        }
-
-        /**
-         * @return the deliberationEventType
-         */
-        public JuryDeliberationEventType getDeliberationEventType() {
-            return deliberationEventType;
-        }
-
-        /**
-         * @param deliberationEventType the deliberationEventType to set
-         */
-        public void setDeliberationEventType(JuryDeliberationEventType deliberationEventType) {
-            this.deliberationEventType = deliberationEventType;
-        }
-
-        /**
-         * @return the reversal
-         */
-        public Boolean getReversal() {
-            return reversal;
-        }
-
-        /**
-         * @param reversal the reversal to set
-         */
-        public void setReversal(Boolean reversal) {
-            this.reversal = reversal;
-        }
-
-    }
 
     /**
      * Individual referee decision.
@@ -657,6 +648,11 @@ public class UIEvent {
             this.timeRemaining = timeRemaining;
             this.serverSound = serverSound;
         }
+        
+        public StartTime(Integer timeRemaining, Object origin, boolean serverSound, String stackTrace) {
+            this(timeRemaining, origin, serverSound);
+            this.setTrace(stackTrace);
+        }
 
         /**
          * Gets the time remaining.
@@ -733,6 +729,8 @@ public class UIEvent {
 
     private Object origin;
 
+    protected String trace;
+
     private UIEvent(Athlete athlete, Object origin) {
         this(origin);
         this.athlete = athlete;
@@ -760,12 +758,20 @@ public class UIEvent {
         return origin;
     }
 
+    public String getTrace() {
+        return trace;
+    }
+
     public void setAthlete(Athlete athlete) {
         this.athlete = athlete;
     }
 
     public void setOrigin(Object origin) {
         this.origin = origin;
+    }
+
+    protected void setTrace(String stackTrace) {
+        this.trace = stackTrace;
     }
 
 }

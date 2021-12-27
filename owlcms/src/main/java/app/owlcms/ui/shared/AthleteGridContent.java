@@ -202,7 +202,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         breakButton.getStyle().set("background-color", "var(--lumo-error-color)");
         //breakButton.setText(getTranslation("BreakButton.Paused"));
         OwlcmsSession.withFop(fop -> {
-            if (fop.getCountdownType() != CountdownType.INDEFINITE) {
+            if (fop.getCountdownType() != CountdownType.INDEFINITE && fop.getBreakType() != BreakType.GROUP_DONE) {
                 breakButton.setIcon(new BreakTimerElement());
                 breakButton.setIconAfterText(true);
             }

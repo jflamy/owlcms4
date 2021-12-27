@@ -123,8 +123,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
 
     @Subscribe
     public void slaveUIEvent(UIEvent e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
+        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),e.getTrace());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             if (syncWithFOP(e)) {
                 // significant transition
@@ -188,12 +187,26 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         pageTitle.append(currentFOP);
 
         String string = pageTitle.toString();
+        if (currentState == FOPState.BREAK && currentBreakType == BreakType.GROUP_DONE && previousState == FOPState.DECISION_VISIBLE) {
+            // skip this update.  There will be another group done after the decision reset.
+            logger.warn("skipping first group done");
+            string = null;
+        }
         return string;
     }
 
     private void doUpdate() {
         title = computePageTitle();
-        if (title != null && prevTitle == null ? true : !title.contentEquals(prevTitle)) {
+        boolean same = false;
+        if (prevTitle == null || title == null) {
+            // same if both null
+            same = (title == prevTitle);
+        } else if (title != null) {
+            // same if same content comparison
+            // prevTitle cannot be null (tested in previous branch)
+            same = title.contentEquals(prevTitle);
+        }
+        if (!same && !(title == null) && !title.isBlank()) {
             this.getElement().setProperty("title", title);
             this.getElement().callJsFunction("setTitle", title);
             logger.warn("monitor update {}", title);
