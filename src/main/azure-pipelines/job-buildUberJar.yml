@@ -17,7 +17,7 @@ jobs:
   - job: ${{ parameters.jobName }}
     pool:
       vmImage: ubuntu-latest
-    container: maven:3.8.4-eclipse-temurin-17
+    container: maven:3.8.1-openjdk-17-slim
     steps:
       - template: steps-prepare-maven.yml
       - task: Maven@3
@@ -26,8 +26,7 @@ jobs:
           mavenPomFile: pom.xml
           mavenOptions: -Xmx3072m $(MavenOpts)
           javaHomeOption: 'path'
-          jdkDirectory: '/opt/java/openjdk'
-          jdkArchitectureOption: x64
+          jdkDirectory: '/usr/local/openjdk-16'
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           effectivePomSkip: true
