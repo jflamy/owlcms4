@@ -29,9 +29,6 @@ variables:
 jobs:
   # build owlcms uberjar, zip and installer
   - template: src/main/azure-pipelines/job-buildUberJar.yml
-    variables:
-      - name: JAVA_HOME_11_X64
-        value: /usr/local/openjdk-17
     parameters:
       jobName: BuildOwlcmsUberJar
       moduleName: owlcms
