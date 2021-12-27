@@ -25,6 +25,8 @@ variables:
     value: $(Pipeline.Workspace)/.m2/repository
   - name: MavenOpts
     value: -Dmaven.repo.local=$(MavenCacheFolder) -Drevision=$(Revision)
+  - name: JAVA_HOME_11_X64
+    value: /usr/local/openjdk-17
 
 jobs:
   # build owlcms uberjar, zip and installer
