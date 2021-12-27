@@ -123,7 +123,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
 
     @Subscribe
     public void slaveUIEvent(UIEvent e) {
-        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),e.getTrace());
+        //uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),e.getTrace());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             if (syncWithFOP(e)) {
                 // significant transition
@@ -189,7 +189,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         String string = pageTitle.toString();
         if (currentState == FOPState.BREAK && currentBreakType == BreakType.GROUP_DONE && previousState == FOPState.DECISION_VISIBLE) {
             // skip this update.  There will be another group done after the decision reset.
-            logger.warn("skipping first group done");
+            //logger.debug("skipping first group done");
             string = null;
         }
         return string;
@@ -209,7 +209,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         if (!same && !(title == null) && !title.isBlank()) {
             this.getElement().setProperty("title", title);
             this.getElement().callJsFunction("setTitle", title);
-            logger.warn("monitor update {}", title);
+            //logger.debug("{} monitor update {}", title, System.identityHashCode(this.getOrigin()));
             prevTitle = title;
         }
     }

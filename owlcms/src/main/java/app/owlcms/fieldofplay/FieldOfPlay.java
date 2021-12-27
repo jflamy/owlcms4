@@ -1236,7 +1236,7 @@ public class FieldOfPlay {
 
     private void pushOutDone() {
         logger.debug("{}group {} done", getLoggingName(), getGroup());
-        UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null, LoggerUtils.stackTrace());
+        UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null, LoggerUtils.whereFrom());
         // make sure the publicresults update carries the right state.
         this.setBreakType(BreakType.GROUP_DONE);
         this.setState(BREAK);
