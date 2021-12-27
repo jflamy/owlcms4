@@ -1,32 +1,30 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.27.0-alpha06: Added Status Monitoring section on the display selection page to start OBS Monitor window
-
-4.27.0-alpha06: Break type and countdown now shown on the announcer's red break management button
-
-4.27.0-alpha05: fix displays/monitor on initial startup (String.contentEquals() is not null-safe contrary to other similar functions)
-
-4.27.0-alpha04: show notification on attempt board for Jury confirmation/reversal. 
-
-4.27.0-alpha04: added Medals as a break type. 
-
-- Attempt and scoreboards display "Medal Ceremony" message. 
-- New BREAK.MEDALS state to allow for OBS scene switching if desired.
-
-4.27.0-alpha03: Ability to monitor field of play state to control OBS scene switching.  See [Example video](https://user-images.githubusercontent.com/678663/147373848-89b91086-b16d-48c0-8f48-445f6c1ca828.mp4)
-
-4.27.0-alpha02: moving all release repositories to github.com/owlcms
-
-4.27.0-alpha00: initial release with new version of H2 and keyboard shortcuts for timekeeping.
+- [x] 4.27.0-alpha07: Updated Java release to version 17LTS (long term support)
+- [x] 4.27.0-alpha07: restrict upload dialogs to the correct type of files (.xls/.xlsx, .json, .zip depending on context)
+- [x] 4.27.0-alpha06: Added Status Monitoring section on the display selection page to start OBS Monitor window
+- [x] 4.27.0-alpha06: Break type and countdown now shown on the announcer's red break management button
+- [x] 4.27.0-alpha05: fix displays/monitor error on initial startup (String.contentEquals() is not null-safe contrary to other similar functions)
+- [x] 4.27.0-alpha04: show a large notification on attempt board for Jury confirmation/reversal. 
+- [x] 4.27.0-alpha04: added Medals as a break type. 
+- [x] 4.27.0-alpha02: moving all release repositories to github.com/owlcms
+- [x] 4.27.0-alpha00: initial release with new version of H2 and keyboard shortcuts for timekeeping.
 
 ###### New in release 4.27
+
+- [x] Enhancement: Break type and countdown now shown on the announcer's red break management button
+- [x] New: Ability to monitor field of play state to control OBS scene switching.  See [Example video](https://user-images.githubusercontent.com/678663/147373848-89b91086-b16d-48c0-8f48-445f6c1ca828.mp4)
+  - Added Status Monitoring section on the display selection page to start OBS Monitor window
+- [x] Enhancement: large notification shown on attempt board for Jury confirmation/reversal. 
+- [x] Added Medals as a break type. 
+  - Attempt and scoreboards display "Medal Ceremony" message. 
+  - New BREAK.MEDALS state to allow for OBS scene switching if desired.
 
 - [x] **<u>Local Database Format Change</u>**  The H2 database is used on local installs.  The H2 team will no longer support their previous database format, so a conversion process is necessary. 
   - If you <u>do **not** need to keep the previous version</u> of your database because you always start use a new registration sheet or start from scratch, <u>you have nothing to do</u> (a new database will be created on first start of the new version.
   - If you are running in the cloud, there is nothing to do, the cloud-based database engine is Postgres.
   - <u>If you wish to reuse your prior database content</u>, then a conversion is required between the previous format and the new format.  Fortunately, the process is quick and straightforward.  Please follow the [conversion instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/ImportExport)
   - If you wish to keep copies of previous meets and have kept database backups, the suggestion is to install version 4.26 and export each of the databases.
-- [x] Enhancement: ability to monitor field of play state to control OBS scene switching.  See [Example video](https://user-images.githubusercontent.com/678663/147373848-89b91086-b16d-48c0-8f48-445f6c1ca828.mp4).
 - [x] Enhancement: keyboard shortcuts to start (`,` )and stop (`.`) the clock available on announcer and timekeeper screens.
 
 ###### Key Highlights from recent stable releases

@@ -49,7 +49,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.3.0</version>
                 <executions>
 <!--                     <execution> -->
 <!--                         <id>docker-tag</id> -->
@@ -144,7 +144,7 @@
                                     <tag>latest</tag>
                                     <tag>${env.DOCKER_TAG}</tag>
                                 </tags>
-                                <from>docker.io/adoptopenjdk:11-jre-openj9</from>
+                                <from>docker.io/eclipse-temurin:17-jre</from>
                                 <assembly>
                                     <descriptor>publicresults.xml</descriptor>
                                 </assembly>
