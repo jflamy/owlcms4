@@ -27,7 +27,7 @@
     <properties>
         <!-- revision is overridden by azure-pipelines.yml for the official builds. this value is only used for local development -->
 
-        <revision>4.27.0-alpha06</revision>
+        <revision>4.27.0-alpha07</revision>
 
         <owlcms-maven-url>http://maven.owlcms.mywire.org:8088</owlcms-maven-url>
         <owlcms-maven-suffix>/releases</owlcms-maven-suffix><!-- /snapshots if revision is -SNAPSHOT -->
@@ -39,6 +39,7 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
 
         <!-- Library versions -->
+        <java.release>11</java.release>
         <vaadin.version>14.7.7</vaadin.version>
         <logback.version>1.2.9</logback.version>
         <slf4j.version>1.7.26</slf4j.version>
@@ -194,7 +195,7 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.1</version>
                     <configuration>
-                        <release>17</release>
+                        <release>11</release>
                         <!-- <compilerArgs> should no longer be needed when moving to JDK 11 -->
                         <!-- <arg>- -add-exports=java.desktop/com.sun.media.sound=ALL-UNNAMED</arg> -->
                         <!-- </compilerArgs> -->

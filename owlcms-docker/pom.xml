@@ -144,7 +144,8 @@
                                     <tag>latest</tag>
                                     <tag>${env.DOCKER_TAG}</tag>
                                 </tags>
-                                <from>docker.io/eclipse-temurin:17-jre</from>
+                                <!-- from>docker.io/eclipse-temurin:17-jre</from -->
+                                <from>docker.io/adoptopenjdk:11-jre-openj9</from>
                                 <assembly>
                                     <descriptor>publicresults.xml</descriptor>
                                 </assembly>
