@@ -10,7 +10,7 @@ parameters:
     default: ''
   - name: skipTests
     type: string
-    default: 'false'7
+    default: 'false'
 
 jobs:
   # build owlcms uberjar and zip to be used by installer
