@@ -74,6 +74,8 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     private BreakType previousBreakType;
     private String title;
     private String prevTitle;
+    private Boolean previousDecision;
+    private Boolean currentDecision;
 
     /**
      * Instantiates a new results board.
@@ -174,6 +176,9 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         if (currentState == FOPState.BREAK && currentBreakType != null) {
             pageTitle.append(".");
             pageTitle.append(currentBreakType.name());
+        } else if (currentState == FOPState.DECISION_VISIBLE) {
+            pageTitle.append(".");
+            pageTitle.append(currentDecision == null ? "UNDECIDED" : (currentDecision ? "GOOD_LIFT" : "BAD_LIFT"));
         }
         pageTitle.append(";");
         pageTitle.append("previous=");
@@ -181,8 +186,11 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         if (previousState == FOPState.BREAK && previousBreakType != null) {
             pageTitle.append(".");
             pageTitle.append(previousBreakType.name());
+        } else if (previousState == FOPState.DECISION_VISIBLE) {
+            pageTitle.append(".");
+            pageTitle.append(previousDecision == null ? "UNDECIDED" : (previousDecision ? "GOOD_LIFT" : "BAD_LIFT"));
         }
-        pageTitle.append(";");
+        pageTitle.append(";"); 
         pageTitle.append("fop=");
         pageTitle.append(currentFOP);
 
@@ -235,18 +243,16 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
                 currentState = fop.getState();
                 previousBreakType = currentBreakType;
                 currentBreakType = fop.getBreakType();
+                previousDecision = currentDecision;
+                currentDecision = fop.getGoodLift();
             } else if (fop.getState() == FOPState.BREAK) {
                 if (fop.getBreakType() != currentBreakType) {
                     previousBreakType = currentBreakType;
                     currentBreakType = fop.getBreakType();
+                    currentDecision = null;
                 }
             }
         });
-        if (previousState == FOPState.DECISION_VISIBLE && currentState == FOPState.BREAK
-                && currentBreakType == BreakType.GROUP_DONE) {
-//            logger.debug("ignoring visible -> done");
-//            significant = false;
-        }
         return significant;
     }
 }
