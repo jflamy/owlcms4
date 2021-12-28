@@ -107,9 +107,9 @@ public class FieldOfPlay {
         }
     }
 
-    private static final long DECISION_VISIBLE_DURATION = 3500;
+    public static final long DECISION_VISIBLE_DURATION = 3500;
 
-    private static final int REVERSAL_DELAY = 3000;
+    public static final int REVERSAL_DELAY = 3000;
 
     /**
      * Instantiates a new field of play state. This constructor is only used for testing using mock timers.
@@ -1053,13 +1053,24 @@ public class FieldOfPlay {
             JuryNotification event = new UIEvent.JuryNotification(a, e.getOrigin(),
                     e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
                     e.success && actualLift <= 0 || !e.success && actualLift > 0);
-            pushOut(event);
 
+            // must set state before recomputing order so that scoreboards stop blinking the current athlete
+            // must also set state prior to sending event, so that state monitor shows new state.
+            setGoodLift(e.success);
+            setState(DECISION_VISIBLE);
+            pushOut(event);
             a.doLift(a.getAttemptsDone(), e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
             AthleteRepository.save(a);
-            recomputeLiftingOrder();
+
+            // tell ourself to reset after 3 secs.
+            new DelayTimer().schedule(() -> {
+                fopEventPost(new DecisionReset(this));
+                recomputeLiftingOrder();
+                fopEventPost(new StartLifting(this));
+            }, DECISION_VISIBLE_DURATION);
+
         }
-        displayOrBreakIfDone(e);
+        // displayOrBreakIfDone(e);
     }
 
     private void doSetState(FOPState state) {
@@ -1219,7 +1230,7 @@ public class FieldOfPlay {
                 nbDecisions++;
             }
         }
-        goodLift = null;
+        setGoodLift(null);
         if (nbWhite == 2 || nbRed == 2) {
             if (!downEmitted) {
                 emitDown(e);
@@ -1227,7 +1238,7 @@ public class FieldOfPlay {
             }
         }
         if (nbDecisions == 3) {
-            goodLift = nbWhite >= 2;
+            setGoodLift(nbWhite >= 2);
             if (!isDecisionDisplayScheduled()) {
                 showDecisionAfterDelay(this);
             }
@@ -1516,22 +1527,22 @@ public class FieldOfPlay {
         }
 
         if (nbWhite >= 2) {
-            goodLift = true;
+            setGoodLift(true);
             this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
             getCurAthlete().successfulLift();
         } else {
-            goodLift = false;
+            setGoodLift(false);
             this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
             getCurAthlete().failedLift();
         }
         getCurAthlete().resetForcedAsCurrent();
         AthleteRepository.save(getCurAthlete());
-        uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), goodLift, refereeDecision, refereeTime, origin);
 
-        // must set state before recomputing order so that scoreboards stop blinking.
+        // must set state before recomputing order so that scoreboards stop blinking the current athlete
+        // must also set state prior to sending event, so that state monitor shows new state.
         setState(DECISION_VISIBLE);
+        uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), refereeDecision, refereeTime, origin);
         recomputeLiftingOrder();
-        // updateGlobalRankings(); // now done in recomputeLiftingOrder
 
         // tell ourself to reset after 3 secs.
         new DelayTimer().schedule(() -> fopEventPost(new DecisionReset(this)), DECISION_VISIBLE_DURATION);
@@ -1640,6 +1651,7 @@ public class FieldOfPlay {
 
         // enable master to listening for decision
         setState(TIME_RUNNING);
+        setGoodLift(null);
         getAthleteTimer().start();
     }
 
@@ -1732,6 +1744,20 @@ public class FieldOfPlay {
         recomputeOrderAndRanks();
         uiDisplayCurrentAthleteAndTime(false, e, false);
         // updateGlobalRankings(); // now done in recomputeOrderAndRanks
+    }
+
+    /**
+     * @return the goodLift
+     */
+    public Boolean getGoodLift() {
+        return goodLift;
+    }
+
+    /**
+     * @param goodLift the goodLift to set
+     */
+    private void setGoodLift(Boolean goodLift) {
+        this.goodLift = goodLift;
     }
 
 }
