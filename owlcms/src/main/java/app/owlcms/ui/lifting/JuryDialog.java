@@ -82,11 +82,12 @@ public class JuryDialog extends EnhancedDialog {
                         deliberation ? JuryDeliberationEventType.END_DELIBERATION : JuryDeliberationEventType.END_TECHNICAL_PAUSE,
                         null);
                 OwlcmsSession.getFop().getUiEventBus().post(event);
+                ((JuryContent) origin).doSync();
             }
             this.close();
 
             logger.info(deliberation ? "{}end of jury deliberation" : "{}end jury technical pause", OwlcmsSession.getFop().getLoggingName());
-            ((JuryContent) origin).doSync();
+
             this.close();
         });
     }
