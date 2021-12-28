@@ -309,6 +309,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         topBarGroupSelect.setReadOnly(false);
         // topBarGroupSelect.setWidth("12ch");
         topBarGroupSelect.setClearButtonVisible(true);
+        topBarGroupSelect.getStyle().set("--vaadin-combo-box-overlay-width", "40ch");
         OwlcmsSession.withFop((fop) -> {
             Group group = fop.getGroup();
             logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());
