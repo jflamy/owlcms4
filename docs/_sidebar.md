@@ -19,10 +19,12 @@
   * [Overview](VirtualOverview)
   * [Full Cloud Setup](HerokuLarge)
   * [Running a Virtual Competition](Zoom)
+  * [Optional Modified Competition Rules](ModifiedRules)
   * [Preparing the Zoom Setup](PrepareZoomBroadcasting)
+* Video
   * [Preparing the Video Setup](OBS)
   * [Live Streaming Events](Streaming)
-  * [Optional Modified Competition Rules](ModifiedRules)
+  * [Automatic Scene Switching](OBSSceneSwitching)
 * Advanced Topics
   * [Updating Cloud-based Applications](UpdatingCloudApplications)
   * [Customization](UploadingLocalSettings)
@@ -32,7 +34,7 @@
   * [Importing PostgreSQL Cloud Databases](PostgreSQL)
   * [Excel Template Variables](TemplateVariables)
   * [Contributing to the code](Gitpod)
-* [Licensing and Notes](Licensing)
 * Downloads
+  * [Licensing and Notes](Licensing)
   * [Downloads](Downloads)
   * [Source Repository](https://github.com/jflamy/owlcms4)
