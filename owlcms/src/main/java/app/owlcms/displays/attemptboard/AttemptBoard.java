@@ -669,7 +669,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         // Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
         n.getElement().getThemeList().add(theme);
 
-        n.setDuration(10000);
+        n.setDuration((int)FieldOfPlay.DECISION_VISIBLE_DURATION);
         n.setPosition(Position.MIDDLE);
         Div label = new Div();
         label.getElement().setProperty("innerHTML", text);
