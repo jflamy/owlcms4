@@ -36,6 +36,8 @@ General rules:
 
 ## Example: Switching at the end of a group
 
+The following example is also available as a video demo: [Example video](https://user-images.githubusercontent.com/678663/147373848-89b91086-b16d-48c0-8f48-445f6c1ca828.mp4)
+
 In this example, OBS is running on the machine that controls the attempt board.  We have two scenes defined.  One uses the browser source for the attempt board, the other shows a video. 
 
 We define a "Group is done" macro as follows:
