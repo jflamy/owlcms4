@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -167,6 +167,28 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
     }
 
     /**
+     * Add key shortcuts to parent
+     *
+     * @see app.owlcms.ui.shared.AthleteGridContent#createStartTimeButton()
+     */
+    @Override
+    protected void createStartTimeButton() {
+        super.createStartTimeButton();
+        UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
+    }
+
+    /**
+     * Add key shortcuts to parent
+     *
+     * @see app.owlcms.ui.shared.AthleteGridContent#createStartTimeButton()
+     */
+    @Override
+    protected void createStopTimeButton() {
+        super.createStopTimeButton();
+        UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
+    }
+
+    /**
      * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar()
      */
     @Override
@@ -280,7 +302,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
                         decisions.setVisible(true);
                     }
                     if (breakButton == null) {
-                        //logger.debug("breakButton is null\n{}", LoggerUtils. stackTrace());
+                        // logger.debug("breakButton is null\n{}", LoggerUtils. stackTrace());
                         return;
                     }
                     breakButton.setText("");
@@ -327,7 +349,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 //            });
 //        });
 //        stopTimeButton.getElement().setAttribute("theme", "secondary");
-        
+
         createStartTimeButton();
         createStopTimeButton();
 
@@ -367,26 +389,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
         centerHW(buttons, this);
     }
-    
-    /**
-     * Add key shortcuts to parent
-     * @see app.owlcms.ui.shared.AthleteGridContent#createStartTimeButton()
-     */
-    @Override
-    protected void createStartTimeButton() {
-        super.createStartTimeButton();
-        UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
-    }
-    
-    /**
-     * Add key shortcuts to parent
-     * @see app.owlcms.ui.shared.AthleteGridContent#createStartTimeButton()
-     */
-    @Override
-    protected void createStopTimeButton() {
-        super.createStopTimeButton();
-        UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
-    }
+
     private void hideButtons() {
         buttons.setVisible(false);
         timer.getElement().setVisible(false);

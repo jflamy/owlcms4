@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -41,11 +41,11 @@ import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 /**
  * Class Competition.
@@ -139,8 +139,6 @@ public class Competition {
     private String federationEMail = "";
     private String federationWebSite;
 
-
-
     /**
      * In a mixed group, call all female lifters then all male lifters
      */
@@ -162,8 +160,6 @@ public class Competition {
     private boolean mastersGenderEquality = false;
     @Column(columnDefinition = "integer default 10")
     private Integer mensTeamSize = 10;
-
-
 
     @Transient
     private HashMap<String, Object> reportingBeans = new HashMap<>();
@@ -198,7 +194,7 @@ public class Competition {
     @Transient
     @JsonIgnore
     private boolean rankingsInvalid = true;
-    
+
     private String protocolTemplateFileName;
     private String cardsTemplateFileName;
     private String startListTemplateFileName;
@@ -346,20 +342,20 @@ public class Competition {
 
     @Transient
     @JsonIgnore
-    public String getComputedStartListTemplateFileName() {
-        if (startListTemplateFileName == null) {
-            return "StartSheetTemplate.xls";
-        }
-        return startListTemplateFileName;
-    }
-
-    @Transient
-    @JsonIgnore
     public String getComputedStartingWeightsSheetTemplateFileName() {
         if (startingWeightsSheetTemplateFileName == null) {
             return "WeighInSheetTemplate.xls";
         }
         return startingWeightsSheetTemplateFileName;
+    }
+
+    @Transient
+    @JsonIgnore
+    public String getComputedStartListTemplateFileName() {
+        if (startListTemplateFileName == null) {
+            return "StartSheetTemplate.xls";
+        }
+        return startListTemplateFileName;
     }
 
     /**
@@ -494,17 +490,17 @@ public class Competition {
     }
 
     /**
-     * @return the startListTemplateFileName
-     */
-    public String getStartListTemplateFileName() {
-        return startListTemplateFileName;
-    }
-
-    /**
      * @return the startingWeightsSheetTemplateFileName
      */
     public String getStartingWeightsSheetTemplateFileName() {
         return startingWeightsSheetTemplateFileName;
+    }
+
+    /**
+     * @return the startListTemplateFileName
+     */
+    public String getStartListTemplateFileName() {
+        return startListTemplateFileName;
     }
 
     @Transient
@@ -792,12 +788,12 @@ public class Competition {
         this.roundRobinOrder = roundRobinOrder;
     }
 
-    public void setStartListTemplateFileName(String startingListFileName) {
-        this.startListTemplateFileName = startingListFileName;
-    }
-
     public void setStartingWeightsSheetTemplateFileName(String startingWeightsSheetTemplateFileName) {
         this.startingWeightsSheetTemplateFileName = startingWeightsSheetTemplateFileName;
+    }
+
+    public void setStartListTemplateFileName(String startingListFileName) {
+        this.startListTemplateFileName = startingListFileName;
     }
 
     /**

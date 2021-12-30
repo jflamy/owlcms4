@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -34,7 +34,7 @@ public class MultiCategoryRankSetter {
         Category category = a.getCategory();
         boolean eligible = a.isEligibleForIndividualRanking();
         boolean zero = rankingValue <= 0;
-        //logger.debug("a {} v {} z {} e {}", a.getShortName(), rankingValue, zero, eligible);
+        // logger.debug("a {} v {} z {} e {}", a.getShortName(), rankingValue, zero, eligible);
 
         int value = eligible ? (zero ? 0 : ++rank) : -1;
         switch (r) {
@@ -62,6 +62,16 @@ public class MultiCategoryRankSetter {
         }
     }
 
+    CategoryRankingHolder getCategoryRankings(Category category) {
+        // logger.debug("Category {} {}",category, System.identityHashCode(category));
+        CategoryRankingHolder bestCategoryRanks = rankings.get(category.getComputedCode());
+        if (bestCategoryRanks == null) {
+            bestCategoryRanks = new CategoryRankingHolder();
+            rankings.put(category.getComputedCode(), bestCategoryRanks);
+        }
+        return bestCategoryRanks;
+    }
+
     private void doCategoryBasedRankings(Athlete a, Ranking r, Category category, boolean zero) {
         for (Participation p : a.getParticipations()) {
             Category curCat = p.getCategory();
@@ -73,10 +83,11 @@ public class MultiCategoryRankSetter {
                     rank = rank + 1;
                     p.setSnatchRank(rank);
                     curRankings.setSnatchRank(rank);
-                    //logger.debug("setting snatch rank {} {} {} {} {}", a, curCat, rank, System.identityHashCode(p), System.identityHashCode(curRankings));
+                    // logger.debug("setting snatch rank {} {} {} {} {}", a, curCat, rank, System.identityHashCode(p),
+                    // System.identityHashCode(curRankings));
                 } else {
                     p.setSnatchRank(0);
-                    //logger.debug("skipping snatch rank {} {} {}", a, curCat, 0);
+                    // logger.debug("skipping snatch rank {} {} {}", a, curCat, 0);
                 }
 
             }
@@ -88,10 +99,11 @@ public class MultiCategoryRankSetter {
                     rank = rank + 1;
                     p.setCleanJerkRank(rank);
                     curRankings.setCleanJerkRank(rank);
-                    //logger.debug("setting clean&jerk rank {} {} {} {} {}", a, curCat, rank, System.identityHashCode(p), System.identityHashCode(curRankings));
+                    // logger.debug("setting clean&jerk rank {} {} {} {} {}", a, curCat, rank,
+                    // System.identityHashCode(p), System.identityHashCode(curRankings));
                 } else {
                     p.setCleanJerkRank(0);
-                    //logger.debug("skipping clean&jerk rank {} {} {}", a, curCat, 0);
+                    // logger.debug("skipping clean&jerk rank {} {} {}", a, curCat, 0);
                 }
 
             }
@@ -103,10 +115,11 @@ public class MultiCategoryRankSetter {
                     rank = rank + 1;
                     p.setTotalRank(rank);
                     curRankings.setTotalRank(rank);
-                    //logger.debug("setting total rank {} {} {} {} {}", a, curCat, rank, System.identityHashCode(p), System.identityHashCode(curRankings));
+                    // logger.debug("setting total rank {} {} {} {} {}", a, curCat, rank, System.identityHashCode(p),
+                    // System.identityHashCode(curRankings));
                 } else {
                     p.setTotalRank(0);
-                    //logger.debug("skipping total rank {} {} {}", a, curCat, 0);
+                    // logger.debug("skipping total rank {} {} {}", a, curCat, 0);
                 }
             }
                 break;
@@ -117,10 +130,11 @@ public class MultiCategoryRankSetter {
                     rank = rank + 1;
                     p.setCustomRank(rank);
                     curRankings.setCustomRank(rank);
-                    //logger.debug("setting custom rank {} {} {} {} {}", a, curCat, rank, System.identityHashCode(p), System.identityHashCode(curRankings));
+                    // logger.debug("setting custom rank {} {} {} {} {}", a, curCat, rank, System.identityHashCode(p),
+                    // System.identityHashCode(curRankings));
                 } else {
                     p.setCustomRank(0);
-                    //logger.debug("skipping custom rank {} {} {}", a, curCat, 0);
+                    // logger.debug("skipping custom rank {} {} {}", a, curCat, 0);
                 }
             }
                 break;
@@ -128,16 +142,6 @@ public class MultiCategoryRankSetter {
                 break;
             }
         }
-    }
-
-    CategoryRankingHolder getCategoryRankings(Category category) {
-        //logger.debug("Category {} {}",category, System.identityHashCode(category));
-        CategoryRankingHolder bestCategoryRanks = rankings.get(category.getComputedCode());
-        if (bestCategoryRanks == null) {
-            bestCategoryRanks = new CategoryRankingHolder();
-            rankings.put(category.getComputedCode(), bestCategoryRanks);
-        }
-        return bestCategoryRanks;
     }
 
 }

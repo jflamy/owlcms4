@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -36,7 +36,6 @@ public class FOPEvent {
         }
     }
 
-    
     /**
      * Class BreakDone.
      */
@@ -46,7 +45,7 @@ public class FOPEvent {
             super(origin);
         }
     }
-    
+
     /**
      * Class BreakPaused.
      */
@@ -95,10 +94,7 @@ public class FOPEvent {
             if (this == obj) {
                 return true;
             }
-            if (!super.equals(obj)) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
+            if (!super.equals(obj) || (getClass() != obj.getClass())) {
                 return false;
             }
             BreakStarted other = (BreakStarted) obj;
@@ -194,10 +190,7 @@ public class FOPEvent {
             if (this == obj) {
                 return true;
             }
-            if (!super.equals(obj)) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
+            if (!super.equals(obj) || (getClass() != obj.getClass())) {
                 return false;
             }
             DecisionFullUpdate other = (DecisionFullUpdate) obj;
@@ -244,10 +237,7 @@ public class FOPEvent {
             if (this == obj) {
                 return true;
             }
-            if (!super.equals(obj)) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
+            if (!super.equals(obj) || (getClass() != obj.getClass())) {
                 return false;
             }
             DecisionUpdate other = (DecisionUpdate) obj;
@@ -316,10 +306,7 @@ public class FOPEvent {
             if (this == obj) {
                 return true;
             }
-            if (!super.equals(obj)) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
+            if (!super.equals(obj) || (getClass() != obj.getClass())) {
                 return false;
             }
             ExplicitDecision other = (ExplicitDecision) obj;
@@ -350,10 +337,7 @@ public class FOPEvent {
             if (this == obj) {
                 return true;
             }
-            if (!super.equals(obj)) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
+            if (!super.equals(obj) || (getClass() != obj.getClass())) {
                 return false;
             }
             ForceTime other = (ForceTime) obj;
@@ -384,10 +368,7 @@ public class FOPEvent {
             if (this == obj) {
                 return true;
             }
-            if (!super.equals(obj)) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
+            if (!super.equals(obj) || (getClass() != obj.getClass())) {
                 return false;
             }
             JuryDecision other = (JuryDecision) obj;
@@ -429,10 +410,7 @@ public class FOPEvent {
             if (this == obj) {
                 return true;
             }
-            if (!super.equals(obj)) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
+            if (!super.equals(obj) || (getClass() != obj.getClass())) {
                 return false;
             }
             SwitchGroup other = (SwitchGroup) obj;
@@ -534,10 +512,6 @@ public class FOPEvent {
         this.timestamp = System.currentTimeMillis();
     }
 
-    public String getStackTrace() {
-        return stackTrace;
-    }
-
     FOPEvent(Object origin) {
         this(null, origin);
     }
@@ -547,10 +521,7 @@ public class FOPEvent {
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if ((obj == null) || (getClass() != obj.getClass())) {
             return false;
         }
         FOPEvent other = (FOPEvent) obj;
@@ -561,8 +532,19 @@ public class FOPEvent {
         return athlete;
     }
 
+    /**
+     * @return the fop
+     */
+    public FieldOfPlay getFop() {
+        return fop;
+    }
+
     public Object getOrigin() {
         return origin;
+    }
+
+    public String getStackTrace() {
+        return stackTrace;
     }
 
     @Override
@@ -575,13 +557,6 @@ public class FOPEvent {
 
     public void setAthlete(Athlete athlete) {
         this.athlete = athlete;
-    }
-
-    /**
-     * @return the fop
-     */
-    public FieldOfPlay getFop() {
-        return fop;
     }
 
     void setFop(FieldOfPlay fieldOfPlay) {

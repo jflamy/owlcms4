@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -44,6 +44,15 @@ public class CategoryRepository {
             Double bodyWeight, Boolean active) {
         return JPAService.runInTransaction(em -> {
             return doCountFiltered(name, gender, ageDivision, ageGroup, age, bodyWeight, active, em);
+        });
+    }
+
+    public static int countParticipations() {
+        return JPAService.runInTransaction((em) -> {
+            String qlString = "select count(p) from Participation p";
+            Query query = em.createQuery(qlString);
+            int i = ((Long) query.getSingleResult()).intValue();
+            return i;
         });
     }
 
@@ -142,18 +151,6 @@ public class CategoryRepository {
     }
 
     /**
-     * Find all.
-     *
-     * @return the list
-     */
-    @SuppressWarnings("unchecked")
-    public static List<Category> findNullCodes() {
-        return JPAService
-                .runInTransaction(
-                        em -> em.createQuery("select c from Category c where c.code is null").getResultList());
-    }
-
-    /**
      * Find by code.
      *
      * @param string the code
@@ -215,6 +212,34 @@ public class CategoryRepository {
             // bodyWeight, active);
             return doFindFiltered;
         });
+    }
+
+    /**
+     * Find all.
+     *
+     * @return the list
+     */
+    @SuppressWarnings("unchecked")
+    public static List<Category> findNullCodes() {
+        return JPAService
+                .runInTransaction(
+                        em -> em.createQuery("select c from Category c where c.code is null").getResultList());
+    }
+
+    public static void fixNullCodes(List<Category> nullCodeCategories) {
+        JPAService.runInTransaction(em -> {
+            for (Category c : nullCodeCategories) {
+                c.setCode(c.getComputedCode());
+                if (c.getName() == null) {
+                    c.setName(c.getComputedName());
+                }
+                logger.info("correcting code: {} {}", c.getCode(), c.getName());
+                em.merge(c);
+            }
+            em.flush();
+            return null;
+        });
+
     }
 
     /**
@@ -328,31 +353,6 @@ public class CategoryRepository {
         if (gender != null) {
             query.setParameter("gender", gender);
         }
-    }
-
-    public static int countParticipations() {
-        return (int) JPAService.runInTransaction((em) -> {
-            String qlString = "select count(p) from Participation p";
-            Query query = em.createQuery(qlString);
-            int i = ((Long) query.getSingleResult()).intValue();
-            return i;
-        });
-    }
-
-    public static void fixNullCodes(List<Category> nullCodeCategories) {
-        JPAService.runInTransaction(em -> {
-            for (Category c: nullCodeCategories) {
-                c.setCode(c.getComputedCode());
-                if (c.getName() == null) {
-                    c.setName(c.getComputedName());
-                }
-                logger.info("correcting code: {} {}",c.getCode(), c.getName());
-                em.merge(c);
-            }
-            em.flush();
-            return null;
-        });
-
     }
 
 }

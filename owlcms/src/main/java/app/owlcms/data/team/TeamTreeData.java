@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -51,7 +51,8 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
         return teamsByGender;
     }
 
-    private void buildTeamItemTree(HashMap<String, Object> reportingBeans2, String ageGroupPrefix, AgeDivision ageDivision) {
+    private void buildTeamItemTree(HashMap<String, Object> reportingBeans2, String ageGroupPrefix,
+            AgeDivision ageDivision) {
         doneGroups = null; // force recompute.
         if (ageDivision == null) {
             return;
@@ -69,9 +70,9 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
             }
 
             TeamTreeItem curTeamItem = null;
-            String key = computeGenderKey(gender) + "Team" + (ageGroupPrefix != null ? ageGroupPrefix : ageDivision.name());
-            //logger.trace("looking for {} in {}",key, reportingBeans.keySet());
-
+            String key = computeGenderKey(gender) + "Team"
+                    + (ageGroupPrefix != null ? ageGroupPrefix : ageDivision.name());
+            // logger.trace("looking for {} in {}",key, reportingBeans.keySet());
 
             @SuppressWarnings("unchecked")
             List<Athlete> athletes = (List<Athlete>) reportingBeans.get(key);
@@ -149,7 +150,8 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                 continue;
             }
             for (TeamTreeItem item : teamItems) {
-                logger.debug("team: {} {} {}", item.getName(), item.getGender(), item.getPoints(), item.getSinclairScore());
+                logger.debug("team: {} {} {}", item.getName(), item.getGender(), item.getPoints(),
+                        item.getSinclairScore());
                 List<TeamTreeItem> teamMembers = item.getTeamMembers();
                 teamMembers.sort(TeamTreeItem.sinclairScoreComparator);
                 for (TeamTreeItem t : teamMembers) {
@@ -208,7 +210,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
         if (debug) {
             logger.setLevel(Level.DEBUG);
         }
-        //logger.debug("init tree {} {}", ageGroupPrefix, ageDivision);
+        // logger.debug("init tree {} {}", ageGroupPrefix, ageDivision);
         reportingBeans = Competition.getCurrent().computeReportingInfo(ageGroupPrefix, ageDivision);
         buildTeamItemTree(reportingBeans, ageGroupPrefix, ageDivision);
         if (debug) {

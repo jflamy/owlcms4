@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -44,6 +44,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IBreakTimer;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.UIEvent.BreakDone;
 import app.owlcms.uievents.UIEvent.BreakPaused;
@@ -59,7 +60,6 @@ import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
-import app.owlcms.i18n.Translator;
 
 public class EventForwarder implements BreakDisplay {
 
@@ -850,6 +850,13 @@ public class EventForwarder implements BreakDisplay {
         }
     }
 
+    /**
+     * @return the fop
+     */
+    private FieldOfPlay getFop() {
+        return fop;
+    }
+
     private String groupResults(Group g) {
         return Translator.translate("Group_number_results", g.toString());
     }
@@ -922,6 +929,13 @@ public class EventForwarder implements BreakDisplay {
         this.categoryName = name;
     }
 
+    /**
+     * @param fop the fop to set
+     */
+    private void setFop(FieldOfPlay fop) {
+        this.fop = fop;
+    }
+
     private void setGroupAthletes(JsonValue athletesJson) {
         this.groupAthletes = athletesJson;
 
@@ -946,20 +960,6 @@ public class EventForwarder implements BreakDisplay {
     private void uiLog(UIEvent e) {
         uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 null, e.getOrigin(), LoggerUtils.whereFrom());
-    }
-
-    /**
-     * @return the fop
-     */
-    private FieldOfPlay getFop() {
-        return fop;
-    }
-
-    /**
-     * @param fop the fop to set
-     */
-    private void setFop(FieldOfPlay fop) {
-        this.fop = fop;
     }
 
 }

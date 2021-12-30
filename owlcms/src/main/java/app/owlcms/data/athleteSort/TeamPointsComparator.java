@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -68,9 +68,9 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
     private int comparePointsOrder(Athlete lifter1, Athlete lifter2) {
         switch (rankingType) {
         case SNATCH:
-            return Integer.compare(lifter1.getSnatchPoints(),lifter2.getSnatchPoints());
+            return Integer.compare(lifter1.getSnatchPoints(), lifter2.getSnatchPoints());
         case CLEANJERK:
-            return Integer.compare(lifter1.getCleanJerkPoints(),lifter2.getCleanJerkPoints());
+            return Integer.compare(lifter1.getCleanJerkPoints(), lifter2.getCleanJerkPoints());
         case TOTAL:
             final Integer totalPoints1 = lifter1.getTotalPoints();
             final Integer totalPoints2 = lifter2.getTotalPoints();

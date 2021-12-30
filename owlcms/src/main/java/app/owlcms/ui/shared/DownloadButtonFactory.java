@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -31,6 +31,23 @@ import ch.qos.logback.classic.Logger;
 public class DownloadButtonFactory {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(DownloadButtonFactory.class);
+
+    public static Div createDynamicJsonDownloadButton(String prefix, String label) {
+        final LazyDownloadButton downloadButton = new LazyDownloadButton(
+                label,
+                new Icon(VaadinIcon.DOWNLOAD_ALT),
+                () -> {
+                    LocalDateTime now = LocalDateTime.now().withNano(0);
+                    return prefix
+                            + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
+                            + ".json";
+                },
+                () -> {
+                    return new CompetitionData().exportData();
+                });
+
+        return new Div(downloadButton);
+    }
 
     /**
      * Creates a new DownloadButton object for a dynamically created file.
@@ -67,23 +84,6 @@ public class DownloadButtonFactory {
                 },
                 () -> {
                     return new ByteArrayInputStream(content);
-                });
-
-        return new Div(downloadButton);
-    }
-
-    public static Div createDynamicJsonDownloadButton(String prefix, String label) {
-        final LazyDownloadButton downloadButton = new LazyDownloadButton(
-                label,
-                new Icon(VaadinIcon.DOWNLOAD_ALT),
-                () -> {
-                    LocalDateTime now = LocalDateTime.now().withNano(0);
-                    return prefix
-                            + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
-                            + ".json";
-                },
-                () -> {
-                    return new CompetitionData().exportData();
                 });
 
         return new Div(downloadButton);

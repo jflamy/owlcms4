@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -51,6 +51,7 @@ import app.owlcms.data.team.TeamTreeData;
 import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
@@ -65,7 +66,6 @@ import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
-import app.owlcms.i18n.Translator;
 
 /**
  * Class TopTeamsSinclair
@@ -140,7 +140,8 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
      */
     @Override
     public void addDialogContent(Component target, VerticalLayout vl) {
-        //logger.debug("addDialogContent ad={} ag={} darkMode={}", getAgeDivision(), getAgeGroupPrefix(), isDarkMode());
+        // logger.debug("addDialogContent ad={} ag={} darkMode={}", getAgeDivision(), getAgeGroupPrefix(),
+        // isDarkMode());
 
         DisplayOptions.addLightingEntries(vl, target, this);
         ComboBox<AgeDivision> ageDivisionComboBox = new ComboBox<>();
@@ -290,7 +291,8 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     }
 
     /**
-     * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location, java.util.Map)
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
+     *      java.util.Map)
      */
     @Override
     public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -88,7 +88,8 @@ public class ResourceWalker {
         }
         if (target != null && Files.exists(target)) {
             try {
-                //logger.debug("found overridden resource {} at {} {}", name, target.toAbsolutePath(), LoggerUtils.whereFrom(1));
+                // logger.debug("found overridden resource {} at {} {}", name, target.toAbsolutePath(),
+                // LoggerUtils.whereFrom(1));
                 return Files.newInputStream(target);
             } catch (IOException e) {
                 if (name.trim().contentEquals("/") || name.isBlank()) {
@@ -101,12 +102,12 @@ public class ResourceWalker {
         } else {
             is = ResourceWalker.class.getResourceAsStream(name);
             if (is != null) {
-                //logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+                // logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
             }
         }
         return is;
     }
-    
+
     /**
      * Fetch a named file content. First looking in a local override directory structure, and if not found, as a
      * resource on the classpath.
@@ -115,7 +116,7 @@ public class ResourceWalker {
      * @return an input stream with the requested content, null if not found.
      */
     public static Path getFileOrResourcePath(String name) {
-         String relativeName;
+        String relativeName;
         if (name.startsWith("/")) {
             relativeName = name.substring(1);
         } else {
@@ -127,17 +128,18 @@ public class ResourceWalker {
             target = localDirPath2.resolve(relativeName);
         }
         if (target != null && Files.exists(target)) {
-            //logger.debug("found overridden resource {} at {} {}", name, target.toAbsolutePath(),LoggerUtils.whereFrom(1));
+            // logger.debug("found overridden resource {} at {} {}", name,
+            // target.toAbsolutePath(),LoggerUtils.whereFrom(1));
             return target;
         } else {
-            String resName = "/"+relativeName;
+            String resName = "/" + relativeName;
             target = getResourcePath(resName);
             if (target != null) {
-                //logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+                // logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
             } else {
-                //logger.debug("not found {} {}",target, resName);
+                // logger.debug("not found {} {}",target, resName);
             }
-            
+
         }
         return target;
     }
@@ -246,6 +248,42 @@ public class ResourceWalker {
         return getFileOrResource(name);
     }
 
+    public static Path getResourcePath(String resourcePathString) {
+        URL resourceURL = ResourceWalker.class.getResource(resourcePathString);
+        if (resourceURL == null) {
+            logger.error(resourcePathString + " not found");
+            // throw new RuntimeException(resourcePathString + " not found");
+            return null;
+        }
+        Path resourcePath;
+        URI resourcesURI;
+        try {
+            // this will either return a file or a jar URI, depending on
+            // expanded classpath (development) or jar classpath (production)
+            resourcesURI = resourceURL.toURI();
+        } catch (URISyntaxException e1) {
+            logger.error(e1.getReason());
+            throw new RuntimeException(e1);
+        }
+        try {
+            resourcePath = Paths.get(resourcesURI);
+        } catch (FileSystemNotFoundException e) {
+            // the normal classpath uses the default file system, which is always found.
+            // if the file was in a jar, normally Vaadin has already loaded the zip file system
+            // so we should not get a not found either.
+
+            // so the only way to get here is if the file is in a jar, and somehow Vaadin has
+            // not opened it yet. So we use a file that should be in the jar, and expect the
+            // URI to be of the "jar" type.
+
+            // beware: use a resource that is in the shared module
+            openClassPathFileSystem("/i18n");
+            resourcePath = Paths.get(resourcesURI);
+            logger.debug("resourcePath: {} {}", resourcesURI, resourcePath);
+        }
+        return resourcePath;
+    }
+
     public static synchronized void initLocalDir() {
         setInitializedLocalDir(true);
         byte[] blob = localZipBlobSupplier != null ? localZipBlobSupplier.get() : null;
@@ -263,35 +301,6 @@ public class ResourceWalker {
 
     public static boolean isInitializedLocalDir() {
         return initializedLocalDir;
-    }
-
-    /**
-     * Register an additional file system for the resources
-     * 
-     * We use the classloader to return the URI where it found a resource.
-     * This will be either a jar (in production) or a regular file system (in development).
-     * If a jar, then we register a file system for the Jar's URI.
-     *
-     * @param absoluteRootPath
-     * @return an open file system (intentionnaly not closed)
-     */
-    private static FileSystem openClassPathFileSystem(String absoluteRootPath) {
-        URL resources = ResourceWalker.class.getResource(absoluteRootPath);
-        try {
-            URI resourcesURI = resources.toURI();
-            FileSystem fileSystem = (resourcesURI.getScheme().equals("jar")
-                    ? FileSystems.newFileSystem(resourcesURI, Collections.<String, Object>emptyMap())
-                    : null);
-            logger.debug("resources for URI {} found in {}", resourcesURI,
-                    (fileSystem != null ? "jar" : "classpath folders"));
-            return fileSystem;
-        } catch (URISyntaxException | IOException e) {
-            LoggerUtils.logError(logger, e);
-            throw new RuntimeException(e);
-        } catch (Throwable t) {
-            LoggerUtils.logError(logger, t);
-            throw t;
-        }
     }
 
     public static String relativeName(Path filePath, Path rootPath) {
@@ -328,6 +337,34 @@ public class ResourceWalker {
             logger.info("new local override path {}", getLocalDirPath().normalize());
         } catch (IOException e) {
             throw new Exception("cannot unzip", e);
+        }
+    }
+
+    /**
+     * Register an additional file system for the resources
+     *
+     * We use the classloader to return the URI where it found a resource. This will be either a jar (in production) or
+     * a regular file system (in development). If a jar, then we register a file system for the Jar's URI.
+     *
+     * @param absoluteRootPath
+     * @return an open file system (intentionnaly not closed)
+     */
+    private static FileSystem openClassPathFileSystem(String absoluteRootPath) {
+        URL resources = ResourceWalker.class.getResource(absoluteRootPath);
+        try {
+            URI resourcesURI = resources.toURI();
+            FileSystem fileSystem = (resourcesURI.getScheme().equals("jar")
+                    ? FileSystems.newFileSystem(resourcesURI, Collections.<String, Object>emptyMap())
+                    : null);
+            logger.debug("resources for URI {} found in {}", resourcesURI,
+                    (fileSystem != null ? "jar" : "classpath folders"));
+            return fileSystem;
+        } catch (URISyntaxException | IOException e) {
+            LoggerUtils.logError(logger, e);
+            throw new RuntimeException(e);
+        } catch (Throwable t) {
+            LoggerUtils.logError(logger, t);
+            throw t;
         }
     }
 
@@ -537,42 +574,6 @@ public class ResourceWalker {
             LoggerUtils.logError(logger, e);
             throw new RuntimeException(e);
         }
-    }
-
-    public static Path getResourcePath(String resourcePathString) {
-        URL resourceURL = ResourceWalker.class.getResource(resourcePathString);
-        if (resourceURL == null) {
-            logger.error(resourcePathString + " not found");
-            //throw new RuntimeException(resourcePathString + " not found");
-            return null;
-        }
-        Path resourcePath;
-        URI resourcesURI;
-        try {
-            // this will either return a file or a jar URI, depending on
-            // expanded classpath (development) or jar classpath (production)
-            resourcesURI = resourceURL.toURI();
-        } catch (URISyntaxException e1) {
-            logger.error(e1.getReason());
-            throw new RuntimeException(e1);
-        }
-        try {
-            resourcePath = Paths.get(resourcesURI);
-        } catch (FileSystemNotFoundException e) {
-            // the normal classpath uses the default file system, which is always found.
-            // if the file was in a jar, normally Vaadin has already loaded the zip file system
-            // so we should not get a not found either.
-            
-            // so the only way to get here is if the file is in a jar, and somehow Vaadin has
-            // not opened it yet.  So we use a file that should be in the jar, and expect the
-            // URI to be of the "jar" type.
-            
-            // beware: use a resource that is in the shared module
-            openClassPathFileSystem("/i18n");
-            resourcePath = Paths.get(resourcesURI);
-            logger.debug("resourcePath: {} {}",resourcesURI, resourcePath);
-        }
-        return resourcePath;
     }
 
 }

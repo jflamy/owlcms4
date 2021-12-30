@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -48,13 +48,13 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
 import app.owlcms.ui.shared.IAthleteEditing;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> implements CustomFormFactory<Athlete> {
@@ -319,10 +319,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
             boolean valid = isValid();
             boolean ignoreErrors = isIgnoreErrors();
             if (valid || ignoreErrors) {
-                //logger.debug("updating {} {}", valid, ignoreErrors);
+                // logger.debug("updating {} {}", valid, ignoreErrors);
                 doUpdate();
             } else {
-                //logger.debug("not updating {} {}", valid, ignoreErrors);
+                // logger.debug("not updating {} {}", valid, ignoreErrors);
             }
         });
         // field must visible and added to the layout for focus() to work, so we hide it
@@ -744,16 +744,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         setFocus(getEditedAthlete());
     }
 
-    private void checkWithdrawal(BindingValidationStatus<?> status, TextField change,
-            TextField lift) {
-        if (!status.isError()) {
-            if (change.getValue() != null && change.getValue().contentEquals("0")) {
-                lift.setValue("0");
-                setFocus(getEditedAthlete());
-            }
-        }
-    }
-
     private Checkbox buildAllowResultsEditingCheckbox() {
         Checkbox checkbox = new Checkbox(Translator.translate("AllowResultsEditing"));
         checkbox.getStyle().set("margin-left", "3em");
@@ -777,7 +767,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                 binder.validate();
                 binder.writeBeanAsDraft(editedAthlete, true);
             }
-            ;
 
         });
         ignoreErrorsCheckbox.getStyle().set("margin-left", "3em");
@@ -797,6 +786,16 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                 });
         withdrawalButton.getElement().setAttribute("theme", "error");
         return withdrawalButton;
+    }
+
+    private void checkWithdrawal(BindingValidationStatus<?> status, TextField change,
+            TextField lift) {
+        if (!status.isError()) {
+            if (change.getValue() != null && change.getValue().contentEquals("0")) {
+                lift.setValue("0");
+                setFocus(getEditedAthlete());
+            }
+        }
     }
 
     private int computeAutomaticProgression(int value) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -48,12 +48,12 @@ public class Participation implements IRankHolder {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("athleteId")
-    @JsonIdentityReference(alwaysAsId=true)
+    @JsonIdentityReference(alwaysAsId = true)
     private Athlete athlete;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("categoryId")
-    @JsonIdentityReference(alwaysAsId=true)
+    @JsonIdentityReference(alwaysAsId = true)
     private Category category;
 
     @Column(columnDefinition = "integer default 0")
@@ -250,22 +250,22 @@ public class Participation implements IRankHolder {
 
     public void setCleanJerkRank(int cleanJerkRank) {
         this.cleanJerkRank = cleanJerkRank;
-        //logger.trace("cleanJerkRank {}", long_dump());
+        // logger.trace("cleanJerkRank {}", long_dump());
     }
 
     public void setCombinedRank(int combinedRank) {
         this.combinedRank = combinedRank;
-        //logger.trace("combinedRank {}", long_dump());
+        // logger.trace("combinedRank {}", long_dump());
     }
 
     public void setCustomRank(int customRank) {
         this.customRank = customRank;
-        //logger.trace("customRank {}", long_dump());
+        // logger.trace("customRank {}", long_dump());
     }
 
     public void setSnatchRank(int snatchRank) {
         this.snatchRank = snatchRank;
-        //logger.debug("snatchRank {}", long_dump());
+        // logger.debug("snatchRank {}", long_dump());
     }
 
     public void setTeamCJRank(int teamCJRank) {
@@ -304,7 +304,7 @@ public class Participation implements IRankHolder {
 
     public void setTotalRank(int totalRank) {
         this.totalRank = totalRank;
-        //logger.trace("totalRank {}", long_dump());
+        // logger.trace("totalRank {}", long_dump());
     }
 
     @Override

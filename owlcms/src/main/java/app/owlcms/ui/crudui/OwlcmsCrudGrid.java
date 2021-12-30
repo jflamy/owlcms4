@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -45,10 +45,6 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
     private boolean clickable = true;
 
-    public void setClickable(boolean clickable) {
-        this.clickable = clickable;
-    }
-
     /**
      * Instantiates a new owlcms crudGrid crudGrid.
      *
@@ -65,6 +61,14 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
         this.setCrudFormFactory(owlcmsCrudFormFactory);
         this.owlcmsGridLayout = crudLayout;
         initLayoutGrid();
+    }
+
+    public boolean isClickable() {
+        return clickable;
+    }
+
+    public void setClickable(boolean clickable) {
+        this.clickable = clickable;
     }
 
     public void sort(List<GridSortOrder<T>> sortOrder) {
@@ -136,10 +140,6 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
         crudLayout.setMainComponent(grid);
     }
 
-    public boolean isClickable() {
-        return clickable;
-    }
-
     /**
      * Inits the toolbar.
      */
@@ -188,7 +188,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
                         Notification.show(successMessage);
                         logger.trace("operation performed");
                     } catch (Exception e) {
-                        LoggerUtils.logError(logger,e);
+                        LoggerUtils.logError(logger, e);
                     }
                 },
                 deleteButtonClickEvent -> {

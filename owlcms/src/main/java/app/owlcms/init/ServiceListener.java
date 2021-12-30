@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -32,10 +32,8 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public class ServiceListener implements VaadinServiceInitListener {
-    private static Logger logger = (Logger) LoggerFactory.getLogger(ServiceListener.class);
-
     private class CustomBootstrapListener implements BootstrapListener {
-        
+
         @Override
         public void modifyBootstrapPage(BootstrapPageResponse response) {
             Document document = response.getDocument();
@@ -53,8 +51,10 @@ public class ServiceListener implements VaadinServiceInitListener {
 
     }
 
+    private static Logger logger = (Logger) LoggerFactory.getLogger(ServiceListener.class);
+
     private CustomBootstrapListener bootStrapEventListener;
-    
+
     /**
      * Instantiates a new service listener.
      */
@@ -73,7 +73,7 @@ public class ServiceListener implements VaadinServiceInitListener {
         event.getSource().addSessionInitListener(sessionInitEvent -> {
             sessionInit(sessionInitEvent);
         });
-        
+
         event.addBootstrapListener(bootStrapEventListener);
     }
 

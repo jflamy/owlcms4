@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -58,7 +58,7 @@ public class AthleteSorter implements Serializable {
     /**
      * Assign ranks within each category, for all athletes in categories present in group. Returns the list of these
      * athletes (i.e. not only these in group g)
-     * 
+     *
      * @param g
      * @return
      */
@@ -69,7 +69,7 @@ public class AthleteSorter implements Serializable {
 //            logger.debug("all athletes in group's categories {}", impactedAthletes);
         } else {
             impactedAthletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
-            //logger.debug("all athletes in all groups {}", impactedAthletes);
+            // logger.debug("all athletes in all groups {}", impactedAthletes);
         }
 
         List<Athlete> sortedAthletes;
@@ -101,24 +101,6 @@ public class AthleteSorter implements Serializable {
         AthleteSorter.resultsOrder(sortedList, rankingType, true);
         AthleteSorter.assignEligibleCategoryRanks(sortedList, rankingType);
         AthleteSorter.resultsOrder(sortedList, rankingType, false);
-    }
-
-    /**
-     * Assign ranks, sequentially.
-     *
-     * @param absoluteOrderList list sorted without taking categories into accountoui
-     * 
-     * @param rankingType       the ranking type
-     */
-    private static void assignEligibleCategoryRanks(List<Athlete> absoluteOrderList, Ranking rankingType) {
-        MultiCategoryRankSetter rt = new MultiCategoryRankSetter();
-        for (Athlete curLifter : absoluteOrderList) {
-            if (curLifter.isEligibleForIndividualRanking()) {
-                final double rankingValue = getRankingValue(curLifter, rankingType);
-                rt.increment(curLifter, rankingType, rankingValue);
-            }
-        }
-
     }
 
     /**
@@ -361,6 +343,42 @@ public class AthleteSorter implements Serializable {
     }
 
     /**
+     * @param rank
+     * @param curLifter
+     * @return
+     */
+    public static int pointsFormula(Integer rank) {
+        if (rank == null || rank <= 0) {
+            return 0;
+        }
+        if (rank == 1) {
+            return 28;
+        }
+        if (rank == 2) {
+            return 25;
+        }
+        return 26 - rank;
+    }
+
+    /**
+     * @param rank
+     * @param curLifter
+     * @return
+     */
+    public static float pointsFormula(Integer rank, Athlete curLifter) {
+        if (rank == null || rank <= 0) {
+            return 0;
+        }
+        if (rank == 1) {
+            return 28;
+        }
+        if (rank == 2) {
+            return 25;
+        }
+        return 26 - rank;
+    }
+
+    /**
      * Sort athletes according to official rules (in place) for the technical meeting <tableToolbar>
      * <li>by registration category</li>
      * <li>by lot number</li> </tableToolbar>.
@@ -504,6 +522,31 @@ public class AthleteSorter implements Serializable {
         return sorted;
     }
 
+    public static List<PAthlete> teamPointsOrderedPAthletes(List<Participation> mwAgeGroupParticipations,
+            Ranking rankingType) {
+        mwAgeGroupParticipations.sort(new TeamPointsPComparator(rankingType));
+        List<PAthlete> res = mwAgeGroupParticipations.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
+        return res;
+    }
+
+    /**
+     * Assign ranks, sequentially.
+     *
+     * @param absoluteOrderList list sorted without taking categories into accountoui
+     *
+     * @param rankingType       the ranking type
+     */
+    private static void assignEligibleCategoryRanks(List<Athlete> absoluteOrderList, Ranking rankingType) {
+        MultiCategoryRankSetter rt = new MultiCategoryRankSetter();
+        for (Athlete curLifter : absoluteOrderList) {
+            if (curLifter.isEligibleForIndividualRanking()) {
+                final double rankingValue = getRankingValue(curLifter, rankingType);
+                rt.increment(curLifter, rankingType, rankingValue);
+            }
+        }
+
+    }
+
     /**
      * @param curLifter
      * @param rankingType
@@ -572,48 +615,5 @@ public class AthleteSorter implements Serializable {
             break;
         }
         return 0D;
-    }
-
-    /**
-     * @param rank
-     * @param curLifter
-     * @return
-     */
-    public static float pointsFormula(Integer rank, Athlete curLifter) {
-        if (rank == null || rank <= 0) {
-            return 0;
-        }
-        if (rank == 1) {
-            return 28;
-        }
-        if (rank == 2) {
-            return 25;
-        }
-        return 26 - rank;
-    }
-
-    /**
-     * @param rank
-     * @param curLifter
-     * @return
-     */
-    public static int pointsFormula(Integer rank) {
-        if (rank == null || rank <= 0) {
-            return 0;
-        }
-        if (rank == 1) {
-            return 28;
-        }
-        if (rank == 2) {
-            return 25;
-        }
-        return 26 - rank;
-    }
-
-    public static List<PAthlete> teamPointsOrderedPAthletes(List<Participation> mwAgeGroupParticipations,
-            Ranking rankingType) {
-        mwAgeGroupParticipations.sort(new TeamPointsPComparator(rankingType));
-        List<PAthlete> res = mwAgeGroupParticipations.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
-        return res;
     }
 }

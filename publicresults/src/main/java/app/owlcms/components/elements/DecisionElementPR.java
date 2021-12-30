@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -98,11 +98,11 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
     @Subscribe
     public void slaveDecision(DecisionEvent de) {
         if (getFopName() == null || de.getFopName() == null || !getFopName().contentEquals(de.getFopName())) {
-            //logger.debug("slaveDecision self={}: {} ignored", getFopName(), de.getFopName());
+            // logger.debug("slaveDecision self={}: {} ignored", getFopName(), de.getFopName());
             // event is not for us
             return;
         }
-        //logger.debug("DecisionElement DecisionEvent {} {} {}", de.getEventType(), System.identityHashCode(de), ui);
+        // logger.debug("DecisionElement DecisionEvent {} {} {}", de.getEventType(), System.identityHashCode(de), ui);
         if (ui == null || ui.isClosing()) {
             return;
         }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -49,11 +49,11 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
         void setEnabled(boolean b);
 
+        void setFopName(String fopName);
+
         void setJury(boolean juryMode);
 
         void setPublicFacing(boolean publicFacing);
-        
-        void setFopName(String fopName);
 
         void setSilent(boolean b);
     }
@@ -74,7 +74,14 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     }
 
     public boolean isPublicFacing() {
-        return Boolean.TRUE.equals(getModel().isPublicFacing());
+        return getModel().isPublicFacing();
+    }
+
+    /**
+     * @return the silenced
+     */
+    public boolean isSilenced() {
+        return silenced;
     }
 
     @ClientCallable
@@ -88,7 +95,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
      * @param ref2Time
      * @param ref3Time
      */
-    public void masterRefereeUpdate(String fopName, Boolean ref1, Boolean ref2, Boolean ref3, Integer ref1Time, Integer ref2Time,
+    public void masterRefereeUpdate(String fopName, Boolean ref1, Boolean ref2, Boolean ref3, Integer ref1Time,
+            Integer ref2Time,
             Integer ref3Time) {
         logger.debug("master referee decision update");
         Object origin = this.getOrigin();
@@ -129,6 +137,12 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         getModel().setPublicFacing(publicFacing);
     }
 
+    public void setSilenced(boolean b) {
+        logger.debug("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
+        getModel().setSilent(b);
+        silenced = b;
+    }
+
     @Subscribe
     public void slaveBreakStart(UIEvent.BreakStarted e) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
@@ -142,7 +156,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
             uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
                     this.getParent().get().getClass().getSimpleName());
-            this.getElement().callJsFunction("showDown", false, isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
+            this.getElement().callJsFunction("showDown", false,
+                    isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
         });
     }
 
@@ -219,18 +234,5 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         elem.addPropertyChangeListener("decision", "decision-changed", (e) -> {
             uiEventLogger.debug(e.getPropertyName() + " changed to " + e.getValue());
         });
-    }
-
-    public void setSilenced(boolean b) {
-        logger.debug("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
-        getModel().setSilent(b);
-        silenced = b;
-    }
-
-    /**
-     * @return the silenced
-     */
-    public boolean isSilenced() {
-        return silenced;
     }
 }

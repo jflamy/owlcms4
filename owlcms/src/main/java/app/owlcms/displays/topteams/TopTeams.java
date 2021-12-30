@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -51,6 +51,7 @@ import app.owlcms.data.team.TeamTreeData;
 import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
@@ -65,7 +66,6 @@ import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
-import app.owlcms.i18n.Translator;
 
 /**
  * Class TopTeams
@@ -144,7 +144,8 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
      */
     @Override
     public void addDialogContent(Component target, VerticalLayout vl) {
-        //logger.debug("addDialogContent ad={} ag={} darkMode={}", getAgeDivision(), getAgeGroupPrefix(), isDarkMode());
+        // logger.debug("addDialogContent ad={} ag={} darkMode={}", getAgeDivision(), getAgeGroupPrefix(),
+        // isDarkMode());
 
         DisplayOptions.addLightingEntries(vl, target, this);
         ComboBox<AgeDivision> ageDivisionComboBox = new ComboBox<>();
@@ -195,7 +196,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
             doUpdate(fop.getCurAthlete(), null);
         }));
     }
-    
+
     public void doUpdate(Competition competition) {
         this.getElement().callJsFunction("reset");
 
@@ -333,7 +334,8 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
 
         switchLightingMode(this, darkMode, false);
         updateURLLocations();
-        setShowInitialDialog(darkParams == null && ageDivisionParams == null && ageGroupParams == null && silentParams == null);
+        setShowInitialDialog(
+                darkParams == null && ageDivisionParams == null && ageGroupParams == null && silentParams == null);
 
         buildDialog(this);
         return params1;

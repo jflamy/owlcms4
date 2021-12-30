@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -33,7 +33,8 @@ import ch.qos.logback.classic.Logger;
 public class DecisionReceiverServlet extends HttpServlet {
 
     private static String defaultFopName;
-    static EventBus eventBus = new AsyncEventBus(DecisionReceiverServlet.class.getSimpleName(), Executors.newCachedThreadPool());
+    static EventBus eventBus = new AsyncEventBus(DecisionReceiverServlet.class.getSimpleName(),
+            Executors.newCachedThreadPool());
 
     public static EventBus getEventBus() {
         return eventBus;

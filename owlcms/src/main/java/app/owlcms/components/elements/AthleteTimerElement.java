@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -55,7 +55,9 @@ public class AthleteTimerElement extends TimerElement {
     @ClientCallable
     public void clientFinalWarning(String fopName) {
         OwlcmsSession.withFop(fop -> {
-            if (!fopName.contentEquals(fop.getName())) return;
+            if (!fopName.contentEquals(fop.getName())) {
+                return;
+            }
             logger.trace("{} Received final warning.", fop.getName());
             fop.getAthleteTimer().finalWarning(this);
         });
@@ -68,7 +70,9 @@ public class AthleteTimerElement extends TimerElement {
     @ClientCallable
     public void clientInitialWarning(String fopName) {
         OwlcmsSession.withFop(fop -> {
-            if (!fopName.contentEquals(fop.getName())) return;
+            if (!fopName.contentEquals(fop.getName())) {
+                return;
+            }
             logger.trace("Received initial warning.");
             fop.getAthleteTimer().initialWarning(this);
         });
@@ -83,7 +87,9 @@ public class AthleteTimerElement extends TimerElement {
     @ClientCallable
     public void clientSyncTime(String fopName) {
         OwlcmsSession.withFop(fop -> {
-            if (!fopName.contentEquals(fop.getName())) return;
+            if (!fopName.contentEquals(fop.getName())) {
+                return;
+            }
             int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
             // logger./**/warn("Fetched time = {} for {}", timeRemaining, fop.getCurAthlete());
             doSetTimer(timeRemaining);
@@ -98,7 +104,9 @@ public class AthleteTimerElement extends TimerElement {
     @ClientCallable
     public void clientTimeOver(String fopName) {
         OwlcmsSession.withFop(fop -> {
-            if (fopName != null && !fopName.contentEquals(fop.getName())) return;
+            if (fopName != null && !fopName.contentEquals(fop.getName())) {
+                return;
+            }
             logger.trace("Received time over.");
             fop.getAthleteTimer().timeOver(this);
         });
@@ -126,7 +134,7 @@ public class AthleteTimerElement extends TimerElement {
     public void clientTimerStopped(String fopName, double remainingTime, String from) {
 //        logger.debug("{} timer {} stopped on client: remaining = {}, roundtrip={}", fopName, from, remainingTime,
 //                delta(lastStopMillis));
-        
+
         // do not stop the server-side timer, this is getting called as a result of the
         // server-side timer issuing a command. Otherwise we create an infinite loop.
     }
@@ -189,7 +197,6 @@ public class AthleteTimerElement extends TimerElement {
         Integer milliseconds = e.getTimeRemaining();
         doStopTimer(milliseconds);
     }
-
 
     /*
      * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)

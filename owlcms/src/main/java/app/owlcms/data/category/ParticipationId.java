@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -14,7 +14,7 @@ import javax.persistence.Embeddable;
 
 /**
  * Key for Association class between Athlete and Category.
- * 
+ *
  * @author Jean-François Lamy
  */
 @Embeddable
@@ -29,24 +29,26 @@ public class ParticipationId
     @Column(name = "category_id")
     public Long categoryId;
 
-    private ParticipationId() {
-    }
-
     public ParticipationId(Long athleteId, Long categoryId) {
         this();
         this.athleteId = athleteId;
         this.categoryId = categoryId;
     }
 
+    private ParticipationId() {
+    }
+
     // Getters omitted for brevity
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
+        }
 
-        if (o == null || getClass() != o.getClass())
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
         ParticipationId that = (ParticipationId) o;
         return Objects.equals(athleteId, that.athleteId) &&

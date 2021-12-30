@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -18,9 +18,9 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class LocalOverrideUploadDialog extends Dialog {
@@ -48,7 +48,7 @@ public class LocalOverrideUploadDialog extends Dialog {
             }
         });
         upload.setAcceptedFileTypes("application/zip");
-        
+
         upload.setUploadButton(new Button(Translator.translate("Config.Select")));
 
         upload.addStartedListener(event -> {

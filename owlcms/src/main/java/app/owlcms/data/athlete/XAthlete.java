@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -482,16 +482,6 @@ public class XAthlete extends Athlete {
     public String getCoach() {
         return a.getCoach();
     }
-    
-    @Override
-    public String getCustom1() {
-        return a.getCustom1();
-    }
-    
-    @Override
-    public String getCustom2() {
-        return a.getCustom2();
-    }
 
     /**
      * @return
@@ -536,6 +526,16 @@ public class XAthlete extends Athlete {
 
     public LiftInfo getCurrentRequestInfo() {
         return getRequestInfo(getAttemptsDone());
+    }
+
+    @Override
+    public String getCustom1() {
+        return a.getCustom1();
+    }
+
+    @Override
+    public String getCustom2() {
+        return a.getCustom2();
     }
 
     /**
@@ -1588,21 +1588,20 @@ public class XAthlete extends Athlete {
     public void setCoach(String coach) {
         a.setCoach(coach);
     }
-    
-    @Override
-    public void setCustom1(String v) {
-        a.setCustom1(v);
-    }
-    
-    @Override
-    public void setCustom2(String v) {
-        a.setCustom2(v);
-    }
-
 
     @Override
     public void setCombinedRank(int i) {
         a.setCombinedRank(i);
+    }
+
+    @Override
+    public void setCustom1(String v) {
+        a.setCustom1(v);
+    }
+
+    @Override
+    public void setCustom2(String v) {
+        a.setCustom2(v);
     }
 
     /**

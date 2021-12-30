@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -31,6 +31,59 @@ public class PlatformRepository {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(PlatformRepository.class);
 
+    public static void checkPlatforms() {
+        Set<String> checkPlatforms = PlatformRepository.findAll().stream().map(Platform::getName)
+                .collect(Collectors.toSet());
+        if (checkPlatforms.isEmpty()) {
+            JPAService.runInTransaction(em -> {
+                Platform np = new Platform("A");
+                em.persist(np);
+                return np;
+            });
+        } else {
+            logger.debug("to be kept {}", checkPlatforms);
+
+            Set<String> seen = new HashSet<>();
+            // delete all unused platforms
+            for (Platform pl : PlatformRepository.findAll()) {
+                String name = pl.getName();
+                if (name == null || name.isBlank() || seen.contains(name)) {
+                    // we have already seen a platform with this name
+                    // group will be connected with the first platform created with that name
+                    PlatformRepository.delete(pl);
+                    logger.info("removing duplicate or invalid entry for platform {}", name);
+                } else {
+                    seen.add(name);
+                }
+            }
+        }
+    }
+
+    public static void createMissingPlatforms(List<RGroup> groups) {
+        final Set<String> checkPlatforms = PlatformRepository.findAll().stream().map(p -> p.getName())
+                .collect(Collectors.toSet());
+        logger.debug("platforms after cleanup {}", checkPlatforms);
+
+        // create missing platforms
+        JPAService.runInTransaction(em -> {
+            groups.stream().forEach(g -> {
+                String platformName = g.getPlatform();
+                Group group = g.getGroup();
+                if (platformName != null && !checkPlatforms.contains(platformName)) {
+                    Platform np = new Platform();
+                    np.setName(platformName);
+                    group.setPlatform(np);
+                    // make sure we don't add twice.
+                    checkPlatforms.add(platformName);
+                    logger.info("adding platform '{}'", np.getName());
+                    em.persist(np);
+                }
+            });
+            em.flush();
+            return null;
+        });
+    }
+
     /**
      * Delete.
      *
@@ -59,6 +112,21 @@ public class PlatformRepository {
         OwlcmsFactory.setFirstFOPAsDefault();
     }
 
+    public static void deleteUnusedPlatforms(Set<String> futurePlatforms) {
+        Set<String> preCheckPlatforms = PlatformRepository.findAll().stream().map(p -> p.getName())
+                .collect(Collectors.toSet());
+        logger.info("platforms before cleanup {}", preCheckPlatforms);
+
+        // delete all unused platforms
+        for (Platform pl : PlatformRepository.findAll()) {
+            if (!futurePlatforms.contains(pl.getName())) {
+                logger.info("removing platform {}", pl.getName());
+                PlatformRepository.delete(pl);
+            } else {
+            }
+        }
+    }
+
     /**
      * Find all.
      *
@@ -66,7 +134,8 @@ public class PlatformRepository {
      */
     @SuppressWarnings("unchecked")
     public static List<Platform> findAll() {
-        return JPAService.runInTransaction(em -> em.createQuery("select c from Platform c order by c.id").getResultList());
+        return JPAService
+                .runInTransaction(em -> em.createQuery("select c from Platform c order by c.id").getResultList());
     }
 
     /**
@@ -118,72 +187,5 @@ public class PlatformRepository {
             }
         }
         return nPlatform;
-    }
-    
-    public static void checkPlatforms() {
-        Set<String> checkPlatforms = PlatformRepository.findAll().stream().map(Platform::getName).collect(Collectors.toSet());
-        if (checkPlatforms.isEmpty()) {
-            JPAService.runInTransaction(em -> {
-                Platform np = new Platform("A");
-                em.persist(np);
-                return np;
-            });
-        } else {
-            logger.debug("to be kept {}", checkPlatforms);
-    
-            Set<String> seen = new HashSet<>();
-            // delete all unused platforms
-            for (Platform pl : PlatformRepository.findAll()) {
-                String name = pl.getName();
-                if (name == null || name.isBlank() || seen.contains(name)) {
-                    // we have already seen a platform with this name
-                    // group will be connected with the first platform created with that name
-                    PlatformRepository.delete(pl);
-                    logger.info("removing duplicate or invalid entry for platform {}",name);
-                } else {
-                    seen.add(name);
-                }
-            }
-        }
-    }
-    
-    public static void deleteUnusedPlatforms(Set<String> futurePlatforms) {
-        Set<String> preCheckPlatforms = PlatformRepository.findAll().stream().map(p -> p.getName())
-                .collect(Collectors.toSet());
-        logger.info("platforms before cleanup {}", preCheckPlatforms);
-
-        // delete all unused platforms
-        for (Platform pl : PlatformRepository.findAll()) {
-            if (!futurePlatforms.contains(pl.getName())) {
-                logger.info("removing platform {}", pl.getName());
-                PlatformRepository.delete(pl);
-            } else {
-            }
-        }
-    }
-
-    public static void createMissingPlatforms(List<RGroup> groups) {
-        final Set<String> checkPlatforms = PlatformRepository.findAll().stream().map(p -> p.getName())
-                .collect(Collectors.toSet());
-        logger.debug("platforms after cleanup {}", checkPlatforms);
-
-        // create missing platforms
-        JPAService.runInTransaction(em -> {
-            groups.stream().forEach(g -> {
-                String platformName = g.getPlatform();
-                Group group = g.getGroup();
-                if (platformName != null && !checkPlatforms.contains(platformName)) {
-                    Platform np = new Platform();
-                    np.setName(platformName);
-                    group.setPlatform(np);
-                    // make sure we don't add twice.
-                    checkPlatforms.add(platformName);
-                    logger.info("adding platform '{}'", np.getName());
-                    em.persist(np);
-                }
-            });
-            em.flush();
-            return null;
-        });
     }
 }

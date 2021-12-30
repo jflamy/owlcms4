@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -99,90 +99,13 @@ public class CompetitionData {
 //                .stream()
 //                .filter(a -> a.getAgeGroup().getAgeDivision() == AgeDivision.MASTERS && a.getGender() == Gender.F)
 //                .collect(Collectors.toList())
-                ;
+        ;
         setAthletes(allAthletes);
         setGroups(GroupRepository.findAll());
         setPlatforms(PlatformRepository.findAll());
         setConfigForExport(Config.getCurrent());
         setCompetitionForExport(Competition.getCurrent());
         return this;
-    }
-
-    public void restore(InputStream inputStream) {
-        this.removeAll();
-        JPAService.runInTransaction(em -> {
-            try {
-                Athlete.setSkipValidationsDuringImport(true);
-                
-                CompetitionData updated = this.importData(inputStream);
-                Config config = updated.getConfig();
-                
-                Locale defaultLocale = config.getDefaultLocale();
-                Translator.reset();
-                Translator.setForcedLocale(defaultLocale);
-
-                Competition competition = updated.getCompetition();
-                
-                for (AgeGroup ag : updated.getAgeGroups()) {
-                    em.persist(ag);
-                }
-                
-                for (Athlete a : updated.getAthletes()) {
-                    // defensive programming if import file is corrupt
-                    // a.checkParticipations();
-                    em.persist(a);
-                }
-                
-                for (Group g : updated.getGroups()) {
-                    em.merge(g);
-                }
-//
-//                for (Platform p : updated.getPlatforms()) {
-//                    em.merge(p);
-//                }
-//                
-                em.merge(competition);
-
-                em.flush();
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                Athlete.setSkipValidationsDuringImport(false);
-            }
-            return null;
-        });
-    }
-
-    private void removeAll() {
-        JPAService.runInTransaction(em -> {
-            CompetitionRepository.doRemoveAll(em);
-            try {
-                this.fromDatabase();
-                for (Athlete a : this.getAthletes()) {
-                    Athlete aX = em.find(Athlete.class, a.getId());
-                    if (aX != null)
-                        em.remove(aX);
-                }
-                for (Group g : this.getGroups()) {
-                    Group gX = em.find(Group.class, g.getId());
-                    if (gX != null)
-                        em.remove(gX);
-                }
-                for (AgeGroup ag : this.getAgeGroups()) {
-                    AgeGroup agX = em.find(AgeGroup.class, ag.getId());
-                    if (agX != null)
-                        em.remove(agX);
-                }
-                for (Platform p : this.getPlatforms()) {
-                    Platform pX = em.find(Platform.class, p.getId());
-                    if (pX != null)
-                        em.remove(pX);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        });
     }
 
     @JsonProperty(index = 30)
@@ -238,12 +161,82 @@ public class CompetitionData {
         return newData;
     }
 
+    public void restore(InputStream inputStream) {
+        this.removeAll();
+        JPAService.runInTransaction(em -> {
+            try {
+                Athlete.setSkipValidationsDuringImport(true);
+
+                CompetitionData updated = this.importData(inputStream);
+                Config config = updated.getConfig();
+
+                Locale defaultLocale = config.getDefaultLocale();
+                Translator.reset();
+                Translator.setForcedLocale(defaultLocale);
+
+                Competition competition = updated.getCompetition();
+
+                for (AgeGroup ag : updated.getAgeGroups()) {
+                    em.persist(ag);
+                }
+
+                for (Athlete a : updated.getAthletes()) {
+                    // defensive programming if import file is corrupt
+                    // a.checkParticipations();
+                    em.persist(a);
+                }
+
+                for (Group g : updated.getGroups()) {
+                    em.merge(g);
+                }
+//
+//                for (Platform p : updated.getPlatforms()) {
+//                    em.merge(p);
+//                }
+//
+                em.merge(competition);
+
+                em.flush();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                Athlete.setSkipValidationsDuringImport(false);
+            }
+            return null;
+        });
+    }
+
     public void setAgeGroups(List<AgeGroup> ageGroups) {
         this.ageGroups = ageGroups;
     }
 
     public void setAthletes(List<Athlete> athletes) {
         this.athletes = athletes;
+    }
+
+    /**
+     * When importing data, set the imported Competition instance as the current instance. This is required because it
+     * affects how some objects are processed (e.g., birth dates).
+     *
+     * @param competition the competition to set
+     */
+    public void setCompetition(Competition competition) {
+        this.competition = competition;
+        Competition.setCurrent(this.competition);
+        logger.info("Applied imported Competition settings. useBirthYear={}",
+                Competition.getCurrent().isUseBirthYear());
+    }
+
+    /**
+     * When importing data, set the imported Competition instance as the current instance. This is prudent in case the
+     * configuration might affect further processing.
+     *
+     * @param config the config to set
+     */
+    public void setConfig(Config config) {
+        this.config = config;
+        Config.setCurrent(this.getConfig());
+        logger.info("Applied imported language and system settings.");
     }
 
     public void setGroups(List<Group> groups) {
@@ -254,39 +247,51 @@ public class CompetitionData {
         this.platforms = platforms;
     }
 
+    private void removeAll() {
+        JPAService.runInTransaction(em -> {
+            CompetitionRepository.doRemoveAll(em);
+            try {
+                this.fromDatabase();
+                for (Athlete a : this.getAthletes()) {
+                    Athlete aX = em.find(Athlete.class, a.getId());
+                    if (aX != null) {
+                        em.remove(aX);
+                    }
+                }
+                for (Group g : this.getGroups()) {
+                    Group gX = em.find(Group.class, g.getId());
+                    if (gX != null) {
+                        em.remove(gX);
+                    }
+                }
+                for (AgeGroup ag : this.getAgeGroups()) {
+                    AgeGroup agX = em.find(AgeGroup.class, ag.getId());
+                    if (agX != null) {
+                        em.remove(agX);
+                    }
+                }
+                for (Platform p : this.getPlatforms()) {
+                    Platform pX = em.find(Platform.class, p.getId());
+                    if (pX != null) {
+                        em.remove(pX);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        });
+    }
+
     /**
      * @param competition the competition to set
      */
     private void setCompetitionForExport(Competition competition) {
         this.competition = competition;
     }
-    
-    /**
-     * When importing data, set the imported Competition instance as the current instance.
-     * This is required because it affects how some objects are processed (e.g., birth dates).
-     * 
-     * @param competition the competition to set
-     */
-    public void setCompetition(Competition competition) {
-        this.competition = competition;
-        Competition.setCurrent(this.competition);
-        logger.info("Applied imported Competition settings. useBirthYear={}", Competition.getCurrent().isUseBirthYear());
-    }
 
     /**
-     * When importing data, set the imported Competition instance as the current instance.
-     * This is prudent in case the configuration might affect further processing.
-     * 
-     * @param config the config to set
-     */
-    public void setConfig(Config config) {
-        this.config = config;
-        Config.setCurrent(this.getConfig());
-        logger.info("Applied imported language and system settings.");
-    }
-    
-    /**
-     * 
+     *
      * @param config the config to set
      */
     private void setConfigForExport(Config config) {

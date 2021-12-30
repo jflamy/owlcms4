@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -83,6 +83,19 @@ public class OwlcmsSession {
             return fop.getLoggingName();
         } else {
             return "-";
+        }
+    }
+
+    public static String getFopNameIfMultiple() {
+        if (OwlcmsFactory.getFOPs().size() > 1) {
+            FieldOfPlay fop;
+            if ((fop = getFop()) != null) {
+                return " " + fop.getName();
+            } else {
+                return null;
+            }
+        } else {
+            return "";
         }
     }
 
@@ -175,18 +188,5 @@ public class OwlcmsSession {
     private Properties attributes = new Properties();
 
     private OwlcmsSession() {
-    }
-
-    public static String getFopNameIfMultiple() {
-        if (OwlcmsFactory.getFOPs().size() > 1) {
-            FieldOfPlay fop;
-            if ((fop = getFop()) != null) {
-                return " " + fop.getName();
-            } else {
-                return null;
-            }
-        } else {
-            return "";
-        }
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -19,8 +19,8 @@ import com.vaadin.flow.component.UI;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import net.sf.jxls.transformer.XLSTransformer;
 
 /**
@@ -49,6 +49,32 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
         super();
     }
 
+    /**
+     * @return the ageDivision
+     */
+    @Override
+    public AgeDivision getAgeDivision() {
+        return ageDivision;
+    }
+
+    @Override
+    public String getAgeGroupPrefix() {
+        return ageGroupPrefix;
+    }
+
+    /**
+     * @param ageDivision the ageDivision to set
+     */
+    @Override
+    public void setAgeDivision(AgeDivision ageDivision) {
+        // logger.debug("set ad {} \\n{}",ageDivision,LoggerUtils.stackTrace());
+        this.ageDivision = ageDivision;
+    }
+
+    @Override
+    public void setAgeGroupPrefix(String ageGroupPrefix) {
+        this.ageGroupPrefix = ageGroupPrefix;
+    }
 
     @Override
     protected void configureTransformer(XLSTransformer transformer) {
@@ -115,8 +141,8 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     }
 
     /**
-     * jxls does not translate sheet names and header/footers. 
-     * 
+     * jxls does not translate sheet names and header/footers.
+     *
      * @param workbook
      */
     private void translateSheets(Workbook workbook) {
@@ -161,29 +187,6 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
                 curSheet.getFooter().setRight(rightFooter);
             }
         }
-    }
-
-    public void setAgeGroupPrefix(String ageGroupPrefix) {
-        this.ageGroupPrefix = ageGroupPrefix;
-    }
-
-    public String getAgeGroupPrefix() {
-        return ageGroupPrefix;
-    }
-
-    /**
-     * @return the ageDivision
-     */
-    public AgeDivision getAgeDivision() {
-        return ageDivision;
-    }
-
-    /**
-     * @param ageDivision the ageDivision to set
-     */
-    public void setAgeDivision(AgeDivision ageDivision) {
-        //logger.debug("set ad {} \\n{}",ageDivision,LoggerUtils.stackTrace());
-        this.ageDivision = ageDivision;
     }
 
 }

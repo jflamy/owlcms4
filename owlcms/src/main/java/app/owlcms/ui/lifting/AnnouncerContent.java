@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -269,6 +269,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
     /**
      * Add key shortcuts to parent
+     *
      * @see app.owlcms.ui.shared.AthleteGridContent#createStartTimeButton()
      */
     @Override
@@ -276,9 +277,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         super.createStartTimeButton();
         UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
     }
-    
+
     /**
      * Add key shortcuts to parent
+     *
      * @see app.owlcms.ui.shared.AthleteGridContent#createStartTimeButton()
      */
     @Override

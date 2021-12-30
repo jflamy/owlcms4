@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -185,32 +185,32 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
         smallPlates.addFormItem(nbS5, getTranslation("Kg", 5));
         binder.forField(nbS5).withConverter(converter).bind(Platform::getNbS_5, Platform::setNbS_5);
         nbS5.setAutoselect(true);
-        
+
         TextField nbS2_5 = new TextField();
         smallPlates.addFormItem(nbS2_5, getTranslation("Kg", 2.5));
         binder.forField(nbS2_5).withConverter(converter).bind(Platform::getNbS_2_5, Platform::setNbS_2_5);
         nbS2_5.setAutoselect(true);
-        
+
         TextField nbS2 = new TextField();
         smallPlates.addFormItem(nbS2, getTranslation("Kg", 2));
         binder.forField(nbS2).withConverter(converter).bind(Platform::getNbS_2, Platform::setNbS_2);
         nbS2.setAutoselect(true);
-        
+
         TextField nbS1_5 = new TextField();
         smallPlates.addFormItem(nbS1_5, getTranslation("Kg", 1.5));
         binder.forField(nbS1_5).withConverter(converter).bind(Platform::getNbS_1_5, Platform::setNbS_1_5);
         nbL20.setAutoselect(true);
-        
+
         TextField nbS1 = new TextField();
         smallPlates.addFormItem(nbS1, getTranslation("Kg", 1));
         binder.forField(nbS1).withConverter(converter).bind(Platform::getNbS_1, Platform::setNbS_1);
         nbS1.setAutoselect(true);
-        
+
         TextField nbS0_5 = new TextField();
         smallPlates.addFormItem(nbS0_5, getTranslation("Kg", 0.5));
         binder.forField(nbS0_5).withConverter(converter).bind(Platform::getNbS_0_5, Platform::setNbS_0_5);
         nbS0_5.setAutoselect(true);
-        
+
         TextField nbC2_5 = new TextField();
         collar.addFormItem(nbC2_5, getTranslation("Kg", 2.5));
         binder.forField(nbC2_5).withConverter(converter).bind(Platform::getNbC_2_5, Platform::setNbC_2_5);

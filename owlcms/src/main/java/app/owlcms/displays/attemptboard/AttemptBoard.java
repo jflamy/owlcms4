@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -214,8 +214,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     @Override
     public Dialog getDialog() {
 //        if (dialog == null) {
-            dialog = new Dialog();
-            return dialog;
+        dialog = new Dialog();
+        return dialog;
 //        } else {
 //            return null;
 //        }
@@ -264,6 +264,11 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         return silenced;
     }
 
+    @Override
+    public boolean isSilencedByDefault() {
+        return true;
+    }
+
     /**
      * @see app.owlcms.apputils.queryparameters.DisplayParameters#setDarkMode(boolean)
      */
@@ -292,7 +297,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     @Override
     public void setSilenced(boolean silenced) {
-        //logger.debug("{} setSilenced = {} from {}", this.getClass().getSimpleName(), silenced, LoggerUtils.whereFrom());
+        // logger.debug("{} setSilenced = {} from {}", this.getClass().getSimpleName(), silenced,
+        // LoggerUtils.whereFrom());
         this.athleteTimer.setSilenced(silenced);
         this.breakTimer.setSilenced(silenced);
         this.decisions.setSilenced(silenced);
@@ -345,6 +351,40 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 //            Group g = e.getGroup();
             setDone(true);
+        });
+    }
+
+    @Subscribe
+    public void slaveJuryNotification(UIEvent.JuryNotification e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            String text = "";
+            String reversalText = "";
+            if (e.getReversal() != null) {
+                reversalText = e.getReversal() ? Translator.translate("JuryNotification.Reversal")
+                        : Translator.translate("JuryNotification.Confirmed");
+            }
+            String style = "warning";
+            int previousAttemptNo;
+            switch (e.getDeliberationEventType()) {
+            case BAD_LIFT:
+                previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
+                text = Translator.translate("JuryNotification.BadLift", reversalText,
+                        "<br/>" + e.getAthlete().getFullName(),
+                        previousAttemptNo % 3 + 1);
+                style = "primary error";
+                doNotification(text, style);
+                break;
+            case GOOD_LIFT:
+                previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
+                text = Translator.translate("JuryNotification.GoodLift", reversalText,
+                        "<br/>" + e.getAthlete().getFullName(),
+                        previousAttemptNo % 3 + 1);
+                style = "primary success";
+                doNotification(text, style);
+                break;
+            default:
+                break;
+            }
         });
     }
 
@@ -540,26 +580,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         });
     }
 
-    private void syncWithFOP(FieldOfPlay fop) {
-        // sync with current status of FOP
-        if (fop.getState() == FOPState.INACTIVE) {
-            doEmpty();
-        } else {
-            Athlete curAthlete = fop.getCurAthlete();
-            if (fop.getState() == FOPState.BREAK) {
-                if (fop.getBreakType() == BreakType.MEDALS) {
-                    doBreak(fop);
-                } else if (curAthlete != null && curAthlete.getAttemptsDone() >= 6) {
-                    doDone(fop.getGroup());
-                } else {
-                    doBreak(fop);
-                }
-            } else {
-                doAthleteUpdate(curAthlete);
-            }
-        }
-    }
-
     private void doDone(Group g) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             AttemptBoardModel model = getModel();
@@ -573,6 +593,31 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             this.getElement().callJsFunction("groupDone");
             hidePlates();
         });
+    }
+
+    private void doNotification(String text, String theme) {
+        Notification n = new Notification();
+        // Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
+        n.getElement().getThemeList().add(theme);
+
+        n.setDuration((int) FieldOfPlay.DECISION_VISIBLE_DURATION);
+        n.setPosition(Position.MIDDLE);
+        Div label = new Div();
+        label.getElement().setProperty("innerHTML", text);
+        label.getElement().setAttribute("style", "text: align-center");
+        label.addClickListener((event) -> n.close());
+        label.setWidth("20em");
+        label.getStyle().set("font-size", "4em");
+        n.add(label);
+
+        OwlcmsSession.withFop(fop -> {
+//            this.getElement().callJsFunction("reset");
+//            syncWithFOP(OwlcmsSession.getFop());
+            n.open();
+            return;
+        });
+
+        return;
     }
 
     private String formatAttempt(Integer attemptNo) {
@@ -631,67 +676,25 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             });
         });
     }
-    
-    @Subscribe
-    public void slaveJuryNotification(UIEvent.JuryNotification e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            String text = "";
-            String reversalText = "";
-            if (e.getReversal() != null) {
-                reversalText = e.getReversal() ? Translator.translate("JuryNotification.Reversal")
-                        : Translator.translate("JuryNotification.Confirmed");
+
+    private void syncWithFOP(FieldOfPlay fop) {
+        // sync with current status of FOP
+        if (fop.getState() == FOPState.INACTIVE) {
+            doEmpty();
+        } else {
+            Athlete curAthlete = fop.getCurAthlete();
+            if (fop.getState() == FOPState.BREAK) {
+                if (fop.getBreakType() == BreakType.MEDALS) {
+                    doBreak(fop);
+                } else if (curAthlete != null && curAthlete.getAttemptsDone() >= 6) {
+                    doDone(fop.getGroup());
+                } else {
+                    doBreak(fop);
+                }
+            } else {
+                doAthleteUpdate(curAthlete);
             }
-            String style = "warning";
-            int previousAttemptNo;
-            switch (e.getDeliberationEventType()) {
-            case BAD_LIFT:
-                previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
-                text = Translator.translate("JuryNotification.BadLift", reversalText, "<br/>"+e.getAthlete().getFullName(),
-                        previousAttemptNo % 3 + 1);
-                style = "primary error";
-                doNotification(text, style);
-                break;
-            case GOOD_LIFT:
-                previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
-                text = Translator.translate("JuryNotification.GoodLift", reversalText, "<br/>"+e.getAthlete().getFullName(),
-                        previousAttemptNo % 3 + 1);
-                style = "primary success";
-                doNotification(text, style);
-                break;
-            default:
-                break;
-            }
-        });
-    }
-    
-    private void doNotification(String text, String theme) {
-        Notification n = new Notification();
-        // Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
-        n.getElement().getThemeList().add(theme);
-
-        n.setDuration((int)FieldOfPlay.DECISION_VISIBLE_DURATION);
-        n.setPosition(Position.MIDDLE);
-        Div label = new Div();
-        label.getElement().setProperty("innerHTML", text);
-        label.getElement().setAttribute("style", "text: align-center");
-        label.addClickListener((event) -> n.close());
-        label.setWidth("20em");
-        label.getStyle().set("font-size", "4em");
-        n.add(label);
-        
-        OwlcmsSession.withFop(fop -> {
-//            this.getElement().callJsFunction("reset");
-//            syncWithFOP(OwlcmsSession.getFop());
-            n.open();
-            return;
-        });
-
-        return;
-    }
-
-    @Override
-    public boolean isSilencedByDefault() {
-        return true;
+        }
     }
 
 }

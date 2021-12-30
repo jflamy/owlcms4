@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -45,13 +45,13 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
+import app.owlcms.i18n.Translator;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
 import app.owlcms.ui.shared.DownloadButtonFactory;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.TimeZoneUtils;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class ConfigEditingFormFactory
@@ -120,7 +120,7 @@ public class ConfigEditingFormFactory
 
         Component footer = this.buildFooter(operation, config, cancelButtonClickListener,
                 c -> {
-                    Config.setCurrent(config);  // does a save
+                    Config.setCurrent(config); // does a save
                     Config current = Config.getCurrent();
                     Locale defaultLocale = current.getDefaultLocale();
                     Translator.reset();
@@ -142,136 +142,6 @@ public class ConfigEditingFormFactory
 
         binder.readBean(config);
         return mainLayout;
-    }
-
-    private FormLayout tzForm() {
-
-        FormLayout layout = createLayout();
-        ComboBox<TimeZone> tzCombo = new ComboBox<>();
-        tzCombo.setWidthFull();
-
-        Component title = createTitle("Config.TZTitle");
-        layout.add(title);
-        layout.setColspan(title, 2);
-
-        UnorderedList ulTZ = new UnorderedList();
-        ListItem defaultTZ = new ListItem();
-        ListItem browserTZ = new ListItem();
-        Span browserTZText = new Span();
-        Button browserTZButton = new Button("", (e) -> {
-            tzCombo.setValue(browserZoneId != null ? TimeZone.getTimeZone(browserZoneId) : null);
-        });
-        browserTZ.add(browserTZText, browserTZButton);
-        ListItem explainTZ = new ListItem();
-        explainTZ.getElement().setProperty("innerHTML", Translator.translate("Config.TZExplain"));
-        ulTZ.add(defaultTZ, browserTZ, explainTZ);
-        layout.add(ulTZ);
-        layout.setColspan(ulTZ, 2);
-
-        layout.addFormItem(tzCombo, Translator.translate("Config.TZ_Selection"));
-
-        List<TimeZone> tzList = TimeZoneUtils.allTimeZones();
-        tzCombo.setItems(tzList);
-        tzCombo.setItemLabelGenerator((tzone) -> TimeZoneUtils.toIdWithOffsetString(tzone));
-        tzCombo.setClearButtonVisible(true);
-        binder.forField(tzCombo)
-                // .withNullRepresentation("Etc/GMT")
-                .bind(Config::getTimeZone, Config::setTimeZone);
-
-        PendingJavaScriptResult pendingResult = UI.getCurrent().getPage()
-                .executeJs("return Intl.DateTimeFormat().resolvedOptions().timeZone");
-        pendingResult.then(String.class, (res) -> {
-            browserZoneId = res;
-            String defZone = TimeZoneUtils.toIdWithOffsetString(TimeZone.getDefault());
-            String browserZoneText = TimeZoneUtils.toIdWithOffsetString(TimeZone.getTimeZone(res));
-            browserTZText.getElement().setProperty("innerHTML",
-                    Translator.translate("Config.TZ_FromBrowser", browserZoneText) + "&nbsp;");
-            browserTZButton.setText(browserZoneText);
-            defaultTZ.setText(Translator.translate("Config.TZ_FromServer", defZone));
-        });
-
-        return layout;
-    }
-
-    private FormLayout presentationForm() {
-        FormLayout layout = createLayout();
-        Component title = createTitle("Competition.presentationTitle");
-        layout.add(title);
-        layout.setColspan(title, 2);
-
-        ComboBox<Locale> defaultLocaleField = new ComboBox<>();
-        defaultLocaleField.setClearButtonVisible(true);
-        defaultLocaleField.setDataProvider(new ListDataProvider<>(Translator.getAllAvailableLocales()));
-        defaultLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
-        binder.forField(defaultLocaleField).bind(Config::getDefaultLocale, Config::setDefaultLocale);
-        layout.addFormItem(defaultLocaleField, Translator.translate("Competition.defaultLocale"));
-
-//        Checkbox announcerLiveDecisionsField = new Checkbox();
-//        layout.addFormItem(announcerLiveDecisionsField,
-//                labelWithHelp("Competition.announcerLiveDecisions", "Competition.announceLiverDecisionsExplanation"));
-//        binder.forField(announcerLiveDecisionsField)
-//                .bind(Competition::isAnnouncerLiveDecisions, Competition::setAnnouncerLiveDecisions);
-
-        return layout;
-    }
-
-    private FormLayout localOverrideForm() {
-        FormLayout layout = createLayout();
-        Component title = createTitle("Config.ResourceOverride");
-        layout.add(title);
-        layout.setColspan(title, 2);
-
-        ZipFileField accessListField = new ZipFileField();
-        accessListField.setWidthFull();
-        layout.addFormItem(accessListField, Translator.translate("Config.UploadLabel"));
-        binder.forField(accessListField)
-                .bind(Config::getLocalZipBlob, Config::setLocalZipBlob);
-
-        byte[] localOverride = Config.getCurrent().getLocalZipBlob();
-        if (localOverride == null) {
-            localOverride = new byte[0];
-        }
-        Div downloadDiv = DownloadButtonFactory.createDynamicZipDownloadButton("resourcesOverride",
-                Translator.translate("Config.Download"), localOverride);
-        downloadDiv.setWidthFull();
-        Optional<Component> downloadButton = downloadDiv.getChildren().findFirst();
-        if (localOverride.length == 0) {
-            downloadButton.ifPresent(c -> ((Button) c).setEnabled(false));
-        }
-        layout.addFormItem(downloadDiv, Translator.translate("Config.DownloadLabel"));
-
-        Checkbox clearField = new Checkbox(Translator.translate("Config.ClearZip"));
-        clearField.setWidthFull();
-        layout.addFormItem(clearField, Translator.translate("Config.ClearZipLabel"));
-        binder.forField(clearField)
-                .bind(Config::isClearZip, Config::setClearZip);
-
-//        Checkbox ignoreCaching = new Checkbox(Translator.translate("Config.NoCaching"));
-//        ignoreCaching.setWidthFull();
-//        layout.addFormItem(ignoreCaching, Translator.translate("Config.NoCachingLabel"));
-//        binder.forField(ignoreCaching)
-//                .bind(Config::isIgnoreCaching, Config::setIgnoreCaching);
-
-        return layout;
-    }
-    
-    private FormLayout exportForm() {
-        FormLayout layout = createLayout();
-        Component title = createTitle("ExportDatabase.ExportImport");
-        layout.add(title);
-        layout.setColspan(title, 2);
-
-        Button uploadJson = new Button(Translator.translate("ExportDatabase.UploadJson"), new Icon(VaadinIcon.UPLOAD_ALT),
-                buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
-        Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
-                Translator.translate("ExportDatabase.DownloadJson"));
-//        Button clearDatabase = new Button(Translator.translate("ExportDatabase.ClearDatabase"),
-//                new Icon(VaadinIcon.UPLOAD_ALT),
-//                buttonClickEvent -> CompetitionRepository.removeAll());
-        layout.addFormItem(exportJsonDiv, Translator.translate("ExportDatabase.DownloadLabel"));
-        layout.addFormItem(uploadJson, Translator.translate("ExportDatabase.UploadLabel"));
-//        layout.addFormItem(clearDatabase, "");
-        return layout;
     }
 
     @Override
@@ -330,7 +200,7 @@ public class ConfigEditingFormFactory
         Component title = createTitle("Config.AccessControlTitle");
         configLayout.add(title);
         configLayout.setColspan(title, 2);
-        
+
         PasswordField passwordField = new PasswordField();
         passwordField.setWidthFull();
         configLayout.addFormItem(passwordField, Translator.translate("Config.PasswordOrPIN"));
@@ -372,6 +242,88 @@ public class ConfigEditingFormFactory
         return title;
     }
 
+    private FormLayout exportForm() {
+        FormLayout layout = createLayout();
+        Component title = createTitle("ExportDatabase.ExportImport");
+        layout.add(title);
+        layout.setColspan(title, 2);
+
+        Button uploadJson = new Button(Translator.translate("ExportDatabase.UploadJson"),
+                new Icon(VaadinIcon.UPLOAD_ALT),
+                buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
+        Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
+                Translator.translate("ExportDatabase.DownloadJson"));
+//        Button clearDatabase = new Button(Translator.translate("ExportDatabase.ClearDatabase"),
+//                new Icon(VaadinIcon.UPLOAD_ALT),
+//                buttonClickEvent -> CompetitionRepository.removeAll());
+        layout.addFormItem(exportJsonDiv, Translator.translate("ExportDatabase.DownloadLabel"));
+        layout.addFormItem(uploadJson, Translator.translate("ExportDatabase.UploadLabel"));
+//        layout.addFormItem(clearDatabase, "");
+        return layout;
+    }
+
+    private FormLayout localOverrideForm() {
+        FormLayout layout = createLayout();
+        Component title = createTitle("Config.ResourceOverride");
+        layout.add(title);
+        layout.setColspan(title, 2);
+
+        ZipFileField accessListField = new ZipFileField();
+        accessListField.setWidthFull();
+        layout.addFormItem(accessListField, Translator.translate("Config.UploadLabel"));
+        binder.forField(accessListField)
+                .bind(Config::getLocalZipBlob, Config::setLocalZipBlob);
+
+        byte[] localOverride = Config.getCurrent().getLocalZipBlob();
+        if (localOverride == null) {
+            localOverride = new byte[0];
+        }
+        Div downloadDiv = DownloadButtonFactory.createDynamicZipDownloadButton("resourcesOverride",
+                Translator.translate("Config.Download"), localOverride);
+        downloadDiv.setWidthFull();
+        Optional<Component> downloadButton = downloadDiv.getChildren().findFirst();
+        if (localOverride.length == 0) {
+            downloadButton.ifPresent(c -> ((Button) c).setEnabled(false));
+        }
+        layout.addFormItem(downloadDiv, Translator.translate("Config.DownloadLabel"));
+
+        Checkbox clearField = new Checkbox(Translator.translate("Config.ClearZip"));
+        clearField.setWidthFull();
+        layout.addFormItem(clearField, Translator.translate("Config.ClearZipLabel"));
+        binder.forField(clearField)
+                .bind(Config::isClearZip, Config::setClearZip);
+
+//        Checkbox ignoreCaching = new Checkbox(Translator.translate("Config.NoCaching"));
+//        ignoreCaching.setWidthFull();
+//        layout.addFormItem(ignoreCaching, Translator.translate("Config.NoCachingLabel"));
+//        binder.forField(ignoreCaching)
+//                .bind(Config::isIgnoreCaching, Config::setIgnoreCaching);
+
+        return layout;
+    }
+
+    private FormLayout presentationForm() {
+        FormLayout layout = createLayout();
+        Component title = createTitle("Competition.presentationTitle");
+        layout.add(title);
+        layout.setColspan(title, 2);
+
+        ComboBox<Locale> defaultLocaleField = new ComboBox<>();
+        defaultLocaleField.setClearButtonVisible(true);
+        defaultLocaleField.setDataProvider(new ListDataProvider<>(Translator.getAllAvailableLocales()));
+        defaultLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
+        binder.forField(defaultLocaleField).bind(Config::getDefaultLocale, Config::setDefaultLocale);
+        layout.addFormItem(defaultLocaleField, Translator.translate("Competition.defaultLocale"));
+
+//        Checkbox announcerLiveDecisionsField = new Checkbox();
+//        layout.addFormItem(announcerLiveDecisionsField,
+//                labelWithHelp("Competition.announcerLiveDecisions", "Competition.announceLiverDecisionsExplanation"));
+//        binder.forField(announcerLiveDecisionsField)
+//                .bind(Competition::isAnnouncerLiveDecisions, Competition::setAnnouncerLiveDecisions);
+
+        return layout;
+    }
+
     private FormLayout publicResultsForm() {
         FormLayout layout = createLayout();
         Component title = createTitle("Config.PublicResultsTitle");
@@ -402,6 +354,55 @@ public class ConfigEditingFormFactory
         hr.getStyle().set("background-color", "var(--lumo-contrast-30pct)");
         hr.getStyle().set("height", "2px");
         return hr;
+    }
+
+    private FormLayout tzForm() {
+
+        FormLayout layout = createLayout();
+        ComboBox<TimeZone> tzCombo = new ComboBox<>();
+        tzCombo.setWidthFull();
+
+        Component title = createTitle("Config.TZTitle");
+        layout.add(title);
+        layout.setColspan(title, 2);
+
+        UnorderedList ulTZ = new UnorderedList();
+        ListItem defaultTZ = new ListItem();
+        ListItem browserTZ = new ListItem();
+        Span browserTZText = new Span();
+        Button browserTZButton = new Button("", (e) -> {
+            tzCombo.setValue(browserZoneId != null ? TimeZone.getTimeZone(browserZoneId) : null);
+        });
+        browserTZ.add(browserTZText, browserTZButton);
+        ListItem explainTZ = new ListItem();
+        explainTZ.getElement().setProperty("innerHTML", Translator.translate("Config.TZExplain"));
+        ulTZ.add(defaultTZ, browserTZ, explainTZ);
+        layout.add(ulTZ);
+        layout.setColspan(ulTZ, 2);
+
+        layout.addFormItem(tzCombo, Translator.translate("Config.TZ_Selection"));
+
+        List<TimeZone> tzList = TimeZoneUtils.allTimeZones();
+        tzCombo.setItems(tzList);
+        tzCombo.setItemLabelGenerator((tzone) -> TimeZoneUtils.toIdWithOffsetString(tzone));
+        tzCombo.setClearButtonVisible(true);
+        binder.forField(tzCombo)
+                // .withNullRepresentation("Etc/GMT")
+                .bind(Config::getTimeZone, Config::setTimeZone);
+
+        PendingJavaScriptResult pendingResult = UI.getCurrent().getPage()
+                .executeJs("return Intl.DateTimeFormat().resolvedOptions().timeZone");
+        pendingResult.then(String.class, (res) -> {
+            browserZoneId = res;
+            String defZone = TimeZoneUtils.toIdWithOffsetString(TimeZone.getDefault());
+            String browserZoneText = TimeZoneUtils.toIdWithOffsetString(TimeZone.getTimeZone(res));
+            browserTZText.getElement().setProperty("innerHTML",
+                    Translator.translate("Config.TZ_FromBrowser", browserZoneText) + "&nbsp;");
+            browserTZButton.setText(browserZoneText);
+            defaultTZ.setText(Translator.translate("Config.TZ_FromServer", defZone));
+        });
+
+        return layout;
     }
 
 }

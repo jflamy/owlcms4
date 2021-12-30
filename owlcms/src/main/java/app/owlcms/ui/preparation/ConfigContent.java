@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -53,7 +53,7 @@ public class ConfigContent extends Composite<VerticalLayout>
         try {
             urlFinder.checkInterfaces("http", StartupUtils.getServerPort(), false);
         } catch (SocketException e) {
-            LoggerUtils.logError(logger,e);
+            LoggerUtils.logError(logger, e);
         }
         factory = createFormFactory();
         Component form = factory.buildNewForm(CrudOperation.UPDATE, Config.getCurrent(), false, null, event -> {
@@ -122,7 +122,6 @@ public class ConfigContent extends Composite<VerticalLayout>
     public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
         this.routerLayout = routerLayout;
     }
-
 
     @Override
     public void showDialog(String caption, Component form) {

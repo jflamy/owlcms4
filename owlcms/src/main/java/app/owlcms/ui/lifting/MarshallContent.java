@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -47,6 +47,8 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
         logger.setLevel(Level.INFO);
     }
 
+    private HorizontalLayout decisionLights;
+
     public MarshallContent() {
         super();
         setTopBarTitle(getTranslation("Marshall"));
@@ -87,6 +89,38 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
         return getTranslation("Marshall") + OwlcmsSession.getFopNameIfMultiple();
     }
 
+    @Subscribe
+    public void slaveRefereeDecision(UIEvent.Decision e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            hideLiveDecisions();
+
+            int d = e.decision ? 1 : 0;
+            String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
+
+            Notification n = new Notification();
+            String themeName = e.decision ? "success" : "error";
+            n.getElement().getThemeList().add(themeName);
+
+            Div label = new Div();
+            label.add(text);
+            label.addClickListener((event) -> n.close());
+            label.setSizeFull();
+            label.getStyle().set("font-size", "large");
+            n.add(label);
+            n.setPosition(Position.TOP_START);
+            n.setDuration(5000);
+            n.open();
+        });
+    }
+
+    @Subscribe
+    public void slaveStartTime(UIEvent.StartTime e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            buttonsTimeStarted();
+            displayLiveDecisions();
+        });
+    }
+
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
      */
@@ -116,39 +150,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
         HorizontalLayout decisions = new HorizontalLayout();
         return decisions;
     }
-    
-    @Subscribe
-    public void slaveRefereeDecision(UIEvent.Decision e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            hideLiveDecisions();
 
-            int d = e.decision ? 1 : 0;
-            String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
-
-            Notification n = new Notification();
-            String themeName = e.decision ? "success" : "error";
-            n.getElement().getThemeList().add(themeName);
-
-            Div label = new Div();
-            label.add(text);
-            label.addClickListener((event) -> n.close());
-            label.setSizeFull();
-            label.getStyle().set("font-size", "large");
-            n.add(label);
-            n.setPosition(Position.TOP_START);
-            n.setDuration(5000);
-            n.open();
-        });
-    }
-    
-    @Subscribe
-    public void slaveStartTime(UIEvent.StartTime e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            buttonsTimeStarted();
-            displayLiveDecisions();
-        });
-    }
-    
     protected void displayLiveDecisions() {
         if (decisionLights == null) {
             getTopBarLeft().removeAll();
@@ -156,7 +158,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
             getTopBarLeft().add(decisionLights);
         }
     }
-    
+
     private void createDecisionLights() {
         JuryDisplayDecisionElement decisionDisplay = new JuryDisplayDecisionElement();
 //        Icon silenceIcon = AvIcons.MIC_OFF.create();
@@ -171,6 +173,4 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
         fillTopBarLeft();
         decisionLights = null;
     }
-    
-    private HorizontalLayout decisionLights;
 }

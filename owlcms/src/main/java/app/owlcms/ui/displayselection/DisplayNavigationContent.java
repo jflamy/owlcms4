@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -77,7 +77,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
         Button topTeams = openInNewTab(TopTeams.class, getTranslation("Scoreboard.TopTeams"));
         Button topTeamsSinclair = openInNewTab(TopTeamsSinclair.class, getTranslation("Scoreboard.TopTeamsSinclair"));
-        
+
         Button obsMonitor = openInNewTab(Monitor.class, getTranslation("OBS.MonitoringButton"));
 
         fillH(intro, this);
@@ -96,7 +96,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         addP(intro2, getTranslation("refereeingDevices"));
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(decisions);
         doGroup(getTranslation("Refereeing_Displays"), intro2, grid2, this);
-        
+
         VerticalLayout intro4 = new VerticalLayout();
         addP(intro4, getTranslation("OBS.MonitoringExplanation"));
         FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(obsMonitor);

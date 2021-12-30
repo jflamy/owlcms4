@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -71,9 +71,9 @@ public class TeamPointsPComparator extends AbstractLifterComparator implements C
     private int comparePointsOrder(Participation p1, Participation p2) {
         switch (rankingType) {
         case SNATCH:
-            return Integer.compare(p1.getSnatchPoints(),p2.getSnatchPoints());
+            return Integer.compare(p1.getSnatchPoints(), p2.getSnatchPoints());
         case CLEANJERK:
-            return Integer.compare(p1.getCleanJerkPoints(),p2.getCleanJerkPoints());
+            return Integer.compare(p1.getCleanJerkPoints(), p2.getCleanJerkPoints());
         case TOTAL:
             final Integer totalPoints1 = p1.getTotalPoints();
             final Integer totalPoints2 = p2.getTotalPoints();

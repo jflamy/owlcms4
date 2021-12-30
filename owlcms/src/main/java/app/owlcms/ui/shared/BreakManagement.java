@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -236,7 +236,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     public void slaveBreakDone(UIEvent.BreakDone e) {
         synchronized (this) {
             try {
-                //logger.debug("Break Done {}", LoggerUtils. stackTrace());
+                // logger.debug("Break Done {}", LoggerUtils. stackTrace());
                 ignoreListeners = true;
                 UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(),
                         () -> parentDialog.close());
@@ -554,6 +554,11 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         startEnabled();
     }
 
+    private String formattedDuration(Long milliseconds) {
+        return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds)
+                : (milliseconds != null ? milliseconds.toString() : "-");
+    }
+
     private Object getOrigin() {
         return origin;
     }
@@ -617,10 +622,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             }
         });
         return;
-    }
-
-    private String formattedDuration(Long milliseconds) {
-        return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds) : (milliseconds != null ? milliseconds.toString() : "-");
     }
 
     private void setCtValue(CountdownType ct2) {

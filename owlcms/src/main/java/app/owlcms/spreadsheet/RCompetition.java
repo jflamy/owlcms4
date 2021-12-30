@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -19,8 +19,6 @@ import app.owlcms.utils.DateTimeUtils;
 import ch.qos.logback.classic.Logger;
 
 public class RCompetition {
-    
-    Logger logger = (Logger) LoggerFactory.getLogger(RCompetition.class);
 
     static Map<String, Category> activeCategories = new HashMap<>();
 
@@ -35,6 +33,8 @@ public class RCompetition {
         });
     }
 
+    Logger logger = (Logger) LoggerFactory.getLogger(RCompetition.class);
+
     Competition c = new Competition();
 
     public Competition getCompetition() {
@@ -46,13 +46,17 @@ public class RCompetition {
      * @see app.owlcms.data.competition.Competition#setCompetitionCity(java.lang.String)
      */
     public void setCompetitionCity(String competitionCity) {
-        if (competitionCity == null || competitionCity.isBlank()) return;
+        if (competitionCity == null || competitionCity.isBlank()) {
+            return;
+        }
         c.setCompetitionCity(competitionCity);
     }
 
     public void setCompetitionDate(String date) throws Exception {
-        if (date == null || date.isBlank()) return;
-        c.setCompetitionDate(DateTimeUtils.parseExcelDate(date,  OwlcmsSession.getLocale()));
+        if (date == null || date.isBlank()) {
+            return;
+        }
+        c.setCompetitionDate(DateTimeUtils.parseExcelDate(date, OwlcmsSession.getLocale()));
     }
 
     /**
@@ -60,7 +64,9 @@ public class RCompetition {
      * @see app.owlcms.data.competition.Competition#setCompetitionName(java.lang.String)
      */
     public void setCompetitionName(String competitionName) {
-        if (competitionName == null || competitionName.isBlank()) return;
+        if (competitionName == null || competitionName.isBlank()) {
+            return;
+        }
         c.setCompetitionName(competitionName);
     }
 
@@ -69,7 +75,9 @@ public class RCompetition {
      * @see app.owlcms.data.competition.Competition#setCompetitionOrganizer(java.lang.String)
      */
     public void setCompetitionOrganizer(String competitionOrganizer) {
-        if (competitionOrganizer == null || competitionOrganizer.isBlank()) return;
+        if (competitionOrganizer == null || competitionOrganizer.isBlank()) {
+            return;
+        }
         c.setCompetitionOrganizer(competitionOrganizer);
     }
 
@@ -78,7 +86,9 @@ public class RCompetition {
      * @see app.owlcms.data.competition.Competition#setCompetitionSite(java.lang.String)
      */
     public void setCompetitionSite(String competitionSite) {
-        if (competitionSite == null || competitionSite.isBlank()) return;
+        if (competitionSite == null || competitionSite.isBlank()) {
+            return;
+        }
         c.setCompetitionSite(competitionSite);
     }
 

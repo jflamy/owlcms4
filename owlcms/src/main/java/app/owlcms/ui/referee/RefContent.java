@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -43,6 +43,7 @@ import com.vaadin.flow.server.PageConfigurator;
 import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
@@ -52,7 +53,6 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 /**
  * Class AnnouncerContent.
@@ -119,7 +119,8 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
      */
     @Override
     public String getPageTitle() {
-        return Translator.translate("Referee")  + OwlcmsSession.getFopNameIfMultiple() + (refIndex != null ? (" " + refIndex) : "");
+        return Translator.translate("Referee") + OwlcmsSession.getFopNameIfMultiple()
+                + (refIndex != null ? (" " + refIndex) : "");
     }
 
     @Override

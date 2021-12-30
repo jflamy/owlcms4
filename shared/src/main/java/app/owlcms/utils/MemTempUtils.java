@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2022 Jean-François Lamy
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.utils;
 
 import java.io.IOException;
@@ -11,7 +17,7 @@ import com.google.common.jimfs.Jimfs;
 public class MemTempUtils {
 
     private static FileSystem memFs = Jimfs.newFileSystem(Configuration.unix());
-    private static Path tempRoot =  memFs.getRootDirectories().iterator().next();
+    private static Path tempRoot = memFs.getRootDirectories().iterator().next();
 
     public static Path createTempDirectory() throws IOException {
         return Files.createTempDirectory(tempRoot, Long.toString(System.currentTimeMillis()));
@@ -21,19 +27,18 @@ public class MemTempUtils {
         return Files.createTempDirectory(tempRoot, name);
     }
 
-
-    public static Path createTempFile(String prefix, String suffix) {
-        try {
-            return Files.createTempFile(tempRoot, prefix, suffix);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
     public static Path createTempFile(Path parentDir, String prefix, String suffix) {
         try {
             Path memDir = tempRoot.resolve(parentDir);
             return Files.createTempFile(memDir, prefix, suffix);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Path createTempFile(String prefix, String suffix) {
+        try {
+            return Files.createTempFile(tempRoot, prefix, suffix);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

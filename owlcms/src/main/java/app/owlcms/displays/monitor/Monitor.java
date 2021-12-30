@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -125,7 +125,8 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
 
     @Subscribe
     public void slaveUIEvent(UIEvent e) {
-        //uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),e.getTrace());
+        // uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(),
+        // e.getClass().getSimpleName(),e.getTrace());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             if (syncWithFOP(e)) {
                 // significant transition
@@ -190,14 +191,15 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
             pageTitle.append(".");
             pageTitle.append(previousDecision == null ? "UNDECIDED" : (previousDecision ? "GOOD_LIFT" : "BAD_LIFT"));
         }
-        pageTitle.append(";"); 
+        pageTitle.append(";");
         pageTitle.append("fop=");
         pageTitle.append(currentFOP);
 
         String string = pageTitle.toString();
-        if (currentState == FOPState.BREAK && currentBreakType == BreakType.GROUP_DONE && previousState == FOPState.DECISION_VISIBLE) {
-            // skip this update.  There will be another group done after the decision reset.
-            //logger.debug("skipping first group done");
+        if (currentState == FOPState.BREAK && currentBreakType == BreakType.GROUP_DONE
+                && previousState == FOPState.DECISION_VISIBLE) {
+            // skip this update. There will be another group done after the decision reset.
+            // logger.debug("skipping first group done");
             string = null;
         }
         return string;
@@ -217,7 +219,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         if (!same && !(title == null) && !title.isBlank()) {
             this.getElement().setProperty("title", title);
             this.getElement().callJsFunction("setTitle", title);
-            //logger.debug("{} monitor update {}", title, System.identityHashCode(this.getOrigin()));
+            // logger.debug("{} monitor update {}", title, System.identityHashCode(this.getOrigin()));
             prevTitle = title;
         }
     }

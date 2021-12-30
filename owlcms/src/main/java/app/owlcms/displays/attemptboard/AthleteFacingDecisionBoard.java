@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -41,6 +41,11 @@ public class AthleteFacingDecisionBoard extends AttemptBoard {
         return Boolean.TRUE.equals(getModel().isPublicFacing());
     }
 
+    @Override
+    public boolean isSilencedByDefault() {
+        return false;
+    }
+
     public void setPublicFacing(boolean publicFacing) {
         getModel().setPublicFacing(publicFacing);
     }
@@ -59,10 +64,5 @@ public class AthleteFacingDecisionBoard extends AttemptBoard {
     private void setShowBarbell(boolean b) {
         // unused - web component currently always hides barbell
         getModel().setShowBarbell(b);
-    }
-    
-    @Override
-    public boolean isSilencedByDefault() {
-        return false;
     }
 }

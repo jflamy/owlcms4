@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -121,23 +121,6 @@ public class OwlcmsFactory {
         return fop;
     }
 
-    public static void unregisterFOP(Platform platform) {
-        if (fopByName == null) {
-            return;
-        }
-        String name = platform.getName();
-        if (name == null) {
-            throw new RuntimeException("can't happen, platform with no name");
-        }
-        try {
-            FieldOfPlay fop = fopByName.get(name);
-            fop.getFopEventBus().unregister(fop);
-        } catch (IllegalArgumentException e) {
-        }
-        logger.trace("unregistering and unmapping fop {}", name);
-        fopByName.remove(name);
-    }
-
     public static void resetFOPByName() {
         if (fopByName != null) {
             Iterator<Entry<String, FieldOfPlay>> it = fopByName.entrySet().iterator();
@@ -159,13 +142,6 @@ public class OwlcmsFactory {
         logger.trace("fopByName reset done.");
     }
 
-    public static void waitDBInitialized() {
-        try {
-            OwlcmsFactory.getInitializationLatch().await();
-        } catch (InterruptedException e) {
-        }
-    }
-
     public static void setFirstFOPAsDefault() {
         Optional<FieldOfPlay> fop = fopByName.entrySet().stream()
                 .sorted(Comparator.comparing(x -> x.getKey()))
@@ -179,6 +155,30 @@ public class OwlcmsFactory {
             initDefaultFOP();
         }
 
+    }
+
+    public static void unregisterFOP(Platform platform) {
+        if (fopByName == null) {
+            return;
+        }
+        String name = platform.getName();
+        if (name == null) {
+            throw new RuntimeException("can't happen, platform with no name");
+        }
+        try {
+            FieldOfPlay fop = fopByName.get(name);
+            fop.getFopEventBus().unregister(fop);
+        } catch (IllegalArgumentException e) {
+        }
+        logger.trace("unregistering and unmapping fop {}", name);
+        fopByName.remove(name);
+    }
+
+    public static void waitDBInitialized() {
+        try {
+            OwlcmsFactory.getInitializationLatch().await();
+        } catch (InterruptedException e) {
+        }
     }
 
     private static synchronized void initFOPByName() {

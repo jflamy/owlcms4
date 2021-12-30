@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -33,7 +33,8 @@ import ch.qos.logback.classic.Logger;
  */
 @Tag("timer-element")
 @JsModule("./components/TimerElement.js")
-public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.TimerModel> implements IFopName, SafeEventBusRegistrationPR {
+public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.TimerModel>
+        implements IFopName, SafeEventBusRegistrationPR {
 
     /**
      * TimerModel Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties.
@@ -253,7 +254,7 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
         eventBusRegister(this, TimerReceiverServlet.getEventBus());
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
         eventBusRegister(this, DecisionReceiverServlet.getEventBus());
-        
+
         setFopName((String) OwlcmsSession.getAttribute("fopName"));
     }
 

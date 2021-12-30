@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -56,6 +56,7 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSCatResults;
@@ -69,7 +70,6 @@ import app.owlcms.ui.shared.AthleteGridLayout;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 /**
  * Class PackageContent.
@@ -242,12 +242,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         crudGrid.refreshGrid();
     }
 
-    @Override
-    public Athlete update(Athlete a) {
-        Athlete a1 = super.update(a);
-        return a1;
-    }
-
     public void setCategoryValue(Category category) {
         this.categoryValue = category;
     }
@@ -290,6 +284,12 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     @Override
     public void setShowInitialDialog(boolean b) {
         return;
+    }
+
+    @Override
+    public Athlete update(Athlete a) {
+        Athlete a1 = super.update(a);
+        return a1;
     }
 
     @Override
@@ -351,6 +351,21 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         crudGrid.getCrudLayout().addToolbarComponent(getGroupFilter());
 
         return crudGrid;
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.AthleteGridContent#createReset()
+     */
+    @Override
+    protected Component createReset() {
+        reset = new Button(getTranslation("RecomputeRanks"), IronIcons.REFRESH.create(),
+                (e) -> OwlcmsSession.withFop((fop) -> {
+                    refresh();
+                }));
+
+        reset.getElement().setAttribute("title", getTranslation("RecomputeRanks"));
+        reset.getElement().setAttribute("theme", "secondary contrast small icon");
+        return reset;
     }
 
     /**
@@ -416,64 +431,10 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         topBar.removeAll();
         topBar.add(title,
                 /* topBarGroupSelect, */
-                topBarAgeDivisionSelect, topBarAgeGroupPrefixSelect,  buttons);
+                topBarAgeDivisionSelect, topBarAgeGroupPrefixSelect, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         topBar.setFlexGrow(0.2, title);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-    }
-
-    private Button createFinalPackageDownloadButton() {
-        downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
-                () -> {
-                    JXLSCompetitionBook rs = new JXLSCompetitionBook(locationUI);
-                    rs.setGroup(currentGroup);
-                    rs.setAgeDivision(ageDivision);
-                    rs.setAgeGroupPrefix(ageGroupPrefix);
-                    rs.setCategory(categoryValue);
-                    return rs;
-                },
-                "/templates/competitionBook",
-                Competition::getComputedFinalPackageTemplateFileName,
-                Competition::setFinalPackageTemplateFileName,
-                Translator.translate("FinalResultsPackage"),
-                "finalPackage", Translator.translate("Download"));
-        Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
-        return resultsButton;
-    }
-    
-    private Button createCategoryResultsDownloadButton() {
-        downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
-                () -> {
-                    JXLSResultSheet rs = new JXLSResultSheet();
-                    rs.setAgeDivision(ageDivision);
-                    rs.setAgeGroupPrefix(ageGroupPrefix);
-                    rs.setCategory(categoryValue);
-                    rs.setGroup(currentGroup);
-                    rs.setSortedAthletes((List<Athlete>)findAll());
-                    return rs;
-                },
-                "/templates/protocol",
-                Competition::getComputedProtocolTemplateFileName,
-                Competition::setProtocolTemplateFileName,
-                Translator.translate("CategoryResults"),
-                "results", Translator.translate("Download"));
-        Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
-        return resultsButton;
-    }
-
-    /**
-     * @see app.owlcms.ui.shared.AthleteGridContent#createReset()
-     */
-    @Override
-    protected Component createReset() {
-        reset = new Button(getTranslation("RecomputeRanks"), IronIcons.REFRESH.create(),
-                (e) -> OwlcmsSession.withFop((fop) -> {
-                    refresh();
-                }));
-
-        reset.getElement().setAttribute("title", getTranslation("RecomputeRanks"));
-        reset.getElement().setAttribute("theme", "secondary contrast small icon");
-        return reset;
     }
 
     @Override
@@ -485,7 +446,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             categoryFilter.setClearButtonVisible(true);
             categoryFilter.setValue(getCategoryValue());
             categoryFilter.addValueChangeListener(e -> {
-                //logger.debug("categoryFilter set {}", e.getValue());
+                // logger.debug("categoryFilter set {}", e.getValue());
                 setCategoryValue(e.getValue());
                 crud.refreshGrid();
             });
@@ -572,13 +533,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         });
     }
 
-    private void doAgeGroupPrefixRefresh(String string) {
-        setAgeGroupPrefix(string);
-        updateFilters(getAgeDivision(), getAgeGroupPrefix());
-        xlsWriter.setAgeGroupPrefix(ageGroupPrefix);
-        crudGrid.refreshGrid();
-    }
-
     protected void updateURLLocations() {
 
         updateURLLocation(UI.getCurrent(), getLocation(), "fop", null);
@@ -617,6 +571,52 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         return liftingFop != null;
     }
 
+    private Button createCategoryResultsDownloadButton() {
+        downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
+                () -> {
+                    JXLSResultSheet rs = new JXLSResultSheet();
+                    rs.setAgeDivision(ageDivision);
+                    rs.setAgeGroupPrefix(ageGroupPrefix);
+                    rs.setCategory(categoryValue);
+                    rs.setGroup(currentGroup);
+                    rs.setSortedAthletes((List<Athlete>) findAll());
+                    return rs;
+                },
+                "/templates/protocol",
+                Competition::getComputedProtocolTemplateFileName,
+                Competition::setProtocolTemplateFileName,
+                Translator.translate("CategoryResults"),
+                "results", Translator.translate("Download"));
+        Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
+        return resultsButton;
+    }
+
+    private Button createFinalPackageDownloadButton() {
+        downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
+                () -> {
+                    JXLSCompetitionBook rs = new JXLSCompetitionBook(locationUI);
+                    rs.setGroup(currentGroup);
+                    rs.setAgeDivision(ageDivision);
+                    rs.setAgeGroupPrefix(ageGroupPrefix);
+                    rs.setCategory(categoryValue);
+                    return rs;
+                },
+                "/templates/competitionBook",
+                Competition::getComputedFinalPackageTemplateFileName,
+                Competition::setFinalPackageTemplateFileName,
+                Translator.translate("FinalResultsPackage"),
+                "finalPackage", Translator.translate("Download"));
+        Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
+        return resultsButton;
+    }
+
+    private void doAgeGroupPrefixRefresh(String string) {
+        setAgeGroupPrefix(string);
+        updateFilters(getAgeDivision(), getAgeGroupPrefix());
+        xlsWriter.setAgeGroupPrefix(ageGroupPrefix);
+        crudGrid.refreshGrid();
+    }
+
     private AgeDivision getAgeDivision() {
         return ageDivision;
     }
@@ -630,7 +630,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         return categoryValue;
     }
 
-
     private void setAgeDivision(AgeDivision ageDivision) {
         this.ageDivision = ageDivision;
     }
@@ -638,7 +637,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     private void setAgeGroupPrefix(String value) {
         this.ageGroupPrefix = value;
     }
-
 
     private void updateFilters(AgeDivision ageDivision2, String ageGroupPrefix2) {
         // logger.debug("updateFilters {} {} {} {}", ageDivision2, ageGroupPrefix2,

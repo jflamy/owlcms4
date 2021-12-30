@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -136,16 +136,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     private boolean needReset = false;
     private boolean decisionVisible;
     private UI ui;
-    
-    private void setHidden(boolean hidden) {
-        this.getElement().setProperty("hiddenStyle",(hidden ? "display:none" : "display:block"));
-        this.getElement().setProperty("inactiveStyle",(hidden ? "display:block" : "display:none"));
-        this.getElement().setProperty("inactiveClass",(hidden ? "bigTitle" : ""));
-    }
-    
-    private void setWideTeamNames(boolean wide) {
-        this.getElement().setProperty("teamWidthClass",(wide ? "wideTeams" : "narrowTeams"));
-    }
 
     /**
      * Instantiates a new results board.
@@ -171,7 +161,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Override
     public String getPageTitle() {
-        return getTranslation("ScoreboardWLeadersTitle") + getFopName() != null ? (" "+getFopName()) : "";
+        return getTranslation("ScoreboardWLeadersTitle") + getFopName() != null ? (" " + getFopName()) : "";
     }
 
     @Override
@@ -268,7 +258,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     @Subscribe
     public void slaveGlobalRankingUpdated(UpdateEvent e) {
         if (StartupUtils.isDebugSetting()) {
-            logger./**/warn("### {} received UpdateEvent {} {} {}", System.identityHashCode(this), getFopName(), e.getFopName(), e);
+            logger./**/warn("### {} received UpdateEvent {} {} {}", System.identityHashCode(this), getFopName(),
+                    e.getFopName(), e);
         }
         if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
             // event is not for us
@@ -302,7 +293,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             setWideTeamNames(e.getWideTeamNames());
             String liftsDone = e.getLiftsDone();
             getModel().setLiftsDone(liftsDone);
-            
+
             if (StartupUtils.isDebugSetting()) {
                 logger./**/warn("### state {} {}", fopState, e.getBreakType());
             }
@@ -343,7 +334,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         // crude workaround -- randomly getting light or dark due to multiple themes detected in app.
         getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
         ui = UI.getCurrent();
-        
+
         eventBusRegister(this, TimerReceiverServlet.getEventBus());
         eventBusRegister(this, DecisionReceiverServlet.getEventBus());
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
@@ -415,6 +406,16 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         default:
             return "";
         }
+    }
+
+    private void setHidden(boolean hidden) {
+        this.getElement().setProperty("hiddenStyle", (hidden ? "display:none" : "display:block"));
+        this.getElement().setProperty("inactiveStyle", (hidden ? "display:block" : "display:none"));
+        this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
+    }
+
+    private void setWideTeamNames(boolean wide) {
+        this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
     }
 
 }

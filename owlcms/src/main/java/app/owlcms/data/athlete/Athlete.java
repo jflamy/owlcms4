@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -494,7 +494,7 @@ public class Athlete {
                 if (age == null || age == 0) {
 
                     // try to set category to match sheet, with coherent eligibles
-                    if (this.category != null) {    
+                    if (this.category != null) {
                         age = category.getAgeGroup().getMaxAge();
                     }
                 }
@@ -511,7 +511,7 @@ public class Athlete {
 //                logger.debug("{} presumed weight {} age {} {} {}",this.getShortName(), presumedBodyWeight, age, this.getCategory(), categories);
                 setEligibles(this, categories);
                 this.setCategory(bestMatch(categories));
-                
+
 //                logger.debug("{} {} gender {} age {} weight {} category *{}* categories {}", this.getId(), this.getShortName(), this.getGender(), this.getAge(), weight, this.getCategory(), categories);
 
             }
@@ -898,6 +898,12 @@ public class Athlete {
     @JsonIdentityReference(alwaysAsId = true)
     public Category getCategory() {
         return category;
+    }
+
+    @Transient
+    @JsonIgnore
+    public String getCategoryCode() {
+        return category != null ? category.getCode() : "-";
     }
 
     /**
@@ -1609,19 +1615,19 @@ public class Athlete {
     public Participation getMainRankings() {
         Participation curRankings = null;
         List<Participation> participations2 = getParticipations();
-        //logger.debug("athlete {} category {} participations {}", this, category, participations2);
+        // logger.debug("athlete {} category {} participations {}", this, category, participations2);
         for (Participation eligible : participations2) {
             Category eligibleCat = eligible.getCategory();
             if (category != null && eligibleCat != null) {
-                    String eligibleCode = eligibleCat.getComputedCode();
-                    String catCode = category.getComputedCode();
-                    if (StringUtils.equals(eligibleCode, catCode)) {
-                        curRankings = eligible;
-                        //logger.debug("yep eligibleCode '{}' catCode '{}'", eligibleCode, catCode);
-                        break;
-                    } else {
-                        //logger.debug("nope eligibleCode '{}' catCode '{}'", eligibleCode, catCode);
-                    }
+                String eligibleCode = eligibleCat.getComputedCode();
+                String catCode = category.getComputedCode();
+                if (StringUtils.equals(eligibleCode, catCode)) {
+                    curRankings = eligible;
+                    // logger.debug("yep eligibleCode '{}' catCode '{}'", eligibleCode, catCode);
+                    break;
+                } else {
+                    // logger.debug("nope eligibleCode '{}' catCode '{}'", eligibleCode, catCode);
+                }
             }
         }
         return curRankings;
@@ -3068,6 +3074,16 @@ public class Athlete {
         this.customScore = customScore;
     }
 
+//  /**
+//   * Sets the result order rank.
+//   *
+//   * @param resultOrderRank the result order rank
+//   * @param rankingType     the ranking type
+//   */
+//  public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
+//      this.resultOrderRank = resultOrderRank;
+//  }
+
     public void setEligibleCategories(Set<Category> newEligibles) {
         logger.trace("athlete participations {}", getParticipations());
         Set<Category> oldEligibles = getEligibleCategories();
@@ -3085,16 +3101,6 @@ public class Athlete {
         // logger.debug("{}{} {} after set eligible {}", OwlcmsSession.getFopLoggingName(),
         // System.identityHashCode(this), getShortName(),getEligibleCategories());
     }
-
-//  /**
-//   * Sets the result order rank.
-//   *
-//   * @param resultOrderRank the result order rank
-//   * @param rankingType     the ranking type
-//   */
-//  public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-//      this.resultOrderRank = resultOrderRank;
-//  }
 
     public void setEligibleForIndividualRanking(boolean eligibleForIndividualRanking) {
         this.eligibleForIndividualRanking = eligibleForIndividualRanking;
@@ -3128,6 +3134,12 @@ public class Athlete {
         this.forcedAsCurrent = forcedAsCurrent;
     }
 
+    /*
+     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
+     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
+     * register/unregister itself.
+     */
+
     /**
      * Sets the full birth date.
      *
@@ -3136,12 +3148,6 @@ public class Athlete {
     public void setFullBirthDate(LocalDate fullBirthDate) {
         this.fullBirthDate = fullBirthDate;
     }
-
-    /*
-     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
-     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
-     * register/unregister itself.
-     */
 
     /**
      * Sets the gender.
@@ -3521,27 +3527,6 @@ public class Athlete {
                 snatch3Change1);
     }
 
-    /**
-     * Sets the snatch 3 change 2.
-     *
-     * @param snatch3Change2 the new snatch 3 change 2
-     */
-    public void setSnatch3Change2(String snatch3Change2) {
-        if ("0".equals(snatch3Change2)) {
-            this.snatch3Change2 = snatch3Change2;
-            getLogger().info("{}{} snatch3Change2={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
-                    snatch3Change2);
-            setSnatch3ActualLift("0");
-            return;
-        }
-        if (isValidation()) {
-            validateSnatch3Change2(snatch3Change2);
-        }
-        this.snatch3Change2 = snatch3Change2;
-        getLogger().info("{}{} snatch3Change2={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
-                snatch3Change2);
-    }
-
 //    /**
 //     * Sets the snatch rank.
 //     *
@@ -3562,6 +3547,27 @@ public class Athlete {
 //    public void setSnatchRankYth(Integer snatchRankYth) {
 //        this.snatchRankYth = snatchRankYth;
 //    }
+
+    /**
+     * Sets the snatch 3 change 2.
+     *
+     * @param snatch3Change2 the new snatch 3 change 2
+     */
+    public void setSnatch3Change2(String snatch3Change2) {
+        if ("0".equals(snatch3Change2)) {
+            this.snatch3Change2 = snatch3Change2;
+            getLogger().info("{}{} snatch3Change2={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+                    snatch3Change2);
+            setSnatch3ActualLift("0");
+            return;
+        }
+        if (isValidation()) {
+            validateSnatch3Change2(snatch3Change2);
+        }
+        this.snatch3Change2 = snatch3Change2;
+        getLogger().info("{}{} snatch3Change2={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+                snatch3Change2);
+    }
 
     /**
      * Sets the snatch 3 declaration.
@@ -4188,21 +4194,6 @@ public class Athlete {
         }
     }
 
-    private void checkDeclarationWasMade(int curLift, String declaration) {
-        if (curLift != this.getAttemptsDone()) {
-            return;
-        }
-        OwlcmsSession.withFop(fop -> {
-            int clock = fop.getAthleteTimer().liveTimeRemaining();
-            if (declaration == null || declaration.isBlank()) {
-                // there was no declaration made in time
-                logger./**/warn("{}{} change without declaration (not owning clock)", OwlcmsSession.getFopLoggingName(),
-                        this.getShortName());
-                throw new RuleViolationException.MustDeclareFirst(this, clock);
-            }
-        });
-    }
-
 //    @SuppressWarnings("unused")
 //    private Long getCopyId() {
 //        return copyId;
@@ -4223,6 +4214,21 @@ public class Athlete {
 //        }
 //        return 0;
 //    }
+
+    private void checkDeclarationWasMade(int curLift, String declaration) {
+        if (curLift != this.getAttemptsDone()) {
+            return;
+        }
+        OwlcmsSession.withFop(fop -> {
+            int clock = fop.getAthleteTimer().liveTimeRemaining();
+            if (declaration == null || declaration.isBlank()) {
+                // there was no declaration made in time
+                logger./**/warn("{}{} change without declaration (not owning clock)", OwlcmsSession.getFopLoggingName(),
+                        this.getShortName());
+                throw new RuleViolationException.MustDeclareFirst(this, clock);
+            }
+        });
+    }
 
     private void checkSameProgression(LiftOrderInfo reference, Integer requestedWeight, int currentProgression,
             int referenceProgression) {
@@ -4298,6 +4304,17 @@ public class Athlete {
         }
     }
 
+//    /**
+//     * Null-safe comparison for longs.
+//     *
+//     * @param o1
+//     * @param o2
+//     * @return
+//     */
+//    private boolean LongEquals(Long o1, Long o2) {
+//        return o1 == o2 || o1 != null && o2 != null && o1.longValue() == (o2.longValue());
+//    }
+
     /**
      * @param prevVal
      * @return
@@ -4309,17 +4326,6 @@ public class Athlete {
             return Integer.toString(Math.abs(prevVal));
         }
     }
-
-//    /**
-//     * Null-safe comparison for longs.
-//     *
-//     * @param o1
-//     * @param o2
-//     * @return
-//     */
-//    private boolean LongEquals(Long o1, Long o2) {
-//        return o1 == o2 || o1 != null && o2 != null && o1.longValue() == (o2.longValue());
-//    }
 
     private void doCheckChangeNotOwningTimer(String declaration, String change1, String change2, FieldOfPlay fop,
             int clock, int initialTime) {
@@ -4726,12 +4732,6 @@ public class Athlete {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-    
-    @Transient
-    @JsonIgnore
-    public String getCategoryCode() {
-        return category != null ? category.getCode() : "-";
     }
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -72,7 +72,6 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
                 platforms);
         doGroup(getTranslation("PreCompetitionSetup"), grid1, this);
 
-
         Div downloadDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("registration",
                 getTranslation("DownloadRegistrationTemplate"), new JXLSRegistration(UI.getCurrent()));
         Optional<Component> content = downloadDiv.getChildren().findFirst();
@@ -87,13 +86,12 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         exportDiv.setWidthFull();
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload, exportDiv);
         doGroup(getTranslation("Registration"), grid2, this);
-        
 
         Button athletes = openInNewTabNoParam(RegistrationContent.class, getTranslation("EditAthletes"));
         Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams);
         doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
-        
+
 //        Button uploadJson = new Button(getTranslation("ExportDatabase.UploadJson"), new Icon(VaadinIcon.UPLOAD_ALT),
 //                buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
 //        Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",

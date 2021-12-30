@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -36,10 +36,10 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
+import app.owlcms.i18n.Translator;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class AgeGroupEditingFormFactory
@@ -198,7 +198,7 @@ public class AgeGroupEditingFormFactory
     @Override
     public AgeGroup update(AgeGroup ageGroup) {
         AgeGroup saved = AgeGroupRepository.save(ageGroup);
-        //logger.trace("saved {}", saved.getCategories().get(0).longDump());
+        // logger.trace("saved {}", saved.getCategories().get(0).longDump());
         origin.closeDialog();
         origin.highlightResetButton();
         return saved;
@@ -210,5 +210,5 @@ public class AgeGroupEditingFormFactory
         binder.forField(field);
         super.bindField(field, property, propertyType);
     }
-    
+
 }

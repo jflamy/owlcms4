@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -12,8 +12,8 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
 import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
-import ch.qos.logback.classic.Logger;
 import app.owlcms.i18n.Translator;
+import ch.qos.logback.classic.Logger;
 
 public class FOPError {
 

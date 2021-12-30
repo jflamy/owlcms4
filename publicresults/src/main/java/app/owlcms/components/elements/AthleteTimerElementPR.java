@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -171,7 +171,7 @@ public class AthleteTimerElementPR extends TimerElementPR {
         eventBusRegister(this, TimerReceiverServlet.getEventBus());
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
         eventBusRegister(this, DecisionReceiverServlet.getEventBus());
-        
+
         ui = UI.getCurrent();
         this.setFopName((String) OwlcmsSession.getAttribute("fopName"));
     }

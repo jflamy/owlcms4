@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -135,10 +135,9 @@ public interface FOPParameters extends HasUrlParameter<String> {
                 new Location(location.getPath(), new QueryParameters(params)));
     }
 
-    
     /**
-     * By default, there is no initial dialog.
-     * Classes that need one must override.
+     * By default, there is no initial dialog. Classes that need one must override.
+     *
      * @param b
      */
     public default void setShowInitialDialog(boolean b) {
@@ -153,7 +152,7 @@ public interface FOPParameters extends HasUrlParameter<String> {
     }
 
     public default void updateURLLocation(UI ui, Location location, String parameter, String value) {
-        //logger.debug("{} {} {} {}", ui, location, parameter, value);
+        // logger.debug("{} {} {} {}", ui, location, parameter, value);
         TreeMap<String, List<String>> parametersMap = new TreeMap<>(location.getQueryParameters().getParameters());
         // get current values
         if (!this.isIgnoreFopFromURL()) {
