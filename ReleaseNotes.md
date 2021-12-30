@@ -1,7 +1,6 @@
-##### **Changes for release 4.27.0-beta01**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Changes for release 4.27.0-rc01**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] 4.27.0-beta01: Added documentation page for automated OBS scene switching using the status monitor display.
-- [x] 4.27.0-beta01: No functional change from alpha.  Ready for translation.
+- [x] 4.27.0-rc01: Updated German and Swedish translations
 
 ###### New in release 4.27
 
@@ -13,7 +12,8 @@
 
 - [x] Enhancement: Break type and countdown now shown on the announcer's red break management button
 - [x] New: Ability to monitor field of play state to control OBS scene switching.  See [Example video](https://user-images.githubusercontent.com/678663/147373848-89b91086-b16d-48c0-8f48-445f6c1ca828.mp4)
-  - Added Status Monitoring section on the display selection page to start OBS Monitor window
+  - Added button to start OBS Monitor window
+  - Added documentation 
 - [x] Enhancement: large notification shown on attempt board for Jury confirmation/reversal. 
 - [x] Added Medals as a break type. 
   - Attempt and scoreboards display "Medal Ceremony" message. 
