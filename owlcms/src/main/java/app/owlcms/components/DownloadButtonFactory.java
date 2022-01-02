@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2022 Jean-François Lamy
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.components;
 
 import java.io.InputStream;
@@ -21,12 +27,12 @@ import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.utils.Resource;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 public class DownloadButtonFactory {
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -18,8 +18,8 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
-import ch.qos.logback.classic.Logger;
 import app.owlcms.i18n.Translator;
+import ch.qos.logback.classic.Logger;
 
 /**
  * Production data.
@@ -93,8 +93,6 @@ public class ProdData {
 
         return competition;
     }
-
-
 
     /**
      * Create an empty competition. Set-up the defaults for using the timekeeping and refereeing features.

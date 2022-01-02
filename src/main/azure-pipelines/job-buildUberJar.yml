@@ -17,6 +17,10 @@ jobs:
   - job: ${{ parameters.jobName }}
     pool:
       vmImage: ubuntu-latest
+    container: maven:3.8.1-openjdk-11-slim
+    variables:
+      - name: JAVA_HOME_11_X64
+        value: /usr/local/openjdk-11
     steps:
       - template: steps-prepare-maven.yml
       - task: Maven@3
@@ -24,11 +28,11 @@ jobs:
         inputs:
           mavenPomFile: pom.xml
           mavenOptions: -Xmx3072m $(MavenOpts)
-          javaHomeOption: JDKVersion
-          jdkVersionOption: "1.11"
-          jdkArchitectureOption: x64
+          javaHomeSelection: 'path'
+          jdkDirectory: '/usr/local/openjdk-11'
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
+          effectivePomSkip: true
           goals: -P production -pl ${{ parameters.moduleName }} -am $(MavenOpts) -Dmaven.test.skip=${{ parameters.skipTests }} $(BuildGoal)
       - publish: $(Agent.BuildDirectory)/s/${{ parameters.moduleName }}/target/${{ parameters.moduleName }}.zip
         artifact: ${{ parameters.artifactName }}

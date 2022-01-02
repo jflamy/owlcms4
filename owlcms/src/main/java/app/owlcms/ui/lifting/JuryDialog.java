@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -25,6 +25,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
@@ -33,7 +34,6 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.JuryNotification;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class JuryDialog extends EnhancedDialog {
@@ -41,7 +41,7 @@ public class JuryDialog extends EnhancedDialog {
     {
         logger.setLevel(Level.INFO);
     }
-    
+
     private Athlete reviewedAthlete;
     private Integer reviewedLift;
     private Integer liftValue;
@@ -50,19 +50,19 @@ public class JuryDialog extends EnhancedDialog {
     private boolean deliberation;
     private String endBreakText;
 
-
     /**
      * Used by the announcer -- tries to guess what type of break is pertinent based on field of play.
      *
      * @param origin             the origin
      * @param athleteUnderReview
-     * @param deliberation       
+     * @param deliberation
      */
     public JuryDialog(Object origin, Athlete athleteUnderReview, boolean deliberation) {
         this.origin = origin;
-        this.deliberation = deliberation;;
+        this.deliberation = deliberation;
         this.setCloseOnEsc(false);
-        logger.info(deliberation ? "{}jury deliberation reviewedAthlete {}" : "{}start jury technical pause", OwlcmsSession.getFop().getLoggingName(), athleteUnderReview);
+        logger.info(deliberation ? "{}jury deliberation reviewedAthlete {}" : "{}start jury technical pause",
+                OwlcmsSession.getFop().getLoggingName(), athleteUnderReview);
         this.reviewedAthlete = athleteUnderReview;
 
         if (deliberation) {
@@ -79,14 +79,17 @@ public class JuryDialog extends EnhancedDialog {
         UI.getCurrent().access(() -> {
             if (noAction) {
                 JuryNotification event = new UIEvent.JuryNotification(reviewedAthlete, origin,
-                        deliberation ? JuryDeliberationEventType.END_DELIBERATION : JuryDeliberationEventType.END_TECHNICAL_PAUSE,
+                        deliberation ? JuryDeliberationEventType.END_DELIBERATION
+                                : JuryDeliberationEventType.END_TECHNICAL_PAUSE,
                         null);
                 OwlcmsSession.getFop().getUiEventBus().post(event);
+                ((JuryContent) origin).doSync();
             }
             this.close();
 
-            logger.info(deliberation ? "{}end of jury deliberation" : "{}end jury technical pause", OwlcmsSession.getFop().getLoggingName());
-            ((JuryContent) origin).doSync();
+            logger.info(deliberation ? "{}end of jury deliberation" : "{}end jury technical pause",
+                    OwlcmsSession.getFop().getLoggingName());
+
             this.close();
         });
     }
@@ -125,7 +128,8 @@ public class JuryDialog extends EnhancedDialog {
 
     private void doDeliberation(Object origin, Athlete athleteUnderReview) {
         // stop competition
-        OwlcmsSession.getFop().fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, this));
+        OwlcmsSession.getFop()
+                .fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, this));
         JuryNotification event = new UIEvent.JuryNotification(athleteUnderReview, origin,
                 JuryDeliberationEventType.START_DELIBERATION, null);
         OwlcmsSession.getFop().getUiEventBus().post(event);
@@ -232,7 +236,8 @@ public class JuryDialog extends EnhancedDialog {
 
     private void doTechnicalPause(Object origin) {
         // technical pause from Jury
-        OwlcmsSession.getFop().fopEventPost(new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null, this));
+        OwlcmsSession.getFop()
+                .fopEventPost(new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null, this));
         JuryNotification event = new UIEvent.JuryNotification(null, origin,
                 JuryDeliberationEventType.TECHNICAL_PAUSE, null);
         OwlcmsSession.getFop().getUiEventBus().post(event);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -337,6 +337,29 @@ public class AbstractLifterComparator {
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    int compareGroupPlatform(Athlete lifter1, Athlete lifter2) {
+
+        Group lifter1Group = lifter1.getGroup();
+        Group lifter2Group = lifter2.getGroup();
+
+        int compare = ObjectUtils.compare(lifter1Group, lifter2Group, true);
+        if ((compare == 0) || lifter1Group == null || lifter2Group == null) {
+            // a non-null group will sort before null
+            return compare;
+        }
+
+        Platform p1 = lifter1Group.getPlatform();
+        Platform p2 = lifter2Group.getPlatform();
+        String name1 = p1 != null ? p1.getName() : null;
+        String name2 = p2 != null ? p2.getName() : null;
+        compare = ObjectUtils.compare(name1, name2, true);
+        if (compare != 0) {
+            return compare;
+        }
+
+        return 0;
+    }
+
     /**
      * Compare group weigh in time.
      *
@@ -350,11 +373,7 @@ public class AbstractLifterComparator {
         Group lifter2Group = lifter2.getGroup();
 
         int compare = ObjectUtils.compare(lifter1Group, lifter2Group, true);
-        if (compare == 0) {
-            // same group, or both null
-            return compare;
-        }
-        if (lifter1Group == null || lifter2Group == null) {
+        if ((compare == 0) || lifter1Group == null || lifter2Group == null) {
             // a non-null group will sort before null
             return compare;
         }
@@ -363,17 +382,17 @@ public class AbstractLifterComparator {
         LocalDateTime lifter2Date = lifter2Group.getWeighInTime();
         compare = ObjectUtils.compare(lifter1Date, lifter2Date, true);
         if (compare != 0) {
-            //logger.trace("different date {} {}", lifter1Date, lifter1Date);
+            // logger.trace("different date {} {}", lifter1Date, lifter1Date);
             return compare;
         }
-        
+
         Platform p1 = lifter1Group.getPlatform();
         Platform p2 = lifter2Group.getPlatform();
         String name1 = p1 != null ? p1.getName() : null;
         String name2 = p2 != null ? p2.getName() : null;
         compare = ObjectUtils.compare(name1, name2, false);
         if (compare != 0) {
-            //logger.trace("different platform {} {} {}", name1, name2, LoggerUtils.whereFrom(10));
+            // logger.trace("different platform {} {} {}", name1, name2, LoggerUtils.whereFrom(10));
             return compare;
         }
 
@@ -381,34 +400,7 @@ public class AbstractLifterComparator {
         String lifter2String = lifter2Group.getName();
         compare = ObjectUtils.compare(lifter1String, lifter2String, true);
         if (compare != 0) {
-            //logger.trace("different group {} {} {}", lifter1String, lifter2String, LoggerUtils.whereFrom(10));
-            return compare;
-        }
-
-        return 0;
-    }
-    
-    int compareGroupPlatform(Athlete lifter1, Athlete lifter2) {
-
-        Group lifter1Group = lifter1.getGroup();
-        Group lifter2Group = lifter2.getGroup();
-
-        int compare = ObjectUtils.compare(lifter1Group, lifter2Group, true);
-        if (compare == 0) {
-            // same group, or both null
-            return compare;
-        }
-        if (lifter1Group == null || lifter2Group == null) {
-            // a non-null group will sort before null
-            return compare;
-        }
-
-        Platform p1 = lifter1Group.getPlatform();
-        Platform p2 = lifter2Group.getPlatform();
-        String name1 = p1 != null ? p1.getName() : null;
-        String name2 = p2 != null ? p2.getName() : null;
-        compare = ObjectUtils.compare(name1, name2, true);
-        if (compare != 0) {
+            // logger.trace("different group {} {} {}", lifter1String, lifter2String, LoggerUtils.whereFrom(10));
             return compare;
         }
 

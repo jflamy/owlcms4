@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -236,7 +236,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     public void slaveBreakDone(UIEvent.BreakDone e) {
         synchronized (this) {
             try {
-                //logger.debug("Break Done {}", LoggerUtils. stackTrace());
+                // logger.debug("Break Done {}", LoggerUtils. stackTrace());
                 ignoreListeners = true;
                 UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(),
                         () -> parentDialog.close());
@@ -349,7 +349,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             masterPauseBreak();
 
             if (bType != null && (bType == BreakType.JURY || bType == BreakType.TECHNICAL
-                    || bType == BreakType.DURING_INTRODUCTION)) {
+                    || bType == BreakType.DURING_INTRODUCTION || bType == BreakType.MEDALS)) {
                 logger.debug("starting break from radiobutton setvalue {}", bType);
                 startIndefiniteBreakImmediately(bType);
             } else {
@@ -488,6 +488,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         fop.uiDisplayCurrentAthleteAndTime(false, new FOPEvent(null, this), true);
                     });
                 });
+        athleteButton.setTabIndex(-1);
         countdownButton = new Button(
                 getTranslation(DisplayType.class.getSimpleName() + "." + DisplayType.COUNTDOWN_INFO.name()), (e) -> {
                     OwlcmsSession.withFop(fop -> {
@@ -497,6 +498,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                                         ct.getValue()));
                     });
                 });
+        countdownButton.setTabIndex(-1);
         athleteButton.getThemeNames().add("secondary contrast");
         countdownButton.getThemeNames().add("secondary contrast");
         dt.add(countdownButton, athleteButton);
@@ -550,6 +552,11 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         });
         logger.debug("paused; enabling start");
         startEnabled();
+    }
+
+    private String formattedDuration(Long milliseconds) {
+        return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds)
+                : (milliseconds != null ? milliseconds.toString() : "-");
     }
 
     private Object getOrigin() {
@@ -615,10 +622,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             }
         });
         return;
-    }
-
-    private String formattedDuration(Long milliseconds) {
-        return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds) : (milliseconds != null ? milliseconds.toString() : "-");
     }
 
     private void setCtValue(CountdownType ct2) {

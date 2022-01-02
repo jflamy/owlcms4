@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -63,7 +63,9 @@ public class BreakTimerElement extends TimerElement {
     @ClientCallable
     public void clientSyncTime(String fopName) {
         OwlcmsSession.withFop(fop -> {
-            if (!fopName.contentEquals(fop.getName())) return;
+            if (!fopName.contentEquals(fop.getName())) {
+                return;
+            }
             logger.debug("break timer element fetching time");
             IBreakTimer breakTimer = fop.getBreakTimer();
             doSetTimer(breakTimer.isIndefinite() ? null : breakTimer.liveTimeRemaining());
@@ -80,7 +82,9 @@ public class BreakTimerElement extends TimerElement {
     @ClientCallable
     public void clientTimeOver(String fopName) {
         OwlcmsSession.withFop(fop -> {
-            if (!fopName.contentEquals(fop.getName())) return;
+            if (!fopName.contentEquals(fop.getName())) {
+                return;
+            }
 //            logger.debug("clientTimeOver", fopName);
             IBreakTimer breakTimer = fop.getBreakTimer();
 //            logger.debug("{} {} break time over {}", fopName, fop.getName(), breakTimer.isIndefinite());
@@ -181,7 +185,8 @@ public class BreakTimerElement extends TimerElement {
     }
 
     private String formatDuration(Integer milliseconds) {
-        return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds) : (milliseconds != null ? milliseconds.toString() : "-");
+        return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds)
+                : (milliseconds != null ? milliseconds.toString() : "-");
     }
 
 }

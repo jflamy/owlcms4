@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -7,11 +7,13 @@
 package app.owlcms.ui.preparation;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.TextRenderer;
@@ -76,7 +78,7 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
      */
     @Override
     public Collection<Group> findAll() {
-        return GroupRepository.findAll();
+        return GroupRepository.findAll().stream().sorted(Group::compareToWeighIn).collect(Collectors.toList());
     }
 
     /**
@@ -134,9 +136,10 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
      */
     protected GridCrud<Group> createGrid(OwlcmsCrudFormFactory<Group> crudFormFactory) {
         Grid<Group> grid = new Grid<>(Group.class, false);
-        grid.addColumn(Group::getName).setHeader(getTranslation("Name"));
+        grid.addColumn(Group::getName).setHeader(getTranslation("Name")).setComparator(Group::compareTo);
+        grid.addColumn(Group::size).setHeader(getTranslation("GroupSize")).setTextAlign(ColumnTextAlign.CENTER);
         grid.addColumn(LocalDateTimeField.getRenderer(Group::getWeighInTime, this.getLocale()))
-                .setHeader(getTranslation("WeighInTime"));
+                .setHeader(getTranslation("WeighInTime")).setComparator(Group::compareToWeighIn);
         grid.addColumn(LocalDateTimeField.getRenderer(Group::getCompetitionTime, this.getLocale()))
                 .setHeader(getTranslation("StartTime"));
         grid.addColumn(Group::getPlatform).setHeader(getTranslation("Platform"));

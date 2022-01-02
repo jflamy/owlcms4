@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -438,7 +438,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
         if (compare != 0) {
             return compare; // compare attempted weights (prior to best attempt), smaller first
         }
-        
+
         // if no lot number, we get weird results. we need a stable comparison
         compare = ObjectUtils.compare(lifter1.getId(), lifter2.getId());
         return compare;

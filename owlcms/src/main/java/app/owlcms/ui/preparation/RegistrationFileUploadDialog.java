@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -84,6 +84,8 @@ public class RegistrationFileUploadDialog extends Dialog {
         MemoryBuffer buffer = new MemoryBuffer();
         Upload upload = new Upload(buffer);
         upload.setWidth("40em");
+        upload.setAcceptedFileTypes("application/vnd.ms-excel",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
         TextArea ta = new TextArea(getTranslation("Errors"));
         ta.setHeight("20ex");
@@ -308,11 +310,11 @@ public class RegistrationFileUploadDialog extends Dialog {
 
         PlatformRepository.deleteUnusedPlatforms(futurePlatforms);
         PlatformRepository.createMissingPlatforms(groups);
-        
+
         // recompute the available platforms, unregister the existing FOPs, etc.
         OwlcmsFactory.initDefaultFOP();
         String newDefault = OwlcmsFactory.getDefaultFOP().getName();
-        
+
         JPAService.runInTransaction(em -> {
             groups.stream().forEach(g -> {
                 String platformName = g.getPlatform();
@@ -334,6 +336,5 @@ public class RegistrationFileUploadDialog extends Dialog {
                     g.getCompetitionTime());
         });
     }
-
 
 }

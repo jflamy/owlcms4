@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -61,7 +61,6 @@ import app.owlcms.fieldofplay.FOPEvent.TimeOver;
 import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
 import app.owlcms.spreadsheet.PAthlete;
@@ -108,9 +107,9 @@ public class FieldOfPlay {
         }
     }
 
-    private static final long DECISION_VISIBLE_DURATION = 3500;
+    public static final long DECISION_VISIBLE_DURATION = 3500;
 
-    private static final int REVERSAL_DELAY = 3000;
+    public static final int REVERSAL_DELAY = 3000;
 
     /**
      * Instantiates a new field of play state. This constructor is only used for testing using mock timers.
@@ -208,17 +207,8 @@ public class FieldOfPlay {
         this.setPlatform(platform2);
 
         this.fopEventBus.register(this);
-        //logger.debug("||||  fop {} {}", System.identityHashCode(this), this.getName());
+        // logger.debug("|||| fop {} {}", System.identityHashCode(this), this.getName());
         new EventForwarder(this);
-    }
-
-    public void initEventBuses() {
-        // we listen on this bus, and sometimes post to change our own state
-        this.fopEventBus = new EventBus("FOP-" + name);
-
-        // we post on these buses
-        this.uiEventBus = new AsyncEventBus("UI-" + name, Executors.newCachedThreadPool());
-        this.postBus = new EventBus("POST-" + name);
     }
 
     private FieldOfPlay() {
@@ -335,6 +325,13 @@ public class FieldOfPlay {
      */
     public EventBus getFopEventBus() {
         return fopEventBus;
+    }
+
+    /**
+     * @return the goodLift
+     */
+    public Boolean getGoodLift() {
+        return goodLift;
     }
 
     /**
@@ -504,6 +501,12 @@ public class FieldOfPlay {
                 // if group under way, this will try to just keep going.
                 resumeLifting(e);
                 return;
+            } else if (state == BREAK && (breakType == BreakType.GROUP_DONE)) {
+                // resume lifting only if current athlete has one more lift to do
+                if (curAthlete != null && curAthlete.getAttemptsDone() < 6) {
+                    transitionToLifting(e, getGroup(), true);
+                }
+                return;
             } else if (state == BREAK) {
                 // group was not under way when break started, full start.
                 transitionToLifting(e, getGroup(), true);
@@ -613,8 +616,8 @@ public class FieldOfPlay {
                 emitDown(e);
             } else if (e instanceof TimeStopped) {
                 // athlete lifted the bar
-                getAthleteTimer().stop();
                 setState(TIME_STOPPED);
+                getAthleteTimer().stop();
             } else if (e instanceof DecisionFullUpdate) {
                 // decision board/attempt board sends bulk update
                 updateRefereeDecisions((DecisionFullUpdate) e);
@@ -649,7 +652,6 @@ public class FieldOfPlay {
                 updateRefereeDecisions((DecisionUpdate) e);
                 uiShowUpdateOnJuryScreen();
             } else if (e instanceof TimeStarted) {
-                getAthleteTimer().start();
                 if (!getCurAthlete().equals(getClockOwner())) {
                     setClockOwner(getCurAthlete());
                     setClockOwnerInitialTimeAllowed(getTimeAllowed());
@@ -659,6 +661,7 @@ public class FieldOfPlay {
 
                 // we do not reset decisions or "emitted" flags
                 setState(TIME_RUNNING);
+                getAthleteTimer().start();
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof ExplicitDecision) {
@@ -749,6 +752,15 @@ public class FieldOfPlay {
             logger.info("{}group {} athletes={}", getLoggingName(), getGroup(), athletes.size());
             pushOutSwitchGroup(this);
         }
+    }
+
+    public void initEventBuses() {
+        // we listen on this bus, and sometimes post to change our own state
+        this.fopEventBus = new EventBus("FOP-" + name);
+
+        // we post on these buses
+        this.uiEventBus = new AsyncEventBus("UI-" + name, Executors.newCachedThreadPool());
+        this.postBus = new EventBus("POST-" + name);
     }
 
     public boolean isCjStarted() {
@@ -1044,14 +1056,28 @@ public class FieldOfPlay {
         Integer actualLift = a.getActualLift(a.getAttemptsDone());
         if (actualLift != null) {
             Integer curValue = Math.abs(actualLift);
-            a.doLift(a.getAttemptsDone(), e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
-            AthleteRepository.save(a);
+
             JuryNotification event = new UIEvent.JuryNotification(a, e.getOrigin(),
                     e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
                     e.success && actualLift <= 0 || !e.success && actualLift > 0);
-            OwlcmsSession.getFop().getUiEventBus().post(event);
-            recomputeLiftingOrder();
+
+            // must set state before recomputing order so that scoreboards stop blinking the current athlete
+            // must also set state prior to sending event, so that state monitor shows new state.
+            setGoodLift(e.success);
+            setState(DECISION_VISIBLE);
+            pushOut(event);
+            a.doLift(a.getAttemptsDone(), e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
+            AthleteRepository.save(a);
+
+            // tell ourself to reset after 3 secs.
+            new DelayTimer().schedule(() -> {
+                fopEventPost(new DecisionReset(this));
+                recomputeLiftingOrder();
+                fopEventPost(new StartLifting(this));
+            }, DECISION_VISIBLE_DURATION);
+
         }
+        // displayOrBreakIfDone(e);
     }
 
     private void doSetState(FOPState state) {
@@ -1211,7 +1237,7 @@ public class FieldOfPlay {
                 nbDecisions++;
             }
         }
-        goodLift = null;
+        setGoodLift(null);
         if (nbWhite == 2 || nbRed == 2) {
             if (!downEmitted) {
                 emitDown(e);
@@ -1219,7 +1245,7 @@ public class FieldOfPlay {
             }
         }
         if (nbDecisions == 3) {
-            goodLift = nbWhite >= 2;
+            setGoodLift(nbWhite >= 2);
             if (!isDecisionDisplayScheduled()) {
                 showDecisionAfterDelay(this);
             }
@@ -1228,7 +1254,7 @@ public class FieldOfPlay {
 
     private void pushOutDone() {
         logger.debug("{}group {} done", getLoggingName(), getGroup());
-        UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null, LoggerUtils.stackTrace());
+        UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null, LoggerUtils.whereFrom());
         // make sure the publicresults update carries the right state.
         this.setBreakType(BreakType.GROUP_DONE);
         this.setState(BREAK);
@@ -1429,6 +1455,13 @@ public class FieldOfPlay {
         this.finalWarningEmitted = finalWarningEmitted;
     }
 
+    /**
+     * @param goodLift the goodLift to set
+     */
+    private void setGoodLift(Boolean goodLift) {
+        this.goodLift = goodLift;
+    }
+
     private synchronized void setInitialWarningEmitted(boolean initialWarningEmitted) {
         logger.trace("initialWarningEmitted {}", initialWarningEmitted);
         this.initialWarningEmitted = initialWarningEmitted;
@@ -1508,22 +1541,22 @@ public class FieldOfPlay {
         }
 
         if (nbWhite >= 2) {
-            goodLift = true;
+            setGoodLift(true);
             this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
             getCurAthlete().successfulLift();
         } else {
-            goodLift = false;
+            setGoodLift(false);
             this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
             getCurAthlete().failedLift();
         }
         getCurAthlete().resetForcedAsCurrent();
         AthleteRepository.save(getCurAthlete());
-        uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), goodLift, refereeDecision, refereeTime, origin);
 
-        // must set state before recomputing order so that scoreboards stop blinking.
+        // must set state before recomputing order so that scoreboards stop blinking the current athlete
+        // must also set state prior to sending event, so that state monitor shows new state.
         setState(DECISION_VISIBLE);
+        uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), refereeDecision, refereeTime, origin);
         recomputeLiftingOrder();
-        // updateGlobalRankings(); // now done in recomputeLiftingOrder
 
         // tell ourself to reset after 3 secs.
         new DelayTimer().schedule(() -> fopEventPost(new DecisionReset(this)), DECISION_VISIBLE_DURATION);
@@ -1621,7 +1654,7 @@ public class FieldOfPlay {
     }
 
     private void transitionToTimeRunning() {
-        getAthleteTimer().start();
+
         if (!getCurAthlete().equals(getClockOwner())) {
             setClockOwner(getCurAthlete());
             setClockOwnerInitialTimeAllowed(getTimeAllowed());
@@ -1632,6 +1665,8 @@ public class FieldOfPlay {
 
         // enable master to listening for decision
         setState(TIME_RUNNING);
+        setGoodLift(null);
+        getAthleteTimer().start();
     }
 
     @SuppressWarnings("unused")

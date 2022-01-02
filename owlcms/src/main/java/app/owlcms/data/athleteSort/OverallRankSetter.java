@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -13,14 +13,13 @@ import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import ch.qos.logback.classic.Logger;
 
 public class OverallRankSetter {
-    
+
     Logger logger = (Logger) LoggerFactory.getLogger(OverallRankSetter.class);
 
     private int rank = 0;
-    
 
     public void increment(Athlete a, Ranking r, boolean eligible, boolean zero) {
-        //logger.trace("increment {} {}",a.getShortName(), rank, r);
+        // logger.trace("increment {} {}",a.getShortName(), rank, r);
         switch (r) {
         case SNATCH:
         case CLEANJERK:

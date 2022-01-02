@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -10,10 +10,10 @@ import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 /**
  * The Class RuleViolationException.
@@ -241,7 +241,7 @@ public class RuleViolationException extends RuntimeException {
 
     /**
      * Instantiates a new rule violation exception.
-     * 
+     *
      * @param requestingAthlete
      * @param s                 the s
      * @param objs              the objs
@@ -251,7 +251,8 @@ public class RuleViolationException extends RuntimeException {
         this.messageKey = s;
         this.messageFormatData = objs;
         OwlcmsSession.withFop(fop -> {
-            logger./**/warn("{}{}: {} [{}]",  fop.getLoggingName(), requestingAthlete.getShortName(), getLocalizedMessage(Locale.ENGLISH), LoggerUtils.whereFrom(3));
+            logger./**/warn("{}{}: {} [{}]", fop.getLoggingName(), requestingAthlete.getShortName(),
+                    getLocalizedMessage(Locale.ENGLISH), LoggerUtils.whereFrom(3));
         });
 
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -55,11 +55,11 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.displays.athletecard.AthleteCard;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<Athlete> implements NavigationPage {
@@ -124,7 +124,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     }
 
     /**
-     * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#buildNewForm(org.vaadin.crudui.crud.CrudOperation, java.lang.Object, boolean, com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.button.Button[])
+     * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#buildNewForm(org.vaadin.crudui.crud.CrudOperation,
+     *      java.lang.Object, boolean, com.vaadin.flow.component.ComponentEventListener,
+     *      com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.ComponentEventListener,
+     *      com.vaadin.flow.component.button.Button[])
      */
     @Override
     public Component buildNewForm(CrudOperation operation, Athlete aFromList, boolean readOnly,
@@ -169,7 +172,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
         // binder has read bean.
         filterCategories(getEditedAthlete().getCategory(), operation != CrudOperation.ADD);
-        
+
         lastNameField = null;
         lastNameValue = null;
         try {
@@ -178,12 +181,16 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             lastNameValue = lastNameField.getValue();
         } catch (Exception e1) {
         }
-        form.addAttachListener((e) -> { 
-            if (lastNameField != null && lastNameValue == null) ((TextField)lastNameField).focus(); else bodyWeightField.focus();});
+        form.addAttachListener((e) -> {
+            if (lastNameField != null && lastNameValue == null) {
+                lastNameField.focus();
+            } else {
+                bodyWeightField.focus();
+            }
+        });
 
         return form;
     }
-    
 
     /**
      * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
@@ -386,7 +393,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                     return true;
                 }
             } catch (Exception e) {
-                LoggerUtils.logError(logger,e);
+                LoggerUtils.logError(logger, e);
             }
             return true;
         }, Translator.translate("Category_no_match_age"));
@@ -416,7 +423,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 }
                 return catGender == g;
             } catch (Exception e) {
-                LoggerUtils.logError(logger,e);
+                LoggerUtils.logError(logger, e);
             }
             return true;
         }, Translator.translate("Category_no_match_gender"));
@@ -459,7 +466,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 }
                 return genderCatOk;
             } catch (Exception e) {
-                LoggerUtils.logError(logger,e);
+                LoggerUtils.logError(logger, e);
             }
             return true;
         }, Translator.translate("Category_no_match_gender"));
@@ -519,6 +526,14 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             }
             setCheckOther20kgFields(true);
         });
+    }
+
+    private List<Category> doFindEligibleCategories(Gender gender, Integer ageFromFields, Double bw,
+            int qualifyingTotal) {
+        allEligible = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, bw);
+        allEligible = allEligible.stream().filter(c -> qualifyingTotal >= c.getQualifyingTotal())
+                .collect(Collectors.toList());
+        return allEligible;
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -624,13 +639,6 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 getAgeFromFields(), bodyWeightField.getValue(), Athlete.zeroIfInvalid(qualifyingTotalField.getValue()));
     }
 
-    private List<Category> doFindEligibleCategories(Gender gender, Integer ageFromFields, Double bw,
-            int qualifyingTotal) {
-        allEligible = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, bw);
-        allEligible = allEligible.stream().filter(c -> qualifyingTotal >= c.getQualifyingTotal()).collect(Collectors.toList());
-        return allEligible;
-    }
-
     @SuppressWarnings("unchecked")
     private Integer getAgeFromFields() {
         Integer age = null;
@@ -730,7 +738,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         } else {
             prevEligibles = eligibleField.getValue();
         }
-        //logger.debug("updateCategoryFields {} - {} {} {}", prevEligibles, category, allEligible, LoggerUtils.whereFrom());
+        // logger.debug("updateCategoryFields {} - {} {} {}", prevEligibles, category, allEligible,
+        // LoggerUtils.whereFrom());
 
         if (prevEligibles != null) {
             // update the list of eligible categories. Must use the matching items in allEligibles so that
@@ -746,7 +755,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                     }
                 }
             }
-            //logger.debug("new eligibles {}", newEligibles.stream().map(v -> v.longDump()).collect(Collectors.toList()));
+            // logger.debug("new eligibles {}", newEligibles.stream().map(v ->
+            // v.longDump()).collect(Collectors.toList()));
             categoryField.setItems(newEligibles);
             eligibleField.setItems(allEligible);
             eligibleField.setValue(newEligibles);

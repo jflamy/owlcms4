@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -108,6 +108,9 @@ public class FileServlet extends HttpServlet {
 
     private static boolean ignoreCaching = false;
 
+    private static Logger logger = (Logger) LoggerFactory.getLogger(FileServlet.class);
+//    { logger.setLevel(Level.DEBUG); }
+
     /**
      * @return the ignoreCaching
      */
@@ -122,6 +125,8 @@ public class FileServlet extends HttpServlet {
         logger.debug("{} caching settings from browser", ignoreCaching ? "Ignoring" : "Obeying");
         FileServlet.ignoreCaching = ignoreCaching;
     }
+
+    // Helpers (can be refactored to public utility class) ----------------------------------------
 
     /**
      * Returns true if the given accept header accepts the given value.
@@ -138,8 +143,6 @@ public class FileServlet extends HttpServlet {
                 || Arrays.binarySearch(acceptValues, "*/*") > -1;
     }
 
-    // Helpers (can be refactored to public utility class) ----------------------------------------
-
     /**
      * Close the given resource.
      *
@@ -155,7 +158,6 @@ public class FileServlet extends HttpServlet {
             }
         }
     }
-
 
     /**
      * Copy the given byte range of the given input to the given output.
@@ -216,9 +218,6 @@ public class FileServlet extends HttpServlet {
         String substring = value.substring(beginIndex, endIndex);
         return (substring.length() > 0) ? Long.parseLong(substring) : -1;
     }
-
-    private static Logger logger = (Logger) LoggerFactory.getLogger(FileServlet.class);
-//    { logger.setLevel(Level.DEBUG); }
 
     /**
      * Initialize the servlet.
@@ -302,7 +301,7 @@ public class FileServlet extends HttpServlet {
         try {
             // URL-decode the file name (might contain spaces and on) and prepare file object.
             // @webservlet processing takes care of preventing ../.. escaping so we don't have to.
-            //logger.debug("requestedFile {}", requestedFile);
+            // logger.debug("requestedFile {}", requestedFile);
             String relativeFileName = URLDecoder.decode(requestedFile, "UTF-8");
             return getPathForResource(response, "/" + relativeFileName);
         } catch (IllegalArgumentException e) {
@@ -325,7 +324,7 @@ public class FileServlet extends HttpServlet {
             logger./**/error("resource or override not found {}", resourceName);
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            //logger.debug("found {}",target.toString());
+            // logger.debug("found {}",target.toString());
         }
         return target;
     }
@@ -353,10 +352,8 @@ public class FileServlet extends HttpServlet {
 
         // Prepare some variables. The ETag is an unique identifier of the file.
         String fileName = file.getFileName().toString();
-        BasicFileAttributes attr =
-                Files.readAttributes(file, BasicFileAttributes.class);
-        
-            
+        BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
+
         long length = attr.size();
         long lastModified = attr.lastModifiedTime().toMillis();
         String eTag = fileName + "_" + length + "_" + lastModified;
@@ -517,7 +514,7 @@ public class FileServlet extends HttpServlet {
 
         try {
             // Open streams.
-            //input = new RandomAccessFile(file, "r");
+            // input = new RandomAccessFile(file, "r");
             in = FileChannel.open(file, StandardOpenOption.READ);
             output = response.getOutputStream();
 

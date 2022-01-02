@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -23,9 +23,9 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
 import app.owlcms.data.export.CompetitionData;
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class JsonUploadDialog extends Dialog {
@@ -42,6 +42,7 @@ public class JsonUploadDialog extends Dialog {
         MemoryBuffer buffer = new MemoryBuffer();
         Upload upload = new Upload(buffer);
         upload.setWidth("40em");
+        upload.setAcceptedFileTypes("application/json");
 
         TextArea ta = new TextArea(getTranslation("Errors"));
         ta.setHeight("20ex");
@@ -75,7 +76,6 @@ public class JsonUploadDialog extends Dialog {
             ta.setValue(LoggerUtils.exceptionMessage(e1));
         }
     }
-
 
 //    private void resetAthletes() {
 //        // delete all athletes and groups (naive version).

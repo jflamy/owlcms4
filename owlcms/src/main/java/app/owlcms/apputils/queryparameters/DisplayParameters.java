@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -32,7 +32,6 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
-import app.owlcms.displays.attemptboard.AthleteFacingDecisionBoard;
 import app.owlcms.i18n.Translator;
 
 /**
@@ -89,21 +88,6 @@ public interface DisplayParameters extends FOPParameters {
 
     }
 
-    public default void openDialog(Dialog dialog) {
-        if (!dialog.isOpened()) {
-            dialog.open();
-            UI ui = UI.getCurrent();
-            new Timer().schedule(
-                    new TimerTask() {
-                        public void run() {
-                            ui.access(() -> {
-                                dialog.close();
-                            });
-                        }
-                    }, 8 * 1000L);
-        }
-    }
-
     public default void doNotification(boolean dark) {
         Notification n = new Notification();
         H2 h2 = new H2();
@@ -129,6 +113,26 @@ public interface DisplayParameters extends FOPParameters {
 
     public boolean isSilenced();
 
+    public default boolean isSilencedByDefault() {
+        return true;
+    }
+
+    public default void openDialog(Dialog dialog) {
+        if (!dialog.isOpened()) {
+            dialog.open();
+            UI ui = UI.getCurrent();
+            new Timer().schedule(
+                    new TimerTask() {
+                        @Override
+                        public void run() {
+                            ui.access(() -> {
+                                dialog.close();
+                            });
+                        }
+                    }, 8 * 1000L);
+        }
+    }
+
     @Override
     public default HashMap<String, List<String>> readParams(Location location,
             Map<String, List<String>> parametersMap) {
@@ -146,9 +150,10 @@ public interface DisplayParameters extends FOPParameters {
         // silent is the default. silent=false will cause sound
         boolean silentMode = silentParams == null || silentParams.isEmpty()
                 || silentParams.get(0).toLowerCase().equals("true");
-        if (this instanceof AthleteFacingDecisionBoard) {
+        if (!isSilencedByDefault()) {
             // for referee board, default is noise
-            silentMode = silentParams != null && !silentParams.isEmpty() && silentParams.get(0).toLowerCase().equals("true");
+            silentMode = silentParams != null && !silentParams.isEmpty()
+                    && silentParams.get(0).toLowerCase().equals("true");
         }
         switchSoundMode((Component) this, silentMode, false);
         updateParam(params, SILENT, !isSilenced() ? "false" : "true");
@@ -198,10 +203,10 @@ public interface DisplayParameters extends FOPParameters {
         }
     }
 
-    public default void switchSoundMode(Component target, boolean silent, boolean updateURL) {    
+    public default void switchSoundMode(Component target, boolean silent, boolean updateURL) {
         setSilenced(silent);
         buildDialog(target);
-         if (updateURL) {
+        if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? "true" : "false");
         }
     }

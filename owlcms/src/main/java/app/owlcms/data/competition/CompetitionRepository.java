@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -39,6 +39,31 @@ public class CompetitionRepository {
         });
     }
 
+    public static void doRemoveAll(EntityManager em) {
+        int deletedCount;
+        deletedCount = em.createQuery("DELETE FROM Participation").executeUpdate();
+        logger.info("deleted {} participations", deletedCount);
+        deletedCount = em.createQuery("DELETE FROM Athlete").executeUpdate();
+        logger.info("deleted {} athletes", deletedCount);
+        deletedCount = em.createQuery("DELETE FROM CompetitionGroup").executeUpdate();
+        logger.info("deleted {} groups", deletedCount);
+        deletedCount = em.createQuery("DELETE FROM Category").executeUpdate();
+        logger.info("deleted {} categories", deletedCount);
+        deletedCount = em.createQuery("DELETE FROM AgeGroup").executeUpdate();
+        logger.info("deleted {} age groups", deletedCount);
+        deletedCount = em.createQuery("DELETE FROM RecordEvent").executeUpdate();
+        logger.info("deleted {} records", deletedCount);
+        deletedCount = em.createQuery("DELETE FROM Platform").executeUpdate();
+        logger.info("deleted {} platforms", deletedCount);
+        deletedCount = em.createQuery("DELETE FROM Config").executeUpdate();
+        logger.info("deleted {} config", deletedCount);
+        deletedCount = em.createQuery("DELETE FROM Competition").executeUpdate();
+        logger.info("deleted {} competition", deletedCount);
+
+        em.flush();
+        em.clear();
+    }
+
     /**
      * Find all.
      *
@@ -69,31 +94,6 @@ public class CompetitionRepository {
             doRemoveAll(em);
             return null;
         });
-    }
-
-    public static void doRemoveAll(EntityManager em) {
-        int deletedCount;
-        deletedCount = em.createQuery("DELETE FROM Participation").executeUpdate();
-        logger.info("deleted {} participations", deletedCount);
-        deletedCount = em.createQuery("DELETE FROM Athlete").executeUpdate();
-        logger.info("deleted {} athletes", deletedCount);
-        deletedCount = em.createQuery("DELETE FROM CompetitionGroup").executeUpdate();
-        logger.info("deleted {} groups", deletedCount);
-        deletedCount = em.createQuery("DELETE FROM Category").executeUpdate();
-        logger.info("deleted {} categories", deletedCount);
-        deletedCount = em.createQuery("DELETE FROM AgeGroup").executeUpdate();
-        logger.info("deleted {} age groups", deletedCount);
-        deletedCount = em.createQuery("DELETE FROM RecordEvent").executeUpdate();
-        logger.info("deleted {} records", deletedCount);
-        deletedCount = em.createQuery("DELETE FROM Platform").executeUpdate();
-        logger.info("deleted {} platforms", deletedCount);
-        deletedCount = em.createQuery("DELETE FROM Config").executeUpdate();
-        logger.info("deleted {} config", deletedCount);
-        deletedCount = em.createQuery("DELETE FROM Competition").executeUpdate();
-        logger.info("deleted {} competition", deletedCount);
-        
-        em.flush();
-        em.clear();
     }
 
     /**

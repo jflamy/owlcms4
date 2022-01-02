@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>app.owlcms</groupId>
-    <version>1.1.0</version>
+    <version>1.17.0</version>
     <artifactId>installtools</artifactId>
     <packaging>pom</packaging>
 
     <!-- note that you must use mvn command line to deploy, does not work with embedded eclipse maven -->
-    <!-- for example: mvn -Pproduction -s c:\Dev\.m2\settings.xml deploy -->
+    <!-- for example: mvn -Pproduction -s c:\Dev\.m2\settings.xml assembly:single@zip-jre assembly:single@zip-innosetup package deploy -->
     <distributionManagement>
         <repository>
             <id>owlcms-maven-repo</id>
@@ -23,7 +23,7 @@
             <properties>
                 <!-- hard-coded paths -->
                 <!-- jre location for bundling with windows installer -->
-                <jre.directory>C:\Dev\Java\jdk-11.0.10+9-jre</jre.directory>
+                <jre.directory>C:\Dev\Java\jbrjre-17.0.1b164.8</jre.directory>
             </properties>
 
             <build>
@@ -39,7 +39,7 @@
                         </plugin>
                         <plugin>
                             <artifactId>maven-assembly-plugin</artifactId>
-                            <version>3.1.0</version>
+                            <version>3.3.0</version>
                             <executions>
                                 <execution>
                                     <id>zip-innosetup</id>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -35,6 +35,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSJurySheet;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
@@ -42,7 +43,6 @@ import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 /**
  * Weigh-in page -- top bar.
@@ -64,6 +64,10 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
     private Button cardsButton;
     private Button juryButton;
 
+    public ComboBox<Group> getGroupSelect() {
+        return groupSelect;
+    }
+
     /**
      * The layout is created before the content. This routine has created the content, we can refer to the content using
      * {@link #getLayoutComponentContent()} and the content can refer to us via
@@ -77,7 +81,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         WeighinContent weighinContent = (WeighinContent) getLayoutComponentContent();
         gridGroupFilter = weighinContent.getGroupFilter();
     }
-    
+
     /**
      * Create the top bar.
      *
@@ -128,10 +132,6 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         topBar.add(title, groupSelect, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-    }
-
-    public ComboBox<Group> getGroupSelect() {
-        return groupSelect;
     }
 
     protected void errorNotification() {

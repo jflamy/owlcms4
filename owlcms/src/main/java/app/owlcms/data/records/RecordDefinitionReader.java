@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -27,10 +27,10 @@ import ch.qos.logback.classic.Logger;
 
 /**
  * Read lifted weight records from an Excel file.
- * 
+ *
  * Competition records for snatch, clean&jerk and total are read. All available tabs are scanned. Reading stops at first
  * empty line. Header line is skipped.
- * 
+ *
  * @author Jean-François Lamy
  *
  */
@@ -42,8 +42,6 @@ public class RecordDefinitionReader {
             String localizedName) {
 
         return JPAService.runInTransaction(em -> {
-            @SuppressWarnings("unused")
-            int iSheet = 0;
             int iRecord = 0;
 
             for (Sheet sheet : workbook) {
@@ -162,7 +160,6 @@ public class RecordDefinitionReader {
                     iRow++;
                     iRecord++;
                 }
-                iSheet++;
             }
             Competition comp = Competition.getCurrent();
             Competition comp2 = em.contains(comp) ? comp : em.merge(comp);
@@ -180,7 +177,8 @@ public class RecordDefinitionReader {
             createRecords(workbook, es, localizedName);
             workbook.close();
         } catch (Exception e) {
-            RecordRepository.logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
+            RecordRepository.logger.error("could not process ageGroup configuration\n{}",
+                    LoggerUtils./**/stackTrace(e));
         }
     }
 

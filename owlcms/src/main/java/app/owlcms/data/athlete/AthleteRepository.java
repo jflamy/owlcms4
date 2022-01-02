@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -34,6 +34,18 @@ public class AthleteRepository {
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteRepository.class);
     static {
         logger.setLevel(Level.INFO);
+    }
+
+    public static void assignCategoryRanks() {
+        JPAService.runInTransaction(em -> {
+            // assign ranks to all groups.
+            List<Athlete> l = AthleteSorter.assignCategoryRanks(null);
+            for (Athlete a : l) {
+                em.merge(a);
+            }
+            em.flush();
+            return null;
+        });
     }
 
     public static void assignStartNumbers(Group group) {
@@ -122,7 +134,7 @@ public class AthleteRepository {
         String qlString = "select a from Athlete a"
                 + filteringSelection(lastName, group, category, ageGroup, ageDivision, gender, weighedIn)
                 + " order by a.category";
-        //logger.debug("find query = {}", qlString);
+        // logger.debug("find query = {}", qlString);
         Query query = em.createQuery(qlString);
         setFilteringParameters(lastName, group, category, ageGroup, ageDivision, gender, query);
         if (offset >= 0) {
@@ -194,7 +206,8 @@ public class AthleteRepository {
             String onlyCategoriesFromCurrentGroup = "";
             if (g != null) {
                 String categoriesFromCurrentGroup = "select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId";
-                onlyCategoriesFromCurrentGroup = " join p.category c where exists ("+categoriesFromCurrentGroup+" and c2.id = c.id)";
+                onlyCategoriesFromCurrentGroup = " join p.category c where exists (" + categoriesFromCurrentGroup
+                        + " and c2.id = c.id)";
 //                Query q2 = em.createQuery(categoriesFromCurrentGroup);
 //                q2.setParameter("groupId", g.getId());
 //                List<Category> q2Results = q2.getResultList();
@@ -209,7 +222,7 @@ public class AthleteRepository {
 
             @SuppressWarnings("unchecked")
             List<Athlete> resultList = (List<Athlete>) q.getResultList().stream().filter(a -> {
-                Double bw = ((Athlete)a).getBodyWeight();
+                Double bw = ((Athlete) a).getBodyWeight();
                 return bw != null && bw >= 0.01;
             }).collect(Collectors.toList());
             return resultList;
@@ -260,7 +273,7 @@ public class AthleteRepository {
      * Use the athlete bodyweight (or presumed body weight if weigh-in has not taken place) to determine category.
      */
     public static void resetParticipations() {
-        //logger.debug("recomputing eligibles");
+        // logger.debug("recomputing eligibles");
         JPAService.runInTransaction(em -> {
             List<Athlete> athletes = AthleteRepository.doFindAll(em);
             for (Athlete a : athletes) {
@@ -273,7 +286,7 @@ public class AthleteRepository {
             Competition.getCurrent().setRankingsInvalid(true);
             return null;
         });
-        //logger.debug("recomputing main cat");
+        // logger.debug("recomputing main cat");
         JPAService.runInTransaction(em -> {
             List<Athlete> athletes = AthleteRepository.doFindAll(em);
             for (Athlete a : athletes) {
@@ -298,18 +311,6 @@ public class AthleteRepository {
             Competition.getCurrent().setRankingsInvalid(true);
             Athlete merged = em.merge(athlete);
             return merged;
-        });
-    }
-
-    public static void assignCategoryRanks() {
-        JPAService.runInTransaction(em -> {
-            // assign ranks to all groups.
-            List<Athlete> l = AthleteSorter.assignCategoryRanks(null);
-            for (Athlete a : l) {
-                em.merge(a);
-            }
-            em.flush();
-            return null;
         });
     }
 

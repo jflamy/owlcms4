@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -199,16 +199,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
             this.getElement().callJsFunction("doBreak");
         }));
-    }
-    
-    private void setHidden(boolean hidden) {
-        this.getElement().setProperty("hiddenStyle",(hidden ? "display:none" : "display:block"));
-        this.getElement().setProperty("inactiveStyle",(hidden ? "display:block" : "display:none"));
-        this.getElement().setProperty("inactiveClass",(hidden ? "bigTitle" : ""));
-    }
-    
-    private void setWideTeamNames(boolean wide) {
-        this.getElement().setProperty("teamWidthClass",(wide ? "wideTeams" : "narrowTeams"));
     }
 
     /**
@@ -411,11 +401,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         });
     }
 
-    private void uiLog(UIEvent e) {
-        uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
-    }
-
     protected void doEmpty() {
         this.setHidden(true);
     }
@@ -474,7 +459,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             uiEventBus = uiEventBusRegister(this, fop);
         });
         SoundUtils.enableAudioContextNotification(this.getElement());
-        //buildDialog(this);
+        // buildDialog(this);
     }
 
     protected void setTranslationMap() {
@@ -536,6 +521,11 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         }
     }
 
+    private String formatKg(String total) {
+        return (total == null || total.trim().isEmpty()) ? "-"
+                : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
+    }
+
     private String formatRank(Integer total) {
         if (total == null || total == 0) {
             return "";
@@ -544,11 +534,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         } else {
             return total.toString();
         }
-    }
-
-    private String formatKg(String total) {
-        return (total == null || total.trim().isEmpty()) ? "-"
-                : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
     }
 
     private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, FieldOfPlay fop) {
@@ -584,7 +569,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                 highlight = "";
             }
         }
-        //logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
+        // logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
         ja.put("classname", highlight);
     }
 
@@ -725,6 +710,15 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         this.groupDone = b;
     }
 
+    private void setHidden(boolean hidden) {
+        this.getElement().setProperty("hiddenStyle", (hidden ? "display:none" : "display:block"));
+        this.getElement().setProperty("inactiveStyle", (hidden ? "display:block" : "display:none"));
+        this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
+    }
+
+    private void setWideTeamNames(boolean wide) {
+        this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
+    }
 
     private void syncWithFOP(UIEvent.SwitchGroup e) {
         switch (e.getState()) {
@@ -743,6 +737,11 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             setHidden(false);
             doUpdate(e.getAthlete(), e);
         }
+    }
+
+    private void uiLog(UIEvent e) {
+        uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
     }
 
     private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {

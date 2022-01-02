@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -123,19 +123,20 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     public int liveTimeRemaining() {
         if (end != null) {
             int until = (int) LocalDateTime.now().until(end, ChronoUnit.MILLIS);
-            logger.debug("liveTimeRemaining target {} {}", until >=0 ? DurationFormatUtils.formatDurationHMS(until) : until,
+            logger.debug("liveTimeRemaining target {} {}",
+                    until >= 0 ? DurationFormatUtils.formatDurationHMS(until) : until,
                     LoggerUtils.whereFrom());
             return until;
         } else if (running) {
             stopMillis = System.currentTimeMillis();
             long elapsed = stopMillis - startMillis;
             int tr = (int) (getTimeRemaining() - elapsed);
-            logger.debug("liveTimeRemaining running {} {}", tr >=0 ? DurationFormatUtils.formatDurationHMS(tr) : tr,
+            logger.debug("liveTimeRemaining running {} {}", tr >= 0 ? DurationFormatUtils.formatDurationHMS(tr) : tr,
                     LoggerUtils.whereFrom());
             return tr;
         } else {
             int tr = getTimeRemaining();
-            logger.debug("liveTimeRemaining stopped {} {}", tr >=0 ? DurationFormatUtils.formatDurationHMS(tr) : tr,
+            logger.debug("liveTimeRemaining stopped {} {}", tr >= 0 ? DurationFormatUtils.formatDurationHMS(tr) : tr,
                     LoggerUtils.whereFrom());
             return tr;
         }
@@ -161,6 +162,14 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     }
 
     /**
+     * @param fop the fop to set
+     */
+    @Override
+    public void setFop(FieldOfPlay fop) {
+        this.fop = fop;
+    }
+
+    /**
      * @see app.owlcms.fieldofplay.IBreakTimer#setIndefinite()
      */
     @Override
@@ -169,8 +178,9 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
         logger.debug("setting breaktimer indefinite = {} [{}]", indefinite, LoggerUtils.whereFrom());
         this.setTimeRemaining(0);
         this.setEnd(null);
-        getFop().pushOut(new UIEvent.BreakSetTime(getFop().getBreakType(), getFop().getCountdownType(), getTimeRemaining(), null,
-                true, this));
+        getFop().pushOut(
+                new UIEvent.BreakSetTime(getFop().getBreakType(), getFop().getCountdownType(), getTimeRemaining(), null,
+                        true, this));
         running = false;
         indefinite = true;
     }
@@ -259,6 +269,13 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     }
 
     /**
+     * @return the fop
+     */
+    FieldOfPlay getFop() {
+        return fop;
+    }
+
+    /**
      * Compute time elapsed since start and adjust time remaining accordingly.
      */
     private int computeTimeRemaining() {
@@ -275,20 +292,6 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     private int getMillis() {
         return (int) (this.getEnd() != null ? LocalDateTime.now().until(getEnd(), ChronoUnit.MILLIS)
                 : getTimeRemaining());
-    }
-
-    /**
-     * @return the fop
-     */
-    FieldOfPlay getFop() {
-        return fop;
-    }
-
-    /**
-     * @param fop the fop to set
-     */
-    public void setFop(FieldOfPlay fop) {
-        this.fop = fop;
     }
 
 }

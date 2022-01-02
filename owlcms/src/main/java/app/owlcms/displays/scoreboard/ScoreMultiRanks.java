@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -205,16 +205,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
             this.getElement().callJsFunction("doBreak");
         }));
-    }
-    
-    private void setHidden(boolean hidden) {
-        this.getElement().setProperty("hiddenStyle",(hidden ? "display:none" : "display:block"));
-        this.getElement().setProperty("inactiveStyle",(hidden ? "display:block" : "display:none"));
-        this.getElement().setProperty("inactiveClass",(hidden ? "bigTitle" : ""));
-    }
-    
-    private void setWideTeamNames(boolean wide) {
-        this.getElement().setProperty("teamWidthClass",(wide ? "wideTeams" : "narrowTeams"));
     }
 
     /**
@@ -425,11 +415,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         });
     }
 
-    private void uiLog(UIEvent e) {
-        uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
-    }
-
     protected void doEmpty() {
         this.setHidden(true);
     }
@@ -570,6 +555,11 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         }
     }
 
+    private String formatKg(String total) {
+        return (total == null || total.trim().isEmpty()) ? "-"
+                : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
+    }
+
     private String formatRank(Integer total) {
         if (total == null || total == 0) {
             return "";
@@ -578,11 +568,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         } else {
             return total.toString();
         }
-    }
-
-    private String formatKg(String total) {
-        return (total == null || total.trim().isEmpty()) ? "-"
-                : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
     }
 
     private JsonArray getAgeGroupNamesJson(LinkedHashMap<String, Participation> currentAthleteParticipations) {
@@ -615,7 +600,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         ja.put("cleanJerkRanks", getRanksJson(a, Ranking.CLEANJERK, ageGroupMap));
         ja.put("totalRanks", getRanksJson(a, Ranking.TOTAL, ageGroupMap));
         ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
-        
+
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
         String highlight = "";
@@ -633,29 +618,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         }
         logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
         ja.put("classname", highlight);
-    }
-
-    private void setCurrentAthleteParticipations(Athlete a) {
-        OwlcmsSession.withFop(fop -> {
-            ageGroupMap = new LinkedHashMap<String, Participation>(fop.getAgeGroupMap());
-            for (Entry<String, Participation> cape : ageGroupMap.entrySet()) {
-                cape.setValue(null);
-            }
-            if (a != null) {
-                // logger,debug(">>>setCurrentAthleteParticipations begin");
-                // logger,debug("setting {}", a.getShortName());
-                for (Participation p : a.getParticipations()) {
-                    AgeGroup ag = p.getCategory() != null ? p.getCategory().getAgeGroup() : null;
-                    if (ag != null) {
-                        // logger,debug("athlete {} curRankings {} {}", a, ag.getCode(), p);
-                        ageGroupMap.put(ag.getCode(), p);
-                    }
-                }
-                // logger,debug("<<<setCurrentAthleteParticipations end");
-            } else {
-                // logger,debug("+++ cleared");
-            }
-        });
     }
 
     /**
@@ -740,8 +702,8 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                 default:
                     if (stringValue != null && !trim.isEmpty()) {
                         // logger.debug("{} {} {}", fop.getState(), x.getShortName(), curLift);
-                        
-                        String highlight = "";           
+
+                        String highlight = "";
                         // don't blink while decision is visible. wait until lifting displayOrder has been
                         // recomputed and we get DECISION_RESET
                         int liftBeingDisplayed = i.getLiftNo();
@@ -824,8 +786,41 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         return this.groupDone;
     }
 
+    private void setCurrentAthleteParticipations(Athlete a) {
+        OwlcmsSession.withFop(fop -> {
+            ageGroupMap = new LinkedHashMap<>(fop.getAgeGroupMap());
+            for (Entry<String, Participation> cape : ageGroupMap.entrySet()) {
+                cape.setValue(null);
+            }
+            if (a != null) {
+                // logger,debug(">>>setCurrentAthleteParticipations begin");
+                // logger,debug("setting {}", a.getShortName());
+                for (Participation p : a.getParticipations()) {
+                    AgeGroup ag = p.getCategory() != null ? p.getCategory().getAgeGroup() : null;
+                    if (ag != null) {
+                        // logger,debug("athlete {} curRankings {} {}", a, ag.getCode(), p);
+                        ageGroupMap.put(ag.getCode(), p);
+                    }
+                }
+                // logger,debug("<<<setCurrentAthleteParticipations end");
+            } else {
+                // logger,debug("+++ cleared");
+            }
+        });
+    }
+
     private void setDone(boolean b) {
         this.groupDone = b;
+    }
+
+    private void setHidden(boolean hidden) {
+        this.getElement().setProperty("hiddenStyle", (hidden ? "display:none" : "display:block"));
+        this.getElement().setProperty("inactiveStyle", (hidden ? "display:block" : "display:none"));
+        this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
+    }
+
+    private void setWideTeamNames(boolean wide) {
+        this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
     }
 
     private void syncWithFOP(UIEvent.SwitchGroup e) {
@@ -845,6 +840,11 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             setHidden(false);
             doUpdate(e.getAthlete(), e);
         }
+    }
+
+    private void uiLog(UIEvent e) {
+        uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
     }
 
     private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {

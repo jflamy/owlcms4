@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -200,16 +200,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
             this.getElement().callJsFunction("doBreak");
         }));
-    }
-    
-    private void setHidden(boolean hidden) {
-        this.getElement().setProperty("hiddenStyle",(hidden ? "display:none" : "display:block"));
-        this.getElement().setProperty("inactiveStyle",(hidden ? "display:block" : "display:none"));
-        this.getElement().setProperty("inactiveClass",(hidden ? "bigTitle" : ""));
-    }
-    
-    private void setWideTeamNames(boolean wide) {
-        this.getElement().setProperty("teamWidthClass",(wide ? "wideTeams" : "narrowTeams"));
     }
 
     /**
@@ -420,11 +410,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         });
     }
 
-    private void uiLog(UIEvent e) {
-        uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
-    }
-
     protected void doEmpty() {
         this.setHidden(true);
     }
@@ -565,6 +550,11 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         }
     }
 
+    private String formatKg(String total) {
+        return (total == null || total.trim().isEmpty()) ? "-"
+                : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
+    }
+
     private String formatRank(Integer total) {
         if (total == null || total == 0) {
             return "";
@@ -573,11 +563,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         } else {
             return total.toString();
         }
-    }
-
-    private String formatKg(String total) {
-        return (total == null || total.trim().isEmpty()) ? "-"
-                : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
     }
 
     private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
@@ -599,7 +584,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             ja.put("cleanJerkRank", formatRank(mainRankings.getCleanJerkRank()));
             ja.put("totalRank", formatRank(mainRankings.getTotalRank()));
         } else {
-            logger.error("main rankings null for {}",a);
+            logger.error("main rankings null for {}", a);
         }
         ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
 
@@ -764,6 +749,16 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         this.groupDone = b;
     }
 
+    private void setHidden(boolean hidden) {
+        this.getElement().setProperty("hiddenStyle", (hidden ? "display:none" : "display:block"));
+        this.getElement().setProperty("inactiveStyle", (hidden ? "display:block" : "display:none"));
+        this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
+    }
+
+    private void setWideTeamNames(boolean wide) {
+        this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
+    }
+
     private void syncWithFOP(UIEvent.SwitchGroup e) {
         switch (e.getState()) {
         case INACTIVE:
@@ -781,6 +776,11 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             setHidden(false);
             doUpdate(e.getAthlete(), e);
         }
+    }
+
+    private void uiLog(UIEvent e) {
+        uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
     }
 
     private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {

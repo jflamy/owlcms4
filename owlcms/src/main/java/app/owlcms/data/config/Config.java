@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -104,6 +104,22 @@ public class Config {
     private Locale defaultLocale = null;
 
     private String salt;
+
+    public String defineSalt() {
+        if (salt == null) {
+            this.setSalt(Integer.toString(new Random(System.currentTimeMillis()).nextInt(), 16));
+        }
+        JPAService.runInTransaction(em -> {
+            Config newConfig = em.merge(this);
+            return newConfig;
+        });
+        return getSalt();
+    }
+
+    public String encodeUserPassword(String password) {
+        String encodedPassword = AccessUtils.encodePin(password, true);
+        return encodedPassword;
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -271,6 +287,10 @@ public class Config {
         return publicResultsURL;
     }
 
+    public String getSalt() {
+        return this.salt;
+    }
+
     public TimeZone getTimeZone() {
         if (timeZoneId == null) {
             return null;
@@ -373,26 +393,6 @@ public class Config {
                 return uURL;
             }
         }
-    }
-
-    public String getSalt() {
-        return this.salt;
-    }
-    
-    public String defineSalt() {
-        if (salt == null) {
-            this.setSalt(Integer.toString(new Random(System.currentTimeMillis()).nextInt(), 16));
-        }
-        JPAService.runInTransaction(em -> {
-            Config newConfig = em.merge(this);
-            return newConfig;
-        });
-        return getSalt();
-    }
-
-    public String encodeUserPassword(String password) {
-        String encodedPassword = AccessUtils.encodePin(password, true);
-        return encodedPassword;
     }
 
     /**

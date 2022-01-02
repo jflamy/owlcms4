@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -41,9 +41,9 @@ public class CompetitionSimulator {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(CompetitionSimulator.class);
 
-    private Random r = new Random(0);
-
     private static List<FOPSimulator> registeredSimulators = new ArrayList<>();
+
+    private Random r = new Random(0);
 
     public CompetitionSimulator() {
     }
@@ -103,11 +103,11 @@ public class CompetitionSimulator {
             s.unregister();
         }
         registeredSimulators.clear();
-        
+
         for (Platform p : ps) {
             FieldOfPlay f = OwlcmsFactory.getFOPByName(p.getName());
             FOPSimulator fopSimulator = new FOPSimulator(f, groupsByPlatform.get(p));
-            registeredSimulators .add(fopSimulator);
+            registeredSimulators.add(fopSimulator);
             fopSimulator.go();
         }
         return "simulation done.";

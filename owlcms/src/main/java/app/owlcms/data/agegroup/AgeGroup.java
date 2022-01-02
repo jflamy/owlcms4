@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -35,9 +36,9 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 /**
  * An AgeGroup designates an age range and the associated bodyweight categories, for a given gender.
@@ -93,15 +94,8 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     String code;
 
+    @Column(name = "agkey")
     String key;
-
-    public String getKey() {
-        return ageDivision.name() + "_" + gender.name() + "_" + minAge + "_" + maxAge;
-    }
-
-    public void setKey(String key) {
-        // do nothing, this is to fool Json deserialization.
-    }
 
     Integer minAge;
 
@@ -218,6 +212,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         return id;
     }
 
+    public String getKey() {
+        return ageDivision.name() + "_" + gender.name() + "_" + minAge + "_" + maxAge;
+    }
+
     public Integer getMaxAge() {
         return maxAge;
     }
@@ -270,6 +268,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         this.active = active;
     }
 
+    public void setAgeDivision(AgeDivision ageDivision) {
+        this.ageDivision = ageDivision;
+    }
+
 //    /**
 //     * Set the categories.
 //     *
@@ -298,10 +300,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 //        categories.sort((c1, c2) -> ObjectUtils.compare(c1.getMaximumWeight(), c2.getMaximumWeight()));
 //    }
 
-    public void setAgeDivision(AgeDivision ageDivision) {
-        this.ageDivision = ageDivision;
-    }
-
     public void setCategories(List<Category> value) {
         this.categories = value;
     }
@@ -312,6 +310,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     public void setGender(Gender gender) {
         this.gender = gender;
+    }
+
+    public void setKey(String key) {
+        // do nothing, this is to fool Json deserialization.
     }
 
     public void setMaxAge(Integer maxAge) {

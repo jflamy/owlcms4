@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -109,7 +109,7 @@ public class SinclairCoefficients {
             InputStream stream = ResourceWalker.getResourceAsStream("/sinclair/sinclair.properties");
             props.load(stream);
         } catch (IOException e) {
-            LoggerUtils.logError(logger,e);
+            LoggerUtils.logError(logger, e);
         }
     }
 

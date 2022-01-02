@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -39,10 +39,10 @@ import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
+import app.owlcms.i18n.Translator;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class CompetitionEditingFormFactory
@@ -385,7 +385,7 @@ public class CompetitionEditingFormFactory
                 labelWithHelp("Competition.roundRobinOrder", "Competition.roundRobinOrderExplanation"));
         binder.forField(roundRobinOrderField)
                 .bind(Competition::isRoundRobinOrder, Competition::setRoundRobinOrder);
-        
+
         Checkbox genderOrderField = new Checkbox();
         layout.addFormItem(genderOrderField,
                 labelWithHelp("Competition.genderOrder", "Competition.genderOrderExplanation"));
@@ -400,6 +400,5 @@ public class CompetitionEditingFormFactory
 
         return layout;
     }
-
 
 }

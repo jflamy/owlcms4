@@ -1,19 +1,33 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-###### New in release 4.26
+- [x] 4.27.0-rc01: Updated German and Swedish translations
 
-- [x] Security: Updated logging library "logback" to its [current version](http://logback.qos.ch/news.html) (no, it's not Log4j)
-- [x] Fix: database import issue. Athletes full birth dates are now imported correctly.
-- [x] Change: Default for birth dates changed to be full date instead of birth year, to match IWF TCRR.
-- [x] Fix: robustness when platforms are added as a result of loading the registration file, and when additions and deletions are made through the user interface.
-- [x] COVID: Updated documentation for Zoom broadcasts to cover sharing the scoreboard in high resolution and allowing participants to switch between athlete and scoreboard views.
-- [x] Enhancement: Capability to simulate a competition and perform load testing (see [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Simulation)). Large (180 athletes) competitions have been tested 18 displays, with one and two platforms, with and without publishing to a publicresults site.
+###### New in release 4.27
 
+- [x] **<u>Local Database Format Change</u>**  The H2 database is used on local installs.  The H2 team will no longer support their previous database format, so some people may need a to perform a simple conversion. 
+  - If you always start from scratch (new Excel, or interactive entry), you have nothing to do (a new database will be created on first start of the new version.
+  - If you are running in the cloud, you have nothing to do, the cloud-based database engine is Postgres.
+  - But <u>if you wish to keep and reuse your current database content</u> a conversion is required between the previous format and the new format.  Fortunately, the process is quick and straightforward.  Please follow the [conversion instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/ImportExport)
+  - If you wish to keep copies of previous meets and have kept database backups, the suggestion is to install version 4.26 and export each of the databases.
 
-- [x] Fix: Fixed issues with leader board publishing to cloud-based public results
-- [x] Optimization: removed temporary disk copies of sounds/templates/styles; no temporary files are written to disk anymore.
+- [x] Enhancement: Break type and countdown now shown on the announcer's red break management button
+- [x] New: Ability to monitor field of play state to control OBS scene switching.  See [Example video](https://user-images.githubusercontent.com/678663/147373848-89b91086-b16d-48c0-8f48-445f6c1ca828.mp4)
+  - Added button to start OBS Monitor window
+  - Added documentation 
+- [x] Enhancement: large notification shown on attempt board for Jury confirmation/reversal. 
+- [x] Added Medals as a break type. 
+  - Attempt and scoreboards display "Medal Ceremony" message. 
+  - New BREAK.MEDALS state to allow for OBS scene switching if desired.
+
+- [x] Enhancement: keyboard shortcuts to start (`,` )and stop (`.`) the clock available on announcer and timekeeper screens.
+- [x] Athlete-facing displays (decision and attempt-board) have sound on by default.
 
 ###### Key Highlights from recent stable releases
+
+- [x] Security updates: updated libraries as new versions were made available.
+- [x] Change: Default for birth dates changed to be full date instead of birth year, to match IWF TCRR.
+- [x] COVID: Updated documentation for Zoom broadcasts to cover sharing the scoreboard in high resolution and allowing participants to switch between athlete and scoreboard views.
+- [x] Enhancement: Capability to simulate a competition and perform load testing (see [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Simulation)). Large (180 athletes) competitions have been tested 18 displays, with one and two platforms, with and without publishing to a publicresults site.
 
 - [x] It is now possible to choose and override the Excel templates for competitions cards, the start list, the starting weight sheet, the results (protocol), and the final package (attempts, sinclair, robi, team results, etc.)
   - New available IWF-style layout for athlete cards that is meant to be printed and folded to give bigger areas for writing (both North American Letter and international A4 formats available)

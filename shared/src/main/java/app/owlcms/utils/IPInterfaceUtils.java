@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -33,15 +33,15 @@ public class IPInterfaceUtils {
     // reference: https://regex101.com/r/FLA9Bv/40
     private static final String FQDN_REGEX = "^(?!.*?_.*?)(?!(?:[\\w]+?\\.)?\\-[\\w\\.\\-]*?)(?![\\w]+?\\-\\.(?:[\\w\\.\\-]+?))(?=[\\w])(?=[\\w\\.\\-]*?\\.+[\\w\\.\\-]*?)(?![\\w\\.\\-]{254})(?!(?:\\.?[\\w\\-\\.]*?[\\w\\-]{64,}\\.)+?)[\\w\\.\\-]+?(?<![\\w\\-\\.]*?\\.[\\d]+?)(?<=[\\w\\-]{2,})(?<![\\w\\-]{25})$";
 
-    final private Logger logger = (Logger) LoggerFactory.getLogger(IPInterfaceUtils.class);
+    private static String urlPrefix = "/local/";
 
+    private static String targetFile = "sounds/timeOver.mp3";
+    final private Logger logger = (Logger) LoggerFactory.getLogger(IPInterfaceUtils.class);
     ArrayList<String> wired = new ArrayList<>();
     ArrayList<String> recommended = new ArrayList<>();
+
     ArrayList<String> wireless = new ArrayList<>();
     ArrayList<String> loopback = new ArrayList<>();
-
-    private static String urlPrefix = "/local/";
-    private static String targetFile = "sounds/timeOver.mp3";
 
     /**
      * Try to guess URLs that can reach the system.
@@ -56,54 +56,6 @@ public class IPInterfaceUtils {
      * @return HTML ("a" tags) for the various URLs that appear to work.
      */
     public IPInterfaceUtils() {
-    }
-
-    public void checkRequest() {
-        try {
-
-            HttpServletRequest request = VaadinServletRequest.getCurrent().getHttpServletRequest();
-            Map<String, String> headerMap = getRequestHeadersInMap(request);
-
-
-            checkTargetFileOk(targetFile);
-
-            String protocol = URLUtils.getScheme(request);
-            int requestPort = URLUtils.getServerPort(request);
-            String server = URLUtils.getServerName(request);
-            String requestURL = request.getRequestURL().toString();
-            String absoluteURL = URLUtils.buildAbsoluteURL(request, null);
-            logger.trace("absolute URL {}", absoluteURL);
-
-            InetAddress serverAddr = Inet4Address.getByName(server);
-            // local = isLocalAddress(server) || isLoopbackAddress(server);
-            boolean loopbackAddress = serverAddr.isLoopbackAddress();
-            boolean siteLocalAddress = serverAddr.isSiteLocalAddress();
-            boolean local = loopbackAddress || siteLocalAddress;
-            logger.trace("request {} loopback:{} sitelocal: {}", requestURL, loopbackAddress, siteLocalAddress);
-
-            if (!local || server.matches(FQDN_REGEX)) {
-                // an external name or address outside the local machine or local site (non-routable network).
-                // or a
-                if (absoluteURL.endsWith("/")) {
-                    absoluteURL = requestURL.substring(0, requestURL.length() - 1);
-                }
-                recommended.add(absoluteURL);
-                // if we are not on the cloud, we try to get a numerical address anyway.
-                String forward = headerMap.get("x-forwarded-for");
-                if (forward != null) {
-                    logger.trace("forwarding for {}, proxied, ip address would be meaningless", forward);
-                    return;
-                } else {
-                    logger.trace("no x-forwarded-for, local machine with host name");
-                }
-            }
-
-            checkInterfaces(protocol, requestPort, true);
-        } catch (SocketException | UnknownHostException e) {
-            LoggerUtils.logError(logger,e);
-        }
-        logger.trace("wired = {} {}", wired, wired.size());
-        logger.trace("wireless = {} {}", wireless, wireless.size());
     }
 
     public void checkInterfaces(String protocol, int requestPort, boolean silent)
@@ -133,11 +85,58 @@ public class IPInterfaceUtils {
                                 addr.isLoopbackAddress(), addr.isSiteLocalAddress(),
                                 addr.getHostAddress(), ifaceName, ifaceDisplay);
                         // try reaching the current IP address with the known protocol, port and site.
-                        testIP(protocol, requestPort, "", urlPrefix+targetFile, ip, iface, addr, silent);
+                        testIP(protocol, requestPort, "", urlPrefix + targetFile, ip, iface, addr, silent);
                     }
                 }
             }
         }
+    }
+
+    public void checkRequest() {
+        try {
+
+            HttpServletRequest request = VaadinServletRequest.getCurrent().getHttpServletRequest();
+            Map<String, String> headerMap = getRequestHeadersInMap(request);
+
+            checkTargetFileOk(targetFile);
+
+            String protocol = URLUtils.getScheme(request);
+            int requestPort = URLUtils.getServerPort(request);
+            String server = URLUtils.getServerName(request);
+            String requestURL = request.getRequestURL().toString();
+            String absoluteURL = URLUtils.buildAbsoluteURL(request, null);
+            logger.trace("absolute URL {}", absoluteURL);
+
+            InetAddress serverAddr = InetAddress.getByName(server);
+            // local = isLocalAddress(server) || isLoopbackAddress(server);
+            boolean loopbackAddress = serverAddr.isLoopbackAddress();
+            boolean siteLocalAddress = serverAddr.isSiteLocalAddress();
+            boolean local = loopbackAddress || siteLocalAddress;
+            logger.trace("request {} loopback:{} sitelocal: {}", requestURL, loopbackAddress, siteLocalAddress);
+
+            if (!local || server.matches(FQDN_REGEX)) {
+                // an external name or address outside the local machine or local site (non-routable network).
+                // or a
+                if (absoluteURL.endsWith("/")) {
+                    absoluteURL = requestURL.substring(0, requestURL.length() - 1);
+                }
+                recommended.add(absoluteURL);
+                // if we are not on the cloud, we try to get a numerical address anyway.
+                String forward = headerMap.get("x-forwarded-for");
+                if (forward != null) {
+                    logger.trace("forwarding for {}, proxied, ip address would be meaningless", forward);
+                    return;
+                } else {
+                    logger.trace("no x-forwarded-for, local machine with host name");
+                }
+            }
+
+            checkInterfaces(protocol, requestPort, true);
+        } catch (SocketException | UnknownHostException e) {
+            LoggerUtils.logError(logger, e);
+        }
+        logger.trace("wired = {} {}", wired, wired.size());
+        logger.trace("wireless = {} {}", wireless, wireless.size());
     }
 
     /**
@@ -193,8 +192,8 @@ public class IPInterfaceUtils {
         }
     }
 
-
-    private void testIP(String protocol, int requestPort, String uri, String targetFile, String ip, NetworkInterface iface, InetAddress addr, boolean silent) {
+    private void testIP(String protocol, int requestPort, String uri, String targetFile, String ip,
+            NetworkInterface iface, InetAddress addr, boolean silent) {
         try {
             URL siteURL = new URL(protocol, ip, requestPort, uri);
             String siteURLString = siteURL.toExternalForm();
@@ -215,7 +214,8 @@ public class IPInterfaceUtils {
                 logger/**/.warn("{} not reachable: {} {} ({})", testingURLString, response, ifaceName, ifaceDisplay);
             } else {
                 if (!silent) {
-                    logger.info("networking check: {} OK {} ({}) {}", ip + ":" + requestPort, ifaceName, ifaceDisplay, testingURL);
+                    logger.info("networking check: {} OK {} ({}) {}", ip + ":" + requestPort, ifaceName, ifaceDisplay,
+                            testingURL);
                 }
                 if (ifaceName.startsWith("lo") || ifaceDisplay.contains("loopback")) {
                     loopback.add(siteURLString);
@@ -224,17 +224,16 @@ public class IPInterfaceUtils {
                 } else if (ifaceName.startsWith("eth")) {
                     wired.add(siteURLString);
                 } else {
-                    logger/**/.warn("inferface type not recognized: {} {}",ifaceName, ifaceDisplay);
+                    logger/**/.warn("inferface type not recognized: {} {}", ifaceName, ifaceDisplay);
                 }
             }
         } catch (Exception e) {
-            LoggerUtils.logError(logger,e);
+            LoggerUtils.logError(logger, e);
         }
     }
 
     private boolean virtual(String displayName) {
         return displayName.contains("virtual");
     }
-
 
 }

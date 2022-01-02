@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -46,27 +46,27 @@ public class HttpsEnforcer implements Filter {
                     String serverName = request.getServerName();
                     // local server behind proxy, don't redirect.
                     if (serverName.endsWith(".localhost") || serverName.endsWith("localhost")) {
-                        //logger.debug("{} received on '{}', not redirecting to https", serverName, url);
+                        // logger.debug("{} received on '{}', not redirecting to https", serverName, url);
                     } else {
-                        //logger.debug("{} received on '{}', forcing redirect to https", serverName, url);
+                        // logger.debug("{} received on '{}', forcing redirect to https", serverName, url);
                         String pathInfo = (request.getPathInfo() != null) ? request.getPathInfo() : "";
                         response.sendRedirect("https://" + serverName + pathInfo);
                         return;
                     }
                 } else {
-                    //logger.debug("{} received, do nothing instance type {}", url,request.getClass().getName());
+                    // logger.debug("{} received, do nothing instance type {}", url,request.getClass().getName());
                 }
             } else {
-                //logger.debug("{} received, do nothing because already https '{}'", url,forwarding);
+                // logger.debug("{} received, do nothing because already https '{}'", url,forwarding);
             }
         } else {
-            //logger.debug("{} received, do nothing not through proxy", url);
+            // logger.debug("{} received, do nothing not through proxy", url);
         }
 
         try {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
-            LoggerUtils.logError(logger,e);
+            LoggerUtils.logError(logger, e);
             if (logger.isDebugEnabled()) {
                 Enumeration<String> headerNames = request.getHeaderNames();
                 while (headerNames.hasMoreElements()) {

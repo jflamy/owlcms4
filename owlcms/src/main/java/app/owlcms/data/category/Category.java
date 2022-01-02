@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -37,9 +37,9 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.IdUtils;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 /**
  * Contains information regarding each competition category.
@@ -116,7 +116,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     public Category() {
         // manually generate the Id to avoid issues when creating many-to-many Participations
         setId(IdUtils.getTimeBasedId(this));
-        //logger.debug("category constructor {}, {}",System.identityHashCode(this), this.getId());
+        // logger.debug("category constructor {}, {}",System.identityHashCode(this), this.getId());
     }
 
     public Category(Category c) {
@@ -137,7 +137,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         this.setWrSr(wrSr);
         this.setQualifyingTotal(qualifyingTotal);
         this.setCode(getComputedCode());
-        //logger.debug("{} Category({},{},{}) [{}]", getComputedCode(), gender, minimumWeight, maximumWeight, LoggerUtils.whereFrom(1));
+        // logger.debug("{} Category({},{},{}) [{}]", getComputedCode(), gender, minimumWeight, maximumWeight,
+        // LoggerUtils.whereFrom(1));
     }
 
     /*
@@ -177,8 +178,9 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
+        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
@@ -195,9 +197,15 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         return equal2;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getName());
+    public String fullDump() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.longDump());
+        for (Participation p : getParticipations()) {
+            sb.append("    ");
+            sb.append(p.long_dump());
+            sb.append(System.lineSeparator());
+        }
+        return sb.toString();
     }
 
 //    @Override
@@ -222,15 +230,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 //                && Objects.equals(getWrSr(), other.getWrSr()) && Objects.equals(getWrYth(), other.getWrYth());
 //    }
 
-    @JsonIgnore
-    public List<Participation> getParticipations() {
-        return participations;
-    }
-
-    public void setParticipations(List<Participation> participations) {
-        this.participations = participations;
-    }
-
     /**
      * Gets the active.
      *
@@ -246,6 +245,48 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     public String getCode() {
         return code != null ? code : "";
+    }
+
+    @Transient
+    @JsonIgnore
+    public String getCodeLimitString() {
+        // logger.debug("category {} {} {} {}", this.getId(), this.getCode(), this.getMinimumWeight(),
+        // this.getMinimumWeight());
+        if (id == null || maximumWeight == null || maximumWeight - Math.round(maximumWeight) > 0.1) {
+            String val = "temp_" + minimumWeight + "_" + maximumWeight;
+            // logger.debug("{} \n{}", val, LoggerUtils.stackTrace());
+            return val;
+        }
+        if (maximumWeight > 130) {
+            return "999";
+        } else {
+            return String.valueOf((int) (Math.round(maximumWeight)));
+        }
+    }
+
+    @JsonIgnore
+    @Transient
+    public String getComputedCode() {
+        String agName = (ageGroup != null ? ageGroup.getName() : "");
+
+        if (agName == null || agName.isEmpty()) {
+            String catName = gender + getCodeLimitString();
+            return catName;
+        } else {
+            return ageGroup.getCode() + "_" + gender + getCodeLimitString();
+        }
+    }
+
+    @JsonIgnore
+    @Transient
+    public String getComputedName() {
+        String agName = (ageGroup != null ? ageGroup.getName() : "");
+        String catName = getLimitString();
+        if (agName == null || agName.isEmpty()) {
+            return gender + catName;
+        } else {
+            return agName + " " + catName;
+        }
     }
 
     /**
@@ -269,31 +310,16 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     @Transient
     @JsonIgnore
     public String getLimitString() {
-        //logger.debug("category {} {} {} {}", this.getId(), this.getCode(), this.getMinimumWeight(), this.getMinimumWeight());
+        // logger.debug("category {} {} {} {}", this.getId(), this.getCode(), this.getMinimumWeight(),
+        // this.getMinimumWeight());
         if (id == null || maximumWeight == null || maximumWeight - Math.round(maximumWeight) > 0.1) {
-            String val = "temp_"+minimumWeight+"_"+maximumWeight;
-            //logger.debug("{} \n{}", val, LoggerUtils.stackTrace());
+            String val = "temp_" + minimumWeight + "_" + maximumWeight;
+            // logger.debug("{} \n{}", val, LoggerUtils.stackTrace());
             return val;
         }
         if (maximumWeight > 130) {
             return Translator.translate("catAboveFormat",
                     minimumWeight != null ? String.valueOf((int) (Math.round(minimumWeight))) : "");
-        } else {
-            return String.valueOf((int) (Math.round(maximumWeight)));
-        }
-    }
-    
-    @Transient
-    @JsonIgnore
-    public String getCodeLimitString() {
-        //logger.debug("category {} {} {} {}", this.getId(), this.getCode(), this.getMinimumWeight(), this.getMinimumWeight());
-        if (id == null || maximumWeight == null || maximumWeight - Math.round(maximumWeight) > 0.1) {
-            String val = "temp_"+minimumWeight+"_"+maximumWeight;
-            //logger.debug("{} \n{}", val, LoggerUtils.stackTrace());
-            return val;
-        }
-        if (maximumWeight > 130) {
-            return "999";
         } else {
             return String.valueOf((int) (Math.round(maximumWeight)));
         }
@@ -330,28 +356,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     }
 
     @JsonIgnore
-    @Transient
-    public String getComputedCode() {
-        String agName = (ageGroup != null ? ageGroup.getName() : "");
- 
-        if (agName == null || agName.isEmpty()) {
-            String catName = gender+getCodeLimitString();
-            return catName;
-        } else {
-            return ageGroup.getCode() + "_" + gender+getCodeLimitString();
-        }
-    }
-    
-    @JsonIgnore
-    @Transient
-    public String getComputedName() {
-        String agName = (ageGroup != null ? ageGroup.getName() : "");
-        String catName = getLimitString();
-        if (agName == null || agName.isEmpty()) {
-            return gender + catName;
-        } else {
-            return agName + " " + catName;
-        }
+    public List<Participation> getParticipations() {
+        return participations;
     }
 
     /**
@@ -419,6 +425,11 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         return wrYth;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName());
+    }
+
 //    @Override
 //    public int hashCode() {
 //        return Objects.hash(active, ageGroup, code, gender, id, maximumWeight, minimumWeight, name, getWrJr(),
@@ -448,15 +459,12 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
                 + ", code=" + code + "]";
     }
 
-    public String fullDump() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(this.longDump());
-        for (Participation p : getParticipations()) {
-            sb.append("    ");
-            sb.append(p.long_dump());
-            sb.append(System.lineSeparator());
-        }
-        return sb.toString();
+    public boolean sameAs(Category prevCat) {
+        return this.compareTo(prevCat) == 0;
+    }
+
+    public boolean sameAsAny(Set<Category> set) {
+        return set.stream().anyMatch(c -> this.compareTo(c) == 0);
     }
 
     public void setActive(boolean active) {
@@ -515,6 +523,10 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         this.name = name;
     }
 
+    public void setParticipations(List<Participation> participations) {
+        this.participations = participations;
+    }
+
     /**
      * @param qualifyingTotal the qualifyingTotal to set
      */
@@ -552,14 +564,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     @Override
     public String toString() {
         return getName();
-    }
-
-    public boolean sameAs(Category prevCat) {
-        return this.compareTo(prevCat) == 0;
-    }
-    
-    public boolean sameAsAny(Set<Category> set) {
-        return set.stream().anyMatch(c -> this.compareTo(c) == 0);
     }
 
 }

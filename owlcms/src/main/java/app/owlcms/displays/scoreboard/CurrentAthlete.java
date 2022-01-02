@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -177,7 +177,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         DisplayOptions.addSoundEntries(vl, target, this);
     }
 
-
     @Override
     public void doBreak() {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
@@ -194,16 +193,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         }));
     }
 
-    private void setHidden(boolean hidden) {
-        this.getElement().setProperty("hiddenStyle",(hidden ? "display:none" : "display:block"));
-        this.getElement().setProperty("inactiveStyle",(hidden ? "display:block" : "display:none"));
-        this.getElement().setProperty("inactiveClass",(hidden ? "bigTitle" : ""));
-    }
-    
-    private void setWideTeamNames(boolean wide) {
-        this.getElement().setProperty("teamWidthClass",(wide ? "wideTeams" : "narrowTeams"));
-    }
-    
     /**
      * return dialog, but only on first call.
      *
@@ -463,8 +452,9 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
 
         }
 //        logger.debug("{} {}", leaveTopAlone, fop.getState());
-        if (leaveTopAlone && fop.getState() == FOPState.CURRENT_ATHLETE_DISPLAYED)
+        if (leaveTopAlone && fop.getState() == FOPState.CURRENT_ATHLETE_DISPLAYED) {
             updateBottom(model, computeLiftType(a), fop);
+        }
 
     }
 
@@ -653,9 +643,9 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
                 default:
                     if (stringValue != null && !trim.isEmpty()) {
                         // logger.debug("{} {} {}", fop.getState(), x.getShortName(), curLift);
-                        
-                        String highlight = "";           
-                        // don't blink while decision is visible.  wait until lifting order has been 
+
+                        String highlight = "";
+                        // don't blink while decision is visible. wait until lifting order has been
                         // recomputed and we get DECISION_RESET
                         if (i.getLiftNo() == curLift && (fop.getState() != FOPState.DECISION_VISIBLE)) {
                             switch (liftOrderRank) {
@@ -711,6 +701,16 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         this.groupDone = b;
     }
 
+    private void setHidden(boolean hidden) {
+        this.getElement().setProperty("hiddenStyle", (hidden ? "display:none" : "display:block"));
+        this.getElement().setProperty("inactiveStyle", (hidden ? "display:block" : "display:none"));
+        this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
+    }
+
+    private void setWideTeamNames(boolean wide) {
+        this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
+    }
+
     private void syncWithFOP(UIEvent.SwitchGroup e) {
         switch (e.getState()) {
         case INACTIVE:
@@ -731,15 +731,15 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     }
 
     private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {
-            if (liftType != null) {
-                model.setGroupName("");
-                model.setLiftsDone("");
-            } else {
-                model.setGroupName("X");
-                model.setLiftsDone("Y");
-                this.getElement().callJsFunction("groupDone");
-            }
-            this.getElement().setPropertyJson("athletes",
-                    getAthletesJson(order, fop.getLiftingOrder(), fop));
+        if (liftType != null) {
+            model.setGroupName("");
+            model.setLiftsDone("");
+        } else {
+            model.setGroupName("X");
+            model.setLiftsDone("Y");
+            this.getElement().callJsFunction("groupDone");
+        }
+        this.getElement().setPropertyJson("athletes",
+                getAthletesJson(order, fop.getLiftingOrder(), fop));
     }
 }

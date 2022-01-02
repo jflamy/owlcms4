@@ -4,11 +4,10 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.26.0
+    default: 4.27.0-rc01
   - name: SkipTests
     type: string
     default: 'false'
-
 
 variables:
   # overrides pom.xml; must be unique if BuildGoal is set to deploy.
@@ -134,7 +133,7 @@ jobs:
       - script: |
           # publish sources and docs to prerelease repo
           # library group ReleaseRepoCredentials contains github users and tokens
-          git push https://$(prereleaseToken)@github.com/$(prereleaseUser)/owlcms4.git $(Build.SourceBranchName):master --force
+          git push https://$(releaseToken)@github.com/$(releaseUser)/owlcms4$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force
         condition: eq(variables['Build.SourceBranchName'], 'develop')
         displayName: sync prerelease repo
       - script: |
@@ -150,19 +149,19 @@ jobs:
         inputs:
           ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
             gitHubConnection: github.com_jflamy-dev
-            repositoryName: jflamy-dev/owlcms4-prerelease
+            repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
             isPreRelease: false
           ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
             gitHubConnection: github.com_jflamy-dev
-            repositoryName: owlcms/owlcms4
+            repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
             isPreRelease: false
           ${{ if eq(variables['Build.SourceBranchName'], 'fixrelease') }}:
             gitHubConnection: github.com_jflamy-dev
-            repositoryName: owlcms/owlcms4
+            repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
             isPreRelease: false
           ${{ if eq(variables['Build.SourceBranchName'], 'fixprerelease') }}:
             gitHubConnection: github.com_jflamy-dev
-            repositoryName: jflamy-dev/owlcms4-prerelease
+            repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
             isPreRelease: false
           action: "create" # Options: create, edit, delete
           target: master # all our releases are on the master branch of the release repos.

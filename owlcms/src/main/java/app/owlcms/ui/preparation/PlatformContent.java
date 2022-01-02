@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -139,19 +139,6 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
         crud.setClickRowToUpdate(true);
         return crud;
     }
-    
-    private <T extends Component & HasUrlParameter<String>> Button openInNewTab(Class<T> targetClass,
-            String label, String parameter) {
-        Button button = new Button(label);
-        button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
-        return button;
-    }
-    
-    private<T extends Component & HasUrlParameter<String>> String getWindowOpenerFromClass(Class<T> targetClass,
-            String parameter) {
-        return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?fop=" + parameter
-            + "','" + targetClass.getSimpleName()+"')";
-    }
 
     /**
      * Define the form used to edit a given Platform.
@@ -173,5 +160,18 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
      */
     private OwlcmsCrudFormFactory<Platform> createPlatformEditingFactory() {
         return new PlatformEditingFormFactory(Platform.class);
+    }
+
+    private <T extends Component & HasUrlParameter<String>> String getWindowOpenerFromClass(Class<T> targetClass,
+            String parameter) {
+        return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?fop=" + parameter
+                + "','" + targetClass.getSimpleName() + "')";
+    }
+
+    private <T extends Component & HasUrlParameter<String>> Button openInNewTab(Class<T> targetClass,
+            String label, String parameter) {
+        Button button = new Button(label);
+        button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
+        return button;
     }
 }

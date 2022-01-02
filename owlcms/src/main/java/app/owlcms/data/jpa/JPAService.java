@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -83,13 +83,39 @@ public class JPAService {
     }
 
     /**
+     * @return the factory
+     */
+    public static EntityManagerFactory getFactory() {
+        return factory;
+    }
+
+    /**
      * Inits the database
      *
      * @param inMemory if true, start with in-memory database
      */
     public static void init(boolean inMemory, boolean reset) {
         if (getFactory() == null) {
-            setFactory(getFactory(inMemory, reset));
+            EntityManagerFactory factory2 = null;
+
+            // h2 2.0 signals a redundant constraint as an error (behaviour has changed from 1.4
+            // ignore these warnings if any are present.
+            // we don't know what database is being used here, but the code is trivial and used only on init.
+
+            Logger h2Logger = (Logger) LoggerFactory.getLogger("h2database");
+            Logger hibernateLogger = (Logger) LoggerFactory
+                    .getLogger("org.hibernate.tool.schema.internal.ExceptionHandlerLoggedImpl");
+            Level prevH2Level = h2Logger.getLevel();
+            Level prevHibernateLevel = hibernateLogger.getLevel();
+            try {
+                h2Logger.setLevel(Level.OFF);
+                hibernateLogger.setLevel(Level.ERROR);
+                factory2 = getFactory(inMemory, reset);
+            } finally {
+                h2Logger.setLevel(prevH2Level);
+                hibernateLogger.setLevel(prevHibernateLevel);
+            }
+            setFactory(factory2);
         }
     }
 
@@ -174,7 +200,7 @@ public class JPAService {
             }
         }
     }
-    
+
     /**
      * Run in transaction.
      *
@@ -250,6 +276,13 @@ public class JPAService {
     }
 
     /**
+     * @param factory the factory to set
+     */
+    protected static void setFactory(EntityManagerFactory factory) {
+        JPAService.factory = factory;
+    }
+
+    /**
      * Gets the factory from code (without a persistance.xml file)
      *
      * @param memoryMode run from memory if true
@@ -277,7 +310,7 @@ public class JPAService {
         String url;
         String h2Options = ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4";
         if (dbUrl == null) {
-            String databasePath = new File("database/owlcms.mv.db").getAbsolutePath();
+            String databasePath = new File("database/owlcms-h2v2.mv.db").getAbsolutePath();
             databasePath = databasePath.substring(0, databasePath.length() - ".mv.db".length());
             url = "jdbc:h2:file:" + databasePath + h2Options;
         } else {
@@ -329,7 +362,7 @@ public class JPAService {
                 .put("hibernate.javax.cache.provider", "org.ehcache.jsr107.EhcacheCachingProvider")
                 .put("hibernate.javax.cache.missing_cache_strategy", "create")
                 .put("javax.persistence.sharedCache.mode", "ALL").put("hibernate.c3p0.min_size", 5)
-                .put("hibernate.enable_lazy_load_no_trans",true)
+                .put("hibernate.enable_lazy_load_no_trans", true)
 //                .put("hibernate.c3p0.max_size", 20).put("hibernate.c3p0.acquire_increment", 5)
 //                .put("hibernate.c3p0.timeout", 84200).put("hibernate.c3p0.preferredTestQuery", "SELECT 1")
 //                .put("hibernate.c3p0.testConnectionOnCheckout", true).put("hibernate.c3p0.idle_test_period", 500)
@@ -406,22 +439,8 @@ public class JPAService {
                 }
             }
         } catch (SQLException e) {
-            LoggerUtils.logError(logger,e);
+            LoggerUtils.logError(logger, e);
         }
-    }
-
-    /**
-     * @return the factory
-     */
-    public static EntityManagerFactory getFactory() {
-        return factory;
-    }
-
-    /**
-     * @param factory the factory to set
-     */
-    protected static void setFactory(EntityManagerFactory factory) {
-        JPAService.factory = factory;
     }
 
 }

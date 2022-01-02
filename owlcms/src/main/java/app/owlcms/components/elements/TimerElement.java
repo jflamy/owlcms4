@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -96,6 +96,8 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
          */
         void setCurrentTime(double seconds);
 
+        void setFopName(String fopName);
+
         /**
          * If indefinite, the timer doesn't start or stop, it just stays there with --:--
          *
@@ -123,8 +125,6 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
          * @param seconds the new start time
          */
         void setStartTime(double seconds);
-
-        void setFopName(String fopName);
     }
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);

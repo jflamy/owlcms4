@@ -1,8 +1,10 @@
 * [Home](index)
+
 * Installation
   * [Downloads](Downloads)
   * [Installation](InstallationOverview)
   * [Equipment Setup](EquipmentSetup)
+  
 * Competitions
   * [Preparation](Preparation)
   * [Language and System Settings](SystemSettings)
@@ -14,15 +16,20 @@
   * [Refereeing and Jury](Refereeing)
   * [Intermissions and Breaks](Breaks)
   * [Result Documents](Documents)
+  
 * Virtual Competitions
   * [Overview](VirtualOverview)
   * [Full Cloud Setup](HerokuLarge)
   * [Running a Virtual Competition](Zoom)
+  * [Optional Modified Competition Rules](ModifiedRules)
   * [Preparing the Zoom Setup](PrepareZoomBroadcasting)
+  
   * [Preparing the Video Setup](OBS)
   * [Live Streaming Events](Streaming)
-  * [Optional Modified Competition Rules](ModifiedRules)
-* Advanced Topics
+  * [Automatic Scene Switching](OBSSceneSwitching)
+  
+* Advanced
+
   * [Updating Cloud-based Applications](UpdatingCloudApplications)
   * [Customization](UploadingLocalSettings)
   * [Simulation and Load Testing](Simulation)
@@ -31,7 +38,9 @@
   * [Importing PostgreSQL Cloud Databases](PostgreSQL)
   * [Excel Template Variables](TemplateVariables)
   * [Contributing to the code](Gitpod)
-* [Licensing and Notes](Licensing)
+
 * Downloads
+
+  * [Licensing and Notes](Licensing)
   * [Downloads](Downloads)
   * [Source Repository](https://github.com/jflamy/owlcms4)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -34,6 +34,10 @@ public class LoggerUtils {
         return message;
     }
 
+    public static void logError(Logger logger, Throwable e) {
+        logger.error(stackTrace(e));
+    }
+
     /**
      * Where from.
      *
@@ -46,7 +50,8 @@ public class LoggerUtils {
         int i = 0;
         for (StackTraceElement ste : trace) {
             String string = ste.toString();
-            if (string.startsWith("com.vaadin.flow.server.communication") || string.startsWith("com.vaadin.flow.internal")) {
+            if (string.startsWith("com.vaadin.flow.server.communication")
+                    || string.startsWith("com.vaadin.flow.internal")) {
                 break;
             }
             if (i > 1) {
@@ -88,9 +93,5 @@ public class LoggerUtils {
         String where = Thread.currentThread().getStackTrace()[3 + depth].toString();
         int firstBracketIx = where.indexOf('(');
         return where.substring(firstBracketIx);
-    }
-
-    public static void logError(Logger logger, Throwable e) {
-        logger.error(stackTrace(e));
     }
 }

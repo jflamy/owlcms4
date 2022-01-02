@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -19,7 +19,8 @@ import app.owlcms.data.athlete.Gender;
  */
 public class Team {
 
-    public static Comparator<Team> scoreComparator = ((a, b) -> -ObjectUtils.compare(a.sinclairScore, b.sinclairScore, true));
+    public static Comparator<Team> scoreComparator = ((a,
+            b) -> -ObjectUtils.compare(a.sinclairScore, b.sinclairScore, true));
 
     public static Comparator<Team> pointsComparator = ((a,
             b) -> -ObjectUtils.compare(a.getPoints(), b.getPoints(), true));
@@ -27,7 +28,7 @@ public class Team {
     private String name;
 
     private double sinclairScore = 0.0D;
-    
+
     private double smfScore = 0.0D;
 
     private int points = 0;
@@ -67,6 +68,13 @@ public class Team {
         return size;
     }
 
+    /**
+     * @return the smfScore
+     */
+    public double getSmfScore() {
+        return smfScore;
+    }
+
     public void setCounted(int counted) {
         this.counted = counted;
     }
@@ -89,13 +97,6 @@ public class Team {
 
     public void setSize(long size) {
         this.size = size;
-    }
-
-    /**
-     * @return the smfScore
-     */
-    public double getSmfScore() {
-        return smfScore;
     }
 
     /**

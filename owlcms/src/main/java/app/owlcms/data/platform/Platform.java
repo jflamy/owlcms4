@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -25,12 +25,12 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.sound.Speakers;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 /**
  * Data on a lifting site.
@@ -66,33 +66,6 @@ public class Platform implements Serializable, Comparable<Platform> {
     @Transient
     @JsonIgnore
     private static Platform testingPlatform;
-
-    public void defaultPlates() {
-        // setDefaultMixerName(platform1);
-        this.setShowDecisionLights(true);
-        this.setShowTimer(true);
-
-        // collar
-        this.setNbC_2_5(1);
-
-        // small plates
-        this.setNbS_0_5(1);
-        this.setNbS_1(1);
-        this.setNbS_1_5(1);
-        this.setNbS_2(1);
-        this.setNbS_2_5(1);
-        this.setNbS_5(1);
-
-        // large plates, regulation set-up
-        this.setNbL_10(1);
-        this.setNbL_15(1);
-        this.setNbL_20(1);
-        this.setNbL_25(3);
-
-        // large plates, kid competitions
-        this.setNbL_2_5(0);
-        this.setNbL_5(0);
-    }
 
     /**
      * Gets the current platform
@@ -130,12 +103,13 @@ public class Platform implements Serializable, Comparable<Platform> {
     /** The id. */
     @Id
     private
-    //@GeneratedValue(strategy = GenerationType.AUTO)
-    //@JsonIgnore
+    // @GeneratedValue(strategy = GenerationType.AUTO)
+    // @JsonIgnore
     Long id;
 
     /** The name. */
     String name;
+
     /**
      * true if the referee use this application to give decisions, and decision lights need to be shown on the attempt
      * and result boards.
@@ -145,7 +119,6 @@ public class Platform implements Serializable, Comparable<Platform> {
      * true if the time should be displayed
      */
     private Boolean showTimer = false;
-
     /**
      * If mixer is not null, emit sound on the associated device
      */
@@ -154,29 +127,29 @@ public class Platform implements Serializable, Comparable<Platform> {
     private Mixer mixer = null;
 
     private String soundMixerName;
+
     @Transient
     @JsonIgnore
     private boolean mixerChecked;
-
     // collar
     private Integer nbC_2_5 = 1;
+
     // small plates
     private Integer nbS_0_5 = 1;
     private Integer nbS_1 = 1;
     private Integer nbS_1_5 = 1;
     private Integer nbS_2 = 1;
     private Integer nbS_2_5 = 1;
-
     private Integer nbS_5 = 1;
+
     // large plates
     private Integer nbL_10 = 1;
     private Integer nbL_15 = 1;
     private Integer nbL_20 = 1;
-
     private Integer nbL_25 = 1;
+
     // kid plates
     private Integer nbL_2_5 = 0;
-
     private Integer nbL_5 = 0;
 
     // bar
@@ -187,8 +160,7 @@ public class Platform implements Serializable, Comparable<Platform> {
     private boolean nonStandardBar;
 
     /**
-     * Instantiates a new platform.
-     * Used for import, no default values.
+     * Instantiates a new platform. Used for import, no default values.
      */
     public Platform() {
         setId(IdUtils.getTimeBasedId());
@@ -208,6 +180,33 @@ public class Platform implements Serializable, Comparable<Platform> {
     @Override
     public int compareTo(Platform o) {
         return ObjectUtils.compare(this.getName(), o.getName(), true);
+    }
+
+    public void defaultPlates() {
+        // setDefaultMixerName(platform1);
+        this.setShowDecisionLights(true);
+        this.setShowTimer(true);
+
+        // collar
+        this.setNbC_2_5(1);
+
+        // small plates
+        this.setNbS_0_5(1);
+        this.setNbS_1(1);
+        this.setNbS_1_5(1);
+        this.setNbS_2(1);
+        this.setNbS_2_5(1);
+        this.setNbS_5(1);
+
+        // large plates, regulation set-up
+        this.setNbL_10(1);
+        this.setNbL_15(1);
+        this.setNbL_20(1);
+        this.setNbL_25(3);
+
+        // large plates, kid competitions
+        this.setNbL_2_5(0);
+        this.setNbL_5(0);
     }
 
     @Override
@@ -503,6 +502,13 @@ public class Platform implements Serializable, Comparable<Platform> {
     }
 
     /**
+     * @param id the id to set
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    /**
      * Sets the light bar.
      *
      * @param lightBar the new light bar
@@ -706,13 +712,6 @@ public class Platform implements Serializable, Comparable<Platform> {
         logger.debug("SETTING platform {}: soundMixer={}", System.identityHashCode(this),
                 soundMixer == null ? null : soundMixer.getLineInfo());
         this.mixer = soundMixer;
-    }
-
-    /**
-     * @param id the id to set
-     */
-    public void setId(Long id) {
-        this.id = id;
     }
 
 }

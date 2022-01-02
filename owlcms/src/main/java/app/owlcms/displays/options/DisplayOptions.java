@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2022 Jean-François Lamy
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.displays.options;
 
 import org.slf4j.LoggerFactory;
@@ -44,8 +50,8 @@ public class DisplayOptions {
     }
 
     public static void addSoundEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
-        //logger.debug("addSoundEntries {}",LoggerUtils.stackTrace());
-        
+        // logger.debug("addSoundEntries {}",LoggerUtils.stackTrace());
+
         FieldOfPlay fop = OwlcmsSession.getFop();
         if (fop != null) {
             if (fop.isEmitSoundsOnServer()) {

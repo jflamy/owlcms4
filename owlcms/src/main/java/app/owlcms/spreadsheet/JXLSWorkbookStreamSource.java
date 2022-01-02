@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -38,12 +38,12 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 import net.sf.jxls.transformer.XLSTransformer;
 
 /**
@@ -135,6 +135,24 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         }
     }
 
+    /**
+     * @return the ageDivision
+     */
+    public AgeDivision getAgeDivision() {
+        return ageDivision;
+    }
+
+    /**
+     * @return the ageGroupPrefix
+     */
+    public String getAgeGroupPrefix() {
+        return ageGroupPrefix;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
     public Group getGroup() {
         return group;
     }
@@ -169,6 +187,17 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
     public boolean isExcludeNotWeighed() {
         return excludeNotWeighed;
+    }
+
+    public void setAgeDivision(AgeDivision ageDivision) {
+        this.ageDivision = ageDivision;
+    }
+
+    /**
+     * @param ageGroupPrefix the ageGroupPrefix to set
+     */
+    public void setAgeGroupPrefix(String ageGroupPrefix) {
+        this.ageGroupPrefix = ageGroupPrefix;
     }
 
     public void setCategory(Category category) {
@@ -231,10 +260,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
     protected void configureTransformer(XLSTransformer transformer) {
         // do nothing, to be overridden as needed,
-    }
-
-    public Category getCategory() {
-        return category;
     }
 
     /**
@@ -314,30 +339,5 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
             }
             return compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
         }).collect(Collectors.toList()));
-    }
-
-    public void setAgeDivision(AgeDivision ageDivision) {
-        this.ageDivision = ageDivision;
-    }
-
-    /**
-     * @param ageGroupPrefix the ageGroupPrefix to set
-     */
-    public void setAgeGroupPrefix(String ageGroupPrefix) {
-        this.ageGroupPrefix = ageGroupPrefix;
-    }
-
-    /**
-     * @return the ageDivision
-     */
-    public AgeDivision getAgeDivision() {
-        return ageDivision;
-    }
-
-    /**
-     * @return the ageGroupPrefix
-     */
-    public String getAgeGroupPrefix() {
-        return ageGroupPrefix;
     }
 }

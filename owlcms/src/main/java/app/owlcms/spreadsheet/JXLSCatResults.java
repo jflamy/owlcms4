@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.category.Category;
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.i18n.Translator;
 
 /**
  * @author jflamy
@@ -35,8 +35,6 @@ public class JXLSCatResults extends JXLSWorkbookStreamSource {
         jexlLogger.setLevel(Level.ERROR);
         tagLogger.setLevel(Level.ERROR);
     }
-
-    
 
 //    private byte[] protocolTemplate;
 

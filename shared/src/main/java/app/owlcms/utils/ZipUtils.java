@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2022 Jean-François Lamy
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
 package app.owlcms.utils;
 
 import java.io.File;
@@ -15,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 
 public class ZipUtils {
-    
+
     final static Logger logger = (Logger) LoggerFactory.getLogger(ZipUtils.class);
 
     /**
@@ -50,7 +56,7 @@ public class ZipUtils {
             }
         }
     }
-    
+
     /**
      * @param source zip stream
      * @param target target directory
@@ -70,8 +76,8 @@ public class ZipUtils {
                 Path outputfilePath = target.resolve(name);
                 Files.createDirectories(outputfilePath.getParent());
                 Files.createFile(outputfilePath);
-                
-                //logger.debug("unzipping {}", outputfilePath);
+
+                // logger.debug("unzipping {}", outputfilePath);
 
                 // write file
                 try (OutputStream targetStream = Files.newOutputStream(outputfilePath)) {

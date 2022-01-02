@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -48,14 +48,14 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
         return new TextRenderer<>(
                 d -> helper.getConverter().convertToPresentation((Duration) d, new ValueContext(locale)));
     }
-    
-    public DurationField() {
-        getWrappedTextField().setValueChangeMode(ValueChangeMode.ON_BLUR);
-    }
 
     Logger overrideLogger = (Logger) LoggerFactory.getLogger(DurationField.class);
 
     Level overrideLoggerLevel = Level.INFO;
+
+    public DurationField() {
+        getWrappedTextField().setValueChangeMode(ValueChangeMode.ON_BLUR);
+    }
 
     @Override
     public Converter<String, Duration> getConverter() {

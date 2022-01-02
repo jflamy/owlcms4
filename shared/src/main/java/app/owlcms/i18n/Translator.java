@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -213,7 +213,7 @@ public class Translator implements I18NProvider {
 
             if (i18nloader == null) {
                 bundleDir = MemTempUtils.createTempDirectory("bundles");
-                
+
                 logger.debug("reloading translation bundles");
                 InputStream csvStream = ResourceWalker.getResourceAsStream(csvName);
                 ICsvListReader listReader = null;
@@ -279,7 +279,8 @@ public class Translator implements I18NProvider {
                                     Properties properties = languageProperties[i];
                                     if (properties == null) {
                                         String message = MessageFormat
-                                                .format("{0} line {1}: languageProperties[{2}] is null", csvName, line, i);
+                                                .format("{0} line {1}: languageProperties[{2}] is null", csvName, line,
+                                                        i);
                                         logger.error(message);
                                         throw new RuntimeException(message);
                                     }
@@ -291,7 +292,7 @@ public class Translator implements I18NProvider {
 
                     // writing
                     for (int i = 1; i < nbLanguages + 1; i++) {
-                        //logger.debug("writing to " + outFiles[i].toAbsolutePath());
+                        // logger.debug("writing to " + outFiles[i].toAbsolutePath());
                         languageProperties[i].store(Files.newOutputStream(outFiles[i]), "generated from " + csvName);
                     }
                     final URL[] urls = { bundleDir.toUri().toURL() };

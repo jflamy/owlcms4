@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -154,6 +154,14 @@ public class TeamResultsContent extends VerticalLayout
         return allTeams;
     }
 
+    public AgeDivision getAgeDivision() {
+        return ageDivision;
+    }
+
+    public String getAgeGroupPrefix() {
+        return ageGroupPrefix;
+    }
+
     @Override
     public OwlcmsCrudGrid<?> getEditingGrid() {
         return crudGrid;
@@ -190,6 +198,14 @@ public class TeamResultsContent extends VerticalLayout
 
     public void refresh() {
         crudGrid.refreshGrid();
+    }
+
+    public void setAgeDivision(AgeDivision ageDivision) {
+        this.ageDivision = ageDivision;
+    }
+
+    public void setAgeGroupPrefix(String ageGroupPrefix) {
+        this.ageGroupPrefix = ageGroupPrefix;
     }
 
     public void setLocation(Location location) {
@@ -340,86 +356,6 @@ public class TeamResultsContent extends VerticalLayout
     }
 
     /**
-     * Create the top bar.
-     *
-     * Note: the top bar is created before the content.
-     *
-     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
-     *
-     * @param topBar
-     */
-    private void createTopBar() {
-        // logger.trace("createTopBar {}", LoggerUtils. stackTrace());
-        // show arrow but close menu
-        getAppLayout().setMenuVisible(true);
-        getAppLayout().closeDrawer();
-
-        H3 title = new H3();
-        title.setText(getTranslation(TITLE));
-        title.add();
-        title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
-
-        topBar = getAppLayout().getAppBarElementWrapper();
-        xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
-        StreamResource href = new StreamResource(TITLE + "Report" + ".xls", xlsWriter);
-        finalPackage = new Anchor(href, "");
-        finalPackage.getStyle().set("margin-left", "1em");
-        download = new Button(getTranslation(TITLE + ".Report"), new Icon(VaadinIcon.DOWNLOAD_ALT));
-
-        topBarAgeGroupPrefixSelect = new ComboBox<>();
-        topBarAgeGroupPrefixSelect.setPlaceholder(getTranslation("AgeGroup"));
-
-        topBarAgeGroupPrefixSelect.setEnabled(false);
-        topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
-        topBarAgeGroupPrefixSelect.setValue(null);
-        topBarAgeGroupPrefixSelect.setWidth("8em");
-        topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
-        topBarAgeGroupPrefixSelect.getStyle().set("margin-left", "1em");
-        setAgeGroupPrefixSelectionListener();
-
-        topBarAgeDivisionSelect = new ComboBox<>();
-        topBarAgeDivisionSelect.setPlaceholder(getTranslation("AgeDivision"));
-        adItems = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
-        topBarAgeDivisionSelect.setItems(adItems);
-        topBarAgeDivisionSelect.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
-        topBarAgeDivisionSelect.setClearButtonVisible(true);
-        topBarAgeDivisionSelect.setWidth("8em");
-        topBarAgeDivisionSelect.getStyle().set("margin-left", "1em");
-        setAgeDivisionSelectionListener();
-
-        finalPackage.add(download);
-        HorizontalLayout buttons = new HorizontalLayout(finalPackage);
-        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
-
-        topBar.getStyle().set("flex", "100 1");
-        topBar.removeAll();
-        topBar.add(title,
-                topBarAgeDivisionSelect, topBarAgeGroupPrefixSelect
-        /* , templateSelect */
-        /* , buttons */
-        );
-        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
-        topBar.setFlexGrow(0.2, title);
-        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-    }
-
-    public String getAgeGroupPrefix() {
-        return ageGroupPrefix;
-    }
-
-    public void setAgeGroupPrefix(String ageGroupPrefix) {
-        this.ageGroupPrefix = ageGroupPrefix;
-    }
-
-    public AgeDivision getAgeDivision() {
-        return ageDivision;
-    }
-
-    public void setAgeDivision(AgeDivision ageDivision) {
-        this.ageDivision = ageDivision;
-    }
-
-    /**
      * We do not control the groups on other screens/displays
      *
      * @param crudGrid the crudGrid that will be filtered.
@@ -484,6 +420,70 @@ public class TeamResultsContent extends VerticalLayout
         AgeDivision value = (adItems != null && adItems.size() > 0) ? adItems.get(0) : null;
         setAgeDivision(value);
         topBarAgeDivisionSelect.setValue(value);
+    }
+
+    /**
+     * Create the top bar.
+     *
+     * Note: the top bar is created before the content.
+     *
+     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
+     *
+     * @param topBar
+     */
+    private void createTopBar() {
+        // logger.trace("createTopBar {}", LoggerUtils. stackTrace());
+        // show arrow but close menu
+        getAppLayout().setMenuVisible(true);
+        getAppLayout().closeDrawer();
+
+        H3 title = new H3();
+        title.setText(getTranslation(TITLE));
+        title.add();
+        title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
+
+        topBar = getAppLayout().getAppBarElementWrapper();
+        xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
+        StreamResource href = new StreamResource(TITLE + "Report" + ".xls", xlsWriter);
+        finalPackage = new Anchor(href, "");
+        finalPackage.getStyle().set("margin-left", "1em");
+        download = new Button(getTranslation(TITLE + ".Report"), new Icon(VaadinIcon.DOWNLOAD_ALT));
+
+        topBarAgeGroupPrefixSelect = new ComboBox<>();
+        topBarAgeGroupPrefixSelect.setPlaceholder(getTranslation("AgeGroup"));
+
+        topBarAgeGroupPrefixSelect.setEnabled(false);
+        topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
+        topBarAgeGroupPrefixSelect.setValue(null);
+        topBarAgeGroupPrefixSelect.setWidth("8em");
+        topBarAgeGroupPrefixSelect.setClearButtonVisible(true);
+        topBarAgeGroupPrefixSelect.getStyle().set("margin-left", "1em");
+        setAgeGroupPrefixSelectionListener();
+
+        topBarAgeDivisionSelect = new ComboBox<>();
+        topBarAgeDivisionSelect.setPlaceholder(getTranslation("AgeDivision"));
+        adItems = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
+        topBarAgeDivisionSelect.setItems(adItems);
+        topBarAgeDivisionSelect.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
+        topBarAgeDivisionSelect.setClearButtonVisible(true);
+        topBarAgeDivisionSelect.setWidth("8em");
+        topBarAgeDivisionSelect.getStyle().set("margin-left", "1em");
+        setAgeDivisionSelectionListener();
+
+        finalPackage.add(download);
+        HorizontalLayout buttons = new HorizontalLayout(finalPackage);
+        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+
+        topBar.getStyle().set("flex", "100 1");
+        topBar.removeAll();
+        topBar.add(title,
+                topBarAgeDivisionSelect, topBarAgeGroupPrefixSelect
+        /* , templateSelect */
+        /* , buttons */
+        );
+        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+        topBar.setFlexGrow(0.2, title);
+        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
     }
 
     private void defineContent(OwlcmsCrudGrid<TeamTreeItem> crudGrid) {

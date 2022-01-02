@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2021 Jean-François Lamy
+ * Copyright (c) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -185,13 +185,16 @@ public class AgeGroupDefinitionReader {
                                         curMin, qualTotal);
                                 if (cat != null) {
                                     em.persist(cat);
-                                    //logger.debug(cat.longDump());
+                                    // logger.debug(cat.longDump());
                                     curMin = cat.getMaximumWeight();
                                 }
                             } catch (Exception e) {
                                 try {
                                     Throwable cause = e.getCause();
-                                    String msg = MessageFormat.format("cannot process cell {0} (content = \"{1}\") {2} {3}", cellName(iColumn, iRow), cellValue, cause.getClass().getSimpleName(), cause.getMessage());
+                                    String msg = MessageFormat.format(
+                                            "cannot process cell {0} (content = \"{1}\") {2} {3}",
+                                            cellName(iColumn, iRow), cellValue, cause.getClass().getSimpleName(),
+                                            cause.getMessage());
                                     logger.error(msg);
                                     NotificationUtils.errorNotification(msg);
                                     throw new RuntimeException(msg);
@@ -217,10 +220,6 @@ public class AgeGroupDefinitionReader {
         });
     }
 
-    private static Object cellName(int iColumn, int iRow) {
-        return Character.toString('A'+iColumn) + (Integer.toString(iRow+1));
-    }
-
     static void doInsertAgeGroup(EnumSet<AgeDivision> es, String localizedName) {
         // InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
         InputStream localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
@@ -231,8 +230,13 @@ public class AgeGroupDefinitionReader {
             createAgeGroups(workbook, templates, es, localizedName);
             workbook.close();
         } catch (Exception e) {
-            AgeGroupRepository.logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
+            AgeGroupRepository.logger.error("could not process ageGroup configuration\n{}",
+                    LoggerUtils./**/stackTrace(e));
         }
+    }
+
+    private static Object cellName(int iColumn, int iRow) {
+        return Character.toString('A' + iColumn) + (Integer.toString(iRow + 1));
     }
 
 }
