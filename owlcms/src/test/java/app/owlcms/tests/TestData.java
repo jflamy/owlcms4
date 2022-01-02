@@ -8,8 +8,11 @@ package app.owlcms.tests;
 
 import static app.owlcms.data.category.AgeDivision.MASTERS;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
@@ -42,6 +45,9 @@ public class TestData {
         logger.setLevel(Level.INFO);
     }
 
+    static int lotNumber = 1;
+    private static Clock clock = Clock.fixed(Instant.parse("2021-10-01T08:30:00.00Z"), ZoneId.systemDefault());
+
     public static void deleteAllLifters(EntityManager em) {
         List<Athlete> athletes = AthleteRepository.doFindAll(em);
         for (Athlete a : athletes) {
@@ -60,7 +66,7 @@ public class TestData {
             EnumSet<AgeDivision> divisions = EnumSet.of(AgeDivision.IWF);
             Competition competition = createDefaultCompetition(divisions);
             CompetitionRepository.save(competition);
-            AgeGroupRepository.insertAgeGroups(em, divisions,"/agegroups/AgeGroups_Tests.xlsx");
+            AgeGroupRepository.insertAgeGroups(em, divisions, "/agegroups/AgeGroups_Tests.xlsx");
             return null;
         });
         JPAService.runInTransaction(em -> {
@@ -68,7 +74,7 @@ public class TestData {
             return null;
         });
         AthleteRepository.resetParticipations();
- 
+
     }
 
     public static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupA,
@@ -101,10 +107,30 @@ public class TestData {
 //        Category categ = CategoryRepository.findByGenderAgeBW(Gender.M, 40, p.getBodyWeight()).get(0);
 //        p.addEligibleCategory(em.contains(categ) ? categ : em.merge(categ));
 //        p.setCategory(categ);
-        logger.debug("athlete {} category {} participations {}",p, p.getCategory(), p.getParticipations());
+        logger.debug("athlete {} category {} participations {}", p, p.getCategory(), p.getParticipations());
     }
 
-    static int lotNumber = 1;
+    protected static Competition createDefaultCompetition(EnumSet<AgeDivision> ageDivisions) {
+        Competition competition = new Competition();
+
+        competition.setCompetitionName("Spring Equinox Open");
+        competition.setCompetitionCity("Sometown, Lower FOPState");
+        competition.setCompetitionDate(LocalDate.of(2019, 03, 23));
+        competition.setCompetitionOrganizer("Giant Weightlifting Club");
+        competition.setCompetitionSite("West-End Gym");
+        competition.setFederation("National Weightlifting Federation");
+        competition.setFederationAddress("22 River Street, Othertown, Upper FOPState,  J0H 1J8");
+        competition.setFederationEMail("results@national-weightlifting.org");
+        competition.setFederationWebSite("http://national-weightlifting.org");
+
+        competition.setEnforce20kgRule(true);
+        competition.setMasters(ageDivisions != null && ageDivisions.contains(MASTERS));
+        competition.setUseBirthYear(true);
+        competition.setAnnouncerLiveDecisions(true);
+
+        return competition;
+    }
+
     protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames,
             Random r,
             int cat1, int cat2, int liftersToLoad) {
@@ -114,7 +140,7 @@ public class TestData {
             p.setGroup(mg);
             p.setFirstName(fnames[r.nextInt(fnames.length)]);
             p.setLastName(lnames[r.nextInt(lnames.length)]);
-            p.setFullBirthDate(LocalDate.of(LocalDate.now().getYear() - 40, 1, 1));
+            p.setFullBirthDate(LocalDate.of(testDateNow().getYear() - 40, 1, 1));
             p.setLotNumber(lotNumber);
             lotNumber++;
             createAthlete(em, r, p, 0.0D, cat1);
@@ -142,7 +168,7 @@ public class TestData {
         // needed because some classes such as Athlete refer to the current competition
         Competition.setCurrent(new Competition());
 
-        LocalDateTime w = LocalDateTime.now();
+        LocalDateTime w = testDateTimeNow();
         LocalDateTime c = w.plusHours((long) 2.0);
 
         Platform platform1 = new Platform("Gym 1");
@@ -154,6 +180,8 @@ public class TestData {
         Group groupB = new Group("B", w, c);
         groupB.setPlatform(platform2);
 
+        w = w.plusHours((long) 2.0);
+        c = w.plusHours((long) 2.0);
         Group groupC = new Group("C", w, c);
         groupC.setPlatform(platform1);
 
@@ -163,26 +191,13 @@ public class TestData {
 //        em.persist(groupB);
 //        em.persist(groupC);
     }
-    
-    protected static Competition createDefaultCompetition(EnumSet<AgeDivision> ageDivisions) {
-        Competition competition = new Competition();
 
-        competition.setCompetitionName("Spring Equinox Open");
-        competition.setCompetitionCity("Sometown, Lower FOPState");
-        competition.setCompetitionDate(LocalDate.of(2019, 03, 23));
-        competition.setCompetitionOrganizer("Giant Weightlifting Club");
-        competition.setCompetitionSite("West-End Gym");
-        competition.setFederation("National Weightlifting Federation");
-        competition.setFederationAddress("22 River Street, Othertown, Upper FOPState,  J0H 1J8");
-        competition.setFederationEMail("results@national-weightlifting.org");
-        competition.setFederationWebSite("http://national-weightlifting.org");
+    private static LocalDateTime testDateTimeNow() {
+        return LocalDateTime.now(clock);
+    }
 
-        competition.setEnforce20kgRule(true);
-        competition.setMasters(ageDivisions != null && ageDivisions.contains(MASTERS));
-        competition.setUseBirthYear(true);
-        competition.setAnnouncerLiveDecisions(true);
-
-        return competition;
+    private static LocalDate testDateNow() {
+        return LocalDate.now(clock);
     }
 
 }
