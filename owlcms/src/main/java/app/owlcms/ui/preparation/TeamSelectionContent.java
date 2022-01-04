@@ -158,6 +158,9 @@ public class TeamSelectionContent extends VerticalLayout
 
                     String teamFilterValue = teamFilter.getValue();
                     String athleteTeamName = p.getAthlete().getTeam();
+                    if (athleteTeamName == null || athleteTeamName.isBlank()) {
+                        return false;
+                    }
                     teamNames.add(athleteTeamName);
 
                     Gender genderFilterValue = genderFilter != null ? genderFilter.getValue() : null;
