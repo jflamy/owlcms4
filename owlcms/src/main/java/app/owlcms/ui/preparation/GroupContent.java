@@ -16,16 +16,11 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.fields.LocalDateTimeField;
-import app.owlcms.components.fields.LocalDateTimePicker;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.data.platform.Platform;
-import app.owlcms.data.platform.PlatformRepository;
-import app.owlcms.ui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
@@ -55,7 +50,7 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
      * Instantiates the Group crudGrid.
      */
     public GroupContent() {
-        OwlcmsCrudFormFactory<Group> crudFormFactory = createFormFactory();
+        OwlcmsCrudFormFactory<Group> crudFormFactory = new GroupEditingFormFactory(Group.class, this);
         GridCrud<Group> crud = createGrid(crudFormFactory);
 //		defineFilters(crudGrid);
         fillHW(crud, this);
@@ -104,29 +99,29 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
         return editingFormFactory.update(domainObjectToUpdate);
     }
 
-    /**
-     * The content and ordering of the editing form.
-     *
-     * @param crudFormFactory the factory that will create the form using this information
-     */
-    protected void createFormLayout(OwlcmsCrudFormFactory<Group> crudFormFactory) {
-        crudFormFactory.setVisibleProperties("name", "platform", "weighInTime", "competitionTime", "weighIn1",
-                "weighIn2", "announcer",
-                "marshall", "technicalController", "timeKeeper", "referee1", "referee2", "referee3", "jury1", "jury2",
-                "jury3", "jury4", "jury5");
-        crudFormFactory.setFieldCaptions(getTranslation("Name"), getTranslation("Platform"),
-                getTranslation("WeighInTime"), getTranslation("StartTime"),
-                getTranslation("Weighin1"), getTranslation("Weighin2"),
-                getTranslation("Announcer"),
-                getTranslation("Marshall"), getTranslation("TechnicalController"), getTranslation("Timekeeper"),
-                getTranslation("Referee1"), getTranslation("Referee2"), getTranslation("Referee3"),
-                getTranslation("Jury1"), getTranslation("Jury2"), getTranslation("Jury3"), getTranslation("Jury4"),
-                getTranslation("Jury5"));
-        crudFormFactory.setFieldProvider("platform", new OwlcmsComboBoxProvider<>(getTranslation("Platform"),
-                PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName));
-        crudFormFactory.setFieldType("weighInTime", LocalDateTimePicker.class);
-        crudFormFactory.setFieldType("competitionTime", LocalDateTimePicker.class);
-    }
+//    /**
+//     * The content and ordering of the editing form.
+//     *
+//     * @param crudFormFactory the factory that will create the form using this information
+//     */
+//    protected void createFormLayout(OwlcmsCrudFormFactory<Group> crudFormFactory) {
+//        crudFormFactory.setVisibleProperties("name", "description", "platform", "weighInTime", "competitionTime", "weighIn1",
+//                "weighIn2", "announcer",
+//                "marshall", "technicalController", "timeKeeper", "referee1", "referee2", "referee3", "jury1", "jury2",
+//                "jury3", "jury4", "jury5");
+//        crudFormFactory.setFieldCaptions(getTranslation("Name"), getTranslation("Group.Description"), getTranslation("Platform"),
+//                getTranslation("WeighInTime"), getTranslation("StartTime"),
+//                getTranslation("Weighin1"), getTranslation("Weighin2"),
+//                getTranslation("Announcer"),
+//                getTranslation("Marshall"), getTranslation("TechnicalController"), getTranslation("Timekeeper"),
+//                getTranslation("Referee1"), getTranslation("Referee2"), getTranslation("Referee3"),
+//                getTranslation("Jury1"), getTranslation("Jury2"), getTranslation("Jury3"), getTranslation("Jury4"),
+//                getTranslation("Jury5"));
+//        crudFormFactory.setFieldProvider("platform", 
+//                new OwlcmsComboBoxProvider<>(getTranslation("Platform"), PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName));
+//        crudFormFactory.setFieldType("weighInTime", LocalDateTimePicker.class);
+//        crudFormFactory.setFieldType("competitionTime", LocalDateTimePicker.class);
+//    }
 
     /**
      * The columns of the crudGrid
@@ -137,6 +132,7 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
     protected GridCrud<Group> createGrid(OwlcmsCrudFormFactory<Group> crudFormFactory) {
         Grid<Group> grid = new Grid<>(Group.class, false);
         grid.addColumn(Group::getName).setHeader(getTranslation("Name")).setComparator(Group::compareTo);
+        grid.addColumn(Group::getDescription).setHeader(getTranslation("Group.Description"));
         grid.addColumn(Group::size).setHeader(getTranslation("GroupSize")).setTextAlign(ColumnTextAlign.CENTER);
         grid.addColumn(LocalDateTimeField.getRenderer(Group::getWeighInTime, this.getLocale()))
                 .setHeader(getTranslation("WeighInTime")).setComparator(Group::compareToWeighIn);
@@ -150,26 +146,29 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
         crud.setClickRowToUpdate(true);
         return crud;
     }
+//
+//    /**
+//     * Define the form used to edit a given Group.
+//     *
+//     * @return the form factory that will create the actual form on demand
+//     */
+//    private OwlcmsCrudFormFactory<Group> createFormFactory() {
+//        editingFormFactory = createGroupEditingFormFactory();
+//        createFormLayout(editingFormFactory);
+//        return editingFormFactory;
+//    }
+//
+//    /**
+//     * Create the actual form generator with all the conversions and validations required
+//     *
+//     * {@link RegistrationContent#createAthleteEditingFormFactory} for example of redefinition of bindField
+//     *
+//     * @return the actual factory, with the additional mechanisms to do validation
+//     */
+//    private OwlcmsCrudFormFactory<Group> createGroupEditingFormFactory() {
+//        return new GroupEditingFormFactory(Group.class);
+//    }
 
-    /**
-     * Define the form used to edit a given Group.
-     *
-     * @return the form factory that will create the actual form on demand
-     */
-    private OwlcmsCrudFormFactory<Group> createFormFactory() {
-        editingFormFactory = createGroupEditingFormFactory();
-        createFormLayout(editingFormFactory);
-        return editingFormFactory;
-    }
-
-    /**
-     * Create the actual form generator with all the conversions and validations required
-     *
-     * {@link RegistrationContent#createAthleteEditingFormFactory} for example of redefinition of bindField
-     *
-     * @return the actual factory, with the additional mechanisms to do validation
-     */
-    private OwlcmsCrudFormFactory<Group> createGroupEditingFormFactory() {
-        return new GroupEditingFormFactory(Group.class);
+    public void closeDialog() {
     }
 }

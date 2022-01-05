@@ -42,7 +42,13 @@ public class JXLSStartingList extends JXLSWorkbookStreamSource {
     @Override
     protected List<Athlete> getSortedAthletes() {
         return AthleteSorter.registrationOrderCopy(AthleteRepository.findAll()).stream()
-                .filter((a) -> a.getGroup() != null).collect(Collectors.toList());
+                .filter(a -> a.getGroup() != null)
+                .map(a -> {
+                    if (a.getTeam() == null) {
+                        a.setTeam("-");
+                    }
+                    return a;
+                }).collect(Collectors.toList());
     }
 
 }
