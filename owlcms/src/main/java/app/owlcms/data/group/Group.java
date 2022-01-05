@@ -97,8 +97,9 @@ public class Group implements Comparable<Group> {
     @Column(columnDefinition = "boolean default false")
     private boolean done;
     private String weighIn1;
-
     private String weighIn2;
+    
+    private String description;
 
     /**
      * Instantiates a new group.
@@ -631,6 +632,14 @@ public class Group implements Comparable<Group> {
 
     private void setDone(boolean b) {
         this.done = b;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
 }

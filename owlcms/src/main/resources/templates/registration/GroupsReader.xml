@@ -8,7 +8,7 @@
             <section startRow="2" endRow="2">
                 <mapping row="2" col="0">g.groupName</mapping>
                 <mapping row="2" col="1">g.platform</mapping>
-                <mapping row="2" col="2">g.notes</mapping>
+                <mapping row="2" col="2">g.description</mapping>
                 <mapping row="2" col="3">g.weighinTime</mapping>
                 <mapping row="2" col="4">g.competitionTime</mapping>
                 <mapping row="2" col="5">g.weighInTO1</mapping>

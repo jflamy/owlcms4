@@ -102,9 +102,10 @@ public class AgeGroupEditingFormFactory
 
         TextField codeField = new TextField();
         formLayout.addFormItem(codeField, Translator.translate("AgeGroupCode"));
+        int maxLength = 5;
         binder.forField(codeField)
                 .withNullRepresentation("")
-                .withValidator(new StringLengthValidator(Translator.translate("CodeMustBeShort"), 0, 5))
+                .withValidator(new StringLengthValidator(Translator.translate("CodeMustBeShort", maxLength), 0, maxLength))
                 .bind(AgeGroup::getCode, AgeGroup::setCode);
 
         ComboBox<AgeDivision> ageDivisionField = new ComboBox<>();

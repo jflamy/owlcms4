@@ -28,7 +28,7 @@ public class RGroup {
 
     String groupName;
     String platform;
-    String notes;
+    String description;
     String weighinTime;
     String competitionTime;
     String weighInTO1;
@@ -87,8 +87,8 @@ public class RGroup {
         return marshall;
     }
 
-    public String getNotes() {
-        return notes;
+    public String getDescription() {
+        return description;
     }
 
     public String getPlatform() {
@@ -187,12 +187,14 @@ public class RGroup {
         this.marshall = marshall;
     }
 
-    public void setNotes(String notes) {
-        this.notes = notes;
+    public void setDescription(String description) {
+        group.setDescription(description);
+        this.description = description;
     }
 
     public void setPlatform(String pName) {
         // the existing platforms are reused, processed as part of the upload loop
+        // so we don't set the platform in the wrapped object.
         this.platform = pName;
     }
 
