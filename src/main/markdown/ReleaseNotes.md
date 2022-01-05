@@ -1,5 +1,9 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+4.27.1-rc01: There is now a description field for groups, which appears on the start list and in the group listing page.
+
+4.27.1-rc01: Empty team names for unaffiliated athletes are now correctly supported (fixes exceptions in start list and team membership)
+
 ###### New in release 4.27
 
 - [x] **<u>Local Database Format Change</u>**  The H2 database is used on local installs.  The H2 team no longer supports the previous database format, so some people may need a to perform a simple conversion. 
