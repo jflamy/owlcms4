@@ -1,8 +1,8 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.27.1-rc01: There is now a description field for groups, which appears on the start list and in the group listing page.
+4.27.1: Enhancement: There is now a description field for groups, shown on the start list and in the group listing page.  This can be used to list the categories present in a group.
 
-4.27.1-rc01: Empty team names for unaffiliated athletes are now correctly supported (fixes exceptions in start list and team membership)
+4.27.1: Fix: Empty team names for unaffiliated athletes are now correctly supported
 
 ###### New in release 4.27
 
