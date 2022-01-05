@@ -17,28 +17,34 @@ import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.flowingcode.vaadin.addons.ironicons.PlacesIcons;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.Subscribe;
+import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FOPError;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
@@ -73,6 +79,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
     private long previousGoodMillis = 0L;
     private long previousBadMillis = 0L;
+    private Button topBarGroupButton;
 
     public AnnouncerContent() {
         super();
@@ -307,11 +314,22 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         // there is already all the SQL filtering logic for the group attached
         // hidden field in the crudGrid part of the page so we just set that
         // filter.
-        super.createTopBarGroupSelect();
+
+        //super.createTopBarGroupSelect();
+        // TODO Inlined
+        topBarGroupSelect = new ComboBox<>();
+        topBarGroupSelect.setClearButtonVisible(true);
+        topBarGroupSelect.setPlaceholder(getTranslation("Group"));
+        topBarGroupSelect.setItems(GroupRepository.findAll());
+        topBarGroupSelect.setItemLabelGenerator(Group::getName);
+        topBarGroupSelect.setWidth("7rem");
+        topBarGroupSelect.getStyle().set("margin-left", "1em");
+        topBarGroupSelect.setReadOnly(true);
+        OwlcmsSession.withFop(fop -> topBarGroupSelect.setValue(fop.getGroup()));
+
         topBarGroupSelect.setReadOnly(false);
         // topBarGroupSelect.setWidth("12ch");
         topBarGroupSelect.setClearButtonVisible(true);
-        topBarGroupSelect.getStyle().set("--vaadin-combo-box-overlay-width", "40ch");
         OwlcmsSession.withFop((fop) -> {
             Group group = fop.getGroup();
             logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());
@@ -323,6 +341,29 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             logger.trace("##### select setting filter group to {} {}", group, LoggerUtils.whereFrom());
             getGroupFilter().setValue(group);
         });
+
+        OwlcmsSession.withFop(fop -> {
+            topBarGroupButton = new Button(
+                    fop.getGroup() != null ? fop.getGroup().getName() : Translator.translate("Group"));
+            topBarGroupButton.addClickListener(c -> {
+                EnhancedDialog d = new EnhancedDialog();
+                d.setCloseOnOutsideClick(true);
+                d.setCloseOnEsc(true);
+                ListBox<Group> glb = new ListBox<>();
+                glb.setItems(GroupRepository.findAll());
+                glb.setRenderer(new TextRenderer<Group>(g -> {
+                    String desc = g.getDescription();
+                    if (desc == null || desc.isBlank()) {
+                        return g.getName();
+                    } else {
+                        return g.getName() + " - " + g.getDescription();
+                    }
+                }));
+                d.add(glb);
+                d.open();
+            });
+        });
+
     }
 
     /**
@@ -375,6 +416,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     protected void fillTopBarLeft() {
         super.fillTopBarLeft();
         getTopBarLeft().addClassName("announcerLeft");
+        getTopBarLeft().add(topBarGroupButton);
         // getTopBarLeft().setWidth("12em");
     }
 

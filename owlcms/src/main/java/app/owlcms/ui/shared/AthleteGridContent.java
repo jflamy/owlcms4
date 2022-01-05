@@ -826,6 +826,8 @@ public abstract class AthleteGridContent extends VerticalLayout
         // hide because the top bar has it
         getGroupFilter().getStyle().set("display", "none");
         // we do not set the group filter value
+        
+        //FIXME this should be done by the announcer menu, not in the grid filters.
         getGroupFilter().addValueChangeListener(e -> {
             UIEventProcessor.uiAccess(getGroupFilter(), uiEventBus, () -> {
                 Group newGroup = e.getValue();
