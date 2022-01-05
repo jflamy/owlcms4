@@ -1,5 +1,9 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+4.27.2-rc01: Updated Russian translation
+
+4.27.2-rc01: Fix: Category results page showed error if zero athlete had been weighed in.
+
 4.27.1: Enhancement: There is now a description field for groups, shown on the start list and in the group listing page.  This can be used to list the categories present in a group.
 
 4.27.1: Fix: Empty team names for unaffiliated athletes are now correctly supported
