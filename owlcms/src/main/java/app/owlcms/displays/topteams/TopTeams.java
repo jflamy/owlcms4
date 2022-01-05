@@ -176,7 +176,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         ageGroupPrefixComboBox.setValue(getAgeGroupPrefix());
         ageDivisionComboBox.setValue(getAgeDivision());
 
-        vl.add(new Label("Select Age Group"),
+        vl.add(new Label(getTranslation("SelectAgeGroup")),
                 new HorizontalLayout(ageDivisionComboBox, ageGroupPrefixComboBox));
     }
 
