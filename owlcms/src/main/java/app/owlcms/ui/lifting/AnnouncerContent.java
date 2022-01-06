@@ -343,7 +343,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL);
             } else {
                 item = topBarMenu.addItem(Translator.translate("Group")+"\u2003\u25bc");
-                topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY);
+                topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY); 
             }
             SubMenu subMenu = item.getSubMenu();
             for (Group g : groups) {
