@@ -1,5 +1,7 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+4.27.2-rc02: Prevent premature jury breaks requested during the lift adjudication process. The break is deferred until the decision lights have been shown, and then starts immediately.
+
 4.27.2-rc01: Updated Russian translation
 
 4.27.2-rc01: Fix: Category results page showed error if zero athlete had been weighed in.
