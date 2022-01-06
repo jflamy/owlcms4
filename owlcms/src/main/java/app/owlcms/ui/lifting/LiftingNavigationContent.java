@@ -54,7 +54,6 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 
         Button announcer = openInNewTab(AnnouncerContent.class, getTranslation("Announcer"));
         announcer.setAutofocus(true);
-
         Button marshall = openInNewTab(MarshallContent.class, getTranslation("Marshall"));
         Button timekeeper = openInNewTab(TimekeeperContent.class, getTranslation("Timekeeper"));
         Button technical = openInNewTab(TCContent.class, getTranslation("PlatesCollarBarbell"));

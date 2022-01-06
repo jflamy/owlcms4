@@ -163,7 +163,6 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     private ComboBox<Group> groupFilter = new ComboBox<>();
     private boolean ignoreSwitchGroup;
-    private Group oldGroup = null;
     // array is used because of Java requires a final;
     private long previousStartMillis = 0L;
     private long previousStopMillis = 0L;
@@ -825,29 +824,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         getGroupFilter().setItemLabelGenerator(Group::getName);
         // hide because the top bar has it
         getGroupFilter().getStyle().set("display", "none");
-        // we do not set the group filter value
-        
-        //FIXME this should be done by the announcer menu, not in the grid filters.
-        getGroupFilter().addValueChangeListener(e -> {
-            UIEventProcessor.uiAccess(getGroupFilter(), uiEventBus, () -> {
-                Group newGroup = e.getValue();
-                OwlcmsSession.withFop((fop) -> {
-                    oldGroup = fop.getGroup();
-                    if (newGroup == null && oldGroup == null) {
-                        return;
-                    }
-                    if (isIgnoreSwitchGroup()) {
-                        // logger.debug("ignoring self-originating change");
-                        setIgnoreSwitchGroup(false);
-                    } else {
-                        setIgnoreSwitchGroup(true); // prevent recursion on self-generated event.
-                        // logger.debug("value changed, switching group, from \n{}",LoggerUtils. stackTrace());
-                        fop.fopEventPost(new FOPEvent.SwitchGroup(newGroup, this));
-                    }
-                    oldGroup = newGroup;
-                });
-            });
-        });
+        //note: group switching is done from the announcer menu, not in the grid filters.
         crudLayout.addFilterComponent(getGroupFilter());
     }
 
@@ -1179,7 +1156,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         return athleteEditingFormFactory;
     }
 
-    private void setIgnoreSwitchGroup(boolean b) {
+    public void setIgnoreSwitchGroup(boolean b) {
         ignoreSwitchGroup = b;
     }
 

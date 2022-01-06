@@ -8,6 +8,7 @@
 package app.owlcms.ui.lifting;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -17,23 +18,24 @@ import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.flowingcode.vaadin.addons.ironicons.PlacesIcons;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.Subscribe;
-import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.listbox.ListBox;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
@@ -79,7 +81,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
     private long previousGoodMillis = 0L;
     private long previousBadMillis = 0L;
-    private Button topBarGroupButton;
+    // private Button topBarGroupButton;
+    private MenuBar topBarMenu;
+    private MenuBar topBarSettings;
+    private JuryDisplayDecisionElement decisionDisplay;
+    private boolean silenced = true;
 
     public AnnouncerContent() {
         super();
@@ -315,55 +321,63 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         // hidden field in the crudGrid part of the page so we just set that
         // filter.
 
-        //super.createTopBarGroupSelect();
-        // TODO Inlined
+        List<Group> groups = GroupRepository.findAll();
+        
         topBarGroupSelect = new ComboBox<>();
-        topBarGroupSelect.setClearButtonVisible(true);
-        topBarGroupSelect.setPlaceholder(getTranslation("Group"));
-        topBarGroupSelect.setItems(GroupRepository.findAll());
-        topBarGroupSelect.setItemLabelGenerator(Group::getName);
-        topBarGroupSelect.setWidth("7rem");
-        topBarGroupSelect.getStyle().set("margin-left", "1em");
         topBarGroupSelect.setReadOnly(true);
-        OwlcmsSession.withFop(fop -> topBarGroupSelect.setValue(fop.getGroup()));
+        topBarGroupSelect.setItems(groups);
+        topBarGroupSelect.setVisible(false);
 
-        topBarGroupSelect.setReadOnly(false);
-        // topBarGroupSelect.setWidth("12ch");
-        topBarGroupSelect.setClearButtonVisible(true);
         OwlcmsSession.withFop((fop) -> {
             Group group = fop.getGroup();
             logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());
             topBarGroupSelect.setValue(group);
             getGroupFilter().setValue(group);
         });
-        topBarGroupSelect.addValueChangeListener(e -> {
-            Group group = e.getValue();
-            logger.trace("##### select setting filter group to {} {}", group, LoggerUtils.whereFrom());
-            getGroupFilter().setValue(group);
-        });
 
         OwlcmsSession.withFop(fop -> {
-            topBarGroupButton = new Button(
-                    fop.getGroup() != null ? fop.getGroup().getName() : Translator.translate("Group"));
-            topBarGroupButton.addClickListener(c -> {
-                EnhancedDialog d = new EnhancedDialog();
-                d.setCloseOnOutsideClick(true);
-                d.setCloseOnEsc(true);
-                ListBox<Group> glb = new ListBox<>();
-                glb.setItems(GroupRepository.findAll());
-                glb.setRenderer(new TextRenderer<Group>(g -> {
-                    String desc = g.getDescription();
-                    if (desc == null || desc.isBlank()) {
-                        return g.getName();
-                    } else {
-                        return g.getName() + " - " + g.getDescription();
-                    }
-                }));
-                d.add(glb);
-                d.open();
+            topBarMenu = new MenuBar();
+            MenuItem item;
+            if (fop.getGroup() != null) {
+                item = topBarMenu.addItem(fop.getGroup().getName());
+                topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL);
+            } else {
+                item = topBarMenu.addItem(Translator.translate("Group"));
+                topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY);
+            }
+            SubMenu subMenu = item.getSubMenu();
+            for (Group g : groups) {
+                boolean checked = g.compareTo(fop.getGroup()) == 0;
+                MenuItem subItem = subMenu.addItem(
+                        describedName(g),
+                        e -> fop.fopEventPost(new FOPEvent.SwitchGroup(checked ? null : g, this)));
+                subItem.setCheckable(true);
+                subItem.setChecked(checked);
+            }
+            topBarSettings = new MenuBar();
+            topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
+            MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
+            SubMenu subMenu2 = item2.getSubMenu();
+            boolean checked2 = this.silenced;
+            MenuItem subItem2 = subMenu2.addItem(Translator.translate("Silent"), e -> {
+                this.silenced = !checked2;
+                if (decisionDisplay != null) {
+                    decisionDisplay.setSilenced(!checked2);
+                }
             });
+            subItem2.setCheckable(true);
+            subItem2.setChecked(checked2);
+            item.setEnabled(true);
         });
+    }
 
+    private String describedName(Group g) {
+        String desc = g.getDescription();
+        if (desc == null || desc.isBlank()) {
+            return g.getName();
+        } else {
+            return g.getName() + " - " + g.getDescription();
+        }
     }
 
     /**
@@ -416,12 +430,13 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     protected void fillTopBarLeft() {
         super.fillTopBarLeft();
         getTopBarLeft().addClassName("announcerLeft");
-        getTopBarLeft().add(topBarGroupButton);
+        getTopBarLeft().add(topBarMenu, topBarSettings);
         // getTopBarLeft().setWidth("12em");
     }
 
     private void createDecisionLights() {
-        JuryDisplayDecisionElement decisionDisplay = new JuryDisplayDecisionElement();
+        decisionDisplay = new JuryDisplayDecisionElement();
+        decisionDisplay.setSilenced(silenced); // no sound by default
 //        Icon silenceIcon = AvIcons.MIC_OFF.create();
         decisionLights = new HorizontalLayout(decisionDisplay);
         decisionLights.addClassName("announcerLeft");
