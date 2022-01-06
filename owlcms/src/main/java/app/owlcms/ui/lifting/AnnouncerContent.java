@@ -389,8 +389,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             OwlcmsSession.withFop(fop -> {
                 long now = System.currentTimeMillis();
                 long timeElapsed = now - previousGoodMillis;
-                if (timeElapsed > 5000) {
-                    // no reason to give two goods within one second...
+                // no reason to give two decisions close together
+                if (timeElapsed > 2000) {
                     fop.fopEventPost(
                             new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true, true,
                                     true));
@@ -404,8 +404,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             OwlcmsSession.withFop(fop -> {
                 long now = System.currentTimeMillis();
                 long timeElapsed = now - previousBadMillis;
-                if (timeElapsed > 5000) {
-                    // no reason to give two goods within one second...
+
+                if (timeElapsed > 2000) {
                     fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
                             false, false, false));
                 }
