@@ -829,7 +829,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
             SubMenu subMenu2 = item2.getSubMenu();
             boolean checked2 = this.silenced;
-            MenuItem subItem2 = subMenu2.addItem(Translator.translate("Silent"), e -> {
+            MenuItem subItem2 = subMenu2.addItem(Translator.translate("DisplayParameters.Silent"), e -> {
                 this.silenced = !checked2;
                 if (decisionDisplay != null) {
                     decisionDisplay.setSilenced(!checked2);

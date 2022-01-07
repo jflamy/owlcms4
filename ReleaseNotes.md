@@ -1,4 +1,6 @@
-##### **Changes for release 4.27.2-rc02**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+##### **Changes for release 4.27.2-rc03**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+
+4.27.2-rc03: Updated H2 version for https://github.com/advisories/GHSA-h376-j262-vhq6. The stated vulnerability could not actively be exploited unless development settings were explicitly configured on a production machine (OWLCMS_H2SERVERPORT was set and the port made visible by opening a firewall).
 
 4.27.2-rc02: Prevent premature jury breaks requested during the lift adjudication process. The break is deferred until the decision lights have been shown, and then starts immediately.
 
