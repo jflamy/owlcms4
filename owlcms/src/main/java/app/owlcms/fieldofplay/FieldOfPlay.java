@@ -186,6 +186,8 @@ public class FieldOfPlay {
 
     private long lastGroupLoaded;
 
+    private FOPEvent deferredBreak;
+
     {
         uiEventLogger.setLevel(Level.INFO);
     }
@@ -494,7 +496,13 @@ public class FieldOfPlay {
         // it is always possible to explicitly interrupt competition (break between the
         // two lifts, technical incident, etc.). Even switching break type is allowed.
         if (e instanceof BreakStarted) {
-            transitionToBreak((BreakStarted) e);
+            // exception: wait until a decision has been registered to process jury deliberation.
+            if (state != DECISION_VISIBLE && state != DOWN_SIGNAL_VISIBLE) {
+                transitionToBreak((BreakStarted) e);
+            } else {
+                deferredBreak = e;
+                logger.info("{}Deferred break",getLoggingName());
+            }
             return;
         } else if (e instanceof StartLifting) {
             if (state == BREAK && (breakType == BreakType.JURY || breakType == BreakType.TECHNICAL)) {
@@ -714,6 +722,10 @@ public class FieldOfPlay {
                 setState(DECISION_VISIBLE);
             } else if (e instanceof DecisionReset) {
                 doDecisionReset(e);
+                if (deferredBreak != null) {
+                    transitionToBreak((BreakStarted) deferredBreak);
+                    deferredBreak = null;
+                }
             } else {
                 unexpectedEventInState(e, DECISION_VISIBLE);
             }
@@ -1533,7 +1545,7 @@ public class FieldOfPlay {
      * announcer intervention is required to change and announce.
      */
     private void showDecisionNow(Object origin) {
-        logger.trace("requesting decision display");
+        logger.trace("******requesting decision display");
         // we need to recompute majority, since they may have been reversal
         int nbWhite = 0;
         for (int i = 0; i < 3; i++) {
@@ -1572,6 +1584,7 @@ public class FieldOfPlay {
         if (getAthleteTimer().isRunning()) {
             getAthleteTimer().stop();
         }
+        setState(DOWN_SIGNAL_VISIBLE);
         DecisionFullUpdate ne = new DecisionFullUpdate(ed.getOrigin(), ed.getAthlete(), ed.ref1, ed.ref2, ed.ref3, now,
                 now, now);
         refereeForcedDecision = true;

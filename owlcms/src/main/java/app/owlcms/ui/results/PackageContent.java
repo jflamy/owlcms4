@@ -133,6 +133,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         String key = "mwTot";
         @SuppressWarnings("unchecked")
         List<Athlete> ranked = (List<Athlete>) beans.get(key);
+        if (ranked == null || ranked.isEmpty()) {
+           return new ArrayList<>();
+        }
         Category catFilterValue = getCategoryValue();
         Stream<Athlete> stream = ranked.stream()
                 .filter(a -> {
