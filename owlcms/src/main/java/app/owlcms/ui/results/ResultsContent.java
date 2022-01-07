@@ -131,6 +131,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
     private Checkbox medalsOnly;
     private DownloadButtonFactory downloadButtonFactory;
+    private ComboBox<Group> topBarGroupSelect;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in

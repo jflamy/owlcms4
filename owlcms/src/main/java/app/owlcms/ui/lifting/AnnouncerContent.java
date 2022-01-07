@@ -22,7 +22,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -81,12 +80,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
     private long previousGoodMillis = 0L;
     private long previousBadMillis = 0L;
-    // private Button topBarGroupButton;
-    private MenuBar topBarMenu;
-    private MenuBar topBarSettings;
-    private JuryDisplayDecisionElement decisionDisplay;
-    private boolean silenced = true;
-
     public AnnouncerContent() {
         super();
         defineFilters(crudGrid);
@@ -322,16 +315,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         // filter.
 
         List<Group> groups = GroupRepository.findAll();
-        
-        topBarGroupSelect = new ComboBox<>();
-        topBarGroupSelect.setReadOnly(true);
-        topBarGroupSelect.setItems(groups);
-        topBarGroupSelect.setVisible(false);
 
         OwlcmsSession.withFop((fop) -> {
             Group group = fop.getGroup();
             logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());
-            topBarGroupSelect.setValue(group);
             getGroupFilter().setValue(group);
         });
 

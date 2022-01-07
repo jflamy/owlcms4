@@ -18,6 +18,7 @@ import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
+import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -27,6 +28,8 @@ import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -37,6 +40,8 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -56,6 +61,7 @@ import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
+import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -147,7 +153,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     protected H3 title;
     protected FlexLayout topBar;
-    protected ComboBox<Group> topBarGroupSelect;
+    //protected ComboBox<Group> this;
     protected EventBus uiEventBus;
     protected H3 warning;
     protected H2 weight;
@@ -174,6 +180,10 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     private HorizontalLayout topBarLeft;
     private String topBarTitle;
+    protected MenuBar topBarMenu;
+    protected MenuBar topBarSettings;
+    protected boolean silenced = true;
+    protected JuryDisplayDecisionElement decisionDisplay;
 
     /**
      * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -355,7 +365,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     @Subscribe
     public void slaveBreakDone(UIEvent.BreakDone e) {
-        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             logger.debug("stopping break");
             syncWithFOP(true);
         });
@@ -363,7 +373,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     @Subscribe
     public void slaveBreakStart(UIEvent.BreakStarted e) {
-        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             if (e.isDisplayToggle()) {
                 logger.debug("{} ignoring switch to break", this.getClass().getSimpleName());
                 return;
@@ -378,7 +388,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     @Subscribe
     public void slaveBroadcast(UIEvent.Broadcast e) {
-        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Icon close = VaadinIcon.CLOSE_CIRCLE_O.create();
             close.getStyle().set("margin-left", "2em");
             close.setSize("4em");
@@ -411,7 +421,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     @Subscribe
     public void slaveJuryNotification(UIEvent.JuryNotification e) {
-        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, () -> {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             String text = "";
             String reversalText = "";
             if (e.getReversal() != null) {
@@ -473,7 +483,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
-        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, () -> {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             logger.trace("starting lifting");
             syncWithFOP(true);
         });
@@ -501,7 +511,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     @Subscribe
     public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(topBarGroupSelect, uiEventBus, e, this, () -> {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             syncWithFOP(true);
             updateURLLocation(getLocationUI(), getLocation(), e.getGroup());
         });
@@ -785,17 +795,48 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     protected void createTopBarGroupSelect() {
-        topBarGroupSelect = new ComboBox<>();
-        topBarGroupSelect.setClearButtonVisible(true);
-        topBarGroupSelect.setPlaceholder(getTranslation("Group"));
-        topBarGroupSelect.setItems(GroupRepository.findAll());
-        topBarGroupSelect.setItemLabelGenerator(Group::getName);
-        topBarGroupSelect.setWidth("7rem");
-        topBarGroupSelect.getStyle().set("margin-left", "1em");
-        topBarGroupSelect.setReadOnly(true);
-        OwlcmsSession.withFop(fop -> topBarGroupSelect.setValue(fop.getGroup()));
+        // there is already all the SQL filtering logic for the group attached
+        // hidden field in the crudGrid part of the page so we just set that
+        // filter.
 
-        // if topBarGroupSelect is made read-write, it needs to set values in
+        OwlcmsSession.withFop((fop) -> {
+            Group group = fop.getGroup();
+            logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());
+            try {
+                getGroupFilter().setValue(group);
+            } catch (Exception e) {
+                // no way to check for no items
+            }
+        });
+
+        OwlcmsSession.withFop(fop -> {
+            topBarMenu = new MenuBar();
+            MenuItem item;
+            if (fop.getGroup() != null) {
+                item = topBarMenu.addItem(fop.getGroup().getName());
+                topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL);
+            } else {
+                item = topBarMenu.addItem(Translator.translate("Group"));
+                topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL); 
+            }
+
+            topBarSettings = new MenuBar();
+            topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
+            MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
+            SubMenu subMenu2 = item2.getSubMenu();
+            boolean checked2 = this.silenced;
+            MenuItem subItem2 = subMenu2.addItem(Translator.translate("Silent"), e -> {
+                this.silenced = !checked2;
+                if (decisionDisplay != null) {
+                    decisionDisplay.setSilenced(!checked2);
+                }
+            });
+            subItem2.setCheckable(true);
+            subItem2.setChecked(checked2);
+            item.setEnabled(true);
+        });
+
+        // if this is made read-write, it needs to set values in
         // groupFilter and
         // call updateURLLocation
         // see AnnouncerContent for an example.
@@ -874,7 +915,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         OwlcmsSession.withFop(fop -> {
             UIEventProcessor.uiAccess(topBar, uiEventBus, () -> {
                 Group group = fop.getGroup();
-                topBarGroupSelect.setValue(group); // does nothing if already correct
+                //** this.setValue(group); // does nothing if already correct
                 Integer attemptsDone = (athlete != null ? athlete.getAttemptsDone() : 0);
                 // logger.debug("doUpdateTopBar {} {} {}", LoggerUtils.whereFrom(), athlete, attemptsDone);
                 if (athlete != null && attemptsDone < 6) {
@@ -918,7 +959,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         title.setText(getTopBarTitle());
         title.setClassName("topBarTitle");
         title.getStyle().set("margin-top", "0px").set("margin-bottom", "0px").set("font-weight", "normal");
-        getTopBarLeft().add(title, topBarGroupSelect);
+        getTopBarLeft().add(title, topBarMenu, topBarSettings);
         getTopBarLeft().setAlignItems(Alignment.CENTER);
         getTopBarLeft().setPadding(true);
         getTopBarLeft().setId("topBarLeft");
@@ -991,12 +1032,11 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     protected void syncWithFOP(boolean refreshGrid) {
         OwlcmsSession.withFop((fop) -> {
-            Group fopGroup = fop.getGroup();
             // logger.debug("syncing FOP, group = {}, {}", fopGroup, LoggerUtils.whereFrom(2));
             createTopBarGroupSelect();
 
             if (refreshGrid) {
-                topBarGroupSelect.setValue(fopGroup);
+                //** this.setValue(fopGroup);
                 if (crudGrid != null) {
                     crudGrid.sort(null);
                     crudGrid.refreshGrid();
