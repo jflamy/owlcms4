@@ -1,16 +1,10 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.27.2-rc03: Updated H2 version for https://github.com/advisories/GHSA-h376-j262-vhq6. The stated vulnerability could not actively be exploited unless development settings were explicitly configured on a production machine (OWLCMS_H2SERVERPORT was set and the port made visible by opening a firewall).
+4.27.2: Updated H2 version as recommended by security advisory
 
-4.27.2-rc02: Prevent premature jury breaks requested during the lift adjudication process. The break is deferred until the decision lights have been shown, and then starts immediately.
-
-4.27.2-rc01: Updated Russian translation
-
-4.27.2-rc01: Fix: Category results page showed error if zero athlete had been weighed in.
+4.27.2: Prevent premature jury breaks requested during the lift adjudication process. The break is deferred until the decision lights have been shown, and then starts immediately.
 
 4.27.1: Enhancement: There is now a description field for groups, shown on the start list and in the group listing page.  This can be used to list the categories present in a group.
-
-4.27.1: Fix: Empty team names for unaffiliated athletes are now correctly supported
 
 ###### New in release 4.27
 
