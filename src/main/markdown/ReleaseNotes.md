@@ -1,16 +1,18 @@
 #### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+4.28.0-alpha00: first release of new features.
+
 ##### New in release 4.28
 
 - [x] Enhancement: The group selection drop-down now displays the group description alongside the short group name.
-- [x] Enhancement:  Warning sounds and down sound are off by default on the technical officials consoles. New settings menu enables turning them on.
+- [x] Enhancement:  Timer warning and down sound are now off by default on the technical officials consoles. New settings menu enables turning them on.
 
 ##### Key Highlights from recent stable releases
 
-- [x] **<u>Local Database Format Change</u>**  The H2 database is used on local installs.  The H2 team no longer supports the previous database format, so some people may need a to perform a simple conversion. 
+- [x] **v4.27 <u>Local Database Format Change</u>**  The H2 database is used on local installs.  The H2 team no longer supports the previous database format, so some people may need a to perform a simple conversion. 
   - If you always start from scratch (new Excel, or interactive entry), you have nothing to do (a new database will be created on first start of the new version.
   - If you are running in the cloud, you have nothing to do, the cloud-based database engine is Postgres and not H2.
-  - But <u>if you wish to keep and reuse your current database content</u> a conversion is required between the previous format and the new format.  Fortunately, the process is quick and straightforward.  Please follow the [conversion instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/ImportExport)
+  - But <u>if you run locally and wish to keep and reuse your 4.26 or earlier database content</u> a conversion is required between the previous format and the new format.  Fortunately, the process is quick and straightforward.  Please follow the [conversion instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/ImportExport)
   - If you wish to keep copies of previous meets and have kept database backups, the suggestion is to install version 4.26 and export each of the databases.
 - [x] Enhancement: The type of break and the countdown now shown on the announcer's red break management button
 - [x] Enhancement: There is now a description field for groups, shown on the start list and in the group listing page.  This can be used to list the categories present in a group.
