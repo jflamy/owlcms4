@@ -341,19 +341,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 subItem.setCheckable(true);
                 subItem.setChecked(checked);
             }
-            topBarSettings = new MenuBar();
-            topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
-            MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
-            SubMenu subMenu2 = item2.getSubMenu();
-            boolean checked2 = this.silenced;
-            MenuItem subItem2 = subMenu2.addItem(Translator.translate("DisplayParameters.Silent"), e -> {
-                this.silenced = !checked2;
-                if (decisionDisplay != null) {
-                    decisionDisplay.setSilenced(!checked2);
-                }
-            });
-            subItem2.setCheckable(true);
-            subItem2.setChecked(checked2);
+            createTopBarSettingsMenu();
             item.setEnabled(true);
         });
     }
@@ -423,7 +411,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
     private void createDecisionLights() {
         decisionDisplay = new JuryDisplayDecisionElement();
-        decisionDisplay.setSilenced(silenced); // no sound by default
+        decisionDisplay.setSilenced(isSilenced()); // no sound by default
 //        Icon silenceIcon = AvIcons.MIC_OFF.create();
         decisionLights = new HorizontalLayout(decisionDisplay);
         decisionLights.addClassName("announcerLeft");
@@ -436,4 +424,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         fillTopBarLeft();
         decisionLights = null;
     }
+
+
 }

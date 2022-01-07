@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
@@ -58,7 +60,7 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
-import app.owlcms.apputils.queryparameters.FOPParameters;
+import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
@@ -97,7 +99,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @CssImport(value = "./styles/athlete-grid.css")
 public abstract class AthleteGridContent extends VerticalLayout
-        implements CrudListener<Athlete>, OwlcmsContent, FOPParameters, UIEventProcessor, IAthleteEditing {
+        implements CrudListener<Athlete>, OwlcmsContent, DisplayParameters, UIEventProcessor, IAthleteEditing {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -182,7 +184,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     private String topBarTitle;
     protected MenuBar topBarMenu;
     protected MenuBar topBarSettings;
-    protected boolean silenced = true;
+    private boolean silenced = true;
     protected JuryDisplayDecisionElement decisionDisplay;
 
     /**
@@ -354,7 +356,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
         logger.debug("AthleteGridContent parsing URL");
-        FOPParameters.super.setParameter(event, parameter);
+        DisplayParameters.super.setParameter(event, parameter);
         setLocation(event.getLocation());
         setLocationUI(event.getUI());
     }
@@ -768,7 +770,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         if (timer == null) {
             timer = new AthleteTimerElement(this);
         }
-        timer.setSilenced(false);
+        timer.setSilenced(this.isSilenced());
         H1 time = new H1(timer);
         clearVerticalMargins(attempt);
         clearVerticalMargins(time);
@@ -819,31 +821,39 @@ public abstract class AthleteGridContent extends VerticalLayout
             if (fop.getGroup() != null) {
                 item = topBarMenu.addItem(fop.getGroup().getName());
                 topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL);
+                item.setEnabled(true);
             } else {
-                item = topBarMenu.addItem(Translator.translate("Group"));
-                topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL);
+                // no group, no menu.
             }
 
-            topBarSettings = new MenuBar();
-            topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
-            MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
-            SubMenu subMenu2 = item2.getSubMenu();
-            boolean checked2 = this.silenced;
-            MenuItem subItem2 = subMenu2.addItem(Translator.translate("DisplayParameters.Silent"), e -> {
-                this.silenced = !checked2;
-                if (decisionDisplay != null) {
-                    decisionDisplay.setSilenced(!checked2);
-                }
-            });
-            subItem2.setCheckable(true);
-            subItem2.setChecked(checked2);
-            item.setEnabled(true);
+            createTopBarSettingsMenu();
         });
 
         // if this is made read-write, it needs to set values in
         // groupFilter and
         // call updateURLLocation
         // see AnnouncerContent for an example.
+    }
+
+    protected void createTopBarSettingsMenu() {
+        topBarSettings = new MenuBar();
+        topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
+        MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
+        SubMenu subMenu2 = item2.getSubMenu();
+        subMenu2.addItem(
+                this.isSilenced() ? Translator.translate("Settings.TurnOnSound")
+                        : Translator.translate("Settings.TurnOffSound"),
+                e -> {
+                    switchSoundMode(this, !this.isSilenced(), true);
+                    e.getSource().setText(this.isSilenced() ? Translator.translate("Settings.TurnOnSound")
+                            : Translator.translate("Settings.TurnOffSound"));
+                    if (decisionDisplay != null) {
+                        decisionDisplay.setSilenced(this.isSilenced());
+                    }
+                    if (timer != null) {
+                        timer.setSilenced(this.isSilenced());
+                    }
+                });
     }
 
     protected HorizontalLayout decisionButtons(FlexLayout topBar2) {
@@ -1236,4 +1246,58 @@ public abstract class AthleteGridContent extends VerticalLayout
         }
     }
 
+    @Override
+    public void addDialogContent(Component target, VerticalLayout vl) {
+    }
+
+    @Override
+    public Dialog getDialog() {
+        return null;
+    }
+
+    @Override
+    public boolean isDarkMode() {
+        return false;
+    }
+
+    @Override
+    public boolean isShowInitialDialog() {
+        return false;
+    }
+
+    @Override
+    public boolean isSilenced() {
+        return this.silenced;
+    }
+
+    @Override
+    public void setDarkMode(boolean dark) {
+    }
+
+    @Override
+    public void setShowInitialDialog(boolean b) {
+    }
+
+    @Override
+    public void setSilenced(boolean silent) {
+        this.silenced = silent;
+    }
+
+    @Override
+    public HashMap<String, List<String>> readParams(Location location,
+            Map<String, List<String>> parametersMap) {
+        // handle FOP and Group by calling superclass
+        HashMap<String, List<String>> params = DisplayParameters.super.readParams(location, parametersMap);
+
+        updateParam(params, DARK, null);
+
+        List<String> silentParams = params.get(SILENT);
+        // silent is the default. silent=false will cause sound
+        boolean silentMode = silentParams == null || silentParams.isEmpty()
+                || silentParams.get(0).toLowerCase().equals("true");
+        switchSoundMode((Component) this, silentMode, false);
+        updateParam(params, SILENT, !isSilenced() ? "false" : null);
+
+        return params;
+    }
 }
