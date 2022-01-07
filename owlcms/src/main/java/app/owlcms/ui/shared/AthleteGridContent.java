@@ -153,7 +153,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     protected H3 title;
     protected FlexLayout topBar;
-    //protected ComboBox<Group> this;
+    // protected ComboBox<Group> this;
     protected EventBus uiEventBus;
     protected H3 warning;
     protected H2 weight;
@@ -329,6 +329,10 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     public void setFirstNameWrapper(H2 firstNameWrapper) {
         this.firstNameWrapper = firstNameWrapper;
+    }
+
+    public void setIgnoreSwitchGroup(boolean b) {
+        ignoreSwitchGroup = b;
     }
 
     @Override
@@ -817,7 +821,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                 topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL);
             } else {
                 item = topBarMenu.addItem(Translator.translate("Group"));
-                topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL); 
+                topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL);
             }
 
             topBarSettings = new MenuBar();
@@ -865,7 +869,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         getGroupFilter().setItemLabelGenerator(Group::getName);
         // hide because the top bar has it
         getGroupFilter().getStyle().set("display", "none");
-        //note: group switching is done from the announcer menu, not in the grid filters.
+        // note: group switching is done from the announcer menu, not in the grid filters.
         crudLayout.addFilterComponent(getGroupFilter());
     }
 
@@ -915,7 +919,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         OwlcmsSession.withFop(fop -> {
             UIEventProcessor.uiAccess(topBar, uiEventBus, () -> {
                 Group group = fop.getGroup();
-                //** this.setValue(group); // does nothing if already correct
+                // ** this.setValue(group); // does nothing if already correct
                 Integer attemptsDone = (athlete != null ? athlete.getAttemptsDone() : 0);
                 // logger.debug("doUpdateTopBar {} {} {}", LoggerUtils.whereFrom(), athlete, attemptsDone);
                 if (athlete != null && attemptsDone < 6) {
@@ -1036,7 +1040,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             createTopBarGroupSelect();
 
             if (refreshGrid) {
-                //** this.setValue(fopGroup);
+                // ** this.setValue(fopGroup);
                 if (crudGrid != null) {
                     crudGrid.sort(null);
                     crudGrid.refreshGrid();
@@ -1194,10 +1198,6 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     private AthleteCardFormFactory getAthleteEditingFormFactory() {
         return athleteEditingFormFactory;
-    }
-
-    public void setIgnoreSwitchGroup(boolean b) {
-        ignoreSwitchGroup = b;
     }
 
     private void topBarMessage(String string, String text) {
