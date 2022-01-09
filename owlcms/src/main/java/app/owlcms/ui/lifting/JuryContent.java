@@ -125,6 +125,15 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     @Subscribe
+    public void slaveStartLifting(UIEvent.StartLifting e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            if (juryDialog != null && juryDialog.isOpened()) {
+                juryDialog.doClose(true);
+            }
+        });
+    }
+
+    @Subscribe
     public void slaveRefereeDecision(UIEvent.Decision e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 e.getAthlete());
