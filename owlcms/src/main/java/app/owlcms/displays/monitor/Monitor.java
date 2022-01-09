@@ -6,6 +6,9 @@
  *******************************************************************************/
 package app.owlcms.displays.monitor;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -49,6 +52,20 @@ import ch.qos.logback.classic.Logger;
 @Push
 public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FOPParameters,
         SafeEventBusRegistration, UIEventProcessor {
+    
+    class Status {
+        public Status(FOPState state, BreakType breakType, Boolean decision) {
+            this.state = state;
+            this.breakType = breakType;
+            this.decision = decision;
+        }
+        FOPState state;
+        BreakType breakType;
+        Boolean decision;
+    }
+    
+    final static int HISTORY_SIZE = 3;
+    List<Status> history = new LinkedList<>();
 
     /**
      * unused
@@ -68,14 +85,9 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     private Location location;
     private UI locationUI;
     private String currentFOP;
-    private FOPState currentState = FOPState.INACTIVE;
-    private FOPState previousState = FOPState.INACTIVE;
-    private BreakType currentBreakType;
-    private BreakType previousBreakType;
     private String title;
     private String prevTitle;
-    private Boolean previousDecision;
-    private Boolean currentDecision;
+
 
     /**
      * Instantiates a new results board.
@@ -83,6 +95,8 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     public Monitor() {
         OwlcmsFactory.waitDBInitialized();
         this.getElement().getStyle().set("width", "100%");
+        doPush(new Status(FOPState.INACTIVE, null, null));
+        doPush(new Status(FOPState.INACTIVE, null, null));
     }
 
     @Override
@@ -168,12 +182,36 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
 
     private String computePageTitle() {
         StringBuilder pageTitle = new StringBuilder();
+        Status h0 = history.size() > 0 ? history.get(0) : null;
+        Status h1 = history.size() > 1 ? history.get(1) : null;
+        Status h2 = history.size() > 2 ? history.get(2) : null;
+        
+        FOPState currentState = h0 != null ? h0.state : null;
+        BreakType currentBreakType = h0 != null ? h0.breakType : null;
+        Boolean currentDecision = h0 != null ? h0.decision : null;
+        
+        FOPState previousState;
+        BreakType previousBreakType;
+        Boolean previousDecision;
+        if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED && h1 != null && h1.state == FOPState.BREAK && h1.breakType == BreakType.GROUP_DONE) {
+            // ignore the current_athlete_displayed middle state
+            previousState = h2 != null ? h2.state : null;
+            previousBreakType = h2 != null ? h2.breakType : null;
+            previousDecision = h2 != null ? h2.decision : null;
+        } else {
+            // ignore the current_athlete_displayed middle state
+            previousState = h1 != null ? h1.state : null;
+            previousBreakType = h1 != null ? h1.breakType : null;
+            previousDecision = h1 != null ? h1.decision : null;
+        }
+        
         if (currentState == FOPState.INACTIVE || currentState == FOPState.BREAK) {
             pageTitle.append("break=");
         } else {
             pageTitle.append("state=");
         }
         pageTitle.append(currentState.name());
+
         if (currentState == FOPState.BREAK && currentBreakType != null) {
             pageTitle.append(".");
             pageTitle.append(currentBreakType.name());
@@ -219,7 +257,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         if (!same && !(title == null) && !title.isBlank()) {
             this.getElement().setProperty("title", title);
             this.getElement().callJsFunction("setTitle", title);
-            // logger.debug("{} monitor update {}", title, System.identityHashCode(this.getOrigin()));
+            logger.warn("{} ---- monitor update {}", title, System.identityHashCode(this.getOrigin()));
             prevTitle = title;
         }
     }
@@ -240,21 +278,21 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         OwlcmsSession.withFop(fop -> {
             currentFOP = fop.getName();
 
-            if (fop.getState() != currentState) {
-                previousState = currentState;
-                currentState = fop.getState();
-                previousBreakType = currentBreakType;
-                currentBreakType = fop.getBreakType();
-                previousDecision = currentDecision;
-                currentDecision = fop.getGoodLift();
+            if (fop.getState() != history.get(0).state) {
+                doPush(new Status(fop.getState(), fop.getBreakType(), fop.getGoodLift()));
             } else if (fop.getState() == FOPState.BREAK) {
-                if (fop.getBreakType() != currentBreakType) {
-                    previousBreakType = currentBreakType;
-                    currentBreakType = fop.getBreakType();
-                    currentDecision = null;
+                if (fop.getBreakType() != history.get(0).breakType) {
+                    doPush(new Status(fop.getState(), fop.getBreakType(), null));
                 }
             }
         });
         return significant;
+    }
+
+    private void doPush(Status status) {
+        history.add(0, status);
+        if (history.size() > HISTORY_SIZE) {
+            history.remove(HISTORY_SIZE);
+        }
     }
 }
