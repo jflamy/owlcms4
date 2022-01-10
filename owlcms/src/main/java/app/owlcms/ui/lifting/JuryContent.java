@@ -420,6 +420,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     private HorizontalLayout juryDecisionButtons() {
         Button good = new Button(IronIcons.DONE.create(), (e) -> {
+            UI.getCurrent().access(() -> {
+                decisionNotification.close();
+            });
             OwlcmsSession.withFop(fop -> {
                 fop.fopEventPost(new FOPEvent.JuryDecision(fop.getCurAthlete(), this.getOrigin(), true));
             });
@@ -429,6 +432,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         good.setVisible(false);
 
         Button bad = new Button(IronIcons.CLOSE.create(), (e) -> {
+            UI.getCurrent().access(() -> {
+                decisionNotification.close();
+            });
             OwlcmsSession.withFop(fop -> {
                 fop.fopEventPost(new FOPEvent.JuryDecision(fop.getCurAthlete(), this.getOrigin(), false));
             });

@@ -77,14 +77,14 @@ public class JuryDialog extends EnhancedDialog {
 
     public void doClose(boolean noAction) {
         UI.getCurrent().access(() -> {
-            if (noAction) {
+//            if (noAction) {
                 JuryNotification event = new UIEvent.JuryNotification(reviewedAthlete, origin,
                         deliberation ? JuryDeliberationEventType.END_DELIBERATION
                                 : JuryDeliberationEventType.END_TECHNICAL_PAUSE,
                         null);
                 OwlcmsSession.getFop().getUiEventBus().post(event);
                 ((JuryContent) origin).doSync();
-            }
+//            }
             this.close();
 
             logger.info(deliberation ? "{}end of jury deliberation" : "{}end jury technical pause",
