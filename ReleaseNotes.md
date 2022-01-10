@@ -1,4 +1,8 @@
-#### **Changes for release 4.28.0-alpha02**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+#### **Changes for release 4.28.0-alpha03**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+
+4.28.0-alpha03: rework of OBS status monitor end of group and medals status
+
+4.28.0-alpha03: when the jury renders its decision, the previous notification regarding the good/bad lift status of the previous lift is no longer relevant and is now removed.
 
 4.28.0-alpha02: Changed the OBS status monitor in order to have a more natural GROUP_DONE -> MEDALS -> GROUP_DONE -> BEFORE_INTRODUCTION sequence
 
