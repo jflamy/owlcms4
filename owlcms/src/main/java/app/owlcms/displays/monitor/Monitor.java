@@ -188,13 +188,21 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
             logger.warn("hiding first group done {} {} {}", h0, h1, h2);
             history.remove(0);
             computeValues();
-        } else if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED 
+        } else if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
                 && h1 != null && h1.state == FOPState.BREAK && h1.breakType == BreakType.MEDALS) {
-            logger.warn("before hiding restart after medals {} {} {}", h0, h1, h2);
+            logger.warn("hiding restart after medals {} {} {}", h0, h1, h2);
             history.remove(0);
             computeValues();
-        } else {
-            logger.warn("normal {} {} {}", h0, h1, h2);
+        } 
+        else if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
+                && h1 != null && h1.state == FOPState.DECISION_VISIBLE
+                && h2 != null && h2.state == FOPState.BREAK && h2.breakType == BreakType.JURY) {
+            logger.warn("fixing display after jury {} {} {}", h0, h1, h2);
+            history.remove(1);
+            computeValues();
+        }
+        else {
+            logger.debug("normal {} {} {}", h0, h1, h2);
         }
 
         if (currentState == FOPState.INACTIVE || currentState == FOPState.BREAK) {
@@ -256,11 +264,11 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         if (!same && !(title == null) && !title.isBlank()) {
             this.getElement().setProperty("title", title);
             this.getElement().callJsFunction("setTitle", title);
-            logger.warn("---- monitor update {} {}", title, System.identityHashCode(this.getOrigin()));
+            logger.warn("---- monitor {}", title);
             prevTitle = title;
         }
         if (same) {
-            logger.warn("---- monitor duplicate {} {}", title, System.identityHashCode(this.getOrigin()));
+            logger.debug("---- monitor duplicate {}", title);
         }
     }
 
@@ -286,7 +294,11 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
                 if (fop.getBreakType() != history.get(0).breakType) {
                     doPush(new Status(fop.getState(), fop.getBreakType(), null));
                     significant[0] = true;
+                } else {
+                    logger.warn("*** ignoring {}", fop.getBreakType());
                 }
+            } else {
+                logger.warn("*** ignoring {}", fop.getState());
             }
         });
         return significant[0];
