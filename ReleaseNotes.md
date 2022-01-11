@@ -1,23 +1,14 @@
-#### **Changes for release 4.28.0-alpha03**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+#### **Changes for release 4.28.0-alpha04**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.28.0-alpha03: rework of OBS status monitor end of group and medals status
+4.28.0-alpha04: Fix for OBS status monitoring of jury breaks (state=DECISION_VISIBLE...;previous=BREAK.JURY was being removed by mistake).
 
-4.28.0-alpha03: when the jury renders its decision, the previous notification regarding the good/bad lift status of the previous lift is no longer relevant and is now removed.
-
-4.28.0-alpha02: Changed the OBS status monitor in order to have a more natural GROUP_DONE -> MEDALS -> GROUP_DONE -> BEFORE_INTRODUCTION sequence
-
-4.28.0-alpha02: Danish translation updated
-
-4.28.0-alpha01: If the jury starts a break, and the jury break is ended by another official, the jury dialog is closed and the corresponding notifications are sent.
-
-4.28.0-alpha01: added "clear selection" option to announcer's group selection menu
-
-4.28.0-alpha00: first release of new features.
+4.28.0-alpha03: JuryConsole : when the jury renders its decision, the initial notification regarding the good/bad lift status of the previous lift is no longer relevant and is now removed.
 
 ##### New in release 4.28
 
 - [x] Enhancement: The group selection drop-down now displays the group description alongside the short group name.
 - [x] Enhancement:  Timer warning and down sound are now off by default on the technical officials consoles. New settings menu enables turning them on.
+- [x] Jury Console: if another official ends the break, the Jury Deliberation dialog is closed. Also, the initial notification about a good/bad lift is closed when a jury decision is given.
 
 ##### Key Highlights from recent stable releases
 
