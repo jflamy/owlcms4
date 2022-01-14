@@ -1,5 +1,7 @@
 ##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+4.27.3: Fixed margins on the athlete cards template (old owlcms style, two per page)
+
 4.27.2: Updated H2 version as recommended by security advisory
 
 4.27.2: Prevent premature jury breaks requested during the lift adjudication process. The break is deferred until the decision lights have been shown, and then starts immediately.
