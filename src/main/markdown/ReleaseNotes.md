@@ -4,7 +4,9 @@
 
 4.28.0-alpha05: Fixed attempt board and status monitor that were expecting multiple GROUP_DONE events.
 
-4.28.0-alpha05: removed empty start number box that was shown in the top bar when the group was done.
+4.28.0-alpha05: Fixed empty start number box that was shown in the top bar when the group was done.
+
+4.28.0-alpha05: Fixed wrong margins on the owlcms US Letter 2-per-page marshal card template.
 
 ##### New in release 4.28
 
