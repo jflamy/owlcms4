@@ -16,6 +16,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
+import app.owlcms.utils.LoggerUtils;
 
 /**
  * UIEvents are triggered in response to field of play events (FOPEvents). Each field of play has an associated
@@ -427,6 +428,7 @@ public class UIEvent {
                 Athlete changingAthlete, List<Athlete> liftingOrder, List<Athlete> displayOrder, Integer timeAllowed,
                 boolean currentDisplayAffected, boolean displayToggle, Object origin, boolean inBreak) {
             super(athlete, origin);
+            this.setTrace(LoggerUtils.stackTrace());
             this.nextAthlete = nextAthlete;
             this.previousAthlete = previousAthlete;
             this.changingAthlete = changingAthlete;
@@ -651,7 +653,6 @@ public class UIEvent {
 
         public StartTime(Integer timeRemaining, Object origin, boolean serverSound, String stackTrace) {
             this(timeRemaining, origin, serverSound);
-            this.setTrace(stackTrace);
         }
 
         /**

@@ -692,7 +692,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     protected void createInitialBar() {
-        // logger.debug("{} {} creating top bar {}", this.getClass().getSimpleName(), LoggerUtils.whereFrom());
+        //logger.debug("{} {} creating top bar {}", this.getClass().getSimpleName(), LoggerUtils.whereFrom());
         topBar = getAppLayout().getAppBarElementWrapper();
         topBar.removeAll();
         initialBar = true;
@@ -761,6 +761,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         style.set("width", "1.4em");
         style.set("text-align", "center");
         style.set("display", "inline-block");
+        startNumber.setVisible(false);
         getFirstNameWrapper().add(firstName, startNumber);
         Div fullName = new Div(lastName, getFirstNameWrapper());
 
@@ -943,12 +944,16 @@ public abstract class AthleteGridContent extends VerticalLayout
                                 : null);
                         if (startNumberText != null) {
                             startNumber.setText(startNumberText);
-                            startNumber.getStyle().set("visibility", "visible");
-                            startNumber.getStyle().set("font-size", "normal");
+                            if (startNumberText.isBlank()) {
+                                startNumber.setVisible(false);
+                            } else {
+                                startNumber.setVisible(true);
+                                startNumber.getStyle().set("font-size", "normal");
+                            }
                         } else {
                             startNumber.setText("\u26A0");
                             startNumber.setTitle(getTranslation("StartNumbersNotSet"));
-                            startNumber.getStyle().set("visibility", "visible");
+                            startNumber.setVisible(true);
                             startNumber.getStyle().set("font-size", "smaller");
                         }
                         timer.getElement().getStyle().set("visibility", "visible");
@@ -1079,12 +1084,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                     if (decisions != null) {
                         decisions.setVisible(false);
                     }
-                    if (this instanceof JuryContent) {
-                        busyBreakButton();
-                    } else {
-                        busyBreakButton();
-                    }
-
+                    busyBreakButton();
                 } else {
                     // logger.debug("notBreak");
                     if (buttons != null) {
@@ -1118,15 +1118,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             if (!initialBar) {
                 topBarMessage(string, text);
             } else {
-                if (introCountdownButton != null) {
-                    introCountdownButton.setVisible(false);
-                }
-                if (startLiftingButton != null) {
-                    startLiftingButton.setVisible(false);
-                }
-                if (showResultsButton != null) {
-                    showResultsButton.setVisible(false);
-                }
+                hideButtons();
                 warning.setText(string);
             }
         } else if (attemptsDone >= 6) {
@@ -1144,6 +1136,9 @@ public abstract class AthleteGridContent extends VerticalLayout
                 if (showResultsButton != null) {
                     showResultsButton.setVisible(true);
                 }
+                if (startNumber != null) {
+                    startNumber.setVisible(false); 
+                }
                 warning.setText(string);
             }
         } else if (liftingOrder.size() == 0) {
@@ -1152,17 +1147,24 @@ public abstract class AthleteGridContent extends VerticalLayout
             if (!initialBar) {
                 topBarMessage(string, text);
             } else {
-                if (introCountdownButton != null) {
-                    introCountdownButton.setVisible(false);
-                }
-                if (startLiftingButton != null) {
-                    startLiftingButton.setVisible(false);
-                }
-                if (showResultsButton != null) {
-                    showResultsButton.setVisible(false);
-                }
+                hideButtons();
                 warning.setText(string);
             }
+        }
+    }
+
+    private void hideButtons() {
+        if (introCountdownButton != null) {
+            introCountdownButton.setVisible(false);
+        }
+        if (startLiftingButton != null) {
+            startLiftingButton.setVisible(false);
+        }
+        if (showResultsButton != null) {
+            showResultsButton.setVisible(false);
+        }
+        if (startNumber != null) {
+            startNumber.setVisible(false); 
         }
     }
 

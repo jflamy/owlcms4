@@ -146,12 +146,17 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
 
     @Subscribe
     public void slaveUIEvent(UIEvent e) {
-        // uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(),
-        // e.getClass().getSimpleName(),e.getTrace());
+        if (e instanceof UIEvent.SetTime) {
+            // ignore events that don't change state
+            return;
+        }
+        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(),e.getClass().getSimpleName(),e.getTrace());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             if (syncWithFOP(e)) {
                 // significant transition
                 doUpdate();
+            } else {
+                //logger.debug("event ignored {} : {}",e.getClass().getSimpleName(),OwlcmsSession.getFop().getState());
             }
         });
     }
@@ -173,22 +178,23 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     }
 
     void uiLog(UIEvent e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
+        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
     }
 
     private String computePageTitle() {
         StringBuilder pageTitle = new StringBuilder();
         computeValues();
-        if (h0 != null && h0.state == FOPState.BREAK && h0.breakType == BreakType.GROUP_DONE
-                && h1 != null && h1.state == FOPState.DECISION_VISIBLE) {
-            // group_done state is seen twice at the end of a group.
-            // we ignore the first one entered immediately after the decision is available
-            // a second comes when the lights are turned off (CURRENT_ATHLETE_DISPLAYED)
-            logger.warn("hiding first group done {} {} {}", h0, h1, h2);
-            history.remove(0);
-            computeValues();
-        } else if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
+// NO LONGER NEEDED - Field of play no longer sends useless end of group
+//        if (h0 != null && h0.state == FOPState.BREAK && h0.breakType == BreakType.GROUP_DONE
+//                && h1 != null && h1.state == FOPState.DECISION_VISIBLE) {
+//            // group_done state is seen twice at the end of a group.
+//            // we ignore the first one entered immediately after the decision is available
+//            // a second comes when the lights are turned off (CURRENT_ATHLETE_DISPLAYED)
+//            logger.debug("hiding first group done {} {} {}", h0, h1, h2);
+//            history.remove(0);
+//            computeValues();
+//        } else 
+        if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
                 && h1 != null && h1.state == FOPState.BREAK && h1.breakType == BreakType.MEDALS) {
             logger.warn("hiding restart after medals {} {} {}", h0, h1, h2);
             history.remove(0);
@@ -295,10 +301,10 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
                     doPush(new Status(fop.getState(), fop.getBreakType(), null));
                     significant[0] = true;
                 } else {
-                    logger.warn("*** ignoring {}", fop.getBreakType());
+                    //logger.debug("*** ignoring {}", fop.getBreakType());
                 }
             } else {
-                logger.warn("*** ignoring {}", fop.getState());
+                //logger.debug("*** ignoring {}", fop.getState());
             }
         });
         return significant[0];

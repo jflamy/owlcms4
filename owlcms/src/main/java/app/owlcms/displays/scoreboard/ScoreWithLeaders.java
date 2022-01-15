@@ -135,13 +135,9 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         void setWideTeamNames(boolean b);
     }
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(ScoreWithLeaders.class);
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+    final private Logger logger = (Logger) LoggerFactory.getLogger(ScoreWithLeaders.class);
+    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
-    static {
-        logger.setLevel(Level.INFO);
-        uiEventLogger.setLevel(Level.INFO);
-    }
 
     @Id("timer")
     private AthleteTimerElement timer; // Flow creates it
@@ -171,6 +167,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
      * Instantiates a new results board.
      */
     public ScoreWithLeaders() {
+        uiEventLogger.setLevel(Level.DEBUG);
         OwlcmsFactory.waitDBInitialized();
         timer.setOrigin(this);
         setDarkMode(true);

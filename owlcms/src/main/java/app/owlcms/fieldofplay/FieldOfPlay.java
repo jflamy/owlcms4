@@ -501,7 +501,7 @@ public class FieldOfPlay {
                 transitionToBreak((BreakStarted) e);
             } else {
                 deferredBreak = e;
-                logger.info("{}Deferred break",getLoggingName());
+                logger.info("{}Deferred break", getLoggingName());
             }
             return;
         } else if (e instanceof StartLifting) {
@@ -750,8 +750,12 @@ public class FieldOfPlay {
             ageGroupMap.put(ag.getCode(), null);
         }
 
+        boolean done = false;
         if (athletes != null && athletes.size() > 0) {
-            recomputeLiftingOrder();
+            done = recomputeLiftingOrder();
+        }
+        if (done) {
+            pushOutDone();
         }
         if (getGroup() != null) {
         }
@@ -845,8 +849,8 @@ public class FieldOfPlay {
         getPostEventBus().post(event);
     }
 
-    public synchronized void recomputeLiftingOrder() {
-        recomputeLiftingOrder(true);
+    public synchronized boolean recomputeLiftingOrder() {
+        return recomputeLiftingOrder(true);
     }
 
     /**
@@ -1013,13 +1017,13 @@ public class FieldOfPlay {
                 inBreak));
 
         // cur athlete can be null during some tests.
-        int attempts = getCurAthlete() == null ? 0 : getCurAthlete().getAttemptedLifts() + 1;
+        int attempts = getCurAthlete() == null ? 0 : getCurAthlete().getAttemptsDone();
         String shortName = getCurAthlete() == null ? "" : getCurAthlete().getShortName();
         logger.info("{}current athlete = {} attempt = {}, requested = {}, clock={} initialTime={}",
                 getLoggingName(), shortName, attempts, curWeight,
                 clock,
                 getClockOwnerInitialTimeAllowed());
-        if (attempts > 6) {
+        if (attempts >= 6) {
             pushOutDone();
         }
     }
@@ -1039,28 +1043,21 @@ public class FieldOfPlay {
         doSetState(state);
     }
 
-    private void displayOrBreakIfDone(FOPEvent e) {
-        if (getCurAthlete() != null && getCurAthlete().getAttemptsDone() < 6) {
-            uiDisplayCurrentAthleteAndTime(true, e, false);
-            setState(CURRENT_ATHLETE_DISPLAYED);
-            getGroup().doDone(false);
-        } else {
-            // special kind of break that allows moving back in case of jury reversal
-            this.setBreakType(BreakType.GROUP_DONE);
-            this.setState(BREAK);
-            getGroup().doDone(true);
-            pushOutDone();
-        }
-    }
-
     private void doDecisionReset(FOPEvent e) {
         logger.debug("{}resetting decisions", getLoggingName());
         // the state will be rewritten in displayOrBreakIfDone
         // this is so the decision reset knows that the decision is no longer displayed.
-        setState(CURRENT_ATHLETE_DISPLAYED);
         pushOut(new UIEvent.DecisionReset(getCurAthlete(), this));
         setClockOwner(null);
-        displayOrBreakIfDone(e);
+        if (getCurAthlete() != null && getCurAthlete().getAttemptsDone() < 6) {
+            setState(CURRENT_ATHLETE_DISPLAYED);
+            uiDisplayCurrentAthleteAndTime(true, e, false);
+        } else {
+            // special kind of break that allows moving back in case of jury reversal
+            this.setBreakType(BreakType.GROUP_DONE);
+            this.setState(BREAK);
+            pushOutDone();
+        }
     }
 
     private void doJuryDecision(JuryDecision e) {
@@ -1080,11 +1077,11 @@ public class FieldOfPlay {
             pushOut(event);
             a.doLift(a.getAttemptsDone(), e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
             AthleteRepository.save(a);
+            recomputeLiftingOrder();
 
             // tell ourself to reset after 3 secs.
             new DelayTimer().schedule(() -> {
                 fopEventPost(new DecisionReset(this));
-                recomputeLiftingOrder();
                 fopEventPost(new StartLifting(this));
             }, DECISION_VISIBLE_DURATION);
 
@@ -1096,7 +1093,13 @@ public class FieldOfPlay {
         if (state == CURRENT_ATHLETE_DISPLAYED) {
             Athlete a = getCurAthlete();
             if (getGroup() != null) {
-                getGroup().doDone(a == null || a.getAttemptsDone() >= 6);
+                boolean lastLiftDone = a == null || a.getAttemptsDone() >= 6;
+                getGroup().doDone(lastLiftDone);
+                // special case for 0 on last lift, there willl be no decision, group is really done
+                if (lastLiftDone && a != null && a.getActualLift(6) == 0) {
+                    state = BREAK;
+                    breakType = BreakType.GROUP_DONE;
+                }
             }
         } else if (state == BREAK && getGroup() != null) {
             getGroup().doDone(breakType == BreakType.GROUP_DONE);
@@ -1156,7 +1159,7 @@ public class FieldOfPlay {
             logger.trace("&&3.C1 no clock owner, time is not running");
             // time is not running
             recomputeLiftingOrder();
-            // updateGlobalRankings(); // now done by recomputeLiftingOrder
+
             setStateUnlessInBreak(CURRENT_ATHLETE_DISPLAYED);
             logger.trace("&&3.C2 displaying, curAthlete={}, state={}", getCurAthlete(), state);
             uiDisplayCurrentAthleteAndTime(true, wc, false);
@@ -1184,7 +1187,6 @@ public class FieldOfPlay {
                 getCurAthlete(), currentDisplayAffected, newState);
         setStateUnlessInBreak(newState);
         uiDisplayCurrentAthleteAndTime(currentDisplayAffected, wc, false);
-        // updateGlobalRankings(); // now done by recomputeLiftingOrder
     }
 
     private Mixer getSoundMixer() {
@@ -1271,7 +1273,6 @@ public class FieldOfPlay {
         this.setBreakType(BreakType.GROUP_DONE);
         this.setState(BREAK);
         pushOut(event);
-        logger.debug("{}group {} done2", getLoggingName(), getGroup());
     }
 
     private void pushOutStartLifting(Group group2, Object origin) {
@@ -1339,12 +1340,11 @@ public class FieldOfPlay {
         }
     }
 
-    private void recomputeLiftingOrder(boolean currentDisplayAffected) {
+    private boolean recomputeLiftingOrder(boolean currentDisplayAffected) {
         // this is where lifting order is actually recomputed
         recomputeOrderAndRanks();
         if (getCurAthlete() == null) {
-            pushOutDone();
-            return;
+            return true;
         }
 
         int timeAllowed = getTimeAllowed();
@@ -1364,10 +1364,11 @@ public class FieldOfPlay {
         // if editing the athlete later gives back an attempt, then the state change will take
         // place and subscribers will revert to current athlete display.
         boolean done = attemptsDone >= 6;
-        if (done) {
-            pushOutDone();
-        }
+//        if (done) {
+//            pushOutDone();
+//        }
         getGroup().doDone(done);
+        return done;
     }
 
     /**
@@ -1400,8 +1401,12 @@ public class FieldOfPlay {
                 setState(TIME_STOPPED); // allows referees to enter decisions even if time is not restarted (which
                                         // sometimes happens).
             } else {
-                setState(CURRENT_ATHLETE_DISPLAYED);
-                recomputeLiftingOrder();
+                boolean done = recomputeLiftingOrder();
+                if (done) {
+                    pushOutDone();
+                } else {
+                    setState(CURRENT_ATHLETE_DISPLAYED);
+                }
             }
 
             getBreakTimer().stop();
@@ -1497,7 +1502,7 @@ public class FieldOfPlay {
         if (state == INACTIVE) {
             // remain in INACTIVE state (do nothing)
         } else if (state == BREAK) {
-            logger.debug("{}Break {}", getLoggingName(), state, getBreakType());
+            logger.debug("{}Break {} {} newState={}", getLoggingName(), state, getBreakType(), newState);
             // if in a break, we don't stop break timer on a weight change.
             if (getBreakType() == BreakType.GROUP_DONE) {
                 // weight change in state GROUP_DONE can happen if there is a loading error
@@ -1506,6 +1511,7 @@ public class FieldOfPlay {
                 // in this case, we need to go back to lifting.
                 // set the state now, otherwise attempt board will ignore request to display if
                 // in a break
+
                 setState(newState, LoggerUtils.whereFrom());
                 if (newState == CURRENT_ATHLETE_DISPLAYED) {
                     pushOutStartLifting(getGroup(), this);
@@ -1571,7 +1577,11 @@ public class FieldOfPlay {
         recomputeLiftingOrder();
 
         // tell ourself to reset after 3 secs.
-        new DelayTimer().schedule(() -> fopEventPost(new DecisionReset(this)), DECISION_VISIBLE_DURATION);
+        // Decision reset will handle end of group.
+        new DelayTimer().schedule(
+                () -> {
+                    fopEventPost(new DecisionReset(this));
+                }, DECISION_VISIBLE_DURATION);
     }
 
     /**
