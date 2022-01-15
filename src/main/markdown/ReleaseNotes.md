@@ -1,8 +1,10 @@
 #### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.28.0-alpha04: Fix for OBS status monitoring of jury breaks (state=DECISION_VISIBLE...;previous=BREAK.JURY was being removed by mistake).
+4.28.0-alpha05: Fixed transition to GROUP_DONE state, which was previously entered twice at the end of a group.  GROUP_DONE is now entered only once, either after the decision reset of last athlete, or when the last lift result is entered manually (typically to enter a 0).  Jury decisions for the last athlete also send a GROUP_DONE after the jury decision is displayed.
 
-4.28.0-alpha03: JuryConsole : when the jury renders its decision, the initial notification regarding the good/bad lift status of the previous lift is no longer relevant and is now removed.
+4.28.0-alpha05: Fixed attempt board and status monitor that were expecting multiple GROUP_DONE events.
+
+4.28.0-alpha05: removed empty start number box that was shown in the top bar when the group was done.
 
 ##### New in release 4.28
 
