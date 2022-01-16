@@ -1,32 +1,18 @@
 #### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-<<<<<<< HEAD
 4.28.0-alpha05: Fixed transition to GROUP_DONE state, which was previously entered twice at the end of a group.  GROUP_DONE is now entered only once, either after the decision reset of last athlete, or when the last lift result is entered manually (typically to enter a 0).  Jury decisions for the last athlete also send a GROUP_DONE after the jury decision is displayed.
 
 4.28.0-alpha05: Fixed attempt board and status monitor that were expecting multiple GROUP_DONE events.
 
-4.28.0-alpha05: Fixed empty start number box that was shown in the top bar when the group was done.
-
-4.28.0-alpha05: Fixed wrong margins on the owlcms US Letter 2-per-page marshal card template.
-=======
-4.27.3: Fixed margins on the athlete cards template (old owlcms style, two per page)
-
-4.27.2: Updated H2 version as recommended by security advisory
-
-4.27.2: Prevent premature jury breaks requested during the lift adjudication process. The break is deferred until the decision lights have been shown, and then starts immediately.
->>>>>>> origin/master
+4.28.0-alpha05: removed empty start number box that was shown in the top bar when the group was done.
 
 ##### New in release 4.28
 
-<<<<<<< HEAD
 - [x] Enhancement: The group selection drop-down now displays the group description alongside the short group name.
 - [x] Enhancement:  Timer warning and down sound are now off by default on the technical officials consoles. New settings menu enables turning them on.
 - [x] Jury Console: if another official ends the break, the Jury Deliberation dialog is closed. Also, the initial notification about a good/bad lift is closed when a jury decision is given.
 
 ##### Key Highlights from recent stable releases
-=======
-###### New in release 4.27
->>>>>>> origin/master
 
 - [x] **v4.27 <u>Local Database Format Change</u>**  The H2 database is used on local installs.  The H2 team no longer supports the previous database format, so some people may need a to perform a simple conversion. 
   - If you always start from scratch (new Excel, or interactive entry), you have nothing to do (a new database will be created on first start of the new version.
