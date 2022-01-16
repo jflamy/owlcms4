@@ -1,3 +1,5 @@
+#!/bin/bash 
+
 #*******************************************************************************
 # Copyright (c) 2009-2022 Jean-François Lamy
 #
@@ -12,7 +14,7 @@ git pull
 git commit -m "sync submodules [skip ci]" .
 git push
 
-cd ..\publicresults-heroku
+cd ../publicresults-heroku
 git checkout develop
 git pull
 git commit -m "sync submodules [skip ci]" .
