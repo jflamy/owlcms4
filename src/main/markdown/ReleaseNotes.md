@@ -1,16 +1,14 @@
 #### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.28.0-alpha05: Fixed transition to GROUP_DONE state, which was previously entered twice at the end of a group.  GROUP_DONE is now entered only once, either after the decision reset of last athlete, or when the last lift result is entered manually (typically to enter a 0).  Jury decisions for the last athlete also send a GROUP_DONE after the jury decision is displayed.
-
-4.28.0-alpha05: Fixed attempt board and status monitor that were expecting multiple GROUP_DONE events.
-
-4.28.0-alpha05: removed empty start number box that was shown in the top bar when the group was done.
+4.28.0-beta01: Added the list of expected status transitions to the OBS scene switching [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/OBSSceneSwitching) 
 
 ##### New in release 4.28
 
+- [x] Enhancements and fixes to the status monitor used for Open Broadcaster Software (OBS) automated scene switching.  Improvements to the processing of end-of-group scenarios (withdrawal without a decision, jury decision after the last lift, etc.). Added [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/OBSSceneSwitching) for all supported transitions.
 - [x] Enhancement: The group selection drop-down now displays the group description alongside the short group name.
 - [x] Enhancement:  Timer warning and down sound are now off by default on the technical officials consoles. New settings menu enables turning them on.
 - [x] Jury Console: if another official ends the break, the Jury Deliberation dialog is closed. Also, the initial notification about a good/bad lift is closed when a jury decision is given.
+- [x] Fix: Margins were wrong on the original style marshal cards when using US Letter paper.
 
 ##### Key Highlights from recent stable releases
 
