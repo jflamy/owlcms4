@@ -75,7 +75,11 @@ export RESULTS=results.owlcms.mywire.org
 2. This step fetches the configuration and substitutes the values for OFFICIALS and RESULTS before applying it.  
 
 ```powershell
+<<<<<<< HEAD
 curl -sfL https://github.com/owlcms/owlcms4-prerelease/releases/download/4.28.0-alpha05/k3s_setup.yaml | envsubst | kubectl apply -f - 
+=======
+curl -sfL https://github.com/owlcms/owlcms4/releases/download/4.27.3/k3s_setup.yaml | envsubst | kubectl apply -f - 
+>>>>>>> origin/master
 ```
 
 > Note: you may have to execute the command several times, because some steps take time to complete.  There is no harm done repeating the steps.  Wait 30 seconds or so between each attempt, every attempt will get further down the steps.  This is simpler than breaking down the setup in several steps. 
