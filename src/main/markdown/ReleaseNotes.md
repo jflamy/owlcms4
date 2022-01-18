@@ -1,6 +1,8 @@
 #### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.28.0-beta01: Added the list of expected status transitions to the OBS scene switching [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/OBSSceneSwitching) 
+4.28.0-beta02: Fix: the local directory in the Windows install was missing the files for overriding the sounds. Also, the down signal sound is now emitted using local/sounds/down.mp3 and can be changed.
+
+4.28.0-beta02: Armenian translation
 
 ##### New in release 4.28
 
