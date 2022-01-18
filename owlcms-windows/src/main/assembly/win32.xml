@@ -17,17 +17,7 @@
 				<include>conf**/**</include>
 			</includes>
 		</fileSet>
-<!-- 		<fileSet> -->
-<!-- 			<directory>${project.basedir}/src/main/resources</directory> -->
-<!-- 			<outputDirectory>local</outputDirectory> -->
-<!-- 			<includes> -->
-<!-- 				<include>i18n**/**</include> -->
-<!-- 				<include>templates**/**</include> -->
-<!-- 				<include>sinclair**/**</include> -->
-<!-- 				<include>styles**/**</include> -->
-<!--                 <include>agegroups**/**</include> -->
-<!-- 			</includes> -->
-<!-- 		</fileSet> -->
+        <!--  we do not copy /local and other items, they are extracted from the dependencies -->
 	</fileSets>
 	<files>
 		<file>
