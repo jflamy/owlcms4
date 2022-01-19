@@ -1,8 +1,10 @@
 #### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.28.0-beta02: Fix: the local directory in the Windows install was missing the files for overriding the sounds. Also, the down signal sound is now emitted using local/sounds/down.mp3 and can be changed.
+4.28.0-beta04: Change the server-generated down signal to use a sound file. Note that the sound files for the server are .wav (down signal is down2.wav).  Files are looked up first under local/sounds and then in the distribution archive.
 
-4.28.0-beta02: Armenian translation
+4.28.0-beta03: Fix: the local directory in the Windows install was missing the files for overriding the sounds. Also, the down signal sound is now emitted using local/sounds/down.mp3 and can be changed.
+
+4.28.0-beta03: Armenian translation
 
 ##### New in release 4.28
 
