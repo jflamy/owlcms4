@@ -322,7 +322,9 @@ class DecisionElement extends PolymerElement {
 		// 	this._setupAudio();
 		// }
 
-		this._playTrack("../sounds/down.mp3", window.downSignal, true, 0);
+		if (!this.silent) {
+			this._playTrack("../sounds/down.mp3", window.downSignal, true, 0);
+		}
 
 		//this.$.downAudio.play();
 
