@@ -148,6 +148,7 @@ public class FieldOfPlay {
     private boolean decisionDisplayScheduled = false;
     private List<Athlete> displayOrder;
     private boolean downEmitted;
+    @SuppressWarnings("unused")
     private Tone downSignal;
     private boolean finalWarningEmitted;
     private EventBus fopEventBus = null;
@@ -242,8 +243,7 @@ public class FieldOfPlay {
         if (!isFinalWarningEmitted()) {
             logger.info("{}Final Warning", getLoggingName());
             if (isEmitSoundsOnServer()) {
-                // instead of finalWarning2.wav sounds too much like down
-                new Sound(getSoundMixer(), "initialWarning2.wav").emit();
+                new Sound(getSoundMixer(), "finalWarning.wav").emit();
             }
             setFinalWarningEmitted(true);
         }
@@ -253,7 +253,7 @@ public class FieldOfPlay {
         if (!isInitialWarningEmitted()) {
             logger.info("{}Initial Warning", getLoggingName());
             if (isEmitSoundsOnServer()) {
-                new Sound(getSoundMixer(), "initialWarning2.wav").emit();
+                new Sound(getSoundMixer(), "initialWarning.wav").emit();
             }
             setInitialWarningEmitted(true);
         }
@@ -263,7 +263,7 @@ public class FieldOfPlay {
         if (!isTimeoutEmitted()) {
             logger.info("{}Time Over", getLoggingName());
             if (isEmitSoundsOnServer()) {
-                new Sound(getSoundMixer(), "timeOver2.wav").emit();
+                new Sound(getSoundMixer(), "timeOver.wav").emit();
             }
             setTimeoutEmitted(true);
         }
@@ -1707,7 +1707,7 @@ public class FieldOfPlay {
             // sound is synchronous, we don't want to wait.
             new Thread(() -> {
                 try {
-                    new Sound(getSoundMixer(), "down2.wav").emit();
+                    new Sound(getSoundMixer(), "down.wav").emit();
                     //downSignal.emit();
                 } catch (IllegalArgumentException /* | LineUnavailableException */ e) {
                     broadcast("SoundSystemProblem");
