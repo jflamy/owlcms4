@@ -1707,8 +1707,9 @@ public class FieldOfPlay {
             // sound is synchronous, we don't want to wait.
             new Thread(() -> {
                 try {
-                    downSignal.emit();
-                } catch (IllegalArgumentException | LineUnavailableException e) {
+                    new Sound(getSoundMixer(), "down2.wav").emit();
+                    //downSignal.emit();
+                } catch (IllegalArgumentException /* | LineUnavailableException */ e) {
                     broadcast("SoundSystemProblem");
                 }
             }).start();
