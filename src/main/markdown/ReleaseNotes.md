@@ -1,10 +1,11 @@
 #### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.28.0-beta04: Change the server-generated down signal to use a sound file. Note that the sound files for the server are .wav (down signal is down2.wav).  Files are looked up first under local/sounds and then in the distribution archive.
+4.28.0-rc01: Sound-related changes: 
 
-4.28.0-beta03: Fix: the local directory in the Windows install was missing the files for overriding the sounds. Also, the down signal sound is now emitted using local/sounds/down.mp3 and can be changed.
-
-4.28.0-beta03: Armenian translation
+- Renamed the server-side sounds in the local sounds directory from 2.wav to .wav.  
+- New sound for the down signal (converted to mp3 for browser) -- differentiation from the final warning tone.
+- Lower volume for the initial warning sound (converted to mp3 for browser). 
+- Server-side was using the same initial warning sound for the final warning, now uses two separate files.  If the same sound is desired, copy the same sound under both names in the local directory (and use the zip upload if working in the cloud)
 
 ##### New in release 4.28
 
