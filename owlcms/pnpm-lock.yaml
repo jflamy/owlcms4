@@ -18,23 +18,23 @@ specifiers:
   '@vaadin/vaadin-avatar': 1.0.4
   '@vaadin/vaadin-button': 2.4.0
   '@vaadin/vaadin-checkbox': 2.5.1
-  '@vaadin/vaadin-combo-box': 5.4.10
-  '@vaadin/vaadin-context-menu': 4.5.0
-  '@vaadin/vaadin-core-shrinkwrap': 14.7.7
+  '@vaadin/vaadin-combo-box': 5.4.11
+  '@vaadin/vaadin-context-menu': 4.6.0
+  '@vaadin/vaadin-core-shrinkwrap': 14.8.1
   '@vaadin/vaadin-custom-field': 1.3.1
   '@vaadin/vaadin-date-picker': 4.4.1
   '@vaadin/vaadin-date-time-picker': 1.4.0
   '@vaadin/vaadin-details': 1.2.0
-  '@vaadin/vaadin-dialog': 2.5.2
+  '@vaadin/vaadin-dialog': 2.6.0
   '@vaadin/vaadin-form-layout': 2.3.0
-  '@vaadin/vaadin-grid': 5.8.4
+  '@vaadin/vaadin-grid': 5.9.1
   '@vaadin/vaadin-icons': 4.3.2
   '@vaadin/vaadin-item': 2.3.0
   '@vaadin/vaadin-list-box': 1.4.0
   '@vaadin/vaadin-login': 1.2.0
   '@vaadin/vaadin-lumo-styles': 1.6.1
   '@vaadin/vaadin-material-styles': 1.3.2
-  '@vaadin/vaadin-menu-bar': 1.2.2
+  '@vaadin/vaadin-menu-bar': 1.3.0
   '@vaadin/vaadin-messages': 1.0.2
   '@vaadin/vaadin-notification': 1.6.1
   '@vaadin/vaadin-ordered-layout': 1.4.0
@@ -43,7 +43,7 @@ specifiers:
   '@vaadin/vaadin-select': 2.4.1
   '@vaadin/vaadin-split-layout': 4.3.0
   '@vaadin/vaadin-tabs': 3.2.0
-  '@vaadin/vaadin-text-field': 2.8.6
+  '@vaadin/vaadin-text-field': 2.9.0
   '@vaadin/vaadin-time-picker': 2.4.0
   '@vaadin/vaadin-upload': 4.4.3
   '@webcomponents/webcomponentsjs': ^2.2.10
@@ -88,23 +88,23 @@ dependencies:
   '@vaadin/vaadin-avatar': 1.0.4
   '@vaadin/vaadin-button': 2.4.0
   '@vaadin/vaadin-checkbox': 2.5.1
-  '@vaadin/vaadin-combo-box': 5.4.10
-  '@vaadin/vaadin-context-menu': 4.5.0
-  '@vaadin/vaadin-core-shrinkwrap': 14.7.7
+  '@vaadin/vaadin-combo-box': 5.4.11
+  '@vaadin/vaadin-context-menu': 4.6.0
+  '@vaadin/vaadin-core-shrinkwrap': 14.8.1
   '@vaadin/vaadin-custom-field': 1.3.1
   '@vaadin/vaadin-date-picker': 4.4.1
   '@vaadin/vaadin-date-time-picker': 1.4.0
   '@vaadin/vaadin-details': 1.2.0
-  '@vaadin/vaadin-dialog': 2.5.2
+  '@vaadin/vaadin-dialog': 2.6.0
   '@vaadin/vaadin-form-layout': 2.3.0
-  '@vaadin/vaadin-grid': 5.8.4
+  '@vaadin/vaadin-grid': 5.9.1
   '@vaadin/vaadin-icons': 4.3.2
   '@vaadin/vaadin-item': 2.3.0
   '@vaadin/vaadin-list-box': 1.4.0
   '@vaadin/vaadin-login': 1.2.0
   '@vaadin/vaadin-lumo-styles': 1.6.1
   '@vaadin/vaadin-material-styles': 1.3.2
-  '@vaadin/vaadin-menu-bar': 1.2.2
+  '@vaadin/vaadin-menu-bar': 1.3.0
   '@vaadin/vaadin-messages': 1.0.2
   '@vaadin/vaadin-notification': 1.6.1
   '@vaadin/vaadin-ordered-layout': 1.4.0
@@ -113,7 +113,7 @@ dependencies:
   '@vaadin/vaadin-select': 2.4.1
   '@vaadin/vaadin-split-layout': 4.3.0
   '@vaadin/vaadin-tabs': 3.2.0
-  '@vaadin/vaadin-text-field': 2.8.6
+  '@vaadin/vaadin-text-field': 2.9.0
   '@vaadin/vaadin-time-picker': 2.4.0
   '@vaadin/vaadin-upload': 4.4.3
   '@webcomponents/webcomponentsjs': 2.6.0
@@ -1598,7 +1598,7 @@ packages:
       '@polymer/iron-resizable-behavior': 3.0.1
       '@polymer/polymer': 3.2.0
       '@vaadin/vaadin-button': 2.4.0
-      '@vaadin/vaadin-dialog': 2.5.2
+      '@vaadin/vaadin-dialog': 2.6.0
       '@vaadin/vaadin-element-mixin': 2.4.2
       '@vaadin/vaadin-lumo-styles': 1.6.1
       '@vaadin/vaadin-material-styles': 1.3.2
@@ -1665,8 +1665,8 @@ packages:
       '@vaadin/vaadin-themable-mixin': 1.6.2
     dev: false
 
-  /@vaadin/vaadin-combo-box/5.4.10:
-    resolution: {integrity: sha512-iOUMX68om+MD9novxjo2yjW2oriQmcjMsFNrOvMYYAx0r43kPlJwLaFDT4KFrOElT/0J7rgP72AURiQ6kBgr2A==}
+  /@vaadin/vaadin-combo-box/5.4.11:
+    resolution: {integrity: sha512-k300igxQjTFu37Vqp8II41UVB2guzpRBFH5auJ1kKbVfvkg8NTC7nLygZ3Zhp3Zrp5cH3tI+fC0dn/256//GPw==}
     dependencies:
       '@polymer/iron-a11y-announcer': 3.2.0
       '@polymer/iron-a11y-keys-behavior': 3.0.1
@@ -1679,12 +1679,12 @@ packages:
       '@vaadin/vaadin-lumo-styles': 1.6.1
       '@vaadin/vaadin-material-styles': 1.3.2
       '@vaadin/vaadin-overlay': 3.5.1
-      '@vaadin/vaadin-text-field': 2.8.6
+      '@vaadin/vaadin-text-field': 2.9.0
       '@vaadin/vaadin-themable-mixin': 1.6.2
     dev: false
 
-  /@vaadin/vaadin-context-menu/4.5.0:
-    resolution: {integrity: sha512-iYQ+xpfWBDV+z7zEXRAoggs+SGNE08KpQ1/LAqRBGvrsVaTCF0CqC845DMQ1mcGd26IqpyABv8JvM4a3XtNR0A==}
+  /@vaadin/vaadin-context-menu/4.6.0:
+    resolution: {integrity: sha512-X6dNAeQzcy49CILcTV+UkqBmowJDNHgDVz9Nfd1xp41aasQVywGm5XIXfl7yUmXAmg7ICTBlmOvFgubffTtUVg==}
     dependencies:
       '@polymer/iron-media-query': 3.0.1
       '@polymer/polymer': 3.2.0
@@ -1703,8 +1703,8 @@ packages:
       '@polymer/polymer': 3.2.0
     dev: false
 
-  /@vaadin/vaadin-core-shrinkwrap/14.7.7:
-    resolution: {integrity: sha512-Y6p92iwyQOKRjN9G0yQ/uatKb3qSfSJNzXcoigW2gFfVDKafeXXZRx6YZZchifXHBzFyA4YGeKuxP+zuOk/WBA==}
+  /@vaadin/vaadin-core-shrinkwrap/14.8.1:
+    resolution: {integrity: sha512-gt95kqqm9SMqz36sE4IETbxUyFwQaUJynf51+dO8/ITn79641oGQxsjmCtgijpZJ/5pjkMtE+Duhr8/VKqYg/w==}
     dependencies:
       '@polymer/iron-a11y-announcer': 3.2.0
       '@polymer/iron-a11y-keys-behavior': 3.0.1
@@ -1723,18 +1723,18 @@ packages:
       '@vaadin/vaadin-avatar': 1.0.4
       '@vaadin/vaadin-button': 2.4.0
       '@vaadin/vaadin-checkbox': 2.5.1
-      '@vaadin/vaadin-combo-box': 5.4.10
-      '@vaadin/vaadin-context-menu': 4.5.0
+      '@vaadin/vaadin-combo-box': 5.4.11
+      '@vaadin/vaadin-context-menu': 4.6.0
       '@vaadin/vaadin-control-state-mixin': 2.2.4
       '@vaadin/vaadin-custom-field': 1.3.1
       '@vaadin/vaadin-date-picker': 4.4.1
       '@vaadin/vaadin-date-time-picker': 1.4.0
       '@vaadin/vaadin-details': 1.2.0
       '@vaadin/vaadin-development-mode-detector': 2.0.4
-      '@vaadin/vaadin-dialog': 2.5.2
+      '@vaadin/vaadin-dialog': 2.6.0
       '@vaadin/vaadin-element-mixin': 2.4.2
       '@vaadin/vaadin-form-layout': 2.3.0
-      '@vaadin/vaadin-grid': 5.8.4
+      '@vaadin/vaadin-grid': 5.9.1
       '@vaadin/vaadin-icons': 4.3.2
       '@vaadin/vaadin-item': 2.3.0
       '@vaadin/vaadin-list-box': 1.4.0
@@ -1742,7 +1742,7 @@ packages:
       '@vaadin/vaadin-login': 1.2.0
       '@vaadin/vaadin-lumo-styles': 1.6.1
       '@vaadin/vaadin-material-styles': 1.3.2
-      '@vaadin/vaadin-menu-bar': 1.2.2
+      '@vaadin/vaadin-menu-bar': 1.3.0
       '@vaadin/vaadin-messages': 1.0.2
       '@vaadin/vaadin-notification': 1.6.1
       '@vaadin/vaadin-ordered-layout': 1.4.0
@@ -1752,7 +1752,7 @@ packages:
       '@vaadin/vaadin-select': 2.4.1
       '@vaadin/vaadin-split-layout': 4.3.0
       '@vaadin/vaadin-tabs': 3.2.0
-      '@vaadin/vaadin-text-field': 2.8.6
+      '@vaadin/vaadin-text-field': 2.9.0
       '@vaadin/vaadin-themable-mixin': 1.6.2
       '@vaadin/vaadin-time-picker': 2.4.0
       '@vaadin/vaadin-upload': 4.4.3
@@ -1784,7 +1784,7 @@ packages:
       '@vaadin/vaadin-lumo-styles': 1.6.1
       '@vaadin/vaadin-material-styles': 1.3.2
       '@vaadin/vaadin-overlay': 3.5.1
-      '@vaadin/vaadin-text-field': 2.8.6
+      '@vaadin/vaadin-text-field': 2.9.0
       '@vaadin/vaadin-themable-mixin': 1.6.2
     dev: false
 
@@ -1816,8 +1816,8 @@ packages:
     resolution: {integrity: sha512-S+PaFrZpK8uBIOnIHxjntTrgumd5ztuCnZww96ydGKXgo9whXfZsbMwDuD/102a/IuPUMyF+dh/n3PbWzJ6igA==}
     dev: false
 
-  /@vaadin/vaadin-dialog/2.5.2:
-    resolution: {integrity: sha512-rnJtP+3b4SpnAvTrlVcck87Hd5TMSVtGyOrL8S9tlemGeDfoQaZ3Tqia/atSQaHAkUzdW/b5MAA8ENmdKDDJpg==}
+  /@vaadin/vaadin-dialog/2.6.0:
+    resolution: {integrity: sha512-CciEbULUPdVgN9irsT2Ch/RnjS96wdQwgi4AgpTNID9fnO93TbdKgmD/gPCnLG9wnraDxJ+JqRQjbJBSOOyQGQ==}
     dependencies:
       '@polymer/iron-resizable-behavior': 3.0.1
       '@polymer/polymer': 3.2.0
@@ -1847,8 +1847,8 @@ packages:
       '@vaadin/vaadin-themable-mixin': 1.6.2
     dev: false
 
-  /@vaadin/vaadin-grid/5.8.4:
-    resolution: {integrity: sha512-fAbx1svaeuC1G68sBR1N7KpRFJpUptHAk3bpROTkRamGC9KSwCsaoKKbUmgOyeyCopdnNsFHed+vqD9vnL8c3A==}
+  /@vaadin/vaadin-grid/5.9.1:
+    resolution: {integrity: sha512-8Ex1oayJDJ+l4uJt8FQFJ9jYcFLU18In7pofEulEE/wFM8iSt8g6A7UH6eDJ3+AKYryYIM7psAs5nwOVvqaSUw==}
     dependencies:
       '@polymer/iron-a11y-announcer': 3.2.0
       '@polymer/iron-a11y-keys-behavior': 3.0.1
@@ -1859,7 +1859,7 @@ packages:
       '@vaadin/vaadin-element-mixin': 2.4.2
       '@vaadin/vaadin-lumo-styles': 1.6.1
       '@vaadin/vaadin-material-styles': 1.3.2
-      '@vaadin/vaadin-text-field': 2.8.6
+      '@vaadin/vaadin-text-field': 2.9.0
       '@vaadin/vaadin-themable-mixin': 1.6.2
     dev: false
 
@@ -1909,7 +1909,7 @@ packages:
       '@vaadin/vaadin-lumo-styles': 1.6.1
       '@vaadin/vaadin-material-styles': 1.3.2
       '@vaadin/vaadin-overlay': 3.5.1
-      '@vaadin/vaadin-text-field': 2.8.6
+      '@vaadin/vaadin-text-field': 2.9.0
       '@vaadin/vaadin-themable-mixin': 1.6.2
     dev: false
 
@@ -1927,13 +1927,13 @@ packages:
       '@polymer/polymer': 3.2.0
     dev: false
 
-  /@vaadin/vaadin-menu-bar/1.2.2:
-    resolution: {integrity: sha512-qEdHO9Bgh/Ugg9UvkGtVtwlQpZFpGiHP9oXwFNVgoaYuJgrOm5AShTIP1BfWLyIr0sQDQOkMpRQ4WaKYfCZOcQ==}
+  /@vaadin/vaadin-menu-bar/1.3.0:
+    resolution: {integrity: sha512-evcbZdVOJlx0syXIMT5ZxYDyb7T4qH4gDFvQVagDXFdbloYNDstyKIC+fIicDgtAa/VNzEdKmVJqQzLuKfH/BA==}
     dependencies:
       '@polymer/iron-resizable-behavior': 3.0.1
       '@polymer/polymer': 3.2.0
       '@vaadin/vaadin-button': 2.4.0
-      '@vaadin/vaadin-context-menu': 4.5.0
+      '@vaadin/vaadin-context-menu': 4.6.0
       '@vaadin/vaadin-element-mixin': 2.4.2
       '@vaadin/vaadin-lumo-styles': 1.6.1
       '@vaadin/vaadin-material-styles': 1.3.2
@@ -1949,7 +1949,7 @@ packages:
       '@vaadin/vaadin-element-mixin': 2.4.2
       '@vaadin/vaadin-lumo-styles': 1.6.1
       '@vaadin/vaadin-material-styles': 1.3.2
-      '@vaadin/vaadin-text-field': 2.8.6
+      '@vaadin/vaadin-text-field': 2.9.0
       '@vaadin/vaadin-themable-mixin': 1.6.2
     dev: false
 
@@ -2018,7 +2018,7 @@ packages:
       '@vaadin/vaadin-lumo-styles': 1.6.1
       '@vaadin/vaadin-material-styles': 1.3.2
       '@vaadin/vaadin-overlay': 3.5.1
-      '@vaadin/vaadin-text-field': 2.8.6
+      '@vaadin/vaadin-text-field': 2.9.0
       '@vaadin/vaadin-themable-mixin': 1.6.2
     dev: false
 
@@ -2046,8 +2046,8 @@ packages:
       '@vaadin/vaadin-themable-mixin': 1.6.2
     dev: false
 
-  /@vaadin/vaadin-text-field/2.8.6:
-    resolution: {integrity: sha512-WTw48kajLr8zQ4xEizhOyzqAqBxz3Ad0O6GgcCEqLkm8+VULp+D2EaWJouqalYE5QEgnLOjUIjJnpVocAbm8JQ==}
+  /@vaadin/vaadin-text-field/2.9.0:
+    resolution: {integrity: sha512-y7z/w/nKFlcUDZiys7Nz5apkmHrsoydhghooDJdfTiydx/fzp4dO1pqxoKlrB624seJZe9DpnCYd7Yx8kzYnGw==}
     dependencies:
       '@polymer/polymer': 3.2.0
       '@vaadin/vaadin-control-state-mixin': 2.2.4
@@ -2069,12 +2069,12 @@ packages:
     dependencies:
       '@polymer/iron-a11y-keys-behavior': 3.0.1
       '@polymer/polymer': 3.2.0
-      '@vaadin/vaadin-combo-box': 5.4.10
+      '@vaadin/vaadin-combo-box': 5.4.11
       '@vaadin/vaadin-control-state-mixin': 2.2.4
       '@vaadin/vaadin-element-mixin': 2.4.2
       '@vaadin/vaadin-lumo-styles': 1.6.1
       '@vaadin/vaadin-material-styles': 1.3.2
-      '@vaadin/vaadin-text-field': 2.8.6
+      '@vaadin/vaadin-text-field': 2.9.0
       '@vaadin/vaadin-themable-mixin': 1.6.2
     dev: false
 
@@ -5643,11 +5643,11 @@ packages:
     resolution: {integrity: sha512-1DktGvAkmoG4ANtKrCFUXazgQN4Ya43AAOFl1EG8y4+xYOa/Gi49sa4Q3/unWZgoU26HCmeSDTJuf2ZJXgJCFw==}
     dependencies:
       '@polymer/polymer': 3.2.0
-      '@vaadin/vaadin-combo-box': 5.4.10
+      '@vaadin/vaadin-combo-box': 5.4.11
       '@vaadin/vaadin-control-state-mixin': 2.2.4
       '@vaadin/vaadin-lumo-styles': 1.6.1
       '@vaadin/vaadin-material-styles': 1.3.2
-      '@vaadin/vaadin-text-field': 2.8.6
+      '@vaadin/vaadin-text-field': 2.9.0
       '@vaadin/vaadin-themable-mixin': 1.6.2
     dev: false
 

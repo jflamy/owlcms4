@@ -24,9 +24,12 @@ import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -61,6 +64,7 @@ import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AthleteCrudGrid;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -350,14 +354,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
         Button resultsButton = createGroupResultsDownloadButton();
 
-        topBarGroupSelect = new ComboBox<>();
-        topBarGroupSelect.setPlaceholder(getTranslation("Group"));
-        topBarGroupSelect.setItems(GroupRepository.findAll());
-        topBarGroupSelect.setItemLabelGenerator(Group::getName);
-        topBarGroupSelect.setClearButtonVisible(true);
-        setGroupSelectionListener();
-        topBarGroupSelect.setValue(currentGroup);
-        topBarGroupSelect.setWidth("8em");
+        createTopBarGroupSelect();
 
         HorizontalLayout buttons = new HorizontalLayout(resultsButton);
         buttons.setPadding(true);
@@ -366,11 +363,51 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
         topBar.getStyle().set("flex", "100 1");
         topBar.removeAll();
-        topBar.add(title, topBarGroupSelect, buttons);
+        topBar.add(title, topBarMenu, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         topBar.setFlexGrow(0.2, title);
 //        topBar.setSpacing(true);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+    }
+
+    @Override
+    protected void createTopBarGroupSelect() {
+        // there is already all the SQL filtering logic for the group attached
+        // hidden field in the crudGrid part of the page so we just set that
+        // filter.
+
+        List<Group> groups = GroupRepository.findAll();
+
+        OwlcmsSession.withFop(fop -> {
+            logger.trace("initial setting group to {} {}", currentGroup, LoggerUtils.whereFrom());
+            getGroupFilter().setValue(currentGroup);
+
+            topBarMenu = new MenuBar();
+            MenuItem item;
+            if (currentGroup != null) {
+                item = topBarMenu.addItem(currentGroup.getName() + "\u2003\u25bd");
+                topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL);
+            } else {
+                item = topBarMenu.addItem(Translator.translate("Group") + "\u2003\u25bc");
+                topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY);
+            }
+            SubMenu subMenu = item.getSubMenu();
+            for (Group g : groups) {
+                boolean checked = g.compareTo(currentGroup) == 0;
+                MenuItem subItem = subMenu.addItem(
+                        describedName(g),
+                        e -> {
+                            currentGroup = (checked ? null : g);
+                            setGridGroup(currentGroup);
+                            downloadButtonFactory.createTopBarDownloadButton();
+                            MenuBar oldMenu = topBarMenu;
+                            createTopBarGroupSelect();
+                            topBar.replace(oldMenu, topBarMenu);
+                        });
+                subItem.setCheckable(true);
+                subItem.setChecked(checked);
+            }
+        });
     }
 
     /**
@@ -469,13 +506,13 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         return resultsButton;
     }
 
-    private void setGroupSelectionListener() {
-//        topBarGroupSelect.setValue(getGridGroup());
-        topBarGroupSelect.addValueChangeListener(e -> {
-            setGridGroup(e.getValue());
-            currentGroup = e.getValue();
-            downloadButtonFactory.createTopBarDownloadButton();
-        });
+    private String describedName(Group g) {
+        String desc = g.getDescription();
+        if (desc == null || desc.isBlank()) {
+            return g.getName();
+        } else {
+            return g.getName() + " - " + g.getDescription();
+        }
     }
 
 //    private void subscribeIfLifting(Group nGroup) {

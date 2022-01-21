@@ -1,33 +1,39 @@
-##### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+#### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.27.3: Fixed margins on the athlete cards template (old owlcms style, two per page)
+4.28.0-rc01: Sound-related changes: 
 
-4.27.2: Updated H2 version as recommended by security advisory
+- Renamed the server-side sounds in the local sounds directory from 2.wav to .wav.  
+- New sound for the down signal (converted to mp3 for browser) -- differentiation from the final warning tone.
+- Lower volume for the initial warning sound (converted to mp3 for browser). 
+- Server-side was using the same initial warning sound for the final warning, now uses two separate files.  If the same sound is desired, copy the same sound under both names in the local directory (and use the zip upload if working in the cloud)
 
-4.27.2: Prevent premature jury breaks requested during the lift adjudication process. The break is deferred until the decision lights have been shown, and then starts immediately.
+##### New in release 4.28
 
-4.27.1: Enhancement: There is now a description field for groups, shown on the start list and in the group listing page.  This can be used to list the categories present in a group.
+- [x] Enhancements and fixes to the status monitor used for Open Broadcaster Software (OBS) automated scene switching.  Improvements to the processing of end-of-group scenarios (withdrawal without a decision, jury decision after the last lift, etc.). Added [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/OBSSceneSwitching) for all supported transitions.
+- [x] Enhancement: The group selection drop-down now displays the group description alongside the short group name.
+- [x] Enhancement:  Timer warning and down sound are now off by default on the technical officials consoles. New settings menu enables turning them on.
+- [x] Jury Console: if another official ends the break, the Jury Deliberation dialog is closed. Also, the initial notification about a good/bad lift is closed when a jury decision is given.
+- [x] Fix: Margins were wrong on the original style marshal cards when using US Letter paper.
 
-###### New in release 4.27
+##### Key Highlights from recent stable releases
 
-- [x] **<u>Local Database Format Change</u>**  The H2 database is used on local installs.  The H2 team no longer supports the previous database format, so some people may need a to perform a simple conversion. 
+- [x] **v4.27 <u>Local Database Format Change</u>**  The H2 database is used on local installs.  The H2 team no longer supports the previous database format, so some people may need a to perform a simple conversion. 
   - If you always start from scratch (new Excel, or interactive entry), you have nothing to do (a new database will be created on first start of the new version.
   - If you are running in the cloud, you have nothing to do, the cloud-based database engine is Postgres and not H2.
-  - But <u>if you wish to keep and reuse your current database content</u> a conversion is required between the previous format and the new format.  Fortunately, the process is quick and straightforward.  Please follow the [conversion instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/ImportExport)
+  - But <u>if you run locally and wish to keep and reuse your 4.26 or earlier database content</u> a conversion is required between the previous format and the new format.  Fortunately, the process is quick and straightforward.  Please follow the [conversion instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/ImportExport)
   - If you wish to keep copies of previous meets and have kept database backups, the suggestion is to install version 4.26 and export each of the databases.
-
 - [x] Enhancement: The type of break and the countdown now shown on the announcer's red break management button
+- [x] Enhancement: There is now a description field for groups, shown on the start list and in the group listing page.  This can be used to list the categories present in a group.
 - [x] New: A new status monitoring window enables automatic video scene switching in OBS.  See [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/OBSSceneSwitching) and [tutorial video](https://user-images.githubusercontent.com/678663/147373848-89b91086-b16d-48c0-8f48-445f6c1ca828.mp4)
   - Added button on the display selection screen to start OBS Monitor window 
 - [x] Enhancement: large notification shown on attempt board for Jury confirmation/reversal. 
 - [x] Added Medals as a break type. 
   - Attempt and scoreboards display "Medal Ceremony" message. 
   - New BREAK.MEDALS state to allow for OBS scene switching if desired.
-
 - [x] Enhancement: keyboard shortcuts to start (`,` )and stop (`.`) the clock are available on the announcer and timekeeper screens.
 - [x] Athlete-facing displays (decision and attempt-board) have sound on by default.
 
-###### Key Highlights from recent stable releases
+
 
 - [x] Security updates: updated libraries as new versions were made available.
 - [x] Change: Default for birth dates changed to be full date instead of birth year, to match IWF TCRR.
@@ -87,8 +93,7 @@
 
 - [x] iPads now supported as refereeing device with Bluetooth buttons (running either the athlete-facing time+decision display or the attempt board display.)   iPads require that sound be enabled by touching a screen button once when the board is started. (#408). 
 
-
-**Installation Instructions :**
+##### **Installation Instructions :**
 
   - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalWindowsSetup)
     

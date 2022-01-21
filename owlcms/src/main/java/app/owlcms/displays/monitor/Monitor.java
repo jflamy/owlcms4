@@ -6,6 +6,9 @@
  *******************************************************************************/
 package app.owlcms.displays.monitor;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -23,9 +26,7 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
-import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FOPState;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
@@ -50,6 +51,26 @@ import ch.qos.logback.classic.Logger;
 public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FOPParameters,
         SafeEventBusRegistration, UIEventProcessor {
 
+    class Status {
+        @Override
+        public String toString() {
+            return "[state=" + state + ", breakType=" + breakType + ", decision=" + decision + "]";
+        }
+
+        public Status(FOPState state, BreakType breakType, Boolean decision) {
+            this.state = state;
+            this.breakType = breakType;
+            this.decision = decision;
+        }
+
+        FOPState state;
+        BreakType breakType;
+        Boolean decision;
+    }
+
+    final static int HISTORY_SIZE = 3;
+    List<Status> history = new LinkedList<>();
+
     /**
      * unused
      */
@@ -68,14 +89,17 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     private Location location;
     private UI locationUI;
     private String currentFOP;
-    private FOPState currentState = FOPState.INACTIVE;
-    private FOPState previousState = FOPState.INACTIVE;
-    private BreakType currentBreakType;
-    private BreakType previousBreakType;
     private String title;
     private String prevTitle;
-    private Boolean previousDecision;
+    private Status h0;
+    private Status h1;
+    private Status h2;
+    private FOPState currentState;
+    private BreakType currentBreakType;
     private Boolean currentDecision;
+    private FOPState previousState;
+    private BreakType previousBreakType;
+    private Boolean previousDecision;
 
     /**
      * Instantiates a new results board.
@@ -83,6 +107,8 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     public Monitor() {
         OwlcmsFactory.waitDBInitialized();
         this.getElement().getStyle().set("width", "100%");
+        doPush(new Status(FOPState.INACTIVE, null, null));
+        doPush(new Status(FOPState.INACTIVE, null, null));
     }
 
     @Override
@@ -93,11 +119,6 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     @Override
     public UI getLocationUI() {
         return this.locationUI;
-    }
-
-    public String getPageTitle() {
-        String string = computePageTitle();
-        return string;
     }
 
     @Override
@@ -125,12 +146,17 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
 
     @Subscribe
     public void slaveUIEvent(UIEvent e) {
-        // uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(),
-        // e.getClass().getSimpleName(),e.getTrace());
+        if (e instanceof UIEvent.SetTime) {
+            // ignore events that don't change state
+            return;
+        }
+        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(),e.getClass().getSimpleName(),e.getTrace());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             if (syncWithFOP(e)) {
                 // significant transition
                 doUpdate();
+            } else {
+                //logger.debug("event ignored {} : {}",e.getClass().getSimpleName(),OwlcmsSession.getFop().getState());
             }
         });
     }
@@ -152,28 +178,46 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     }
 
     void uiLog(UIEvent e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
-    }
-
-    @SuppressWarnings("unused")
-    private String computeLiftType(Athlete a) {
-        if (a == null) {
-            return "";
-        }
-        String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
-                : Translator.translate("Snatch");
-        return liftType;
+        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
     }
 
     private String computePageTitle() {
         StringBuilder pageTitle = new StringBuilder();
+        computeValues();
+// NO LONGER NEEDED - Field of play no longer sends useless end of group
+//        if (h0 != null && h0.state == FOPState.BREAK && h0.breakType == BreakType.GROUP_DONE
+//                && h1 != null && h1.state == FOPState.DECISION_VISIBLE) {
+//            // group_done state is seen twice at the end of a group.
+//            // we ignore the first one entered immediately after the decision is available
+//            // a second comes when the lights are turned off (CURRENT_ATHLETE_DISPLAYED)
+//            logger.debug("hiding first group done {} {} {}", h0, h1, h2);
+//            history.remove(0);
+//            computeValues();
+//        } else 
+        if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
+                && h1 != null && h1.state == FOPState.BREAK && h1.breakType == BreakType.MEDALS) {
+            logger.warn("hiding restart after medals {} {} {}", h0, h1, h2);
+            history.remove(0);
+            computeValues();
+        } 
+        else if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
+                && h1 != null && h1.state == FOPState.DECISION_VISIBLE
+                && h2 != null && h2.state == FOPState.BREAK && h2.breakType == BreakType.JURY) {
+            logger.warn("fixing display after jury {} {} {}", h0, h1, h2);
+            history.remove(1);
+            computeValues();
+        }
+        else {
+            logger.debug("normal {} {} {}", h0, h1, h2);
+        }
+
         if (currentState == FOPState.INACTIVE || currentState == FOPState.BREAK) {
             pageTitle.append("break=");
         } else {
             pageTitle.append("state=");
         }
         pageTitle.append(currentState.name());
+
         if (currentState == FOPState.BREAK && currentBreakType != null) {
             pageTitle.append(".");
             pageTitle.append(currentBreakType.name());
@@ -196,16 +240,23 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         pageTitle.append(currentFOP);
 
         String string = pageTitle.toString();
-        if (currentState == FOPState.BREAK && currentBreakType == BreakType.GROUP_DONE
-                && previousState == FOPState.DECISION_VISIBLE) {
-            // skip this update. There will be another group done after the decision reset.
-            // logger.debug("skipping first group done");
-            string = null;
-        }
+
         return string;
     }
 
-    private void doUpdate() {
+    private void computeValues() {
+        h0 = history.size() > 0 ? history.get(0) : null;
+        h1 = history.size() > 1 ? history.get(1) : null;
+        h2 = history.size() > 2 ? history.get(2) : null;
+        currentState = h0 != null ? h0.state : null;
+        currentBreakType = h0 != null ? h0.breakType : null;
+        currentDecision = h0 != null ? h0.decision : null;
+        previousState = h1 != null ? h1.state : null;
+        previousBreakType = h1 != null ? h1.breakType : null;
+        previousDecision = h1 != null ? h1.decision : null;
+    }
+
+    private synchronized void doUpdate() {
         title = computePageTitle();
         boolean same = false;
         if (prevTitle == null || title == null) {
@@ -219,8 +270,11 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         if (!same && !(title == null) && !title.isBlank()) {
             this.getElement().setProperty("title", title);
             this.getElement().callJsFunction("setTitle", title);
-            // logger.debug("{} monitor update {}", title, System.identityHashCode(this.getOrigin()));
+            logger.warn("---- monitor {}", title);
             prevTitle = title;
+        }
+        if (same) {
+            logger.debug("---- monitor duplicate {}", title);
         }
     }
 
@@ -236,25 +290,30 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     }
 
     private boolean syncWithFOP(UIEvent e) {
-        boolean significant = true;
+        boolean significant[] = { false };
         OwlcmsSession.withFop(fop -> {
             currentFOP = fop.getName();
-
-            if (fop.getState() != currentState) {
-                previousState = currentState;
-                currentState = fop.getState();
-                previousBreakType = currentBreakType;
-                currentBreakType = fop.getBreakType();
-                previousDecision = currentDecision;
-                currentDecision = fop.getGoodLift();
+            if (fop.getState() != history.get(0).state) {
+                doPush(new Status(fop.getState(), fop.getBreakType(), fop.getGoodLift()));
+                significant[0] = true;
             } else if (fop.getState() == FOPState.BREAK) {
-                if (fop.getBreakType() != currentBreakType) {
-                    previousBreakType = currentBreakType;
-                    currentBreakType = fop.getBreakType();
-                    currentDecision = null;
+                if (fop.getBreakType() != history.get(0).breakType) {
+                    doPush(new Status(fop.getState(), fop.getBreakType(), null));
+                    significant[0] = true;
+                } else {
+                    //logger.debug("*** ignoring {}", fop.getBreakType());
                 }
+            } else {
+                //logger.debug("*** ignoring {}", fop.getState());
             }
         });
-        return significant;
+        return significant[0];
+    }
+
+    private void doPush(Status status) {
+        history.add(0, status);
+        if (history.size() > HISTORY_SIZE) {
+            history.remove(HISTORY_SIZE);
+        }
     }
 }

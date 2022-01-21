@@ -8,12 +8,14 @@
 package app.owlcms.ui.lifting;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
+import com.flowingcode.vaadin.addons.ironicons.IronIcons.Icon;
 import com.flowingcode.vaadin.addons.ironicons.PlacesIcons;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.Subscribe;
@@ -21,9 +23,15 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -36,9 +44,11 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FOPError;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
@@ -73,7 +83,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
     private long previousGoodMillis = 0L;
     private long previousBadMillis = 0L;
-
     public AnnouncerContent() {
         super();
         defineFilters(crudGrid);
@@ -307,22 +316,70 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         // there is already all the SQL filtering logic for the group attached
         // hidden field in the crudGrid part of the page so we just set that
         // filter.
-        super.createTopBarGroupSelect();
-        topBarGroupSelect.setReadOnly(false);
-        // topBarGroupSelect.setWidth("12ch");
-        topBarGroupSelect.setClearButtonVisible(true);
-        topBarGroupSelect.getStyle().set("--vaadin-combo-box-overlay-width", "40ch");
+
+        List<Group> groups = GroupRepository.findAll();
+
         OwlcmsSession.withFop((fop) -> {
             Group group = fop.getGroup();
             logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());
-            topBarGroupSelect.setValue(group);
             getGroupFilter().setValue(group);
         });
-        topBarGroupSelect.addValueChangeListener(e -> {
-            Group group = e.getValue();
-            logger.trace("##### select setting filter group to {} {}", group, LoggerUtils.whereFrom());
-            getGroupFilter().setValue(group);
+
+        OwlcmsSession.withFop(fop -> {
+            topBarMenu = new MenuBar();
+            MenuItem item;
+            if (fop.getGroup() != null) {
+                item = topBarMenu.addItem(fop.getGroup().getName()+"\u2003\u25bd");
+                topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL);
+            } else {
+                item = topBarMenu.addItem(Translator.translate("Group")+"\u2003\u25bc");
+                topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY); 
+            }
+            SubMenu subMenu = item.getSubMenu();
+            MenuItem currentlyChecked[] = {null};
+            for (Group g : groups) {
+                boolean checked = g.compareTo(fop.getGroup()) == 0;
+                MenuItem subItem = subMenu.addItem(
+                        describedName(g),
+                        e -> fop.fopEventPost(new FOPEvent.SwitchGroup(checked ? null : g, this)));
+                subItem.setCheckable(true);
+                subItem.setChecked(checked);
+                subItem.getElement().setAttribute("style", "margin: 0px; padding: 0px");
+                if (checked) {
+                    currentlyChecked[0] = subItem;
+                }
+            }
+            Hr ruler = new Hr();
+            ruler.getElement().setAttribute("style", "color: var(--lumo-contrast-50pct); border-color: red; var(--lumo-contrast-50pct): var(--lumo-contrast-50pct)");
+            MenuItem separator = subMenu.addItem(ruler);
+            separator.getElement().setAttribute("style", "margin-top: -1em; margin-bottom: -1.5em; margin-left: -1.5em; padding: 0px; padding-left: -1em;");
+            Icon icon = IronIcons.CLEAR.create();
+            icon.getElement().setAttribute("style", "margin: 0px; padding: 0px");
+            HorizontalLayout component = new HorizontalLayout(icon,new Label(Translator.translate("NoGroup")));
+            component.setPadding(false);
+            component.setMargin(false);
+            component.getElement().setAttribute("style", "margin: 0; padding: 0");
+            component.setAlignItems(Alignment.CENTER);
+            MenuItem item3 = subMenu.addItem(component, 
+                    e -> {
+                        if (currentlyChecked[0] != null) {
+                            currentlyChecked[0].setChecked(false);
+                        }
+                        fop.fopEventPost(new FOPEvent.SwitchGroup(null, this));
+                    });
+            item3.setCheckable(false);
+            createTopBarSettingsMenu();
+            item.setEnabled(true);
         });
+    }
+
+    private String describedName(Group g) {
+        String desc = g.getDescription();
+        if (desc == null || desc.isBlank()) {
+            return g.getName();
+        } else {
+            return g.getName() + " - " + g.getDescription();
+        }
     }
 
     /**
@@ -334,8 +391,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             OwlcmsSession.withFop(fop -> {
                 long now = System.currentTimeMillis();
                 long timeElapsed = now - previousGoodMillis;
-                if (timeElapsed > 5000) {
-                    // no reason to give two goods within one second...
+                // no reason to give two decisions close together
+                if (timeElapsed > 2000) {
                     fop.fopEventPost(
                             new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true, true,
                                     true));
@@ -349,8 +406,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             OwlcmsSession.withFop(fop -> {
                 long now = System.currentTimeMillis();
                 long timeElapsed = now - previousBadMillis;
-                if (timeElapsed > 5000) {
-                    // no reason to give two goods within one second...
+
+                if (timeElapsed > 2000) {
                     fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
                             false, false, false));
                 }
@@ -375,11 +432,13 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     protected void fillTopBarLeft() {
         super.fillTopBarLeft();
         getTopBarLeft().addClassName("announcerLeft");
+        getTopBarLeft().add(topBarMenu, topBarSettings);
         // getTopBarLeft().setWidth("12em");
     }
 
     private void createDecisionLights() {
-        JuryDisplayDecisionElement decisionDisplay = new JuryDisplayDecisionElement();
+        decisionDisplay = new JuryDisplayDecisionElement();
+        decisionDisplay.setSilenced(isSilenced()); // no sound by default
 //        Icon silenceIcon = AvIcons.MIC_OFF.create();
         decisionLights = new HorizontalLayout(decisionDisplay);
         decisionLights.addClassName("announcerLeft");
@@ -392,4 +451,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         fillTopBarLeft();
         decisionLights = null;
     }
+
+
 }

@@ -10,7 +10,6 @@ package app.owlcms.ui.lifting;
 import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
-import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
@@ -52,25 +51,25 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(JuryContent.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-    private static final String BUTTON_WIDTH = "5em";
     static {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
     }
 
+    Notification decisionNotification;
+    
+    private Athlete athleteUnderReview;
     private JuryDisplayDecisionElement decisions;
+    private JuryDialog juryDialog;
+    private Icon[] juryIcons;
+    private Label juryLabel;
+    private Boolean[] juryVotes;
     private HorizontalLayout juryVotingButtons;
     private VerticalLayout juryVotingCenterHorizontally;
-    private Icon[] juryIcons;
-    private Boolean[] juryVotes;
-    private int nbJurors;
-    private Notification decisionNotification;
-    private JuryDialog juryDialog;
-    private Athlete athleteUnderReview;
-    private HorizontalLayout refContainer;
-    private Label juryLabel;
-    private Component refereeLabelWrapper;
     private long lastOpen;
+    private int nbJurors;
+    private HorizontalLayout refContainer;
+    private Component refereeLabelWrapper;
 
     public JuryContent() {
         // we don't actually inherit behaviour from the superclass because
@@ -152,6 +151,16 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             decisionNotification.open();
 
             swapRefereeLabel(e.getAthlete());
+        });
+    }
+
+    @Override
+    @Subscribe
+    public void slaveStartLifting(UIEvent.StartLifting e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            if (juryDialog != null && juryDialog.isOpened()) {
+                juryDialog.doClose(true);
+            }
         });
     }
 
@@ -410,25 +419,31 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     private HorizontalLayout juryDecisionButtons() {
-        Button good = new Button(IronIcons.DONE.create(), (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.fopEventPost(new FOPEvent.JuryDecision(fop.getCurAthlete(), this.getOrigin(), true));
-            });
-        });
-        good.getElement().setAttribute("theme", "success");
-        good.setWidth(BUTTON_WIDTH);
-        good.setVisible(false);
+//        Button good = new Button(IronIcons.DONE.create(), (e) -> {
+//            UI.getCurrent().access(() -> {
+//                decisionNotification.close();
+//            });
+//            OwlcmsSession.withFop(fop -> {
+//                fop.fopEventPost(new FOPEvent.JuryDecision(fop.getCurAthlete(), this.getOrigin(), true));
+//            });
+//        });
+//        good.getElement().setAttribute("theme", "success");
+//        good.setWidth(BUTTON_WIDTH);
+//        good.setVisible(false);
+//
+//        Button bad = new Button(IronIcons.CLOSE.create(), (e) -> {
+//            UI.getCurrent().access(() -> {
+//                decisionNotification.close();
+//            });
+//            OwlcmsSession.withFop(fop -> {
+//                fop.fopEventPost(new FOPEvent.JuryDecision(fop.getCurAthlete(), this.getOrigin(), false));
+//            });
+//        });
+//        bad.getElement().setAttribute("theme", "error");
+//        bad.setWidth(BUTTON_WIDTH);
+//        bad.setVisible(false);
 
-        Button bad = new Button(IronIcons.CLOSE.create(), (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.fopEventPost(new FOPEvent.JuryDecision(fop.getCurAthlete(), this.getOrigin(), false));
-            });
-        });
-        bad.getElement().setAttribute("theme", "error");
-        bad.setWidth(BUTTON_WIDTH);
-        bad.setVisible(false);
-
-        HorizontalLayout decisions = new HorizontalLayout(good, bad);
+        HorizontalLayout decisions = new HorizontalLayout();
         return decisions;
     }
 

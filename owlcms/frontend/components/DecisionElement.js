@@ -177,22 +177,20 @@ class DecisionElement extends PolymerElement {
 	}
 
 	_setupAudio() {
-		// if ('webkitAudioContext' in window) {
-		// 	this.audio = false;
+		this._prepareAudio();
+		// if (this.audio) {
+		// 	// setup audio -- an oscillator cannot be reused.
+		// 	if (!this.context) {
+		// 		//this.context = new AudioContext();
+		// 		this.context = window.audioCtx;
+		// 	}
+		// 	this.oscillator = this.context.createOscillator();
+		// 	this.gain = this.context.createGain();
+		// 	this.gain.gain.value = 1;
+		// 	this.oscillator.frequency.value = 1000;  // maximum perceived loudness
+		// 	this.oscillator.connect(this.gain);
+		// 	this.gain.connect(this.context.destination);
 		// }
-		if (this.audio) {
-			// setup audio -- an oscillator cannot be reused.
-			if (!this.context) {
-				//this.context = new AudioContext();
-				this.context = window.audioCtx;
-			}
-			this.oscillator = this.context.createOscillator();
-			this.gain = this.context.createGain();
-			this.gain.gain.value = 1;
-			this.oscillator.frequency.value = 1000;  // maximum perceived loudness
-			this.oscillator.connect(this.gain);
-			this.gain.connect(this.context.destination);
-		}
 	}
 
 	_readRef(e) {
@@ -317,18 +315,19 @@ class DecisionElement extends PolymerElement {
 		this.downShown = true;
 		this.$.downDiv.style.display = "flex";
 		this.$.decisionsDiv.style.display = "none";
-		// Obsolete - we send the referee updates also, no need to tell the master twice.
-		// if we are the master, tell the server right away
-		//if (isMaster) {
-		//	this.$server.masterShowDown(this.fopName, this.decision, this.ref1, this.ref2, this.ref3);
-		//}
-		console.warn("de server told");
-		if (this.audio && !silent && !this.silent) {
-			this.oscillator.start(0);
-			this.oscillator.stop(this.context.currentTime + 2);
-			this._setupAudio();
+
+		// if (this.audio && !silent && !this.silent) {
+		// 	this.oscillator.start(0);
+		// 	this.oscillator.stop(this.context.currentTime + 2);
+		// 	this._setupAudio();
+		// }
+
+		if (!this.silent) {
+			this._playTrack("../sounds/down.mp3", window.downSignal, true, 0);
 		}
+
 		//this.$.downAudio.play();
+
 		this.dispatchEvent(new CustomEvent('down', { bubbles: true, composed: true }))
 		// hide the down arrow after 2 seconds -- the decisions will show when available
 		// (there will be no decision lights for at least one second, more if last referee 
@@ -364,6 +363,72 @@ class DecisionElement extends PolymerElement {
 	hideDecisions() {
 		// tell our parent to hide us.
 		this.dispatchEvent(new CustomEvent('hide', { bubbles: true, composed: true }))
+	}
+
+	async _playTrack(filepath, previousBuffer, play, when) {
+		if (previousBuffer) {
+			if (play) {
+				// play previously fetched buffer
+				await this._playAudioBuffer(previousBuffer, when);
+			}
+			return previousBuffer;
+		} else {
+			// Safari somehow manages to lose the AudioBuffer.
+			// Massive workaround.
+			const response = await fetch(filepath);
+			const arrayBuffer = await response.arrayBuffer();
+			const newBuffer = await window.audioCtx.decodeAudioData(
+				arrayBuffer,
+				async function (audioBuffer) {
+					if (play) {
+						// duplicated code from _playAudioBuffer
+						// can't figure out how to invoke it with JavaScript "this" semantics.
+						const trackSource = await window.audioCtx.createBufferSource();
+						trackSource.buffer = audioBuffer;
+						trackSource.connect(window.audioCtx.destination);
+						if (when <= 0) {
+							trackSource.start();
+						} else {
+							trackSource.start(when, 0);
+						}
+					}
+				},
+				(e) => {
+					console.error("could not decode " + e.err);
+				}
+			);
+			return newBuffer;
+		}
+	}
+
+	async _playAudioBuffer(audioBuffer, when) {
+		const trackSource = await window.audioCtx.createBufferSource();
+		trackSource.buffer = audioBuffer;;
+		trackSource.connect(audioCtx.destination);
+		if (when <= 0) {
+			trackSource.start();
+		} else {
+			trackSource.start(when, 0);
+		}
+
+		return trackSource
+	}
+
+	async _prepareAudio() {
+		if (window.isIOS) {
+			// prefetched buffers are not available later for some unexplained reason.
+			// so we don't attempt fetching.
+			return;
+		}
+		if (!window.downSignal /* && ! this.loadingDownSignal */) {
+			this.loadingDownSignal = true;
+			const downSignal = await this._playTrack("../local/sounds/down.mp3", null, false, 0);
+			window.downSignal = downSignal;
+			console.warn("loaded downSignal = " + window.downSignal);
+		} else {
+			console.warn("skipping downSignal load");
+			console.warn("existing downSignal = " + window.downSignal);
+		}
 	}
 }
 

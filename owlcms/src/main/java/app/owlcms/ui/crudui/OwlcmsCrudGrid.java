@@ -18,6 +18,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -136,6 +137,10 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
         });
         grid.addItemDoubleClickListener((e) -> {
         });
+        
+        for (Column<T> c : grid.getColumns()) {
+            c.setResizable(true);
+        }
 
         crudLayout.setMainComponent(grid);
     }

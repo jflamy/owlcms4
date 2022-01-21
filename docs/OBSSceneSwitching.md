@@ -18,14 +18,22 @@ For example, instead of starting a browser as your attempt board display, you wi
 1. On the machine where you want to run OBS, start the status monitor![statusMonitorStart](img/OBS/statusMonitorStart.png)
 
 2. The status monitor starts in its own tab.  Close the other tabs so it is alone in a window.  The window content is the same as what is actually in the title (even though the title is visually cut off.)  In the following example, the title indicates that the athlete information is visible on the various displays and scoreboards (CURRENT_ATHLETE_DISPLAYED). 
-   We can also see that the previous state was the break before first snatch (BREAK.FIRST_SNATCH).  This would allow sophisticated scenarios where the switching depends on what was being shown.
+   
+![statusMonitorExample](img/OBS/statusMonitorExample.png)
+   
+   > The full set of possible state transitions is documented further down on this page.
+   
+3. We can also see that the *previous* state is shown in the monitor.  This allows special cases with different scene transitions
 
-   ![statusMonitorExample](img/OBS/statusMonitorExample.png)
+   - For example, when the jury decides that a lift is denied, the status will start with `state=DECISION_VISIBLE.BAD_LIFT;previous=BREAK.JURY` because the decision took place while the system was in a jury break  
+   - For a normal decision, the previous state would not be a jury break (likely the down signal or perhaps time stopped if down was given verbally) `state=DECISION_VISIBLE.GOOD_LIFT;previous=DOWN_SIGNAL_VISIBLE`
 
 General rules:
 
 - When the competition is in a break, the line starts with `break=`
 - When the competition is not in a break, the line starts with `state=`
+
+
 
 ## Installing the Scene Switching Plugin
 
@@ -65,3 +73,106 @@ We use an expression like `(state=.*$)|(break=INTRODUCTION.*$)|(break=BEFORE_.*$
 ![example2](img/OBS/example2.png)
 
 In actual life, you would probably consider BREAK_BEFORE as a separate conditions, and wait 8 minutes before switching, or do whatever you want.
+
+## State Transition Sequences
+
+Here is the full set of state transitions that can be expected over the course of a competition. The `fop=A` in the examples indicates what field of play (platform) on which the event took place.  If you have multiple platforms, you should start different status monitors,  one per platform.
+
+1. Announcer selects "No Group"
+
+```
+break=INACTIVE;previous=INACTIVE;fop=A
+```
+
+2. Announcer goes through the Before intro, during intro, before first snatch sequence.
+   Note that it is possible that the state=CURRENT_ATHLETE_DISPLAYED will be shown if the announcer exits the break management dialog
+
+```
+break=BREAK.BEFORE_INTRODUCTION;previous=INACTIVE;fop=A
+break=BREAK.DURING_INTRODUCTION;previous=BREAK.BEFORE_INTRODUCTION;fop=A
+break=BREAK.FIRST_SNATCH;previous=BREAK.DURING_INTRODUCTION;fop=A
+state=CURRENT_ATHLETE_DISPLAYED;previous=BREAK.FIRST_SNATCH;fop=A
+```
+
+3. After the breaks, the status is CURRENT_ATHLETE_DISPLAYED (athlete information is on attempt board)
+
+```
+state=TIME_RUNNING;previous=CURRENT_ATHLETE_DISPLAYED;fop=A
+state=TIME_STOPPED;previous=TIME_RUNNING;fop=A
+state=DOWN_SIGNAL_VISIBLE;previous=TIME_STOPPED;fop=A
+state=DECISION_VISIBLE.GOOD_LIFT;previous=DOWN_SIGNAL_VISIBLE;fop=A
+state=CURRENT_ATHLETE_DISPLAYED;previous=DECISION_VISIBLE.GOOD_LIFT;fop=A
+```
+
+4. If jury deliberates and does nothing (after Jury, the state is back to CURRENT_ATHLETE_DISPLAYED)
+
+```
+break=BREAK.JURY;previous=CURRENT_ATHLETE_DISPLAYED;fop=A
+state=CURRENT_ATHLETE_DISPLAYED;previous=BREAK.JURY;fop=A
+```
+
+5. New lift from athlete 
+
+```
+state=TIME_RUNNING;previous=CURRENT_ATHLETE_DISPLAYED;fop=A
+state=TIME_STOPPED;previous=TIME_RUNNING;fop=A
+state=DOWN_SIGNAL_VISIBLE;previous=TIME_STOPPED;fop=A
+state=DECISION_VISIBLE.GOOD_LIFT;previous=DOWN_SIGNAL_VISIBLE;fop=A
+state=CURRENT_ATHLETE_DISPLAYED;previous=DECISION_VISIBLE.GOOD_LIFT;fop=A
+```
+
+​	Jury deliberates and decides good or bad (DECISION_VISIBLE.BAD_LIFT or DECISION_VISIBLE.GOOD_LIFT)
+
+```
+break=BREAK.JURY;previous=CURRENT_ATHLETE_DISPLAYED;fop=A
+state=DECISION_VISIBLE.BAD_LIFT;previous=BREAK.JURY;fop=A
+state=CURRENT_ATHLETE_DISPLAYED;previous=BREAK.JURY;fop=A
+```
+
+6. Break after last lift in the snatch is started by the announcer and currently is NOT automatic.
+
+```
+state=CURRENT_ATHLETE_DISPLAYED;previous=DECISION_VISIBLE.GOOD_LIFT;fop=A
+break=BREAK.FIRST_CJ;previous=CURRENT_ATHLETE_DISPLAYED;fop=A
+```
+
+7. End of the clean & jerk break, followed by normal lifting sequence same as above
+
+```
+state=CURRENT_ATHLETE_DISPLAYED;previous=BREAK.FIRST_CJ;fop=A
+```
+
+8. End of group <u>variation A</u>: last lift of group with a normal referee decision. status goes to GROUP_DONE without CURRENT_ATHLETE_DISPLAYED.
+
+```
+state=CURRENT_ATHLETE_DISPLAYED;previous=BREAK.GROUP_DONE;fop=A
+state=TIME_RUNNING;previous=CURRENT_ATHLETE_DISPLAYED;fop=A
+state=TIME_STOPPED;previous=TIME_RUNNING;fop=A
+state=DOWN_SIGNAL_VISIBLE;previous=TIME_STOPPED;fop=A
+state=DECISION_VISIBLE.GOOD_LIFT;previous=DOWN_SIGNAL_VISIBLE;fop=A
+break=BREAK.GROUP_DONE;previous=DECISION_VISIBLE.GOOD_LIFT;fop=A
+```
+
+​	Jury break works after last lift of group: it goes back to GROUP_DONE same as the last lift.
+
+```
+break=BREAK.JURY;previous=BREAK.GROUP_DONE;fop=A
+state=DECISION_VISIBLE.BAD_LIFT;previous=BREAK.JURY;fop=A
+break=BREAK.GROUP_DONE;previous=DECISION_VISIBLE.BAD_LIFT;fop=A
+```
+
+9. Variation B: Athlete withdraws and marshal/announcer enters 0 on athlete card.  There is no decision, the status goes directly to BREAK.GROUP_DONE (previous state does not matter)
+
+```
+break=BREAK.GROUP_DONE;previous=CURRENT_ATHLETE_DISPLAYED;fop=A 
+```
+
+10. Announcer goes to medals break. GROUP_DONE if the break is ended.
+
+```
+break=BREAK.MEDALS;previous=BREAK.GROUP_DONE;fop=A
+break=BREAK.GROUP_DONE;previous=BREAK.MEDALS;fop=A 
+```
+
+
+

@@ -139,7 +139,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     static {
         logger.setLevel(Level.INFO);
-        uiEventLogger.setLevel(Level.INFO);
+        uiEventLogger.setLevel(Level.DEBUG);
     }
 
     @Id("athleteTimer")
@@ -349,7 +349,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-//            Group g = e.getGroup();
+            Group g = e.getGroup();
+            doDone(g);
             setDone(true);
         });
     }
