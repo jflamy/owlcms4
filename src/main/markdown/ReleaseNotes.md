@@ -1,17 +1,11 @@
 #### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.28.0-rc01: Sound-related changes: 
-
-- Renamed the server-side sounds in the local sounds directory from 2.wav to .wav.  
-- New sound for the down signal (converted to mp3 for browser) -- differentiation from the final warning tone.
-- Lower volume for the initial warning sound (converted to mp3 for browser). 
-- Server-side was using the same initial warning sound for the final warning, now uses two separate files.  If the same sound is desired, copy the same sound under both names in the local directory (and use the zip upload if working in the cloud)
-
 ##### New in release 4.28
 
+- [x] Enhancement: Down signal sound has been changed and is now customizable. Sounds can be customized by changing the .wav and .mp3 files in /local/sounds.  Fixed the server side use the same finalWarning sound as for browser sounds. 
 - [x] Enhancements and fixes to the status monitor used for Open Broadcaster Software (OBS) automated scene switching.  Improvements to the processing of end-of-group scenarios (withdrawal without a decision, jury decision after the last lift, etc.). Added [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/OBSSceneSwitching) for all supported transitions.
 - [x] Enhancement: The group selection drop-down now displays the group description alongside the short group name.
-- [x] Enhancement:  Timer warning and down sound are now off by default on the technical officials consoles. New settings menu enables turning them on.
+- [x] Enhancement:  Timer warning and down sound are now off by default on the technical officials consoles. New ⚙ settings menu on the top bar allows turning them on or off.
 - [x] Jury Console: if another official ends the break, the Jury Deliberation dialog is closed. Also, the initial notification about a good/bad lift is closed when a jury decision is given.
 - [x] Fix: Margins were wrong on the original style marshal cards when using US Letter paper.
 
