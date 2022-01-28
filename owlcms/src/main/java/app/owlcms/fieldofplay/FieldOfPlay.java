@@ -204,6 +204,7 @@ public class FieldOfPlay {
         this.name = platform2.getName();
 
         initEventBuses();
+        new MQTTMonitor(this);
 
         this.athleteTimer = null;
         this.breakTimer = null;
