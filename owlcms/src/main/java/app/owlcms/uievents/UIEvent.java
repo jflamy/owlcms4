@@ -27,6 +27,19 @@ import app.owlcms.utils.LoggerUtils;
  */
 public class UIEvent {
 
+    static public class WakeUpRef extends UIEvent {
+
+        public int ref;
+        public boolean on;
+
+        public WakeUpRef(int lastRef, boolean b, Object origin) {
+            super(origin);
+            this.ref = lastRef;
+            this.on = b;
+        }
+
+    }
+
     static public class BarbellOrPlatesChanged extends UIEvent {
         public BarbellOrPlatesChanged(Object object) {
             super(object);

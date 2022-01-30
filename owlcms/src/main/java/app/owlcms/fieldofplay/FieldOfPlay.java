@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.AsyncEventBus;
@@ -71,6 +72,7 @@ import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.JuryNotification;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -86,6 +88,8 @@ import ch.qos.logback.classic.Logger;
  * @author owlcms
  */
 public class FieldOfPlay {
+
+    private static final int WAKEUP_DURATION_MS = 2000;
 
     private class DelayTimer {
         private final Timer t = new Timer();
@@ -189,6 +193,8 @@ public class FieldOfPlay {
 
     private FOPEvent deferredBreak;
 
+    private Thread wakeUpRef;
+
     {
         uiEventLogger.setLevel(Level.INFO);
     }
@@ -202,9 +208,13 @@ public class FieldOfPlay {
      */
     public FieldOfPlay(Group group, Platform platform2) {
         this.name = platform2.getName();
-
         initEventBuses();
-        new MQTTMonitor(this);
+
+        // check if refereeing devices connected via MQTT are in use
+        String mqttServer = StartupUtils.getStringParam("mqttServer");
+        if (mqttServer != null) {
+            new MQTTMonitor(this);
+        }
 
         this.athleteTimer = null;
         this.breakTimer = null;
@@ -1048,6 +1058,7 @@ public class FieldOfPlay {
         logger.debug("{}resetting decisions", getLoggingName());
         // the state will be rewritten in displayOrBreakIfDone
         // this is so the decision reset knows that the decision is no longer displayed.
+        cancelWakeUpRef();
         pushOut(new UIEvent.DecisionReset(getCurAthlete(), this));
         setClockOwner(null);
         if (getCurAthlete() != null && getCurAthlete().getAttemptsDone() < 6) {
@@ -1059,6 +1070,13 @@ public class FieldOfPlay {
             this.setState(BREAK);
             pushOutDone();
         }
+    }
+
+    private void cancelWakeUpRef() {
+        if (wakeUpRef != null) {
+            wakeUpRef.interrupt();
+        }
+        wakeUpRef = null;
     }
 
     private void doJuryDecision(JuryDecision e) {
@@ -1258,8 +1276,36 @@ public class FieldOfPlay {
                 emitDown(e);
                 downEmitted = true;
             }
+        } else if (nbDecisions == 2) {
+            //logger.debug("2 decisions");
+            // 2 decisions, but not the same
+            // waiting on last referee
+            wakeUpRef = new Thread(() -> {
+                int lastRef = -1;
+                try {
+                    lastRef = ArrayUtils.indexOf(refereeDecision, null);
+                    if (lastRef != -1 && ! Thread.currentThread().isInterrupted()) {
+                        //logger.debug("posting");
+                        uiEventBus.post(new UIEvent.WakeUpRef(lastRef, true, this));
+                    } else {
+                        //logger.debug("not posting");
+                    }
+                    Thread.sleep(WAKEUP_DURATION_MS);
+                } catch (InterruptedException e1) {
+                    // ignore, finally will clean up
+                } finally {
+                    //logger.debug("clean up");
+                    if (lastRef != -1) {
+                        uiEventBus.post(new UIEvent.WakeUpRef(lastRef, false, this));
+                    }
+                }
+            });
+            wakeUpRef.start();
         }
         if (nbDecisions == 3) {
+            if (wakeUpRef != null) {
+                cancelWakeUpRef();
+            }
             setGoodLift(nbWhite >= 2);
             if (!isDecisionDisplayScheduled()) {
                 showDecisionAfterDelay(this);
@@ -1709,7 +1755,7 @@ public class FieldOfPlay {
             new Thread(() -> {
                 try {
                     new Sound(getSoundMixer(), "down.wav").emit();
-                    //downSignal.emit();
+                    // downSignal.emit();
                 } catch (IllegalArgumentException /* | LineUnavailableException */ e) {
                     broadcast("SoundSystemProblem");
                 }
