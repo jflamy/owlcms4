@@ -97,11 +97,16 @@ public class MQTTMonitor {
                     String messageStr = new String(message.getPayload(), StandardCharsets.UTF_8);
                     logger.warn("{}{} : {}", fop.getLoggingName(), topic, messageStr);
                     if (topic.endsWith(decisionTopicName)) {
-                        String[] parts = messageStr.split(" ");
-                        int refIndex = Integer.parseInt(parts[0]) - 1;
-                        fop.fopEventPost(new FOPEvent.DecisionUpdate(this, refIndex,
-                                parts[2].contentEquals("good")));
-                        macAddress[refIndex] = parts[1];
+                        messageStr = messageStr.trim();
+                        try {
+                            String[] parts = messageStr.split(" ");
+                            int refIndex = Integer.parseInt(parts[0]) - 1;
+                            fop.fopEventPost(new FOPEvent.DecisionUpdate(this, refIndex,
+                                    parts[2].contentEquals("good")));
+                            macAddress[refIndex] = parts[1];
+                        } catch (NumberFormatException e) {
+                            logger.error("{}Malformed MQTT decision message topic='{}' message='{}'", fop.getLoggingName(),topic, messageStr);
+                        }
                     }
                 }).start();
             }
