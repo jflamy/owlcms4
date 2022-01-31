@@ -95,7 +95,7 @@ public class MQTTMonitor {
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 new Thread(() -> {
                     String messageStr = new String(message.getPayload(), StandardCharsets.UTF_8);
-                    logger.debug("{}{} : {}", fop.getLoggingName(), topic, messageStr);
+                    logger.warn("{}{} : {}", fop.getLoggingName(), topic, messageStr);
                     if (topic.endsWith(decisionTopicName)) {
                         String[] parts = messageStr.split(" ");
                         int refIndex = Integer.parseInt(parts[0]) - 1;

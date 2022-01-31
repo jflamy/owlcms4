@@ -1276,7 +1276,8 @@ public class FieldOfPlay {
                 emitDown(e);
                 downEmitted = true;
             }
-        } else if (nbDecisions == 2) {
+        }
+        if (nbDecisions == 2) {
             logger.warn("2 decisions");
             // 2 decisions, but not the same
             // waiting on last referee
