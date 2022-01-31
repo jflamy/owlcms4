@@ -287,7 +287,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>3.2.4</version>
                 </plugin>
                 <!-- https://mvnrepository.com/artifact/com.coderplus.maven.plugins/copy-rename-maven-plugin -->
                 <plugin>
@@ -608,6 +608,11 @@
                                             <excludes>
                                                 <exclude>META-INF/VERSION.txt</exclude>
                                                 <exclude>META-INF/LICENSE.txt</exclude>
+                                                <exclude>META-INF/VERSION</exclude>
+                                                <exclude>META-INF/LICENSE</exclude>
+                                                                <exclude>META-INF/*.SF</exclude>
+                <exclude>META-INF/*.DSA</exclude>
+                <exclude>META-INF/*.RSA</exclude>
                                             </excludes>
                                         </filter>
                                     </filters>

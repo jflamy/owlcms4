@@ -1,6 +1,8 @@
 #### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.29.0-alpha00: initial rough release.
+4.29.0-alpha01: Program was not starting because a library added a signature file. The signature file was being copied to the .jar, and was being (erroneously) considered as the signature for the full package.  Signatures from libraries are now excluded from the packaging step.
+
+4.29.0-alpha00: initial release.
 
 ##### New in release 4.29
 
