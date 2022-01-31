@@ -1,15 +1,19 @@
 #### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-##### New in release 4.28
+4.29.0-alpha00: initial rough release.
+
+##### New in release 4.29
+
+- [x] Support for refereeing devices that can receive instructions from owlcms (such as telling referee to enter a decision).  The communication is bidirectional using the MQTT protocol. A sample design of an inexpensive WiFi device with the necessary software is given at http://github.com/jflamy/owlcms-esp32
+
+##### Key Highlights from recent stable releases
 
 - [x] Enhancement: Down signal sound has been changed and is now customizable. Sounds can be customized by changing the .wav and .mp3 files in /local/sounds.  Fixed the server side use the same finalWarning sound as for browser sounds. 
-- [x] Enhancements and fixes to the status monitor used for Open Broadcaster Software (OBS) automated scene switching.  Improvements to the processing of end-of-group scenarios (withdrawal without a decision, jury decision after the last lift, etc.). Added [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/OBSSceneSwitching) for all supported transitions.
+- [x] Enhancements and fixes to the status monitor used for Open Broadcaster Software (OBS) automated scene switching.  Added [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/OBSSceneSwitching) for all supported transitions.
 - [x] Enhancement: The group selection drop-down now displays the group description alongside the short group name.
 - [x] Enhancement:  Timer warning and down sound are now off by default on the technical officials consoles. New ⚙ settings menu on the top bar allows turning them on or off.
 - [x] Jury Console: if another official ends the break, the Jury Deliberation dialog is closed. Also, the initial notification about a good/bad lift is closed when a jury decision is given.
 - [x] Fix: Margins were wrong on the original style marshal cards when using US Letter paper.
-
-##### Key Highlights from recent stable releases
 
 - [x] **v4.27 <u>Local Database Format Change</u>**  The H2 database is used on local installs.  The H2 team no longer supports the previous database format, so some people may need a to perform a simple conversion. 
   - If you always start from scratch (new Excel, or interactive entry), you have nothing to do (a new database will be created on first start of the new version.

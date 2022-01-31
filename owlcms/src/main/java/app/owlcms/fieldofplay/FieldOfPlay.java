@@ -1277,7 +1277,7 @@ public class FieldOfPlay {
                 downEmitted = true;
             }
         } else if (nbDecisions == 2) {
-            //logger.debug("2 decisions");
+            logger.warn("2 decisions");
             // 2 decisions, but not the same
             // waiting on last referee
             wakeUpRef = new Thread(() -> {
@@ -1293,8 +1293,9 @@ public class FieldOfPlay {
                     Thread.sleep(WAKEUP_DURATION_MS);
                 } catch (InterruptedException e1) {
                     // ignore, finally will clean up
+                    logger.warn("wakeup interrupted");
                 } finally {
-                    //logger.debug("clean up");
+                    logger.warn("clean up");
                     if (lastRef != -1) {
                         uiEventBus.post(new UIEvent.WakeUpRef(lastRef, false, this));
                     }
@@ -1304,6 +1305,7 @@ public class FieldOfPlay {
         }
         if (nbDecisions == 3) {
             if (wakeUpRef != null) {
+                logger.warn("cancelling");
                 cancelWakeUpRef();
             }
             setGoodLift(nbWhite >= 2);

@@ -31,6 +31,7 @@ public class MQTTMonitor {
     private String password;
     private String server;
     private String port;
+    private String[] macAddress = new String[3];
 
     MQTTMonitor(FieldOfPlay fop) {
         logger.setLevel(Level.DEBUG);
@@ -42,9 +43,9 @@ public class MQTTMonitor {
             port = StartupUtils.getStringParam("mqttPort");
             client = new MqttClient(
                     "tcp://" +
-                    (server != null ? server : "test.mosquitto.org") +
-                    ":" +
-                    (port != null ? port : "1883"),
+                            (server != null ? server : "test.mosquitto.org") +
+                            ":" +
+                            (port != null ? port : "1883"),
                     MqttClient.generateClientId(), // ClientId
                     new MemoryPersistence()); // Persistence
             doConnect();
@@ -65,9 +66,10 @@ public class MQTTMonitor {
     private void doConnect() throws MqttSecurityException, MqttException {
         userName = StartupUtils.getStringParam("mqttUserName");
         password = StartupUtils.getStringParam("mqttPassword");
-        MqttConnectOptions connOpts = setUpConnectionOptions(userName != null ? userName : "", password != null ? password : "");
+        MqttConnectOptions connOpts = setUpConnectionOptions(userName != null ? userName : "",
+                password != null ? password : "");
         client.connect(connOpts);
-        
+
         ledOnOff();
         client.setCallback(new MqttCallback() {
 
@@ -96,8 +98,10 @@ public class MQTTMonitor {
                     logger.debug("{}{} : {}", fop.getLoggingName(), topic, messageStr);
                     if (topic.endsWith(decisionTopicName)) {
                         String[] parts = messageStr.split(" ");
-                        fop.fopEventPost(new FOPEvent.DecisionUpdate(this, Integer.parseInt(parts[0])-1,
-                                parts[1].contentEquals("good")));
+                        int refIndex = Integer.parseInt(parts[0]) - 1;
+                        fop.fopEventPost(new FOPEvent.DecisionUpdate(this, refIndex,
+                                parts[2].contentEquals("good")));
+                        macAddress[refIndex] = parts[1];
                     }
                 }).start();
             }
@@ -131,13 +135,17 @@ public class MQTTMonitor {
         } catch (InterruptedException e) {
         }
     }
-    
+
     @Subscribe
     public void slaveWakeUpRef(UIEvent.WakeUpRef e) {
-        logger.warn("slaveWakeUp {}",e.on);
+        logger.warn("slaveWakeUp {}", e.on);
         try {
-            String topic = "owlcms/decisionRequest/" + fop.getName() + "/" + (e.ref+1);
-            client.publish(topic, new MqttMessage((e.on ? "on" : "off").getBytes(StandardCharsets.UTF_8)));
+            String topic = "owlcms/decisionRequest/" + fop.getName() + "/" + (e.ref + 1);
+            String refMacAddress = macAddress[e.ref];
+            // insert target device mac address for cross-check
+            client.publish(topic, new MqttMessage(
+                    ((e.on ? "on" : "off") + (refMacAddress != null ? " " + refMacAddress : ""))
+                            .getBytes(StandardCharsets.UTF_8)));
         } catch (MqttException e1) {
             logger.error("could not publish wakeup {}", e1.getCause());
         }
