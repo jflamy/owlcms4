@@ -34,5 +34,5 @@
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="owlcms"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="owlcms"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlogback.configurationFile=logback-console.xml &#13;&#10;-DmqttServer=localhost -DmqttUserName=&quot;&quot;&#13;&#10;-DmqttPassword=&quot;&quot;  -DmqttPort=1883"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlogback.configurationFile=logback-console.xml &#13;&#10;-DmqttServer=192.168.1.101 -DmqttUserName=&quot;owlcms&quot;&#13;&#10;-DmqttPassword=&quot;45454545&quot;  -DmqttPort=1883"/>
 </launchConfiguration>
