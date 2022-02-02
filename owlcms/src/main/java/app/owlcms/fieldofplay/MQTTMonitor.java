@@ -102,10 +102,11 @@ public class MQTTMonitor {
                             String[] parts = messageStr.split(" ");
                             int refIndex = Integer.parseInt(parts[0]) - 1;
                             fop.fopEventPost(new FOPEvent.DecisionUpdate(this, refIndex,
-                                    parts[2].contentEquals("good")));
+                                    parts[parts.length-1].contentEquals("good")));
                             macAddress[refIndex] = parts[1];
                         } catch (NumberFormatException e) {
-                            logger.error("{}Malformed MQTT decision message topic='{}' message='{}'", fop.getLoggingName(),topic, messageStr);
+                            logger.error("{}Malformed MQTT decision message topic='{}' message='{}'",
+                                    fop.getLoggingName(), topic, messageStr);
                         }
                     }
                 }).start();
@@ -146,14 +147,31 @@ public class MQTTMonitor {
         logger.warn("slaveWakeUp {}", e.on);
         try {
             String topic = "owlcms/decisionRequest/" + fop.getName() + "/" + (e.ref + 1);
+            // String refMacAddress = macAddress[e.ref];
+            client.publish(topic, new MqttMessage(
+                    ((e.on ? "on" : "off")
+                            /* + (refMacAddress != null ? " " + refMacAddress : "")*/) 
+                            .getBytes(StandardCharsets.UTF_8)));
+        } catch (MqttException e1) {
+            logger.error("could not publish wakeup {}", e1.getCause());
+        }
+    }
+    
+
+    @Subscribe
+    public void slaveSummonRef(UIEvent.SummonRef e) {
+        logger.warn("slaveSummon {}", e.on);
+        try {
+            String topic = "owlcms/summon/" + fop.getName() + "/" + (e.ref + 1);
             String refMacAddress = macAddress[e.ref];
             // insert target device mac address for cross-check
             client.publish(topic, new MqttMessage(
                     ((e.on ? "on" : "off") + (refMacAddress != null ? " " + refMacAddress : ""))
                             .getBytes(StandardCharsets.UTF_8)));
         } catch (MqttException e1) {
-            logger.error("could not publish wakeup {}", e1.getCause());
+            logger.error("could not publish summon {}", e1.getCause());
         }
     }
+    
 
 }
