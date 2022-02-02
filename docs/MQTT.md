@@ -12,7 +12,9 @@ The devices and owlcms use the MQTT protocol to communicate with each other.  Th
 
    1. Click on the Windows icon and type "Services"
    2. Scroll down in the list to find Mosquitto![00aManualMosquitto](img/MQTT/00aManualMosquitto.png)
-   3. Right-click and select the Manual startup mode.![00bManualMosquitto](img/MQTT/00bManualMosquitto.png)
+   3. Right-click and select the Manual startup mode.
+
+   ![00bManualMosquitto](img/MQTT/00bManualMosquitto.png)
 
 3. Go to the Installation directory for Mosquitto (normally, under `C:\Program Files\Mosquitto`).
 
@@ -34,9 +36,9 @@ The devices and owlcms use the MQTT protocol to communicate with each other.  Th
    cd  C:\Program Files\Mosquitto
    .\mosquito.exe -v -c mosquitto.conf
    ```
-   
+
    You should now see all the traffic going through the server
-   
+
 6. Install a MQTT interactive tool for testing and monitoring.  An easy tool that runs as a Chrome application is [MQTTlens](https://chrome.google.com/webstore/detail/mqttlens/hemojaaeigabkbcookmlgmdigohjobjm?utm_source=chrome-app-launcher-info-dialog) . 
 
 ### Local configuration of owlcms
