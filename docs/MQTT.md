@@ -59,7 +59,7 @@ owlcms needs to connect to your MQTT server.
 
 ### Local Testing
 
-In MQTT, all communications go through an intermediate server (often called the broker).  By subscribing to all the owlcms topics, we can effectively monitor everyhing that is going on.  Conversely, we can also simulate all the messages sent to the broker by the devices or by owlcms.
+In MQTT, all communications go through an intermediate server (often called the broker).  By subscribing to all the owlcms topics, we can effectively monitor everything that is going on.  Conversely, we can also simulate all the messages sent to the broker by the devices or by owlcms.
 
 1. Start MQTTLens.
 
@@ -72,7 +72,9 @@ In MQTT, all communications go through an intermediate server (often called the 
    2022-02-02T14:09:03: New client connected from 192.168.1.101:39899 as lens_QHQNpt4hPp5h5RWQBnRHBsmLXEX (p1, c1, k120, u'owlcms').
    ```
 
-4. Create a Subscription to `owlcms/#` (this will show all the messages received that start with owlcms, no matter their depth)  -- Click "Subscribe"![02lensSubscribe](img/MQTT/02lensSubscribe.png)
+4. Create a Subscription to `owlcms/#` 
+   This will show all the messages received that start with owlcms, no matter their depth) 
+   Click "Subscribe"![02lensSubscribe](img/MQTT/02lensSubscribe.png)
 
 5. Mosquitto will show something like
 
@@ -81,7 +83,7 @@ In MQTT, all communications go through an intermediate server (often called the 
    2022-02-02T14:09:03:    owlcms/# (QoS 0)
    ```
 
-6. Start owlcms.  When owlcms starts, it sends a message to turn on the LED on and off. So in the Subscription section of the application, you should see something like this (`A` will be replaced by the actual name of your platform(s).![03lensMessagesReceived](img/MQTT/03lensMessagesReceived.png)
+6. Start owlcms.  When owlcms starts, it sends a message to turn on the LED on and off. So in the Subscription section of the application, you should see something like this for each of your platforms (`A` will be replaced by the actual name of your platform(s))![03lensMessagesReceived](img/MQTT/03lensMessagesReceived.png)
 
 7. Mosquitto shows the message received from owlcms ("received publish") and the send to Lens ("sending publish").  "paho" is the name of the library used by owlcms.
 
@@ -105,12 +107,15 @@ In MQTT, all communications go through an intermediate server (often called the 
 ```
 
 10. You can send a second message `2 good`. After the second decision, owlcms will send two messages to `owlcms/decisionRequest/A/3` indicating that referee 3. There will be an `on` message, and two seconds later, an `off` message.  The device will use this to remind the referee, and after two seconds,  owlcms tells the device to end the reminder.  The device can either do its own timing (and ignore the end message), or wait for the owlcms message.
+11. Once everything works, you can choose to let Windows run Mosquitto in the background
+    - You can issue the commands `net start mosquitto` and `net stop mosquitto` to start and stop the MQTT server.
+    - You can set Mosquitto to start automatically on reboot by using the Services program to set the starting mode to `Automatic`.
 
 ### Cloud configuration and testing
 
 The process is the same.  The one difference is that you will be using a cloud MQTT server.
 
-You want a cloud server that requires a login and a password.  We suggest that
+You want a cloud server that requires a login and a password.  We suggest StackHero because it has a free test mode.
 
 1. Create a Heroku account (you probably have one already if you are using the cloud version)
 2. Create a new application to be used for MQTT.  Give it a meaningful name, because you will only need to keep it - you can have only one free MQTT server (you will not be creating a new one for each competition)
@@ -118,7 +123,7 @@ You want a cloud server that requires a login and a password.  We suggest that
 4. Click on the link to configure a username and password
 5. Follow the same instructions as above, using the hostname, username and password from the configuration page.
 
-## Passwords
+### Passwords
 
 Once initial testing is done, you should add passwords to the configuration.
 
@@ -132,9 +137,9 @@ Once initial testing is done, you should add passwords to the configuration.
    cd mosquitto
    ```
 
-3. The following **creates** (`-c`) a new password file, with a user `owlcms` (you can use whatever username you want).
+3. The following *creates* (`-c`) a new password file, with a user `owlcms` (you can use whatever username you want).
    You will be prompted to enter a password (twice).  
-   The file contains an undecipherable encoding of the password.  If you just want to change the password, or need to add another user,  do not use `-c` because this will erase the original file.
+   The file contains an undecipherable encoding of the password.  If you just want to change the password, or need to add another user, call mosquitto_passwd but *without* the `-c` (otherwise you will erase and recreate a new file.)
 
    ```
    "C:\Program Files\mosquitto\mosquitto_passwd.exe" -c pwfile owlcms
