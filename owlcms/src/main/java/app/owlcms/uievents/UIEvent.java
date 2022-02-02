@@ -39,6 +39,19 @@ public class UIEvent {
         }
 
     }
+    
+    static public class SummonRef extends UIEvent {
+
+        public int ref;
+        public boolean on;
+
+        public SummonRef(int lastRef, boolean b, Object origin) {
+            super(origin);
+            this.ref = lastRef;
+            this.on = b;
+        }
+
+    }
 
     static public class BarbellOrPlatesChanged extends UIEvent {
         public BarbellOrPlatesChanged(Object object) {
