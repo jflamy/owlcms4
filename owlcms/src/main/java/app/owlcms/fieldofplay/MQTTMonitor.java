@@ -3,6 +3,7 @@ package app.owlcms.fieldofplay;
 import java.nio.charset.StandardCharsets;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -23,7 +24,7 @@ import ch.qos.logback.classic.Logger;
 
 public class MQTTMonitor {
 
-    private MqttClient client;
+    private MqttAsyncClient client;
     private FieldOfPlay fop;
     private Logger logger = (Logger) LoggerFactory.getLogger(MQTTMonitor.class);
     private String decisionTopicName;
@@ -41,7 +42,7 @@ public class MQTTMonitor {
         try {
             server = StartupUtils.getStringParam("mqttServer");
             port = StartupUtils.getStringParam("mqttPort");
-            client = new MqttClient(
+            client = new MqttAsyncClient(
                     "tcp://" +
                             (server != null ? server : "test.mosquitto.org") +
                             ":" +
@@ -68,7 +69,7 @@ public class MQTTMonitor {
         password = StartupUtils.getStringParam("mqttPassword");
         MqttConnectOptions connOpts = setUpConnectionOptions(userName != null ? userName : "",
                 password != null ? password : "");
-        client.connect(connOpts);
+        client.connect(connOpts).waitForCompletion();
 
         ledOnOff();
         client.setCallback(new MqttCallback() {
@@ -76,15 +77,15 @@ public class MQTTMonitor {
             @Override
             public void connectionLost(Throwable cause) {
                 logger.debug("{}lost connection to MQTT: {}", fop.getLoggingName(), cause.getLocalizedMessage());
-                // Called when the client lost the connection to the broker
-                while (!client.isConnected()) {
-                    try {
-                        client.connect();
-                    } catch (Exception e1) {
-                        logger.error("{}cannot reconnect MQTT: {}", fop.getLoggingName(), LoggerUtils.stackTrace(e1));
-                    }
-                    sleep(1000);
-                }
+//                // Called when the client lost the connection to the broker
+//                while (!client.isConnected()) {
+//                    try {
+//                        client.reconnect();
+//                    } catch (Exception e1) {
+//                        logger.error("{}cannot reconnect MQTT: {}", fop.getLoggingName(), LoggerUtils.stackTrace(e1));
+//                    }
+//                    sleep(1000);
+//                }
             }
 
             @Override
@@ -113,7 +114,7 @@ public class MQTTMonitor {
             }
         });
         String topicFilter = "owlcms/decision/" + fop.getName();
-        client.subscribe(topicFilter);
+        client.subscribe(topicFilter, 0);
         logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), topicFilter, client.getCurrentServerURI());
     }
 
@@ -132,6 +133,8 @@ public class MQTTMonitor {
         if (password != null) {
             connOpts.setPassword(password.toCharArray());
         }
+        connOpts.setCleanSession(true);
+        connOpts.setAutomaticReconnect(true);
         return connOpts;
     }
 
