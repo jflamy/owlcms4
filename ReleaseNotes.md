@@ -1,6 +1,6 @@
-#### **Changes for release 4.29.0-alpha03**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+#### **Changes for release 4.29.0-alpha04**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.29.0-alpha03: Small MQTT changes for reconnection robustness; Added ability to receive summon instructions from owlcms and relay them over MQTT.
+4.29.0-alpha04: On startup, owlcms will wait indefinitely for a connection with MQTT server if owlcms is configured to use MQTT refereeing.
 
 4.29.0-alpha00: initial release.
 
