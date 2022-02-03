@@ -77,15 +77,18 @@ public class MQTTMonitor {
             @Override
             public void connectionLost(Throwable cause) {
                 logger.debug("{}lost connection to MQTT: {}", fop.getLoggingName(), cause.getLocalizedMessage());
-//                // Called when the client lost the connection to the broker
-//                while (!client.isConnected()) {
-//                    try {
-//                        client.reconnect();
-//                    } catch (Exception e1) {
-//                        logger.error("{}cannot reconnect MQTT: {}", fop.getLoggingName(), LoggerUtils.stackTrace(e1));
-//                    }
-//                    sleep(1000);
-//                }
+                // Called when the client lost the connection to the broker
+
+                while (!client.isConnected()) {
+                    try { 
+                        // doConnect will generate a new client Id, and wait for completion
+                        // client.reconnect() and automaticReconnection do not work as I expect.
+                        doConnect();
+                    } catch (Exception e1) {
+                        logger.error("{}cannot reconnect MQTT: {}", fop.getLoggingName(), e1.getCause());
+                    }
+                    sleep(1000);
+                }
             }
 
             @Override
@@ -134,7 +137,7 @@ public class MQTTMonitor {
             connOpts.setPassword(password.toCharArray());
         }
         connOpts.setCleanSession(true);
-        connOpts.setAutomaticReconnect(true);
+        //connOpts.setAutomaticReconnect(true);
         return connOpts;
     }
 
