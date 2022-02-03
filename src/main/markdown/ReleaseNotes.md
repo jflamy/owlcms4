@@ -1,10 +1,6 @@
 #### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.29.0-alpha02: Added [documentation]([documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTT)) for MQTT configuration
-
-4.29.0-alpha02: there was no reminder after 2 identical decisions.  Not clear if one is needed given that the down signal is loud enough.  Easy to remove if not needed.
-
-4.29.0-alpha01: Program was not starting because a library added a signature file. The signature file was being copied to the .jar, and was being (erroneously) considered as the signature for the full package.  Signatures from libraries are now excluded from the packaging step.
+4.29.0-alpha03: Small MQTT changes for reconnection robustness; Added ability to receive summon instructions from owlcms and relay them over MQTT.
 
 4.29.0-alpha00: initial release.
 
