@@ -16,25 +16,39 @@ The devices and owlcms use the MQTT protocol to communicate with each other.  Th
 
    ![00bManualMosquitto](img/MQTT/00bManualMosquitto.png)
 
-3. Go to the Installation directory for Mosquitto (normally, under `C:\Program Files\Mosquitto`).
+### Initial Configuration
 
-4. Open the  `mosquitto.conf`  file.  Add the following lines at the top.  The `allow_anonymous` line is used for initial testing. For actual production, a password file should be added (see [Passwords](#Passwords))
+1. Start a `cmd` window (click on the start menu icon and type `cmd` to locate it, or use the Windows-R keyboard shortcut).
+
+2. Go to your home directory (or any directory that does not contain a space anywhere). Create a `mosquitto` subdirectory. This will be our <u>Mosquitto configuration directory</u>. 
+
+   ```
+   cd %HOMEPATH%
+   mkdir mosquitto
+   cd mosquitto
+   ```
+
+3. Copy the file "mosquitto.conf" from the Mosquitto installation directory to the configuration directory
+
+   ```
+   copy "C:\Program Files\Mosquitto\mosquitto.conf" .
+   ```
+
+4. Open the  `mosquitto.conf`  file.  Add the following lines at the top.  The `allow_anonymous` line is used for initial testing. After the initial tests, a password file should be added. This will be done later in the installation process.
 
    ```shell
    # owlcms config parameters  for mosquitto
    listener 1883
    allow_anonymous true
    connection_messages true
-   log_type all
    log_timestamp true
    log_timestamp_format %Y-%m-%dT%H:%M:%S
    ```
 
-5. Start a `cmd` command-line window and 
+5. From the configuration directory, start Mosquitto in "verbose" mode
 
    ```
-   cd  C:\Program Files\Mosquitto
-   .\mosquito.exe -v -c mosquitto.conf
+   "C:\Program Files\Mosquitto\mosquitto.exe" -v -c mosquitto.conf
    ```
 
    You should now see all the traffic going through the server
@@ -107,9 +121,10 @@ In MQTT, all communications go through an intermediate server (often called the 
 ```
 
 10. You can send a second message `2 good`. After the second decision, owlcms will send two messages to `owlcms/decisionRequest/A/3` indicating that referee 3. There will be an `on` message, and two seconds later, an `off` message.  The device will use this to remind the referee, and after two seconds,  owlcms tells the device to end the reminder.  The device can either do its own timing (and ignore the end message), or wait for the owlcms message.
-11. Once everything works, you can choose to let Windows run Mosquitto in the background
-    - You can issue the commands `net start mosquitto` and `net stop mosquitto` to start and stop the MQTT server.
-    - You can set Mosquitto to start automatically on reboot by using the Services program to set the starting mode to `Automatic`.
+11. Once everything works, you can let Windows run Mosquitto in the background and start automatically
+    - If you prefer watching what is going on, you can continue using a command window and run it there.
+    - The Services program is used to set the starting mode to `Automatic` (instead of `Manual` that we used in the first installation steps)
+    - The Services command is also used to Stop/Start/Restart Mosquitto
 
 ### Cloud configuration and testing
 
@@ -127,37 +142,33 @@ You want a cloud server that requires a login and a password.  We suggest StackH
 
 Once initial testing is done, you should add passwords to the configuration.
 
-1. Start a `cmd` window (click on the start menu icon and type `cmd` to locate it, or use the Windows-R keyboard shortcut).
+1. Go to your Mosquitto configuration directory
 
-2. Go to your home directory (or any directory that DOES NOT INCLUDE A SPACE).  Create a `mosquitto` subdirectory.
-
-   ```
-   cd %HOMEPATH%
-   mkdir mosquitto
-   cd mosquitto
-   ```
-
-3. The following *creates* (`-c`) a new password file, with a user `owlcms` (you can use whatever username you want).
+2. The following *creates* (`-c`) a new password file, with a user `owlcms` (you can use whatever username you want).
    You will be prompted to enter a password (twice).  
-   The file contains an undecipherable encoding of the password.  If you just want to change the password, or need to add another user, call mosquitto_passwd but *without* the `-c` (otherwise you will erase and recreate a new file.)
 
    ```
    "C:\Program Files\mosquitto\mosquitto_passwd.exe" -c pwfile owlcms
    ```
 
-4. Change the beginning of the mosquitto.conf file to look like the following.  Use the correct full path for the password file. The name must not have any blanks, and you cannot use quotes.
+   > The file contains an undecipherable encoding of the password.  If you just want <u>to change a password</u>, or need to add another user, <u>call `mosquitto_passwd` *without* the `-c`</u> (otherwise you will erase and recreate a new file.)
+
+3. Change the beginning of the mosquitto.conf file to look like the following.  Use the correct full path for the password file in your configuration directory. The name must not have any blanks, and you cannot use quotes.
 
    ```
    listener 1883
    allow_anonymous false
    password_file C:\users\jf\mosquitto\pwfile
    connection_messages true
-   log_type all
+   log_type error
+   log_type warning
+   log_type notice
+   log_type information
    log_timestamp true
    log_timestamp_format %Y-%m-%dT%H:%M:%S
    ```
 
-5. Change the owlcms configuration to use the username and password
+4. In the owlcms installation directory, change the owlcms.l4j.ini configuration file to use the username and password
 
 ## MQTT message sequence
 
