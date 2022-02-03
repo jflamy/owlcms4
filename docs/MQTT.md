@@ -69,7 +69,7 @@ owlcms needs to connect to your MQTT server.
 -DmqttPort=1883
 ```
 
-> For actual production, we will add a password file (see [Passwords](#Passwords))
+> Once we are done with the initial tests, we will add a password file (see [Passwords](#Passwords) later in this page)
 
 ### Local Testing
 
