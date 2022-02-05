@@ -1,12 +1,16 @@
-#### **Changes for release 4.29.0-alpha04**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+#### **Changes for release 4.29.0-alpha05**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.29.0-alpha04: On startup, owlcms will wait indefinitely for a connection with MQTT server if owlcms is configured to use MQTT refereeing.
-
-4.29.0-alpha00: initial release.
+4.29.0-alpha05: Jury console support for calling officials, including keyboard shortcuts (see 4.29 notes below).
 
 ##### New in release 4.29
 
-- [x] Support for refereeing devices that can receive instructions from owlcms (such as telling referee to enter a decision).  The communication is bidirectional using the MQTT protocol. A sample design of an inexpensive WiFi device with the necessary software is given at http://github.com/jflamy/owlcms-esp32
+- [x] Support for bidirectional refereeing devices that can receive instructions from owlcms (such as reminding a referee to enter a decision or be called by the jury).  
+  - The communication uses the MQTT protocol over WiFi. See [MQTT setup instructions](https://owlcms.github.io/owlcms4-prerelease/#/MQTT) for details.
+  - Software and circuit schematics for an inexpensive MQTT+WiFi device are available at [this location](http://github.com/jflamy/owlcms-esp32).
+
+- [x] Jury console support for calling referees: new dialog for calling referees individually or all together.  This feature is enabled only if an MQTT server is [configured](https://owlcms.github.io/owlcms4-prerelease/#/MQTT).
+  - Calling a referee starts a jury break and a notification is shown on the technical official screens.
+  - Keyboard shortcuts `H` `I` `J` `K` can be used to call referees 1, 2, 3 or all referees, respectively. The`esc` key can be used to end the break and resume the competition.  
 
 ##### Key Highlights from recent stable releases
 
