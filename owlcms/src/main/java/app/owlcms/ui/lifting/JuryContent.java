@@ -538,6 +538,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         if (now - lastOpen > 100) {
             // start a break
             openJuryDialog(JuryDeliberationEventType.CALL_REFEREES);
+            lastOpen = now;
 
             OwlcmsSession.withFop(fop -> {
                 if (i > 0) {

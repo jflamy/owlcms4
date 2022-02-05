@@ -306,7 +306,7 @@ public class JuryDialog extends EnhancedDialog {
             if (shortcutTooSoon()) {
                 return;
             }
-            doClose(false);
+            doClose(true);
         });
     }
 
