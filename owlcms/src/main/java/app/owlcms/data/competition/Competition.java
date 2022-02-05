@@ -202,8 +202,8 @@ public class Competition {
     private String startingWeightsSheetTemplateFileName;
     private String finalPackageTemplateFileName;
     
-    @Column(columnDefinition = "integer default 1500")
-    private int refereeWakeUpDelay = 1500;
+    @Column(columnDefinition = "integer default 2000")
+    private int refereeWakeUpDelay = 2000;
 
     public void setRefereeWakeUpDelay(int refereeWakeUpDelay) {
         this.refereeWakeUpDelay = refereeWakeUpDelay;
