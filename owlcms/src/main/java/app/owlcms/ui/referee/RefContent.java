@@ -372,14 +372,16 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
         OwlcmsSession.withFop(fop -> {
             fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), ref13ix - 1, false));
         });
-        good.getStyle().set("color", "grey");
+        good.getStyle().set("color", "DarkSlateGrey");
+        good.getStyle().set("outline-color", "white");
     }
 
     private void doWhite() {
         OwlcmsSession.withFop(fop -> {
             fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), ref13ix - 1, true));
         });
-        bad.getStyle().set("color", "grey");
+        bad.getStyle().set("color", "DarkSlateGrey");
+        bad.getStyle().set("outline-color", "white");
     }
 
     private Object getOrigin() {
