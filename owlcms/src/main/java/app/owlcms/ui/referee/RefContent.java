@@ -19,6 +19,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -28,7 +29,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.textfield.IntegerField;
-import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.dom.DomEvent;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterListener;
@@ -60,6 +60,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings({ "serial", "deprecation" })
 @Route(value = "ref")
+@CssImport(value = "./styles/shared-styles.css")
 @Push
 public class RefContent extends VerticalLayout implements FOPParameters, SafeEventBusRegistration,
         UIEventProcessor, HasDynamicTitle, RequireLogin, PageConfigurator, BeforeEnterListener {
@@ -210,9 +211,24 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             warningRow.removeAll();
             warningRow.setVisible(true);
-            warningRow.add(new H3(Translator.translate("JuryNotification.PleaseSeeJury")));
-            warningRow.getElement().setAttribute("style", "background-color: yellow");
+            warningRow.setWidth("100%");
+            warningRow.setPadding(false);
+            warningRow.setMargin(false);
+            H3 h3 = new H3(Translator.translate("JuryNotification.PleaseSeeJury"));
+            h3.getElement().setAttribute("style", "background-color: red; width: 100%; color: white; text-align: center; padding: 0; margin-top:0.5em");
+            h3.getClassNames().add("blink");
+            h3.setWidth("100%");
+            warningRow.add(h3);
+            warningRow.getElement().setAttribute("style", "background-color: red; width: 100%;");
             topRow.setVisible(false);
+        });
+    }
+    
+    @Subscribe
+    public void slaveStartLifting(UIEvent.StartLifting e) {
+        logger.debug("received decision reset {}", ref13ix);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            resetRefVote();
         });
     }
 
@@ -234,8 +250,12 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
             if (e.on) {
                 warningRow.removeAll();
                 warningRow.setVisible(true);
-                warningRow.add(new H3(Translator.translate("JuryNotification.PleaseEnterDecision")));
-                warningRow.getElement().setAttribute("style", "background-color: red");
+                H3 h3 = new H3(Translator.translate("JuryNotification.PleaseEnterDecision"));
+                h3.getElement().setAttribute("style", "background-color: yellow; width: 100%; color: black; text-align: center; padding: 0; margin-top:0.5em");
+                h3.getClassNames().add("blink");
+                h3.setWidth("100%");
+                warningRow.add(h3);
+                warningRow.getElement().setAttribute("style", "background-color: yellow; width: 100%;");
                 topRow.setVisible(false);
             } else {
                 warningRow.setVisible(false);
@@ -280,6 +300,8 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
     private void createContent(VerticalLayout refContainer) {
         topRow = new HorizontalLayout();
         warningRow = new HorizontalLayout();
+        warningRow.setPadding(false);
+        warningRow.setMargin(false);
         warningRow.setVisible(false);
 
         Label refLabel = new Label(getTranslation("Referee"));

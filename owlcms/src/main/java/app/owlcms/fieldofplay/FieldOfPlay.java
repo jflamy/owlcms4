@@ -111,7 +111,7 @@ public class FieldOfPlay {
         }
     }
 
-    private static final int WAKEUP_DURATION_MS = 4000;
+    private static final int WAKEUP_DURATION_MS = 20000;
 
     public static final long DECISION_VISIBLE_DURATION = 3500;
 
