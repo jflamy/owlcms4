@@ -57,6 +57,7 @@ import app.owlcms.fieldofplay.FOPEvent.ExplicitDecision;
 import app.owlcms.fieldofplay.FOPEvent.ForceTime;
 import app.owlcms.fieldofplay.FOPEvent.JuryDecision;
 import app.owlcms.fieldofplay.FOPEvent.StartLifting;
+import app.owlcms.fieldofplay.FOPEvent.SummonReferee;
 import app.owlcms.fieldofplay.FOPEvent.SwitchGroup;
 import app.owlcms.fieldofplay.FOPEvent.TimeOver;
 import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
@@ -609,6 +610,8 @@ public class FieldOfPlay {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof JuryDecision) {
                 doJuryDecision((JuryDecision) e);
+            } else if (e instanceof SummonReferee) {
+                doSummonReferee((SummonReferee) e);
             } else if (e instanceof DecisionReset) {
                 doDecisionReset(e);
             } else {
@@ -742,6 +745,10 @@ public class FieldOfPlay {
             }
             break;
         }
+    }
+
+    private void doSummonReferee(SummonReferee e) {
+        getUiEventBus().post(new UIEvent.SummonRef(e.refNumber, true, this));
     }
 
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer, boolean alreadyLoaded) {
@@ -1285,11 +1292,11 @@ public class FieldOfPlay {
                 int lastRef = -1;
                 try {
                     lastRef = ArrayUtils.indexOf(refereeDecision, null);
-                    if (lastRef != -1 && ! Thread.currentThread().isInterrupted()) {
-                        //logger.debug("posting");
+                    if (lastRef != -1 && !Thread.currentThread().isInterrupted()) {
+                        // logger.debug("posting");
                         uiEventBus.post(new UIEvent.WakeUpRef(lastRef, true, this));
                     } else {
-                        //logger.debug("not posting");
+                        // logger.debug("not posting");
                     }
                     Thread.sleep(WAKEUP_DURATION_MS);
                 } catch (InterruptedException e1) {

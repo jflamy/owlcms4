@@ -67,13 +67,15 @@ public class MQTTMonitor {
 
     @Subscribe
     public void slaveSummonRef(UIEvent.SummonRef e) {
-        logger.warn("slaveSummon {}", e.on);
+        logger.warn("slaveSummon {} {}", e.on, e.ref);
         try {
-            String topic = "owlcms/summon/" + fop.getName() + "/" + (e.ref + 1);
-            String refMacAddress = macAddress[e.ref];
+            String topic = "owlcms/summon/" + fop.getName() + "/" + (e.ref);
+            //String refMacAddress = macAddress[e.ref-1];
             // insert target device mac address for cross-check
             client.publish(topic, new MqttMessage(
-                    ((e.on ? "on" : "off") + (refMacAddress != null ? " " + refMacAddress : ""))
+                    ((e.on ? "on" : "off") 
+                            //+ (refMacAddress != null ? " " + refMacAddress : "")
+                            )
                             .getBytes(StandardCharsets.UTF_8)));
         } catch (MqttException e1) {
             logger.error("could not publish summon {}", e1.getCause());

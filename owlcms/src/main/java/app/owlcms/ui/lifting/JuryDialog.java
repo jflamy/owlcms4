@@ -19,7 +19,9 @@ import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.orderedlayout.FlexLayout.ContentAlignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 import app.owlcms.data.athlete.Athlete;
@@ -37,18 +39,18 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class JuryDialog extends EnhancedDialog {
+    private JuryDeliberationEventType deliberation;
+    private String endBreakText;
+
+    private long lastShortcut;
+    private Integer liftValue;
     final private Logger logger = (Logger) LoggerFactory.getLogger(JuryDialog.class);
+    private Object origin;
+    private Athlete reviewedAthlete;
+    private Integer reviewedLift;
     {
         logger.setLevel(Level.INFO);
     }
-
-    private Athlete reviewedAthlete;
-    private Integer reviewedLift;
-    private Integer liftValue;
-    private Object origin;
-    private long lastShortcut;
-    private boolean deliberation;
-    private String endBreakText;
 
     /**
      * Used by the announcer -- tries to guess what type of break is pertinent based on field of play.
@@ -57,29 +59,41 @@ public class JuryDialog extends EnhancedDialog {
      * @param athleteUnderReview
      * @param deliberation
      */
-    public JuryDialog(Object origin, Athlete athleteUnderReview, boolean deliberation) {
+    public JuryDialog(Object origin, Athlete athleteUnderReview, JuryDeliberationEventType deliberation) {
         this.origin = origin;
         this.deliberation = deliberation;
         this.setCloseOnEsc(false);
-        logger.info(deliberation ? "{}jury deliberation reviewedAthlete {}" : "{}start jury technical pause",
+        logger.info(deliberation == JuryDeliberationEventType.START_DELIBERATION ? "{}{} reviewedAthlete {}" : "{}{}",
+                deliberation,
                 OwlcmsSession.getFop().getLoggingName(), athleteUnderReview);
         this.reviewedAthlete = athleteUnderReview;
-
-        if (deliberation) {
+        this.setWidth("50em");
+        switch (deliberation) {
+        case CALL_REFEREES:
+            doSummonReferees(origin);
+            addSummonReferees(origin);
+            break;
+        case START_DELIBERATION:
             doDeliberation(origin, athleteUnderReview);
-        } else {
+            addSummonReferees(origin);
+            break;
+        case TECHNICAL_PAUSE:
             doTechnicalPause(origin);
+            addCallController();
+            break;
+        default:
+            break;
         }
 
-        doCallController();
         doEnd();
     }
 
     public void doClose(boolean noAction) {
         UI.getCurrent().access(() -> {
             JuryNotification event = new UIEvent.JuryNotification(reviewedAthlete, origin,
-                    deliberation ? JuryDeliberationEventType.END_DELIBERATION
-                            : JuryDeliberationEventType.END_TECHNICAL_PAUSE,
+                    deliberation == JuryDeliberationEventType.START_DELIBERATION
+                            ? JuryDeliberationEventType.END_DELIBERATION
+                            : JuryDeliberationEventType.END_JURY_BREAK,
                     null);
             OwlcmsSession.getFop().getUiEventBus().post(event);
             if (noAction) {
@@ -87,10 +101,91 @@ public class JuryDialog extends EnhancedDialog {
             }
             this.close();
 
-            logger.info(deliberation ? "{}end of jury deliberation" : "{}end jury technical pause",
+            logger.info(
+                    deliberation == JuryDeliberationEventType.START_DELIBERATION ? "{}end of jury deliberation"
+                            : "{}end jury break",
                     OwlcmsSession.getFop().getLoggingName());
 
             this.close();
+        });
+    }
+
+    private void addCallController() {
+        FormLayout layout3 = new FormLayout();
+        FormItem callController;
+        Button callControllerButton = new Button(Translator.translate("JuryDialog.CallController"),
+                (e) -> doCallController(OwlcmsSession.getFop()));
+        Shortcuts.addShortcutListener(this, () -> doCallController(OwlcmsSession.getFop()),
+                Key.KEY_C);
+        callController = layout3.addFormItem(callControllerButton,
+                Translator.translate("JuryDialog.CallControllerLabel"));
+        fixItemFormat(layout3, callController);
+        this.add(layout3);
+    }
+
+    private void addSummonReferees(Object origin2) {
+        FormLayout layout3 = new FormLayout();
+
+        FormItem callController;
+        Button one = new Button("1", (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                this.summonReferee(1);
+            });
+        });
+        styleRefereeButton(one, true);
+
+        Button two = new Button("2", (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                this.summonReferee(2);
+            });
+        });
+        styleRefereeButton(two, false);
+
+        Button three = new Button("3", (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                this.summonReferee(3);
+            });
+        });
+        styleRefereeButton(three, false);
+
+        Button all = new Button(Translator.translate("JuryDialog.AllReferees"), (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                // i = 0 means call all refs.
+                for (int j = 1; j <= 3; j++) {
+                    fop.fopEventPost(new FOPEvent.SummonReferee(j, this.origin));
+                }
+            });
+        });
+        styleRefereeButton(all, false);
+
+        FlexLayout selection = new FlexLayout(one, two, three, all);
+        selection.setWidth("30em");
+        selection.setAlignContent(ContentAlignment.STRETCH);
+
+        Label lab = new Label(Translator.translate("JuryDialog.SummonRefereesLabel"));
+        HorizontalLayout label = new HorizontalLayout(lab);
+        label.setPadding(false);
+        label.setMargin(false);
+        label.setAlignItems(Alignment.STRETCH);
+        callController = layout3.addFormItem(selection, Translator.translate("JuryDialog.SummonRefereesLabel"));
+        fixItemFormat(layout3, callController);
+        this.add(layout3);
+        this.setWidth("50em");
+    }
+    
+    private void styleRefereeButton(Button button, boolean first) {
+        final String buttonStyle = "margin-left: 1em";
+        final String refereeStyle = "contrast";
+        button.setWidth("4em");
+        button.getElement().setAttribute("theme", refereeStyle);
+        if (!first) {
+            button.getElement().setAttribute("style", buttonStyle);
+        }
+    }
+
+    private void summonReferee(int i) {
+        OwlcmsSession.withFop(fop -> {
+            fop.fopEventPost(new FOPEvent.SummonReferee(i, this.origin));
         });
     }
 
@@ -103,20 +198,6 @@ public class JuryDialog extends EnhancedDialog {
             ((JuryContent) origin).decisionNotification.close();
         });
         doClose(false);
-    }
-
-    private void doCallController() {
-        FormLayout layout3 = new FormLayout();
-        FormItem callController;
-        Button callControllerButton = new Button(Translator.translate("JuryDialog.CallController"),
-                (e) -> doCallController(OwlcmsSession.getFop()));
-        Shortcuts.addShortcutListener(this, () -> doCallController(OwlcmsSession.getFop()),
-                Key.KEY_C);
-        callController = layout3.addFormItem(callControllerButton,
-                Translator.translate("JuryDialog.CallControllerLabel"));
-        fixItemFormat(layout3, callController);
-        this.add(layout3);
-        this.setWidth("50em");
     }
 
     private void doCallController(FieldOfPlay fop) {
@@ -238,6 +319,20 @@ public class JuryDialog extends EnhancedDialog {
         doClose(false);
     }
 
+    private void doSummonReferees(Object origin2) {
+        // technical pause from Jury
+        OwlcmsSession.getFop()
+                .fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, this));
+        JuryNotification event = new UIEvent.JuryNotification(null, origin, JuryDeliberationEventType.CALL_REFEREES,
+                null);
+        OwlcmsSession.getFop().getUiEventBus().post(event);
+        endBreakText = Translator.translate("JuryDialog.EndDeliberation");
+
+        this.addAttachListener((e) -> {
+            this.setHeader(Translator.translate("JuryDialog.SummonReferees"));
+        });
+    }
+
     private void doTechnicalPause(Object origin) {
         // technical pause from Jury
         OwlcmsSession.getFop()
@@ -248,30 +343,7 @@ public class JuryDialog extends EnhancedDialog {
         endBreakText = Translator.translate("JuryDialog.EndTechnicalPause");
 
         this.addAttachListener((e) -> {
-            if (reviewedAthlete != null) {
-                reviewedLift = reviewedAthlete.getAttemptsDone();
-                liftValue = reviewedAthlete.getActualLift(reviewedLift);
-                String status;
-                if (liftValue != null) {
-                    status = (liftValue > 0 ? Translator.translate("JuryDialog.RefGoodLift")
-                            : Translator.translate("JuryDialog.RefBadLift"));
-                } else {
-                    status = Translator.translate("JuryDialog.NotLiftedYet");
-                }
-                H3 status1 = new H3(status);
-                H3 weight = new H3(liftValue != null ? Translator.translate("Kg", Math.abs(liftValue)) : "");
-                H3 athlete = new H3(reviewedAthlete.getFullId());
-                HorizontalLayout header = new HorizontalLayout(
-                        athlete,
-                        weight,
-                        status1);
-                header.setFlexGrow(1, athlete);
-                header.setWidthFull();
-                header.setPadding(true);
-                this.setHeader(header);
-            } else {
-                this.setHeader(Translator.translate("JuryDialog.TechnicalPause"));
-            }
+            this.setHeader(Translator.translate("JuryDialog.TechnicalPause"));
         });
     }
 
