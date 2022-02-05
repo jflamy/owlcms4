@@ -111,7 +111,7 @@ public class FieldOfPlay {
         }
     }
 
-    private static final int WAKEUP_DURATION_MS = 2000;
+    private static final int WAKEUP_DURATION_MS = 4000;
 
     public static final long DECISION_VISIBLE_DURATION = 3500;
 
@@ -1306,7 +1306,7 @@ public class FieldOfPlay {
                     lastRef = ArrayUtils.indexOf(refereeDecision, null);
                     if (lastRef != -1 && !Thread.currentThread().isInterrupted()) {
                         // logger.debug("posting");
-                        uiEventBus.post(new UIEvent.WakeUpRef(lastRef, true, this));
+                        uiEventBus.post(new UIEvent.WakeUpRef(lastRef+1, true, this));
                     } else {
                         // logger.debug("not posting");
                     }
@@ -1317,7 +1317,7 @@ public class FieldOfPlay {
                 } finally {
                     logger.warn("clean up");
                     if (lastRef != -1) {
-                        uiEventBus.post(new UIEvent.WakeUpRef(lastRef, false, this));
+                        uiEventBus.post(new UIEvent.WakeUpRef(lastRef+1, false, this));
                     }
                 }
             });

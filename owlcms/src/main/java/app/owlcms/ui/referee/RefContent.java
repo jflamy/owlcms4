@@ -27,6 +27,7 @@ import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.dom.DomEvent;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -63,26 +64,28 @@ import ch.qos.logback.classic.Logger;
 public class RefContent extends VerticalLayout implements FOPParameters, SafeEventBusRegistration,
         UIEventProcessor, HasDynamicTitle, RequireLogin, PageConfigurator, BeforeEnterListener {
 
-    private static final String REF_INDEX = "num";
     final private static Logger logger = (Logger) LoggerFactory.getLogger(RefContent.class);
+    private static final String REF_INDEX = "num";
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     static {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
     }
 
-    private HorizontalLayout refVotingButtons;
-    private VerticalLayout refVotingCenterHorizontally;
-    private boolean redTouched;
-    private Integer refIndex = null; // 1 2 or 3
-    private boolean whiteTouched;
-    private Icon good;
     private Icon bad;
+    private Icon good;
     private Location location;
     private UI locationUI;
-    private HashMap<String, List<String>> urlParams;
-    private NumberField refField;
+    private boolean redTouched;
+    private IntegerField refField;
+    private Integer ref13ix = null; // 1 2 or 3
+    private HorizontalLayout refVotingButtons;
+    private VerticalLayout refVotingCenterHorizontally;
     private EventBus uiEventBus;
+    private HashMap<String, List<String>> urlParams;
+    private boolean whiteTouched;
+    private HorizontalLayout topRow;
+    private HorizontalLayout warningRow;
 
     public RefContent() {
         OwlcmsFactory.waitDBInitialized();
@@ -120,7 +123,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
     @Override
     public String getPageTitle() {
         return Translator.translate("Referee") + OwlcmsSession.getFopNameIfMultiple()
-                + (refIndex != null ? (" " + refIndex) : "");
+                + (ref13ix != null ? (" " + ref13ix) : "");
     }
 
     @Override
@@ -160,11 +163,11 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
         if (nums != null) {
             num = nums.get(0);
             try {
-                refIndex = Integer.parseInt(num);
+                ref13ix = Integer.parseInt(num);
                 logger.debug("parsed {} parameter = {}", REF_INDEX, num);
-                refField.setValue(refIndex.doubleValue());
+                refField.setValue(ref13ix.intValue());
             } catch (NumberFormatException e) {
-                refIndex = null;
+                ref13ix = null;
                 num = null;
                 LoggerUtils.logError(logger, e);
             }
@@ -188,7 +191,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
      */
     @Subscribe
     public void slaveDecisionReset(UIEvent.DecisionReset e) {
-        logger.debug("received decision reset {}", refIndex);
+        logger.debug("received decision reset {}", ref13ix);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             resetRefVote();
         });
@@ -196,13 +199,48 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 
     @Subscribe
     public void slaveDown(UIEvent.DownSignal e) {
-        // if no decision, remind referee
+    }
+
+    @Subscribe
+    public void slaveSummonRef(UIEvent.SummonRef e) {
+        if (e.ref != ref13ix) {
+            return;
+        }
+        logger.warn("{}phone summon {} {}", e.ref, e.on);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            warningRow.removeAll();
+            warningRow.setVisible(true);
+            warningRow.add(new H3(Translator.translate("JuryNotification.PleaseSeeJury")));
+            warningRow.getElement().setAttribute("style", "background-color: yellow");
+            topRow.setVisible(false);
+        });
     }
 
     @Subscribe
     public void slaveTimeStarted(UIEvent.StartTime e) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             resetRefVote();
+        });
+    }
+
+    @Subscribe
+    public void slaveWakeUpRef(UIEvent.WakeUpRef e) {
+        logger.warn("e.ref {} {}",e.ref,ref13ix);
+        if (e.ref != ref13ix) {
+            return;
+        }
+        logger.warn("phone wakeup {} {}", e.ref, e.on);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            if (e.on) {
+                warningRow.removeAll();
+                warningRow.setVisible(true);
+                warningRow.add(new H3(Translator.translate("JuryNotification.PleaseEnterDecision")));
+                warningRow.getElement().setAttribute("style", "background-color: red");
+                topRow.setVisible(false);
+            } else {
+                warningRow.setVisible(false);
+                topRow.setVisible(true);
+            }
         });
     }
 
@@ -240,23 +278,25 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
     }
 
     private void createContent(VerticalLayout refContainer) {
-        HorizontalLayout topRow = new HorizontalLayout();
-        Label juryLabel = new Label(getTranslation("Referee"));
-        H3 labelWrapper = new H3(juryLabel);
+        topRow = new HorizontalLayout();
+        warningRow = new HorizontalLayout();
+        warningRow.setVisible(false);
+
+        Label refLabel = new Label(getTranslation("Referee"));
+        H3 labelWrapper = new H3(refLabel);
         labelWrapper.getStyle().set("margin-top", "0");
         labelWrapper.getStyle().set("margin-bottom", "0");
 
-        refField = new NumberField();
-        refField.setStep(1.0D);
-        refField.setMax(3.0D);
-        refField.setMin(1.0D);
-        refField.setValue(refIndex == null ? null : refIndex.doubleValue());
+        refField = new IntegerField();
+        refField.setStep(1);
+        refField.setMax(3);
+        refField.setMin(1);
+        refField.setValue(ref13ix == null ? null : ref13ix.intValue());
         refField.setPlaceholder(getTranslation("Number"));
         refField.setHasControls(true);
         refField.addValueChangeListener((e) -> {
-            Double value = e.getValue();
-            refIndex = value == null ? null : ((int) Math.round(value));
-            setUrl(refIndex != null ? refIndex.toString() : null);
+            ref13ix = e.getValue();
+            setUrl(ref13ix != null ? ref13ix.toString() : null);
         });
 
         ComboBox<FieldOfPlay> fopSelect = createFopSelect();
@@ -275,7 +315,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
         refContainer.setBoxSizing(BoxSizing.BORDER_BOX);
         refContainer.setMargin(false);
         refContainer.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-        refContainer.add(topRow);
+        refContainer.add(topRow, warningRow);
         refContainer.setAlignSelf(Alignment.START, topRow);
         refContainer.add(refVotingCenterHorizontally);
 
@@ -306,50 +346,16 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
         return;
     }
 
-    // private Key getBadKey(int i) {
-    // switch (i) {
-    // case 0:
-    // return Key.DIGIT_2;
-    // case 1:
-    // return Key.DIGIT_4;
-    // case 2:
-    // return Key.DIGIT_6;
-    // case 3:
-    // return Key.DIGIT_8;
-    // case 4:
-    // return Key.DIGIT_0;
-    // default:
-    // return Key.UNIDENTIFIED;
-    // }
-    // }
-    //
-    // private Key getGoodKey(int i) {
-    // switch (i) {
-    // case 0:
-    // return Key.DIGIT_1;
-    // case 1:
-    // return Key.DIGIT_3;
-    // case 2:
-    // return Key.DIGIT_5;
-    // case 3:
-    // return Key.DIGIT_7;
-    // case 4:
-    // return Key.DIGIT_9;
-    // default:
-    // return Key.UNIDENTIFIED;
-    // }
-    // }
-
     private void doRed() {
         OwlcmsSession.withFop(fop -> {
-            fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), refIndex - 1, false));
+            fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), ref13ix - 1, false));
         });
         good.getStyle().set("color", "grey");
     }
 
     private void doWhite() {
         OwlcmsSession.withFop(fop -> {
-            fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), refIndex - 1, true));
+            fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), ref13ix - 1, true));
         });
         bad.getStyle().set("color", "grey");
     }
@@ -379,6 +385,8 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
         bad.getElement().addEventListener("touchstart", (e) -> redTouched(e));
         bad.getElement().addEventListener("click", (e) -> redClicked(e));
         refVotingButtons.add(bad, good);
+        topRow.setVisible(true);
+        warningRow.setVisible(false);
     }
 
     private void setUrl(String num) {
