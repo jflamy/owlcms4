@@ -67,7 +67,7 @@ public class MQTTMonitor {
 
     @Subscribe
     public void slaveSummonRef(UIEvent.SummonRef e) {
-        logger.warn("slaveSummon {} {}", e.on, e.ref);
+        logger.debug("{}MQTT summon {} {}", fop.getLoggingName(), e.ref, e.on);
         try {
             String topic = "owlcms/summon/" + fop.getName() + "/" + (e.ref);
             //String refMacAddress = macAddress[e.ref-1];

@@ -90,8 +90,6 @@ import ch.qos.logback.classic.Logger;
  */
 public class FieldOfPlay {
 
-    private static final int WAKEUP_DURATION_MS = 2000;
-
     private class DelayTimer {
         private final Timer t = new Timer();
 
@@ -111,6 +109,8 @@ public class FieldOfPlay {
             }
         }
     }
+
+    private static final int WAKEUP_DURATION_MS = 2000;
 
     public static final long DECISION_VISIBLE_DURATION = 3500;
 
@@ -196,6 +196,8 @@ public class FieldOfPlay {
 
     private Thread wakeUpRef;
 
+    private String mqttServer;
+
     {
         uiEventLogger.setLevel(Level.INFO);
     }
@@ -212,7 +214,7 @@ public class FieldOfPlay {
         initEventBuses();
 
         // check if refereeing devices connected via MQTT are in use
-        String mqttServer = StartupUtils.getStringParam("mqttServer");
+        mqttServer = StartupUtils.getStringParam("mqttServer");
         if (mqttServer != null) {
             new MQTTMonitor(this);
         }
@@ -388,6 +390,10 @@ public class FieldOfPlay {
      */
     public String getLoggingName() {
         return "FOP " + name + "    ";
+    }
+
+    public String getMqttServer() {
+        return mqttServer;
     }
 
     /**
@@ -747,10 +753,6 @@ public class FieldOfPlay {
         }
     }
 
-    private void doSummonReferee(SummonReferee e) {
-        getUiEventBus().post(new UIEvent.SummonRef(e.refNumber, true, this));
-    }
-
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer, boolean alreadyLoaded) {
         // logger.debug("start of init state={} \\n{}", state, LoggerUtils. stackTrace());
         this.athleteTimer = timer;
@@ -957,6 +959,10 @@ public class FieldOfPlay {
         this.liftsDoneAtLastStart = liftsDoneAtLastStart;
     }
 
+    public void setMqttServer(String mqttServer) {
+        this.mqttServer = mqttServer;
+    }
+
     /**
      * Sets the name.
      *
@@ -1061,6 +1067,13 @@ public class FieldOfPlay {
         doSetState(state);
     }
 
+    private void cancelWakeUpRef() {
+        if (wakeUpRef != null) {
+            wakeUpRef.interrupt();
+        }
+        wakeUpRef = null;
+    }
+
     private void doDecisionReset(FOPEvent e) {
         logger.debug("{}resetting decisions", getLoggingName());
         // the state will be rewritten in displayOrBreakIfDone
@@ -1077,13 +1090,6 @@ public class FieldOfPlay {
             this.setState(BREAK);
             pushOutDone();
         }
-    }
-
-    private void cancelWakeUpRef() {
-        if (wakeUpRef != null) {
-            wakeUpRef.interrupt();
-        }
-        wakeUpRef = null;
     }
 
     private void doJuryDecision(JuryDecision e) {
@@ -1131,6 +1137,10 @@ public class FieldOfPlay {
             getGroup().doDone(breakType == BreakType.GROUP_DONE);
         }
         this.state = state;
+    }
+
+    private void doSummonReferee(SummonReferee e) {
+        getUiEventBus().post(new UIEvent.SummonRef(e.refNumber, true, this));
     }
 
     /**

@@ -81,6 +81,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private HorizontalLayout refContainer;
     private Component refereeLabelWrapper;
     List<ShortcutRegistration> registrations;
+    private boolean summonEnabled;
 
     public JuryContent() {
         // we don't actually inherit behaviour from the superclass because
@@ -117,17 +118,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     public String getPageTitle() {
         return getTranslation("Jury") + OwlcmsSession.getFopNameIfMultiple();
     }
-
-//    /**
-//     * @see app.owlcms.ui.shared.AthleteGridContent#slaveGroupDone(app.owlcms.uievents.UIEvent.GroupDone)
-//     */
-//    @Override
-//    @Subscribe
-//    public void slaveGroupDone(UIEvent.GroupDone e) {
-//        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-//                this.getOrigin(), e.getOrigin());
-//        OwlcmsSession.withFop((fop) -> doUpdateTopBar(fop.getCurAthlete(), 0));
-//    }
 
     @Subscribe
     public void slaveDown(UIEvent.DownSignal e) {
@@ -178,7 +168,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     @Subscribe
     public void slaveTimeStarted(UIEvent.StartTime e) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            // juryDeliberationButton.setEnabled(false);
             juryVotingButtons.removeAll();
             resetJuryVoting();
             if (decisionNotification != null) {
@@ -198,14 +187,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         // do nothing
         return athlete;
     }
-
-//    /**
-//     * @see app.owlcms.ui.shared.AthleteGridContent#updateGrid(app.owlcms.uievents.UIEvent.LiftingOrderUpdated)
-//     */
-//    @Override
-//    public void slaveUpdateGrid(LiftingOrderUpdated e) {
-//        // ignore
-//    }
 
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
@@ -234,16 +215,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         return new HorizontalLayout(); // juryDecisionButtons();
     }
 
-//    /**
-//     * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar()
-//     */
-//    @Override
-//    protected void createTopBar() {
-//        super.createTopBar();
-//        // this hides the back arrow
-//        getAppLayout().setMenuVisible(false);
-//    }
-
     protected void doSync() {
         syncWithFOP(false);
         decisions.slaveReset(null);
@@ -260,8 +231,11 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     protected void init(int nbj) {
+        summonEnabled = false;
+        OwlcmsSession.withFop(fop -> {
+            summonEnabled = fop.getMqttServer() != null;
+        });
         registrations = new ArrayList<>();
-        logger.warn("registrations {}", registrations);
         this.setBoxSizing(BoxSizing.BORDER_BOX);
         this.setSizeFull();
         setTopBarTitle(getTranslation("Jury"));
@@ -284,7 +258,8 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         labelWrapper.setWidth("15em");
         Label spacer = new Label();
         spacer.setWidth("3em");
-        topRow.add(labelWrapper, juryDeliberationButtons(), juryDecisionButtons() /* , spacer, summonRefereeButtons() */);
+        topRow.add(labelWrapper, juryDeliberationButtons(),
+                juryDecisionButtons() /* , spacer, summonRefereeButtons() */);
         topRow.setDefaultVerticalComponentAlignment(Alignment.CENTER);
 
         buildJuryVoting();
@@ -440,7 +415,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         Button juryDeliberationButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
             openJuryDialog(JuryDeliberationEventType.START_DELIBERATION);
         });
-        // juryDeliberationButton.setEnabled(false);
         juryDeliberationButton.getElement().setAttribute("theme", "primary");
         juryDeliberationButton.setText(getTranslation("BreakButton.JuryDeliberation"));
         // juryDeliberationButton.getElement().setAttribute("title", getTranslation("BreakButton.JuryDeliberation"));
@@ -448,22 +422,20 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         Button technicalPauseButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
             openJuryDialog(JuryDeliberationEventType.TECHNICAL_PAUSE);
         });
-        // juryDeliberationButton.setEnabled(false);
         technicalPauseButton.getElement().setAttribute("theme", "primary");
         technicalPauseButton.setText(getTranslation("BreakType.TECHNICAL"));
 
-        Button summonRefereesButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
-            openJuryDialog(JuryDeliberationEventType.CALL_REFEREES);
-        });
-        // juryDeliberationButton.setEnabled(false);
-        summonRefereesButton.getElement().setAttribute("theme", "primary");
-        summonRefereesButton.setText(getTranslation("BreakButton.SummonReferees"));
-        // technicalPauseButton.getElement().setAttribute("title", getTranslation("BreakButton.TechnicalPause"));
-
-        // HorizontalLayout buttons = new HorizontalLayout(stopCompetition,
-        // resumeCompetition);
-        HorizontalLayout buttons = new HorizontalLayout(juryDeliberationButton, technicalPauseButton,
-                summonRefereesButton);
+        HorizontalLayout buttons = new HorizontalLayout(juryDeliberationButton, technicalPauseButton);
+        
+        if (summonEnabled) {
+            Button summonRefereesButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+                openJuryDialog(JuryDeliberationEventType.CALL_REFEREES);
+            });
+            summonRefereesButton.getElement().setAttribute("theme", "primary");
+            summonRefereesButton.setText(getTranslation("BreakButton.SummonReferees"));
+            buttons.add(summonRefereesButton);
+        }
+                
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
         return buttons;
     }
@@ -556,7 +528,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private void openJuryDialog(JuryDeliberationEventType deliberation) {
         long now = System.currentTimeMillis();
         if (now - lastOpen > 100 && (juryDialog == null || !juryDialog.isOpened())) {
-            juryDialog = new JuryDialog(JuryContent.this, athleteUnderReview, deliberation);
+            juryDialog = new JuryDialog(JuryContent.this, athleteUnderReview, deliberation, summonEnabled);
             juryDialog.open();
             lastOpen = now;
         }
@@ -598,14 +570,16 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
                 reg = UI.getCurrent().addShortcutListener(
                         () -> openJuryDialog(JuryDeliberationEventType.TECHNICAL_PAUSE), Key.KEY_T);
                 registrations.add(reg);
-                reg = UI.getCurrent().addShortcutListener(() -> summonReferee(1), Key.KEY_H);
-                registrations.add(reg);
-                reg = UI.getCurrent().addShortcutListener(() -> summonReferee(2), Key.KEY_I);
-                registrations.add(reg);
-                reg = UI.getCurrent().addShortcutListener(() -> summonReferee(3), Key.KEY_J);
-                registrations.add(reg);
-                reg = UI.getCurrent().addShortcutListener(() -> summonReferee(0), Key.KEY_K);
-                registrations.add(reg);
+                if (summonEnabled) {
+                    reg = UI.getCurrent().addShortcutListener(() -> summonReferee(1), Key.KEY_H);
+                    registrations.add(reg);
+                    reg = UI.getCurrent().addShortcutListener(() -> summonReferee(2), Key.KEY_I);
+                    registrations.add(reg);
+                    reg = UI.getCurrent().addShortcutListener(() -> summonReferee(3), Key.KEY_J);
+                    registrations.add(reg);
+                    reg = UI.getCurrent().addShortcutListener(() -> summonReferee(0), Key.KEY_K);
+                    registrations.add(reg);
+                }
             }
         });
     }

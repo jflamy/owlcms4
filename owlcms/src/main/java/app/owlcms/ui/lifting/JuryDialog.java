@@ -59,13 +59,14 @@ public class JuryDialog extends EnhancedDialog {
      * @param athleteUnderReview
      * @param deliberation
      */
-    public JuryDialog(Object origin, Athlete athleteUnderReview, JuryDeliberationEventType deliberation) {
+    public JuryDialog(Object origin, Athlete athleteUnderReview, JuryDeliberationEventType deliberation,
+            boolean summonEnabled) {
         this.origin = origin;
         this.deliberation = deliberation;
         this.setCloseOnEsc(false);
-        logger.info(deliberation == JuryDeliberationEventType.START_DELIBERATION ? "{}{} reviewedAthlete {}" : "{}{}",
-                deliberation,
-                OwlcmsSession.getFop().getLoggingName(), athleteUnderReview);
+        logger.info(
+                deliberation == JuryDeliberationEventType.START_DELIBERATION ? "{}{} reviewedAthlete {}" : "{}{}",
+                OwlcmsSession.getFop().getLoggingName(), deliberation, athleteUnderReview);
         this.reviewedAthlete = athleteUnderReview;
         this.setWidth("50em");
         switch (deliberation) {
@@ -75,10 +76,13 @@ public class JuryDialog extends EnhancedDialog {
             break;
         case START_DELIBERATION:
             doDeliberation(origin, athleteUnderReview);
-            addSummonReferees(origin);
+            if (summonEnabled) {
+                addSummonReferees(origin);
+            }
             break;
         case TECHNICAL_PAUSE:
             doTechnicalPause(origin);
+            addSummonReferees(origin);
             addCallController();
             break;
         default:
@@ -172,7 +176,7 @@ public class JuryDialog extends EnhancedDialog {
         this.add(layout3);
         this.setWidth("50em");
     }
-    
+
     private void styleRefereeButton(Button button, boolean first) {
         final String buttonStyle = "margin-left: 1em";
         final String refereeStyle = "contrast";
@@ -289,7 +293,6 @@ public class JuryDialog extends EnhancedDialog {
     }
 
     private void doEnd() {
-
         Button endBreak = new Button(endBreakText, (e) -> doClose(true));
         Shortcuts.addShortcutListener(this, () -> {
             if (shortcutTooSoon()) {
