@@ -42,6 +42,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
@@ -1296,11 +1297,12 @@ public class FieldOfPlay {
         }
         if (nbDecisions == 2) {
             logger.warn("2 decisions");
-            // 2 decisions, but not the same
-            // waiting on last referee
+            // 2 decisions, reminder for last referee
             wakeUpRef = new Thread(() -> {
                 int lastRef = -1;
                 try {
+                    // wait a bit.  If the decison comes in while waiting, this thread will be cancelled anyway
+                    Thread.sleep(Competition.getCurrent().getRefereeWakeUpDelay());
                     lastRef = ArrayUtils.indexOf(refereeDecision, null);
                     if (lastRef != -1 && !Thread.currentThread().isInterrupted()) {
                         // logger.debug("posting");

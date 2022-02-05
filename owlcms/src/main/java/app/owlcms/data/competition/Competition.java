@@ -201,6 +201,13 @@ public class Competition {
     private String juryTemplateFileName;
     private String startingWeightsSheetTemplateFileName;
     private String finalPackageTemplateFileName;
+    
+    @Column(columnDefinition = "integer default 1500")
+    private int refereeWakeUpDelay = 1500;
+
+    public void setRefereeWakeUpDelay(int refereeWakeUpDelay) {
+        this.refereeWakeUpDelay = refereeWakeUpDelay;
+    }
 
     synchronized public HashMap<String, Object> computeReportingInfo() {
         List<PAthlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(null, null);
@@ -483,6 +490,10 @@ public class Competition {
         return protocolTemplateFileName;
     }
 
+    public int getRefereeWakeUpDelay() {
+        return refereeWakeUpDelay;
+    }
+
     @Transient
     @JsonIgnore
     public HashMap<String, Object> getReportingBeans() {
@@ -735,10 +746,6 @@ public class Competition {
         this.masters = masters;
     }
 
-    public void setMastersGenderEquality(boolean mastersGenderEquality) {
-        this.mastersGenderEquality = mastersGenderEquality;
-    }
-
 //    private String doFindFinalPackageTemplateFileName(String absoluteRoot) {
 //        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
 //                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
@@ -766,6 +773,10 @@ public class Competition {
 //        }
 //        throw new RuntimeException("result templates not found under " + absoluteRoot);
 //    }
+
+    public void setMastersGenderEquality(boolean mastersGenderEquality) {
+        this.mastersGenderEquality = mastersGenderEquality;
+    }
 
     public void setMensTeamSize(Integer mensTeamSize) {
         this.mensTeamSize = mensTeamSize;
