@@ -42,6 +42,7 @@ import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.server.PageConfigurator;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
+import app.owlcms.components.elements.BeepElement;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -87,6 +88,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
     private boolean whiteTouched;
     private HorizontalLayout topRow;
     private HorizontalLayout warningRow;
+    private BeepElement beeper;
 
     public RefContent() {
         OwlcmsFactory.waitDBInitialized();
@@ -220,6 +222,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
             warningRow.add(h3);
             warningRow.getElement().setAttribute("style", "background-color: red; width: 100%;");
             topRow.setVisible(false);
+            beeper.beep();
         });
     }
     
@@ -254,6 +257,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
                 warningRow.add(h3);
                 warningRow.getElement().setAttribute("style", "background-color: yellow; width: 100%;");
                 topRow.setVisible(false);
+                this.getElement().callJsFunction("beep");
             } else {
                 warningRow.setVisible(false);
                 topRow.setVisible(true);
@@ -273,6 +277,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
     protected void init() {
         this.setBoxSizing(BoxSizing.BORDER_BOX);
         this.setSizeFull();
+        beeper = new BeepElement();
         createContent(this);
     }
 
@@ -296,6 +301,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 
     private void createContent(VerticalLayout refContainer) {
         topRow = new HorizontalLayout();
+        topRow.add(beeper);
         warningRow = new HorizontalLayout();
         warningRow.setPadding(false);
         warningRow.setMargin(false);
