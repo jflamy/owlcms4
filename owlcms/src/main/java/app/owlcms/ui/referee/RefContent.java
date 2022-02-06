@@ -41,6 +41,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.server.PageConfigurator;
 
+import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.components.elements.BeepElement;
 import app.owlcms.fieldofplay.FOPEvent;
@@ -286,6 +287,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
+        SoundUtils.enableAudioContextNotification(this.getElement(), true);
         OwlcmsSession.withFop(fop -> {
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
