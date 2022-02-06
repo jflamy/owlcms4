@@ -1,8 +1,14 @@
-#### **Changes for release 4.29.0-alpha06**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+#### **Changes for release 4.29.0-alpha07**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+
+4.29-9-alpha07: New browsers require touching/clicking before sound is activated. Fixed for mobile refereeing screen (beep sound played for reminder and summon)
+
+4.29-9-alpha07: Hibernate was not updating the database schema properly. Fixed in Hibernate 5.2.5.
+
+4.29.0-alpha06: New setting in Competition options to set the delay before the officials are notified that they need to enter a decision.
 
 4.29.0-alpha06: Separate translation messages for the start and end of the three type of jury breaks (deliberation, technical, referee summon)
 
-4.29.0-alpha06: Decision requests and jury summons are now shown on the refereeing console.
+4.29.0-alpha06: The mobile device refereeing screens now show the reminder to enter a decision and the calls to go to the jury table.
 
 ##### New in release 4.29
 
