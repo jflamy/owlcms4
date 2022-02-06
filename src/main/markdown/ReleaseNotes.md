@@ -1,14 +1,16 @@
 #### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.29.0-alpha05: Jury console support for calling officials, including keyboard shortcuts (see 4.29 notes below).
+4.29.0-alpha06: Separate translation messages for the start and end of the three type of jury breaks (deliberation, technical, referee summon)
+
+4.29.0-alpha06: Decision requests and jury summons are now shown on the refereeing console.
 
 ##### New in release 4.29
 
-- [x] Support for bidirectional refereeing devices that can receive instructions from owlcms (such as reminding a referee to enter a decision or be called by the jury).  
-  - The communication uses the MQTT protocol over WiFi. See [MQTT setup instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTT) for details.
+- [x] The refereeing screen (typically used on phones or tablets) now displays notifications when a decision is expected or when the jury calls the referee.
+- [x] Support for physical refereeing devices using the MQTT protocol to receive instructions from owlcms (decision expected, jury calls referee)
+  - An MQTT server is used to broker communications between owlcms and the devices See [MQTT setup instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTT) for details on installing a free broker.
   - Software and circuit schematics for an inexpensive MQTT+WiFi device are available at [this location](http://github.com/jflamy/owlcms-esp32).
-
-- [x] Jury console support for calling referees: new dialog for calling referees individually or all together.  This feature is enabled only if an MQTT server is [configured](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTT).
+- [x] Jury console support for calling referees: new dialog for calling referees individually or all together.  This feature works with [MQTT refereeing devices](), or with mobile device refereeing (such as phones).
   - Calling a referee starts a jury break and a notification is shown on the technical official screens.
   - Keyboard shortcuts `H` `I` `J` `K` can be used to call referees 1, 2, 3 or all referees, respectively. The`esc` key can be used to end the break and resume the competition.  
 
