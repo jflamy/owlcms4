@@ -202,7 +202,7 @@ public class Competition {
     private String startingWeightsSheetTemplateFileName;
     private String finalPackageTemplateFileName;
     
-    @Column(columnDefinition = "integer default 1500")
+    @Column(name = "refdelay", columnDefinition = "integer default 1500")
     private int refereeWakeUpDelay = 1500;
 
     public void setRefereeWakeUpDelay(int refereeWakeUpDelay) {
