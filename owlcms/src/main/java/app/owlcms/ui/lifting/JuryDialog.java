@@ -93,12 +93,24 @@ public class JuryDialog extends EnhancedDialog {
     }
 
     public void doClose(boolean noAction) {
+
         UI.getCurrent().access(() -> {
-            JuryNotification event = new UIEvent.JuryNotification(reviewedAthlete, origin,
-                    deliberation == JuryDeliberationEventType.START_DELIBERATION
-                            ? JuryDeliberationEventType.END_DELIBERATION
-                            : JuryDeliberationEventType.END_JURY_BREAK,
-                    null);
+            JuryDeliberationEventType endEvent = null;
+            switch (deliberation) {
+            case CALL_REFEREES:
+                endEvent = JuryDeliberationEventType.END_CALL_REFEREES;
+                break;
+            case START_DELIBERATION:
+                endEvent = JuryDeliberationEventType.END_DELIBERATION;
+                break;
+            case TECHNICAL_PAUSE:
+                endEvent = JuryDeliberationEventType.END_TECHNICAL_PAUSE;
+                break;
+            default:
+                endEvent = JuryDeliberationEventType.END_JURY_BREAK;
+                break;
+            }
+            JuryNotification event = new UIEvent.JuryNotification(reviewedAthlete, origin, endEvent, null);
             OwlcmsSession.getFop().getUiEventBus().post(event);
             if (noAction) {
                 ((JuryContent) origin).doSync();
@@ -234,7 +246,7 @@ public class JuryDialog extends EnhancedDialog {
         goodLift.setWidth("8em");
         badLift.getElement().setAttribute("theme", "primary error icon");
         badLift.setWidth("8em");
-        endBreakText = Translator.translate("JuryDialog.EndDeliberation");
+        endBreakText = Translator.translate("JuryDialog.ResumeCompetition");
 
         // workaround for unpredictable behaviour of FormLayout
         FormLayout layoutGreen = new FormLayout();
@@ -329,10 +341,10 @@ public class JuryDialog extends EnhancedDialog {
         JuryNotification event = new UIEvent.JuryNotification(null, origin, JuryDeliberationEventType.CALL_REFEREES,
                 null);
         OwlcmsSession.getFop().getUiEventBus().post(event);
-        endBreakText = Translator.translate("JuryDialog.EndDeliberation");
+        endBreakText = Translator.translate("JuryDialog.ResumeCompetition");
 
         this.addAttachListener((e) -> {
-            this.setHeader(Translator.translate("JuryDialog.SummonReferees"));
+            this.setHeader(Translator.translate("JuryDialog.CALL_REFEREES"));
         });
     }
 
@@ -343,10 +355,10 @@ public class JuryDialog extends EnhancedDialog {
         JuryNotification event = new UIEvent.JuryNotification(null, origin,
                 JuryDeliberationEventType.TECHNICAL_PAUSE, null);
         OwlcmsSession.getFop().getUiEventBus().post(event);
-        endBreakText = Translator.translate("JuryDialog.EndTechnicalPause");
+        endBreakText = Translator.translate("JuryDialog.ResumeCompetition");
 
         this.addAttachListener((e) -> {
-            this.setHeader(Translator.translate("JuryDialog.TechnicalPause"));
+            this.setHeader(Translator.translate("JuryDialog.TECHNICAL_PAUSE"));
         });
     }
 

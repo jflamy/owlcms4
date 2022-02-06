@@ -83,6 +83,7 @@ import app.owlcms.ui.lifting.JuryContent;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
@@ -436,21 +437,24 @@ public abstract class AthleteGridContent extends VerticalLayout
             }
             String style = "warning";
             int previousAttemptNo;
-            switch (e.getDeliberationEventType()) {
+            JuryDeliberationEventType et = e.getDeliberationEventType();
+            switch (et) {
+            case CALL_REFEREES:
+            case END_CALL_REFEREES:
+            case START_DELIBERATION:
+            case END_DELIBERATION:
+            case TECHNICAL_PAUSE:
+            case END_TECHNICAL_PAUSE:
+                text = Translator.translate("JuryNotification." + et.name());
+                break;
             case BAD_LIFT:
                 previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
                 text = Translator.translate("JuryNotification.BadLift", reversalText, e.getAthlete().getFullName(),
                         previousAttemptNo % 3 + 1);
                 style = "primary error";
                 break;
-            case CALL_REFEREES:
-                text = Translator.translate("JuryNotification.CallReferees");
-                break;
             case CALL_TECHNICAL_CONTROLLER:
                 text = Translator.translate("JuryNotification.CallTechnicalController");
-                break;
-            case END_DELIBERATION:
-                text = Translator.translate("JuryNotification.JuryDeliberationEnd");
                 break;
             case GOOD_LIFT:
                 previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
@@ -461,16 +465,9 @@ public abstract class AthleteGridContent extends VerticalLayout
             case LOADING_ERROR:
                 text = Translator.translate("JuryNotification.LoadingError");
                 break;
-            case START_DELIBERATION:
-                text = Translator.translate("JuryNotification.JuryDeliberationStart");
-                break;
-            case TECHNICAL_PAUSE:
-                text = Translator.translate("JuryNotification.TechnicalPauseStarted");
-                break;
+
             case END_JURY_BREAK:
                 text = Translator.translate("JuryNotification.EndJuryBreak");
-                break;
-            default:
                 break;
             }
             doNotification(text, style);
@@ -692,7 +689,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     protected void createInitialBar() {
-        //logger.debug("{} {} creating top bar {}", this.getClass().getSimpleName(), LoggerUtils.whereFrom());
+        // logger.debug("{} {} creating top bar {}", this.getClass().getSimpleName(), LoggerUtils.whereFrom());
         topBar = getAppLayout().getAppBarElementWrapper();
         topBar.removeAll();
         initialBar = true;
@@ -1137,7 +1134,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                     showResultsButton.setVisible(true);
                 }
                 if (startNumber != null) {
-                    startNumber.setVisible(false); 
+                    startNumber.setVisible(false);
                 }
                 warning.setText(string);
             }
@@ -1164,7 +1161,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             showResultsButton.setVisible(false);
         }
         if (startNumber != null) {
-            startNumber.setVisible(false); 
+            startNumber.setVisible(false);
         }
     }
 

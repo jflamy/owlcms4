@@ -207,7 +207,6 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
         if (e.ref != ref13ix) {
             return;
         }
-        logger.warn("{}phone summon {} {}", e.ref, e.on);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             warningRow.removeAll();
             warningRow.setVisible(true);
@@ -241,11 +240,9 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 
     @Subscribe
     public void slaveWakeUpRef(UIEvent.WakeUpRef e) {
-        logger.warn("e.ref {} {}",e.ref,ref13ix);
         if (e.ref != ref13ix) {
             return;
         }
-        logger.warn("phone wakeup {} {}", e.ref, e.on);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             if (e.on) {
                 warningRow.removeAll();
