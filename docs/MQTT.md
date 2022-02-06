@@ -121,22 +121,25 @@ In MQTT, all communications go through an intermediate server (often called the 
 ```
 
 10. You can send a second message `2 good`. After the second decision, owlcms will send two messages to `owlcms/decisionRequest/A/3` indicating that referee 3. There will be an `on` message, and two seconds later, an `off` message.  The device will use this to remind the referee, and after two seconds,  owlcms tells the device to end the reminder.  The device can either do its own timing (and ignore the end message), or wait for the owlcms message.
-11. Once everything works, you can let Windows run Mosquitto in the background and start automatically
-    - If you prefer watching what is going on, you can continue using a command window and run it there.
-    - The Services program is used to set the starting mode to `Automatic` (instead of `Manual` that we used in the first installation steps)
-    - The Services command is also used to Stop/Start/Restart Mosquitto
+
+### Running Mosquitto as a background service.
+
+Once everything works, you can let Windows run Mosquitto in the background and start automatically.   This step is optional. If you prefer watching what is going on, you can continue using a command window and run mosquitto from there.
+- The Services program is used to set the starting mode to `Automatic` (instead of `Manual` that we used in the first installation steps)
+- **IMPORTANT**: copy your `mosquitto.conf` file from your personal directory to the `Program File\Mosquitto` directory. There is no convenient way to tell the service to find your configuration file elsewhere.   Because your password file is indicated explicitly in the conf file, you can leave it where it is.
+- The Services command is also used to Stop/Start/Restart Mosquitto
 
 ### Cloud configuration and testing
 
-The process is the same.  The one difference is that you will be using a cloud MQTT server.
+The process is the very similar to configuring the Mosquitto connection parameters.  The difference is that you will be using a cloud MQTT server, with nothing to install locally.
 
-You want a cloud server that requires a login and a password.  We suggest StackHero because it has a free test mode.
+You want a cloud server that requires a login and a password.  We suggest StackHero because it has a free test mode (but only available through Heroku).  Since most people that use owlcms in the cloud use Heroku, this is actually convenient.
 
-1. Create a Heroku account (you probably have one already if you are using the cloud version)
-2. Create a new application to be used for MQTT.  Give it a meaningful name, because you will only need to keep it - you can have only one free MQTT server (you will not be creating a new one for each competition)
+1. Create a Heroku account if you don't have one.
+2. Create <u>a new application</u> to be used for MQTT.  You can have only one free MQTT server. So you will need to keep this application around, you won't create a new one for every meet.  Give it a meaningful name.
 3. Add the StackHero Mosquitto add-on to your new application (under Resources).  Select the `Test` plan which is free.
 4. Click on the link to configure a username and password
-5. Follow the same instructions as above, using the hostname, username and password from the configuration page.
+5. For configurating owlcms and mqttLens, follow the same instructions as above, using the hostname, username and password from the StackHero Mosquitto configuration page.
 
 ### Passwords
 
