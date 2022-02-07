@@ -1296,7 +1296,6 @@ public class FieldOfPlay {
             }
         }
         if (nbDecisions == 2) {
-            logger.warn("2 decisions");
             // 2 decisions, reminder for last referee
             wakeUpRef = new Thread(() -> {
                 int lastRef = -1;
@@ -1312,10 +1311,10 @@ public class FieldOfPlay {
                     }
                     Thread.sleep(WAKEUP_DURATION_MS);
                 } catch (InterruptedException e1) {
-                    // ignore, finally will clean up
-                    logger.warn("wakeup interrupted");
+                    // ignore interruption, finally handles clean up
                 } finally {
-                    logger.warn("clean up");
+                    // if we are here, either the last ref has entered a decision, or we've exhausted the reminder duration
+                    // in either case, we turn the reminder off.
                     if (lastRef != -1) {
                         uiEventBus.post(new UIEvent.WakeUpRef(lastRef+1, false, this));
                     }
@@ -1325,7 +1324,6 @@ public class FieldOfPlay {
         }
         if (nbDecisions == 3) {
             if (wakeUpRef != null) {
-                logger.warn("cancelling");
                 cancelWakeUpRef();
             }
             setGoodLift(nbWhite >= 2);

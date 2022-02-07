@@ -84,7 +84,7 @@ public class MQTTMonitor {
 
     @Subscribe
     public void slaveWakeUpRef(UIEvent.WakeUpRef e) {
-        logger.warn("slaveWakeUp {}", e.on);
+        //logger.debug("slaveWakeUp {}", e.on);
         try {
             String topic = "owlcms/decisionRequest/" + fop.getName() + "/" + (e.ref + 1);
             // String refMacAddress = macAddress[e.ref];
@@ -164,7 +164,7 @@ public class MQTTMonitor {
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 new Thread(() -> {
                     String messageStr = new String(message.getPayload(), StandardCharsets.UTF_8);
-                    logger.warn("{}{} : {}", fop.getLoggingName(), topic, messageStr);
+                    logger.info("{}{} : {}", fop.getLoggingName(), topic, messageStr);
                     if (topic.endsWith(decisionTopicName)) {
                         messageStr = messageStr.trim();
                         try {
