@@ -139,7 +139,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     static {
         logger.setLevel(Level.INFO);
-        uiEventLogger.setLevel(Level.DEBUG);
+        uiEventLogger.setLevel(Level.INFO);
     }
 
     @Id("athleteTimer")
