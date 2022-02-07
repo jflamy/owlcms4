@@ -1,10 +1,10 @@
-In order to use a jury, in the current version, you need 3 or 5 refereeing devices connected to the computer running the Jury console.  You may optionally have a separate keypad for the jury president (see below) in order to initiate deliberation and transmit decisions.
+The jury is operated from the Jury Console page.  In order to use a Jury  you need 3 or 5 keypad devices connected to the computer running the Jury Console.  You may optionally have a separate keypad for the jury president (see below) in order to initiate deliberation and transmit decisions.
 
 The jury console is started from the "run a lifting group" page.
 
 ![010_Ref](img/Refereeing/010_Ref.png) 
 
-The juror devices are programmed just like for the referees, except that jury 4 uses keys 7 and 8, and jury 5 uses the keys 9 and 0.  As for the referees, even-numbered keys mean "red".
+## Jury Console
 
 The jury console operates according to IWF rules:
 
@@ -13,16 +13,25 @@ The jury console operates according to IWF rules:
 
 ![070_Jury](img/Refereeing/070_Jury.png)
 
+## Jury Deliberation
+
 The jury console now allows direct reversal/confirmation of lifts 
+
   - The Jury Deliberation button opens a dialog whereby the lift can be confirmed or reversed,
-  - The Jury Head can ask the announcer to call the technical controller. 
+  - During deliberation, it is possible to call the referees to the Jury table.  The referees get a notification on their device if the device is feedback-capable (such as a phone or a full-feedback keypad).
 
 ![080_JuryDeliberation](img/Refereeing/080_JuryDeliberation.png)
 
-Jury decisions are shown to the other technical officials consoles to keep them informed.  The announcer can then inform the public, coaches and athletes of the outcome.
+Jury decisions are shown in yellow to the other technical officials consoles to keep them informed.  The decisions are also shown on the attempt board.
 ![090_JuryReversal](img/Refereeing/090_JuryReversal.png)
 
+## Calling Referees
+
+The "Call Referee(s)" button is used to summon referees to the Jury Table outside of a lift-reversal deliberation.  It is also possible to start a technical break if the Jury notices something is wrong with the platform or the equipment.
+
 ## Jury Member Keypad
+
+Each jury member must have a button keypad connected to the laptop (either directly, via a USB hub, or via Bluetooth).  Phone and MQTT keypads are not supported for the Jury in the current version.  See the [Refereeing](Refereeing) page for details about these devices.
 
 The same conventions are used as for the refereeing keypads.  You can use the same devices for the first three jury members as for the three referees.
 
