@@ -1,14 +1,20 @@
 #### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.29-9-beta02: The presence of an athlete without a gender broke the final package report.
+4.29.0-beta02: Updates to the Russian, Spanish and Danish translations
+
+4.29.0-beta02: MQTT decisionRequest message was reminding the wrong referee (off by 1)
+
+4.29.0-beta02: The presence of an athlete without a gender was causing an error in the final package.
+
+4.29.0-beta02: The [Refereeing](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Refereeing) and [Jury](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Jury) documentation pages were updated to cover the different kinds of devices and the new Jury console features.
 
 ##### New in release 4.29
 
-- [x] Jury console now supports summoning the referees either individually or all together.  This feature works for phones/tablets/laptops using the refereeing screen, or with [MQTT refereeing devices]() (see below)
+- [x] [Jury](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Jury) console now supports summoning the referees either individually or all together.  This feature works for phones/tablets/laptops using the refereeing screen, or with [MQTT refereeing devices]() (see below)
   - Calling a referee starts a jury break and a notification is shown on the technical official screens.
   - Keyboard shortcuts `H` `I` `J` `K` can be used to call referees 1, 2, 3 or all referees, respectively. The`esc` key is used to end the break and resume the competition.
   - The selection between 3 and 5 person jury has been moved to the settings (`⚙`) menu in the top bar.
-- [x] The refereeing screen (typically used on phones or tablets) now displays notifications when a decision is expected or when the jury summons the referee.
+- [x] The [Refereeing](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Refereeing) screen (typically used on phones or tablets) now displays notifications when a decision is expected or when the jury summons the referee.
 - [x] It is now possible to build affordable physical devices to receive instructions from owlcms (decision expected, jury calls referee).
   - The MQTT protocol is used for communications.  MQTT is widely used for home automation, industrial telemetry, and various "internet of things" applications
   - An MQTT server is used to broker communications between owlcms and the devices. See [MQTT setup instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTT) for details for configuration of a free broker.
