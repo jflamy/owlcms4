@@ -67,6 +67,7 @@ public class MQTTMonitor {
 
     @Subscribe
     public void slaveSummonRef(UIEvent.SummonRef e) {
+        // e.ref is 1..3
         logger.debug("{}MQTT summon {} {}", fop.getLoggingName(), e.ref, e.on);
         try {
             String topic = "owlcms/summon/" + fop.getName() + "/" + (e.ref);
@@ -84,9 +85,10 @@ public class MQTTMonitor {
 
     @Subscribe
     public void slaveWakeUpRef(UIEvent.WakeUpRef e) {
+        // e.ref is 1..3
         //logger.debug("slaveWakeUp {}", e.on);
         try {
-            String topic = "owlcms/decisionRequest/" + fop.getName() + "/" + (e.ref + 1);
+            String topic = "owlcms/decisionRequest/" + fop.getName() + "/" + e.ref;
             // String refMacAddress = macAddress[e.ref];
             client.publish(topic, new MqttMessage(
                     ((e.on ? "on" : "off")
