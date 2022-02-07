@@ -92,7 +92,7 @@ public class Competition {
             } else if (Gender.F == gender) {
                 sortedWomen.add(l);
             } else {
-                throw new RuntimeException("gender is " + gender);
+                //throw new RuntimeException("gender is " + gender);
             }
         }
     }
@@ -105,7 +105,7 @@ public class Competition {
             } else if (Gender.F == gender) {
                 women.add(l);
             } else {
-                throw new RuntimeException("gender is " + gender);
+                //throw new RuntimeException("gender is " + gender);
             }
         }
     }
