@@ -213,12 +213,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      */
     @Override
     public Dialog getDialog() {
-//        if (dialog == null) {
-        dialog = new Dialog();
         return dialog;
-//        } else {
-//            return null;
-//        }
     }
 
     @Override
@@ -275,6 +270,11 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     @Override
     public void setDarkMode(boolean dark) {
         // noop
+    }
+
+    @Override
+    public void setDialog(Dialog dialog) {
+        this.dialog = dialog;
     }
 
     @Override

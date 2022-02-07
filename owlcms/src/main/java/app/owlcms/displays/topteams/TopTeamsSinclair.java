@@ -221,12 +221,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
      */
     @Override
     public Dialog getDialog() {
-        if (dialog == null) {
-            dialog = new Dialog();
-            return dialog;
-        } else {
-            return null;
-        }
+        return dialog;
     }
 
     /**
@@ -335,7 +330,9 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         switchLightingMode(this, darkMode, false);
         updateURLLocations();
 
-        buildDialog(this);
+        if (getDialog() == null) {
+            buildDialog(this);
+        }
         return params1;
     }
 
@@ -350,6 +347,11 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     @Override
     public void setDarkMode(boolean dark) {
         this.darkMode = dark;
+    }
+
+    @Override
+    public void setDialog(Dialog dialog) {
+        this.dialog = dialog;
     }
 
     @Override

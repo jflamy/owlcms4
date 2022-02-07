@@ -1253,6 +1253,9 @@ public abstract class AthleteGridContent extends VerticalLayout
     public Dialog getDialog() {
         return null;
     }
+    
+    @Override
+    public void setDialog(Dialog dialog) {};
 
     @Override
     public boolean isDarkMode() {

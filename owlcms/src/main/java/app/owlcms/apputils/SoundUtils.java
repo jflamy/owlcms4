@@ -52,7 +52,7 @@ public class SoundUtils {
 
     private static void audioStatusCallback(Element element, PendingJavaScriptResult result) {
         result.then(String.class, r -> {
-            logger.warn("audio state {}", r);
+            //logger.debug("audio state {}", r);
             if (!r.equals("running")) {
                 Notification n = new Notification();
                 n.setDuration(0);

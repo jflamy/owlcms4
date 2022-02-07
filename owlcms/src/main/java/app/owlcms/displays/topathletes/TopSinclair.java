@@ -232,12 +232,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
      */
     @Override
     public Dialog getDialog() {
-        if (dialog == null) {
-            dialog = new Dialog();
-            return dialog;
-        } else {
-            return null;
-        }
+        return dialog;
     }
 
     @Override
@@ -286,6 +281,10 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     @Override
     public void setDarkMode(boolean dark) {
         this.darkMode = dark;
+    }
+
+    @Override
+    public void setDialog(Dialog dialog) {
     }
 
     @Override
