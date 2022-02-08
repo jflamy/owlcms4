@@ -34,6 +34,7 @@ import ch.qos.logback.classic.Logger;
  */
 public class FederationStructureReader {
 
+    @SuppressWarnings("unused")
     private final static Logger logger = (Logger) LoggerFactory.getLogger(FederationStructureReader.class);
 
     private Map<String, Set<String>> membership = new HashMap<>();
