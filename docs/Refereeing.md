@@ -26,9 +26,9 @@ The referees give their decisions using flags/cards/hand signals. The announcer 
 This uses the phone or tablet web browser, which connects to owlcms. It does not matter whether owlcms is running on a laptop or in the cloud.  This setup is therefore useful when running virtual competitions.
 ![Slide9](img/PublicResults/CloudExplained/Slide9.SVG)
 
-The refereeing screen is started from the "Run a lifting group" page, in the Referees and Jury section at the bottom.  This would look like the following when done on a phone.
+The refereeing screen is started from the "Run a lifting group" page, in the Referees and Jury section at the bottom.  The sequence would look like the following when done on a phone.
 
- <img src="img/Refereeing/01_runLiftingGroup.png" alt="01_runLiftingGroup" style="zoom:25%;" /> <img src="img/Refereeing/02_startReferee.png" alt="02_startReferee" style="zoom:25%;" />
+![left](img/Refereeing/01_runLiftingGroup.png ':size=350')  ![left](img/Refereeing/02_startReferee.png ':size=350')
 
 The refereeing screen can also be started directly from the phone/tablet by using a browser and adding `/ref` at the end URL for the competition site.   After starting the referee screen, select which referee is which (1, 2 or 3) using the numeric input at the top (use the + and - signs)
 
