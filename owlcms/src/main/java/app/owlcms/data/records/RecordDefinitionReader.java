@@ -8,7 +8,6 @@ package app.owlcms.data.records;
 
 import java.io.InputStream;
 import java.time.LocalDate;
-import java.util.EnumSet;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -18,7 +17,6 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
@@ -26,9 +24,9 @@ import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Read lifted weight records from an Excel file.
+ * Read records from an Excel file.
  *
- * Competition records for snatch, clean&jerk and total are read. All available tabs are scanned. Reading stops at first
+ * Records for snatch, clean&jerk and total are read. All available tabs are scanned. Reading stops at first
  * empty line. Header line is skipped.
  *
  * @author Jean-François Lamy
@@ -38,8 +36,7 @@ public class RecordDefinitionReader {
 
     private final static Logger logger = (Logger) LoggerFactory.getLogger(RecordDefinitionReader.class);
 
-    public static int createRecords(Workbook workbook, EnumSet<AgeDivision> ageDivisionOverride,
-            String localizedName) {
+    public static int createRecords(Workbook workbook, String localizedName) {
 
         return JPAService.runInTransaction(em -> {
             int iRecord = 0;
@@ -169,12 +166,12 @@ public class RecordDefinitionReader {
         });
     }
 
-    static void doInsertRecords(EnumSet<AgeDivision> es, String localizedName) {
+    static void doInsertRecords(String localizedName) {
         InputStream localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory
                 .create(localizedResourceAsStream)) {
             RecordRepository.logger.info("loading configuration file {}", localizedName);
-            createRecords(workbook, es, localizedName);
+            createRecords(workbook, localizedName);
             workbook.close();
         } catch (Exception e) {
             RecordRepository.logger.error("could not process ageGroup configuration\n{}",

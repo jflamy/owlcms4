@@ -34,7 +34,7 @@ public class RecordEvent {
     String ageGrp;
     Gender gender;
     Integer bwCatUpper;
-    String recordKind;
+    RecordKind recordKind;
     Integer recordValue;
     String athleteName;
     LocalDate birthDate;
@@ -94,7 +94,7 @@ public class RecordEvent {
         return recordFederation;
     }
 
-    public String getRecordKind() {
+    public RecordKind getRecordKind() {
         return recordKind;
     }
 
@@ -155,7 +155,7 @@ public class RecordEvent {
     }
 
     public void setRecordKind(String recordKind) {
-        this.recordKind = recordKind;
+        this.recordKind = RecordKind.valueOf(recordKind);
     }
 
     public void setRecordValue(Integer recordValue) {

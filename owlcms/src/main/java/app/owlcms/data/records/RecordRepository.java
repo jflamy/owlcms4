@@ -126,7 +126,7 @@ public class RecordRepository {
     public static void insertRecords(EntityManager em, EnumSet<AgeDivision> es) {
         try {
             String localizedName = ResourceWalker.getLocalizedResourceName("/records/IWF Records.xlsx");
-            RecordDefinitionReader.doInsertRecords(es, localizedName);
+            RecordDefinitionReader.doInsertRecords(localizedName);
         } catch (FileNotFoundException e1) {
             throw new RuntimeException(e1);
         }
@@ -148,7 +148,7 @@ public class RecordRepository {
             }
             return null;
         });
-        RecordDefinitionReader.doInsertRecords(null, "/records/" + localizedFileName);
+        RecordDefinitionReader.doInsertRecords("/records/" + localizedFileName);
         AthleteRepository.resetParticipations();
     }
 
