@@ -1,12 +1,8 @@
-#### **Changes for release 4.29.0-beta02**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+#### **Changes for release 4.29.0-beta03**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.29.0-beta02: Updates to the Russian, Spanish and Danish translations
+4.29.0-beta03: Swedish and Portuguese translation updated.
 
-4.29.0-beta02: MQTT decisionRequest message was reminding the wrong referee (off by 1)
-
-4.29.0-beta02: The presence of an athlete without a gender was causing an error in the final package.
-
-4.29.0-beta02: The [Refereeing](https://owlcms.github.io/owlcms4-prerelease/#/Refereeing) and [Jury](https://owlcms.github.io/owlcms4-prerelease/#/Jury) documentation pages were updated to cover the different kinds of devices and the new Jury console features.
+4.29.0-beta03: Protocol sheets and competition books now use localized date format for the competition date. 4-digit years are forced when the Java format is broken and doesn't use it (e.g., French Canada). `${competition.localizedCompetitionDate}` added to support this.  Because of ambiguity of dates, Starting List remains with ISO-8601 international format.
 
 ##### New in release 4.29
 
