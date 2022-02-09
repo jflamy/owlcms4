@@ -155,7 +155,15 @@ public class RecordEvent {
     }
 
     public void setRecordKind(String recordKind) {
-        this.recordKind = RecordKind.valueOf(recordKind);
+        if (recordKind.toLowerCase().startsWith("s")) {
+            this.recordKind = RecordKind.SNATCH;
+        } else if (recordKind.toLowerCase().startsWith("c")) {
+            this.recordKind = RecordKind.CJ;
+        } else  if (recordKind.toLowerCase().startsWith("t")) {
+            this.recordKind = RecordKind.TOTAL;
+        } else {
+            throw new IllegalArgumentException("recordKind");
+        }
     }
 
     public void setRecordValue(Integer recordValue) {

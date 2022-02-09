@@ -90,7 +90,7 @@ public class RecordDefinitionReader {
                         case 4: {
                             String cellValue = cell.getStringCellValue();
                             cellValue = cellValue != null ? cellValue.trim() : cellValue;
-                            rec.setRecordKind(cellValue.substring(0, 1));
+                            rec.setRecordKind(cellValue);
                             break;
                         }
 
