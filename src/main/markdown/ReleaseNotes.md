@@ -1,8 +1,6 @@
 #### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.29.0-beta03: Swedish and Portuguese translation updated.
-
-4.29.0-beta03: Protocol sheets and competition books now use localized date format for the competition date. 4-digit years are forced when the Java format is broken and doesn't use it (e.g., French Canada). `${competition.localizedCompetitionDate}` added to support this.  Because of ambiguity of dates, Starting List remains with ISO-8601 international format.
+4.29.0-rc01: Armenian translation updated. 
 
 ##### New in release 4.29
 
