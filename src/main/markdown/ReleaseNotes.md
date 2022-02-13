@@ -1,5 +1,7 @@
 #### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+4.29.0-rc02: Added application/x-zip-compressed to the accepted MIME types for overriding local definitions.
+
 4.29.0-rc01: Armenian translation updated. 
 
 ##### New in release 4.29
