@@ -16,7 +16,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
@@ -48,7 +48,7 @@ public class RecordDefinitionReaderTest {
         logger.setLevel(Level.TRACE);
     }
 
-    @Ignore
+    @Test
     public void test() throws IOException, SAXException, InvalidFormatException {
 
         String streamURI = "/testData/IWF Records.xlsx";
@@ -65,6 +65,15 @@ public class RecordDefinitionReaderTest {
                 }
             }
         }
+    }
+    
+    @Test
+    public void testZipped() throws IOException, SAXException, InvalidFormatException {
+
+        String zipURI = "/testData/zippedRecords.zip";
+
+        InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
+        RecordDefinitionReader.readZip(zipStream);
     }
 
 }

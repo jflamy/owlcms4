@@ -35,7 +35,7 @@ public class RecordEvent {
     Gender gender;
     Integer bwCatUpper;
     RecordKind recordLift;
-    Integer recordValue;
+    Double recordValue;
     String athleteName;
     LocalDate birthDate;
     Integer birthYear;
@@ -46,8 +46,24 @@ public class RecordEvent {
 
     private int recordYear;
 
+    private int ageGrpLower;
+
+    private int ageGrpUpper;
+
+    private int bwCatLower;
+
+    private String recordName;
+
     public String getAgeGrp() {
         return ageGrp;
+    }
+
+    public int getAgeGrpLower() {
+        return ageGrpLower;
+    }
+
+    public int getAgeGrpUpper() {
+        return ageGrpUpper;
     }
 
     public String getAthleteName() {
@@ -60,6 +76,10 @@ public class RecordEvent {
 
     public Integer getBirthYear() {
         return birthYear;
+    }
+
+    public int getBwCatLower() {
+        return bwCatLower;
     }
 
     public Integer getBwCatUpper() {
@@ -86,6 +106,10 @@ public class RecordEvent {
         return nation;
     }
 
+    public LocalDate getRecordDate() {
+        return recordDate;
+    }
+
     public LocalDate getRecordeDate() {
         return recordDate;
     }
@@ -98,7 +122,11 @@ public class RecordEvent {
         return recordLift;
     }
 
-    public Integer getRecordValue() {
+    public String getRecordName() {
+        return recordName;
+    }
+
+    public Double getRecordValue() {
         return recordValue;
     }
 
@@ -108,6 +136,14 @@ public class RecordEvent {
 
     public void setAgeGrp(String ageGrp) {
         this.ageGrp = ageGrp;
+    }
+
+    public void setAgeGrpLower(int intExact) {
+        this.ageGrpLower = intExact;
+    }
+
+    public void setAgeGrpUpper(int intExact) {
+        this.ageGrpUpper = intExact;
     }
 
     public void setAthleteName(String athleteName) {
@@ -120,6 +156,10 @@ public class RecordEvent {
 
     public void setBirthYear(Integer birthYear) {
         this.birthYear = birthYear;
+    }
+
+    public void setBwCatLower(int intExact) {
+        this.bwCatLower = intExact;
     }
 
     public void setBwCatUpper(Integer bwCatUpper) {
@@ -154,19 +194,31 @@ public class RecordEvent {
         this.recordFederation = recordFederation;
     }
 
+    public void setRecordLift(RecordKind recordLift) {
+        this.recordLift = recordLift;
+    }
+
     public void setRecordLift(String liftAbbreviation) {
         if (liftAbbreviation.toLowerCase().startsWith("s")) {
             this.recordLift = RecordKind.SNATCH;
         } else if (liftAbbreviation.toLowerCase().startsWith("c")) {
             this.recordLift = RecordKind.CJ;
-        } else  if (liftAbbreviation.toLowerCase().startsWith("t")) {
+        } else if (liftAbbreviation.toLowerCase().startsWith("t")) {
             this.recordLift = RecordKind.TOTAL;
         } else {
             throw new IllegalArgumentException("recordLift");
         }
     }
 
-    public void setRecordValue(Integer recordValue) {
+    public void setRecordName(String cellValue) {
+        this.recordName = cellValue;
+    }
+
+    public void setRecordValue(double d) {
+        this.recordValue = d;
+    }
+
+    public void setRecordValue(Double recordValue) {
         this.recordValue = recordValue;
     }
 
@@ -180,6 +232,7 @@ public class RecordEvent {
                 + ", bwCatUpper=" + bwCatUpper + ", recordLift=" + recordLift + ", recordValue=" + recordValue
                 + ", athleteName=" + athleteName + ", birthDate=" + birthDate + ", birthYear=" + birthYear + ", nation="
                 + nation + ", recordDate=" + recordDate + ", eventLocation=" + eventLocation + ", event=" + event
-                + ", recordYear=" + recordYear + "]";
+                + ", recordYear=" + recordYear + ", bwCatLower=" + bwCatLower + ", ageGrpLower=" + ageGrpLower
+                + ", ageGrpUpper=" + ageGrpUpper + ", recordName=" + recordName + "]";
     }
 }
