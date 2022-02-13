@@ -34,7 +34,7 @@ public class RecordEvent {
     String ageGrp;
     Gender gender;
     Integer bwCatUpper;
-    RecordKind recordKind;
+    RecordKind recordLift;
     Integer recordValue;
     String athleteName;
     LocalDate birthDate;
@@ -94,8 +94,8 @@ public class RecordEvent {
         return recordFederation;
     }
 
-    public RecordKind getRecordKind() {
-        return recordKind;
+    public RecordKind getRecordLift() {
+        return recordLift;
     }
 
     public Integer getRecordValue() {
@@ -154,15 +154,15 @@ public class RecordEvent {
         this.recordFederation = recordFederation;
     }
 
-    public void setRecordKind(String recordKind) {
-        if (recordKind.toLowerCase().startsWith("s")) {
-            this.recordKind = RecordKind.SNATCH;
-        } else if (recordKind.toLowerCase().startsWith("c")) {
-            this.recordKind = RecordKind.CJ;
-        } else  if (recordKind.toLowerCase().startsWith("t")) {
-            this.recordKind = RecordKind.TOTAL;
+    public void setRecordLift(String liftAbbreviation) {
+        if (liftAbbreviation.toLowerCase().startsWith("s")) {
+            this.recordLift = RecordKind.SNATCH;
+        } else if (liftAbbreviation.toLowerCase().startsWith("c")) {
+            this.recordLift = RecordKind.CJ;
+        } else  if (liftAbbreviation.toLowerCase().startsWith("t")) {
+            this.recordLift = RecordKind.TOTAL;
         } else {
-            throw new IllegalArgumentException("recordKind");
+            throw new IllegalArgumentException("recordLift");
         }
     }
 
@@ -177,7 +177,7 @@ public class RecordEvent {
     @Override
     public String toString() {
         return "RecordEvent [recordFederation=" + recordFederation + ", ageGrp=" + ageGrp + ", gender=" + gender
-                + ", bwCatUpper=" + bwCatUpper + ", recordKind=" + recordKind + ", recordValue=" + recordValue
+                + ", bwCatUpper=" + bwCatUpper + ", recordLift=" + recordLift + ", recordValue=" + recordValue
                 + ", athleteName=" + athleteName + ", birthDate=" + birthDate + ", birthYear=" + birthYear + ", nation="
                 + nation + ", recordDate=" + recordDate + ", eventLocation=" + eventLocation + ", event=" + event
                 + ", recordYear=" + recordYear + "]";

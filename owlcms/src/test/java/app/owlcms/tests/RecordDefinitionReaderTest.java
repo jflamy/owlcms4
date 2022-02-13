@@ -16,7 +16,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.Ignore;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
@@ -48,7 +48,7 @@ public class RecordDefinitionReaderTest {
         logger.setLevel(Level.TRACE);
     }
 
-    @Test
+    @Ignore
     public void test() throws IOException, SAXException, InvalidFormatException {
 
         String streamURI = "/testData/IWF Records.xlsx";

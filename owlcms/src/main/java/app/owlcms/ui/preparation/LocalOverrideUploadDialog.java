@@ -42,12 +42,13 @@ public class LocalOverrideUploadDialog extends Dialog {
         ta.setVisible(false);
 
         upload.addSucceededListener(event -> {
+            logger.info("zip type {}", event.getMIMEType());
             processInput(event.getFileName(), buffer.getInputStream(), ta, f);
             if (ta.isEmpty()) {
                 this.close();
             }
         });
-        upload.setAcceptedFileTypes("application/zip");
+        upload.setAcceptedFileTypes("application/zip", "application/x-zip-compressed");
 
         upload.setUploadButton(new Button(Translator.translate("Config.Select")));
 
