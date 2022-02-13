@@ -6,8 +6,6 @@
  *******************************************************************************/
 package app.owlcms.data.records;
 
-import java.io.FileNotFoundException;
-import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,7 +19,6 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -123,15 +120,6 @@ public class RecordRepository {
         return (RecordEvent) query.getResultList().stream().findFirst().orElse(null);
     }
 
-    public static void insertRecords(EntityManager em, EnumSet<AgeDivision> es) {
-        try {
-            String localizedName = ResourceWalker.getLocalizedResourceName("/records/IWF Records.xlsx");
-            RecordDefinitionReader.doInsertRecords(localizedName);
-        } catch (FileNotFoundException e1) {
-            throw new RuntimeException(e1);
-        }
-
-    }
 
     public static void reloadDefinitions(String localizedFileName) {
         JPAService.runInTransaction(em -> {
