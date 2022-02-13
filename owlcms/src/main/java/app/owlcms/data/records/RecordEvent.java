@@ -13,6 +13,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,8 @@ import ch.qos.logback.classic.Logger;
 
 @Entity
 @Cacheable
+@Table(indexes = {
+        @Index(name = "ix_category", columnList = "gender,ageGrpLower,ageGrpUpper,bwCatLower,bwCatUpper") })
 public class RecordEvent {
 
     @Transient
@@ -30,29 +34,25 @@ public class RecordEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
-    String recordFederation;
-    String ageGrp;
-    Gender gender;
-    Integer bwCatUpper;
-    RecordKind recordLift;
+
     Double recordValue;
-    String athleteName;
-    LocalDate birthDate;
-    Integer birthYear;
-    String nation;
-    LocalDate recordDate;
-    String eventLocation;
-    String event;
-
-    private int recordYear;
-
+    private String ageGrp;
     private int ageGrpLower;
-
     private int ageGrpUpper;
-
+    private String athleteName;
+    private LocalDate birthDate;
+    private Integer birthYear;
     private int bwCatLower;
-
+    private Integer bwCatUpper;
+    private String event;
+    private String eventLocation;
+    private Gender gender;
+    private String nation;
+    private LocalDate recordDate;
+    private String recordFederation;
+    private RecordKind recordLift;
     private String recordName;
+    private int recordYear;
 
     public String getAgeGrp() {
         return ageGrp;

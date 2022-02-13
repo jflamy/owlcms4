@@ -16,6 +16,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -24,6 +25,7 @@ import app.owlcms.Main;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.records.RecordDefinitionReader;
+import app.owlcms.data.records.RecordRepository;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -48,10 +50,10 @@ public class RecordDefinitionReaderTest {
         logger.setLevel(Level.TRACE);
     }
 
-    @Test
+    @Ignore
     public void test() throws IOException, SAXException, InvalidFormatException {
 
-        String streamURI = "/testData/IWF Records.xlsx";
+        String streamURI = "/testData/records/EWFRecords.xlsx";
 
         try (InputStream xmlInputStream = this.getClass().getResourceAsStream(streamURI)) {
             Workbook wb = null;
@@ -69,11 +71,17 @@ public class RecordDefinitionReaderTest {
     
     @Test
     public void testZipped() throws IOException, SAXException, InvalidFormatException {
-
-        String zipURI = "/testData/zippedRecords.zip";
-
+        String zipURI = "/testData/records/IWFRecords.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
         RecordDefinitionReader.readZip(zipStream);
+        assertEquals("expected size wrong", 180, RecordRepository.findAll().size());
+    }
+    
+    @Ignore
+    public void testReload() throws IOException, SAXException, InvalidFormatException {
+        String zipURI = "/testData/records/EWFRecords.zip";
+        RecordRepository.reloadDefinitions(zipURI);
+        assertEquals("expected size wrong", 180, RecordRepository.findAll().size());
     }
 
 }
