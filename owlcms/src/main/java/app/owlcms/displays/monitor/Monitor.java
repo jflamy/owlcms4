@@ -150,7 +150,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
             // ignore events that don't change state
             return;
         }
-        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(),e.getClass().getSimpleName(),e.getTrace());
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(),e.getClass().getSimpleName(),e.getTrace());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             if (syncWithFOP(e)) {
                 // significant transition
@@ -178,32 +178,22 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     }
 
     void uiLog(UIEvent e) {
-        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
     }
 
     private String computePageTitle() {
         StringBuilder pageTitle = new StringBuilder();
         computeValues();
-// NO LONGER NEEDED - Field of play no longer sends useless end of group
-//        if (h0 != null && h0.state == FOPState.BREAK && h0.breakType == BreakType.GROUP_DONE
-//                && h1 != null && h1.state == FOPState.DECISION_VISIBLE) {
-//            // group_done state is seen twice at the end of a group.
-//            // we ignore the first one entered immediately after the decision is available
-//            // a second comes when the lights are turned off (CURRENT_ATHLETE_DISPLAYED)
-//            logger.debug("hiding first group done {} {} {}", h0, h1, h2);
-//            history.remove(0);
-//            computeValues();
-//        } else 
         if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
                 && h1 != null && h1.state == FOPState.BREAK && h1.breakType == BreakType.MEDALS) {
-            logger.warn("hiding restart after medals {} {} {}", h0, h1, h2);
+            logger.debug("hiding restart after medals {} {} {}", h0, h1, h2);
             history.remove(0);
             computeValues();
         } 
         else if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
                 && h1 != null && h1.state == FOPState.DECISION_VISIBLE
                 && h2 != null && h2.state == FOPState.BREAK && h2.breakType == BreakType.JURY) {
-            logger.warn("fixing display after jury {} {} {}", h0, h1, h2);
+            logger.debug("fixing display after jury {} {} {}", h0, h1, h2);
             history.remove(1);
             computeValues();
         }
@@ -270,7 +260,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         if (!same && !(title == null) && !title.isBlank()) {
             this.getElement().setProperty("title", title);
             this.getElement().callJsFunction("setTitle", title);
-            logger.warn("---- monitor {}", title);
+            logger.debug("---- monitor {}", title);
             prevTitle = title;
         }
         if (same) {

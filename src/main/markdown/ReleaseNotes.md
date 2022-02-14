@@ -1,15 +1,30 @@
 #### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-##### New in release 4.28
+4.29.0-rc02: Added application/x-zip-compressed to the accepted MIME types for overriding local definitions.
 
-- [x] Enhancement: Down signal sound has been changed and is now customizable. Sounds can be customized by changing the .wav and .mp3 files in /local/sounds.  Fixed the server side use the same finalWarning sound as for browser sounds. 
-- [x] Enhancements and fixes to the status monitor used for Open Broadcaster Software (OBS) automated scene switching.  Improvements to the processing of end-of-group scenarios (withdrawal without a decision, jury decision after the last lift, etc.). Added [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/OBSSceneSwitching) for all supported transitions.
+4.29.0-rc01: Armenian translation updated. 
+
+##### New in release 4.29
+
+- [x] [Jury](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Jury) console now supports summoning the referees either individually or all together.  This feature works for phones/tablets/laptops using the refereeing screen, or with [MQTT refereeing devices]() (see below)
+  - Calling a referee starts a jury break and a notification is shown on the technical official screens.
+  - Keyboard shortcuts `H` `I` `J` `K` can be used to call referees 1, 2, 3 or all referees, respectively. The`esc` key is used to end the break and resume the competition.
+  - The selection between 3 and 5 person jury has been moved to the settings (`⚙`) menu in the top bar.
+- [x] The [Refereeing](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Refereeing) screen (typically used on phones or tablets) now displays notifications when a decision is expected or when the jury summons the referee.
+- [x] It is now possible to build affordable physical devices to receive instructions from owlcms (decision expected, jury calls referee).
+  - The MQTT protocol is used for communications.  MQTT is widely used for home automation, industrial telemetry, and various "internet of things" applications
+  - An MQTT server is used to broker communications between owlcms and the devices. See [MQTT setup instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTT) for details for configuration of a free broker.
+  - Software and circuit schematics for an affordable MQTT+WiFi device are available at [this location](http://github.com/jflamy/owlcms-esp32).
+- [x] The delay before the third official is reminded to enter a decision is configurable in the Options section of the Competition Information and Rules screen.
+
+##### Highlights from recent stable releases
+
+- [x] Enhancement: The down signal sound has been changed and is now customizable. Sounds can be customized by changing the .wav and .mp3 files in /local/sounds (which can also be uploaded to the cloud)
+- [x] Video Streaming: Support for Open Broadcaster Software (OBS) automated scene switching.  Added [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/OBSSceneSwitching) for all supported transitions.
 - [x] Enhancement: The group selection drop-down now displays the group description alongside the short group name.
-- [x] Enhancement:  Timer warning and down sound are now off by default on the technical officials consoles. New ⚙ settings menu on the top bar allows turning them on or off.
+- [x] Enhancement:  Timer warning and down sound are now off by default on the technical officials consoles. New `⚙` settings menu on the top bar allows turning them on or off.
 - [x] Jury Console: if another official ends the break, the Jury Deliberation dialog is closed. Also, the initial notification about a good/bad lift is closed when a jury decision is given.
 - [x] Fix: Margins were wrong on the original style marshal cards when using US Letter paper.
-
-##### Key Highlights from recent stable releases
 
 - [x] **v4.27 <u>Local Database Format Change</u>**  The H2 database is used on local installs.  The H2 team no longer supports the previous database format, so some people may need a to perform a simple conversion. 
   - If you always start from scratch (new Excel, or interactive entry), you have nothing to do (a new database will be created on first start of the new version.
@@ -26,8 +41,6 @@
   - New BREAK.MEDALS state to allow for OBS scene switching if desired.
 - [x] Enhancement: keyboard shortcuts to start (`,` )and stop (`.`) the clock are available on the announcer and timekeeper screens.
 - [x] Athlete-facing displays (decision and attempt-board) have sound on by default.
-
-
 
 - [x] Security updates: updated libraries as new versions were made available.
 - [x] Change: Default for birth dates changed to be full date instead of birth year, to match IWF TCRR.

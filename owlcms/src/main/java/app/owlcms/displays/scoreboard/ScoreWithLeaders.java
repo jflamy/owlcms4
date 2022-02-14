@@ -136,9 +136,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     }
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(ScoreWithLeaders.class);
+
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-
-
     @Id("timer")
     private AthleteTimerElement timer; // Flow creates it
 
@@ -149,11 +148,12 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     private DecisionElement decisions; // Flow creates it
 
     private EventBus uiEventBus;
+
     private List<Athlete> displayOrder;
     private Group curGroup;
     private int liftsDone;
-
     JsonArray sattempts;
+
     JsonArray cattempts;
     private boolean darkMode = true;
     private Location location;
@@ -206,12 +206,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
      */
     @Override
     public Dialog getDialog() {
-        if (dialog == null) {
-            dialog = new Dialog();
-            return dialog;
-        } else {
-            return null;
-        }
+        return dialog;
     }
 
     @Override
@@ -262,6 +257,11 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     @Override
     public void setDarkMode(boolean dark) {
         this.darkMode = dark;
+    }
+
+    @Override
+    public void setDialog(Dialog dialog) {
+        this.dialog = dialog;
     }
 
     @Override

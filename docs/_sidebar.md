@@ -12,7 +12,8 @@
   * [Weigh-in and Start Numbers](WeighIn)
   * [Announcing, Marshalling and Timekeeping](Announcing)
   * [Scoreboards and Displays](Displays)
-  * [Refereeing and Jury](Refereeing)
+  * [Refereeing](Refereeing)
+  * [Jury](Jury)
   * [Intermissions and Breaks](Breaks)
   * [Result Documents](Documents)
 * Virtual Competitions
@@ -28,11 +29,12 @@
 * Advanced Topics
   * [Updating Cloud-based Applications](UpdatingCloudApplications)
   * [Customization](UploadingLocalSettings)
-  * [Simulation and Load Testing](Simulation)
-  * [Configuration Parameters](Configuration)
-  * [Translations](Translation)
-  * [Importing PostgreSQL Cloud Databases](PostgreSQL)
   * [Excel Template Variables](TemplateVariables)
+  * [Translations](Translation)
+  * [Configuration Parameters](Configuration)
+  * [Simulation and Load Testing](Simulation)
+  * [MQTT Server Configuration](MQTT)
+  * [Importing PostgreSQL Cloud Databases](PostgreSQL)
   * [Contributing to the code](Gitpod)
 * Downloads
   * [Licensing and Notes](Licensing)

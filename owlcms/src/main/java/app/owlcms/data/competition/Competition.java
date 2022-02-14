@@ -7,8 +7,11 @@
 package app.owlcms.data.competition;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -42,6 +45,7 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.StartupUtils;
@@ -92,7 +96,7 @@ public class Competition {
             } else if (Gender.F == gender) {
                 sortedWomen.add(l);
             } else {
-                throw new RuntimeException("gender is " + gender);
+                // throw new RuntimeException("gender is " + gender);
             }
         }
     }
@@ -105,7 +109,7 @@ public class Competition {
             } else if (Gender.F == gender) {
                 women.add(l);
             } else {
-                throw new RuntimeException("gender is " + gender);
+                // throw new RuntimeException("gender is " + gender);
             }
         }
     }
@@ -202,6 +206,13 @@ public class Competition {
     private String startingWeightsSheetTemplateFileName;
     private String finalPackageTemplateFileName;
 
+    @Column(name = "refdelay", columnDefinition = "integer default 1500")
+    private int refereeWakeUpDelay = 1500;
+
+    public void setRefereeWakeUpDelay(int refereeWakeUpDelay) {
+        this.refereeWakeUpDelay = refereeWakeUpDelay;
+    }
+
     synchronized public HashMap<String, Object> computeReportingInfo() {
         List<PAthlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(null, null);
         doComputeReportingInfo(true, athletes, (String) null, null);
@@ -259,6 +270,23 @@ public class Competition {
     @JsonIgnore
     public Date getCompetitionDateAsDate() {
         return DateTimeUtils.dateFromLocalDate(competitionDate);
+    }
+
+//    @Transient
+//    @JsonIgnore
+    public String getLocalizedCompetitionDate() {
+        try {
+            String pattern = ((SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT, OwlcmsSession.getLocale())).toPattern();
+            // if 2-digit year, force 4 digits.
+            pattern = pattern.replaceFirst("\\byy\\b","yyyy");
+            System.err.println("pattern="+pattern);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+            String str = competitionDate.format(formatter);
+            return str;
+        } catch (Exception a) {
+            a.printStackTrace();
+        }
+        return "error";
     }
 
     /**
@@ -483,6 +511,10 @@ public class Competition {
         return protocolTemplateFileName;
     }
 
+    public int getRefereeWakeUpDelay() {
+        return refereeWakeUpDelay;
+    }
+
     @Transient
     @JsonIgnore
     public HashMap<String, Object> getReportingBeans() {
@@ -635,6 +667,12 @@ public class Competition {
         this.competitionDate = localDate;
     }
 
+    public void setCompetitionDateAsDate(Date ignored) {
+    }
+
+    public void setLocalizedCompetitionDate(String ignored) {
+    }
+
     /**
      * Sets the competition name.
      *
@@ -735,10 +773,6 @@ public class Competition {
         this.masters = masters;
     }
 
-    public void setMastersGenderEquality(boolean mastersGenderEquality) {
-        this.mastersGenderEquality = mastersGenderEquality;
-    }
-
 //    private String doFindFinalPackageTemplateFileName(String absoluteRoot) {
 //        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
 //                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
@@ -766,6 +800,10 @@ public class Competition {
 //        }
 //        throw new RuntimeException("result templates not found under " + absoluteRoot);
 //    }
+
+    public void setMastersGenderEquality(boolean mastersGenderEquality) {
+        this.mastersGenderEquality = mastersGenderEquality;
+    }
 
     public void setMensTeamSize(Integer mensTeamSize) {
         this.mensTeamSize = mensTeamSize;

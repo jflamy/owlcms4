@@ -135,8 +135,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(Scoreboard.class);
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
+    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     static {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
@@ -152,11 +152,12 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     private DecisionElement decisions; // Flow creates it
 
     private EventBus uiEventBus;
+
     private List<Athlete> displayOrder;
     private Group curGroup;
     private int liftsDone;
-
     JsonArray sattempts;
+
     JsonArray cattempts;
     private boolean darkMode = true;
     private Location location;
@@ -208,12 +209,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
      */
     @Override
     public Dialog getDialog() {
-        if (dialog == null) {
-            dialog = new Dialog();
-            return dialog;
-        } else {
-            return null;
-        }
+        return dialog;
     }
 
     @Override
@@ -264,6 +260,11 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     @Override
     public void setDarkMode(boolean dark) {
         this.darkMode = dark;
+    }
+
+    @Override
+    public void setDialog(Dialog dialog) {
+        this.dialog = dialog;
     }
 
     @Override

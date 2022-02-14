@@ -105,7 +105,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.16</version>
+            <version>42.2.25</version>
         </dependency>
 
         <!-- jpa using hibernate -->
@@ -256,6 +256,14 @@
             <artifactId>opendmk_jmxremote_optional_jar</artifactId>
             <version>1.0-b01-ea</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.eclipse.paho/org.eclipse.paho.client.mqttv3 -->
+        <dependency>
+            <groupId>org.eclipse.paho</groupId>
+            <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+            <version>1.2.5</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -279,7 +287,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>3.2.4</version>
                 </plugin>
                 <!-- https://mvnrepository.com/artifact/com.coderplus.maven.plugins/copy-rename-maven-plugin -->
                 <plugin>
@@ -600,6 +608,11 @@
                                             <excludes>
                                                 <exclude>META-INF/VERSION.txt</exclude>
                                                 <exclude>META-INF/LICENSE.txt</exclude>
+                                                <exclude>META-INF/VERSION</exclude>
+                                                <exclude>META-INF/LICENSE</exclude>
+                                                                <exclude>META-INF/*.SF</exclude>
+                <exclude>META-INF/*.DSA</exclude>
+                <exclude>META-INF/*.RSA</exclude>
                                             </excludes>
                                         </filter>
                                     </filters>

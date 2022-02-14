@@ -246,6 +246,11 @@ public class TeamSelectionContent extends VerticalLayout
     }
 
     @Override
+    public boolean isIgnoreFopFromURL() {
+        return true;
+    }
+
+    @Override
     public boolean isShowInitialDialog() {
         return false;
     }
@@ -298,6 +303,10 @@ public class TeamSelectionContent extends VerticalLayout
     @Override
     public void setDarkMode(boolean dark) {
         return;
+    }
+
+    @Override
+    public void setDialog(Dialog dialog) {
     }
 
     @Override

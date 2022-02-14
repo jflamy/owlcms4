@@ -6,17 +6,17 @@
  *******************************************************************************/
 package app.owlcms.data.records;
 
-import java.io.FileNotFoundException;
-import java.util.EnumSet;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.hibernate.query.NativeQuery;
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.jpa.JPAService;
@@ -123,33 +123,46 @@ public class RecordRepository {
         return (RecordEvent) query.getResultList().stream().findFirst().orElse(null);
     }
 
-    public static void insertRecords(EntityManager em, EnumSet<AgeDivision> es) {
-        try {
-            String localizedName = ResourceWalker.getLocalizedResourceName("/records/IWF Records.xlsx");
-            RecordDefinitionReader.doInsertRecords(es, localizedName);
-        } catch (FileNotFoundException e1) {
-            throw new RuntimeException(e1);
-        }
 
-    }
-
-    public static void reloadDefinitions(String localizedFileName) {
-        JPAService.runInTransaction(em -> {
+    public static void reloadDefinitions(String localizedFileName) throws IOException {
+        clearRecords();
+        JPAService.runInTransaction(em -> {   
             try {
-                Query upd = em.createQuery("update Athlete set category = null");
+
+                List<RecordEvent> all = findAll();
+                logger.warn("after remove: {}", all.size());
+                for (RecordEvent rec: all) {
+                    logger.warn("{}",rec);
+                }
+            } catch (Exception e) {
+                LoggerUtils.logError(logger, e);
+            }
+            return null;
+        });
+        
+        
+        InputStream is = ResourceWalker.getResourceAsStream(localizedFileName);
+        RecordDefinitionReader.readZip(is);
+    }
+    
+    public static void clearRecords() throws IOException {
+        JPAService.runInTransaction(em -> {   
+            try {
+                em.clear();
+                Query upd = em.createNativeQuery("delete from RecordEvent");
+                upd.unwrap(NativeQuery.class).addSynchronizedEntityClass(RecordEvent.class);
                 upd.executeUpdate();
-                upd = em.createQuery("delete from Category");
-                upd.executeUpdate();
-                upd = em.createQuery("delete from RecordEvent");
-                upd.executeUpdate();
+//                em.flush();
+//                List<RecordEvent> all = findAll();
+//                for (RecordEvent rec: all) {
+//                    em.remove(rec);
+//                }
                 em.flush();
             } catch (Exception e) {
                 LoggerUtils.logError(logger, e);
             }
             return null;
         });
-        RecordDefinitionReader.doInsertRecords(null, "/records/" + localizedFileName);
-        AthleteRepository.resetParticipations();
     }
 
     /**
@@ -159,8 +172,6 @@ public class RecordRepository {
      * @return the group
      */
     public static RecordEvent save(RecordEvent Record) {
-
-        // first clean up the age group
         RecordEvent nRecord = JPAService.runInTransaction(em -> {
             // the category objects that have a null age group must be removed.
             try {
@@ -178,7 +189,7 @@ public class RecordRepository {
 
     @SuppressWarnings("unchecked")
     private static List<RecordEvent> doFindAll(EntityManager em) {
-        return em.createQuery("select c from RecordEvent c order by c.ageDivision,c.minAge,c.maxAge").getResultList();
+        return em.createQuery("select c from RecordEvent c order by c.recordFederation,c.gender,c.ageGrpLower,c.ageGrpUpper,c.bwCatUpper").getResultList();
     }
 
     private static String filteringSelection(String name, Gender gender, AgeDivision ageDivision, Integer age,

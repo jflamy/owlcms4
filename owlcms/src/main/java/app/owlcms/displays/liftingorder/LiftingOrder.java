@@ -164,12 +164,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
      */
     @Override
     public Dialog getDialog() {
-        if (dialog == null) {
-            dialog = new Dialog();
-            return dialog;
-        } else {
-            return null;
-        }
+        return dialog;
     }
 
     @Override
@@ -220,6 +215,11 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     @Override
     public void setDarkMode(boolean dark) {
         this.darkMode = dark;
+    }
+
+    @Override
+    public void setDialog(Dialog dialog) {
+        this.dialog = dialog;
     }
 
     @Override

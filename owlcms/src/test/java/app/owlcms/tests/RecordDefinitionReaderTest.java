@@ -10,13 +10,17 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
@@ -24,9 +28,15 @@ import app.owlcms.Main;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.records.RecordDefinitionReader;
+import app.owlcms.data.records.RecordEvent;
+import app.owlcms.data.records.RecordRepository;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
+// subsequent tests depend on features tested in earlier tests
+// tests themselves do not depend on work done in earlier tests.
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RecordDefinitionReaderTest {
     
     @BeforeClass
@@ -41,6 +51,14 @@ public class RecordDefinitionReaderTest {
     public static void tearDownTests() {
         JPAService.close();
     }
+    
+    @Before
+    public void beforeEachTest() {
+        try {
+            RecordRepository.clearRecords();
+        } catch (IOException e) {
+        }
+    }
 
     final Logger logger = (Logger) LoggerFactory.getLogger(RecordDefinitionReaderTest.class);
 
@@ -49,15 +67,15 @@ public class RecordDefinitionReaderTest {
     }
 
     @Test
-    public void test() throws IOException, SAXException, InvalidFormatException {
+    public void _01_testIndividualFile() throws IOException, SAXException, InvalidFormatException {
 
-        String streamURI = "/testData/IWF Records.xlsx";
+        String streamURI = "/testData/records/EWFRecords.xlsx";
 
         try (InputStream xmlInputStream = this.getClass().getResourceAsStream(streamURI)) {
             Workbook wb = null;
             try {
                 wb = WorkbookFactory.create(xmlInputStream);
-                int i = RecordDefinitionReader.createRecords(wb, null, streamURI);
+                int i = RecordDefinitionReader.createRecords(wb, streamURI);
                 assertEquals(180, i);
             } finally {
                 if (wb != null) {
@@ -66,5 +84,33 @@ public class RecordDefinitionReaderTest {
             }
         }
     }
+    
+    @Test
+    public void _02_testZippedFile() throws IOException, SAXException, InvalidFormatException {
+        String zipURI = "/testData/records/IWFRecords.zip";
+        InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
+        RecordDefinitionReader.readZip(zipStream);
+        assertEquals("expected size wrong", 180, RecordRepository.findAll().size());
+    }
+    
+    @Test
+    public void _03_testReload() throws IOException, SAXException, InvalidFormatException {
+        String zipURI = "/testData/records/EWFRecords.zip";
+        RecordRepository.reloadDefinitions(zipURI);
+        assertEquals("expected size wrong", 180, RecordRepository.findAll().size());
+    }
 
+    @Test
+    public void _00_testClear() throws IOException {
+        RecordRepository.clearRecords();
+        JPAService.runInTransaction(em -> {   
+            try {
+                List<RecordEvent> all = RecordRepository.findAll();
+                assertEquals(all.size(), 0);
+            } catch (Exception e) {
+                LoggerUtils.logError(logger, e);
+            }
+            return null;
+        });
+    }
 }

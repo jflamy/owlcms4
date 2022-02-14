@@ -9,6 +9,8 @@ package app.owlcms.uievents;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
@@ -17,6 +19,7 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.utils.LoggerUtils;
+import ch.qos.logback.classic.Logger;
 
 /**
  * UIEvents are triggered in response to field of play events (FOPEvents). Each field of play has an associated
@@ -25,7 +28,36 @@ import app.owlcms.utils.LoggerUtils;
  *
  * @author owlcms
  */
+
 public class UIEvent {
+    
+    Logger logger = (Logger) LoggerFactory.getLogger(UIEvent.class);
+
+    static public class WakeUpRef extends UIEvent {
+
+        public int ref;
+        public boolean on;
+
+        public WakeUpRef(int lastRef, boolean b, Object origin) {
+            super(origin);
+            this.ref = lastRef;
+            this.on = b;
+        }
+
+    }
+    
+    static public class SummonRef extends UIEvent {
+
+        public int ref;
+        public boolean on;
+
+        public SummonRef(int lastRef, boolean b, Object origin) {
+            super(origin);
+            this.ref = lastRef;
+            this.on = b;
+        }
+
+    }
 
     static public class BarbellOrPlatesChanged extends UIEvent {
         public BarbellOrPlatesChanged(Object object) {

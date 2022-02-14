@@ -225,12 +225,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
      */
     @Override
     public Dialog getDialog() {
-        if (dialog == null) {
-            dialog = new Dialog();
-            return dialog;
-        } else {
-            return null;
-        }
+        return dialog;
     }
 
     /**
@@ -337,7 +332,9 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         setShowInitialDialog(
                 darkParams == null && ageDivisionParams == null && ageGroupParams == null && silentParams == null);
 
-        buildDialog(this);
+        if (getDialog() == null) {
+            buildDialog(this);
+        }
         return params1;
     }
 
@@ -352,6 +349,10 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     @Override
     public void setDarkMode(boolean dark) {
         this.darkMode = dark;
+    }
+
+    @Override
+    public void setDialog(Dialog dialog) {
     }
 
     @Override

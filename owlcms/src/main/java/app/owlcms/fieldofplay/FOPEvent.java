@@ -26,6 +26,37 @@ import ch.qos.logback.classic.Logger;
  */
 public class FOPEvent {
 
+    static public class SummonReferee extends FOPEvent {
+
+        public int refNumber;
+
+        public SummonReferee(int refNumber, Object origin) {
+            super(origin);
+            this.refNumber = refNumber;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(refNumber);
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            SummonReferee other = (SummonReferee) obj;
+            return refNumber == other.refNumber;
+        }
+
+    }
+
     /**
      * Class BarbellOrPlatesChanged
      */

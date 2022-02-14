@@ -30,6 +30,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
@@ -337,6 +338,10 @@ public class CompetitionEditingFormFactory
         layout.addFormItem(enforce20kgRuleField, Translator.translate("Competition.enforce20kgRule"));
         binder.forField(enforce20kgRuleField)
                 .bind(Competition::isEnforce20kgRule, Competition::setEnforce20kgRule);
+        
+        IntegerField wakeUpDelayField = new IntegerField();
+        layout.addFormItem(wakeUpDelayField, Translator.translate("Competition.decisionRequestDelayLabel"));
+        binder.forField(wakeUpDelayField).bind(Competition::getRefereeWakeUpDelay, Competition::setRefereeWakeUpDelay);
 
         return layout;
     }

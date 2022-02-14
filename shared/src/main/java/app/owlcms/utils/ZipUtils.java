@@ -21,6 +21,21 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 
 public class ZipUtils {
+    
+    public static class NoCloseInputStream extends ZipInputStream {
+
+        public NoCloseInputStream(InputStream in) {
+            super(in);
+        }
+
+        @Override
+        public void close() throws IOException {
+        }
+
+        public void doClose() throws IOException {
+            super.close();
+        }
+    }
 
     final static Logger logger = (Logger) LoggerFactory.getLogger(ZipUtils.class);
 
@@ -87,7 +102,7 @@ public class ZipUtils {
         }
     }
 
-    private static void copy(final InputStream source, final OutputStream target) throws IOException {
+    public static void copy(final InputStream source, final OutputStream target) throws IOException {
         final int bufferSize = 4 * 1024;
         final byte[] buffer = new byte[bufferSize];
 

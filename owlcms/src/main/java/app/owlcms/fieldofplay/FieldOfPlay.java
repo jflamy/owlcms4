@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.AsyncEventBus;
@@ -41,6 +42,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
@@ -56,6 +58,7 @@ import app.owlcms.fieldofplay.FOPEvent.ExplicitDecision;
 import app.owlcms.fieldofplay.FOPEvent.ForceTime;
 import app.owlcms.fieldofplay.FOPEvent.JuryDecision;
 import app.owlcms.fieldofplay.FOPEvent.StartLifting;
+import app.owlcms.fieldofplay.FOPEvent.SummonReferee;
 import app.owlcms.fieldofplay.FOPEvent.SwitchGroup;
 import app.owlcms.fieldofplay.FOPEvent.TimeOver;
 import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
@@ -71,6 +74,7 @@ import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.JuryNotification;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -106,6 +110,8 @@ public class FieldOfPlay {
             }
         }
     }
+
+    private static final int WAKEUP_DURATION_MS = 20000;
 
     public static final long DECISION_VISIBLE_DURATION = 3500;
 
@@ -189,6 +195,10 @@ public class FieldOfPlay {
 
     private FOPEvent deferredBreak;
 
+    private Thread wakeUpRef;
+
+    private String mqttServer;
+
     {
         uiEventLogger.setLevel(Level.INFO);
     }
@@ -202,8 +212,13 @@ public class FieldOfPlay {
      */
     public FieldOfPlay(Group group, Platform platform2) {
         this.name = platform2.getName();
-
         initEventBuses();
+
+        // check if refereeing devices connected via MQTT are in use
+        mqttServer = StartupUtils.getStringParam("mqttServer");
+        if (mqttServer != null) {
+            new MQTTMonitor(this);
+        }
 
         this.athleteTimer = null;
         this.breakTimer = null;
@@ -376,6 +391,10 @@ public class FieldOfPlay {
      */
     public String getLoggingName() {
         return "FOP " + name + "    ";
+    }
+
+    public String getMqttServer() {
+        return mqttServer;
     }
 
     /**
@@ -598,6 +617,8 @@ public class FieldOfPlay {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof JuryDecision) {
                 doJuryDecision((JuryDecision) e);
+            } else if (e instanceof SummonReferee) {
+                doSummonReferee((SummonReferee) e);
             } else if (e instanceof DecisionReset) {
                 doDecisionReset(e);
             } else {
@@ -939,6 +960,10 @@ public class FieldOfPlay {
         this.liftsDoneAtLastStart = liftsDoneAtLastStart;
     }
 
+    public void setMqttServer(String mqttServer) {
+        this.mqttServer = mqttServer;
+    }
+
     /**
      * Sets the name.
      *
@@ -1043,10 +1068,18 @@ public class FieldOfPlay {
         doSetState(state);
     }
 
+    private void cancelWakeUpRef() {
+        if (wakeUpRef != null) {
+            wakeUpRef.interrupt();
+        }
+        wakeUpRef = null;
+    }
+
     private void doDecisionReset(FOPEvent e) {
         logger.debug("{}resetting decisions", getLoggingName());
         // the state will be rewritten in displayOrBreakIfDone
         // this is so the decision reset knows that the decision is no longer displayed.
+        cancelWakeUpRef();
         pushOut(new UIEvent.DecisionReset(getCurAthlete(), this));
         setClockOwner(null);
         if (getCurAthlete() != null && getCurAthlete().getAttemptsDone() < 6) {
@@ -1105,6 +1138,10 @@ public class FieldOfPlay {
             getGroup().doDone(breakType == BreakType.GROUP_DONE);
         }
         this.state = state;
+    }
+
+    private void doSummonReferee(SummonReferee e) {
+        getUiEventBus().post(new UIEvent.SummonRef(e.refNumber, true, this));
     }
 
     /**
@@ -1258,7 +1295,37 @@ public class FieldOfPlay {
                 downEmitted = true;
             }
         }
+        if (nbDecisions == 2) {
+            // 2 decisions, reminder for last referee
+            wakeUpRef = new Thread(() -> {
+                int lastRef = -1;
+                try {
+                    // wait a bit.  If the decison comes in while waiting, this thread will be cancelled anyway
+                    Thread.sleep(Competition.getCurrent().getRefereeWakeUpDelay());
+                    lastRef = ArrayUtils.indexOf(refereeDecision, null);
+                    if (lastRef != -1 && !Thread.currentThread().isInterrupted()) {
+                        // logger.debug("posting");
+                        uiEventBus.post(new UIEvent.WakeUpRef(lastRef+1, true, this));
+                    } else {
+                        // logger.debug("not posting");
+                    }
+                    Thread.sleep(WAKEUP_DURATION_MS);
+                } catch (InterruptedException e1) {
+                    // ignore interruption, finally handles clean up
+                } finally {
+                    // if we are here, either the last ref has entered a decision, or we've exhausted the reminder duration
+                    // in either case, we turn the reminder off.
+                    if (lastRef != -1) {
+                        uiEventBus.post(new UIEvent.WakeUpRef(lastRef+1, false, this));
+                    }
+                }
+            });
+            wakeUpRef.start();
+        }
         if (nbDecisions == 3) {
+            if (wakeUpRef != null) {
+                cancelWakeUpRef();
+            }
             setGoodLift(nbWhite >= 2);
             if (!isDecisionDisplayScheduled()) {
                 showDecisionAfterDelay(this);
@@ -1708,7 +1775,7 @@ public class FieldOfPlay {
             new Thread(() -> {
                 try {
                     new Sound(getSoundMixer(), "down.wav").emit();
-                    //downSignal.emit();
+                    // downSignal.emit();
                 } catch (IllegalArgumentException /* | LineUnavailableException */ e) {
                     broadcast("SoundSystemProblem");
                 }

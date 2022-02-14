@@ -41,3 +41,19 @@ html {
 	background-color: var(--lumo-error-color-10pct);
 }
 
+.blink {
+    animation: blink 1.5s step-start 0s infinite;
+    -webkit-animation: blink 1.5s step-start 0s infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}

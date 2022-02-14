@@ -49,21 +49,29 @@ public interface DisplayParameters extends FOPParameters {
 
     @SuppressWarnings("unchecked")
     public default void buildDialog(Component target) {
-        Dialog dialog = getDialog();
+        Dialog dialog = getDialogCreateIfMissing();
         if (dialog == null) {
             return;
         }
+        dialog.removeAll();
 
         dialog.setCloseOnOutsideClick(true);
         dialog.setCloseOnEsc(true);
         dialog.setModal(true);
+        dialog.addDialogCloseActionListener(e -> {
+            //logger.debug("closeActionListener {}", getDialog());
+            getDialog().close();
+        });
 
         VerticalLayout vl = new VerticalLayout();
         dialog.add(vl);
 
         addDialogContent(target, vl);
 
-        Button button = new Button(Translator.translate("Close"), e -> dialog.close());
+        Button button = new Button(Translator.translate("Close"), e -> {
+            //logger.debug("close button {}", getDialog());
+            getDialog().close();
+        });
         button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
         VerticalLayout buttons = new VerticalLayout();
         buttons.add(button);
@@ -78,14 +86,23 @@ public interface DisplayParameters extends FOPParameters {
         // workaround for compilation glitch
         @SuppressWarnings("rawtypes")
         ComponentEventListener listener = e -> {
+            //logger.debug("opening dialog");
             openDialog(dialog);
+            setShowInitialDialog(false);
         };
-        ComponentUtil.addListener(target, ClickEvent.class, listener);
+
         if (isShowInitialDialog()) {
             openDialog(dialog);
             setShowInitialDialog(false);
         }
+        ComponentUtil.addListener(target, ClickEvent.class, listener);
+    }
 
+    default public Dialog getDialogCreateIfMissing() {
+        if (getDialog() == null) {
+            setDialog(new Dialog());
+        }
+        return getDialog();
     }
 
     public default void doNotification(boolean dark) {
@@ -106,6 +123,8 @@ public interface DisplayParameters extends FOPParameters {
 
     public Dialog getDialog();
 
+    public void setDialog(Dialog dialog);
+
     public boolean isDarkMode();
 
     @Override
@@ -118,14 +137,17 @@ public interface DisplayParameters extends FOPParameters {
     }
 
     public default void openDialog(Dialog dialog) {
+        //logger.debug("openDialog {} {}", dialog, dialog.isOpened());
         if (!dialog.isOpened()) {
             dialog.open();
+            setDialog(dialog);
             UI ui = UI.getCurrent();
             new Timer().schedule(
                     new TimerTask() {
                         @Override
                         public void run() {
                             ui.access(() -> {
+                                //logger.debug("timer closing {}", dialog);
                                 dialog.close();
                             });
                         }
@@ -197,6 +219,7 @@ public interface DisplayParameters extends FOPParameters {
         target.getElement().getClassList().set(DARK, dark);
         target.getElement().getClassList().set(LIGHT, !dark);
         setDarkMode(dark);
+        //logger.debug("switching lighting");
         buildDialog(target);
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), DARK, dark ? null : "false");
@@ -205,6 +228,7 @@ public interface DisplayParameters extends FOPParameters {
 
     public default void switchSoundMode(Component target, boolean silent, boolean updateURL) {
         setSilenced(silent);
+        //logger.debug("switching sound");
         buildDialog(target);
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? "true" : "false");

@@ -6,9 +6,10 @@
  *******************************************************************************/
 package app.owlcms.data.records;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
-import java.util.EnumSet;
+import java.util.zip.ZipEntry;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -18,17 +19,17 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
+import app.owlcms.utils.ZipUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Read lifted weight records from an Excel file.
+ * Read records from an Excel file.
  *
- * Competition records for snatch, clean&jerk and total are read. All available tabs are scanned. Reading stops at first
+ * Records for snatch, clean&jerk and total are read. All available tabs are scanned. Reading stops at first
  * empty line. Header line is skipped.
  *
  * @author Jean-François Lamy
@@ -38,19 +39,20 @@ public class RecordDefinitionReader {
 
     private final static Logger logger = (Logger) LoggerFactory.getLogger(RecordDefinitionReader.class);
 
-    public static int createRecords(Workbook workbook, EnumSet<AgeDivision> ageDivisionOverride,
-            String localizedName) {
+    public static int createRecords(Workbook workbook, String name) {
 
         return JPAService.runInTransaction(em -> {
             int iRecord = 0;
 
             for (Sheet sheet : workbook) {
-                int iRow = 0;
+                
 
-                processsheet: for (Row row : sheet) {
-                    int iColumn = 0;
-
+                processSheet: for (Row row : sheet) {
+                    int iRow = row.getRowNum();
                     if (iRow == 0) {
+//                        if (! row.getCell(0).getStringCellValue().equalsIgnoreCase("Federation")) {
+//                            break processSheet;
+//                        }
                         iRow++;
                         continue;
                     }
@@ -58,59 +60,86 @@ public class RecordDefinitionReader {
                     RecordEvent rec = new RecordEvent();
 
                     for (Cell cell : row) {
-                        // logger.trace("[" + iSheet + "," + iRow + "," + iColumn + "]");
+                        int iColumn = cell.getAddress().getColumn();
+                        try {
+                        //logger.debug("[" + sheet.getSheetName() + "," + cell.getAddress() + "]");
                         switch (iColumn) {
-                        case 0: {
+                        case 0: { // A
                             String cellValue = cell.getStringCellValue();
                             String trim = cellValue.trim();
                             if (trim.isEmpty()) {
-                                break processsheet;
+                                break processSheet;
                             }
                             rec.setRecordFederation(trim);
                             break;
                         }
+                        
+                        case 1: { // B
+                            String cellValue = cell.getStringCellValue();
+                            cellValue = cellValue != null ? cellValue.trim() : cellValue;
+                            rec.setRecordName(cellValue);
+                            break;
+                        }
+                        
 
-                        case 1: {
+                        case 2: { // C
                             String cellValue = cell.getStringCellValue();
                             cellValue = cellValue != null ? cellValue.trim() : cellValue;
                             rec.setAgeGrp(cellValue);
                             break;
                         }
-
-                        case 2: {
+                        
+                        case 3: { // D
                             String cellValue = cell.getStringCellValue();
                             cellValue = cellValue != null ? cellValue.trim().toUpperCase() : cellValue;
                             rec.setGender(Gender.valueOf(cellValue));
                             break;
                         }
+                        
+                        case 4: { // E
+                            long cellValue = Math.round(cell.getNumericCellValue());
+                            rec.setAgeGrpLower(Math.toIntExact(cellValue));
+                            break;
+                        }
+                        
+                        case 5: { // F
+                            long cellValue = Math.round(cell.getNumericCellValue());
+                            rec.setAgeGrpUpper(Math.toIntExact(cellValue));
+                            break;
+                        }
 
-                        case 3: {
+                        case 6: { // G
+                            long cellValue = Math.round(cell.getNumericCellValue());
+                            rec.setBwCatLower(Math.toIntExact(cellValue));
+                            break;
+                        }
+
+                        case 7: { // H
                             long cellValue = Math.round(cell.getNumericCellValue());
                             rec.setBwCatUpper(Math.toIntExact(cellValue));
                             break;
                         }
 
-                        case 4: {
+                        case 8: { // I
                             String cellValue = cell.getStringCellValue();
                             cellValue = cellValue != null ? cellValue.trim() : cellValue;
-                            rec.setRecordKind(cellValue.substring(0, 1));
+                            rec.setRecordLift(cellValue);
                             break;
                         }
 
-                        case 5: {
-                            long cellValue = Math.round(cell.getNumericCellValue());
-                            rec.setRecordValue(Math.toIntExact(cellValue));
+                        case 9: { // J
+                            rec.setRecordValue(cell.getNumericCellValue());
                             break;
                         }
 
-                        case 6: {
+                        case 10: { // K
                             String cellValue = cell.getStringCellValue();
                             cellValue = cellValue != null ? cellValue.trim() : cellValue;
                             rec.setAthleteName(cellValue);
                             break;
                         }
 
-                        case 7: {
+                        case 11: { // L
                             long cellValue = Math.round(cell.getNumericCellValue());
                             int intExact = Math.toIntExact(cellValue);
                             if (cellValue < 3000) {
@@ -124,14 +153,14 @@ public class RecordDefinitionReader {
                             break;
                         }
 
-                        case 8: {
+                        case 12: { // M
                             String cellValue = cell.getStringCellValue();
                             cellValue = cellValue != null ? cellValue.trim() : cellValue;
                             rec.setNation(cellValue);
                             break;
                         }
 
-                        case 9: {
+                        case 13: { // N
                             long cellValue = Math.round(cell.getNumericCellValue());
                             int intExact = Math.toIntExact(cellValue);
                             if (cellValue < 3000) {
@@ -148,8 +177,12 @@ public class RecordDefinitionReader {
                         }
 
                         iColumn++;
+                        } catch (Exception e) {
+                            logger.error("{} {}: \\n{}", sheet.getSheetName(), cell.getAddress(), LoggerUtils.stackTrace(e));
+                            System.exit(-1);
+                        }
                     }
-                    // logger.trace(rec);
+                    //logger.debug("{}", rec);
 
                     try {
                         em.persist(rec);
@@ -157,29 +190,49 @@ public class RecordDefinitionReader {
                         logger.error("could not persist RecordEvent {}", LoggerUtils./**/stackTrace(e));
                     }
 
-                    iRow++;
                     iRecord++;
                 }
             }
             Competition comp = Competition.getCurrent();
             Competition comp2 = em.contains(comp) ? comp : em.merge(comp);
-            comp2.setAgeGroupsFileName(localizedName);
-
+            comp2.setAgeGroupsFileName(name);
+            logger.info("inserted {} record(s)", iRecord);
             return iRecord;
         });
     }
 
-    static void doInsertRecords(EnumSet<AgeDivision> es, String localizedName) {
+    static void doInsertRecords(String localizedName) {
         InputStream localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory
                 .create(localizedResourceAsStream)) {
-            RecordRepository.logger.info("loading configuration file {}", localizedName);
-            createRecords(workbook, es, localizedName);
-            workbook.close();
+            RecordRepository.logger.info("loading record definition file {}", localizedName);
+            createRecords(workbook, localizedName);
         } catch (Exception e) {
-            RecordRepository.logger.error("could not process ageGroup configuration\n{}",
+            RecordRepository.logger.error("could not process record definition file {}\n{}",
                     LoggerUtils./**/stackTrace(e));
         }
+    }
+    
+    public static void readZip(InputStream source) throws IOException {
+        // so that each workbook does not close the zip stream
+        final ZipUtils.NoCloseInputStream zipStream = new ZipUtils.NoCloseInputStream(source);
+        
+        ZipEntry nextEntry;
+        while ((nextEntry = zipStream.getNextEntry()) != null) {
+            String name = nextEntry.getName();
+            if (!name.endsWith("/")) {
+                logger.warn("unzipping {}", name);
+                // read the current zip entry
+                try (Workbook workbook = WorkbookFactory.create(zipStream)) {
+                    RecordRepository.logger.info("loading record definition file {}", name);
+                    createRecords(workbook, name);
+                } catch (Exception e) {
+                    RecordRepository.logger.error("could not process record definition file {}\n{}",
+                            LoggerUtils./**/stackTrace(e));
+                }
+            }
+        }
+        zipStream.doClose(); // a real close
     }
 
 }
