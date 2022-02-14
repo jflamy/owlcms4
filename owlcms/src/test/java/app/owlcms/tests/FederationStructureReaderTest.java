@@ -42,7 +42,7 @@ public class FederationStructureReaderTest {
     @Test
     public void test() throws Exception {
 
-        String streamURI = "/testData/Federations.xlsx";
+        String streamURI = "/testData/records/Federations.xlsx";
 
         try (InputStream xmlInputStream = this.getClass().getResourceAsStream(streamURI)) {
             Workbook wb = null;

@@ -125,25 +125,44 @@ public class RecordRepository {
 
 
     public static void reloadDefinitions(String localizedFileName) throws IOException {
+        clearRecords();
         JPAService.runInTransaction(em -> {   
             try {
-//                em.clear();
-//                Query upd = em.createNativeQuery("delete from RecordEvent");
-//                upd.unwrap(NativeQuery.class).addSynchronizedEntityClass(RecordEvent.class);
-//                upd.executeUpdate();
-//                em.flush();
+
                 List<RecordEvent> all = findAll();
+                logger.warn("after remove: {}", all.size());
                 for (RecordEvent rec: all) {
-                    em.remove(rec);
+                    logger.warn("{}",rec);
                 }
+            } catch (Exception e) {
+                LoggerUtils.logError(logger, e);
+            }
+            return null;
+        });
+        
+        
+        InputStream is = ResourceWalker.getResourceAsStream(localizedFileName);
+        RecordDefinitionReader.readZip(is);
+    }
+    
+    public static void clearRecords() throws IOException {
+        JPAService.runInTransaction(em -> {   
+            try {
+                em.clear();
+                Query upd = em.createNativeQuery("delete from RecordEvent");
+                upd.unwrap(NativeQuery.class).addSynchronizedEntityClass(RecordEvent.class);
+                upd.executeUpdate();
+//                em.flush();
+//                List<RecordEvent> all = findAll();
+//                for (RecordEvent rec: all) {
+//                    em.remove(rec);
+//                }
                 em.flush();
             } catch (Exception e) {
                 LoggerUtils.logError(logger, e);
             }
             return null;
         });
-        InputStream is = ResourceWalker.getResourceAsStream(localizedFileName);
-        RecordDefinitionReader.readZip(is);
     }
 
     /**

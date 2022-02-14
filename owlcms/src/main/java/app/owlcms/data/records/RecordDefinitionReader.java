@@ -190,14 +190,13 @@ public class RecordDefinitionReader {
                         logger.error("could not persist RecordEvent {}", LoggerUtils./**/stackTrace(e));
                     }
 
-                    iRow++;
                     iRecord++;
                 }
             }
             Competition comp = Competition.getCurrent();
             Competition comp2 = em.contains(comp) ? comp : em.merge(comp);
             comp2.setAgeGroupsFileName(name);
-
+            logger.info("inserted {} record(s)", iRecord);
             return iRecord;
         });
     }
