@@ -36,21 +36,6 @@ import ch.qos.logback.classic.Logger;
 @Entity
 public class AthleteSorter implements Serializable {
 
-    /**
-     * The Enum Ranking.
-     */
-    public enum Ranking {
-        SNATCH, CLEANJERK, TOTAL,
-        /** combined (men + women). */
-        SNATCH_CJ_TOTAL,
-        CAT_SINCLAIR, // legacy Quebec federation, Sinclair computed at category boundary
-        BW_SINCLAIR, // normal sinclair
-        SMM, // Sinclair Malone-Meltzer
-        ROBI, // IWF ROBI
-        CUSTOM // custom score (e.g. technical merit for kids competition)
-
-    }
-
     private static final long serialVersionUID = -3507146241019771820L;
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(AthleteSorter.class);

@@ -9,7 +9,6 @@ package app.owlcms.data.athleteSort;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import ch.qos.logback.classic.Logger;
 
 public class OverallRankSetter {
