@@ -21,6 +21,9 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.records.RecordEvent.MissingAgeGroup;
+import app.owlcms.data.records.RecordEvent.MissingGender;
+import app.owlcms.data.records.RecordEvent.UnknownIWFBodyWeightCategory;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.ZipUtils;
@@ -46,7 +49,6 @@ public class RecordDefinitionReader {
 
             for (Sheet sheet : workbook) {
                 
-
                 processSheet: for (Row row : sheet) {
                     int iRow = row.getRowNum();
                     if (iRow == 0) {
@@ -68,6 +70,7 @@ public class RecordDefinitionReader {
                             String cellValue = cell.getStringCellValue();
                             String trim = cellValue.trim();
                             if (trim.isEmpty()) {
+                                // stop processing sheet on first row with an empty first cell
                                 break processSheet;
                             }
                             rec.setRecordFederation(trim);
@@ -182,7 +185,12 @@ public class RecordDefinitionReader {
                             System.exit(-1);
                         }
                     }
-                    //logger.debug("{}", rec);
+                    
+                    try {
+                        rec.fillDefaults();
+                    } catch (MissingAgeGroup | MissingGender | UnknownIWFBodyWeightCategory e1) {
+                        throw new RuntimeException(e1+" row "+row.getRowNum());
+                    }
 
                     try {
                         em.persist(rec);
@@ -221,7 +229,7 @@ public class RecordDefinitionReader {
         while ((nextEntry = zipStream.getNextEntry()) != null) {
             String name = nextEntry.getName();
             if (!name.endsWith("/")) {
-                logger.warn("unzipping {}", name);
+                logger.info("unzipping {}", name);
                 // read the current zip entry
                 try (Workbook workbook = WorkbookFactory.create(zipStream)) {
                     RecordRepository.logger.info("loading record definition file {}", name);
