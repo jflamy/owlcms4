@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import app.owlcms.Main;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.records.RecordDefinitionReader;
@@ -38,7 +39,7 @@ import ch.qos.logback.classic.Logger;
 // tests themselves do not depend on work done in earlier tests.
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RecordDefinitionReaderTest {
-    
+
     @BeforeClass
     public static void setupTests() {
         Main.injectSuppliers();
@@ -51,19 +52,33 @@ public class RecordDefinitionReaderTest {
     public static void tearDownTests() {
         JPAService.close();
     }
-    
+
+    final Logger logger = (Logger) LoggerFactory.getLogger(RecordDefinitionReaderTest.class);
+
+    public RecordDefinitionReaderTest() {
+        logger.setLevel(Level.TRACE);
+    }
+
     @Before
-    public void beforeEachTest() {
+    public void _00_beforeEachTest() {
         try {
             RecordRepository.clearRecords();
         } catch (IOException e) {
         }
     }
 
-    final Logger logger = (Logger) LoggerFactory.getLogger(RecordDefinitionReaderTest.class);
-
-    public RecordDefinitionReaderTest() {
-        logger.setLevel(Level.TRACE);
+    @Test
+    public void _00_testClear() throws IOException {
+        RecordRepository.clearRecords();
+        JPAService.runInTransaction(em -> {
+            try {
+                List<RecordEvent> all = RecordRepository.findAll();
+                assertEquals(all.size(), 0);
+            } catch (Exception e) {
+                LoggerUtils.logError(logger, e);
+            }
+            return null;
+        });
     }
 
     @Test
@@ -84,7 +99,7 @@ public class RecordDefinitionReaderTest {
             }
         }
     }
-    
+
     @Test
     public void _02_testZippedFile() throws IOException, SAXException, InvalidFormatException {
         String zipURI = "/testData/records/IWFRecords.zip";
@@ -92,7 +107,7 @@ public class RecordDefinitionReaderTest {
         RecordDefinitionReader.readZip(zipStream);
         assertEquals("expected size wrong", 180, RecordRepository.findAll().size());
     }
-    
+
     @Test
     public void _03_testReload() throws IOException, SAXException, InvalidFormatException {
         String zipURI = "/testData/records/EWFRecords.zip";
@@ -101,16 +116,29 @@ public class RecordDefinitionReaderTest {
     }
 
     @Test
-    public void _00_testClear() throws IOException {
-        RecordRepository.clearRecords();
-        JPAService.runInTransaction(em -> {   
-            try {
-                List<RecordEvent> all = RecordRepository.findAll();
-                assertEquals(all.size(), 0);
-            } catch (Exception e) {
-                LoggerUtils.logError(logger, e);
-            }
-            return null;
-        });
+    public void _04_testRetrieval() throws IOException {
+        String zipURI = "/testData/records/IWFRecords.zip";
+        InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
+        RecordDefinitionReader.readZip(zipStream);
+        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 66.0D);
+        assertEquals("wrong number of results", 9, results.size());
+    }
+    
+    @Test
+    public void _05_testNoMatch() throws IOException {
+        String zipURI = "/testData/records/IWFRecords.zip";
+        InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
+        RecordDefinitionReader.readZip(zipStream);
+        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 12, 66.0D);
+        assertEquals("wrong number of results", 0, results.size());
+    }
+    
+    @Test
+    public void _05_testYthMatch() throws IOException {
+        String zipURI = "/testData/records/IWFRecords.zip";
+        InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
+        RecordDefinitionReader.readZip(zipStream);
+        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 13, 66.0D);
+        assertEquals("wrong number of results", 3, results.size());
     }
 }
