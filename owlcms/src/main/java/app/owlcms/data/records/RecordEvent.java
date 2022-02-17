@@ -20,6 +20,7 @@ import javax.persistence.Transient;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.Ranking;
 import ch.qos.logback.classic.Logger;
 
 @Entity
@@ -60,7 +61,7 @@ public class RecordEvent {
     private String nation;
     private LocalDate recordDate;
     private String recordFederation;
-    private RecordKind recordLift;
+    private Ranking recordLift;
     private String recordName;
     private int recordYear;
 
@@ -128,7 +129,7 @@ public class RecordEvent {
         return recordFederation;
     }
 
-    public RecordKind getRecordLift() {
+    public Ranking getRecordLift() {
         return recordLift;
     }
 
@@ -204,17 +205,17 @@ public class RecordEvent {
         this.recordFederation = recordFederation;
     }
 
-    public void setRecordLift(RecordKind recordLift) {
+    public void setRecordLift(Ranking recordLift) {
         this.recordLift = recordLift;
     }
 
     public void setRecordLift(String liftAbbreviation) {
         if (liftAbbreviation.toLowerCase().startsWith("s")) {
-            this.recordLift = RecordKind.SNATCH;
+            this.recordLift = Ranking.SNATCH;
         } else if (liftAbbreviation.toLowerCase().startsWith("c")) {
-            this.recordLift = RecordKind.CJ;
+            this.recordLift = Ranking.CLEANJERK;
         } else if (liftAbbreviation.toLowerCase().startsWith("t")) {
-            this.recordLift = RecordKind.TOTAL;
+            this.recordLift = Ranking.TOTAL;
         } else {
             throw new IllegalArgumentException("recordLift");
         }
