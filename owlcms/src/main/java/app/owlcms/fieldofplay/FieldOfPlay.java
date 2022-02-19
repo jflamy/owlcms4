@@ -15,12 +15,16 @@ import static app.owlcms.fieldofplay.FOPState.TIME_RUNNING;
 import static app.owlcms.fieldofplay.FOPState.TIME_STOPPED;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
@@ -40,6 +44,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -234,6 +239,84 @@ public class FieldOfPlay {
 
     public void broadcast(String string) {
         getUiEventBus().post(new UIEvent.Broadcast(string, this));
+    }
+
+    /**
+     * @param rankedAthletes
+     * @return for each category, medal-winnning athletes in snatch, clean & jerk and total.
+     */
+    public TreeMap<Category, TreeSet<Athlete>> computeMedals(List<Athlete> rankedAthletes) {
+        if (rankedAthletes == null || rankedAthletes.size() == 0) {
+            setLeaders(null);
+            return new TreeMap<>();
+        }
+
+        // extract all categories
+        Set<Category> medalCategories = rankedAthletes.stream()
+                .map(a -> a.getEligibleCategories())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
+        // exclude categories where athletes still have to lift
+        Set<Category> notDone = rankedAthletes.stream()
+                .filter(a -> a.getSnatch1AsInteger() == null)
+                .map(a -> a.getCategory())
+                .collect(Collectors.toSet());
+        logger.warn("medalCategories: all {} notDone {}", medalCategories, notDone);
+        medalCategories.removeAll(notDone);
+
+        TreeMap<Category, TreeSet<Athlete>> medals = new TreeMap<>();
+
+        // iterate over the remaining categories
+        for (Category category : medalCategories) {
+
+            List<Athlete> currentCategoryAthletes = new ArrayList<>();
+            for (Athlete a : rankedAthletes) {
+                // fetch the participation that matches the current athlete registration category
+                Optional<Participation> matchingParticipation = a.getParticipations().stream()
+                        .filter(p -> p.getCategory().sameAs(category)).findFirst();
+                // get an athlete proxy that has the rankings based on that participation
+                if (matchingParticipation.isPresent()) {
+                    currentCategoryAthletes.add(new PAthlete(matchingParticipation.get()));
+                }
+            }
+
+            List<Athlete> snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
+                    .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
+                    .limit(3)
+                    .collect(Collectors.toList());
+
+            List<Athlete> cjLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.CLEANJERK)
+                    .stream().filter(a -> a.getBestCleanJerk() > 0 && a.isEligibleForIndividualRanking())
+                    .limit(3)
+                    .collect(Collectors.toList());
+
+            List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
+                    .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
+                    .limit(3)
+                    .collect(Collectors.toList());
+
+            // TreeSet<Athlete> medalists = new TreeSet<Athlete>((a,b) -> Integer.compare(a.getTotalRank(),
+            // b.getTotalRank()));
+
+            // Athlete is actually a PAthlete, that is, the ranks are those for their participation in the current loop
+            // category.
+            // Athletes excluded from Total due to bombing out can still win medals, so we add them back in and sort
+            // again.
+            TreeSet<Athlete> medalists = new TreeSet<>(new WinningOrderComparator(Ranking.TOTAL, false));
+            medalists.addAll(totalLeaders);
+            medalists.addAll(cjLeaders);
+            medalists.addAll(snatchLeaders);
+            medals.put(category, medalists);
+
+            logger.warn("medalists for {}", category);
+            for (Athlete medalist : medalists) {
+                logger.warn("   {}\t{} {} {}", medalist.getShortName(), medalist.getSnatchRank(),
+                        medalist.getCleanJerkRank(), medalist.getTotalRank());
+            }
+
+        }
+        return medals;
     }
 
     /**
@@ -890,11 +973,17 @@ public class FieldOfPlay {
             return null;
         });
         List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
+
         // logger.debug("same eligible: {}",rankedAthletes);
         if (rankedAthletes == null) {
             setDisplayOrder(null);
             setCurAthlete(null);
             return;
+        } else {
+            rankedAthletes.stream().forEach(a -> {
+                logger.warn("rankedAthletes {} {}", a, a.getSnatch1AsInteger());
+            });
+            computeMedals(rankedAthletes);
         }
         List<Athlete> currentGroupAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
                 .filter(a -> a.getGroup() != null ? a.getGroup().equals(g) : false)
@@ -1271,8 +1360,7 @@ public class FieldOfPlay {
     }
 
     /**
-     * Compute events resulting from decisions received so far (down signal, stopping timer, all decisions entered,
-     * etc.)
+     * events resulting from decisions received so far (down signal, stopping timer, all decisions entered, etc.)
      */
     private void processRefereeDecisions(FOPEvent e) {
         int nbRed = 0;
@@ -1300,12 +1388,12 @@ public class FieldOfPlay {
             wakeUpRef = new Thread(() -> {
                 int lastRef = -1;
                 try {
-                    // wait a bit.  If the decison comes in while waiting, this thread will be cancelled anyway
+                    // wait a bit. If the decison comes in while waiting, this thread will be cancelled anyway
                     Thread.sleep(Competition.getCurrent().getRefereeWakeUpDelay());
                     lastRef = ArrayUtils.indexOf(refereeDecision, null);
                     if (lastRef != -1 && !Thread.currentThread().isInterrupted()) {
                         // logger.debug("posting");
-                        uiEventBus.post(new UIEvent.WakeUpRef(lastRef+1, true, this));
+                        uiEventBus.post(new UIEvent.WakeUpRef(lastRef + 1, true, this));
                     } else {
                         // logger.debug("not posting");
                     }
@@ -1313,10 +1401,11 @@ public class FieldOfPlay {
                 } catch (InterruptedException e1) {
                     // ignore interruption, finally handles clean up
                 } finally {
-                    // if we are here, either the last ref has entered a decision, or we've exhausted the reminder duration
+                    // if we are here, either the last ref has entered a decision, or we've exhausted the reminder
+                    // duration
                     // in either case, we turn the reminder off.
                     if (lastRef != -1) {
-                        uiEventBus.post(new UIEvent.WakeUpRef(lastRef+1, false, this));
+                        uiEventBus.post(new UIEvent.WakeUpRef(lastRef + 1, false, this));
                     }
                 }
             });
