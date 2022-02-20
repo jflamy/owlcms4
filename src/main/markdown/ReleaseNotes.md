@@ -1,6 +1,12 @@
-#### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-##### New in release 4.29
+4.30.0-alpha00: new medal scoreboard.
+
+#### New in release 4.30
+
+- [x] Medal scoreboard.  Shows medal results for the age/weight categories for which all lifters have competed.  During a group, shows provisional medal standings once all lifters have completed one lift.
+
+#### Highlights from recent stable releases
 
 - [x] [Jury](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Jury) console now supports summoning the referees either individually or all together. 
   - Calling a referee starts a jury break and a notification is shown on the technical official screens.
@@ -13,8 +19,6 @@
   - The MQTT protocol is used for communications.  MQTT is widely used for home automation, industrial telemetry, and various "internet of things" applications
   - An MQTT server is used to broker communications between owlcms and the devices. See [MQTT setup instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTT) for details for configuration of a free broker.
   - Software and circuit schematics for an affordable MQTT+WiFi refereeing box are available at [this location](http://github.com/jflamy/owlcms-esp32).
-
-##### Highlights from recent stable releases
 
 - [x] Enhancement: The down signal sound has been changed and is now customizable. Sounds can be customized by changing the .wav and .mp3 files in /local/sounds (which can also be uploaded to the cloud)
 - [x] Video Streaming: Support for Open Broadcaster Software (OBS) automated scene switching.  Added [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/OBSSceneSwitching) for all supported transitions.
