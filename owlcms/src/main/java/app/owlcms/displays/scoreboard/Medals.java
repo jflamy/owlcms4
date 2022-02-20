@@ -205,7 +205,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
 
     @Override
     public String getPageTitle() {
-        return getTranslation("Medals") + OwlcmsSession.getFopNameIfMultiple();
+        return getTranslation("BreakType.MEDALS") + OwlcmsSession.getFopNameIfMultiple();
     }
 
     @Override
@@ -408,15 +408,20 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
             int mcX = 0;
             for (Entry<Category, TreeSet<Athlete>> medalCat : medals.entrySet()) {
                 JsonObject jMC = Json.createObject();
-                jMC.put("categoryName", medalCat.getKey().getName());
                 TreeSet<Athlete> medalists = medalCat.getValue();
-                jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
-                logger.warn("medalCategory: {}", jMC.toJson());
-                jsonMCArray.set(mcX, jMC);
-                mcX++;
+                if (medalists != null && !medalists.isEmpty()) {
+                    jMC.put("categoryName", medalCat.getKey().getName());
+                    jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
+                    logger.warn("medalCategory: {}", jMC.toJson());
+                    jsonMCArray.set(mcX, jMC);
+                    mcX++;
+                }
             }
             logger.warn("medalCategories {}", jsonMCArray.toJson());
             this.getElement().setPropertyJson("medalCategories", jsonMCArray);
+            if (mcX == 0) {
+                this.getElement().setProperty("noCategories", true);
+            }
         });
     }
 

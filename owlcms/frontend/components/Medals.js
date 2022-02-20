@@ -104,6 +104,9 @@ class Medals extends PolymerElement {
                 </div>
             </template>
         </template>
+        <template is="dom-if" if="[[noCategories]]">
+            <div>[[t.NoMedalCategories]]</div>
+        </template>
     </div>`;
     }
 
