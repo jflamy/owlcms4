@@ -189,9 +189,16 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 
     @Override
     public void doBreak() {
+        logger.warn("doBreak");
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
             BreakType breakType = fop.getBreakType();
+//            logger.warn("breakType = {}", breakType);
+//            if (breakType == BreakType.MEDALS) {
+//                //String target = URLUtils.getUrlFromTargetClass(Medals.class, null);
+//                QueryParameters qp = QueryParameters.fromString("fop="+fop.getName());
+//                UI.getCurrent().navigate("displays/medals", qp);
+//            }
             model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
             model.setTeamName("");
             model.setAttempt("");
@@ -741,7 +748,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     private void uiLog(UIEvent e) {
-        uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+        uiEventLogger.warn("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
     }
 
