@@ -87,8 +87,8 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         VerticalLayout intro1 = new VerticalLayout();
         addP(intro1, getTranslation("darkModeSelect"));
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
-                scoreboardMultiRanks, medals, liftingOrder, currentAthlete,
-                topSinclair, topTeams, topTeamsSinclair);
+                scoreboardMultiRanks, liftingOrder, currentAthlete,
+                topSinclair, topTeams, topTeamsSinclair, medals);
         doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
 
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, athleteFacingAttempt);

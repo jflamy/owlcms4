@@ -1,6 +1,8 @@
 ### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.30.0-alpha00: new medal scoreboard.
+4.30.0-alpha00: for registration file upload removed user interface option to only accept Excel file types, pending further investigation of #472 
+
+4.30.0-alpha00: new medal scoreboard, button added to the Displays selection page.
 
 #### New in release 4.30
 
