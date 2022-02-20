@@ -791,8 +791,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             liftsDone = AthleteSorter.countLiftsDone(displayOrder);
             model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
         } else {
-            model.setGroupName("X");
-            model.setLiftsDone("Y");
+            model.setGroupName("");
             this.getElement().callJsFunction("groupDone");
         }
         this.getElement().setPropertyJson("athletes",

@@ -204,6 +204,8 @@ public class FieldOfPlay {
 
     private String mqttServer;
 
+    private TreeMap<Category, TreeSet<Athlete>> medals;
+
     {
         uiEventLogger.setLevel(Level.INFO);
     }
@@ -275,46 +277,44 @@ public class FieldOfPlay {
                 // fetch the participation that matches the current athlete registration category
                 Optional<Participation> matchingParticipation = a.getParticipations().stream()
                         .filter(p -> p.getCategory().sameAs(category)).findFirst();
-                // get an athlete proxy that has the rankings based on that participation
+                // get a PAthlete proxy wrapper that has the rankings for that participation
                 if (matchingParticipation.isPresent()) {
                     currentCategoryAthletes.add(new PAthlete(matchingParticipation.get()));
                 }
             }
 
-            List<Athlete> snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
-                    .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
-                    .limit(3)
-                    .collect(Collectors.toList());
-
-            List<Athlete> cjLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.CLEANJERK)
-                    .stream().filter(a -> a.getBestCleanJerk() > 0 && a.isEligibleForIndividualRanking())
-                    .limit(3)
-                    .collect(Collectors.toList());
-
+            // all rankings are from a PAthlete, i.e., for the current medal category
+            List<Athlete> snatchLeaders = null;
+            List<Athlete> cjLeaders = null;
+            if (Competition.isSnatchCJMedals()) {
+                snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
+                        .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
+                        .limit(3)
+                        .collect(Collectors.toList());
+                cjLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.CLEANJERK)
+                        .stream().filter(a -> a.getBestCleanJerk() > 0 && a.isEligibleForIndividualRanking())
+                        .limit(3)
+                        .collect(Collectors.toList());
+            }
             List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
                     .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
                     .limit(3)
                     .collect(Collectors.toList());
 
-            // TreeSet<Athlete> medalists = new TreeSet<Athlete>((a,b) -> Integer.compare(a.getTotalRank(),
-            // b.getTotalRank()));
-
-            // Athlete is actually a PAthlete, that is, the ranks are those for their participation in the current loop
-            // category.
-            // Athletes excluded from Total due to bombing out can still win medals, so we add them back in and sort
-            // again.
+            // Athletes excluded from Total due to bombing out can still win medals, so we add them
             TreeSet<Athlete> medalists = new TreeSet<>(new WinningOrderComparator(Ranking.TOTAL, false));
             medalists.addAll(totalLeaders);
-            medalists.addAll(cjLeaders);
-            medalists.addAll(snatchLeaders);
+            if (Competition.isSnatchCJMedals()) {
+                medalists.addAll(cjLeaders);
+                medalists.addAll(snatchLeaders);
+            }
             medals.put(category, medalists);
 
-            logger.warn("medalists for {}", category);
+            logger.warn("{}medalists for {}", getLoggingName(), category);
             for (Athlete medalist : medalists) {
-                logger.warn("   {}\t{} {} {}", medalist.getShortName(), medalist.getSnatchRank(),
+                logger.warn("{}{}\t{} {} {}", getLoggingName(), medalist.getShortName(), medalist.getSnatchRank(),
                         medalist.getCleanJerkRank(), medalist.getTotalRank());
             }
-
         }
         return medals;
     }
@@ -853,6 +853,7 @@ public class FieldOfPlay {
         for (AgeGroup ag : allAgeGroups) {
             ageGroupMap.put(ag.getCode(), null);
         }
+        this.setMedals(new TreeMap<Category, TreeSet<Athlete>>());
 
         boolean done = false;
         if (athletes != null && athletes.size() > 0) {
@@ -948,7 +949,7 @@ public class FieldOfPlay {
         }
     }
 
-    public void pushOut(UIEvent event) {
+    void pushOut(UIEvent event) {
         getUiEventBus().post(event);
         getPostEventBus().post(event);
     }
@@ -980,10 +981,10 @@ public class FieldOfPlay {
             setCurAthlete(null);
             return;
         } else {
-            rankedAthletes.stream().forEach(a -> {
-                logger.warn("rankedAthletes {} {}", a, a.getSnatch1AsInteger());
-            });
-            computeMedals(rankedAthletes);
+//            rankedAthletes.stream().forEach(a -> {
+//                logger.debug("rankedAthletes {} {}", a, a.getSnatch1AsInteger());
+//            });
+            setMedals(computeMedals(rankedAthletes));
         }
         List<Athlete> currentGroupAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
                 .filter(a -> a.getGroup() != null ? a.getGroup().equals(g) : false)
@@ -1938,6 +1939,14 @@ public class FieldOfPlay {
         recomputeOrderAndRanks();
         uiDisplayCurrentAthleteAndTime(false, e, false);
         // updateGlobalRankings(); // now done in recomputeOrderAndRanks
+    }
+
+    public TreeMap<Category, TreeSet<Athlete>> getMedals() {
+        return medals;
+    }
+
+    public void setMedals(TreeMap<Category, TreeSet<Athlete>> medals) {
+        this.medals = medals;
     }
 
 }

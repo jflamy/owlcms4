@@ -32,11 +32,10 @@ import ch.qos.logback.classic.Logger;
  * @since
  */
 
+@SuppressWarnings("serial")
 //must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 public class AthleteSorter implements Serializable {
-
-    private static final long serialVersionUID = -3507146241019771820L;
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(AthleteSorter.class);
 

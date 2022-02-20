@@ -1273,4 +1273,9 @@ public class Competition {
 
         reportSMF(sortedMen, sortedWomen);
     }
+
+    public static boolean isSnatchCJMedals() {
+        // TODO implement isSnatchCJMedals
+        return true;
+    }
 }
