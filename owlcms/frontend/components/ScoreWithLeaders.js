@@ -140,7 +140,7 @@ class ScoreLeader extends PolymerElement {
                     <thead>
                         <tr style="visibility:collapse">
                             <!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
-                            <th class="groupCol" inner-h-t-m-l="[[t.Start]]"></th>
+                            <th class="groupCol" inner-h-t-m-l="[[t.Group]]"></th>
                             <th class="name" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
                             <th class="category" inner-h-t-m-l="[[t.Category]]"></th>
                             <th class="narrow" inner-h-t-m-l="[[t.Birth]]"></th>

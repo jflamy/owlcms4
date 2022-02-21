@@ -40,7 +40,7 @@ class Medals extends PolymerElement {
                         </thead>
                         <tr style="visibility:visible">
                             <!--  [[t.x]] references the translation for key Medals.x in the translation4.csv file -->
-                            <th class="groupCol" inner-h-t-m-l="[[t.Start]]"></th>
+                            <th class="groupCol" inner-h-t-m-l="[[t.Group]]"></th>
                             <th class="name" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
                             <th class="category" inner-h-t-m-l="[[t.Category]]"></th>
                             <th class="narrow" inner-h-t-m-l="[[t.Birth]]"></th>
