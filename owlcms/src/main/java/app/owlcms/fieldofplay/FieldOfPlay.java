@@ -15,12 +15,10 @@ import static app.owlcms.fieldofplay.FOPState.TIME_RUNNING;
 import static app.owlcms.fieldofplay.FOPState.TIME_STOPPED;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
@@ -44,7 +42,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
-import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -241,82 +238,6 @@ public class FieldOfPlay {
 
     public void broadcast(String string) {
         getUiEventBus().post(new UIEvent.Broadcast(string, this));
-    }
-
-    /**
-     * @param rankedAthletes
-     * @return for each category, medal-winnning athletes in snatch, clean & jerk and total.
-     */
-    public TreeMap<Category, TreeSet<Athlete>> computeMedals(List<Athlete> rankedAthletes) {
-        if (rankedAthletes == null || rankedAthletes.size() == 0) {
-            setLeaders(null);
-            return new TreeMap<>();
-        }
-
-        // extract all categories
-        Set<Category> medalCategories = rankedAthletes.stream()
-                .map(a -> a.getEligibleCategories())
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-
-        // exclude categories where athletes still have to lift
-        Set<Category> notDone = rankedAthletes.stream()
-                .filter(a -> a.getSnatch1AsInteger() == null)
-                .map(a -> a.getCategory())
-                .collect(Collectors.toSet());
-        logger.warn("medalCategories: all {} notDone {}", medalCategories, notDone);
-        medalCategories.removeAll(notDone);
-
-        TreeMap<Category, TreeSet<Athlete>> medals = new TreeMap<>();
-
-        // iterate over the remaining categories
-        for (Category category : medalCategories) {
-
-            List<Athlete> currentCategoryAthletes = new ArrayList<>();
-            for (Athlete a : rankedAthletes) {
-                // fetch the participation that matches the current athlete registration category
-                Optional<Participation> matchingParticipation = a.getParticipations().stream()
-                        .filter(p -> p.getCategory().sameAs(category)).findFirst();
-                // get a PAthlete proxy wrapper that has the rankings for that participation
-                if (matchingParticipation.isPresent()) {
-                    currentCategoryAthletes.add(new PAthlete(matchingParticipation.get()));
-                }
-            }
-
-            // all rankings are from a PAthlete, i.e., for the current medal category
-            List<Athlete> snatchLeaders = null;
-            List<Athlete> cjLeaders = null;
-            if (Competition.isSnatchCJMedals()) {
-                snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
-                        .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
-                        .limit(3)
-                        .collect(Collectors.toList());
-                cjLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.CLEANJERK)
-                        .stream().filter(a -> a.getBestCleanJerk() > 0 && a.isEligibleForIndividualRanking())
-                        .limit(3)
-                        .collect(Collectors.toList());
-            }
-            List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
-                    .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
-                    .limit(3)
-                    .collect(Collectors.toList());
-
-            // Athletes excluded from Total due to bombing out can still win medals, so we add them
-            TreeSet<Athlete> medalists = new TreeSet<>(new WinningOrderComparator(Ranking.TOTAL, false));
-            medalists.addAll(totalLeaders);
-            if (Competition.isSnatchCJMedals()) {
-                medalists.addAll(cjLeaders);
-                medalists.addAll(snatchLeaders);
-            }
-            medals.put(category, medalists);
-
-            logger.warn("{}medalists for {}", getLoggingName(), category);
-            for (Athlete medalist : medalists) {
-                logger.warn("{}{}\t{} {} {}", getLoggingName(), medalist.getShortName(), medalist.getSnatchRank(),
-                        medalist.getCleanJerkRank(), medalist.getTotalRank());
-            }
-        }
-        return medals;
     }
 
     /**
@@ -984,7 +905,7 @@ public class FieldOfPlay {
 //            rankedAthletes.stream().forEach(a -> {
 //                logger.debug("rankedAthletes {} {}", a, a.getSnatch1AsInteger());
 //            });
-            setMedals(computeMedals(rankedAthletes));
+            setMedals(Competition.getCurrent().computeMedals(rankedAthletes));
         }
         List<Athlete> currentGroupAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
                 .filter(a -> a.getGroup() != null ? a.getGroup().equals(g) : false)

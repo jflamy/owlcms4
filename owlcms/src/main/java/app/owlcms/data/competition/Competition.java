@@ -13,10 +13,14 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -41,7 +45,10 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.category.AgeDivision;
+import app.owlcms.data.category.Category;
+import app.owlcms.data.category.Participation;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.i18n.Translator;
@@ -276,10 +283,11 @@ public class Competition {
 //    @JsonIgnore
     public String getLocalizedCompetitionDate() {
         try {
-            String pattern = ((SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT, OwlcmsSession.getLocale())).toPattern();
+            String pattern = ((SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT,
+                    OwlcmsSession.getLocale())).toPattern();
             // if 2-digit year, force 4 digits.
-            pattern = pattern.replaceFirst("\\byy\\b","yyyy");
-            System.err.println("pattern="+pattern);
+            pattern = pattern.replaceFirst("\\byy\\b", "yyyy");
+            System.err.println("pattern=" + pattern);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
             String str = competitionDate.format(formatter);
             return str;
@@ -1277,5 +1285,89 @@ public class Competition {
     public static boolean isSnatchCJMedals() {
         // TODO implement isSnatchCJMedals
         return true;
+    }
+
+    /**
+     * @param g a group
+     * @return for each category represented in group g where all athletes have lifted, the medals
+     */
+    public TreeMap<Category, TreeSet<Athlete>> computeMedals(Group g) {
+        List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
+        return computeMedals(rankedAthletes);
+    }
+
+    /**
+     * @param rankedAthletes athletes participating in the group, plus athletes in the same category that have yet to compete
+     * @return for each category, medal-winnning athletes in snatch, clean & jerk and total.
+     */
+    public TreeMap<Category, TreeSet<Athlete>> computeMedals(List<Athlete> rankedAthletes) {
+        if (rankedAthletes == null || rankedAthletes.size() == 0) {
+            return new TreeMap<>();
+        }
+
+        // extract all categories
+        Set<Category> medalCategories = rankedAthletes.stream()
+                .map(a -> a.getEligibleCategories())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
+        // exclude categories where athletes still have to lift
+        Set<Category> notDone = rankedAthletes.stream()
+                .filter(a -> a.getSnatch1AsInteger() == null)
+                .map(a -> a.getCategory())
+                .collect(Collectors.toSet());
+        logger.warn("medalCategories: all {} notDone {}", medalCategories, notDone);
+        medalCategories.removeAll(notDone);
+
+        TreeMap<Category, TreeSet<Athlete>> medals = new TreeMap<>();
+
+        // iterate over the remaining categories
+        for (Category category : medalCategories) {
+
+            List<Athlete> currentCategoryAthletes = new ArrayList<>();
+            for (Athlete a : rankedAthletes) {
+                // fetch the participation that matches the current athlete registration category
+                Optional<Participation> matchingParticipation = a.getParticipations().stream()
+                        .filter(p -> p.getCategory().sameAs(category)).findFirst();
+                // get a PAthlete proxy wrapper that has the rankings for that participation
+                if (matchingParticipation.isPresent()) {
+                    currentCategoryAthletes.add(new PAthlete(matchingParticipation.get()));
+                }
+            }
+
+            // all rankings are from a PAthlete, i.e., for the current medal category
+            List<Athlete> snatchLeaders = null;
+            List<Athlete> cjLeaders = null;
+            if (Competition.isSnatchCJMedals()) {
+                snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
+                        .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
+                        .limit(3)
+                        .collect(Collectors.toList());
+                cjLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.CLEANJERK)
+                        .stream().filter(a -> a.getBestCleanJerk() > 0 && a.isEligibleForIndividualRanking())
+                        .limit(3)
+                        .collect(Collectors.toList());
+            }
+            List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
+                    .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
+                    .limit(3)
+                    .collect(Collectors.toList());
+
+            // Athletes excluded from Total due to bombing out can still win medals, so we add them
+            TreeSet<Athlete> medalists = new TreeSet<>(new WinningOrderComparator(Ranking.TOTAL, false));
+            medalists.addAll(totalLeaders);
+            if (Competition.isSnatchCJMedals()) {
+                medalists.addAll(cjLeaders);
+                medalists.addAll(snatchLeaders);
+            }
+            medals.put(category, medalists);
+
+            logger.warn("medalists for {}", category);
+            for (Athlete medalist : medalists) {
+                logger.warn("{}\t{} {} {}", medalist.getShortName(), medalist.getSnatchRank(),
+                        medalist.getCleanJerkRank(), medalist.getTotalRank());
+            }
+        }
+        return medals;
     }
 }

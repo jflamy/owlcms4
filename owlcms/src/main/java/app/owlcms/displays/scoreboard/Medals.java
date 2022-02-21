@@ -44,7 +44,6 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.displays.options.DisplayOptions;
-import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -466,7 +465,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         }
     }
 
-    private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
+    private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
         String category;
         category = curCat != null ? curCat.getName() : "";
         ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
@@ -475,7 +474,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         Integer startNumber = a.getStartNumber();
         ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
         ja.put("category", category != null ? category : "");
-        getAttemptsJson(a, liftOrderRank, fop);
+        getAttemptsJson(a, liftOrderRank);
         ja.put("sattempts", sattempts);
         ja.put("cattempts", cattempts);
         ja.put("total", formatInt(a.getTotal()));
@@ -489,22 +488,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         }
         ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
 
-        boolean notDone = a.getAttemptsDone() < 6;
-        String blink = (notDone ? " blink" : "");
         String highlight = "";
-        if (fop.getState() != FOPState.DECISION_VISIBLE && notDone) {
-            switch (liftOrderRank) {
-            case 1:
-                highlight = (" current" + blink);
-                break;
-            case 2:
-                highlight = " next";
-                break;
-            default:
-                highlight = "";
-            }
-        }
-        logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
         ja.put("classname", highlight);
     }
 
@@ -530,7 +514,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
                 athx++;
             }
             // no blinking = 0
-            getAthleteJson(a, ja, curCat, 0, fop);
+            getAthleteJson(a, ja, curCat, 0);
             String team = a.getTeam();
             if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
                 logger.trace("long team {}", team);
@@ -551,17 +535,15 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
      * @param fop
      * @return json string with nested attempts values
      */
-    private void getAttemptsJson(Athlete a, int liftOrderRank, FieldOfPlay fop) {
+    private void getAttemptsJson(Athlete a, int liftOrderRank) {
         sattempts = Json.createArray();
         cattempts = Json.createArray();
         XAthlete x = new XAthlete(a);
-        Integer curLift = x.getAttemptsDone();
         int ix = 0;
         for (LiftInfo i : x.getRequestInfoArray()) {
             JsonObject jri = Json.createObject();
             String stringValue = i.getStringValue();
             boolean notDone = x.getAttemptsDone() < 6;
-            String blink = (notDone ? " blink" : "");
 
             jri.put("goodBadClassName", "narrow empty");
             jri.put("stringValue", "");
@@ -585,21 +567,6 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
                         // logger.debug("{} {} {}", fop.getState(), x.getShortName(), curLift);
 
                         String highlight = "";
-                        // don't blink while decision is visible. wait until lifting displayOrder has been
-                        // recomputed and we get DECISION_RESET
-                        int liftBeingDisplayed = i.getLiftNo();
-                        if (liftBeingDisplayed == curLift && (fop.getState() != FOPState.DECISION_VISIBLE)) {
-                            switch (liftOrderRank) {
-                            case 1:
-                                highlight = (" current" + blink);
-                                break;
-                            case 2:
-                                highlight = " next";
-                                break;
-                            default:
-                                highlight = "";
-                            }
-                        }
                         jri.put("goodBadClassName", "narrow request");
                         if (notDone) {
                             jri.put("className", highlight);

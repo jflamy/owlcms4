@@ -28,6 +28,7 @@ import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
@@ -193,11 +194,11 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
             BreakType breakType = fop.getBreakType();
-//            logger.warn("breakType = {}", breakType);
+            logger.warn("breakType = {}", breakType);
 //            if (breakType == BreakType.MEDALS) {
 //                //String target = URLUtils.getUrlFromTargetClass(Medals.class, null);
 //                QueryParameters qp = QueryParameters.fromString("fop="+fop.getName());
-//                UI.getCurrent().navigate("displays/medals", qp);
+//                UI.getCurrent().re("displays/medals", qp);
 //            }
             model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
             model.setTeamName("");
