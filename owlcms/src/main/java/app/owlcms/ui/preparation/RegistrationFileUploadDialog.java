@@ -84,8 +84,8 @@ public class RegistrationFileUploadDialog extends Dialog {
         MemoryBuffer buffer = new MemoryBuffer();
         Upload upload = new Upload(buffer);
         upload.setWidth("40em");
-        upload.setAcceptedFileTypes("application/vnd.ms-excel",
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+//        upload.setAcceptedFileTypes("application/vnd.ms-excel",
+//                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
         TextArea ta = new TextArea(getTranslation("Errors"));
         ta.setHeight("20ex");
