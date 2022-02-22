@@ -1,6 +1,8 @@
-#### **Changes for release 4.29.1**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+#### **Changes for release 4.29.2**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.29.1: The registration file upload dialog was, starting with version 4.27, configured to only accept Excel files.  This has been reported to cause problems on some Linux configurations (#492) 
+4.29.2: The  competition group deletion dialog was broken, preventing group deletion from taking place (fixes regression introduced in release 4.27).  (#473)
+
+4.29.1: The registration file upload dialog was, starting with version 4.27, configured to only accept Excel files.  This has been reported to cause problems on some Linux configurations (#472) 
 
 ##### New in release 4.29
 
