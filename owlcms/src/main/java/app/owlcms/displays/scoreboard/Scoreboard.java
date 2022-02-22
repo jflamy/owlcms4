@@ -375,6 +375,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     @Subscribe
     public void slaveStartBreak(UIEvent.BreakStarted e) {
         uiLog(e);
+        logger.warn("start break {}", e.getTrace());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
             doBreak();

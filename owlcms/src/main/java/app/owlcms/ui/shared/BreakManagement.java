@@ -192,12 +192,20 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         return cType;
     }
 
-    public void masterPauseBreak() {
+    public void masterPauseBreak(BreakType bType) {
         OwlcmsSession.withFop(fop -> {
             IBreakTimer breakTimer = fop.getBreakTimer();
             if (breakTimer.isRunning()) {
-                breakTimer.stop();
-                fop.fopEventPost(new FOPEvent.BreakPaused(breakTimer.getTimeRemainingAtLastStop(), this.getOrigin()));
+                // do not stop warmup timer for medal ceremonies between groups
+                if (bType == null 
+                        || fop.getBreakType() != BreakType.FIRST_SNATCH
+                        || (bType != BreakType.DURING_INTRODUCTION && bType != BreakType.MEDALS)) {
+                    logger.warn("pausing current break {} due to {}", fop.getBreakType(), bType);
+                    breakTimer.stop();
+                    fop.fopEventPost(
+                            new FOPEvent.BreakPaused(breakTimer.getTimeRemainingAtLastStop(), this.getOrigin()));
+                }
+
             }
         });
         logger.debug("paused; enabling start");
@@ -346,7 +354,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             CountdownType mapBreakTypeToCountdownType = mapBreakTypeToCountdownType(bType);
             logger.debug("setting countdown {} ignored={}", mapBreakTypeToCountdownType, ignoreListeners);
             setCtValue(mapBreakTypeToCountdownType);
-            masterPauseBreak();
+            masterPauseBreak(bType);
 
             if (bType != null && (bType == BreakType.JURY || bType == BreakType.TECHNICAL
                     || bType == BreakType.DURING_INTRODUCTION || bType == BreakType.MEDALS)) {
@@ -460,7 +468,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         breakStart.getElement().setAttribute("theme", "primary contrast");
         breakStart.getElement().setAttribute("title", getTranslation("StartCountdown"));
 
-        breakPause = new Button(AvIcons.PAUSE.create(), (e) -> masterPauseBreak());
+        breakPause = new Button(AvIcons.PAUSE.create(), (e) -> masterPauseBreak(null));
         breakPause.getElement().setAttribute("theme", "primary contrast");
         breakPause.getElement().setAttribute("title", getTranslation("PauseCountdown"));
 
@@ -495,7 +503,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         fop.recomputeLiftingOrder();
                         OwlcmsSession.getFop().getUiEventBus()
                                 .post(new UIEvent.BreakStarted(0, this.getOrigin(), true, bt.getValue(),
-                                        ct.getValue()));
+                                        ct.getValue(), LoggerUtils.stackTrace()));
                     });
                 });
         countdownButton.setTabIndex(-1);
@@ -762,7 +770,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         if (fopCountdownType != CountdownType.INDEFINITE) {
                             breakTimerElement.slaveBreakStart(
                                     new BreakStarted(fopLiveTimeRemaining, this.getOrigin(), false, breakType,
-                                            fopCountdownType));
+                                            fopCountdownType, LoggerUtils.stackTrace()));
                         }
                         running[0] = true;
                     }

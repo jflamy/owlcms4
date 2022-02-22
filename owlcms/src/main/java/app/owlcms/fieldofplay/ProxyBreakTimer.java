@@ -127,7 +127,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
                     until >= 0 ? DurationFormatUtils.formatDurationHMS(until) : until,
                     LoggerUtils.whereFrom());
             return until;
-        } else if (running) {
+        } else if (isRunning()) {
             stopMillis = System.currentTimeMillis();
             long elapsed = stopMillis - startMillis;
             int tr = (int) (getTimeRemaining() - elapsed);
@@ -175,13 +175,13 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     @Override
     public void setIndefinite() {
         indefinite = true;
-        logger.debug("setting breaktimer indefinite = {} [{}]", indefinite, LoggerUtils.whereFrom());
+        logger.warn("setting breaktimer indefinite = {} [{}]", indefinite, LoggerUtils.whereFrom());
         this.setTimeRemaining(0);
         this.setEnd(null);
         getFop().pushOut(
                 new UIEvent.BreakSetTime(getFop().getBreakType(), getFop().getCountdownType(), getTimeRemaining(), null,
                         true, this));
-        running = false;
+        setRunning(false);
         indefinite = true;
     }
 
@@ -198,7 +198,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     public void setTimeRemaining(int timeRemaining2) {
         indefinite = false;
         this.timeRemaining = timeRemaining2;
-        running = false;
+        setRunning(false);
     }
 
     /**
@@ -208,10 +208,10 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     public void start() {
         startMillis = System.currentTimeMillis();
         UIEvent.BreakStarted event = new UIEvent.BreakStarted(isIndefinite() ? null : getMillis(), getOrigin(), false,
-                getFop().getBreakType(), getFop().getCountdownType());
+                getFop().getBreakType(), getFop().getCountdownType(), LoggerUtils.stackTrace());
         logger.debug("posting {}", event);
         getFop().pushOut(event);
-        running = true;
+        setRunning(true);
     }
 
     /**
@@ -219,14 +219,14 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
      */
     @Override
     public void stop() {
-        if (running) {
+        if (isRunning()) {
             computeTimeRemaining();
         }
-        running = false;
+        setRunning(false);
         timeRemainingAtLastStop = timeRemaining;
         logger.debug("***stopping Break -- timeRemaining = {} [{}]", getTimeRemaining(), LoggerUtils.whereFrom());
         timeRemainingAtLastStop = getTimeRemaining();
-        logger.debug("break stop = {} [{}]", liveTimeRemaining(), LoggerUtils.whereFrom());
+        logger.warn("break stop = {} [{}]", liveTimeRemaining(), LoggerUtils.whereFrom());
         UIEvent.BreakPaused event = new UIEvent.BreakPaused(isIndefinite() ? null : getTimeRemaining(), getOrigin(),
                 false,
                 getFop().getBreakType(), getFop().getCountdownType());
@@ -240,7 +240,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
      */
     @Override
     public void timeOver(Object origin) {
-        if (running && !isIndefinite()) {
+        if (isRunning() && !isIndefinite()) {
             long now = System.currentTimeMillis();
             if (now - lastStop > 1000) {
                 // ignore rash of timers all signaling break over
@@ -253,7 +253,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
             // we've already signaled time over.
             return;
         }
-        logger.debug("break {} {} timeover = {} [{}]", running, isIndefinite(), getTimeRemaining(),
+        logger.debug("break {} {} timeover = {} [{}]", isRunning(), isIndefinite(), getTimeRemaining(),
                 LoggerUtils.whereFrom());
 
         // should emit sound at end of break
@@ -292,6 +292,10 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     private int getMillis() {
         return (int) (this.getEnd() != null ? LocalDateTime.now().until(getEnd(), ChronoUnit.MILLIS)
                 : getTimeRemaining());
+    }
+
+    private void setRunning(boolean running) {
+        this.running = running;
     }
 
 }

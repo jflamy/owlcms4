@@ -211,13 +211,14 @@ public class UIEvent {
         protected CountdownType countdownType;
 
         public BreakStarted(Integer millisRemaining, Object origin, boolean displayToggle, BreakType bt,
-                CountdownType ct) {
+                CountdownType ct, String trace) {
             super(origin);
             this.timeRemaining = millisRemaining;
             this.indefinite = (ct != null && ct == CountdownType.INDEFINITE) || (millisRemaining == null);
             this.breakType = bt;
             this.countdownType = ct;
             this.setDisplayToggle(displayToggle);
+            this.setTrace(trace);
         }
 
         public BreakType getBreakType() {

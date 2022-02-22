@@ -13,21 +13,15 @@ public enum FOPState {
     /** between sessions, until presentation countdown is shown */
     INACTIVE,
 
-    /** during countdown to presentation or first lift and during breaks. */
+    /** during countdown to presentation or first lift and during breaks.
+     * Note that BreakType describes a substate.
+     * 
+     * @see app.owlcms.uievents.BreakType
+     */
     BREAK,
 
     /** current athlete displayed on attempt board. */
     CURRENT_ATHLETE_DISPLAYED,
-
-//	/**
-//	 * announcer has announced athlete and indicated so, waiting for timekeeper to start time.
-//	 */
-//	ANNOUNCER_WAITING_FOR_TIMEKEEPER,
-//
-//	/**
-//	 * timekeeper waiting for announcer to confirm she has announced.
-//	 */
-//	TIMEKEEPER_WAITING_FOR_ANNOUNCER,
 
     /**
      * time is running. Either automatically started on announce (if using the default "start on announce", or manually

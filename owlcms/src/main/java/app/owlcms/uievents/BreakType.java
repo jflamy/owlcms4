@@ -7,5 +7,27 @@
 package app.owlcms.uievents;
 
 public enum BreakType {
-    BEFORE_INTRODUCTION, DURING_INTRODUCTION, FIRST_SNATCH, FIRST_CJ, TECHNICAL, JURY, MEDALS, GROUP_DONE
+    
+    // this is a flat list because it is about "what is going on on the field of play"
+    BEFORE_INTRODUCTION(false), 
+    DURING_INTRODUCTION(true), 
+    FIRST_SNATCH(false), 
+    FIRST_CJ(false), 
+    TECHNICAL(false), 
+    JURY(false),
+    MEDALS(true), 
+    GROUP_DONE(false);
+
+    /**
+     * if true, the current break timer should keep running.
+     */
+    private boolean ceremony;
+
+    BreakType(boolean b) {
+        this.ceremony = b;
+    }
+
+    public boolean isCeremony() {
+        return ceremony;
+    }
 }

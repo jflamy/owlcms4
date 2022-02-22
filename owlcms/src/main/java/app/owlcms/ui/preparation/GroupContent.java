@@ -50,8 +50,8 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
      * Instantiates the Group crudGrid.
      */
     public GroupContent() {
-        OwlcmsCrudFormFactory<Group> crudFormFactory = new GroupEditingFormFactory(Group.class, this);
-        GridCrud<Group> crud = createGrid(crudFormFactory);
+        editingFormFactory = new GroupEditingFormFactory(Group.class, this);
+        GridCrud<Group> crud = createGrid(editingFormFactory);
 //		defineFilters(crudGrid);
         fillHW(crud, this);
     }
