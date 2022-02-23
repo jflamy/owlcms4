@@ -59,7 +59,7 @@
         <dependency>
             <groupId>com.github.appreciated</groupId>
             <artifactId>vaadin-css-grid</artifactId>
-            <version>2.0.0.beta3</version>
+            <version>2.0.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.vaadin</groupId>
@@ -87,6 +87,11 @@
             <groupId>com.vaadin.componentfactory</groupId>
             <artifactId>enhanced-dialog</artifactId>
             <version>1.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.vaadin.tabs</groupId>
+            <artifactId>paged-tabs</artifactId>
+            <version>3.0.0</version>
         </dependency>
 
         <!-- iron-icons -->
@@ -610,9 +615,9 @@
                                                 <exclude>META-INF/LICENSE.txt</exclude>
                                                 <exclude>META-INF/VERSION</exclude>
                                                 <exclude>META-INF/LICENSE</exclude>
-                                                                <exclude>META-INF/*.SF</exclude>
-                <exclude>META-INF/*.DSA</exclude>
-                <exclude>META-INF/*.RSA</exclude>
+                                                <exclude>META-INF/*.SF</exclude>
+                                                <exclude>META-INF/*.DSA</exclude>
+                                                <exclude>META-INF/*.RSA</exclude>
                                             </excludes>
                                         </filter>
                                     </filters>
