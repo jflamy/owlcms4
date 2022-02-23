@@ -70,15 +70,26 @@ public class UIEvent {
      */
     static public class BreakDone extends UIEvent {
 
+        private BreakType breakType;
+
         /**
          * Instantiates a new break done.
          *
          * @param origin the origin
+         * @param breakType 
          */
-        public BreakDone(Object origin) {
+        public BreakDone(Object origin, BreakType breakType) {
             super(origin);
+            this.setBreakType(breakType);
         }
 
+        public BreakType getBreakType() {
+            return breakType;
+        }
+
+        public void setBreakType(BreakType breakType) {
+            this.breakType = breakType;
+        }
     }
 
     /**

@@ -13,6 +13,10 @@ import static app.owlcms.fieldofplay.FOPState.DOWN_SIGNAL_VISIBLE;
 import static app.owlcms.fieldofplay.FOPState.INACTIVE;
 import static app.owlcms.fieldofplay.FOPState.TIME_RUNNING;
 import static app.owlcms.fieldofplay.FOPState.TIME_STOPPED;
+import static app.owlcms.ui.shared.BreakManagement.CountdownType.INDEFINITE;
+import static app.owlcms.uievents.BreakType.BEFORE_INTRODUCTION;
+import static app.owlcms.uievents.BreakType.DURING_INTRODUCTION;
+import static app.owlcms.uievents.BreakType.MEDALS;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -603,14 +607,19 @@ public class FieldOfPlay {
                         this.getBreakType(),
                         this.getCountdownType()));
             } else if (e instanceof BreakDone) {
-                pushOut(new UIEvent.BreakDone(e.getOrigin()));
-//                logger.debug("break done {} {} \n{}", this.getName(), e.getFop().getName(), e.getStackTrace());
+                pushOut(new UIEvent.BreakDone(e.getOrigin(), getBreakType()));
+                logger.warn("break done {} {} \n{}", this.getName(), e.getFop().getName(), e.getStackTrace());
                 BreakType breakType = getBreakType();
                 if (breakType == BreakType.FIRST_SNATCH || breakType == BreakType.FIRST_CJ) {
                     transitionToLifting(e, getGroup(), false);
-                } else if (breakType == BreakType.BEFORE_INTRODUCTION) {
+                } else if (breakType == BEFORE_INTRODUCTION) {
                     transitionToBreak(
-                            new FOPEvent.BreakStarted(BreakType.DURING_INTRODUCTION, CountdownType.INDEFINITE, null,
+                            new FOPEvent.BreakStarted(DURING_INTRODUCTION, INDEFINITE, null,
+                                    null, this));
+                } else if (breakType == DURING_INTRODUCTION || breakType == MEDALS) {
+                    // only switch the break type, keep other parameters same
+                    transitionToBreak(
+                            new FOPEvent.BreakStarted(getBreakTimer().getBreakType(), INDEFINITE, null,
                                     null, this));
                 } else {
                     transitionToLifting(e, getGroup(), false);
@@ -1702,12 +1711,15 @@ public class FieldOfPlay {
                 logger.warn("{}switching break type while in break : current {} new {}", getLoggingName(),
                         getBreakType(),
                         e.getBreakType());
-                if (breakTimer.isRunning() && (newBreak.isCeremony())) {
+                if (breakTimer.isRunning() && (newBreak.isCeremony()) || getBreakType().isCeremony()) {
                     // ceremonies on the platform, leave the warmup countdown running
+                    // also, leaving a ceremony should not touch a running timer.
                     // only change the break type, leave counter running
+                    logger.warn("leave timer alone");
                     setBreakType(newBreak);
                     pushOut(new UIEvent.BreakStarted(breakTimer.getTimeRemaining(), this, false, newBreak, CountdownType.DURATION, LoggerUtils.stackTrace()));
                 } else if (newBreak == BreakType.FIRST_SNATCH && (getBreakType().isCeremony())) {
+                    logger.warn("case 2");
                     // exiting from medal or introduction ceremony, go back to break mode.
                     setBreakType(newBreak);
                     pushOut(new UIEvent.BreakStarted(breakTimer.getTimeRemaining(), this, false, newBreak, CountdownType.DURATION, LoggerUtils.stackTrace()));

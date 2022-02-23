@@ -26,37 +26,6 @@ import ch.qos.logback.classic.Logger;
  */
 public class FOPEvent {
 
-    static public class SummonReferee extends FOPEvent {
-
-        public int refNumber;
-
-        public SummonReferee(int refNumber, Object origin) {
-            super(origin);
-            this.refNumber = refNumber;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime * result + Objects.hash(refNumber);
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (!super.equals(obj))
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            SummonReferee other = (SummonReferee) obj;
-            return refNumber == other.refNumber;
-        }
-
-    }
-
     /**
      * Class BarbellOrPlatesChanged
      */
@@ -72,8 +41,19 @@ public class FOPEvent {
      */
     static public class BreakDone extends FOPEvent {
 
-        public BreakDone(Object origin) {
+        private BreakType breakType;
+
+        public BreakDone(BreakType bt, Object origin) {
             super(origin);
+            this.setBreakType(bt);
+        }
+
+        public BreakType getBreakType() {
+            return breakType;
+        }
+
+        public void setBreakType(BreakType breakType) {
+            this.breakType = breakType;
         }
     }
 
@@ -423,6 +403,37 @@ public class FOPEvent {
 
         public StartLifting(Object origin) {
             super(origin);
+        }
+
+    }
+
+    static public class SummonReferee extends FOPEvent {
+
+        public int refNumber;
+
+        public SummonReferee(int refNumber, Object origin) {
+            super(origin);
+            this.refNumber = refNumber;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!super.equals(obj) || (getClass() != obj.getClass())) {
+                return false;
+            }
+            SummonReferee other = (SummonReferee) obj;
+            return refNumber == other.refNumber;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(refNumber);
+            return result;
         }
 
     }

@@ -8,6 +8,8 @@ package app.owlcms.fieldofplay;
 
 import java.time.LocalDateTime;
 
+import app.owlcms.uievents.BreakType;
+
 public interface IBreakTimer extends IProxyTimer {
 
     Integer getBreakDuration();
@@ -24,5 +26,7 @@ public interface IBreakTimer extends IProxyTimer {
 
     @Override
     void setTimeRemaining(int intValue);
+
+    BreakType getBreakType();
 
 }

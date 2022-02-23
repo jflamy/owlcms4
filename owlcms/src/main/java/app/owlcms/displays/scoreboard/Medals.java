@@ -27,9 +27,12 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
@@ -77,7 +80,7 @@ import elemental.json.JsonValue;
 @Push
 public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
-        RequireLogin {
+        RequireLogin, AfterNavigationObserver {
 
     /**
      * MedalsTemplate
@@ -146,6 +149,8 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     private boolean initializationNeeded;
 
     private TreeMap<Category, TreeSet<Athlete>> medals;
+
+    private String referer;
 
     /**
      * Instantiates a new results board.
@@ -266,8 +271,13 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     public void slaveBreakDone(UIEvent.BreakDone e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
-            setHidden(false);
-            doUpdate(e);
+            // end of medals break. If this page was opened in replacement of a display, go back to the dispplay.
+            if (e.getBreakType() == BreakType.MEDALS && referer != null && referer.contains("/displays/")) {
+                UI.getCurrent().getPage().setLocation(referer);
+            } else {
+                setHidden(false);
+                doUpdate(e);
+            }
         }));
     }
 
@@ -643,5 +653,11 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         // this.getElement().callJsFunction("groupDone");
 
         computeMedalJson();
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent event) {
+        this.referer = VaadinServletRequest.getCurrent().getHeader("referer");
+        logger.warn("medals after navigation {} {}", event.getSource(), VaadinServletRequest.getCurrent().getHeader("referer"));
     }
 }
