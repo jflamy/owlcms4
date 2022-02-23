@@ -88,11 +88,6 @@
             <artifactId>enhanced-dialog</artifactId>
             <version>1.0.4</version>
         </dependency>
-        <dependency>
-            <groupId>org.vaadin.tabs</groupId>
-            <artifactId>paged-tabs</artifactId>
-            <version>3.0.0</version>
-        </dependency>
 
         <!-- iron-icons -->
         <dependency>
