@@ -7,9 +7,12 @@
 package app.owlcms.displays.scoreboard;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -39,6 +42,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
@@ -46,6 +50,8 @@ import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -59,6 +65,7 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -152,6 +159,10 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
 
     private String referer;
 
+    private FieldOfPlay fop;
+
+    private Group group;
+
     /**
      * Instantiates a new results board.
      */
@@ -170,6 +181,13 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         DisplayOptions.addLightingEntries(vl, target, this);
         // vl.add(new Hr());
         // DisplayOptions.addSoundEntries(vl, target, this);
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent event) {
+        this.referer = VaadinServletRequest.getCurrent().getHeader("referer");
+        logger.warn("medals after navigation {} {}", event.getSource(),
+                VaadinServletRequest.getCurrent().getHeader("referer"));
     }
 
     @Override
@@ -197,6 +215,14 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         return dialog;
     }
 
+    public FieldOfPlay getFop() {
+        return fop;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
     @Override
     public Location getLocation() {
         return this.location;
@@ -219,7 +245,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
 
     @Override
     public boolean isIgnoreGroupFromURL() {
-        return true;
+        return false;
     }
 
     /**
@@ -236,6 +262,83 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     }
 
     @Override
+    public HashMap<String, List<String>> readParams(Location location,
+            Map<String, List<String>> parametersMap) {
+        // handle FOP and Group by calling superclass
+        FOPParameters r = (this);
+        HashMap<String, List<String>> newParameterMap = new HashMap<>(parametersMap);
+
+        // get the fop from the query parameters, set to the default FOP if not provided
+        FieldOfPlay fop = null;
+
+        List<String> fopNames = parametersMap.get("fop");
+        boolean fopFound = fopNames != null && fopNames.get(0) != null;
+        if (!fopFound) {
+            r.setShowInitialDialog(true);
+        }
+
+        if (!r.isIgnoreFopFromURL()) {
+            if (fopFound) {
+                FOPParameters.logger.trace("fopNames {}", fopNames);
+                fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
+            } else if (OwlcmsSession.getFop() != null) {
+                FOPParameters.logger.trace("OwlcmsSession.getFop() {}", OwlcmsSession.getFop());
+                fop = OwlcmsSession.getFop();
+            }
+            if (fop == null) {
+                FOPParameters.logger.trace("OwlcmsFactory.getDefaultFOP() {}", OwlcmsFactory.getDefaultFOP());
+                fop = OwlcmsFactory.getDefaultFOP();
+            }
+            newParameterMap.put("fop", Arrays.asList(URLUtils.urlEncode(fop.getName())));
+            this.setFop(fop);
+        } else {
+            newParameterMap.remove("fop");
+        }
+
+        // get the group from query parameters
+        Group group = null;
+        if (!r.isIgnoreGroupFromURL()) {
+            List<String> groupNames = parametersMap.get("group");
+            if (groupNames != null && groupNames.get(0) != null) {
+                group = GroupRepository.findByName(groupNames.get(0));
+            } else {
+                group = (fop != null ? fop.getGroup() : null);
+            }
+            if (group != null) {
+                newParameterMap.put("group", Arrays.asList(URLUtils.urlEncode(group.getName())));
+            }
+            this.setGroup(group);
+        } else {
+            newParameterMap.remove("group");
+        }
+
+        FOPParameters.logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
+                (fop != null ? fop.getName() : null), (group != null ? group.getName() : null));
+        HashMap<String, List<String>> params = newParameterMap;
+
+        List<String> darkParams = params.get(DARK);
+        // dark is the default. dark=false or dark=no or ... will turn off dark mode.
+        boolean darkMode = darkParams == null || darkParams.isEmpty() || darkParams.get(0).toLowerCase().equals("true");
+        setDarkMode(darkMode);
+        switchLightingMode(this, darkMode, false);
+        updateParam(params, DARK, !isDarkMode() ? "false" : null);
+
+        List<String> silentParams = params.get(SILENT);
+        // silent is the default. silent=false will cause sound
+        boolean silentMode = silentParams == null || silentParams.isEmpty()
+                || silentParams.get(0).toLowerCase().equals("true");
+        if (!isSilencedByDefault()) {
+            // for referee board, default is noise
+            silentMode = silentParams != null && !silentParams.isEmpty()
+                    && silentParams.get(0).toLowerCase().equals("true");
+        }
+        switchSoundMode(this, silentMode, false);
+        updateParam(params, SILENT, !isSilenced() ? "false" : "true");
+
+        return params;
+    }
+
+    @Override
     public void setDarkMode(boolean dark) {
         this.darkMode = dark;
     }
@@ -243,6 +346,14 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     @Override
     public void setDialog(Dialog dialog) {
         this.dialog = dialog;
+    }
+
+    public void setFop(FieldOfPlay fop) {
+        this.fop = fop;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     @Override
@@ -353,7 +464,8 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     }
 
     protected void doEmpty() {
-        this.setHidden(true);
+        // no need to hide, text is self evident.
+        //this.setHidden(true);
     }
 
     protected void doUpdate(UIEvent e) {
@@ -388,7 +500,8 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         // fop obtained via FOPParameters interface default methods.
         OwlcmsSession.withFop(fop -> {
             init();
-            medals = fop.getMedals();
+            logger.warn("group {}", this.getGroup());
+            medals = Competition.getCurrent().getMedals(this.getGroup());
             setHidden(false);
             computeMedalJson();
             // we listen on uiEventBus.
@@ -410,9 +523,18 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         this.getElement().setPropertyJson("t", translations);
     }
 
+    private String computeLiftType(Athlete a) {
+        if (a == null || a.getAttemptsDone() > 6) {
+            return null;
+        }
+        String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
+                : Translator.translate("Snatch");
+        return liftType;
+    }
+
     private void computeMedalJson() {
         OwlcmsSession.withFop(fop -> {
-            medals = fop.getMedals();
+            medals = Competition.getCurrent().getMedals(getGroup() != null ? getGroup() : fop.getGroup());
             JsonArray jsonMCArray = Json.createArray();
             int mcX = 0;
             for (Entry<Category, TreeSet<Athlete>> medalCat : medals.entrySet()) {
@@ -432,15 +554,6 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
                 this.getElement().setProperty("noCategories", true);
             }
         });
-    }
-
-    private String computeLiftType(Athlete a) {
-        if (a == null || a.getAttemptsDone() > 6) {
-            return null;
-        }
-        String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
-                : Translator.translate("Snatch");
-        return liftType;
     }
 
     private void doUpdateBottomPart(UIEvent e) {
@@ -653,11 +766,5 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         // this.getElement().callJsFunction("groupDone");
 
         computeMedalJson();
-    }
-
-    @Override
-    public void afterNavigation(AfterNavigationEvent event) {
-        this.referer = VaadinServletRequest.getCurrent().getHeader("referer");
-        logger.warn("medals after navigation {} {}", event.getSource(), VaadinServletRequest.getCurrent().getHeader("referer"));
     }
 }

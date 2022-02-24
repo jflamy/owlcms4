@@ -91,6 +91,11 @@ public class Competition {
         return competition;
     }
 
+    public static boolean isSnatchCJMedals() {
+        // TODO implement isSnatchCJMedals
+        return true;
+    }
+
     public static void setCurrent(Competition c) {
         competition = c;
     }
@@ -129,6 +134,7 @@ public class Competition {
     private LocalDate competitionDate = null;
     private String competitionName;
     private String competitionOrganizer;
+
     private String competitionSite;
 
     /**
@@ -142,12 +148,12 @@ public class Competition {
      */
     @Column(columnDefinition = "boolean default true")
     private boolean announcerLiveDecisions;
-
     private boolean enforce20kgRule;
-    private String federation;
 
+    private String federation;
     private String federationAddress;
     private String federationEMail = "";
+
     private String federationWebSite;
 
     /**
@@ -163,12 +169,12 @@ public class Competition {
     private boolean roundRobinOrder;
 
     private boolean masters;
-
     /**
      * Add W75 and W80+ masters categories
      */
     @Column(columnDefinition = "boolean default false")
     private boolean mastersGenderEquality = false;
+
     @Column(columnDefinition = "integer default 10")
     private Integer mensTeamSize = 10;
 
@@ -205,19 +211,119 @@ public class Competition {
     @Transient
     @JsonIgnore
     private boolean rankingsInvalid = true;
-
     private String protocolTemplateFileName;
     private String cardsTemplateFileName;
     private String startListTemplateFileName;
     private String juryTemplateFileName;
     private String startingWeightsSheetTemplateFileName;
+
     private String finalPackageTemplateFileName;
 
     @Column(name = "refdelay", columnDefinition = "integer default 1500")
     private int refereeWakeUpDelay = 1500;
 
-    public void setRefereeWakeUpDelay(int refereeWakeUpDelay) {
-        this.refereeWakeUpDelay = refereeWakeUpDelay;
+    @Transient
+    @JsonIgnore
+    private HashMap<Group, TreeMap<Category, TreeSet<Athlete>>> medalsByGroup;
+    
+    public Competition() {
+        medalsByGroup = new HashMap<>();
+    }
+
+    /**
+     * @param g a group
+     * @return for each category represented in group g where all athletes have lifted, the medals
+     */
+    public TreeMap<Category, TreeSet<Athlete>> computeMedals(Group g) {
+        List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
+        return computeMedals(g, rankedAthletes);
+    }
+
+    /**
+     * @param g
+     * @param rankedAthletes athletes participating in the group, plus athletes in the same category that have yet to
+     *                       compete
+     * @return for each category, medal-winnning athletes in snatch, clean & jerk and total.
+     */
+    public TreeMap<Category, TreeSet<Athlete>> computeMedals(Group g, List<Athlete> rankedAthletes) {
+        if (g == null) {
+            return new TreeMap<>();
+        }
+        if (medalsByGroup == null) {
+            logger.error("no initialization !?");
+            medalsByGroup = new HashMap<Group, TreeMap<Category, TreeSet<Athlete>>>();
+        }
+        if (rankedAthletes == null || rankedAthletes.size() == 0) {
+            TreeMap<Category, TreeSet<Athlete>> treeMap = new TreeMap<>();
+            medalsByGroup.put(g, treeMap);
+            return treeMap;
+        }
+
+        // extract all categories
+        Set<Category> medalCategories = rankedAthletes.stream()
+                .map(a -> a.getEligibleCategories())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
+        // exclude categories where athletes still have to lift
+        Set<Category> notDone = rankedAthletes.stream()
+                .filter(a -> a.getSnatch1AsInteger() == null)
+                .map(a -> a.getCategory())
+                .collect(Collectors.toSet());
+        logger.warn("medalCategories: all {} notDone {}", medalCategories, notDone);
+        medalCategories.removeAll(notDone);
+
+        TreeMap<Category, TreeSet<Athlete>> medals = new TreeMap<>();
+
+        // iterate over the remaining categories
+        for (Category category : medalCategories) {
+
+            List<Athlete> currentCategoryAthletes = new ArrayList<>();
+            for (Athlete a : rankedAthletes) {
+                // fetch the participation that matches the current athlete registration category
+                Optional<Participation> matchingParticipation = a.getParticipations().stream()
+                        .filter(p -> p.getCategory().sameAs(category)).findFirst();
+                // get a PAthlete proxy wrapper that has the rankings for that participation
+                if (matchingParticipation.isPresent()) {
+                    currentCategoryAthletes.add(new PAthlete(matchingParticipation.get()));
+                }
+            }
+
+            // all rankings are from a PAthlete, i.e., for the current medal category
+            List<Athlete> snatchLeaders = null;
+            List<Athlete> cjLeaders = null;
+            if (Competition.isSnatchCJMedals()) {
+                snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
+                        .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
+                        .limit(3)
+                        .collect(Collectors.toList());
+                cjLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.CLEANJERK)
+                        .stream().filter(a -> a.getBestCleanJerk() > 0 && a.isEligibleForIndividualRanking())
+                        .limit(3)
+                        .collect(Collectors.toList());
+            }
+            List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
+                    .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
+                    .limit(3)
+                    .collect(Collectors.toList());
+
+            // Athletes excluded from Total due to bombing out can still win medals, so we add them
+            TreeSet<Athlete> medalists = new TreeSet<>(new WinningOrderComparator(Ranking.TOTAL, false));
+            medalists.addAll(totalLeaders);
+            if (Competition.isSnatchCJMedals()) {
+                medalists.addAll(cjLeaders);
+                medalists.addAll(snatchLeaders);
+            }
+            medals.put(category, medalists);
+
+            logger.warn("medalists for {}", category);
+            for (Athlete medalist : medalists) {
+                logger.warn("{}\t{} {} {}", medalist.getShortName(), medalist.getSnatchRank(),
+                        medalist.getCleanJerkRank(), medalist.getTotalRank());
+            }
+        }
+        medalsByGroup.put(g, medals);
+        return medals;
     }
 
     synchronized public HashMap<String, Object> computeReportingInfo() {
@@ -279,24 +385,6 @@ public class Competition {
         return DateTimeUtils.dateFromLocalDate(competitionDate);
     }
 
-//    @Transient
-//    @JsonIgnore
-    public String getLocalizedCompetitionDate() {
-        try {
-            String pattern = ((SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT,
-                    OwlcmsSession.getLocale())).toPattern();
-            // if 2-digit year, force 4 digits.
-            pattern = pattern.replaceFirst("\\byy\\b", "yyyy");
-            System.err.println("pattern=" + pattern);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-            String str = competitionDate.format(formatter);
-            return str;
-        } catch (Exception a) {
-            a.printStackTrace();
-        }
-        return "error";
-    }
-
     /**
      * Gets the competition name.
      *
@@ -347,6 +435,10 @@ public class Competition {
         }
     }
 
+//    synchronized public List<Athlete> getGlobalTotalRanking(Gender gender) {
+//        return getListOrElseRecompute(gender == Gender.F ? "wTot" : "mTot");
+//    }
+
     @Transient
     @JsonIgnore
     public String getComputedJuryTemplateFileName() {
@@ -371,10 +463,6 @@ public class Competition {
             return getProtocolTemplateFileName();
         }
     }
-
-//    synchronized public List<Athlete> getGlobalTotalRanking(Gender gender) {
-//        return getListOrElseRecompute(gender == Gender.F ? "wTot" : "mTot");
-//    }
 
     @Transient
     @JsonIgnore
@@ -493,6 +581,24 @@ public class Competition {
         return athletes;
     }
 
+    // @Transient
+//    @JsonIgnore
+    public String getLocalizedCompetitionDate() {
+        try {
+            String pattern = ((SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT,
+                    OwlcmsSession.getLocale())).toPattern();
+            // if 2-digit year, force 4 digits.
+            pattern = pattern.replaceFirst("\\byy\\b", "yyyy");
+            System.err.println("pattern=" + pattern);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+            String str = competitionDate.format(formatter);
+            return str;
+        } catch (Exception a) {
+            a.printStackTrace();
+        }
+        return "error";
+    }
+
     /**
      * Gets the masters.
      *
@@ -500,6 +606,15 @@ public class Competition {
      */
     public boolean getMasters() {
         return isMasters();
+    }
+
+    public TreeMap<Category, TreeSet<Athlete>> getMedals(Group g) {
+        TreeMap<Category, TreeSet<Athlete>> medals;
+        if (medalsByGroup == null || (medals = medalsByGroup.get(g)) == null) {
+            medals = computeMedals(g);
+        }
+        return medals;
+        
     }
 
     @Transient
@@ -678,9 +793,6 @@ public class Competition {
     public void setCompetitionDateAsDate(Date ignored) {
     }
 
-    public void setLocalizedCompetitionDate(String ignored) {
-    }
-
     /**
      * Sets the competition name.
      *
@@ -765,22 +877,6 @@ public class Competition {
         this.genderOrder = genderOrder;
     }
 
-    /**
-     * Sets the invited if born before.
-     *
-     * @param invitedIfBornBefore the new invited if born before
-     */
-    public void setInvitedIfBornBefore(Integer invitedIfBornBefore) {
-    }
-
-    public void setJuryTemplateFileName(String juryTemplateFileName) {
-        this.juryTemplateFileName = juryTemplateFileName;
-    }
-
-    public void setMasters(boolean masters) {
-        this.masters = masters;
-    }
-
 //    private String doFindFinalPackageTemplateFileName(String absoluteRoot) {
 //        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
 //                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
@@ -809,6 +905,25 @@ public class Competition {
 //        throw new RuntimeException("result templates not found under " + absoluteRoot);
 //    }
 
+    /**
+     * Sets the invited if born before.
+     *
+     * @param invitedIfBornBefore the new invited if born before
+     */
+    public void setInvitedIfBornBefore(Integer invitedIfBornBefore) {
+    }
+
+    public void setJuryTemplateFileName(String juryTemplateFileName) {
+        this.juryTemplateFileName = juryTemplateFileName;
+    }
+
+    public void setLocalizedCompetitionDate(String ignored) {
+    }
+
+    public void setMasters(boolean masters) {
+        this.masters = masters;
+    }
+
     public void setMastersGenderEquality(boolean mastersGenderEquality) {
         this.mastersGenderEquality = mastersGenderEquality;
     }
@@ -828,6 +943,10 @@ public class Competition {
 
     synchronized public void setRankingsInvalid(boolean invalid) {
         this.rankingsInvalid = invalid;
+    }
+
+    public void setRefereeWakeUpDelay(int refereeWakeUpDelay) {
+        this.refereeWakeUpDelay = refereeWakeUpDelay;
     }
 
     public void setRoundRobinOrder(boolean roundRobinOrder) {
@@ -1280,94 +1399,5 @@ public class Competition {
         AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SMM);
 
         reportSMF(sortedMen, sortedWomen);
-    }
-
-    public static boolean isSnatchCJMedals() {
-        // TODO implement isSnatchCJMedals
-        return true;
-    }
-
-    /**
-     * @param g a group
-     * @return for each category represented in group g where all athletes have lifted, the medals
-     */
-    public TreeMap<Category, TreeSet<Athlete>> computeMedals(Group g) {
-        List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
-        return computeMedals(rankedAthletes);
-    }
-
-    /**
-     * @param rankedAthletes athletes participating in the group, plus athletes in the same category that have yet to compete
-     * @return for each category, medal-winnning athletes in snatch, clean & jerk and total.
-     */
-    public TreeMap<Category, TreeSet<Athlete>> computeMedals(List<Athlete> rankedAthletes) {
-        if (rankedAthletes == null || rankedAthletes.size() == 0) {
-            return new TreeMap<>();
-        }
-
-        // extract all categories
-        Set<Category> medalCategories = rankedAthletes.stream()
-                .map(a -> a.getEligibleCategories())
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-
-        // exclude categories where athletes still have to lift
-        Set<Category> notDone = rankedAthletes.stream()
-                .filter(a -> a.getSnatch1AsInteger() == null)
-                .map(a -> a.getCategory())
-                .collect(Collectors.toSet());
-        logger.warn("medalCategories: all {} notDone {}", medalCategories, notDone);
-        medalCategories.removeAll(notDone);
-
-        TreeMap<Category, TreeSet<Athlete>> medals = new TreeMap<>();
-
-        // iterate over the remaining categories
-        for (Category category : medalCategories) {
-
-            List<Athlete> currentCategoryAthletes = new ArrayList<>();
-            for (Athlete a : rankedAthletes) {
-                // fetch the participation that matches the current athlete registration category
-                Optional<Participation> matchingParticipation = a.getParticipations().stream()
-                        .filter(p -> p.getCategory().sameAs(category)).findFirst();
-                // get a PAthlete proxy wrapper that has the rankings for that participation
-                if (matchingParticipation.isPresent()) {
-                    currentCategoryAthletes.add(new PAthlete(matchingParticipation.get()));
-                }
-            }
-
-            // all rankings are from a PAthlete, i.e., for the current medal category
-            List<Athlete> snatchLeaders = null;
-            List<Athlete> cjLeaders = null;
-            if (Competition.isSnatchCJMedals()) {
-                snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
-                        .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
-                        .limit(3)
-                        .collect(Collectors.toList());
-                cjLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.CLEANJERK)
-                        .stream().filter(a -> a.getBestCleanJerk() > 0 && a.isEligibleForIndividualRanking())
-                        .limit(3)
-                        .collect(Collectors.toList());
-            }
-            List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
-                    .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
-                    .limit(3)
-                    .collect(Collectors.toList());
-
-            // Athletes excluded from Total due to bombing out can still win medals, so we add them
-            TreeSet<Athlete> medalists = new TreeSet<>(new WinningOrderComparator(Ranking.TOTAL, false));
-            medalists.addAll(totalLeaders);
-            if (Competition.isSnatchCJMedals()) {
-                medalists.addAll(cjLeaders);
-                medalists.addAll(snatchLeaders);
-            }
-            medals.put(category, medalists);
-
-            logger.warn("medalists for {}", category);
-            for (Athlete medalist : medalists) {
-                logger.warn("{}\t{} {} {}", medalist.getShortName(), medalist.getSnatchRank(),
-                        medalist.getCleanJerkRank(), medalist.getTotalRank());
-            }
-        }
-        return medals;
     }
 }

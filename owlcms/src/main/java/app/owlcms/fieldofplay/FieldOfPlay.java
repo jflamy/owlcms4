@@ -914,7 +914,7 @@ public class FieldOfPlay {
 //            rankedAthletes.stream().forEach(a -> {
 //                logger.debug("rankedAthletes {} {}", a, a.getSnatch1AsInteger());
 //            });
-            setMedals(Competition.getCurrent().computeMedals(rankedAthletes));
+            setMedals(Competition.getCurrent().computeMedals(g,rankedAthletes));
         }
         List<Athlete> currentGroupAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
                 .filter(a -> a.getGroup() != null ? a.getGroup().equals(g) : false)
