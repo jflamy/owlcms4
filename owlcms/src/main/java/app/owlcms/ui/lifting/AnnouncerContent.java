@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
-import com.flowingcode.vaadin.addons.ironicons.IronIcons.Icon;
 import com.flowingcode.vaadin.addons.ironicons.PlacesIcons;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.Subscribe;
@@ -23,15 +22,9 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.contextmenu.MenuItem;
-import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.menubar.MenuBar;
-import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -41,6 +34,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
@@ -48,7 +42,6 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FOPError;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
@@ -326,61 +319,67 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         });
 
         OwlcmsSession.withFop(fop -> {
-            topBarMenu = new MenuBar();
-            MenuItem item;
-            if (fop.getGroup() != null) {
-                item = topBarMenu.addItem(fop.getGroup().getName()+"\u2003\u25bd");
-                topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL);
-            } else {
-                item = topBarMenu.addItem(Translator.translate("Group")+"\u2003\u25bc");
-                topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY); 
-            }
-            SubMenu subMenu = item.getSubMenu();
-            MenuItem currentlyChecked[] = {null};
-            for (Group g : groups) {
-                boolean checked = g.compareTo(fop.getGroup()) == 0;
-                MenuItem subItem = subMenu.addItem(
-                        describedName(g),
-                        e -> fop.fopEventPost(new FOPEvent.SwitchGroup(checked ? null : g, this)));
-                subItem.setCheckable(true);
-                subItem.setChecked(checked);
-                subItem.getElement().setAttribute("style", "margin: 0px; padding: 0px");
-                if (checked) {
-                    currentlyChecked[0] = subItem;
-                }
-            }
-            Hr ruler = new Hr();
-            ruler.getElement().setAttribute("style", "color: var(--lumo-contrast-50pct); border-color: red; var(--lumo-contrast-50pct): var(--lumo-contrast-50pct)");
-            MenuItem separator = subMenu.addItem(ruler);
-            separator.getElement().setAttribute("style", "margin-top: -1em; margin-bottom: -1.5em; margin-left: -1.5em; padding: 0px; padding-left: -1em;");
-            Icon icon = IronIcons.CLEAR.create();
-            icon.getElement().setAttribute("style", "margin: 0px; padding: 0px");
-            HorizontalLayout component = new HorizontalLayout(icon,new Label(Translator.translate("NoGroup")));
-            component.setPadding(false);
-            component.setMargin(false);
-            component.getElement().setAttribute("style", "margin: 0; padding: 0");
-            component.setAlignItems(Alignment.CENTER);
-            MenuItem item3 = subMenu.addItem(component, 
-                    e -> {
-                        if (currentlyChecked[0] != null) {
-                            currentlyChecked[0].setChecked(false);
-                        }
-                        fop.fopEventPost(new FOPEvent.SwitchGroup(null, this));
-                    });
-            item3.setCheckable(false);
+            topBarMenu = new GroupSelectionMenu(groups, fop);
             createTopBarSettingsMenu();
-            item.setEnabled(true);
         });
     }
 
-    private String describedName(Group g) {
-        String desc = g.getDescription();
-        if (desc == null || desc.isBlank()) {
-            return g.getName();
-        } else {
-            return g.getName() + " - " + g.getDescription();
-        }
-    }
+//    private MenuBar createDropDown(List<Group> groups, FieldOfPlay fop) {
+//        MenuBar topBarMenu = new MenuBar();
+//        MenuItem item;
+//        if (fop.getGroup() != null) {
+//            item = topBarMenu.addItem(fop.getGroup().getName()+"\u2003\u25bd");
+//            topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL);
+//        } else {
+//            item = topBarMenu.addItem(Translator.translate("Group")+"\u2003\u25bc");
+//            topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY); 
+//        }
+//        SubMenu subMenu = item.getSubMenu();
+//        MenuItem currentlyChecked[] = {null};
+//        for (Group g : groups) {
+//            boolean checked = g.compareTo(fop.getGroup()) == 0;
+//            MenuItem subItem = subMenu.addItem(
+//                    describedName(g),
+//                    e -> fop.fopEventPost(new FOPEvent.SwitchGroup(checked ? null : g, this)));
+//            subItem.setCheckable(true);
+//            subItem.setChecked(checked);
+//            subItem.getElement().setAttribute("style", "margin: 0px; padding: 0px");
+//            if (checked) {
+//                currentlyChecked[0] = subItem;
+//            }
+//        }
+//        Hr ruler = new Hr();
+//        ruler.getElement().setAttribute("style", "color: var(--lumo-contrast-50pct); border-color: red; var(--lumo-contrast-50pct): var(--lumo-contrast-50pct)");
+//        MenuItem separator = subMenu.addItem(ruler);
+//        separator.getElement().setAttribute("style", "margin-top: -1em; margin-bottom: -1.5em; margin-left: -1.5em; padding: 0px; padding-left: -1em;");
+//        Icon icon = IronIcons.CLEAR.create();
+//        icon.getElement().setAttribute("style", "margin: 0px; padding: 0px");
+//        HorizontalLayout component = new HorizontalLayout(icon,new Label(Translator.translate("NoGroup")));
+//        component.setPadding(false);
+//        component.setMargin(false);
+//        component.getElement().setAttribute("style", "margin: 0; padding: 0");
+//        component.setAlignItems(Alignment.CENTER);
+//        MenuItem item3 = subMenu.addItem(component, 
+//                e -> {
+//                    if (currentlyChecked[0] != null) {
+//                        currentlyChecked[0].setChecked(false);
+//                    }
+//                    fop.fopEventPost(new FOPEvent.SwitchGroup(null, this));
+//                });
+//        item3.setCheckable(false);
+//        item.setEnabled(true);
+//        
+//        return topBarMenu;
+//    }
+
+//    private String describedName(Group g) {
+//        String desc = g.getDescription();
+//        if (desc == null || desc.isBlank()) {
+//            return g.getName();
+//        } else {
+//            return g.getName() + " - " + g.getDescription();
+//        }
+//    }
 
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)

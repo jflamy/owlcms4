@@ -498,6 +498,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         ce.add(new Hr());
         HorizontalLayout medalButtons = new HorizontalLayout();
         // TODO select group - default is the last one to have lifted on FOP
+        
         // TODO button to open medals scoreboard
         Button startMedalCeremony = new Button(
                 getTranslation("BreakMgmt.startMedals"), (e) -> {
