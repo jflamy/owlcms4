@@ -27,6 +27,6 @@ If however you wish to provide the software as a service to others (including by
 
 The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1 (Canada)
 
-Thanks to Stepan Pesterev (Russia) and  Alexey Ruchev (Russia) for their feedback and help with testing the software. Kudos also to Anders Bendix Nielsen (Denmark) and Brock Pedersen (Canada) for their feedback and early adoption.
+Thanks to Anders Bendix Nielsen (Denmark) and Alexey Ruchev (Russia) for their support, feedback and help testing this version of the software.
 
-See the file [pom.xml](pom.xml) for the list of Open Source software used in the project.  In particular, this project relies heavily on the [Vaadin](https://vaadin.com) application framework, and we thank them for their long-standing support for open-source software.
+See the file [pom.xml](pom.xml) for the list of Open Source software used in the project.  In particular, this project relies heavily on the [Vaadin](https://vaadin.com) application framework, and their long-standing support for open-source software.
