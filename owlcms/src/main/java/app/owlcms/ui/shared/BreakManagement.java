@@ -524,11 +524,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                                 .post(new FOPEvent.BreakDone(DURING_INTRODUCTION, this.getOrigin()));
 
                         durationField.setValue(DEFAULT_DURATION);
-
-                        try {
-                            Thread.sleep(2000); // wait for break done to go through.
-                        } catch (InterruptedException e1) {
-                        }
                         setCountdownValue(FIRST_SNATCH);
                         ignoreNextDisable = true;
                         startEnabled();
