@@ -42,9 +42,9 @@ public interface BreakDisplay {
         case BEFORE_INTRODUCTION:
             return Translator.translate("BreakType.BEFORE_INTRODUCTION");
         case DURING_INTRODUCTION:
-            return Translator.translate("PublicMsg.DuringIntroduction");
+            return Translator.translate("BreakMgmt.IntroductionOfAthletes");
         case DURING_OFFICIALS_INTRODUCTION:
-            return Translator.translate("PublicMsg.DuringOfficialsIntroduction");
+            return Translator.translate("BreakMgmt.IntroductionOfOfficials");
         case TECHNICAL:
             return Translator.translate("PublicMsg.CompetitionPaused");
         case JURY:

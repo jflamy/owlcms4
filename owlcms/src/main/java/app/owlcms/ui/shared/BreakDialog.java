@@ -30,11 +30,8 @@ public class BreakDialog extends Dialog {
      * @param origin the origin
      */
     public BreakDialog(Object origin) {
-        this.addAttachListener((e) -> {
-            content = new BreakManagement(origin, this);
-            this.removeAll();
-            this.add(content);
-        });
+        content = new BreakManagement(origin, this);
+        this.add(content);
 
         this.addDialogCloseActionListener((e) -> {
             this.removeAll();
@@ -62,12 +59,9 @@ public class BreakDialog extends Dialog {
      * @param cdt
      */
     public BreakDialog(Object origin, BreakType brt, CountdownType cdt) {
-
-        this.addAttachListener((e) -> {
-            content = new BreakManagement(origin, brt, cdt, this);
-            this.removeAll();
-            this.add(content);
-        });
+        logger.warn("BreakDialog brt = {}", brt);
+        content = new BreakManagement(origin, brt, cdt, this);
+        this.add(content);
 
         this.addDialogCloseActionListener((e) -> {
             this.removeAll();

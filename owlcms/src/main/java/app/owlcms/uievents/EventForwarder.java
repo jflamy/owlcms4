@@ -184,24 +184,30 @@ public class EventForwarder implements BreakDisplay {
     @Override
     public String inferMessage(BreakType bt) {
         if (bt == null) {
-            return Translator.translate("BreakType.TECHNICAL");
+            return Translator.translate("BreakType.TECHNICAL");//
+        } else {
+            switch (bt) {
+            case FIRST_CJ:
+                return Translator.translate("BreakType.FIRST_CJ");//
+            case FIRST_SNATCH:
+                return Translator.translate("BreakType.FIRST_SNATCH");//
+            case BEFORE_INTRODUCTION:
+                return Translator.translate("BreakType.BEFORE_INTRODUCTION");//
+            case DURING_INTRODUCTION:
+                return Translator.translate("BreakType.DURING_INTRODUCTION");//
+            case DURING_OFFICIALS_INTRODUCTION:
+                return Translator.translate("BreakType.DURING_OFFICIALS_INTRODUCTION");
+            case TECHNICAL:
+                return Translator.translate("BreakType.TECHNICAL");//
+            case JURY:
+                return Translator.translate("BreakType.JURY");//
+            case GROUP_DONE:
+                return Translator.translate("BreakType.GROUP_DONE");//
+            case MEDALS:
+                return Translator.translate("BreakType.MEDALS");//
+            }
         }
-        switch (bt) {
-        case FIRST_CJ:
-            return Translator.translate("BreakType.FIRST_CJ");
-        case FIRST_SNATCH:
-            return Translator.translate("BreakType.FIRST_SNATCH");
-        case BEFORE_INTRODUCTION:
-            return Translator.translate("BreakType.BEFORE_INTRODUCTION");
-        case DURING_INTRODUCTION:
-            return Translator.translate("BreakType.DURING_INTRODUCTION");
-        case TECHNICAL:
-            return Translator.translate("BreakType.TECHNICAL");
-        case JURY:
-            return Translator.translate("BreakType.JURY");
-        default:
-            return "";
-        }
+        return null;
     }
 
     public boolean isDecisionLightsVisible() {

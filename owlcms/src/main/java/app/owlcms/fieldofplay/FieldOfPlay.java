@@ -16,7 +16,6 @@ import static app.owlcms.fieldofplay.FOPState.TIME_STOPPED;
 import static app.owlcms.ui.shared.BreakManagement.CountdownType.INDEFINITE;
 import static app.owlcms.uievents.BreakType.BEFORE_INTRODUCTION;
 import static app.owlcms.uievents.BreakType.DURING_INTRODUCTION;
-import static app.owlcms.uievents.BreakType.MEDALS;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -616,8 +615,8 @@ public class FieldOfPlay {
                     transitionToBreak(
                             new FOPEvent.BreakStarted(DURING_INTRODUCTION, INDEFINITE, null,
                                     null, this));
-                } else if (breakType == DURING_INTRODUCTION || breakType == MEDALS) {
-                    // only switch the break type, keep other parameters same
+                } else if (breakType.isCeremony()) {
+                    // only switch back to the currently running break timer, other parameters will be ignored
                     transitionToBreak(
                             new FOPEvent.BreakStarted(getBreakTimer().getBreakType(), INDEFINITE, null,
                                     null, this));
@@ -1695,8 +1694,10 @@ public class FieldOfPlay {
 
     private String stateName(FOPState state2) {
         if (state2 == BREAK) {
-            return state2.name() + "." + breakType.name();
-        } else {
+            return state2.name() + "." + (breakType != null ? breakType.name() : BreakType.GROUP_DONE);
+        } else if (state2 == null) {
+            return INACTIVE.name();
+        }{
             return state2.name();
         }
     }

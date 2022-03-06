@@ -591,6 +591,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                     bt = BreakType.TECHNICAL;
                     ct = CountdownType.INDEFINITE;
                 }
+                logger.warn("requesting breaktype {}", bt);
                 breakDialog = new BreakDialog(this, bt, ct);
                 breakDialog.open();
             });
