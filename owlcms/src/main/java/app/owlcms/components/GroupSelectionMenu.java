@@ -1,6 +1,7 @@
 package app.owlcms.components;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons.Icon;
@@ -14,14 +15,13 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 import app.owlcms.data.group.Group;
-import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class GroupSelectionMenu extends MenuBar {
     
-    public GroupSelectionMenu(List<Group> groups, FieldOfPlay fop) {
+    public GroupSelectionMenu(List<Group> groups, FieldOfPlay fop, BiConsumer<Group,FieldOfPlay> whenChecked, BiConsumer<Group,FieldOfPlay> whenUnselected) {
         MenuItem item;
         if (fop.getGroup() != null) {
             item = this.addItem(fop.getGroup().getName()+"\u2003\u25bd");
@@ -33,14 +33,13 @@ public class GroupSelectionMenu extends MenuBar {
         SubMenu subMenu = item.getSubMenu();
         MenuItem currentlyChecked[] = {null};
         for (Group g : groups) {
-            boolean checked = g.compareTo(fop.getGroup()) == 0;
             MenuItem subItem = subMenu.addItem(
                     describedName(g),
-                    e -> fop.fopEventPost(new FOPEvent.SwitchGroup(checked ? null : g, this)));
+                    e -> whenChecked.accept(g,fop));
             subItem.setCheckable(true);
-            subItem.setChecked(checked);
+            subItem.setChecked(g.compareTo(fop.getGroup()) == 0);
             subItem.getElement().setAttribute("style", "margin: 0px; padding: 0px");
-            if (checked) {
+            if (g.compareTo(fop.getGroup()) == 0) {
                 currentlyChecked[0] = subItem;
             }
         }
@@ -60,11 +59,13 @@ public class GroupSelectionMenu extends MenuBar {
                     if (currentlyChecked[0] != null) {
                         currentlyChecked[0].setChecked(false);
                     }
-                    fop.fopEventPost(new FOPEvent.SwitchGroup(null, this));
+                    whenUnselected.accept(null,fop);
+                    
                 });
         item3.setCheckable(false);
         item.setEnabled(true);
     }
+
     
     private String describedName(Group g) {
         String desc = g.getDescription();

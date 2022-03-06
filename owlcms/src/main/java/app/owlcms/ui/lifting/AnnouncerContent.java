@@ -319,67 +319,13 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         });
 
         OwlcmsSession.withFop(fop -> {
-            topBarMenu = new GroupSelectionMenu(groups, fop);
+            topBarMenu = new GroupSelectionMenu(groups, fop, 
+                    (g1, fop1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(g1.compareTo(fop1.getGroup()) == 0 ? null : g1, this)),
+                    (g1, fop1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
             createTopBarSettingsMenu();
         });
     }
 
-//    private MenuBar createDropDown(List<Group> groups, FieldOfPlay fop) {
-//        MenuBar topBarMenu = new MenuBar();
-//        MenuItem item;
-//        if (fop.getGroup() != null) {
-//            item = topBarMenu.addItem(fop.getGroup().getName()+"\u2003\u25bd");
-//            topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL);
-//        } else {
-//            item = topBarMenu.addItem(Translator.translate("Group")+"\u2003\u25bc");
-//            topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY); 
-//        }
-//        SubMenu subMenu = item.getSubMenu();
-//        MenuItem currentlyChecked[] = {null};
-//        for (Group g : groups) {
-//            boolean checked = g.compareTo(fop.getGroup()) == 0;
-//            MenuItem subItem = subMenu.addItem(
-//                    describedName(g),
-//                    e -> fop.fopEventPost(new FOPEvent.SwitchGroup(checked ? null : g, this)));
-//            subItem.setCheckable(true);
-//            subItem.setChecked(checked);
-//            subItem.getElement().setAttribute("style", "margin: 0px; padding: 0px");
-//            if (checked) {
-//                currentlyChecked[0] = subItem;
-//            }
-//        }
-//        Hr ruler = new Hr();
-//        ruler.getElement().setAttribute("style", "color: var(--lumo-contrast-50pct); border-color: red; var(--lumo-contrast-50pct): var(--lumo-contrast-50pct)");
-//        MenuItem separator = subMenu.addItem(ruler);
-//        separator.getElement().setAttribute("style", "margin-top: -1em; margin-bottom: -1.5em; margin-left: -1.5em; padding: 0px; padding-left: -1em;");
-//        Icon icon = IronIcons.CLEAR.create();
-//        icon.getElement().setAttribute("style", "margin: 0px; padding: 0px");
-//        HorizontalLayout component = new HorizontalLayout(icon,new Label(Translator.translate("NoGroup")));
-//        component.setPadding(false);
-//        component.setMargin(false);
-//        component.getElement().setAttribute("style", "margin: 0; padding: 0");
-//        component.setAlignItems(Alignment.CENTER);
-//        MenuItem item3 = subMenu.addItem(component, 
-//                e -> {
-//                    if (currentlyChecked[0] != null) {
-//                        currentlyChecked[0].setChecked(false);
-//                    }
-//                    fop.fopEventPost(new FOPEvent.SwitchGroup(null, this));
-//                });
-//        item3.setCheckable(false);
-//        item.setEnabled(true);
-//        
-//        return topBarMenu;
-//    }
-
-//    private String describedName(Group g) {
-//        String desc = g.getDescription();
-//        if (desc == null || desc.isBlank()) {
-//            return g.getName();
-//        } else {
-//            return g.getName() + " - " + g.getDescription();
-//        }
-//    }
 
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
