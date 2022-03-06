@@ -14,7 +14,6 @@ import static app.owlcms.ui.shared.BreakManagement.CountdownType.TARGET;
 import static app.owlcms.uievents.BreakType.BEFORE_INTRODUCTION;
 import static app.owlcms.uievents.BreakType.DURING_INTRODUCTION;
 import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
-import static app.owlcms.uievents.BreakType.GROUP_DONE;
 import static app.owlcms.uievents.BreakType.JURY;
 import static app.owlcms.uievents.BreakType.MEDALS;
 import static app.owlcms.uievents.BreakType.TECHNICAL;
@@ -24,13 +23,10 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
@@ -188,7 +184,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         this.parentDialog = parentDialog;
         FlexLayout buttons = createButtons(this);
 
-        createCountdowns();
+        createBreaksAndCountdowns();
         createDisplayInfoSelection();
         createTimerDisplay();
         computeDefaultValues();
@@ -443,7 +439,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         tabs.removeThemeVariants(TabsVariant.LUMO_SMALL);
         VerticalLayout contents = new VerticalLayout();
         contents.setWidth("50em");
-        contents.setHeight("60ex");
+        contents.setHeight("65ex");
         contents.add(cd);
         dialog.add(tabs, contents);
 
@@ -491,13 +487,44 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         startIntroButton.getThemeNames().add("secondary contrast");
         endIntroButton.getThemeNames().add("secondary contrast");
         introButtons.add(startIntroButton, endIntroButton);
-
+        
         ce.add(new Label(getTranslation("PublicMsg.DuringIntroduction")));
         ce.add(introButtons);
+        
+        HorizontalLayout officialsButtons = new HorizontalLayout();
+        Button startOfficials = new Button(
+                getTranslation("BreakMgmt.startOfficials"), (e) -> {
+                    OwlcmsSession.withFop(fop -> {
+                        if (fop.getBreakType() == DURING_INTRODUCTION) {
+                            return;
+                        }
+                        masterStartBreak(fop, DURING_INTRODUCTION, INDEFINITE);
+                    });
+                });
+        startOfficials.setTabIndex(-1);
+        Button endOfficials = new Button(
+                getTranslation("BreakMgmt.endOfficials"), (e) -> {
+                    OwlcmsSession.withFop(fop -> {
+                        if (fop.getBreakType() != DURING_INTRODUCTION) {
+                            return;
+                        }
+                        fop.getFopEventBus()
+                                .post(new FOPEvent.BreakDone(DURING_INTRODUCTION, this.getOrigin()));
+                    });
+                });
+        endOfficials.setTabIndex(-1);
+        startOfficials.getThemeNames().add("secondary contrast");
+        endOfficials.getThemeNames().add("secondary contrast");
+        officialsButtons.add(startOfficials, endOfficials);
+
+        ce.add(new Hr());
+        ce.add(new Label(getTranslation("PublicMsg.DuringOfficialsIntroduction")));
+        ce.add(officialsButtons);
 
         ce.add(new Hr());
         HorizontalLayout medalButtons = new HorizontalLayout();
         // TODO select group - default is the last one to have lifted on FOP
+
         
         // TODO button to open medals scoreboard
         Button startMedalCeremony = new Button(
@@ -534,10 +561,12 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         VerticalLayout cd = new VerticalLayout();
         cd.setWidth("50em");
         cd.add(bt);
-        cd.add(new Hr());
         cd.add(ct);
-        cd.add(new Hr());
-        cd.add(new Label(getTranslation("DisplayType.Title")));
+        Hr hr = new Hr();
+        hr.getElement().setAttribute("style","margin-top: 2ex");
+        Label label = new Label(getTranslation("DisplayType.Title"));
+        label.getElement().setAttribute("style","font-weight: bold");
+        cd.add(hr, label);
         cd.add(dt);
         cd.add(new Hr());
         cd.add(timer);
@@ -639,27 +668,31 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         dt.add(countdownButton, athleteButton);
     }
 
-    private void createCountdowns() {
+    private void createBreaksAndCountdowns() {
         bt = new RadioButtonGroup<>();
 
-        // exclude break types that do not affect the timer
-        Set<BreakType> noTimer = Stream.of(GROUP_DONE, MEDALS, DURING_INTRODUCTION).collect(Collectors.toSet());
-        Set<BreakType> breakTypes = new TreeSet<BreakType>();
-        Collections.addAll(breakTypes, BreakType.values());
-        breakTypes.removeAll(noTimer);
-
-        bt.setItems(breakTypes);
+        // interruptions, then countdowns
+        List<BreakType> breaks = Arrays.asList(BreakType.values()).stream().filter(bt -> bt.isInterruption()).collect(Collectors.toList());
+        List<BreakType> countdowns = Arrays.asList(BreakType.values()).stream().filter(bt -> bt.isCountdown()).collect(Collectors.toList());
+        breaks.addAll(countdowns);
+        bt.setItems(breaks);
         bt.setRenderer(new TextRenderer<BreakType>(
                 (item) -> getTranslation(BreakType.class.getSimpleName() + "." + item.name())));
-        bt.setLabel(getTranslation("BreakType.Title"));
-        bt.prependComponents(TECHNICAL, new Paragraph(""));
+        
+        // kludgey way to split the radio buttons in two sections
+        Div div = new Div(new Label(getTranslation("BreakType.Title")));
+        div.getElement().setAttribute("style","margin-bottom: 1ex; font-weight: bold");
+        bt.prependComponents(TECHNICAL, div);
+        Hr hr = new Hr();
+        hr.getElement().setAttribute("style","margin-top: 2ex");
+        Div div1 = new Div(new Label(getTranslation("CountdownType.Title")));
+        div1.getElement().setAttribute("style","margin-top: 2ex; margin-bottom: 1ex; font-weight: bold");
+        bt.prependComponents(BEFORE_INTRODUCTION, hr, div1);
 
         ct = new RadioButtonGroup<>();
         ct.setItems(CountdownType.values());
         ct.setRenderer(new TextRenderer<CountdownType>(
                 (item) -> getTranslation(CountdownType.class.getSimpleName() + "." + item.name())));
-        ct.setLabel(getTranslation("CountdownType.Title"));
-        ct.prependComponents(DURATION, new Paragraph(""));
         ct.prependComponents(INDEFINITE, new Paragraph(""));
 
         Locale locale = new Locale("en", "SE"); // ISO 8601 style dates and time
