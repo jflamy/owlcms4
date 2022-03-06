@@ -1708,16 +1708,17 @@ public class FieldOfPlay {
         if (state == BREAK) {
             if ((newBreak != getBreakType() || newCountdownType != getCountdownType())) {
                 // changing the kind of break
-                logger.warn("{}switching break type while in break : current {} new {}", getLoggingName(),
+                logger.warn("{}switching break type while in break : current {} new {} remaining {}", getLoggingName(),
                         getBreakType(),
-                        e.getBreakType());
+                        e.getBreakType(),
+                        breakTimer.liveTimeRemaining());
                 if (breakTimer.isRunning() && (newBreak.isCeremony()) || getBreakType().isCeremony()) {
                     // ceremonies on the platform, leave the warmup countdown running
                     // also, leaving a ceremony should not touch a running timer.
                     // only change the break type, leave counter running
                     logger.warn("leave timer alone");
                     setBreakType(newBreak);
-                    pushOut(new UIEvent.BreakStarted(breakTimer.getTimeRemaining(), this, false, newBreak, CountdownType.DURATION, LoggerUtils.stackTrace()));
+                    pushOut(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak, CountdownType.DURATION, LoggerUtils.stackTrace()));
                 } else if (newBreak == BreakType.FIRST_SNATCH && (getBreakType().isCeremony())) {
                     logger.warn("case 2");
                     // exiting from medal or introduction ceremony, go back to break mode.
