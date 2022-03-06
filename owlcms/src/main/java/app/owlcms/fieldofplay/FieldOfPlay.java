@@ -16,6 +16,8 @@ import static app.owlcms.fieldofplay.FOPState.TIME_STOPPED;
 import static app.owlcms.ui.shared.BreakManagement.CountdownType.INDEFINITE;
 import static app.owlcms.uievents.BreakType.BEFORE_INTRODUCTION;
 import static app.owlcms.uievents.BreakType.DURING_INTRODUCTION;
+import static app.owlcms.uievents.BreakType.FIRST_CJ;
+import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -609,11 +611,15 @@ public class FieldOfPlay {
                 pushOut(new UIEvent.BreakDone(e.getOrigin(), getBreakType()));
                 logger.warn("break done {} {} \n{}", this.getName(), e.getFop().getName(), e.getStackTrace());
                 BreakType breakType = getBreakType();
-                if (breakType == BreakType.FIRST_SNATCH || breakType == BreakType.FIRST_CJ) {
+                if (breakType == FIRST_SNATCH || breakType == FIRST_CJ) {
                     transitionToLifting(e, getGroup(), false);
                 } else if (breakType == BEFORE_INTRODUCTION) {
                     transitionToBreak(
                             new FOPEvent.BreakStarted(DURING_INTRODUCTION, INDEFINITE, null,
+                                    null, this));
+                } else if (breakType == DURING_INTRODUCTION) {
+                    transitionToBreak(
+                            new FOPEvent.BreakStarted(FIRST_SNATCH, INDEFINITE, null,
                                     null, this));
                 } else if (breakType.isCeremony()) {
                     // only switch back to the currently running break timer, other parameters will be ignored
