@@ -18,7 +18,9 @@ import com.vaadin.flow.component.ClientCallable;
 
 import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -27,11 +29,12 @@ import ch.qos.logback.classic.Logger;
  * Countdown timer element.
  */
 @SuppressWarnings("serial")
-public class BreakTimerElement extends TimerElement {
+public class BreakTimerElement extends TimerElement implements SafeEventBusRegistration {
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElement.class);
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     private String parentName = "";
+    private Long id;
 
     {
         logger.setLevel(Level.INFO);
@@ -43,6 +46,7 @@ public class BreakTimerElement extends TimerElement {
      */
     public BreakTimerElement() {
         super();
+        id = IdUtils.getTimeBasedId();
         // logger./**/warn(LoggerUtils./**/stackTrace());
     }
 
@@ -102,7 +106,7 @@ public class BreakTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
-        logger.debug("break timer {} starting on client: remaining = {}", from, remainingTime);
+        logger.trace("break timer {} starting on client: remaining = {}", from, remainingTime);
     }
 
     /**
@@ -113,7 +117,7 @@ public class BreakTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientTimerStopped(String fopName, double remainingTime, String from) {
-        logger.debug("break timer {} stopped on client: remaining = {}", from, remainingTime);
+        logger.trace("break timer {} stopped on client: remaining = {}", from, remainingTime);
     }
 
     public void setParent(String s) {
@@ -122,13 +126,13 @@ public class BreakTimerElement extends TimerElement {
 
     @Subscribe
     public void slaveBreakDone(UIEvent.BreakDone e) {
-        uiEventLogger.debug("&&& break done {} {}", parentName, e.getOrigin());
+        uiEventLogger.warn("&&& break done {} {}", parentName, e.getOrigin());
         doStopTimer(0);
     }
 
     @Subscribe
     public void slaveBreakPause(UIEvent.BreakPaused e) {
-        uiEventLogger.trace("&&& breakTimer pause {} {}", parentName, e.getMillis());
+        uiEventLogger.warn("&&& breakTimer pause {} {}", parentName, e.getMillis());
         doStopTimer(e.getMillis());
     }
 
@@ -139,8 +143,8 @@ public class BreakTimerElement extends TimerElement {
             milliseconds = (int) LocalDateTime.now().until(e.getEnd(), ChronoUnit.MILLIS);
         } else {
             milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
-            uiEventLogger.debug("&&& breakTimer set {} {} {} {}", parentName, formatDuration(milliseconds),
-                    e.isIndefinite(), LoggerUtils.whereFrom());
+            uiEventLogger.warn("&&& breakTimer set {} {} {} {} {}", parentName, formatDuration(milliseconds),
+                    e.isIndefinite(), id, LoggerUtils.stackTrace());
         }
         doSetTimer(milliseconds);
     }
@@ -151,7 +155,7 @@ public class BreakTimerElement extends TimerElement {
             return;
         }
         Integer tr = e.isIndefinite() ? null : e.getMillis();
-        uiEventLogger.debug("&&& breakTimer start {} {} {} {}", parentName, tr, e.getOrigin(), LoggerUtils.whereFrom());
+        uiEventLogger.warn("&&& breakTimer start {} {} {} {}", parentName, tr, e.getOrigin(), LoggerUtils.whereFrom());
         doStartTimer(tr, true); // true means "silent".
     }
 

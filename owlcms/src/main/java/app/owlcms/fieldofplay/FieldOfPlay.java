@@ -609,7 +609,7 @@ public class FieldOfPlay {
                         this.getCountdownType()));
             } else if (e instanceof BreakDone) {
                 pushOut(new UIEvent.BreakDone(e.getOrigin(), getBreakType()));
-                logger.warn("break done {} {} \n{}", this.getName(), e.getFop().getName(), e.getStackTrace());
+                //logger.debug("break done {} {} \n{}", this.getName(), e.getFop().getName(), e.getStackTrace());
                 BreakType breakType = getBreakType();
                 if (breakType == FIRST_SNATCH || breakType == FIRST_CJ) {
                     transitionToLifting(e, getGroup(), false);

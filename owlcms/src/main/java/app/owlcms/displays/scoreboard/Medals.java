@@ -186,8 +186,8 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
         this.referer = VaadinServletRequest.getCurrent().getHeader("referer");
-        logger.warn("medals after navigation {} {}", event.getSource(),
-                VaadinServletRequest.getCurrent().getHeader("referer"));
+        //logger.debug("medals after navigation {} {}", event.getSource(),
+        //        VaadinServletRequest.getCurrent().getHeader("referer"));
     }
 
     @Override
@@ -500,7 +500,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         // fop obtained via FOPParameters interface default methods.
         OwlcmsSession.withFop(fop -> {
             init();
-            logger.warn("group {}", this.getGroup());
+            //logger.debug("group {}", this.getGroup());
             medals = Competition.getCurrent().getMedals(this.getGroup());
             setHidden(false);
             computeMedalJson();
@@ -543,12 +543,12 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
                 if (medalists != null && !medalists.isEmpty()) {
                     jMC.put("categoryName", medalCat.getKey().getName());
                     jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
-                    logger.warn("medalCategory: {}", jMC.toJson());
+                    //logger.debug("medalCategory: {}", jMC.toJson());
                     jsonMCArray.set(mcX, jMC);
                     mcX++;
                 }
             }
-            logger.warn("medalCategories {}", jsonMCArray.toJson());
+            //logger.debug("medalCategories {}", jsonMCArray.toJson());
             this.getElement().setPropertyJson("medalCategories", jsonMCArray);
             if (mcX == 0) {
                 this.getElement().setProperty("noCategories", true);
@@ -724,7 +724,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     }
 
     private void setHidden(boolean hidden) {
-        logger.warn("setHidden {}", LoggerUtils.whereFrom());
+        //logger.debug("setHidden {}", LoggerUtils.whereFrom());
         this.getElement().setProperty("hiddenStyle", (hidden ? "display:none" : "display:block"));
         this.getElement().setProperty("inactiveStyle", (hidden ? "display:block" : "display:none"));
         this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
@@ -735,7 +735,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     }
 
     private void syncWithFOP(UIEvent.SwitchGroup e) {
-        logger.warn("sync {}", e.getState());
+        //logger.debug("sync {}", e.getState());
         switch (e.getState()) {
         case INACTIVE:
             doEmpty();
@@ -760,7 +760,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     }
 
     private void updateBottom(MedalsTemplate model, String liftType, FieldOfPlay fop) {
-        logger.warn("updateBottom");
+        //logger.debug("updateBottom");
         model.setGroupName("");
         model.setLiftsDone("Y");
         // this.getElement().callJsFunction("groupDone");

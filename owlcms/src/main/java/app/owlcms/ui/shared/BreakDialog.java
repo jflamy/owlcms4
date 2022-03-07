@@ -40,11 +40,13 @@ public class BreakDialog extends Dialog {
             // defensive, should have been unregistered already
             try {
                 OwlcmsSession.getFop().getUiEventBus().unregister(content);
+                OwlcmsSession.getFop().getUiEventBus().unregister(content.getBreakTimer());
             } catch (Exception e1) {
             }
 
             try {
                 OwlcmsSession.getFop().getFopEventBus().unregister(content);
+                OwlcmsSession.getFop().getUiEventBus().unregister(content.getBreakTimer());
             } catch (Exception e1) {
             }
             content.cleanup();
@@ -59,7 +61,7 @@ public class BreakDialog extends Dialog {
      * @param cdt
      */
     public BreakDialog(Object origin, BreakType brt, CountdownType cdt) {
-        logger.warn("BreakDialog brt = {}", brt);
+        //logger.debug("BreakDialog brt = {}", brt);
         content = new BreakManagement(origin, brt, cdt, this);
         this.add(content);
 
@@ -69,10 +71,12 @@ public class BreakDialog extends Dialog {
             // defensive, should have been unregistered already
             try {
                 OwlcmsSession.getFop().getUiEventBus().unregister(content);
+                OwlcmsSession.getFop().getUiEventBus().unregister(content.getBreakTimer());
             } catch (Exception e1) {
             }
             try {
                 OwlcmsSession.getFop().getFopEventBus().unregister(content);
+                OwlcmsSession.getFop().getUiEventBus().unregister(content.getBreakTimer());
             } catch (Exception e1) {
             }
             content.cleanup();

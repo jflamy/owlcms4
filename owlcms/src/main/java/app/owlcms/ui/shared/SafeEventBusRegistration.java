@@ -51,7 +51,13 @@ public interface SafeEventBusRegistration {
 	public default EventBus uiEventBusRegister(Component c, FieldOfPlay fop) {
 
 		{logger.setLevel(Level.INFO);}
-		UI ui = c.getUI().get();
+		UI ui = null;
+		if (c.getUI().isPresent()) {
+		    ui = c.getUI().get();
+		}
+//		else {
+//		    ui = UI.getCurrent();
+//		}
 		EventBus uiEventBus = fop.getUiEventBus();
 		uiEventBus.register(c);
 	    logger.debug("registering {} on bus {} {}",c, uiEventBus.identifier(), LoggerUtils.whereFrom());

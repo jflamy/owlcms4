@@ -270,7 +270,7 @@ public class Competition {
                 .filter(a -> a.getSnatch1AsInteger() == null)
                 .map(a -> a.getCategory())
                 .collect(Collectors.toSet());
-        logger.warn("medalCategories: all {} notDone {}", medalCategories, notDone);
+        //logger.debug("medalCategories: all {} notDone {}", medalCategories, notDone);
         medalCategories.removeAll(notDone);
 
         TreeMap<Category, TreeSet<Athlete>> medals = new TreeMap<>();
@@ -316,11 +316,11 @@ public class Competition {
             }
             medals.put(category, medalists);
 
-            logger.warn("medalists for {}", category);
-            for (Athlete medalist : medalists) {
-                logger.warn("{}\t{} {} {}", medalist.getShortName(), medalist.getSnatchRank(),
-                        medalist.getCleanJerkRank(), medalist.getTotalRank());
-            }
+//            logger.debug("medalists for {}", category);
+//            for (Athlete medalist : medalists) {
+//                logger.debug("{}\t{} {} {}", medalist.getShortName(), medalist.getSnatchRank(),
+//                        medalist.getCleanJerkRank(), medalist.getTotalRank());
+//            }
         }
         medalsByGroup.put(g, medals);
         return medals;

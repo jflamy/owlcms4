@@ -85,6 +85,7 @@ import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -187,6 +188,8 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected MenuBar topBarSettings;
     private boolean silenced = true;
     protected JuryDisplayDecisionElement decisionDisplay;
+    private Long id;
+    private BreakTimerElement breakTimerElement;
 
     /**
      * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -215,7 +218,9 @@ public abstract class AthleteGridContent extends VerticalLayout
         // breakButton.setText(getTranslation("BreakButton.Paused"));
         OwlcmsSession.withFop(fop -> {
             if (fop.getCountdownType() != CountdownType.INDEFINITE && fop.getBreakType() != BreakType.GROUP_DONE) {
-                breakButton.setIcon(new BreakTimerElement());
+                BreakTimerElement bte = getBreakTimerElement();
+                bte.setParent(this.getClass().getSimpleName()+"_"+id);
+                breakButton.setIcon(bte);
                 breakButton.setIconAfterText(true);
             }
 
@@ -223,6 +228,13 @@ public abstract class AthleteGridContent extends VerticalLayout
             breakButton.getElement().setAttribute("title", getTranslation("BreakButton.Caption"));
         });
 
+    }
+
+    private BreakTimerElement getBreakTimerElement() {
+        if (this.breakTimerElement == null) {
+            this.breakTimerElement = new BreakTimerElement();
+        }
+        return this.breakTimerElement;
     }
 
     public void clearVerticalMargins(HasStyle styleable) {
@@ -591,7 +603,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                     bt = BreakType.TECHNICAL;
                     ct = CountdownType.INDEFINITE;
                 }
-                logger.warn("requesting breaktype {}", bt);
+                //logger.debug("requesting breaktype {}", bt);
                 breakDialog = new BreakDialog(this, bt, ct);
                 breakDialog.open();
             });
@@ -995,6 +1007,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     protected void init() {
+        this.id = IdUtils.getTimeBasedId();
         OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
         crudGrid = createCrudGrid(crudFormFactory);
         crudLayout = (OwlcmsGridLayout) crudGrid.getCrudLayout();
