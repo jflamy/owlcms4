@@ -21,7 +21,6 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.IdUtils;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -33,6 +32,7 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElement.class);
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+    @SuppressWarnings("unused")
     private String parentName = "";
     public Long id;
 
@@ -187,6 +187,7 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
         });
     }
 
+    @SuppressWarnings("unused")
     private String formatDuration(Integer milliseconds) {
         return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds)
                 : (milliseconds != null ? milliseconds.toString() : "-");

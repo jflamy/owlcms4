@@ -694,6 +694,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         }
     }
 
+    @SuppressWarnings("unused")
     private Object getOrigin() {
         return this;
     }
