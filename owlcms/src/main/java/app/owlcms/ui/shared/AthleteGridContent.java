@@ -595,11 +595,13 @@ public abstract class AthleteGridContent extends VerticalLayout
                         && fopState != FOPState.TIME_RUNNING) {
                     bt = BreakType.FIRST_CJ;
                     ct = CountdownType.DURATION;
-                } else if (curAthlete.getAttemptsDone() == 0 && AthleteSorter.countLiftsDone(order) == 0
-                        && fopState != FOPState.TIME_RUNNING) {
-                    bt = BreakType.FIRST_SNATCH;
-                    ct = CountdownType.DURATION;
-                } else {
+                }
+//                else if (curAthlete.getAttemptsDone() == 0 && AthleteSorter.countLiftsDone(order) == 0
+//                        && fopState != FOPState.TIME_RUNNING) {
+//                    bt = BreakType.FIRST_SNATCH;
+//                    ct = CountdownType.DURATION;
+//                } 
+                else {
                     bt = BreakType.TECHNICAL;
                     ct = CountdownType.INDEFINITE;
                 }

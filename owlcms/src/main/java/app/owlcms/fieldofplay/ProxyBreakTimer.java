@@ -185,7 +185,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     @Override
     public void setIndefinite() {
         indefinite = true;
-        logger.warn("setting breaktimer indefinite = {} [{}]", indefinite, LoggerUtils.whereFrom());
+        //logger.debug("setting breaktimer indefinite = {} [{}]", indefinite, LoggerUtils.whereFrom());
         this.setTimeRemaining(0);
         this.setEnd(null);
         getFop().pushOut(
@@ -238,7 +238,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
         timeRemainingAtLastStop = timeRemaining;
         logger.debug("***stopping Break -- timeRemaining = {} [{}]", getTimeRemaining(), LoggerUtils.whereFrom());
         timeRemainingAtLastStop = getTimeRemaining();
-        logger.warn("break stop = {} [{}]", liveTimeRemaining(), LoggerUtils.whereFrom());
+        //logger.debug("break stop = {} [{}]", liveTimeRemaining(), LoggerUtils.whereFrom());
         UIEvent.BreakPaused event = new UIEvent.BreakPaused(isIndefinite() ? null : getTimeRemaining(), getOrigin(),
                 false,
                 getFop().getBreakType(), getFop().getCountdownType());

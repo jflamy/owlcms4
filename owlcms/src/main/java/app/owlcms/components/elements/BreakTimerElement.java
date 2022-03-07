@@ -34,7 +34,7 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
     final private Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElement.class);
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     private String parentName = "";
-    private Long id;
+    public Long id;
 
     {
         logger.setLevel(Level.INFO);
@@ -126,13 +126,13 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 
     @Subscribe
     public void slaveBreakDone(UIEvent.BreakDone e) {
-        uiEventLogger.warn("&&& break done {} {}", parentName, e.getOrigin());
+        //uiEventLogger.debug("&&& break done {} {}", parentName, e.getOrigin());
         doStopTimer(0);
     }
 
     @Subscribe
     public void slaveBreakPause(UIEvent.BreakPaused e) {
-        uiEventLogger.warn("&&& breakTimer pause {} {}", parentName, e.getMillis());
+        //uiEventLogger.debug("&&& breakTimer pause {} {}", parentName, e.getMillis());
         doStopTimer(e.getMillis());
     }
 
@@ -143,8 +143,7 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
             milliseconds = (int) LocalDateTime.now().until(e.getEnd(), ChronoUnit.MILLIS);
         } else {
             milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
-            uiEventLogger.warn("&&& breakTimer set {} {} {} {} {}", parentName, formatDuration(milliseconds),
-                    e.isIndefinite(), id, LoggerUtils.stackTrace());
+            //uiEventLogger.debug("&&& breakTimer set {} {} {} {} {}", parentName, formatDuration(milliseconds),e.isIndefinite(), id, LoggerUtils.stackTrace());
         }
         doSetTimer(milliseconds);
     }
@@ -155,7 +154,7 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
             return;
         }
         Integer tr = e.isIndefinite() ? null : e.getMillis();
-        uiEventLogger.warn("&&& breakTimer start {} {} {} {}", parentName, tr, e.getOrigin(), LoggerUtils.whereFrom());
+        //uiEventLogger.debug("&&& breakTimer start {} {} {} {}", parentName, tr, e.getOrigin(), LoggerUtils.whereFrom());
         doStartTimer(tr, true); // true means "silent".
     }
 

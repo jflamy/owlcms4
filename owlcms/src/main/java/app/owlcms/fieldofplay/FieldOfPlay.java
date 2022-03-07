@@ -1727,12 +1727,12 @@ public class FieldOfPlay {
                     setBreakType(newBreak);
                     pushOut(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak, CountdownType.DURATION, LoggerUtils.stackTrace()));
                 } else if (newBreak == BreakType.FIRST_SNATCH && (getBreakType().isCeremony())) {
-                    logger.warn("case 2");
+                    //logger.debug("case 2");
                     // exiting from medal or introduction ceremony, go back to break mode.
                     setBreakType(newBreak);
                     pushOut(new UIEvent.BreakStarted(breakTimer.getTimeRemaining(), this, false, newBreak, CountdownType.DURATION, LoggerUtils.stackTrace()));
                 } else {
-                    logger.warn("break start: from {} {} to {} {}", getBreakType(), getBreakType().isCeremony(), newBreak, newBreak.isCeremony());
+                    //logger.debug("break start: from {} {} to {} {}", getBreakType(), getBreakType().isCeremony(), newBreak, newBreak.isCeremony());
                     breakTimer.stop();
                     setBreakParams(e, breakTimer, newBreak, newCountdownType);
                     // getFopEventBus().post(new
@@ -1741,15 +1741,14 @@ public class FieldOfPlay {
                 }
             } else {
                 // we are in a break, resume.
-                logger.warn("{}resuming break : current {} new {}", getLoggingName(), getBreakType(),
-                        e.getBreakType());
+                //logger.debug("{}resuming break : current {} new {}", getLoggingName(), getBreakType(), e.getBreakType());
                 breakTimer.setOrigin(e.getOrigin());
                 logger.trace("starting2");
                 breakTimer.start();
             }
         } else {
             setBreakParams(e, breakTimer, newBreak, newCountdownType);
-            logger.warn("stopping1 {} {} {}", newBreak, newCountdownType, breakTimer.isIndefinite());
+            //logger.debug("stopping1 {} {} {}", newBreak, newCountdownType, breakTimer.isIndefinite());
             breakTimer.stop(); // so we restart in the new type
         }
         // this will broadcast to all slave break timers

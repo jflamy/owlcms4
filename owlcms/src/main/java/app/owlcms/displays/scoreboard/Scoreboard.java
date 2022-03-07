@@ -59,7 +59,6 @@ import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -189,11 +188,11 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 
     @Override
     public void doBreak() {
-        logger.warn("doBreak");
+        //logger.debug("doBreak");
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
             BreakType breakType = fop.getBreakType();
-            logger.warn("breakType = {}", breakType);
+            //logger.debug("breakType = {}", breakType);
 //            if (breakType == BreakType.MEDALS) {
 //                //String target = URLUtils.getUrlFromTargetClass(Medals.class, null);
 //                QueryParameters qp = QueryParameters.fromString("fop="+fop.getName());
@@ -375,7 +374,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     @Subscribe
     public void slaveStartBreak(UIEvent.BreakStarted e) {
         uiLog(e);
-        logger.warn("start break {}", e.getTrace());
+        //logger.debug("start break {}", e.getTrace());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
             doBreak();
@@ -749,8 +748,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     private void uiLog(UIEvent e) {
-        uiEventLogger.warn("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
+        //uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
     }
 
     private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {

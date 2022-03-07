@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.dialog.Dialog;
 
+import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
@@ -66,21 +67,24 @@ public class BreakDialog extends Dialog {
         this.add(content);
 
         this.addDialogCloseActionListener((e) -> {
-            this.removeAll();
-            this.close();
+
             // defensive, should have been unregistered already
+            BreakTimerElement breakTimer = content.getBreakTimer();
             try {
                 OwlcmsSession.getFop().getUiEventBus().unregister(content);
-                OwlcmsSession.getFop().getUiEventBus().unregister(content.getBreakTimer());
+                OwlcmsSession.getFop().getUiEventBus().unregister(breakTimer);
+                //logger.debug("++++++ unregistered {}", breakTimer.id);
             } catch (Exception e1) {
             }
             try {
                 OwlcmsSession.getFop().getFopEventBus().unregister(content);
-                OwlcmsSession.getFop().getUiEventBus().unregister(content.getBreakTimer());
+                OwlcmsSession.getFop().getFopEventBus().unregister(breakTimer);
             } catch (Exception e1) {
             }
             content.cleanup();
             content = null;
+            this.removeAll();
+            this.close();
         });
     }
 
