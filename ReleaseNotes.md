@@ -1,12 +1,10 @@
-### **Changes for release 4.30.0-alpha01**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+### **Changes for release 4.30.0-alpha02**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.30.0-alpha01: Snapshot release. Work in progress to better support medal and introduction ceremonies.
+4.30.0-alpha02: Snapshot release, for testing/feedback only. Work in progress to better support medal and introduction ceremonies.
 
-- Adjusted break management dialog so that starting the medal or introduction ceremony does not stop the countdown to the start of lifting if one is running.
-- The medals page now accepts a group parameter, will be used when medal presentation is done after starting the countdown for the another group. 
-- To do: dialog to select the group for medals presentation, ability to designate scoreboard as warmup or not, switching non-warmup displays to the medal content during medal presentation, checking automatic scene switching status.
-
-4.30.0-alpha00: for registration file upload removed user interface option to only accept Excel file types, pending further investigation of #472 
+- Redesigned the break management dialog to better reflect a normal introduction flow.  End of athlete introduction now sets default values for countdown to first snatch.
+- Added introduction of officials which is normally done after the snatch countdown has started.
+- To do/not working yet: dialog to select the group for medals presentation, ability to designate scoreboard as warmup or not, switching non-warmup displays to the medal content during medal presentation, double-checking scene-switching status
 
 4.30.0-alpha00: new medal scoreboard, button added to the Displays selection page.
 
