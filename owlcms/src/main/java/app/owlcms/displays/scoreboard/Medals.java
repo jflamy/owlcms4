@@ -30,12 +30,10 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
-import com.vaadin.flow.router.AfterNavigationEvent;
-import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
@@ -87,7 +85,7 @@ import elemental.json.JsonValue;
 @Push
 public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
-        RequireLogin, AfterNavigationObserver {
+        RequireLogin {
 
     /**
      * MedalsTemplate
@@ -157,8 +155,6 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
 
     private TreeMap<Category, TreeSet<Athlete>> medals;
 
-    private String referer;
-
     private FieldOfPlay fop;
 
     private Group group;
@@ -181,13 +177,6 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         DisplayOptions.addLightingEntries(vl, target, this);
         // vl.add(new Hr());
         // DisplayOptions.addSoundEntries(vl, target, this);
-    }
-
-    @Override
-    public void afterNavigation(AfterNavigationEvent event) {
-        this.referer = VaadinServletRequest.getCurrent().getHeader("referer");
-        //logger.debug("medals after navigation {} {}", event.getSource(),
-        //        VaadinServletRequest.getCurrent().getHeader("referer"));
     }
 
     @Override
@@ -382,14 +371,24 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     public void slaveBreakDone(UIEvent.BreakDone e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
-            // end of medals break. If this page was opened in replacement of a display, go back to the dispplay.
-            if (e.getBreakType() == BreakType.MEDALS && referer != null && referer.contains("/displays/")) {
-                UI.getCurrent().getPage().setLocation(referer);
+            if (e.getBreakType() == BreakType.MEDALS) {
+                // end of medals break. 
+                // If this page was opened in replacement of a display, go back to the display.
+                retrieveFromSessionStorage("pageURL", result -> {
+                            if (result != null && !result.isBlank()) {
+                                UI.getCurrent().getPage().setLocation(result);
+                            }
+                        });
             } else {
                 setHidden(false);
                 doUpdate(e);
             }
         }));
+    }
+
+    private void retrieveFromSessionStorage(String key, SerializableConsumer<String> resultHandler) {
+        getElement().executeJs("return window.sessionStorage.getItem($0);", key)
+                .then(String.class, resultHandler);
     }
 
     @Subscribe
@@ -465,7 +464,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
 
     protected void doEmpty() {
         // no need to hide, text is self evident.
-        //this.setHidden(true);
+        // this.setHidden(true);
     }
 
     protected void doUpdate(UIEvent e) {
@@ -500,7 +499,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         // fop obtained via FOPParameters interface default methods.
         OwlcmsSession.withFop(fop -> {
             init();
-            //logger.debug("group {}", this.getGroup());
+            // logger.debug("group {}", this.getGroup());
             medals = Competition.getCurrent().getMedals(this.getGroup());
             setHidden(false);
             computeMedalJson();
@@ -543,12 +542,12 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
                 if (medalists != null && !medalists.isEmpty()) {
                     jMC.put("categoryName", medalCat.getKey().getName());
                     jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
-                    //logger.debug("medalCategory: {}", jMC.toJson());
+                    // logger.debug("medalCategory: {}", jMC.toJson());
                     jsonMCArray.set(mcX, jMC);
                     mcX++;
                 }
             }
-            //logger.debug("medalCategories {}", jsonMCArray.toJson());
+            // logger.debug("medalCategories {}", jsonMCArray.toJson());
             this.getElement().setPropertyJson("medalCategories", jsonMCArray);
             if (mcX == 0) {
                 this.getElement().setProperty("noCategories", true);
@@ -724,7 +723,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     }
 
     private void setHidden(boolean hidden) {
-        //logger.debug("setHidden {}", LoggerUtils.whereFrom());
+        // logger.debug("setHidden {}", LoggerUtils.whereFrom());
         this.getElement().setProperty("hiddenStyle", (hidden ? "display:none" : "display:block"));
         this.getElement().setProperty("inactiveStyle", (hidden ? "display:block" : "display:none"));
         this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
@@ -735,7 +734,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     }
 
     private void syncWithFOP(UIEvent.SwitchGroup e) {
-        //logger.debug("sync {}", e.getState());
+        // logger.debug("sync {}", e.getState());
         switch (e.getState()) {
         case INACTIVE:
             doEmpty();
@@ -760,7 +759,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     }
 
     private void updateBottom(MedalsTemplate model, String liftType, FieldOfPlay fop) {
-        //logger.debug("updateBottom");
+        // logger.debug("updateBottom");
         model.setGroupName("");
         model.setLiftsDone("Y");
         // this.getElement().callJsFunction("groupDone");

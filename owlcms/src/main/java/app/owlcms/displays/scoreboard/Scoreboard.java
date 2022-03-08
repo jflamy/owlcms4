@@ -28,6 +28,7 @@ import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
@@ -166,6 +167,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     private boolean silenced = true;
     private boolean initializationNeeded;
 
+    private boolean switchableDisplay = false;
+
     /**
      * Instantiates a new results board.
      */
@@ -193,11 +196,10 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             ScoreboardModel model = getModel();
             BreakType breakType = fop.getBreakType();
             //logger.debug("breakType = {}", breakType);
-//            if (breakType == BreakType.MEDALS) {
-//                //String target = URLUtils.getUrlFromTargetClass(Medals.class, null);
-//                QueryParameters qp = QueryParameters.fromString("fop="+fop.getName());
-//                UI.getCurrent().re("displays/medals", qp);
-//            }
+            if (breakType == BreakType.MEDALS && this.isSwitchableDisplay() ) {
+                QueryParameters qp = QueryParameters.fromString("fop="+fop.getName());
+                UI.getCurrent().navigate("displays/medals", qp);
+            }
             model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
             model.setTeamName("");
             model.setAttempt("");
@@ -467,8 +469,16 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             uiEventBus = uiEventBusRegister(this, fop);
         });
         SoundUtils.enableAudioContextNotification(this.getElement());
+        if (!this.isSwitchableDisplay()) {
+            UI.getCurrent().getPage().fetchCurrentURL(url -> storeInSessionStorage("pageURL", url.toExternalForm()));
+        }
         // buildDialog(this);
     }
+    
+    private void storeInSessionStorage(String key, String value) {
+        getElement().executeJs("debugger; window.sessionStorage.setItem($0, $1);", key, value);
+    }
+
 
     protected void setTranslationMap() {
         JsonObject translations = Json.createObject();
@@ -767,6 +777,14 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             this.getElement().callJsFunction("groupDone");
         }
         this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder, fop));
+    }
+
+    public boolean isSwitchableDisplay() {
+        return switchableDisplay;
+    }
+
+    public void setSwitchableDisplay(boolean warmUpDisplay) {
+        this.switchableDisplay = warmUpDisplay;
     }
 
 }

@@ -131,6 +131,16 @@ public interface DisplayParameters extends FOPParameters {
     public boolean isShowInitialDialog();
 
     public boolean isSilenced();
+    
+    /**
+     * @return true if the display can switch during breaks (for example, to medals)
+     */
+    public default boolean isSwitchableDisplay() {
+        return false;
+    };
+    
+    public default void setSwitchableDisplay(boolean switchable) {
+    }
 
     public default boolean isSilencedByDefault() {
         return true;
