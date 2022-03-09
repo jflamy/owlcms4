@@ -30,6 +30,7 @@ import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
@@ -64,7 +65,6 @@ import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -139,10 +139,9 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         void setWideTeamNames(boolean b);
     }
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(ScoreMultiRanks.class);
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-
-    static {
+    final private Logger logger = (Logger) LoggerFactory.getLogger(ScoreWithLeaders.class);
+    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+    {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
     }
@@ -160,8 +159,8 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     private List<Athlete> displayOrder;
     private Group curGroup;
     private int liftsDone;
-
     JsonArray sattempts;
+
     JsonArray cattempts;
     private boolean darkMode = true;
     private Location location;
@@ -171,6 +170,8 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     private boolean silenced = true;
     private boolean initializationNeeded;
     private LinkedHashMap<String, Participation> ageGroupMap;
+
+    private boolean switchableDisplay = true;
 
     /**
      * Instantiates a new results board.
@@ -197,6 +198,10 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
             BreakType breakType = fop.getBreakType();
+            if (breakType == BreakType.MEDALS && this.isSwitchableDisplay()) {
+                QueryParameters qp = QueryParameters.fromString("fop=" + fop.getName());
+                UI.getCurrent().navigate("displays/medals", qp);
+            }
             model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
             model.setTeamName("");
             model.setAttempt("");
@@ -256,6 +261,14 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     }
 
     /**
+     * @return true if the display can switch during breaks (for example, to medals)
+     */
+    @Override
+    public boolean isSwitchableDisplay() {
+        return switchableDisplay;
+    }
+
+    /**
      * Reset.
      */
     public void reset() {
@@ -265,6 +278,11 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     @Override
     public void setDarkMode(boolean dark) {
         this.darkMode = dark;
+    }
+
+    @Override
+    public void setDialog(Dialog dialog) {
+        this.dialog = dialog;
     }
 
     @Override
@@ -288,9 +306,14 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     @Override
     public void setSilenced(boolean silenced) {
         this.timer.setSilenced(silenced);
-        this.decisions.setSilenced(silenced);
         this.breakTimer.setSilenced(silenced);
+        this.decisions.setSilenced(silenced);
         this.silenced = silenced;
+    }
+
+    @Override
+    public void setSwitchableDisplay(boolean warmUpDisplay) {
+        this.switchableDisplay = warmUpDisplay;
     }
 
     @Subscribe
@@ -341,14 +364,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             setHidden(false);
             this.getElement().callJsFunction("down");
-        });
-    }
-
-    @Subscribe
-    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
-        uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            computeLeaders();
         });
     }
 
@@ -432,7 +447,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         if (!leaveTopAlone) {
             if (a != null) {
                 Group group = fop.getGroup();
-                if (!group.isDone()) {
+                if (group != null && !group.isDone()) {
                     logger.debug("updating top {} {} {}", a.getFullName(), group, System.identityHashCode(group));
                     model.setFullName(a.getFullName());
                     model.setTeamName(a.getTeam());
@@ -471,8 +486,11 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
-        switchLightingMode(this, isDarkMode(), true);
         SoundUtils.enableAudioContextNotification(this.getElement());
+        if (this.isSwitchableDisplay()) {
+            UI.getCurrent().getPage().fetchCurrentURL(url -> storeInSessionStorage("pageURL", url.toExternalForm()));
+        }
+        // buildDialog(this);
     }
 
     protected void setTranslationMap() {
@@ -611,7 +629,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                 highlight = "";
             }
         }
-        logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
+        // logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
         ja.put("classname", highlight);
     }
 
@@ -647,7 +665,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                     fop);
             String team = a.getTeam();
             if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
-                logger.trace("long team {}", team);
                 setWideTeamNames(true);
             }
             jath.set(athx, ja);
@@ -733,10 +750,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         }
     }
 
-    private Object getOrigin() {
-        return this;
-    }
-
     private JsonValue getRanksJson(Athlete a, Ranking r, LinkedHashMap<String, Participation> ageGroupMap2) {
         JsonArray ranks = Json.createArray();
         int i = 0;
@@ -818,6 +831,10 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
     }
 
+    private void storeInSessionStorage(String key, String value) {
+        getElement().executeJs("window.sessionStorage.setItem($0, $1);", key, value);
+    }
+
     private void syncWithFOP(UIEvent.SwitchGroup e) {
         switch (e.getState()) {
         case INACTIVE:
@@ -838,8 +855,8 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     }
 
     private void uiLog(UIEvent e) {
-        uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
+        // uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(),
+        // e.getClass().getSimpleName(),this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
     }
 
     private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {
@@ -854,8 +871,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             liftsDone = AthleteSorter.countLiftsDone(displayOrder);
             model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
         } else {
-            model.setGroupName("X");
-            model.setLiftsDone("Y");
+            model.setGroupName("");
             this.getElement().callJsFunction("groupDone");
         }
         this.getElement().setPropertyJson("ageGroups", getAgeGroupNamesJson(fop.getAgeGroupMap()));
@@ -863,10 +879,4 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                 getAthletesJson(displayOrder, fop.getLiftingOrder(), fop));
         computeLeaders();
     }
-
-    @Override
-    public void setDialog(Dialog dialog) {
-        this.dialog = dialog;
-    }
-
 }

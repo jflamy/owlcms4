@@ -45,6 +45,7 @@ import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.options.DisplayOptions;
@@ -134,10 +135,9 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         void setWideTeamNames(boolean b);
     }
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(Scoreboard.class);
-
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-    static {
+    final private Logger logger = (Logger) LoggerFactory.getLogger(ScoreWithLeaders.class);
+    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+    {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
     }
@@ -167,7 +167,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     private boolean silenced = true;
     private boolean initializationNeeded;
 
-    private boolean switchableDisplay = false;
+    private boolean switchableDisplay = true;
 
     /**
      * Instantiates a new results board.
@@ -191,13 +191,11 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 
     @Override
     public void doBreak() {
-        //logger.debug("doBreak");
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
             BreakType breakType = fop.getBreakType();
-            //logger.debug("breakType = {}", breakType);
-            if (breakType == BreakType.MEDALS && this.isSwitchableDisplay() ) {
-                QueryParameters qp = QueryParameters.fromString("fop="+fop.getName());
+            if (breakType == BreakType.MEDALS && this.isSwitchableDisplay()) {
+                QueryParameters qp = QueryParameters.fromString("fop=" + fop.getName());
                 UI.getCurrent().navigate("displays/medals", qp);
             }
             model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
@@ -259,6 +257,14 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     /**
+     * @return true if the display can switch during breaks (for example, to medals)
+     */
+    @Override
+    public boolean isSwitchableDisplay() {
+        return switchableDisplay;
+    }
+
+    /**
      * Reset.
      */
     public void reset() {
@@ -299,6 +305,11 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         this.breakTimer.setSilenced(silenced);
         this.decisions.setSilenced(silenced);
         this.silenced = silenced;
+    }
+
+    @Override
+    public void setSwitchableDisplay(boolean warmUpDisplay) {
+        this.switchableDisplay = warmUpDisplay;
     }
 
     @Subscribe
@@ -376,7 +387,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     @Subscribe
     public void slaveStartBreak(UIEvent.BreakStarted e) {
         uiLog(e);
-        //logger.debug("start break {}", e.getTrace());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
             doBreak();
@@ -433,7 +443,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         if (!leaveTopAlone) {
             if (a != null) {
                 Group group = fop.getGroup();
-                if (!group.isDone()) {
+                if (group != null && !group.isDone()) {
                     logger.debug("updating top {} {} {}", a.getFullName(), group, System.identityHashCode(group));
                     model.setFullName(a.getFullName());
                     model.setTeamName(a.getTeam());
@@ -457,7 +467,10 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        // fop hase been obtained via FOPParameters interface default methods.
+        // crude workaround -- randomly getting light or dark due to multiple themes detected in app.
+        getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
+
+        // fop obtained via FOPParameters interface default methods.
         OwlcmsSession.withFop(fop -> {
             init();
 
@@ -469,16 +482,11 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             uiEventBus = uiEventBusRegister(this, fop);
         });
         SoundUtils.enableAudioContextNotification(this.getElement());
-        if (!this.isSwitchableDisplay()) {
+        if (this.isSwitchableDisplay()) {
             UI.getCurrent().getPage().fetchCurrentURL(url -> storeInSessionStorage("pageURL", url.toExternalForm()));
         }
         // buildDialog(this);
     }
-    
-    private void storeInSessionStorage(String key, String value) {
-        getElement().executeJs("debugger; window.sessionStorage.setItem($0, $1);", key, value);
-    }
-
 
     protected void setTranslationMap() {
         JsonObject translations = Json.createObject();
@@ -490,6 +498,9 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             }
         }
         this.getElement().setPropertyJson("t", translations);
+    }
+
+    private void computeLeaders() {
     }
 
     private String computeLiftType(Athlete a) {
@@ -507,10 +518,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             doEmpty();
         } else {
             OwlcmsSession.withFop(fop -> {
-                updateBottom(getModel(), computeLiftType(fop.getCurAthlete()), fop);
-                String translation = getTranslation("Group_number_results", g.toString());
-                getModel().setFullName(translation);
-                logger.debug("group results = {}", translation);
+                updateBottom(getModel(), null, fop);
+                getModel().setFullName(getTranslation("Group_number_results", g.toString()));
                 this.getElement().callJsFunction("groupDone");
             });
         }
@@ -554,7 +563,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         }
     }
 
-    private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, FieldOfPlay fop) {
+    private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
         String category;
         category = curCat != null ? curCat.getName() : "";
         ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
@@ -563,14 +572,19 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         Integer startNumber = a.getStartNumber();
         ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
         ja.put("category", category != null ? category : "");
-        getAttemptsJson(a, fop);
+        getAttemptsJson(a, liftOrderRank, fop);
         ja.put("sattempts", sattempts);
         ja.put("cattempts", cattempts);
         ja.put("total", formatInt(a.getTotal()));
-        ja.put("snatchRank", formatRank(a.getMainRankings().getSnatchRank()));
-        ja.put("cleanJerkRank", formatRank(a.getMainRankings().getCleanJerkRank()));
-        ja.put("totalRank", formatRank(a.getMainRankings().getTotalRank()));
-        Integer liftOrderRank = a.getLiftOrderRank();
+        Participation mainRankings = a.getMainRankings();
+        if (mainRankings != null) {
+            ja.put("snatchRank", formatRank(mainRankings.getSnatchRank()));
+            ja.put("cleanJerkRank", formatRank(mainRankings.getCleanJerkRank()));
+            ja.put("totalRank", formatRank(mainRankings.getTotalRank()));
+        } else {
+            logger.error("main rankings null for {}", a);
+        }
+        ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
 
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
@@ -592,21 +606,20 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     /**
-     * @param list2
-     * @param fop
+     * @param groupAthletes, List<Athlete> liftOrder
      * @return
      */
-    private JsonValue getAthletesJson(List<Athlete> list2, FieldOfPlay fop) {
+    private JsonValue getAthletesJson(List<Athlete> displayOrder, List<Athlete> liftOrder, FieldOfPlay fop) {
         JsonArray jath = Json.createArray();
         int athx = 0;
         Category prevCat = null;
-        List<Athlete> list3 = list2 != null ? Collections.unmodifiableList(list2) : Collections.emptyList();
-        setWideTeamNames(false);
-        for (Athlete a : list3) {
+        long currentId = (liftOrder != null && liftOrder.size() > 0) ? liftOrder.get(0).getId() : -1L;
+        long nextId = (liftOrder != null && liftOrder.size() > 1) ? liftOrder.get(1).getId() : -1L;
+        List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
+                : Collections.emptyList();
+        for (Athlete a : athletes) {
             JsonObject ja = Json.createObject();
             Category curCat = a.getCategory();
-            // logger.debug("{} {} {} {}", a, curCat, curCat.getId(), prevCat, prevCat != null ? prevCat.getId() :
-            // null);
             if (curCat != null && !curCat.sameAs(prevCat)) {
                 // changing categories, put marker before athlete
                 ja.put("isSpacer", true);
@@ -615,9 +628,15 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                 prevCat = curCat;
                 athx++;
             }
-            getAthleteJson(a, ja, curCat, fop);
+            // compute the blinking rank (1 = current, 2 = next)
+            getAthleteJson(a, ja, curCat, (a.getId() == currentId)
+                    ? 1
+                    : ((a.getId() == nextId)
+                            ? 2
+                            : 0),
+                    fop);
             String team = a.getTeam();
-            if (team != null && team.length() > Competition.SHORT_TEAM_LENGTH) {
+            if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
                 setWideTeamNames(true);
             }
             jath.set(athx, ja);
@@ -635,11 +654,10 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
      * @param fop
      * @return json string with nested attempts values
      */
-    private void getAttemptsJson(Athlete a, FieldOfPlay fop) {
+    private void getAttemptsJson(Athlete a, int liftOrderRank, FieldOfPlay fop) {
         sattempts = Json.createArray();
         cattempts = Json.createArray();
         XAthlete x = new XAthlete(a);
-        Integer liftOrderRank = x.getLiftOrderRank();
         Integer curLift = x.getAttemptsDone();
         int ix = 0;
         for (LiftInfo i : x.getRequestInfoArray()) {
@@ -704,11 +722,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         }
     }
 
-    @SuppressWarnings("unused")
-    private Object getOrigin() {
-        return this;
-    }
-
     private void init() {
         OwlcmsSession.withFop(fop -> {
             logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
@@ -739,6 +752,10 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
     }
 
+    private void storeInSessionStorage(String key, String value) {
+        getElement().executeJs("window.sessionStorage.setItem($0, $1);", key, value);
+    }
+
     private void syncWithFOP(UIEvent.SwitchGroup e) {
         switch (e.getState()) {
         case INACTIVE:
@@ -759,7 +776,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     private void uiLog(UIEvent e) {
-        //uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
+        // uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(),
+        // e.getClass().getSimpleName(),this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
     }
 
     private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {
@@ -770,21 +788,15 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                     curGroup != null
                             ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
                             : "");
+            liftsDone = AthleteSorter.countLiftsDone(displayOrder);
             model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
         } else {
-            model.setGroupName("A");
-            model.setLiftsDone("B");
+            model.setGroupName("");
             this.getElement().callJsFunction("groupDone");
         }
-        this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder, fop));
-    }
-
-    public boolean isSwitchableDisplay() {
-        return switchableDisplay;
-    }
-
-    public void setSwitchableDisplay(boolean warmUpDisplay) {
-        this.switchableDisplay = warmUpDisplay;
+        this.getElement().setPropertyJson("athletes",
+                getAthletesJson(displayOrder, fop.getLiftingOrder(), fop));
+        computeLeaders();
     }
 
 }

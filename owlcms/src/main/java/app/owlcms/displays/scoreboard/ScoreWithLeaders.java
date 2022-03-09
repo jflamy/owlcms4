@@ -28,6 +28,7 @@ import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
@@ -60,7 +61,6 @@ import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -135,39 +135,44 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         void setWideTeamNames(boolean b);
     }
 
-    final private Logger logger = (Logger) LoggerFactory.getLogger(ScoreWithLeaders.class);
-
-    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-    @Id("timer")
-    private AthleteTimerElement timer; // Flow creates it
-
+    JsonArray cattempts;
+    JsonArray sattempts;
     @Id("breakTimer")
     private BreakTimerElement breakTimer; // Flow creates it
+
+    private Group curGroup;
+
+    private boolean darkMode = true;
 
     @Id("decisions")
     private DecisionElement decisions; // Flow creates it
 
-    private EventBus uiEventBus;
+    private Dialog dialog;
 
     private List<Athlete> displayOrder;
-    private Group curGroup;
+    private boolean groupDone;
+    private boolean initializationNeeded;
     private int liftsDone;
-    JsonArray sattempts;
 
-    JsonArray cattempts;
-    private boolean darkMode = true;
     private Location location;
     private UI locationUI;
-    private boolean groupDone;
-    private Dialog dialog;
+    final private Logger logger = (Logger) LoggerFactory.getLogger(ScoreWithLeaders.class);
     private boolean silenced = true;
-    private boolean initializationNeeded;
+    private boolean switchableDisplay = true;
+    @Id("timer")
+    private AthleteTimerElement timer; // Flow creates it
+    private EventBus uiEventBus;
+    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+
+    {
+        logger.setLevel(Level.INFO);
+        uiEventLogger.setLevel(Level.INFO);
+    }
 
     /**
      * Instantiates a new results board.
      */
     public ScoreWithLeaders() {
-        uiEventLogger.setLevel(Level.DEBUG);
         OwlcmsFactory.waitDBInitialized();
         timer.setOrigin(this);
         setDarkMode(true);
@@ -189,6 +194,10 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
             BreakType breakType = fop.getBreakType();
+            if (breakType == BreakType.MEDALS && this.isSwitchableDisplay()) {
+                QueryParameters qp = QueryParameters.fromString("fop=" + fop.getName());
+                UI.getCurrent().navigate("displays/medals", qp);
+            }
             model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
             model.setTeamName("");
             model.setAttempt("");
@@ -248,6 +257,14 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     }
 
     /**
+     * @return true if the display can switch during breaks (for example, to medals)
+     */
+    @Override
+    public boolean isSwitchableDisplay() {
+        return switchableDisplay;
+    }
+
+    /**
      * Reset.
      */
     public void reset() {
@@ -288,6 +305,11 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         this.breakTimer.setSilenced(silenced);
         this.decisions.setSilenced(silenced);
         this.silenced = silenced;
+    }
+
+    @Override
+    public void setSwitchableDisplay(boolean warmUpDisplay) {
+        this.switchableDisplay = warmUpDisplay;
     }
 
     @Subscribe
@@ -338,14 +360,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             setHidden(false);
             this.getElement().callJsFunction("down");
-        });
-    }
-
-    @Subscribe
-    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
-        uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            computeLeaders();
         });
     }
 
@@ -468,8 +482,11 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
-        switchLightingMode(this, isDarkMode(), true);
         SoundUtils.enableAudioContextNotification(this.getElement());
+        if (this.isSwitchableDisplay()) {
+            UI.getCurrent().getPage().fetchCurrentURL(url -> storeInSessionStorage("pageURL", url.toExternalForm()));
+        }
+        // buildDialog(this);
     }
 
     protected void setTranslationMap() {
@@ -600,7 +617,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 highlight = "";
             }
         }
-        logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
+        // logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
         ja.put("classname", highlight);
     }
 
@@ -636,7 +653,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                     fop);
             String team = a.getTeam();
             if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
-                logger.trace("long team {}", team);
                 setWideTeamNames(true);
             }
             jath.set(athx, ja);
@@ -722,10 +738,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         }
     }
 
-    private Object getOrigin() {
-        return this;
-    }
-
     private void init() {
         OwlcmsSession.withFop(fop -> {
             logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
@@ -756,6 +768,10 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
     }
 
+    private void storeInSessionStorage(String key, String value) {
+        getElement().executeJs("window.sessionStorage.setItem($0, $1);", key, value);
+    }
+
     private void syncWithFOP(UIEvent.SwitchGroup e) {
         switch (e.getState()) {
         case INACTIVE:
@@ -776,8 +792,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     }
 
     private void uiLog(UIEvent e) {
-        uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
+        // uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(),
+        // e.getClass().getSimpleName(),this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
     }
 
     private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {
@@ -798,4 +814,5 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 getAthletesJson(displayOrder, fop.getLiftingOrder(), fop));
         computeLeaders();
     }
+
 }
