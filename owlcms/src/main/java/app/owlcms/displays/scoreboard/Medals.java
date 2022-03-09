@@ -371,14 +371,15 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     public void slaveBreakDone(UIEvent.BreakDone e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
+            // logger.debug("------- slaveBreakDone {}", e.getBreakType());
             if (e.getBreakType() == BreakType.MEDALS) {
-                // end of medals break. 
+                // end of medals break.
                 // If this page was opened in replacement of a display, go back to the display.
                 retrieveFromSessionStorage("pageURL", result -> {
-                            if (result != null && !result.isBlank()) {
-                                UI.getCurrent().getPage().setLocation(result);
-                            }
-                        });
+                    if (result != null && !result.isBlank()) {
+                        UI.getCurrent().getPage().setLocation(result);
+                    }
+                });
             } else {
                 setHidden(false);
                 doUpdate(e);
@@ -437,15 +438,24 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
 
     @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
+        // logger.debug("****** slaveStopBreak ");
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             setHidden(false);
-            this.getElement().callJsFunction("reset");
+            // If this page was opened in replacement of a display, go back to the display.
+            retrieveFromSessionStorage("pageURL", result -> {
+                if (result != null && !result.isBlank()) {
+                    UI.getCurrent().getPage().setLocation(result);
+                } else {
+                    this.getElement().callJsFunction("reset");
+                }
+            });
         });
     }
 
     @Subscribe
     public void slaveStopBreak(UIEvent.BreakDone e) {
+        // logger.debug("------ slaveStopBreak {}", e.getBreakType());
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
