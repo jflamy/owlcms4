@@ -6,6 +6,8 @@
  *******************************************************************************/
 package app.owlcms.apputils.queryparameters;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -67,14 +69,16 @@ public interface FOPParameters extends HasUrlParameter<String> {
 
         if (!isIgnoreFopFromURL()) {
             if (fopFound) {
-                logger.trace("fopNames {}", fopNames);
-                fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
+                //logger.trace("fopNames {}", fopNames);
+                String decoded = URLDecoder.decode(fopNames.get(0), StandardCharsets.UTF_8);
+                //logger.trace("URL fop = {} decoded = {}",fopNames.get(0), decoded);
+                fop = OwlcmsFactory.getFOPByName(decoded);
             } else if (OwlcmsSession.getFop() != null) {
-                logger.trace("OwlcmsSession.getFop() {}", OwlcmsSession.getFop());
+                //logger.trace("OwlcmsSession.getFop() {}", OwlcmsSession.getFop());
                 fop = OwlcmsSession.getFop();
             }
             if (fop == null) {
-                logger.trace("OwlcmsFactory.getDefaultFOP() {}", OwlcmsFactory.getDefaultFOP());
+                //logger.trace("OwlcmsFactory.getDefaultFOP() {}", OwlcmsFactory.getDefaultFOP());
                 fop = OwlcmsFactory.getDefaultFOP();
             }
             newParameterMap.put("fop", Arrays.asList(URLUtils.urlEncode(fop.getName())));
@@ -88,7 +92,9 @@ public interface FOPParameters extends HasUrlParameter<String> {
         if (!isIgnoreGroupFromURL()) {
             List<String> groupNames = parametersMap.get("group");
             if (groupNames != null && groupNames.get(0) != null) {
-                group = GroupRepository.findByName(groupNames.get(0));
+                String decoded = URLDecoder.decode(groupNames.get(0), StandardCharsets.UTF_8);
+                //logger.trace("URL group = {} decoded = {}",groupNames.get(0), decoded);
+                group = GroupRepository.findByName(decoded);
                 fop.loadGroup(group, this, true);
             } else {
                 group = (fop != null ? fop.getGroup() : null);
