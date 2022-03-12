@@ -121,7 +121,7 @@ public class FieldOfPlay {
 
     public static final int REVERSAL_DELAY = 3000;
 
-    private static final int DEFAULT_BREAK_DURATION = 10*60*1000;
+    private static final int DEFAULT_BREAK_DURATION = 10 * 60 * 1000;
 
     /**
      * Instantiates a new field of play state. This constructor is only used for testing using mock timers.
@@ -608,7 +608,7 @@ public class FieldOfPlay {
                         this.getCountdownType()));
             } else if (e instanceof FOPEvent.BreakDone) {
                 pushOut(new UIEvent.BreakDone(e.getOrigin(), getBreakType()));
-                logger.debug("break done {} {} \n{}", this.getName(), e.getFop().getName(), e.getStackTrace());
+                // logger.trace("break done {} {} \n{}", this.getName(), e.getFop().getName(), e.getStackTrace());
                 BreakType breakType = getBreakType();
                 if (breakType == FIRST_SNATCH || breakType == FIRST_CJ) {
                     transitionToLifting(e, getGroup(), false);
@@ -921,7 +921,7 @@ public class FieldOfPlay {
 //            rankedAthletes.stream().forEach(a -> {
 //                logger.debug("rankedAthletes {} {}", a, a.getSnatch1AsInteger());
 //            });
-            setMedals(Competition.getCurrent().computeMedals(g,rankedAthletes));
+            setMedals(Competition.getCurrent().computeMedals(g, rankedAthletes));
         }
         List<Athlete> currentGroupAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
                 .filter(a -> a.getGroup() != null ? a.getGroup().equals(g) : false)
@@ -953,7 +953,7 @@ public class FieldOfPlay {
     }
 
     public void setBreakType(BreakType breakType) {
-        logger.warn("FOP setBreakType {} from {}",breakType, LoggerUtils.stackTrace());
+        logger.warn("FOP setBreakType {} from {}", breakType, LoggerUtils.whereFrom());
         this.breakType = breakType;
     }
 
@@ -1707,7 +1707,8 @@ public class FieldOfPlay {
             return state2.name() + "." + (breakType != null ? breakType.name() : BreakType.GROUP_DONE);
         } else if (state2 == null) {
             return INACTIVE.name();
-        }{
+        }
+        {
             return state2.name();
         }
     }
@@ -1726,14 +1727,16 @@ public class FieldOfPlay {
                 if (newBreak == BreakType.FIRST_SNATCH) {
                     BreakType oldBreakType = getBreakType();
                     setBreakType(newBreak);
-                    if (oldBreakType == BEFORE_INTRODUCTION || (oldBreakType == DURING_INTRODUCTION && breakTimer.isIndefinite())) {
+                    if (oldBreakType == BEFORE_INTRODUCTION
+                            || (oldBreakType == DURING_INTRODUCTION && breakTimer.isIndefinite())) {
                         breakTimer.stop();
                         breakTimer.setTimeRemaining(DEFAULT_BREAK_DURATION, true);
                         breakTimer.setBreakDuration(DEFAULT_BREAK_DURATION);
                     } else {
                         breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);
                     }
-                    logger.warn("switching to first snatch {} timeremaining={}",newBreak, breakTimer.getTimeRemaining());
+                    logger.warn("switching to first snatch {} timeremaining={}", newBreak,
+                            breakTimer.getTimeRemaining());
                     // break timer pushes out the BreakStarted event.
                     breakTimer.start();
                     return;
@@ -1743,9 +1746,11 @@ public class FieldOfPlay {
                     // only change the break type, leave counter running
                     logger.warn("leave timer alone");
                     setBreakType(newBreak);
-                    pushOut(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak, CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite()));
+                    pushOut(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak,
+                            CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite()));
                 } else {
-                    logger.debug("break start: from {} {} to {} {}", getBreakType(), getBreakType().isCeremony(), newBreak, newBreak.isCeremony());
+                    logger.debug("break start: from {} {} to {} {}", getBreakType(), getBreakType().isCeremony(),
+                            newBreak, newBreak.isCeremony());
                     breakTimer.stop();
                     setBreakParams(e, breakTimer, newBreak, newCountdownType);
                     breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);
@@ -1771,7 +1776,8 @@ public class FieldOfPlay {
             logger.warn("starting3");
             breakTimer.start();
         }
-        logger.warn("break {} breakTimer {} {} {}",getBreakType(), breakTimer.isRunning(), breakTimer.getBreakType(), breakTimer.getBreakDuration());
+        logger.warn("break {} breakTimer {} {} {}", getBreakType(), breakTimer.isRunning(), breakTimer.getBreakType(),
+                breakTimer.getBreakDuration());
     }
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {

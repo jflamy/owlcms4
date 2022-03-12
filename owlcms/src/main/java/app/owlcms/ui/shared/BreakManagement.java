@@ -228,6 +228,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 syncWithFop();
             }
         });
+        // not needed after initial setup
+        setRequestedBreakType(null);
 
     }
 
@@ -637,7 +639,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     private CountdownType mapBreakTypeToDurationValue(BreakType bType) {
         CountdownType cType;
-        if (bType == BreakType.FIRST_SNATCH || bType == BreakType.FIRST_CJ) {
+        if (bType == BreakType.FIRST_SNATCH || bType == BreakType.FIRST_CJ || bType.isCeremony()) {
             cType = CountdownType.DURATION;
         } else if (bType == BreakType.BEFORE_INTRODUCTION || bType == BreakType.GROUP_DONE) {
             cType = CountdownType.TARGET;
@@ -713,7 +715,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private void setBreakTimerFromFields(CountdownType cType) {
-
         if (ignoreListeners) {
             return;
         }
@@ -724,6 +725,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             safeSetBT(requestedBreakType);
             cType = null;
             setRequestedBreakType(null);
+        } else {
+            cType = durationRadios.getValue();
         }
 
         BreakType bType = countdownRadios.getValue();
@@ -884,7 +887,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             ignoreNextDisable = false;
             return;
         }
-        logger.warn("start disabled {}", LoggerUtils.stackTrace());
+        logger.warn("start disabled {}", LoggerUtils.whereFrom(1));
         breakStart.setEnabled(false);
         breakPause.setEnabled(true);
         breakEnd.setEnabled(true);
@@ -921,6 +924,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private void switchToIndefinite() {
+        logger.warn("switchToIndefinite {}", LoggerUtils.stackTrace());
         durationField.setEnabled(false);
         minutes.setEnabled(false);
         datePicker.setEnabled(false);
