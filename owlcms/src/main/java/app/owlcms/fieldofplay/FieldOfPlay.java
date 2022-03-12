@@ -1726,7 +1726,7 @@ public class FieldOfPlay {
                 if (newBreak == BreakType.FIRST_SNATCH) {
                     BreakType oldBreakType = getBreakType();
                     setBreakType(newBreak);
-                    if (oldBreakType == BEFORE_INTRODUCTION || oldBreakType == DURING_INTRODUCTION) {
+                    if (oldBreakType == BEFORE_INTRODUCTION || (oldBreakType == DURING_INTRODUCTION && breakTimer.isIndefinite())) {
                         breakTimer.stop();
                         breakTimer.setTimeRemaining(DEFAULT_BREAK_DURATION, true);
                         breakTimer.setBreakDuration(DEFAULT_BREAK_DURATION);
