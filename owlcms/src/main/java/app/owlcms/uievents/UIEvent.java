@@ -220,15 +220,17 @@ public class UIEvent {
         protected LocalDateTime end;
         protected BreakType breakType;
         protected CountdownType countdownType;
+        private Boolean paused;
 
         public BreakStarted(Integer millisRemaining, Object origin, boolean displayToggle, BreakType bt,
-                CountdownType ct, String trace) {
+                CountdownType ct, String trace, Boolean paused) {
             super(origin);
             this.timeRemaining = millisRemaining;
             this.indefinite = (ct != null && ct == CountdownType.INDEFINITE) || (millisRemaining == null);
             this.breakType = bt;
             this.countdownType = ct;
             this.setDisplayToggle(displayToggle);
+            this.setPaused(paused);
             this.setTrace(trace);
         }
 
@@ -270,6 +272,14 @@ public class UIEvent {
             return "UIEvent.BreakStarted [displayToggle=" + displayToggle + ", timeRemaining=" + timeRemaining
                     + ", indefinite=" + indefinite + ", end=" + end + ", breakType=" + breakType + ", countdownType="
                     + countdownType + "]";
+        }
+
+        public Boolean getPaused() {
+            return paused;
+        }
+
+        public void setPaused(Boolean paused) {
+            this.paused = paused;
         }
     }
 

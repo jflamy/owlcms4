@@ -76,7 +76,7 @@ public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
      * @see app.owlcms.fieldofplay.IProxyTimer#setTimeRemaining(int)
      */
     @Override
-    public void setTimeRemaining(int timeRemaining) {
+    public void setTimeRemaining(int timeRemaining, boolean indefinite) {
         logger.debug("setting Time -- timeRemaining = {}\t[{}]", timeRemaining, LoggerUtils.whereFrom());
         this.timeRemaining = timeRemaining;
     }

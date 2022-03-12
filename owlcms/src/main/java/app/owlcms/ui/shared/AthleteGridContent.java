@@ -72,6 +72,7 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
@@ -217,7 +218,9 @@ public abstract class AthleteGridContent extends VerticalLayout
         breakButton.getStyle().set("background-color", "var(--lumo-error-color)");
         // breakButton.setText(getTranslation("BreakButton.Paused"));
         OwlcmsSession.withFop(fop -> {
-            if (fop.getCountdownType() != CountdownType.INDEFINITE && fop.getBreakType() != BreakType.GROUP_DONE) {
+            IBreakTimer breakTimer = fop.getBreakTimer();
+            //if (fop.getCountdownType() != CountdownType.INDEFINITE && fop.getBreakType() != BreakType.GROUP_DONE) {
+            if (fop.getBreakType() != BreakType.GROUP_DONE && !breakTimer.isIndefinite()) {
                 BreakTimerElement bte = getBreakTimerElement();
                 bte.setParent(this.getClass().getSimpleName()+"_"+id);
                 breakButton.setIcon(bte);

@@ -155,7 +155,11 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
         }
         Integer tr = e.isIndefinite() ? null : e.getMillis();
         //uiEventLogger.debug("&&& breakTimer start {} {} {} {}", parentName, tr, e.getOrigin(), LoggerUtils.whereFrom());
-        doStartTimer(tr, true); // true means "silent".
+        if (Boolean.TRUE.equals(e.getPaused())) {
+            doSetTimer(tr);
+        } else {
+            doStartTimer(tr, true); // true means "silent".
+        }
     }
 
     /*
@@ -163,6 +167,14 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
+        syncWIthFop();
+        OwlcmsSession.withFop(fop -> {
+            // we listen on uiEventBus; this method ensures we stop when detached.
+            uiEventBusRegister(this, fop);
+        });
+    }
+
+    public void syncWIthFop() {
         OwlcmsSession.withFop(fop -> {
             init(fop.getName());
             // sync with current status of FOP
@@ -182,8 +194,6 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
                     }
                 }
             }
-            // we listen on uiEventBus; this method ensures we stop when detached.
-            uiEventBusRegister(this, fop);
         });
     }
 

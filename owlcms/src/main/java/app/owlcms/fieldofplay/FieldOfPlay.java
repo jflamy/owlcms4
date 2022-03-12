@@ -54,9 +54,6 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.FOPEvent.BarbellOrPlatesChanged;
-import app.owlcms.fieldofplay.FOPEvent.BreakDone;
-import app.owlcms.fieldofplay.FOPEvent.BreakPaused;
-import app.owlcms.fieldofplay.FOPEvent.BreakStarted;
 import app.owlcms.fieldofplay.FOPEvent.DecisionFullUpdate;
 import app.owlcms.fieldofplay.FOPEvent.DecisionReset;
 import app.owlcms.fieldofplay.FOPEvent.DecisionUpdate;
@@ -123,6 +120,8 @@ public class FieldOfPlay {
     public static final long DECISION_VISIBLE_DURATION = 3500;
 
     public static final int REVERSAL_DELAY = 3000;
+
+    private static final int DEFAULT_BREAK_DURATION = 10*60*1000;
 
     /**
      * Instantiates a new field of play state. This constructor is only used for testing using mock timers.
@@ -523,10 +522,10 @@ public class FieldOfPlay {
 
         // it is always possible to explicitly interrupt competition (break between the
         // two lifts, technical incident, etc.). Even switching break type is allowed.
-        if (e instanceof BreakStarted) {
+        if (e instanceof FOPEvent.BreakStarted) {
             // exception: wait until a decision has been registered to process jury deliberation.
             if (state != DECISION_VISIBLE && state != DOWN_SIGNAL_VISIBLE) {
-                transitionToBreak((BreakStarted) e);
+                transitionToBreak((FOPEvent.BreakStarted) e);
             } else {
                 deferredBreak = e;
                 logger.info("{}Deferred break", getLoggingName());
@@ -597,23 +596,26 @@ public class FieldOfPlay {
             break;
 
         case BREAK:
-            if (e instanceof BreakPaused) {
-                BreakPaused bpe = (BreakPaused) e;
+            if (e instanceof FOPEvent.BreakPaused) {
+                FOPEvent.BreakPaused bpe = (FOPEvent.BreakPaused) e;
                 getBreakTimer().stop();
-                getBreakTimer().setTimeRemaining(bpe.getTimeRemaining());
+                getBreakTimer().setTimeRemaining(bpe.getTimeRemaining(), false);
                 pushOut(new UIEvent.BreakPaused(
                         bpe.getTimeRemaining(),
                         e.getOrigin(),
                         false,
                         this.getBreakType(),
                         this.getCountdownType()));
-            } else if (e instanceof BreakDone) {
+            } else if (e instanceof FOPEvent.BreakDone) {
                 pushOut(new UIEvent.BreakDone(e.getOrigin(), getBreakType()));
-                //logger.debug("break done {} {} \n{}", this.getName(), e.getFop().getName(), e.getStackTrace());
+                logger.debug("break done {} {} \n{}", this.getName(), e.getFop().getName(), e.getStackTrace());
                 BreakType breakType = getBreakType();
                 if (breakType == FIRST_SNATCH || breakType == FIRST_CJ) {
                     transitionToLifting(e, getGroup(), false);
                 } else if (breakType == BEFORE_INTRODUCTION) {
+                    transitionToBreak(
+                            new FOPEvent.BreakStarted(FIRST_SNATCH, INDEFINITE, null,
+                                    null, this));
                     transitionToBreak(
                             new FOPEvent.BreakStarted(DURING_INTRODUCTION, INDEFINITE, null,
                                     null, this));
@@ -629,8 +631,8 @@ public class FieldOfPlay {
                 } else {
                     transitionToLifting(e, getGroup(), false);
                 }
-            } else if (e instanceof BreakStarted) {
-                transitionToBreak((BreakStarted) e);
+            } else if (e instanceof FOPEvent.BreakStarted) {
+                transitionToBreak((FOPEvent.BreakStarted) e);
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof JuryDecision) {
@@ -651,7 +653,7 @@ public class FieldOfPlay {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof ForceTime) {
                 // need to set time
-                getAthleteTimer().setTimeRemaining(((ForceTime) e).timeAllowed);
+                getAthleteTimer().setTimeRemaining(((ForceTime) e).timeAllowed, false);
                 setState(CURRENT_ATHLETE_DISPLAYED);
             } else {
                 unexpectedEventInState(e, CURRENT_ATHLETE_DISPLAYED);
@@ -714,7 +716,7 @@ public class FieldOfPlay {
             } else if (e instanceof ExplicitDecision) {
                 simulateDecision((ExplicitDecision) e);
             } else if (e instanceof ForceTime) {
-                getAthleteTimer().setTimeRemaining(((ForceTime) e).timeAllowed);
+                getAthleteTimer().setTimeRemaining(((ForceTime) e).timeAllowed, false);
                 setState(CURRENT_ATHLETE_DISPLAYED);
             } else if (e instanceof TimeStopped) {
                 // ignore duplicate time stopped
@@ -762,7 +764,7 @@ public class FieldOfPlay {
             } else if (e instanceof DecisionReset) {
                 doDecisionReset(e);
                 if (deferredBreak != null) {
-                    transitionToBreak((BreakStarted) deferredBreak);
+                    transitionToBreak((FOPEvent.BreakStarted) deferredBreak);
                     deferredBreak = null;
                 }
             } else {
@@ -951,6 +953,7 @@ public class FieldOfPlay {
     }
 
     public void setBreakType(BreakType breakType) {
+        logger.warn("FOP setBreakType {} from {}",breakType, LoggerUtils.stackTrace());
         this.breakType = breakType;
     }
 
@@ -1363,6 +1366,7 @@ public class FieldOfPlay {
         UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null, LoggerUtils.whereFrom());
         // make sure the publicresults update carries the right state.
         this.setBreakType(BreakType.GROUP_DONE);
+        this.getBreakTimer().setIndefinite();
         this.setState(BREAK);
         pushOut(event);
     }
@@ -1449,7 +1453,7 @@ public class FieldOfPlay {
                 attemptsDone,
                 LoggerUtils.whereFrom());
         if (currentDisplayAffected) {
-            getAthleteTimer().setTimeRemaining(timeAllowed);
+            getAthleteTimer().setTimeRemaining(timeAllowed, false);
         }
         // for the purpose of showing team scores, this is good enough.
         // if the current athlete has done all lifts, the group is marked as done.
@@ -1510,7 +1514,7 @@ public class FieldOfPlay {
         return resumed;
     }
 
-    private void setBreakParams(BreakStarted e, IBreakTimer breakTimer2, BreakType breakType2,
+    private void setBreakParams(FOPEvent.BreakStarted e, IBreakTimer breakTimer2, BreakType breakType2,
             CountdownType countdownType2) {
         this.setBreakType(breakType2);
         this.setCountdownType(countdownType2);
@@ -1520,10 +1524,10 @@ public class FieldOfPlay {
         if (e.isIndefinite() || countdownType2 == CountdownType.INDEFINITE) {
             breakTimer2.setIndefinite();
         } else if (countdownType2 == CountdownType.DURATION) {
-            breakTimer2.setTimeRemaining(e.getTimeRemaining());
+            breakTimer2.setTimeRemaining(e.getTimeRemaining(), false);
             breakTimer2.setEnd(null);
         } else {
-            breakTimer2.setTimeRemaining(0);
+            breakTimer2.setTimeRemaining(0, false);
             breakTimer2.setEnd(e.getTargetTime());
         }
         logger.trace("breakTimer2 {} isIndefinite={}", countdownType2, breakTimer2.isIndefinite());
@@ -1708,7 +1712,7 @@ public class FieldOfPlay {
         }
     }
 
-    private void transitionToBreak(BreakStarted e) {
+    private void transitionToBreak(FOPEvent.BreakStarted e) {
         BreakType newBreak = e.getBreakType();
         CountdownType newCountdownType = e.getCountdownType();
         IBreakTimer breakTimer = getBreakTimer();
@@ -1717,47 +1721,57 @@ public class FieldOfPlay {
                 // changing the kind of break
                 logger.warn("{}switching break type while in break : current {} new {} remaining {}", getLoggingName(),
                         getBreakType(),
-                        e.getBreakType(),
+                        newBreak,
                         breakTimer.liveTimeRemaining());
-                if (breakTimer.isRunning() && (newBreak.isCeremony()) || getBreakType().isCeremony()) {
+                if (newBreak == BreakType.FIRST_SNATCH) {
+                    BreakType oldBreakType = getBreakType();
+                    setBreakType(newBreak);
+                    if (oldBreakType == BEFORE_INTRODUCTION || oldBreakType == DURING_INTRODUCTION) {
+                        breakTimer.stop();
+                        breakTimer.setTimeRemaining(DEFAULT_BREAK_DURATION, true);
+                        breakTimer.setBreakDuration(DEFAULT_BREAK_DURATION);
+                    } else {
+                        breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);
+                    }
+                    logger.warn("switching to first snatch {} timeremaining={}",newBreak, breakTimer.getTimeRemaining());
+                    // break timer pushes out the BreakStarted event.
+                    breakTimer.start();
+                    return;
+                } else if (newBreak.isCeremony()) {
                     // ceremonies on the platform, leave the warmup countdown running
                     // also, leaving a ceremony should not touch a running timer.
                     // only change the break type, leave counter running
                     logger.warn("leave timer alone");
                     setBreakType(newBreak);
-                    pushOut(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak, CountdownType.DURATION, LoggerUtils.stackTrace()));
-                } else if (newBreak == BreakType.FIRST_SNATCH && (getBreakType().isCeremony())) {
-                    //logger.debug("case 2");
-                    // exiting from medal or introduction ceremony, go back to break mode.
-                    setBreakType(newBreak);
-                    pushOut(new UIEvent.BreakStarted(breakTimer.getTimeRemaining(), this, false, newBreak, CountdownType.DURATION, LoggerUtils.stackTrace()));
+                    pushOut(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak, CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite()));
                 } else {
-                    //logger.debug("break start: from {} {} to {} {}", getBreakType(), getBreakType().isCeremony(), newBreak, newBreak.isCeremony());
+                    logger.debug("break start: from {} {} to {} {}", getBreakType(), getBreakType().isCeremony(), newBreak, newBreak.isCeremony());
                     breakTimer.stop();
                     setBreakParams(e, breakTimer, newBreak, newCountdownType);
+                    breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);
                     // getFopEventBus().post(new
                     // BreakStarted(breakType2,countdownType2,e.getTimeRemaining(),e.getTargetTime(),e.getOrigin()));
                     breakTimer.start(); // so we restart in the new type
                 }
             } else {
                 // we are in a break, resume.
-                //logger.debug("{}resuming break : current {} new {}", getLoggingName(), getBreakType(), e.getBreakType());
+                logger.warn("{}resuming break : current {} new {}", getLoggingName(), getBreakType(), e.getBreakType());
                 breakTimer.setOrigin(e.getOrigin());
-                logger.trace("starting2");
+                breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);
                 breakTimer.start();
             }
         } else {
             setBreakParams(e, breakTimer, newBreak, newCountdownType);
-            //logger.debug("stopping1 {} {} {}", newBreak, newCountdownType, breakTimer.isIndefinite());
+            logger.debug("stopping1 {} {} {}", newBreak, newCountdownType, breakTimer.isIndefinite());
             breakTimer.stop(); // so we restart in the new type
         }
         // this will broadcast to all slave break timers
         if (!breakTimer.isRunning()) {
             breakTimer.setOrigin(e.getOrigin());
-            logger.trace("starting3");
+            logger.warn("starting3");
             breakTimer.start();
         }
-        logger.trace("started break timers {}", newBreak);
+        logger.warn("break {} breakTimer {} {} {}",getBreakType(), breakTimer.isRunning(), breakTimer.getBreakType(), breakTimer.getBreakDuration());
     }
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {

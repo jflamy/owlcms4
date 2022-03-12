@@ -25,7 +25,7 @@ public interface IBreakTimer extends IProxyTimer {
     void setOrigin(Object origin);
 
     @Override
-    void setTimeRemaining(int intValue);
+    void setTimeRemaining(int intValue, boolean indefinite);
 
     BreakType getBreakType();
 

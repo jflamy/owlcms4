@@ -116,10 +116,10 @@ public class ProxyAthleteTimer implements IProxyTimer {
     }
 
     /**
-     * @see app.owlcms.fieldofplay.IProxyTimer#setTimeRemaining(int)
+     * @see app.owlcms.fieldofplay.IProxyTimer#setTimeRemaining(int, boolean)
      */
     @Override
-    public void setTimeRemaining(int timeRemaining) {
+    public void setTimeRemaining(int timeRemaining, boolean indefinite) {
         if (running) {
             computeTimeRemaining();
         }
