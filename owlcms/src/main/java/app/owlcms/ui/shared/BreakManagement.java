@@ -359,7 +359,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     private VerticalLayout createCeremoniesColumn() {
         VerticalLayout ce = new VerticalLayout();
-        // ce.setWidth("50em");
 
         HorizontalLayout introButtons = new HorizontalLayout();
         Button startIntroButton = new Button(
@@ -367,6 +366,12 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     OwlcmsSession.withFop(fop -> {
                         if (fop.getBreakType() == DURING_INTRODUCTION) {
                             return;
+                        }
+                        if (fop.getState() == INACTIVE) {
+                            // simulate the normal flow - ceremonies expect to return to a  
+                            // correctly set up FIRST_SNATCH break timer.
+                            masterStartBreak(fop, BEFORE_INTRODUCTION, DURATION);
+                            masterStartBreak(fop, FIRST_SNATCH, INDEFINITE);
                         }
                         masterStartBreak(fop, DURING_INTRODUCTION, INDEFINITE);
                     });
@@ -462,15 +467,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         IBreakTimer breakTimer = fop.getBreakTimer();
                         logger.warn("breaktimer breaktype {}", breakTimer.getBreakType());
 
-//                        //FIXME there will never be a MEDALS timer
-//                        if (breakTimer != null && breakTimer.getBreakType() == MEDALS) {
-//                            // we are not in a countdown break, end the break.
-//                            fop.getFopEventBus()
-//                                .post(new FOPEvent.StartLifting(this.getOrigin()));
-//                        } else {
                         fop.getFopEventBus()
                                 .post(new FOPEvent.BreakDone(MEDALS, this.getOrigin()));
-//                        }
                     });
                 });
         endMedalCeremony.setTabIndex(-1);

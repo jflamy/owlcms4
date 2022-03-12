@@ -1,5 +1,10 @@
 ### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+4.30.0-alpha04: Snapshot release, <u>for testing/feedback only</u>.
+
+- Added ability to change delay between athlete introduction and first snatch (non-standard rule)
+- Added ability to immediately start athlete intro when entering break management 
+
 4.30.0-alpha03: Snapshot release, <u>for testing/feedback only</u>.
 
 - Fix: refreshing the display did not work correctly when the group name had UTF-8 characters
