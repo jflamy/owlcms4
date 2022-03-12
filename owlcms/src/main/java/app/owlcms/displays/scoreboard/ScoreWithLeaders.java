@@ -189,23 +189,31 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         DisplayOptions.addSoundEntries(vl, target, this);
     }
 
+    /**
+     * @see app.owlcms.uievents.BreakDisplay#doBreak(app.owlcms.uievents.UIEvent)
+     */
     @Override
-    public void doBreak() {
-        OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            ScoreboardModel model = getModel();
-            BreakType breakType = fop.getBreakType();
-            if (breakType == BreakType.MEDALS && this.isSwitchableDisplay()) {
-                QueryParameters qp = QueryParameters.fromString("fop=" + fop.getName());
-                UI.getCurrent().navigate("displays/medals", qp);
-            }
-            model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
-            model.setTeamName("");
-            model.setAttempt("");
-            setHidden(false);
+    public void doBreak(UIEvent event) {
+        if (event instanceof UIEvent.BreakStarted) {
+            UIEvent.BreakStarted e = (UIEvent.BreakStarted)event;
+            OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+                logger.warn("break event = {} {} {}", e.getBreakType(), e.getTrace(), e.getCeremonyGroup());
+                ScoreboardModel model = getModel();
+                BreakType breakType = e.getBreakType();
+                if (breakType == BreakType.MEDALS && this.isSwitchableDisplay() && e.getCeremonyGroup() != null) {
+                    logger.warn("navigating");
+                    QueryParameters qp = QueryParameters.fromString("fop="+fop.getName()+"&group="+e.getCeremonyGroup());
+                    UI.getCurrent().navigate("displays/medals", qp);
+                }
+                model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
+                model.setTeamName("");
+                model.setAttempt("");
+                setHidden(false);
 
-            updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
-            this.getElement().callJsFunction("doBreak");
-        }));
+                updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
+                this.getElement().callJsFunction("doBreak");
+            }));
+        }
     }
 
     /**
@@ -389,7 +397,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
-            doBreak();
+            doBreak(e);
         });
     }
 
@@ -453,7 +461,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                     model.setWeight(a.getNextAttemptRequestedWeight());
                 } else {
                     logger.debug("group done {} {}", group, System.identityHashCode(group));
-                    doBreak();
+                    doBreak(e);
                 }
             }
             this.getElement().callJsFunction("reset");
@@ -782,7 +790,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 doEmpty();
             } else {
                 doUpdate(e.getAthlete(), e);
-                doBreak();
+                doBreak(e);
             }
             break;
         default:

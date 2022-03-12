@@ -29,4 +29,8 @@ public interface IBreakTimer extends IProxyTimer {
 
     BreakType getBreakType();
 
+    void setCeremonyGroup(String ceremonyGroup);
+    
+    String getCeremonyGroup();
+
 }

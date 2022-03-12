@@ -161,4 +161,13 @@ public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
         this.breakType = breakType;
     }
 
+    @Override
+    public void setCeremonyGroup(String ceremonyGroup) {
+    }
+
+    @Override
+    public String getCeremonyGroup() {
+        return null;
+    }
+
 }

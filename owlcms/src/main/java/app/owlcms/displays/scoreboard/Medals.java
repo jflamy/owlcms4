@@ -180,7 +180,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     }
 
     @Override
-    public void doBreak() {
+    public void doBreak(UIEvent e) {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             MedalsTemplate model = getModel();
             BreakType breakType = fop.getBreakType();
@@ -432,7 +432,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
-            doBreak();
+            doBreak(e);
         });
     }
 
@@ -754,7 +754,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
                 doEmpty();
             } else {
                 doUpdate(e);
-                doBreak();
+                doBreak(e);
             }
             break;
         default:

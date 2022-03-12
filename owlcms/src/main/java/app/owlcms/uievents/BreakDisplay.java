@@ -18,7 +18,7 @@ public interface BreakDisplay {
 
     Logger logger = (Logger) LoggerFactory.getLogger(BreakDisplay.class);
 
-    public void doBreak();
+    public void doBreak(UIEvent e);
 
     public default String inferGroupName() {
         FieldOfPlay fop = OwlcmsSession.getFop();

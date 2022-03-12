@@ -627,7 +627,7 @@ public class FieldOfPlay {
                     // only switch back to the currently running break timer, other parameters will be ignored
                     transitionToBreak(
                             new FOPEvent.BreakStarted(getBreakTimer().getBreakType(), INDEFINITE, null,
-                                    null, this));
+                                    null, getBreakTimer().getCeremonyGroup(), this));
                 } else {
                     transitionToLifting(e, getGroup(), false);
                 }
@@ -1530,6 +1530,7 @@ public class FieldOfPlay {
             breakTimer2.setTimeRemaining(0, false);
             breakTimer2.setEnd(e.getTargetTime());
         }
+        breakTimer2.setCeremonyGroup(e.getCeremonyGroup());
         logger.trace("breakTimer2 {} isIndefinite={}", countdownType2, breakTimer2.isIndefinite());
     }
 
@@ -1744,10 +1745,11 @@ public class FieldOfPlay {
                     // ceremonies on the platform, leave the warmup countdown running
                     // also, leaving a ceremony should not touch a running timer.
                     // only change the break type, leave counter running
-                    logger.warn("leave timer alone");
+                    logger.warn("*** leave timer alone {} {}" , e.getCeremonyGroup(), e.getStackTrace());
                     setBreakType(newBreak);
                     pushOut(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak,
-                            CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite()));
+                            CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite(), e.getCeremonyGroup()));
+                    return;
                 } else {
                     logger.debug("break start: from {} {} to {} {}", getBreakType(), getBreakType().isCeremony(),
                             newBreak, newBreak.isCeremony());
@@ -1776,8 +1778,8 @@ public class FieldOfPlay {
             logger.warn("starting3");
             breakTimer.start();
         }
-        logger.warn("break {} breakTimer {} {} {}", getBreakType(), breakTimer.isRunning(), breakTimer.getBreakType(),
-                breakTimer.getBreakDuration());
+        logger.warn("break {} breakTimer {} {} {} ceremony={}", getBreakType(), breakTimer.isRunning(), breakTimer.getBreakType(),
+                breakTimer.getBreakDuration(), breakTimer.getCeremonyGroup());
     }
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {

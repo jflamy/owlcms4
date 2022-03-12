@@ -35,7 +35,15 @@ public class GroupSelectionMenu extends MenuBar {
         for (Group g : groups) {
             MenuItem subItem = subMenu.addItem(
                     describedName(g),
-                    e -> whenChecked.accept(g,fop));
+                    e -> {
+                        whenChecked.accept(g,fop);
+                        if (currentlyChecked[0] != null) {
+                            currentlyChecked[0].setChecked(false);
+                        }
+                        e.getSource().setChecked(true);
+                        currentlyChecked[0] = e.getSource();
+                        item.setText(g.getName()+"\u2003\u25bd");
+                    });
             subItem.setCheckable(true);
             subItem.setChecked(g.compareTo(fop.getGroup()) == 0);
             subItem.getElement().setAttribute("style", "margin: 0px; padding: 0px");
@@ -60,7 +68,7 @@ public class GroupSelectionMenu extends MenuBar {
                         currentlyChecked[0].setChecked(false);
                     }
                     whenUnselected.accept(null,fop);
-                    
+                    item.setText(Translator.translate("Group")+"\u2003\u25bd");
                 });
         item3.setCheckable(false);
         item.setEnabled(true);

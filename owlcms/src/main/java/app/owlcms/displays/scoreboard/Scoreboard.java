@@ -190,7 +190,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     @Override
-    public void doBreak() {
+    public void doBreak(UIEvent e) {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
             BreakType breakType = fop.getBreakType();
@@ -389,7 +389,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
-            doBreak();
+            doBreak(e);
         });
     }
 
@@ -453,7 +453,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                     model.setWeight(a.getNextAttemptRequestedWeight());
                 } else {
                     logger.debug("group done {} {}", group, System.identityHashCode(group));
-                    doBreak();
+                    doBreak(e);
                 }
             }
             this.getElement().callJsFunction("reset");
@@ -766,7 +766,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                 doEmpty();
             } else {
                 doUpdate(e.getAthlete(), e);
-                doBreak();
+                doBreak(e);
             }
             break;
         default:

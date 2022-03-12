@@ -182,7 +182,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     @Override
-    public void doBreak() {
+    public void doBreak(UIEvent e) {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             BreakType breakType = fop.getBreakType();
             if (breakType == BreakType.GROUP_DONE) {
@@ -434,7 +434,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            doBreak();
+            doBreak(e);
         });
     }
 
@@ -479,7 +479,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                     if (e.getGroup() == null) {
                         doEmpty();
                     } else {
-                        doBreak();
+                        doBreak(e);
                     }
                     break;
                 default:

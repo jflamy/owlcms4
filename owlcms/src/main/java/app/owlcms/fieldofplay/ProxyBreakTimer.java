@@ -44,6 +44,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     private long stopMillis;
     private int timeRemaining;
     private int timeRemainingAtLastStop;
+    private String ceremonyGroup;
     {
         logger.setLevel(Level.INFO);
     }
@@ -233,9 +234,9 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
         this.setBreakType(breakType);
 
         Integer millisRemaining = getMillis();
-        logger.warn("starting break millisRemaining {} paused {}", millisRemaining, this.indefinite);
+        logger.warn("starting break millisRemaining {} paused {} ceremonyGroup {}", millisRemaining, this.indefinite, getCeremonyGroup());
         UIEvent.BreakStarted event = new UIEvent.BreakStarted(millisRemaining, getOrigin(), false,
-                breakType, getFop().getCountdownType(), LoggerUtils.stackTrace(), this.indefinite);
+                breakType, getFop().getCountdownType(), LoggerUtils.stackTrace(), this.indefinite, getCeremonyGroup());
         logger.debug("posting {}", event);
         getFop().pushOut(event);
         setRunning(true);
@@ -291,13 +292,6 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
         // should emit sound at end of break
         getFop().pushOut(new UIEvent.BreakDone(origin, getFop().getBreakType()));
         getFop().fopEventPost(new FOPEvent.BreakDone(getFop().getBreakType(), origin));
-//        BreakType breakType = getFop().getBreakType();
-//        if (breakType == BreakType.FIRST_SNATCH || breakType == BreakType.FIRST_CJ) {
-//            fop.fopEventPost(new FOPEvent.StartLifting(origin));
-//        } else if (breakType == BreakType.BEFORE_INTRODUCTION) {
-//            fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.DURING_INTRODUCTION, CountdownType.INDEFINITE, null,
-//                    null, origin));
-//        }
     }
 
     /**
@@ -328,6 +322,16 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 
     private void setRunning(boolean running) {
         this.running = running;
+    }
+
+    @Override
+    public void setCeremonyGroup(String ceremonyGroup) {
+        this.ceremonyGroup = ceremonyGroup;
+    }
+
+    @Override
+    public String getCeremonyGroup() {
+        return ceremonyGroup;
     }
 
 }

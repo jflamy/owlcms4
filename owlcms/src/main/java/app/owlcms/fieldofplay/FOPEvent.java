@@ -91,6 +91,8 @@ public class FOPEvent {
 
         private LocalDateTime targetTime;
 
+        private String ceremonyGroup;
+
         public BreakStarted(BreakType bType, CountdownType cType, Integer timeRemaining, LocalDateTime targetTime,
                 Object origin) {
             super(origin);
@@ -98,6 +100,14 @@ public class FOPEvent {
             this.setCountdownType(cType);
             this.timeRemaining = timeRemaining;
             this.targetTime = targetTime;
+        }
+
+        public BreakStarted(BreakType medals, CountdownType cType, Integer timeRemaining, LocalDateTime targetTime, String ceremonyGroup,
+                Object origin) {
+            this(medals, cType, timeRemaining, targetTime, origin);
+
+            this.setCeremonyGroup(ceremonyGroup);
+            logger.warn("FOPEvent ceremonyGroup = {}  st={}", this.getCeremonyGroup(), LoggerUtils.stackTrace());
         }
 
         @Override
@@ -167,6 +177,14 @@ public class FOPEvent {
         public String toString() {
             return "BreakStarted [breakType=" + breakType + ", countdownType=" + countdownType + ", timeRemaining="
                     + timeRemaining + ", targetTime=" + targetTime + "]";
+        }
+
+        public String getCeremonyGroup() {
+            return ceremonyGroup;
+        }
+
+        public void setCeremonyGroup(String ceremonyGroup) {
+            this.ceremonyGroup = ceremonyGroup;
         }
     }
 

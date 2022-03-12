@@ -115,6 +115,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     private boolean ignoreNextDisable;
 
     private Long id;
+
+    private Group medalGroup;
     {
         logger.setLevel(Level.INFO);
     }
@@ -324,7 +326,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         fop.recomputeLiftingOrder();
                         OwlcmsSession.getFop().getUiEventBus()
                                 .post(new UIEvent.BreakStarted(0, this.getOrigin(), true, countdownRadios.getValue(),
-                                        durationRadios.getValue(), LoggerUtils.stackTrace(), false));
+                                        durationRadios.getValue(), LoggerUtils.stackTrace(), false, null));
                     });
                 });
         countdownButton.setTabIndex(-1);
@@ -368,7 +370,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                             return;
                         }
                         if (fop.getState() == INACTIVE) {
-                            // simulate the normal flow - ceremonies expect to return to a  
+                            // simulate the normal flow - ceremonies expect to return to a
                             // correctly set up FIRST_SNATCH break timer.
                             masterStartBreak(fop, BEFORE_INTRODUCTION, DURATION);
                             masterStartBreak(fop, FIRST_SNATCH, INDEFINITE);
@@ -444,16 +446,16 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 // group has been selected
                 (g1, fop1) -> selectCeremonyGroup(g1, fop1),
                 // no group
-                (g1, fop1) -> selectCeremonyGroup(g1, fop1));
+                (g1, fop1) -> selectCeremonyGroup(null, fop1));
 
         // TODO button to open medals scoreboard
         Button startMedalCeremony = new Button(
                 getTranslation("BreakMgmt.startMedals"), (e) -> {
                     OwlcmsSession.withFop(fop -> {
-                        if (fop.getBreakType() == MEDALS) {
-                            return;
-                        }
-                        masterStartBreak(fop, MEDALS, INDEFINITE);
+                        //masterStartBreak(fop, MEDALS, INDEFINITE);
+                        Group computeMedalGroup = computeMedalGroup();
+                        String ceremonyGroup = computeMedalGroup != null ? computeMedalGroup.getName() : null;
+                        fop.fopEventPost(new FOPEvent.BreakStarted(MEDALS, INDEFINITE, null, null, ceremonyGroup, this));
                     });
                 });
         startMedalCeremony.setTabIndex(-1);
@@ -709,7 +711,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private void selectCeremonyGroup(Group g1, FieldOfPlay fop1) {
-        // fop1.fopEventPost(new FOPEvent.SwitchGroup(g1.compareTo(fop1.getGroup()) == 0 ? null : g1, this));
+        logger.warn("medal group {}", g1);
+        setMedalGroup(g1);
     }
 
     private void setBreakTimerFromFields(CountdownType cType) {
@@ -1030,6 +1033,21 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
         });
         return running[0];
+    }
+
+    private Group computeMedalGroup() {
+        if (medalGroup != null) {
+            return medalGroup;
+        } else {
+            OwlcmsSession.withFop(fop -> {
+                medalGroup = fop.getGroup();
+            });
+            return medalGroup;
+        }
+    }
+
+    private void setMedalGroup(Group medalGroup) {
+        this.medalGroup = medalGroup;
     }
 
 }

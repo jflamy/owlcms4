@@ -221,9 +221,10 @@ public class UIEvent {
         protected BreakType breakType;
         protected CountdownType countdownType;
         private Boolean paused;
+        private String ceremonyGroup;
 
         public BreakStarted(Integer millisRemaining, Object origin, boolean displayToggle, BreakType bt,
-                CountdownType ct, String trace, Boolean paused) {
+                CountdownType ct, String trace, Boolean paused, String ceremonyGroup) {
             super(origin);
             this.timeRemaining = millisRemaining;
             this.indefinite = (ct != null && ct == CountdownType.INDEFINITE) || (millisRemaining == null);
@@ -231,6 +232,7 @@ public class UIEvent {
             this.countdownType = ct;
             this.setDisplayToggle(displayToggle);
             this.setPaused(paused);
+            this.setCeremonyGroup(ceremonyGroup);
             this.setTrace(trace);
         }
 
@@ -280,6 +282,14 @@ public class UIEvent {
 
         public void setPaused(Boolean paused) {
             this.paused = paused;
+        }
+
+        public String getCeremonyGroup() {
+            return this.ceremonyGroup;
+        }
+
+        public void setCeremonyGroup(String ceremonyGroup) {
+            this.ceremonyGroup = ceremonyGroup;
         }
     }
 

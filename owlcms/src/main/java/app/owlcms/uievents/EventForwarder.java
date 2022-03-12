@@ -128,7 +128,7 @@ public class EventForwarder implements BreakDisplay {
     }
 
     @Override
-    public void doBreak() {
+    public void doBreak(UIEvent e) {
         BreakType breakType = fop.getBreakType();
         Group group = fop.getGroup();
         if (breakType == null) {
@@ -263,7 +263,7 @@ public class EventForwarder implements BreakDisplay {
     public void slaveBreakStart(UIEvent.BreakStarted e) {
         uiLog(e);
         setHidden(false);
-        doBreak();
+        doBreak(e);
         pushUpdate();
         pushTimer(e);
     }
@@ -377,7 +377,7 @@ public class EventForwarder implements BreakDisplay {
                 setHidden(true);
             } else {
                 doUpdate(e.getAthlete(), e);
-                doBreak();
+                doBreak(e);
             }
             break;
         default:

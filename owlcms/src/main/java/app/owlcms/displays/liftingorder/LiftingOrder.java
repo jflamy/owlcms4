@@ -148,7 +148,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     }
 
     @Override
-    public void doBreak() {
+    public void doBreak(UIEvent e) {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             LiftingOrderModel model = getModel();
             order = fop.getLiftingOrder();
@@ -304,7 +304,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
-            doBreak();
+            doBreak(e);
         });
     }
 
@@ -345,7 +345,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
                 doEmpty();
                 break;
             case BREAK:
-                doBreak();
+                doBreak(e);
                 break;
             default:
                 doUpdate(fop.getCurAthlete(), e);
