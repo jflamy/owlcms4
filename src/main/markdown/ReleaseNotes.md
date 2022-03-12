@@ -1,12 +1,14 @@
 ### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.30.0-alpha03: Snapshot release, for testing/feedback only. Work in progress to better support medal and introduction ceremonies.
+4.30.0-alpha03: Snapshot release, <u>for testing/feedback only</u>.
 
 - Fix: refreshing the display did not work correctly when the group name had UTF-8 characters
-- Scoreboards toggle to medal ceremony and back
-- Known issues:
-  -  medals are awarded when group_done (no countdown started).
-- To do/not working yet: dialog to select the group for medals presentation, dialog/URL to determine whether scoreboards toggle for medals
+- Medal ceremony for current group switches displays to medals, and back to scoreboard at the end of ceremony.
+- Standard ceremony order works: medals for group done,  switch to next group, countdown to introduction, athlete introduction, start countdown to snatch, introduction of officials.
+- Non-standard order also works: medals for group done,  switch to next group , countdown to first snatch started, athlete intro, officials intro.
+- Not finished:
+  - presenting medals for a previous group while countdown to introduction or countdown to snatch is already running.
+  - setting to prevent warmup room displays from switching during medal presentation
 
 4.30.0-alpha00: new medal scoreboard, button added to the Displays selection page.
 
