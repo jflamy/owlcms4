@@ -41,6 +41,7 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
@@ -118,6 +119,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     private HorizontalLayout timer;
     private EventBus uiEventBus;
+
+    private Button endIntroButton;
 
     {
         logger.setLevel(Level.INFO);
@@ -231,10 +234,14 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 logger.debug("in a break");
                 syncWithFop();
             }
+            logger.warn("onAttach fop break = {}",fop.getBreakType());
+            if (fop.getBreakType() == DURING_INTRODUCTION) {
+                endIntroButton.focus();
+                endIntroButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            }
         });
         // not needed after initial setup
         setRequestedBreakType(null);
-
     }
 
     void cleanup() {
@@ -413,9 +420,10 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     });
                 });
         startIntroButton.setTabIndex(-1);
-        Button endIntroButton = new Button(
+        endIntroButton = new Button(
                 getTranslation("BreakMgmt.endIntro"), (e) -> {
                     OwlcmsSession.withFop(fop -> {
+                        endIntroButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
                         if (fop.getBreakType() != DURING_INTRODUCTION) {
                             return;
                         }
