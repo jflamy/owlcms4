@@ -77,46 +77,48 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class BreakManagement extends VerticalLayout implements SafeEventBusRegistration {
     public enum CountdownType {
-        DURATION, TARGET, INDEFINITE
+        DURATION, INDEFINITE, TARGET
     }
 
     private static final Duration DEFAULT_DURATION = Duration.ofMinutes(10L);
 
+    boolean inactive = false;
     Long timeRemaining = null;
-    private Button athleteButton;
 
+    private Button athleteButton;
     private Button breakEnd = null;
     private Button breakPause = null;
     private Button breakReset = null;
-    private Button breakStart = null;
 
+    private Button breakStart = null;
     private BreakTimerElement breakTimerElement;
     private Button countdownButton;
-    private RadioButtonGroup<BreakType> countdownRadios;
 
+    private RadioButtonGroup<BreakType> countdownRadios;
     private DatePicker datePicker = new DatePicker();
     private HorizontalLayout dt;
     private DurationField durationField = new DurationField();
     private RadioButtonGroup<CountdownType> durationRadios;
+    private Long id;
     private boolean ignoreBreakTypeValueChange = false;
+
     private boolean ignoreDurationValueChange = false;
     private boolean ignoreListeners = false;
-
+    private boolean ignoreNextDisable;
     final private Logger logger = (Logger) LoggerFactory.getLogger(BreakManagement.class);
+    private Group medalGroup;
     private Label minutes;
+
     private Object origin;
     private Dialog parentDialog;
+
     private BreakType requestedBreakType;
+
     private TimePicker timePicker = new TimePicker();
 
     private HorizontalLayout timer;
     private EventBus uiEventBus;
 
-    private boolean ignoreNextDisable;
-
-    private Long id;
-
-    private Group medalGroup;
     {
         logger.setLevel(Level.INFO);
     }
@@ -294,6 +296,17 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         setDurationField(DEFAULT_DURATION);
     }
 
+    private Group computeMedalGroup() {
+        if (medalGroup != null) {
+            return medalGroup;
+        } else {
+            OwlcmsSession.withFop(fop -> {
+                medalGroup = fop.getGroup();
+            });
+            return medalGroup;
+        }
+    }
+
     private Integer computeTimerRemainingFromFields(CountdownType countdownType) {
         logger.debug("computeTimerRemainingFromFields");
         Integer tr;
@@ -336,7 +349,19 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private FlexLayout createBreakTimerButtons() {
-        breakStart = new Button(AvIcons.PLAY_ARROW.create(), (e) -> masterStartBreak());
+        breakStart = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                BreakType value = countdownRadios.getValue();
+                if (value != null && value.isCountdown()) {
+                    // force FOP to accept our break and value as new
+                    fop.setBreakType(null);
+                    fop.setCountdownType(null);
+                    fop.getBreakTimer()
+                            .setTimeRemaining(this.computeTimerRemainingFromFields(durationRadios.getValue()), false);
+                }
+            });
+            masterStartBreak();
+        });
         breakStart.getElement().setAttribute("theme", "primary contrast");
         breakStart.getElement().setAttribute("title", getTranslation("StartCountdown"));
 
@@ -372,10 +397,10 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         if (fop.getState() == INACTIVE) {
                             // simulate the normal flow - ceremonies expect to return to a
                             // correctly set up FIRST_SNATCH break timer.
-                            masterStartBreak(fop, BEFORE_INTRODUCTION, DURATION);
-                            masterStartBreak(fop, FIRST_SNATCH, INDEFINITE);
+                            masterStartBreak(fop, BEFORE_INTRODUCTION, DURATION, false);
+                            masterStartBreak(fop, FIRST_SNATCH, INDEFINITE, false);
                         }
-                        masterStartBreak(fop, DURING_INTRODUCTION, INDEFINITE);
+                        masterStartBreak(fop, DURING_INTRODUCTION, INDEFINITE, false);
                     });
                 });
         startIntroButton.setTabIndex(-1);
@@ -414,7 +439,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         if (fop.getBreakType() == DURING_OFFICIALS_INTRODUCTION) {
                             return;
                         }
-                        masterStartBreak(fop, DURING_OFFICIALS_INTRODUCTION, INDEFINITE);
+                        masterStartBreak(fop, DURING_OFFICIALS_INTRODUCTION, INDEFINITE, false);
                     });
                 });
         startOfficials.setTabIndex(-1);
@@ -449,18 +474,21 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 (g1, fop1) -> selectCeremonyGroup(null, fop1));
 
         // TODO button to open medals scoreboard
+
         Button startMedalCeremony = new Button(
                 getTranslation("BreakMgmt.startMedals"), (e) -> {
                     OwlcmsSession.withFop(fop -> {
-                        if (fop.getState() == INACTIVE) {
+                        inactive = fop.getState() == INACTIVE;
+                        if (inactive) {
                             // simulate the normal flow - ceremonies expect to return to a
-                            // correctly set up FIRST_SNATCH break timer.
-                            masterStartBreak(fop, BEFORE_INTRODUCTION, DURATION);
-                            masterStartBreak(fop, FIRST_SNATCH, INDEFINITE);
+                            // correctly set up break timer.
+                            masterStartBreak(fop, BEFORE_INTRODUCTION, INDEFINITE, false);
+                            // masterStartBreak(fop, FIRST_SNATCH, INDEFINITE);
                         }
                         Group computeMedalGroup = computeMedalGroup();
                         String ceremonyGroup = computeMedalGroup != null ? computeMedalGroup.getName() : null;
-                        fop.fopEventPost(new FOPEvent.BreakStarted(MEDALS, INDEFINITE, null, null, ceremonyGroup, this));
+                        fop.fopEventPost(
+                                new FOPEvent.BreakStarted(MEDALS, INDEFINITE, null, null, ceremonyGroup, this));
                     });
                 });
         startMedalCeremony.setTabIndex(-1);
@@ -476,6 +504,9 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
                         fop.getFopEventBus()
                                 .post(new FOPEvent.BreakDone(MEDALS, this.getOrigin()));
+                        if (inactive) {
+                            setBreakTimerFromFields(TARGET);
+                        }
                     });
                 });
         endMedalCeremony.setTabIndex(-1);
@@ -680,7 +711,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     private void masterStartBreak() {
         OwlcmsSession.withFop(fop -> {
-            masterStartBreak(fop);
+            masterStartBreak(fop, true);
         });
         // e.getSource().setEnabled(false);
         logger.debug("start break disable start");
@@ -688,22 +719,21 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         return;
     }
 
-    private void masterStartBreak(FieldOfPlay fop) {
+    private void masterStartBreak(FieldOfPlay fop, boolean force) {
         BreakType breakType = countdownRadios.getValue();
         CountdownType countdownType = durationRadios.getValue();
-        masterStartBreak(fop, breakType, countdownType);
+        masterStartBreak(fop, breakType, countdownType, force);
     }
 
-    private void masterStartBreak(FieldOfPlay fop, BreakType breakType, CountdownType countdownType) {
-        // logger.debug("masterStartBreak timeRemaining {} breakType {} getBreakTimer {}",timeRemaining, breakType,
-        // fop.getBreakTimer());
+    private void masterStartBreak(FieldOfPlay fop, BreakType breakType, CountdownType countdownType, boolean force) {
+        logger.debug("masterStartBreak timeRemaining {} breakType {} getBreakTimer {}", timeRemaining, breakType,
+                fop.getBreakTimer());
         if (timeRemaining == null && fop.getBreakTimer() != null) {
             timeRemaining = (long) fop.getBreakTimer().liveTimeRemaining();
         }
-        fop.getFopEventBus()
-                .post(new FOPEvent.BreakStarted(breakType, countdownType,
-                        countdownType == CountdownType.INDEFINITE ? null : timeRemaining.intValue(), getTarget(),
-                        this.getOrigin()));
+        fop.fopEventPost(new FOPEvent.BreakStarted(breakType, countdownType,
+                countdownType == CountdownType.INDEFINITE ? null : timeRemaining.intValue(), getTarget(),
+                this.getOrigin()));
     }
 
     private void safeSetBT(BreakType breakType) {
@@ -788,6 +818,10 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     private void setDurationValue(CountdownType ct2) {
         logger.debug("setting durationRadios {}  from {}", ct2, LoggerUtils.whereFrom());
         durationRadios.setValue(ct2);
+    }
+
+    private void setMedalGroup(Group medalGroup) {
+        this.medalGroup = medalGroup;
     }
 
     private void setOrigin(Object origin) {
@@ -1038,21 +1072,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
         });
         return running[0];
-    }
-
-    private Group computeMedalGroup() {
-        if (medalGroup != null) {
-            return medalGroup;
-        } else {
-            OwlcmsSession.withFop(fop -> {
-                medalGroup = fop.getGroup();
-            });
-            return medalGroup;
-        }
-    }
-
-    private void setMedalGroup(Group medalGroup) {
-        this.medalGroup = medalGroup;
     }
 
 }

@@ -2,11 +2,10 @@
 
 4.30.0-alpha04: Snapshot release, <u>for testing/feedback only</u>.
 
-- Ceremonies (introduction of athletes and officials, medals) can take place while timer are running
-  - Fixed timer behavior when exiting medals. Medals now work before and after intros.
+- Ceremonies (introduction of athletes and officials, medals) do not interfere with countdown timers. Medals can be awarded before or after introductions.
 - Ability to present medals to a previous group while timer is running for next group (scoreboards switch to medals and back to next group at end of ceremony)
-- Non-standard timing rules:
-  - Ability to change delay between athlete introduction and first snatch
+- Non-standard timing rules are supported
+  - Ability to change the delay between athlete introduction and first snatch
   - Ability to immediately go to athlete introduction without a countdown
 - Not yet done:
   - Warm-up room scoreboards should not switch during medals - coach need to count attempts.

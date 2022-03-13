@@ -1719,7 +1719,13 @@ public class FieldOfPlay {
         CountdownType newCountdownType = e.getCountdownType();
         IBreakTimer breakTimer = getBreakTimer();
         if (state == BREAK) {
-            if ((newBreak != getBreakType() || newCountdownType != getCountdownType())) {
+            if (getBreakType() == null) {
+                // don't care about what was going on, force new break.  Used by BreakManagement.
+                logger.debug("!!!! forced break from breakmgmt");
+                setBreakType(newBreak);
+                pushOut(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak,
+                        CountdownType.DURATION, e.getStackTrace(), getBreakTimer().isIndefinite(), e.getCeremonyGroup()));
+            } else if ((newBreak != getBreakType() || newCountdownType != getCountdownType())) {
                 // changing the kind of break
                 logger.warn("{}switching break type while in break : current {} new {} remaining {}", getLoggingName(),
                         getBreakType(),
@@ -1745,7 +1751,7 @@ public class FieldOfPlay {
                     // ceremonies on the platform, leave the warmup countdown running
                     // also, returning from a ceremony should not touch a running timer.
                     // only change the break type, leave counter running
-                    logger.warn("*** leave timer alone {} {}" , e.getCeremonyGroup(), e.getStackTrace());
+                    logger.warn("*** leave timer alone {}" , e.getCeremonyGroup());
                     setBreakType(newBreak);
                     pushOut(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak,
                             CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite(), e.getCeremonyGroup()));
