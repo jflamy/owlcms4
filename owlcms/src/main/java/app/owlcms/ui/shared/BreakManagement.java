@@ -122,6 +122,10 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     private Button endIntroButton;
 
+    private Button endMedalCeremony;
+
+    private Button endOfficials;
+
     {
         logger.setLevel(Level.INFO);
     }
@@ -404,6 +408,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         }
                         
                         // we are inactive and want to start the intro directly
+                        // we need to make it as if there had been a timer setup.
                         boolean in = fop.getState() == INACTIVE;
                         if (in) {
                             // simulate what the before_introduction timer would do
@@ -452,16 +457,26 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         HorizontalLayout officialsButtons = new HorizontalLayout();
         Button startOfficials = new Button(
                 getTranslation("BreakMgmt.startOfficials"), (e) -> {
+                    endOfficials.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
                     OwlcmsSession.withFop(fop -> {
                         if (fop.getBreakType() == DURING_OFFICIALS_INTRODUCTION) {
                             return;
+                        }
+                        // we are inactive and want to start the intro directly
+                        // we need to make it as if there had been a timer setup.
+                        boolean in = fop.getState() == INACTIVE;
+                        if (in) {
+                            // simulate what the before_introduction timer would do
+                            masterStartBreak(fop, BEFORE_INTRODUCTION, INDEFINITE, false);
+                            masterStartBreak(fop, FIRST_SNATCH, INDEFINITE, false);
                         }
                         masterStartBreak(fop, DURING_OFFICIALS_INTRODUCTION, INDEFINITE, false);
                     });
                 });
         startOfficials.setTabIndex(-1);
-        Button endOfficials = new Button(
+        endOfficials = new Button(
                 getTranslation("BreakMgmt.endOfficials"), (e) -> {
+                    endOfficials.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
                     OwlcmsSession.withFop(fop -> {
                         if (fop.getBreakType() != DURING_OFFICIALS_INTRODUCTION) {
                             return;
@@ -494,6 +509,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
         Button startMedalCeremony = new Button(
                 getTranslation("BreakMgmt.startMedals"), (e) -> {
+                    endMedalCeremony.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
                     OwlcmsSession.withFop(fop -> {
                         inactive = fop.getState() == INACTIVE;
                         if (inactive) {
@@ -509,9 +525,10 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     });
                 });
         startMedalCeremony.setTabIndex(-1);
-        Button endMedalCeremony = new Button(
+        endMedalCeremony = new Button(
                 getTranslation("BreakMgmt.endMedals"), (e) -> {
                     OwlcmsSession.withFop(fop -> {
+                        endMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
                         logger.warn("Breakmgmt {}", fop.getBreakType());
                         if (fop.getBreakType() != MEDALS) {
                             return;

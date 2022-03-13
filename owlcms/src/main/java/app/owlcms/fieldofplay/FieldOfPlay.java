@@ -16,8 +16,10 @@ import static app.owlcms.fieldofplay.FOPState.TIME_STOPPED;
 import static app.owlcms.ui.shared.BreakManagement.CountdownType.INDEFINITE;
 import static app.owlcms.uievents.BreakType.BEFORE_INTRODUCTION;
 import static app.owlcms.uievents.BreakType.DURING_INTRODUCTION;
+import static app.owlcms.uievents.BreakType.DURING_OFFICIALS_INTRODUCTION;
 import static app.owlcms.uievents.BreakType.FIRST_CJ;
 import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
+import static app.owlcms.uievents.BreakType.MEDALS;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -620,7 +622,7 @@ public class FieldOfPlay {
                     transitionToBreak(
                             new FOPEvent.BreakStarted(DURING_INTRODUCTION, INDEFINITE, null,
                                     null, this));
-                } else if (breakType == DURING_INTRODUCTION) {
+                } else if (breakType == DURING_INTRODUCTION  || breakType == DURING_OFFICIALS_INTRODUCTION) {
                     transitionToBreak(
                             new FOPEvent.BreakStarted(FIRST_SNATCH, INDEFINITE, null,
                                     null, this));
@@ -1738,7 +1740,9 @@ public class FieldOfPlay {
                     setBreakType(newBreak);
                     logger.warn("???? oldbreaktype = {} indefinite = {}", oldBreakType, indefinite);
                     if (oldBreakType == BEFORE_INTRODUCTION
-                            || (oldBreakType == DURING_INTRODUCTION && indefinite)) {
+                            || (oldBreakType == DURING_INTRODUCTION && indefinite)
+                            || (oldBreakType == DURING_OFFICIALS_INTRODUCTION && indefinite)
+                            || (oldBreakType == MEDALS && indefinite)) {
                         breakTimer.stop();
                         breakTimer.setTimeRemaining(DEFAULT_BREAK_DURATION, true);
                         breakTimer.setBreakDuration(DEFAULT_BREAK_DURATION);
