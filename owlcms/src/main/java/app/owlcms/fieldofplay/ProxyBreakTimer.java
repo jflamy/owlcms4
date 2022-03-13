@@ -226,7 +226,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     @Override
     public void start() {
         BreakType breakType = getFop().getBreakType();
-        if (breakType.isCeremony()) {
+        if (breakType != null && breakType.isCeremony()) {
             // we never start a timer for a ceremony
             return;
         }
@@ -248,7 +248,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     @Override
     public void stop() {
         BreakType breakType = getFop().getBreakType();
-        if (breakType.isCeremony()) {
+        if (breakType != null && breakType.isCeremony()) {
             // we never run a timer for a ceremony
             return;
         }

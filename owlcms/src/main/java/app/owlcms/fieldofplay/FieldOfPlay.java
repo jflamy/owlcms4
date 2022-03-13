@@ -1741,9 +1741,9 @@ public class FieldOfPlay {
                     // break timer pushes out the BreakStarted event.
                     breakTimer.start();
                     return;
-                } else if (newBreak.isCeremony()) {
+                } else if (newBreak.isCeremony() || breakTimer.getBreakType().isCountdown()) {
                     // ceremonies on the platform, leave the warmup countdown running
-                    // also, leaving a ceremony should not touch a running timer.
+                    // also, returning from a ceremony should not touch a running timer.
                     // only change the break type, leave counter running
                     logger.warn("*** leave timer alone {} {}" , e.getCeremonyGroup(), e.getStackTrace());
                     setBreakType(newBreak);

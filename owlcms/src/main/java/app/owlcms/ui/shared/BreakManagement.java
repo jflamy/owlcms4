@@ -452,7 +452,12 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         Button startMedalCeremony = new Button(
                 getTranslation("BreakMgmt.startMedals"), (e) -> {
                     OwlcmsSession.withFop(fop -> {
-                        //masterStartBreak(fop, MEDALS, INDEFINITE);
+                        if (fop.getState() == INACTIVE) {
+                            // simulate the normal flow - ceremonies expect to return to a
+                            // correctly set up FIRST_SNATCH break timer.
+                            masterStartBreak(fop, BEFORE_INTRODUCTION, DURATION);
+                            masterStartBreak(fop, FIRST_SNATCH, INDEFINITE);
+                        }
                         Group computeMedalGroup = computeMedalGroup();
                         String ceremonyGroup = computeMedalGroup != null ? computeMedalGroup.getName() : null;
                         fop.fopEventPost(new FOPEvent.BreakStarted(MEDALS, INDEFINITE, null, null, ceremonyGroup, this));

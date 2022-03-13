@@ -189,31 +189,33 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         DisplayOptions.addSoundEntries(vl, target, this);
     }
 
+    String ceremonyGroup = null;
     /**
      * @see app.owlcms.uievents.BreakDisplay#doBreak(app.owlcms.uievents.UIEvent)
      */
     @Override
     public void doBreak(UIEvent event) {
         if (event instanceof UIEvent.BreakStarted) {
-            UIEvent.BreakStarted e = (UIEvent.BreakStarted)event;
-            OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-                logger.warn("break event = {} {} {}", e.getBreakType(), e.getTrace(), e.getCeremonyGroup());
-                ScoreboardModel model = getModel();
-                BreakType breakType = e.getBreakType();
-                if (breakType == BreakType.MEDALS && this.isSwitchableDisplay() && e.getCeremonyGroup() != null) {
-                    logger.warn("navigating");
-                    QueryParameters qp = QueryParameters.fromString("fop="+fop.getName()+"&group="+e.getCeremonyGroup());
-                    UI.getCurrent().navigate("displays/medals", qp);
-                }
-                model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
-                model.setTeamName("");
-                model.setAttempt("");
-                setHidden(false);
-
-                updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
-                this.getElement().callJsFunction("doBreak");
-            }));
+            UIEvent.BreakStarted e = (UIEvent.BreakStarted) event;
+            ceremonyGroup = e.getCeremonyGroup();
+            logger.warn("break event = {} {} {}", e.getBreakType(), e.getTrace(), ceremonyGroup);
         }
+        OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            ScoreboardModel model = getModel();
+            BreakType breakType = fop.getBreakType();
+            if (breakType == BreakType.MEDALS && this.isSwitchableDisplay() && ceremonyGroup != null) {
+                logger.warn("navigating {}", ceremonyGroup);
+                QueryParameters qp = QueryParameters.fromString("fop=" + fop.getName() + "&group=" + ceremonyGroup);
+                UI.getCurrent().navigate("displays/medals", qp);
+            }
+            model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
+            model.setTeamName("");
+            model.setAttempt("");
+            setHidden(false);
+
+            updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
+            this.getElement().callJsFunction("doBreak");
+        }));
     }
 
     /**
