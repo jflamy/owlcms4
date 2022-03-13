@@ -136,7 +136,9 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     }
 
     JsonArray cattempts;
+    String ceremonyGroup = null;
     JsonArray sattempts;
+
     @Id("breakTimer")
     private BreakTimerElement breakTimer; // Flow creates it
 
@@ -148,12 +150,11 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     private DecisionElement decisions; // Flow creates it
 
     private Dialog dialog;
-
     private List<Athlete> displayOrder;
     private boolean groupDone;
     private boolean initializationNeeded;
-    private int liftsDone;
 
+    private int liftsDone;
     private Location location;
     private UI locationUI;
     final private Logger logger = (Logger) LoggerFactory.getLogger(ScoreWithLeaders.class);
@@ -162,6 +163,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     @Id("timer")
     private AthleteTimerElement timer; // Flow creates it
     private EventBus uiEventBus;
+
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     {
@@ -189,7 +191,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         DisplayOptions.addSoundEntries(vl, target, this);
     }
 
-    String ceremonyGroup = null;
     /**
      * @see app.owlcms.uievents.BreakDisplay#doBreak(app.owlcms.uievents.UIEvent)
      */

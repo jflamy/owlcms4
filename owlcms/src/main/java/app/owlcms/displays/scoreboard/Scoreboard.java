@@ -135,39 +135,41 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         void setWideTeamNames(boolean b);
     }
 
-    final private Logger logger = (Logger) LoggerFactory.getLogger(ScoreWithLeaders.class);
-    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-    {
-        logger.setLevel(Level.INFO);
-        uiEventLogger.setLevel(Level.INFO);
-    }
-
-    @Id("timer")
-    private AthleteTimerElement timer; // Flow creates it
+    JsonArray cattempts;
+    String ceremonyGroup = null;
+    JsonArray sattempts;
 
     @Id("breakTimer")
     private BreakTimerElement breakTimer; // Flow creates it
 
+    private Group curGroup;
+
+    private boolean darkMode = true;
+
     @Id("decisions")
     private DecisionElement decisions; // Flow creates it
 
-    private EventBus uiEventBus;
-
-    private List<Athlete> displayOrder;
-    private Group curGroup;
-    private int liftsDone;
-    JsonArray sattempts;
-
-    JsonArray cattempts;
-    private boolean darkMode = true;
-    private Location location;
-    private UI locationUI;
-    private boolean groupDone;
     private Dialog dialog;
-    private boolean silenced = true;
+    private List<Athlete> displayOrder;
+    private boolean groupDone;
     private boolean initializationNeeded;
 
+    private int liftsDone;
+    private Location location;
+    private UI locationUI;
+    final private Logger logger = (Logger) LoggerFactory.getLogger(ScoreWithLeaders.class);
+    private boolean silenced = true;
     private boolean switchableDisplay = true;
+    @Id("timer")
+    private AthleteTimerElement timer; // Flow creates it
+    private EventBus uiEventBus;
+
+    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+
+    {
+        logger.setLevel(Level.INFO);
+        uiEventLogger.setLevel(Level.INFO);
+    }
 
     /**
      * Instantiates a new results board.
@@ -189,13 +191,22 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         DisplayOptions.addSoundEntries(vl, target, this);
     }
 
+    /**
+     * @see app.owlcms.uievents.BreakDisplay#doBreak(app.owlcms.uievents.UIEvent)
+     */
     @Override
-    public void doBreak(UIEvent e) {
+    public void doBreak(UIEvent event) {
+        if (event instanceof UIEvent.BreakStarted) {
+            UIEvent.BreakStarted e = (UIEvent.BreakStarted) event;
+            ceremonyGroup = e.getCeremonyGroup();
+            logger.warn("break event = {} {} {}", e.getBreakType(), e.getTrace(), ceremonyGroup);
+        }
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
             BreakType breakType = fop.getBreakType();
-            if (breakType == BreakType.MEDALS && this.isSwitchableDisplay()) {
-                QueryParameters qp = QueryParameters.fromString("fop=" + fop.getName());
+            if (breakType == BreakType.MEDALS && this.isSwitchableDisplay() && ceremonyGroup != null) {
+                logger.warn("navigating {}", ceremonyGroup);
+                QueryParameters qp = QueryParameters.fromString("fop=" + fop.getName() + "&group=" + ceremonyGroup);
                 UI.getCurrent().navigate("displays/medals", qp);
             }
             model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));

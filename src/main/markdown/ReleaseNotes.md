@@ -2,24 +2,26 @@
 
 4.30.0-alpha04: Snapshot release, <u>for testing/feedback only</u>.
 
-- Added ability to change delay between athlete introduction and first snatch (non-standard rule)
-- Added ability to immediately start athlete intro when entering break management 
+- Ceremonies (introduction of athletes and officials, medals) can take place while timer are running
+  - Fixed timer behavior when exiting medals. Medals now work before and after intros.
+- Ability to present medals to a previous group while timer is running for next group (scoreboards switch to medals and back to next group at end of ceremony)
+- Non-standard timing rules:
+  - Ability to change delay between athlete introduction and first snatch
+  - Ability to immediately go to athlete introduction without a countdown
+- Not yet done:
+  - Warm-up room scoreboards should not switch during medals - coach need to count attempts.
 
-4.30.0-alpha03: Snapshot release, <u>for testing/feedback only</u>.
+4.30.0-alpha03: Snapshot release
 
 - Fix: refreshing the display did not work correctly when the group name had UTF-8 characters
-- Medal ceremony for current group switches displays to medals, and back to scoreboard at the end of ceremony.
-- Standard ceremony order works: medals for group done,  switch to next group, countdown to introduction, athlete introduction, start countdown to snatch, introduction of officials.
-- Non-standard order also works: medals for group done,  switch to next group , countdown to first snatch started, athlete intro, officials intro.
-- Not finished:
-  - presenting medals for a previous group while countdown to introduction or countdown to snatch is already running.
-  - setting to prevent warmup room displays from switching during medal presentation
 
 4.30.0-alpha00: new medal scoreboard, button added to the Displays selection page.
 
 #### New in release 4.30
 
 - [x] Medal scoreboard.  Shows medal results for the age/weight categories for which all lifters have competed.  During a group, shows provisional medal standings once all lifters have completed one lift.
+- [x] Improved break management. Ceremonies (introduction of athletes and officials, medals) can take place while timer are running.  
+- [x] Capability to present medals to a previous group without affecting countdown (Display switches back to scoreboard)
 
 #### Highlights from recent stable releases
 
