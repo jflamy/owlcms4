@@ -176,15 +176,18 @@ public class UIEvent {
          * @param timeRemaining
          * @param indefinite
          * @param origin
+         * @param trace TODO
          */
         public BreakSetTime(BreakType bt, CountdownType ct, Integer timeRemaining, LocalDateTime end,
-                boolean indefinite, Object origin) {
+                boolean indefinite, Object origin, String trace) {
             super(origin);
             this.timeRemaining = timeRemaining;
             this.indefinite = indefinite;
             this.end = end;
             this.breakType = bt;
             this.countdownType = ct;
+            this.trace = trace;
+            logger.warn("BreakSetTime setting to {} from {}", getTimeRemaining(), trace);
         }
 
         public BreakType getBreakType() {

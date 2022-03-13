@@ -391,16 +391,25 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         Button startIntroButton = new Button(
                 getTranslation("BreakMgmt.startIntro"), (e) -> {
                     OwlcmsSession.withFop(fop -> {
+                        // do nothing if we are already in during introduction
                         if (fop.getBreakType() == DURING_INTRODUCTION) {
                             return;
                         }
-                        if (fop.getState() == INACTIVE) {
-                            // simulate the normal flow - ceremonies expect to return to a
-                            // correctly set up FIRST_SNATCH break timer.
+                        
+                        // we are inactive and want to start the intro directly
+                        boolean in = fop.getState() == INACTIVE;
+                        if (in) {
+                            // simulate what the before_introduction timer would do
                             masterStartBreak(fop, BEFORE_INTRODUCTION, DURATION, false);
                             masterStartBreak(fop, FIRST_SNATCH, INDEFINITE, false);
                         }
+                        
+                        // we are in a running break such as before snatch already scheduled and want to switch to intro
+                        stackedTimer("????? start intro stacked timer",fop);
                         masterStartBreak(fop, DURING_INTRODUCTION, INDEFINITE, false);
+                        if (in) {
+                            parentDialog.close();
+                        }
                     });
                 });
         startIntroButton.setTabIndex(-1);
@@ -410,8 +419,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         if (fop.getBreakType() != DURING_INTRODUCTION) {
                             return;
                         }
-
-                        boolean switchToSnatch = (fop.getBreakTimer().getBreakType() == DURING_INTRODUCTION);
+                        stackedTimer("????? end intro stacked timer",fop);
+                        boolean switchToSnatch = true; //(fop.getBreakTimer().getBreakType() == DURING_INTRODUCTION);
                         // logger.debug("switch to snatch {} {}", fop.getBreakTimer().getBreakType() , switchToSnatch);
                         fop.getFopEventBus()
                                 .post(new FOPEvent.BreakDone(DURING_INTRODUCTION, this.getOrigin()));
@@ -523,6 +532,11 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         ce.add(hr, label);
         ce.add(dt);
         return ce;
+    }
+
+    private void stackedTimer(String message, FieldOfPlay fop) {
+        IBreakTimer fopBreakTimer = fop.getBreakTimer();
+        logger.warn("{} = {} {} {} {} {}", message, fopBreakTimer.getBreakType(), fopBreakTimer.isRunning(), fopBreakTimer.liveTimeRemaining(), fopBreakTimer.getTimeRemaining(), fopBreakTimer.isIndefinite());
     }
 
     private VerticalLayout createCountdownColumn() {
@@ -777,12 +791,15 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 timeRemaining = now.until(target, MILLIS);
                 logger.debug("setBreakTimerFromFields target-derived duration {}",
                         formattedDuration(timeRemaining));
+                fop.getBreakTimer().setTimeRemaining(timeRemaining.intValue(), false);
+                fop.getBreakTimer().setBreakDuration(timeRemaining.intValue());
+                fop.getBreakTimer().setEnd(null);
                 breakTimerElement.slaveBreakSet(
-                        new BreakSetTime(bType, curCType, timeRemaining.intValue(), target, false, this.getOrigin()));
+                        new BreakSetTime(bType, curCType, timeRemaining.intValue(), target, false, this.getOrigin(), LoggerUtils.stackTrace()));
             } else if (curCType == CountdownType.INDEFINITE) {
                 logger.debug("setBreakTimerFromFields indefinite");
                 timeRemaining = null;
-                breakTimerElement.slaveBreakSet(new BreakSetTime(bType, curCType, 0, null, true, this));
+                breakTimerElement.slaveBreakSet(new BreakSetTime(bType, curCType, 0, null, true, this, LoggerUtils.stackTrace()));
             } else {
                 Duration value;
                 value = durationField.getValue();
@@ -790,11 +807,12 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 timeRemaining = (value != null ? value.toMillis() : 0L);
                 fop.getBreakTimer().setTimeRemaining(timeRemaining.intValue(), false);
                 fop.getBreakTimer().setBreakDuration(timeRemaining.intValue());
+                fop.getBreakTimer().setEnd(null);
                 logger.debug("setBreakTimerFromFields explicit duration {}",
                         formattedDuration(timeRemaining));
                 // this sets time locally only
                 breakTimerElement.slaveBreakSet(
-                        new BreakSetTime(bType, curCType, timeRemaining.intValue(), null, false, this.getOrigin()));
+                        new BreakSetTime(bType, curCType, timeRemaining.intValue(), null, false, this.getOrigin(), LoggerUtils.stackTrace()));
             }
         });
         return;
@@ -1027,44 +1045,16 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
                     BreakType breakType;
                     if (fopState == INACTIVE) {
-                        breakType = BEFORE_INTRODUCTION;
+                        breakType = BEFORE_INTRODUCTION;                    
                     } else {
                         breakType = fopBreakType;
                     }
-
                     safeSetBT(breakType);
                     setDurationValue(fopCountdownType);
                     breakTimerElement.syncWIthFop();
                     break;
                 default:
                     throw new UnsupportedOperationException("missing case statement");
-//                    // the following is likely dead code; AthleteGridContent and subclasses for
-//                    // Announcer/TimeKeeper/Marshall
-//                    // provide this information explicitly on open.
-//
-//                    Athlete curAthlete = fop.getCurAthlete();
-//                    order = fop.getLiftingOrder();
-//                    logger.debug("   syncWithFOP: currentAthlete {}", curAthlete);
-//                    if (curAthlete == null) {
-//                        safeSetBT(BEFORE_INTRODUCTION);
-//                        setDurationValue(CountdownType.TARGET);
-//                    } else if (curAthlete.getAttemptsDone() == 3 && AthleteSorter.countLiftsDone(order) == 0
-//                            && fopState != TIME_RUNNING) {
-//                        safeSetBT(BreakType.FIRST_CJ);
-//                        setDurationValue(CountdownType.DURATION);
-//                    } else if (curAthlete.getAttemptsDone() == 0 && AthleteSorter.countLiftsDone(order) == 0
-//                            && fopState != TIME_RUNNING) {
-//                        safeSetBT(FIRST_SNATCH);
-//                        setDurationValue(DURATION);
-//                    } else {
-//                        breakType = getRequestedBreakType();
-//                        if (breakType == null) {
-//                            breakType = TECHNICAL;
-//                            setRequestedBreakType(TECHNICAL);
-//                        }
-//                        safeSetBT(breakType);
-//                        setDurationValue(INDEFINITE);
-//                    }
                 }
             } finally {
                 ignoreListeners = resetIgnoreListeners;

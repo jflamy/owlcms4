@@ -295,6 +295,7 @@ public class FieldOfPlay {
     public void fopEventPost(FOPEvent e) {
         e.setFop(this);
         // getFopEventBus().post(e);
+        // no threading to keep things simple
         handleFOPEvent(e);
     }
 
@@ -1718,6 +1719,7 @@ public class FieldOfPlay {
         BreakType newBreak = e.getBreakType();
         CountdownType newCountdownType = e.getCountdownType();
         IBreakTimer breakTimer = getBreakTimer();
+        boolean indefinite = breakTimer.isIndefinite();
         if (state == BREAK) {
             if (getBreakType() == null) {
                 // don't care about what was going on, force new break.  Used by BreakManagement.
@@ -1734,8 +1736,9 @@ public class FieldOfPlay {
                 if (newBreak == BreakType.FIRST_SNATCH) {
                     BreakType oldBreakType = getBreakType();
                     setBreakType(newBreak);
+                    logger.warn("???? oldbreaktype = {} indefinite = {}", oldBreakType, indefinite);
                     if (oldBreakType == BEFORE_INTRODUCTION
-                            || (oldBreakType == DURING_INTRODUCTION && breakTimer.isIndefinite())) {
+                            || (oldBreakType == DURING_INTRODUCTION && indefinite)) {
                         breakTimer.stop();
                         breakTimer.setTimeRemaining(DEFAULT_BREAK_DURATION, true);
                         breakTimer.setBreakDuration(DEFAULT_BREAK_DURATION);
@@ -1775,7 +1778,7 @@ public class FieldOfPlay {
             }
         } else {
             setBreakParams(e, breakTimer, newBreak, newCountdownType);
-            logger.debug("stopping1 {} {} {}", newBreak, newCountdownType, breakTimer.isIndefinite());
+            logger.debug("stopping1 {} {} {}", newBreak, newCountdownType, indefinite);
             breakTimer.stop(); // so we restart in the new type
         }
         // this will broadcast to all slave break timers

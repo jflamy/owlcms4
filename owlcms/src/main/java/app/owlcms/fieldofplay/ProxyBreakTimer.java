@@ -128,8 +128,8 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
      */
     @Override
     public int liveTimeRemaining() {
-        if (end != null) {
-            int until = (int) LocalDateTime.now().until(end, ChronoUnit.MILLIS);
+        if (getEnd() != null) {
+            int until = (int) LocalDateTime.now().until(getEnd(), ChronoUnit.MILLIS);
             logger.debug("liveTimeRemaining target {} {}",
                     until >= 0 ? DurationFormatUtils.formatDurationHMS(until) : until,
                     LoggerUtils.whereFrom());
@@ -169,7 +169,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     public void setEnd(LocalDateTime targetTime) {
         indefinite = false;
         // end != null overrides duration computation
-        logger.debug("setting end time = {}", targetTime);
+        logger.warn("setting end time = {} \n{}", targetTime, LoggerUtils.stackTrace());
         this.end = targetTime;
     }
 
@@ -198,7 +198,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
         this.setEnd(null);
         getFop().pushOut(
                 new UIEvent.BreakSetTime(getFop().getBreakType(), getFop().getCountdownType(), getTimeRemaining(), null,
-                        true, this));
+                        true, this, LoggerUtils.stackTrace()));
         setRunning(false);
         indefinite = true;
     }
@@ -305,8 +305,8 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
      * Compute time elapsed since start and adjust time remaining accordingly.
      */
     private int computeTimeRemaining() {
-        if (end != null) {
-            setTimeRemaining((int) LocalDateTime.now().until(end, ChronoUnit.MILLIS), false);
+        if (getEnd() != null) {
+            setTimeRemaining((int) LocalDateTime.now().until(getEnd(), ChronoUnit.MILLIS), false);
         } else {
             stopMillis = System.currentTimeMillis();
             long elapsed = stopMillis - startMillis;
