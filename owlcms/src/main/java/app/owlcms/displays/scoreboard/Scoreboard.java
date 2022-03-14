@@ -9,6 +9,7 @@ package app.owlcms.displays.scoreboard;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
@@ -205,9 +207,11 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             ScoreboardModel model = getModel();
             BreakType breakType = fop.getBreakType();
             if (breakType == BreakType.MEDALS && this.isSwitchableDisplay() && ceremonyGroup != null) {
-                logger.warn("navigating {}", ceremonyGroup);
-                QueryParameters qp = QueryParameters.fromString("fop=" + fop.getName() + "&group=" + ceremonyGroup);
-                UI.getCurrent().navigate("displays/medals", qp);
+                UI.getCurrent().getPage().fetchCurrentURL(url -> storeInSessionStorage("pageURL", url.toExternalForm()));
+                UI.getCurrent().navigate("displays/medals", QueryParameters.simple(Map.of(
+                        FOPParameters.FOP, fop.getName(),
+                        FOPParameters.GROUP, ceremonyGroup,
+                        DisplayParameters.DARK, Boolean.toString(darkMode))));
             }
             model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
             model.setTeamName("");
@@ -493,10 +497,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             uiEventBus = uiEventBusRegister(this, fop);
         });
         SoundUtils.enableAudioContextNotification(this.getElement());
-        if (this.isSwitchableDisplay()) {
-            UI.getCurrent().getPage().fetchCurrentURL(url -> storeInSessionStorage("pageURL", url.toExternalForm()));
-        }
-        // buildDialog(this);
     }
 
     protected void setTranslationMap() {
