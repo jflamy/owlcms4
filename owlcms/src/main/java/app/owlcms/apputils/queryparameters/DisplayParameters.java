@@ -33,7 +33,6 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.i18n.Translator;
-import app.owlcms.utils.LoggerUtils;
 
 /**
  * @author owlcms
@@ -256,9 +255,9 @@ public interface DisplayParameters extends FOPParameters {
     @Override
     public default void storeReturnURL() {
         if (isSwitchableDisplay()) {
-            logger.warn("storing pageURL before\n{}",LoggerUtils.stackTrace());
+            //logger.trace("storing pageURL before\n{}",LoggerUtils.stackTrace());
             UI.getCurrent().getPage().fetchCurrentURL(url -> {
-                logger.warn("storing pageURL after {}",url.toExternalForm());
+                //logger.trace("storing pageURL after {}",url.toExternalForm());
                 storeInSessionStorage("pageURL", url.toExternalForm());
             });
         }

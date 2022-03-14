@@ -107,7 +107,7 @@ public class FOPEvent {
             this(medals, cType, timeRemaining, targetTime, origin);
 
             this.setCeremonyGroup(ceremonyGroup);
-            logger.warn("FOPEvent ceremonyGroup = {}  st={}", this.getCeremonyGroup(), LoggerUtils.stackTrace());
+            //logger.trace("FOPEvent ceremonyGroup = {}  st={}", this.getCeremonyGroup(), LoggerUtils.stackTrace());
         }
 
         @Override

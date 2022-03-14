@@ -158,7 +158,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     }
 
     private void setBreakType(BreakType breakType) {
-        logger.warn("breakTimer setBreakType {} from {}", breakType, LoggerUtils.whereFrom(1));
+        //logger.trace("breakTimer setBreakType {} from {}", breakType, LoggerUtils.whereFrom(1));
         this.breakType = breakType;
     }
 
@@ -169,7 +169,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     public void setEnd(LocalDateTime targetTime) {
         indefinite = false;
         // end != null overrides duration computation
-        logger.warn("setting end time = {} \n{}", targetTime, LoggerUtils.stackTrace());
+        //logger.trace("setting end time = {} \n{}", targetTime, LoggerUtils.stackTrace());
         this.end = targetTime;
     }
 
@@ -214,7 +214,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
      */
     @Override
     public void setTimeRemaining(int timeRemaining2, boolean indefinite) {
-        logger.warn("setting breaktimer timeremaining={} indefinite={} from {}", timeRemaining2, indefinite, LoggerUtils.whereFrom());
+        //logger.trace("setting breaktimer timeremaining={} indefinite={} from {}", timeRemaining2, indefinite, LoggerUtils.whereFrom());
         this.indefinite = indefinite;
         this.timeRemaining = timeRemaining2;
         setRunning(false);
@@ -234,7 +234,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
         this.setBreakType(breakType);
 
         Integer millisRemaining = getMillis();
-        logger.warn("starting break millisRemaining {} paused {} ceremonyGroup {}", millisRemaining, this.indefinite, getCeremonyGroup());
+        //logger.trace("starting break millisRemaining {} paused {} ceremonyGroup {}", millisRemaining, this.indefinite, getCeremonyGroup());
         UIEvent.BreakStarted event = new UIEvent.BreakStarted(millisRemaining, getOrigin(), false,
                 breakType, getFop().getCountdownType(), LoggerUtils.stackTrace(), this.indefinite, getCeremonyGroup());
         logger.debug("posting {}", event);

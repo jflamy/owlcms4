@@ -58,7 +58,7 @@ public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
             TreeSet<Athlete> medalists = medalCat.getValue();
             if (medalists != null && !medalists.isEmpty()) {
                 for (Athlete p : medalists) {
-                    logger.warn("Competition.getCurrent().isSnatchCJTotalMedals() {}",Competition.getCurrent().isSnatchCJTotalMedals());
+                    //logger.trace("Competition.getCurrent().isSnatchCJTotalMedals() {}",Competition.getCurrent().isSnatchCJTotalMedals());
                     if (Competition.getCurrent().isSnatchCJTotalMedals()) {
                         sortedAthletes
                                 .add(new MAthlete((PAthlete) p, Ranking.SNATCH, p.getSnatchRank(), p.getBestSnatch()));

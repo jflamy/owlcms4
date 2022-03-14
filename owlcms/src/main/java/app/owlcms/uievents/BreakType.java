@@ -106,7 +106,7 @@ public enum BreakType {
     TECHNICAL(false, false, true),
     JURY(false, false, true),
     MEDALS(true, false, false),
-    GROUP_DONE(false, true, false);
+    GROUP_DONE(false, false, false);
 
     /**
      * if true, the current break timer should keep running.

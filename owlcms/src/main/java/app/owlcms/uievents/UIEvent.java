@@ -187,7 +187,7 @@ public class UIEvent {
             this.breakType = bt;
             this.countdownType = ct;
             this.trace = trace;
-            logger.warn("BreakSetTime setting to {} from {}", getTimeRemaining(), trace);
+            //logger.trace("BreakSetTime setting to {} from {}", getTimeRemaining(), trace);
         }
 
         public BreakType getBreakType() {

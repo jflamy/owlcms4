@@ -201,7 +201,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         if (event instanceof UIEvent.BreakStarted) {
             UIEvent.BreakStarted e = (UIEvent.BreakStarted) event;
             ceremonyGroup = e.getCeremonyGroup();
-            logger.warn("break event = {} {} {}", e.getBreakType(), e.getTrace(), ceremonyGroup);
+            //logger.trace("break event = {} {} {}", e.getBreakType(), e.getTrace(), ceremonyGroup);
         }
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();

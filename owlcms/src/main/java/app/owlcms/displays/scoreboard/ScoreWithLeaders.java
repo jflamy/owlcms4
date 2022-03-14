@@ -201,7 +201,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         if (event instanceof UIEvent.BreakStarted) {
             UIEvent.BreakStarted e = (UIEvent.BreakStarted) event;
             ceremonyGroup = e.getCeremonyGroup();
-            logger.warn("break event = {} {} {}", e.getBreakType(), e.getTrace(), ceremonyGroup);
+            //logger.trace("break event = {} {} {}", e.getBreakType(), e.getTrace(), ceremonyGroup);
         }
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
@@ -215,6 +215,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
             model.setTeamName("");
             model.setAttempt("");
+            breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
             setHidden(false);
 
             updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);

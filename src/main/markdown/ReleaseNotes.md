@@ -2,7 +2,9 @@
 
 4.30.0-alpha06: Snapshot release, for testing/feedback.
 
-- Added medals results Excel sheet for medal ceremony.  Competition option to show medals for all lifts or total on
+- Added medals results Excel sheet for medal ceremony.  Competition option to show medals for all lifts or total only.
+- Switch to medals display now correctly handles dark vs light scoreboard.
+- Default time for next presentation correctly set after "group done"
 - Not yet done:
   - Warm-up room scoreboards should not switch during medals - coach need to count attempts.
 
