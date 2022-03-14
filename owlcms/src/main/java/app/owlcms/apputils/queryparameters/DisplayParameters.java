@@ -33,6 +33,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.LoggerUtils;
 
 /**
  * @author owlcms
@@ -228,12 +229,13 @@ public interface DisplayParameters extends FOPParameters {
     public default void switchLightingMode(Component target, boolean dark, boolean updateURL) {
         target.getElement().getClassList().set(DARK, dark);
         target.getElement().getClassList().set(LIGHT, !dark);
-        setDarkMode(dark);
         //logger.debug("switching lighting");
         buildDialog(target);
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), DARK, dark ? null : "false");
         }
+        // after updateURL so that this method is usable to store the location if it needs it.
+        setDarkMode(dark);
     }
 
     public default void switchSoundMode(Component target, boolean silent, boolean updateURL) {
@@ -244,5 +246,23 @@ public interface DisplayParameters extends FOPParameters {
             updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? "true" : "false");
         }
     }
+    
+    /**
+     * called by updateURLLocation
+     * 
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#storeReturnURL()
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#updateURLLocation(UI, Location, String, String)
+     */
+    @Override
+    public default void storeReturnURL() {
+        if (isSwitchableDisplay()) {
+            logger.warn("storing pageURL before\n{}",LoggerUtils.stackTrace());
+            UI.getCurrent().getPage().fetchCurrentURL(url -> {
+                logger.warn("storing pageURL after {}",url.toExternalForm());
+                storeInSessionStorage("pageURL", url.toExternalForm());
+            });
+        }
+    }
+
 
 }

@@ -176,6 +176,14 @@ public interface FOPParameters extends HasUrlParameter<String> {
         Location location2 = new Location(location.getPath(), new QueryParameters(parametersMap));
         ui.getPage().getHistory().replaceState(null, location2);
         setLocation(location2);
+        storeReturnURL();
+    }
+    
+    public default void storeReturnURL() {
+    }
+    
+    public default void storeInSessionStorage(String key, String value) {
+        UI.getCurrent().getElement().executeJs("window.sessionStorage.setItem($0, $1);", key, value);
     }
 
 }

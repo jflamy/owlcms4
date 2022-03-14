@@ -210,7 +210,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             ScoreboardModel model = getModel();
             BreakType breakType = fop.getBreakType();
             if (breakType == BreakType.MEDALS && this.isSwitchableDisplay() && ceremonyGroup != null) {
-                UI.getCurrent().getPage().fetchCurrentURL(url -> storeInSessionStorage("pageURL", url.toExternalForm()));
                 UI.getCurrent().navigate("displays/medals", QueryParameters.simple(Map.of(
                         FOPParameters.FOP, fop.getName(),
                         FOPParameters.GROUP, ceremonyGroup,
@@ -501,6 +500,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             uiEventBus = uiEventBusRegister(this, fop);
         });
         SoundUtils.enableAudioContextNotification(this.getElement());
+        storeReturnURL();
     }
 
     protected void setTranslationMap() {
@@ -839,10 +839,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
 
     private void setWideTeamNames(boolean wide) {
         this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
-    }
-
-    private void storeInSessionStorage(String key, String value) {
-        getElement().executeJs("window.sessionStorage.setItem($0, $1);", key, value);
     }
 
     private void syncWithFOP(UIEvent.SwitchGroup e) {
