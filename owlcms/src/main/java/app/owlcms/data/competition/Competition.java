@@ -91,11 +91,6 @@ public class Competition {
         return competition;
     }
 
-    public static boolean isSnatchCJMedals() {
-        // TODO implement isSnatchCJMedals
-        return true;
-    }
-
     public static void setCurrent(Competition c) {
         competition = c;
     }
@@ -134,39 +129,31 @@ public class Competition {
      * announcer sees decisions as they are made by referee.
      */
     @Column(columnDefinition = "boolean default true")
-    private boolean announcerLiveDecisions;
+    private boolean announcerLiveDecisions = true;
     private String cardsTemplateFileName;
     private String competitionCity;
     private LocalDate competitionDate = null;
-
     private String competitionName;
-
     private String competitionOrganizer;
-
     private String competitionSite;
     /**
      * enable overriding total for kids categories with bonus points
      */
     @Column(columnDefinition = "boolean default false")
-    private boolean customScore;
-
+    private boolean customScore = false;
     private boolean enforce20kgRule;
     private String federation;
     private String federationAddress;
-
     private String federationEMail = "";
-
     private String federationWebSite;
-
     private String finalPackageTemplateFileName;
-
     /**
      * In a mixed group, call all female lifters then all male lifters
      */
     @Column(columnDefinition = "boolean default false")
     private boolean genderOrder;
-    private String juryTemplateFileName;
 
+    private String juryTemplateFileName;
     private boolean masters;
 
     /**
@@ -192,6 +179,7 @@ public class Competition {
 
     @Column(name = "refdelay", columnDefinition = "integer default 1500")
     private int refereeWakeUpDelay = 1500;
+
     @Transient
     private HashMap<String, Object> reportingBeans = new HashMap<>();
     /**
@@ -199,6 +187,8 @@ public class Competition {
      */
     @Column(columnDefinition = "boolean default false")
     private boolean roundRobinOrder;
+    @Column(columnDefinition = "boolean default true")
+    private boolean snatchCJTotalMedals = true;
     private String startingWeightsSheetTemplateFileName;
     private String startListTemplateFileName;
     /**
@@ -293,7 +283,7 @@ public class Competition {
             // all rankings are from a PAthlete, i.e., for the current medal category
             List<Athlete> snatchLeaders = null;
             List<Athlete> cjLeaders = null;
-            if (Competition.isSnatchCJMedals()) {
+            if (isSnatchCJTotalMedals()) {
                 snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
                         .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
                         .limit(3)
@@ -311,7 +301,7 @@ public class Competition {
             // Athletes excluded from Total due to bombing out can still win medals, so we add them
             TreeSet<Athlete> medalists = new TreeSet<>(new WinningOrderComparator(Ranking.TOTAL, false));
             medalists.addAll(totalLeaders);
-            if (Competition.isSnatchCJMedals()) {
+            if (isSnatchCJTotalMedals()) {
                 medalists.addAll(cjLeaders);
                 medalists.addAll(snatchLeaders);
             }
@@ -734,6 +724,10 @@ public class Competition {
         return roundRobinOrder;
     }
 
+    public boolean isSnatchCJTotalMedals() {
+        return snatchCJTotalMedals;
+    }
+
     /**
      * Checks if is use birth year.
      *
@@ -901,10 +895,6 @@ public class Competition {
     public void setInvitedIfBornBefore(Integer invitedIfBornBefore) {
     }
 
-    public void setJuryTemplateFileName(String juryTemplateFileName) {
-        this.juryTemplateFileName = juryTemplateFileName;
-    }
-
 //    private String doFindFinalPackageTemplateFileName(String absoluteRoot) {
 //        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
 //                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
@@ -932,6 +922,10 @@ public class Competition {
 //        }
 //        throw new RuntimeException("result templates not found under " + absoluteRoot);
 //    }
+
+    public void setJuryTemplateFileName(String juryTemplateFileName) {
+        this.juryTemplateFileName = juryTemplateFileName;
+    }
 
     public void setLocalizedCompetitionDate(String ignored) {
     }
@@ -971,6 +965,10 @@ public class Competition {
 
     public void setRoundRobinOrder(boolean roundRobinOrder) {
         this.roundRobinOrder = roundRobinOrder;
+    }
+
+    public void setSnatchCJTotalMedals(boolean snatchCJTotalMedals) {
+        this.snatchCJTotalMedals = snatchCJTotalMedals;
     }
 
     public void setStartingWeightsSheetTemplateFileName(String startingWeightsSheetTemplateFileName) {

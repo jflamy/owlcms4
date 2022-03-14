@@ -52,22 +52,28 @@ public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
         }
 
         Group group = getGroup();
-        TreeMap<Category, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(group);       
+        TreeMap<Category, TreeSet<Athlete>> medals = Competition.getCurrent().getMedals(group);
         sortedAthletes = new ArrayList<>();
         for (Entry<Category, TreeSet<Athlete>> medalCat : medals.entrySet()) {
             TreeSet<Athlete> medalists = medalCat.getValue();
             if (medalists != null && !medalists.isEmpty()) {
                 for (Athlete p : medalists) {
-                    sortedAthletes.add(new MAthlete((PAthlete)p, Ranking.SNATCH, p.getSnatchRank(), p.getBestSnatch()));
-                    sortedAthletes.add(new MAthlete((PAthlete)p, Ranking.CLEANJERK, p.getCleanJerkRank(), p.getBestCleanJerk()));
-                    sortedAthletes.add(new MAthlete((PAthlete)p, Ranking.TOTAL, p.getTotalRank(), p.getTotal()));
+                    logger.warn("Competition.getCurrent().isSnatchCJTotalMedals() {}",Competition.getCurrent().isSnatchCJTotalMedals());
+                    if (Competition.getCurrent().isSnatchCJTotalMedals()) {
+                        sortedAthletes
+                                .add(new MAthlete((PAthlete) p, Ranking.SNATCH, p.getSnatchRank(), p.getBestSnatch()));
+                        sortedAthletes.add(new MAthlete((PAthlete) p, Ranking.CLEANJERK, p.getCleanJerkRank(),
+                                p.getBestCleanJerk()));
+                    }
+                    sortedAthletes.add(new MAthlete((PAthlete) p, Ranking.TOTAL, p.getTotalRank(), p.getTotal()));
                 }
             }
         }
-        
+
         MAthlete[] array = sortedAthletes.toArray(new MAthlete[0]);
         Arrays.sort(array, new MAthlete.MedalComparator());
-        sortedAthletes = Arrays.asList(array).stream().filter(m -> m.getLiftRank() >= 1 && m.getLiftRank() <= 3).collect(Collectors.toList());
+        sortedAthletes = Arrays.asList(array).stream().filter(m -> m.getLiftRank() >= 1 && m.getLiftRank() <= 3)
+                .collect(Collectors.toList());
         return sortedAthletes;
         // @formatter:on
     }
