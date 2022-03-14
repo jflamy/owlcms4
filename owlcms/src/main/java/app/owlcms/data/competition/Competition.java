@@ -130,57 +130,77 @@ public class Competition {
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
     private String ageGroupsFileName;
+    /**
+     * announcer sees decisions as they are made by referee.
+     */
+    @Column(columnDefinition = "boolean default true")
+    private boolean announcerLiveDecisions;
+    private String cardsTemplateFileName;
     private String competitionCity;
     private LocalDate competitionDate = null;
+
     private String competitionName;
+
     private String competitionOrganizer;
 
     private String competitionSite;
-
     /**
      * enable overriding total for kids categories with bonus points
      */
     @Column(columnDefinition = "boolean default false")
     private boolean customScore;
 
-    /**
-     * announcer sees decisions as they are made by referee.
-     */
-    @Column(columnDefinition = "boolean default true")
-    private boolean announcerLiveDecisions;
     private boolean enforce20kgRule;
-
     private String federation;
     private String federationAddress;
+
     private String federationEMail = "";
 
     private String federationWebSite;
+
+    private String finalPackageTemplateFileName;
 
     /**
      * In a mixed group, call all female lifters then all male lifters
      */
     @Column(columnDefinition = "boolean default false")
     private boolean genderOrder;
-
-    /**
-     * All first lifts, then all second lifts, then all third lifts, etc. Can be combined with genderOrder as well.
-     */
-    @Column(columnDefinition = "boolean default false")
-    private boolean roundRobinOrder;
+    private String juryTemplateFileName;
 
     private boolean masters;
+
     /**
      * Add W75 and W80+ masters categories
      */
     @Column(columnDefinition = "boolean default false")
     private boolean mastersGenderEquality = false;
 
+    @Transient
+    @JsonIgnore
+    private HashMap<Group, TreeMap<Category, TreeSet<Athlete>>> medalsByGroup;
+
+    private String medalsTemplateFileName;
+
     @Column(columnDefinition = "integer default 10")
     private Integer mensTeamSize = 10;
 
+    private String protocolTemplateFileName;
+
+    @Transient
+    @JsonIgnore
+    private boolean rankingsInvalid = true;
+
+    @Column(name = "refdelay", columnDefinition = "integer default 1500")
+    private int refereeWakeUpDelay = 1500;
     @Transient
     private HashMap<String, Object> reportingBeans = new HashMap<>();
-
+    /**
+     * All first lifts, then all second lifts, then all third lifts, etc. Can be combined with genderOrder as well.
+     */
+    @Column(columnDefinition = "boolean default false")
+    private boolean roundRobinOrder;
+    private String startingWeightsSheetTemplateFileName;
+    private String startListTemplateFileName;
     /**
      * Do not require month and day for birth.
      */
@@ -204,27 +224,8 @@ public class Competition {
      */
     @Column(columnDefinition = "boolean default false")
     private boolean useRegistrationCategory = false;
-
     @Column(columnDefinition = "integer default 10")
     private Integer womensTeamSize = 10;
-
-    @Transient
-    @JsonIgnore
-    private boolean rankingsInvalid = true;
-    private String protocolTemplateFileName;
-    private String cardsTemplateFileName;
-    private String startListTemplateFileName;
-    private String juryTemplateFileName;
-    private String startingWeightsSheetTemplateFileName;
-
-    private String finalPackageTemplateFileName;
-
-    @Column(name = "refdelay", columnDefinition = "integer default 1500")
-    private int refereeWakeUpDelay = 1500;
-
-    @Transient
-    @JsonIgnore
-    private HashMap<Group, TreeMap<Category, TreeSet<Athlete>>> medalsByGroup;
     
     public Competition() {
         medalsByGroup = new HashMap<>();
@@ -456,6 +457,22 @@ public class Competition {
      */
     @Transient
     @JsonIgnore
+    public String getComputedMedalsTemplateFileName() {
+        if (getProtocolTemplateFileName() == null) {
+            return "Medals.xls";
+        } else {
+            return getMedalsTemplateFileName();
+        }
+    }
+    
+    /**
+     * Gets the protocol file name.
+     *
+     * @return the protocol file name
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
+    @Transient
+    @JsonIgnore
     public String getComputedProtocolTemplateFileName() {
         if (getProtocolTemplateFileName() == null) {
             return "Protocol.xls";
@@ -589,7 +606,6 @@ public class Competition {
                     OwlcmsSession.getLocale())).toPattern();
             // if 2-digit year, force 4 digits.
             pattern = pattern.replaceFirst("\\byy\\b", "yyyy");
-            System.err.println("pattern=" + pattern);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
             String str = competitionDate.format(formatter);
             return str;
@@ -877,6 +893,18 @@ public class Competition {
         this.genderOrder = genderOrder;
     }
 
+    /**
+     * Sets the invited if born before.
+     *
+     * @param invitedIfBornBefore the new invited if born before
+     */
+    public void setInvitedIfBornBefore(Integer invitedIfBornBefore) {
+    }
+
+    public void setJuryTemplateFileName(String juryTemplateFileName) {
+        this.juryTemplateFileName = juryTemplateFileName;
+    }
+
 //    private String doFindFinalPackageTemplateFileName(String absoluteRoot) {
 //        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
 //                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
@@ -905,18 +933,6 @@ public class Competition {
 //        throw new RuntimeException("result templates not found under " + absoluteRoot);
 //    }
 
-    /**
-     * Sets the invited if born before.
-     *
-     * @param invitedIfBornBefore the new invited if born before
-     */
-    public void setInvitedIfBornBefore(Integer invitedIfBornBefore) {
-    }
-
-    public void setJuryTemplateFileName(String juryTemplateFileName) {
-        this.juryTemplateFileName = juryTemplateFileName;
-    }
-
     public void setLocalizedCompetitionDate(String ignored) {
     }
 
@@ -926,6 +942,10 @@ public class Competition {
 
     public void setMastersGenderEquality(boolean mastersGenderEquality) {
         this.mastersGenderEquality = mastersGenderEquality;
+    }
+
+    public void setMedalsTemplateFileName(String medalsTemplateFileName) {
+        this.medalsTemplateFileName = medalsTemplateFileName;
     }
 
     public void setMensTeamSize(Integer mensTeamSize) {
@@ -1185,6 +1205,10 @@ public class Competition {
         sortedWomen = getOrCreateBean("wTeamSinclair" + suffix);
         AthleteSorter.teamPointsOrder(sortedMen, Ranking.BW_SINCLAIR);
         AthleteSorter.teamPointsOrder(sortedWomen, Ranking.BW_SINCLAIR);
+    }
+
+    private String getMedalsTemplateFileName() {
+        return medalsTemplateFileName;
     }
 
     @SuppressWarnings("unchecked")
