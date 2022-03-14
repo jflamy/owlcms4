@@ -1,14 +1,14 @@
 ### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.30.0-alpha05: Snapshot release, <u>for testing/feedback only</u>.
+4.30.0-alpha06: Snapshot release, for testing/feedback.
 
-- Various bug fixes;  added highlights to buttons to make things more intuitive.
+- Added medals results Excel sheet for medal ceremony.  Competition option to show medals for all lifts or total on
 - Not yet done:
   - Warm-up room scoreboards should not switch during medals - coach need to count attempts.
 
-4.30.0-alpha03: Snapshot release
+4.30.0-alpha05: Snapshot release, for testing/feedback.
 
-- Fix: refreshing the display did not work correctly when the group name had UTF-8 characters
+- Various bug fixes;  added highlights to buttons to make things more intuitive.
 
 4.30.0-alpha00: new medal scoreboard, button added to the Displays selection page.
 
