@@ -194,6 +194,8 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         DisplayOptions.addLightingEntries(vl, target, this);
         vl.add(new Hr());
         DisplayOptions.addSoundEntries(vl, target, this);
+        vl.add(new Hr());
+        DisplayOptions.addSwitchableEntries(vl, target, this);
     }
 
     /**

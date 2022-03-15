@@ -191,6 +191,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         DisplayOptions.addLightingEntries(vl, target, this);
         vl.add(new Hr());
         DisplayOptions.addSoundEntries(vl, target, this);
+        vl.add(new Hr());
+        DisplayOptions.addSwitchableEntries(vl, target, this);
     }
 
     /**

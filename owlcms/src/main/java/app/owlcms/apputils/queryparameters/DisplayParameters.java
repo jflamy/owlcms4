@@ -44,6 +44,7 @@ public interface DisplayParameters extends FOPParameters {
     public static final String DARK = "dark";
     public static final String SILENT = "silent";
     public static final String SOUND = "sound";
+    public static final String PUBLIC = "public";
 
     public void addDialogContent(Component target, VerticalLayout vl);
 
@@ -189,6 +190,13 @@ public interface DisplayParameters extends FOPParameters {
         }
         switchSoundMode((Component) this, silentMode, false);
         updateParam(params, SILENT, !isSilenced() ? "false" : "true");
+        
+        List<String> switchableParams = params.get(PUBLIC);
+        // dark is the default. dark=false or dark=no or ... will turn off dark mode.
+        boolean switchable = switchableParams == null || switchableParams.isEmpty() || switchableParams.get(0).toLowerCase().equals("true");
+        setDarkMode(switchable);
+        switchSwitchable((Component) this, switchable, false);
+        updateParam(params, PUBLIC, !isSwitchableDisplay() ? "false" : null);
 
         return params;
     }
@@ -243,6 +251,15 @@ public interface DisplayParameters extends FOPParameters {
         buildDialog(target);
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? "true" : "false");
+        }
+    }
+    
+    public default void switchSwitchable(Component target, boolean switchable, boolean updateURL) {
+        setSwitchableDisplay(switchable);
+        //logger.debug("switching sound");
+        buildDialog(target);
+        if (updateURL) {
+            updateURLLocation(getLocationUI(), getLocation(), PUBLIC, switchable ? "true" : "false");
         }
     }
     

@@ -191,6 +191,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         DisplayOptions.addLightingEntries(vl, target, this);
         vl.add(new Hr());
         DisplayOptions.addSoundEntries(vl, target, this);
+        vl.add(new Hr());
+        DisplayOptions.addSwitchableEntries(vl, target, this);
     }
 
     /**
