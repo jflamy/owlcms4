@@ -3,22 +3,20 @@
 4.30.0-alpha06: Snapshot release, for testing/feedback.
 
 - Added medals results Excel sheet for medal ceremony.  Competition option to show medals for all lifts or total only.
-- Switch to medals display now correctly handles dark vs light scoreboard.
-- Default time for next presentation correctly set after "group done"
-- Not yet done:
-  - Warm-up room scoreboards should not switch during medals - coach need to count attempts.
-
-4.30.0-alpha05: Snapshot release, for testing/feedback.
-
-- Various bug fixes;  added highlights to buttons to make things more intuitive.
-
-4.30.0-alpha00: new medal scoreboard, button added to the Displays selection page.
+- Scoreboards
+  - Switch to display of medal winners is selectable when clicking on display. Warmup room displays can ignore the medal ceremony and keep the scoreboard.
+  - Now correctly keeps dark vs light settings.
+- Default time for next presentation correctly set after "group done" (and various small fixes)
+- Updated Armenian translation
 
 #### New in release 4.30
 
-- [x] Medal scoreboard.  Shows medal results for the age/weight categories for which all lifters have competed.  During a group, shows provisional medal standings once all lifters have completed one lift.
-- [x] Improved break management. Ceremonies (introduction of athletes and officials, medals) can take place while timer are running.  
-- [x] Capability to present medals to a previous group without affecting countdown (Display switches back to scoreboard)
+- [x] Improved break management. 
+  - [x] Ceremonies (introduction of athletes and officials, medals) can take place without stopping the countdown timers.  
+  - [x] Capability to present medals to a previous group without affecting countdown (Display switches back to scoreboard)
+- [x] Selectable behavior for public vs warmup scoreboards selection is done when display starts or is clicked)
+  - [x] Public Scoreboards  switch to display of medal winners from a previous group during the medals ceremony.   They revert to the normal display at the end of the ceremony
+  - [x] Warmup room displays can ignore the medal ceremony and keep the scoreboard (
 
 #### Highlights from recent stable releases
 
