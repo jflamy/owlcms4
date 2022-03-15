@@ -180,7 +180,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             }
         });
         countdownRadios.addValueChangeListener(event -> {
-            logger.debug("bt new value {} {} {} {}", event.getValue(), ignoreBreakTypeValueChange,ignoreListeners,LoggerUtils.stackTrace());
+            logger.debug("bt new value {} {} {} {}", event.getValue(), ignoreBreakTypeValueChange,ignoreListeners,LoggerUtils.whereFrom());
             // prevent infinite loop
             if (ignoreBreakTypeValueChange || ignoreListeners) {
                 return;
@@ -228,11 +228,11 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             if (fop.getState() != FOPState.BREAK) {
                 // logger.debug("not in a break {} {}", fop.getState(), getRequestedBreakType());
                 if (checkImmediateBreak()) {
-                    logger.debug("immediate");
+                    logger.debug("immediate break");
                     fop.getBreakTimer().setIndefinite();
                     startIndefiniteBreakImmediately(getRequestedBreakType());
                 } else {
-                    logger.debug("not immediate");
+                    logger.debug("not immediate break");
                     setBreakTimerFromFields(durationRadios.getValue());
                     startEnabled();
                 }
