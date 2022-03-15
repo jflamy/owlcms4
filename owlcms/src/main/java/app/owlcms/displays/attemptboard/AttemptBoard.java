@@ -200,6 +200,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             getModel().setFirstName(inferMessage(breakType));
             getModel().setTeamName("");
             getModel().setAttempt("");
+            breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
 
             uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
             this.getElement().callJsFunction("doBreak");

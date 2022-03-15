@@ -218,6 +218,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
             model.setTeamName("");
             model.setAttempt("");
+            breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
             setHidden(false);
 
             updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);

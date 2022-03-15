@@ -163,7 +163,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
      * Instantiates a new results board.
      */
     public Medals() {
-        uiEventLogger.setLevel(Level.DEBUG);
+        uiEventLogger.setLevel(Level.INFO);
         OwlcmsFactory.waitDBInitialized();
         setDarkMode(true);
     }
