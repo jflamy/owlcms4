@@ -7,9 +7,7 @@
 package app.owlcms.data.competition;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -18,6 +16,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -589,15 +588,13 @@ public class Competition {
     }
 
     // @Transient
-//    @JsonIgnore
+    // @JsonIgnore
     public String getLocalizedCompetitionDate() {
         try {
-            String pattern = ((SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT,
-                    OwlcmsSession.getLocale())).toPattern();
-            // if 2-digit year, force 4 digits.
-            pattern = pattern.replaceFirst("\\byy\\b", "yyyy");
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-            String str = competitionDate.format(formatter);
+            Locale locale = OwlcmsSession.getLocale();
+            String shortPattern = DateTimeUtils.localizedShortDatePattern(locale);
+            DateTimeFormatter shortStyleFormatter = DateTimeFormatter.ofPattern(shortPattern, locale);
+            String str = competitionDate.format(shortStyleFormatter);
             return str;
         } catch (Exception a) {
             a.printStackTrace();
@@ -605,8 +602,10 @@ public class Competition {
         return "error";
     }
 
+
+
     /**
-     * Gets the masters.
+     * Gets the masters.C
      *
      * @return the masters
      */

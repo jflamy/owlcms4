@@ -6,6 +6,8 @@
  *******************************************************************************/
 package app.owlcms.utils;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -85,18 +87,7 @@ public class DateTimeUtils {
     }
 
     public static LocalDate parseLocalizedOrISO8601Date(String content, Locale locale) throws Exception {
-        // try local date format but force 4-digit years.
-        String shortPattern = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
-                FormatStyle.SHORT,
-                null,
-                IsoChronology.INSTANCE,
-                locale);
-        // force 4 digit year.
-        if (shortPattern.contains("y") && !shortPattern.contains("yy")) {
-            shortPattern = shortPattern.replace("y", "yyyy");
-        } else if (shortPattern.contains("yy") && !shortPattern.contains("yyy")) {
-            shortPattern = shortPattern.replace("yy", "yyyy");
-        }
+        String shortPattern = localizedShortDatePattern(locale);
         DateTimeFormatter shortStyleFormatter = DateTimeFormatter.ofPattern(shortPattern, locale);
         try {
             // try as a local date
@@ -121,5 +112,28 @@ public class DateTimeUtils {
             }
         }
     }
+    
+    public static String localizedShortDatePattern(Locale l) {
+        String pattern = ((SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT, l)).toPattern();
+        // if 2-digit year, force 4 digits.
+        pattern = pattern.replaceFirst("\\byy\\b", "yyyy");
+        return pattern;
+    }
 
+    public static DateTimeFormatter localizedDateTimeFormatterOld(Locale locale) {
+        // try local date format but force 4-digit years.
+        String shortPattern = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
+                FormatStyle.SHORT,
+                null,
+                IsoChronology.INSTANCE,
+                locale);
+        // force 4 digit year.
+        if (shortPattern.contains("y") && !shortPattern.contains("yy")) {
+            shortPattern = shortPattern.replace("y", "yyyy");
+        } else if (shortPattern.contains("yy") && !shortPattern.contains("yyy")) {
+            shortPattern = shortPattern.replace("yy", "yyyy");
+        }
+        DateTimeFormatter shortStyleFormatter = DateTimeFormatter.ofPattern(shortPattern, locale);
+        return shortStyleFormatter;
+    }
 }
