@@ -3,6 +3,7 @@
 4.30.0-alpha08: Snapshot release, for testing/feedback.
 
 - Fix for localized date format on start list and registration export: selected application locale was not correctly used when different from the system locale (e.g. on the cloud).
+- Updated translations
 
 #### New in release 4.30
 
