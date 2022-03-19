@@ -504,7 +504,6 @@ public abstract class AthleteGridContent extends VerticalLayout
     @Subscribe
     public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            logger.warn("******* end of Ceremony");
             syncWithFOP(true);
         });
     }
@@ -1179,7 +1178,6 @@ public abstract class AthleteGridContent extends VerticalLayout
                             fop.getState(), fop.getLiftingOrder());
                 }
             } else {
-                logger.warn("active: {}", state);
                 createTopBar();
                 if (state == FOPState.BREAK) {
                     // logger.debug("break");

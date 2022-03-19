@@ -192,7 +192,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 return;
             }
             logger.debug("bt new value {} {} {} {}", event.getValue(), ignoreBreakTypeValueChange, ignoreListeners,
-                    LoggerUtils.stackTrace());
+                    LoggerUtils.whereFrom());
 
             BreakType bType = event.getValue();
             if (bType == BEFORE_INTRODUCTION) {
