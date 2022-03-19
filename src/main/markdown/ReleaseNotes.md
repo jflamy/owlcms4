@@ -2,6 +2,7 @@
 
 4.30.0-alpha09: Snapshot release, for testing/feedback.
 
+- Significant rework of the ceremony programming logic.  New problems could be present due to this.
 - Added ability to select a category on the Medals page.
 - Moved import/export to main preparation page
 - Moved reload of translation file to bottom of the "Languages and Settings" configuration page

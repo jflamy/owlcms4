@@ -1829,7 +1829,6 @@ public class FieldOfPlay {
         if (!breakTimer.isRunning()) {
             breakTimer.setOrigin(e.getOrigin());
             breakTimer.start();
-            throw new RuntimeException("dead code");
         }
     }
 
