@@ -1796,13 +1796,14 @@ public class FieldOfPlay {
                             CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite()));
                     return;
                 } else {
-                    logger.debug("break start: from {} to {}", getBreakType(), newBreak);
+                    logger.debug("break switch: from {} to {}", getBreakType(), newBreak);
                     breakTimer.stop();
                     setBreakParams(e, breakTimer, newBreak, newCountdownType);
-                    breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);
+                    breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), newBreak.isInterruption());
                     // getFopEventBus().post(new
                     // BreakStarted(breakType2,countdownType2,e.getTimeRemaining(),e.getTargetTime(),e.getOrigin()));
                     breakTimer.start(); // so we restart in the new type
+                    return;
                 }
             } else {
                 // we are in a break, resume.
@@ -1811,27 +1812,25 @@ public class FieldOfPlay {
                 breakTimer.setOrigin(e.getOrigin());
                 breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);
                 breakTimer.start();
+                return;
             }
-        } 
-        else if (state == INACTIVE) {
+        } else if (state == INACTIVE) {
             setBreakType(newBreak);
             setState(BREAK);
             pushOut(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak,
                     CountdownType.DURATION, e.getStackTrace(), getBreakTimer().isIndefinite()));
-        }
-        else {
+        } else {
             setBreakParams(e, breakTimer, newBreak, newCountdownType);
-            logger.debug("stopping1 {} {} {}", newBreak, newCountdownType, indefinite);
+            logger.debug("stopping {} {} {}", newBreak, newCountdownType, indefinite);
             breakTimer.stop(); // so we restart in the new type
         }
+        
         // this will broadcast to all slave break timers
         if (!breakTimer.isRunning()) {
             breakTimer.setOrigin(e.getOrigin());
-            // logger.trace("starting3");
             breakTimer.start();
+            throw new RuntimeException("dead code");
         }
-        // logger.trace("break {} breakTimer {} {} {} ceremony={}", getBreakType(), breakTimer.isRunning(),
-        // breakTimer.getBreakType(), breakTimer.getBreakDuration(), breakTimer.getCeremonyGroup());
     }
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {

@@ -335,11 +335,10 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         Category cat = null;
         if (!r.isIgnoreGroupFromURL()) {
             List<String> catCodes = parametersMap.get("cat");
-            logger.warn("cat = {}", catCodes);
             if (catCodes != null && catCodes.get(0) != null) {
                 cat = CategoryRepository.findByCode(catCodes.get(0));
             }
-            logger.warn("cat = {}", cat);
+            //logger.trace("cat = {}", cat);
             if (cat != null) {
                 newParameterMap.put("cat", Arrays.asList(URLUtils.urlEncode(cat.getName())));
             }
@@ -416,14 +415,14 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
 
     @Subscribe
     public void slaveAllEvents(UIEvent e) {
-        logger.warn("********* {}", e);
+        //logger.trace("*** {}", e);
     }
 
     @Subscribe
     public void slaveBreakDone(UIEvent.BreakDone e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
-            logger.warn("------- slaveBreakDone {}", e.getBreakType());
+            //logger.trace("------- slaveBreakDone {}", e.getBreakType());
             setHidden(false);
             doUpdate(e);
         }));
@@ -433,7 +432,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
-            logger.warn("------- slaveCeremonyDone {}", e.getCeremonyType());
+            //logger.trace("------- slaveCeremonyDone {}", e.getCeremonyType());
             if (e.getCeremonyType() == CeremonyType.MEDALS) {
                 // end of medals break.
                 // If this page was opened in replacement of a display, go back to the display.
@@ -449,7 +448,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     
     @Subscribe
     public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
-        logger.warn("------- slaveCeremonyStarted {}", e.getCeremonyType());
+        //logger.trace("------- slaveCeremonyStarted {}", e.getCeremonyType());
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
@@ -459,7 +458,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
 
     @Subscribe
     public void slaveStartBreak(UIEvent.BreakStarted e) {
-        logger.warn("------- slaveStartBreak {}", e.getBreakType());
+        //logger.trace("------- slaveStartBreak {}", e.getBreakType());
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
@@ -469,7 +468,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
 
     @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
-        logger.warn("****** slaveStartLifting ");
+        //logger.trace("****** slaveStartLifting ");
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             setHidden(false);
@@ -510,7 +509,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     }
 
     protected void doUpdate(UIEvent e) {
-        logger.warn("---------- doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event");
+        //logger.trace("---------- doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event");
         MedalsTemplate model = getModel();
         boolean leaveTopAlone = false;
         if (e instanceof UIEvent.LiftingOrderUpdated) {
@@ -575,7 +574,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
 
     private void computeGroupMedalsJson() {
         OwlcmsSession.withFop(fop -> {
-            logger.warn("computeGroupMedalsJson = {} {}", getGroup(), LoggerUtils.stackTrace());
+            //logger.trace("computeGroupMedalsJson = {} {}", getGroup(), LoggerUtils.stackTrace());
             medals = Competition.getCurrent().getMedals(getGroup() != null ? getGroup() : fop.getGroup());
             JsonArray jsonMCArray = Json.createArray();
             int mcX = 0;
@@ -599,7 +598,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     }
 
     private void computeCategoryMedalsJson() {
-        logger.warn("computeCategoryMedalsJson = {} {}", getCategory(), LoggerUtils.whereFrom(1));
+        //logger.trace("computeCategoryMedalsJson = {} {}", getCategory(), LoggerUtils.whereFrom(1));
         OwlcmsSession.withFop(fop -> {
             medals = Competition.getCurrent().getMedals(getGroup() != null ? getGroup() : fop.getGroup());
             TreeSet<Athlete> medalists = medals.get(getCategory());

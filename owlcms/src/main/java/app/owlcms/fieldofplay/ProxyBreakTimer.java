@@ -262,7 +262,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
         }
         setRunning(false);
         timeRemainingAtLastStop = timeRemaining;
-        logger.warn("***stopping Break -- timeRemaining = {} [{}]", getTimeRemaining(), LoggerUtils.whereFrom());
+        //logger.debug("*** stopping Break -- timeRemaining = {} [{}]", getTimeRemaining(), LoggerUtils.whereFrom());
         timeRemainingAtLastStop = getTimeRemaining();
         // logger.debug("break stop = {} [{}]", liveTimeRemaining(), LoggerUtils.whereFrom());
         UIEvent.BreakPaused event = new UIEvent.BreakPaused(isIndefinite() ? null : getTimeRemaining(), getOrigin(),
@@ -278,8 +278,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
      */
     @Override
     public void timeOver(Object origin) {
-        logger.warn("break {} {} timeover = {} [{}]", isRunning(), isIndefinite(), getTimeRemaining(),
-                LoggerUtils.whereFrom());
+        //logger.debug("break {} {} timeover = {} [{}]", isRunning(), isIndefinite(), getTimeRemaining(), LoggerUtils.whereFrom());
         if (isRunning() && !isIndefinite()) {
             long now = System.currentTimeMillis();
             if (now - lastStop > 1000) {

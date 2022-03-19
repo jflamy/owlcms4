@@ -202,7 +202,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
             String title = inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType());
-            logger.warn("doBreak setting title {}", title);
             model.setFullName(title);
             model.setTeamName("");
             model.setAttempt("");
@@ -217,7 +216,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     public void doCeremony(UIEvent.CeremonyStarted e) {
         ceremonyGroup = e.getCeremonyGroup();
         ceremonyCategory = e.getCeremonyCategory();
-        logger.warn("------ ceremony event = {} {}", e, e.getTrace());
+        //logger.trace"------ ceremony event = {} {}", e, e.getTrace());
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
             if (e.getCeremonyType() == CeremonyType.MEDALS && this.isSwitchableDisplay() && ceremonyGroup != null) {
@@ -228,13 +227,12 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 if (ceremonyCategory != null) {
                     map.put(DisplayParameters.CATEGORY, ceremonyCategory.getCode());
                 } else {
-                    logger.warn("========================== no ceremonyCategory =========");
+                    //logger.trace"===== no ceremonyCategory =========");
                 }
                 UI.getCurrent().navigate("displays/medals", QueryParameters.simple(map));
             }
             
             String title = inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType());
-            logger.warn("doCeremony setting title {}", title);
             model.setFullName(title);
             model.setTeamName("");
             model.setAttempt("");
@@ -413,7 +411,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
-        logger.warn("------- slaveCeremonyDone {}", e.getCeremonyType());
+        //logger.trace"------- slaveCeremonyDone {}", e.getCeremonyType());
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
@@ -424,7 +422,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     
     @Subscribe
     public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
-        logger.warn("------- slaveCeremonyStarted {}", e.getCeremonyType());
+        //logger.trace"------- slaveCeremonyStarted {}", e.getCeremonyType());
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
