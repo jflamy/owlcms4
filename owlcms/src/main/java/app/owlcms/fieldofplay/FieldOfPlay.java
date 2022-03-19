@@ -642,6 +642,7 @@ public class FieldOfPlay {
                     transitionToBreak(
                             new FOPEvent.BreakStarted(FIRST_SNATCH, INDEFINITE, null,
                                     null, true, this));
+                    doStartCeremony(new FOPEvent.CeremonyStarted(CeremonyType.INTRODUCTION, getGroup(), null, this));
                 } else {
                     transitionToLifting(e, getGroup(), false);
                 }

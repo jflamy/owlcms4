@@ -288,7 +288,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
             // we've already signaled time over.
             return;
         }
-        logger.debug("break {} {} timeover = {} [{}]", isRunning(), isIndefinite(), getTimeRemaining(),
+        logger.warn("break {} {} timeover = {} [{}]", isRunning(), isIndefinite(), getTimeRemaining(),
                 LoggerUtils.whereFrom());
 
         // should emit sound at end of break

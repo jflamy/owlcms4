@@ -201,7 +201,9 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     public void doBreak(UIEvent event) {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
-            model.setFullName(inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+            String title = inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType());
+            logger.warn("doBreak setting title {}", title);
+            model.setFullName(title);
             model.setTeamName("");
             model.setAttempt("");
             breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
@@ -215,7 +217,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     public void doCeremony(UIEvent.CeremonyStarted e) {
         ceremonyGroup = e.getCeremonyGroup();
         ceremonyCategory = e.getCeremonyCategory();
-        logger.warn("------ ceremony event = {} {} {", e, e.getTrace());
+        logger.warn("------ ceremony event = {} {}", e, e.getTrace());
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
             if (e.getCeremonyType() == CeremonyType.MEDALS && this.isSwitchableDisplay() && ceremonyGroup != null) {
@@ -230,7 +232,10 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                 }
                 UI.getCurrent().navigate("displays/medals", QueryParameters.simple(map));
             }
-            model.setFullName(inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+            
+            String title = inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType());
+            logger.warn("doCeremony setting title {}", title);
+            model.setFullName(title);
             model.setTeamName("");
             model.setAttempt("");
             breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
@@ -440,15 +445,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 
     @Subscribe
     public void slaveStartBreak(UIEvent.BreakStarted e) {
-        uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            setHidden(false);
-            doBreak(e);
-        });
-    }
-    
-    @Subscribe
-    public void slaveStartCeremony(UIEvent.CeremonyStarted e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);

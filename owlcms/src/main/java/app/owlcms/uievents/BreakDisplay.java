@@ -12,7 +12,6 @@ import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.uievents.UIEvent.CeremonyStarted;
 import ch.qos.logback.classic.Logger;
 
 public interface BreakDisplay {
@@ -20,6 +19,8 @@ public interface BreakDisplay {
     Logger logger = (Logger) LoggerFactory.getLogger(BreakDisplay.class);
 
     public void doBreak(UIEvent e);
+    
+    public void doCeremony(UIEvent.CeremonyStarted e);
 
     public default String inferGroupName() {
         FieldOfPlay fop = OwlcmsSession.getFop();
@@ -63,6 +64,6 @@ public interface BreakDisplay {
         return "";
     }
 
-    void doCeremony(CeremonyStarted e);
+
 
 }

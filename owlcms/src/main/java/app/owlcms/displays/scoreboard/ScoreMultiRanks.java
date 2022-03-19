@@ -199,7 +199,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     }
 
     /**
-    /**
      * @see app.owlcms.uievents.BreakDisplay#doBreak(app.owlcms.uievents.UIEvent)
      */
     @Override
@@ -235,7 +234,10 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                 }
                 UI.getCurrent().navigate("displays/medals", QueryParameters.simple(map));
             }
-            model.setFullName(inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+            
+            String title = inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType());
+            logger.warn("doCeremony setting title {}", title);
+            model.setFullName(title);
             model.setTeamName("");
             model.setAttempt("");
             breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());

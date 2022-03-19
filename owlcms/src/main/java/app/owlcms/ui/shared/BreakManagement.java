@@ -430,7 +430,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         if (fop.getCeremonyType() != CeremonyType.INTRODUCTION) {
                             return;
                         }
-                        stackedTimer("????? end intro stacked timer", fop);
                         boolean switchToSnatch = true; // (fop.getBreakTimer().getBreakType() == DURING_INTRODUCTION);
                         // logger.debug("switch to snatch {} {}", fop.getBreakTimer().getBreakType() , switchToSnatch);
                         masterEndCeremony(fop, CeremonyType.INTRODUCTION);
@@ -966,12 +965,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             }
         }
 
-    }
-
-    private void stackedTimer(String message, FieldOfPlay fop) {
-        // IBreakTimer fopBreakTimer = fop.getBreakTimer();
-        // logger.trace("{} = {} {} {} {} {}", message, fopBreakTimer.getBreakType(), fopBreakTimer.isRunning(),
-        // fopBreakTimer.liveTimeRemaining(), fopBreakTimer.getTimeRemaining(), fopBreakTimer.isIndefinite());
     }
 
     private void startDisabled() {
