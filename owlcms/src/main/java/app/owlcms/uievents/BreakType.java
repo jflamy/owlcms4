@@ -98,25 +98,17 @@ package app.owlcms.uievents;
  */
 public enum BreakType {
 
-    BEFORE_INTRODUCTION(false, true, false),
-//    DURING_INTRODUCTION(true, false, false),
-//    DURING_OFFICIALS_INTRODUCTION(true, false, false),
-    FIRST_SNATCH(false, true, false),
-    FIRST_CJ(false, true, false),
-    TECHNICAL(false, false, true),
-    JURY(false, false, true),
-//    MEDALS(true, false, false),
-    GROUP_DONE(false, false, false);
+    BEFORE_INTRODUCTION(true, false),
+    FIRST_SNATCH(true, false),
+    FIRST_CJ(true, false),
+    TECHNICAL(false, true),
+    JURY(false, true),
+    GROUP_DONE(false, false);
 
-    /**
-     * if true, the current break timer should keep running.
-     */
-    private boolean ceremony;
     private boolean countdown;
     private boolean interruption;
 
-    BreakType(boolean ceremony, boolean countdown, boolean interruption) {
-        this.ceremony = ceremony;
+    BreakType(boolean countdown, boolean interruption) {
         this.countdown = countdown;
         this.interruption = interruption;
     }
@@ -129,7 +121,4 @@ public enum BreakType {
         return interruption;
     }
 
-    public boolean isCeremony() {
-        return ceremony;
-    }
 }

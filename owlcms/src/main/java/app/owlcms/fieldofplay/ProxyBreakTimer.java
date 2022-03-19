@@ -13,6 +13,7 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -187,7 +188,8 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     @Override
     public void setIndefinite() {
         BreakType breakType = getFop().getBreakType();
-        if (breakType != null && breakType.isCeremony()) {
+        CeremonyType ceremonyType = getFop().getCeremonyType();
+        if (ceremonyType != null) {
             // we never start a timer for a ceremony
             return;
         }
@@ -226,7 +228,8 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     @Override
     public void start() {
         BreakType breakType = getFop().getBreakType();
-        if (breakType != null && breakType.isCeremony()) {
+        CeremonyType ceremonyType = getFop().getCeremonyType();
+        if (ceremonyType != null) {
             // we never start a timer for a ceremony
             return;
         }
@@ -249,9 +252,9 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
      */
     @Override
     public void stop() {
-        BreakType breakType = getFop().getBreakType();
-        if (breakType != null && breakType.isCeremony()) {
-            // we never run a timer for a ceremony
+        CeremonyType ceremonyType = getFop().getCeremonyType();
+        if (ceremonyType != null) {
+            // we never start a timer for a ceremony
             return;
         }
         if (isRunning()) {
@@ -275,6 +278,8 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
      */
     @Override
     public void timeOver(Object origin) {
+        logger.warn("break {} {} timeover = {} [{}]", isRunning(), isIndefinite(), getTimeRemaining(),
+                LoggerUtils.whereFrom());
         if (isRunning() && !isIndefinite()) {
             long now = System.currentTimeMillis();
             if (now - lastStop > 1000) {
@@ -288,8 +293,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
             // we've already signaled time over.
             return;
         }
-        logger.warn("break {} {} timeover = {} [{}]", isRunning(), isIndefinite(), getTimeRemaining(),
-                LoggerUtils.whereFrom());
+
 
         // should emit sound at end of break
         getFop().pushOut(new UIEvent.BreakDone(origin, getFop().getBreakType()));

@@ -274,14 +274,18 @@ public abstract class AthleteGridContent extends VerticalLayout
     public void doBreak(UIEvent event) {
         if (event instanceof UIEvent.BreakStarted) {
             UIEvent.BreakStarted e = (UIEvent.BreakStarted) event;
-            breakButton.setText(getTranslation("BreakType." + e.getBreakType()) + "\u00a0\u00a0");
+            if (breakButton != null) {
+                breakButton.setText(getTranslation("BreakType." + e.getBreakType()) + "\u00a0\u00a0");
+            }
         }
 
     }
 
     @Override
     public void doCeremony(UIEvent.CeremonyStarted e) {
-        breakButton.setText(getTranslation("CeremonyType." + e.getCeremonyType()) + "\u00a0\u00a0");
+        if (breakButton != null) {
+            breakButton.setText(getTranslation("CeremonyType." + e.getCeremonyType()) + "\u00a0\u00a0");
+        }
     }
 
     /**
@@ -406,15 +410,14 @@ public abstract class AthleteGridContent extends VerticalLayout
     public void setDialog(Dialog dialog) {
     }
 
-    
     public void setFirstNameWrapper(H2 firstNameWrapper) {
         this.firstNameWrapper = firstNameWrapper;
     }
-    
+
     public void setIgnoreSwitchGroup(boolean b) {
         ignoreSwitchGroup = b;
     }
-    
+
     @Override
     public void setLocation(Location location) {
         this.location = location;

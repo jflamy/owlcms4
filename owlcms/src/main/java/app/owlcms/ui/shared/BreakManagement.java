@@ -127,6 +127,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     private EventBus uiEventBus;
 
+    private Button startMedalCeremony;
+
     {
         logger.setLevel(Level.INFO);
     }
@@ -201,7 +203,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             setDurationValue(mapBreakTypeToCountdownType);
             masterPauseBreak(bType);
 
-            if (bType != null && (bType.isInterruption() || bType.isCeremony())) {
+            if (bType != null && (bType.isInterruption())) {
                 logger.debug("starting break from radiobutton setvalue {}", bType);
                 startIndefiniteBreakImmediately(bType);
             } else {
@@ -313,17 +315,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         timePicker.setWidth("11ch");
         logger.debug("setting default duration as default {}", LoggerUtils.whereFrom());
         setDurationField(DEFAULT_DURATION);
-    }
-
-    private Group computeMedalGroup() {
-        if (medalGroup != null) {
-            return medalGroup;
-        } else {
-            OwlcmsSession.withFop(fop -> {
-                medalGroup = fop.getGroup();
-            });
-            return medalGroup;
-        }
     }
 
     private Integer computeTimerRemainingFromFields(CountdownType countdownType) {
@@ -499,15 +490,14 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
         // TODO button to open medals scoreboard
 
-        Button startMedalCeremony = new Button(
+        startMedalCeremony = new Button(
                 getTranslation("BreakMgmt.startMedals"), (e) -> {
+                    endMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
                     endMedalCeremony.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
                     OwlcmsSession.withFop(fop -> {
                         inactive = fop.getState() == INACTIVE;
-                        Group computedMedalGroup = computeMedalGroup();
-                        Category medalCategory2 = getMedalCategory();
                         fop.fopEventPost(
-                                new FOPEvent.CeremonyStarted(CeremonyType.MEDALS, computedMedalGroup, medalCategory2,
+                                new FOPEvent.CeremonyStarted(CeremonyType.MEDALS, getMedalGroup(), getMedalCategory(),
                                         this));
                     });
                 });
@@ -526,9 +516,9 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         endMedalCeremony.setTabIndex(-1);
         startMedalCeremony.getThemeNames().add("secondary contrast");
         endMedalCeremony.getThemeNames().add("secondary contrast");
-        medalButtons.add(groupCategorySelectionMenu, startMedalCeremony, endMedalCeremony);
+        medalButtons.add(startMedalCeremony, endMedalCeremony);
 
-        ce.add(label("PublicMsg.Medals"));
+        ce.add(label("PublicMsg.Medals"), groupCategorySelectionMenu);
         ce.add(medalButtons);
 
         Hr hr = new Hr();
@@ -699,7 +689,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     private CountdownType mapBreakTypeToDurationValue(BreakType bType) {
         CountdownType cType;
-        if (bType == BreakType.FIRST_SNATCH || bType == BreakType.FIRST_CJ || bType.isCeremony()) {
+        if (bType == BreakType.FIRST_SNATCH || bType == BreakType.FIRST_CJ) {
             cType = CountdownType.DURATION;
         } else if (bType == BreakType.BEFORE_INTRODUCTION || bType == BreakType.GROUP_DONE) {
             cType = CountdownType.TARGET;
@@ -770,13 +760,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         }
     }
 
-//    private void selectCeremonyGroup(Group g1, FieldOfPlay fop1) {
-//        //logger.trace("medal group {}", g1);
-//        setMedalGroup(g1);
-//    }
-
     private void selectCeremonyCategory(Group g, Category c, FieldOfPlay fop) {
-        // FIXME: need to simulate end of ceremony + switch to new group.
         setMedalGroup(g);
         setMedalCategory(c);
     }
@@ -907,9 +891,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     @Subscribe
     private void slaveBreakDone(UIEvent.BreakDone e) {
         synchronized (this) {
-            if (e.getBreakType().isCeremony()) {
-                return;
-            }
             try {
                 // logger.debug("Break Done {}", LoggerUtils. stackTrace());
                 ignoreListeners = true;
@@ -933,7 +914,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 ignoreListeners = false;
             }
         }
-
     }
 
     @Subscribe
@@ -1086,6 +1066,10 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
         });
         return running[0];
+    }
+
+    private Group getMedalGroup() {
+        return medalGroup;
     }
 
 }

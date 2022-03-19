@@ -616,6 +616,10 @@ public class FieldOfPlay {
                 transitionToTimeRunning();
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
+            } else if (e instanceof FOPEvent.CeremonyStarted) {
+                doStartCeremony((FOPEvent.CeremonyStarted) e);
+            } else if (e instanceof FOPEvent.CeremonyDone) {
+                doEndCeremony((FOPEvent.CeremonyDone) e);
             } else {
                 unexpectedEventInState(e, INACTIVE);
             }
@@ -1750,6 +1754,12 @@ public class FieldOfPlay {
         }
     }
 
+    /**
+     * @param e
+     */
+    /**
+     * @param e
+     */
     private void transitionToBreak(FOPEvent.BreakStarted e) {
         BreakType newBreak = e.getBreakType();
         CountdownType newCountdownType = e.getCountdownType();
@@ -1765,8 +1775,7 @@ public class FieldOfPlay {
             } else if ((newBreak != getBreakType() || newCountdownType != getCountdownType())) {
                 // changing the kind of break
 
-                // logger.trace("{}switching break type while in break : current {} new {} remaining {}",
-                // getLoggingName(), getBreakType(), newBreak, breakTimer.liveTimeRemaining());
+                // logger.trace("{}switching break type while in break : current {} new {} remaining {}", getLoggingName(), getBreakType(), newBreak, breakTimer.liveTimeRemaining());
                 if (newBreak == BreakType.FIRST_SNATCH) {
                     BreakType oldBreakType = getBreakType();
                     setBreakType(newBreak);
@@ -1781,18 +1790,13 @@ public class FieldOfPlay {
                     // break timer pushes out the BreakStarted event.
                     breakTimer.start();
                     return;
-                } else if (newBreak.isCeremony() || breakTimer.getBreakType().isCountdown()) {
-                    // ceremonies on the platform, leave the warmup countdown running
-                    // also, returning from a ceremony should not touch a running timer.
-                    // only change the break type, leave counter running
-                    // logger.trace("*** leave timer alone {}", e.getCeremonyGroup());
+                } else if (breakTimer.getBreakType().isCountdown()) {
                     setBreakType(newBreak);
                     pushOut(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak,
                             CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite()));
                     return;
                 } else {
-                    logger.debug("break start: from {} {} to {} {}", getBreakType(), getBreakType().isCeremony(),
-                            newBreak, newBreak.isCeremony());
+                    logger.debug("break start: from {} to {}", getBreakType(), newBreak);
                     breakTimer.stop();
                     setBreakParams(e, breakTimer, newBreak, newCountdownType);
                     breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);
@@ -1808,7 +1812,14 @@ public class FieldOfPlay {
                 breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);
                 breakTimer.start();
             }
-        } else {
+        } 
+        else if (state == INACTIVE) {
+            setBreakType(newBreak);
+            setState(BREAK);
+            pushOut(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak,
+                    CountdownType.DURATION, e.getStackTrace(), getBreakTimer().isIndefinite()));
+        }
+        else {
             setBreakParams(e, breakTimer, newBreak, newCountdownType);
             logger.debug("stopping1 {} {} {}", newBreak, newCountdownType, indefinite);
             breakTimer.stop(); // so we restart in the new type

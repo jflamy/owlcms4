@@ -25,7 +25,7 @@ import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class GroupCategorySelectionMenu extends MenuBar {
-    
+
     @FunctionalInterface
     public interface TriConsumer<T, U, V> {
 
@@ -37,38 +37,48 @@ public class GroupCategorySelectionMenu extends MenuBar {
          */
         void accept(T t, U u, V v);
     }
-    
-    public GroupCategorySelectionMenu(List<Group> groups, FieldOfPlay fop, TriConsumer<Group, Category, FieldOfPlay> whenChecked,
+
+    public GroupCategorySelectionMenu(List<Group> groups, FieldOfPlay fop,
+            TriConsumer<Group, Category, FieldOfPlay> whenChecked,
             TriConsumer<Group, Category, FieldOfPlay> whenUnselected) {
         MenuItem item;
-        if (fop.getGroup() != null) {
-            item = this.addItem(fop.getGroup().getName() + "\u2003\u25bd");
-            this.addThemeVariants(MenuBarVariant.LUMO_SMALL);
-        } else {
-            item = this.addItem(Translator.translate("Group") + "\u2003\u25bc");
-            this.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY);
-        }
+//        if (fop.getGroup() != null) {
+//            item = this.addItem(fop.getGroup().getName() + "\u2003\u25bd");
+//            this.addThemeVariants(MenuBarVariant.LUMO_SMALL);
+//        } else {
+        String menuTitle = Translator.translate("Group")+"/"+Translator.translate("Category")+"\u2003\u25bc";
+        item = this.addItem(menuTitle);
+        this.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY);
+//        }
         SubMenu subMenu = item.getSubMenu();
-        MenuItem currentlyChecked[] = { null };
         for (Group g : groups) {
-            for (Category c : getFinishedCategories(g)) {
+            Set<Category> finishedCategories = getFinishedCategories(g);
+            if (finishedCategories.size() > 0) {
                 MenuItem subItem = subMenu.addItem(
+                        g.getName(),
+                        e -> {
+                            whenChecked.accept(g, null, fop);
+                            setChecked(e.getSource(), subMenu, true);
+                            item.setText(g.getName() + "\u2003\u25bd");
+                        });
+    
+                subItem.setCheckable(true);
+                if (g.compareTo(fop.getGroup()) == 0) {
+                    setChecked(subItem, subMenu, true);
+                }
+                subItem.getElement().setAttribute("style", "margin: 0px; padding: 0px");
+            }
+
+            for (Category c : finishedCategories) {
+                MenuItem subItem1 = subMenu.addItem(
                         g.getName() + " - " + c.getName(),
                         e -> {
                             whenChecked.accept(g, c, fop);
-                            if (currentlyChecked[0] != null) {
-                                currentlyChecked[0].setChecked(false);
-                            }
-                            e.getSource().setChecked(true);
-                            currentlyChecked[0] = e.getSource();
+                            setChecked(e.getSource(), subMenu, true);
                             item.setText(g.getName() + " - " + c.getName() + "\u2003\u25bd");
                         });
-                subItem.setCheckable(true);
-                subItem.setChecked(g.compareTo(fop.getGroup()) == 0);
-                subItem.getElement().setAttribute("style", "margin: 0px; padding: 0px");
-                if (g.compareTo(fop.getGroup()) == 0) {
-                    currentlyChecked[0] = subItem;
-                }
+                subItem1.setCheckable(true);
+                subItem1.getElement().setAttribute("style", "margin: 0px; padding: 0px");
             }
         }
         Hr ruler = new Hr();
@@ -86,16 +96,22 @@ public class GroupCategorySelectionMenu extends MenuBar {
         component.setAlignItems(Alignment.CENTER);
         MenuItem item3 = subMenu.addItem(component,
                 e -> {
-                    if (currentlyChecked[0] != null) {
-                        currentlyChecked[0].setChecked(false);
-                    }
+                    setChecked(e.getSource(), subMenu, false);
                     whenUnselected.accept(null, null, fop);
-                    item.setText(Translator.translate("Group") + "\u2003\u25bd");
+                    item.setText(menuTitle);
                 });
         item3.setCheckable(false);
         item.setEnabled(true);
     }
 
+    private void setChecked(MenuItem menuItem, SubMenu subMenu, boolean checked) {
+        for (MenuItem item : subMenu.getItems()) {
+            item.setChecked(false);
+        }
+        if (checked) {
+            menuItem.setChecked(checked);
+        }
+    }
 
     private Set<Category> getFinishedCategories(Group g) {
         Set<Category> finishedCategories = new TreeSet<>();
