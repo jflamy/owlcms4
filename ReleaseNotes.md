@@ -1,13 +1,9 @@
-### **Changes for release 4.30.0-alpha07**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+### **Changes for release 4.30.0-alpha08**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.30.0-alpha06: Snapshot release, for testing/feedback.
+4.30.0-alpha08: Snapshot release, for testing/feedback.
 
-- Added medals results Excel sheet for medal ceremony.  Competition option to show medals for all lifts or total only.
-- Scoreboards
-  - Switch to display of medal winners is selectable when clicking on display. Warmup room displays can ignore the medal ceremony and keep the scoreboard.
-  - Now correctly keeps dark vs light settings.
-- Default time for next presentation correctly set after "group done" (and various small fixes)
-- Updated Armenian translation
+- Fix for localized date format on start list and registration export: selected application locale was not correctly used when different from the system locale (e.g. on the cloud).
+- Updated translations
 
 #### New in release 4.30
 
