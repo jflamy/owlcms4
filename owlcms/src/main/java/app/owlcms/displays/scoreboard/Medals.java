@@ -254,7 +254,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
 
     @Override
     public String getPageTitle() {
-        return getTranslation("BreakType.MEDALS") + OwlcmsSession.getFopNameIfMultiple();
+        return getTranslation("CeremonyType.MEDALS") + OwlcmsSession.getFopNameIfMultiple();
     }
 
     @Override

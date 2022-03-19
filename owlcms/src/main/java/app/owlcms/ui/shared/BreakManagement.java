@@ -503,9 +503,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 getTranslation("BreakMgmt.startMedals"), (e) -> {
                     endMedalCeremony.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
                     OwlcmsSession.withFop(fop -> {
-                        if (fop.getCeremonyType() == CeremonyType.MEDALS) {
-                            return;
-                        }
                         inactive = fop.getState() == INACTIVE;
                         Group computedMedalGroup = computeMedalGroup();
                         Category medalCategory2 = getMedalCategory();
@@ -531,7 +528,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         endMedalCeremony.getThemeNames().add("secondary contrast");
         medalButtons.add(groupCategorySelectionMenu, startMedalCeremony, endMedalCeremony);
 
-        ce.add(label("BreakType.MEDALS"));
+        ce.add(label("PublicMsg.Medals"));
         ce.add(medalButtons);
 
         Hr hr = new Hr();

@@ -71,7 +71,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         Button scoreboardWLeaders = openInNewTab(ScoreWithLeaders.class, getTranslation("ScoreboardWLeadersButton"));
         scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
         Button scoreboardMultiRanks = openInNewTab(ScoreMultiRanks.class, getTranslation("ScoreboardMultiRanksButton"));
-        Button medals = openInNewTab(Medals.class, getTranslation("BreakType.MEDALS"));
+        Button medals = openInNewTab(Medals.class, getTranslation("CeremonyType.MEDALS"));
 
         Button liftingOrder = openInNewTab(LiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
         Button currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"));
