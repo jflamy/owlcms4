@@ -621,6 +621,15 @@ public class Competition {
         return medals;
         
     }
+    
+    public TreeSet<Athlete> getMedals(Group g, Category c) {
+        TreeMap<Category, TreeSet<Athlete>> medals;
+        if (medalsByGroup == null || (medals = medalsByGroup.get(g)) == null) {
+            medals = computeMedals(g);
+        }
+        return medals.get(c);
+        
+    }
 
     @Transient
     @JsonIgnore

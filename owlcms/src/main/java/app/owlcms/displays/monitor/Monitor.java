@@ -150,13 +150,14 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
             // ignore events that don't change state
             return;
         }
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(),e.getClass().getSimpleName(),e.getTrace());
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                e.getTrace());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             if (syncWithFOP(e)) {
                 // significant transition
                 doUpdate();
             } else {
-                //logger.debug("event ignored {} : {}",e.getClass().getSimpleName(),OwlcmsSession.getFop().getState());
+                // logger.debug("event ignored {} : {}",e.getClass().getSimpleName(),OwlcmsSession.getFop().getState());
             }
         });
     }
@@ -178,26 +179,26 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     }
 
     void uiLog(UIEvent e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                this.getOrigin(), e.getOrigin());
     }
 
     private String computePageTitle() {
         StringBuilder pageTitle = new StringBuilder();
         computeValues();
+//        if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
+//                && h1 != null && h1.state == FOPState.BREAK && h1.breakType == BreakType.MEDALS) {
+//            logger.debug("hiding restart after medals {} {} {}", h0, h1, h2);
+//            history.remove(0);
+//            computeValues();
+//        } else 
         if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
-                && h1 != null && h1.state == FOPState.BREAK && h1.breakType == BreakType.MEDALS) {
-            logger.debug("hiding restart after medals {} {} {}", h0, h1, h2);
-            history.remove(0);
-            computeValues();
-        } 
-        else if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
                 && h1 != null && h1.state == FOPState.DECISION_VISIBLE
                 && h2 != null && h2.state == FOPState.BREAK && h2.breakType == BreakType.JURY) {
             logger.debug("fixing display after jury {} {} {}", h0, h1, h2);
             history.remove(1);
             computeValues();
-        }
-        else {
+        } else {
             logger.debug("normal {} {} {}", h0, h1, h2);
         }
 
@@ -291,10 +292,10 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
                     doPush(new Status(fop.getState(), fop.getBreakType(), null));
                     significant[0] = true;
                 } else {
-                    //logger.debug("*** ignoring {}", fop.getBreakType());
+                    // logger.debug("*** ignoring {}", fop.getBreakType());
                 }
             } else {
-                //logger.debug("*** ignoring {}", fop.getState());
+                // logger.debug("*** ignoring {}", fop.getState());
             }
         });
         return significant[0];

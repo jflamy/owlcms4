@@ -226,7 +226,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             OwlcmsSession.withFop(fop -> {
                 UI.getCurrent().access(() -> createTopBar());
                 fop.fopEventPost(
-                        new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null, this));
+                        new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null, true, this));
             });
         });
         showResultsButton.getThemeNames().add("success primary");

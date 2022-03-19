@@ -151,6 +151,11 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
             doUpdate(fop.getCurAthlete(), null);
         }));
     }
+    
+    @Override
+    public void doCeremony(UIEvent.CeremonyStarted e) {
+        doBreak(e);
+    }
 
     public void doUpdate(Competition competition) {
         this.getElement().callJsFunction("reset");

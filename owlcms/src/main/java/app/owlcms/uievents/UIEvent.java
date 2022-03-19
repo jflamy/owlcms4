@@ -8,12 +8,14 @@ package app.owlcms.uievents;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
@@ -31,34 +33,6 @@ import ch.qos.logback.classic.Logger;
 
 public class UIEvent {
     
-    Logger logger = (Logger) LoggerFactory.getLogger(UIEvent.class);
-
-    static public class WakeUpRef extends UIEvent {
-
-        public int ref;
-        public boolean on;
-
-        public WakeUpRef(int lastRef, boolean b, Object origin) {
-            super(origin);
-            this.ref = lastRef;
-            this.on = b;
-        }
-
-    }
-    
-    static public class SummonRef extends UIEvent {
-
-        public int ref;
-        public boolean on;
-
-        public SummonRef(int lastRef, boolean b, Object origin) {
-            super(origin);
-            this.ref = lastRef;
-            this.on = b;
-        }
-
-    }
-
     static public class BarbellOrPlatesChanged extends UIEvent {
         public BarbellOrPlatesChanged(Object object) {
             super(object);
@@ -91,19 +65,46 @@ public class UIEvent {
             this.breakType = breakType;
         }
     }
+    
+    /**
+     * Class BreakDone.
+     */
+    static public class CeremonyDone extends UIEvent {
 
+        private CeremonyType ceremonyType;
+
+        /**
+         * Instantiates a new break done.
+         * @param origin the origin
+         * @param breakType 
+         */
+        public CeremonyDone(CeremonyType ceremonyType, Object origin) {
+            super(origin);
+            this.setCeremonyType(ceremonyType);
+        }
+
+        public CeremonyType getCeremonyType() {
+            return ceremonyType;
+        }
+
+        public void setCeremonyType(CeremonyType ceremonyType) {
+            this.ceremonyType = ceremonyType;
+        }
+
+    }
+    
     /**
      * Class BreakPaused.
      */
     static public class BreakPaused extends UIEvent {
 
-        private boolean displayToggle;
-
-        protected Integer timeRemaining;
-        protected boolean indefinite;
-        protected LocalDateTime end;
         protected BreakType breakType;
+
         protected CountdownType countdownType;
+        protected LocalDateTime end;
+        protected boolean indefinite;
+        protected Integer timeRemaining;
+        private boolean displayToggle;
 
         public BreakPaused(Integer millisRemaining, Object origin, boolean displayToggle, BreakType bt,
                 CountdownType ct) {
@@ -162,11 +163,11 @@ public class UIEvent {
      */
     static public class BreakSetTime extends UIEvent {
 
-        protected Integer timeRemaining;
-        protected boolean indefinite;
-        protected LocalDateTime end;
         protected BreakType breakType;
         protected CountdownType countdownType;
+        protected LocalDateTime end;
+        protected boolean indefinite;
+        protected Integer timeRemaining;
 
         /**
          * DURATION break
@@ -176,7 +177,7 @@ public class UIEvent {
          * @param timeRemaining
          * @param indefinite
          * @param origin
-         * @param trace TODO
+         * @param trace
          */
         public BreakSetTime(BreakType bt, CountdownType ct, Integer timeRemaining, LocalDateTime end,
                 boolean indefinite, Object origin, String trace) {
@@ -216,18 +217,17 @@ public class UIEvent {
     // MUST NOT EXTEND otherwise subscription triggers on supertype as well
     static public class BreakStarted extends UIEvent {
 
-        private boolean displayToggle;
-
-        protected Integer timeRemaining;
-        protected boolean indefinite;
-        protected LocalDateTime end;
         protected BreakType breakType;
+
         protected CountdownType countdownType;
+        protected LocalDateTime end;
+        protected boolean indefinite;
+        protected Integer timeRemaining;
+        private boolean displayToggle;
         private Boolean paused;
-        private String ceremonyGroup;
 
         public BreakStarted(Integer millisRemaining, Object origin, boolean displayToggle, BreakType bt,
-                CountdownType ct, String trace, Boolean paused, String ceremonyGroup) {
+                CountdownType ct, String trace, Boolean paused) {
             super(origin);
             this.timeRemaining = millisRemaining;
             this.indefinite = (ct != null && ct == CountdownType.INDEFINITE) || (millisRemaining == null);
@@ -235,7 +235,6 @@ public class UIEvent {
             this.countdownType = ct;
             this.setDisplayToggle(displayToggle);
             this.setPaused(paused);
-            this.setCeremonyGroup(ceremonyGroup);
             this.setTrace(trace);
         }
 
@@ -245,6 +244,10 @@ public class UIEvent {
 
         public int getMillis() {
             return (getTimeRemaining());
+        }
+
+        public Boolean getPaused() {
+            return paused;
         }
 
         public Integer getTimeRemaining() {
@@ -272,6 +275,10 @@ public class UIEvent {
             this.displayToggle = displayToggle;
         }
 
+        public void setPaused(Boolean paused) {
+            this.paused = paused;
+        }
+
         @Override
         public String toString() {
             return "UIEvent.BreakStarted [displayToggle=" + displayToggle + ", timeRemaining=" + timeRemaining
@@ -279,20 +286,74 @@ public class UIEvent {
                     + countdownType + "]";
         }
 
-        public Boolean getPaused() {
-            return paused;
+    }
+    
+    /**
+     * Class BreakStarted.
+     */
+    // MUST NOT EXTEND otherwise subscription triggers on supertype as well
+    static public class CeremonyStarted extends UIEvent {
+
+        private CeremonyType ceremonyType;
+        private Category ceremonyCategory;
+        private Group ceremonyGroup;
+
+        public CeremonyStarted(CeremonyType ceremonyType, Group ceremonyGroup, Category ceremonyCategory, String trace, Object origin) {
+            super(origin);
+            this.setCeremonyType(ceremonyType);
+            this.setCeremonyGroup(ceremonyGroup);
+            this.setCeremonyCategory(ceremonyCategory);
+            this.setTrace(trace);
         }
 
-        public void setPaused(Boolean paused) {
-            this.paused = paused;
-        }
-
-        public String getCeremonyGroup() {
+        public Group getCeremonyGroup() {
             return this.ceremonyGroup;
         }
 
-        public void setCeremonyGroup(String ceremonyGroup) {
-            this.ceremonyGroup = ceremonyGroup;
+
+        public void setCeremonyGroup(Group ceremonyGroup2) {
+            this.ceremonyGroup = ceremonyGroup2;
+        }
+
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(ceremonyCategory, ceremonyGroup, ceremonyType);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            CeremonyStarted other = (CeremonyStarted) obj;
+            return Objects.equals(ceremonyCategory, other.ceremonyCategory)
+                    && Objects.equals(ceremonyGroup, other.ceremonyGroup) && ceremonyType == other.ceremonyType;
+        }
+
+        @Override
+        public String toString() {
+            return "CeremonyStarted [ceremonyType=" + ceremonyType + ", ceremonyCategory=" + ceremonyCategory
+                    + ", ceremonyGroup=" + ceremonyGroup + "]";
+        }
+
+        public Category getCeremonyCategory() {
+            return ceremonyCategory;
+        }
+
+        private void setCeremonyCategory(Category ceremonyCategory2) {
+            this.ceremonyCategory  = ceremonyCategory2;
+        }
+
+        public CeremonyType getCeremonyType() {
+            return ceremonyType;
+        }
+
+        public void setCeremonyType(CeremonyType ceremonyType) {
+            this.ceremonyType = ceremonyType;
         }
     }
 
@@ -468,15 +529,15 @@ public class UIEvent {
      */
     static public class LiftingOrderUpdated extends UIEvent {
 
+        private Athlete changingAthlete;
+        private boolean currentDisplayAffected;
+        private List<Athlete> displayOrder;
+        private boolean displayToggle;
+        private boolean inBreak;
+        private List<Athlete> liftingOrder;
         private Athlete nextAthlete;
         private Athlete previousAthlete;
         private Integer timeAllowed;
-        private List<Athlete> liftingOrder;
-        private List<Athlete> displayOrder;
-        private boolean currentDisplayAffected;
-        private Athlete changingAthlete;
-        private boolean displayToggle;
-        private boolean inBreak;
 
         /**
          * Instantiates a new lifting order updated command.
@@ -586,9 +647,9 @@ public class UIEvent {
      */
     static public class Notification extends UIEvent {
 
-        private String fopStateString;
-
         private String fopEventString;
+
+        private String fopStateString;
 
         public Notification(Athlete curAthlete, Object origin, FOPEvent e, FOPState state) {
             super(curAthlete, origin);
@@ -633,10 +694,10 @@ public class UIEvent {
      */
     static public class RefereeUpdate extends UIEvent {
         public Boolean ref1;
-        public Boolean ref2;
-        public Boolean ref3;
         public Integer ref1Time;
+        public Boolean ref2;
         public Integer ref2Time;
+        public Boolean ref3;
         public Integer ref3Time;
 
         public RefereeUpdate(Athlete a, Boolean ref1, Boolean ref2, Boolean ref3, Integer refereeTime,
@@ -702,8 +763,8 @@ public class UIEvent {
      */
     static public class StartTime extends UIEvent {
 
-        private Integer timeRemaining;
         private boolean serverSound;
+        private Integer timeRemaining;
 
         /**
          * Instantiates a new start time.
@@ -765,6 +826,19 @@ public class UIEvent {
         }
     }
 
+    static public class SummonRef extends UIEvent {
+
+        public boolean on;
+        public int ref;
+
+        public SummonRef(int lastRef, boolean b, Object origin) {
+            super(origin);
+            this.ref = lastRef;
+            this.on = b;
+        }
+
+    }
+
     public static class SwitchGroup extends UIEvent {
         private Group group;
         private FOPState state;
@@ -793,11 +867,26 @@ public class UIEvent {
         }
     }
 
+    static public class WakeUpRef extends UIEvent {
+
+        public boolean on;
+        public int ref;
+
+        public WakeUpRef(int lastRef, boolean b, Object origin) {
+            super(origin);
+            this.ref = lastRef;
+            this.on = b;
+        }
+
+    }
+
+    protected String trace;
+
+    Logger logger = (Logger) LoggerFactory.getLogger(UIEvent.class);
+
     private Athlete athlete;
 
     private Object origin;
-
-    protected String trace;
 
     private UIEvent(Athlete athlete, Object origin) {
         this(origin);

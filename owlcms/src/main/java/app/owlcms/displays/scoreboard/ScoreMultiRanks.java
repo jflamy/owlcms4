@@ -8,6 +8,7 @@ package app.owlcms.displays.scoreboard;
 
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,7 @@ import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
-import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import ch.qos.logback.classic.Level;
@@ -141,16 +142,14 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         void setWideTeamNames(boolean b);
     }
 
-    JsonArray cattempts;
-    String ceremonyGroup = null;
-    JsonArray sattempts;
     private LinkedHashMap<String, Participation> ageGroupMap;
-
+    
     @Id("breakTimer")
     private BreakTimerElement breakTimer; // Flow creates it
-
+    private JsonArray cattempts;
+    private Category ceremonyCategory;
+    private Group ceremonyGroup = null;
     private Group curGroup;
-
     private boolean darkMode = true;
 
     @Id("decisions")
@@ -164,6 +163,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     private Location location;
     private UI locationUI;
     final private Logger logger = (Logger) LoggerFactory.getLogger(ScoreWithLeaders.class);
+    private JsonArray sattempts;
     private boolean silenced = true;
     private boolean switchableDisplay = true;
     @Id("timer")
@@ -199,25 +199,43 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     }
 
     /**
+    /**
      * @see app.owlcms.uievents.BreakDisplay#doBreak(app.owlcms.uievents.UIEvent)
      */
     @Override
     public void doBreak(UIEvent event) {
-        if (event instanceof UIEvent.BreakStarted) {
-            UIEvent.BreakStarted e = (UIEvent.BreakStarted) event;
-            ceremonyGroup = e.getCeremonyGroup();
-            //logger.trace("break event = {} {} {}", e.getBreakType(), e.getTrace(), ceremonyGroup);
-        }
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
-            BreakType breakType = fop.getBreakType();
-            if (breakType == BreakType.MEDALS && this.isSwitchableDisplay() && ceremonyGroup != null) {
-                UI.getCurrent().navigate("displays/medals", QueryParameters.simple(Map.of(
+            model.setFullName(inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+            model.setTeamName("");
+            model.setAttempt("");
+            breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
+            setHidden(false);
+            updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
+            this.getElement().callJsFunction("doBreak");
+        }));
+    }
+
+    @Override
+    public void doCeremony(UIEvent.CeremonyStarted e) {
+        ceremonyGroup = e.getCeremonyGroup();
+        ceremonyCategory = e.getCeremonyCategory();
+        logger.warn("------ ceremony event = {} {} {", e, e.getTrace());
+        OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            ScoreboardModel model = getModel();
+            if (e.getCeremonyType() == CeremonyType.MEDALS && this.isSwitchableDisplay() && ceremonyGroup != null) {
+                Map<String, String> map = new HashMap<>(Map.of(
                         FOPParameters.FOP, fop.getName(),
-                        FOPParameters.GROUP, ceremonyGroup,
-                        DisplayParameters.DARK, Boolean.toString(darkMode))));
+                        FOPParameters.GROUP, ceremonyGroup.getName(),
+                        DisplayParameters.DARK, Boolean.toString(darkMode)));
+                if (ceremonyCategory != null) {
+                    map.put(DisplayParameters.CATEGORY, ceremonyCategory.getCode());
+                } else {
+                    logger.warn("========================== no ceremonyCategory =========");
+                }
+                UI.getCurrent().navigate("displays/medals", QueryParameters.simple(map));
             }
-            model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
+            model.setFullName(inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
             model.setTeamName("");
             model.setAttempt("");
             breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
@@ -277,7 +295,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     }
 
     /**
-     * @return true if the display can switch during breaks (for example, to medals)
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#isSwitchableDisplay()
      */
     @Override
     public boolean isSwitchableDisplay() {
@@ -390,6 +408,27 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             setHidden(false);
 //          Group g = e.getGroup();
             setDone(true);
+        });
+    }
+    
+    @Subscribe
+    public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
+        logger.warn("------- slaveCeremonyDone {}", e.getCeremonyType());
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            setHidden(false);
+            // revert to current break
+            doBreak(null);
+        });
+    }
+    
+    @Subscribe
+    public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
+        logger.warn("------- slaveCeremonyStarted {}", e.getCeremonyType());
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            setHidden(false);
+            doCeremony(e);
         });
     }
 

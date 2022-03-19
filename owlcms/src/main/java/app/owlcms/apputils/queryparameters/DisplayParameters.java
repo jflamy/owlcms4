@@ -45,6 +45,7 @@ public interface DisplayParameters extends FOPParameters {
     public static final String SILENT = "silent";
     public static final String SOUND = "sound";
     public static final String PUBLIC = "public";
+    public static final String CATEGORY = "cat";
 
     public void addDialogContent(Component target, VerticalLayout vl);
 

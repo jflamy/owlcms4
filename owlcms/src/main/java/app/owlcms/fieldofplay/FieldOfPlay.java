@@ -15,11 +15,8 @@ import static app.owlcms.fieldofplay.FOPState.TIME_RUNNING;
 import static app.owlcms.fieldofplay.FOPState.TIME_STOPPED;
 import static app.owlcms.ui.shared.BreakManagement.CountdownType.INDEFINITE;
 import static app.owlcms.uievents.BreakType.BEFORE_INTRODUCTION;
-import static app.owlcms.uievents.BreakType.DURING_INTRODUCTION;
-import static app.owlcms.uievents.BreakType.DURING_OFFICIALS_INTRODUCTION;
 import static app.owlcms.uievents.BreakType.FIRST_CJ;
 import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
-import static app.owlcms.uievents.BreakType.MEDALS;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -56,6 +53,8 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.FOPEvent.BarbellOrPlatesChanged;
+import app.owlcms.fieldofplay.FOPEvent.CeremonyDone;
+import app.owlcms.fieldofplay.FOPEvent.CeremonyStarted;
 import app.owlcms.fieldofplay.FOPEvent.DecisionFullUpdate;
 import app.owlcms.fieldofplay.FOPEvent.DecisionReset;
 import app.owlcms.fieldofplay.FOPEvent.DecisionUpdate;
@@ -75,6 +74,7 @@ import app.owlcms.sound.Tone;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.EventForwarder;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
@@ -117,13 +117,13 @@ public class FieldOfPlay {
         }
     }
 
-    private static final int WAKEUP_DURATION_MS = 20000;
-
     public static final long DECISION_VISIBLE_DURATION = 3500;
 
     public static final int REVERSAL_DELAY = 3000;
 
     private static final int DEFAULT_BREAK_DURATION = 10 * 60 * 1000;
+
+    private static final int WAKEUP_DURATION_MS = 20000;
 
     /**
      * Instantiates a new field of play state. This constructor is only used for testing using mock timers.
@@ -145,12 +145,19 @@ public class FieldOfPlay {
         return mFop;
     }
 
-    private LinkedHashMap<String, Participation> ageGroupMap = new LinkedHashMap<>();
+    /**
+     * 
+     */
+    final ThreadLocal<Boolean> preventMultiThreadingRecursion = new InheritableThreadLocal<Boolean>();
 
+    private LinkedHashMap<String, Participation> ageGroupMap = new LinkedHashMap<>();
     private IProxyTimer athleteTimer;
     private IProxyTimer breakTimer;
     private BreakType breakType;
+    private CeremonyType ceremonyType;
+
     private boolean cjStarted;
+
     /**
      * the clock owner is the last athlete for whom the clock has actually started.
      */
@@ -160,6 +167,7 @@ public class FieldOfPlay {
     private Athlete curAthlete;
     private int curWeight;
     private boolean decisionDisplayScheduled = false;
+    private FOPEvent deferredBreak;
     private List<Athlete> displayOrder;
     private boolean downEmitted;
     @SuppressWarnings("unused")
@@ -169,14 +177,20 @@ public class FieldOfPlay {
     private Boolean goodLift;
     private Group group = null;
     private boolean initialWarningEmitted;
+    private long lastGroupLoaded;
     private List<Athlete> leaders;
     private List<Athlete> liftingOrder;
     private int liftsDoneAtLastStart;
     final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
+    private TreeMap<Category, TreeSet<Athlete>> medals;
+
+    private String mqttServer;
     private String name;
+
     private Platform platform = null;
 
     private EventBus postBus = null;
+
     private Integer prevHash;
 
     private Athlete previousAthlete;
@@ -197,17 +211,9 @@ public class FieldOfPlay {
 
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
-    private Integer weightAtLastStart;
-
-    private long lastGroupLoaded;
-
-    private FOPEvent deferredBreak;
-
     private Thread wakeUpRef;
 
-    private String mqttServer;
-
-    private TreeMap<Category, TreeSet<Athlete>> medals;
+    private Integer weightAtLastStart;
 
     {
         uiEventLogger.setLevel(Level.INFO);
@@ -294,23 +300,21 @@ public class FieldOfPlay {
         }
     }
 
-    /**
-     * 
-     */
-    final ThreadLocal<Boolean> preventMultiThreadingRecursion = new InheritableThreadLocal<Boolean>();
-    
     public void fopEventPost(FOPEvent e) {
         e.setFop(this);
         if (preventMultiThreadingRecursion.get() == null) {
             preventMultiThreadingRecursion.set(true);
-            logger./**/warn("... posting from {} ..................................................................", LoggerUtils.whereFrom());
-            new Thread(() -> handleFOPEvent(e)).start();
+            logger./**/warn("... posting from {} ..................................................................",
+                    LoggerUtils.whereFrom());
+            new Thread(() -> {
+                handleFOPEvent(e);
+            }).start();;
             preventMultiThreadingRecursion.set(null);
         } else {
-            logger./**/warn("*** prevented recursion from {} ********************************************************", LoggerUtils.whereFrom());
+            logger./**/warn("*** prevented recursion from {} ********************************************************",
+                    LoggerUtils.whereFrom());
             handleFOPEvent(e);
         }
-        handleFOPEvent(e);
     }
 
     public LinkedHashMap<String, Participation> getAgeGroupMap() {
@@ -332,6 +336,10 @@ public class FieldOfPlay {
 
     public BreakType getBreakType() {
         return breakType;
+    }
+
+    public CeremonyType getCeremonyType() {
+        return ceremonyType;
     }
 
     public Athlete getClockOwner() {
@@ -414,6 +422,10 @@ public class FieldOfPlay {
      */
     public String getLoggingName() {
         return "FOP " + name + "    ";
+    }
+
+    public TreeMap<Category, TreeSet<Athlete>> getMedals() {
+        return medals;
     }
 
     public String getMqttServer() {
@@ -523,13 +535,12 @@ public class FieldOfPlay {
         }
         int newHash = e.hashCode();
         if (prevHash != null && newHash == prevHash) {
-            prevHash = newHash;
-            logger.debug("{}state {}, DUPLICATE event received {} {}", getLoggingName(), stateName(this.getState()),
-                    e.getClass().getSimpleName(), e);
+            logger.debug("{}state {}, DUPLICATE event received {} {} {}", getLoggingName(), stateName(this.getState()),
+                    e, getWhereFrom(stackTrace));
             return;
         } else {
             logger.info("{}state {}, event received {} from {}", getLoggingName(), stateName(this.getState()),
-                    e.getClass().getSimpleName(), getWhereFrom(stackTrace));
+                    e, getWhereFrom(stackTrace));
             prevHash = newHash;
         }
 
@@ -630,24 +641,16 @@ public class FieldOfPlay {
                 } else if (breakType == BEFORE_INTRODUCTION) {
                     transitionToBreak(
                             new FOPEvent.BreakStarted(FIRST_SNATCH, INDEFINITE, null,
-                                    null, this));
-                    transitionToBreak(
-                            new FOPEvent.BreakStarted(DURING_INTRODUCTION, INDEFINITE, null,
-                                    null, this));
-                } else if (breakType == DURING_INTRODUCTION || breakType == DURING_OFFICIALS_INTRODUCTION) {
-                    transitionToBreak(
-                            new FOPEvent.BreakStarted(FIRST_SNATCH, INDEFINITE, null,
-                                    null, this));
-                } else if (breakType.isCeremony()) {
-                    // only switch back to the currently running break timer, other parameters will be ignored
-                    transitionToBreak(
-                            new FOPEvent.BreakStarted(getBreakTimer().getBreakType(), INDEFINITE, null,
-                                    null, getBreakTimer().getCeremonyGroup(), this));
+                                    null, true, this));
                 } else {
                     transitionToLifting(e, getGroup(), false);
                 }
             } else if (e instanceof FOPEvent.BreakStarted) {
                 transitionToBreak((FOPEvent.BreakStarted) e);
+            } else if (e instanceof FOPEvent.CeremonyStarted) {
+                doStartCeremony((FOPEvent.CeremonyStarted) e);
+            } else if (e instanceof FOPEvent.CeremonyDone) {
+                doEndCeremony((FOPEvent.CeremonyDone) e);
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof JuryDecision) {
@@ -901,11 +904,6 @@ public class FieldOfPlay {
         }
     }
 
-    void pushOut(UIEvent event) {
-        getUiEventBus().post(event);
-        getPostEventBus().post(event);
-    }
-
     public synchronized boolean recomputeLiftingOrder() {
         return recomputeLiftingOrder(true);
     }
@@ -972,6 +970,10 @@ public class FieldOfPlay {
         this.breakType = breakType;
     }
 
+    public void setCeremonyType(CeremonyType ceremonyType) {
+        this.ceremonyType = ceremonyType;
+    }
+
     public void setCjStarted(boolean cjStarted) {
         this.cjStarted = cjStarted;
     }
@@ -1001,6 +1003,10 @@ public class FieldOfPlay {
      */
     public void setLiftsDoneAtLastStart(int liftsDoneAtLastStart) {
         this.liftsDoneAtLastStart = liftsDoneAtLastStart;
+    }
+
+    public void setMedals(TreeMap<Category, TreeSet<Athlete>> medals) {
+        this.medals = medals;
     }
 
     public void setMqttServer(String mqttServer) {
@@ -1096,6 +1102,11 @@ public class FieldOfPlay {
         }
     }
 
+    void pushOut(UIEvent event) {
+        getUiEventBus().post(event);
+        getPostEventBus().post(event);
+    }
+
     /**
      * Sets the state.
      *
@@ -1134,6 +1145,11 @@ public class FieldOfPlay {
             this.setState(BREAK);
             pushOutDone();
         }
+    }
+
+    private void doEndCeremony(CeremonyDone e) {
+        setCeremonyType(null);
+        getUiEventBus().post(new UIEvent.CeremonyDone(e.getCeremonyType(), e));
     }
 
     private void doJuryDecision(JuryDecision e) {
@@ -1181,6 +1197,11 @@ public class FieldOfPlay {
             getGroup().doDone(breakType == BreakType.GROUP_DONE);
         }
         this.state = state;
+    }
+
+    private void doStartCeremony(CeremonyStarted e) {
+        setCeremonyType(e.getCeremony());
+        getUiEventBus().post(new UIEvent.CeremonyStarted(e.getCeremony(), e.getCeremonyGroup(), e.getCeremonyCategory(), e.getStackTrace(), e.getOrigin()));
     }
 
     private void doSummonReferee(SummonReferee e) {
@@ -1545,7 +1566,6 @@ public class FieldOfPlay {
             breakTimer2.setTimeRemaining(0, false);
             breakTimer2.setEnd(e.getTargetTime());
         }
-        breakTimer2.setCeremonyGroup(e.getCeremonyGroup());
         logger.trace("breakTimer2 {} isIndefinite={}", countdownType2, breakTimer2.isIndefinite());
     }
 
@@ -1740,8 +1760,7 @@ public class FieldOfPlay {
                 logger.debug("!!!! forced break from breakmgmt");
                 setBreakType(newBreak);
                 pushOut(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak,
-                        CountdownType.DURATION, e.getStackTrace(), getBreakTimer().isIndefinite(),
-                        e.getCeremonyGroup()));
+                        CountdownType.DURATION, e.getStackTrace(), getBreakTimer().isIndefinite()));
             } else if ((newBreak != getBreakType() || newCountdownType != getCountdownType())) {
                 // changing the kind of break
 
@@ -1751,19 +1770,13 @@ public class FieldOfPlay {
                     BreakType oldBreakType = getBreakType();
                     setBreakType(newBreak);
                     // logger.trace("???? oldbreaktype = {} indefinite = {}", oldBreakType, indefinite);
-                    if (oldBreakType == BEFORE_INTRODUCTION
-                            || (oldBreakType == DURING_INTRODUCTION && indefinite)
-                            || (oldBreakType == DURING_OFFICIALS_INTRODUCTION && indefinite)
-                            || (oldBreakType == MEDALS && indefinite)) {
+                    if (oldBreakType == BEFORE_INTRODUCTION) {
                         breakTimer.stop();
                         breakTimer.setTimeRemaining(DEFAULT_BREAK_DURATION, true);
                         breakTimer.setBreakDuration(DEFAULT_BREAK_DURATION);
                     } else {
                         breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);
                     }
-                    // logger.trace("switching to first snatch {} timeremaining={}", newBreak,
-                    // breakTimer.getTimeRemaining());
-
                     // break timer pushes out the BreakStarted event.
                     breakTimer.start();
                     return;
@@ -1774,8 +1787,7 @@ public class FieldOfPlay {
                     // logger.trace("*** leave timer alone {}", e.getCeremonyGroup());
                     setBreakType(newBreak);
                     pushOut(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak,
-                            CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite(),
-                            e.getCeremonyGroup()));
+                            CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite()));
                     return;
                 } else {
                     logger.debug("break start: from {} {} to {} {}", getBreakType(), getBreakType().isCeremony(),
@@ -1941,14 +1953,6 @@ public class FieldOfPlay {
         recomputeOrderAndRanks();
         uiDisplayCurrentAthleteAndTime(false, e, false);
         // updateGlobalRankings(); // now done in recomputeOrderAndRanks
-    }
-
-    public TreeMap<Category, TreeSet<Athlete>> getMedals() {
-        return medals;
-    }
-
-    public void setMedals(TreeMap<Category, TreeSet<Athlete>> medals) {
-        this.medals = medals;
     }
 
 }

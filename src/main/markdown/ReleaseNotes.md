@@ -1,9 +1,10 @@
 ### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.30.0-alpha08: Snapshot release, for testing/feedback.
+4.30.0-alpha09: Snapshot release, for testing/feedback.
 
-- Fix for localized date format on start list and registration export: selected application locale was not correctly used when different from the system locale (e.g. on the cloud).
-- Updated translations
+- Added ability to select a category on the Medals page.
+- Moved import/export to main preparation page
+- Moved reload of translation file to bottom of the "Languages and Settings" configuration page
 
 #### New in release 4.30
 

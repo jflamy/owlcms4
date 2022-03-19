@@ -44,7 +44,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     private long stopMillis;
     private int timeRemaining;
     private int timeRemainingAtLastStop;
-    private String ceremonyGroup;
+
     {
         logger.setLevel(Level.INFO);
     }
@@ -235,8 +235,10 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 
         Integer millisRemaining = getMillis();
         //logger.trace("starting break millisRemaining {} paused {} ceremonyGroup {}", millisRemaining, this.indefinite, getCeremonyGroup());
-        UIEvent.BreakStarted event = new UIEvent.BreakStarted(millisRemaining, getOrigin(), false,
-                breakType, getFop().getCountdownType(), LoggerUtils.stackTrace(), this.indefinite, getCeremonyGroup());
+        UIEvent.BreakStarted event = new UIEvent.BreakStarted(
+                millisRemaining, getOrigin(), false,
+                breakType,
+                getFop().getCountdownType(), LoggerUtils.stackTrace(), this.indefinite);
         logger.debug("posting {}", event);
         getFop().pushOut(event);
         setRunning(true);
@@ -323,15 +325,4 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     private void setRunning(boolean running) {
         this.running = running;
     }
-
-    @Override
-    public void setCeremonyGroup(String ceremonyGroup) {
-        this.ceremonyGroup = ceremonyGroup;
-    }
-
-    @Override
-    public String getCeremonyGroup() {
-        return ceremonyGroup;
-    }
-
 }

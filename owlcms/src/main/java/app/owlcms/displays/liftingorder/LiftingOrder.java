@@ -156,6 +156,11 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             doUpdate(fop.getCurAthlete(), null);
         }));
     }
+    
+    @Override
+    public void doCeremony(UIEvent.CeremonyStarted e) {
+        doBreak(e);
+    }
 
     /**
      * return dialog, but only on first call.

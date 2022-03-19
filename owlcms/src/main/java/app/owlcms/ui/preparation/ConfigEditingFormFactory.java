@@ -33,8 +33,6 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -116,7 +114,7 @@ public class ConfigEditingFormFactory
         FormLayout languageLayout = presentationForm();
         FormLayout publicResultsLayout = publicResultsForm();
         FormLayout localOverrideLayout = localOverrideForm();
-        FormLayout exportLayout = exportForm();
+        FormLayout exportLayout = translationForm();
 
         Component footer = this.buildFooter(operation, config, cancelButtonClickListener,
                 c -> {
@@ -240,26 +238,6 @@ public class ConfigEditingFormFactory
         title.getStyle().set("margin-top", "0");
         title.getStyle().set("margin-bottom", "0");
         return title;
-    }
-
-    private FormLayout exportForm() {
-        FormLayout layout = createLayout();
-        Component title = createTitle("ExportDatabase.ExportImport");
-        layout.add(title);
-        layout.setColspan(title, 2);
-
-        Button uploadJson = new Button(Translator.translate("ExportDatabase.UploadJson"),
-                new Icon(VaadinIcon.UPLOAD_ALT),
-                buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
-        Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
-                Translator.translate("ExportDatabase.DownloadJson"));
-//        Button clearDatabase = new Button(Translator.translate("ExportDatabase.ClearDatabase"),
-//                new Icon(VaadinIcon.UPLOAD_ALT),
-//                buttonClickEvent -> CompetitionRepository.removeAll());
-        layout.addFormItem(exportJsonDiv, Translator.translate("ExportDatabase.DownloadLabel"));
-        layout.addFormItem(uploadJson, Translator.translate("ExportDatabase.UploadLabel"));
-//        layout.addFormItem(clearDatabase, "");
-        return layout;
     }
 
     private FormLayout localOverrideForm() {
@@ -402,6 +380,18 @@ public class ConfigEditingFormFactory
             defaultTZ.setText(Translator.translate("Config.TZ_FromServer", defZone));
         });
 
+        return layout;
+    }
+
+    private FormLayout translationForm() {
+        FormLayout layout = createLayout();
+        Component title = createTitle("Translation");
+        layout.add(title);
+        layout.setColspan(title, 2);
+
+        Button resetTranslation = new Button(Translator.translate("reloadTranslation"),
+                buttonClickEvent -> Translator.reset());
+        layout.addFormItem(resetTranslation, Translator.translate("reloadTranslationInfo"));
         return layout;
     }
 

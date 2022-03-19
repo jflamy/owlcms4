@@ -12,6 +12,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.uievents.UIEvent.CeremonyStarted;
 import ch.qos.logback.classic.Logger;
 
 public interface BreakDisplay {
@@ -30,32 +31,38 @@ public interface BreakDisplay {
         return Translator.translate("Group_number", groupName);
     }
 
-    public default String inferMessage(BreakType bt) {
-        if (bt == null) {
+    public default String inferMessage(BreakType breakType, CeremonyType ceremonyType) {
+        if (breakType == null) {
             return Translator.translate("PublicMsg.CompetitionPaused");
         }
-        switch (bt) {
+        if (ceremonyType != null) {
+            switch (ceremonyType) {
+            case INTRODUCTION:
+                return Translator.translate("BreakMgmt.IntroductionOfAthletes");
+            case MEDALS:
+                return Translator.translate("PublicMsg.Medals");
+            case OFFICIALS_INTRODUCTION:
+                return Translator.translate("BreakMgmt.IntroductionOfOfficials");
+            }
+        }
+        switch (breakType) {
         case FIRST_CJ:
             return Translator.translate("BreakType.FIRST_CJ");
         case FIRST_SNATCH:
             return Translator.translate("BreakType.FIRST_SNATCH");
         case BEFORE_INTRODUCTION:
             return Translator.translate("BreakType.BEFORE_INTRODUCTION");
-        case DURING_INTRODUCTION:
-            return Translator.translate("BreakMgmt.IntroductionOfAthletes");
-        case DURING_OFFICIALS_INTRODUCTION:
-            return Translator.translate("BreakMgmt.IntroductionOfOfficials");
         case TECHNICAL:
             return Translator.translate("PublicMsg.CompetitionPaused");
         case JURY:
             return Translator.translate("PublicMsg.JuryDeliberation");
         case GROUP_DONE:
             return Translator.translate("PublicMsg.GroupDone");
-        case MEDALS:
-            return Translator.translate("PublicMsg.Medals");
         }
         // can't happen
         return "";
     }
+
+    void doCeremony(CeremonyStarted e);
 
 }

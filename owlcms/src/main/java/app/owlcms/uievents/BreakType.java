@@ -99,13 +99,13 @@ package app.owlcms.uievents;
 public enum BreakType {
 
     BEFORE_INTRODUCTION(false, true, false),
-    DURING_INTRODUCTION(true, false, false),
-    DURING_OFFICIALS_INTRODUCTION(true, false, false),
+//    DURING_INTRODUCTION(true, false, false),
+//    DURING_OFFICIALS_INTRODUCTION(true, false, false),
     FIRST_SNATCH(false, true, false),
     FIRST_CJ(false, true, false),
     TECHNICAL(false, false, true),
     JURY(false, false, true),
-    MEDALS(true, false, false),
+//    MEDALS(true, false, false),
     GROUP_DONE(false, false, false);
 
     /**

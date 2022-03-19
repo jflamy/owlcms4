@@ -28,9 +28,4 @@ public interface IBreakTimer extends IProxyTimer {
     void setTimeRemaining(int intValue, boolean indefinite);
 
     BreakType getBreakType();
-
-    void setCeremonyGroup(String ceremonyGroup);
-    
-    String getCeremonyGroup();
-
 }
