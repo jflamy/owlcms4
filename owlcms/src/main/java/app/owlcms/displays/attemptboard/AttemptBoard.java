@@ -209,16 +209,30 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     
     @Override
     public void doCeremony(UIEvent.CeremonyStarted e) {
-        OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setLastName(inferGroupName());
-            getModel().setFirstName(inferMessage(fop.getBreakType(), fop.getCeremonyType()));
-            getModel().setTeamName("");
-            getModel().setAttempt("");
-            breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
-
-            uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
-            this.getElement().callJsFunction("doBreak");
-        }));
+//        OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+//            getModel().setLastName(inferGroupName());
+//            getModel().setFirstName(inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+//            getModel().setTeamName("");
+//            getModel().setAttempt("");
+//            breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
+//
+//            uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
+//            this.getElement().callJsFunction("doBreak");
+//        }));
+    }
+    
+    @Subscribe
+    public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            syncWithFOP(OwlcmsSession.getFop());
+        });
+    }
+    
+    @Subscribe
+    public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            syncWithFOP(OwlcmsSession.getFop());
+        });
     }
 
     /**
@@ -570,7 +584,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     protected void doEmpty() {
-        logger.debug("doEmpty {}", LoggerUtils.whereFrom());
         hidePlates();
         this.getElement().callJsFunction("clear");
     }
@@ -695,11 +708,11 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     private void syncWithFOP(FieldOfPlay fop) {
         // sync with current status of FOP
-        if (fop.getState() == FOPState.INACTIVE) {
+        if (fop.getState() == FOPState.INACTIVE && fop.getCeremonyType() == null) {
             doEmpty();
         } else {
             Athlete curAthlete = fop.getCurAthlete();
-            if (fop.getState() == FOPState.BREAK) {
+            if (fop.getState() == FOPState.BREAK || fop.getState() == FOPState.INACTIVE) {
                 if (fop.getCeremonyType() != null) {
                     doBreak(fop);
                 } else if (curAthlete != null && curAthlete.getAttemptsDone() >= 6) {

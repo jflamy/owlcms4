@@ -156,7 +156,7 @@ public class FieldOfPlay {
     private BreakType breakType;
     private CeremonyType ceremonyType;
     private boolean cjStarted;
-    private boolean multiThread = false;
+    private boolean multiThread = true;
 
     public boolean isMultiThread() {
         return multiThread;
@@ -1778,16 +1778,15 @@ public class FieldOfPlay {
         if (state == BREAK) {
             if (getBreakType() == null) {
                 // don't care about what was going on, force new break. Used by BreakManagement.
-                logger.debug("!!!! forced break from breakmgmt");
+                logger.debug("{}forced break from breakmgmt", getLoggingName());
                 setBreakType(newBreak);
-//                getBreakTimer().start();
+                getBreakTimer().start();
                 pushOutUIEvent(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak,
                         CountdownType.DURATION, e.getStackTrace(), getBreakTimer().isIndefinite()));
                 return;
             } else if ((newBreak != getBreakType() || newCountdownType != getCountdownType())) {
                 // changing the kind of break
-
-                // logger.trace("{}switching break type while in break : current {} new {} remaining {}", getLoggingName(), getBreakType(), newBreak, breakTimer.liveTimeRemaining());
+                logger.debug("{}switching break type while in break : current {} new {} remaining {}", getLoggingName(), getBreakType(), newBreak, breakTimer.liveTimeRemaining());
                 if (newBreak == BreakType.FIRST_SNATCH) {
                     BreakType oldBreakType = getBreakType();
                     setBreakType(newBreak);
@@ -1803,13 +1802,14 @@ public class FieldOfPlay {
                     breakTimer.start();
                     return;
                 } else if (breakTimer.getBreakType().isCountdown()) {
+                    logger.debug("{}switching do countdown {}");
                     setBreakType(newBreak);
-//                    getBreakTimer().start();
+                    getBreakTimer().start();
                     pushOutUIEvent(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak,
                             CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite()));
                     return;
                 } else {
-                    logger.debug("break switch: from {} to {}", getBreakType(), newBreak);
+                    logger.debug("{}break switch: from {} to {}", getBreakType(), newBreak);
                     breakTimer.stop();
                     setBreakParams(e, breakTimer, newBreak, newCountdownType);
                     breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), newBreak.isInterruption());
