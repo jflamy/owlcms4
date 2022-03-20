@@ -1,15 +1,9 @@
 ### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.30.0-beta01:  No new features planned for 4.30; bug and documentation fixes only in next releases.
+4.30.0-beta02:  No new features planned for 4.30; bug and documentation fixes only in next releases.
 
-- Rework and clean up of the ceremony logic to make sure ceremonies don't interfere with countdown timers.
-  - Note that BREAK.INTRODUCTION and BREAK.OFFICIALS_INTRODUCTION are now used ("DURING_" was removed from the name)
-  - Initial check of the OBS status sequence was done
-- Added ability to select a category on the Medals page when there are two many categories to fit on a page.  Added highlighting on buttons to make behavior easier to understand.
-- Made warmup display the default.  Scoreboards will not switch to medal by default. Main public display will require selecting "public" option on startup to make it switch to medals.  Adding "&public=true" will cause the scoreboards to switch.
-- Moved database import/export to main preparation page
-- Moved the reload of translation file to bottom of the "Languages and Settings" configuration page
-- Todo: check that publicresults behaves correctly as a warmup display (no medal switching)
+- Announcer's break button now tracks correctly the field of play state and the break timer.
+- Can again start introduction or medals from the inactive state (lifting not started), fixed attempt board display of ceremony name.
 
 #### New in release 4.30
 
@@ -18,7 +12,10 @@
   - [x] Capability to present medals to a previous group without affecting countdown (Display switches back to scoreboard)
 - [x] Selectable behavior for public vs warmup scoreboards selection is done when display starts or is clicked)
   - [x] Public Scoreboards  switch to display of medal winners from a previous group during the medals ceremony.   They revert to the normal display at the end of the ceremony
-  - [x] Warmup room displays can ignore the medal ceremony and keep the scoreboard (
+  - [x] Warmup room displays can ignore the medal ceremony and keep the scoreboard
+- [x] Usability/understandability changes
+  - Moved database import/export to main preparation page
+  - Moved the reload of translation file to bottom of the "Languages and Settings" configuration page
 
 #### Highlights from recent stable releases
 
