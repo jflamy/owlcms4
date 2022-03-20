@@ -1,11 +1,15 @@
 ### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.30.0-alpha09: Snapshot release, for testing/feedback.
+4.30.0-beta01:  No new features planned for 4.30; bug and documentation fixes only in next releases.
 
-- Significant rework of the ceremony programming logic.  New problems could be present due to this.
-- Added ability to select a category on the Medals page.
-- Moved import/export to main preparation page
-- Moved reload of translation file to bottom of the "Languages and Settings" configuration page
+- Rework and clean up of the ceremony logic to make sure ceremonies don't interfere with countdown timers.
+  - Note that BREAK.INTRODUCTION and BREAK.OFFICIALS_INTRODUCTION are now used ("DURING_" was removed from the name)
+  - Initial check of the OBS status sequence was done
+- Added ability to select a category on the Medals page when there are two many categories to fit on a page.  Added highlighting on buttons to make behavior easier to understand.
+- Made warmup display the default.  Scoreboards will not switch to medal by default. Main public display will require selecting "public" option on startup to make it switch to medals.  Adding "&public=true" will cause the scoreboards to switch.
+- Moved database import/export to main preparation page
+- Moved the reload of translation file to bottom of the "Languages and Settings" configuration page
+- Todo: check that publicresults behaves correctly as a warmup display (no medal switching)
 
 #### New in release 4.30
 
