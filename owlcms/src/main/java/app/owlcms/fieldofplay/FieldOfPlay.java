@@ -155,8 +155,16 @@ public class FieldOfPlay {
     private IProxyTimer breakTimer;
     private BreakType breakType;
     private CeremonyType ceremonyType;
-
     private boolean cjStarted;
+    private boolean multiThread = true;
+
+    public boolean isMultiThread() {
+        return multiThread;
+    }
+
+    public void setMultiThread(boolean multiThread) {
+        this.multiThread = multiThread;
+    }
 
     /**
      * the clock owner is the last athlete for whom the clock has actually started.
@@ -302,7 +310,7 @@ public class FieldOfPlay {
 
     public void fopEventPost(FOPEvent e) {
         e.setFop(this);
-        if (preventMultiThreadingRecursion.get() == null) {
+        if (isMultiThread() && preventMultiThreadingRecursion.get() == null) {
             preventMultiThreadingRecursion.set(true);
             logger./**/warn("... posting from {} ..................................................................",
                     LoggerUtils.whereFrom());
