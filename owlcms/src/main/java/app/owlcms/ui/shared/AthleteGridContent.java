@@ -225,8 +225,9 @@ public abstract class AthleteGridContent extends VerticalLayout
         // breakButton.setText(getTranslation("BreakButton.Paused"));
         OwlcmsSession.withFop(fop -> {
             IBreakTimer breakTimer = fop.getBreakTimer();
-            if (fop.getBreakType() != BreakType.GROUP_DONE && !breakTimer.isIndefinite()) {
+            if (!breakTimer.isIndefinite()) {
                 BreakTimerElement bte = getBreakTimerElement();
+                bte.syncWithFopBreakTimer();
                 bte.setParent(this.getClass().getSimpleName() + "_" + id);
                 breakButton.setIcon(bte);
                 breakButton.setIconAfterText(true);
@@ -476,7 +477,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             }
 
             if (this instanceof AnnouncerContent) {
-                logger.debug("starting break {}", LoggerUtils./**/stackTrace());
+                logger.warn("%%%%%%%%%%%%%% starting break {}", LoggerUtils./**/stackTrace());
             }
             syncWithFOP(true);
         });
@@ -1302,7 +1303,10 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     private BreakTimerElement getBreakTimerElement() {
         if (this.breakTimerElement == null) {
-            this.breakTimerElement = new BreakTimerElement();
+            this.breakTimerElement = new BreakTimerElement("AthleteGridContent");
+            this.breakTimerElement.addAttachListener(e -> {
+                this.breakTimerElement.syncWithFopBreakTimer();
+            });
         }
         return this.breakTimerElement;
     }

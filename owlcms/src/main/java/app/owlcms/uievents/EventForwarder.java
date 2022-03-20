@@ -292,6 +292,22 @@ public class EventForwarder implements BreakDisplay {
         pushUpdate();
         pushTimer(e);
     }
+    
+    @Subscribe
+    public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
+        uiLog(e);
+        setHidden(false);
+        doCeremony(e);
+        pushUpdate();
+    }
+    
+    @Subscribe
+    public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
+        uiLog(e);
+        setHidden(false);
+        doBreak(e);
+        pushUpdate();
+    }
 
     @Subscribe
     public void slaveDecision(UIEvent.Decision e) {

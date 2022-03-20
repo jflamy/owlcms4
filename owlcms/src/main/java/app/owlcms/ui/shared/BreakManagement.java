@@ -633,7 +633,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     private BreakTimerElement getBreakTimerElement() {
         if (this.breakTimerElement == null) {
-            this.breakTimerElement = new BreakTimerElement();
+            this.breakTimerElement = new BreakTimerElement("BreakManagement");
             // logger.debug("------ created {}",breakTimerElement.id);
         }
         return this.breakTimerElement;
@@ -733,11 +733,12 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private void masterStartBreak(FieldOfPlay fop, BreakType breakType, CountdownType countdownType, boolean force) {
-        logger.debug("masterStartBreak timeRemaining {} breakType {} getBreakTimer {}", timeRemaining, breakType,
-                fop.getBreakTimer());
+        logger.warn("masterStartBreak timeRemaining {} breakType {} indefinite {} isRunning {}", timeRemaining, breakType,
+                fop.getBreakTimer().isIndefinite(), fop.getBreakTimer().isRunning());
         if (timeRemaining == null && fop.getBreakTimer() != null) {
             timeRemaining = (long) fop.getBreakTimer().liveTimeRemaining();
         }
+//        fop.fopEventPost(new FOPEvent.BreakStarted(breakType, countdownType, fop.getBreakTimer(), this.getOrigin()));
         fop.fopEventPost(new FOPEvent.BreakStarted(breakType, countdownType,
                 countdownType == CountdownType.INDEFINITE ? null : timeRemaining.intValue(), getTarget(),
                 countdownType == CountdownType.INDEFINITE,
@@ -1050,7 +1051,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     }
                     safeSetBT(breakType);
                     setDurationValue(fopCountdownType);
-                    breakTimerElement.syncWIthFop();
+                    breakTimerElement.syncWithFopBreakTimer();
                     break;
                 default:
                     throw new UnsupportedOperationException("missing case statement");

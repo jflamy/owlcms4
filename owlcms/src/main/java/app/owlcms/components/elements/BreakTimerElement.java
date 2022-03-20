@@ -21,6 +21,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.IdUtils;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -32,7 +33,7 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElement.class);
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-    @SuppressWarnings("unused")
+
     private String parentName = "";
     public Long id;
 
@@ -41,10 +42,16 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
         uiEventLogger.setLevel(Level.INFO);
     }
 
+    public BreakTimerElement() {
+        super();
+        id = IdUtils.getTimeBasedId();
+        // logger./**/warn(LoggerUtils./**/stackTrace());
+    }
+
     /**
      * Instantiates a new timer element.
      */
-    public BreakTimerElement() {
+    public BreakTimerElement(String parentName) {
         super();
         id = IdUtils.getTimeBasedId();
         // logger./**/warn(LoggerUtils./**/stackTrace());
@@ -126,13 +133,13 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 
     @Subscribe
     public void slaveBreakDone(UIEvent.BreakDone e) {
-        //uiEventLogger.debug("&&& break done {} {}", parentName, e.getOrigin());
+        if (!parentName.startsWith("BreakManagement")) uiEventLogger.warn("&&& break done {} {}", parentName, e.getOrigin());
         doStopTimer(0);
     }
 
     @Subscribe
     public void slaveBreakPause(UIEvent.BreakPaused e) {
-        //uiEventLogger.debug("&&& breakTimer pause {} {}", parentName, e.getMillis());
+        if (!parentName.startsWith("BreakManagement")) uiEventLogger.warn("&&& breakTimerElement pause {} {}", parentName, e.getMillis());
         doStopTimer(e.getMillis());
     }
 
@@ -143,7 +150,7 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
             milliseconds = (int) LocalDateTime.now().until(e.getEnd(), ChronoUnit.MILLIS);
         } else {
             milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
-            //uiEventLogger.debug("&&& breakTimer set {} {} {} {} {}", parentName, formatDuration(milliseconds),e.isIndefinite(), id, LoggerUtils.stackTrace());
+            if (!parentName.startsWith("BreakManagement")) uiEventLogger.warn("&&& breakTimerElement set {} {} {} {} {}", parentName, formatDuration(milliseconds),e.isIndefinite(), id, LoggerUtils.stackTrace());
         }
         doSetTimer(milliseconds);
     }
@@ -154,7 +161,7 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
             return;
         }
         Integer tr = e.isIndefinite() ? null : e.getMillis();
-        //uiEventLogger.debug("&&& breakTimer start {} {} {} {}", parentName, tr, e.getOrigin(), LoggerUtils.whereFrom());
+        if (!parentName.startsWith("BreakManagement")) uiEventLogger.warn("&&& breakTimerElement start {} {} {} {}", parentName, tr, e.getOrigin(), LoggerUtils.whereFrom());
         if (Boolean.TRUE.equals(e.getPaused())) {
             doSetTimer(tr);
         } else {
@@ -167,19 +174,21 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        syncWIthFop();
         OwlcmsSession.withFop(fop -> {
             // we listen on uiEventBus; this method ensures we stop when detached.
+            if (!parentName.startsWith("BreakManagement")) uiEventLogger.warn("&&& breakTimerElement register {} {}", parentName, LoggerUtils.whereFrom());
             uiEventBusRegister(this, fop);
         });
+        syncWithFopBreakTimer();
     }
 
-    public void syncWIthFop() {
+    public void syncWithFopBreakTimer() {
         OwlcmsSession.withFop(fop -> {
             init(fop.getName());
             // sync with current status of FOP
             IBreakTimer breakTimer = fop.getBreakTimer();
             if (breakTimer != null) {
+                if (!parentName.startsWith("BreakManagement")) uiEventLogger.warn("&&& breakTimerElement sync running {} indefinite {}", breakTimer.isRunning(), breakTimer.isIndefinite());
                 if (breakTimer.isRunning()) {
                     if (breakTimer.isIndefinite()) {
                         doStartTimer(null, fop.isEmitSoundsOnServer());

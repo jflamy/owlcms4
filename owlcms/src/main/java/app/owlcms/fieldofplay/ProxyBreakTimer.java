@@ -198,7 +198,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
         // logger.debug("setting breaktimer indefinite = {} [{}]", indefinite, LoggerUtils.whereFrom());
         this.setTimeRemaining(0, false);
         this.setEnd(null);
-        getFop().pushOut(
+        getFop().pushOutUIEvent(
                 new UIEvent.BreakSetTime(getFop().getBreakType(), getFop().getCountdownType(), getTimeRemaining(), null,
                         true, this, LoggerUtils.stackTrace()));
         setRunning(false);
@@ -216,7 +216,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
      */
     @Override
     public void setTimeRemaining(int timeRemaining2, boolean indefinite) {
-        //logger.trace("setting breaktimer timeremaining={} indefinite={} from {}", timeRemaining2, indefinite, LoggerUtils.whereFrom());
+        logger.warn("ProxyBreakTimer setting breaktimer timeremaining={} indefinite={} from {}", timeRemaining2, indefinite, LoggerUtils.whereFrom());
         this.indefinite = indefinite;
         this.timeRemaining = timeRemaining2;
         setRunning(false);
@@ -228,22 +228,18 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
     @Override
     public void start() {
         BreakType breakType = getFop().getBreakType();
-        CeremonyType ceremonyType = getFop().getCeremonyType();
-        if (ceremonyType != null) {
-            // we never start a timer for a ceremony
-            return;
-        }
+        //CeremonyType ceremonyType = getFop().getCeremonyType();
         startMillis = System.currentTimeMillis();
         this.setBreakType(breakType);
 
         Integer millisRemaining = getMillis();
-        //logger.trace("starting break millisRemaining {} paused {} ceremonyGroup {}", millisRemaining, this.indefinite, getCeremonyGroup());
+        logger.warn("ProxyBreakTimer starting break millisRemaining {} paused {} from {}", millisRemaining, this.indefinite, LoggerUtils.whereFrom());
         UIEvent.BreakStarted event = new UIEvent.BreakStarted(
                 millisRemaining, getOrigin(), false,
                 breakType,
                 getFop().getCountdownType(), LoggerUtils.stackTrace(), this.indefinite);
         logger.debug("posting {}", event);
-        getFop().pushOut(event);
+        getFop().pushOutUIEvent(event);
         setRunning(true);
     }
 
@@ -252,11 +248,11 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
      */
     @Override
     public void stop() {
-        CeremonyType ceremonyType = getFop().getCeremonyType();
-        if (ceremonyType != null) {
-            // we never start a timer for a ceremony
-            return;
-        }
+//        CeremonyType ceremonyType = getFop().getCeremonyType();
+//        if (ceremonyType != null) {
+//            // we never start a timer for a ceremony
+//            return;
+//        }
         if (isRunning()) {
             computeTimeRemaining();
         }
@@ -268,7 +264,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
         UIEvent.BreakPaused event = new UIEvent.BreakPaused(isIndefinite() ? null : getTimeRemaining(), getOrigin(),
                 false,
                 getFop().getBreakType(), getFop().getCountdownType());
-        getFop().pushOut(event);
+        getFop().pushOutUIEvent(event);
     }
 
     /*
@@ -295,7 +291,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 
 
         // should emit sound at end of break
-        getFop().pushOut(new UIEvent.BreakDone(origin, getFop().getBreakType()));
+        getFop().pushOutUIEvent(new UIEvent.BreakDone(origin, getFop().getBreakType()));
         getFop().fopEventPost(new FOPEvent.BreakDone(getFop().getBreakType(), origin));
     }
 
