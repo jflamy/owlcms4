@@ -193,11 +193,10 @@ public interface DisplayParameters extends FOPParameters {
         updateParam(params, SILENT, !isSilenced() ? "false" : "true");
         
         List<String> switchableParams = params.get(PUBLIC);
-        // dark is the default. dark=false or dark=no or ... will turn off dark mode.
-        boolean switchable = switchableParams == null || switchableParams.isEmpty() || switchableParams.get(0).toLowerCase().equals("true");
-        setDarkMode(switchable);
+        boolean switchable = switchableParams != null && !switchableParams.isEmpty() && switchableParams.get(0).toLowerCase().equals("true");
+        setSwitchableDisplay(switchable);
         switchSwitchable((Component) this, switchable, false);
-        updateParam(params, PUBLIC, !isSwitchableDisplay() ? "false" : null);
+        updateParam(params, PUBLIC, isSwitchableDisplay() ? "true" : null);
 
         return params;
     }

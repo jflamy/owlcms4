@@ -477,22 +477,15 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
         List<Group> groups = GroupRepository.findAll();
         FieldOfPlay fop2 = OwlcmsSession.getFop();
-//        GroupSelectionMenu groupSelectionMenu = new GroupSelectionMenu(groups, fop2,
-//                // group has been selected
-//                (g1, fop1) -> selectCeremonyGroup(g1, fop1),
-//                // no group
-//                (g1, fop1) -> selectCeremonyGroup(null, fop1));
         GroupCategorySelectionMenu groupCategorySelectionMenu = new GroupCategorySelectionMenu(groups, fop2,
                 // group has been selected
                 (g1, c1, fop1) -> selectCeremonyCategory(g1, c1, fop1),
                 // no group
                 (g1, c1, fop1) -> selectCeremonyCategory(null, c1, fop1));
 
-        // TODO button to open medals scoreboard
-
         startMedalCeremony = new Button(
                 getTranslation("BreakMgmt.startMedals"), (e) -> {
-                    endMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                    startMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
                     endMedalCeremony.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
                     OwlcmsSession.withFop(fop -> {
                         inactive = fop.getState() == INACTIVE;
@@ -761,6 +754,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private void selectCeremonyCategory(Group g, Category c, FieldOfPlay fop) {
+        endMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        startMedalCeremony.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         setMedalGroup(g);
         setMedalCategory(c);
     }
