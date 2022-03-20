@@ -33,7 +33,7 @@ public interface BreakDisplay {
     }
 
     public default String inferMessage(BreakType breakType, CeremonyType ceremonyType) {
-        if (breakType == null) {
+        if (breakType == null && ceremonyType == null) {
             return Translator.translate("PublicMsg.CompetitionPaused");
         }
         if (ceremonyType != null) {

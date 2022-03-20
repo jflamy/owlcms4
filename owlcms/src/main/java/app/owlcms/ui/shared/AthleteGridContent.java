@@ -477,7 +477,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             }
 
             if (this instanceof AnnouncerContent) {
-                logger.warn("%%%%%%%%%%%%%% starting break {}", LoggerUtils./**/stackTrace());
+                //logger.trace("%%%%%%%%%%%%%% starting break {}", LoggerUtils./**/stackTrace());
             }
             syncWithFOP(true);
         });

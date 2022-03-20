@@ -117,8 +117,6 @@ public class FOPEvent {
 
         private Boolean wait;
 
-        private IBreakTimer breakTimer;
-
         public BreakStarted(BreakType bType, CountdownType cType, Integer timeRemaining, LocalDateTime targetTime, Boolean wait,
                 Object origin) {
             super(origin);
@@ -127,17 +125,6 @@ public class FOPEvent {
             this.timeRemaining = timeRemaining;
             this.targetTime = targetTime;
             this.setWait(true);
-        }
-
-
-        public BreakStarted(BreakType breakType2, CountdownType countdownType2, IBreakTimer breakTimer, Object origin) {
-            super(origin);
-            this.setBreakType(breakType2);
-            this.setCountdownType(countdownType2);
-            this.setBreakTimer(breakTimer);
-            this.timeRemaining = breakTimer.getTimeRemaining();
-            this.targetTime = null;
-            this.setWait(breakTimer.isIndefinite());
         }
 
 
@@ -220,15 +207,6 @@ public class FOPEvent {
             this.wait = wait;
         }
 
-
-        public IBreakTimer getBreakTimer() {
-            return breakTimer;
-        }
-
-
-        public void setBreakTimer(IBreakTimer breakTimer) {
-            this.breakTimer = breakTimer;
-        }
 
     }
     

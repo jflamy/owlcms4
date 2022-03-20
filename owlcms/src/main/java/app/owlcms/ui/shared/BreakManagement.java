@@ -129,6 +129,10 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     private Button startMedalCeremony;
 
+    private Button startOfficials;
+
+    private Button startIntroButton;
+
     {
         logger.setLevel(Level.INFO);
     }
@@ -398,12 +402,16 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         VerticalLayout ce = new VerticalLayout();
 
         HorizontalLayout introButtons = new HorizontalLayout();
-        Button startIntroButton = new Button(
+        startIntroButton = new Button(
                 getTranslation("BreakMgmt.startIntro"), (e) -> {
                     OwlcmsSession.withFop(fop -> {
                         // do nothing if we are already in during introduction
                         if (fop.getCeremonyType() == CeremonyType.INTRODUCTION) {
                             return;
+                        }
+                        
+                        if (fop.getState() == FOPState.INACTIVE) {
+                            
                         }
 
                         // we are in a running break such as before snatch already scheduled and want to switch to intro
@@ -442,7 +450,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         ce.add(introButtons);
 
         HorizontalLayout officialsButtons = new HorizontalLayout();
-        Button startOfficials = new Button(
+        startOfficials = new Button(
                 getTranslation("BreakMgmt.startOfficials"), (e) -> {
                     endOfficials.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
                     OwlcmsSession.withFop(fop -> {
@@ -656,7 +664,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private void init(Object origin, BreakType brt, CountdownType cdt, Dialog parentDialog) {
-        // logger.debug("init brt={} cdt={} from {}", brt, cdt, LoggerUtils.whereFrom());
+        //logger.debug("init brt={} cdt={} from {}", brt, cdt, LoggerUtils.whereFrom());
         this.id = IdUtils.getTimeBasedId();
         ignoreBreakTypeValueChange = false;
         this.setOrigin(origin);
@@ -717,6 +725,13 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private void masterStartBreak() {
+        startIntroButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        endIntroButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        startMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        endMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        startOfficials.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        endOfficials.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        
         OwlcmsSession.withFop(fop -> {
             masterStartBreak(fop, true);
         });
@@ -733,12 +748,10 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private void masterStartBreak(FieldOfPlay fop, BreakType breakType, CountdownType countdownType, boolean force) {
-        logger.warn("masterStartBreak timeRemaining {} breakType {} indefinite {} isRunning {}", timeRemaining, breakType,
-                fop.getBreakTimer().isIndefinite(), fop.getBreakTimer().isRunning());
+        //logger.trace("masterStartBreak timeRemaining {} breakType {} indefinite {} isRunning {}", timeRemaining, breakType, fop.getBreakTimer().isIndefinite(), fop.getBreakTimer().isRunning());
         if (timeRemaining == null && fop.getBreakTimer() != null) {
             timeRemaining = (long) fop.getBreakTimer().liveTimeRemaining();
         }
-//        fop.fopEventPost(new FOPEvent.BreakStarted(breakType, countdownType, fop.getBreakTimer(), this.getOrigin()));
         fop.fopEventPost(new FOPEvent.BreakStarted(breakType, countdownType,
                 countdownType == CountdownType.INDEFINITE ? null : timeRemaining.intValue(), getTarget(),
                 countdownType == CountdownType.INDEFINITE,
@@ -967,7 +980,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         BreakType breakType = bType != null ? bType : BreakType.TECHNICAL;
         safeSetBT(breakType);
         masterStartBreak();
-//        breakTimerElement.slaveBreakStart(new BreakStarted(null, this.getOrigin(), false, breakType, durationRadios.getValue()));
     }
 
     private void switchToDuration() {

@@ -625,6 +625,7 @@ public class FieldOfPlay {
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof FOPEvent.CeremonyStarted) {
+                getBreakTimer().setIndefinite();
                 doStartCeremony((FOPEvent.CeremonyStarted) e);
             } else if (e instanceof FOPEvent.CeremonyDone) {
                 doEndCeremony((FOPEvent.CeremonyDone) e);
