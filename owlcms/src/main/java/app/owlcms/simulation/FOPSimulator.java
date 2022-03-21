@@ -104,6 +104,12 @@ public class FOPSimulator {
         groupDone = true;
         new Thread(() -> {
             logger.info("########## group {} done", e.getGroup());
+            if (groups.size() > 0) {
+                groups.remove(0);
+                startNextGroup(groups);
+            } else {
+                return;
+            }
         }).start();
     }
 
