@@ -111,7 +111,7 @@ You can resume competition by using the `End Break` button.
 
 ## Intermissions
 
-See the [Intermissions and Breaks](Breaks) page for how to manage the timers before introduction, before the first snatch, and before clean&jerk.
+See the [Breaks and Ceremonies](Breaks) page for how to manage the timers before introduction, before the first snatch, and before clean&jerk.
 
 ## Marshall
 

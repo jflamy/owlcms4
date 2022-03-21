@@ -17,11 +17,12 @@ When a display is first started, a dialog comes up to control the the behavior.
   - To avoid confusion, it is recommended to have only one display with sound in each room.  For example, you can choose to have the attempt board emit sound on the main area, and a scoreboard in the waiting area.
   - Note that the announcer and marshall consoles always emit the warnings, so it is often convenient to just connect the announcer laptop to the sound system.
 - Displays that show a table have the option to have a white or black table background.
+- The scoreboards that show the attempts and ranks can switch to a medal ceremony display.  
+  - By default, <u>the displays do NOT switch during the medal ceremony</u>.  The default is appropriate for warmup rooms, waiting areas, the jury, etc.
+  - The large public-facing displays can switch, simply by clicking on the display and selecting the "Public" option in the ceremony settings (see the screen capture below)
 - Once the dialog is closed, it can be brought back by clicking anywhere in the window.
 
-
-
-![001](img/Sound/001.png)
+![075_DisplayParameters](img/Displays/075_DisplayParameters.png)
 
 ## Scoreboard
 
