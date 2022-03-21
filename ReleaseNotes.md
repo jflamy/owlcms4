@@ -1,4 +1,8 @@
-### **Changes for release 4.30.0-beta03**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+### **Changes for release 4.30.0-beta04**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+
+4.30.0-beta04: Bug Fix
+
+- When a ceremony is started directly from an inactive platform ("countdown") button, switch to the announcer display with the break button.
 
 4.30.0-beta03: Documentation only, no code changes.
 
