@@ -1,26 +1,13 @@
 ### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.30.0-beta04: Bug Fix
-
-- When a ceremony is started directly from an inactive platform ("countdown") button, switch to the announcer display with the break button.
-
-4.30.0-beta03: Documentation only, no code changes.
-
-- Documented the new and improved [Breaks and Ceremonies](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Breaks) procedures, including the Medal Ceremony process.
-- Documented the [Result Documents](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Documents), including the new Medals spreadsheet.
-
-4.30.0-beta02:  No new features planned for 4.30; bug and documentation fixes only in next releases.
-
-- Announcer's break button now tracks correctly the field of play state and the break timer.
-- Can again start introduction or medals from the inactive state (lifting not started), fixed attempt board display of ceremony name.
-
 #### New in release 4.30
 
-- [x] Improved break management. 
-  - [x] Ceremonies (introduction of athletes and officials, medals) can take place without stopping the countdown timers.  
-  - [x] Capability to present medals to a previous group without affecting countdown (Display switches back to scoreboard)
+- [x] Improved management of ceremonies 
+  - Documented new and improved [Breaks and Ceremonies](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Breaks) procedures, including the Medal Ceremony process.  Ceremonies take place without interfering with countdown timers.
+  - Documented the [Result Documents](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Documents), including the new Medals spreadsheet for the announcer.
+
 - [x] Selectable behavior for public vs warmup scoreboards selection is done when display starts or is clicked)
-  - [x] Public Scoreboards  switch to display of medal winners from a previous group during the medals ceremony.   They revert to the normal display at the end of the ceremony
+  - [x] Public Scoreboards switch to display of medal winners during the medal ceremony.   They revert to the normal display at the end of the ceremony
   - [x] Warmup room displays can ignore the medal ceremony and keep the scoreboard
 - [x] Usability/understandability changes
   - Moved database import/export to main preparation page
@@ -29,8 +16,8 @@
 #### Highlights from recent stable releases
 
 - [x] [Jury](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Jury) console now supports summoning the referees either individually or all together. 
+  - Referees can be notified or summoned when phones/tablets/laptops  are used for refereeing, or with MQTT refereeing devices are used (see below)
   - Calling a referee starts a jury break and a notification is shown on the technical official screens.
-  - This feature displays notifications when phones/tablets/laptops are used for refereeing, or with MQTT refereeing devices (see below)
   - Keyboard shortcuts `H` `I` `J` `K` can be used to call referees 1, 2, 3 or all referees, respectively. The`esc` key is used to end the break and resume the competition.
   - The selection between 3 and 5 person jury has been moved to the settings (`⚙`) menu in the top bar.
 - [x] The [Refereeing](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Refereeing) screen (typically used on phones or tablets) now displays notifications when a decision is expected or when the jury summons the referee.
