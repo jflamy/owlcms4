@@ -1,5 +1,10 @@
 ### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
+4.30.0-beta03: Documentation only, no code changes.
+
+- Documented the new and improved [Breaks and Ceremonies](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Breaks) procedures, including the Medal Ceremony process.
+- Documented the [Result Documents](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Documents), including the new Medals spreadsheet.
+
 4.30.0-beta02:  No new features planned for 4.30; bug and documentation fixes only in next releases.
 
 - Announcer's break button now tracks correctly the field of play state and the break timer.
@@ -21,7 +26,7 @@
 
 - [x] [Jury](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Jury) console now supports summoning the referees either individually or all together. 
   - Calling a referee starts a jury break and a notification is shown on the technical official screens.
-  - This feature displays notifications when phones/tablets/laptops are used for refereeing, or with [MQTT refereeing devices]() (see below)
+  - This feature displays notifications when phones/tablets/laptops are used for refereeing, or with MQTT refereeing devices (see below)
   - Keyboard shortcuts `H` `I` `J` `K` can be used to call referees 1, 2, 3 or all referees, respectively. The`esc` key is used to end the break and resume the competition.
   - The selection between 3 and 5 person jury has been moved to the settings (`⚙`) menu in the top bar.
 - [x] The [Refereeing](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Refereeing) screen (typically used on phones or tablets) now displays notifications when a decision is expected or when the jury summons the referee.
