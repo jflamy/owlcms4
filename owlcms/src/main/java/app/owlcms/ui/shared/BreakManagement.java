@@ -82,56 +82,56 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     private static final Duration DEFAULT_DURATION = Duration.ofMinutes(10L);
 
-    private boolean inactive = false;
-    private Long timeRemaining = null;
-
     private Button athleteButton;
     private Button breakEnd = null;
+
     private Button breakPause = null;
     private Button breakReset = null;
-
     private Button breakStart = null;
     private BreakTimerElement breakTimerElement;
-    private Button countdownButton;
 
+    private Button countdownButton;
     private RadioButtonGroup<BreakType> countdownRadios;
     private DatePicker datePicker = new DatePicker();
+
     private HorizontalLayout dt;
     private DurationField durationField = new DurationField();
     private RadioButtonGroup<CountdownType> durationRadios;
     private Button endIntroButton;
     private Button endMedalCeremony;
-
     private Button endOfficials;
     private Long id;
+
     private boolean ignoreBreakTypeValueChange = false;
     private boolean ignoreDurationValueChange = false;
     private boolean ignoreListeners = false;
     private boolean ignoreNextDisable;
-
+    private boolean inactive = false;
     final private Logger logger = (Logger) LoggerFactory.getLogger(BreakManagement.class);
-    private Category medalCategory;
 
+    private Category medalCategory;
     private Group medalGroup;
 
     private Label minutes;
 
     private Object origin;
-    private Dialog parentDialog;
 
+    private Dialog parentDialog;
     private BreakType requestedBreakType;
 
-    private TimePicker timePicker = new TimePicker();
-
-    private HorizontalLayout timer;
-
-    private EventBus uiEventBus;
+    private Button startIntroButton;
 
     private Button startMedalCeremony;
 
     private Button startOfficials;
 
-    private Button startIntroButton;
+    private TimePicker timePicker = new TimePicker();
+
+    private HorizontalLayout timer;
+
+    private Long timeRemaining = null;
+
+    private EventBus uiEventBus;
 
     {
         logger.setLevel(Level.INFO);
@@ -410,15 +410,14 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                             return;
                         }
                         
-                        if (fop.getState() == FOPState.INACTIVE) {
-                            
-                        }
+                        startBreakIfInactive(fop);
+                        endIntroButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
                         // we are in a running break such as before snatch already scheduled and want to switch to intro
                         masterStartCeremony(fop, CeremonyType.INTRODUCTION);
 
                         // close so we can read the list of participants
-                        parentDialog.close();
+                        //parentDialog.close();
                     });
                 });
         startIntroButton.setTabIndex(-1);
@@ -457,6 +456,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         if (fop.getCeremonyType() == CeremonyType.OFFICIALS_INTRODUCTION) {
                             return;
                         }
+                        startBreakIfInactive(fop);
                         masterStartCeremony(fop, CeremonyType.OFFICIALS_INTRODUCTION);
                     });
                 });
@@ -497,6 +497,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     endMedalCeremony.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
                     OwlcmsSession.withFop(fop -> {
                         inactive = fop.getState() == INACTIVE;
+                        startBreakIfInactive(fop);
                         fop.fopEventPost(
                                 new FOPEvent.CeremonyStarted(CeremonyType.MEDALS, getMedalGroup(), getMedalCategory(),
                                         this));
@@ -528,16 +529,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         ce.add(hr, label);
         ce.add(dt);
         return ce;
-    }
-
-    private void masterEndCeremony(FieldOfPlay fop, CeremonyType ceremonyType) {
-        fop.getFopEventBus()
-                .post(new FOPEvent.CeremonyDone(ceremonyType, this.getOrigin()));
-    }
-
-    private void masterStartCeremony(FieldOfPlay fop, CeremonyType ceremonyType) {
-        fop.fopEventPost(
-                new FOPEvent.CeremonyStarted(ceremonyType, fop.getGroup(), null, this));
     }
 
     private VerticalLayout createCountdownColumn() {
@@ -647,6 +638,10 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         return this.breakTimerElement;
     }
 
+    private Group getMedalGroup() {
+        return medalGroup;
+    }
+
     private Object getOrigin() {
         return origin;
     }
@@ -698,6 +693,11 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             cType = CountdownType.INDEFINITE;
         }
         return cType;
+    }
+
+    private void masterEndCeremony(FieldOfPlay fop, CeremonyType ceremonyType) {
+        fop.getFopEventBus()
+                .post(new FOPEvent.CeremonyDone(ceremonyType, this.getOrigin()));
     }
 
     private void masterPauseBreak(BreakType bType) {
@@ -756,6 +756,11 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 countdownType == CountdownType.INDEFINITE ? null : timeRemaining.intValue(), getTarget(),
                 countdownType == CountdownType.INDEFINITE,
                 this.getOrigin()));
+    }
+
+    private void masterStartCeremony(FieldOfPlay fop, CeremonyType ceremonyType) {
+        fop.fopEventPost(
+                new FOPEvent.CeremonyStarted(ceremonyType, fop.getGroup(), null, this));
     }
 
     private void safeSetBT(BreakType breakType) {
@@ -953,6 +958,15 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     }
 
+    private void startBreakIfInactive(FieldOfPlay fop) {
+        if (fop.getState() == FOPState.INACTIVE) {
+            fop.getBreakTimer().setIndefinite();
+            fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.FIRST_SNATCH, CountdownType.INDEFINITE,
+                    null, null, true,
+                    this.getOrigin()));
+        }
+    }
+
     private void startDisabled() {
         if (ignoreNextDisable) {
             ignoreNextDisable = false;
@@ -1074,10 +1088,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
         });
         return running[0];
-    }
-
-    private Group getMedalGroup() {
-        return medalGroup;
     }
 
 }

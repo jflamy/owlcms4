@@ -112,6 +112,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     public Monitor() {
         OwlcmsFactory.waitDBInitialized();
         this.getElement().getStyle().set("width", "100%");
+        // we need two items on the stack (current + previous)
         doPush(new Status(FOPState.INACTIVE, null, null, null));
         doPush(new Status(FOPState.INACTIVE, null, null, null));
     }
@@ -155,8 +156,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
             // ignore events that don't change state
             return;
         }
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                e.getTrace());
+        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e /*, e.getTrace()*/);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             if (syncWithFOP(e)) {
                 // significant transition
