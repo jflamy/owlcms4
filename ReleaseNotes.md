@@ -1,4 +1,10 @@
-### **Changes for release 4.30.0-rc01**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+### **Changes for release 4.30.0-rc02**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+
+4.30.0-rc02: Candidate release. Safe for use in a competition, waiting for additional translations.
+
+- Danish, Swedish and Armenian translations
+- Renamed old style athlete cards to "small" to encourage use of IWF format.  Added signature area at top of IWF cards. Removed bodyweight from athlete card printout
+- Widened category column on empty registration sheet
 
 4.30.0-rc01: Candidate release. Safe for use in a competition, waiting for translations.
 
