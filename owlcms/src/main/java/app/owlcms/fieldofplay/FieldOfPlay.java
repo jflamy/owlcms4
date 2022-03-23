@@ -772,8 +772,16 @@ public class FieldOfPlay {
                 updateRefereeDecisions((DecisionUpdate) e);
                 uiShowUpdateOnJuryScreen();
             } else if (e instanceof WeightChange) {
-                weightChangeDoNotDisturb((WeightChange) e);
-                setState(DOWN_SIGNAL_VISIBLE);
+                logger.debug("weight change during down {} {} {}", e.getAthlete(), this.getPreviousAthlete(), this.getCurAthlete());
+                if (e.getAthlete() == this.getCurAthlete()) {
+                    logger./**/warn("{}signal stuck, direct editing of {}", getLoggingName(), this.getCurAthlete());
+                    // decision signal stuck, direct editing of athlete card.
+                    doDecisionReset(e);
+                    recomputeLiftingOrder();
+                } else {
+                    weightChangeDoNotDisturb((WeightChange) e);
+                    setState(DOWN_SIGNAL_VISIBLE);
+                }
             } else {
                 unexpectedEventInState(e, DOWN_SIGNAL_VISIBLE);
             }
