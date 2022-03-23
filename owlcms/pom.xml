@@ -312,7 +312,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <pnpmEnable>true</pnpmEnable>
+                    <pnpmEnable>false</pnpmEnable>
                     <skipEs5>true</skipEs5>
                 </configuration>
             </plugin>
