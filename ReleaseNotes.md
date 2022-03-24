@@ -1,4 +1,9 @@
-### **Changes for release 4.30.0-rc02**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+### **Changes for release 4.30.0-rc03**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+
+4.30.0-rc03: Candidate release. Safe for use in a competition, waiting for additional translations.
+
+- Fix: if a network or hardware problem causes a missing decision, the system waits. It is now sufficient to edit the athlete card and enter the decision on the bottom row to resume the competition.
+- Translation updates (Russian)
 
 4.30.0-rc02: Candidate release. Safe for use in a competition, waiting for additional translations.
 
