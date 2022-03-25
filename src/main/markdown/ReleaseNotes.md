@@ -1,10 +1,5 @@
 ### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-4.30.0-rc04: Final release candidate.
-
-- Fixed a tiny timing problem that could cause the automated tests to fail
-- New protocol sheet templates with snatch, cj and total ranks.
-
 #### New in release 4.30
 
 - [x] Improved management of ceremonies 
