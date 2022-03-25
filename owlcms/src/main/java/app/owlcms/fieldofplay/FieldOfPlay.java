@@ -156,7 +156,7 @@ public class FieldOfPlay {
     private BreakType breakType;
     private CeremonyType ceremonyType;
     private boolean cjStarted;
-    private boolean multiThread = true;
+    private boolean multiThread = false;
 
     public boolean isMultiThread() {
         return multiThread;
@@ -310,19 +310,17 @@ public class FieldOfPlay {
 
     public void fopEventPost(FOPEvent e) {
         e.setFop(this);
-        if (isMultiThread() && preventMultiThreadingRecursion.get() == null) {
-            preventMultiThreadingRecursion.set(true);
-            logger./**/warn("... posting from {} ..................................................................",
-                    LoggerUtils.whereFrom());
-            new Thread(() -> {
-                handleFOPEvent(e);
-            }).start();;
-            preventMultiThreadingRecursion.set(null);
-        } else {
-            logger./**/warn("*** prevented recursion from {} ********************************************************",
-                    LoggerUtils.whereFrom());
+//        if (isMultiThread() && preventMultiThreadingRecursion.get() == null) {
+//            preventMultiThreadingRecursion.set(true);
+//            //logger.debug("... posting from {} ..................................................................",LoggerUtils.whereFrom());
+//            new Thread(() -> {
+//                handleFOPEvent(e);
+//            }).start();;
+//            preventMultiThreadingRecursion.set(null);
+//        } else {
+            //logger.debug("*** prevented recursion from {} ********************************************************",LoggerUtils.whereFrom());
             handleFOPEvent(e);
-        }
+//        }
     }
 
     public LinkedHashMap<String, Participation> getAgeGroupMap() {
