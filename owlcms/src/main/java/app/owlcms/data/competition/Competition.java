@@ -7,16 +7,19 @@
 package app.owlcms.data.competition;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -40,8 +43,11 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
+import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.category.AgeDivision;
+import app.owlcms.data.category.Category;
+import app.owlcms.data.category.Participation;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.i18n.Translator;
@@ -118,43 +124,35 @@ public class Competition {
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
     private String ageGroupsFileName;
+    /**
+     * announcer sees decisions as they are made by referee.
+     */
+    @Column(columnDefinition = "boolean default true")
+    private boolean announcerLiveDecisions = true;
+    private String cardsTemplateFileName;
     private String competitionCity;
     private LocalDate competitionDate = null;
     private String competitionName;
     private String competitionOrganizer;
     private String competitionSite;
-
     /**
      * enable overriding total for kids categories with bonus points
      */
     @Column(columnDefinition = "boolean default false")
-    private boolean customScore;
-
-    /**
-     * announcer sees decisions as they are made by referee.
-     */
-    @Column(columnDefinition = "boolean default true")
-    private boolean announcerLiveDecisions;
-
+    private boolean customScore = false;
     private boolean enforce20kgRule;
     private String federation;
-
     private String federationAddress;
     private String federationEMail = "";
     private String federationWebSite;
-
+    private String finalPackageTemplateFileName;
     /**
      * In a mixed group, call all female lifters then all male lifters
      */
     @Column(columnDefinition = "boolean default false")
     private boolean genderOrder;
 
-    /**
-     * All first lifts, then all second lifts, then all third lifts, etc. Can be combined with genderOrder as well.
-     */
-    @Column(columnDefinition = "boolean default false")
-    private boolean roundRobinOrder;
-
+    private String juryTemplateFileName;
     private boolean masters;
 
     /**
@@ -162,12 +160,36 @@ public class Competition {
      */
     @Column(columnDefinition = "boolean default false")
     private boolean mastersGenderEquality = false;
+
+    @Transient
+    @JsonIgnore
+    private HashMap<Group, TreeMap<Category, TreeSet<Athlete>>> medalsByGroup;
+
+    private String medalsTemplateFileName;
+
     @Column(columnDefinition = "integer default 10")
     private Integer mensTeamSize = 10;
 
+    private String protocolTemplateFileName;
+
+    @Transient
+    @JsonIgnore
+    private boolean rankingsInvalid = true;
+
+    @Column(name = "refdelay", columnDefinition = "integer default 1500")
+    private int refereeWakeUpDelay = 1500;
+
     @Transient
     private HashMap<String, Object> reportingBeans = new HashMap<>();
-
+    /**
+     * All first lifts, then all second lifts, then all third lifts, etc. Can be combined with genderOrder as well.
+     */
+    @Column(columnDefinition = "boolean default false")
+    private boolean roundRobinOrder;
+    @Column(columnDefinition = "boolean default true")
+    private boolean snatchCJTotalMedals = true;
+    private String startingWeightsSheetTemplateFileName;
+    private String startListTemplateFileName;
     /**
      * Do not require month and day for birth.
      */
@@ -191,26 +213,107 @@ public class Competition {
      */
     @Column(columnDefinition = "boolean default false")
     private boolean useRegistrationCategory = false;
-
     @Column(columnDefinition = "integer default 10")
     private Integer womensTeamSize = 10;
+    
+    public Competition() {
+        medalsByGroup = new HashMap<>();
+    }
 
-    @Transient
-    @JsonIgnore
-    private boolean rankingsInvalid = true;
+    /**
+     * @param g a group
+     * @return for each category represented in group g where all athletes have lifted, the medals
+     */
+    public TreeMap<Category, TreeSet<Athlete>> computeMedals(Group g) {
+        List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
+        return computeMedals(g, rankedAthletes);
+    }
 
-    private String protocolTemplateFileName;
-    private String cardsTemplateFileName;
-    private String startListTemplateFileName;
-    private String juryTemplateFileName;
-    private String startingWeightsSheetTemplateFileName;
-    private String finalPackageTemplateFileName;
+    /**
+     * @param g
+     * @param rankedAthletes athletes participating in the group, plus athletes in the same category that have yet to
+     *                       compete
+     * @return for each category, medal-winnning athletes in snatch, clean & jerk and total.
+     */
+    public TreeMap<Category, TreeSet<Athlete>> computeMedals(Group g, List<Athlete> rankedAthletes) {
+        if (g == null) {
+            return new TreeMap<>();
+        }
+        if (medalsByGroup == null) {
+            logger.error("no initialization !?");
+            medalsByGroup = new HashMap<Group, TreeMap<Category, TreeSet<Athlete>>>();
+        }
+        if (rankedAthletes == null || rankedAthletes.size() == 0) {
+            TreeMap<Category, TreeSet<Athlete>> treeMap = new TreeMap<>();
+            medalsByGroup.put(g, treeMap);
+            return treeMap;
+        }
 
-    @Column(name = "refdelay", columnDefinition = "integer default 1500")
-    private int refereeWakeUpDelay = 1500;
+        // extract all categories
+        Set<Category> medalCategories = rankedAthletes.stream()
+                .map(a -> a.getEligibleCategories())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
 
-    public void setRefereeWakeUpDelay(int refereeWakeUpDelay) {
-        this.refereeWakeUpDelay = refereeWakeUpDelay;
+        // exclude categories where athletes still have to lift
+        Set<Category> notDone = rankedAthletes.stream()
+                .filter(a -> a.getSnatch1AsInteger() == null)
+                .map(a -> a.getCategory())
+                .collect(Collectors.toSet());
+        //logger.debug("medalCategories: all {} notDone {}", medalCategories, notDone);
+        medalCategories.removeAll(notDone);
+
+        TreeMap<Category, TreeSet<Athlete>> medals = new TreeMap<>();
+
+        // iterate over the remaining categories
+        for (Category category : medalCategories) {
+
+            List<Athlete> currentCategoryAthletes = new ArrayList<>();
+            for (Athlete a : rankedAthletes) {
+                // fetch the participation that matches the current athlete registration category
+                Optional<Participation> matchingParticipation = a.getParticipations().stream()
+                        .filter(p -> p.getCategory().sameAs(category)).findFirst();
+                // get a PAthlete proxy wrapper that has the rankings for that participation
+                if (matchingParticipation.isPresent()) {
+                    currentCategoryAthletes.add(new PAthlete(matchingParticipation.get()));
+                }
+            }
+
+            // all rankings are from a PAthlete, i.e., for the current medal category
+            List<Athlete> snatchLeaders = null;
+            List<Athlete> cjLeaders = null;
+            if (isSnatchCJTotalMedals()) {
+                snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
+                        .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
+                        .limit(3)
+                        .collect(Collectors.toList());
+                cjLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.CLEANJERK)
+                        .stream().filter(a -> a.getBestCleanJerk() > 0 && a.isEligibleForIndividualRanking())
+                        .limit(3)
+                        .collect(Collectors.toList());
+            }
+            List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
+                    .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
+                    .limit(3)
+                    .collect(Collectors.toList());
+
+            // Athletes excluded from Total due to bombing out can still win medals, so we add them
+            TreeSet<Athlete> medalists = new TreeSet<>(new WinningOrderComparator(Ranking.TOTAL, false));
+            medalists.addAll(totalLeaders);
+            if (isSnatchCJTotalMedals()) {
+                medalists.addAll(cjLeaders);
+                medalists.addAll(snatchLeaders);
+            }
+            medals.put(category, medalists);
+
+//            logger.debug("medalists for {}", category);
+//            for (Athlete medalist : medalists) {
+//                logger.debug("{}\t{} {} {}", medalist.getShortName(), medalist.getSnatchRank(),
+//                        medalist.getCleanJerkRank(), medalist.getTotalRank());
+//            }
+        }
+        medalsByGroup.put(g, medals);
+        return medals;
     }
 
     synchronized public HashMap<String, Object> computeReportingInfo() {
@@ -272,23 +375,6 @@ public class Competition {
         return DateTimeUtils.dateFromLocalDate(competitionDate);
     }
 
-//    @Transient
-//    @JsonIgnore
-    public String getLocalizedCompetitionDate() {
-        try {
-            String pattern = ((SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT, OwlcmsSession.getLocale())).toPattern();
-            // if 2-digit year, force 4 digits.
-            pattern = pattern.replaceFirst("\\byy\\b","yyyy");
-            System.err.println("pattern="+pattern);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-            String str = competitionDate.format(formatter);
-            return str;
-        } catch (Exception a) {
-            a.printStackTrace();
-        }
-        return "error";
-    }
-
     /**
      * Gets the competition name.
      *
@@ -339,6 +425,10 @@ public class Competition {
         }
     }
 
+//    synchronized public List<Athlete> getGlobalTotalRanking(Gender gender) {
+//        return getListOrElseRecompute(gender == Gender.F ? "wTot" : "mTot");
+//    }
+
     @Transient
     @JsonIgnore
     public String getComputedJuryTemplateFileName() {
@@ -356,6 +446,22 @@ public class Competition {
      */
     @Transient
     @JsonIgnore
+    public String getComputedMedalsTemplateFileName() {
+        if (getProtocolTemplateFileName() == null) {
+            return "Medals.xls";
+        } else {
+            return getMedalsTemplateFileName();
+        }
+    }
+    
+    /**
+     * Gets the protocol file name.
+     *
+     * @return the protocol file name
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
+    @Transient
+    @JsonIgnore
     public String getComputedProtocolTemplateFileName() {
         if (getProtocolTemplateFileName() == null) {
             return "Protocol.xls";
@@ -363,10 +469,6 @@ public class Competition {
             return getProtocolTemplateFileName();
         }
     }
-
-//    synchronized public List<Athlete> getGlobalTotalRanking(Gender gender) {
-//        return getListOrElseRecompute(gender == Gender.F ? "wTot" : "mTot");
-//    }
 
     @Transient
     @JsonIgnore
@@ -485,13 +587,48 @@ public class Competition {
         return athletes;
     }
 
+    // @Transient
+    // @JsonIgnore
+    public String getLocalizedCompetitionDate() {
+        try {
+            Locale locale = OwlcmsSession.getLocale();
+            String shortPattern = DateTimeUtils.localizedShortDatePattern(locale);
+            DateTimeFormatter shortStyleFormatter = DateTimeFormatter.ofPattern(shortPattern, locale);
+            String str = competitionDate.format(shortStyleFormatter);
+            return str;
+        } catch (Exception a) {
+            a.printStackTrace();
+        }
+        return "error";
+    }
+
+
+
     /**
-     * Gets the masters.
+     * Gets the masters.C
      *
      * @return the masters
      */
     public boolean getMasters() {
         return isMasters();
+    }
+
+    public TreeMap<Category, TreeSet<Athlete>> getMedals(Group g) {
+        TreeMap<Category, TreeSet<Athlete>> medals;
+        if (medalsByGroup == null || (medals = medalsByGroup.get(g)) == null) {
+            medals = computeMedals(g);
+        }
+        return medals;
+        
+    }
+    
+    public TreeSet<Athlete> getMedals(Group g, Category c) {
+        TreeMap<Category, TreeSet<Athlete>> medals;
+        if (medalsByGroup == null || (medals = medalsByGroup.get(g)) == null) {
+            medals = computeMedals(g);
+        }
+        return medals.get(c);
+        
     }
 
     @Transient
@@ -595,6 +732,10 @@ public class Competition {
         return roundRobinOrder;
     }
 
+    public boolean isSnatchCJTotalMedals() {
+        return snatchCJTotalMedals;
+    }
+
     /**
      * Checks if is use birth year.
      *
@@ -668,9 +809,6 @@ public class Competition {
     }
 
     public void setCompetitionDateAsDate(Date ignored) {
-    }
-
-    public void setLocalizedCompetitionDate(String ignored) {
     }
 
     /**
@@ -765,14 +903,6 @@ public class Competition {
     public void setInvitedIfBornBefore(Integer invitedIfBornBefore) {
     }
 
-    public void setJuryTemplateFileName(String juryTemplateFileName) {
-        this.juryTemplateFileName = juryTemplateFileName;
-    }
-
-    public void setMasters(boolean masters) {
-        this.masters = masters;
-    }
-
 //    private String doFindFinalPackageTemplateFileName(String absoluteRoot) {
 //        List<Resource> resourceList = new ResourceWalker().getResourceList(absoluteRoot,
 //                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
@@ -801,8 +931,23 @@ public class Competition {
 //        throw new RuntimeException("result templates not found under " + absoluteRoot);
 //    }
 
+    public void setJuryTemplateFileName(String juryTemplateFileName) {
+        this.juryTemplateFileName = juryTemplateFileName;
+    }
+
+    public void setLocalizedCompetitionDate(String ignored) {
+    }
+
+    public void setMasters(boolean masters) {
+        this.masters = masters;
+    }
+
     public void setMastersGenderEquality(boolean mastersGenderEquality) {
         this.mastersGenderEquality = mastersGenderEquality;
+    }
+
+    public void setMedalsTemplateFileName(String medalsTemplateFileName) {
+        this.medalsTemplateFileName = medalsTemplateFileName;
     }
 
     public void setMensTeamSize(Integer mensTeamSize) {
@@ -822,8 +967,16 @@ public class Competition {
         this.rankingsInvalid = invalid;
     }
 
+    public void setRefereeWakeUpDelay(int refereeWakeUpDelay) {
+        this.refereeWakeUpDelay = refereeWakeUpDelay;
+    }
+
     public void setRoundRobinOrder(boolean roundRobinOrder) {
         this.roundRobinOrder = roundRobinOrder;
+    }
+
+    public void setSnatchCJTotalMedals(boolean snatchCJTotalMedals) {
+        this.snatchCJTotalMedals = snatchCJTotalMedals;
     }
 
     public void setStartingWeightsSheetTemplateFileName(String startingWeightsSheetTemplateFileName) {
@@ -1058,6 +1211,10 @@ public class Competition {
         sortedWomen = getOrCreateBean("wTeamSinclair" + suffix);
         AthleteSorter.teamPointsOrder(sortedMen, Ranking.BW_SINCLAIR);
         AthleteSorter.teamPointsOrder(sortedWomen, Ranking.BW_SINCLAIR);
+    }
+
+    private String getMedalsTemplateFileName() {
+        return medalsTemplateFileName;
     }
 
     @SuppressWarnings("unchecked")

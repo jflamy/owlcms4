@@ -92,17 +92,15 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams);
         doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
 
-//        Button uploadJson = new Button(getTranslation("ExportDatabase.UploadJson"), new Icon(VaadinIcon.UPLOAD_ALT),
-//                buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
-//        Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
-//                getTranslation("ExportDatabase.DownloadJ"));
-//        Optional<Component> exportJsonButton = exportJsonDiv.getChildren().findFirst();
-//        exportJsonButton.ifPresent(c -> ((Button) c).setWidth("93%"));
-//        exportJsonDiv.setWidthFull();
-////        Button clearDatabase = new Button(getTranslation("ExportDatabase.ClearDatabase"), new Icon(VaadinIcon.UPLOAD_ALT),
-////                buttonClickEvent -> CompetitionRepository.removeAll());
-//        FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson/* , clearDatabase */);
-//        doGroup(getTranslation("ExportDatabase.ExportImport"), grid4, this);
+        Button uploadJson = new Button(getTranslation("ExportDatabase.UploadJson"), new Icon(VaadinIcon.UPLOAD_ALT),
+                buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
+        Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
+                getTranslation("ExportDatabase.DownloadJson"));
+        Optional<Component> exportJsonButton = exportJsonDiv.getChildren().findFirst();
+        exportJsonButton.ifPresent(c -> ((Button) c).setWidth("93%"));
+        exportJsonDiv.setWidthFull();
+        FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson/* , clearDatabase */);
+        doGroup(getTranslation("ExportDatabase.ExportImport"), grid4, this);
 
         DebugUtils.gc();
     }

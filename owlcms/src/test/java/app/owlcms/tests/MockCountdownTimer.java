@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.fieldofplay.IProxyTimer;
+import app.owlcms.uievents.BreakType;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -28,6 +29,8 @@ public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
     private Integer breakDuration;
 
     private boolean indefinite;
+
+    private BreakType breakType;
 
 
     public MockCountdownTimer() {
@@ -73,7 +76,7 @@ public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
      * @see app.owlcms.fieldofplay.IProxyTimer#setTimeRemaining(int)
      */
     @Override
-    public void setTimeRemaining(int timeRemaining) {
+    public void setTimeRemaining(int timeRemaining, boolean indefinite) {
         logger.debug("setting Time -- timeRemaining = {}\t[{}]", timeRemaining, LoggerUtils.whereFrom());
         this.timeRemaining = timeRemaining;
     }
@@ -148,5 +151,15 @@ public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
     @Override
     public void setFop(FieldOfPlay fieldOfPlay) {
     }
+
+    @Override
+    public BreakType getBreakType() {
+        return this.breakType;
+    }
+
+    public void setBreakType(BreakType breakType) {
+        this.breakType = breakType;
+    }
+
 
 }

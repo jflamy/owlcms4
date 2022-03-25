@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2022 Jean-François Lamy
+ * Copyright (rec) 2009-2022 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
@@ -18,7 +18,6 @@ import org.hibernate.query.NativeQuery;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
@@ -56,19 +55,11 @@ public class RecordRepository {
 
     @SuppressWarnings("unchecked")
     public static RecordEvent doFindByName(String name, EntityManager em) {
-        Query query = em.createQuery("select u from RecordEvent u where u.name=:name");
+        Query query = em.createQuery("select rec from RecordEvent rec where rec.name=:name");
         query.setParameter("name", name);
         return (RecordEvent) query.getResultList().stream().findFirst().orElse(null);
     }
 
-    /**
-     * @return active categories
-     */
-    public static List<RecordEvent> findActive() {
-        List<RecordEvent> findFiltered = findFiltered((String) null, (Gender) null, (AgeDivision) null, (Integer) null,
-                true, -1, -1);
-        return findFiltered;
-    }
 
     /**
      * Find all.
@@ -85,23 +76,16 @@ public class RecordRepository {
         });
     }
 
-    public static List<RecordEvent> findFiltered(String name, Gender gender, AgeDivision ageDivision, Integer age,
-            boolean active, int offset, int limit) {
+    public static List<RecordEvent> findFiltered(Gender gender, Integer age, Double bw) {
 
         List<RecordEvent> findFiltered = JPAService.runInTransaction(em -> {
-            String qlString = "select ag from RecordEvent ag"
-                    + filteringSelection(name, gender, ageDivision, age, active)
-                    + " order by ag.ageDivision, ag.gender, ag.minAge, ag.maxAge";
+            String qlString = "select rec from RecordEvent rec "
+                    + filteringSelection(gender, age, bw)
+                    + " order by rec.gender, rec.ageGrpLower, rec.ageGrpUpper";
             logger.debug("query = {}", qlString);
 
             Query query = em.createQuery(qlString);
-            setFilteringParameters(name, gender, ageDivision, age, active, query);
-            if (offset >= 0) {
-                query.setFirstResult(offset);
-            }
-            if (limit > 0) {
-                query.setMaxResults(limit);
-            }
+            setFilteringParameters(gender, age, bw, query);
             @SuppressWarnings("unchecked")
             List<RecordEvent> resultList = query.getResultList();
             return resultList;
@@ -110,7 +94,7 @@ public class RecordRepository {
     }
 
     /**
-     * Gets group by id
+     * Gets record by id
      *
      * @param id the id
      * @param em entity manager
@@ -118,7 +102,7 @@ public class RecordRepository {
      */
     @SuppressWarnings("unchecked")
     public static RecordEvent getById(Long id, EntityManager em) {
-        Query query = em.createQuery("select u from CompetitionRecord u where u.id=:id");
+        Query query = em.createQuery("select rec from RecordEvent rec where rec.id=:id");
         query.setParameter("id", id);
         return (RecordEvent) query.getResultList().stream().findFirst().orElse(null);
     }
@@ -126,21 +110,6 @@ public class RecordRepository {
 
     public static void reloadDefinitions(String localizedFileName) throws IOException {
         clearRecords();
-        JPAService.runInTransaction(em -> {   
-            try {
-
-                List<RecordEvent> all = findAll();
-                logger.warn("after remove: {}", all.size());
-                for (RecordEvent rec: all) {
-                    logger.warn("{}",rec);
-                }
-            } catch (Exception e) {
-                LoggerUtils.logError(logger, e);
-            }
-            return null;
-        });
-        
-        
         InputStream is = ResourceWalker.getResourceAsStream(localizedFileName);
         RecordDefinitionReader.readZip(is);
     }
@@ -152,11 +121,6 @@ public class RecordRepository {
                 Query upd = em.createNativeQuery("delete from RecordEvent");
                 upd.unwrap(NativeQuery.class).addSynchronizedEntityClass(RecordEvent.class);
                 upd.executeUpdate();
-//                em.flush();
-//                List<RecordEvent> all = findAll();
-//                for (RecordEvent rec: all) {
-//                    em.remove(rec);
-//                }
                 em.flush();
             } catch (Exception e) {
                 LoggerUtils.logError(logger, e);
@@ -189,35 +153,26 @@ public class RecordRepository {
 
     @SuppressWarnings("unchecked")
     private static List<RecordEvent> doFindAll(EntityManager em) {
-        return em.createQuery("select c from RecordEvent c order by c.recordFederation,c.gender,c.ageGrpLower,c.ageGrpUpper,c.bwCatUpper").getResultList();
+        return em.createQuery("select rec from RecordEvent rec order by rec.recordFederation,rec.gender,rec.ageGrpLower,rec.ageGrpUpper,rec.bwCatUpper").getResultList();
     }
 
-    private static String filteringSelection(String name, Gender gender, AgeDivision ageDivision, Integer age,
-            Boolean active) {
+    private static String filteringSelection(Gender gender, Integer age, Double d) {
         String joins = null;
-        String where = filteringWhere(name, ageDivision, age, gender, active);
+        String where = filteringWhere(gender, age, d);
         String selection = (joins != null ? " " + joins : "") + (where != null ? " where " + where : "");
         return selection;
     }
 
-    private static String filteringWhere(String name, AgeDivision ageDivision, Integer age, Gender gender,
-            Boolean active) {
+    private static String filteringWhere(Gender gender, Integer age, Double d) {
         List<String> whereList = new LinkedList<>();
-        if (ageDivision != null) {
-            whereList.add("ag.ageDivision = :division");
-        }
-        if (name != null && name.trim().length() > 0) {
-            whereList.add("lower(ag.name) like :name");
-        }
-        if (active != null && active) {
-            whereList.add("ag.active = :active");
-        }
         if (gender != null) {
-            whereList.add("ag.gender = :gender");
+            whereList.add("rec.gender = :gender");
         }
-
         if (age != null) {
-            whereList.add("(ag.minAge <= :age) and (ag.maxAge >= :age)");
+            whereList.add("(rec.ageGrpLower <= :age) and (rec.ageGrpUpper >= :age)");
+        }
+        if (d != null) {
+            whereList.add("(rec.bwCatLower*1.0 <= :bw) and (rec.bwCatUpper*1.0 >= :bw)");
         }
         if (whereList.size() == 0) {
             return null;
@@ -226,20 +181,12 @@ public class RecordRepository {
         }
     }
 
-    private static void setFilteringParameters(String name, Gender gender, AgeDivision ageDivision, Integer age,
-            Boolean active, Query query) {
-        if (name != null && name.trim().length() > 0) {
-            // starts with
-            query.setParameter("name", "%" + name.toLowerCase() + "%");
-        }
-        if (active != null && active) {
-            query.setParameter("active", active);
-        }
+    private static void setFilteringParameters(Gender gender, Integer age, Double bw, Query query) {
         if (age != null) {
             query.setParameter("age", age);
         }
-        if (ageDivision != null) {
-            query.setParameter("division", ageDivision); // ageDivision is a string
+        if (bw != null) {
+            query.setParameter("bw", bw);
         }
         if (gender != null) {
             query.setParameter("gender", gender);

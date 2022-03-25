@@ -55,6 +55,7 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
 
     public DurationField() {
         getWrappedTextField().setValueChangeMode(ValueChangeMode.ON_BLUR);
+        getWrappedTextField().setWidth("9ch");
     }
 
     @Override

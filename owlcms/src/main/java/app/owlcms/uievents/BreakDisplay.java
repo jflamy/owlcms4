@@ -18,7 +18,9 @@ public interface BreakDisplay {
 
     Logger logger = (Logger) LoggerFactory.getLogger(BreakDisplay.class);
 
-    public void doBreak();
+    public void doBreak(UIEvent e);
+    
+    public void doCeremony(UIEvent.CeremonyStarted e);
 
     public default String inferGroupName() {
         FieldOfPlay fop = OwlcmsSession.getFop();
@@ -30,30 +32,38 @@ public interface BreakDisplay {
         return Translator.translate("Group_number", groupName);
     }
 
-    public default String inferMessage(BreakType bt) {
-        if (bt == null) {
+    public default String inferMessage(BreakType breakType, CeremonyType ceremonyType) {
+        if (breakType == null && ceremonyType == null) {
             return Translator.translate("PublicMsg.CompetitionPaused");
         }
-        switch (bt) {
+        if (ceremonyType != null) {
+            switch (ceremonyType) {
+            case INTRODUCTION:
+                return Translator.translate("BreakMgmt.IntroductionOfAthletes");
+            case MEDALS:
+                return Translator.translate("PublicMsg.Medals");
+            case OFFICIALS_INTRODUCTION:
+                return Translator.translate("BreakMgmt.IntroductionOfOfficials");
+            }
+        }
+        switch (breakType) {
         case FIRST_CJ:
             return Translator.translate("BreakType.FIRST_CJ");
         case FIRST_SNATCH:
             return Translator.translate("BreakType.FIRST_SNATCH");
         case BEFORE_INTRODUCTION:
             return Translator.translate("BreakType.BEFORE_INTRODUCTION");
-        case DURING_INTRODUCTION:
-            return Translator.translate("PublicMsg.DuringIntroduction");
         case TECHNICAL:
             return Translator.translate("PublicMsg.CompetitionPaused");
         case JURY:
             return Translator.translate("PublicMsg.JuryDeliberation");
         case GROUP_DONE:
             return Translator.translate("PublicMsg.GroupDone");
-        case MEDALS:
-            return Translator.translate("PublicMsg.Medals");
         }
         // can't happen
         return "";
     }
+
+
 
 }

@@ -10,11 +10,11 @@
   * [Athlete Registration](Registration)
 * Running a Competition
   * [Weigh-in and Start Numbers](WeighIn)
-  * [Announcing, Marshalling and Timekeeping](Announcing)
+  * [Announcing, Marshaling and Timekeeping](Announcing)
   * [Scoreboards and Displays](Displays)
   * [Refereeing](Refereeing)
   * [Jury](Jury)
-  * [Intermissions and Breaks](Breaks)
+  * [Breaks and Ceremonies](Breaks)
   * [Result Documents](Documents)
 * Virtual Competitions
   * [Overview](VirtualOverview)

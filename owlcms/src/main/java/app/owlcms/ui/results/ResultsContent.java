@@ -48,7 +48,7 @@ import app.owlcms.components.DownloadButtonFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -57,6 +57,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.spreadsheet.JXLSMedalsSheet;
 import app.owlcms.spreadsheet.JXLSResultSheet;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
@@ -353,10 +354,11 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
 
         Button resultsButton = createGroupResultsDownloadButton();
+        Button medalsButtons = createGroupMedalsDownloadButton();
 
         createTopBarGroupSelect();
 
-        HorizontalLayout buttons = new HorizontalLayout(resultsButton);
+        HorizontalLayout buttons = new HorizontalLayout(resultsButton, medalsButtons);
         buttons.setPadding(true);
         buttons.getStyle().set("margin-left", "5em");
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
@@ -502,6 +504,22 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
                 Competition::setProtocolTemplateFileName,
                 Translator.translate("GroupResults"),
                 "results", Translator.translate("Download"));
+        Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
+        return resultsButton;
+    }
+    
+    private Button createGroupMedalsDownloadButton() {
+        downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
+                () -> {
+                    JXLSMedalsSheet rs = new JXLSMedalsSheet();
+                    rs.setGroup(currentGroup);
+                    return rs;
+                },
+                "/templates/medals",
+                Competition::getComputedMedalsTemplateFileName,
+                Competition::setMedalsTemplateFileName,
+                Translator.translate("Results.Medals"),
+                "medals", Translator.translate("Download"));
         Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
         return resultsButton;
     }

@@ -20,13 +20,24 @@ import javax.persistence.Transient;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.Ranking;
 import ch.qos.logback.classic.Logger;
 
 @Entity
 @Cacheable
 @Table(indexes = {
         @Index(name = "ix_category", columnList = "gender,ageGrpLower,ageGrpUpper,bwCatLower,bwCatUpper") })
+@SuppressWarnings("serial")
 public class RecordEvent {
+
+    public class UnknownIWFBodyWeightCategory extends Exception {
+    }
+
+    public class MissingGender extends Exception {
+    }
+
+    public class MissingAgeGroup extends Exception {
+    }
 
     @Transient
     final private static Logger logger = (Logger) LoggerFactory.getLogger(RecordEvent.class);
@@ -50,7 +61,7 @@ public class RecordEvent {
     private String nation;
     private LocalDate recordDate;
     private String recordFederation;
-    private RecordKind recordLift;
+    private Ranking recordLift;
     private String recordName;
     private int recordYear;
 
@@ -118,7 +129,7 @@ public class RecordEvent {
         return recordFederation;
     }
 
-    public RecordKind getRecordLift() {
+    public Ranking getRecordLift() {
         return recordLift;
     }
 
@@ -194,17 +205,17 @@ public class RecordEvent {
         this.recordFederation = recordFederation;
     }
 
-    public void setRecordLift(RecordKind recordLift) {
+    public void setRecordLift(Ranking recordLift) {
         this.recordLift = recordLift;
     }
 
     public void setRecordLift(String liftAbbreviation) {
         if (liftAbbreviation.toLowerCase().startsWith("s")) {
-            this.recordLift = RecordKind.SNATCH;
+            this.recordLift = Ranking.SNATCH;
         } else if (liftAbbreviation.toLowerCase().startsWith("c")) {
-            this.recordLift = RecordKind.CJ;
+            this.recordLift = Ranking.CLEANJERK;
         } else if (liftAbbreviation.toLowerCase().startsWith("t")) {
-            this.recordLift = RecordKind.TOTAL;
+            this.recordLift = Ranking.TOTAL;
         } else {
             throw new IllegalArgumentException("recordLift");
         }
@@ -228,11 +239,133 @@ public class RecordEvent {
 
     @Override
     public String toString() {
-        return "RecordEvent [recordFederation=" + recordFederation + ", ageGrp=" + ageGrp + ", gender=" + gender
-                + ", bwCatUpper=" + bwCatUpper + ", recordLift=" + recordLift + ", recordValue=" + recordValue
-                + ", athleteName=" + athleteName + ", birthDate=" + birthDate + ", birthYear=" + birthYear + ", nation="
-                + nation + ", recordDate=" + recordDate + ", eventLocation=" + eventLocation + ", event=" + event
-                + ", recordYear=" + recordYear + ", bwCatLower=" + bwCatLower + ", ageGrpLower=" + ageGrpLower
-                + ", ageGrpUpper=" + ageGrpUpper + ", recordName=" + recordName + "]";
+        return "RecordEvent [id=" + id + ", recordValue=" + recordValue + ", ageGrp=" + ageGrp + ", ageGrpLower="
+                + ageGrpLower + ", ageGrpUpper=" + ageGrpUpper + ", athleteName=" + athleteName + ", bwCatLower="
+                + bwCatLower + ", bwCatUpper=" + bwCatUpper + ", birthDate=" + birthDate + ", birthYear=" + birthYear
+                + ", event=" + event + ", eventLocation=" + eventLocation + ", gender=" + gender + ", nation=" + nation
+                + ", recordDate=" + recordDate + ", recordFederation=" + recordFederation + ", recordLift=" + recordLift
+                + ", recordName=" + recordName + ", recordYear=" + recordYear + "]";
+    }
+
+    public void fillDefaults() throws MissingAgeGroup, MissingGender, UnknownIWFBodyWeightCategory {
+        if (ageGrp == null) {
+            throw new MissingAgeGroup();
+        }
+        ageGrp = ageGrp.trim();
+        ageGrp = ageGrp.toUpperCase();
+        if (ageGrp.equals("YTH")) {
+            ageGrpLower = ageGrpLower > 0 ? ageGrpLower : 13;
+            ageGrpUpper = ageGrpUpper > 0 ? ageGrpUpper : 17;
+        } else if (ageGrp.equals("JR")) {
+            ageGrpLower = ageGrpLower > 0 ? ageGrpLower : 15;
+            ageGrpUpper = ageGrpUpper > 0 ? ageGrpUpper : 20;
+        } else if (ageGrp.equals("SR")) {
+            ageGrpLower = ageGrpLower > 0 ? ageGrpLower : 15;
+            ageGrpUpper = ageGrpUpper > 0 ? ageGrpUpper : 999;
+        } else {
+            ageGrpLower = ageGrpLower > 0 ? ageGrpLower : 0;
+            ageGrpUpper = ageGrpUpper > 0 ? ageGrpUpper : 999;
+        }
+        fillIWFBodyWeights();
+    }
+
+    private void fillIWFBodyWeights() throws MissingGender, UnknownIWFBodyWeightCategory {
+        if (gender == null) {
+            throw new MissingGender();
+        }
+        if (gender == Gender.F) {
+            switch (bwCatUpper) {
+            case 40:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 0;
+                break;
+            case 45:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 40;
+                break;
+            case 49:
+                if (ageGrp.equals("YTH")) {
+                    bwCatLower = bwCatLower > 0 ? bwCatLower : 45;
+                } else {
+                    bwCatLower = bwCatLower > 0 ? bwCatLower : 0;
+                }
+                break;
+            case 55:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 49;
+                break;
+            case 59:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 55;
+                break;
+            case 64:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 59;
+                break;
+            case 71:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 64;
+                break;
+            case 76:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 71;
+                break;
+            case 81:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 76;
+                break;
+            case 87:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 81;
+                break;
+            case 999:
+                if (ageGrp.equals("YTH")) {
+                    bwCatLower = bwCatLower > 0 ? bwCatLower : 81;
+                } else {
+                    bwCatLower = bwCatLower > 0 ? bwCatLower : 87;
+                }
+                break;
+            default:
+                throw new UnknownIWFBodyWeightCategory();
+            }
+        } else {
+            switch (bwCatUpper) {
+            case 49:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 0;
+                break;
+            case 55:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 49;
+                break;
+            case 61:
+                if (ageGrp.equals("YTH")) {
+                    bwCatLower = bwCatLower > 0 ? bwCatLower : 55;
+                } else {
+                    bwCatLower = bwCatLower > 0 ? bwCatLower : 0;
+                }
+                break;
+            case 67:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 61;
+                break;
+            case 73:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 67;
+                break;
+            case 81:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 73;
+                break;
+            case 89:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 81;
+                break;
+            case 96:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 89;
+                break;
+            case 102:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 96;
+                break;
+            case 109:
+                bwCatLower = bwCatLower > 0 ? bwCatLower : 96;
+                break;
+            case 999:
+                if (ageGrp.equals("YTH")) {
+                    bwCatLower = bwCatLower > 0 ? bwCatLower : 102;
+                } else {
+                    bwCatLower = bwCatLower > 0 ? bwCatLower : 109;
+                }
+                break;
+            default:
+                throw new UnknownIWFBodyWeightCategory();
+            }
+
+        }
     }
 }

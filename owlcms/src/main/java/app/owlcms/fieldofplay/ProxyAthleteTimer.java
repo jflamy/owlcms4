@@ -116,16 +116,16 @@ public class ProxyAthleteTimer implements IProxyTimer {
     }
 
     /**
-     * @see app.owlcms.fieldofplay.IProxyTimer#setTimeRemaining(int)
+     * @see app.owlcms.fieldofplay.IProxyTimer#setTimeRemaining(int, boolean)
      */
     @Override
-    public void setTimeRemaining(int timeRemaining) {
+    public void setTimeRemaining(int timeRemaining, boolean indefinite) {
         if (running) {
             computeTimeRemaining();
         }
         logger.info("{}setting Time -- timeRemaining = {}", getFop().getLoggingName(), timeRemaining);
         this.timeRemaining = timeRemaining;
-        getFop().pushOut(new UIEvent.SetTime(timeRemaining, null));
+        getFop().pushOutUIEvent(new UIEvent.SetTime(timeRemaining, null));
         running = false;
     }
 
@@ -139,7 +139,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
             logger.info("{}starting Time -- timeRemaining = {}", getFop().getLoggingName(), timeRemaining);
             timeRemainingAtLastStop = timeRemaining;
         }
-        getFop().pushOut(
+        getFop().pushOutUIEvent(
                 new UIEvent.StartTime(timeRemaining, null, getFop().isEmitSoundsOnServer(), LoggerUtils.stackTrace()));
         running = true;
     }
@@ -154,7 +154,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
         }
         logger.info("{}stopping Time -- timeRemaining = {}", getFop().getLoggingName(), timeRemaining);
         timeRemainingAtLastStop = timeRemaining;
-        getFop().pushOut(new UIEvent.StopTime(timeRemaining, null));
+        getFop().pushOutUIEvent(new UIEvent.StopTime(timeRemaining, null));
         running = false;
     }
 

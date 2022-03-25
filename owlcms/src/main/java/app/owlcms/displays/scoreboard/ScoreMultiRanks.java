@@ -8,8 +8,10 @@ package app.owlcms.displays.scoreboard;
 
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,7 @@ import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
@@ -37,6 +40,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
@@ -46,7 +50,7 @@ import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -61,10 +65,9 @@ import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
-import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -139,38 +142,39 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         void setWideTeamNames(boolean b);
     }
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(ScoreMultiRanks.class);
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-
-    static {
-        logger.setLevel(Level.INFO);
-        uiEventLogger.setLevel(Level.INFO);
-    }
-
-    @Id("timer")
-    private AthleteTimerElement timer; // Flow creates it
-
+    private LinkedHashMap<String, Participation> ageGroupMap;
+    
     @Id("breakTimer")
     private BreakTimerElement breakTimer; // Flow creates it
+    private JsonArray cattempts;
+    private Category ceremonyCategory;
+    private Group ceremonyGroup = null;
+    private Group curGroup;
+    private boolean darkMode = true;
 
     @Id("decisions")
     private DecisionElement decisions; // Flow creates it
-
-    private EventBus uiEventBus;
+    private Dialog dialog;
     private List<Athlete> displayOrder;
-    private Group curGroup;
-    private int liftsDone;
+    private boolean groupDone;
+    private boolean initializationNeeded;
 
-    JsonArray sattempts;
-    JsonArray cattempts;
-    private boolean darkMode = true;
+    private int liftsDone;
     private Location location;
     private UI locationUI;
-    private boolean groupDone;
-    private Dialog dialog;
+    final private Logger logger = (Logger) LoggerFactory.getLogger(ScoreWithLeaders.class);
+    private JsonArray sattempts;
     private boolean silenced = true;
-    private boolean initializationNeeded;
-    private LinkedHashMap<String, Participation> ageGroupMap;
+    private boolean switchableDisplay = true;
+    @Id("timer")
+    private AthleteTimerElement timer; // Flow creates it
+    private EventBus uiEventBus;
+    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+
+    {
+        logger.setLevel(Level.INFO);
+        uiEventLogger.setLevel(Level.INFO);
+    }
 
     /**
      * Instantiates a new results board.
@@ -190,16 +194,52 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         DisplayOptions.addLightingEntries(vl, target, this);
         vl.add(new Hr());
         DisplayOptions.addSoundEntries(vl, target, this);
+        vl.add(new Hr());
+        DisplayOptions.addSwitchableEntries(vl, target, this);
+    }
+
+    /**
+     * @see app.owlcms.uievents.BreakDisplay#doBreak(app.owlcms.uievents.UIEvent)
+     */
+    @Override
+    public void doBreak(UIEvent event) {
+        OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            ScoreboardModel model = getModel();
+            model.setFullName(inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+            model.setTeamName("");
+            model.setAttempt("");
+            breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
+            setHidden(false);
+            updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
+            this.getElement().callJsFunction("doBreak");
+        }));
     }
 
     @Override
-    public void doBreak() {
+    public void doCeremony(UIEvent.CeremonyStarted e) {
+        ceremonyGroup = e.getCeremonyGroup();
+        ceremonyCategory = e.getCeremonyCategory();
+        //logger.trace"------ ceremony event = {} {} {", e, e.getTrace());
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
-            BreakType breakType = fop.getBreakType();
-            model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
+            if (e.getCeremonyType() == CeremonyType.MEDALS && this.isSwitchableDisplay() && ceremonyGroup != null) {
+                Map<String, String> map = new HashMap<>(Map.of(
+                        FOPParameters.FOP, fop.getName(),
+                        FOPParameters.GROUP, ceremonyGroup.getName(),
+                        DisplayParameters.DARK, Boolean.toString(darkMode)));
+                if (ceremonyCategory != null) {
+                    map.put(DisplayParameters.CATEGORY, ceremonyCategory.getCode());
+                } else {
+                    //logger.trace"===== no ceremonyCategory =========");
+                }
+                UI.getCurrent().navigate("displays/medals", QueryParameters.simple(map));
+            }
+            
+            String title = inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType());
+            model.setFullName(title);
             model.setTeamName("");
             model.setAttempt("");
+            breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
             setHidden(false);
 
             updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
@@ -256,6 +296,14 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     }
 
     /**
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#isSwitchableDisplay()
+     */
+    @Override
+    public boolean isSwitchableDisplay() {
+        return switchableDisplay;
+    }
+
+    /**
      * Reset.
      */
     public void reset() {
@@ -265,6 +313,11 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     @Override
     public void setDarkMode(boolean dark) {
         this.darkMode = dark;
+    }
+
+    @Override
+    public void setDialog(Dialog dialog) {
+        this.dialog = dialog;
     }
 
     @Override
@@ -288,9 +341,14 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     @Override
     public void setSilenced(boolean silenced) {
         this.timer.setSilenced(silenced);
-        this.decisions.setSilenced(silenced);
         this.breakTimer.setSilenced(silenced);
+        this.decisions.setSilenced(silenced);
         this.silenced = silenced;
+    }
+
+    @Override
+    public void setSwitchableDisplay(boolean warmUpDisplay) {
+        this.switchableDisplay = warmUpDisplay;
     }
 
     @Subscribe
@@ -345,20 +403,33 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     }
 
     @Subscribe
-    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
-        uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            computeLeaders();
-        });
-    }
-
-    @Subscribe
     public void slaveGroupDone(UIEvent.GroupDone e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
 //          Group g = e.getGroup();
             setDone(true);
+        });
+    }
+    
+    @Subscribe
+    public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
+        //logger.trace"------- slaveCeremonyDone {}", e.getCeremonyType());
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            setHidden(false);
+            // revert to current break
+            doBreak(null);
+        });
+    }
+    
+    @Subscribe
+    public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
+        //logger.trace"------- slaveCeremonyStarted {}", e.getCeremonyType());
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            setHidden(false);
+            doCeremony(e);
         });
     }
 
@@ -378,7 +449,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
-            doBreak();
+            doBreak(e);
         });
     }
 
@@ -432,7 +503,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         if (!leaveTopAlone) {
             if (a != null) {
                 Group group = fop.getGroup();
-                if (!group.isDone()) {
+                if (group != null && !group.isDone()) {
                     logger.debug("updating top {} {} {}", a.getFullName(), group, System.identityHashCode(group));
                     model.setFullName(a.getFullName());
                     model.setTeamName(a.getTeam());
@@ -442,7 +513,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                     model.setWeight(a.getNextAttemptRequestedWeight());
                 } else {
                     logger.debug("group done {} {}", group, System.identityHashCode(group));
-                    doBreak();
+                    doBreak(e);
                 }
             }
             this.getElement().callJsFunction("reset");
@@ -471,8 +542,8 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
-        switchLightingMode(this, isDarkMode(), true);
         SoundUtils.enableAudioContextNotification(this.getElement());
+        storeReturnURL();
     }
 
     protected void setTranslationMap() {
@@ -611,7 +682,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                 highlight = "";
             }
         }
-        logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
+        // logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
         ja.put("classname", highlight);
     }
 
@@ -647,7 +718,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                     fop);
             String team = a.getTeam();
             if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
-                logger.trace("long team {}", team);
                 setWideTeamNames(true);
             }
             jath.set(athx, ja);
@@ -731,10 +801,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             }
             ix++;
         }
-    }
-
-    private Object getOrigin() {
-        return this;
     }
 
     private JsonValue getRanksJson(Athlete a, Ranking r, LinkedHashMap<String, Participation> ageGroupMap2) {
@@ -828,7 +894,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                 doEmpty();
             } else {
                 doUpdate(e.getAthlete(), e);
-                doBreak();
+                doBreak(e);
             }
             break;
         default:
@@ -838,8 +904,8 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     }
 
     private void uiLog(UIEvent e) {
-        uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
+        // uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(),
+        // e.getClass().getSimpleName(),this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
     }
 
     private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {
@@ -854,8 +920,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             liftsDone = AthleteSorter.countLiftsDone(displayOrder);
             model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
         } else {
-            model.setGroupName("X");
-            model.setLiftsDone("Y");
+            model.setGroupName("");
             this.getElement().callJsFunction("groupDone");
         }
         this.getElement().setPropertyJson("ageGroups", getAgeGroupNamesJson(fop.getAgeGroupMap()));
@@ -863,10 +928,4 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                 getAthletesJson(displayOrder, fop.getLiftingOrder(), fop));
         computeLeaders();
     }
-
-    @Override
-    public void setDialog(Dialog dialog) {
-        this.dialog = dialog;
-    }
-
 }

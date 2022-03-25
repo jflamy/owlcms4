@@ -27,7 +27,6 @@ import com.github.appreciated.css.grid.sizes.Repeat;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
@@ -175,16 +174,14 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
         license.add(new H3(getTranslation("Credits")));
         addUL(license, getTranslation("WrittenJFL"), getTranslation("ThanksToAll"));
 
-        Button resetTranslation = new Button(getTranslation("reloadTranslation"),
-                buttonClickEvent -> Translator.reset());
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(resetTranslation);
+//        Button resetTranslation = new Button(getTranslation("reloadTranslation"), buttonClickEvent -> Translator.reset());
+//        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(resetTranslation);
+//        doGroup(getTranslation("reloadTranslationInfo"), grid1, license);
 
         license.add(new H3(getTranslation("Translation")));
         addUL(license,
                 getTranslation("ThanksToTranslators") + translators(),
                 getTranslation("TranslationDocumentation"));
-
-        doGroup(getTranslation("reloadTranslationInfo"), grid1, license);
 
         return license;
     }

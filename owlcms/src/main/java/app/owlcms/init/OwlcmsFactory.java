@@ -184,7 +184,7 @@ public class OwlcmsFactory {
     private static synchronized void initFOPByName() {
         resetFOPByName();
         for (Platform platform : PlatformRepository.findAll()) {
-            logger.trace("registering fop for {}", platform);
+            //logger.trace("registering fop for {}", platform);
             registerEmptyFOP(platform);
         }
         logger.trace("after initFOPByName {}", fopByName != null ? fopByName.size() : null);

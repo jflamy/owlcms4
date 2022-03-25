@@ -83,4 +83,27 @@ public class DisplayOptions {
 
         layout.add(rbgroup);
     }
+    
+    public static void addSwitchableEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
+
+        boolean switchable = dp.isSwitchableDisplay();
+        Button publicDisplay = new Button(Translator.translate("DisplayParameters.PublicDisplay"));
+        Button warmupDisplay = new Button(Translator.translate("DisplayParameters.WarmupDisplay"));
+
+        RadioButtonGroup<Boolean> rbgroup = new RadioButtonGroup<>();
+        rbgroup.setRequired(true);
+        rbgroup.setLabel(Translator.translate("DisplayParameters.SwitchableSettings"));
+        rbgroup.setHelperText(Translator.translate("DisplayParameters.SwitchableHelper"));
+        rbgroup.setItems(Boolean.TRUE, Boolean.FALSE);
+        rbgroup.setValue(switchable);
+        rbgroup.setRenderer(new ComponentRenderer<Button, Boolean>((mn) -> mn ? publicDisplay : warmupDisplay));
+        rbgroup.addValueChangeListener(e -> {
+            Boolean silenced = e.getValue();
+            dp.switchSwitchable(target, silenced, true);
+        });
+
+        layout.add(rbgroup);
+    }
+    
+    
 }

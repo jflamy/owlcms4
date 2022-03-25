@@ -27,7 +27,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;

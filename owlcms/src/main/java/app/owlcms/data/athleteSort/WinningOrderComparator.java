@@ -13,7 +13,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Logger;
@@ -31,16 +30,16 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
     private Ranking rankingType;
 
-    private boolean absoluteOrder;
+    private boolean ignoreCategories;
 
     /**
      * Instantiates a new winning order comparator.
      *
      * @param rankingType the ranking type
      */
-    public WinningOrderComparator(Ranking rankingType, boolean absoluteOrder) {
+    public WinningOrderComparator(Ranking rankingType, boolean ignoreCategories) {
         this.rankingType = rankingType;
-        this.absoluteOrder = absoluteOrder;
+        this.ignoreCategories = ignoreCategories;
     }
 
     /*
@@ -54,13 +53,13 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
         switch (rankingType) {
         case SNATCH:
-            return compareSnatchResultOrder(lifter1, lifter2, absoluteOrder);
+            return compareSnatchResultOrder(lifter1, lifter2, ignoreCategories);
         case CLEANJERK:
-            return compareCleanJerkResultOrder(lifter1, lifter2, absoluteOrder);
+            return compareCleanJerkResultOrder(lifter1, lifter2, ignoreCategories);
         case TOTAL:
-            return compareTotalResultOrder(lifter1, lifter2, absoluteOrder);
+            return compareTotalResultOrder(lifter1, lifter2, ignoreCategories);
         case CUSTOM:
-            return compareCustomResultOrder(lifter1, lifter2, absoluteOrder);
+            return compareCustomResultOrder(lifter1, lifter2, ignoreCategories);
         case ROBI:
             return compareRobiResultOrder(lifter1, lifter2);
         case CAT_SINCLAIR:
@@ -108,13 +107,13 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
      *
      * @param lifter1       the lifter 1
      * @param lifter2       the lifter 2
-     * @param absoluteOrder do not take categories into account
+     * @param ignoreCategories do not take categories into account
      * @return the int
      */
-    public int compareCleanJerkResultOrder(Athlete lifter1, Athlete lifter2, boolean absoluteOrder) {
+    public int compareCleanJerkResultOrder(Athlete lifter1, Athlete lifter2, boolean ignoreCategories) {
         int compare = 0;
 
-        if (!absoluteOrder) {
+        if (!ignoreCategories) {
             compare = compareCategory(lifter1, lifter2);
             if (compare != 0) {
                 return compare;
@@ -137,13 +136,13 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
      *
      * @param lifter1       the lifter 1
      * @param lifter2       the lifter 2
-     * @param absoluteOrder do not take category into account
+     * @param ignoreCategories do not take category into account
      * @return the int
      */
-    public int compareCustomResultOrder(Athlete lifter1, Athlete lifter2, boolean absoluteOrder) {
+    public int compareCustomResultOrder(Athlete lifter1, Athlete lifter2, boolean ignoreCategories) {
         int compare = 0;
 
-        if (!absoluteOrder) {
+        if (!ignoreCategories) {
             compare = ObjectUtils.compare(lifter1.getCategory(), lifter2.getCategory(), true);
             if (compare != 0) {
                 return compare;
@@ -244,10 +243,10 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
      *
      * @param lifter1       the lifter 1
      * @param lifter2       the lifter 2
-     * @param absoluteOrder do not take categories into account
+     * @param ignoreCategories do not take categories into account
      * @return the int
      */
-    public int compareSnatchResultOrder(Athlete lifter1, Athlete lifter2, boolean absoluteOrder) {
+    public int compareSnatchResultOrder(Athlete lifter1, Athlete lifter2, boolean ignoreCategories) {
         boolean trace = false;
         int compare = 0;
 
@@ -255,7 +254,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
             logger.trace("lifter1 {};  lifter2 {}", lifter1.getFirstName(), lifter2.getFirstName());
         }
 
-        if (!absoluteOrder) {
+        if (!ignoreCategories) {
             compare = compareCategory(lifter1, lifter2);
             if (trace) {
                 logger.trace("compareCategory {}", compare);
@@ -328,13 +327,13 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
      *
      * @param lifter1       the lifter 1
      * @param lifter2       the lifter 2
-     * @param absoluteOrder do not take categories into account
+     * @param ignoreCategories do not take categories into account
      * @return the int
      */
-    public int compareTotalResultOrder(Athlete lifter1, Athlete lifter2, boolean absoluteOrder) {
+    public int compareTotalResultOrder(Athlete lifter1, Athlete lifter2, boolean ignoreCategories) {
         int compare = 0;
 
-        if (!absoluteOrder) {
+        if (!ignoreCategories) {
             compare = compareCategory(lifter1, lifter2);
             if (compare != 0) {
                 return compare;

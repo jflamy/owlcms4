@@ -54,7 +54,6 @@ import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
-import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
@@ -178,17 +177,31 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     }
 
     @Override
-    public void doBreak() {
+    public void doBreak(UIEvent e) {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
-            BreakType breakType = fop.getBreakType();
-            model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
+            model.setFullName(inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
             model.setTeamName("");
             model.setAttempt("");
             setHidden(false);
 
             updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
             uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
+            this.getElement().callJsFunction("doBreak");
+        }));
+    }
+    
+    @Override
+    public void doCeremony(UIEvent.CeremonyStarted e) {
+        OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            ScoreboardModel model = getModel();
+            model.setFullName(inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+            model.setTeamName("");
+            model.setAttempt("");
+            setHidden(false);
+
+            updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
+            uiEventLogger.debug("$$$ attemptBoard calling doCeremony()");
             this.getElement().callJsFunction("doBreak");
         }));
     }
@@ -366,7 +379,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
-            doBreak();
+            doBreak(e);
         });
     }
 
@@ -437,7 +450,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
                     model.setWeight(a.getNextAttemptRequestedWeight());
                 } else {
                     logger.debug("group done {} {}", group, System.identityHashCode(group));
-                    doBreak();
+                    doBreak(e);
                 }
             }
             this.getElement().callJsFunction("reset");
@@ -721,7 +734,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
                 doEmpty();
             } else {
                 doUpdate(e.getAthlete(), e);
-                doBreak();
+                doBreak(e);
             }
             break;
         default:

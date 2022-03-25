@@ -186,11 +186,16 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     }
 
     @Override
-    public void doBreak() {
+    public void doBreak(UIEvent e) {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             // just update the display
             doUpdate(fop.getCurAthlete(), null);
         }));
+    }
+    
+    @Override
+    public void doCeremony(UIEvent.CeremonyStarted e) {
+        doBreak(e);
     }
 
     public void doUpdate(Competition competition) {

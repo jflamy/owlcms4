@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.dialog.Dialog;
 
+import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
@@ -30,11 +31,8 @@ public class BreakDialog extends Dialog {
      * @param origin the origin
      */
     public BreakDialog(Object origin) {
-        this.addAttachListener((e) -> {
-            content = new BreakManagement(origin, this);
-            this.removeAll();
-            this.add(content);
-        });
+        content = new BreakManagement(origin, this);
+        this.add(content);
 
         this.addDialogCloseActionListener((e) -> {
             this.removeAll();
@@ -43,11 +41,13 @@ public class BreakDialog extends Dialog {
             // defensive, should have been unregistered already
             try {
                 OwlcmsSession.getFop().getUiEventBus().unregister(content);
+                OwlcmsSession.getFop().getUiEventBus().unregister(content.getBreakTimer());
             } catch (Exception e1) {
             }
 
             try {
                 OwlcmsSession.getFop().getFopEventBus().unregister(content);
+                OwlcmsSession.getFop().getUiEventBus().unregister(content.getBreakTimer());
             } catch (Exception e1) {
             }
             content.cleanup();
@@ -62,27 +62,29 @@ public class BreakDialog extends Dialog {
      * @param cdt
      */
     public BreakDialog(Object origin, BreakType brt, CountdownType cdt) {
-
-        this.addAttachListener((e) -> {
-            content = new BreakManagement(origin, brt, cdt, this);
-            this.removeAll();
-            this.add(content);
-        });
+        //logger.debug("BreakDialog brt = {}", brt);
+        content = new BreakManagement(origin, brt, cdt, this);
+        this.add(content);
 
         this.addDialogCloseActionListener((e) -> {
-            this.removeAll();
-            this.close();
+
             // defensive, should have been unregistered already
+            BreakTimerElement breakTimer = content.getBreakTimer();
             try {
                 OwlcmsSession.getFop().getUiEventBus().unregister(content);
+                OwlcmsSession.getFop().getUiEventBus().unregister(breakTimer);
+                //logger.debug("++++++ unregistered {}", breakTimer.id);
             } catch (Exception e1) {
             }
             try {
                 OwlcmsSession.getFop().getFopEventBus().unregister(content);
+                OwlcmsSession.getFop().getFopEventBus().unregister(breakTimer);
             } catch (Exception e1) {
             }
             content.cleanup();
             content = null;
+            this.removeAll();
+            this.close();
         });
     }
 

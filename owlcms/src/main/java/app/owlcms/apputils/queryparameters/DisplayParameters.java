@@ -44,6 +44,8 @@ public interface DisplayParameters extends FOPParameters {
     public static final String DARK = "dark";
     public static final String SILENT = "silent";
     public static final String SOUND = "sound";
+    public static final String PUBLIC = "public";
+    public static final String CATEGORY = "cat";
 
     public void addDialogContent(Component target, VerticalLayout vl);
 
@@ -131,6 +133,16 @@ public interface DisplayParameters extends FOPParameters {
     public boolean isShowInitialDialog();
 
     public boolean isSilenced();
+    
+    /**
+     * @return true if the display can switch during breaks (for example, to medals)
+     */
+    public default boolean isSwitchableDisplay() {
+        return false;
+    };
+    
+    public default void setSwitchableDisplay(boolean switchable) {
+    }
 
     public default boolean isSilencedByDefault() {
         return true;
@@ -179,6 +191,12 @@ public interface DisplayParameters extends FOPParameters {
         }
         switchSoundMode((Component) this, silentMode, false);
         updateParam(params, SILENT, !isSilenced() ? "false" : "true");
+        
+        List<String> switchableParams = params.get(PUBLIC);
+        boolean switchable = switchableParams != null && !switchableParams.isEmpty() && switchableParams.get(0).toLowerCase().equals("true");
+        setSwitchableDisplay(switchable);
+        switchSwitchable((Component) this, switchable, false);
+        updateParam(params, PUBLIC, isSwitchableDisplay() ? "true" : null);
 
         return params;
     }
@@ -218,12 +236,13 @@ public interface DisplayParameters extends FOPParameters {
     public default void switchLightingMode(Component target, boolean dark, boolean updateURL) {
         target.getElement().getClassList().set(DARK, dark);
         target.getElement().getClassList().set(LIGHT, !dark);
-        setDarkMode(dark);
         //logger.debug("switching lighting");
         buildDialog(target);
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), DARK, dark ? null : "false");
         }
+        // after updateURL so that this method is usable to store the location if it needs it.
+        setDarkMode(dark);
     }
 
     public default void switchSoundMode(Component target, boolean silent, boolean updateURL) {
@@ -234,5 +253,32 @@ public interface DisplayParameters extends FOPParameters {
             updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? "true" : "false");
         }
     }
+    
+    public default void switchSwitchable(Component target, boolean switchable, boolean updateURL) {
+        setSwitchableDisplay(switchable);
+        //logger.debug("switching sound");
+        buildDialog(target);
+        if (updateURL) {
+            updateURLLocation(getLocationUI(), getLocation(), PUBLIC, switchable ? "true" : "false");
+        }
+    }
+    
+    /**
+     * called by updateURLLocation
+     * 
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#storeReturnURL()
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#updateURLLocation(UI, Location, String, String)
+     */
+    @Override
+    public default void storeReturnURL() {
+        if (isSwitchableDisplay()) {
+            //logger.trace("storing pageURL before\n{}",LoggerUtils.stackTrace());
+            UI.getCurrent().getPage().fetchCurrentURL(url -> {
+                //logger.trace("storing pageURL after {}",url.toExternalForm());
+                storeInSessionStorage("pageURL", url.toExternalForm());
+            });
+        }
+    }
+
 
 }

@@ -128,7 +128,7 @@ public class EventForwarder implements BreakDisplay {
     }
 
     @Override
-    public void doBreak() {
+    public void doBreak(UIEvent e) {
         BreakType breakType = fop.getBreakType();
         Group group = fop.getGroup();
         if (breakType == null) {
@@ -140,7 +140,28 @@ public class EventForwarder implements BreakDisplay {
             break;
         default:
             setFullName((group != null ? (Translator.translate("Group_number", group.getName()) + " &ndash; ") : "")
-                    + inferMessage(breakType));
+                    + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+            break;
+        }
+        setTeamName("");
+        setAttempt("");
+        setHidden(false);
+    }
+
+    @Override
+    public void doCeremony(UIEvent.CeremonyStarted e) {
+        BreakType breakType = fop.getBreakType();
+        Group group = fop.getGroup();
+        if (breakType == null) {
+            breakType = BreakType.BEFORE_INTRODUCTION;
+        }
+        switch (breakType) {
+        case GROUP_DONE:
+            setFullName(groupResults(group));
+            break;
+        default:
+            setFullName((group != null ? (Translator.translate("Group_number", group.getName()) + " &ndash; ") : "")
+                    + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
             break;
         }
         setTeamName("");
@@ -182,26 +203,36 @@ public class EventForwarder implements BreakDisplay {
      * @see app.owlcms.uievents.BreakDisplay#inferMessage(app.owlcms.uievents.BreakType)
      */
     @Override
-    public String inferMessage(BreakType bt) {
-        if (bt == null) {
-            return Translator.translate("BreakType.TECHNICAL");
+    public String inferMessage(BreakType breakType, CeremonyType ceremonyType) {
+        if (breakType == null) {
+            return Translator.translate("PublicMsg.CompetitionPaused");
         }
-        switch (bt) {
+        if (ceremonyType != null) {
+            switch (ceremonyType) {
+            case INTRODUCTION:
+                return Translator.translate("BreakMgmt.IntroductionOfAthletes");
+            case MEDALS:
+                return Translator.translate("PublicMsg.Medals");
+            case OFFICIALS_INTRODUCTION:
+                return Translator.translate("BreakMgmt.IntroductionOfOfficials");
+            }
+        }
+        switch (breakType) {
         case FIRST_CJ:
             return Translator.translate("BreakType.FIRST_CJ");
         case FIRST_SNATCH:
             return Translator.translate("BreakType.FIRST_SNATCH");
         case BEFORE_INTRODUCTION:
             return Translator.translate("BreakType.BEFORE_INTRODUCTION");
-        case DURING_INTRODUCTION:
-            return Translator.translate("BreakType.DURING_INTRODUCTION");
         case TECHNICAL:
-            return Translator.translate("BreakType.TECHNICAL");
+            return Translator.translate("PublicMsg.CompetitionPaused");
         case JURY:
-            return Translator.translate("BreakType.JURY");
-        default:
-            return "";
+            return Translator.translate("PublicMsg.JuryDeliberation");
+        case GROUP_DONE:
+            return Translator.translate("PublicMsg.GroupDone");
         }
+        // can't happen
+        return "";
     }
 
     public boolean isDecisionLightsVisible() {
@@ -257,9 +288,25 @@ public class EventForwarder implements BreakDisplay {
     public void slaveBreakStart(UIEvent.BreakStarted e) {
         uiLog(e);
         setHidden(false);
-        doBreak();
+        doBreak(e);
         pushUpdate();
         pushTimer(e);
+    }
+    
+    @Subscribe
+    public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
+        uiLog(e);
+        setHidden(false);
+        doCeremony(e);
+        pushUpdate();
+    }
+    
+    @Subscribe
+    public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
+        uiLog(e);
+        setHidden(false);
+        doBreak(e);
+        pushUpdate();
     }
 
     @Subscribe
@@ -371,7 +418,7 @@ public class EventForwarder implements BreakDisplay {
                 setHidden(true);
             } else {
                 doUpdate(e.getAthlete(), e);
-                doBreak();
+                doBreak(e);
             }
             break;
         default:

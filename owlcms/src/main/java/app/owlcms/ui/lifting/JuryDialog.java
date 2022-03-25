@@ -229,7 +229,7 @@ public class JuryDialog extends EnhancedDialog {
     private void doDeliberation(Object origin, Athlete athleteUnderReview) {
         // stop competition
         OwlcmsSession.getFop()
-                .fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, this));
+                .fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
         JuryNotification event = new UIEvent.JuryNotification(athleteUnderReview, origin,
                 JuryDeliberationEventType.START_DELIBERATION, null);
         OwlcmsSession.getFop().getUiEventBus().post(event);
@@ -337,7 +337,7 @@ public class JuryDialog extends EnhancedDialog {
     private void doSummonReferees(Object origin2) {
         // technical pause from Jury
         OwlcmsSession.getFop()
-                .fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, this));
+                .fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
         JuryNotification event = new UIEvent.JuryNotification(null, origin, JuryDeliberationEventType.CALL_REFEREES,
                 null);
         OwlcmsSession.getFop().getUiEventBus().post(event);
@@ -351,7 +351,7 @@ public class JuryDialog extends EnhancedDialog {
     private void doTechnicalPause(Object origin) {
         // technical pause from Jury
         OwlcmsSession.getFop()
-                .fopEventPost(new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null, this));
+                .fopEventPost(new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null, true, this));
         JuryNotification event = new UIEvent.JuryNotification(null, origin,
                 JuryDeliberationEventType.TECHNICAL_PAUSE, null);
         OwlcmsSession.getFop().getUiEventBus().post(event);

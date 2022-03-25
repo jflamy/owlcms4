@@ -9,7 +9,6 @@ package app.owlcms.data.athleteSort;
 import java.util.Comparator;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 
 /**
  * This comparator sorts athletes within their team.

@@ -182,7 +182,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     @Override
-    public void doBreak() {
+    public void doBreak(UIEvent e) {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             BreakType breakType = fop.getBreakType();
             if (breakType == BreakType.GROUP_DONE) {
@@ -197,13 +197,42 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 return;
             }
             getModel().setLastName(inferGroupName());
-            getModel().setFirstName(inferMessage(breakType));
+            getModel().setFirstName(inferMessage(breakType, fop.getCeremonyType()));
             getModel().setTeamName("");
             getModel().setAttempt("");
+            breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
 
             uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
             this.getElement().callJsFunction("doBreak");
         }));
+    }
+    
+    @Override
+    public void doCeremony(UIEvent.CeremonyStarted e) {
+//        OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+//            getModel().setLastName(inferGroupName());
+//            getModel().setFirstName(inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+//            getModel().setTeamName("");
+//            getModel().setAttempt("");
+//            breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
+//
+//            uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
+//            this.getElement().callJsFunction("doBreak");
+//        }));
+    }
+    
+    @Subscribe
+    public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            syncWithFOP(OwlcmsSession.getFop());
+        });
+    }
+    
+    @Subscribe
+    public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            syncWithFOP(OwlcmsSession.getFop());
+        });
     }
 
     /**
@@ -434,7 +463,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            doBreak();
+            doBreak(e);
         });
     }
 
@@ -479,7 +508,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                     if (e.getGroup() == null) {
                         doEmpty();
                     } else {
-                        doBreak();
+                        doBreak(e);
                     }
                     break;
                 default:
@@ -547,7 +576,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      */
     protected void doBreak(FieldOfPlay fop) {
         getModel().setLastName(inferGroupName());
-        getModel().setFirstName(inferMessage(fop.getBreakType()));
+        getModel().setFirstName(inferMessage(fop.getBreakType(), fop.getCeremonyType()));
         getModel().setTeamName("");
         getModel().setAttempt("");
         this.getElement().callJsFunction("doBreak", 5 * 60);
@@ -555,7 +584,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     protected void doEmpty() {
-        logger.debug("doEmpty {}", LoggerUtils.whereFrom());
         hidePlates();
         this.getElement().callJsFunction("clear");
     }
@@ -680,12 +708,12 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     private void syncWithFOP(FieldOfPlay fop) {
         // sync with current status of FOP
-        if (fop.getState() == FOPState.INACTIVE) {
+        if (fop.getState() == FOPState.INACTIVE && fop.getCeremonyType() == null) {
             doEmpty();
         } else {
             Athlete curAthlete = fop.getCurAthlete();
-            if (fop.getState() == FOPState.BREAK) {
-                if (fop.getBreakType() == BreakType.MEDALS) {
+            if (fop.getState() == FOPState.BREAK || fop.getState() == FOPState.INACTIVE) {
+                if (fop.getCeremonyType() != null) {
                     doBreak(fop);
                 } else if (curAthlete != null && curAthlete.getAttemptsDone() >= 6) {
                     doDone(fop.getGroup());

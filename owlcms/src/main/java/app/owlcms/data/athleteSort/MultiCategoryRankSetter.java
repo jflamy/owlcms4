@@ -12,7 +12,6 @@ import java.util.Map;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRankingHolder;
 import app.owlcms.data.category.Participation;

@@ -11,13 +11,13 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -57,6 +57,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.LiftOrderInfo;
 import app.owlcms.fieldofplay.LiftOrderReconstruction;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -1435,7 +1436,10 @@ public class Athlete {
             Integer yearOfBirth = getYearOfBirth();
             return yearOfBirth != null ? yearOfBirth.toString() : "";
         } else {
-            return getFullBirthDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT));
+            Locale locale = OwlcmsSession.getLocale();
+            String shortPattern = DateTimeUtils.localizedShortDatePattern(locale);
+            DateTimeFormatter shortStyleFormatter = DateTimeFormatter.ofPattern(shortPattern, locale);
+            return getFullBirthDate().format(shortStyleFormatter);
         }
     }
 

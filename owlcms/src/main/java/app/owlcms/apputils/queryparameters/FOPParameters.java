@@ -6,6 +6,8 @@
  *******************************************************************************/
 package app.owlcms.apputils.queryparameters;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +36,8 @@ import ch.qos.logback.classic.Logger;
 public interface FOPParameters extends HasUrlParameter<String> {
 
     final Logger logger = (Logger) LoggerFactory.getLogger(FOPParameters.class);
+    final String FOP = "fop";
+    final String GROUP = "group";
 
     public Location getLocation();
 
@@ -59,7 +63,7 @@ public interface FOPParameters extends HasUrlParameter<String> {
         // get the fop from the query parameters, set to the default FOP if not provided
         FieldOfPlay fop = null;
 
-        List<String> fopNames = parametersMap.get("fop");
+        List<String> fopNames = parametersMap.get(FOP);
         boolean fopFound = fopNames != null && fopNames.get(0) != null;
         if (!fopFound) {
             setShowInitialDialog(true);
@@ -67,37 +71,41 @@ public interface FOPParameters extends HasUrlParameter<String> {
 
         if (!isIgnoreFopFromURL()) {
             if (fopFound) {
-                logger.trace("fopNames {}", fopNames);
-                fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
+                //logger.trace("fopNames {}", fopNames);
+                String decoded = URLDecoder.decode(fopNames.get(0), StandardCharsets.UTF_8);
+                //logger.trace("URL fop = {} decoded = {}",fopNames.get(0), decoded);
+                fop = OwlcmsFactory.getFOPByName(decoded);
             } else if (OwlcmsSession.getFop() != null) {
-                logger.trace("OwlcmsSession.getFop() {}", OwlcmsSession.getFop());
+                //logger.trace("OwlcmsSession.getFop() {}", OwlcmsSession.getFop());
                 fop = OwlcmsSession.getFop();
             }
             if (fop == null) {
-                logger.trace("OwlcmsFactory.getDefaultFOP() {}", OwlcmsFactory.getDefaultFOP());
+                //logger.trace("OwlcmsFactory.getDefaultFOP() {}", OwlcmsFactory.getDefaultFOP());
                 fop = OwlcmsFactory.getDefaultFOP();
             }
-            newParameterMap.put("fop", Arrays.asList(URLUtils.urlEncode(fop.getName())));
+            newParameterMap.put(FOP, Arrays.asList(URLUtils.urlEncode(fop.getName())));
             OwlcmsSession.setFop(fop);
         } else {
-            newParameterMap.remove("fop");
+            newParameterMap.remove(FOP);
         }
 
         // get the group from query parameters
         Group group = null;
         if (!isIgnoreGroupFromURL()) {
-            List<String> groupNames = parametersMap.get("group");
+            List<String> groupNames = parametersMap.get(GROUP);
             if (groupNames != null && groupNames.get(0) != null) {
-                group = GroupRepository.findByName(groupNames.get(0));
+                String decoded = URLDecoder.decode(groupNames.get(0), StandardCharsets.UTF_8);
+                //logger.trace("URL group = {} decoded = {}",groupNames.get(0), decoded);
+                group = GroupRepository.findByName(decoded);
                 fop.loadGroup(group, this, true);
             } else {
                 group = (fop != null ? fop.getGroup() : null);
             }
             if (group != null) {
-                newParameterMap.put("group", Arrays.asList(URLUtils.urlEncode(group.getName())));
+                newParameterMap.put(GROUP, Arrays.asList(URLUtils.urlEncode(group.getName())));
             }
         } else {
-            newParameterMap.remove("group");
+            newParameterMap.remove(GROUP);
         }
 
         logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
@@ -157,9 +165,9 @@ public interface FOPParameters extends HasUrlParameter<String> {
         // get current values
         if (!this.isIgnoreFopFromURL()) {
             FieldOfPlay fop = OwlcmsSession.getFop();
-            updateParam(parametersMap, "fop", fop != null ? fop.getName() : null);
+            updateParam(parametersMap, FOP, fop != null ? fop.getName() : null);
         } else {
-            updateParam(parametersMap, "fop", null);
+            updateParam(parametersMap, FOP, null);
         }
 
         // override with the update
@@ -168,6 +176,14 @@ public interface FOPParameters extends HasUrlParameter<String> {
         Location location2 = new Location(location.getPath(), new QueryParameters(parametersMap));
         ui.getPage().getHistory().replaceState(null, location2);
         setLocation(location2);
+        storeReturnURL();
+    }
+    
+    public default void storeReturnURL() {
+    }
+    
+    public default void storeInSessionStorage(String key, String value) {
+        UI.getCurrent().getElement().executeJs("window.sessionStorage.setItem($0, $1);", key, value);
     }
 
 }

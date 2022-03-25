@@ -12,11 +12,11 @@
     --max-veryNarrow-width: 7ch;
     --medium-width: 6ch;
     --backgroundColor: black;
-    
+
     font-family: Arial, Helvetica, sans-serif;
     color: white;
     background-color: var(--backgroundColor);
-    
+
     min-height: 100vh;
     padding: 2vmin 2vmin 2vmin 2vmin;
     overflow: hidden;
@@ -32,6 +32,7 @@
     .wrapper {
         --fontSize-rows: 1.2em;
     }
+
     .wideTeams {
         --name-min-width: 20vw;
         --name-width: 20vw;
@@ -45,6 +46,7 @@
         --rank-width: 5ch;
         --group-width: 5vw;
     }
+
     .narrowTeams {
         --name-min-width: 20ch;
         --name-width: 32vw;
@@ -58,6 +60,7 @@
         --rank-width: 5ch;
         --group-width: 5vw;
     }
+
     .showThRank {
         border-collapse: collapse;
         border: solid 1px DarkGray;
@@ -67,12 +70,14 @@
         width: 4vw;
         text-align: center;
     }
+
     .showRank {
         display: table-cell;
         width: var(--rank-width);
         font-size: var(--fontSize-rows);
         text-align: center;
     }
+
     .showRank div {
         width: var(--rank-width);
         margin: auto;
@@ -84,6 +89,7 @@
     .wrapper {
         --fontSize-rows: 0.9em;
     }
+
     .wideTeams {
         --name-min-width: 20vw;
         --name-width: 20vw;
@@ -97,6 +103,7 @@
         --rank-width: 5ch;
         --group-width: 5vw;
     }
+
     .narrowTeams {
         --name-min-width: 25vw;
         --name-width: 25vw;
@@ -110,6 +117,7 @@
         --rank-width: 5ch;
         --group-width: 5vw;
     }
+
     .showThRank {
         border-collapse: collapse;
         border: solid 1px DarkGray;
@@ -119,11 +127,13 @@
         width: 4vw;
         text-align: center;
     }
+
     .showRank {
         display: table-cell;
         width: var(--rank-width);
         text-align: center;
     }
+
     .showRank div {
         width: var(--rank-width);
         margin: auto;
@@ -146,6 +156,7 @@
         --rank-width: 5ch;
         --group-width: 5vw;
     }
+
     .narrowTeams {
         --fontSize-rows: 1.0em;
         --name-min-width: 20ch;
@@ -160,12 +171,14 @@
         --rank-width: 5ch;
         --group-width: 5vw;
     }
+
     .showThRank {
         display: none;
         width: 0px;
         padding: 0 0 0 0;
         margin: 0 0 0 0;
     }
+
     .showRank {
         display: none;
         width: 0px;
@@ -177,6 +190,7 @@
 
 /* table sizes: phones */
 @media screen and (max-width: 1025px) and (max-height: 767px) {
+
     /* hide the club/team names when they are wide */
     .wideTeams {
         --fontSize-rows: 0.6em;
@@ -192,10 +206,12 @@
         --rank-width: 5ch;
         --group-width: 5vw;
     }
+
     .wideTeams .club {
         display: none;
-        visibility:collapse;
+        visibility: collapse;
     }
+
     .narrowTeams {
         --fontSize-rows: 0.6em;
         --name-min-width: 20ch;
@@ -210,6 +226,7 @@
         --rank-width: 5ch;
         --group-width: 5vw;
     }
+
     .showThRank {
         border-collapse: collapse;
         border: solid 1px DarkGray;
@@ -219,11 +236,13 @@
         width: 4vw;
         text-align: center;
     }
+
     .showRank {
         display: table-cell;
         width: var(--rank-width);
         text-align: center;
     }
+
     .showRank div {
         width: var(--rank-width);
         margin: auto;
@@ -375,7 +394,7 @@ td.club {
 }
 
 td.club div {
-	width: var(--club-width);
+    width: var(--club-width);
     max-width: var(--club-max-width);
     text-align: center;
     margin: auto;
@@ -606,4 +625,124 @@ table#leaders-table thead tr.hide th {
     50% {
         opacity: 0;
     }
+}
+
+.marquee {
+    height: 35px;
+    width: 100%;
+
+    overflow: hidden;
+    position: relative;
+    background-color: purple;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    padding: 8px 0 4px 0;
+}
+
+/* would need to be adjusted depending on time */
+.marquee .marquee0 {
+    background-color: orange;
+    animation-name: marquee;
+    animation-duration: 20s;
+    animation-delay: -10s;
+    animation-iteration-count: infinite;
+    animation-direction: normal;
+    animation-fill-mode: none;
+    animation-timing-function: linear;
+}
+
+.marquee .marquee1 {
+    background-color: red;
+    animation-name: marquee;
+    animation-duration: 20s;
+    animation-delay: 0s;
+    animation-iteration-count: infinite;
+    animation-direction: normal;
+    animation-fill-mode: none;
+    animation-timing-function: linear;
+}
+
+.marquee .marquee2 {
+    background-color: blue;
+    animation-name: marquee;
+    animation-duration: 20s;
+    animation-delay: 10s;
+    animation-iteration-count: infinite;
+    animation-direction: normal;
+    animation-fill-mode: none;
+    animation-timing-function: linear;
+}
+
+
+
+/* even out the elements */
+.marquee div {
+    position: absolute;
+    width: 100%;
+    height: 2em;
+    left: 100%;
+    display: flex;
+    justify-content: left;
+}
+
+.marquee:hover div {
+    animation-play-state: paused;
+}
+
+/* add delay at the end of animation so you dont start while another div is going */
+@keyframes marquee {
+    0% {
+        left: 100%;
+    }
+
+    50% {
+        left: 0%;
+    }
+
+    100% {
+        left: -100%
+    }
+}
+
+@keyframes ticker {
+    0% {
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+        visibility: visible;
+    }
+
+    100% {
+        -webkit-transform: translate3d(-100%, 0, 0);
+        transform: translate3d(-100%, 0, 0);
+    }
+}
+
+.ticker-wrap {
+    width: 100%;
+    overflow: hidden;
+    height: 4rem;
+    background-color: rgba(#000, 0.9);
+    padding-left: 100%;
+    box-sizing: content-box;
+}
+
+.ticker-wrap .ticker {
+    display: inline-block;
+    height: 4rem;
+    line-height: 4rem;
+    white-space: nowrap;
+    padding-right: 100%;
+    box-sizing: content-box;
+
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    animation-name: ticker;
+    animation-duration: var(--ticker-duration);
+}
+
+.ticker-wrap .ticker .ticker_item {
+    display: inline-block;
+    padding: 0 2rem;
+    font-size: 2rem;
+    color: white;
 }

@@ -12,10 +12,12 @@ import java.util.Objects;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.CeremonyType;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -25,37 +27,6 @@ import ch.qos.logback.classic.Logger;
  * @author owlcms
  */
 public class FOPEvent {
-
-    static public class SummonReferee extends FOPEvent {
-
-        public int refNumber;
-
-        public SummonReferee(int refNumber, Object origin) {
-            super(origin);
-            this.refNumber = refNumber;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime * result + Objects.hash(refNumber);
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (!super.equals(obj))
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            SummonReferee other = (SummonReferee) obj;
-            return refNumber == other.refNumber;
-        }
-
-    }
 
     /**
      * Class BarbellOrPlatesChanged
@@ -72,9 +43,42 @@ public class FOPEvent {
      */
     static public class BreakDone extends FOPEvent {
 
-        public BreakDone(Object origin) {
+        private BreakType breakType;
+
+        public BreakDone(BreakType bt, Object origin) {
             super(origin);
+            this.setBreakType(bt);
         }
+
+        public BreakType getBreakType() {
+            return breakType;
+        }
+
+        public void setBreakType(BreakType breakType) {
+            this.breakType = breakType;
+        }
+    }
+    
+    /**
+     * Class BreakDone.
+     */
+    static public class CeremonyDone extends FOPEvent {
+
+        private CeremonyType ceremonyType;
+        
+        public CeremonyDone(CeremonyType ceremonyType, Object origin) {
+            super(origin);
+            setCeremonyType(ceremonyType);
+        }
+
+        public CeremonyType getCeremonyType() {
+            return ceremonyType;
+        }
+
+        public void setCeremonyType(CeremonyType ceremonyType) {
+            this.ceremonyType = ceremonyType;
+        }
+
     }
 
     /**
@@ -111,27 +115,39 @@ public class FOPEvent {
 
         private LocalDateTime targetTime;
 
-        public BreakStarted(BreakType bType, CountdownType cType, Integer timeRemaining, LocalDateTime targetTime,
+        private Boolean wait;
+
+        public BreakStarted(BreakType bType, CountdownType cType, Integer timeRemaining, LocalDateTime targetTime, Boolean wait,
                 Object origin) {
             super(origin);
             this.setBreakType(bType);
             this.setCountdownType(cType);
             this.timeRemaining = timeRemaining;
             this.targetTime = targetTime;
+            this.setWait(true);
+        }
+
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(breakType, countdownType, targetTime, timeRemaining, wait);
+            return result;
         }
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj) {
+            if (this == obj)
                 return true;
-            }
-            if (!super.equals(obj) || (getClass() != obj.getClass())) {
+            if (!super.equals(obj))
                 return false;
-            }
+            if (getClass() != obj.getClass())
+                return false;
             BreakStarted other = (BreakStarted) obj;
             return breakType == other.breakType && countdownType == other.countdownType
                     && Objects.equals(targetTime, other.targetTime)
-                    && Objects.equals(timeRemaining, other.timeRemaining);
+                    && Objects.equals(timeRemaining, other.timeRemaining) && Objects.equals(wait, other.wait);
         }
 
         public BreakType getBreakType() {
@@ -148,14 +164,6 @@ public class FOPEvent {
 
         public Integer getTimeRemaining() {
             return timeRemaining;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime * result + Objects.hash(breakType, countdownType, targetTime, timeRemaining);
-            return result;
         }
 
         public boolean isIndefinite() {
@@ -186,7 +194,93 @@ public class FOPEvent {
         @Override
         public String toString() {
             return "BreakStarted [breakType=" + breakType + ", countdownType=" + countdownType + ", timeRemaining="
-                    + timeRemaining + ", targetTime=" + targetTime + "]";
+                    + timeRemaining + ", targetTime=" + targetTime + ", wait=" + wait + "]";
+        }
+
+
+        public Boolean getWait() {
+            return wait;
+        }
+
+
+        public void setWait(Boolean wait) {
+            this.wait = wait;
+        }
+
+
+    }
+    
+    /**
+     * Class BreakStarted.
+     */
+    static public class CeremonyStarted extends FOPEvent {
+
+        private CeremonyType ceremony;
+        private Group ceremonyGroup;
+        private Category ceremonyCategory;
+
+        public CeremonyStarted(CeremonyType ceremony, Group ceremonyGroup,
+                Category ceremonyCategory, Object origin) {
+            super(origin);
+            this.setCeremony(ceremony);
+            this.setCeremonyGroup(ceremonyGroup);
+            this.setCategoryCeremony(ceremonyCategory);
+            //logger.trace("FOPEvent ceremonyGroup = {}  st={}", this.getCeremonyGroup(), LoggerUtils.stackTrace());
+        }
+
+        private void setCategoryCeremony(Category ceremonyCategory2) {
+            this.setCeremonyCategory(ceremonyCategory2);
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(ceremony, ceremonyCategory, ceremonyGroup);
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (!super.equals(obj))
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            CeremonyStarted other = (CeremonyStarted) obj;
+            return ceremony == other.ceremony && Objects.equals(ceremonyCategory, other.ceremonyCategory)
+                    && Objects.equals(ceremonyGroup, other.ceremonyGroup);
+        }
+
+        @Override
+        public String toString() {
+            return "CeremonyStarted [ceremony=" + ceremony + ", ceremonyGroup=" + ceremonyGroup + ", ceremonyCategory="
+                    + ceremonyCategory + "]";
+        }
+
+        public Group getCeremonyGroup() {
+            return ceremonyGroup;
+        }
+
+        public void setCeremonyGroup(Group ceremonyGroup2) {
+            this.ceremonyGroup = ceremonyGroup2;
+        }
+
+        public Category getCeremonyCategory() {
+            return ceremonyCategory;
+        }
+
+        private void setCeremonyCategory(Category ceremonyCategory2) {
+            this.ceremonyCategory = ceremonyCategory2;
+        }
+
+        public CeremonyType getCeremony() {
+            return ceremony;
+        }
+
+        public void setCeremony(CeremonyType ceremony) {
+            this.ceremony = ceremony;
         }
     }
 
@@ -423,6 +517,37 @@ public class FOPEvent {
 
         public StartLifting(Object origin) {
             super(origin);
+        }
+
+    }
+
+    static public class SummonReferee extends FOPEvent {
+
+        public int refNumber;
+
+        public SummonReferee(int refNumber, Object origin) {
+            super(origin);
+            this.refNumber = refNumber;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!super.equals(obj) || (getClass() != obj.getClass())) {
+                return false;
+            }
+            SummonReferee other = (SummonReferee) obj;
+            return refNumber == other.refNumber;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(refNumber);
+            return result;
         }
 
     }

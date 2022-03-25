@@ -54,22 +54,17 @@ public class FederationStructureReaderTest {
                 assertEquals(membership.get("IWF"), null);
                 
                 // continental = first induction step
-                logger.info("{} {}", "PanAm",  membership.get("PanAm"));
-                assertEquals(membership.get("PanAm").toString(), "[PanAm, IWF]");
+                logger.info("{} {}", "PAWF",  membership.get("PAWF"));
+                assertEquals(membership.get("PAWF").toString(), "[PAWF, IWF]");
                 
                 // country directly under continental
-                logger.info("{} {}", "JAM",  membership.get("JAM"));
-                assertEquals(membership.get("JAM").toString(), "[JAM, PanAm, IWF]");
+                logger.info("{} {}", "VEN",  membership.get("VEN"));
+                assertEquals(membership.get("VEN").toString(), "[VEN, PAWF, IWF]");
                 
-                // state/provincial federation under country
+                // state/provincial federation under country, multiple iwf-child federations
                 logger.info("{} {}", "BC",  membership.get("BC"));
-                assertEquals(membership.get("BC").toString(), "[BC, CAN, CWF, IWF, PanAm]");
+                assertEquals(membership.get("BC").toString(), "[BC, CAN, CWF, IWF, PAWF]");
                 
-                // two heads (Franco and IWF)
-                logger.info("{} {}", "QC",  membership.get("QC"));
-                assertEquals(membership.get("QC").toString(), "[QC, CAN, Franco, CWF, IWF, PanAm]");
-                
-
             } finally {
                 if (wb != null) {
                     wb.close();

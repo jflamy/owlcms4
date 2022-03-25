@@ -45,7 +45,7 @@ public interface IProxyTimer {
      *
      * @param timeRemaining the new time remaining
      */
-    public void setTimeRemaining(int timeRemaining);
+    public void setTimeRemaining(int timeRemaining, boolean indefinite);
 
     /**
      * Start.

@@ -3,11 +3,9 @@
 /database/
 /logs/
 /node_modules/
-/webpack.generated.js
 /.apt_generated/
 /.apt_generated_tests/
-/package-lock.json
-/package.json
 /local/
 /.flattened-pom.xml
-/webpack.config.js
+
+/webpack.generated.js

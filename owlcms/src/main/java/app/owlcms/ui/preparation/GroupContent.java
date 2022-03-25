@@ -52,7 +52,7 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
     public GroupContent() {
         editingFormFactory = new GroupEditingFormFactory(Group.class, this);
         GridCrud<Group> crud = createGrid(editingFormFactory);
-//      defineFilters(crudGrid);
+//		defineFilters(crudGrid);
         fillHW(crud, this);
     }
 

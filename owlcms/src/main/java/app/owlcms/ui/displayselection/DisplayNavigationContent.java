@@ -27,6 +27,7 @@ import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.displays.liftingorder.LiftingOrder;
 import app.owlcms.displays.monitor.Monitor;
 import app.owlcms.displays.scoreboard.CurrentAthlete;
+import app.owlcms.displays.scoreboard.Medals;
 import app.owlcms.displays.scoreboard.ScoreMultiRanks;
 import app.owlcms.displays.scoreboard.ScoreWithLeaders;
 import app.owlcms.displays.scoreboard.Scoreboard;
@@ -70,6 +71,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         Button scoreboardWLeaders = openInNewTab(ScoreWithLeaders.class, getTranslation("ScoreboardWLeadersButton"));
         scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
         Button scoreboardMultiRanks = openInNewTab(ScoreMultiRanks.class, getTranslation("ScoreboardMultiRanksButton"));
+        Button medals = openInNewTab(Medals.class, getTranslation("CeremonyType.MEDALS"));
 
         Button liftingOrder = openInNewTab(LiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
         Button currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"));
@@ -86,7 +88,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         addP(intro1, getTranslation("darkModeSelect"));
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
                 scoreboardMultiRanks, liftingOrder, currentAthlete,
-                topSinclair, topTeams, topTeamsSinclair);
+                topSinclair, topTeams, topTeamsSinclair, medals);
         doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
 
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, athleteFacingAttempt);
