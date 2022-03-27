@@ -23,7 +23,6 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -138,7 +137,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     }
 
     public void setSilenced(boolean b) {
-        logger.debug("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
+        //logger.trace("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
         getModel().setSilent(b);
         silenced = b;
     }
@@ -153,6 +152,12 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
     @Subscribe
     public void slaveDownSignal(UIEvent.DownSignal e) {
+        //logger.trace("slaveDownSignal {} {} {}", this, this.getOrigin(), e.getOrigin());
+        if (this.getOrigin() == e.getOrigin()) {
+            // we emitted the down signal, don't do it again.
+            //logger.trace("skipping down, {} is origin",this.getOrigin());
+            return;
+        }
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
             uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
                     this.getParent().get().getClass().getSimpleName());

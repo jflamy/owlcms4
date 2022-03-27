@@ -238,7 +238,7 @@ class DecisionElement extends PolymerElement {
 		console.warn("de vote "+key);
 	}
 
-	/* this is called from the client side to signal that a decision has been made
+	/* this is called based on browser input.
          immediate feedback is given if majority has been reached */
 	_majority(ref1, ref2, ref3) {
 		var countWhite = 0;
@@ -310,6 +310,11 @@ class DecisionElement extends PolymerElement {
 		}
 	}
 
+	/*
+	This is called from the browser side when the decision is taken locally (majority vote from keypads).
+	It can also be called from the server side when the decision is taken elsewhere.
+	The server side is responsible for not calling this again if the event took place in this element.
+	*/
 	showDown(isMaster, silent) {
 		console.warn("de showDown");
 		this.downShown = true;
@@ -328,7 +333,7 @@ class DecisionElement extends PolymerElement {
 
 		//this.$.downAudio.play();
 
-		this.dispatchEvent(new CustomEvent('down', { bubbles: true, composed: true }))
+		//this.dispatchEvent(new CustomEvent('down', { bubbles: true, composed: true }))
 		// hide the down arrow after 2 seconds -- the decisions will show when available
 		// (there will be no decision lights for at least one second, more if last referee 
 		// waits after the other two have given down.
@@ -351,7 +356,7 @@ class DecisionElement extends PolymerElement {
 		this.hideDown();
 		console.warn("de showDecisionForJury: " + ref1 + " " + ref2 + " " + ref3);
 		this.setColors(this, ref1, ref2, ref3);
-		console.warn("jury colorsShown");
+		console.warn("de jury colorsShown");
 	}
 
 	reset(isMaster) {
@@ -367,12 +372,14 @@ class DecisionElement extends PolymerElement {
 
 	async _playTrack(filepath, previousBuffer, play, when) {
 		if (previousBuffer) {
+			console.warn("de previous ok");
 			if (play) {
 				// play previously fetched buffer
 				await this._playAudioBuffer(previousBuffer, when);
 			}
 			return previousBuffer;
 		} else {
+			console.warn("de no previous");
 			// Safari somehow manages to lose the AudioBuffer.
 			// Massive workaround.
 			const response = await fetch(filepath);
