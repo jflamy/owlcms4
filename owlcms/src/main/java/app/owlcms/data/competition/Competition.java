@@ -597,9 +597,9 @@ public class Competition {
             String str = competitionDate.format(shortStyleFormatter);
             return str;
         } catch (Exception a) {
-            a.printStackTrace();
+            // null or unparseable
+            return "";
         }
-        return "error";
     }
 
 
