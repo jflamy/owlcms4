@@ -556,7 +556,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         TextField qualifyingTotalField = (TextField) qualifyingTotalBinding.getField();
 
         if (initCategories) {
-            allEligible = findEligibleCategories(genderField, bodyWeightField, qualifyingTotalField);
+            allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField, qualifyingTotalField);
             logger.trace("**gender = {}, eligible = {}", genderField.getValue(), allEligible);
             // ListDataProvider<Category> listDataProvider = new ListDataProvider<>(allEligible);
             updateCategoryFields(category, categoryField, eligibleField, qualifyingTotalField, allEligible, false);
@@ -632,11 +632,11 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         setChangeListenersEnabled(true);
     }
 
-    private List<Category> findEligibleCategories(ComboBox<Gender> genderField, BodyWeightField bodyWeightField,
-            TextField qualifyingTotalField) {
+    private List<Category> findEligibleCategories(ComboBox<Gender> genderField, Integer ageFromFields,
+            BodyWeightField bodyWeightField, TextField qualifyingTotalField) {
         // best match is first
         return doFindEligibleCategories(genderField.getValue(),
-                getAgeFromFields(), bodyWeightField.getValue(), Athlete.zeroIfInvalid(qualifyingTotalField.getValue()));
+                ageFromFields, bodyWeightField.getValue(), Athlete.zeroIfInvalid(qualifyingTotalField.getValue()));
     }
 
     @SuppressWarnings("unchecked")
@@ -696,21 +696,60 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             ComboBox<Gender> genderField, BodyWeightField bodyWeightField,
             ComboBox<Category> categoryField, MultiselectComboBox<Category> eligibleField,
             HasValue<?, ?> dateField, TextField qualifyingTotalField) {
-        if (genderField.getValue() != null && bodyWeightField.getValue() != null && dateField.getValue() != null) {
-            allEligible = findEligibleCategories(genderField, bodyWeightField, qualifyingTotalField);
-            Category category2 = bestMatch(allEligible);
-            updateCategoryFields(category2, categoryField, eligibleField, qualifyingTotalField, allEligible, true);
-        } else if (genderField.getValue() != null && dateField.getValue() != null && categoryField.getValue() != null
-                && bodyWeightField.getValue() == null) {
-            Double bw = categoryField.getValue().getMaximumWeight();
-            int qualifyingTotal = Athlete.zeroIfInvalid(qualifyingTotalField.getValue());
-            Integer ageFromFields = getAgeFromFields();
-            if (ageFromFields != null && ageFromFields > 5 && ageFromFields < 120) {
-                doFindEligibleCategories(genderField.getValue(), ageFromFields, bw, qualifyingTotal);
-                Category category2 = bestMatch(allEligible);
-                updateCategoryFields(category2, categoryField, eligibleField, qualifyingTotalField, allEligible, true);
+
+        Category value = categoryField.getValue();
+        if (bodyWeightField.getValue() != null) {
+            if (genderField.getValue() != null && dateField.getValue() != null) {
+                // body weight, gender, date
+                allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField, qualifyingTotalField);
+                //logger.debug("cat {} eli {}", value, allEligible);
+                if (value != null && categoryIsEligible(value, allEligible)) {
+                    // current category is amongst eligibles. Don't recompute anything.
+                    //logger.debug("leave alone");
+                } else {
+                    //logger.debug("recompute");
+                    // category is null or not withing eligibles, recompute
+                    Category bestMatchCategory = bestMatch(allEligible);
+                    updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField, allEligible, true);
+                }
+            } else {
+                // cannot compute eligibility and category
+            }
+        } else {
+            // no body weight, but category available.
+            if (genderField.getValue() != null && dateField.getValue() != null && value != null) {
+                Double bw = value.getMaximumWeight();
+                int qualifyingTotal = Athlete.zeroIfInvalid(qualifyingTotalField.getValue());
+                Integer ageFromFields = getAgeFromFields();
+                if (ageFromFields != null && ageFromFields > 5 && ageFromFields < 120) {
+                    doFindEligibleCategories(genderField.getValue(), ageFromFields, bw, qualifyingTotal);
+                    Category bestMatchCategory = bestMatch(allEligible);
+                    updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField, allEligible,
+                            true);
+                }
+            } else {
+                // cannot compute eligibility and category
             }
         }
+
+//        if (bodyWeightField.getValue() != null && genderField.getValue() != null && dateField.getValue() != null) {
+//            allEligible = findEligibleCategories(genderField, bodyWeightField, qualifyingTotalField);
+//            Category category2 = bestMatch(allEligible);
+//            updateCategoryFields(category2, categoryField, eligibleField, qualifyingTotalField, allEligible, true);
+//        } else if (bodyWeightField.getValue() == null && genderField.getValue() != null && dateField.getValue() != null && categoryField.getValue() != null) {
+//            Double bw = categoryField.getValue().getMaximumWeight();
+//            int qualifyingTotal = Athlete.zeroIfInvalid(qualifyingTotalField.getValue());
+//            Integer ageFromFields = getAgeFromFields();
+//            if (ageFromFields != null && ageFromFields > 5 && ageFromFields < 120) {
+//                doFindEligibleCategories(genderField.getValue(), ageFromFields, bw, qualifyingTotal);
+//                Category category2 = bestMatch(allEligible);
+//                updateCategoryFields(category2, categoryField, eligibleField, qualifyingTotalField, allEligible, true);
+//            }
+//        }
+    }
+
+    private boolean categoryIsEligible(Category category, List<Category> eligibles) {
+        return eligibles.stream().anyMatch(c -> c.sameAs(category));
     }
 
     private void setChangeListenersEnabled(boolean changeListenersEnabled) {
@@ -726,7 +765,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         this.editedAthlete = editedAthlete;
     }
 
-    private void updateCategoryFields(Category category, ComboBox<Category> categoryField,
+    private void updateCategoryFields(Category bestMatch, ComboBox<Category> categoryField,
             MultiselectComboBox<Category> eligibleField, TextField qualifyingTotalField, List<Category> allEligible,
             boolean recompute) {
 
@@ -763,19 +802,19 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         }
 
         Category matchingEligible = null;
-        if (category != null) {
+        if (bestMatch != null) {
             // we can't have category without eligibility relationship and one with same id that has it in the
             // eligibility list
             // so we find the one in the eligibility list and use it.
             matchingEligible = null;
             for (Category eligible : newEligibles) {
-                if (ObjectUtils.compare(eligible.getName(), category.getName()) == 0) {
+                if (ObjectUtils.compare(eligible.getName(), bestMatch.getName()) == 0) {
                     matchingEligible = eligible;
                     break;
                 }
             }
             categoryField.setValue(matchingEligible);
-            logger.debug("category {} {} matching eligible {} {}", category, System.identityHashCode(category),
+            logger.debug("category {} {} matching eligible {} {}", bestMatch, System.identityHashCode(bestMatch),
                     matchingEligible, System.identityHashCode(matchingEligible));
         } else {
             logger.debug("category is null");
