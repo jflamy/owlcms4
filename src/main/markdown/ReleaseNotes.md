@@ -1,15 +1,15 @@
-4.30.1-rc01: Fix for athletes opting-out.  Removed eligibility categories were being added-back when editing the body weight.
+4.30.1: Minor bug fixes
 
-4.30.1-rc01: Fix: the server was needlessly sending the instruction to show down signal back to the display with the keypads.  Emitting the sound a second time on top of the first one can unpredictably cause a delay on some computers.
+- Medal eligibility categories are no longer systematically recomputed at weigh-in. This facilitates the processing of (for example) masters that opt out of senior medals in spite of having made the total.
 
-4.30.1-rc01: Fix: announcer settings (⚙) menu not correctly toggling "down" sound. 
+- Fix: the server was needlessly sending the instruction to show down signal back to the display with the keypads.  Emitting the sound a second time on top of the first could cause a delay on some computers.
+
 
 ### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
 - [x] Improved management of ceremonies 
   - Documented new and improved [Breaks and Ceremonies](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Breaks) procedures, including the Medal Ceremony process.  Ceremonies take place without interfering with countdown timers.
   - Documented the [Result Documents](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Documents), including the new Medals spreadsheet for the announcer.
-
 - [x] Selectable behavior for public vs warmup scoreboards selection is done when display starts or is clicked)
   - [x] Public Scoreboards switch to display of medal winners during the medal ceremony.   They revert to the normal display at the end of the ceremony
   - [x] Warmup room displays can ignore the medal ceremony and keep the scoreboard
