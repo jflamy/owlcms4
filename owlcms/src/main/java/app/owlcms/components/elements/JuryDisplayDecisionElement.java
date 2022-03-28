@@ -16,7 +16,6 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.Decision;
 import app.owlcms.uievents.UIEvent.DecisionReset;
-import app.owlcms.uievents.UIEvent.DownSignal;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -62,10 +61,10 @@ public class JuryDisplayDecisionElement extends DecisionElement {
         });
     }
 
-    @Override
-    public void slaveDownSignal(DownSignal e) {
-        // ignore
-    }
+//    @Override
+//    public void slaveDownSignal(DownSignal e) {
+//        // ignore
+//    }
 
     @Subscribe
     public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {

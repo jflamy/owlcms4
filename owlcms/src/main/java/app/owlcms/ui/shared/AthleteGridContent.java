@@ -457,6 +457,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     @Override
     public void setSilenced(boolean silent) {
+        //logger.trace("{} {} {}",this.getClass().getSimpleName(), silent, LoggerUtils.whereFrom());
         this.silenced = silent;
     }
 

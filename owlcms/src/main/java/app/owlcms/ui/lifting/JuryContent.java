@@ -170,6 +170,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             juryVotingButtons.removeAll();
             resetJuryVoting();
+            decisions.setSilenced(this.isSilenced());
             if (decisionNotification != null) {
                 decisionNotification.close();
             }
@@ -454,6 +455,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
                             : Translator.translate("Settings.TurnOffSound"));
                     if (decisionDisplay != null) {
                         decisionDisplay.setSilenced(this.isSilenced());
+                    }
+                    if (decisions != null) {
+                        decisions.setSilenced(this.isSilenced());
                     }
                     if (timer != null) {
                         timer.setSilenced(this.isSilenced());
