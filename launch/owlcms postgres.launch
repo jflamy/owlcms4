@@ -10,7 +10,8 @@
         <mapEntry key="JDBC_DATABASE_URL" value="jdbc:postgresql://localhost:5432/owlcms_db"/>
         <mapEntry key="JDBC_DATABASE_USERNAME" value="postgres"/>
         <mapEntry key="OWLCMS_BACKDOOR" value="10.0.0.221,127.0.0.1,[0:0:0:0:0:0:0:1]"/>
-        <mapEntry key="OWLCMS_RESETMODE" value="false"/>
+        <mapEntry key="OWLCMS_INITIALDATA" value="LARGEGROUP_DEMO"/>
+        <mapEntry key="OWLCMS_RESETMODE" value="true"/>
         <mapEntry key="_OWLCMS_REMOTE" value="http://127.0.0.1:8081/update"/>
     </mapAttribute>
     <mapAttribute key="org.eclipse.debug.core.preferred_launchers">

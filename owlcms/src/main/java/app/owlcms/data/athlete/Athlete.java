@@ -119,6 +119,7 @@ public class Athlete {
             dest.setStartNumber(src.getStartNumber());
             dest.setLotNumber(src.getLotNumber());
             dest.setEntryTotal(src.getEntryTotal());
+            dest.setCategory(src.getCategory());
 
             dest.setSnatch1Declaration(src.getSnatch1Declaration());
             dest.setSnatch1Change1(src.getSnatch1Change1());
@@ -4015,12 +4016,12 @@ public class Athlete {
         String message = null;
         int _20kgRuleValue = getStartingTotalMargin(this.getCategory(), qualTotal);
 
-        getLogger().debug("{} validate20kgRule {} {} {}, {}, {}, {}", this, snatch1Request, cleanJerk1Request,
-                curStartingTotal,
-                qualTotal, delta, LoggerUtils.whereFrom());
+//        getLogger().debug("{} validate20kgRule {} {} {} {}, {}, {}, {}",  this, _20kgRuleValue, snatch1Request, cleanJerk1Request,
+//                curStartingTotal,
+//                qualTotal, delta, LoggerUtils.whereFrom());
 
         if (snatch1Request == 0 && cleanJerk1Request == 0) {
-            getLogger().debug("not checking starting total - no declarations");
+//            getLogger().debug("not checking starting total - no declarations");
             return true;
         }
         RuleViolationException rule15_20Violated = null;
@@ -4528,6 +4529,7 @@ public class Athlete {
     private int getStartingTotalMargin(Category cat, Integer entryTotal) {
         if (cat != null) {
             AgeGroup ag = cat.getAgeGroup();
+            logger.warn("ag {}", ag);
             if (ag != null) {
                 AgeDivision ad = ag.getAgeDivision();
                 if (ad != null) {
@@ -4536,12 +4538,14 @@ public class Athlete {
                         // we would round up the required total, so we round down the allowed margin
                         double floor = Math.floor(margin);
                         int asInt = (int) Math.round(floor);
-                        getLogger().debug("margin = {} floor = {} asInt = {} required = {}", margin, floor, asInt,
+                        getLogger().warn("margin = {} floor = {} asInt = {} required = {}", margin, floor, asInt,
                                 entryTotal - asInt);
                         return asInt;
                     }
                 }
             }
+        } else {
+            logger.warn("cat {}", cat);
         }
         return 20;
     }

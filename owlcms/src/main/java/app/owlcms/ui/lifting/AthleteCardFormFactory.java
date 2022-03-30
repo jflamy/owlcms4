@@ -46,6 +46,7 @@ import com.vaadin.flow.dom.ClassList;
 import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.RuleViolationException.Rule15_20Violated;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.i18n.Translator;
@@ -389,6 +390,16 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
             // logger.debug("bean message: {}",message);
             sb.append(message);
         }
+        doSetErrorLabel(simpleName, sb);
+        if (!hasErrors) {
+            resetReadOnlyFields();
+        } else if (field != null) {
+            field.focus();
+        }
+        return hasErrors;
+    }
+
+    private void doSetErrorLabel(String simpleName, StringBuilder sb) {
         if (sb.length() > 0) {
             String message = sb.toString();
             logger.debug("{} setting message {}", simpleName, message);
@@ -401,12 +412,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
             errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
             errorLabel.getClassNames().clear();
         }
-        if (!hasErrors) {
-            resetReadOnlyFields();
-        } else if (field != null) {
-            field.focus();
-        }
-        return hasErrors;
     }
 
     /**
@@ -737,6 +742,21 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         // routines in the
         // Athlete class don't work
         binder.setBean(getEditedAthlete());
+        
+        try {
+            getEditedAthlete().validateStartingTotalsRule(
+                    snatch1Declaration.getValue(),
+                    snatch1Change1.getValue(),
+                    snatch1Change2.getValue(),
+                    cj1Declaration.getValue(),
+                    cj1Change1.getValue(),
+                    cj1Change2.getValue());
+        } catch (Rule15_20Violated rv) {
+            doSetErrorLabel("",new StringBuilder(rv.getLocalizedMessage()));
+            // allow changing all cj values
+            resetReadOnlyFields();
+        }
+
 
         if (!isUpdatingResults()) {
             adjustResultsFields(true);

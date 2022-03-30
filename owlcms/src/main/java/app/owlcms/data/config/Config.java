@@ -6,6 +6,8 @@
  *******************************************************************************/
 package app.owlcms.data.config;
 
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
@@ -20,6 +22,7 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Transient;
 
+import org.hibernate.engine.jdbc.BlobProxy;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -55,6 +58,7 @@ public class Config {
      * @return the current
      */
     public static Config getCurrent() {
+        // *******
         current = ConfigRepository.findAll().get(0);
         return current;
     }
@@ -70,6 +74,7 @@ public class Config {
     }
 
     public static Config setCurrent(Config config) {
+        // *******
         current = ConfigRepository.save(config);
         return current;
     }
@@ -95,7 +100,7 @@ public class Config {
      */
     @Lob
     @Column(name = "localcontent", nullable = true)
-    private byte[] localOverride;
+    private Blob localOverride;
 
     @Column(columnDefinition = "boolean default false")
     private boolean clearZip;
@@ -173,9 +178,22 @@ public class Config {
 
     /**
      * @return zip file containing a zipped ./local structure to override resources
+     * @throws SQLException
      */
     public byte[] getLocalZipBlob() {
-        return localOverride;
+        if (localOverride == null) {
+            return null;
+        }
+
+        return JPAService.runInTransaction(em -> {
+            try {
+                Config thisConfig = em.find(Config.class, this.id);
+                return thisConfig.localOverride.getBytes(1, (int) localOverride.length());
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
     }
 
     /**
@@ -310,7 +328,7 @@ public class Config {
     }
 
     public boolean isClearZip() {
-        if (localOverride == null || localOverride.length == 0) {
+        if (localOverride == null) {
             clearZip = false;
         }
         return clearZip;
@@ -345,7 +363,7 @@ public class Config {
             this.localOverride = null;
             this.clearZip = false;
         } else {
-            this.localOverride = localContent;
+            this.localOverride = BlobProxy.generateProxy(localContent);
         }
     }
 

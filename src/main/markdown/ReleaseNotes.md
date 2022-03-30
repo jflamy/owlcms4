@@ -1,22 +1,33 @@
-4.30.1: Minor bug fixes
+4.30.2: 
 
+Fixes/improvements on rules processing
+
+- For Masters athletes, the 80% rule was being checked on the weigh-in form, but the 20kg rule was being used on the athlete card.
+- For 20kg rule and 80% rule, if the athlete lowers the first snatch such that raising the CJ is required, the athlete can wait before changing the first CJ and the marshal can ignore the error message.  The system will show a message whenever that athlete card is opened until the first CJ is fixed.
 - Medal eligibility categories are no longer systematically recomputed at weigh-in. This facilitates the processing of (for example) masters that opt out of senior medals in spite of having made the total.
 
-- Fix: the server was needlessly sending the instruction to show down signal back to the display with the keypads.  Emitting the sound a second time on top of the first could cause a delay on some computers.
+Technical Fixes
 
+- Fixed override of templates and styles using a zip file for laptop configurations. Cloud override was working but an incompatible change made by the H2 database had broken that option.
+- Fix: the server was needlessly sending the instruction to show down signal back to the display with the keypads.  Emitting the sound a second time on top of the first could cause a delay on some computers.
 
 ### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
-- [x] Improved management of ceremonies 
-  - Documented new and improved [Breaks and Ceremonies](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Breaks) procedures, including the Medal Ceremony process.  Ceremonies take place without interfering with countdown timers.
-  - Documented the [Result Documents](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Documents), including the new Medals spreadsheet for the announcer.
-- [x] Selectable behavior for public vs warmup scoreboards selection is done when display starts or is clicked)
-  - [x] Public Scoreboards switch to display of medal winners during the medal ceremony.   They revert to the normal display at the end of the ceremony
-  - [x] Warmup room displays can ignore the medal ceremony and keep the scoreboard
-- [x] Usability/understandability changes
-  - Moved database import/export to main preparation page
-  - Moved the reload of translation file to bottom of the "Languages and Settings" configuration page
-- [x] Additional protocol templates with predefined paper sizes. Also included a version with snatch, clean&jerk and total ranks.
+Improved management of ceremonies 
+
+- Documented new and improved [Breaks and Ceremonies](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Breaks) procedures, including the Medal Ceremony process.  Ceremonies take place without interfering with countdown timers.
+- Documented the [Result Documents](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Documents), including the new Medals spreadsheet for the announcer.
+
+- Selectable behavior for public vs warmup scoreboards selection is done when display starts or is clicked. Public Scoreboards switch to display of medal winners during the medal ceremony.   They revert to the normal display at the end of the ceremony. Warmup room displays ignore the medal ceremony and keep the scoreboard
+
+- Additional protocol templates with predefined paper sizes. Also included a version with snatch, clean&jerk and total ranks.
+
+Usability/understandability changes
+
+- Moved database import/export to main preparation page
+- Moved the reload of translation file to bottom of the "Languages and Settings" configuration page
+
+
 
 #### Highlights from recent stable releases
 
