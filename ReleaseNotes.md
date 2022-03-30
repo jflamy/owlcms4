@@ -1,3 +1,5 @@
+4.30.2-rc02: Fixed override of templates and styles using a zip file for laptop configurations. Cloud override was working but an incompatible change made by the H2 database had broken that option.
+
 4.30.2-rc01:  20kg and 80% rule fixes
 
 - For Masters athletes, the 80% rule was being checked on the weigh-in form, but the 20kg rule was being used on the athlete card.
@@ -10,7 +12,7 @@
 - Fix: the server was needlessly sending the instruction to show down signal back to the display with the keypads.  Emitting the sound a second time on top of the first could cause a delay on some computers.
 
 
-### **Changes for release 4.30.2-rc01**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+### **Changes for release 4.30.2-rc02**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
 - [x] Improved management of ceremonies 
   - Documented new and improved [Breaks and Ceremonies](https://owlcms.github.io/owlcms4-prerelease/#/Breaks) procedures, including the Medal Ceremony process.  Ceremonies take place without interfering with countdown timers.
