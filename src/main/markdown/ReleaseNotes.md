@@ -1,3 +1,5 @@
+4.30.2-rc02: Fixed override of templates and styles using a zip file for laptop configurations. Cloud override was working but an incompatible change made by the H2 database had broken that option.
+
 4.30.2-rc01:  20kg and 80% rule fixes
 
 - For Masters athletes, the 80% rule was being checked on the weigh-in form, but the 20kg rule was being used on the athlete card.
