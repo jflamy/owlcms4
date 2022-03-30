@@ -1,3 +1,8 @@
+4.30.2:  20kg and 80% rule fixes
+
+- For Masters athletes, the 80% rule was being checked on the weigh-in form, but the 20kg rule was being used on the athlete card.
+- For 20kg rule and 80% rule, if the athlete lowers the first snatch such that raising the CJ is required, the athlete can wait before changing the first CJ and the marshal can ignore the error message.  The system will show a message whenever that athlete card is opened until the first CJ is fixed.
+
 4.30.1: Minor bug fixes
 
 - Medal eligibility categories are no longer systematically recomputed at weigh-in. This facilitates the processing of (for example) masters that opt out of senior medals in spite of having made the total.
