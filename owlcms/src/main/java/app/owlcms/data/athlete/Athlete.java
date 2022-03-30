@@ -4016,12 +4016,12 @@ public class Athlete {
         String message = null;
         int _20kgRuleValue = getStartingTotalMargin(this.getCategory(), qualTotal);
 
-        getLogger().warn("{} Xvalidate20kgRule {} {} {} {}, {}, {}, {}",  this, _20kgRuleValue, snatch1Request, cleanJerk1Request,
-                curStartingTotal,
-                qualTotal, delta, LoggerUtils.whereFrom());
+//        getLogger().debug("{} validate20kgRule {} {} {} {}, {}, {}, {}",  this, _20kgRuleValue, snatch1Request, cleanJerk1Request,
+//                curStartingTotal,
+//                qualTotal, delta, LoggerUtils.whereFrom());
 
         if (snatch1Request == 0 && cleanJerk1Request == 0) {
-            getLogger().debug("not checking starting total - no declarations");
+//            getLogger().debug("not checking starting total - no declarations");
             return true;
         }
         RuleViolationException rule15_20Violated = null;

@@ -1,4 +1,4 @@
-4.30.2:  20kg and 80% rule fixes
+4.30.2-rc01:  20kg and 80% rule fixes
 
 - For Masters athletes, the 80% rule was being checked on the weigh-in form, but the 20kg rule was being used on the athlete card.
 - For 20kg rule and 80% rule, if the athlete lowers the first snatch such that raising the CJ is required, the athlete can wait before changing the first CJ and the marshal can ignore the error message.  The system will show a message whenever that athlete card is opened until the first CJ is fixed.
