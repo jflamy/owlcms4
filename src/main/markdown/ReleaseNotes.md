@@ -1,3 +1,5 @@
+4.30.3-rc02: Added declaration/change timing checks when time is forced to 2:00 or 1:00 on second or third attempts due to marshal or loading errors.
+
 4.30.3-rc01:
 
 - Fix: On two-minute clock, a late declaration was not being signaled as an error.
