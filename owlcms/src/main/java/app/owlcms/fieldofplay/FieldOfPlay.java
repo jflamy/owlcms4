@@ -476,7 +476,7 @@ public class FieldOfPlay {
     public int getTimeAllowed() {
         Athlete a = getCurAthlete();
         int timeAllowed;
-        int initialTime;
+        int clockOwnerInitialTime;
 
         Athlete owner = getClockOwner();
         if (owner != null && owner.equals(a)) {
@@ -492,14 +492,24 @@ public class FieldOfPlay {
             } else {
                 timeAllowed = 120000;
             }
+            if (owner == null) {
+                setClockOwnerInitialTimeAllowed(timeAllowed);
+            }
         } else {
             resetDecisions();
             timeAllowed = 60000;
+            if (owner == null) {
+                setClockOwnerInitialTimeAllowed(timeAllowed);
+            }
         }
 
-        initialTime = getClockOwnerInitialTimeAllowed();
-        logger.debug("{}curAthlete = {}, clock owner = {}, timeRemaining = {}, initialTime = {}", getLoggingName(), a,
-                owner, timeAllowed, initialTime);
+        clockOwnerInitialTime = getClockOwnerInitialTimeAllowed();
+        logger.warn("{}===== curAthlete = {}, clock owner = {}, clockOwnerInitialTime = {}, timeAllowed = {}", 
+                getLoggingName(), 
+                a != null ? a.getShortName() : null,
+                owner != null ? owner.getShortName() : null,
+                clockOwnerInitialTime, 
+                timeAllowed);
         return timeAllowed;
     }
 
@@ -733,8 +743,9 @@ public class FieldOfPlay {
             } else if (e instanceof TimeStarted) {
                 if (!getCurAthlete().equals(getClockOwner())) {
                     setClockOwner(getCurAthlete());
-                    setClockOwnerInitialTimeAllowed(getTimeAllowed());
+                    //setClockOwnerInitialTimeAllowed(getTimeAllowed());
                 }
+                getTimeAllowed();
                 prepareDownSignal();
                 setWeightAtLastStart();
 
@@ -1595,6 +1606,7 @@ public class FieldOfPlay {
     }
 
     private void setClockOwnerInitialTimeAllowed(int timeAllowed) {
+        //logger.debug("===== setClockOwnerInitialTimeAllowed timeAllowed={} {}", timeAllowed, LoggerUtils.whereFrom());
         this.clockOwnerInitialTimeAllowed = timeAllowed;
     }
 
@@ -1882,8 +1894,9 @@ public class FieldOfPlay {
 
         if (!getCurAthlete().equals(getClockOwner())) {
             setClockOwner(getCurAthlete());
-            setClockOwnerInitialTimeAllowed(getTimeAllowed());
+            //setClockOwnerInitialTimeAllowed(getTimeAllowed());
         }
+        getTimeAllowed();
         resetEmittedFlags();
         prepareDownSignal();
         setWeightAtLastStart();
