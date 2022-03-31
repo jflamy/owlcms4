@@ -362,8 +362,10 @@ public class Config {
         if (this.clearZip) {
             this.localOverride = null;
             this.clearZip = false;
-        } else {
+        } else if (localContent != null) {
             this.localOverride = BlobProxy.generateProxy(localContent);
+        } else {
+            this.localOverride = null;
         }
     }
 
