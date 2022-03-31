@@ -227,7 +227,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                 if (ceremonyCategory != null) {
                     map.put(DisplayParameters.CATEGORY, ceremonyCategory.getCode());
                 } else {
-                    //logger.trace"===== no ceremonyCategory =========");
+                    //logger.trace("no ceremonyCategory");
                 }
                 UI.getCurrent().navigate("displays/medals", QueryParameters.simple(map));
             }
