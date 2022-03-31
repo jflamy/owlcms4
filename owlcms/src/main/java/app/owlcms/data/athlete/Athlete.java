@@ -53,6 +53,7 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.category.RobiCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.LiftOrderInfo;
 import app.owlcms.fieldofplay.LiftOrderReconstruction;
@@ -4013,7 +4014,7 @@ public class Athlete {
 
         curStartingTotal = snatch1Request + cleanJerk1Request;
         int delta = qualTotal - curStartingTotal;
-        String message = null;
+//        String message = null;
         int _20kgRuleValue = getStartingTotalMargin(this.getCategory(), qualTotal);
 
 //        getLogger().debug("{} validate20kgRule {} {} {} {}, {}, {}, {}",  this, _20kgRuleValue, snatch1Request, cleanJerk1Request,
@@ -4033,8 +4034,8 @@ public class Athlete {
                     this.getFirstName(),
                     (startNumber2 != null ? startNumber2.toString() : "-"),
                     snatch1Request, cleanJerk1Request, missing, qualTotal);
-            message = rule15_20Violated.getLocalizedMessage(OwlcmsSession.getLocale());
-            getLogger().warn("{}{} {}", OwlcmsSession.getFopLoggingName(), this.getShortName(), message);
+//            message = rule15_20Violated.getLocalizedMessage(OwlcmsSession.getLocale());
+            //getLogger().warn/**/("{}{} {}", OwlcmsSession.getFopLoggingName(), this.getShortName(), message);
             throw rule15_20Violated;
         } else {
             getLogger().debug("OK margin={}", -(missing));
@@ -4348,6 +4349,7 @@ public class Athlete {
 
     private void doCheckChangeOwningTimer(String declaration, String change1, String change2, FieldOfPlay fop,
             int clock, int initialTime) {
+        logger.warn("{}timing ===== initialTime={} clock={} {} {} {}", fop.getLoggingName(), initialTime, clock, declaration, change1, change2);
         if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
             // validate declaration
             if (clock < initialTime - 30000) {
@@ -4385,7 +4387,7 @@ public class Athlete {
         Object wi = OwlcmsSession.getAttribute("weighIn");
         String fopLoggingName = OwlcmsSession.getFopLoggingName();
         if (wi == this) {
-            // current athlete being weighed in
+            // athlete being weighed in
             getLogger().trace("{}weighin {}", fopLoggingName, wi);
             return;
         } else {
@@ -4393,6 +4395,9 @@ public class Athlete {
         }
         OwlcmsSession.withFop(fop -> {
             Integer weightAtLastStart = fop.getWeightAtLastStart();
+            if (fop.getState() == FOPState.INACTIVE) {
+                weightAtLastStart = null;
+            }
             if (weightAtLastStart == null || weightAtLastStart == 0 || newVal == weightAtLastStart) {
                 // getLogger().debug("{}weight at last start: {} request = {}", fopLoggingName, weightAtLastStart,
                 // newVal);
@@ -4529,7 +4534,6 @@ public class Athlete {
     private int getStartingTotalMargin(Category cat, Integer entryTotal) {
         if (cat != null) {
             AgeGroup ag = cat.getAgeGroup();
-            logger.warn("ag {}", ag);
             if (ag != null) {
                 AgeDivision ad = ag.getAgeDivision();
                 if (ad != null) {
@@ -4538,14 +4542,13 @@ public class Athlete {
                         // we would round up the required total, so we round down the allowed margin
                         double floor = Math.floor(margin);
                         int asInt = (int) Math.round(floor);
-                        getLogger().warn("margin = {} floor = {} asInt = {} required = {}", margin, floor, asInt,
-                                entryTotal - asInt);
+                        //getLogger().debug("margin = {} floor = {} asInt = {} required = {}", margin, floor, asInt, entryTotal - asInt);
                         return asInt;
                     }
                 }
             }
         } else {
-            logger.warn("cat {}", cat);
+            //getLogger().debug("cat {}", cat);
         }
         return 20;
     }
