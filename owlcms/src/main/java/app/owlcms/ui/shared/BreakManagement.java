@@ -961,6 +961,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     private void startBreakIfInactive(FieldOfPlay fop) {
         if (fop.getState() == FOPState.INACTIVE) {
             fop.getBreakTimer().setIndefinite();
+            fop.setWeightAtLastStart(0);
             fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.FIRST_SNATCH, CountdownType.INDEFINITE,
                     null, null, true,
                     this.getOrigin()));

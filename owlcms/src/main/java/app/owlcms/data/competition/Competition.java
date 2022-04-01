@@ -406,7 +406,7 @@ public class Competition {
     @JsonIgnore
     public String getComputedCardsTemplateFileName() {
         if (cardsTemplateFileName == null) {
-            return "CardTemplate.xls";
+            return "IWF-A4.xls";
         }
         return cardsTemplateFileName;
     }
@@ -419,7 +419,7 @@ public class Competition {
      */
     public String getComputedFinalPackageTemplateFileName() {
         if (finalPackageTemplateFileName == null) {
-            return "Total.xls";
+            return "Total-A4.xls";
         } else {
             return finalPackageTemplateFileName;
         }
@@ -447,8 +447,8 @@ public class Competition {
     @Transient
     @JsonIgnore
     public String getComputedMedalsTemplateFileName() {
-        if (getProtocolTemplateFileName() == null) {
-            return "Medals.xls";
+        if (getMedalsTemplateFileName() == null) {
+            return "Medals-A4.xls";
         } else {
             return getMedalsTemplateFileName();
         }
@@ -464,7 +464,7 @@ public class Competition {
     @JsonIgnore
     public String getComputedProtocolTemplateFileName() {
         if (getProtocolTemplateFileName() == null) {
-            return "Protocol.xls";
+            return "Protocol-A4.xls";
         } else {
             return getProtocolTemplateFileName();
         }
@@ -474,7 +474,7 @@ public class Competition {
     @JsonIgnore
     public String getComputedStartingWeightsSheetTemplateFileName() {
         if (startingWeightsSheetTemplateFileName == null) {
-            return "WeighInSheetTemplate.xls";
+            return "WeighInSheetTemplate-A4.xls";
         }
         return startingWeightsSheetTemplateFileName;
     }
@@ -483,7 +483,7 @@ public class Competition {
     @JsonIgnore
     public String getComputedStartListTemplateFileName() {
         if (startListTemplateFileName == null) {
-            return "StartSheetTemplate.xls";
+            return "StartSheet-A4.xls";
         }
         return startListTemplateFileName;
     }

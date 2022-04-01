@@ -30,6 +30,7 @@ import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.Resource;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
@@ -88,6 +89,7 @@ public class DownloadButtonFactory {
 
     private EnhancedDialog createDialog() {
         Anchor wrappedButton = new Anchor("", "");
+        Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
         EnhancedDialog dialog = new EnhancedDialog();
         dialog.setHeader(new H3(dialogTitle));
         ComboBox<Resource> templateSelect = new ComboBox<>();
@@ -100,6 +102,7 @@ public class DownloadButtonFactory {
         templateSelect.setValue(null);
         templateSelect.setWidth("15em");
         templateSelect.getStyle().set("margin-left", "1em");
+        innerButton.setEnabled(false);
         try {
             // Competition.getTemplateFileName()
             // the getter should return a default if not set.
@@ -129,8 +132,9 @@ public class DownloadButtonFactory {
                     fileName = genHrefName();
                     logger.debug("(2) setHref change {}", fileName);
                     wrappedButton.setHref(new StreamResource(fileName, xlsWriter));
+                    innerButton.setEnabled(true);
                 } catch (Throwable e1) {
-                    e1.printStackTrace();
+                    logger.error("{}",LoggerUtils.stackTrace(e1));
                 }
             });
             templateSelect.setValue(found);
@@ -140,7 +144,7 @@ public class DownloadButtonFactory {
         }
 
         wrappedButton.getStyle().set("margin-left", "1em");
-        Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
+
         logger.debug("adding dialog button {}", wrappedButton.getHref());
         wrappedButton.add(innerButton);
         innerButton.addClickListener(e -> dialog.close());

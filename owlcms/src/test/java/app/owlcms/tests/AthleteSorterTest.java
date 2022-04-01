@@ -311,7 +311,7 @@ public class AthleteSorterTest {
         doLifts(schneiderF, simpsonR, allisonA, verneU);
 
         // all athletes are done, check medals
-        // ==========================================
+
         // all athletes have body weight = 0
         // we have two athletes at same total and same bodyweight.
         // The one who reached total *first* should win.

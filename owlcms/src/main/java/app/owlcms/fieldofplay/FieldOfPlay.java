@@ -223,6 +223,8 @@ public class FieldOfPlay {
 
     private Integer weightAtLastStart;
 
+    private boolean forcedTime = false;
+
     {
         uiEventLogger.setLevel(Level.INFO);
     }
@@ -474,9 +476,16 @@ public class FieldOfPlay {
      * @return the time allowed for the next athlete.
      */
     public int getTimeAllowed() {
+        if (this.isForcedTime()) {
+            setForcedTime(false);
+            int timeRemaining = getAthleteTimer().getTimeRemaining();
+            setClockOwnerInitialTimeAllowed(timeRemaining);
+            logger.debug("{}===== forced time {}",getLoggingName(),timeRemaining);
+            return timeRemaining;
+        }
         Athlete a = getCurAthlete();
         int timeAllowed;
-        int initialTime;
+        int clockOwnerInitialTime;
 
         Athlete owner = getClockOwner();
         if (owner != null && owner.equals(a)) {
@@ -492,14 +501,24 @@ public class FieldOfPlay {
             } else {
                 timeAllowed = 120000;
             }
+            if (owner == null) {
+                setClockOwnerInitialTimeAllowed(timeAllowed);
+            }
         } else {
             resetDecisions();
             timeAllowed = 60000;
+            if (owner == null) {
+                setClockOwnerInitialTimeAllowed(timeAllowed);
+            }
         }
 
-        initialTime = getClockOwnerInitialTimeAllowed();
-        logger.debug("{}curAthlete = {}, clock owner = {}, timeRemaining = {}, initialTime = {}", getLoggingName(), a,
-                owner, timeAllowed, initialTime);
+        clockOwnerInitialTime = getClockOwnerInitialTimeAllowed();
+        logger.debug("{}===== curAthlete = {}, clock owner = {}, clockOwnerInitialTime = {}, timeAllowed = {}", 
+                getLoggingName(), 
+                a != null ? a.getShortName() : null,
+                owner != null ? owner.getShortName() : null,
+                clockOwnerInitialTime, 
+                timeAllowed);
         return timeAllowed;
     }
 
@@ -682,9 +701,7 @@ public class FieldOfPlay {
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof ForceTime) {
-                // need to set time
-                getAthleteTimer().setTimeRemaining(((ForceTime) e).timeAllowed, false);
-                setState(CURRENT_ATHLETE_DISPLAYED);
+                doForceTime((ForceTime)e);
             } else {
                 unexpectedEventInState(e, CURRENT_ATHLETE_DISPLAYED);
             }
@@ -713,6 +730,8 @@ public class FieldOfPlay {
                 // getTimer() signals this, nothing else required for athleteTimer
                 // rule says referees must give reds
                 setState(TIME_STOPPED);
+            } else if (e instanceof ForceTime) {
+                doForceTime((ForceTime)e);
             } else {
                 unexpectedEventInState(e, TIME_RUNNING);
             }
@@ -733,8 +752,9 @@ public class FieldOfPlay {
             } else if (e instanceof TimeStarted) {
                 if (!getCurAthlete().equals(getClockOwner())) {
                     setClockOwner(getCurAthlete());
-                    setClockOwnerInitialTimeAllowed(getTimeAllowed());
+                    //setClockOwnerInitialTimeAllowed(getTimeAllowed());
                 }
+                getTimeAllowed();
                 prepareDownSignal();
                 setWeightAtLastStart();
 
@@ -754,6 +774,8 @@ public class FieldOfPlay {
                 // ignore, already dealt by timer
             } else if (e instanceof StartLifting) {
                 // nothing to do, end of break when clock was already started
+            } else if (e instanceof ForceTime) {
+                doForceTime((ForceTime)e);
             } else {
                 unexpectedEventInState(e, TIME_STOPPED);
             }
@@ -810,6 +832,22 @@ public class FieldOfPlay {
             }
             break;
         }
+    }
+
+    private void doForceTime(FOPEvent.ForceTime e) {
+        // need to set time
+        int ta = ((ForceTime) e).timeAllowed;
+        logger.debug("{}===== forcing time to {}",getLoggingName(), ta);
+        getAthleteTimer().stop();
+        getAthleteTimer().setTimeRemaining(ta, false);
+        getAthleteTimer().stop();
+        setClockOwnerInitialTimeAllowed(ta);
+        setForcedTime(true);
+        setState(CURRENT_ATHLETE_DISPLAYED);
+    }
+
+    private void setForcedTime(boolean b) {
+        this.forcedTime = b;
     }
 
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer, boolean alreadyLoaded) {
@@ -1595,6 +1633,7 @@ public class FieldOfPlay {
     }
 
     private void setClockOwnerInitialTimeAllowed(int timeAllowed) {
+        //logger.debug("===== setClockOwnerInitialTimeAllowed timeAllowed={} {}", timeAllowed, LoggerUtils.whereFrom());
         this.clockOwnerInitialTimeAllowed = timeAllowed;
     }
 
@@ -1882,8 +1921,9 @@ public class FieldOfPlay {
 
         if (!getCurAthlete().equals(getClockOwner())) {
             setClockOwner(getCurAthlete());
-            setClockOwnerInitialTimeAllowed(getTimeAllowed());
+            //setClockOwnerInitialTimeAllowed(getTimeAllowed());
         }
+        getTimeAllowed();
         resetEmittedFlags();
         prepareDownSignal();
         setWeightAtLastStart();
@@ -1984,6 +2024,10 @@ public class FieldOfPlay {
         recomputeOrderAndRanks();
         uiDisplayCurrentAthleteAndTime(false, e, false);
         // updateGlobalRankings(); // now done in recomputeOrderAndRanks
+    }
+
+    private boolean isForcedTime() {
+        return forcedTime;
     }
 
 }

@@ -156,7 +156,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
             // ignore events that don't change state
             return;
         }
-        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e /*, e.getTrace()*/);
+        //uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e /*, e.getTrace()*/);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             if (syncWithFOP(e)) {
                 // significant transition
