@@ -87,7 +87,7 @@ public class ProdData {
                 defaultFederationWebSite.equals(defaultFederationWebSiteKey) ? federationWebSiteLabel
                         : defaultFederationWebSite);
 
-        competition.setUseBirthYear(true);
+        competition.setUseBirthYear(false);
         competition.setEnforce20kgRule(true);
         competition.setAnnouncerLiveDecisions(true);
 

@@ -1024,7 +1024,7 @@ public class Competition {
                 + ", ageGroupsFileName=" + ageGroupsFileName + ", enforce20kgRule="
                 + enforce20kgRule + ", masters=" + masters + ", mensTeamSize=" + mensTeamSize + ", womensTeamSize="
                 + womensTeamSize + ", customScore=" + customScore + ", mastersGenderEquality=" + mastersGenderEquality
-                + ", useBirthYear=" + useBirthYear + ", useCategorySinclair=" + useCategorySinclair
+                + ", useBirthYear=" + isUseBirthYear() + ", useCategorySinclair=" + useCategorySinclair
                 + ", useOldBodyWeightTieBreak=" + useOldBodyWeightTieBreak + ", useRegistrationCategory="
                 + useRegistrationCategory + ", reportingBeans=" + reportingBeans + "]";
     }

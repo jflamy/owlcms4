@@ -140,7 +140,7 @@ public class DemoData {
 
         competition.setEnforce20kgRule(true);
         competition.setMasters(ageDivisions != null && ageDivisions.contains(MASTERS));
-        competition.setUseBirthYear(true);
+        competition.setUseBirthYear(false);
         competition.setAnnouncerLiveDecisions(true);
 
         return competition;
