@@ -107,10 +107,10 @@ public class DownloadButtonFactory {
             // Competition.getTemplateFileName()
             // the getter should return a default if not set.
             String curTemplateName = fileNameGetter.apply(Competition.getCurrent());
-            logger.debug("(1) curTemplateName {}", curTemplateName);
+            logger.warn("(1) curTemplateName {}", curTemplateName);
             // searchMatch should always return something unless the directory is empty.
             Resource found = searchMatch(resourceList, curTemplateName);
-            logger.debug("(1) template found {}", found != null ? found.getFilePath() : null);
+            logger.warn("(1) template found {}", found != null ? found.getFilePath() : null);
 
             templateSelect.addValueChangeListener(e -> {
                 try {
@@ -118,23 +118,23 @@ public class DownloadButtonFactory {
                     String fileName = e.getValue().getFileName();
                     fileNameSetter.accept(Competition.getCurrent(), fileName);
                     xlsWriter = streamSourceSupplier.get();
-                    logger.debug("(2) xlsWriter {} {}", xlsWriter, fileName);
+                    logger.warn("(2) xlsWriter {} {}", xlsWriter, fileName);
 
                     // supplier is a lambda that sets the template and the filter values in the xls source
                     Resource res = searchMatch(resourceList, fileName);
-                    logger.debug("(2) template found {}", res != null ? res.getFileName() : null);
+                    logger.warn("(2) template found {}", res != null ? res.getFileName() : null);
 
                     InputStream is = res.getStream();
                     xlsWriter.setInputStream(is);
-                    logger.debug("(2) filter present = {}", xlsWriter.getGroup());
+                    logger.warn("(2) filter present = {}", xlsWriter.getGroup());
 
                     CompetitionRepository.save(Competition.getCurrent());
-                    fileName = genHrefName();
-                    logger.debug("(2) setHref change {}", fileName);
+                    fileName = getTargetFileName();
+                    logger.warn("(2) filename final = {}", fileName);
                     wrappedButton.setHref(new StreamResource(fileName, xlsWriter));
                     innerButton.setEnabled(true);
                 } catch (Throwable e1) {
-                    logger.error("{}",LoggerUtils.stackTrace(e1));
+                    logger.error("{}", LoggerUtils.stackTrace(e1));
                 }
             });
             templateSelect.setValue(found);
@@ -153,7 +153,11 @@ public class DownloadButtonFactory {
         return dialog;
     }
 
-    private String genHrefName() {
+    private String sanitizeFilename(String name) {
+        return name.replaceAll("[:\\\\/*?|<>]", "_");
+    }
+
+    private String getTargetFileName() {
         StringBuilder suffix = new StringBuilder();
         if (xlsWriter.getCategory() != null) {
             suffix.append("_");
@@ -175,6 +179,7 @@ public class DownloadButtonFactory {
         suffix.append(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm';'ss")));
         suffix.append(".xls");
         String fileName = outputFileName + suffix;
+        fileName = sanitizeFilename(fileName);
         logger.debug(fileName);
         return fileName;
     }
