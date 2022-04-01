@@ -1,24 +1,10 @@
-4.30.3-rc02: Added declaration/change timing checks when time is forced to 2:00 or 1:00 on second or third attempts due to marshal or loading errors.
-
-4.30.3-rc01:
-
-- Fix: On two-minute clock, a late declaration was not being signaled as an error.
-- Document download usability: disabled the download button if no value is selected, updated the default values for protocol/start list/athlete cards, added missing paper formats for start list and final package.
-- Fix: language switching could fail to switch.
-- Updated translations.
-
-4.30.2: Fixes/improvements on rules processing
-
-- For Masters athletes, the 80% rule was being checked on the weigh-in form, but the 20kg rule was being used on the athlete card.
-- For 20kg rule and 80% rule, if the athlete lowers the first snatch such that raising the CJ is required, the athlete can wait before changing the first CJ and the marshal can ignore the error message.  The system will show a message whenever that athlete card is opened until the first CJ is fixed.
-- Medal eligibility categories are no longer systematically recomputed at weigh-in. This facilitates the processing of (for example) masters that opt out of senior medals in spite of having made the total.
-
-Technical Fixes
-
-- Fixed override of templates and styles using a zip file for laptop configurations. Cloud override was working but an incompatible change made by the H2 database had broken that option.
-- Fix: the server was needlessly sending the instruction to show down signal back to the display with the keypads.  Emitting the sound a second time on top of the first could cause a delay on some computers.
-
 ### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+
+Fixes/improvements on rules processing
+
+- Fix: On a two-minute clock, a late declaration is again being signaled as an error.  Also enabled time checks when the clock is forced to 1:00 or 2:00 after a marshal or loading error.
+- Fix: For Masters categories, the 80% rule was not being applied systematically on weight changes
+- Improvement: If a change is made to the first snatch and the first CJ needs to change,  the system will show a message whenever athlete card is opened until the first CJ is fixed.
 
 Improved management of ceremonies 
 
@@ -31,8 +17,15 @@ Improved management of ceremonies
 
 Usability/understandability changes
 
+- Document downloads : disabled the download button if no template is selected, updated the default values for protocol/start list/athlete cards, added missing paper formats.
 - Moved database import/export to main preparation page
 - Moved the reload of translation file to bottom of the "Languages and Settings" configuration page
+- Medal eligibility categories are no longer systematically recomputed at weigh-in. This facilitates the processing of (for example) masters that opt out of senior medals in spite of having made the total.
+
+Technical Fixes
+
+- Fix: it is again possible to upload a zip file on a laptop configuration to override the templates/styles.
+- Fix: the server was needlessly sending instructions to emit the down sound back to the computer with keypads. Emitting the sound a second time on top of the first could cause a delay on some computers.
 
 #### Highlights from recent stable releases
 
@@ -49,7 +42,7 @@ Usability/understandability changes
 - Violations of <u>rules for timing of declarations</u> (before initial 30 seconds), and for changes (before final warning) are now signaled as errors (#425, #426). Overriding is possible for officiating mistakes.
 
 
-##### **Installation Instructions :**
+#### **Installation Instructions**
 
   - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalWindowsSetup)
     
@@ -59,4 +52,4 @@ Usability/understandability changes
 
   - For **Heroku** cloud, no download is necessary. Follow the [Heroku Cloud Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Cloud) to deploy your own copy.  See also the [additional configuration steps for large competitions on Heroku](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/HerokuLarge).
 
-  - For **Kubernetes** deployments, see `k3s_setup.yaml` file for [cloud hosting using k3s](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/DigitalOcean) or `k3d_setup.yaml` for [home hosting](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/k3d).  For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 
+  - For **Kubernetes** deployments, see `k3s_setup.yaml` file for [cloud hosting using k3s](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/DigitalOcean). For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 
