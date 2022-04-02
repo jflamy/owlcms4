@@ -1,7 +1,7 @@
-4.30.4-rc01: 
+4.30.4
 
 - Fix: When downloading a document, if a group is selected, the group name is included in the downloaded file name. If forbidden file name characters (such as "/") are present, they are now removed instead of blocking the download.
-- Default for birth dates reset to full date instead of year only.
+- Fix: Default for birth dates reset to full date instead of year only.
 
 ### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
