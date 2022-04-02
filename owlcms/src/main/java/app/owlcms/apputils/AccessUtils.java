@@ -107,7 +107,6 @@ public class AccessUtils {
     }
 
     public static String getClientIp() {
-        logger.warn("start getClientIp");
         HttpServletRequest request;
         VaadinServletRequest current = VaadinServletRequest.getCurrent();
         request = current.getHttpServletRequest();
