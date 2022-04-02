@@ -44,12 +44,12 @@ public interface RequireLogin extends BeforeEnterObserver {
             // no check required
             OwlcmsSession.setAuthenticated(true);
             return;
-        } else if (backdoor && AccessUtils.checkBackdoor()) {
+        } else if (backdoor && AccessUtils.checkBackdoor(AccessUtils.getClientIp())) {
             // explicit backdoor access allowed (e.g. for video capture of browser screens)
             logger.info("allowing backdoor access from {}", AccessUtils.getClientIp());
             OwlcmsSession.setAuthenticated(true);
             return;
-        } else if (noPin && AccessUtils.checkWhitelist()) {
+        } else if (noPin && AccessUtils.checkWhitelist(AccessUtils.getClientIp())) {
             // no pin required, proper origin, no need to challenge
             OwlcmsSession.setAuthenticated(true);
             return;
