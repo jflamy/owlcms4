@@ -34,6 +34,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.codehaus.plexus.util.FileUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.AsyncEventBus;
@@ -552,6 +553,9 @@ public class FieldOfPlay {
      */
     @Subscribe
     public void handleFOPEvent(FOPEvent e) {
+        Runtime runtime = Runtime.getRuntime();
+        final int mb = FileUtils.ONE_MB;
+        logger.debug("free mem {} totalmem {} maxMem {}", runtime.freeMemory()/mb, runtime.totalMemory()/mb, runtime.maxMemory()/mb);
         String stackTrace = e.getStackTrace();
         if (e.getFop() != this) {
             logger./**/error("wrong event subscription {} {}\n{}", e, e.getFop(), this, stackTrace);
