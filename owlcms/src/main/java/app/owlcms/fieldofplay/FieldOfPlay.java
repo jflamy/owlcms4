@@ -50,6 +50,7 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
@@ -536,8 +537,9 @@ public class FieldOfPlay {
     public void handleFOPEvent(FOPEvent e) {
         Runtime runtime = Runtime.getRuntime();
         final int mb = FileUtils.ONE_MB;
-        logger.debug("free mem {} totalmem {} maxMem {}", runtime.freeMemory() / mb, runtime.totalMemory() / mb,
-                runtime.maxMemory() / mb);
+        if (Config.getCurrent().isTraceMemory()) {
+            LoggerFactory.getLogger("memory").debug("free mem {} totalmem {} maxMem {}", runtime.freeMemory() / mb, runtime.totalMemory() / mb, runtime.maxMemory() / mb);
+        }
         String stackTrace = e.getStackTrace();
         if (e.getFop() != this) {
             logger./**/error("wrong event subscription {} {}\n{}", e, e.getFop(), this, stackTrace);
