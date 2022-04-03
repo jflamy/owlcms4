@@ -110,6 +110,8 @@ public class Config {
 
     private String salt;
 
+    private Object traceMemory;
+
     public String defineSalt() {
         if (salt == null) {
             this.setSalt(Integer.toString(new Random(System.currentTimeMillis()).nextInt(), 16));
@@ -327,6 +329,8 @@ public class Config {
         return 31;
     }
 
+    @Transient
+    @JsonIgnore
     public boolean isClearZip() {
         if (localOverride == null) {
             clearZip = false;
@@ -334,6 +338,8 @@ public class Config {
         return clearZip;
     }
 
+    @Transient
+    @JsonIgnore
     public boolean isIgnoreCaching() {
         return FileServlet.isIgnoreCaching();
     }
@@ -421,6 +427,15 @@ public class Config {
     private void setSalt(String salt) {
         this.salt = salt;
         logger.debug("setting salt to {}", this.salt);
+    }
+    
+    @Transient
+    @JsonIgnore
+    public boolean isTraceMemory() {
+        if (traceMemory == null) {
+            traceMemory = StartupUtils.getBooleanParam("traceMemory");
+        }
+        return Boolean.TRUE.equals(traceMemory);
     }
 
 }
