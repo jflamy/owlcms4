@@ -73,7 +73,6 @@ public class TwoMinutesRuleTest {
     @Test
     public void liftSequence3() throws InterruptedException {
         FieldOfPlay fopState = OwlcmsSession.getFop();
-        fopState.setMultiThread(false);
         EventBus fopBus = fopState.getFopEventBus();
 
         logger.setLevel(Level.DEBUG);
@@ -177,7 +176,6 @@ public class TwoMinutesRuleTest {
 
     public void testPrepState3(FieldOfPlay fopState, EventBus fopBus, Logger logger2) {
         fopState.testBefore();
-        fopState.setMultiThread(false);
         fopState.loadGroup(gA, this, true);
         athletes = fopState.getDisplayOrder();
         final Athlete schneiderF = athletes.get(0);
@@ -210,7 +208,6 @@ public class TwoMinutesRuleTest {
     
     public void testPrepState4(FieldOfPlay fopState, EventBus fopBus, Logger logger2) {
         fopState.testBefore();
-        fopState.setMultiThread(false);
         fopState.loadGroup(gA, this, true);
         athletes = fopState.getDisplayOrder();
         final Athlete schneiderF = athletes.get(0);
@@ -244,7 +241,6 @@ public class TwoMinutesRuleTest {
     @Test
     public void liftSequence4() throws InterruptedException {
         FieldOfPlay fopState = OwlcmsSession.getFop();
-        fopState.setMultiThread(false);
         EventBus fopBus = fopState.getFopEventBus();
 
         doLiftSequence4(fopState, fopBus, logger);

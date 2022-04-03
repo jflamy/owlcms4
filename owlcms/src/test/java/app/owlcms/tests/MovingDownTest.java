@@ -815,7 +815,6 @@ public class MovingDownTest {
 
     private FieldOfPlay emptyFieldOfPlay() {
         FieldOfPlay mockFieldOfPlay = FieldOfPlay.mockFieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(), new MockCountdownTimer());
-        mockFieldOfPlay.setMultiThread(false);
         return mockFieldOfPlay;
     }
 

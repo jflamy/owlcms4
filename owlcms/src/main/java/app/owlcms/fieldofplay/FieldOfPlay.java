@@ -157,15 +157,6 @@ public class FieldOfPlay {
     private BreakType breakType;
     private CeremonyType ceremonyType;
     private boolean cjStarted;
-    private boolean multiThread = false;
-
-    public boolean isMultiThread() {
-        return multiThread;
-    }
-
-    public void setMultiThread(boolean multiThread) {
-        this.multiThread = multiThread;
-    }
 
     /**
      * the clock owner is the last athlete for whom the clock has actually started.
@@ -313,17 +304,7 @@ public class FieldOfPlay {
 
     public void fopEventPost(FOPEvent e) {
         e.setFop(this);
-//        if (isMultiThread() && preventMultiThreadingRecursion.get() == null) {
-//            preventMultiThreadingRecursion.set(true);
-//            //logger.debug("... posting from {} ..................................................................",LoggerUtils.whereFrom());
-//            new Thread(() -> {
-//                handleFOPEvent(e);
-//            }).start();;
-//            preventMultiThreadingRecursion.set(null);
-//        } else {
-            //logger.debug("*** prevented recursion from {} ********************************************************",LoggerUtils.whereFrom());
-            handleFOPEvent(e);
-//        }
+        handleFOPEvent(e);
     }
 
     public LinkedHashMap<String, Participation> getAgeGroupMap() {
@@ -481,7 +462,7 @@ public class FieldOfPlay {
             setForcedTime(false);
             int timeRemaining = getAthleteTimer().getTimeRemaining();
             setClockOwnerInitialTimeAllowed(timeRemaining);
-            logger.debug("{}===== forced time {}",getLoggingName(),timeRemaining);
+            logger.debug("{}===== forced time {}", getLoggingName(), timeRemaining);
             return timeRemaining;
         }
         Athlete a = getCurAthlete();
@@ -514,11 +495,11 @@ public class FieldOfPlay {
         }
 
         clockOwnerInitialTime = getClockOwnerInitialTimeAllowed();
-        logger.debug("{}===== curAthlete = {}, clock owner = {}, clockOwnerInitialTime = {}, timeAllowed = {}", 
-                getLoggingName(), 
+        logger.debug("{}===== curAthlete = {}, clock owner = {}, clockOwnerInitialTime = {}, timeAllowed = {}",
+                getLoggingName(),
                 a != null ? a.getShortName() : null,
                 owner != null ? owner.getShortName() : null,
-                clockOwnerInitialTime, 
+                clockOwnerInitialTime,
                 timeAllowed);
         return timeAllowed;
     }
@@ -555,7 +536,8 @@ public class FieldOfPlay {
     public void handleFOPEvent(FOPEvent e) {
         Runtime runtime = Runtime.getRuntime();
         final int mb = FileUtils.ONE_MB;
-        logger.debug("free mem {} totalmem {} maxMem {}", runtime.freeMemory()/mb, runtime.totalMemory()/mb, runtime.maxMemory()/mb);
+        logger.debug("free mem {} totalmem {} maxMem {}", runtime.freeMemory() / mb, runtime.totalMemory() / mb,
+                runtime.maxMemory() / mb);
         String stackTrace = e.getStackTrace();
         if (e.getFop() != this) {
             logger./**/error("wrong event subscription {} {}\n{}", e, e.getFop(), this, stackTrace);
@@ -705,7 +687,7 @@ public class FieldOfPlay {
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof ForceTime) {
-                doForceTime((ForceTime)e);
+                doForceTime((ForceTime) e);
             } else {
                 unexpectedEventInState(e, CURRENT_ATHLETE_DISPLAYED);
             }
@@ -735,7 +717,7 @@ public class FieldOfPlay {
                 // rule says referees must give reds
                 setState(TIME_STOPPED);
             } else if (e instanceof ForceTime) {
-                doForceTime((ForceTime)e);
+                doForceTime((ForceTime) e);
             } else {
                 unexpectedEventInState(e, TIME_RUNNING);
             }
@@ -756,7 +738,7 @@ public class FieldOfPlay {
             } else if (e instanceof TimeStarted) {
                 if (!getCurAthlete().equals(getClockOwner())) {
                     setClockOwner(getCurAthlete());
-                    //setClockOwnerInitialTimeAllowed(getTimeAllowed());
+                    // setClockOwnerInitialTimeAllowed(getTimeAllowed());
                 }
                 getTimeAllowed();
                 prepareDownSignal();
@@ -779,7 +761,7 @@ public class FieldOfPlay {
             } else if (e instanceof StartLifting) {
                 // nothing to do, end of break when clock was already started
             } else if (e instanceof ForceTime) {
-                doForceTime((ForceTime)e);
+                doForceTime((ForceTime) e);
             } else {
                 unexpectedEventInState(e, TIME_STOPPED);
             }
@@ -796,7 +778,8 @@ public class FieldOfPlay {
                 updateRefereeDecisions((DecisionUpdate) e);
                 uiShowUpdateOnJuryScreen();
             } else if (e instanceof WeightChange) {
-                logger.debug("weight change during down {} {} {}", e.getAthlete(), this.getPreviousAthlete(), this.getCurAthlete());
+                logger.debug("weight change during down {} {} {}", e.getAthlete(), this.getPreviousAthlete(),
+                        this.getCurAthlete());
                 if (e.getAthlete() == this.getCurAthlete()) {
                     logger./**/warn("{}signal stuck, direct editing of {}", getLoggingName(), this.getCurAthlete());
                     // decision signal stuck, direct editing of athlete card.
@@ -841,7 +824,7 @@ public class FieldOfPlay {
     private void doForceTime(FOPEvent.ForceTime e) {
         // need to set time
         int ta = ((ForceTime) e).timeAllowed;
-        logger.debug("{}===== forcing time to {}",getLoggingName(), ta);
+        logger.debug("{}===== forcing time to {}", getLoggingName(), ta);
         getAthleteTimer().stop();
         getAthleteTimer().setTimeRemaining(ta, false);
         getAthleteTimer().stop();
@@ -1148,7 +1131,8 @@ public class FieldOfPlay {
         }
         logger.trace("uiDisplayCurrentAthleteAndTime {} {} {} {} {}", getCurAthlete(), inBreak, getPreviousAthlete(),
                 nextAthlete, currentDisplayAffected);
-        pushOutUIEvent(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, getPreviousAthlete(), changingAthlete,
+        pushOutUIEvent(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, getPreviousAthlete(),
+                changingAthlete,
                 getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),
                 inBreak));
 
@@ -1263,7 +1247,8 @@ public class FieldOfPlay {
 
     private void doStartCeremony(CeremonyStarted e) {
         setCeremonyType(e.getCeremony());
-        getUiEventBus().post(new UIEvent.CeremonyStarted(e.getCeremony(), e.getCeremonyGroup(), e.getCeremonyCategory(), e.getStackTrace(), e.getOrigin()));
+        getUiEventBus().post(new UIEvent.CeremonyStarted(e.getCeremony(), e.getCeremonyGroup(), e.getCeremonyCategory(),
+                e.getStackTrace(), e.getOrigin()));
     }
 
     private void doSummonReferee(SummonReferee e) {
@@ -1637,7 +1622,8 @@ public class FieldOfPlay {
     }
 
     private void setClockOwnerInitialTimeAllowed(int timeAllowed) {
-        //logger.debug("===== setClockOwnerInitialTimeAllowed timeAllowed={} {}", timeAllowed, LoggerUtils.whereFrom());
+        // logger.debug("===== setClockOwnerInitialTimeAllowed timeAllowed={} {}", timeAllowed,
+        // LoggerUtils.whereFrom());
         this.clockOwnerInitialTimeAllowed = timeAllowed;
     }
 
@@ -1835,7 +1821,8 @@ public class FieldOfPlay {
                 return;
             } else if ((newBreak != getBreakType() || newCountdownType != getCountdownType())) {
                 // changing the kind of break
-                logger.debug("{}switching break type while in break : current {} new {} remaining {}", getLoggingName(), getBreakType(), newBreak, breakTimer.liveTimeRemaining());
+                logger.debug("{}switching break type while in break : current {} new {} remaining {}", getLoggingName(),
+                        getBreakType(), newBreak, breakTimer.liveTimeRemaining());
                 if (newBreak == BreakType.FIRST_SNATCH) {
                     BreakType oldBreakType = getBreakType();
                     setBreakType(newBreak);
@@ -1888,7 +1875,7 @@ public class FieldOfPlay {
             logger.debug("stopping {} {} {}", newBreak, newCountdownType, indefinite);
             breakTimer.stop(); // so we restart in the new type
         }
-        
+
         // this will broadcast to all slave break timers
         if (!breakTimer.isRunning()) {
             breakTimer.setOrigin(e.getOrigin());
@@ -1925,7 +1912,7 @@ public class FieldOfPlay {
 
         if (!getCurAthlete().equals(getClockOwner())) {
             setClockOwner(getCurAthlete());
-            //setClockOwnerInitialTimeAllowed(getTimeAllowed());
+            // setClockOwnerInitialTimeAllowed(getTimeAllowed());
         }
         getTimeAllowed();
         resetEmittedFlags();
