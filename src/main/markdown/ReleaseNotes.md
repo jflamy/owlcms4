@@ -1,3 +1,8 @@
+4.30.5-alpha00: snapshot release
+
+- Added timing traces for the time spent recomputing lifting order and reassigning ranks.
+- Allowed simulation to be run on a cloud setup (fixed the whitelisting)
+
 4.30.4
 
 - Fix: When downloading a document, if a group is selected, the group name is included in the downloaded file name. If forbidden file name characters (such as "/") are present, they are now removed instead of blocking the download.
