@@ -110,7 +110,7 @@ public class Config {
 
     private String salt;
 
-    private Object traceMemory;
+    private Boolean traceMemory;
 
     public String defineSalt() {
         if (salt == null) {

@@ -1267,6 +1267,7 @@ public class FieldOfPlay {
      * @param wc
      */
     private void doWeightChange(WeightChange wc) {
+        long start = System.currentTimeMillis();
         Athlete changingAthlete = wc.getAthlete();
         Integer newWeight = changingAthlete.getNextAttemptRequestedWeight();
         logger.trace("&&1 cur={} curWeight={} changing={} newWeight={}", getCurAthlete(), curWeight, changingAthlete,
@@ -1293,12 +1294,12 @@ public class FieldOfPlay {
                     // we do the call to trigger a notification on official's screens, but request
                     // that the clock keep running
                     doWeightChange(wc, changingAthlete, getClockOwner(), false);
-                    return;
+                    //return;
                 }
             } else {
                 logger.trace("&&3.B clock running, but NOT for changing athlete, do not update attempt board");
                 weightChangeDoNotDisturb(wc);
-                return;
+                //return;
             }
         } else if (getClockOwner() != null && !getAthleteTimer().isRunning()) {
             logger.trace("&&3.B clock NOT running for changing athlete {}", changingAthlete);
@@ -1314,6 +1315,8 @@ public class FieldOfPlay {
             logger.trace("&&3.C2 displaying, curAthlete={}, state={}", getCurAthlete(), state);
             uiDisplayCurrentAthleteAndTime(true, wc, false);
         }
+        final Logger timingLogger = (Logger) LoggerFactory.getLogger("FOPTimingLogger");
+        timingLogger.warn("doWeightChange {}ms",System.currentTimeMillis()-start);
     }
 
     private void doWeightChange(WeightChange wc, Athlete changingAthlete, Athlete clockOwner,
