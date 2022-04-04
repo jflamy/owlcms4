@@ -1,7 +1,6 @@
-4.30.5-alpha00: snapshot release
+4.30.5-beta01: snapshot release
 
-- Added timing traces for the time spent recomputing lifting order and reassigning ranks.
-- Allowed simulation to be run on a cloud setup (fixed the whitelisting)
+- Usability: Do not recompute ranks and medals when athlete cards are updated but the lift results are not changed. This should remove the "blue line" loading indicator for the normal marshal changes.
 
 4.30.4
 
