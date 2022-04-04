@@ -538,7 +538,8 @@ public class FieldOfPlay {
         Runtime runtime = Runtime.getRuntime();
         final int mb = FileUtils.ONE_MB;
         if (Config.getCurrent().isTraceMemory()) {
-            LoggerFactory.getLogger("memory").debug("free mem {} totalmem {} maxMem {}", runtime.freeMemory() / mb, runtime.totalMemory() / mb, runtime.maxMemory() / mb);
+            LoggerFactory.getLogger("memory").debug("free mem {} totalmem {} maxMem {}", runtime.freeMemory() / mb,
+                    runtime.totalMemory() / mb, runtime.maxMemory() / mb);
         }
         String stackTrace = e.getStackTrace();
         if (e.getFop() != this) {
@@ -784,9 +785,9 @@ public class FieldOfPlay {
                         this.getCurAthlete());
                 if (e.getAthlete() == this.getCurAthlete()) {
                     logger./**/warn("{}signal stuck, direct editing of {}", getLoggingName(), this.getCurAthlete());
-                    // decision signal stuck, direct editing of athlete card.
+                    // decision signal stuck, direct editing of athlete card. Force recomputing
                     doDecisionReset(e);
-                    recomputeLiftingOrder();
+                    recomputeLiftingOrder(true, ((WeightChange) e).isResultChange());
                 } else {
                     weightChangeDoNotDisturb((WeightChange) e);
                     setState(DOWN_SIGNAL_VISIBLE);
@@ -859,7 +860,7 @@ public class FieldOfPlay {
 
         boolean done = false;
         if (athletes != null && athletes.size() > 0) {
-            done = recomputeLiftingOrder();
+            done = recomputeLiftingOrder(true, true);
         }
         if (done) {
             pushOutDone();
@@ -951,44 +952,52 @@ public class FieldOfPlay {
         }
     }
 
-    public synchronized boolean recomputeLiftingOrder() {
-        return recomputeLiftingOrder(true);
-    }
-
     /**
      * Recompute lifting order, category ranks, and leaders for current category. Sets rankings including previous
      * lifters for all categories in the current group.
+     * 
+     * @param recomputeRanks true if a result has changed and ranks need to be recomputed
      */
-    public void recomputeOrderAndRanks() {
+    public void recomputeOrderAndRanks(boolean recomputeRanks) {
+        logger.warn("{}{}", getLoggingName(), recomputeRanks ? "++++ Need to recompute ranks" : "---- NO need to recompute ranks");
         Group g = getGroup();
-        // we update the ranks of affected athletes in the database
-        JPAService.runInTransaction(em -> {
-            List<Athlete> l = AthleteSorter.assignCategoryRanks(g);
-            for (Athlete a : l) {
-                em.merge(a);
+        List<Athlete> athletes;
+
+        if (recomputeRanks) {
+            // we update the ranks of affected athletes in the database
+            JPAService.runInTransaction(em -> {
+                List<Athlete> l = AthleteSorter.assignCategoryRanks(g);
+                for (Athlete a : l) {
+                    em.merge(a);
+                }
+                em.flush();
+                return null;
+            });
+            athletes = AthleteRepository.findAthletesForGlobalRanking(g);
+            if (athletes == null) {
+                setDisplayOrder(null);
+                setCurAthlete(null);
+                return;
+            } else {
+                setMedals(Competition.getCurrent().computeMedals(g, athletes));
+                List<Athlete> currentGroupAthletes = AthleteSorter.displayOrderCopy(athletes).stream()
+                        .filter(a -> a.getGroup() != null ? a.getGroup().equals(g) : false)
+                        .collect(Collectors.toList());
+                setDisplayOrder(currentGroupAthletes);
+                setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
             }
-            em.flush();
-            return null;
-        });
-        List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g);
-
-        // logger.debug("same eligible: {}",rankedAthletes);
-        if (rankedAthletes == null) {
-            setDisplayOrder(null);
-            setCurAthlete(null);
-            return;
         } else {
-//            rankedAthletes.stream().forEach(a -> {
-//                logger.debug("rankedAthletes {} {}", a, a.getSnatch1AsInteger());
-//            });
-            setMedals(Competition.getCurrent().computeMedals(g, rankedAthletes));
+            athletes = AthleteRepository.findAllByGroupAndWeighIn(g, true);
+            if (athletes == null) {
+                setDisplayOrder(null);
+                setCurAthlete(null);
+                return;
+            } else {
+                List<Athlete> currentGroupAthletes = AthleteSorter.displayOrderCopy(athletes);
+                setDisplayOrder(currentGroupAthletes);
+                setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
+            }
         }
-        List<Athlete> currentGroupAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
-                .filter(a -> a.getGroup() != null ? a.getGroup().equals(g) : false)
-                .collect(Collectors.toList());
-        setDisplayOrder(currentGroupAthletes);
-
-        setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
 
         List<Athlete> liftingOrder2 = getLiftingOrder();
         if (logger.isEnabledFor(Level.TRACE)) {
@@ -1000,7 +1009,7 @@ public class FieldOfPlay {
             }
         }
         setCurAthlete(liftingOrder2 != null && liftingOrder2.size() > 0 ? liftingOrder2.get(0) : null);
-        recomputeCurrentLeaders(rankedAthletes);
+        recomputeCurrentLeaders(athletes);
     }
 
     /**
@@ -1217,7 +1226,7 @@ public class FieldOfPlay {
             pushOutUIEvent(event);
             a.doLift(a.getAttemptsDone(), e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
             AthleteRepository.save(a);
-            recomputeLiftingOrder();
+            recomputeLiftingOrder(true, true);
 
             // tell ourself to reset after 3 secs.
             new DelayTimer().schedule(() -> {
@@ -1294,12 +1303,12 @@ public class FieldOfPlay {
                     // we do the call to trigger a notification on official's screens, but request
                     // that the clock keep running
                     doWeightChange(wc, changingAthlete, getClockOwner(), false);
-                    //return;
+                    // return;
                 }
             } else {
                 logger.trace("&&3.B clock running, but NOT for changing athlete, do not update attempt board");
                 weightChangeDoNotDisturb(wc);
-                //return;
+                // return;
             }
         } else if (getClockOwner() != null && !getAthleteTimer().isRunning()) {
             logger.trace("&&3.B clock NOT running for changing athlete {}", changingAthlete);
@@ -1309,19 +1318,19 @@ public class FieldOfPlay {
         } else {
             logger.trace("&&3.C1 no clock owner, time is not running");
             // time is not running
-            recomputeLiftingOrder();
+            recomputeLiftingOrder(true, wc.isResultChange());
 
             setStateUnlessInBreak(CURRENT_ATHLETE_DISPLAYED);
             logger.trace("&&3.C2 displaying, curAthlete={}, state={}", getCurAthlete(), state);
             uiDisplayCurrentAthleteAndTime(true, wc, false);
         }
         final Logger timingLogger = (Logger) LoggerFactory.getLogger("FOPTimingLogger");
-        timingLogger.warn("doWeightChange {}ms",System.currentTimeMillis()-start);
+        timingLogger.warn("doWeightChange {}ms", System.currentTimeMillis() - start);
     }
 
     private void doWeightChange(WeightChange wc, Athlete changingAthlete, Athlete clockOwner,
             boolean currentDisplayAffected) {
-        recomputeLiftingOrder(currentDisplayAffected);
+        recomputeLiftingOrder(currentDisplayAffected, wc.isResultChange());
         // if the currentAthlete owns the clock, then the next ui update will show the
         // correct athlete and
         // the time needs to be restarted (state = TIME_STOPPED). Going to TIME_STOPPED
@@ -1524,9 +1533,9 @@ public class FieldOfPlay {
         }
     }
 
-    private boolean recomputeLiftingOrder(boolean currentDisplayAffected) {
+    public boolean recomputeLiftingOrder(boolean currentDisplayAffected, boolean resultChange) {
         // this is where lifting order is actually recomputed
-        recomputeOrderAndRanks();
+        recomputeOrderAndRanks(resultChange);
         if (getCurAthlete() == null) {
             return true;
         }
@@ -1585,7 +1594,7 @@ public class FieldOfPlay {
                 setState(TIME_STOPPED); // allows referees to enter decisions even if time is not restarted (which
                                         // sometimes happens).
             } else {
-                boolean done = recomputeLiftingOrder();
+                boolean done = recomputeLiftingOrder(true, true);
                 if (done) {
                     pushOutDone();
                 } else {
@@ -1760,7 +1769,7 @@ public class FieldOfPlay {
         // must also set state prior to sending event, so that state monitor shows new state.
         setState(DECISION_VISIBLE);
         uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), refereeDecision, refereeTime, origin);
-        recomputeLiftingOrder();
+        recomputeLiftingOrder(true, true);
 
         // tell ourself to reset after 3 secs.
         // Decision reset will handle end of group.
@@ -2017,7 +2026,7 @@ public class FieldOfPlay {
      * @param curAthlete
      */
     private void weightChangeDoNotDisturb(WeightChange e) {
-        recomputeOrderAndRanks();
+        recomputeOrderAndRanks(e.isResultChange());
         uiDisplayCurrentAthleteAndTime(false, e, false);
         // updateGlobalRankings(); // now done in recomputeOrderAndRanks
     }

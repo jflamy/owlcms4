@@ -381,7 +381,7 @@ public class TwoMinutesRuleTest {
             em.merge(lifter);
             return null;
         });
-        eventBus.post(new FOPEvent.WeightChange(this, lifter));
+        eventBus.post(new FOPEvent.WeightChange(this, lifter, false));
     }
 
     private void failedLift(EventBus fopBus, Athlete curLifter, FieldOfPlay fopState) {

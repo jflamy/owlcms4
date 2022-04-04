@@ -342,7 +342,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         athleteButton = new Button(
                 getTranslation("DisplayType.LIFT_INFO"), (e) -> {
                     OwlcmsSession.withFop(fop -> {
-                        fop.recomputeLiftingOrder();
+                        fop.recomputeLiftingOrder(true, false);
                         fop.uiDisplayCurrentAthleteAndTime(false, new FOPEvent(null, this), true);
                     });
                 });
@@ -350,7 +350,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         countdownButton = new Button(
                 getTranslation("DisplayType.COUNTDOWN_INFO"), (e) -> {
                     OwlcmsSession.withFop(fop -> {
-                        fop.recomputeLiftingOrder();
+                        fop.recomputeLiftingOrder(true, false);
                         OwlcmsSession.getFop().getUiEventBus()
                                 .post(new UIEvent.BreakStarted(0, this.getOrigin(), true, countdownRadios.getValue(),
                                         durationRadios.getValue(), LoggerUtils.stackTrace(), false));

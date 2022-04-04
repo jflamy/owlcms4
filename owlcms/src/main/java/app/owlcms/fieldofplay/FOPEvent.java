@@ -633,8 +633,19 @@ public class FOPEvent {
      */
     static public class WeightChange extends FOPEvent {
 
-        public WeightChange(Object origin, Athlete a) {
+        private boolean resultChange;
+
+        public WeightChange(Object origin, Athlete a, Boolean resultChange) {
             super(a, origin);
+            this.setResultChange(resultChange);
+        }
+
+        public Boolean isResultChange() {
+            return resultChange;
+        }
+
+        public void setResultChange(boolean resultChange) {
+            this.resultChange = resultChange;
         }
 
     }

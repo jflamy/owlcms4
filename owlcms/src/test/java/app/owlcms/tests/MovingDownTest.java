@@ -708,7 +708,7 @@ public class MovingDownTest {
             return em.merge(lifter);
         });
 
-        fopState.fopEventPost(new FOPEvent.WeightChange(this, updated));
+        fopState.fopEventPost(new FOPEvent.WeightChange(this, updated, false));
         return updated;
     }
 
@@ -745,7 +745,7 @@ public class MovingDownTest {
                     lifter.getNextAttemptRequestedWeight());
             return em.merge(lifter);
         });
-       fopState.fopEventPost(new FOPEvent.WeightChange(this, updated));
+       fopState.fopEventPost(new FOPEvent.WeightChange(this, updated, false));
         return updated;
     }
 
@@ -780,7 +780,7 @@ public class MovingDownTest {
             }
             return em.merge(lifter);
         });
-       fopState.fopEventPost(new FOPEvent.WeightChange(this, updated));
+       fopState.fopEventPost(new FOPEvent.WeightChange(this, updated, false));
         return updated;
     }
 
