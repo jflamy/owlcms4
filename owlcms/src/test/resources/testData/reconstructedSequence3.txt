@@ -1,3 +1,3 @@
-ActualLiftInfo [athlete=Schneider, weight=60, attemptNo=1, progression=0, startNumber=1, lotNumber=1]
-ActualLiftInfo [athlete=Schneider, weight=61, attemptNo=2, progression=1, startNumber=1, lotNumber=1]
-ActualLiftInfo [athlete=Simpson, weight=62, attemptNo=1, progression=0, startNumber=2, lotNumber=2]
+LiftOrderInfo [athlete=Schneider, weight=60, attemptNo=1, progression=0, startNumber=1, lotNumber=1]
+LiftOrderInfo [athlete=Schneider, weight=61, attemptNo=2, progression=1, startNumber=1, lotNumber=1]
+LiftOrderInfo [athlete=Simpson, weight=62, attemptNo=1, progression=0, startNumber=2, lotNumber=2]
