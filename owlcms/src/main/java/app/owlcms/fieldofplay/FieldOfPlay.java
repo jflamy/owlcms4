@@ -83,7 +83,6 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.JuryNotification;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -182,7 +181,7 @@ public class FieldOfPlay {
     private List<Athlete> leaders;
     private List<Athlete> liftingOrder;
     private int liftsDoneAtLastStart;
-    final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
+
     private TreeMap<Category, TreeSet<Athlete>> medals;
 
     private String mqttServer;
@@ -209,18 +208,16 @@ public class FieldOfPlay {
     private boolean timeoutEmitted;
 
     private EventBus uiEventBus = null;
-
-    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+    
+    final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
+    final private Logger timingLogger = (Logger) LoggerFactory.getLogger(logger.getName()+"_Timing");
+    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger(logger.getName()+"_UI");
 
     private Thread wakeUpRef;
 
     private Integer weightAtLastStart;
 
     private boolean forcedTime = false;
-
-    {
-        uiEventLogger.setLevel(Level.INFO);
-    }
 
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
@@ -468,7 +465,7 @@ public class FieldOfPlay {
         }
         Athlete a = getCurAthlete();
         int timeAllowed;
-        int clockOwnerInitialTime;
+        // int clockOwnerInitialTime;
 
         Athlete owner = getClockOwner();
         if (owner != null && owner.equals(a)) {
@@ -495,13 +492,10 @@ public class FieldOfPlay {
             }
         }
 
-        clockOwnerInitialTime = getClockOwnerInitialTimeAllowed();
-        logger.debug("{}===== curAthlete = {}, clock owner = {}, clockOwnerInitialTime = {}, timeAllowed = {}",
-                getLoggingName(),
-                a != null ? a.getShortName() : null,
-                owner != null ? owner.getShortName() : null,
-                clockOwnerInitialTime,
-                timeAllowed);
+        // clockOwnerInitialTime = getClockOwnerInitialTimeAllowed();
+        // logger.debug("{}===== curAthlete = {}, clock owner = {}, clockOwnerInitialTime = {}, timeAllowed = {}",
+        // getLoggingName(), a != null ? a.getShortName() : null, owner != null ? owner.getShortName() : null,
+        // clockOwnerInitialTime, timeAllowed);
         return timeAllowed;
     }
 
@@ -959,57 +953,63 @@ public class FieldOfPlay {
      * @param recomputeRanks true if a result has changed and ranks need to be recomputed
      */
     public void recomputeOrderAndRanks(boolean recomputeRanks) {
-        logger.warn("{}{}", getLoggingName(), recomputeRanks ? "++++ Need to recompute ranks" : "---- NO need to recompute ranks");
         Group g = getGroup();
         List<Athlete> athletes;
 
+        long startAssignRanks = System.nanoTime();
+        long endAssignRanks = 0;
+        long endMedals = 0;
+        long endDisplayOrder = 0;
+        long endLeaders = 0;
+
         if (recomputeRanks) {
             // we update the ranks of affected athletes in the database
-            JPAService.runInTransaction(em -> {
+            athletes = JPAService.runInTransaction(em -> {
                 List<Athlete> l = AthleteSorter.assignCategoryRanks(g);
                 for (Athlete a : l) {
                     em.merge(a);
                 }
                 em.flush();
-                return null;
+                return l;
             });
-            athletes = AthleteRepository.findAthletesForGlobalRanking(g);
-            if (athletes == null) {
-                setDisplayOrder(null);
-                setCurAthlete(null);
-                return;
-            } else {
-                setMedals(Competition.getCurrent().computeMedals(g, athletes));
-                List<Athlete> currentGroupAthletes = AthleteSorter.displayOrderCopy(athletes).stream()
-                        .filter(a -> a.getGroup() != null ? a.getGroup().equals(g) : false)
-                        .collect(Collectors.toList());
-                setDisplayOrder(currentGroupAthletes);
-                setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
-            }
         } else {
-            athletes = AthleteRepository.findAllByGroupAndWeighIn(g, true);
-            if (athletes == null) {
-                setDisplayOrder(null);
-                setCurAthlete(null);
-                return;
-            } else {
-                List<Athlete> currentGroupAthletes = AthleteSorter.displayOrderCopy(athletes);
-                setDisplayOrder(currentGroupAthletes);
-                setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
+            athletes = AthleteRepository.findAthletesForGlobalRanking(g);
+        }
+        endAssignRanks = System.nanoTime();
+
+        if (athletes == null) {
+            setDisplayOrder(null);
+            setCurAthlete(null);
+        } else {
+            if (recomputeRanks) {
+                setMedals(Competition.getCurrent().computeMedals(g, athletes));
             }
+            endMedals = System.nanoTime();
+
+            List<Athlete> currentGroupAthletes = AthleteSorter.displayOrderCopy(athletes).stream()
+                    .filter(a -> a.getGroup() != null ? a.getGroup().equals(g) : false)
+                    .collect(Collectors.toList());
+            setDisplayOrder(currentGroupAthletes);
+            setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
+            endDisplayOrder = System.nanoTime();
+
+            List<Athlete> liftingOrder2 = getLiftingOrder();
+            setCurAthlete(liftingOrder2 != null && liftingOrder2.size() > 0 ? liftingOrder2.get(0) : null);
+            recomputeCurrentLeaders(athletes);
+            endLeaders = System.nanoTime();
         }
 
-        List<Athlete> liftingOrder2 = getLiftingOrder();
-        if (logger.isEnabledFor(Level.TRACE)) {
-            for (Athlete a : getLiftingOrder()) {
-                Participation p = a.getMainRankings();
-                logger./**/warn("{}{} {} {} {} {} {}", getLoggingName(), a, p.getCategory(), p.getSnatchRank(),
-                        p.getCleanJerkRank(),
-                        p.getTotalRank(), a.isForcedAsCurrent());
-            }
+        if (timingLogger.isDebugEnabled()) {
+            timingLogger.warn("{}*** {} total={}ms, fetch/assign={}ms medals={}ms liftingOrder={}ms leaders={}ms",
+                    getLoggingName(),
+                    recomputeRanks ? "recomputeOrderAndRanks" : "recompute order",
+                    (endLeaders - startAssignRanks) / 1000000.0,
+                    (endAssignRanks - startAssignRanks) / 1000000.0,
+                    (endMedals - endAssignRanks) / 1000000.0,
+                    (endDisplayOrder - endMedals) / 1000000.0,
+                    (endLeaders - endDisplayOrder) / 1000000.0);
         }
-        setCurAthlete(liftingOrder2 != null && liftingOrder2.size() > 0 ? liftingOrder2.get(0) : null);
-        recomputeCurrentLeaders(athletes);
+
     }
 
     /**
@@ -1324,8 +1324,10 @@ public class FieldOfPlay {
             logger.trace("&&3.C2 displaying, curAthlete={}, state={}", getCurAthlete(), state);
             uiDisplayCurrentAthleteAndTime(true, wc, false);
         }
-        final Logger timingLogger = (Logger) LoggerFactory.getLogger("FOPTimingLogger");
-        timingLogger.warn("doWeightChange {}ms", System.currentTimeMillis() - start);
+        if (timingLogger.isDebugEnabled()) {
+            timingLogger.debug("{}*** doWeightChange {}ms (recompute + UI)", getLoggingName(),
+                    System.currentTimeMillis() - start);
+        }
     }
 
     private void doWeightChange(WeightChange wc, Athlete changingAthlete, Athlete clockOwner,
@@ -1939,12 +1941,6 @@ public class FieldOfPlay {
         getAthleteTimer().start();
     }
 
-    @SuppressWarnings("unused")
-    private void uiDisplayCurrentWeight() {
-        Integer nextAttemptRequestedWeight = getCurAthlete().getNextAttemptRequestedWeight();
-        uiEventLogger.info("requested weight: {} (from curAthlete {})", nextAttemptRequestedWeight,
-                getCurAthlete().getShortName());
-    }
 
     private synchronized void uiShowDownSignalOnSlaveDisplays(Object origin2) {
         boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
