@@ -55,7 +55,6 @@ import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
 import app.owlcms.ui.shared.IAthleteEditing;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
