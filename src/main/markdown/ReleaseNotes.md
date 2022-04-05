@@ -1,6 +1,6 @@
-4.30.5-beta01: snapshot release
+4.30.5-rc01: 
 
-- Usability: Do not recompute ranks and medals when athlete cards are updated but the lift results are not changed. This should remove the "blue line" loading indicator for the normal marshal changes.
+- Usability: Performance improvements for marshal changes (clean-up and small fixes).
 
 4.30.4
 
