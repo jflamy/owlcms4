@@ -878,7 +878,7 @@ public class FieldOfPlay {
 
         // we post on these buses
         this.uiEventBus = new AsyncEventBus("UI-" + name, Executors.newCachedThreadPool());
-        this.postBus = new EventBus("POST-" + name);
+        this.postBus = new AsyncEventBus("POST-" + name, Executors.newCachedThreadPool());
     }
 
     public boolean isCjStarted() {
@@ -1276,8 +1276,11 @@ public class FieldOfPlay {
      * @param wc
      */
     private void doWeightChange(WeightChange wc) {
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
+        boolean resultChange = wc.isResultChange();
+        String reason = "";
         Athlete changingAthlete = wc.getAthlete();
+        
         Integer newWeight = changingAthlete.getNextAttemptRequestedWeight();
         logger.trace("&&1 cur={} curWeight={} changing={} newWeight={}", getCurAthlete(), curWeight, changingAthlete,
                 newWeight);
@@ -1288,16 +1291,19 @@ public class FieldOfPlay {
         if (getClockOwner() != null && getAthleteTimer().isRunning()) {
             // time is running
             if (changingAthlete.equals(getClockOwner())) {
+                reason = "1";
                 logger.trace("&&3.A clock IS running for changing athlete {}", changingAthlete);
                 // X is the current lifter
                 // if a real change (and not simply a declaration that does not change weight),
                 // make sure clock is stopped.
                 if (curWeight != newWeight) {
+                    reason = "2";
                     logger.trace("&&3.A.A1 weight change for clock owner: clock running: stop clock");
                     getAthleteTimer().stop(); // memorize time
                     stopAthleteTimer = true; // make sure we broacast to clients
                     doWeightChange(wc, changingAthlete, getClockOwner(), stopAthleteTimer);
                 } else {
+                    reason = "3";
                     logger.trace("&&3.A.B declaration at same weight for clock owner: leave clock running");
                     // no actual weight change. this is most likely a declaration.
                     // we do the call to trigger a notification on official's screens, but request
@@ -1306,16 +1312,19 @@ public class FieldOfPlay {
                     // return;
                 }
             } else {
+                reason = "4";
                 logger.trace("&&3.B clock running, but NOT for changing athlete, do not update attempt board");
                 weightChangeDoNotDisturb(wc);
                 // return;
             }
         } else if (getClockOwner() != null && !getAthleteTimer().isRunning()) {
+            reason = "5";
             logger.trace("&&3.B clock NOT running for changing athlete {}", changingAthlete);
             // time was started (there is an owner) but is not currently running
             // time was likely stopped by timekeeper because coach signaled change of weight
             doWeightChange(wc, changingAthlete, getClockOwner(), true);
         } else {
+            reason = "6";
             logger.trace("&&3.C1 no clock owner, time is not running");
             // time is not running
             recomputeLiftingOrder(true, wc.isResultChange());
@@ -1325,8 +1334,8 @@ public class FieldOfPlay {
             uiDisplayCurrentAthleteAndTime(true, wc, false);
         }
         if (timingLogger.isDebugEnabled()) {
-            timingLogger.debug("{}*** doWeightChange {}ms (recompute + UI)", getLoggingName(),
-                    System.currentTimeMillis() - start);
+            timingLogger.debug("{}*** doWeightChange {} {} {}", getLoggingName(),
+                    (System.nanoTime() - start)/1000000.0, resultChange, reason);
         }
     }
 
@@ -1865,8 +1874,6 @@ public class FieldOfPlay {
                     breakTimer.stop();
                     setBreakParams(e, breakTimer, newBreak, newCountdownType);
                     breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), newBreak.isInterruption());
-                    // getFopEventBus().post(new
-                    // BreakStarted(breakType2,countdownType2,e.getTimeRemaining(),e.getTargetTime(),e.getOrigin()));
                     breakTimer.start(); // so we restart in the new type
                     return;
                 }
