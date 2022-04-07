@@ -508,8 +508,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 getTranslation("BreakMgmt.endMedals"), (e) -> {
                     OwlcmsSession.withFop(fop -> {
                         endMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-                        fop.getFopEventBus()
-                                .post(new FOPEvent.CeremonyDone(CeremonyType.MEDALS, this.getOrigin()));
+                        fop.fopEventPost(new FOPEvent.CeremonyDone(CeremonyType.MEDALS, this.getOrigin()));
                         if (inactive) {
                             setBreakTimerFromFields(TARGET);
                         }
@@ -696,8 +695,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private void masterEndCeremony(FieldOfPlay fop, CeremonyType ceremonyType) {
-        fop.getFopEventBus()
-                .post(new FOPEvent.CeremonyDone(ceremonyType, this.getOrigin()));
+        fop.fopEventPost(new FOPEvent.CeremonyDone(ceremonyType, this.getOrigin()));
     }
 
     private void masterPauseBreak(BreakType bType) {
