@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.30.5-rc03
+    default: 4.30.5
   - name: SkipTests
     type: string
     default: 'false'
@@ -177,7 +177,6 @@ jobs:
             $(Pipeline.Workspace)/PublicResultsSetup/*
             $(Agent.BuildDirectory)/s/owlcms-docker/target/k8s.zip
             $(Agent.BuildDirectory)/s/owlcms-docker/target/k8s/k3s_setup.yaml
-            $(Agent.BuildDirectory)/s/owlcms-docker/target/k8s/dd_setup.yaml
           assetUploadMode: "delete" # Optional. Options: delete, replace
           addChangeLog: false # Optional
         
