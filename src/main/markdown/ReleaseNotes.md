@@ -1,5 +1,6 @@
-4.30.5-rc02: 
+4.30.5-rc03: 
 
+- Fix: Scoreboards did not switch to "group results" title at the end of the very first group.
 - Performance fix.  The user interface updates are now correctly prepared and sent to the browsers in multi-threading mode so that the main program is not blocked.
 
 4.30.4
