@@ -1,7 +1,5 @@
 ### **Changes for release ${revision}**
 
-4.30.5-rc04: removal of obsolete Kubernetes configuration files. No need to test on Windows/Linux/Heroku.
-
 Performance improvements and minor fix
 
 - User interface responsiveness improvements, in particular for marshal weight changes 
