@@ -1,6 +1,6 @@
-4.30.5-rc01: 
+4.30.5-rc02: 
 
-- Usability: Performance improvements for marshal changes (clean-up and small fixes).
+- Performance fix.  The user interface updates are now correctly prepared and sent to the browsers in multi-threading mode so that the main program is not blocked.
 
 4.30.4
 
