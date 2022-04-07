@@ -1,13 +1,13 @@
-4.30.5-rc01: 
+4.30.5-rc02: 
 
-- Usability: Performance improvements for marshal changes (clean-up and small fixes).
+- Performance fix.  The user interface updates are now correctly prepared and sent to the browsers in multi-threading mode so that the main program is not blocked.
 
 4.30.4
 
 - Fix: When downloading a document, if a group is selected, the group name is included in the downloaded file name. If forbidden file name characters (such as "/") are present, they are now removed instead of blocking the download.
 - Fix: Default for birth dates reset to full date instead of year only.
 
-### **Changes for release 4.30.5-rc01**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+### **Changes for release 4.30.5-rc02**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
 
 Fixes/improvements on rules processing
 
