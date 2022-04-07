@@ -31,7 +31,7 @@
             <filtered>true</filtered>
         </file> 
         <file>
-            <source>${project.basedir}/src/main/assembly/logback.xml</source>
+            <source>${project.basedir}/../owlcms/src/main/resources/logback.xml</source>
             <outputDirectory>classes</outputDirectory>
             <filtered>true</filtered>
         </file>         

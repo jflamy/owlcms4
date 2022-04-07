@@ -151,7 +151,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     private Dialog dialog;
     private List<Athlete> displayOrder;
-    private boolean groupDone;
     private boolean initializationNeeded;
 
     private int liftsDone;
@@ -216,7 +215,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     public void doCeremony(UIEvent.CeremonyStarted e) {
         ceremonyGroup = e.getCeremonyGroup();
         ceremonyCategory = e.getCeremonyCategory();
-        //logger.trace"------ ceremony event = {} {}", e, e.getTrace());
+        //logger.trace("------ ceremony event = {} {}", e, e.getTrace());
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
             if (e.getCeremonyType() == CeremonyType.MEDALS && this.isSwitchableDisplay() && ceremonyGroup != null) {
@@ -227,11 +226,11 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 if (ceremonyCategory != null) {
                     map.put(DisplayParameters.CATEGORY, ceremonyCategory.getCode());
                 } else {
-                    //logger.trace("no ceremonyCategory");
+                    // logger.trace("no ceremonyCategory");
                 }
                 UI.getCurrent().navigate("displays/medals", QueryParameters.simple(map));
             }
-            
+
             String title = inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType());
             model.setFullName(title);
             model.setTeamName("");
@@ -381,12 +380,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             setHidden(false);
-            if (isDone()) {
-                doDone(e.getAthlete().getGroup());
-            } else {
-                doUpdateBottomPart(e);
-                this.getElement().callJsFunction("reset");
-            }
+            doUpdateBottomPart(e);
+            this.getElement().callJsFunction("reset");
         });
     }
 
@@ -404,14 +399,13 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
-//          Group g = e.getGroup();
-            setDone(true);
+            doDone(e.getGroup());
         });
     }
 
     @Subscribe
     public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
-        //logger.trace"------- slaveCeremonyDone {}", e.getCeremonyType());
+        // logger.trace"------- slaveCeremonyDone {}", e.getCeremonyType());
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
@@ -419,17 +413,17 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             doBreak(null);
         });
     }
-    
+
     @Subscribe
     public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
-        //logger.trace"------- slaveCeremonyStarted {}", e.getCeremonyType());
+        // logger.trace"------- slaveCeremonyStarted {}", e.getCeremonyType());
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
             doCeremony(e);
         });
     }
-    
+
     @Subscribe
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
         uiLog(e);
@@ -588,7 +582,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             doEmpty();
         } else {
             OwlcmsSession.withFop(fop -> {
-                updateBottom(getModel(), null, fop);
                 getModel().setFullName(getTranslation("Group_number_results", g.toString()));
                 this.getElement().callJsFunction("groupDone");
             });
@@ -804,14 +797,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         displayOrder = ImmutableList.of();
     }
 
-    private boolean isDone() {
-        return this.groupDone;
-    }
-
-    private void setDone(boolean b) {
-        this.groupDone = b;
-    }
-
     private void setHidden(boolean hidden) {
         this.getElement().setProperty("hiddenStyle", (hidden ? "display:none" : "display:block"));
         this.getElement().setProperty("inactiveStyle", (hidden ? "display:block" : "display:none"));
@@ -842,8 +827,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     }
 
     private void uiLog(UIEvent e) {
-        // uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(),
-        // e.getClass().getSimpleName(),this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
+//        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom()); 
     }
 
     private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {

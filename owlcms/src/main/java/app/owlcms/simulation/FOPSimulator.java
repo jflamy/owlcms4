@@ -79,7 +79,7 @@ public class FOPSimulator {
                     return;
                 }
             } else {
-                doNextAthlete(e);
+                doNextAthleteWithDeclaration(e);
             }
         }).start();
     }
@@ -185,6 +185,7 @@ public class FOPSimulator {
         return this.origin;
     }
 
+
     private void doNextAthlete(UIEvent e) {
         List<Athlete> order = fop.getLiftingOrder();
         Athlete athlete = order.size() > 0 ? order.get(0) : null;
@@ -194,6 +195,61 @@ public class FOPSimulator {
         } catch (InterruptedException e1) {
         }
         doLift(athlete);
+    }
+
+    private void doNextAthleteWithDeclaration(UIEvent e) {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e1) {
+        }
+        
+        List<Athlete> order = fop.getLiftingOrder();
+        Athlete athlete = order.size() > 0 ? order.get(0) : null;
+        
+        String declaration = athlete.getCurrentDeclaration();
+        String automatic = athlete.getCurrentAutomatic();
+        if (declaration == null || declaration.isBlank()) {
+            // do a fake declaration at the automatic progression to force a recompute (for perfomance testing)
+            if (automatic != null && !automatic.isBlank()) {
+                try {
+                    int autoAsInt = Integer.parseInt(automatic);
+                    doDeclaration(athlete, Integer.toString(autoAsInt+1));
+                    fop.fopEventPost(new FOPEvent.WeightChange(this, athlete, false));
+                } catch (NumberFormatException e1) {
+                    // ignore
+                }
+            }
+        }
+
+        // recompute lifting order based on exception
+        order = fop.getLiftingOrder();
+        athlete = order.size() > 0 ? order.get(0) : null;
+        doLift(athlete);
+    }
+
+    private void doDeclaration(Athlete athlete, String automatic) {
+        final String weight = automatic;
+        int liftNo = athlete.getAttemptsDone() + 1;
+        switch (liftNo) {
+        case 1:
+            athlete.setSnatch1Declaration(weight);
+            break;
+        case 2:
+            athlete.setSnatch2Declaration(weight);
+            break;
+        case 3:
+            athlete.setSnatch3Declaration(weight);
+            break;
+        case 4:
+            athlete.setCleanJerk1Declaration(weight);
+            break;
+        case 5:
+            athlete.setCleanJerk2Declaration(weight);
+            break;
+        case 6:
+            athlete.setCleanJerk3Declaration(weight);
+            break;
+        }
     }
 
     private void doSwitchGroup(UIEvent.SwitchGroup e) {

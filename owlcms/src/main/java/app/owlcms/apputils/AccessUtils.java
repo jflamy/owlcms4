@@ -29,7 +29,7 @@ public class AccessUtils {
         boolean isAuthenticated = OwlcmsSession.isAuthenticated();
 
         if (!isAuthenticated) {
-            boolean whiteListed = AccessUtils.checkWhitelist();
+            boolean whiteListed = AccessUtils.checkWhitelist(getClientIp());
 
             // check for PIN if one is specified
             String expectedPin = Config.getCurrent().getParamPin();
@@ -52,14 +52,14 @@ public class AccessUtils {
         return true;
     }
 
-    public static boolean checkBackdoor() {
-        String whiteList = Config.getCurrent().getParamBackdoorList();
-        return checkListMembership(whiteList, false);
+    public static boolean checkBackdoor(String clientIp) {
+        String backdoorList = Config.getCurrent().getParamBackdoorList();
+        return checkListMembership(clientIp, backdoorList, false);
     }
 
-    public static boolean checkWhitelist() {
+    public static boolean checkWhitelist(String clientIp) {
         String whiteList = Config.getCurrent().getParamAccessList();
-        return checkListMembership(whiteList, true);
+        return checkListMembership(clientIp, whiteList, true);
     }
 
     public static String encodePin(String pin, boolean password) {
@@ -108,7 +108,8 @@ public class AccessUtils {
 
     public static String getClientIp() {
         HttpServletRequest request;
-        request = VaadinServletRequest.getCurrent().getHttpServletRequest();
+        VaadinServletRequest current = VaadinServletRequest.getCurrent();
+        request = current.getHttpServletRequest();
 
         String remoteAddr = "";
 
@@ -118,14 +119,12 @@ public class AccessUtils {
                 remoteAddr = request.getRemoteAddr();
             }
         }
-
         return remoteAddr;
     }
 
-    private static boolean checkListMembership(String whiteList, boolean whiteListCheck) {
+    private static boolean checkListMembership(String clientIp, String whiteList, boolean whiteListCheck) {
         boolean whiteListed;
         if (whiteList != null && !whiteList.trim().isEmpty()) {
-            String clientIp = getClientIp();
             if ("0:0:0:0:0:0:0:1".equals(clientIp) || clientIp.startsWith("169.254")) {
                 // compensate for IPv6 returned and other windows networking oddities
                 clientIp = "127.0.0.1";

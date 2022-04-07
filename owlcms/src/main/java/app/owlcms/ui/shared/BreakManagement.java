@@ -342,7 +342,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         athleteButton = new Button(
                 getTranslation("DisplayType.LIFT_INFO"), (e) -> {
                     OwlcmsSession.withFop(fop -> {
-                        fop.recomputeLiftingOrder();
+                        fop.recomputeLiftingOrder(true, false);
                         fop.uiDisplayCurrentAthleteAndTime(false, new FOPEvent(null, this), true);
                     });
                 });
@@ -350,7 +350,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         countdownButton = new Button(
                 getTranslation("DisplayType.COUNTDOWN_INFO"), (e) -> {
                     OwlcmsSession.withFop(fop -> {
-                        fop.recomputeLiftingOrder();
+                        fop.recomputeLiftingOrder(true, false);
                         OwlcmsSession.getFop().getUiEventBus()
                                 .post(new UIEvent.BreakStarted(0, this.getOrigin(), true, countdownRadios.getValue(),
                                         durationRadios.getValue(), LoggerUtils.stackTrace(), false));
@@ -508,8 +508,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 getTranslation("BreakMgmt.endMedals"), (e) -> {
                     OwlcmsSession.withFop(fop -> {
                         endMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-                        fop.getFopEventBus()
-                                .post(new FOPEvent.CeremonyDone(CeremonyType.MEDALS, this.getOrigin()));
+                        fop.fopEventPost(new FOPEvent.CeremonyDone(CeremonyType.MEDALS, this.getOrigin()));
                         if (inactive) {
                             setBreakTimerFromFields(TARGET);
                         }
@@ -696,8 +695,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private void masterEndCeremony(FieldOfPlay fop, CeremonyType ceremonyType) {
-        fop.getFopEventBus()
-                .post(new FOPEvent.CeremonyDone(ceremonyType, this.getOrigin()));
+        fop.fopEventPost(new FOPEvent.CeremonyDone(ceremonyType, this.getOrigin()));
     }
 
     private void masterPauseBreak(BreakType bType) {

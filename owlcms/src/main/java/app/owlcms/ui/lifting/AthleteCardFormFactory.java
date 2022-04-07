@@ -105,6 +105,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
     private Checkbox ignoreErrorsCheckbox;
 
+    private Boolean liftResultChanged;
+
     public AthleteCardFormFactory(Class<Athlete> domainType, IAthleteEditing origin) {
         super(domainType);
         this.origin = origin;
@@ -230,6 +232,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
+        this.setLiftResultChanged(false);
 
         FormLayout formLayout = new FormLayout();
         formLayout.setSizeFull();
@@ -743,6 +746,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         // Athlete class don't work
         binder.setBean(getEditedAthlete());
         
+        for (int i = SNATCH1; i <= CJ3 ; i++) {
+            textfields[ACTUAL-1][i-1].addValueChangeListener(e -> setLiftResultChanged(true));
+        }
+        
         try {
             getEditedAthlete().validateStartingTotalsRule(
                     snatch1Declaration.getValue(),
@@ -800,7 +807,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                     originalAthlete.withdraw();
                     AthleteRepository.save(originalAthlete);
                     OwlcmsSession.withFop((fop) -> {
-                        fop.fopEventPost(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
+                        fop.fopEventPost(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete, true));
                     });
                     origin.closeDialog();
                 });
@@ -847,7 +854,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         Athlete.conditionalCopy(originalAthlete, getEditedAthlete(), true);
         AthleteRepository.save(originalAthlete);
         OwlcmsSession.withFop((fop) -> {
-            fop.fopEventPost(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
+            fop.fopEventPost(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete, isLiftResultChanged()));
         });
         origin.closeDialog();
     }
@@ -1036,5 +1043,14 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         }
 
         return gridLayout;
+    }
+
+    private Boolean isLiftResultChanged() {
+        return liftResultChanged;
+    }
+
+    private void setLiftResultChanged(Boolean liftResultChanged) {
+        //logger.debug("*** liftResultChanged {}", liftResultChanged);
+        this.liftResultChanged = liftResultChanged;
     }
 }

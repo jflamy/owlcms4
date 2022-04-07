@@ -21,7 +21,7 @@ mvn -DyamlOnly=true clean package
 Finally we can update the kubernetes config
 
 ```bash
-kubectl apply -k target/k8s/overlays/local-dev
+kubectl apply -k target/k8s/overlays/dd
 ```
 
 After a change, in config, it may be necessary to restart the pods

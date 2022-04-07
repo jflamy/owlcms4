@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.TreeSet;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 public class LiftOrderReconstruction {
@@ -50,10 +49,10 @@ public class LiftOrderReconstruction {
     }
 
     public void shortDump(String string, Logger logger) {
-        logger.info("{}{}", OwlcmsSession.getFopLoggingName(), string);
-        for (LiftOrderInfo ali : this.pastOrder) {
-            logger.info("{}    {}", OwlcmsSession.getFopLoggingName(), ali.toString());
-        }
+//        logger.trace("{}{}", OwlcmsSession.getFopLoggingName(), string);
+//        for (LiftOrderInfo ali : this.pastOrder) {
+//            logger.trace("{}    {}", OwlcmsSession.getFopLoggingName(), ali.toString());
+//        }
     }
 
     /**

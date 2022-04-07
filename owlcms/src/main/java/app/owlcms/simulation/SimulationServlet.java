@@ -33,8 +33,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.config.Config;
+import app.owlcms.apputils.AccessUtils;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ProxyUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -98,9 +99,9 @@ public class SimulationServlet extends HttpServlet {
     private void processRequest(HttpServletRequest request, HttpServletResponse response, boolean content)
             throws IOException {
         logger.info("processing simulation request");
-        String host = request.getRemoteAddr();
-        String ipBackdoorList = Config.getCurrent().getParamBackdoorList();
-        boolean bd = ipBackdoorList != null ? ipBackdoorList.contains(host) : false;
+        // use proxyutils because this is a plain servlet, not a Vaadin servlet
+        String host = ProxyUtils.getClientIp(request);
+        boolean bd = AccessUtils.checkBackdoor(host);
         if (!bd) {
             logger.error("{} not in backdoor list, denied simulation", host);
             response.setStatus(403);

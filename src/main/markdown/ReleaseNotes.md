@@ -1,15 +1,21 @@
-4.30.4
+### **Changes for release ${revision}**
 
-- Fix: When downloading a document, if a group is selected, the group name is included in the downloaded file name. If forbidden file name characters (such as "/") are present, they are now removed instead of blocking the download.
-- Fix: Default for birth dates reset to full date instead of year only.
+4.30.5-rc04: removal of obsolete Kubernetes configuration files. No need to test on Windows/Linux/Heroku.
 
-### **Changes for release ${revision}**  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+Performance improvements and minor fix
+
+- User interface responsiveness improvements, in particular for marshal weight changes 
+- Fix: Scoreboards did not switch to "group results" title at the end of the very first group.
+- Spanish (Spain) translation
+
+### **Changes for 4.30.* releases**
 
 Fixes/improvements on rules processing
 
 - Fix: On a two-minute clock, a late declaration is again being signaled as an error.  Also enabled time checks when the clock is forced to 1:00 or 2:00 after a marshal or loading error.
 - Fix: For Masters categories, the 80% rule was not being applied systematically on weight changes
 - Improvement: If a change is made to the first snatch and the first CJ needs to change,  the system will show a message whenever athlete card is opened until the first CJ is fixed.
+- Fix: Default for birth dates reset to full date instead of year only.
 
 Improved management of ceremonies 
 
@@ -31,15 +37,15 @@ Technical Fixes
 
 - Fix: it is again possible to upload a zip file on a laptop configuration to override the templates/styles.
 - Fix: the server was needlessly sending instructions to emit the down sound back to the computer with keypads. Emitting the sound a second time on top of the first could cause a delay on some computers.
+- Fix: use of certain characters in group names was creating illegal file names and preventing downloads.
 
-#### Highlights from recent stable releases
+### Highlights from recent stable releases
 
-- [Jury](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Jury) console now supports summoning the referees either individually or all together. 
+- [Jury](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Jury) console now supports summoning the referees either individually or all together. The jury console now allows direct reversal/confirmation of lifts (#435, #427)  
 - The [Refereeing](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Refereeing) screen (typically used on phones or tablets) now displays notifications when a decision is expected or when the jury summons the referee.
 - It is now possible to build affordable physical devices to receive instructions from owlcms (decision expected, jury calls referee) using MQTT. Software and circuit schematics are available at [this location](http://github.com/jflamy/owlcms-esp32).
 - Video Streaming: Support for Open Broadcaster Software (OBS) automated scene switching.  Added [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/OBSSceneSwitching) for all supported transitions.
 - It is now possible to choose and override the Excel templates for competitions cards, the start list, the starting weight sheet, the results (protocol), and the final package (attempts, sinclair, robi, team results, etc.)
-- The jury console now allows direct reversal/confirmation of lifts (#435, #427)  
 - It is now possible to Export and Import the database content (#449).  This allows taking a snapshot of the database in the middle of a competition. It also allows bringing back a Heroku database for local use, and conversely, setting up a competition locally prior to loading on Heroku.
 - Explicit support for participation to multiple age groups (#433)
 - All resources in the local directory take precedence over the built-in ones (visual styles, templates, age group definitions, sounds, etc.)
@@ -47,7 +53,7 @@ Technical Fixes
 - Violations of <u>rules for timing of declarations</u> (before initial 30 seconds), and for changes (before final warning) are now signaled as errors (#425, #426). Overriding is possible for officiating mistakes.
 
 
-#### **Installation Instructions**
+### **Installation Instructions**
 
   - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalWindowsSetup)
     

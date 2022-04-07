@@ -139,7 +139,7 @@ public class LiftOrderInfo implements Comparable<LiftOrderInfo> {
 
     @Override
     public String toString() {
-        return "ActualLiftInfo [athlete=" + getAthlete().getLastName() + ", weight=" + getWeight() + ", attemptNo="
+        return "LiftOrderInfo [athlete=" + getAthlete().getLastName() + ", weight=" + getWeight() + ", attemptNo="
                 + getAttemptNo()
                 + ", progression=" + getProgression() + ", startNumber=" + getStartNumber() + ", lotNumber="
                 + getLotNumber()

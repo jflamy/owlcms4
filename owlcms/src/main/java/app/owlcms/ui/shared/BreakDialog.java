@@ -47,7 +47,7 @@ public class BreakDialog extends Dialog {
 
             try {
                 OwlcmsSession.getFop().getFopEventBus().unregister(content);
-                OwlcmsSession.getFop().getUiEventBus().unregister(content.getBreakTimer());
+                OwlcmsSession.getFop().getFopEventBus().unregister(content.getBreakTimer());
             } catch (Exception e1) {
             }
             content.cleanup();
