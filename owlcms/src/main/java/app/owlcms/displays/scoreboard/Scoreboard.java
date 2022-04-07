@@ -151,7 +151,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 
     private Dialog dialog;
     private List<Athlete> displayOrder;
-    private boolean groupDone;
     private boolean initializationNeeded;
 
     private int liftsDone;
@@ -381,12 +380,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             setHidden(false);
-            if (isDone()) {
-                doDone(e.getAthlete().getGroup());
-            } else {
                 doUpdateBottomPart(e);
                 this.getElement().callJsFunction("reset");
-            }
         });
     }
 
@@ -404,8 +399,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
-//          Group g = e.getGroup();
-            setDone(true);
+            doDone(e.getGroup());
         });
     }
     
@@ -572,7 +566,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             doEmpty();
         } else {
             OwlcmsSession.withFop(fop -> {
-                updateBottom(getModel(), null, fop);
                 getModel().setFullName(getTranslation("Group_number_results", g.toString()));
                 this.getElement().callJsFunction("groupDone");
             });
@@ -788,14 +781,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         displayOrder = ImmutableList.of();
     }
 
-    private boolean isDone() {
-        return this.groupDone;
-    }
-
-    private void setDone(boolean b) {
-        this.groupDone = b;
-    }
-
     private void setHidden(boolean hidden) {
         this.getElement().setProperty("hiddenStyle", (hidden ? "display:none" : "display:block"));
         this.getElement().setProperty("inactiveStyle", (hidden ? "display:block" : "display:none"));
@@ -826,8 +811,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     private void uiLog(UIEvent e) {
-        // uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(),
-        // e.getClass().getSimpleName(),this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
+//        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom()); 
     }
 
     private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {

@@ -143,7 +143,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     }
 
     private LinkedHashMap<String, Participation> ageGroupMap;
-    
+
     @Id("breakTimer")
     private BreakTimerElement breakTimer; // Flow creates it
     private JsonArray cattempts;
@@ -156,7 +156,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     private DecisionElement decisions; // Flow creates it
     private Dialog dialog;
     private List<Athlete> displayOrder;
-    private boolean groupDone;
     private boolean initializationNeeded;
 
     private int liftsDone;
@@ -205,7 +204,8 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     public void doBreak(UIEvent event) {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
-            model.setFullName(inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+            String title = inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType());
+            model.setFullName(title);
             model.setTeamName("");
             model.setAttempt("");
             breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
@@ -219,7 +219,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     public void doCeremony(UIEvent.CeremonyStarted e) {
         ceremonyGroup = e.getCeremonyGroup();
         ceremonyCategory = e.getCeremonyCategory();
-        //logger.trace"------ ceremony event = {} {} {", e, e.getTrace());
+        // logger.trace("------ ceremony event = {} {}", e, e.getTrace());
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
             if (e.getCeremonyType() == CeremonyType.MEDALS && this.isSwitchableDisplay() && ceremonyGroup != null) {
@@ -230,11 +230,11 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                 if (ceremonyCategory != null) {
                     map.put(DisplayParameters.CATEGORY, ceremonyCategory.getCode());
                 } else {
-                    //logger.trace("no ceremonyCategory");
+                    // logger.trace("no ceremonyCategory");
                 }
                 UI.getCurrent().navigate("displays/medals", QueryParameters.simple(map));
             }
-            
+
             String title = inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType());
             model.setFullName(title);
             model.setTeamName("");
@@ -384,12 +384,8 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             setHidden(false);
-            if (isDone()) {
-                doDone(e.getAthlete().getGroup());
-            } else {
-                doUpdateBottomPart(e);
-                this.getElement().callJsFunction("reset");
-            }
+            doUpdateBottomPart(e);
+            this.getElement().callJsFunction("reset");
         });
     }
 
@@ -407,14 +403,13 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
-//          Group g = e.getGroup();
-            setDone(true);
+            doDone(e.getGroup());
         });
     }
-    
+
     @Subscribe
     public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
-        //logger.trace"------- slaveCeremonyDone {}", e.getCeremonyType());
+        // logger.trace"------- slaveCeremonyDone {}", e.getCeremonyType());
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
@@ -422,10 +417,10 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             doBreak(null);
         });
     }
-    
+
     @Subscribe
     public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
-        //logger.trace"------- slaveCeremonyStarted {}", e.getCeremonyType());
+        // logger.trace"------- slaveCeremonyStarted {}", e.getCeremonyType());
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
@@ -591,7 +586,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
             doEmpty();
         } else {
             OwlcmsSession.withFop(fop -> {
-                updateBottom(getModel(), null, fop);
                 getModel().setFullName(getTranslation("Group_number_results", g.toString()));
                 this.getElement().callJsFunction("groupDone");
             });
@@ -843,10 +837,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         displayOrder = ImmutableList.of();
     }
 
-    private boolean isDone() {
-        return this.groupDone;
-    }
-
     private void setCurrentAthleteParticipations(Athlete a) {
         OwlcmsSession.withFop(fop -> {
             ageGroupMap = new LinkedHashMap<>(fop.getAgeGroupMap());
@@ -868,10 +858,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                 // logger,debug("+++ cleared");
             }
         });
-    }
-
-    private void setDone(boolean b) {
-        this.groupDone = b;
     }
 
     private void setHidden(boolean hidden) {
@@ -904,8 +890,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     }
 
     private void uiLog(UIEvent e) {
-        // uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(),
-        // e.getClass().getSimpleName(),this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
+//        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom()); 
     }
 
     private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {
