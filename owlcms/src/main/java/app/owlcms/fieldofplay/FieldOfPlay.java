@@ -1198,8 +1198,6 @@ public class FieldOfPlay {
             uiDisplayCurrentAthleteAndTime(true, e, false);
         } else {
             // special kind of break that allows moving back in case of jury reversal
-            this.setBreakType(BreakType.GROUP_DONE);
-            this.setState(BREAK);
             pushOutDone();
         }
     }
