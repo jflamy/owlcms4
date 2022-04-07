@@ -533,36 +533,4 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         }
     }
 
-//    private void subscribeIfLifting(Group nGroup) {
-//        logger.debug("subscribeIfLifting {}", nGroup);
-//        Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
-//        currentGroup = nGroup;
-//
-//        // go through all the FOPs
-//        for (FieldOfPlay fop : fops) {
-//            // unsubscribe from FOP -- ensures that we clean up if no group is lifting
-//            try {
-//                fop.getUiEventBus().unregister(this);
-//            } catch (Exception ex) {
-//            }
-//            try {
-//                fop.getFopEventBus().unregister(this);
-//            } catch (Exception ex) {
-//            }
-//
-//            // subscribe to fop and start tracking if actually lifting
-//            if (fop.getGroup() != null && fop.getGroup().equals(nGroup)) {
-//                logger.debug("subscribing to {} {}", fop, nGroup);
-//                try {
-//                    fopEventBusRegister(this, fop);
-//                } catch (Exception ex) {
-//                }
-//                try {
-//                    uiEventBusRegister(this, fop);
-//                } catch (Exception ex) {
-//                }
-//            }
-//        }
-//    }
-
 }
