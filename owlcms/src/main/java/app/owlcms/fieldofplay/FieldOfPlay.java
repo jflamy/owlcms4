@@ -1000,7 +1000,7 @@ public class FieldOfPlay {
         }
 
         if (timingLogger.isDebugEnabled()) {
-            timingLogger.warn("{}*** {} total={}ms, fetch/assign={}ms medals={}ms liftingOrder={}ms leaders={}ms",
+            timingLogger.debug("{}*** {} total={}ms, fetch/assign={}ms medals={}ms liftingOrder={}ms leaders={}ms",
                     getLoggingName(),
                     recomputeRanks ? "recomputeOrderAndRanks" : "recompute order",
                     (endLeaders - startAssignRanks) / 1000000.0,
