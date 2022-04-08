@@ -784,7 +784,8 @@ public class FieldOfPlay {
                     doDecisionReset(e);
                     recomputeLiftingOrder(true, ((WeightChange) e).isResultChange());
                 } else {
-                    weightChangeDoNotDisturb((WeightChange) e);
+                    recomputeOrderAndRanks(((WeightChange) e).isResultChange());  //&&&&&&&&&&&&&&&&&&&&&
+                    //weightChangeDoNotDisturb((WeightChange) e);
                     setState(DOWN_SIGNAL_VISIBLE);
                 }
             } else {
@@ -804,7 +805,8 @@ public class FieldOfPlay {
                 updateRefereeDecisions((DecisionUpdate) e);
                 uiShowUpdateOnJuryScreen();
             } else if (e instanceof WeightChange) {
-                weightChangeDoNotDisturb((WeightChange) e);
+                recomputeLiftingOrder(true, ((WeightChange) e).isResultChange());  //&&&&&&&&&&&&&&&&&&&&&
+                //weightChangeDoNotDisturb((WeightChange) e);
                 setState(DECISION_VISIBLE);
             } else if (e instanceof DecisionReset) {
                 doDecisionReset(e);
@@ -2021,17 +2023,14 @@ public class FieldOfPlay {
     }
 
     /**
-     * weight change while a lift is being performed (bar lifted above knees) Lifting order is recomputed, so the
-     * app.owlcms.ui.displayselection can get it, but not the attempt board state.
+     * weight change while the clock is running.
      *
      * @param e
      * @param curAthlete
      */
     private void weightChangeDoNotDisturb(WeightChange e) {
-        //recomputeOrderAndRanks(e.isResultChange());
-        recomputeLiftingOrder(true, e.isResultChange()); //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-        //uiDisplayCurrentAthleteAndTime(false, e, false);
-        // updateGlobalRankings(); // now done in recomputeOrderAndRanks
+        recomputeOrderAndRanks(e.isResultChange());
+        uiDisplayCurrentAthleteAndTime(false, e, false);
     }
 
     private boolean isForcedTime() {
