@@ -1,4 +1,6 @@
-### **Changes for release 4.30.6-beta01**
+### **Changes for release 4.30.6-beta02**
+
+4.30.6-beta02: Fix: beta01 broke clock management when changes by another athlete were made after clock start.
 
 4.30.6-beta01: Fix: If an athlete lifted and was set to lift again (with 2:00) *but* immediately moved up *while the decision was still shown*, then the next athlete would get a 2:00.
 
