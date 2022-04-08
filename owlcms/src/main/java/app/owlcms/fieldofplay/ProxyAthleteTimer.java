@@ -123,7 +123,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
         if (running) {
             computeTimeRemaining();
         }
-        //logger.debug("{}setting Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining, LoggerUtils.whereFrom());
+        logger.warn("{}==== setting Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining, LoggerUtils.whereFrom());
         this.timeRemaining = timeRemaining;
         getFop().pushOutUIEvent(new UIEvent.SetTime(timeRemaining, null));
         running = false;
