@@ -9,3 +9,4 @@
 /.flattened-pom.xml
 
 /webpack.generated.js
+/package-lock.json
