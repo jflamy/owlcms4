@@ -890,7 +890,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     }
 
     private void uiLog(UIEvent e) {
-//        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom()); 
+//        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom()); 
     }
 
     private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {
