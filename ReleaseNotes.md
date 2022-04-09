@@ -1,4 +1,6 @@
-### **Changes for release 4.30.6-beta02**
+### **Changes for release 4.30.6-rc01**
+
+4.30.6-rc01: Restored normal logging levels, routine build before official release.
 
 4.30.6-beta02: Fix: beta01 broke clock management when changes by another athlete were made after clock start.
 
