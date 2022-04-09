@@ -1,6 +1,12 @@
 ### **Changes for release ${revision}**
 
-Performance improvements and minor fix
+4.30.6-rc01: Restored normal logging levels, routine build before official release.
+
+4.30.6-beta02: Fix: beta01 broke clock management when changes by another athlete were made after clock start.
+
+4.30.6-beta01: Fix: If an athlete lifted and was set to lift again (with 2:00) *but* immediately moved up *while the decision was still shown*, then the next athlete would get a 2:00.
+
+4.30.5 Performance improvements and minor fix
 
 - User interface responsiveness improvements, in particular for marshal weight changes 
 - Fix: Scoreboards did not switch to "group results" title at the end of the very first group.

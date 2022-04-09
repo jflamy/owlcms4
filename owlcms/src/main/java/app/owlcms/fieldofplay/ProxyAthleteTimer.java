@@ -96,13 +96,11 @@ public class ProxyAthleteTimer implements IProxyTimer {
             stopMillis = System.currentTimeMillis();
             long elapsed = stopMillis - startMillis;
             int tr = (int) (getTimeRemaining() - elapsed);
-            logger.debug("liveTimeRemaining running {} {}", formattedDuration(tr),
-                    LoggerUtils.whereFrom());
+            //logger.debug("liveTimeRemaining running {} {}", formattedDuration(tr), LoggerUtils.whereFrom());
             return tr;
         } else {
             int tr = getTimeRemaining();
-            logger.debug("liveTimeRemaining stopped {} {}", formattedDuration(tr),
-                    LoggerUtils.whereFrom());
+            //logger.debug("liveTimeRemaining stopped {} {}", formattedDuration(tr), LoggerUtils.whereFrom());
             return tr;
         }
     }
@@ -123,7 +121,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
         if (running) {
             computeTimeRemaining();
         }
-        //logger.debug("{}setting Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining, LoggerUtils.whereFrom());
+        //logger.debug("{}==== setting Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining, LoggerUtils.whereFrom());
         this.timeRemaining = timeRemaining;
         getFop().pushOutUIEvent(new UIEvent.SetTime(timeRemaining, null));
         running = false;
