@@ -824,7 +824,7 @@ public class FieldOfPlay {
     private void doForceTime(FOPEvent.ForceTime e) {
         // need to set time
         int ta = ((ForceTime) e).timeAllowed;
-        logger.debug("{}===== forcing time to {}", getLoggingName(), ta);
+        logger.debug("{}forcing time to {}", getLoggingName(), ta);
         getAthleteTimer().stop();
         getAthleteTimer().setTimeRemaining(ta, false);
         getAthleteTimer().stop();
@@ -1643,7 +1643,7 @@ public class FieldOfPlay {
     }
 
     private void setClockOwnerInitialTimeAllowed(int timeAllowed) {
-        logger.debug("===== setClockOwnerInitialTimeAllowed timeAllowed={} {}", timeAllowed,LoggerUtils.whereFrom());
+        //logger.trace("===== setClockOwnerInitialTimeAllowed timeAllowed={} {}", timeAllowed,LoggerUtils.whereFrom());
         this.clockOwnerInitialTimeAllowed = timeAllowed;
     }
 
