@@ -468,7 +468,7 @@ public class FieldOfPlay {
         // int clockOwnerInitialTime;
 
         Athlete owner = getClockOwner();
-        logger.debug("==== getTimeAllowed owner={} prev={} cur={}", owner, getPreviousAthlete(), a);
+
         if (owner != null && owner.equals(a)) {
             // the clock was started for us. we own the clock, clock is already set to what time was
             // left
@@ -492,11 +492,7 @@ public class FieldOfPlay {
                 setClockOwnerInitialTimeAllowed(timeAllowed);
             }
         }
-
-        // clockOwnerInitialTime = getClockOwnerInitialTimeAllowed();
-        // logger.debug("{}===== curAthlete = {}, clock owner = {}, clockOwnerInitialTime = {}, timeAllowed = {}",
-        // getLoggingName(), a != null ? a.getShortName() : null, owner != null ? owner.getShortName() : null,
-        // clockOwnerInitialTime, timeAllowed);
+        logger.debug("{}==== timeAllowed={} owner={} prev={} cur={}", getLoggingName(), timeAllowed, owner, getPreviousAthlete(), a);
         return timeAllowed;
     }
 
