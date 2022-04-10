@@ -27,7 +27,7 @@
     <properties>
         <!-- revision is overridden by azure-pipelines.yml for the official builds. this value is only used for local development -->
 
-        <revision>4.30.6</revision>
+        <revision>4.30.7-rc01</revision>
 
         <owlcms-maven-url>http://maven.owlcms.mywire.org:8088</owlcms-maven-url>
         <owlcms-maven-suffix>/releases</owlcms-maven-suffix><!-- /snapshots if revision is -SNAPSHOT -->

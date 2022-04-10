@@ -1,5 +1,7 @@
 ### **Changes for release ${revision}**
 
+4.30.7-rc01: restored correct behavior for 2:00 late declaration.
+
 4.30.6: Fix: If an athlete lifted and was set to lift again *but* immediately moved up *while the decision was still shown*, then the next athlete would wrongly get 2:00.
 
 4.30.5: Performance improvements and minor fix

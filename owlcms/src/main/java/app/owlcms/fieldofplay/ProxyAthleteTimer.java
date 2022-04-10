@@ -121,8 +121,11 @@ public class ProxyAthleteTimer implements IProxyTimer {
         if (running) {
             computeTimeRemaining();
         }
-        //logger.debug("{}==== setting Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining, LoggerUtils.whereFrom());
+        logger.warn("{}==== setting Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining, LoggerUtils.whereFrom());
         this.timeRemaining = timeRemaining;
+        if (timeRemaining < 1) {
+            logger.warn("setting with no time {}", LoggerUtils.whereFrom());
+        }
         getFop().pushOutUIEvent(new UIEvent.SetTime(timeRemaining, null));
         running = false;
     }
@@ -136,6 +139,9 @@ public class ProxyAthleteTimer implements IProxyTimer {
             startMillis = System.currentTimeMillis();
             //logger.debug("{}starting Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining,  LoggerUtils.whereFrom());
             timeRemainingAtLastStop = timeRemaining;
+        }
+        if (timeRemaining < 1) {
+            logger.warn("starting with no time {}", LoggerUtils.whereFrom());
         }
         getFop().pushOutUIEvent(
                 new UIEvent.StartTime(timeRemaining, null, getFop().isEmitSoundsOnServer(), LoggerUtils.stackTrace()));
@@ -184,6 +190,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
         timeRemaining = (int) (timeRemaining - elapsed);
     }
 
+    @SuppressWarnings("unused")
     private String formattedDuration(Integer milliseconds) {
         return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds)
                 : (milliseconds != null ? milliseconds.toString() : "-");

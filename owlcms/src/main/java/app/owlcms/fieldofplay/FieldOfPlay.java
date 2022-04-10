@@ -468,7 +468,7 @@ public class FieldOfPlay {
         // int clockOwnerInitialTime;
 
         Athlete owner = getClockOwner();
-        logger.debug("==== getTimeAllowed owner={} prev={} cur={}", owner, getPreviousAthlete(), a);
+
         if (owner != null && owner.equals(a)) {
             // the clock was started for us. we own the clock, clock is already set to what time was
             // left
@@ -492,11 +492,7 @@ public class FieldOfPlay {
                 setClockOwnerInitialTimeAllowed(timeAllowed);
             }
         }
-
-        // clockOwnerInitialTime = getClockOwnerInitialTimeAllowed();
-        // logger.debug("{}===== curAthlete = {}, clock owner = {}, clockOwnerInitialTime = {}, timeAllowed = {}",
-        // getLoggingName(), a != null ? a.getShortName() : null, owner != null ? owner.getShortName() : null,
-        // clockOwnerInitialTime, timeAllowed);
+        logger.debug("{}==== timeAllowed={} owner={} prev={} cur={}", getLoggingName(), timeAllowed, owner, getPreviousAthlete(), a);
         return timeAllowed;
     }
 
@@ -1196,7 +1192,8 @@ public class FieldOfPlay {
         cancelWakeUpRef();
         pushOutUIEvent(new UIEvent.DecisionReset(getCurAthlete(), this));
         setClockOwner(null);
-        setClockOwnerInitialTimeAllowed(60000); //&&&&&&&&&&&&&&&&&&&&&&
+        // MUST NOT change setClockOwnerInitialTimeAllowed
+
         if (getCurAthlete() != null && getCurAthlete().getAttemptsDone() < 6) {
             setState(CURRENT_ATHLETE_DISPLAYED);
             uiDisplayCurrentAthleteAndTime(true, e, false);
@@ -1561,6 +1558,8 @@ public class FieldOfPlay {
 //                LoggerUtils.whereFrom());
         if (currentDisplayAffected) {
             getAthleteTimer().setTimeRemaining(timeAllowed, false);
+        } else {
+            logger.warn("not affected {}", LoggerUtils.stackTrace());
         }
         // for the purpose of showing team scores, this is good enough.
         // if the current athlete has done all lifts, the group is marked as done.
