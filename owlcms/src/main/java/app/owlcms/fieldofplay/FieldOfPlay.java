@@ -1196,7 +1196,8 @@ public class FieldOfPlay {
         cancelWakeUpRef();
         pushOutUIEvent(new UIEvent.DecisionReset(getCurAthlete(), this));
         setClockOwner(null);
-        setClockOwnerInitialTimeAllowed(60000); //&&&&&&&&&&&&&&&&&&&&&&
+        // MUST NOT change setClockOwnerInitialTimeAllowed
+
         if (getCurAthlete() != null && getCurAthlete().getAttemptsDone() < 6) {
             setState(CURRENT_ATHLETE_DISPLAYED);
             uiDisplayCurrentAthleteAndTime(true, e, false);
@@ -1561,6 +1562,8 @@ public class FieldOfPlay {
 //                LoggerUtils.whereFrom());
         if (currentDisplayAffected) {
             getAthleteTimer().setTimeRemaining(timeAllowed, false);
+        } else {
+            logger.warn("not affected {}", LoggerUtils.stackTrace());
         }
         // for the purpose of showing team scores, this is good enough.
         // if the current athlete has done all lifts, the group is marked as done.
