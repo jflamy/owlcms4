@@ -133,10 +133,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     private EventBus uiEventBus;
 
-    {
-        logger.setLevel(Level.INFO);
-    }
-
     /**
      * Persona-specific display (e.g. for the jury, the technical controller, etc.)
      *
