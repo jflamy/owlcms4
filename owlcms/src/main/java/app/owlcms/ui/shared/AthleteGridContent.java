@@ -81,6 +81,7 @@ import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.lifting.AnnouncerContent;
 import app.owlcms.ui.lifting.AthleteCardFormFactory;
 import app.owlcms.ui.lifting.JuryContent;
+import app.owlcms.ui.lifting.MarshallContent;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakDisplay;
@@ -688,15 +689,14 @@ public abstract class AthleteGridContent extends VerticalLayout
                         && fopState != FOPState.TIME_RUNNING) {
                     bt = BreakType.FIRST_CJ;
                     ct = CountdownType.DURATION;
-                }
-//                else if (curAthlete.getAttemptsDone() == 0 && AthleteSorter.countLiftsDone(order) == 0
-//                        && fopState != FOPState.TIME_RUNNING) {
-//                    bt = BreakType.FIRST_SNATCH;
-//                    ct = CountdownType.DURATION;
-//                }
-                else {
-                    bt = BreakType.TECHNICAL;
+                } else {
+                    if (this instanceof MarshallContent) {
+                        bt = BreakType.MARSHAL;
+                    } else {
+                        bt = BreakType.TECHNICAL;
+                    }
                     ct = CountdownType.INDEFINITE;
+
                 }
                 // logger.debug("requesting breaktype {}", bt);
                 breakDialog = new BreakDialog(this, bt, ct);

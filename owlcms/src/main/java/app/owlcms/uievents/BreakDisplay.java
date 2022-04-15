@@ -59,6 +59,10 @@ public interface BreakDisplay {
             return Translator.translate("PublicMsg.JuryDeliberation");
         case GROUP_DONE:
             return Translator.translate("PublicMsg.GroupDone");
+        case MARSHAL:
+            return Translator.translate("PublicMsg.CompetitionPaused");
+        default:
+            break;
         }
         // can't happen
         return "";

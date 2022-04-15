@@ -103,8 +103,10 @@ public enum BreakType {
     FIRST_CJ(true, false),
     FIRST_SNATCH(true, false),
     GROUP_DONE(false, false),
-    JURY(false, true),
-    TECHNICAL(false, true);
+
+    TECHNICAL(false, true),
+    MARSHAL (false, true),
+    JURY(false, true);
 
     private boolean countdown;
     private boolean interruption;

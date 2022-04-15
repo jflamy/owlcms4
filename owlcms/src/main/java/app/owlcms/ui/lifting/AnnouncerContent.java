@@ -207,8 +207,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         introCountdownButton = new Button(getTranslation("introCountdown"), AvIcons.AV_TIMER.create(),
                 (e) -> {
                     OwlcmsSession.withFop(fop -> {
-//                        fop.fopEventPost(
-//                            new FOPEvent.BreakStarted(BreakType.BEFORE_INTRODUCTION, CountdownType.INDEFINITE, null, null, this));
                         BreakDialog dialog = new BreakDialog(this, BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET);
                         dialog.open();
                     });
