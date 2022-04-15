@@ -50,12 +50,12 @@ public class CompetitionEditingFormFactory
         extends OwlcmsCrudFormFactory<Competition>
         implements CustomFormFactory<Competition> {
 
-    @SuppressWarnings("unused")
-    private CompetitionContent origin;
+    String browserZoneId;
     @SuppressWarnings("unused")
     private Logger logger = (Logger) LoggerFactory.getLogger(CompetitionEditingFormFactory.class);
 
-    String browserZoneId;
+    @SuppressWarnings("unused")
+    private CompetitionContent origin;
 
     CompetitionEditingFormFactory(Class<Competition> domainType, CompetitionContent origin) {
         super(domainType);
@@ -328,21 +328,21 @@ public class CompetitionEditingFormFactory
         layout.addFormItem(enforce20kgRuleField, Translator.translate("Competition.enforce20kgRule"));
         binder.forField(enforce20kgRuleField)
                 .bind(Competition::isEnforce20kgRule, Competition::setEnforce20kgRule);
-        
+
         Checkbox snatchCJTotalField = new Checkbox();
         layout.addFormItem(snatchCJTotalField, Translator.translate("Competition.snatchCJTotalMedals"));
         binder.forField(snatchCJTotalField)
                 .bind(Competition::isSnatchCJTotalMedals, Competition::setSnatchCJTotalMedals);
-        
+
         Checkbox useBirthYearField = new Checkbox();
         layout.addFormItem(useBirthYearField, Translator.translate("Competition.useBirthYear"));
         binder.forField(useBirthYearField)
                 .bind(Competition::isUseBirthYear, Competition::setUseBirthYear);
-        
+
         IntegerField wakeUpDelayField = new IntegerField();
         layout.addFormItem(wakeUpDelayField, Translator.translate("Competition.decisionRequestDelayLabel"));
         binder.forField(wakeUpDelayField).bind(Competition::getRefereeWakeUpDelay, Competition::setRefereeWakeUpDelay);
-        
+
         Checkbox mastersField = new Checkbox();
         layout.addFormItem(mastersField, Translator.translate("Competition.masters"));
         binder.forField(mastersField)

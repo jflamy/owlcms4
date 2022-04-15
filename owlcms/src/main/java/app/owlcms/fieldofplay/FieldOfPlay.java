@@ -147,9 +147,9 @@ public class FieldOfPlay {
     }
 
     /**
-     * 
+     *
      */
-    final ThreadLocal<Boolean> preventMultiThreadingRecursion = new InheritableThreadLocal<Boolean>();
+    final ThreadLocal<Boolean> preventMultiThreadingRecursion = new InheritableThreadLocal<>();
 
     private LinkedHashMap<String, Participation> ageGroupMap = new LinkedHashMap<>();
     private IProxyTimer athleteTimer;
@@ -174,17 +174,21 @@ public class FieldOfPlay {
     private Tone downSignal;
     private boolean finalWarningEmitted;
     private EventBus fopEventBus = null;
+    private boolean forcedTime = false;
     private Boolean goodLift;
     private Group group = null;
     private boolean initialWarningEmitted;
     private long lastGroupLoaded;
     private List<Athlete> leaders;
     private List<Athlete> liftingOrder;
+
     private int liftsDoneAtLastStart;
 
+    final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
     private TreeMap<Category, TreeSet<Athlete>> medals;
 
     private String mqttServer;
+
     private String name;
 
     private Platform platform = null;
@@ -206,18 +210,14 @@ public class FieldOfPlay {
     private boolean testingMode;
 
     private boolean timeoutEmitted;
-
+    final private Logger timingLogger = (Logger) LoggerFactory.getLogger(logger.getName() + "_Timing");
     private EventBus uiEventBus = null;
-    
-    final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
-    final private Logger timingLogger = (Logger) LoggerFactory.getLogger(logger.getName()+"_Timing");
-    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger(logger.getName()+"_UI");
+
+    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger(logger.getName() + "_UI");
 
     private Thread wakeUpRef;
 
     private Integer weightAtLastStart;
-
-    private boolean forcedTime = false;
 
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
@@ -492,7 +492,8 @@ public class FieldOfPlay {
                 setClockOwnerInitialTimeAllowed(timeAllowed);
             }
         }
-        logger.debug("{}==== timeAllowed={} owner={} prev={} cur={}", getLoggingName(), timeAllowed, owner, getPreviousAthlete(), a);
+        logger.debug("{}==== timeAllowed={} owner={} prev={} cur={}", getLoggingName(), timeAllowed, owner,
+                getPreviousAthlete(), a);
         return timeAllowed;
     }
 
@@ -780,8 +781,8 @@ public class FieldOfPlay {
                     doDecisionReset(e);
                     recomputeLiftingOrder(true, ((WeightChange) e).isResultChange());
                 } else {
-                    recomputeOrderAndRanks(((WeightChange) e).isResultChange());  //&&&&&&&&&&&&&&&&&&&&&
-                    //weightChangeDoNotDisturb((WeightChange) e);
+                    recomputeOrderAndRanks(((WeightChange) e).isResultChange()); // &&&&&&&&&&&&&&&&&&&&&
+                    // weightChangeDoNotDisturb((WeightChange) e);
                     setState(DOWN_SIGNAL_VISIBLE);
                 }
             } else {
@@ -801,8 +802,8 @@ public class FieldOfPlay {
                 updateRefereeDecisions((DecisionUpdate) e);
                 uiShowUpdateOnJuryScreen();
             } else if (e instanceof WeightChange) {
-                recomputeLiftingOrder(true, ((WeightChange) e).isResultChange());  //&&&&&&&&&&&&&&&&&&&&&
-                //weightChangeDoNotDisturb((WeightChange) e);
+                recomputeLiftingOrder(true, ((WeightChange) e).isResultChange()); // &&&&&&&&&&&&&&&&&&&&&
+                // weightChangeDoNotDisturb((WeightChange) e);
                 setState(DECISION_VISIBLE);
             } else if (e instanceof DecisionReset) {
                 doDecisionReset(e);
@@ -815,22 +816,6 @@ public class FieldOfPlay {
             }
             break;
         }
-    }
-
-    private void doForceTime(FOPEvent.ForceTime e) {
-        // need to set time
-        int ta = ((ForceTime) e).timeAllowed;
-        logger.debug("{}forcing time to {}", getLoggingName(), ta);
-        getAthleteTimer().stop();
-        getAthleteTimer().setTimeRemaining(ta, false);
-        getAthleteTimer().stop();
-        setClockOwnerInitialTimeAllowed(ta);
-        setForcedTime(true);
-        setState(CURRENT_ATHLETE_DISPLAYED);
-    }
-
-    private void setForcedTime(boolean b) {
-        this.forcedTime = b;
     }
 
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer, boolean alreadyLoaded) {
@@ -945,10 +930,40 @@ public class FieldOfPlay {
         }
     }
 
+    public boolean recomputeLiftingOrder(boolean currentDisplayAffected, boolean resultChange) {
+        // this is where lifting order is actually recomputed
+        recomputeOrderAndRanks(resultChange);
+        if (getCurAthlete() == null) {
+            return true;
+        }
+
+        int timeAllowed = getTimeAllowed();
+        Integer attemptsDone = getCurAthlete().getAttemptsDone();
+//        logger.trace("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
+//                getLoggingName(),
+//                getCurAthlete() != null ? getCurAthlete().getFullName() : "",
+//                getPreviousAthlete() != null ? getPreviousAthlete().getFullName() : "",
+//                timeAllowed,
+//                attemptsDone,
+//                LoggerUtils.whereFrom());
+        if (currentDisplayAffected) {
+            getAthleteTimer().setTimeRemaining(timeAllowed, false);
+        } else {
+            logger.warn("not affected {}", LoggerUtils.stackTrace());
+        }
+        // for the purpose of showing team scores, this is good enough.
+        // if the current athlete has done all lifts, the group is marked as done.
+        // if editing the athlete later gives back an attempt, then the state change will take
+        // place and subscribers will revert to current athlete display.
+        boolean done = attemptsDone >= 6;
+        getGroup().doDone(done);
+        return done;
+    }
+
     /**
      * Recompute lifting order, category ranks, and leaders for current category. Sets rankings including previous
      * lifters for all categories in the current group.
-     * 
+     *
      * @param recomputeRanks true if a result has changed and ranks need to be recomputed
      */
     public void recomputeOrderAndRanks(boolean recomputeRanks) {
@@ -1208,6 +1223,18 @@ public class FieldOfPlay {
         getUiEventBus().post(new UIEvent.CeremonyDone(e.getCeremonyType(), e));
     }
 
+    private void doForceTime(FOPEvent.ForceTime e) {
+        // need to set time
+        int ta = e.timeAllowed;
+        logger.debug("{}forcing time to {}", getLoggingName(), ta);
+        getAthleteTimer().stop();
+        getAthleteTimer().setTimeRemaining(ta, false);
+        getAthleteTimer().stop();
+        setClockOwnerInitialTimeAllowed(ta);
+        setForcedTime(true);
+        setState(CURRENT_ATHLETE_DISPLAYED);
+    }
+
     private void doJuryDecision(JuryDecision e) {
         Athlete a = e.getAthlete();
         Integer actualLift = a.getActualLift(a.getAttemptsDone());
@@ -1279,7 +1306,7 @@ public class FieldOfPlay {
         boolean resultChange = wc.isResultChange();
         String reason = "";
         Athlete changingAthlete = wc.getAthlete();
-        
+
         Integer newWeight = changingAthlete.getNextAttemptRequestedWeight();
 //        logger.debug("&&1 cur={} curWeight={} changing={} newWeight={}", getCurAthlete(), curWeight, changingAthlete, newWeight);
 //        logger.debug("&&2 clockOwner={} clockLastStopped={} state={}", getClockOwner(), getAthleteTimer().getTimeRemainingAtLastStop(), state);
@@ -1289,19 +1316,19 @@ public class FieldOfPlay {
             // time is running
             if (changingAthlete.equals(getClockOwner())) {
                 reason = "1";
-                //logger.trace("&&3.A clock IS running for changing athlete {}", changingAthlete);
+                // logger.trace("&&3.A clock IS running for changing athlete {}", changingAthlete);
                 // X is the current lifter
                 // if a real change (and not simply a declaration that does not change weight),
                 // make sure clock is stopped.
                 if (curWeight != newWeight) {
                     reason = "2";
-                    //logger.trace("&&3.A.A1 weight change for clock owner: clock running: stop clock");
+                    // logger.trace("&&3.A.A1 weight change for clock owner: clock running: stop clock");
                     getAthleteTimer().stop(); // memorize time
                     stopAthleteTimer = true; // make sure we broacast to clients
                     doWeightChange(wc, changingAthlete, getClockOwner(), stopAthleteTimer);
                 } else {
                     reason = "3";
-                    //logger.trace("&&3.A.B declaration at same weight for clock owner: leave clock running");
+                    // logger.trace("&&3.A.B declaration at same weight for clock owner: leave clock running");
                     // no actual weight change. this is most likely a declaration.
                     // we do the call to trigger a notification on official's screens, but request
                     // that the clock keep running
@@ -1310,28 +1337,29 @@ public class FieldOfPlay {
                 }
             } else {
                 reason = "4";
-                //logger.trace("&&3.B clock running, but NOT for changing athlete, do not update attempt board");
+                // logger.trace("&&3.B clock running, but NOT for changing athlete, do not update attempt board");
                 weightChangeDoNotDisturb(wc);
                 // return;
             }
         } else if (getClockOwner() != null && !getAthleteTimer().isRunning()) {
             reason = "5";
-            //logger.trace("&&3.B clock NOT running for changing athlete {}", changingAthlete);
+            // logger.trace("&&3.B clock NOT running for changing athlete {}", changingAthlete);
             // time was started (there is an owner) but is not currently running
             // time was likely stopped by timekeeper because coach signaled change of weight
             doWeightChange(wc, changingAthlete, getClockOwner(), true);
         } else {
             reason = "6";
-            //logger.trace("&&3.C1 no clock owner, time is not running");
+            // logger.trace("&&3.C1 no clock owner, time is not running");
             // time is not running
             recomputeLiftingOrder(true, wc.isResultChange());
 
             setStateUnlessInBreak(CURRENT_ATHLETE_DISPLAYED);
-            //logger.trace("&&3.C2 displaying, curAthlete={}, state={}", getCurAthlete(), state);
+            // logger.trace("&&3.C2 displaying, curAthlete={}, state={}", getCurAthlete(), state);
             uiDisplayCurrentAthleteAndTime(true, wc, false);
         }
         if (timingLogger.isDebugEnabled()) {
-            timingLogger.debug("{}*** doWeightChange {} {} {}", getLoggingName(), (System.nanoTime() - start)/1000000.0, resultChange, reason);
+            timingLogger.debug("{}*** doWeightChange {} {} {}", getLoggingName(),
+                    (System.nanoTime() - start) / 1000000.0, resultChange, reason);
         }
     }
 
@@ -1385,6 +1413,10 @@ public class FieldOfPlay {
 
     private synchronized boolean isFinalWarningEmitted() {
         return finalWarningEmitted;
+    }
+
+    private boolean isForcedTime() {
+        return forcedTime;
     }
 
     private synchronized boolean isInitialWarningEmitted() {
@@ -1540,36 +1572,6 @@ public class FieldOfPlay {
         }
     }
 
-    public boolean recomputeLiftingOrder(boolean currentDisplayAffected, boolean resultChange) {
-        // this is where lifting order is actually recomputed
-        recomputeOrderAndRanks(resultChange);
-        if (getCurAthlete() == null) {
-            return true;
-        }
-
-        int timeAllowed = getTimeAllowed();
-        Integer attemptsDone = getCurAthlete().getAttemptsDone();
-//        logger.trace("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
-//                getLoggingName(),
-//                getCurAthlete() != null ? getCurAthlete().getFullName() : "",
-//                getPreviousAthlete() != null ? getPreviousAthlete().getFullName() : "",
-//                timeAllowed,
-//                attemptsDone,
-//                LoggerUtils.whereFrom());
-        if (currentDisplayAffected) {
-            getAthleteTimer().setTimeRemaining(timeAllowed, false);
-        } else {
-            logger.warn("not affected {}", LoggerUtils.stackTrace());
-        }
-        // for the purpose of showing team scores, this is good enough.
-        // if the current athlete has done all lifts, the group is marked as done.
-        // if editing the athlete later gives back an attempt, then the state change will take
-        // place and subscribers will revert to current athlete display.
-        boolean done = attemptsDone >= 6;
-        getGroup().doDone(done);
-        return done;
-    }
-
     /**
      * Reset decisions. Invoked when recomputing lifting order when a fresh clock is given.
      */
@@ -1642,7 +1644,7 @@ public class FieldOfPlay {
     }
 
     private void setClockOwnerInitialTimeAllowed(int timeAllowed) {
-        //logger.trace("===== setClockOwnerInitialTimeAllowed timeAllowed={} {}", timeAllowed,LoggerUtils.whereFrom());
+        // logger.trace("===== setClockOwnerInitialTimeAllowed timeAllowed={} {}", timeAllowed,LoggerUtils.whereFrom());
         this.clockOwnerInitialTimeAllowed = timeAllowed;
     }
 
@@ -1670,6 +1672,10 @@ public class FieldOfPlay {
     private synchronized void setFinalWarningEmitted(boolean finalWarningEmitted) {
         logger.trace("finalWarningEmitted {}", finalWarningEmitted);
         this.finalWarningEmitted = finalWarningEmitted;
+    }
+
+    private void setForcedTime(boolean b) {
+        this.forcedTime = b;
     }
 
     /**
@@ -1942,7 +1948,6 @@ public class FieldOfPlay {
         getAthleteTimer().start();
     }
 
-
     private synchronized void uiShowDownSignalOnSlaveDisplays(Object origin2) {
         boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
         boolean downEmitted2 = isDownEmitted();
@@ -2024,10 +2029,6 @@ public class FieldOfPlay {
     private void weightChangeDoNotDisturb(WeightChange e) {
         recomputeOrderAndRanks(e.isResultChange());
         uiDisplayCurrentAthleteAndTime(false, e, false);
-    }
-
-    private boolean isForcedTime() {
-        return forcedTime;
     }
 
 }

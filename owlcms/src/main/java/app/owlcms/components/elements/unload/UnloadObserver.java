@@ -79,9 +79,9 @@ public final class UnloadObserver extends PolymerTemplate<TemplateModel> {
         }
     }
 
-    private boolean queryingOnUnload;
-
     private boolean clientInitialised;
+
+    private boolean queryingOnUnload;
 
     /**
      * Creates the unload observer and by default queries the user on unloading the page.

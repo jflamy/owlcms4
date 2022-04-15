@@ -397,7 +397,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         // silent is the default. silent=false will cause sound
         boolean silentMode = silentParams == null || silentParams.isEmpty()
                 || silentParams.get(0).toLowerCase().equals("true");
-        switchSoundMode((Component) this, silentMode, false);
+        switchSoundMode(this, silentMode, false);
         updateParam(params, SILENT, !isSilenced() ? "false" : null);
 
         return params;
@@ -457,7 +457,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     @Override
     public void setSilenced(boolean silent) {
-        //logger.trace("{} {} {}",this.getClass().getSimpleName(), silent, LoggerUtils.whereFrom());
+        // logger.trace("{} {} {}",this.getClass().getSimpleName(), silent, LoggerUtils.whereFrom());
         this.silenced = silent;
     }
 
@@ -478,7 +478,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             }
 
             if (this instanceof AnnouncerContent) {
-                //logger.trace("%%%%%%%%%%%%%% starting break {}", LoggerUtils./**/stackTrace());
+                // logger.trace("%%%%%%%%%%%%%% starting break {}", LoggerUtils./**/stackTrace());
             }
             syncWithFOP(true);
         });
@@ -693,7 +693,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 //                        && fopState != FOPState.TIME_RUNNING) {
 //                    bt = BreakType.FIRST_SNATCH;
 //                    ct = CountdownType.DURATION;
-//                } 
+//                }
                 else {
                     bt = BreakType.TECHNICAL;
                     ct = CountdownType.INDEFINITE;
@@ -1151,7 +1151,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     protected void setTopBarTitle(String title) {
         this.topBarTitle = title;
-    };
+    }
 
     /**
      */

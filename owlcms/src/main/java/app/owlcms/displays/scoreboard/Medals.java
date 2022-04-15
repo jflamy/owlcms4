@@ -338,7 +338,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
             if (catCodes != null && catCodes.get(0) != null) {
                 cat = CategoryRepository.findByCode(catCodes.get(0));
             }
-            //logger.trace("cat = {}", cat);
+            // logger.trace("cat = {}", cat);
             if (cat != null) {
                 newParameterMap.put("cat", Arrays.asList(URLUtils.urlEncode(cat.getName())));
             }
@@ -415,14 +415,14 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
 
     @Subscribe
     public void slaveAllEvents(UIEvent e) {
-        //logger.trace("*** {}", e);
+        // logger.trace("*** {}", e);
     }
 
     @Subscribe
     public void slaveBreakDone(UIEvent.BreakDone e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
-            //logger.trace("------- slaveBreakDone {}", e.getBreakType());
+            // logger.trace("------- slaveBreakDone {}", e.getBreakType());
             setHidden(false);
             doUpdate(e);
         }));
@@ -432,7 +432,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
-            //logger.trace("------- slaveCeremonyDone {}", e.getCeremonyType());
+            // logger.trace("------- slaveCeremonyDone {}", e.getCeremonyType());
             if (e.getCeremonyType() == CeremonyType.MEDALS) {
                 // end of medals break.
                 // If this page was opened in replacement of a display, go back to the display.
@@ -445,10 +445,10 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
             }
         }));
     }
-    
+
     @Subscribe
     public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
-        //logger.trace("------- slaveCeremonyStarted {}", e.getCeremonyType());
+        // logger.trace("------- slaveCeremonyStarted {}", e.getCeremonyType());
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
@@ -458,7 +458,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
 
     @Subscribe
     public void slaveStartBreak(UIEvent.BreakStarted e) {
-        //logger.trace("------- slaveStartBreak {}", e.getBreakType());
+        // logger.trace("------- slaveStartBreak {}", e.getBreakType());
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
@@ -468,7 +468,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
 
     @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
-        //logger.trace("****** slaveStartLifting ");
+        // logger.trace("****** slaveStartLifting ");
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             setHidden(false);
@@ -509,7 +509,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     }
 
     protected void doUpdate(UIEvent e) {
-        //logger.trace("---------- doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event");
+        // logger.trace("---------- doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event");
         MedalsTemplate model = getModel();
         boolean leaveTopAlone = false;
         if (e instanceof UIEvent.LiftingOrderUpdated) {
@@ -563,42 +563,8 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         this.getElement().setPropertyJson("t", translations);
     }
 
-    private String computeLiftType(Athlete a) {
-        if (a == null || a.getAttemptsDone() > 6) {
-            return null;
-        }
-        String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
-                : Translator.translate("Snatch");
-        return liftType;
-    }
-
-    private void computeGroupMedalsJson() {
-        OwlcmsSession.withFop(fop -> {
-            //logger.trace("computeGroupMedalsJson = {} {}", getGroup(), LoggerUtils.stackTrace());
-            medals = Competition.getCurrent().getMedals(getGroup() != null ? getGroup() : fop.getGroup());
-            JsonArray jsonMCArray = Json.createArray();
-            int mcX = 0;
-            for (Entry<Category, TreeSet<Athlete>> medalCat : medals.entrySet()) {
-                JsonObject jMC = Json.createObject();
-                TreeSet<Athlete> medalists = medalCat.getValue();
-                if (medalists != null && !medalists.isEmpty()) {
-                    jMC.put("categoryName", medalCat.getKey().getName());
-                    jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
-                    // logger.debug("medalCategory: {}", jMC.toJson());
-                    jsonMCArray.set(mcX, jMC);
-                    mcX++;
-                }
-            }
-            // logger.debug("medalCategories {}", jsonMCArray.toJson());
-            this.getElement().setPropertyJson("medalCategories", jsonMCArray);
-            if (mcX == 0) {
-                this.getElement().setProperty("noCategories", true);
-            }
-        });
-    }
-
     private void computeCategoryMedalsJson() {
-        //logger.trace("computeCategoryMedalsJson = {} {}", getCategory(), LoggerUtils.whereFrom(1));
+        // logger.trace("computeCategoryMedalsJson = {} {}", getCategory(), LoggerUtils.whereFrom(1));
         OwlcmsSession.withFop(fop -> {
             medals = Competition.getCurrent().getMedals(getGroup() != null ? getGroup() : fop.getGroup());
             TreeSet<Athlete> medalists = medals.get(getCategory());
@@ -622,10 +588,52 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         });
     }
 
+    private void computeGroupMedalsJson() {
+        OwlcmsSession.withFop(fop -> {
+            // logger.trace("computeGroupMedalsJson = {} {}", getGroup(), LoggerUtils.stackTrace());
+            medals = Competition.getCurrent().getMedals(getGroup() != null ? getGroup() : fop.getGroup());
+            JsonArray jsonMCArray = Json.createArray();
+            int mcX = 0;
+            for (Entry<Category, TreeSet<Athlete>> medalCat : medals.entrySet()) {
+                JsonObject jMC = Json.createObject();
+                TreeSet<Athlete> medalists = medalCat.getValue();
+                if (medalists != null && !medalists.isEmpty()) {
+                    jMC.put("categoryName", medalCat.getKey().getName());
+                    jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
+                    // logger.debug("medalCategory: {}", jMC.toJson());
+                    jsonMCArray.set(mcX, jMC);
+                    mcX++;
+                }
+            }
+            // logger.debug("medalCategories {}", jsonMCArray.toJson());
+            this.getElement().setPropertyJson("medalCategories", jsonMCArray);
+            if (mcX == 0) {
+                this.getElement().setProperty("noCategories", true);
+            }
+        });
+    }
+
+    private String computeLiftType(Athlete a) {
+        if (a == null || a.getAttemptsDone() > 6) {
+            return null;
+        }
+        String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
+                : Translator.translate("Snatch");
+        return liftType;
+    }
+
 //    private void doUpdateBottomPart(UIEvent e) {
 //        MedalsTemplate model = getModel();
 //        updateBottom(model, null, OwlcmsSession.getFop());
 //    }
+
+    private void computeMedalsJson() {
+        if (getCategory() != null) {
+            computeCategoryMedalsJson();
+        } else {
+            computeGroupMedalsJson();
+        }
+    }
 
     private String formatInt(Integer total) {
         if (total == null || total == 0) {
@@ -840,13 +848,5 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         model.setLiftsDone("Y");
         // this.getElement().callJsFunction("groupDone");
         computeMedalsJson();
-    }
-
-    private void computeMedalsJson() {
-        if (getCategory() != null) {
-            computeCategoryMedalsJson();
-        } else {
-            computeGroupMedalsJson();
-        }
     }
 }

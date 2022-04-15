@@ -77,12 +77,12 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
         return layout;
     }
 
-    String PREPARE_COMPETITION = Translator.translate("PrepareCompetition");
-    String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup");
-    String START_DISPLAYS = Translator.translate("StartDisplays");
-    String RESULT_DOCUMENTS = Translator.translate("Results");
-
     String INFO = Translator.translate("About");
+    String PREPARE_COMPETITION = Translator.translate("PrepareCompetition");
+    String RESULT_DOCUMENTS = Translator.translate("Results");
+    String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup");
+
+    String START_DISPLAYS = Translator.translate("StartDisplays");
 
     /**
      * Instantiates a new main navigation content.

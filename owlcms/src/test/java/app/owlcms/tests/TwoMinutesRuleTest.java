@@ -57,6 +57,10 @@ public class TwoMinutesRuleTest {
 
     private List<Athlete> athletes;
 
+    public List<Athlete> getAthletes() {
+        return athletes;
+    }
+
     @Test
     public void initialCheck() {
         final String resName = "/initialCheck.txt";
@@ -81,12 +85,190 @@ public class TwoMinutesRuleTest {
         doSequence3(fopState, fopBus, logger);
     }
 
+    @Test
+    public void liftSequence4() throws InterruptedException {
+        FieldOfPlay fopState = OwlcmsSession.getFop();
+        EventBus fopBus = fopState.getFopEventBus();
+
+        doLiftSequence4(fopState, fopBus, logger);
+    }
+
+    @Before
+    public void setupTest() {
+        TestData.insertInitialData(5, true);
+        JPAService.runInTransaction((em) -> {
+            gA = GroupRepository.doFindByName("A", em);
+            gB = GroupRepository.doFindByName("B", em);
+            gC = GroupRepository.doFindByName("C", em);
+            TestData.deleteAllLifters(em);
+            TestData.insertSampleLifters(em, 5, gA, gB, gC);
+            return null;
+        });
+        AthleteRepository.resetParticipations();
+        athletes = AthleteRepository.findAll();
+        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(),
+                new MockCountdownTimer());
+        OwlcmsSession.setFop(fopState);
+        fopState.getLogger().setLevel(Level.INFO);
+        // EventBus fopBus = fopState.getFopEventBus();
+    }
+
+    public void testPrepState3(FieldOfPlay fopState, EventBus fopBus, Logger logger2) {
+        fopState.testBefore();
+        fopState.loadGroup(gA, this, true);
+        athletes = fopState.getDisplayOrder();
+        final Athlete schneiderF = athletes.get(0);
+        final Athlete simpsonR = athletes.get(1);
+
+        JPAService.runInTransaction(em -> {
+            AthleteSorter.assignStartNumbers(athletes);
+            // simulate initial declaration at weigh-in
+            schneiderF.setSnatch1Declaration(Integer.toString(60));
+            simpsonR.setSnatch1Declaration(Integer.toString(60));
+            schneiderF.setCleanJerk1Declaration(Integer.toString(80));
+            simpsonR.setCleanJerk1Declaration(Integer.toString(82));
+            em.merge(schneiderF);
+            em.merge(simpsonR);
+
+            // hide non-athletes from Group
+            AthleteSorter.liftingOrder(athletes);
+            final int size = athletes.size();
+            for (int i = 2; i < size; i++) {
+                Athlete athlete = athletes.get(i);
+                athlete.setGroup(null);
+                logger.info("athlete {}, group {}", athlete, athlete.getGroup());
+                em.merge(athlete);
+            }
+            em.flush();
+            return null;
+        });
+        fopState.loadGroup(gA, this, true);
+    }
+
+    public void testPrepState4(FieldOfPlay fopState, EventBus fopBus, Logger logger2) {
+        fopState.testBefore();
+        fopState.loadGroup(gA, this, true);
+        athletes = fopState.getDisplayOrder();
+        final Athlete schneiderF = athletes.get(0);
+        final Athlete simpsonR = athletes.get(1);
+
+        JPAService.runInTransaction(em -> {
+            AthleteSorter.assignStartNumbers(athletes);
+            // simulate initial declaration at weigh-in
+            schneiderF.setSnatch1Declaration(Integer.toString(60));
+            simpsonR.setSnatch1Declaration(Integer.toString(65));
+            schneiderF.setCleanJerk1Declaration(Integer.toString(80));
+            simpsonR.setCleanJerk1Declaration(Integer.toString(85));
+            em.merge(schneiderF);
+            em.merge(simpsonR);
+
+            // hide non-athletes from Group
+            AthleteSorter.liftingOrder(athletes);
+            final int size = athletes.size();
+            for (int i = 2; i < size; i++) {
+                Athlete athlete = athletes.get(i);
+                athlete.setGroup(null);
+                logger.info("athlete {}, group {}", athlete, athlete.getGroup());
+                em.merge(athlete);
+            }
+            em.flush();
+            return null;
+        });
+        fopState.loadGroup(gA, this, true);
+    }
+
+    void doLiftSequence4(FieldOfPlay fopState, EventBus fopBus, Logger logger) {
+        testPrepState4(fopState, fopBus, logger);
+        Group group = fopState.getGroup();
+        fopBus.post(new FOPEvent.SwitchGroup(group, this));
+        fopBus.post(new FOPEvent.StartLifting(this));
+
+        athletes = fopState.getDisplayOrder();
+        final Athlete schneiderF = athletes.get(0);
+        final Athlete simpsonR = athletes.get(1);
+
+        // competition start
+        assertEquals(60000, fopState.getTimeAllowed());
+
+        // schneiderF snatch1
+        Athlete curLifter = fopState.getCurAthlete();
+        assertEquals(schneiderF, curLifter);
+        successfulLift(fopBus, curLifter, fopState);
+
+        // schneiderF snatch2
+        curLifter = fopState.getCurAthlete();
+        assertEquals(schneiderF, curLifter);
+        assertEquals(120000, fopState.getTimeAllowed());
+        successfulLift(fopBus, curLifter, fopState);
+
+        // schneiderF snatch3
+        curLifter = fopState.getCurAthlete();
+        assertEquals(schneiderF, curLifter);
+        assertEquals(120000, fopState.getTimeAllowed());
+        successfulLift(fopBus, curLifter, fopState);
+
+        // simpsonR snatch1
+        curLifter = fopState.getCurAthlete();
+        assertEquals(simpsonR, curLifter);
+        assertEquals(60000, fopState.getTimeAllowed());
+        successfulLift(fopBus, curLifter, fopState);
+
+        // simpsonR snatch2
+        curLifter = fopState.getCurAthlete();
+        assertEquals(simpsonR, curLifter);
+        assertEquals(120000, fopState.getTimeAllowed());
+        successfulLift(fopBus, curLifter, fopState);
+
+        // simpsonR snatch3
+        curLifter = fopState.getCurAthlete();
+        assertEquals(simpsonR, curLifter);
+        assertEquals(120000, fopState.getTimeAllowed());
+        successfulLift(fopBus, curLifter, fopState);
+
+        // schneiderF cj1
+        curLifter = fopState.getCurAthlete();
+        assertEquals(schneiderF, curLifter);
+        assertEquals(60000, fopState.getTimeAllowed());
+        successfulLift(fopBus, curLifter, fopState);
+
+        // schneiderF cj2
+        curLifter = fopState.getCurAthlete();
+        assertEquals(schneiderF, curLifter);
+        assertEquals(schneiderF, fopState.getPreviousAthlete());
+        assertEquals(120000, fopState.getTimeAllowed());
+        successfulLift(fopBus, curLifter, fopState);
+
+        // schneiderF cj3
+        curLifter = fopState.getCurAthlete();
+        assertEquals(schneiderF, curLifter);
+        assertEquals(120000, fopState.getTimeAllowed());
+        successfulLift(fopBus, curLifter, fopState);
+
+        // simpsonR cj1
+        curLifter = fopState.getCurAthlete();
+        assertEquals(simpsonR, curLifter);
+        assertEquals(60000, fopState.getTimeAllowed());
+        successfulLift(fopBus, curLifter, fopState);
+
+        // simpsonR cj2
+        curLifter = fopState.getCurAthlete();
+        assertEquals(simpsonR, curLifter);
+        assertEquals(120000, fopState.getTimeAllowed());
+        successfulLift(fopBus, curLifter, fopState);
+
+        // simpsonR cj3
+        curLifter = fopState.getCurAthlete();
+        assertEquals(simpsonR, curLifter);
+        assertEquals(120000, fopState.getTimeAllowed());
+        successfulLift(fopBus, curLifter, fopState);
+    }
+
     void doSequence3(FieldOfPlay fopState, EventBus fopBus, Logger logger) {
         testPrepState3(fopState, fopBus, logger);
         Group group = fopState.getGroup();
         fopBus.post(new FOPEvent.SwitchGroup(group, this));
         fopBus.post(new FOPEvent.StartLifting(this));
-        
+
         athletes = fopState.getDisplayOrder();
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);
@@ -174,183 +356,6 @@ public class TwoMinutesRuleTest {
         assertEquals(remainingTime, fopState.getTimeAllowed());
     }
 
-    public void testPrepState3(FieldOfPlay fopState, EventBus fopBus, Logger logger2) {
-        fopState.testBefore();
-        fopState.loadGroup(gA, this, true);
-        athletes = fopState.getDisplayOrder();
-        final Athlete schneiderF = athletes.get(0);
-        final Athlete simpsonR = athletes.get(1);
-
-        JPAService.runInTransaction(em -> {
-            AthleteSorter.assignStartNumbers(athletes);
-            // simulate initial declaration at weigh-in
-            schneiderF.setSnatch1Declaration(Integer.toString(60));
-            simpsonR.setSnatch1Declaration(Integer.toString(60));
-            schneiderF.setCleanJerk1Declaration(Integer.toString(80));
-            simpsonR.setCleanJerk1Declaration(Integer.toString(82));
-            em.merge(schneiderF);
-            em.merge(simpsonR);
-
-            // hide non-athletes from Group
-            AthleteSorter.liftingOrder(athletes);
-            final int size = athletes.size();
-            for (int i = 2; i < size; i++) {
-                Athlete athlete = athletes.get(i);
-                athlete.setGroup(null);
-                logger.info("athlete {}, group {}",athlete,athlete.getGroup());
-                em.merge(athlete);
-            }
-            em.flush();
-            return null;
-        });        
-        fopState.loadGroup(gA, this, true);
-    }
-    
-    public void testPrepState4(FieldOfPlay fopState, EventBus fopBus, Logger logger2) {
-        fopState.testBefore();
-        fopState.loadGroup(gA, this, true);
-        athletes = fopState.getDisplayOrder();
-        final Athlete schneiderF = athletes.get(0);
-        final Athlete simpsonR = athletes.get(1);
-
-        JPAService.runInTransaction(em -> {
-            AthleteSorter.assignStartNumbers(athletes);
-            // simulate initial declaration at weigh-in
-            schneiderF.setSnatch1Declaration(Integer.toString(60));
-            simpsonR.setSnatch1Declaration(Integer.toString(65));
-            schneiderF.setCleanJerk1Declaration(Integer.toString(80));
-            simpsonR.setCleanJerk1Declaration(Integer.toString(85));
-            em.merge(schneiderF);
-            em.merge(simpsonR);
-
-            // hide non-athletes from Group
-            AthleteSorter.liftingOrder(athletes);
-            final int size = athletes.size();
-            for (int i = 2; i < size; i++) {
-                Athlete athlete = athletes.get(i);
-                athlete.setGroup(null);
-                logger.info("athlete {}, group {}",athlete,athlete.getGroup());
-                em.merge(athlete);
-            }
-            em.flush();
-            return null;
-        });        
-        fopState.loadGroup(gA, this, true);
-    }
-
-    @Test
-    public void liftSequence4() throws InterruptedException {
-        FieldOfPlay fopState = OwlcmsSession.getFop();
-        EventBus fopBus = fopState.getFopEventBus();
-
-        doLiftSequence4(fopState, fopBus, logger);
-    }
-
-    void doLiftSequence4(FieldOfPlay fopState, EventBus fopBus, Logger logger) {
-        testPrepState4(fopState, fopBus, logger);
-        Group group = fopState.getGroup();
-        fopBus.post(new FOPEvent.SwitchGroup(group, this));
-        fopBus.post(new FOPEvent.StartLifting(this));
-        
-        athletes = fopState.getDisplayOrder();
-        final Athlete schneiderF = athletes.get(0);
-        final Athlete simpsonR = athletes.get(1);
-
-        // competition start
-        assertEquals(60000, fopState.getTimeAllowed());
-
-        // schneiderF snatch1
-        Athlete curLifter = fopState.getCurAthlete();
-        assertEquals(schneiderF, curLifter);
-        successfulLift(fopBus, curLifter, fopState);
-
-        // schneiderF snatch2
-        curLifter = fopState.getCurAthlete();
-        assertEquals(schneiderF, curLifter);
-        assertEquals(120000, fopState.getTimeAllowed());
-        successfulLift(fopBus, curLifter, fopState);
-
-        // schneiderF snatch3
-        curLifter = fopState.getCurAthlete();
-        assertEquals(schneiderF, curLifter);
-        assertEquals(120000, fopState.getTimeAllowed());
-        successfulLift(fopBus, curLifter, fopState);
-
-        // simpsonR snatch1
-        curLifter = fopState.getCurAthlete();
-        assertEquals(simpsonR, curLifter);
-        assertEquals(60000, fopState.getTimeAllowed());
-        successfulLift(fopBus, curLifter, fopState);
-
-        // simpsonR snatch2
-        curLifter = fopState.getCurAthlete();
-        assertEquals(simpsonR, curLifter);
-        assertEquals(120000, fopState.getTimeAllowed());
-        successfulLift(fopBus, curLifter, fopState);
-
-        // simpsonR snatch3
-        curLifter = fopState.getCurAthlete();
-        assertEquals(simpsonR, curLifter);
-        assertEquals(120000, fopState.getTimeAllowed());
-        successfulLift(fopBus, curLifter, fopState);
-
-        // schneiderF cj1
-        curLifter = fopState.getCurAthlete();
-        assertEquals(schneiderF, curLifter);
-        assertEquals(60000, fopState.getTimeAllowed());
-        successfulLift(fopBus, curLifter, fopState);
-
-        // schneiderF cj2
-        curLifter = fopState.getCurAthlete();
-        assertEquals(schneiderF, curLifter);
-        assertEquals(schneiderF, fopState.getPreviousAthlete());
-        assertEquals(120000, fopState.getTimeAllowed());
-        successfulLift(fopBus, curLifter, fopState);
-
-        // schneiderF cj3
-        curLifter = fopState.getCurAthlete();
-        assertEquals(schneiderF, curLifter);
-        assertEquals(120000, fopState.getTimeAllowed());
-        successfulLift(fopBus, curLifter, fopState);
-
-        // simpsonR cj1
-        curLifter = fopState.getCurAthlete();
-        assertEquals(simpsonR, curLifter);
-        assertEquals(60000, fopState.getTimeAllowed());
-        successfulLift(fopBus, curLifter, fopState);
-
-        // simpsonR cj2
-        curLifter = fopState.getCurAthlete();
-        assertEquals(simpsonR, curLifter);
-        assertEquals(120000, fopState.getTimeAllowed());
-        successfulLift(fopBus, curLifter, fopState);
-
-        // simpsonR cj3
-        curLifter = fopState.getCurAthlete();
-        assertEquals(simpsonR, curLifter);
-        assertEquals(120000, fopState.getTimeAllowed());
-        successfulLift(fopBus, curLifter, fopState);
-    }
-
-    @Before
-    public void setupTest() {
-        TestData.insertInitialData(5, true);
-        JPAService.runInTransaction((em) -> {
-            gA = GroupRepository.doFindByName("A", em);
-            gB = GroupRepository.doFindByName("B", em);
-            gC = GroupRepository.doFindByName("C", em);
-            TestData.deleteAllLifters(em);
-            TestData.insertSampleLifters(em, 5, gA, gB, gC);
-            return null;
-        });
-        AthleteRepository.resetParticipations();
-        athletes = AthleteRepository.findAll();
-        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer());
-        OwlcmsSession.setFop(fopState);
-        fopState.getLogger().setLevel(Level.INFO);
-        // EventBus fopBus = fopState.getFopEventBus();
-    }
-
     /**
      * @param lifter
      * @param weight
@@ -377,7 +382,7 @@ public class TwoMinutesRuleTest {
             case 6:
                 lifter.setCleanJerk3Declaration(weight);
                 break;
-            };
+            }
             em.merge(lifter);
             return null;
         });
@@ -403,10 +408,6 @@ public class TwoMinutesRuleTest {
         logger.debug("successful lift for {}", curLifter);
 //        fopState.finalDecision(null);
         fopBus.post(new FOPEvent.DecisionReset(null));
-    }
-
-    public List<Athlete> getAthletes() {
-        return athletes;
     }
 
 }

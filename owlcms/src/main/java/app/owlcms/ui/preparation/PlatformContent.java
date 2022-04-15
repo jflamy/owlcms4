@@ -49,8 +49,8 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
         logger.setLevel(Level.INFO);
     }
 
-    private OwlcmsRouterLayout routerLayout;
     private OwlcmsCrudFormFactory<Platform> editingFormFactory;
+    private OwlcmsRouterLayout routerLayout;
 
     /**
      * Instantiates the Platform crudGrid.

@@ -18,8 +18,8 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 @SuppressWarnings("serial")
 public class OwlcmsComboBoxProvider<T> extends ComboBoxProvider<T> {
 
-    private ItemLabelGenerator<T> itemLabelGenerator;
     private boolean clearButtonVisible = false;
+    private ItemLabelGenerator<T> itemLabelGenerator;
 
     public OwlcmsComboBoxProvider(Collection<T> items) {
         super(items);

@@ -19,7 +19,7 @@ public interface BreakDisplay {
     Logger logger = (Logger) LoggerFactory.getLogger(BreakDisplay.class);
 
     public void doBreak(UIEvent e);
-    
+
     public void doCeremony(UIEvent.CeremonyStarted e);
 
     public default String inferGroupName() {
@@ -63,7 +63,5 @@ public interface BreakDisplay {
         // can't happen
         return "";
     }
-
-
 
 }

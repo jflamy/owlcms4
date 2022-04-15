@@ -30,6 +30,10 @@ public class BeepElement extends PolymerTemplate<BeepElement.BeepModel>
         void setSilent(boolean b);
     }
 
+    public void beep() {
+        this.getElement().callJsFunction("beep");
+    }
+
     /*
      * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
      */
@@ -37,9 +41,5 @@ public class BeepElement extends PolymerTemplate<BeepElement.BeepModel>
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         getModel().setSilent(false);
-    }
-
-    public void beep() {
-        this.getElement().callJsFunction("beep");
     }
 }

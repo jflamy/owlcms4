@@ -30,15 +30,15 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class TeamTreeData extends TreeData<TeamTreeItem> {
 
-    private final Logger logger = (Logger) LoggerFactory.getLogger(TeamTreeData.class);
-
     Map<Gender, List<TeamTreeItem>> teamsByGender = new EnumMap<>(Gender.class);
-
-    private List<Group> doneGroups = null;
 
     private boolean debug = false;
 
+    private List<Group> doneGroups = null;
+
     private Gender genderFilterValue;
+
+    private final Logger logger = (Logger) LoggerFactory.getLogger(TeamTreeData.class);
 
     private HashMap<String, Object> reportingBeans;
 

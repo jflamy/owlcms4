@@ -43,9 +43,6 @@ public class Participation implements IRankHolder {
     @Transient
     private final static Logger logger = (Logger) LoggerFactory.getLogger(Participation.class);
 
-    @EmbeddedId
-    private ParticipationId id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("athleteId")
     @JsonIdentityReference(alwaysAsId = true)
@@ -60,16 +57,22 @@ public class Participation implements IRankHolder {
     private int cleanJerkRank;
 
     @Column(columnDefinition = "integer default 0")
+    private int combinedRank;
+
+    @Column(columnDefinition = "integer default 0")
     private int customRank;
+
+    @EmbeddedId
+    private ParticipationId id;
 
     @Column(columnDefinition = "integer default 0")
     private int snatchRank;
 
     @Column(columnDefinition = "integer default 0")
-    private int totalRank;
+    private int teamCJRank;
 
     @Column(columnDefinition = "integer default 0")
-    private int combinedRank;
+    private int teamCombinedRank;
 
     /**
      * Athlete is member of team for the age group. Points will be scored according to ranks. An athlete can be
@@ -79,15 +82,6 @@ public class Participation implements IRankHolder {
     private boolean teamMember = true;
 
     @Column(columnDefinition = "integer default 0")
-    private int teamTotalRank;
-
-    @Column(columnDefinition = "integer default 0")
-    private int teamCJRank;
-
-    @Column(columnDefinition = "integer default 0")
-    private int teamCombinedRank;
-
-    @Column(columnDefinition = "integer default 0")
     private int teamRobiRank;
 
     @Column(columnDefinition = "integer default 0")
@@ -95,6 +89,12 @@ public class Participation implements IRankHolder {
 
     @Column(columnDefinition = "integer default 0")
     private int teamSnatchRank;
+
+    @Column(columnDefinition = "integer default 0")
+    private int teamTotalRank;
+
+    @Column(columnDefinition = "integer default 0")
+    private int totalRank;
 
     public Participation(Athlete athlete, Category category) {
         this();

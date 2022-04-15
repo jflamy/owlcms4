@@ -43,8 +43,8 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
         logger.setLevel(Level.INFO);
     }
 
-    private OwlcmsRouterLayout routerLayout;
     private OwlcmsCrudFormFactory<Group> editingFormFactory;
+    private OwlcmsRouterLayout routerLayout;
 
     /**
      * Instantiates the Group crudGrid.
@@ -59,6 +59,9 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
     @Override
     public Group add(Group domainObjectToAdd) {
         return editingFormFactory.add(domainObjectToAdd);
+    }
+
+    public void closeDialog() {
     }
 
     @Override
@@ -94,11 +97,6 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
         this.routerLayout = routerLayout;
     }
 
-    @Override
-    public Group update(Group domainObjectToUpdate) {
-        return editingFormFactory.update(domainObjectToUpdate);
-    }
-
 //    /**
 //     * The content and ordering of the editing form.
 //     *
@@ -117,11 +115,16 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
 //                getTranslation("Referee1"), getTranslation("Referee2"), getTranslation("Referee3"),
 //                getTranslation("Jury1"), getTranslation("Jury2"), getTranslation("Jury3"), getTranslation("Jury4"),
 //                getTranslation("Jury5"));
-//        crudFormFactory.setFieldProvider("platform", 
+//        crudFormFactory.setFieldProvider("platform",
 //                new OwlcmsComboBoxProvider<>(getTranslation("Platform"), PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName));
 //        crudFormFactory.setFieldType("weighInTime", LocalDateTimePicker.class);
 //        crudFormFactory.setFieldType("competitionTime", LocalDateTimePicker.class);
 //    }
+
+    @Override
+    public Group update(Group domainObjectToUpdate) {
+        return editingFormFactory.update(domainObjectToUpdate);
+    }
 
     /**
      * The columns of the crudGrid
@@ -168,7 +171,4 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
 //    private OwlcmsCrudFormFactory<Group> createGroupEditingFormFactory() {
 //        return new GroupEditingFormFactory(Group.class);
 //    }
-
-    public void closeDialog() {
-    }
 }

@@ -8,14 +8,14 @@ package app.owlcms.uievents;
 
 /**
  * A Ceremony is something that takes place during a break, but does not affect the timer
- * 
+ *
  * @author JF
  *
  */
 public enum CeremonyType {
 
     INTRODUCTION,
-    OFFICIALS_INTRODUCTION,
-    MEDALS;
+    MEDALS,
+    OFFICIALS_INTRODUCTION;
 
 }

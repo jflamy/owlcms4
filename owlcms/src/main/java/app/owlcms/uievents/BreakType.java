@@ -12,13 +12,13 @@ package app.owlcms.uievents;
  * countdown timer MUST be running with the state that we go to when the ceremony ends.
  * </p>
  * <p>
- * Rule: because it is possible to hide/show the break dialog, the break timer shown on entry is the one already set or running. So
- * the timer must be set at the end of the previous break. E.g. end of BEFORE_INTRODUCTION sets BEFORE_SNATCH 10:00 minutes
- * as the duration, and pauses the timer.
+ * Rule: because it is possible to hide/show the break dialog, the break timer shown on entry is the one already set or
+ * running. So the timer must be set at the end of the previous break. E.g. end of BEFORE_INTRODUCTION sets
+ * BEFORE_SNATCH 10:00 minutes as the duration, and pauses the timer.
  * </p>
  * <ol>
  * <li>Medals for group 1 before introduction of group 2, countdown started *after* medals
- * 
+ *
  * <pre>
  * GROUP_DONE (indefinite timer, end break = resume current group that was just done)
  * start medals
@@ -41,10 +41,10 @@ package app.owlcms.uievents;
  * timer ends, automatic switch
  * CURRENT_ATHLETE_DISPLAYED
  * </pre>
- * 
+ *
  * <li>Medals for group 1 given after the introduction of the next group 2. Officials before or after medals does not
  * matter.
- * 
+ *
  * <pre>
  * GROUP_DONE (indefinite timer, end break = resume current group that was just done)
  * click intro timer
@@ -69,12 +69,13 @@ package app.owlcms.uievents;
  * timer ends, automatic switch
  * CURRENT_ATHLETE_DISPLAYED
  * </pre>
- * 
+ *
  * </li>
- * 
+ *
  * </li>
- * <li>Doable even though not compliant with rules: first snatch at scheduled time, no introduction timer (introduction done
- * informally)
+ * <li>Doable even though not compliant with rules: first snatch at scheduled time, no introduction timer (introduction
+ * done informally)
+ *
  * <pre>
  * GROUP_DONE (indefinite timer, manual end break = resume current group that was just done)
  * click on snatch timer
@@ -90,20 +91,20 @@ package app.owlcms.uievents;
  * timer ends, automatic switch
  * CURRENT_ATHLETE_DISPLAYED
  * </pre>
- * 
+ *
  * </li>
- * 
+ *
  * @author JF
  *
  */
 public enum BreakType {
 
     BEFORE_INTRODUCTION(true, false),
-    FIRST_SNATCH(true, false),
     FIRST_CJ(true, false),
-    TECHNICAL(false, true),
+    FIRST_SNATCH(true, false),
+    GROUP_DONE(false, false),
     JURY(false, true),
-    GROUP_DONE(false, false);
+    TECHNICAL(false, true);
 
     private boolean countdown;
     private boolean interruption;

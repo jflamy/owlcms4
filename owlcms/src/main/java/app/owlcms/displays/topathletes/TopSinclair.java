@@ -105,19 +105,19 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
         uiEventLogger.setLevel(Level.INFO);
     }
 
-    private EventBus uiEventBus;
+    JsonArray cattempts;
 
     JsonArray sattempts;
-    JsonArray cattempts;
-    private double topManSinclair;
-    private double topWomanSinclair;
-    private List<Athlete> sortedMen;
-    private List<Athlete> sortedWomen;
     private boolean darkMode;
-    private Location location;
-    private UI locationUI;
     private Dialog dialog;
     private boolean initializationNeeded;
+    private Location location;
+    private UI locationUI;
+    private List<Athlete> sortedMen;
+    private List<Athlete> sortedWomen;
+    private double topManSinclair;
+    private double topWomanSinclair;
+    private EventBus uiEventBus;
 
     /**
      * Instantiates a new results board.
@@ -151,7 +151,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
             doUpdate(fop.getCurAthlete(), null);
         }));
     }
-    
+
     @Override
     public void doCeremony(UIEvent.CeremonyStarted e) {
         doBreak(e);

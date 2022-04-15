@@ -45,9 +45,9 @@ import ch.qos.logback.classic.Logger;
 @Route(value = LoginView.LOGIN, layout = OwlcmsRouterLayout.class)
 public class LoginView extends Composite<VerticalLayout> implements AppLayoutAware, ContentWrapping {
 
-    static Logger logger = (Logger) LoggerFactory.getLogger(LoginView.class);
-
     public static final String LOGIN = "login";
+
+    static Logger logger = (Logger) LoggerFactory.getLogger(LoginView.class);
 
     private PasswordField pinField = new PasswordField();
 

@@ -215,7 +215,7 @@ public class Competition {
     private boolean useRegistrationCategory = false;
     @Column(columnDefinition = "integer default 10")
     private Integer womensTeamSize = 10;
-    
+
     public Competition() {
         medalsByGroup = new HashMap<>();
     }
@@ -241,7 +241,7 @@ public class Competition {
         }
         if (medalsByGroup == null) {
             logger.error("no initialization !?");
-            medalsByGroup = new HashMap<Group, TreeMap<Category, TreeSet<Athlete>>>();
+            medalsByGroup = new HashMap<>();
         }
         if (rankedAthletes == null || rankedAthletes.size() == 0) {
             TreeMap<Category, TreeSet<Athlete>> treeMap = new TreeMap<>();
@@ -260,7 +260,7 @@ public class Competition {
                 .filter(a -> a.getSnatch1AsInteger() == null)
                 .map(a -> a.getCategory())
                 .collect(Collectors.toSet());
-        //logger.debug("medalCategories: all {} notDone {}", medalCategories, notDone);
+        // logger.debug("medalCategories: all {} notDone {}", medalCategories, notDone);
         medalCategories.removeAll(notDone);
 
         TreeMap<Category, TreeSet<Athlete>> medals = new TreeMap<>();
@@ -453,7 +453,7 @@ public class Competition {
             return getMedalsTemplateFileName();
         }
     }
-    
+
     /**
      * Gets the protocol file name.
      *
@@ -602,8 +602,6 @@ public class Competition {
         }
     }
 
-
-
     /**
      * Gets the masters.C
      *
@@ -619,16 +617,16 @@ public class Competition {
             medals = computeMedals(g);
         }
         return medals;
-        
+
     }
-    
+
     public TreeSet<Athlete> getMedals(Group g, Category c) {
         TreeMap<Category, TreeSet<Athlete>> medals;
         if (medalsByGroup == null || (medals = medalsByGroup.get(g)) == null) {
             medals = computeMedals(g);
         }
         return medals.get(c);
-        
+
     }
 
     @Transient

@@ -57,12 +57,12 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
         logger.setLevel(Level.INFO);
     }
 
+    private Checkbox activeFilter = new Checkbox();
     private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
     private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
-    private TextField nameFilter = new TextField();
-    private Checkbox activeFilter = new Checkbox();
-    private OwlcmsRouterLayout routerLayout;
     private OwlcmsCrudFormFactory<Category> crudFormFactory;
+    private TextField nameFilter = new TextField();
+    private OwlcmsRouterLayout routerLayout;
 
     /**
      * Instantiates the category crudGrid.

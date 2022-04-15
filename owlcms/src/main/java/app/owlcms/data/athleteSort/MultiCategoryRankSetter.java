@@ -21,10 +21,10 @@ public class MultiCategoryRankSetter {
 
     Logger logger = (Logger) LoggerFactory.getLogger(MultiCategoryRankSetter.class);
 
-    private int rank = 0;
-
     // we use a participation objet because, by definition, it contains all the category-based rankings
     Map<String, CategoryRankingHolder> rankings = new HashMap<>();
+
+    private int rank = 0;
 
     public void increment(Athlete a, Ranking r, double rankingValue) {
         if (a == null) {

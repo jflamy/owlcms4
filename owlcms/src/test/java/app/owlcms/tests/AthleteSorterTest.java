@@ -57,7 +57,7 @@ public class AthleteSorterTest {
         AthleteSorter.displayOrder(athletes);
         AthleteSorter.assignStartNumbers(athletes);
 
-        //Collections.shuffle(athletes);
+        // Collections.shuffle(athletes);
 
         List<Athlete> sorted = AthleteSorter.liftingOrderCopy(athletes);
         final String actual = DebugUtils.shortDump(sorted);
@@ -65,8 +65,94 @@ public class AthleteSorterTest {
     }
 
     @Test
+    public void liftSequence2() {
+        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(),
+                new MockCountdownTimer());
+        OwlcmsSession.setFop(fopState);
+        fopState.getLogger().setLevel(LOGGER_LEVEL);
+        // EventBus fopBus = fopState.getFopEventBus();
+
+        AthleteSorter.displayOrder(athletes);
+        AthleteSorter.assignStartNumbers(athletes);
+
+        final Athlete schneiderF = athletes.get(0);
+        final Athlete simpsonR = athletes.get(1);
+
+        // hide non-athletes
+        final int size = athletes.size();
+        for (int i = 2; i < size; i++) {
+            athletes.remove(2);
+        }
+
+        // simulate weigh-in
+        schneiderF.setBodyWeight(68.0);
+        simpsonR.setBodyWeight(67.9);
+        schneiderF.setSnatch1Declaration(Integer.toString(70));
+        simpsonR.setSnatch1Declaration(Integer.toString(60));
+        schneiderF.setCleanJerk1Declaration(Integer.toString(80));
+        simpsonR.setCleanJerk1Declaration(Integer.toString(80));
+        AthleteSorter.liftingOrder(athletes);
+
+        // simpson will do all his lifts first and finish first
+        successfulLift(athletes);
+        successfulLift(athletes);
+        successfulLift(athletes);
+        successfulLift(athletes);
+        successfulLift(athletes);
+        successfulLift(athletes);
+        // but schneider should still start first CJ (does not matter who lifted
+        // first)
+        assertEquals(schneiderF, athletes.get(0));
+    }
+
+    @Test
+    public void medalsBodyWeight() {
+        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(),
+                new MockCountdownTimer());
+        OwlcmsSession.setFop(fopState);
+        fopState.getLogger().setLevel(LOGGER_LEVEL);
+        // EventBus fopBus = fopState.getFopEventBus();
+
+        AthleteSorter.displayOrder(athletes);
+        AthleteSorter.assignStartNumbers(athletes);
+
+        final Athlete schneiderF = athletes.get(0);
+        final Athlete simpsonR = athletes.get(1);
+        final Athlete allisonA = athletes.get(2);
+        final Athlete verneU = athletes.get(3);
+
+        doLifts(schneiderF, simpsonR, allisonA, verneU);
+
+        // all athletes are done, check medals
+
+        // all athletes have body weight = 0
+        // we have two athletes at same total and same bodyweight.
+        // The one who reached total *first* should win.
+        // in this test sequence, the winner has bigger lot number, but still
+        // wins because of earlier lift.
+        Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
+        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
+        assertEqualsToReferenceFile("/seq1_medals_timeStamp.txt", DebugUtils.shortDump(athletes));
+
+        // now we give the first two athletes different body weights (second is
+        // lighter)
+        athletes.get(0).setBodyWeight(68.0);
+        athletes.get(1).setBodyWeight(67.9);
+        athletes.get(2).setBodyWeight(68.5);
+        athletes.get(3).setBodyWeight(68.4);
+        // we give the lighter lifter a higher lot number, which should make him lose (there is no
+        // bodyweight advantage anymore)
+        athletes.get(1).setLotNumber(99);
+        // and we sort again for medals.
+        Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
+        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
+        assertEqualsToReferenceFile("/seq1_medals_bodyWeight.txt", DebugUtils.shortDump(athletes));
+    }
+
+    @Test
     public void medalsEarlierTotals() {
-        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer());
+        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(),
+                new MockCountdownTimer());
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LOGGER_LEVEL);
         // EventBus fopBus = fopState.getFopEventBus();
@@ -203,6 +289,139 @@ public class AthleteSorterTest {
         }
     }
 
+    @Before
+    public void setupTest() {
+        // for this test, the initial data does not include body weights, so we use false
+        // on the constructor to disable exclusion of incomplete data.
+        athletes = AthleteRepository.findAll();
+        OwlcmsSession.withFop(fop -> fop.testBefore());
+    }
+
+    /**
+     * @param lifter
+     * @param lifters1
+     * @param weight
+     */
+    private void change1(final Athlete lifter, List<Athlete> lifters1, final String weight) {
+        // sleep for a while to ensure that we get different time stamps on the
+        // lifts.
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+        }
+        switch (lifter.getAttemptsDone() + 1) {
+        case 1:
+            lifter.setSnatch1Change1(weight);
+            break;
+        case 2:
+            lifter.setSnatch2Change1(weight);
+            break;
+        case 3:
+            lifter.setSnatch3Change1(weight);
+            break;
+        case 4:
+            lifter.setCleanJerk1Change1(weight);
+            break;
+        case 5:
+            lifter.setCleanJerk2Change1(weight);
+            break;
+        case 6:
+            lifter.setCleanJerk3Change1(weight);
+            break;
+        }
+        AthleteSorter.liftingOrder(lifters1);
+    }
+
+    /*************************************************************************************
+     * Utility routines
+     */
+
+    /**
+     * @param lifter
+     * @param lifters1
+     * @param weight
+     */
+    private void change2(final Athlete lifter, List<Athlete> lifters1, final String weight) {
+        // sleep for a while to ensure that we get different time stamps on the
+        // lifts.
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+        }
+        switch (lifter.getAttemptsDone() + 1) {
+        case 1:
+            lifter.setSnatch1Change2(weight);
+            break;
+        case 2:
+            lifter.setSnatch2Change2(weight);
+            break;
+        case 3:
+            lifter.setSnatch3Change2(weight);
+            break;
+        case 4:
+            lifter.setCleanJerk1Change2(weight);
+            break;
+        case 5:
+            lifter.setCleanJerk2Change2(weight);
+            break;
+        case 6:
+            lifter.setCleanJerk3Change2(weight);
+            break;
+        }
+        AthleteSorter.liftingOrder(lifters1);
+    }
+
+    /**
+     * @param lifter
+     * @param lifters1
+     * @param weight
+     */
+    private void declaration(final Athlete lifter, List<Athlete> lifters1, final String weight) {
+        // sleep for a while to ensure that we get different time stamps on the
+        // lifts.
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+        }
+        switch (lifter.getAttemptsDone() + 1) {
+        case 1:
+            lifter.setSnatch1Declaration(weight);
+            break;
+        case 2:
+            lifter.setSnatch2Declaration(weight);
+            break;
+        case 3:
+            lifter.setSnatch3Declaration(weight);
+            break;
+        case 4:
+            lifter.setCleanJerk1Declaration(weight);
+            break;
+        case 5:
+            lifter.setCleanJerk2Declaration(weight);
+            break;
+        case 6:
+            lifter.setCleanJerk3Declaration(weight);
+            break;
+        }
+        AthleteSorter.liftingOrder(lifters1);
+    }
+
+    /**
+     * @param lifter
+     * @param lifters1
+     * @param weight
+     */
+    private void doLift(final Athlete lifter, List<Athlete> lifters1, final String weight) {
+        // sleep for a while to ensure that we get different time stamps on the
+        // lifts.
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+        }
+        lifter.doLift(weight);
+        AthleteSorter.liftingOrder(lifters1);
+    }
+
     private void doLifts(final Athlete schneiderF, final Athlete simpsonR, final Athlete allisonA,
             final Athlete verneU) {
         // all males
@@ -291,222 +510,6 @@ public class AthleteSorterTest {
         successfulLift(athletes);
         successfulLift(athletes);
 
-    }
-
-    @Test
-    public void medalsBodyWeight() {
-        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer());
-        OwlcmsSession.setFop(fopState);
-        fopState.getLogger().setLevel(LOGGER_LEVEL);
-        // EventBus fopBus = fopState.getFopEventBus();
-
-        AthleteSorter.displayOrder(athletes);
-        AthleteSorter.assignStartNumbers(athletes);
-
-        final Athlete schneiderF = athletes.get(0);
-        final Athlete simpsonR = athletes.get(1);
-        final Athlete allisonA = athletes.get(2);
-        final Athlete verneU = athletes.get(3);
-
-        doLifts(schneiderF, simpsonR, allisonA, verneU);
-
-        // all athletes are done, check medals
-
-        // all athletes have body weight = 0
-        // we have two athletes at same total and same bodyweight.
-        // The one who reached total *first* should win.
-        // in this test sequence, the winner has bigger lot number, but still
-        // wins because of earlier lift.
-        Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
-        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-        assertEqualsToReferenceFile("/seq1_medals_timeStamp.txt", DebugUtils.shortDump(athletes));
-
-        // now we give the first two athletes different body weights (second is
-        // lighter)
-        athletes.get(0).setBodyWeight(68.0);
-        athletes.get(1).setBodyWeight(67.9);
-        athletes.get(2).setBodyWeight(68.5);
-        athletes.get(3).setBodyWeight(68.4);
-        // we give the lighter lifter a higher lot number, which should make him lose (there is no
-        // bodyweight advantage anymore)
-        athletes.get(1).setLotNumber(99);
-        // and we sort again for medals.
-        Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
-        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-        assertEqualsToReferenceFile("/seq1_medals_bodyWeight.txt", DebugUtils.shortDump(athletes));
-    }
-
-    @Test
-    public void liftSequence2() {
-        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer());
-        OwlcmsSession.setFop(fopState);
-        fopState.getLogger().setLevel(LOGGER_LEVEL);
-        // EventBus fopBus = fopState.getFopEventBus();
-
-        AthleteSorter.displayOrder(athletes);
-        AthleteSorter.assignStartNumbers(athletes);
-
-        final Athlete schneiderF = athletes.get(0);
-        final Athlete simpsonR = athletes.get(1);
-
-        // hide non-athletes
-        final int size = athletes.size();
-        for (int i = 2; i < size; i++) {
-            athletes.remove(2);
-        }
-
-        // simulate weigh-in
-        schneiderF.setBodyWeight(68.0);
-        simpsonR.setBodyWeight(67.9);
-        schneiderF.setSnatch1Declaration(Integer.toString(70));
-        simpsonR.setSnatch1Declaration(Integer.toString(60));
-        schneiderF.setCleanJerk1Declaration(Integer.toString(80));
-        simpsonR.setCleanJerk1Declaration(Integer.toString(80));
-        AthleteSorter.liftingOrder(athletes);
-
-        // simpson will do all his lifts first and finish first
-        successfulLift(athletes);
-        successfulLift(athletes);
-        successfulLift(athletes);
-        successfulLift(athletes);
-        successfulLift(athletes);
-        successfulLift(athletes);
-        // but schneider should still start first CJ (does not matter who lifted
-        // first)
-        assertEquals(schneiderF, athletes.get(0));
-    }
-
-    @Before
-    public void setupTest() {
-        // for this test, the initial data does not include body weights, so we use false
-        // on the constructor to disable exclusion of incomplete data.
-        athletes = AthleteRepository.findAll();
-        OwlcmsSession.withFop(fop -> fop.testBefore());
-    }
-
-    /*************************************************************************************
-     * Utility routines
-     */
-
-    /**
-     * @param lifter
-     * @param lifters1
-     * @param weight
-     */
-    private void change1(final Athlete lifter, List<Athlete> lifters1, final String weight) {
-        // sleep for a while to ensure that we get different time stamps on the
-        // lifts.
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-        }
-        switch (lifter.getAttemptsDone() + 1) {
-        case 1:
-            lifter.setSnatch1Change1(weight);
-            break;
-        case 2:
-            lifter.setSnatch2Change1(weight);
-            break;
-        case 3:
-            lifter.setSnatch3Change1(weight);
-            break;
-        case 4:
-            lifter.setCleanJerk1Change1(weight);
-            break;
-        case 5:
-            lifter.setCleanJerk2Change1(weight);
-            break;
-        case 6:
-            lifter.setCleanJerk3Change1(weight);
-            break;
-        }
-        AthleteSorter.liftingOrder(lifters1);
-    }
-
-    /**
-     * @param lifter
-     * @param lifters1
-     * @param weight
-     */
-    private void change2(final Athlete lifter, List<Athlete> lifters1, final String weight) {
-        // sleep for a while to ensure that we get different time stamps on the
-        // lifts.
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-        }
-        switch (lifter.getAttemptsDone() + 1) {
-        case 1:
-            lifter.setSnatch1Change2(weight);
-            break;
-        case 2:
-            lifter.setSnatch2Change2(weight);
-            break;
-        case 3:
-            lifter.setSnatch3Change2(weight);
-            break;
-        case 4:
-            lifter.setCleanJerk1Change2(weight);
-            break;
-        case 5:
-            lifter.setCleanJerk2Change2(weight);
-            break;
-        case 6:
-            lifter.setCleanJerk3Change2(weight);
-            break;
-        }
-        AthleteSorter.liftingOrder(lifters1);
-    }
-
-    /**
-     * @param lifter
-     * @param lifters1
-     * @param weight
-     */
-    private void declaration(final Athlete lifter, List<Athlete> lifters1, final String weight) {
-        // sleep for a while to ensure that we get different time stamps on the
-        // lifts.
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-        }
-        switch (lifter.getAttemptsDone() + 1) {
-        case 1:
-            lifter.setSnatch1Declaration(weight);
-            break;
-        case 2:
-            lifter.setSnatch2Declaration(weight);
-            break;
-        case 3:
-            lifter.setSnatch3Declaration(weight);
-            break;
-        case 4:
-            lifter.setCleanJerk1Declaration(weight);
-            break;
-        case 5:
-            lifter.setCleanJerk2Declaration(weight);
-            break;
-        case 6:
-            lifter.setCleanJerk3Declaration(weight);
-            break;
-        }
-        AthleteSorter.liftingOrder(lifters1);
-    }
-
-    /**
-     * @param lifter
-     * @param lifters1
-     * @param weight
-     */
-    private void doLift(final Athlete lifter, List<Athlete> lifters1, final String weight) {
-        // sleep for a while to ensure that we get different time stamps on the
-        // lifts.
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-        }
-        lifter.doLift(weight);
-        AthleteSorter.liftingOrder(lifters1);
     }
 
     /**

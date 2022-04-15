@@ -402,21 +402,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         return hasErrors;
     }
 
-    private void doSetErrorLabel(String simpleName, StringBuilder sb) {
-        if (sb.length() > 0) {
-            String message = sb.toString();
-            logger.debug("{} setting message {}", simpleName, message);
-            errorLabel.setVisible(true);
-            errorLabel.getElement().setProperty("innerHTML", message);
-            errorLabel.getClassNames().set("errorMessage", true);
-        } else {
-            logger.debug("{} setting EMPTY", simpleName);
-            errorLabel.setVisible(true);
-            errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
-            errorLabel.getClassNames().clear();
-        }
-    }
-
     /**
      * @see app.owlcms.ui.shared.CustomFormFactory#update(app.owlcms.data.athlete.Athlete)
      */
@@ -745,11 +730,11 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         // routines in the
         // Athlete class don't work
         binder.setBean(getEditedAthlete());
-        
-        for (int i = SNATCH1; i <= CJ3 ; i++) {
-            textfields[ACTUAL-1][i-1].addValueChangeListener(e -> setLiftResultChanged(true));
+
+        for (int i = SNATCH1; i <= CJ3; i++) {
+            textfields[ACTUAL - 1][i - 1].addValueChangeListener(e -> setLiftResultChanged(true));
         }
-        
+
         try {
             getEditedAthlete().validateStartingTotalsRule(
                     snatch1Declaration.getValue(),
@@ -759,11 +744,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                     cj1Change1.getValue(),
                     cj1Change2.getValue());
         } catch (Rule15_20Violated rv) {
-            doSetErrorLabel("",new StringBuilder(rv.getLocalizedMessage()));
+            doSetErrorLabel("", new StringBuilder(rv.getLocalizedMessage()));
             // allow changing all cj values
             resetReadOnlyFields();
         }
-
 
         if (!isUpdatingResults()) {
             adjustResultsFields(true);
@@ -845,6 +829,21 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         return tf;
     }
 
+    private void doSetErrorLabel(String simpleName, StringBuilder sb) {
+        if (sb.length() > 0) {
+            String message = sb.toString();
+            logger.debug("{} setting message {}", simpleName, message);
+            errorLabel.setVisible(true);
+            errorLabel.getElement().setProperty("innerHTML", message);
+            errorLabel.getClassNames().set("errorMessage", true);
+        } else {
+            logger.debug("{} setting EMPTY", simpleName);
+            errorLabel.setVisible(true);
+            errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
+            errorLabel.getClassNames().clear();
+        }
+    }
+
     /**
      * Update the original athlete so that the lifting order picks up the change.
      */
@@ -869,6 +868,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
     private boolean isIgnoreErrors() {
         return BooleanUtils.isTrue(ignoreErrorsCheckbox == null ? null : ignoreErrorsCheckbox.getValue());
+    }
+
+    private Boolean isLiftResultChanged() {
+        return liftResultChanged;
     }
 
     private boolean isUpdatingResults() {
@@ -969,6 +972,11 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         }
     }
 
+    private void setLiftResultChanged(Boolean liftResultChanged) {
+        // logger.debug("*** liftResultChanged {}", liftResultChanged);
+        this.liftResultChanged = liftResultChanged;
+    }
+
     private void setLiftResultStyle(TextField field) {
         String value = field.getValue();
         boolean empty = value == null || value.trim().isEmpty();
@@ -1043,14 +1051,5 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         }
 
         return gridLayout;
-    }
-
-    private Boolean isLiftResultChanged() {
-        return liftResultChanged;
-    }
-
-    private void setLiftResultChanged(Boolean liftResultChanged) {
-        //logger.debug("*** liftResultChanged {}", liftResultChanged);
-        this.liftResultChanged = liftResultChanged;
     }
 }

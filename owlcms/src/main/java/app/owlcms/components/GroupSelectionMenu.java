@@ -20,29 +20,30 @@ import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class GroupSelectionMenu extends MenuBar {
-    
-    public GroupSelectionMenu(List<Group> groups, FieldOfPlay fop, BiConsumer<Group,FieldOfPlay> whenChecked, BiConsumer<Group,FieldOfPlay> whenUnselected) {
+
+    public GroupSelectionMenu(List<Group> groups, FieldOfPlay fop, BiConsumer<Group, FieldOfPlay> whenChecked,
+            BiConsumer<Group, FieldOfPlay> whenUnselected) {
         MenuItem item;
         if (fop.getGroup() != null) {
-            item = this.addItem(fop.getGroup().getName()+"\u2003\u25bd");
+            item = this.addItem(fop.getGroup().getName() + "\u2003\u25bd");
             this.addThemeVariants(MenuBarVariant.LUMO_SMALL);
         } else {
-            item = this.addItem(Translator.translate("Group")+"\u2003\u25bc");
-            this.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY); 
+            item = this.addItem(Translator.translate("Group") + "\u2003\u25bc");
+            this.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY);
         }
         SubMenu subMenu = item.getSubMenu();
-        MenuItem currentlyChecked[] = {null};
+        MenuItem currentlyChecked[] = { null };
         for (Group g : groups) {
             MenuItem subItem = subMenu.addItem(
                     describedName(g),
                     e -> {
-                        whenChecked.accept(g,fop);
+                        whenChecked.accept(g, fop);
                         if (currentlyChecked[0] != null) {
                             currentlyChecked[0].setChecked(false);
                         }
                         e.getSource().setChecked(true);
                         currentlyChecked[0] = e.getSource();
-                        item.setText(g.getName()+"\u2003\u25bd");
+                        item.setText(g.getName() + "\u2003\u25bd");
                     });
             subItem.setCheckable(true);
             subItem.setChecked(g.compareTo(fop.getGroup()) == 0);
@@ -52,29 +53,30 @@ public class GroupSelectionMenu extends MenuBar {
             }
         }
         Hr ruler = new Hr();
-        ruler.getElement().setAttribute("style", "color: var(--lumo-contrast-50pct); border-color: red; var(--lumo-contrast-50pct): var(--lumo-contrast-50pct)");
+        ruler.getElement().setAttribute("style",
+                "color: var(--lumo-contrast-50pct); border-color: red; var(--lumo-contrast-50pct): var(--lumo-contrast-50pct)");
         MenuItem separator = subMenu.addItem(ruler);
-        separator.getElement().setAttribute("style", "margin-top: -1em; margin-bottom: -1.5em; margin-left: -1.5em; padding: 0px; padding-left: -1em;");
+        separator.getElement().setAttribute("style",
+                "margin-top: -1em; margin-bottom: -1.5em; margin-left: -1.5em; padding: 0px; padding-left: -1em;");
         Icon icon = IronIcons.CLEAR.create();
         icon.getElement().setAttribute("style", "margin: 0px; padding: 0px");
-        HorizontalLayout component = new HorizontalLayout(icon,new Label(Translator.translate("NoGroup")));
+        HorizontalLayout component = new HorizontalLayout(icon, new Label(Translator.translate("NoGroup")));
         component.setPadding(false);
         component.setMargin(false);
         component.getElement().setAttribute("style", "margin: 0; padding: 0");
         component.setAlignItems(Alignment.CENTER);
-        MenuItem item3 = subMenu.addItem(component, 
+        MenuItem item3 = subMenu.addItem(component,
                 e -> {
                     if (currentlyChecked[0] != null) {
                         currentlyChecked[0].setChecked(false);
                     }
-                    whenUnselected.accept(null,fop);
-                    item.setText(Translator.translate("Group")+"\u2003\u25bd");
+                    whenUnselected.accept(null, fop);
+                    item.setText(Translator.translate("Group") + "\u2003\u25bd");
                 });
         item3.setCheckable(false);
         item.setEnabled(true);
     }
 
-    
     private String describedName(Group g) {
         String desc = g.getDescription();
         if (desc == null || desc.isBlank()) {

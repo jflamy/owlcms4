@@ -43,16 +43,16 @@ import ch.qos.logback.classic.Logger;
  */
 public class OwlcmsFactory {
 
+    /** The fop by name. */
+    static Map<String, FieldOfPlay> fopByName = null;
+
+    private static FieldOfPlay defaultFOP;
     private static CountDownLatch latch = new CountDownLatch(1);
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsFactory.class);
     static {
         logger.setLevel(Level.INFO);
     }
-
-    /** The fop by name. */
-    static Map<String, FieldOfPlay> fopByName = null;
-    private static FieldOfPlay defaultFOP;
 
     public static String getBuildTimestamp() {
         return StartupUtils.getBuildTimestamp();
@@ -184,7 +184,7 @@ public class OwlcmsFactory {
     private static synchronized void initFOPByName() {
         resetFOPByName();
         for (Platform platform : PlatformRepository.findAll()) {
-            //logger.trace("registering fop for {}", platform);
+            // logger.trace("registering fop for {}", platform);
             registerEmptyFOP(platform);
         }
         logger.trace("after initFOPByName {}", fopByName != null ? fopByName.size() : null);

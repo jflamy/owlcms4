@@ -47,10 +47,10 @@ public class Config {
 
     public static final int SHORT_TEAM_LENGTH = 6;
 
+    private static Config current;
+
     @Transient
     final static private Logger logger = (Logger) LoggerFactory.getLogger(Config.class);
-
-    private static Config current;
 
     /**
      * Gets the current.
@@ -79,19 +79,17 @@ public class Config {
         return current;
     }
 
-    private String timeZoneId;
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
+    @Column(columnDefinition = "boolean default false")
+    private boolean clearZip;
+
+    @Convert(converter = LocaleAttributeConverter.class)
+    private Locale defaultLocale = null;
+
     private String ipAccessList;
-
-    private String pin;
-
-    private String publicResultsURL;
-
-    private String updatekey;
 
     private String ipBackdoorList;
 
@@ -102,15 +100,17 @@ public class Config {
     @Column(name = "localcontent", nullable = true)
     private Blob localOverride;
 
-    @Column(columnDefinition = "boolean default false")
-    private boolean clearZip;
+    private String pin;
 
-    @Convert(converter = LocaleAttributeConverter.class)
-    private Locale defaultLocale = null;
+    private String publicResultsURL;
 
     private String salt;
 
+    private String timeZoneId;
+
     private Boolean traceMemory;
+
+    private String updatekey;
 
     public String defineSalt() {
         if (salt == null) {
@@ -344,6 +344,15 @@ public class Config {
         return FileServlet.isIgnoreCaching();
     }
 
+    @Transient
+    @JsonIgnore
+    public boolean isTraceMemory() {
+        if (traceMemory == null) {
+            traceMemory = StartupUtils.getBooleanParam("traceMemory");
+        }
+        return Boolean.TRUE.equals(traceMemory);
+    }
+
     public void setClearZip(boolean clearZipRequested) {
         this.clearZip = clearZipRequested;
     }
@@ -427,15 +436,6 @@ public class Config {
     private void setSalt(String salt) {
         this.salt = salt;
         logger.debug("setting salt to {}", this.salt);
-    }
-    
-    @Transient
-    @JsonIgnore
-    public boolean isTraceMemory() {
-        if (traceMemory == null) {
-            traceMemory = StartupUtils.getBooleanParam("traceMemory");
-        }
-        return Boolean.TRUE.equals(traceMemory);
     }
 
 }

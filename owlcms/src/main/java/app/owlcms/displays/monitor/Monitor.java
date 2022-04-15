@@ -52,11 +52,19 @@ import ch.qos.logback.classic.Logger;
 public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FOPParameters,
         SafeEventBusRegistration, UIEventProcessor {
 
+    /**
+     * unused
+     */
+    public interface MonitorModel extends TemplateModel {
+    }
+
     class Status {
-        @Override
-        public String toString() {
-            return "[state=" + state + ", breakType=" + breakType + ", decision=" + decision + "]";
-        }
+        BreakType breakType;
+
+        CeremonyType ceremonyType;
+
+        Boolean decision;
+        FOPState state;
 
         public Status(FOPState state, BreakType breakType, CeremonyType ceremonyType, Boolean decision) {
             this.state = state;
@@ -65,46 +73,41 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
             this.decision = decision;
         }
 
-        FOPState state;
-        BreakType breakType;
-        CeremonyType ceremonyType;
-        Boolean decision;
+        @Override
+        public String toString() {
+            return "[state=" + state + ", breakType=" + breakType + ", decision=" + decision + "]";
+        }
     }
 
     final static int HISTORY_SIZE = 3;
-    List<Status> history = new LinkedList<>();
-
-    /**
-     * unused
-     */
-    public interface MonitorModel extends TemplateModel {
-    }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(Monitor.class);
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
+    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     static {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
     }
 
-    private EventBus uiEventBus;
-    private Location location;
-    private UI locationUI;
+    List<Status> history = new LinkedList<>();
+
+    private BreakType currentBreakType;
+    private CeremonyType currentCeremony;
+    private Boolean currentDecision;
     private String currentFOP;
-    private String title;
-    private String prevTitle;
+    private FOPState currentState;
     private Status h0;
     private Status h1;
     private Status h2;
-    private FOPState currentState;
-    private BreakType currentBreakType;
-    private Boolean currentDecision;
-    private FOPState previousState;
+    private Location location;
+    private UI locationUI;
     private BreakType previousBreakType;
-    private Boolean previousDecision;
-    private CeremonyType currentCeremony;
     private CeremonyType previousCeremony;
+    private Boolean previousDecision;
+    private FOPState previousState;
+    private String prevTitle;
+    private String title;
+    private EventBus uiEventBus;
 
     /**
      * Instantiates a new results board.
@@ -156,7 +159,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
             // ignore events that don't change state
             return;
         }
-        //uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e /*, e.getTrace()*/);
+        // uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e /*, e.getTrace()*/);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             if (syncWithFOP(e)) {
                 // significant transition
@@ -196,7 +199,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
 //            logger.debug("hiding restart after medals {} {} {}", h0, h1, h2);
 //            history.remove(0);
 //            computeValues();
-//        } else 
+//        } else
         if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
                 && h1 != null && h1.state == FOPState.DECISION_VISIBLE
                 && h2 != null && h2.state == FOPState.BREAK && h2.breakType == BreakType.JURY) {
@@ -213,7 +216,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
             pageTitle.append("state=");
         }
         pageTitle.append(currentState.name());
-        
+
         if (currentState == FOPState.BREAK && currentCeremony != null) {
             pageTitle.append(".");
             pageTitle.append(currentCeremony.name());
@@ -260,6 +263,13 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         previousDecision = h1 != null ? h1.decision : null;
     }
 
+    private void doPush(Status status) {
+        history.add(0, status);
+        if (history.size() > HISTORY_SIZE) {
+            history.remove(HISTORY_SIZE);
+        }
+    }
+
     private synchronized void doUpdate() {
         title = computePageTitle();
         boolean same = false;
@@ -301,23 +311,17 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
                 doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), fop.getGoodLift()));
                 significant[0] = true;
             } else if (fop.getState() == FOPState.BREAK) {
-                if (fop.getBreakType() != history.get(0).breakType || fop.getCeremonyType() != history.get(0).ceremonyType) {
+                if (fop.getBreakType() != history.get(0).breakType
+                        || fop.getCeremonyType() != history.get(0).ceremonyType) {
                     doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), null));
                     significant[0] = true;
                 } else {
-                    //logger.debug("*** Monitor ignored duplicate {} {}", fop.getBreakType(), fop.getCeremonyType());
+                    // logger.debug("*** Monitor ignored duplicate {} {}", fop.getBreakType(), fop.getCeremonyType());
                 }
             } else {
-                //logger.debug("*** Monitor non break {}", fop.getState());
+                // logger.debug("*** Monitor non break {}", fop.getState());
             }
         });
         return significant[0];
-    }
-
-    private void doPush(Status status) {
-        history.add(0, status);
-        if (history.size() > HISTORY_SIZE) {
-            history.remove(HISTORY_SIZE);
-        }
     }
 }

@@ -42,10 +42,10 @@ public class CompetitionData {
 
     private List<AgeGroup> ageGroups;
     private List<Athlete> athletes;
-    private List<Group> groups;
-    private List<Platform> platforms;
     private Competition competition;
     private Config config;
+    private List<Group> groups;
+    private List<Platform> platforms;
 
     public CompetitionData() {
     }

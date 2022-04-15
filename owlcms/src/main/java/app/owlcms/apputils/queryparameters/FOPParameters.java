@@ -35,9 +35,9 @@ import ch.qos.logback.classic.Logger;
 
 public interface FOPParameters extends HasUrlParameter<String> {
 
-    final Logger logger = (Logger) LoggerFactory.getLogger(FOPParameters.class);
     final String FOP = "fop";
     final String GROUP = "group";
+    final Logger logger = (Logger) LoggerFactory.getLogger(FOPParameters.class);
 
     public Location getLocation();
 
@@ -71,16 +71,16 @@ public interface FOPParameters extends HasUrlParameter<String> {
 
         if (!isIgnoreFopFromURL()) {
             if (fopFound) {
-                //logger.trace("fopNames {}", fopNames);
+                // logger.trace("fopNames {}", fopNames);
                 String decoded = URLDecoder.decode(fopNames.get(0), StandardCharsets.UTF_8);
-                //logger.trace("URL fop = {} decoded = {}",fopNames.get(0), decoded);
+                // logger.trace("URL fop = {} decoded = {}",fopNames.get(0), decoded);
                 fop = OwlcmsFactory.getFOPByName(decoded);
             } else if (OwlcmsSession.getFop() != null) {
-                //logger.trace("OwlcmsSession.getFop() {}", OwlcmsSession.getFop());
+                // logger.trace("OwlcmsSession.getFop() {}", OwlcmsSession.getFop());
                 fop = OwlcmsSession.getFop();
             }
             if (fop == null) {
-                //logger.trace("OwlcmsFactory.getDefaultFOP() {}", OwlcmsFactory.getDefaultFOP());
+                // logger.trace("OwlcmsFactory.getDefaultFOP() {}", OwlcmsFactory.getDefaultFOP());
                 fop = OwlcmsFactory.getDefaultFOP();
             }
             newParameterMap.put(FOP, Arrays.asList(URLUtils.urlEncode(fop.getName())));
@@ -95,7 +95,7 @@ public interface FOPParameters extends HasUrlParameter<String> {
             List<String> groupNames = parametersMap.get(GROUP);
             if (groupNames != null && groupNames.get(0) != null) {
                 String decoded = URLDecoder.decode(groupNames.get(0), StandardCharsets.UTF_8);
-                //logger.trace("URL group = {} decoded = {}",groupNames.get(0), decoded);
+                // logger.trace("URL group = {} decoded = {}",groupNames.get(0), decoded);
                 group = GroupRepository.findByName(decoded);
                 fop.loadGroup(group, this, true);
             } else {
@@ -151,6 +151,13 @@ public interface FOPParameters extends HasUrlParameter<String> {
     public default void setShowInitialDialog(boolean b) {
     }
 
+    public default void storeInSessionStorage(String key, String value) {
+        UI.getCurrent().getElement().executeJs("window.sessionStorage.setItem($0, $1);", key, value);
+    }
+
+    public default void storeReturnURL() {
+    }
+
     public default void updateParam(Map<String, List<String>> cleanParams, String parameter, String value) {
         if (value != null) {
             cleanParams.put(parameter, Arrays.asList(value));
@@ -177,13 +184,6 @@ public interface FOPParameters extends HasUrlParameter<String> {
         ui.getPage().getHistory().replaceState(null, location2);
         setLocation(location2);
         storeReturnURL();
-    }
-    
-    public default void storeReturnURL() {
-    }
-    
-    public default void storeInSessionStorage(String key, String value) {
-        UI.getCurrent().getElement().executeJs("window.sessionStorage.setItem($0, $1);", key, value);
     }
 
 }

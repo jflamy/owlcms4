@@ -43,9 +43,9 @@ public class GroupEditingFormFactory
         extends OwlcmsCrudFormFactory<Group>
         implements CustomFormFactory<Group> {
 
-    private GroupContent origin;
     @SuppressWarnings("unused")
     private Logger logger = (Logger) LoggerFactory.getLogger(GroupEditingFormFactory.class);
+    private GroupContent origin;
 
     GroupEditingFormFactory(Class<Group> domainType, GroupContent origin) {
         super(domainType);
@@ -96,7 +96,8 @@ public class GroupEditingFormFactory
         formLayout.add(nameField);
         int maxLength = 16;
         binder.forField(nameField)
-                .withValidator(new StringLengthValidator(Translator.translate("CodeMustBeShort", maxLength), 1, maxLength))
+                .withValidator(
+                        new StringLengthValidator(Translator.translate("CodeMustBeShort", maxLength), 1, maxLength))
                 .bind(Group::getName, Group::setName);
 
         ComboBox<Platform> platformField = new ComboBox<>(Translator.translate("Platform"));

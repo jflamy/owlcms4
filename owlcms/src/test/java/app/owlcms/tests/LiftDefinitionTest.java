@@ -41,8 +41,7 @@ import ch.qos.logback.classic.Level;
 public class LiftDefinitionTest {
 
     private static final Level LOGGER_LEVEL = Level.OFF;
-    List<Athlete> athletes = null;
-    
+
     @BeforeClass
     public static void setupTests() {
         Main.injectSuppliers();
@@ -55,13 +54,8 @@ public class LiftDefinitionTest {
     public static void tearDownTests() {
         JPAService.close();
     }
-    @Before
-    public void setupTest() {
-        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(), new MockCountdownTimer());
-        OwlcmsSession.setFop(fopState);
-        fopState.getLogger().setLevel(LOGGER_LEVEL);
-        // EventBus fopBus = fopState.getFopEventBus();
-    }
+
+    List<Athlete> athletes = null;
 
     @Test
     public void checkDefinitions() {
@@ -218,7 +212,7 @@ public class LiftDefinitionTest {
         // The one who reached total *first* should win.
         // in this test sequence, the winner has bigger lot number, but still
         // wins because of earlier lift.
-        Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL,false));
+        Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
         AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
         assertEqualsToReferenceFile("/seq1_medals_timeStamp.txt", DebugUtils.shortDump(athletes));
 
@@ -232,7 +226,7 @@ public class LiftDefinitionTest {
         // bodyweight advantage anymore)
         athletes.get(1).setLotNumber(99);
         // and we sort again for medals.
-        Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL,false));
+        Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
         AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
         assertEqualsToReferenceFile("/seq1_medals_bodyWeight.txt", DebugUtils.shortDump(athletes));
         // assertEqualsToReferenceFile("/seq1_medals_weighInCategories.txt",
@@ -252,7 +246,7 @@ public class LiftDefinitionTest {
             allisonA.setRegistrationCategory(registrationCategory0);
             verneU.setRegistrationCategory(registrationCategory1);
             // and we sort again for medals. order should now be schneider allison simpson verne
-            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL,false));
+            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
             AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
             assertEqualsToReferenceFile("/seq1_medals_registrationCategories.txt", DebugUtils.shortDump(athletes));
             Competition.getCurrent().setUseRegistrationCategory(true);
@@ -282,7 +276,7 @@ public class LiftDefinitionTest {
             simpsonR.setCleanJerk2ActualLift(Integer.toString(84));
             simpsonR.setCleanJerk3ActualLift(Integer.toString(0));
 
-            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL,false));
+            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
             AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
             assertEqualsToReferenceFile("/seq1_medals_earlierTotal.txt", DebugUtils.longDump(athletes));
             Competition.getCurrent().setUseRegistrationCategory(true);
@@ -313,7 +307,7 @@ public class LiftDefinitionTest {
             schneiderF.setCleanJerk2ActualLift(Integer.toString(-86));
             schneiderF.setCleanJerk3ActualLift(Integer.toString(-86));
 
-            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL,false));
+            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
             AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
             assertEqualsToReferenceFile("/seq1_medals_earlierTotal2.txt", DebugUtils.longDump(athletes));
             Competition.getCurrent().setUseRegistrationCategory(true);
@@ -369,7 +363,7 @@ public class LiftDefinitionTest {
             schneiderF.setCleanJerk3Declaration(Integer.toString(64));
             schneiderF.setCleanJerk3ActualLift(Integer.toString(64));
 
-            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL,false));
+            Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL, false));
             AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
             assertEqualsToReferenceFile("/seq1_medals_earlierTotal3.txt", DebugUtils.longDump(athletes));
             Competition.getCurrent().setUseRegistrationCategory(true);
@@ -411,6 +405,15 @@ public class LiftDefinitionTest {
         // but schneider should still start first CJ (does not matter who lifted
         // first)
         assertEquals(schneiderF, athletes.get(0));
+    }
+
+    @Before
+    public void setupTest() {
+        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(),
+                new MockCountdownTimer());
+        OwlcmsSession.setFop(fopState);
+        fopState.getLogger().setLevel(LOGGER_LEVEL);
+        // EventBus fopBus = fopState.getFopEventBus();
     }
 
     /*************************************************************************************

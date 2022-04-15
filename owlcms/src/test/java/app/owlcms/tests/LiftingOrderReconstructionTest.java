@@ -39,18 +39,18 @@ public class LiftingOrderReconstructionTest {
         JPAService.close();
     }
 
-    final Logger logger = (Logger) LoggerFactory.getLogger(LiftingOrderReconstructionTest.class);
-
     // use same data as TwoMinutesRuleTest
     TwoMinutesRuleTest liftSequence = new TwoMinutesRuleTest();
+
+    final Logger logger = (Logger) LoggerFactory.getLogger(LiftingOrderReconstructionTest.class);
 
     @Test
     public void liftSequence3() throws InterruptedException {
         FieldOfPlay fopState = OwlcmsSession.getFop();
         EventBus fopBus = fopState.getFopEventBus();
-            
+
         liftSequence.doSequence3(fopState, fopBus, logger);
-        
+
         LiftOrderReconstruction liftOrderReconstruction = new LiftOrderReconstruction(fopState);
         final String actual = liftOrderReconstruction.shortDump();
         assertEqualsToReferenceFile("/reconstructedSequence3.txt", actual);
@@ -62,7 +62,7 @@ public class LiftingOrderReconstructionTest {
         EventBus fopBus = fopState.getFopEventBus();
 
         liftSequence.doLiftSequence4(fopState, fopBus, logger);
-        
+
         LiftOrderReconstruction liftOrderReconstruction = new LiftOrderReconstruction(fopState);
         final String actual = liftOrderReconstruction.shortDump();
         assertEqualsToReferenceFile("/reconstructedSequence4.txt", actual);

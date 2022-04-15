@@ -14,31 +14,39 @@ public class MAthlete extends PAthlete {
         @Override
         public int compare(MAthlete o1, MAthlete o2) {
             int compare;
-            
+
             compare = ObjectUtils.compare(o1.getCategory(), o2.getCategory(), false);
-            if (compare != 0) return compare;
-            
+            if (compare != 0) {
+                return compare;
+            }
+
             compare = ObjectUtils.compare(o1.getRanking(), o2.getRanking(), false);
-            if (compare != 0) return compare;
-            
+            if (compare != 0) {
+                return compare;
+            }
+
             // bronze first
             compare = ObjectUtils.compare(o1.getLiftRank(), o2.getLiftRank(), false);
-            if (compare != 0) return -compare;
-            
+            if (compare != 0) {
+                return -compare;
+            }
+
             return 0;
         }
-        
+
     }
+
     static boolean winsMedal(PAthlete p, Ranking r) {
         Integer rank = AthleteSorter.getRank(p, r);
         return rank >= 1 && rank <= 3;
     }
+
     private int liftRank;
 
     private int liftResult;
-    
+
     private Ranking ranking;
-    
+
     public MAthlete(PAthlete p, Ranking r, int rank, Integer result) {
         super(p._getParticipation());
         this.setRanking(r);

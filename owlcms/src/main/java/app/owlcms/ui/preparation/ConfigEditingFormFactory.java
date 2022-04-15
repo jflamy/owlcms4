@@ -56,11 +56,11 @@ public class ConfigEditingFormFactory
         extends OwlcmsCrudFormFactory<Config>
         implements CustomFormFactory<Config> {
 
-    @SuppressWarnings("unused")
-    private ConfigContent origin;
+    private String browserZoneId;
 
     private Logger logger = (Logger) LoggerFactory.getLogger(ConfigRepository.class);
-    private String browserZoneId;
+    @SuppressWarnings("unused")
+    private ConfigContent origin;
 
     ConfigEditingFormFactory(Class<Config> domainType, ConfigContent origin) {
         super(domainType);
@@ -334,6 +334,18 @@ public class ConfigEditingFormFactory
         return hr;
     }
 
+    private FormLayout translationForm() {
+        FormLayout layout = createLayout();
+        Component title = createTitle("Translation");
+        layout.add(title);
+        layout.setColspan(title, 2);
+
+        Button resetTranslation = new Button(Translator.translate("reloadTranslation"),
+                buttonClickEvent -> Translator.reset());
+        layout.addFormItem(resetTranslation, Translator.translate("reloadTranslationInfo"));
+        return layout;
+    }
+
     private FormLayout tzForm() {
 
         FormLayout layout = createLayout();
@@ -380,18 +392,6 @@ public class ConfigEditingFormFactory
             defaultTZ.setText(Translator.translate("Config.TZ_FromServer", defZone));
         });
 
-        return layout;
-    }
-
-    private FormLayout translationForm() {
-        FormLayout layout = createLayout();
-        Component title = createTitle("Translation");
-        layout.add(title);
-        layout.setColspan(title, 2);
-
-        Button resetTranslation = new Button(Translator.translate("reloadTranslation"),
-                buttonClickEvent -> Translator.reset());
-        layout.addFormItem(resetTranslation, Translator.translate("reloadTranslationInfo"));
         return layout;
     }
 

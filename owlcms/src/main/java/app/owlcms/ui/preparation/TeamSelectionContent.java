@@ -78,32 +78,32 @@ public class TeamSelectionContent extends VerticalLayout
         implements CrudListener<Participation>, OwlcmsContent, DisplayParameters {
 
     public static final String TITLE = "TeamMembership.Title";
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(TeamSelectionContent.class);
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(TeamSelectionContent.class);
     static {
         logger.setLevel(Level.INFO);
         jexlLogger.setLevel(Level.ERROR);
     }
 
-    private Button download;
-    private Anchor finalPackage;
-    private JXLSCompetitionBook xlsWriter;
-    private ComboBox<Resource> templateSelect;
-    private String ageGroupPrefix;
-
     private AgeDivision ageDivision;
-
-    private FlexLayout topBar;
-    private GridCrud<Participation> crudGrid;
+    private String ageGroupPrefix;
     private ComboBox<Category> categoryFilter;
+    private GridCrud<Participation> crudGrid;
+    private Button download;
+
+    private Anchor finalPackage;
+
     private ComboBox<Gender> genderFilter;
-    private ComboBox<String> teamFilter;
-    private ComboBox<String> topBarAgeGroupPrefixSelect;
-    private ComboBox<AgeDivision> topBarAgeDivisionSelect;
-    private OwlcmsRouterLayout routerLayout;
-    private boolean teamFilterRecusion;
     private Location location;
     private UI locationUI;
+    private OwlcmsRouterLayout routerLayout;
+    private ComboBox<String> teamFilter;
+    private boolean teamFilterRecusion;
+    private ComboBox<Resource> templateSelect;
+    private FlexLayout topBar;
+    private ComboBox<AgeDivision> topBarAgeDivisionSelect;
+    private ComboBox<String> topBarAgeGroupPrefixSelect;
+    private JXLSCompetitionBook xlsWriter;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in

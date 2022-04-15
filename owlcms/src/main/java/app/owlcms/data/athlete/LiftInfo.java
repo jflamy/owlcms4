@@ -11,13 +11,13 @@ import app.owlcms.data.athlete.LiftDefinition.Stage;
 
 public class LiftInfo {
 
-    private Stage stage;
-
     int liftNo;
+
+    Integer value;
 
     private int changeNo;
 
-    Integer value;
+    private Stage stage;
 
     private String stringValue;
 

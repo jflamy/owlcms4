@@ -41,11 +41,11 @@ import ch.qos.logback.classic.Logger;
  */
 public class DemoData {
 
-    private static Logger logger = (Logger) LoggerFactory.getLogger(DemoData.class);
+    private static Group groupF1;
     private static Group groupM1;
     private static Group groupM2;
-    private static Group groupF1;
     private static Group groupY1;
+    private static Logger logger = (Logger) LoggerFactory.getLogger(DemoData.class);
 
 //    private static Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
     static {
@@ -95,7 +95,7 @@ public class DemoData {
         int referenceYear = LocalDate.now().getYear();
         LocalDate baseDate = LocalDate.of(referenceYear, 12, 31);
 
-        double catLimit = (double) catMax;
+        double catLimit = catMax;
         double bodyWeight = catLimit - (nextDouble * 2.0);
         p.setBodyWeight(bodyWeight);
         double sd = catLimit * (1 + (r.nextGaussian() / 10));

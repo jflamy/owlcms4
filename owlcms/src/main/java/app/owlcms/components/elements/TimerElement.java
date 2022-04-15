@@ -127,24 +127,24 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         void setStartTime(double seconds);
     }
 
-    final private Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
-    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+    public long lastStartMillis;
+    public long lastStopMillis;
 
+    protected String fopName;
+
+    protected VaadinSession vsession;
+    private boolean indefinite;
+    final private Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
+    private Integer msRemaining;
+    private boolean serverSound;
+    private boolean silenced = true;
+    private Element timerElement;
+    private EventBus uiEventBus;
+    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
     }
-
-    private EventBus uiEventBus;
-    private Element timerElement;
-    private boolean indefinite;
-    private Integer msRemaining;
-    private boolean silenced = true;
-    protected VaadinSession vsession;
-    public long lastStartMillis;
-    public long lastStopMillis;
-    private boolean serverSound;
-    protected String fopName;
 
     /**
      * Instantiates a new timer element.

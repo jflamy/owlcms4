@@ -80,29 +80,29 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "results/finalpackage", layout = AthleteGridLayout.class)
 public class PackageContent extends AthleteGridContent implements HasDynamicTitle {
 
-    private static final String TITLE = "CategoryResults";
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(PackageContent.class);
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(PackageContent.class);
+    private static final String TITLE = "CategoryResults";
     static {
         logger.setLevel(Level.INFO);
         jexlLogger.setLevel(Level.ERROR);
     }
 
-    private Group currentGroup;
-    private JXLSCompetitionBook xlsWriter;
-    private JXLSCatResults catXlsWriter;
+    protected ComboBox<AgeDivision> topBarAgeDivisionSelect;
+    protected ComboBox<String> topBarAgeGroupPrefixSelect;
+    private AgeDivision ageDivision;
     private String ageGroupPrefix;
 
-    private AgeDivision ageDivision;
+    private Button catDownloadButton;
 
     private ComboBox<Category> categoryFilter;
-    protected ComboBox<String> topBarAgeGroupPrefixSelect;
-    protected ComboBox<AgeDivision> topBarAgeDivisionSelect;
-
-    private Anchor catResultsAnchor;
-    private Button catDownloadButton;
     private Category categoryValue;
+    private Anchor catResultsAnchor;
+
+    private JXLSCatResults catXlsWriter;
+    private Group currentGroup;
     private DownloadButtonFactory downloadButtonFactory;
+    private JXLSCompetitionBook xlsWriter;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
@@ -134,7 +134,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         @SuppressWarnings("unchecked")
         List<Athlete> ranked = (List<Athlete>) beans.get(key);
         if (ranked == null || ranked.isEmpty()) {
-           return new ArrayList<>();
+            return new ArrayList<>();
         }
         Category catFilterValue = getCategoryValue();
         Stream<Athlete> stream = ranked.stream()

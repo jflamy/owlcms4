@@ -65,8 +65,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         uiEventLogger.setLevel(Level.INFO);
     }
 
-    protected EventBus uiEventBus;
     protected EventBus fopEventBus;
+    protected EventBus uiEventBus;
     private boolean silenced;
 
     public DecisionElement() {
@@ -137,7 +137,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     }
 
     public void setSilenced(boolean b) {
-        //logger.trace("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
+        // logger.trace("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
         getModel().setSilent(b);
         silenced = b;
     }
@@ -152,10 +152,10 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
     @Subscribe
     public void slaveDownSignal(UIEvent.DownSignal e) {
-        //logger.trace("slaveDownSignal {} {} {}", this, this.getOrigin(), e.getOrigin());
+        // logger.trace("slaveDownSignal {} {} {}", this, this.getOrigin(), e.getOrigin());
         if (this.getOrigin() == e.getOrigin()) {
             // we emitted the down signal, don't do it again.
-            //logger.trace("skipping down, {} is origin",this.getOrigin());
+            // logger.trace("skipping down, {} is origin",this.getOrigin());
             return;
         }
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {

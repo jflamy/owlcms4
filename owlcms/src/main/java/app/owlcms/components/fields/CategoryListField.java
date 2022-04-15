@@ -35,10 +35,10 @@ public class CategoryListField extends CustomField<List<Category>> {
 
     Logger logger = (Logger) LoggerFactory.getLogger(CategoryListField.class);
 
-    private FlexLayout flex;
-    private List<Category> presentationCategories = new ArrayList<>();
-
     private AgeGroup ageGroup;
+    private FlexLayout flex;
+
+    private List<Category> presentationCategories = new ArrayList<>();
 
     public CategoryListField(AgeGroup ag) {
         super(new ArrayList<Category>());

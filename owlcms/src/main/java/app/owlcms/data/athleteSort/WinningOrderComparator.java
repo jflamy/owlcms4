@@ -28,9 +28,9 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     /** The Constant logger. */
     final static Logger logger = (Logger) LoggerFactory.getLogger(WinningOrderComparator.class);
 
-    private Ranking rankingType;
-
     private boolean ignoreCategories;
+
+    private Ranking rankingType;
 
     /**
      * Instantiates a new winning order comparator.
@@ -105,8 +105,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     /**
      * Compare clean jerk result order.
      *
-     * @param lifter1       the lifter 1
-     * @param lifter2       the lifter 2
+     * @param lifter1          the lifter 1
+     * @param lifter2          the lifter 2
      * @param ignoreCategories do not take categories into account
      * @return the int
      */
@@ -134,8 +134,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
      * This variant allows judges to award a score based on a formula, with bonuses or penalties, manually. Used for the
      * U12 championship in Quebec.
      *
-     * @param lifter1       the lifter 1
-     * @param lifter2       the lifter 2
+     * @param lifter1          the lifter 1
+     * @param lifter2          the lifter 2
      * @param ignoreCategories do not take category into account
      * @return the int
      */
@@ -241,8 +241,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     /**
      * Compare snatch result order.
      *
-     * @param lifter1       the lifter 1
-     * @param lifter2       the lifter 2
+     * @param lifter1          the lifter 1
+     * @param lifter2          the lifter 2
      * @param ignoreCategories do not take categories into account
      * @return the int
      */
@@ -325,8 +325,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     /**
      * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
      *
-     * @param lifter1       the lifter 1
-     * @param lifter2       the lifter 2
+     * @param lifter1          the lifter 1
+     * @param lifter2          the lifter 2
      * @param ignoreCategories do not take categories into account
      * @return the int
      */

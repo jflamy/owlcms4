@@ -19,9 +19,9 @@ import ch.qos.logback.classic.Logger;
 
 public class DebugUtils {
 
-    static Logger logger = (Logger) LoggerFactory.getLogger("garbageCollection");
-
     final static String LINESEPARATOR = System.getProperty("line.separator");
+
+    static Logger logger = (Logger) LoggerFactory.getLogger("garbageCollection");
 
     public static void gc() {
         final String where = LoggerUtils.whereFrom();

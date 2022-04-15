@@ -32,14 +32,14 @@ import ch.qos.logback.classic.Logger;
  */
 public class OwlcmsSession {
 
+    private static final String FOP = "fop";
     private final static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsSession.class);
+
+    private static OwlcmsSession owlcmsSessionSingleton = null;
+
     static {
         logger.setLevel(Level.INFO);
     }
-
-    private static final String FOP = "fop";
-
-    private static OwlcmsSession owlcmsSessionSingleton = null;
 
     /**
      * Gets the attribute.

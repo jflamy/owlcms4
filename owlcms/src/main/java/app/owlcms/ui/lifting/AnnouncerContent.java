@@ -71,11 +71,12 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         uiEventLogger.setLevel(Level.INFO);
     }
 
-    private HorizontalLayout timerButtons;
     private HorizontalLayout decisionLights;
+    private long previousBadMillis = 0L;
 
     private long previousGoodMillis = 0L;
-    private long previousBadMillis = 0L;
+    private HorizontalLayout timerButtons;
+
     public AnnouncerContent() {
         super();
         defineFilters(crudGrid);
@@ -226,7 +227,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             OwlcmsSession.withFop(fop -> {
                 UI.getCurrent().access(() -> createTopBar());
                 fop.fopEventPost(
-                        new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null, true, this));
+                        new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null, true,
+                                this));
             });
         });
         showResultsButton.getThemeNames().add("success primary");
@@ -319,13 +321,13 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         });
 
         OwlcmsSession.withFop(fop -> {
-            topBarMenu = new GroupSelectionMenu(groups, fop, 
-                    (g1, fop1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(g1.compareTo(fop1.getGroup()) == 0 ? null : g1, this)),
+            topBarMenu = new GroupSelectionMenu(groups, fop,
+                    (g1, fop1) -> fop.fopEventPost(
+                            new FOPEvent.SwitchGroup(g1.compareTo(fop1.getGroup()) == 0 ? null : g1, this)),
                     (g1, fop1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
             createTopBarSettingsMenu();
         });
     }
-
 
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
@@ -396,6 +398,5 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         fillTopBarLeft();
         decisionLights = null;
     }
-
 
 }

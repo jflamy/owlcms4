@@ -11,17 +11,17 @@ import java.util.Objects;
 import app.owlcms.data.athlete.Athlete;
 
 public class LiftOrderInfo implements Comparable<LiftOrderInfo> {
-    private int lotNumber;
-
-    private int startNumber;
-
-    private int progression;
-
-    private int weight;
+    private Athlete athlete;
 
     private int attemptNo;
 
-    private Athlete athlete;
+    private int lotNumber;
+
+    private int progression;
+
+    private int startNumber;
+
+    private int weight;
 
     @Override
     public int compareTo(LiftOrderInfo actualLiftInfo) {

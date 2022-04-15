@@ -19,25 +19,25 @@ import app.owlcms.data.athlete.Gender;
  */
 public class Team {
 
-    public static Comparator<Team> scoreComparator = ((a,
-            b) -> -ObjectUtils.compare(a.sinclairScore, b.sinclairScore, true));
-
     public static Comparator<Team> pointsComparator = ((a,
             b) -> -ObjectUtils.compare(a.getPoints(), b.getPoints(), true));
 
-    private String name;
-
-    private double sinclairScore = 0.0D;
-
-    private double smfScore = 0.0D;
-
-    private int points = 0;
+    public static Comparator<Team> scoreComparator = ((a,
+            b) -> -ObjectUtils.compare(a.sinclairScore, b.sinclairScore, true));
 
     private int counted;
 
+    private Gender gender;
+
+    private String name;
+
+    private int points = 0;
+
+    private double sinclairScore = 0.0D;
+
     private long size;
 
-    private Gender gender;
+    private double smfScore = 0.0D;
 
     public Team(String curTeamName, Gender gender) {
         name = curTeamName;

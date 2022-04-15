@@ -96,23 +96,23 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
         }
     }
 
+    String DOCUMENTATION = Translator.translate("Documentation_Menu");
+
+    String INFO = Translator.translate("About");
+
+    String PREFERENCES = Translator.translate("Preferences");
+
+    String PREPARE_COMPETITION = Translator.translate("PrepareCompetition");
+    String RESULT_DOCUMENTS = Translator.translate("Results");
+    String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup");
+    String START_DISPLAYS = Translator.translate("StartDisplays");
+    private HasElement layoutComponentContent;
     final private Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsRouterLayout.class);
+    private Class<? extends AppLayout> variant;
 
     {
         logger.setLevel(Level.INFO);
     }
-
-    private Class<? extends AppLayout> variant;
-
-    private HasElement layoutComponentContent;
-    String PREPARE_COMPETITION = Translator.translate("PrepareCompetition");
-    String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup");
-    String START_DISPLAYS = Translator.translate("StartDisplays");
-    String RESULT_DOCUMENTS = Translator.translate("Results");
-    String INFO = Translator.translate("About");
-    String PREFERENCES = Translator.translate("Preferences");
-
-    String DOCUMENTATION = Translator.translate("Documentation_Menu");
 
     @SuppressWarnings("unchecked")
     public OwlcmsRouterLayout() {
