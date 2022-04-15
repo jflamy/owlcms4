@@ -1,15 +1,12 @@
 ### **Changes for release ${revision}**
 
-4.30.7: Fix: restored correct error message for late declaration on 2 minute clock.
-
-4.30.6: Fix: If an athlete lifted and was set to lift again *but* immediately moved up *while the decision was still shown*, then the next athlete would wrongly get 2:00.
-
-4.30.5: Performance improvements and minor fix
-
-- User interface responsiveness improvements, in particular for marshal weight changes 
-- Fix: Scoreboards did not switch to "group results" title at the end of the very first group.
+4.30.8: Improvement: Break triggered by marshal indicates "Marshal Issue" to other TOs.
 
 ### **Changes for 4.30.* releases**
+
+Performance improvements and minor fix
+
+- User interface responsiveness improvements, in particular for marshal weight changes 
 
 Fixes/improvements on rules processing
 
@@ -22,10 +19,9 @@ Improved management of ceremonies
 
 - Documented new and improved [Breaks and Ceremonies](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Breaks) procedures, including the Medal Ceremony process.  Ceremonies take place without interfering with countdown timers.
 - Documented the [Result Documents](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Documents), including the new Medals spreadsheet for the announcer.
-
 - Selectable behavior for public vs warmup scoreboards selection is done when display starts or is clicked. Public Scoreboards switch to display of medal winners during the medal ceremony.   They revert to the normal display at the end of the ceremony. Warmup room displays ignore the medal ceremony and keep the scoreboard
-
 - Additional protocol templates with predefined paper sizes. Also included a version with snatch, clean&jerk and total ranks.
+- Fix: Scoreboards did not switch to "group results" title at the end of the very first group.
 
 Usability/understandability changes
 
