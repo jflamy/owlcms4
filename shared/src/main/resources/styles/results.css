@@ -1,0 +1,308 @@
+* {
+    box-sizing: border-box;
+}
+
+/* default values */
+.wrapper {
+    --backgroundColor: black;
+
+    --startWidth: 3em;
+    --categoryWidth: 6ch;
+    --birthWidth: 6ch;
+    --liftResultWidth: 4em;
+
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+    background-color: var(--backgroundColor);
+
+    min-height: 100vh;
+    padding: 2vmin 2vmin 2vmin 2vmin;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: no-wrap;
+    justify-content: flex-start;
+}
+
+/* top part formatting */
+.attemptBar {
+    display: flex;
+    font-size: 2rem;
+    justify-content: space-between;
+    width: 100%;
+    height: 4vmin;
+}
+
+.attemptBar .startNumber {
+    align-self: center;
+}
+
+.attemptBar .startNumber span {
+    font-size: 70%;
+    font-weight: bold;
+    border-width: 0.2ex;
+    border-style: solid;
+    border-color: red;
+    width: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-self: center;
+}
+
+.attemptBar .athleteInfo {
+    display: flex;
+    font-size: 3.4vh;
+    justify-content: space-between;
+    align-items: baseline;
+    width: 100%;
+}
+
+.athleteInfo .fullName {
+    font-weight: bold;
+    flex: 0 0 35%;
+    text-align: left;
+    flex-grow: 0.5;
+}
+
+.athleteInfo .timer {
+    flex: 0 0 15%;
+    text-align: right;
+    font-weight: bold;
+    width: 10vw;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.athleteInfo .decisionBox {
+    position: fixed;
+    top: 2vmin;
+    right: 2vmin;
+    width: 15vw;
+    height: 10vh;
+    background-color: black;
+    display: none;
+}
+
+.athleteInfo .weight {
+    color: aqua;
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+}
+
+.group {
+    font-size: 2.5vh;
+    margin-top: 1vh;
+    margin-bottom: 2vh;
+}
+
+.breakTime {
+    /* color: #99CCFF; */
+    color: SkyBlue;
+}
+
+.athleteTimer {
+    color: yellow;
+}
+
+.hiddenTitle {
+    display: none;
+}
+
+.bigTitle {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.competitionName {
+    font-size: 4em;
+}
+
+.nextGroup {
+    font-size: 2em;
+}
+
+.english {
+    font-size: 85%;
+}
+
+:host(.light) table.results td.blink {
+    animation: blink 1.5s step-start 0s infinite;
+    -webkit-animation: blink 1.5s step-start 0s infinite;
+}
+
+:host(.dark) table.results div.blink {
+    animation: blink 1.5s step-start 0s infinite;
+    -webkit-animation: blink 1.5s step-start 0s infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+
+/* table colors */
+table.results {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    border: none;
+    background-color: black;
+    gap: 0px;
+}
+
+:host(.dark) table.results tr {
+    background-color: black;
+    color: white;
+}
+
+:host(.light) table.results tr {
+    background-color: white;
+    color: black;
+}
+
+:host(.dark) th, td {
+    font-weight: normal;
+}
+
+:host(.light) th, td {
+    font-weight: bold;
+}
+
+:host(.light) .good {
+    background-color: green;
+    font-weight: bold;
+    color: white;
+}
+
+:host(.dark) .fail {
+    background-color: red;
+    font-weight: bold;
+}
+
+:host(.light) .fail {
+    background-color: red;
+    font-weight: bold;
+    color: white;
+}
+
+:host(.dark) .spacer {
+    background-color: var(--backgroundColor);
+    padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
+    border-right: 0;
+}
+
+:host(.light) .spacer {
+    background-color: gray;
+    padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
+}
+
+:host(.dark) .request {
+    background-color: black;
+    font-style: italic;
+}
+
+:host(.light) .request {
+    background-color: white;
+    font-style: italic;
+}
+
+:host(.dark) td.current {
+    color: yellow;
+    font-weight: bold;
+}
+
+:host(.light) td.current {
+    background-color: yellow;
+    font-weight: bold;
+}
+
+:host(.dark) .next {
+    color: orange;
+    font-weight: bold;
+}
+
+:host(.dark) td.next {
+    color: orange;
+    font-weight: bold;
+}
+
+:host(.light) td.next {
+    background-color: gold;
+    font-weight: bold;
+}
+
+:host(.dark) .empty {
+    background-color: black;
+    font-style: italic;
+}
+
+:host(.light) .empty {
+    background-color: white;
+    font-style: italic;
+}
+
+/* grid layout */
+
+table {
+    min-width: 98vw;
+    width: 98vw;
+    max-width: 100vw;
+    min-height: 100vh;
+    flex: 1;
+    display: grid;
+    border-collapse: collapse;
+    grid-template-rows: repeat(var(--top), min-content) 1fr repeat(
+        var(--bottom),
+        min-content
+      );
+    grid-template-columns:
+      var(--startWidth)
+      minmax(50px, 1fr)
+      var(--categoryWidth)
+      var(--birthWidth)
+      minmax(50px, 0.55fr)
+      repeat(4, var(--liftResultWidth))
+      repeat(4, var(--liftResultWidth))
+      repeat(2, var(--liftResultWidth));
+  }
+  
+  thead,
+  tbody,
+  tr {
+    display: contents;
+  }
+  
+  th,
+  td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    align-content: stretch;
+    outline: 1px solid yellow;
+    padding: 10px;
+  }
+  
+  thead tr td,
+  thead tr th {
+    position: sticky;
+    background: #6c7ae0;
+    justify-content: center;
+    align-content: center;
+    font-weight: normal;
+    font-size: 1.5rem;
+    color: white;
+    position: relative;
+    padding-top: 5px;
+    padding-bottom: 10px;
+  }
