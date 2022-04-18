@@ -94,7 +94,7 @@ class Results extends PolymerElement {
                                 </td>
                                 <template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
                                     <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
-                                        <div>[[attempt.stringValue]]</div>
+                                        <div class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]</div>
                                     </td>
                                 </template>
                                 <td class="showRank">
@@ -102,7 +102,7 @@ class Results extends PolymerElement {
                                 </td>
                                 <template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
                                     <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
-                                        <div>[[attempt.stringValue]]</div>
+                                        <div class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]</div>
                                     </td>
                                 </template>
                                 <td class="showRank">

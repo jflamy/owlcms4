@@ -1,10 +1,26 @@
 * {
     box-sizing: border-box;
+    --lightTableBorders: grey;
+    --lightTextColor: black;
+    --lightBackgroundColor: white;
+    --lightCurrentTextColor: var(--lightTextColor);
+    --lightCurrentBackgroundColor: yellow;
+    --lightNextTextColor: var(--lightTextColor);
+    --lightNextBackgroundColor: gold;
+
+    --darkTableBorders: white;
+    --darkTextColor: white;
+    --darkBackgroundColor: black;
+    --darkCurrentTextColor: yellow;
+    --darkCurrentBackgroundColor: var(--darkBackgroundColor);
+    --darkNextTextColor: orange;
+    --darkNextBackgroundColor: var(--darkBackgroundColor);
+
 }
 
-/* default values */
+/* default for page */
 .wrapper {
-    --backgroundColor: black;
+    --pageBackgroundColor: black;
 
     --startWidth: 3em;
     --categoryWidth: 6ch;
@@ -13,7 +29,7 @@
 
     font-family: Arial, Helvetica, sans-serif;
     color: white;
-    background-color: var(--backgroundColor);
+    background-color: var(--pageBackgroundColor);
 
     min-height: 100vh;
     padding: 2vmin 2vmin 2vmin 2vmin;
@@ -22,6 +38,213 @@
     flex-direction: column;
     flex-wrap: no-wrap;
     justify-content: flex-start;
+}
+
+/* table colors */
+table.results {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+:host(.dark) table.results {
+    background-color: var(--darkTableBorders);
+    color: var(--darkTextColor);
+    gap: 1px;
+    padding: 1px;
+}
+
+:host(.light) table.results {
+    background-color: var(--lightTableBorders);
+    color: var(--lightTextColor);
+    gap: 1px;
+    padding: 1px;
+}
+
+:host(.dark) table.results tr td {
+    background-color: var(--darkBackgroundColor);
+    color: var(--darkTextColor);
+}
+
+:host(.light) table.results tr td {
+    background-color: var(--lightBackgroundColor);
+    color: var(--lightTextColor);
+}
+
+:host(.dark) th.name,
+:host(.dark) td.name,
+:host(.light) th.name,
+:host(.light) td.name {
+    justify-content: left;
+}
+
+:host(.dark) th,
+:host(.dark) td {
+    font-weight: normal;
+    justify-content: center;
+}
+
+:host(.light) th,
+:host(.light) td {
+    font-weight: bold;
+    justify-content: center;
+}
+
+:host(.light) table.results tr td.good {
+    background-color: green;
+    font-weight: bold;
+    color: white;
+}
+
+:host(.dark) table.results tr td.good {
+    background-color: green;
+    font-weight: bold;
+    color: white;
+}
+
+:host(.dark) table.results tr td.fail {
+    background-color: red;
+    font-weight: bold;
+    color: white;
+}
+
+:host(.light) table.results tr td.fail {
+    background-color: red;
+    font-weight: bold;
+    color: white;
+}
+
+:host(.dark) .spacer {
+    background-color: var(--darkTableBorders);
+    padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
+    border-right: 0;
+}
+
+:host(.light) .spacer {
+    background-color: var(--lightTableBorders);
+    padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
+}
+
+:host(.dark) .request {
+    font-style: italic;
+}
+
+:host(.light) .request {
+    font-style: italic;
+}
+
+:host(.dark) table.results tr td.current {
+    color: var(--darkCurrentTextColor);
+    background-color: var(--darkCurrentBackgroundColor);
+    font-weight: bold;
+}
+
+:host(.light) table.results tr td.current {
+    color: var(--lightCurrentTextColor);
+    background-color: var(--lightCurrentBackgroundColor);
+    font-weight: bold;
+}
+
+:host(.dark) table.results tr td.next {
+    color: var(--darkNextTextColor);
+    background-color: var(--darkNextBackgroundColor);
+    font-weight: bold;
+}
+
+:host(.light) table.results tr td.next {
+    color: var(--lightNextTextColor);
+    background-color: var(--lightNextBackgroundColor);
+    font-weight: bold;
+}
+
+:host(.dark) .empty {
+    color: var(--dardTextColor);
+    background-color: var(--darkBackgroundColor);
+    font-style: italic;
+}
+
+:host(.light) .empty {
+    color: var(--lightTextColor);
+    background-color: var(--lightBackgroundColor);
+    font-style: italic;
+}
+
+/* grid layout */
+
+table {
+    min-width: 98vw;
+    width: 98vw;
+    max-width: 100vw;
+    min-height: 100vh;
+    flex: 1;
+    display: grid;
+    border-collapse: collapse;
+    grid-template-rows: repeat(var(--top), min-content) 1fr repeat(var(--bottom),
+            min-content);
+    grid-template-columns:
+        var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) minmax(50px, 0.55fr) repeat(4, var(--liftResultWidth)) repeat(4, var(--liftResultWidth)) repeat(2, var(--liftResultWidth));
+}
+
+thead,
+tbody,
+tr {
+    display: contents;
+}
+
+th,
+td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    align-content: stretch;
+    padding: 10px;
+}
+
+thead tr td,
+thead tr th {
+    position: sticky;
+    background: #6c7ae0;
+    justify-content: center;
+    align-content: center;
+    font-weight: normal;
+    font-size: 1.5rem;
+    color: white;
+    position: relative;
+    padding-top: 5px;
+    padding-bottom: 10px;
+}
+
+:host(.light) table.results td.blink {
+    animation: changeColor 1.5s step-start 0s infinite;
+}
+
+:host(.dark) table.results div.blink {
+    animation: blink 1.5s step-start 0s infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+@keyframes changeColor {
+    0% {
+        background-color: yellow;
+    }
+
+    49% {
+        background-color: yellow;
+    }
+
+    50% {
+        background-color: white;
+    }
+
+    100% {
+        background-color: white;
+    }
 }
 
 /* top part formatting */
@@ -127,182 +350,6 @@
     font-size: 85%;
 }
 
-:host(.light) table.results td.blink {
-    animation: blink 1.5s step-start 0s infinite;
-    -webkit-animation: blink 1.5s step-start 0s infinite;
-}
-
-:host(.dark) table.results div.blink {
-    animation: blink 1.5s step-start 0s infinite;
-    -webkit-animation: blink 1.5s step-start 0s infinite;
-}
-
-@keyframes blink {
-    50% {
-        opacity: 0;
-    }
-}
-
-@-webkit-keyframes blink {
-    50% {
-        opacity: 0;
-    }
-}
 
 
-/* table colors */
-table.results {
-    table-layout: fixed;
-    width: 100%;
-    border-collapse: collapse;
-    border: none;
-    background-color: black;
-    gap: 0px;
-}
 
-:host(.dark) table.results tr {
-    background-color: black;
-    color: white;
-}
-
-:host(.light) table.results tr {
-    background-color: white;
-    color: black;
-}
-
-:host(.dark) th, td {
-    font-weight: normal;
-}
-
-:host(.light) th, td {
-    font-weight: bold;
-}
-
-:host(.light) .good {
-    background-color: green;
-    font-weight: bold;
-    color: white;
-}
-
-:host(.dark) .fail {
-    background-color: red;
-    font-weight: bold;
-}
-
-:host(.light) .fail {
-    background-color: red;
-    font-weight: bold;
-    color: white;
-}
-
-:host(.dark) .spacer {
-    background-color: var(--backgroundColor);
-    padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
-    border-right: 0;
-}
-
-:host(.light) .spacer {
-    background-color: gray;
-    padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
-}
-
-:host(.dark) .request {
-    background-color: black;
-    font-style: italic;
-}
-
-:host(.light) .request {
-    background-color: white;
-    font-style: italic;
-}
-
-:host(.dark) td.current {
-    color: yellow;
-    font-weight: bold;
-}
-
-:host(.light) td.current {
-    background-color: yellow;
-    font-weight: bold;
-}
-
-:host(.dark) .next {
-    color: orange;
-    font-weight: bold;
-}
-
-:host(.dark) td.next {
-    color: orange;
-    font-weight: bold;
-}
-
-:host(.light) td.next {
-    background-color: gold;
-    font-weight: bold;
-}
-
-:host(.dark) .empty {
-    background-color: black;
-    font-style: italic;
-}
-
-:host(.light) .empty {
-    background-color: white;
-    font-style: italic;
-}
-
-/* grid layout */
-
-table {
-    min-width: 98vw;
-    width: 98vw;
-    max-width: 100vw;
-    min-height: 100vh;
-    flex: 1;
-    display: grid;
-    border-collapse: collapse;
-    grid-template-rows: repeat(var(--top), min-content) 1fr repeat(
-        var(--bottom),
-        min-content
-      );
-    grid-template-columns:
-      var(--startWidth)
-      minmax(50px, 1fr)
-      var(--categoryWidth)
-      var(--birthWidth)
-      minmax(50px, 0.55fr)
-      repeat(4, var(--liftResultWidth))
-      repeat(4, var(--liftResultWidth))
-      repeat(2, var(--liftResultWidth));
-  }
-  
-  thead,
-  tbody,
-  tr {
-    display: contents;
-  }
-  
-  th,
-  td {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: flex;
-    align-content: stretch;
-    outline: 1px solid yellow;
-    padding: 10px;
-  }
-  
-  thead tr td,
-  thead tr th {
-    position: sticky;
-    background: #6c7ae0;
-    justify-content: center;
-    align-content: center;
-    font-weight: normal;
-    font-size: 1.5rem;
-    color: white;
-    position: relative;
-    padding-top: 5px;
-    padding-bottom: 10px;
-  }
