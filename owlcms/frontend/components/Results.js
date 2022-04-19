@@ -121,27 +121,12 @@ class Results extends PolymerElement {
                     <td class="filler" style="grid-column: 1 / -1">&nbsp;</td>
                 </tr>
                 <tr class="head">
-                    <td class="groupCol" inner-h-t-m-l="[[t.Group]]"></td>
-                    <td class="name" inner-h-t-m-l="[[t.Name]]"></td>
-                    <td class="category" inner-h-t-m-l="[[t.Category]]"></td>
-                    <td class="narrow" inner-h-t-m-l="[[t.Birth]]"></td>
-                    <td class="club" inner-h-t-m-l="[[t.Team]]"></td>
-                    <td style="grid-column: span 3;" inner-h-t-m-l="[[t.Snatch]]"></td>
-                    <td class="showThRank" inner-h-t-m-l="[[t.Rank]]"></td>
-                    <td style="grid-column: span 3;" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></td>
-                    <td class="showThRank" inner-h-t-m-l="[[t.Rank]]"></td>
-                    <td class="narrow" inner-h-t-m-l="[[t.Total]]"></td>
-                    <td class="thRank" inner-h-t-m-l="[[t.Rank]]"></td>
+                    <td style="grid-column: 1 / -1; justify-content: left;" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]"></td>
                 </tr>
-                <!-- tr>
-                                <td colspan="100%" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]"></td>
-                            </tr -->
+                <tr>
+                    <td class="spacer">&nbsp;</td>
+                </tr>
                 <template is="dom-repeat" id="result-table" items="[[leaders]]" as="l">
-                    <!-- template is="dom-if" if="[[l.isSpacer]]">
-                                                <tr>
-                                                    <td colspan="100%" style="height:0.1ex; border:none" class="spacer"></td>
-                                                </tr>
-                                            </template -->
                     <template is="dom-if" if="[[!l.isSpacer]]">
                         <tr class="athlete">
                             <td class="groupCol">
