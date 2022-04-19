@@ -1,5 +1,8 @@
 * {
     box-sizing: border-box;
+
+    --tableFontSize: 1.2rem;
+
     --lightTableBorders: grey;
     --lightTextColor: black;
     --lightBackgroundColor: white;
@@ -7,6 +10,12 @@
     --lightCurrentBackgroundColor: yellow;
     --lightNextTextColor: var(--lightTextColor);
     --lightNextBackgroundColor: gold;
+    --lightRankTextColor: var(--lightTextColor);
+    --lightRankBackgroundColor: pink;
+    --lightGoodTextColor: white;
+    --lightGoodBackgroundColor: green;
+    --lightFailTextColor: white;
+    --lightFailBackgroundColor: red;
 
     --darkTableBorders: white;
     --darkTextColor: white;
@@ -15,18 +24,24 @@
     --darkCurrentBackgroundColor: var(--darkBackgroundColor);
     --darkNextTextColor: orange;
     --darkNextBackgroundColor: var(--darkBackgroundColor);
+    --darkRankTextColor: var(--darkTextColor);
+    --darkRankBackgroundColor: var(--darkBackgroundColor);
+    --darkGoodTextColor: white;
+    --darkGoodBackgroundColor: green;
+    --darkFailTextColor: white;
+    --darkFailBackgroundColor: red;
+
+    --startWidth: 3em;
+    --categoryWidth: 9ch;
+    --birthWidth: 6ch;
+    --liftResultWidth: 6ch;
+
+    --pageBackgroundColor: black;
 
 }
 
 /* default for page */
 .wrapper {
-    --pageBackgroundColor: black;
-
-    --startWidth: 3em;
-    --categoryWidth: 6ch;
-    --birthWidth: 6ch;
-    --liftResultWidth: 4em;
-
     font-family: Arial, Helvetica, sans-serif;
     color: white;
     background-color: var(--pageBackgroundColor);
@@ -40,30 +55,37 @@
     justify-content: flex-start;
 }
 
+div.results {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
 /* table colors */
 table.results {
     table-layout: fixed;
     width: 100%;
     border-collapse: collapse;
+    font-size: var(--tableFontSize);
 }
 
 :host(.dark) table.results {
     background-color: var(--darkTableBorders);
     color: var(--darkTextColor);
-    gap: 1px;
-    padding: 1px;
+    gap: 0px;
 }
 
 :host(.light) table.results {
     background-color: var(--lightTableBorders);
     color: var(--lightTextColor);
     gap: 1px;
-    padding: 1px;
 }
 
 :host(.dark) table.results tr td {
     background-color: var(--darkBackgroundColor);
     color: var(--darkTextColor);
+    border: 1px solid;
+    border-color: var(--darkTableBorders)
 }
 
 :host(.light) table.results tr td {
@@ -71,9 +93,7 @@ table.results {
     color: var(--lightTextColor);
 }
 
-:host(.dark) th.name,
 :host(.dark) td.name,
-:host(.light) th.name,
 :host(.light) td.name {
     justify-content: left;
 }
@@ -91,38 +111,72 @@ table.results {
 }
 
 :host(.light) table.results tr td.good {
-    background-color: green;
+    background-color: var(--lightGoodBackgroundColor);
     font-weight: bold;
-    color: white;
+    color: var(--lightGoodTextColor);
 }
 
 :host(.dark) table.results tr td.good {
-    background-color: green;
+    background-color: var(--darkGoodBackgroundColor);
     font-weight: bold;
-    color: white;
+    color: var(--lightGoodTextColor);;
 }
 
 :host(.dark) table.results tr td.fail {
-    background-color: red;
+    background-color: var(--lightFailBackgroundColor);
     font-weight: bold;
-    color: white;
+    color: var(--lightFailTextColor);
 }
 
 :host(.light) table.results tr td.fail {
-    background-color: red;
+    background-color: var(--lightFailBackgroundColor);
     font-weight: bold;
-    color: white;
+    color: var(--lightFailTextColor);
 }
 
-:host(.dark) .spacer {
-    background-color: var(--darkTableBorders);
+:host(.dark) table.results tr td.showRank,
+:host(.dark) table.results tr.athlete td.thRank {
+    background-color: var(--darkRankBackgroundColor);
+    font-weight: bold;
+    color: var(--darkRankTextColor);
+}
+
+:host(.light) table.results tr td.showRank,
+:host(.light) table.results tr.athlete td.thRank {
+    background-color: var(--lightRankBackgroundColor);
+    font-weight: bold;
+    color: var(--lightRankTextColor);
+}
+
+:host(.dark) table.results tr td.spacer {
+    background-color: var(--darkBackgroundColor);
     padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
     border-right: 0;
+    grid-column: 1 / -1;
+    border: none;
+    max-height: 2px;
 }
 
-:host(.light) .spacer {
+:host(.light) table.results tr td.spacer {
     background-color: var(--lightTableBorders);
     padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
+    grid-column: 1 / -1;
+    border: none;
+    max-height: 2px;
+}
+
+:host(.light) table.results tr td.filler {
+    background-color: var(--pageBackgroundColor);
+    grid-column: 1 / -1;
+    align-content: stretch;
+    border: none;
+}
+
+:host(.dark) table.results tr td.filler {
+    background-color: var(--pageBackgroundColor);
+    grid-column: 1 / -1;
+    align-content: stretch;
+    border: none;
 }
 
 :host(.dark) .request {
@@ -175,7 +229,6 @@ table {
     min-width: 98vw;
     width: 98vw;
     max-width: 100vw;
-    min-height: 100vh;
     flex: 1;
     display: grid;
     border-collapse: collapse;
@@ -198,21 +251,26 @@ td {
     white-space: nowrap;
     display: flex;
     align-content: stretch;
-    padding: 10px;
+    padding: 5px;
+    margin: 0;
 }
 
-thead tr td,
-thead tr th {
+:host(.dark) table.results tr.head td,
+:host(.dark) table.results tr.head th,
+:host(.light) table.results tr.head td,
+:host(.light) table.results tr.head th {
     position: sticky;
     background: #6c7ae0;
     justify-content: center;
     align-content: center;
     font-weight: normal;
-    font-size: 1.5rem;
+    font-size: var(--tableFontSize);
     color: white;
     position: relative;
     padding-top: 5px;
     padding-bottom: 10px;
+    border: 1px solid;
+    border-color: var(--darkTableBorders)
 }
 
 :host(.light) table.results td.blink {
@@ -234,7 +292,7 @@ thead tr th {
         background-color: yellow;
     }
 
-    49% {
+    49.9% {
         background-color: yellow;
     }
 
@@ -349,7 +407,3 @@ thead tr th {
 .english {
     font-size: 85%;
 }
-
-
-
-
