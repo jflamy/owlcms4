@@ -4,27 +4,27 @@
 
 .wrapper {
 	font: Arial;
-	color: white;
-	background-color: black;
+	color: var(--pageTextColor);
+	background-color: var(--pageTextColor);
 	height: 100vh;
 	width: 100vw;
 }
 
 .attemptBoard {
 	font-family: "Arial", "Helvetica", sans-serif;
-	color: white;
-	background-color: black;
+	color: var(--pageTextColor);
+	background-color: var(--pageBackgroundColor);
 	display: grid;
 	width: 100vw;
 	height: 100vh;
 	grid-template-columns: [firstName-start lastName-start teamName-start
-		startNumber-start weight-start] 1fr[startNumber-end attempt-start] 2fr[attempt-end
-		weight-end barbell-start down-start decision-start] 3fr[barbell-end
-		timer-start] 3fr[timer-end name-end down-end decision-end];
-	grid-template-rows: [lastName-start]1fr[lastName-end firstName-start]1fr[firstName-end
-		teamName-start down-start]2fr[teamName-end  decision-start]1fr[startNumber-start
-		attempt-start barbell-start timer-start]1fr[startNumber-end
-		attempt-end weight-start]5fr[weight-end barbell-end timer-end down-end
+		startNumber-start weight-start] 1fr [startNumber-end attempt-start] 2fr [attempt-end
+		weight-end barbell-start down-start decision-start] 3fr [barbell-end
+		timer-start] 3fr [timer-end name-end down-end decision-end];
+	grid-template-rows: [lastName-start] 1fr [lastName-end firstName-start] 1fr [firstName-end
+		teamName-start down-start] 2fr [teamName-end  decision-start] 1fr [startNumber-start
+		attempt-start barbell-start timer-start] 1fr [startNumber-end
+		attempt-end weight-start] 5fr [weight-end barbell-end timer-end down-end
 		decision-end];
 	justify-content: center;
 	align-content: center;
@@ -91,7 +91,7 @@
 .attemptBoard .startNumber span {
 	border-width: 0.2ex;
 	border-style: solid;
-	border-color: red;
+	border-color: var(--startNumberBoxColor);
 	width: 1.5em;
 	display: flex;
 	justify-content: center;
@@ -113,7 +113,7 @@
 }
 
 .attemptBoard .weight {
-	color: aqua;
+	color: var(--athleteAttemptWeightColor);
 	font-size: 20vh;
 	line-height: 20vh;
 	font-weight: bold;
@@ -156,11 +156,11 @@
 
 .breakTime {
 	/* color: #99CCFF; */
-	color: SkyBlue;
+	color: var(--breakTimerColor);
 }
 
 .athleteTimer {
-	color: yellow;
+	color: var(--athleteTimerColor);
 }
 
 .attemptBoard .down {
@@ -170,7 +170,7 @@
 	--iron-icon-height: 120%;
 	--iron-icon-width: 120%;
 	font-weight: normal;
-	color: lime;
+	color: var(--downColor);
 	display: none;
 	overflow: hidden;
 }

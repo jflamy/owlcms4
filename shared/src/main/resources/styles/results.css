@@ -7,15 +7,14 @@
     --groupInfoFontSize: 2.5vh;
 
     /* results table section */
+    --teamColumnRatio: 0.55fr; /* size of team column relative to name column (fr = fraction) */
     --tableFontSize: 1.2rem;
     --startWidth: 3em;
     --categoryWidth: 9ch;
     --birthWidth: 6ch;
     --liftResultWidth: 6ch;
 }
-.showRank, .showThRank {
-    visibility: hidden;
-}
+
 /* default for page */
 .wrapper {
     font-family: Arial, Helvetica, sans-serif;
@@ -23,7 +22,7 @@
     background-color: var(--pageBackgroundColor);
 
     min-height: 100vh;
-    padding: 0vmin 2vmin 2vmin 2vmin;
+    padding: 1vmin 2vmin 2vmin 2vmin;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -231,7 +230,7 @@ table {
     grid-template-rows: repeat(var(--top), min-content) 1fr repeat(var(--bottom),
             min-content);
     grid-template-columns:
-        var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) minmax(50px, 0.55fr) repeat(4, var(--liftResultWidth)) repeat(4, var(--liftResultWidth)) repeat(2, var(--liftResultWidth));
+        var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) minmax(50px, var(--teamColumnRatio)) repeat(4, var(--liftResultWidth)) repeat(4, var(--liftResultWidth)) repeat(2, var(--liftResultWidth));
 }
 
 thead,

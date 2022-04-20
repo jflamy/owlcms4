@@ -1,10 +1,15 @@
 * {
+
+    --pageBackgroundColor: black;
+    --pageTextColor: white;
+
     /* current attempt section */
 
     --startNumberBoxColor: red;
     --breakTimerColor: skyblue;
     --athleteTimerColor: yellow;
     --athleteAttemptWeightColor: aqua;
+    --downColor: lime;
 
     --athleteNameColor: white;
     --athleteCategoryColor: white;
@@ -13,7 +18,7 @@
 
     --groupInfoColor: white;
 
-    /* results table section */
+    /* results table section, "black on white", cell have a full background different from page background */
 
     --lightTableBorders: grey;
     --lightTextColor: black;
@@ -23,7 +28,7 @@
     --lightTitleBackgroundColor: #6c7ae0;
 
     --lightCurrentTextColor: var(--lightTextColor);
-    --lightCurrentBackgroundColor: aqua;
+    --lightCurrentBackgroundColor: yellow;
 
     --lightNextTextColor: var(--lightTextColor);
     --lightNextBackgroundColor: gold;
@@ -46,9 +51,14 @@
     --lightRankTextColor: var(--lightTextColor);
     --lightRankBackgroundColor: #F9E79F;
 
-    --lightTotalRankTextColor: /* white; */ var(--lightTextColor);
-    --lightTotalRankBackgroundColor: /* purple; */ var(--lightRankBackgroundColor);
+    --lightTotalRankTextColor:
+        /* white; */
+        var(--lightTextColor);
+    --lightTotalRankBackgroundColor:
+        /* purple; */
+        var(--lightRankBackgroundColor);
 
+    /* results table section, "white on black", most cells have same dark background as page */
 
     --darkTableBorders: white;
     --darkTextColor: white;
@@ -84,8 +94,4 @@
     --darkTotalRankTextColor: var(--darkTextColor);
     --darkTotalRankBackgroundColor: var(--darkBackgroundColor);
 
-    --pageBackgroundColor: black;
-    --pageTextColor: white;
-
 }
-

@@ -13,9 +13,9 @@ class Results extends PolymerElement {
 
     static get template() {
         return html`
-            <link rel="stylesheet" type="text/css" href="local/styles/colors.css">
+
             <link rel="stylesheet" type="text/css" href="local/styles/results.css">
-            
+            <link rel="stylesheet" type="text/css" href="local/styles/colors.css">
             
             <div class$="wrapper [[teamWidthClass]] [[inactiveClass]]">
                 <div style$="[[inactiveBlockStyle]]">
