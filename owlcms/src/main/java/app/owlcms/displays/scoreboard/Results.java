@@ -506,9 +506,11 @@ public class Results extends PolymerTemplate<TemplateModel>
                 if (displayOrder != null && displayOrder.size() > 0) {
                     // null as second argument because we do not highlight current athletes in the leaderboard
                     this.getElement().setPropertyJson("leaders", getAthletesJson(displayOrder, null, fop));
+                    this.getElement().setProperty("leaderLines", displayOrder.size() + 2); // spacer + title
                 } else {
                     // nothing to show
                     this.getElement().setPropertyJson("leaders", Json.createNull());
+                    this.getElement().setProperty("leaderLines", 1); // must be > 0
                 }
             }
         });
@@ -621,6 +623,7 @@ public class Results extends PolymerTemplate<TemplateModel>
     private JsonValue getAthletesJson(List<Athlete> displayOrder, List<Athlete> liftOrder, FieldOfPlay fop) {
         JsonArray jath = Json.createArray();
         int athx = 0;
+
         Category prevCat = null;
         long currentId = (liftOrder != null && liftOrder.size() > 0) ? liftOrder.get(0).getId() : -1L;
         long nextId = (liftOrder != null && liftOrder.size() > 1) ? liftOrder.get(1).getId() : -1L;
@@ -652,6 +655,26 @@ public class Results extends PolymerTemplate<TemplateModel>
             athx++;
         }
         return jath;
+    }
+    
+    /**
+     * @param groupAthletes, List<Athlete> liftOrder
+     * @return
+     */
+    private int countCategories(List<Athlete> displayOrder) {
+        int nbCats = 0;
+        Category prevCat = null;
+        List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
+                : Collections.emptyList();
+        for (Athlete a : athletes) {
+            Category curCat = a.getCategory();
+            if (curCat != null && !curCat.sameAs(prevCat)) {
+                // changing categories, put marker before athlete
+                prevCat = curCat;
+                nbCats++;
+            }
+        }
+        return nbCats;
     }
 
     /**
@@ -794,6 +817,9 @@ public class Results extends PolymerTemplate<TemplateModel>
         }
         this.getElement().setPropertyJson("athletes",
                 getAthletesJson(displayOrder, fop.getLiftingOrder(), fop));
+    
+        int resultLines = (displayOrder != null ? displayOrder.size() : 0) + countCategories(displayOrder) + 1;
+        this.getElement().setProperty("resultLines", resultLines);
         computeLeaders();
     }
 

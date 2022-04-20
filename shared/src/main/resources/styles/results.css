@@ -1,53 +1,27 @@
 * {
     box-sizing: border-box;
 
+    /* current attempt section */
+    --topRowFontSize: 3vh;
+    --athleteNameFontSize: 4vh;
+    --groupInfoFontSize: 2.5vh;
+
+    /* results table section */
     --tableFontSize: 1.2rem;
-
-    --lightTableBorders: grey;
-    --lightTextColor: black;
-    --lightBackgroundColor: white;
-    --lightCurrentTextColor: var(--lightTextColor);
-    --lightCurrentBackgroundColor: yellowgreen;
-    --lightNextTextColor: var(--lightTextColor);
-    --lightNextBackgroundColor: gold;
-    --lightRankTextColor: var(--lightTextColor);
-    --lightRankBackgroundColor: #F9E79F ;
-    --lightGoodTextColor: white;
-    --lightGoodBackgroundColor: blue;
-    --lightFailTextColor: white;
-    --lightFailBackgroundColor: darkred;
-
-    --darkTableBorders: white;
-    --darkTextColor: white;
-    --darkBackgroundColor: black;
-    --darkCurrentTextColor: yellowgreen;
-    --darkCurrentBackgroundColor: var(--darkBackgroundColor);
-    --darkNextTextColor: orange;
-    --darkNextBackgroundColor: var(--darkBackgroundColor);
-    --darkRankTextColor: var(--darkTextColor);
-    --darkRankBackgroundColor: var(--darkBackgroundColor);
-    --darkGoodTextColor: white;
-    --darkGoodBackgroundColor: blue;
-    --darkFailTextColor: white;
-    --darkFailBackgroundColor: darkred;
-
     --startWidth: 3em;
     --categoryWidth: 9ch;
     --birthWidth: 6ch;
     --liftResultWidth: 6ch;
-
-    --pageBackgroundColor: black;
-
 }
 
 /* default for page */
 .wrapper {
     font-family: Arial, Helvetica, sans-serif;
-    color: white;
+    color: var(--pageTextColor);
     background-color: var(--pageBackgroundColor);
 
     min-height: 100vh;
-    padding: 2vmin 2vmin 2vmin 2vmin;
+    padding: 0vmin 2vmin 2vmin 2vmin;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -55,33 +29,19 @@
     justify-content: flex-start;
 }
 
-/* table colors */
+/* table general parameters */
 table.results {
-    table-layout: fixed;
-    width: 100%;
     border-collapse: collapse;
     font-size: var(--tableFontSize);
 }
 
-:host(.dark) table.results {
-    background-color: var(--darkTableBorders);
-    color: var(--darkTextColor);
-    gap: 0px;
-}
-
-:host(.light) table.results {
-    background-color: var(--lightTableBorders);
-    color: var(--lightTextColor);
-    gap: 0px;
-}
-
+/* default cell colors, backgrounds and borders */
 :host(.dark) table.results tr td {
     background-color: var(--darkBackgroundColor);
     color: var(--darkTextColor);
     border: 1px solid;
     border-color: var(--darkTableBorders)
 }
-
 :host(.light) table.results tr td {
     background-color: var(--lightBackgroundColor);
     color: var(--lightTextColor);
@@ -89,61 +49,95 @@ table.results {
     border-color: var(--lightTableBorders)
 }
 
+/* name is not centered */
 :host(.dark) td.name,
 :host(.light) td.name {
     justify-content: left;
 }
 
+/* other items are centered */
 :host(.dark) th,
 :host(.dark) td {
     font-weight: normal;
     justify-content: center;
 }
-
 :host(.light) th,
 :host(.light) td {
     font-weight: bold;
     justify-content: center;
 }
 
-:host(.light) table.results tr td.good {
-    background-color: var(--lightGoodBackgroundColor);
-    font-weight: bold;
-    color: var(--lightGoodTextColor);
+/* category */
+:host(.dark) table.results tr td.category {
+    background-color: var(--darkCategoryBackgroundColor);
+    color: var(--darkCategoryTextColor);
+}
+:host(.light) table.results tr td.category {
+    background-color: var(--lightCategoryBackgroundColor);
+    color: var(--lightCategoryTextColor);
 }
 
+/* birth */
+:host(.dark) table.results tr td.yob {
+    background-color: var(--darkBirthBackgroundColor);
+    color: var(--darkBirthTextColor);
+}
+:host(.light) table.results tr td.yob {
+    background-color: var(--lightBirthBackgroundColor);
+    color: var(--lightBirthTextColor);
+}
+
+/* team */
+:host(.dark) table.results tr td.club {
+    background-color: var(--darkTeamBackgroundColor);
+    color: var(--darkTeamTextColor);
+}
+:host(.light) table.results tr td.club {
+    background-color: var(--lightTeamBackgroundColor);
+    color: var(--lightTeamTextColor);
+}
+
+/* good/bad cells */
 :host(.dark) table.results tr td.good {
     background-color: var(--darkGoodBackgroundColor);
+    color: var(--lightGoodTextColor);
     font-weight: bold;
-    color: var(--lightGoodTextColor);;
 }
-
+:host(.light) table.results tr td.good {
+    background-color: var(--lightGoodBackgroundColor);
+    color: var(--lightGoodTextColor);
+}
 :host(.dark) table.results tr td.fail {
-    background-color: var(--lightFailBackgroundColor);
+    background-color: var(--darkFailBackgroundColor);
+    color: var(--darkFailTextColor);
     font-weight: bold;
-    color: var(--lightFailTextColor);
 }
-
 :host(.light) table.results tr td.fail {
     background-color: var(--lightFailBackgroundColor);
-    font-weight: bold;
     color: var(--lightFailTextColor);
 }
 
-:host(.dark) table.results tr td.showRank,
-:host(.dark) table.results tr.athlete td.thRank {
+/* snatch and c&j ranks */
+:host(.dark) table.results tr td.showRank {
     background-color: var(--darkRankBackgroundColor);
-    font-weight: bold;
     color: var(--darkRankTextColor);
 }
-
-:host(.light) table.results tr td.showRank,
-:host(.light) table.results tr.athlete td.thRank {
+:host(.light) table.results tr td.showRank {
     background-color: var(--lightRankBackgroundColor);
-    font-weight: bold;
     color: var(--lightRankTextColor);
 }
 
+/* total rank */
+:host(.dark) table.results tr.athlete td.thRank {
+    background-color: var(--darkTotalRankBackgroundColor);
+    color: var(--darkTotalRankTextColor);
+}
+:host(.light) table.results tr.athlete td.thRank {
+    background-color: var(--lightTotalRankBackgroundColor);
+    color: var(--lightTotalRankTextColor);
+}
+
+/* spacer line between categories */
 :host(.dark) table.results tr td.spacer {
     background-color: var(--darkBackgroundColor);
     padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
@@ -152,7 +146,6 @@ table.results {
     border: none;
     max-height: 2px;
 }
-
 :host(.light) table.results tr td.spacer {
     background-color: var(--lightTableBorders);
     padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
@@ -161,6 +154,13 @@ table.results {
     max-height: 2px;
 }
 
+/* filler space above leaders */
+:host(.dark) table.results tr td.filler {
+    background-color: var(--pageBackgroundColor);
+    grid-column: 1 / -1;
+    align-content: stretch;
+    border: none;
+}
 :host(.light) table.results tr td.filler {
     background-color: var(--pageBackgroundColor);
     grid-column: 1 / -1;
@@ -168,51 +168,52 @@ table.results {
     border: none;
 }
 
-:host(.dark) table.results tr td.filler {
-    background-color: var(--pageBackgroundColor);
-    grid-column: 1 / -1;
-    align-content: stretch;
-    border: none;
-}
-
+/* requested weight column */
 :host(.dark) .request {
     font-style: italic;
 }
-
 :host(.light) .request {
     font-style: italic;
 }
 
+/* current athlete colors and blinks */
 :host(.dark) table.results tr td.current {
     color: var(--darkCurrentTextColor);
     background-color: var(--darkCurrentBackgroundColor);
     font-weight: bold;
 }
-
 :host(.light) table.results tr td.current {
     color: var(--lightCurrentTextColor);
     background-color: var(--lightCurrentBackgroundColor);
     font-weight: bold;
 }
+/* blinking text is done with a div animation */
+:host(.dark) table.results div.blink {
+    animation: blink 1.5s step-start 0s infinite;
+}
+/* blinking a background is done with the changeColor animation defined below */
+:host(.light) table.results td.blink {
+    animation: changeColor 1.5s step-start 0s infinite;
+}
 
+/* next athlete colors */
 :host(.dark) table.results tr td.next {
     color: var(--darkNextTextColor);
     background-color: var(--darkNextBackgroundColor);
     font-weight: bold;
 }
-
 :host(.light) table.results tr td.next {
     color: var(--lightNextTextColor);
     background-color: var(--lightNextBackgroundColor);
     font-weight: bold;
 }
 
+/* empty cells */
 :host(.dark) .empty {
     color: var(--darkTextColor);
     background-color: var(--darkBackgroundColor);
     font-style: italic;
 }
-
 :host(.light) .empty {
     color: var(--lightTextColor);
     background-color: var(--lightBackgroundColor);
@@ -220,9 +221,9 @@ table.results {
 }
 
 /* grid layout */
-
 table {
-    flex: 1; /* use all available vertical space */
+    flex: 1;
+    /* use all available vertical space */
     display: grid;
     border-collapse: collapse;
     grid-template-rows: repeat(var(--top), min-content) 1fr repeat(var(--bottom),
@@ -249,30 +250,37 @@ td {
 }
 
 :host(.dark) table.results tr.head td,
-:host(.dark) table.results tr.head th,
-:host(.light) table.results tr.head td,
-:host(.light) table.results tr.head th {
+:host(.dark) table.results tr.head th {
     position: sticky;
-    background: #6c7ae0;
     justify-content: center;
     align-content: center;
     font-weight: normal;
     font-size: var(--tableFontSize);
-    color: white;
     position: relative;
     padding-top: 2px;
     padding-bottom: 2px;
     border: 1px solid;
-    border-color: var(--darkTableBorders);
+    background: var(--darkTitleBackgroundColor);
+    color: var(--darkTitleTextColor);
+    border-color: var(--darkTitleTextColor);
 }
 
-:host(.light) table.results td.blink {
-    animation: changeColor 1.5s step-start 0s infinite;
+:host(.light) table.results tr.head td,
+:host(.light) table.results tr.head th {
+    position: sticky;
+    justify-content: center;
+    align-content: center;
+    font-weight: normal;
+    font-size: var(--tableFontSize);
+    position: relative;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border: 1px solid;
+    background: var(--lightTitleBackgroundColor);
+    color: var(--lightTitleTextColor);
+    border-color: var(--lightTitleTextColor);
 }
 
-:host(.dark) table.results div.blink {
-    animation: blink 1.5s step-start 0s infinite;
-}
 
 @keyframes blink {
     50% {
@@ -301,7 +309,7 @@ td {
 /* top part formatting */
 .attemptBar {
     display: flex;
-    font-size: 2rem;
+    font-size: var(--topRowFontSize);
     justify-content: space-between;
     width: 100%;
     height: 4vmin;
@@ -316,7 +324,7 @@ td {
     font-weight: bold;
     border-width: 0.2ex;
     border-style: solid;
-    border-color: red;
+    border-color: var(--startNumberBoxColor);
     width: 1.5em;
     display: flex;
     justify-content: center;
@@ -336,6 +344,23 @@ td {
     flex: 0 0 35%;
     text-align: left;
     flex-grow: 0.5;
+    color: var(--athleteNameColor);
+    font-size: var(--athleteNameFontSize)
+}
+
+.athleteInfo .clubName {
+    color: var(--athleteTeamColor);
+}
+
+.athleteInfo .attempt {
+    color: var(--athleteAttemptColor);
+}
+
+.athleteInfo .weight {
+    color: var(--athleteAttemptWeightColor);
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
 }
 
 .athleteInfo .timer {
@@ -353,30 +378,24 @@ td {
     right: 2vmin;
     width: 15vw;
     height: 10vh;
-    background-color: black;
+    background-color: var(--pageBackgroundColor);
     display: none;
 }
 
-.athleteInfo .weight {
-    color: aqua;
-    display: flex;
-    justify-content: center;
-    align-items: baseline;
-}
-
 .group {
-    font-size: 2.5vh;
+    color: var(--groupInfoColor);
+    font-size: var(--groupInfoFontSize);
     margin-top: 1vh;
     margin-bottom: 2vh;
 }
 
 .breakTime {
     /* color: #99CCFF; */
-    color: SkyBlue;
+    color: var(--breakTimeColor);
 }
 
 .athleteTimer {
-    color: yellow;
+    color: var(--athleteTimerColor);
 }
 
 .hiddenTitle {
