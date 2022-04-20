@@ -10,8 +10,11 @@ package app.owlcms.fieldofplay;
  * Current state of the competition field of play.
  */
 public enum FOPState {
-    /**
-     * during countdown to presentation or first lift and during breaks. Note that BreakType describes a substate.
+    /** between sessions, until presentation countdown is shown */
+    INACTIVE,
+
+    /** during countdown to presentation or first lift and during breaks.
+     * Note that BreakType describes a substate.
      *
      * @see app.owlcms.uievents.BreakType
      */
@@ -19,15 +22,6 @@ public enum FOPState {
 
     /** current athlete displayed on attempt board. */
     CURRENT_ATHLETE_DISPLAYED,
-
-    /** The decision is visible. */
-    DECISION_VISIBLE,
-
-    /** The down signal is visible. */
-    DOWN_SIGNAL_VISIBLE,
-
-    /** between sessions, until presentation countdown is shown */
-    INACTIVE,
 
     /**
      * time is running. Either automatically started on announce (if using the default "start on announce", or manually
@@ -37,4 +31,10 @@ public enum FOPState {
 
     /** The time is stopped. */
     TIME_STOPPED,
+
+    /** The down signal is visible. */
+    DOWN_SIGNAL_VISIBLE,
+
+    /** The decision is visible. */
+    DECISION_VISIBLE,
 }

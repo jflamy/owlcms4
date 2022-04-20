@@ -15,7 +15,7 @@ package app.owlcms.uievents;
 public enum CeremonyType {
 
     INTRODUCTION,
-    MEDALS,
-    OFFICIALS_INTRODUCTION;
+    OFFICIALS_INTRODUCTION,
+    MEDALS;
 
 }
