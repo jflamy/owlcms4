@@ -24,8 +24,8 @@
     --lightTextColor: black;
     --lightBackgroundColor: white;
 
-    --lightTitleTextColor: white;
-    --lightTitleBackgroundColor: #6c7ae0;
+    --lightTitleTextColor: /* white; */ black;
+    --lightTitleBackgroundColor: /* #6c7ae0; */ white;
 
     --lightCurrentTextColor: var(--lightTextColor);
     --lightCurrentBackgroundColor: yellow;
