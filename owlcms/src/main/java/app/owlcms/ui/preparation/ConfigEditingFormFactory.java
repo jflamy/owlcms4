@@ -137,8 +137,10 @@ public class ConfigEditingFormFactory
                 exportLayout);
         mainLayout.setMargin(false);
         mainLayout.setPadding(false);
-
+        
+        config.setSkipReading(false);
         binder.readBean(config);
+        config.setSkipReading(true);
         return mainLayout;
     }
 
@@ -172,6 +174,8 @@ public class ConfigEditingFormFactory
 
     @Override
     public Config update(Config config) {
+        try {
+        config.setSkipReading(true);
         if (config.isClearZip()) {
             config.setLocalZipBlob(null);
             ResourceWalker.checkForLocalOverrideDirectory();
@@ -184,6 +188,9 @@ public class ConfigEditingFormFactory
         }
         UI.getCurrent().getPage().reload();
         return saved;
+        } finally {
+            config.setSkipReading(false);
+        }
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

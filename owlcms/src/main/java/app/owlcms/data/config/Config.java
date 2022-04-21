@@ -60,6 +60,7 @@ public class Config {
     public static Config getCurrent() {
         // *******
         current = ConfigRepository.findAll().get(0);
+        current.setSkipReading(false);
         return current;
     }
 
@@ -112,20 +113,24 @@ public class Config {
 
     private String updatekey;
 
-    public String defineSalt() {
-        if (salt == null) {
-            this.setSalt(Integer.toString(new Random(System.currentTimeMillis()).nextInt(), 16));
-        }
-        JPAService.runInTransaction(em -> {
-            Config newConfig = em.merge(this);
-            return newConfig;
-        });
-        return getSalt();
+    @Transient
+    @JsonIgnore
+    private boolean skipReading;
+
+    public String computeSalt() {
+        this.setSalt(null);
+        return Integer.toHexString(new Random(System.currentTimeMillis()).nextInt());
     }
 
     public String encodeUserPassword(String password) {
-        String encodedPassword = AccessUtils.encodePin(password, true);
-        return encodedPassword;
+        String uPin = StartupUtils.getStringParam("pin");
+        if (uPin == null) {
+            String encodedPassword = AccessUtils.encodePin(password, true);
+            return encodedPassword;
+        } else {
+            // we are comparing cleartext
+            return password;
+        }
     }
 
     @Override
@@ -183,15 +188,18 @@ public class Config {
      * @throws SQLException
      */
     public byte[] getLocalZipBlob() {
-        if (localOverride == null) {
+        if (localOverride == null || skipReading) {
             return null;
         }
 
         return JPAService.runInTransaction(em -> {
             try {
                 Config thisConfig = em.find(Config.class, this.id);
-                return thisConfig.localOverride.getBytes(1, (int) localOverride.length());
+                byte[] res = thisConfig.localOverride.getBytes(1, (int) localOverride.length());
+                logger.debug("read {} bytes", res.length);
+                return res;
             } catch (SQLException e) {
+                em.getTransaction().rollback();
                 throw new RuntimeException(e);
             }
         });
@@ -253,18 +261,19 @@ public class Config {
             uPin = Config.getCurrent().getPin();
             // logger.debug("pin = {}", uPin);
             if (uPin == null || uPin.isBlank()) {
-                uPin = null;
+                return null;
+            } else if (uPin.length() < 64) {
+                // assume legacy
+                String encodedPin = AccessUtils.encodePin(uPin, false);
+                return encodedPin;
+            } else {
+                return uPin; // what is in the database is already
             }
-            logger.debug("uPin as is {}", uPin);
-            String encodedPin = AccessUtils.encodePin(uPin, false);
-            return encodedPin;
         } else if (uPin.isBlank()) {
             // no password will be expected
             return null;
         } else {
-            // if the pin comes from the environment, encrypt if not already
-            String encodedPin = AccessUtils.encodePin(uPin, false);
-            return encodedPin;
+            return uPin;
         }
     }
 
@@ -378,6 +387,7 @@ public class Config {
             this.localOverride = null;
             this.clearZip = false;
         } else if (localContent != null) {
+            logger.debug("setting {}", localContent.length);
             this.localOverride = BlobProxy.generateProxy(localContent);
         } else {
             this.localOverride = null;
@@ -436,6 +446,10 @@ public class Config {
     private void setSalt(String salt) {
         this.salt = salt;
         logger.debug("setting salt to {}", this.salt);
+    }
+
+    public void setSkipReading(boolean b) {
+        this.skipReading = b;   
     }
 
 }
