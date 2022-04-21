@@ -1,4 +1,8 @@
-### **Changes for release 4.31.0-alpha00**
+### **Changes for release 4.31.0-alpha01**
+
+4.31.0-alpha01: Fix: unpleasant interactions between Hibernate, Vaadin and Postgres with respect to Blob storage could prevent configuration updates from being stored
+
+4.31.0-alpha01: Fix: the password "salt" was sometimes recomputed when it should not have, preventing password from being deciphered.
 
 4.31.0-alpha00: Experimental scoreboard styling
 
@@ -8,6 +12,7 @@
 ### **Changes for 4.31.* releases**
 
 - Improvement: Break triggered by marshal indicates "Marshal Issue" to other TOs.
+- Fix: Password issues. In some circumstances, password access to the application would stop working, requiring the use of configuration variables to override.
 
 ### Highlights from recent stable releases
 
