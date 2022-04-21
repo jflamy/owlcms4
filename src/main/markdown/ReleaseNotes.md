@@ -1,5 +1,7 @@
 ### **Changes for release ${revision}**
 
+4.31.0-alpha02: Fix: changing to today's date in the competition editing page resulted in an empty date.
+
 4.31.0-alpha01: Fix: unpleasant interactions between Hibernate, Vaadin and Postgres with respect to Blob storage could prevent configuration updates from being stored
 
 4.31.0-alpha01: Fix: the password "salt" was sometimes recomputed when it should not have, preventing password from being deciphered.
