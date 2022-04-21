@@ -6,7 +6,6 @@
  *******************************************************************************/
 package app.owlcms.ui.preparation;
 
-import java.time.LocalDate;
 import java.util.Collection;
 
 import org.slf4j.LoggerFactory;
@@ -204,7 +203,6 @@ public class CompetitionEditingFormFactory
         DatePicker dateField = new DatePicker();
         competitionLayout.addFormItem(dateField, Translator.translate("Competition.competitionDate"));
         binder.forField(dateField)
-                .withNullRepresentation(LocalDate.now())
                 .bind(Competition::getCompetitionDate, Competition::setCompetitionDate);
 
         TextField organizerField = new TextField();

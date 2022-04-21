@@ -120,20 +120,20 @@ public class DateTimeUtils {
         return pattern;
     }
 
-    public static DateTimeFormatter localizedDateTimeFormatterOld(Locale locale) {
-        // try local date format but force 4-digit years.
-        String shortPattern = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
-                FormatStyle.SHORT,
-                null,
-                IsoChronology.INSTANCE,
-                locale);
-        // force 4 digit year.
-        if (shortPattern.contains("y") && !shortPattern.contains("yy")) {
-            shortPattern = shortPattern.replace("y", "yyyy");
-        } else if (shortPattern.contains("yy") && !shortPattern.contains("yyy")) {
-            shortPattern = shortPattern.replace("yy", "yyyy");
-        }
-        DateTimeFormatter shortStyleFormatter = DateTimeFormatter.ofPattern(shortPattern, locale);
-        return shortStyleFormatter;
-    }
+//    public static DateTimeFormatter localizedDateTimeFormatterOld(Locale locale) {
+//        // try local date format but force 4-digit years.
+//        String shortPattern = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
+//                FormatStyle.SHORT,
+//                null,
+//                IsoChronology.INSTANCE,
+//                locale);
+//        // force 4 digit year.
+//        if (shortPattern.contains("y") && !shortPattern.contains("yy")) {
+//            shortPattern = shortPattern.replace("y", "yyyy");
+//        } else if (shortPattern.contains("yy") && !shortPattern.contains("yyy")) {
+//            shortPattern = shortPattern.replace("yy", "yyyy");
+//        }
+//        DateTimeFormatter shortStyleFormatter = DateTimeFormatter.ofPattern(shortPattern, locale);
+//        return shortStyleFormatter;
+//    }
 }

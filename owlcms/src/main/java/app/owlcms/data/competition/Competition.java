@@ -590,14 +590,16 @@ public class Competition {
     // @Transient
     // @JsonIgnore
     public String getLocalizedCompetitionDate() {
+        String shortPattern = null;
         try {
             Locale locale = OwlcmsSession.getLocale();
-            String shortPattern = DateTimeUtils.localizedShortDatePattern(locale);
+            shortPattern = DateTimeUtils.localizedShortDatePattern(locale);
             DateTimeFormatter shortStyleFormatter = DateTimeFormatter.ofPattern(shortPattern, locale);
             String str = competitionDate.format(shortStyleFormatter);
             return str;
         } catch (Exception a) {
             // null or unparseable
+            logger.error("cannot format {}: {} {}", competitionDate, a, shortPattern);
             return "";
         }
     }
@@ -803,6 +805,7 @@ public class Competition {
      * @param localDate the new competition date
      */
     public void setCompetitionDate(LocalDate localDate) {
+        logger.warn("setting competitionDate {}",localDate);
         this.competitionDate = localDate;
     }
 
