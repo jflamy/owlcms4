@@ -15,11 +15,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.Hashing;
-import com.google.common.io.BaseEncoding;
 import com.vaadin.flow.server.VaadinServletRequest;
 
 import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 public class AccessUtils {
@@ -34,7 +34,7 @@ public class AccessUtils {
             // check for PIN if one is specified
             String expectedPin = Config.getCurrent().getParamPin();
             String hashedPassword = Config.getCurrent().encodeUserPassword(password);
-            logger.debug("about to check PIN whiteListed={} pin={} password={} hashedPassword={}", whiteListed,
+            logger.debug("checking whiteListed={} pin={} password={} hashedPassword={}", whiteListed,
                     expectedPin, password, hashedPassword);
             if (whiteListed && (expectedPin == null || expectedPin.isBlank())) {
                 // there is no password provided in the environmet, or it is empty. Check that there is no password in
@@ -62,47 +62,48 @@ public class AccessUtils {
         return checkListMembership(clientIp, whiteList, true);
     }
 
-    public static String encodePin(String pin, boolean password) {
-        boolean parsed;
-
+    public static String encodePin(String pin, boolean checkingPassword) {
         if (pin == null) {
             return null;
         }
 
         Config config = Config.getCurrent();
         String salt = config.getSalt();
-        if (salt == null || salt.isBlank()) {
-            salt = config.defineSalt();
-        }
-        // SHA256 is 64 hex characters by definition (256 / 4)
+
         String doSHA = doSHA(pin, salt);
-        if (pin != null && pin.length() != 64) {
-            // not encrypted.
-            logger.debug("[not crypted] {}={} length={} encoded={} salt={}", password ? "given" : "expected", pin,
-                    pin != null ? pin.length() : 0, doSHA, salt);
-            return doSHA;
-        }
-
-        try {
-            // check that the 64 characters are valid hexa
-            BaseEncoding.base16().lowerCase().decode(pin);
-            logger.debug("hexa ok");
-            parsed = true;
-        } catch (IllegalArgumentException e) {
-            logger.debug("not hexa");
-            parsed = false;
-        }
-
-        if (parsed) {
-            // 64 characters valid hexa assume already crypted
-            logger.debug("[crypted] {}={} length={} encoded={} salt={}", password ? "given" : "expected", pin,
-                    pin != null ? pin.length() : 0, pin, salt);
-            return pin;
+        if (checkingPassword) {
+            String storedPin = config.getPin();
+            if (salt == null || salt.isBlank()) {
+                // use new technique - salt is after the encrypted password
+                if (storedPin.length() > 64) {
+                    String storedSHA = storedPin.substring(0, 64);
+                    salt = storedPin.substring(65);
+                    logger.debug("[checking] given={} length={} encoded={} expected={} appendedSalt={} (from {})",
+                            pin,
+                            pin != null ? pin.length() : 0,
+                            storedSHA,
+                            doSHA, salt, LoggerUtils.whereFrom());
+                    return doSHA+"_"+salt;
+                } else {
+                    return storedPin; // no salt, should never happen
+                }
+            } else {
+                // old technique - salt is saved in the database
+                logger.debug("[checking] given={} length={} encoded={} expected={} storedSalt={} (from {})",
+                        pin,
+                        pin != null ? pin.length() : 0,
+                        storedPin,
+                        doSHA, salt, LoggerUtils.whereFrom());
+                return doSHA+"_"+salt;
+            }
         } else {
-            // 64 characters pass phrase
-            logger.debug("[not crypted 64char] {}={} length={} encoded={} salt={}", password ? "given" : "expected",
-                    pin, pin != null ? pin.length() : 0, doSHA, salt);
-            return doSHA;
+            // encoding the password
+            if (salt == null || salt.isBlank()) {
+                salt = config.computeSalt();
+            }
+            logger.debug("[encoding] encoding:{} length={} encoded={} salt={} (from {})", pin,
+                    pin.length(), doSHA, salt, LoggerUtils.whereFrom());
+            return doSHA + "_" + salt;
         }
     }
 
