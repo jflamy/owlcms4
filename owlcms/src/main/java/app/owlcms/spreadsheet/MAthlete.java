@@ -6,6 +6,7 @@ import org.apache.commons.lang3.ObjectUtils;
 
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.i18n.Translator;
 
 public class MAthlete extends PAthlete {
 
@@ -64,6 +65,22 @@ public class MAthlete extends PAthlete {
 
     public Ranking getRanking() {
         return ranking;
+    }
+
+    public void setRankingText() {
+    }
+
+    public String getRankingText() {
+        switch (ranking) {
+        case CLEANJERK:
+            return Translator.translate("Clean_and_Jerk");
+        case SNATCH:
+            return Translator.translate("Snatch");
+        case TOTAL:
+            return Translator.translate("Total");
+        default:
+            return ranking.name();
+        }
     }
 
     public void setLiftResult(int liftResult) {
