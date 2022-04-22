@@ -213,7 +213,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     }
 
     public String getKey() {
-        return ageDivision.name() + "_" + gender.name() + "_" + minAge + "_" + maxAge;
+        return getCode() + "_" + ageDivision.name() + "_" + gender.name() + "_" + minAge + "_" + maxAge;
     }
 
     public Integer getMaxAge() {
