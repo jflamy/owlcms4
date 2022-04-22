@@ -1,5 +1,11 @@
 ### **Changes for release ${revision}**
 
+4.31.0-alpha02: Fix: lift name / total now translated on the Medal report spreadsheet.
+
+4.31.0-alpha02: Fix: in a round-robin competition, it is possible to have weight changes lower than the weight on last clock start.
+
+4.31.0-alpha02: Fix: when importing a database with a local definition override zip, the override was not  applied (a restart was required).
+
 4.31.0-alpha02: Fix: changing to today's date in the competition editing page resulted in an empty date.
 
 4.31.0-alpha01: Fix: unpleasant interactions between Hibernate, Vaadin and Postgres with respect to Blob storage could prevent configuration updates from being stored
@@ -15,6 +21,7 @@
 
 - Improvement: Break triggered by marshal indicates "Marshal Issue" to other TOs.
 - Fix: Password issues. In some circumstances, password access to the application would stop working, requiring the use of configuration variables to override.
+- Fix: When running a round-robin competition, the weight requested between rounds can be lower than that at the last clock start.
 
 ### Highlights from recent stable releases
 
