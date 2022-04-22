@@ -4434,7 +4434,6 @@ public class Athlete {
                     pastOrder.shortDump("lastLift info clock running", getLogger());
                 } else {
                     reference = pastOrder.getLastLift();
-                    // *******************************************
                     pastOrder.shortDump("lastLift info no clock", getLogger());
                 }
 
@@ -4450,7 +4449,7 @@ public class Athlete {
                 // logger.trace("newval {} weightAtLastStart {}", newVal, weightAtLastStart);
                 // logger.trace("lifts done at last start {} current lifts done {}", fop.getLiftsDoneAtLastStart(),
                 // getAttemptsDone());
-                if ((!cjClock && !cjStarted) || (cjStarted && cjClock)) {
+                if (!Competition.getCurrent().isRoundRobinOrder() && ((!cjClock && !cjStarted) || (cjStarted && cjClock))) {
                     throw new RuleViolationException.ValueBelowStartedClock(this, newVal, weightAtLastStart);
                 }
             } else {
