@@ -805,7 +805,6 @@ public class Competition {
      * @param localDate the new competition date
      */
     public void setCompetitionDate(LocalDate localDate) {
-        logger.warn("setting competitionDate {}",localDate);
         this.competitionDate = localDate;
     }
 
