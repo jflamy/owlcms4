@@ -12,7 +12,10 @@
     --startWidth: 3em;
     --categoryWidth: 9ch;
     --birthWidth: 6ch;
-    --liftResultWidth: 6ch;
+    --liftResultWidth: 6ch; 
+
+    --rankVisibility: visible;
+    --rankWidth: var(--liftResultWidth);
 }
 
 /* default for page */
@@ -119,23 +122,29 @@ table.results {
 }
 
 /* snatch and c&j ranks */
-:host(.dark) table.results tr td.showRank {
+:host(.dark) table.results tr td.rank {
     background-color: var(--darkRankBackgroundColor);
     color: var(--darkRankTextColor);
+    visibility: var(--rankVisibility);
+    column-width: 0;
+    display: flex;
 }
-:host(.light) table.results tr td.showRank {
+:host(.light) table.results tr td.rank {
     background-color: var(--lightRankBackgroundColor);
     color: var(--lightRankTextColor);
+    visibility: var(--rankVisibility);
+    column-width: 0;
+    display: flex;
 }
 
 /* total rank */
-:host(.dark) table.results tr.athlete td.thRank {
-    background-color: var(--darkTotalRankBackgroundColor);
-    color: var(--darkTotalRankTextColor);
+:host(.dark) table.results tr td.totalRank {
+    background-color: var(--darkRankBackgroundColor);
+    color: var(--darkRankTextColor);
 }
-:host(.light) table.results tr.athlete td.thRank {
-    background-color: var(--lightTotalRankBackgroundColor);
-    color: var(--lightTotalRankTextColor);
+:host(.light) table.results tr td.totalRank {
+    background-color: var(--lightRankBackgroundColor);
+    color: var(--lightRankTextColor);
 }
 
 /* spacer line between categories */
@@ -143,14 +152,14 @@ table.results {
     background-color: var(--darkBackgroundColor);
     padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
     border-right: 0;
-    grid-column: 1 / -1;
+    /* grid-column: 1 / -1;*/
     border: none;
     max-height: 2px;
 }
 :host(.light) table.results tr td.spacer {
     background-color: var(--lightTableBorders);
     padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
-    grid-column: 1 / -1;
+    /* grid-column: 1 / -1;*/
     border: none;
     max-height: 2px;
 }
@@ -230,7 +239,7 @@ table {
     grid-template-rows: repeat(var(--top), min-content) 1fr repeat(var(--bottom),
             min-content);
     grid-template-columns:
-        var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) minmax(50px, var(--teamColumnRatio)) repeat(4, var(--liftResultWidth)) repeat(4, var(--liftResultWidth)) repeat(2, var(--liftResultWidth));
+        var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) minmax(50px, var(--teamColumnRatio)) repeat(3, var(--liftResultWidth)) var(--rankWidth) repeat(3, var(--liftResultWidth)) var(--rankWidth) repeat(2, var(--liftResultWidth));
 }
 
 thead,
@@ -419,4 +428,19 @@ td {
 
 .english {
     font-size: 85%;
+}
+
+div.ellipsis {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* table sizes: 1024 projector */
+@media screen and (max-width: 1025px) and (max-height: 769px) {
+  * {
+    --rankVisibility: hidden;
+    --rankWidth: 0;
+    --tableFontSize: 0.8rem;
+  }
 }

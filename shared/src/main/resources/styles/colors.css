@@ -67,7 +67,7 @@
     --darkTitleTextColor: var(--darkTextColor);
     --darkTitleBackgroundColor: var(--darkBackgroundColor);
 
-    --darkCurrentTextColor: yellowgreen;
+    --darkCurrentTextColor: yellow;
     --darkCurrentBackgroundColor: var(--darkBackgroundColor);
 
     --darkNextTextColor: orange;

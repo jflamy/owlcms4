@@ -99,7 +99,7 @@ public class Results extends PolymerTemplate<TemplateModel>
     @Id("decisions")
     private DecisionElement decisions; // Flow creates it
 
-    private Dialog dialog;
+    protected Dialog dialog;
     private List<Athlete> displayOrder;
     private boolean initializationNeeded;
 
@@ -111,7 +111,7 @@ public class Results extends PolymerTemplate<TemplateModel>
     private boolean silenced = true;
     private boolean switchableDisplay = true;
     @Id("timer")
-    private AthleteTimerElement timer; // Flow creates it
+    protected AthleteTimerElement timer; // Flow creates it
 
     private EventBus uiEventBus;
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -566,7 +566,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 
     private String formatRank(Integer total) {
         if (total == null || total == 0) {
-            return "";
+            return "&nbsp;";
         } else if (total == -1) {
             return "inv.";// invited lifter, not eligible.
         } else {
