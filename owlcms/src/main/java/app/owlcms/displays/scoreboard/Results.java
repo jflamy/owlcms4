@@ -81,40 +81,38 @@ import elemental.json.JsonValue;
 @Tag("results-template")
 @JsModule("./components/Results.js")
 @JsModule("./components/AudioContext.js")
-@Route("displays/results")
+@Route("displays/resultsLeaders")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
 public class Results extends PolymerTemplate<TemplateModel>
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
         RequireLogin {
 
-    @Id("breakTimer")
-    private BreakTimerElement breakTimer; // Flow creates it
-    private JsonArray cattempts;
-    private Category ceremonyCategory;
-    private Group ceremonyGroup = null;
-    private Group curGroup;
-    private boolean darkMode = true;
-
-    @Id("decisions")
-    private DecisionElement decisions; // Flow creates it
-
+    protected JsonArray cattempts;
+    protected Group curGroup;
     protected Dialog dialog;
-    private List<Athlete> displayOrder;
-    private boolean initializationNeeded;
-
-    private int liftsDone;
-    private Location location;
-    private UI locationUI;
-    final private Logger logger = (Logger) LoggerFactory.getLogger(Results.class);
-    private JsonArray sattempts;
-    private boolean silenced = true;
-    private boolean switchableDisplay = true;
+    protected JsonArray sattempts;
+    protected List<Athlete> displayOrder;
+    protected int liftsDone;
+    
     @Id("timer")
     protected AthleteTimerElement timer; // Flow creates it
-
+    @Id("breakTimer")
+    private BreakTimerElement breakTimer; // Flow creates it
+    @Id("decisions")
+    private DecisionElement decisions; // Flow creates it
+    
+    private Category ceremonyCategory;
+    private Group ceremonyGroup = null;
+    private boolean darkMode = true;
+    private boolean initializationNeeded;
+    private Location location;
+    private UI locationUI;
+    private final Logger logger = (Logger) LoggerFactory.getLogger(Results.class);
+    private boolean silenced = true;
+    private boolean switchableDisplay = true;
     private EventBus uiEventBus;
-    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+    private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     {
         logger.setLevel(Level.INFO);
@@ -460,94 +458,7 @@ public class Results extends PolymerTemplate<TemplateModel>
         updateBottom(computeLiftType(a), fop);
     }
 
-    /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        // crude workaround -- randomly getting light or dark due to multiple themes detected in app.
-        getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
-
-        // fop obtained via FOPParameters interface default methods.
-        OwlcmsSession.withFop(fop -> {
-            init();
-
-            // get the global category rankings (attached to each athlete)
-            displayOrder = fop.getDisplayOrder();
-
-            liftsDone = AthleteSorter.countLiftsDone(displayOrder);
-            syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
-            // we listen on uiEventBus.
-            uiEventBus = uiEventBusRegister(this, fop);
-        });
-        SoundUtils.enableAudioContextNotification(this.getElement());
-        storeReturnURL();
-    }
-
-    protected void setTranslationMap() {
-        JsonObject translations = Json.createObject();
-        Enumeration<String> keys = Translator.getKeys();
-        while (keys.hasMoreElements()) {
-            String curKey = keys.nextElement();
-            if (curKey.startsWith("Scoreboard.")) {
-                translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
-            }
-        }
-        this.getElement().setPropertyJson("t", translations);
-    }
-
-    private void computeLeaders() {
-        OwlcmsSession.withFop(fop -> {
-            Athlete curAthlete = fop.getCurAthlete();
-            if (curAthlete != null && curAthlete.getGender() != null) {
-                this.getElement().setProperty("categoryName", curAthlete.getCategory().getName());
-
-                displayOrder = fop.getLeaders();
-                if (displayOrder != null && displayOrder.size() > 0) {
-                    // null as second argument because we do not highlight current athletes in the leaderboard
-                    this.getElement().setPropertyJson("leaders", getAthletesJson(displayOrder, null, fop));
-                    this.getElement().setProperty("leaderLines", displayOrder.size() + 2); // spacer + title
-                } else {
-                    // nothing to show
-                    this.getElement().setPropertyJson("leaders", Json.createNull());
-                    this.getElement().setProperty("leaderLines", 1); // must be > 0
-                }
-            }
-        });
-    }
-
-    private String computeLiftType(Athlete a) {
-        if (a == null || a.getAttemptsDone() > 6) {
-            return null;
-        }
-        String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
-                : Translator.translate("Snatch");
-        return liftType;
-    }
-
-    private void doDone(Group g) {
-        logger.debug("doDone {}", g == null ? null : g.getName());
-        if (g == null) {
-            doEmpty();
-        } else {
-            OwlcmsSession.withFop(fop -> {
-                this.getElement().setProperty("fullName", getTranslation("Group_number_results", g.toString()));
-                this.getElement().callJsFunction("groupDone");
-            });
-        }
-    }
-
-    private void doUpdateBottomPart(UIEvent e) {
-        Athlete a = e.getAthlete();
-        updateBottom(computeLiftType(a), OwlcmsSession.getFop());
-    }
-
-    private String formatAttempt(Integer attemptNo) {
-        String translate = Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
-        return translate;
-    }
-
-    private String formatInt(Integer total) {
+    protected String formatInt(Integer total) {
         if (total == null || total == 0) {
             return "-";
         } else if (total == -1) {
@@ -559,12 +470,7 @@ public class Results extends PolymerTemplate<TemplateModel>
         }
     }
 
-    private String formatKg(String total) {
-        return (total == null || total.trim().isEmpty()) ? "-"
-                : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
-    }
-
-    private String formatRank(Integer total) {
+    protected String formatRank(Integer total) {
         if (total == null || total == 0) {
             return "&nbsp;";
         } else if (total == -1) {
@@ -572,109 +478,6 @@ public class Results extends PolymerTemplate<TemplateModel>
         } else {
             return total.toString();
         }
-    }
-
-    private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
-        String category;
-        category = curCat != null ? curCat.getName() : "";
-        ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
-        ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
-        ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
-        Integer startNumber = a.getStartNumber();
-        ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-        ja.put("category", category != null ? category : "");
-        getAttemptsJson(a, liftOrderRank, fop);
-        ja.put("sattempts", sattempts);
-        ja.put("cattempts", cattempts);
-        ja.put("total", formatInt(a.getTotal()));
-        Participation mainRankings = a.getMainRankings();
-        if (mainRankings != null) {
-            ja.put("snatchRank", formatRank(mainRankings.getSnatchRank()));
-            ja.put("cleanJerkRank", formatRank(mainRankings.getCleanJerkRank()));
-            ja.put("totalRank", formatRank(mainRankings.getTotalRank()));
-        } else {
-            logger.error("main rankings null for {}", a);
-        }
-        ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
-
-        boolean notDone = a.getAttemptsDone() < 6;
-        String blink = (notDone ? " blink" : "");
-        String highlight = "";
-        if (fop.getState() != FOPState.DECISION_VISIBLE && notDone) {
-            switch (liftOrderRank) {
-            case 1:
-                highlight = (" current" + blink);
-                break;
-            case 2:
-                highlight = " next";
-                break;
-            default:
-                highlight = "";
-            }
-        }
-        // logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
-        ja.put("classname", highlight);
-    }
-
-    /**
-     * @param groupAthletes, List<Athlete> liftOrder
-     * @return
-     */
-    private JsonValue getAthletesJson(List<Athlete> displayOrder, List<Athlete> liftOrder, FieldOfPlay fop) {
-        JsonArray jath = Json.createArray();
-        int athx = 0;
-
-        Category prevCat = null;
-        long currentId = (liftOrder != null && liftOrder.size() > 0) ? liftOrder.get(0).getId() : -1L;
-        long nextId = (liftOrder != null && liftOrder.size() > 1) ? liftOrder.get(1).getId() : -1L;
-        List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
-                : Collections.emptyList();
-        for (Athlete a : athletes) {
-            JsonObject ja = Json.createObject();
-            Category curCat = a.getCategory();
-            if (curCat != null && !curCat.sameAs(prevCat)) {
-                // changing categories, put marker before athlete
-                ja.put("isSpacer", true);
-                jath.set(athx, ja);
-                ja = Json.createObject();
-                prevCat = curCat;
-                athx++;
-            }
-            // compute the blinking rank (1 = current, 2 = next)
-            getAthleteJson(a, ja, curCat, (a.getId() == currentId)
-                    ? 1
-                    : ((a.getId() == nextId)
-                            ? 2
-                            : 0),
-                    fop);
-            String team = a.getTeam();
-            if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
-                setWideTeamNames(true);
-            }
-            jath.set(athx, ja);
-            athx++;
-        }
-        return jath;
-    }
-    
-    /**
-     * @param groupAthletes, List<Athlete> liftOrder
-     * @return
-     */
-    private int countCategories(List<Athlete> displayOrder) {
-        int nbCats = 0;
-        Category prevCat = null;
-        List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
-                : Collections.emptyList();
-        for (Athlete a : athletes) {
-            Category curCat = a.getCategory();
-            if (curCat != null && !curCat.sameAs(prevCat)) {
-                // changing categories, put marker before athlete
-                prevCat = curCat;
-                nbCats++;
-            }
-        }
-        return nbCats;
     }
 
     /**
@@ -686,7 +489,7 @@ public class Results extends PolymerTemplate<TemplateModel>
      * @param fop
      * @return json string with nested attempts values
      */
-    private void getAttemptsJson(Athlete a, int liftOrderRank, FieldOfPlay fop) {
+    protected void getAttemptsJson(Athlete a, int liftOrderRank, FieldOfPlay fop) {
         sattempts = Json.createArray();
         cattempts = Json.createArray();
         XAthlete x = new XAthlete(a);
@@ -754,6 +557,201 @@ public class Results extends PolymerTemplate<TemplateModel>
         }
     }
 
+    /*
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        // crude workaround -- randomly getting light or dark due to multiple themes detected in app.
+        getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
+
+        // fop obtained via FOPParameters interface default methods.
+        OwlcmsSession.withFop(fop -> {
+            init();
+
+            // get the global category rankings (attached to each athlete)
+            displayOrder = fop.getDisplayOrder();
+
+            liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+            syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
+            // we listen on uiEventBus.
+            uiEventBus = uiEventBusRegister(this, fop);
+        });
+        SoundUtils.enableAudioContextNotification(this.getElement());
+        storeReturnURL();
+    }
+
+    protected void setTranslationMap() {
+        JsonObject translations = Json.createObject();
+        Enumeration<String> keys = Translator.getKeys();
+        while (keys.hasMoreElements()) {
+            String curKey = keys.nextElement();
+            if (curKey.startsWith("Scoreboard.")) {
+                translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
+            }
+        }
+        this.getElement().setPropertyJson("t", translations);
+    }
+
+    protected void computeLeaders() {
+        OwlcmsSession.withFop(fop -> {
+            Athlete curAthlete = fop.getCurAthlete();
+            if (curAthlete != null && curAthlete.getGender() != null) {
+                this.getElement().setProperty("categoryName", curAthlete.getCategory().getName());
+
+                displayOrder = fop.getLeaders();
+                if (displayOrder != null && displayOrder.size() > 0) {
+                    // null as second argument because we do not highlight current athletes in the leaderboard
+                    this.getElement().setPropertyJson("leaders", getAthletesJson(displayOrder, null, fop));
+                    this.getElement().setProperty("leaderLines", displayOrder.size() + 2); // spacer + title
+                } else {
+                    // nothing to show
+                    this.getElement().setPropertyJson("leaders", Json.createNull());
+                    this.getElement().setProperty("leaderLines", 1); // must be > 0
+                }
+            }
+        });
+    }
+
+    private String computeLiftType(Athlete a) {
+        if (a == null || a.getAttemptsDone() > 6) {
+            return null;
+        }
+        String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
+                : Translator.translate("Snatch");
+        return liftType;
+    }
+
+    /**
+     * @param groupAthletes, List<Athlete> liftOrder
+     * @return
+     */
+    protected int countCategories(List<Athlete> displayOrder) {
+        int nbCats = 0;
+        Category prevCat = null;
+        List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
+                : Collections.emptyList();
+        for (Athlete a : athletes) {
+            Category curCat = a.getCategory();
+            if (curCat != null && !curCat.sameAs(prevCat)) {
+                // changing categories, put marker before athlete
+                prevCat = curCat;
+                nbCats++;
+            }
+        }
+        return nbCats;
+    }
+
+    private void doDone(Group g) {
+        logger.debug("doDone {}", g == null ? null : g.getName());
+        if (g == null) {
+            doEmpty();
+        } else {
+            OwlcmsSession.withFop(fop -> {
+                this.getElement().setProperty("fullName", getTranslation("Group_number_results", g.toString()));
+                this.getElement().callJsFunction("groupDone");
+            });
+        }
+    }
+
+    private void doUpdateBottomPart(UIEvent e) {
+        Athlete a = e.getAthlete();
+        updateBottom(computeLiftType(a), OwlcmsSession.getFop());
+    }
+
+    private String formatAttempt(Integer attemptNo) {
+        String translate = Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
+        return translate;
+    }
+
+    private String formatKg(String total) {
+        return (total == null || total.trim().isEmpty()) ? "-"
+                : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
+    }
+    
+    protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
+        String category;
+        category = curCat != null ? curCat.getName() : "";
+        ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
+        ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
+        ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
+        Integer startNumber = a.getStartNumber();
+        ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
+        ja.put("category", category != null ? category : "");
+        getAttemptsJson(a, liftOrderRank, fop);
+        ja.put("sattempts", sattempts);
+        ja.put("cattempts", cattempts);
+        ja.put("total", formatInt(a.getTotal()));
+        Participation mainRankings = a.getMainRankings();
+        if (mainRankings != null) {
+            ja.put("snatchRank", formatRank(mainRankings.getSnatchRank()));
+            ja.put("cleanJerkRank", formatRank(mainRankings.getCleanJerkRank()));
+            ja.put("totalRank", formatRank(mainRankings.getTotalRank()));
+        } else {
+            logger.error("main rankings null for {}", a);
+        }
+        ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
+
+        boolean notDone = a.getAttemptsDone() < 6;
+        String blink = (notDone ? " blink" : "");
+        String highlight = "";
+        if (fop.getState() != FOPState.DECISION_VISIBLE && notDone) {
+            switch (liftOrderRank) {
+            case 1:
+                highlight = (" current" + blink);
+                break;
+            case 2:
+                highlight = " next";
+                break;
+            default:
+                highlight = "";
+            }
+        }
+        // logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
+        ja.put("classname", highlight);
+    }
+
+    /**
+     * @param groupAthletes, List<Athlete> liftOrder
+     * @return
+     */
+    protected JsonValue getAthletesJson(List<Athlete> displayOrder, List<Athlete> liftOrder, FieldOfPlay fop) {
+        JsonArray jath = Json.createArray();
+        int athx = 0;
+
+        Category prevCat = null;
+        long currentId = (liftOrder != null && liftOrder.size() > 0) ? liftOrder.get(0).getId() : -1L;
+        long nextId = (liftOrder != null && liftOrder.size() > 1) ? liftOrder.get(1).getId() : -1L;
+        List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
+                : Collections.emptyList();
+        for (Athlete a : athletes) {
+            JsonObject ja = Json.createObject();
+            Category curCat = a.getCategory();
+            if (curCat != null && !curCat.sameAs(prevCat)) {
+                // changing categories, put marker before athlete
+                ja.put("isSpacer", true);
+                jath.set(athx, ja);
+                ja = Json.createObject();
+                prevCat = curCat;
+                athx++;
+            }
+            // compute the blinking rank (1 = current, 2 = next)
+            getAthleteJson(a, ja, curCat, (a.getId() == currentId)
+                    ? 1
+                    : ((a.getId() == nextId)
+                            ? 2
+                            : 0),
+                    fop);
+            String team = a.getTeam();
+            if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
+                setWideTeamNames(true);
+            }
+            jath.set(athx, ja);
+            athx++;
+        }
+        return jath;
+    }
+
     private void init() {
         OwlcmsSession.withFop(fop -> {
             logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
@@ -801,7 +799,7 @@ public class Results extends PolymerTemplate<TemplateModel>
 //        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom());
     }
 
-    private void updateBottom(String liftType, FieldOfPlay fop) {
+    protected void updateBottom(String liftType, FieldOfPlay fop) {
         curGroup = fop.getGroup();
         displayOrder = fop.getDisplayOrder();
         if (liftType != null) {

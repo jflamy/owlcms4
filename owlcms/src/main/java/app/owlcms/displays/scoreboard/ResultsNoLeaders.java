@@ -14,6 +14,7 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.init.OwlcmsSession;
 
 /**
  * Class Scoreboard
@@ -25,20 +26,24 @@ import app.owlcms.init.OwlcmsFactory;
 @Tag("results-template")
 @JsModule("./components/Results.js")
 @JsModule("./components/AudioContext.js")
-@Route("displays/resultsOnly")
+@Route("displays/results")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class ResultsOnly extends Results {
+public class ResultsNoLeaders extends Results {
 
     /**
      * Instantiates a new results board.
      */
-    public ResultsOnly() {
+    public ResultsNoLeaders() {
         OwlcmsFactory.waitDBInitialized();
         timer.setOrigin(this);
         setDarkMode(true);
         this.getElement().setProperty("leadersDisplay", "display: none;");
     }
 
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Scoreboard") + OwlcmsSession.getFopNameIfMultiple();
+    }
 
 }

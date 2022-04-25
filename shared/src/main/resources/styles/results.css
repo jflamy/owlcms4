@@ -1,21 +1,32 @@
 * {
-    box-sizing: border-box;
+    /*************************
+     * Customization section
+     *************************/
 
-    /* current attempt section */
+    /* top part: current attempt information */
     --topRowFontSize: 3vh;
     --athleteNameFontSize: 4vh;
     --groupInfoFontSize: 2.5vh;
 
     /* results table section */
-    --teamColumnRatio: 0.55fr; /* size of team column relative to name column (fr = fraction) */
+
+    /* size of team column relative to name column (fr = fraction) */
+    --teamColumnRatio: 0.55fr;
+
     --tableFontSize: 1.2rem;
+
+    /* left column width: adjust depending on how you name groups */
     --startWidth: 3em;
     --categoryWidth: 9ch;
     --birthWidth: 6ch;
-    --liftResultWidth: 6ch; 
+    --liftResultWidth: 6ch;
+}
 
+* {
+    box-sizing: border-box;
     --rankVisibility: visible;
     --rankWidth: var(--liftResultWidth);
+    --nbRanks: 1;
 }
 
 /* default for page */
@@ -46,6 +57,7 @@ table.results {
     border: 1px solid;
     border-color: var(--darkTableBorders)
 }
+
 :host(.light) table.results tr td {
     background-color: var(--lightBackgroundColor);
     color: var(--lightTextColor);
@@ -65,6 +77,7 @@ table.results {
     font-weight: normal;
     justify-content: center;
 }
+
 :host(.light) th,
 :host(.light) td {
     font-weight: bold;
@@ -76,6 +89,7 @@ table.results {
     background-color: var(--darkCategoryBackgroundColor);
     color: var(--darkCategoryTextColor);
 }
+
 :host(.light) table.results tr td.category {
     background-color: var(--lightCategoryBackgroundColor);
     color: var(--lightCategoryTextColor);
@@ -86,6 +100,7 @@ table.results {
     background-color: var(--darkBirthBackgroundColor);
     color: var(--darkBirthTextColor);
 }
+
 :host(.light) table.results tr td.yob {
     background-color: var(--lightBirthBackgroundColor);
     color: var(--lightBirthTextColor);
@@ -96,6 +111,7 @@ table.results {
     background-color: var(--darkTeamBackgroundColor);
     color: var(--darkTeamTextColor);
 }
+
 :host(.light) table.results tr td.club {
     background-color: var(--lightTeamBackgroundColor);
     color: var(--lightTeamTextColor);
@@ -107,15 +123,18 @@ table.results {
     color: var(--lightGoodTextColor);
     font-weight: bold;
 }
+
 :host(.light) table.results tr td.good {
     background-color: var(--lightGoodBackgroundColor);
     color: var(--lightGoodTextColor);
 }
+
 :host(.dark) table.results tr td.fail {
     background-color: var(--darkFailBackgroundColor);
     color: var(--darkFailTextColor);
     font-weight: bold;
 }
+
 :host(.light) table.results tr td.fail {
     background-color: var(--lightFailBackgroundColor);
     color: var(--lightFailTextColor);
@@ -129,6 +148,7 @@ table.results {
     column-width: 0;
     display: flex;
 }
+
 :host(.light) table.results tr td.rank {
     background-color: var(--lightRankBackgroundColor);
     color: var(--lightRankTextColor);
@@ -142,6 +162,7 @@ table.results {
     background-color: var(--darkRankBackgroundColor);
     color: var(--darkRankTextColor);
 }
+
 :host(.light) table.results tr td.totalRank {
     background-color: var(--lightRankBackgroundColor);
     color: var(--lightRankTextColor);
@@ -156,6 +177,7 @@ table.results {
     border: none;
     max-height: 2px;
 }
+
 :host(.light) table.results tr td.spacer {
     background-color: var(--lightTableBorders);
     padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
@@ -171,6 +193,7 @@ table.results {
     align-content: stretch;
     border: none;
 }
+
 :host(.light) table.results tr td.filler {
     background-color: var(--pageBackgroundColor);
     grid-column: 1 / -1;
@@ -182,6 +205,7 @@ table.results {
 :host(.dark) .request {
     font-style: italic;
 }
+
 :host(.light) .request {
     font-style: italic;
 }
@@ -192,15 +216,18 @@ table.results {
     background-color: var(--darkCurrentBackgroundColor);
     font-weight: bold;
 }
+
 :host(.light) table.results tr td.current {
     color: var(--lightCurrentTextColor);
     background-color: var(--lightCurrentBackgroundColor);
     font-weight: bold;
 }
+
 /* blinking text is done with a div animation */
 :host(.dark) table.results div.blink {
     animation: blink 1.5s step-start 0s infinite;
 }
+
 /* blinking a background is done with the changeColor animation defined below */
 :host(.light) table.results td.blink {
     animation: changeColor 1.5s step-start 0s infinite;
@@ -212,6 +239,7 @@ table.results {
     background-color: var(--darkNextBackgroundColor);
     font-weight: bold;
 }
+
 :host(.light) table.results tr td.next {
     color: var(--lightNextTextColor);
     background-color: var(--lightNextBackgroundColor);
@@ -224,6 +252,7 @@ table.results {
     background-color: var(--darkBackgroundColor);
     font-style: italic;
 }
+
 :host(.light) .empty {
     color: var(--lightTextColor);
     background-color: var(--lightBackgroundColor);
@@ -239,7 +268,7 @@ table {
     grid-template-rows: repeat(var(--top), min-content) 1fr repeat(var(--bottom),
             min-content);
     grid-template-columns:
-        var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) minmax(50px, var(--teamColumnRatio)) repeat(3, var(--liftResultWidth)) var(--rankWidth) repeat(3, var(--liftResultWidth)) var(--rankWidth) repeat(2, var(--liftResultWidth));
+        var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) minmax(50px, var(--teamColumnRatio)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(1, var(--liftResultWidth)) repeat(var(--nbRanks), var(--liftResultWidth));
 }
 
 thead,
@@ -438,9 +467,9 @@ div.ellipsis {
 
 /* table sizes: 1024 projector */
 @media screen and (max-width: 1025px) and (max-height: 769px) {
-  * {
-    --rankVisibility: hidden;
-    --rankWidth: 0;
-    --tableFontSize: 0.8rem;
-  }
+    * {
+        --rankVisibility: hidden;
+        --rankWidth: 0;
+        --tableFontSize: 0.8rem;
+    }
 }
