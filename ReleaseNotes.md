@@ -1,27 +1,17 @@
-### **Changes for release 4.31.0-alpha02**
+### **Changes for release 4.31.0-alpha03**
 
-4.31.0-alpha02: Fix: lift name / total now translated on the Medal report spreadsheet.
-
-4.31.0-alpha02: Fix: in a round-robin competition, it is possible to have weight changes lower than the weight on last clock start.
-
-4.31.0-alpha02: Fix: when importing a database with a local definition override zip, the override was not  applied (a restart was required).
-
-4.31.0-alpha02: Fix: changing to today's date in the competition editing page resulted in an empty date.
-
-4.31.0-alpha01: Fix: unpleasant interactions between Hibernate, Vaadin and Postgres with respect to Blob storage could prevent configuration updates from being stored
-
-4.31.0-alpha01: Fix: the password "salt" was sometimes recomputed when it should not have, preventing password from being deciphered.
-
-4.31.0-alpha00: Experimental scoreboard styling
-
-- New experimental scoreboard: URL `displays/results` (no button yet).  Browser-zoomable with Ctrl+ Ctrl- Ctrl0. Size of team column is configurable in new stylesheet `styles/results.css` (target is to make resizable interactively)
-- New `styles/colors.css` file is shared by the new results scoreboard and attempt/decision boards.  Changing color can be done once for new scoreboard and attempt/decision board.  Note: old scoreboards still use old stylesheets.
+4.31.0-alpha03: all three types of result scoreboards are available for testing (see below).  Team scoreboards have not been changed yet to use the colors.
 
 ### **Changes for 4.31.* releases**
 
-- Improvement: Break triggered by marshal indicates "Marshal Issue" to other TOs.
+- New parameterized scoreboards.  Colors can be changed in the `styles/colors.css` file (colors also change the attempt board and decision display) .  The default values are same as the previous defaults.
+  The ratio of team column to name column can be changed in `styles/results.css` for federations that use very long team names.  The scoreboards can be zoomed in or out using the  `Ctrl+` and `Ctrl-` keys to accommodate more lines, or conversely to make text bigger.
+  - `displays/results` show results only, with ranks.  If the screen is VGA or narrower (old-style projectors) then only the total rank is kept.
+  - `displays/resultsLeaders` same, but with the leaders of the current athlete's main category shown at the bottom
+  - `displays/resultsLeadersRanks` same, but all the ranks in all the eligible categories are shown.
+- Improvement: Break triggered by marshal creates a "Marshal Issue" notification to the other TOs.
 - Fix: Password issues. In some circumstances, password access to the application would stop working, requiring the use of configuration variables to override.
-- Fix: When running a round-robin competition, the weight requested between rounds can be lower than that at the last clock start.
+- Fix: When running a round-robin competition, the weight requested between rounds can be lower than that at the last clock start.  The normal check is therefore disabled.
 
 ### Highlights from recent stable releases
 
