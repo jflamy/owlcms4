@@ -449,25 +449,27 @@ th, td {
 }
 
 :host(.dark) .good {
-    background-color: green;
+    background-color: var(--darkGoodBackgroundColor);
     font-weight: bold;
+    color: var(--darkGoodTextColor);
 }
 
 :host(.light) .good {
-    background-color: green;
+    background-color: var(--lightGoodBackgroundColor);
     font-weight: bold;
-    color: white;
+    color: var(--lightGoodTextColor);
 }
 
 :host(.dark) .fail {
-    background-color: red;
+    background-color: var(--darkFailBackgroundColor);
     font-weight: bold;
+    color: var(--darkFailTextColor);
 }
 
 :host(.light) .fail {
-    background-color: red;
+    background-color: var(--lightFailBackgroundColor);
     font-weight: bold;
-    color: white;
+    color: var(--lightFailTextColor);
 }
 
 :host(.dark) .spacer {

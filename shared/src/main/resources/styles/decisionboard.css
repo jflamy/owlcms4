@@ -1,27 +1,29 @@
+@import 'colors.css';
+
 * {
 	box-sizing: border-box;
 }
 
 .wrapper {
 	font: Arial;
-	color: white;
-	background-color: black;
+	color: var(--pageTextColor);
+	background-color: var(--pageTextColor);
 	height: 100vh;
 	width: 100vw;
 }
 
 .decisionBoard {
-	font-family: Arial, Helvetica, sans-serif;
-	color: white;
-	background-color: black;
+	font-family: "Arial", "Helvetica", sans-serif;
+	color: var(--pageTextColor);
+	background-color: var(--pageBackgroundColor);
 	display: grid;
 	width: 100vw;
 	height: 100vh;
 	grid-template-columns:
-		[barbell-start down-start decision-start timer-start]1fr
+		[barbell-start down-start decision-start timer-start] 1fr
 		[barbell-end timer-end name down-end decision-end];
-	grid-template-rows: 0.25fr[down-start decision-start barbell-start timer-start]1fr
-		[barbell-end timer-end down-end	decision-end]0.25fr;
+	grid-template-rows: 0.25fr [down-start decision-start barbell-start timer-start] 1fr
+		[barbell-end timer-end down-end	decision-end] 0.25fr;
 	justify-content: center;
 	align-content: center;
 	align-items: stretch;
@@ -50,11 +52,11 @@
 
 .breakTime {
 	/* color: #99CCFF; */
-	color: SkyBlue;
+	color: var(--breakTimerColor);
 }
 
 .athleteTimer {
-	color: yellow;
+	color: var(--athleteTimerColor);
 }
 
 .decisionBoard .down {
@@ -64,7 +66,7 @@
 	--iron-icon-height: 10%;
 	--iron-icon-width: 10%;
 	font-weight: normal;
-	color: pink;
+	color: var(--downColor);
 	display: none;
 	overflow: hidden;
 }

@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 * {
     /*************************
      * Customization section
@@ -170,7 +172,7 @@ table.results {
 
 /* spacer line between categories */
 :host(.dark) table.results tr td.spacer {
-    background-color: var(--darkBackgroundColor);
+    background-color: var(--darkSpacerBackgroundColor);
     padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
     border-right: 0;
     /* grid-column: 1 / -1;*/
@@ -179,7 +181,7 @@ table.results {
 }
 
 :host(.light) table.results tr td.spacer {
-    background-color: var(--lightTableBorders);
+    background-color: var(--lightSpacerBackgroundColor);
     padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
     /* grid-column: 1 / -1;*/
     border: none;

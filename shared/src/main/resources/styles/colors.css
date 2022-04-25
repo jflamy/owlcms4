@@ -58,6 +58,8 @@
         /* purple; */
         var(--lightRankBackgroundColor);
 
+    --lightSpacerBackgroundColor: var(--lightTableBorders);
+
     /* results table section, "white on black", most cells have same dark background as page */
 
     --darkTableBorders: white;
@@ -93,5 +95,7 @@
 
     --darkTotalRankTextColor: var(--darkTextColor);
     --darkTotalRankBackgroundColor: var(--darkBackgroundColor);
+
+    --darkSpacerBackgroundColor: var(--darkBackgroundColor);
 
 }

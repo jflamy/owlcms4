@@ -12,7 +12,6 @@ class DecisionBoard extends PolymerElement {
 
 	static get template() {
 		return html`
-<link rel="stylesheet" type="text/css" href="local/styles/color.css">
 <link rel="stylesheet" type="text/css" href="local/styles/decisionboard.css">
 <div class="wrapper">
 <div class="decisionBoard" id="decisionBoardDiv">
