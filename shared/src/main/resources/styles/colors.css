@@ -54,6 +54,7 @@
     --lightTotalRankTextColor:
         /* white; */
         var(--lightTextColor);
+        
     --lightTotalRankBackgroundColor:
         /* purple; */
         var(--lightRankBackgroundColor);
