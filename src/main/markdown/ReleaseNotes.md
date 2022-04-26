@@ -1,6 +1,12 @@
 ### **Changes for release ${revision}**
 
-4.31.0-alpha03: all three types of result scoreboards are available for testing (see below).  Team scoreboards have not been changed yet to use the colors.
+4.31.0-alpha04: New "Feature Toggle" capability to selectively enable features, located at the bottom the Languages and Parameters page.
+
+4.31.0-alpha04: New scoreboards are the default when using the Displays page buttons.  
+
+- The old URLs still work alongside the new URLs (new page names that start with `results`)
+- To keep using the old scoreboards when clicking the buttons, add the word `oldScoreboards` to the "Feature Toggles" setting.  
+- The new results pages toggle to a new medals page that uses the same colors.
 
 ### **Changes for 4.31.* releases**
 
@@ -9,6 +15,7 @@
   - `displays/results` show results only, with ranks.  If the screen is VGA or narrower (old-style projectors) then only the total rank is kept.
   - `displays/resultsLeaders` same, but with the leaders of the current athlete's main category shown at the bottom
   - `displays/resultsLeadersRanks` same, but all the ranks in all the eligible categories are shown.
+  - `displays/resultsMedals` for medals.
 - Improvement: Break triggered by marshal creates a "Marshal Issue" notification to the other TOs.
 - Fix: Password issues. In some circumstances, password access to the application would stop working, requiring the use of configuration variables to override.
 - Fix: When running a round-robin competition, the weight requested between rounds can be lower than that at the last clock start.  The normal check is therefore disabled.
