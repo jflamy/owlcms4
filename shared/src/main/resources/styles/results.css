@@ -15,7 +15,7 @@
     /* size of team column relative to name column (fr = fraction) */
     --teamColumnRatio: 0.55fr;
 
-    --tableFontSize: 1.2rem;
+    --tableFontSize: 1.35rem;
 
     /* left column width: adjust depending on how you name groups */
     --startWidth: 4em;
@@ -318,7 +318,10 @@ td {
     white-space: nowrap;
     display: flex;
     align-content: stretch;
-    padding: 5px;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 3px;
+    padding-bottom: 3px;
     margin: 0;
 }
 
