@@ -100,8 +100,8 @@ package app.owlcms.uievents;
 public enum BreakType {
 
     BEFORE_INTRODUCTION(true, false),
-    FIRST_CJ(true, false),
     FIRST_SNATCH(true, false),
+    FIRST_CJ(true, false),
     GROUP_DONE(false, false),
 
     TECHNICAL(false, true),
