@@ -25,6 +25,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
 import com.vaadin.flow.component.html.Div;
@@ -114,7 +115,8 @@ public class ConfigEditingFormFactory
         FormLayout languageLayout = presentationForm();
         FormLayout publicResultsLayout = publicResultsForm();
         FormLayout localOverrideLayout = localOverrideForm();
-        FormLayout exportLayout = translationForm();
+        FormLayout translationLayout = translationForm();
+        FormLayout featuresLayout = featuresForm();
 
         Component footer = this.buildFooter(operation, config, cancelButtonClickListener,
                 c -> {
@@ -134,7 +136,8 @@ public class ConfigEditingFormFactory
                 accessLayout, separator(),
                 publicResultsLayout, separator(),
                 localOverrideLayout, separator(),
-                exportLayout);
+                featuresLayout, separator(),
+                translationLayout);
         mainLayout.setMargin(false);
         mainLayout.setPadding(false);
         
@@ -328,6 +331,23 @@ public class ConfigEditingFormFactory
         binder.forField(updateKey)
                 .withNullRepresentation("")
                 .bind(Config::getUpdatekey, Config::setUpdatekey);
+
+        return layout;
+    }
+    
+    private FormLayout featuresForm() {
+        FormLayout layout = createLayout();
+        Component title = createTitle("Config.FeatureSwitchesTitle");
+        layout.add(title);
+        layout.setColspan(title, 2);
+
+        TextField featureSwitchesField = new TextField();
+        featureSwitchesField.setWidthFull();
+        FormItem fi = layout.addFormItem(featureSwitchesField, Translator.translate("Config.FeatureSwitchesLabel"));
+        layout.setColspan(fi, 2);
+        binder.forField(featureSwitchesField)
+                .withNullRepresentation("")
+                .bind(Config::getFeatureSwitches, Config::setFeatureSwitches);
 
         return layout;
     }

@@ -8,6 +8,7 @@ package app.owlcms.data.config;
 
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
@@ -115,6 +116,8 @@ public class Config {
     @Transient
     @JsonIgnore
     private boolean skipReading;
+
+    private String featureSwitches;
 
     public String computeSalt() {
         this.setSalt(null);
@@ -450,6 +453,23 @@ public class Config {
 
     public void setSkipReading(boolean b) {
         this.skipReading = b;   
+    }
+
+    public boolean featureSwitch(String string, boolean trueIfPresent) {
+        if (getFeatureSwitches() == null) {
+            return !trueIfPresent;
+        }
+        String[] switches = getFeatureSwitches().split("[,; ]");
+        boolean present = Arrays.asList(switches).contains(string);
+        return trueIfPresent ? present : !present;
+    }
+
+    public String getFeatureSwitches() {
+        return featureSwitches;
+    }
+
+    public void setFeatureSwitches(String featureSwitches) {
+        this.featureSwitches = featureSwitches;
     }
 
 }
