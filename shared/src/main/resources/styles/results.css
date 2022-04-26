@@ -287,8 +287,8 @@ table {
 
 /* grid layout */
 table.medals {
-    /* use all available vertical space */
-    flex: 1;
+    /* do not use all available vertical space */
+    flex: 0;
     display: grid;
     border-collapse: collapse;
     grid-template-columns:
@@ -464,7 +464,7 @@ td {
 
 .breakTime {
     /* color: #99CCFF; */
-    color: var(--breakTimeColor);
+    color: var(--breakTimerColor);
 }
 
 .athleteTimer {

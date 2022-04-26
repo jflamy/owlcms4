@@ -26,7 +26,7 @@ class ResultsMedals extends PolymerElement {
         </div>
     </div>
     <template is="dom-if" if="[[medalCategories]]">
-        <table class="results" style$="[[hiddenGridStyle]]; padding-top: 1em;">
+        <table class="results medals" style$="[[hiddenGridStyle]]; padding-top: 1em;">
             <template is="dom-repeat" id="result-table" items="[[medalCategories]]" as="mc">
                 <tr class="head" style="[[leadersDisplay]]">
                     <td style="grid-column: 1 / -1; justify-content: left; font-weight: bold"
