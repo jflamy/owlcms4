@@ -127,7 +127,6 @@ class Results extends PolymerElement {
                 <td style="grid-column: 1 / -1; justify-content: left;" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
                 </td>
             </tr>
-            <tr>
             <tr style="[[leadersDisplay]]">
                 <td class="spacer" style="grid-column: 1 / -1; justify-content: left;"
                     inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
