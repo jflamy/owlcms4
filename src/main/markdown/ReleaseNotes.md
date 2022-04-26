@@ -2,11 +2,12 @@
 
 4.31.0-alpha04: New "Feature Toggle" capability to selectively enable features, located at the bottom the Languages and Parameters page.
 
-4.31.0-alpha04: New scoreboards are the default when using the Displays page buttons.  
+4.31.0-alpha04: New scoreboards are the default when using the Displays page buttons.
 
 - The old URLs still work alongside the new URLs (new page names that start with `results`)
 - To keep using the old scoreboards when clicking the buttons, add the word `oldScoreboards` to the "Feature Toggles" setting.  
-- The new results pages toggle to a new medals page that uses the same colors.
+- New resultsMedals page which is used when switching from the new public scoreboards
+- Top teams / top sinclair are partially converted to new colors.
 
 ### **Changes for 4.31.* releases**
 
