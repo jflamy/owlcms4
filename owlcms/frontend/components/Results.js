@@ -123,13 +123,13 @@ class Results extends PolymerElement {
             <td class="filler" style="grid-column: 1 / -1">&nbsp;</td>
         </tr>
         <template is="dom-if" if="[[leaders]]">
-            <tr class="head" style="[[leadersDisplay]]">
-                <td style="grid-column: 1 / -1; justify-content: left;" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
+            <tr class="head">
+                <td class="leaderTitle" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
                 </td>
             </tr>
-            <tr style="[[leadersDisplay]]">
+            <tr>
                 <td class="spacer" style="grid-column: 1 / -1; justify-content: left;"
-                    inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
+                    inner-h-t-m-l="&nbsp;">
                 </td>
             </tr>
             <template is="dom-repeat" id="result-table" items="[[leaders]]" as="l">

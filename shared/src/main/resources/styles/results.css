@@ -335,7 +335,7 @@ td {
     border: 1px solid;
     background: var(--darkTitleBackgroundColor);
     color: var(--darkTitleTextColor);
-    border-color: var(--darkTitleTextColor);
+    border-color: var(--darkTableBorders);
 }
 
 :host(.light) table.results tr.head td,
@@ -351,7 +351,13 @@ td {
     border: 1px solid;
     background: var(--lightTitleBackgroundColor);
     color: var(--lightTitleTextColor);
-    border-color: var(--lightTitleTextColor);
+    border-color: var(--lightTableBorders);
+}
+
+:host table.results tr.head td.leaderTitle {
+    grid-column: 1 / -1; 
+    justify-content: left; 
+    font-weight: bold;
 }
 
 
