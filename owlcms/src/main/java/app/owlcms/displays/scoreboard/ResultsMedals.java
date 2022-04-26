@@ -643,7 +643,7 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
     private JsonValue getAthletesJson(List<Athlete> displayOrder, FieldOfPlay fop) {
         JsonArray jath = Json.createArray();
         int athx = 0;
-        Category prevCat = null;
+//        Category prevCat = null;
         List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
                 : Collections.emptyList();
         for (Athlete a : athletes) {

@@ -174,7 +174,7 @@ public class Results extends PolymerTemplate<TemplateModel>
                 } else {
                     // logger.trace("no ceremonyCategory");
                 }
-                UI.getCurrent().navigate("displays/medals", QueryParameters.simple(map));
+                UI.getCurrent().navigate("displays/resultsMedals", QueryParameters.simple(map));
             }
 
             String title = inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType());
