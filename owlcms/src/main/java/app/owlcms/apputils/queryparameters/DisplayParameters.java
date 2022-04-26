@@ -255,30 +255,33 @@ public interface DisplayParameters extends FOPParameters {
         target.getElement().getClassList().set(DARK, dark);
         target.getElement().getClassList().set(LIGHT, !dark);
         // logger.debug("switching lighting");
-        buildDialog(target);
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), DARK, dark ? null : "false");
         }
+
         // after updateURL so that this method is usable to store the location if it needs it.
         setDarkMode(dark);
+        buildDialog(target);
     }
 
     public default void switchSoundMode(Component target, boolean silent, boolean updateURL) {
         setSilenced(silent);
         // logger.debug("switching sound");
-        buildDialog(target);
+
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? "true" : "false");
         }
+        buildDialog(target);
     }
 
     public default void switchSwitchable(Component target, boolean switchable, boolean updateURL) {
         setSwitchableDisplay(switchable);
         // logger.debug("switching sound");
-        buildDialog(target);
+
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), PUBLIC, switchable ? "true" : "false");
         }
+        buildDialog(target);
     }
 
 }
