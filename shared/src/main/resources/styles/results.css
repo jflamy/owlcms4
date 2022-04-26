@@ -18,10 +18,10 @@
     --tableFontSize: 1.2rem;
 
     /* left column width: adjust depending on how you name groups */
-    --startWidth: 3em;
+    --startWidth: 4em;
     --categoryWidth: 9ch;
     --birthWidth: 6ch;
-    --liftResultWidth: 6ch;
+    --liftResultWidth: 8ch;
 }
 
 * {
@@ -263,14 +263,46 @@ table.results {
 
 /* grid layout */
 table {
-    flex: 1;
     /* use all available vertical space */
+    flex: 1;
     display: grid;
     border-collapse: collapse;
-    grid-template-rows: repeat(var(--top), min-content) 1fr repeat(var(--bottom),
-            min-content);
+    grid-template-rows: 
+        repeat(var(--top), min-content) 
+        1fr
+        repeat(var(--bottom), min-content);
     grid-template-columns:
-        var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) minmax(50px, var(--teamColumnRatio)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(1, var(--liftResultWidth)) repeat(var(--nbRanks), var(--liftResultWidth));
+        var(--startWidth) 
+        minmax(50px, 1fr) 
+        var(--categoryWidth)
+        var(--birthWidth)
+        minmax(50px, var(--teamColumnRatio))
+        repeat(3, var(--liftResultWidth)) 
+        repeat(var(--nbRanks), var(--rankWidth))
+        repeat(3, var(--liftResultWidth))
+        repeat(var(--nbRanks), var(--rankWidth))
+        repeat(1, var(--liftResultWidth))
+        repeat(var(--nbRanks), var(--liftResultWidth));
+}
+
+/* grid layout */
+table.medals {
+    /* use all available vertical space */
+    flex: 1;
+    display: grid;
+    border-collapse: collapse;
+    grid-template-columns:
+        var(--startWidth) 
+        minmax(50px, 1fr) 
+        var(--categoryWidth)
+        var(--birthWidth)
+        minmax(50px, var(--teamColumnRatio))
+        repeat(3, var(--liftResultWidth)) 
+        repeat(var(--nbRanks), var(--rankWidth))
+        repeat(3, var(--liftResultWidth))
+        repeat(var(--nbRanks), var(--rankWidth))
+        repeat(1, var(--liftResultWidth))
+        repeat(var(--nbRanks), var(--liftResultWidth));
 }
 
 thead,
