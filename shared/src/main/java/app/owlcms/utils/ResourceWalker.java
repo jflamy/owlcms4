@@ -26,11 +26,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -88,8 +92,7 @@ public class ResourceWalker {
         }
         if (target != null && Files.exists(target)) {
             try {
-                // logger.debug("found overridden resource {} at {} {}", name, target.toAbsolutePath(),
-                // LoggerUtils.whereFrom(1));
+                // logger.trace("found overridden resource {} at {} {}", name, target.toAbsolutePath(), LoggerUtils.whereFrom(1));
                 return Files.newInputStream(target);
             } catch (IOException e) {
                 if (name.trim().contentEquals("/") || name.isBlank()) {
@@ -128,8 +131,7 @@ public class ResourceWalker {
             target = localDirPath2.resolve(relativeName);
         }
         if (target != null && Files.exists(target)) {
-            // logger.debug("found overridden resource {} at {} {}", name,
-            // target.toAbsolutePath(),LoggerUtils.whereFrom(1));
+            // logger.debug("found overridden resource {} at {} {}", name, target.toAbsolutePath(),LoggerUtils.whereFrom(1));
             return target;
         } else {
             String resName = "/" + relativeName;
@@ -400,7 +402,7 @@ public class ResourceWalker {
             if (Files.exists(basePath)) {
                 List<Resource> resourceListFromPath = getResourceListFromPath(nameGenerator, startsWith, basePath,
                         locale);
-                logger.trace("local override resources {}", resourceListFromPath);
+                logger.debug("local override resources {}", resourceListFromPath);
                 return resourceListFromPath;
             } else {
                 return new ArrayList<>();
@@ -427,14 +429,34 @@ public class ResourceWalker {
     // Path rootPath = null;
     public List<Resource> getResourceList(String absoluteRoot, BiFunction<Path, Path, String> nameGenerator,
             String startsWith, Locale locale) {
-        List<Resource> classPathResources = getResourceListFromPath(nameGenerator, startsWith,
-                getResourcePath(absoluteRoot), locale);
-        List<Resource> overrideResources = getLocalOverrideResourceList(absoluteRoot, nameGenerator, startsWith,
-                locale);
-        TreeSet<Resource> resourceSet = new TreeSet<>(overrideResources);
-        resourceSet.addAll(classPathResources);
 
-        return new ArrayList<>(resourceSet);
+        Map<String, Resource> classPathResourcesMap = 
+                getResourceListFromPath(nameGenerator, startsWith, getResourcePath(absoluteRoot), locale)
+                        .stream()
+                        .collect(Collectors.toMap(Resource::normalizedName, Function.identity()));
+        Map<String, Resource> overrideResourcesMap = 
+                getLocalOverrideResourceList(absoluteRoot, nameGenerator, startsWith, locale)
+                    .stream()
+                    .collect(Collectors.toMap(Resource::normalizedName, Function.identity()));
+
+        // we want all the resource names from both lists. If a resource with a given name is found in both lists,
+        // we want the resource from the override list.
+
+        Set<String> classPathResourceNames = classPathResourcesMap.keySet();
+        Set<String> overrideResourceNames = overrideResourcesMap.keySet();
+        logger.trace("classpath resources {}",classPathResourceNames);
+        logger.trace("override resources {}",overrideResourceNames);
+        TreeSet<String> allResourceNames = new TreeSet<>();
+        allResourceNames.addAll(classPathResourceNames);
+        allResourceNames.addAll(overrideResourceNames);
+
+        List<Resource> resourceList = allResourceNames.stream().map(rn -> {
+            Resource r = overrideResourcesMap.get(rn);
+            return r != null ? r : classPathResourcesMap.get(rn);
+        }).collect(Collectors.toList());
+        logger.trace("merged list {}", resourceList);
+        return resourceList;
+
     }
 
     /**
