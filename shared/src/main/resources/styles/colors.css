@@ -1,6 +1,6 @@
 * {
 
-    --pageBackgroundColor: black;
+    --pageBackgroundColor: blue;
     --pageTextColor: white;
 
     /* current attempt section */
@@ -63,9 +63,9 @@
 
     /* results table section, "white on black", most cells have same dark background as page */
 
-    --darkTableBorders: white;
-    --darkTextColor: white;
-    --darkBackgroundColor: black;
+    --darkTableBorders: var(--pageTextColor);
+    --darkTextColor: var(--pageTextColor);
+    --darkBackgroundColor: var(--pageBackgroundColor);
 
     --darkTitleTextColor: var(--darkTextColor);
     --darkTitleBackgroundColor: var(--darkBackgroundColor);
