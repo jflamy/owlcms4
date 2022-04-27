@@ -1,24 +1,33 @@
 ### **Changes for release ${revision}**
 
-4.31.0-alpha04: New "Feature Toggle" capability to selectively enable features, located at the bottom the Languages and Parameters page.
+4.31.0-beta01: Fix: toggle between light and dark display did not show the selected value correctly.
 
-4.31.0-alpha04: New scoreboards are the default when using the Displays page buttons.
+4.31.0-alpha04: New feature toggle setting on the "Language and Settings" page.
 
-- The old URLs still work alongside the new URLs (new page names that start with `results`)
-- To keep using the old scoreboards when clicking the buttons, add the word `oldScoreboards` to the "Feature Toggles" setting.  
-- New resultsMedals page which is used when switching from the new public scoreboards
-- Top teams / top sinclair are partially converted to new colors.
+4.31.0-alpha04: New scoreboards are the default when using the Displays page buttons.  See the Notes below keep using the old scoreboards by using a feature toggle.
 
 ### **Changes for 4.31.* releases**
 
-- New parameterized scoreboards.  Colors can be changed in the `styles/colors.css` file (colors also change the attempt board and decision display) .  The default values are same as the previous defaults.
-  The ratio of team column to name column can be changed in `styles/results.css` for federations that use very long team names.  The scoreboards can be zoomed in or out using the  `Ctrl+` and `Ctrl-` keys to accommodate more lines, or conversely to make text bigger.
+- New "Feature Toggle" capability to selectively enable features, located at the bottom the Languages and Parameters page.  If more than one feature toggle is needed, they are separated by commas.
+  
+- New parameterized scoreboards.  Colors can be changed in the `styles/colors.css` file (*The default colors are the same as the previous defaults.*  The scoreboards can be zoomed in or out using the  `Ctrl+` and `Ctrl-` keys to accommodate more lines, or to make text bigger with smaller groups.
+  
   - `displays/results` show results only, with ranks.  If the screen is VGA or narrower (old-style projectors) then only the total rank is kept.
   - `displays/resultsLeaders` same, but with the leaders of the current athlete's main category shown at the bottom
   - `displays/resultsLeadersRanks` same, but all the ranks in all the eligible categories are shown.
   - `displays/resultsMedals` for medals.
+  - The ratio of team column to name column can be changed in `styles/results.css` for federations that use very long team names. 
+  
+  <u>Notes</u>
+  
+  - The old URLs still work alongside the new URLs (new page names that start with `results`)
+  - To keep using the old scoreboards when clicking the buttons, include the word `oldScoreboards` to the list of "Feature Toggles" at the bottom of the "Languages and Settings" page.
+  - Changing `colors.css` also changes the attempt board and the decision display .  Top teams / Top Sinclair do not have a light theme, so only the background colors are changed.
+  
 - Improvement: Break triggered by marshal creates a "Marshal Issue" notification to the other TOs.
+
 - Fix: Password issues. In some circumstances, password access to the application would stop working, requiring the use of configuration variables to override.
+
 - Fix: When running a round-robin competition, the weight requested between rounds can be lower than that at the last clock start.  The normal check is therefore disabled.
 
 ### Highlights from recent stable releases
@@ -51,4 +60,4 @@
 
   - For **Heroku** cloud, no download is necessary. Follow the [Heroku Cloud Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Cloud) to deploy your own copy.  See also the [additional configuration steps for large competitions on Heroku](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/HerokuLarge).
 
-  - For **Kubernetes** deployments, see `k3s_setup.yaml` file for [cloud hosting using k3s](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/DigitalOcean). For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 
+  - For **Kubernetes** deployments, see `k3s_setup.yaml` file for [cloud hosting using k3s](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/DigitalOcean). For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. Je
