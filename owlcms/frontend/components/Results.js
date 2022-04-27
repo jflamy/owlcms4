@@ -134,7 +134,7 @@ class Results extends PolymerElement {
             </tr>
             <template is="dom-repeat" id="result-table" items="[[leaders]]" as="l">
                 <template is="dom-if" if="[[!l.isSpacer]]">
-                    <tr class="athlete" style="[[leadersDisplay]]">
+                    <tr class="athlete">
                         <td class="groupCol">
                             <div>[[l.group]]</div>
                         </td>
