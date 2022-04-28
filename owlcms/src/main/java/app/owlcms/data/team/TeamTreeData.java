@@ -44,6 +44,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 
     public TeamTreeData(String ageGroupPrefix, AgeDivision ageDivision, Gender gender) {
         genderFilterValue = gender;
+        logger.setLevel(Level.TRACE);
         init(ageGroupPrefix, ageDivision);
     }
 
@@ -72,10 +73,13 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
             TeamTreeItem curTeamItem = null;
             String key = computeGenderKey(gender) + "Team"
                     + (ageGroupPrefix != null ? ageGroupPrefix : ageDivision.name());
-            // logger.trace("looking for {} in {}",key, reportingBeans.keySet());
+            logger.trace("looking for {} in {}",key, reportingBeans.keySet());
 
             @SuppressWarnings("unchecked")
             List<Athlete> athletes = (List<Athlete>) reportingBeans.get(key);
+            if (athletes == null) {
+                return;
+            }
             athletes = athletes.stream()
 //                    .peek(a -> {
 //                        logger.debug("{} {} {} {}",a.getShortName(), ((PAthlete) a)._getOriginalParticipation().getTeamMember(), a.getClass().getSimpleName(), ((PAthlete) a).getCategory());
