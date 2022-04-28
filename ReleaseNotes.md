@@ -1,4 +1,8 @@
-### **Changes for release 4.31.0-beta01**
+### **Changes for release 4.31.0-beta02**
+
+4.31.0-beta02: Fix: the dark mode scoreboard table background was not the same as the page background
+
+4.31.0-beta02: Fix: files from an override zip did not correctly override files on the classpath
 
 4.31.0-beta01: Fix: toggle between light and dark display did not show the selected value correctly.
 
