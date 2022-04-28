@@ -577,6 +577,9 @@ public class Results extends PolymerTemplate<TemplateModel>
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
+        if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
+            getElement().setProperty("noLiftRanks", "noranks");
+        }
         SoundUtils.enableAudioContextNotification(this.getElement());
         storeReturnURL();
     }

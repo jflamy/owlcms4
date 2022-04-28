@@ -27,8 +27,6 @@
 
 * {
     box-sizing: border-box;
-    --rankVisibility: visible;
-    --rankWidth: var(--liftResultWidth);
     --nbRanks: 1;
 }
 
@@ -51,6 +49,13 @@
 table.results {
     border-collapse: collapse;
     font-size: var(--tableFontSize);
+    --rankWidth: var(--liftResultWidth);
+    --rankVisibility: visible;
+
+}
+
+table.results.noranks {
+    --rankWidth: 0; --rankVisibility: hidden;
 }
 
 /* default cell colors, backgrounds and borders */
@@ -195,6 +200,9 @@ table.results {
     grid-column: 1 / -1;
     align-content: stretch;
     border: none;
+    margin: 0;
+    padding: 0;
+    line-height: 90%;
 }
 
 :host(.light) table.results tr td.filler {
@@ -202,6 +210,9 @@ table.results {
     grid-column: 1 / -1;
     align-content: stretch;
     border: none;
+    margin: 0;
+    padding: 0;
+    line-height: 90%;
 }
 
 /* requested weight column */
