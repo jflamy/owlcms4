@@ -44,7 +44,6 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 
     public TeamTreeData(String ageGroupPrefix, AgeDivision ageDivision, Gender gender) {
         genderFilterValue = gender;
-        logger.setLevel(Level.TRACE);
         init(ageGroupPrefix, ageDivision);
     }
 
