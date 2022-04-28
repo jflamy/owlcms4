@@ -1,5 +1,7 @@
 ### **Changes for release ${revision}**
 
+4.31.0-beta03: Hide scoreboard ranks for snatch and clean&jerk if the competition setting is for total medals only.
+
 4.31.0-beta02: Fix: the dark mode scoreboard table background was not the same as the page background
 
 4.31.0-beta02: Fix: files from an override zip did not correctly override files on the classpath
@@ -17,8 +19,8 @@
 - New parameterized scoreboards.  Colors can be changed in the `styles/colors.css` file (*The default colors are the same as the previous defaults.*  The scoreboards can be zoomed in or out using the  `Ctrl+` and `Ctrl-` keys to accommodate more lines, or to make text bigger with smaller groups.
   
   - `displays/results` show results only, with ranks.  If the screen is VGA or narrower (old-style projectors) then only the total rank is kept.
-  - `displays/resultsLeaders` same, but with the leaders of the current athlete's main category shown at the bottom
-  - `displays/resultsLeadersRanks` same, but all the ranks in all the eligible categories are shown.
+  - `displays/resultsLeaders` same as results, but with the leaders of the current athlete's main category shown at the bottom
+  - `displays/resultsLeadersRanks` same as results, but all the ranks in all the eligible categories are shown.
   - `displays/resultsMedals` for medals.
   - The ratio of team column to name column can be changed in `styles/results.css` for federations that use very long team names. 
   
