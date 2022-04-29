@@ -23,6 +23,7 @@
   - `displays/resultsLeadersRanks` same as results, but all the ranks in all the eligible categories are shown.
   - `displays/resultsMedals` for medals.
   - The ratio of team column to name column can be changed in `styles/results.css` for federations that use very long team names. 
+  - Ranks for snatch and clean&jerk are shown if the competition is configured to award medals for the lifts on the competition rules page, and hidden otherwise.
   
   <u>Notes</u>
   
