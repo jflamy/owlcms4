@@ -190,7 +190,7 @@ public class Config {
      * @throws SQLException
      */
     public byte[] getLocalZipBlob() {
-        logger.warn("getLocalZipBlob {}",skipReading);
+        //logger.debug("getLocalZipBlob skip={}",skipReading);
         if (localOverride == null || skipReading) {
             return null;
         }
@@ -199,7 +199,7 @@ public class Config {
             try {
                 Config thisConfig = em.find(Config.class, this.id);
                 byte[] res = thisConfig.localOverride.getBytes(1, (int) localOverride.length());
-                logger.warn("read {} bytes", res.length);
+                logger.warn("getLocalZipBlob read {} bytes", res.length);
                 return res;
             } catch (SQLException e) {
                 em.getTransaction().rollback();
