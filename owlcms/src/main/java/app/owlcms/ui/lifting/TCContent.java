@@ -137,6 +137,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
         setCrudFormFactory(createFormFactory());
 
         plates = new Plates();
+        plates.setId("loadchart");
         OwlcmsSession.withFop((fop) -> {
             plates.computeImageArea(fop, false);
             platform = fop.getPlatform();
