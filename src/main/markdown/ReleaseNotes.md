@@ -1,9 +1,8 @@
 ### **Changes for release ${revision}**
 
-4.31.0-beta04:  Intermittent down signal sound lag on some laptop using Chrome
+4.31.0-beta04:  Intermittent down signal lag under Chrome (on some machines)
 
-- When using browser-generated sounds, we suggest that you switch the refereeing browser to Firefox if you observe occasional lag on the down signal. The problem appears to be specific to the sound library implementation on Chrome.
-- All possible pre-processing and configuration steps are now done in advance.
+- Not observed on Firefox. The issue appears to be specific to the Chrome sound API (also used by Edge).
 
 4.31.0-beta04: Fixed background colors for attempt and decision board when no group has been selected; also fixed outline colors on the plates and collars selection page.
 

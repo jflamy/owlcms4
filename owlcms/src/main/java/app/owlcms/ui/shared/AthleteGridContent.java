@@ -237,7 +237,13 @@ public abstract class AthleteGridContent extends VerticalLayout
             if (fop.getCeremonyType() != null) {
                 breakButton.setText(getTranslation("CeremonyType." + fop.getCeremonyType()));
             } else {
-                breakButton.setText(getTranslation("BreakType." + fop.getBreakType()) + "\u00a0\u00a0");
+                BreakType breakType = fop.getBreakType();
+                if (breakType != null) {
+                    breakButton.setText(getTranslation("BreakType." + breakType) + "\u00a0\u00a0");
+                } else {
+                    logger.error("null break type {}", LoggerUtils.stackTrace());
+                    breakButton.setText(getTranslation("BreakButton.Paused") + "\u00a0\u00a0");
+                }
             }
         });
 

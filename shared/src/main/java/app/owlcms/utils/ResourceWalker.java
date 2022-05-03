@@ -14,6 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -92,7 +93,8 @@ public class ResourceWalker {
         }
         if (target != null && Files.exists(target)) {
             try {
-                // logger.trace("found overridden resource {} at {} {}", name, target.toAbsolutePath(), LoggerUtils.whereFrom(1));
+                // logger.trace("found overridden resource {} at {} {}", name, target.toAbsolutePath(),
+                // LoggerUtils.whereFrom(1));
                 return Files.newInputStream(target);
             } catch (IOException e) {
                 if (name.trim().contentEquals("/") || name.isBlank()) {
@@ -131,7 +133,8 @@ public class ResourceWalker {
             target = localDirPath2.resolve(relativeName);
         }
         if (target != null && Files.exists(target)) {
-            // logger.debug("found overridden resource {} at {} {}", name, target.toAbsolutePath(),LoggerUtils.whereFrom(1));
+            // logger.debug("found overridden resource {} at {} {}", name,
+            // target.toAbsolutePath(),LoggerUtils.whereFrom(1));
             return target;
         } else {
             String resName = "/" + relativeName;
@@ -336,7 +339,7 @@ public class ResourceWalker {
             ZipUtils.unzip(new ByteArrayInputStream(localContent2), f);
             setLocalDirPath(f);
             setInitializedLocalDir(true);
-            logger.info("new local override path {}", getLocalDirPath().normalize());
+            logger.info("new in-memory override path {}", getLocalDirPath().normalize());
         } catch (IOException e) {
             throw new Exception("cannot unzip", e);
         }
@@ -361,6 +364,8 @@ public class ResourceWalker {
             logger.debug("resources for URI {} found in {}", resourcesURI,
                     (fileSystem != null ? "jar" : "classpath folders"));
             return fileSystem;
+        } catch (FileSystemAlreadyExistsException fe) {
+            throw fe;
         } catch (URISyntaxException | IOException e) {
             LoggerUtils.logError(logger, e);
             throw new RuntimeException(e);
@@ -430,22 +435,22 @@ public class ResourceWalker {
     public List<Resource> getResourceList(String absoluteRoot, BiFunction<Path, Path, String> nameGenerator,
             String startsWith, Locale locale) {
 
-        Map<String, Resource> classPathResourcesMap = 
-                getResourceListFromPath(nameGenerator, startsWith, getResourcePath(absoluteRoot), locale)
+        Map<String, Resource> classPathResourcesMap = getResourceListFromPath(nameGenerator, startsWith,
+                getResourcePath(absoluteRoot), locale)
                         .stream()
                         .collect(Collectors.toMap(Resource::normalizedName, Function.identity()));
-        Map<String, Resource> overrideResourcesMap = 
-                getLocalOverrideResourceList(absoluteRoot, nameGenerator, startsWith, locale)
-                    .stream()
-                    .collect(Collectors.toMap(Resource::normalizedName, Function.identity()));
+        Map<String, Resource> overrideResourcesMap = getLocalOverrideResourceList(absoluteRoot, nameGenerator,
+                startsWith, locale)
+                        .stream()
+                        .collect(Collectors.toMap(Resource::normalizedName, Function.identity()));
 
         // we want all the resource names from both lists. If a resource with a given name is found in both lists,
         // we want the resource from the override list.
 
         Set<String> classPathResourceNames = classPathResourcesMap.keySet();
         Set<String> overrideResourceNames = overrideResourcesMap.keySet();
-        logger.trace("classpath resources {}",classPathResourceNames);
-        logger.trace("override resources {}",overrideResourceNames);
+        logger.trace("classpath resources {}", classPathResourceNames);
+        logger.trace("override resources {}", overrideResourceNames);
         TreeSet<String> allResourceNames = new TreeSet<>();
         allResourceNames.addAll(classPathResourceNames);
         allResourceNames.addAll(overrideResourceNames);
