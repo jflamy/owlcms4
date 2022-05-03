@@ -1,10 +1,17 @@
 ### **Changes for release ${revision}**
 
+4.31.0-beta04:  Intermittent down signal sound lag on some laptop using Chrome
+
+- When using browser-generated sounds, we suggest that you switch the refereeing browser to Firefox if you observe occasional lag on the down signal. The problem appears to be specific to the sound library implementation on Chrome.
+- All possible pre-processing and configuration steps are now done in advance.
+
+4.31.0-beta04: Fixed background colors for attempt and decision board when no group has been selected; also fixed outline colors on the plates and collars selection page.
+
 4.31.0-beta03: Hide scoreboard ranks for snatch and clean&jerk if the competition setting is for total medals only.
 
 4.31.0-beta02: Fix: the dark mode scoreboard table background was not the same as the page background
 
-4.31.0-beta02: Fix: files from an override zip did not correctly override files on the classpath
+4.31.0-beta02: Fix: files from an override zip were added to the list of available files instead of taking precedence over the default files.
 
 4.31.0-beta01: Fix: toggle between light and dark display did not show the selected value correctly.
 
