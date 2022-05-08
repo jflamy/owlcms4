@@ -70,7 +70,6 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     private boolean silenced;
 
     public DecisionElement() {
-        logger.setLevel(Level.DEBUG);
     }
 
     public boolean isPublicFacing() {

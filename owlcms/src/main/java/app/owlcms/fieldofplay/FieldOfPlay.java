@@ -492,8 +492,7 @@ public class FieldOfPlay {
                 setClockOwnerInitialTimeAllowed(timeAllowed);
             }
         }
-        logger.debug("{}==== timeAllowed={} owner={} prev={} cur={}", getLoggingName(), timeAllowed, owner,
-                getPreviousAthlete(), a);
+        //logger.trace("{}==== timeAllowed={} owner={} prev={} cur={}", getLoggingName(), timeAllowed, owner, getPreviousAthlete(), a);
         return timeAllowed;
     }
 
@@ -695,6 +694,7 @@ public class FieldOfPlay {
                 // athlete lifted the bar
                 setState(TIME_STOPPED);
                 getAthleteTimer().stop();
+                logger.info("{}time stopped for {} : {}",getLoggingName(),curAthlete.getShortName(),getAthleteTimer().getTimeRemainingAtLastStop());
             } else if (e instanceof DecisionFullUpdate) {
                 // decision board/attempt board sends bulk update
                 updateRefereeDecisions((DecisionFullUpdate) e);
@@ -1163,9 +1163,14 @@ public class FieldOfPlay {
 
         // cur athlete can be null during some tests.
         int attempts = getCurAthlete() == null ? 0 : getCurAthlete().getAttemptsDone();
+        if (attempts >= 3) {
+            logger.trace("set cj started");
+            setCjStarted(true);
+        }
+        
         String shortName = getCurAthlete() == null ? "" : getCurAthlete().getShortName();
         logger.info("{}current athlete = {} attempt = {}, requested = {}, clock={} initialTime={}",
-                getLoggingName(), shortName, attempts, curWeight,
+                getLoggingName(), shortName, attempts+1, curWeight,
                 clock,
                 getClockOwnerInitialTimeAllowed());
         if (attempts >= 6) {
@@ -1558,14 +1563,15 @@ public class FieldOfPlay {
                         .limit(3)
                         .collect(Collectors.toList());
                 setLeaders(snatchLeaders);
-                // logger.trace("snatch leaders {} {}", snatchLeaders, currentCategoryAthletes);
+                logger.trace("snatch warn {} {}", snatchLeaders, currentCategoryAthletes);
             } else {
                 List<Athlete> totalLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.TOTAL)
-                        .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
+                        .stream()
+                        .filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
                         .limit(3)
                         .collect(Collectors.toList());
                 setLeaders(totalLeaders);
-                // logger.trace("total leaders {} {}", totalLeaders, currentCategoryAthletes);
+                logger.trace("total warn {} {}", totalLeaders, currentCategoryAthletes);
             }
         } else {
             setLeaders(null);
@@ -1639,7 +1645,11 @@ public class FieldOfPlay {
     }
 
     private void setClockOwner(Athlete athlete) {
-        logger.debug("{}setting clock owner to {} [{}]", getLoggingName(), athlete, LoggerUtils.whereFrom());
+        if (athlete == null) {
+            logger.info("{}no clock owner [{}]", getLoggingName(), LoggerUtils.whereFrom());
+        } else {
+            logger.info("{}setting clock owner to {} [{}]", getLoggingName(), athlete, LoggerUtils.whereFrom());
+        }
         this.clockOwner = athlete;
     }
 
@@ -1998,8 +2008,8 @@ public class FieldOfPlay {
             return;
         }
 
-        logger./**/warn("{}unexpected event {} in state {}\n{}", getLoggingName(),
-                e.getClass().getSimpleName(), state, e.getStackTrace());
+        logger./**/warn("{}unexpected event {} in state {}", getLoggingName(),
+                e.getClass().getSimpleName(), state);
 
         pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, state));
     }

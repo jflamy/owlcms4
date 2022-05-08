@@ -121,8 +121,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
         if (running) {
             computeTimeRemaining();
         }
-        logger.warn("{}==== setting Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining,
-                LoggerUtils.whereFrom());
+        // logger.trace("{}==== setting Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining, LoggerUtils.whereFrom());
         this.timeRemaining = timeRemaining;
         if (timeRemaining < 1) {
             logger.warn("setting with no time {}", LoggerUtils.whereFrom());
