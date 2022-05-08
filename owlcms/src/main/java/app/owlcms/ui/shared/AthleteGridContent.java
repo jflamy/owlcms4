@@ -69,6 +69,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.fieldofplay.FOPError;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -1368,4 +1369,23 @@ public abstract class AthleteGridContent extends VerticalLayout
             doNotification(text, "warning");
         }
     }
+
+    
+    @Subscribe
+    public void slaveNotification(UIEvent.Notification e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            Notification n = new Notification();
+            if (e.getFopEventString().contentEquals("TimeStarted")) {
+                // time started button was selected, but denied. reset the colors
+                // to show that time is not running.
+                buttonsTimeStopped();
+            }
+            n.setText(FOPError.translateMessage(e.getFopStateString(), e.getFopEventString()));
+            n.setPosition(Position.MIDDLE);
+            n.setDuration(3000);
+            n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            n.open();
+        });
+    }
+
 }
