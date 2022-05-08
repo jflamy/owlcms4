@@ -1,22 +1,6 @@
-### **Changes for release 4.31.0-beta04**
+### **Changes for release 4.31.0-rc01**
 
-4.31.0-beta04:  Intermittent down signal lag under Chrome (on some machines)
-
-- Not observed on Firefox. The issue appears to be specific to the Chrome sound API (also used by Edge).
-
-4.31.0-beta04: Fixed background colors for attempt and decision board when no group has been selected; also fixed outline colors on the plates and collars selection page.
-
-4.31.0-beta03: Hide scoreboard ranks for snatch and clean&jerk if the competition setting is for total medals only.
-
-4.31.0-beta02: Fix: the dark mode scoreboard table background was not the same as the page background
-
-4.31.0-beta02: Fix: files from an override zip were added to the list of available files instead of taking precedence over the default files.
-
-4.31.0-beta01: Fix: toggle between light and dark display did not show the selected value correctly.
-
-4.31.0-alpha04: New feature toggle setting on the "Language and Settings" page.
-
-4.31.0-alpha04: New scoreboards are the default when using the Displays page buttons.  See the Notes below keep using the old scoreboards by using a feature toggle.
+4.31.0-rc01:  Changed the "Plates, Collar and Barbell" page to be easier to understand by using checkboxes instead of 0 and 1. Only the larger plates need a number.
 
 ### **Changes for 4.31.* releases**
 
@@ -38,6 +22,8 @@
   - Changing `colors.css` also changes the attempt board and the decision display .  Top teams / Top Sinclair do not have a light theme, so only the background colors are changed.
   
 - Improvement: Break triggered by marshal creates a "Marshal Issue" notification to the other TOs.
+
+- Improvement: Changed the "Plates, Collar and Barbell" page to be easier to understand by using checkboxes instead of 0 and 1. Only the larger plates need a number.
 
 - Fix: Password issues. In some circumstances, password access to the application would stop working, requiring the use of configuration variables to override.
 
