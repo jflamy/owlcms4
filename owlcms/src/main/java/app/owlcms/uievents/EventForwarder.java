@@ -498,7 +498,7 @@ public class EventForwarder implements BreakDisplay {
             setCategoryName(curAthlete.getCategory().getName());
             groupLeaders = fop.getLeaders();
             int size = groupLeaders.size();
-            if (size > 15) {
+            if (size > 16) {
                 setLeaders(null);
             } else if (groupLeaders.size() > 0) {
                 // null as second argument because we do not highlight current athletes in the leaderboard
@@ -515,7 +515,7 @@ public class EventForwarder implements BreakDisplay {
                 } else {
                     // nothing to show
                     setLeaders(null);
-                }
+               }
             }
         }
 
