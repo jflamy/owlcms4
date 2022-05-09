@@ -124,7 +124,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
         // logger.trace("{}==== setting Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining, LoggerUtils.whereFrom());
         this.timeRemaining = timeRemaining;
         if (timeRemaining < 1) {
-            logger.warn("setting with no time {}", LoggerUtils.whereFrom());
+            logger.warn/**/("setting with no time {}", LoggerUtils.whereFrom());
         }
         getFop().pushOutUIEvent(new UIEvent.SetTime(timeRemaining, null));
         running = false;
@@ -142,7 +142,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
             timeRemainingAtLastStop = timeRemaining;
         }
         if (timeRemaining < 1) {
-            logger.warn("starting with no time {}", LoggerUtils.whereFrom());
+            logger.warn/**/("starting with no time {}", LoggerUtils.whereFrom());
         }
         getFop().pushOutUIEvent(
                 new UIEvent.StartTime(timeRemaining, null, getFop().isEmitSoundsOnServer(), LoggerUtils.stackTrace()));
