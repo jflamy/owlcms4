@@ -1,10 +1,8 @@
 ### **Changes for release ${revision}**
 
-4.31.0-rc02: Fix: when the clock is started too early (ex: when decision is still being shown), the start/stop button colors are reset to the correct values.
+4.31.0-rc03: Fix: column hiding rules when screen is too narrow.
 
-4.31.0-rc02: Fixed a small error in the leader section of the scoreboard (athlete with a snatch good enough to be a leader could be shown in spite of not having set a total)
-
-4.31.0-rc01:  Changed the "Plates, Collar and Barbell" page to be easier to understand by using checkboxes instead of 0 and 1. Only the larger plates need a number.
+4.31.0-rc03: Fix logic error for determining that clean and jerk has started for the purpose of showing the correct leader board.
 
 ### **Changes for 4.31.* releases**
 
