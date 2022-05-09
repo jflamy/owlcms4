@@ -55,7 +55,8 @@ table.results {
 }
 
 table.results.noranks {
-    --rankWidth: 0; --rankVisibility: hidden;
+    --rankWidth: 0; 
+    --rankVisibility: hidden;
 }
 
 /* default cell colors, backgrounds and borders */
@@ -523,8 +524,11 @@ div.ellipsis {
 /* table sizes: 1024 projector */
 @media screen and (max-width: 1025px) and (max-height: 769px) {
     * {
-        --rankVisibility: hidden;
-        --rankWidth: 0;
         --tableFontSize: 0.8rem;
+    }
+    table.results {
+        --rankWidth: 0;
+        --rankVisibility: hidden;
+
     }
 }
