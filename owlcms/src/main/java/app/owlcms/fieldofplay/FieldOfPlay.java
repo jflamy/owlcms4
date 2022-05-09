@@ -492,7 +492,8 @@ public class FieldOfPlay {
                 setClockOwnerInitialTimeAllowed(timeAllowed);
             }
         }
-        //logger.trace("{}==== timeAllowed={} owner={} prev={} cur={}", getLoggingName(), timeAllowed, owner, getPreviousAthlete(), a);
+        // logger.trace("{}==== timeAllowed={} owner={} prev={} cur={}", getLoggingName(), timeAllowed, owner,
+        // getPreviousAthlete(), a);
         return timeAllowed;
     }
 
@@ -694,7 +695,8 @@ public class FieldOfPlay {
                 // athlete lifted the bar
                 setState(TIME_STOPPED);
                 getAthleteTimer().stop();
-                logger.info("{}time stopped for {} : {}",getLoggingName(),curAthlete.getShortName(),getAthleteTimer().getTimeRemainingAtLastStop());
+                logger.info("{}time stopped for {} : {}", getLoggingName(), curAthlete.getShortName(),
+                        getAthleteTimer().getTimeRemainingAtLastStop());
             } else if (e instanceof DecisionFullUpdate) {
                 // decision board/attempt board sends bulk update
                 updateRefereeDecisions((DecisionFullUpdate) e);
@@ -901,6 +903,7 @@ public class FieldOfPlay {
             return;
         }
         this.setGroup(group);
+        this.setCjStarted(false);
         if (group != null) {
             // protect against possible UI bug where switching group triggers a dropdown selection
             // which triggers a switchgroup (there may be multiple announcer screens open)
@@ -949,7 +952,7 @@ public class FieldOfPlay {
         if (currentDisplayAffected) {
             getAthleteTimer().setTimeRemaining(timeAllowed, false);
         } else {
-            logger.warn("not affected {}", LoggerUtils.stackTrace());
+            //logger.debug("not affected {}", LoggerUtils.stackTrace());
         }
         // for the purpose of showing team scores, this is good enough.
         // if the current athlete has done all lifts, the group is marked as done.
@@ -1002,6 +1005,13 @@ public class FieldOfPlay {
 
             List<Athlete> currentGroupAthletes = AthleteSorter.displayOrderCopy(athletes).stream()
                     .filter(a -> a.getGroup() != null ? a.getGroup().equals(g) : false)
+                    .peek(a -> {
+                        if (a.getAttemptsDone() > 3 && !isCjStarted()) {
+                            logger.trace("set cj started");
+                            // known side-effect
+                            setCjStarted(true);
+                        }
+                    })
                     .collect(Collectors.toList());
             setDisplayOrder(currentGroupAthletes);
             setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
@@ -1163,14 +1173,10 @@ public class FieldOfPlay {
 
         // cur athlete can be null during some tests.
         int attempts = getCurAthlete() == null ? 0 : getCurAthlete().getAttemptsDone();
-        if (attempts >= 3) {
-            logger.trace("set cj started");
-            setCjStarted(true);
-        }
-        
+
         String shortName = getCurAthlete() == null ? "" : getCurAthlete().getShortName();
         logger.info("{}current athlete = {} attempt = {}, requested = {}, clock={} initialTime={}",
-                getLoggingName(), shortName, attempts+1, curWeight,
+                getLoggingName(), shortName, attempts + 1, curWeight,
                 clock,
                 getClockOwnerInitialTimeAllowed());
         if (attempts >= 6) {
@@ -1555,9 +1561,8 @@ public class FieldOfPlay {
                 }
             }
 
-            boolean cjStarted2 = isCjStarted();
             // logger.trace("currentCategoryAthletes {} {}", currentCategoryAthletes, cjStarted2);
-            if (!cjStarted2) {
+            if (!isCjStarted()) {
                 List<Athlete> snatchLeaders = AthleteSorter.resultsOrderCopy(currentCategoryAthletes, Ranking.SNATCH)
                         .stream().filter(a -> a.getBestSnatch() > 0 && a.isEligibleForIndividualRanking())
                         .limit(3)
@@ -1955,6 +1960,9 @@ public class FieldOfPlay {
         // enable master to listening for decision
         setState(TIME_RUNNING);
         setGoodLift(null);
+        if (curAthlete.getAttemptsDone() >= 3) {
+            setCjStarted(true);
+        }
         getAthleteTimer().start();
     }
 

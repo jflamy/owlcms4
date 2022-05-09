@@ -440,7 +440,7 @@ public class Results extends PolymerTemplate<TemplateModel>
             if (a != null) {
                 Group group = fop.getGroup();
                 if (group != null && !group.isDone()) {
-                    logger.debug("updating top {} {} {}", a.getFullName(), group, System.identityHashCode(group));
+                    //logger.debug("updating top {} {} {}", a.getFullName(), group, System.identityHashCode(group));
                     this.getElement().setProperty("fullName", a.getFullName());
                     this.getElement().setProperty("teamName", a.getTeam());
                     this.getElement().setProperty("startNumber", a.getStartNumber());
@@ -454,7 +454,7 @@ public class Results extends PolymerTemplate<TemplateModel>
             }
             this.getElement().callJsFunction("reset");
         }
-        logger.debug("updating bottom");
+        //logger.debug("updating bottom");
         updateBottom(computeLiftType(a), fop);
     }
 
