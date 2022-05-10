@@ -1,15 +1,10 @@
 ### **Changes for release ${revision}**
 
-4.31.0-rc03: Fix: column hiding rules when screen is too narrow.
-
-4.31.0-rc03: Fix logic error for determining that clean and jerk has started for the purpose of showing the correct leader board.
-
-### **Changes for 4.31.* releases**
-
-- New "Feature Toggle" capability to selectively enable features, located at the bottom the Languages and Parameters page.  If more than one feature toggle is needed, they are separated by commas.
+- New "Feature Toggle" configuration option located at the bottom the Language and Settings page. This will be used to enable experimental features, or to select backward compatible behavior. If more than one feature keyword is needed, they are separated by commas.
   
-- New parameterized scoreboards.  Colors can be changed in the `styles/colors.css` file (*The default colors are the same as the previous defaults.*  The scoreboards can be zoomed in or out using the  `Ctrl+` and `Ctrl-` keys to accommodate more lines, or to make text bigger with smaller groups.
+- New parameterized scoreboards.  Colors can be changed in the `styles/colors.css` file (*The default colors are the same as the previous defaults).*  See [Customization](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/UploadingLocalSettings) for how to proceed.
   
+  -  The scoreboards can be zoomed in or out using the  `Ctrl+` and `Ctrl-` keys to accommodate more lines, or to make text bigger with smaller groups.
   - `displays/results` show results only, with ranks.  If the screen is VGA or narrower (old-style projectors) then only the total rank is kept.
   - `displays/resultsLeaders` same as results, but with the leaders of the current athlete's main category shown at the bottom
   - `displays/resultsLeadersRanks` same as results, but all the ranks in all the eligible categories are shown.
@@ -19,17 +14,16 @@
   
   <u>Notes</u>
   
-  - The old URLs still work alongside the new URLs (new page names that start with `results`)
-  - To keep using the old scoreboards when clicking the buttons, include the word `oldScoreboards` to the list of "Feature Toggles" at the bottom of the "Languages and Settings" page.
+  - The old URLs (displays/scoreboard, displays/scoreleader, displays/scoremultiranks) still work for the time being, but will not be updated. To keep using the old scoreboards when clicking the navigation page buttons, add the word `oldScoreboards` to the list of "Feature Toggles" at the bottom of the "Languages and Settings" page.
   - Changing `colors.css` also changes the attempt board and the decision display .  Top teams / Top Sinclair do not have a light theme, so only the background colors are changed.
   
-- Improvement: Break triggered by marshal creates a "Marshal Issue" notification to the other TOs.
+- Improvement: a Break triggered by marshal creates a "Marshal Issue" notification to the other TOs.
 
 - Improvement: Changed the "Plates, Collar and Barbell" page to be easier to understand by using checkboxes instead of 0 and 1. Only the larger plates need a number.
 
-- Fix: Password issues. In some circumstances, password access to the application would stop working, requiring the use of configuration variables to override.
-
 - Fix: When running a round-robin competition, the weight requested between rounds can be lower than that at the last clock start.  The normal check is therefore disabled.
+
+- Fix: Password issues. In some circumstances, password access to the application would stop working, requiring the use of configuration variables to override.
 
 ### Highlights from recent stable releases
 
