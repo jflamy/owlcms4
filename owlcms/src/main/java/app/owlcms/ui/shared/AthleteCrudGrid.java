@@ -33,12 +33,12 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 
+    Athlete match = null;
     final private Logger logger = (Logger) LoggerFactory.getLogger(AthleteCrudGrid.class);
+
     {
         logger.setLevel(Level.INFO);
     }
-
-    Athlete match = null;
 
     public AthleteCrudGrid(Class<Athlete> domainType, OwlcmsGridLayout crudLayout,
             OwlcmsCrudFormFactory<Athlete> owlcmsCrudFormFactory, Grid<Athlete> grid) {

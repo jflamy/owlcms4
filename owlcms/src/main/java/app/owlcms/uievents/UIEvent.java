@@ -32,7 +32,7 @@ import ch.qos.logback.classic.Logger;
  */
 
 public class UIEvent {
-    
+
     static public class BarbellOrPlatesChanged extends UIEvent {
         public BarbellOrPlatesChanged(Object object) {
             super(object);
@@ -49,8 +49,8 @@ public class UIEvent {
         /**
          * Instantiates a new break done.
          *
-         * @param origin the origin
-         * @param breakType 
+         * @param origin    the origin
+         * @param breakType
          */
         public BreakDone(Object origin, BreakType breakType) {
             super(origin);
@@ -65,34 +65,7 @@ public class UIEvent {
             this.breakType = breakType;
         }
     }
-    
-    /**
-     * Class BreakDone.
-     */
-    static public class CeremonyDone extends UIEvent {
 
-        private CeremonyType ceremonyType;
-
-        /**
-         * Instantiates a new break done.
-         * @param origin the origin
-         * @param breakType 
-         */
-        public CeremonyDone(CeremonyType ceremonyType, Object origin) {
-            super(origin);
-            this.setCeremonyType(ceremonyType);
-        }
-
-        public CeremonyType getCeremonyType() {
-            return ceremonyType;
-        }
-
-        public void setCeremonyType(CeremonyType ceremonyType) {
-            this.ceremonyType = ceremonyType;
-        }
-
-    }
-    
     /**
      * Class BreakPaused.
      */
@@ -188,7 +161,7 @@ public class UIEvent {
             this.breakType = bt;
             this.countdownType = ct;
             this.trace = trace;
-            //logger.trace("BreakSetTime setting to {} from {}", getTimeRemaining(), trace);
+            // logger.trace("BreakSetTime setting to {} from {}", getTimeRemaining(), trace);
         }
 
         public BreakType getBreakType() {
@@ -287,75 +260,6 @@ public class UIEvent {
         }
 
     }
-    
-    /**
-     * Class BreakStarted.
-     */
-    // MUST NOT EXTEND otherwise subscription triggers on supertype as well
-    static public class CeremonyStarted extends UIEvent {
-
-        private CeremonyType ceremonyType;
-        private Category ceremonyCategory;
-        private Group ceremonyGroup;
-
-        public CeremonyStarted(CeremonyType ceremonyType, Group ceremonyGroup, Category ceremonyCategory, String trace, Object origin) {
-            super(origin);
-            this.setCeremonyType(ceremonyType);
-            this.setCeremonyGroup(ceremonyGroup);
-            this.setCeremonyCategory(ceremonyCategory);
-            this.setTrace(trace);
-        }
-
-        public Group getCeremonyGroup() {
-            return this.ceremonyGroup;
-        }
-
-
-        public void setCeremonyGroup(Group ceremonyGroup2) {
-            this.ceremonyGroup = ceremonyGroup2;
-        }
-
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(ceremonyCategory, ceremonyGroup, ceremonyType);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            CeremonyStarted other = (CeremonyStarted) obj;
-            return Objects.equals(ceremonyCategory, other.ceremonyCategory)
-                    && Objects.equals(ceremonyGroup, other.ceremonyGroup) && ceremonyType == other.ceremonyType;
-        }
-
-        @Override
-        public String toString() {
-            return "CeremonyStarted [ceremonyType=" + ceremonyType + ", ceremonyCategory=" + ceremonyCategory
-                    + ", ceremonyGroup=" + ceremonyGroup + "]";
-        }
-
-        public Category getCeremonyCategory() {
-            return ceremonyCategory;
-        }
-
-        private void setCeremonyCategory(Category ceremonyCategory2) {
-            this.ceremonyCategory  = ceremonyCategory2;
-        }
-
-        public CeremonyType getCeremonyType() {
-            return ceremonyType;
-        }
-
-        public void setCeremonyType(CeremonyType ceremonyType) {
-            this.ceremonyType = ceremonyType;
-        }
-    }
 
     static public class Broadcast extends UIEvent {
 
@@ -374,6 +278,102 @@ public class UIEvent {
             this.message = message;
         }
 
+    }
+
+    /**
+     * Class BreakDone.
+     */
+    static public class CeremonyDone extends UIEvent {
+
+        private CeremonyType ceremonyType;
+
+        /**
+         * Instantiates a new break done.
+         *
+         * @param origin    the origin
+         * @param breakType
+         */
+        public CeremonyDone(CeremonyType ceremonyType, Object origin) {
+            super(origin);
+            this.setCeremonyType(ceremonyType);
+        }
+
+        public CeremonyType getCeremonyType() {
+            return ceremonyType;
+        }
+
+        public void setCeremonyType(CeremonyType ceremonyType) {
+            this.ceremonyType = ceremonyType;
+        }
+
+    }
+
+    /**
+     * Class BreakStarted.
+     */
+    // MUST NOT EXTEND otherwise subscription triggers on supertype as well
+    static public class CeremonyStarted extends UIEvent {
+
+        private Category ceremonyCategory;
+        private Group ceremonyGroup;
+        private CeremonyType ceremonyType;
+
+        public CeremonyStarted(CeremonyType ceremonyType, Group ceremonyGroup, Category ceremonyCategory, String trace,
+                Object origin) {
+            super(origin);
+            this.setCeremonyType(ceremonyType);
+            this.setCeremonyGroup(ceremonyGroup);
+            this.setCeremonyCategory(ceremonyCategory);
+            this.setTrace(trace);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if ((obj == null) || (getClass() != obj.getClass())) {
+                return false;
+            }
+            CeremonyStarted other = (CeremonyStarted) obj;
+            return Objects.equals(ceremonyCategory, other.ceremonyCategory)
+                    && Objects.equals(ceremonyGroup, other.ceremonyGroup) && ceremonyType == other.ceremonyType;
+        }
+
+        public Category getCeremonyCategory() {
+            return ceremonyCategory;
+        }
+
+        public Group getCeremonyGroup() {
+            return this.ceremonyGroup;
+        }
+
+        public CeremonyType getCeremonyType() {
+            return ceremonyType;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(ceremonyCategory, ceremonyGroup, ceremonyType);
+        }
+
+        public void setCeremonyGroup(Group ceremonyGroup2) {
+            this.ceremonyGroup = ceremonyGroup2;
+        }
+
+        public void setCeremonyType(CeremonyType ceremonyType) {
+            this.ceremonyType = ceremonyType;
+        }
+
+        @Override
+        public String toString() {
+            return "CeremonyStarted [ceremonyType=" + ceremonyType + ", ceremonyCategory=" + ceremonyCategory
+                    + ", ceremonyGroup=" + ceremonyGroup + "]";
+        }
+
+        private void setCeremonyCategory(Category ceremonyCategory2) {
+            this.ceremonyCategory = ceremonyCategory2;
+        }
     }
 
     /**

@@ -77,41 +77,41 @@ import ch.qos.logback.classic.Logger;
 public class TeamResultsContent extends VerticalLayout
         implements OwlcmsContent, RequireLogin, IAthleteEditing {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(TeamResultsContent.class);
+    static final String TITLE = "TeamResults.Title";
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(TeamResultsContent.class);
+
     static {
         logger.setLevel(Level.INFO);
         jexlLogger.setLevel(Level.ERROR);
     }
 
-    static final String TITLE = "TeamResults.Title";
-
-    private Group currentGroup;
-
-    private OwlcmsRouterLayout routerLayout;
-    protected ComboBox<Group> topBarGroupSelect;
-
     protected FlexLayout topBar;
 
-    private Button download;
-    private Anchor finalPackage;
-    private JXLSCompetitionBook xlsWriter;
-    private String ageGroupPrefix;
+    protected ComboBox<Group> topBarGroupSelect;
+    // private boolean teamFilterRecusion;
+    private List<AgeDivision> adItems;
 
     private AgeDivision ageDivision;
 
+    private String ageGroupPrefix;
+    private OwlcmsCrudGrid<TeamTreeItem> crudGrid;
+    private Group currentGroup;
+    private Button download;
+
+    private Anchor finalPackage;
+
+    private DecimalFormat floatFormat;
     // private ComboBox<Category> categoryFilter;
     private ComboBox<Gender> genderFilter;
+    private Location location;
+
+    private UI locationUI;
+    private OwlcmsRouterLayout routerLayout;
+    private ComboBox<AgeDivision> topBarAgeDivisionSelect;
     // private ComboBox<String> teamFilter;
     private ComboBox<String> topBarAgeGroupPrefixSelect;
-    private ComboBox<AgeDivision> topBarAgeDivisionSelect;
-
-    private OwlcmsCrudGrid<TeamTreeItem> crudGrid;
-    private Location location;
-    private UI locationUI;
-    private DecimalFormat floatFormat;
-    // private boolean teamFilterRecusion;
-    private List<AgeDivision> adItems;
+    private JXLSCompetitionBook xlsWriter;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in

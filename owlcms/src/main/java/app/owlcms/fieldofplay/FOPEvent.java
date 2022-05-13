@@ -58,28 +58,6 @@ public class FOPEvent {
             this.breakType = breakType;
         }
     }
-    
-    /**
-     * Class BreakDone.
-     */
-    static public class CeremonyDone extends FOPEvent {
-
-        private CeremonyType ceremonyType;
-        
-        public CeremonyDone(CeremonyType ceremonyType, Object origin) {
-            super(origin);
-            setCeremonyType(ceremonyType);
-        }
-
-        public CeremonyType getCeremonyType() {
-            return ceremonyType;
-        }
-
-        public void setCeremonyType(CeremonyType ceremonyType) {
-            this.ceremonyType = ceremonyType;
-        }
-
-    }
 
     /**
      * Class BreakPaused.
@@ -111,13 +89,14 @@ public class FOPEvent {
 
         private CountdownType countdownType;
 
-        private Integer timeRemaining;
-
         private LocalDateTime targetTime;
+
+        private Integer timeRemaining;
 
         private Boolean wait;
 
-        public BreakStarted(BreakType bType, CountdownType cType, Integer timeRemaining, LocalDateTime targetTime, Boolean wait,
+        public BreakStarted(BreakType bType, CountdownType cType, Integer timeRemaining, LocalDateTime targetTime,
+                Boolean wait,
                 Object origin) {
             super(origin);
             this.setBreakType(bType);
@@ -127,23 +106,14 @@ public class FOPEvent {
             this.setWait(true);
         }
 
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime * result + Objects.hash(breakType, countdownType, targetTime, timeRemaining, wait);
-            return result;
-        }
-
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (!super.equals(obj))
+            }
+            if (!super.equals(obj) || (getClass() != obj.getClass())) {
                 return false;
-            if (getClass() != obj.getClass())
-                return false;
+            }
             BreakStarted other = (BreakStarted) obj;
             return breakType == other.breakType && countdownType == other.countdownType
                     && Objects.equals(targetTime, other.targetTime)
@@ -164,6 +134,18 @@ public class FOPEvent {
 
         public Integer getTimeRemaining() {
             return timeRemaining;
+        }
+
+        public Boolean getWait() {
+            return wait;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(breakType, countdownType, targetTime, timeRemaining, wait);
+            return result;
         }
 
         public boolean isIndefinite() {
@@ -191,33 +173,48 @@ public class FOPEvent {
             this.timeRemaining = timeRemaining;
         }
 
+        public void setWait(Boolean wait) {
+            this.wait = wait;
+        }
+
         @Override
         public String toString() {
             return "BreakStarted [breakType=" + breakType + ", countdownType=" + countdownType + ", timeRemaining="
                     + timeRemaining + ", targetTime=" + targetTime + ", wait=" + wait + "]";
         }
 
+    }
 
-        public Boolean getWait() {
-            return wait;
+    /**
+     * Class BreakDone.
+     */
+    static public class CeremonyDone extends FOPEvent {
+
+        private CeremonyType ceremonyType;
+
+        public CeremonyDone(CeremonyType ceremonyType, Object origin) {
+            super(origin);
+            setCeremonyType(ceremonyType);
         }
 
-
-        public void setWait(Boolean wait) {
-            this.wait = wait;
+        public CeremonyType getCeremonyType() {
+            return ceremonyType;
         }
 
+        public void setCeremonyType(CeremonyType ceremonyType) {
+            this.ceremonyType = ceremonyType;
+        }
 
     }
-    
+
     /**
      * Class BreakStarted.
      */
     static public class CeremonyStarted extends FOPEvent {
 
         private CeremonyType ceremony;
-        private Group ceremonyGroup;
         private Category ceremonyCategory;
+        private Group ceremonyGroup;
 
         public CeremonyStarted(CeremonyType ceremony, Group ceremonyGroup,
                 Category ceremonyCategory, Object origin) {
@@ -225,11 +222,32 @@ public class FOPEvent {
             this.setCeremony(ceremony);
             this.setCeremonyGroup(ceremonyGroup);
             this.setCategoryCeremony(ceremonyCategory);
-            //logger.trace("FOPEvent ceremonyGroup = {}  st={}", this.getCeremonyGroup(), LoggerUtils.stackTrace());
+            // logger.trace("FOPEvent ceremonyGroup = {} st={}", this.getCeremonyGroup(), LoggerUtils.stackTrace());
         }
 
-        private void setCategoryCeremony(Category ceremonyCategory2) {
-            this.setCeremonyCategory(ceremonyCategory2);
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!super.equals(obj) || (getClass() != obj.getClass())) {
+                return false;
+            }
+            CeremonyStarted other = (CeremonyStarted) obj;
+            return ceremony == other.ceremony && Objects.equals(ceremonyCategory, other.ceremonyCategory)
+                    && Objects.equals(ceremonyGroup, other.ceremonyGroup);
+        }
+
+        public CeremonyType getCeremony() {
+            return ceremony;
+        }
+
+        public Category getCeremonyCategory() {
+            return ceremonyCategory;
+        }
+
+        public Group getCeremonyGroup() {
+            return ceremonyGroup;
         }
 
         @Override
@@ -240,17 +258,12 @@ public class FOPEvent {
             return result;
         }
 
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (!super.equals(obj))
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            CeremonyStarted other = (CeremonyStarted) obj;
-            return ceremony == other.ceremony && Objects.equals(ceremonyCategory, other.ceremonyCategory)
-                    && Objects.equals(ceremonyGroup, other.ceremonyGroup);
+        public void setCeremony(CeremonyType ceremony) {
+            this.ceremony = ceremony;
+        }
+
+        public void setCeremonyGroup(Group ceremonyGroup2) {
+            this.ceremonyGroup = ceremonyGroup2;
         }
 
         @Override
@@ -259,28 +272,12 @@ public class FOPEvent {
                     + ceremonyCategory + "]";
         }
 
-        public Group getCeremonyGroup() {
-            return ceremonyGroup;
-        }
-
-        public void setCeremonyGroup(Group ceremonyGroup2) {
-            this.ceremonyGroup = ceremonyGroup2;
-        }
-
-        public Category getCeremonyCategory() {
-            return ceremonyCategory;
+        private void setCategoryCeremony(Category ceremonyCategory2) {
+            this.setCeremonyCategory(ceremonyCategory2);
         }
 
         private void setCeremonyCategory(Category ceremonyCategory2) {
             this.ceremonyCategory = ceremonyCategory2;
-        }
-
-        public CeremonyType getCeremony() {
-            return ceremony;
-        }
-
-        public void setCeremony(CeremonyType ceremony) {
-            this.ceremony = ceremony;
         }
     }
 
@@ -292,11 +289,11 @@ public class FOPEvent {
     static public class DecisionFullUpdate extends FOPEvent {
         public Boolean ref1;
 
-        public Boolean ref2;
-
-        public Boolean ref3;
         public Integer ref1Time;
+
+        public Boolean ref2;
         public Integer ref2Time;
+        public Boolean ref3;
         public Integer ref3Time;
 
         public DecisionFullUpdate(Object origin, Athlete athlete, Boolean ref1, Boolean ref2, Boolean ref3,
@@ -400,13 +397,13 @@ public class FOPEvent {
      */
     static public class ExplicitDecision extends FOPEvent {
 
-        /** The decision. */
-        public Boolean success = null;
-
         public Boolean ref1;
 
         public Boolean ref2;
+
         public Boolean ref3;
+        /** The decision. */
+        public Boolean success = null;
 
         /**
          * Instantiates a new referee decision.
@@ -650,7 +647,7 @@ public class FOPEvent {
 
     }
 
-    final Logger logger = (Logger) LoggerFactory.getLogger(FOPEvent.class);
+    protected Athlete athlete;
 
     /**
      * When a FOPEvent (for example stopping the clock) is handled, it is often reflected as a series of UIEvents (for
@@ -660,13 +657,13 @@ public class FOPEvent {
      */
     protected Object origin;
 
-    protected Athlete athlete;
-
-    private long timestamp;
+    final Logger logger = (Logger) LoggerFactory.getLogger(FOPEvent.class);
 
     private FieldOfPlay fop;
 
     private String stackTrace;
+
+    private long timestamp;
 
     public FOPEvent(Athlete athlete, Object origin) {
         this.fop = OwlcmsSession.getFop();

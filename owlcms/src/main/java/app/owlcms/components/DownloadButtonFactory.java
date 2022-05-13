@@ -37,15 +37,15 @@ import ch.qos.logback.classic.Logger;
 
 public class DownloadButtonFactory {
 
-    private JXLSWorkbookStreamSource xlsWriter;
-    private Supplier<JXLSWorkbookStreamSource> streamSourceSupplier;
-    private String resourceDirectoryLocation;
+    private String buttonLabel;
+    private String dialogTitle;
     private Function<Competition, String> fileNameGetter;
     private BiConsumer<Competition, String> fileNameSetter;
-    private String buttonLabel;
-    private String outputFileName;
     private Logger logger = (Logger) LoggerFactory.getLogger(DownloadButtonFactory.class);
-    private String dialogTitle;
+    private String outputFileName;
+    private String resourceDirectoryLocation;
+    private Supplier<JXLSWorkbookStreamSource> streamSourceSupplier;
+    private JXLSWorkbookStreamSource xlsWriter;
 
     /**
      * @param streamSourceSupplier      lambda that creates a JXLSWorkbookStreamSource and sets its filters
@@ -153,10 +153,6 @@ public class DownloadButtonFactory {
         return dialog;
     }
 
-    private String sanitizeFilename(String name) {
-        return name.replaceAll("[:\\\\/*?|<>]", "_");
-    }
-
     private String getTargetFileName() {
         StringBuilder suffix = new StringBuilder();
         if (xlsWriter.getCategory() != null) {
@@ -182,6 +178,10 @@ public class DownloadButtonFactory {
         fileName = sanitizeFilename(fileName);
         logger.debug(fileName);
         return fileName;
+    }
+
+    private String sanitizeFilename(String name) {
+        return name.replaceAll("[:\\\\/*?|<>]", "_");
     }
 
     private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {

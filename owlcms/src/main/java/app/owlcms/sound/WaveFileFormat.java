@@ -26,37 +26,37 @@ import javax.sound.sampled.AudioFormat;
 
 final class WaveFileFormat extends AudioFileFormat {
 
-    // $$fb 2001-07-13: added management of header size in this class
-    // $$fb 2002-04-16: Fix for 4636355: RIFF audio headers could be _more_ spec compliant
-    private static final int STANDARD_HEADER_SIZE = 28;
+    static final int DATA_MAGIC = 0x64617461; // "data"
 
+    static final int FMT_MAGIC = 0x666d7420; // "fmt "
+
+    // magic numbers
+    static final int RIFF_MAGIC = 1380533830;
+
+    static final int WAVE_FORMAT_ADPCM = 0x0002;
+    static final int WAVE_FORMAT_ALAW = 0x0006;
+    static final int WAVE_FORMAT_DIGIFIX = 0x0016;
+    static final int WAVE_FORMAT_DIGISTD = 0x0015;
+
+    static final int WAVE_FORMAT_DVI_ADPCM = 0x0011;
+    static final int WAVE_FORMAT_MULAW = 0x0007;
+    static final int WAVE_FORMAT_OKI_ADPCM = 0x0010;
+    static final int WAVE_FORMAT_PCM = 0x0001;
+    static final int WAVE_FORMAT_SX7383 = 0x1C07;
+    // encodings
+    static final int WAVE_FORMAT_UNKNOWN = 0x0000;
+    static final int WAVE_IBM_FORMAT_ADPCM = 0x0103;
+    static final int WAVE_IBM_FORMAT_ALAW = 0x0102;
+    static final int WAVE_IBM_FORMAT_MULAW = 0x0101;
+    static final int WAVE_MAGIC = 1463899717;
     // $$fb 2002-04-16: Fix for 4636355: RIFF audio headers could be _more_ spec compliant
     /**
      * fmt_ chunk size in bytes
      */
     private static final int STANDARD_FMT_CHUNK_SIZE = 16;
-
-    // magic numbers
-    static final int RIFF_MAGIC = 1380533830;
-
-    static final int WAVE_MAGIC = 1463899717;
-    static final int FMT_MAGIC = 0x666d7420; // "fmt "
-    static final int DATA_MAGIC = 0x64617461; // "data"
-    // encodings
-    static final int WAVE_FORMAT_UNKNOWN = 0x0000;
-
-    static final int WAVE_FORMAT_PCM = 0x0001;
-    static final int WAVE_FORMAT_ADPCM = 0x0002;
-    static final int WAVE_FORMAT_ALAW = 0x0006;
-    static final int WAVE_FORMAT_MULAW = 0x0007;
-    static final int WAVE_FORMAT_OKI_ADPCM = 0x0010;
-    static final int WAVE_FORMAT_DIGISTD = 0x0015;
-    static final int WAVE_FORMAT_DIGIFIX = 0x0016;
-    static final int WAVE_IBM_FORMAT_MULAW = 0x0101;
-    static final int WAVE_IBM_FORMAT_ALAW = 0x0102;
-    static final int WAVE_IBM_FORMAT_ADPCM = 0x0103;
-    static final int WAVE_FORMAT_DVI_ADPCM = 0x0011;
-    static final int WAVE_FORMAT_SX7383 = 0x1C07;
+    // $$fb 2001-07-13: added management of header size in this class
+    // $$fb 2002-04-16: Fix for 4636355: RIFF audio headers could be _more_ spec compliant
+    private static final int STANDARD_HEADER_SIZE = 28;
 
     static int getFmtChunkSize(int waveType) {
         // $$fb 2002-04-16: Fix for 4636355: RIFF audio headers could be _more_ spec compliant

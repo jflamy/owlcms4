@@ -370,6 +370,27 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     }
 
     @Subscribe
+    public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
+        // logger.trace"------- slaveCeremonyDone {}", e.getCeremonyType());
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            setHidden(false);
+            // revert to current break
+            doBreak(null);
+        });
+    }
+
+    @Subscribe
+    public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
+        // logger.trace"------- slaveCeremonyStarted {}", e.getCeremonyType());
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            setHidden(false);
+            doCeremony(e);
+        });
+    }
+
+    @Subscribe
     public void slaveDecision(UIEvent.Decision e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
@@ -404,27 +425,6 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
             doDone(e.getGroup());
-        });
-    }
-
-    @Subscribe
-    public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
-        // logger.trace"------- slaveCeremonyDone {}", e.getCeremonyType());
-        uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            setHidden(false);
-            // revert to current break
-            doBreak(null);
-        });
-    }
-
-    @Subscribe
-    public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
-        // logger.trace"------- slaveCeremonyStarted {}", e.getCeremonyType());
-        uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            setHidden(false);
-            doCeremony(e);
         });
     }
 
@@ -890,7 +890,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
     }
 
     private void uiLog(UIEvent e) {
-//        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom()); 
+//        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom());
     }
 
     private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {

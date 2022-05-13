@@ -37,9 +37,34 @@ public class FederationStructureReader {
     @SuppressWarnings("unused")
     private final static Logger logger = (Logger) LoggerFactory.getLogger(FederationStructureReader.class);
 
+    private Map<String, Set<String>> eligibility = new HashMap<>();
+
     private Map<String, Set<String>> membership = new HashMap<>();
 
-    private Map<String, Set<String>> eligibility = new HashMap<>();
+    public Map<String, Set<String>> buildStructure(Workbook workbook, String uri) throws Exception {
+        try {
+            readMembership(workbook, uri);
+
+            for (Entry<String, Set<String>> e : membership.entrySet()) {
+                String childFederation = e.getKey();
+                Set<String> childParents = e.getValue();
+
+                Set<String> childEligibility = new LinkedHashSet<>();
+                childEligibility.add(childFederation); // athlete from federation F is eligible to beat F records.
+                childEligibility.addAll(childParents);
+
+                for (String parentFederation : childParents) {
+                    transitiveClosure(parentFederation, childFederation, childEligibility);
+                }
+                eligibility.put(childFederation, childEligibility);
+            }
+            return eligibility;
+        } catch (Exception e) {
+            RecordRepository.logger.error("could not process federation structure\n{}",
+                    LoggerUtils./**/stackTrace(e));
+            throw e;
+        }
+    }
 
     public void readMembership(Workbook workbook, String localizedName) {
 
@@ -95,40 +120,16 @@ public class FederationStructureReader {
         }
     }
 
-    private void transitiveClosure(String newAncestorFederation, String childFederation, Collection<String> childAncestors) {
+    private void transitiveClosure(String newAncestorFederation, String childFederation,
+            Collection<String> childAncestors) {
         childAncestors.add(newAncestorFederation);
         Set<String> parentMembers = membership.get(newAncestorFederation);
         if (parentMembers == null || parentMembers.isEmpty()) {
             return;
         }
-        
+
         for (String parentMember : parentMembers) {
             transitiveClosure(parentMember, childFederation, childAncestors);
-        }
-    }
-
-    public Map<String, Set<String>> buildStructure(Workbook workbook, String uri) throws Exception {
-        try {
-            readMembership(workbook, uri);
-
-            for (Entry<String, Set<String>> e : membership.entrySet()) {
-                String childFederation = e.getKey();
-                Set<String> childParents = e.getValue();
-                
-                Set<String> childEligibility = new LinkedHashSet<>();
-                childEligibility.add(childFederation); // athlete from federation F is eligible to beat F records.
-                childEligibility.addAll(childParents);
-
-                for (String parentFederation : childParents) {
-                    transitiveClosure(parentFederation, childFederation, childEligibility);
-                }
-                eligibility.put(childFederation, childEligibility);
-            }
-            return eligibility;
-        } catch (Exception e) {
-            RecordRepository.logger.error("could not process federation structure\n{}",
-                    LoggerUtils./**/stackTrace(e));
-            throw e;
         }
     }
 

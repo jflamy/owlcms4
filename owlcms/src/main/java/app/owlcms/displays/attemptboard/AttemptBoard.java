@@ -151,14 +151,14 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     @Id("decisions")
     protected DecisionElement decisions; // created by Flow during template instanciation
 
-    private EventBus uiEventBus;
-    private Plates plates;
+    private Dialog dialog;
+    private boolean groupDone;
+    private boolean initializationNeeded;
     private Location location;
     private UI locationUI;
-    private boolean groupDone;
+    private Plates plates;
     private boolean silenced = true;
-    private Dialog dialog;
-    private boolean initializationNeeded;
+    private EventBus uiEventBus;
 
     /**
      * Instantiates a new attempt board.
@@ -206,7 +206,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             this.getElement().callJsFunction("doBreak");
         }));
     }
-    
+
     @Override
     public void doCeremony(UIEvent.CeremonyStarted e) {
 //        OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
@@ -219,20 +219,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 //            uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
 //            this.getElement().callJsFunction("doBreak");
 //        }));
-    }
-    
-    @Subscribe
-    public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            syncWithFOP(OwlcmsSession.getFop());
-        });
-    }
-    
-    @Subscribe
-    public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            syncWithFOP(OwlcmsSession.getFop());
-        });
     }
 
     /**
@@ -337,6 +323,20 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     @Subscribe
     public void slaveBarbellOrPlatesChanged(UIEvent.BarbellOrPlatesChanged e) {
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> showPlates());
+    }
+
+    @Subscribe
+    public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            syncWithFOP(OwlcmsSession.getFop());
+        });
+    }
+
+    @Subscribe
+    public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            syncWithFOP(OwlcmsSession.getFop());
+        });
     }
 
     @Subscribe

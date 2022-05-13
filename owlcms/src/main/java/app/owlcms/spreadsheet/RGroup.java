@@ -22,30 +22,30 @@ import ch.qos.logback.classic.Logger;
  *
  */
 public class RGroup {
-    final Logger logger = (Logger) LoggerFactory.getLogger(RGroup.class);
-
-    Group group = new Group();
-
-    String groupName;
-    String platform;
-    String description;
-    String weighinTime;
-    String competitionTime;
-    String weighInTO1;
-    String weighInTO2;
     String announcer;
-    String marshall;
-    String timekeeper;
-    String techController;
-    String ref1;
-    String ref2;
-    String ref3;
+
+    String competitionTime;
+
+    String description;
+    Group group = new Group();
+    String groupName;
     String jury1;
     String jury2;
     String jury3;
     String jury4;
     String jury5;
+    final Logger logger = (Logger) LoggerFactory.getLogger(RGroup.class);
+    String marshall;
+    String platform;
+    String ref1;
+    String ref2;
+    String ref3;
     String reserve;
+    String techController;
+    String timekeeper;
+    String weighinTime;
+    String weighInTO1;
+    String weighInTO2;
 
     public String getAnnouncer() {
         return announcer;
@@ -53,6 +53,10 @@ public class RGroup {
 
     public String getCompetitionTime() {
         return competitionTime;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public Group getGroup() {
@@ -85,10 +89,6 @@ public class RGroup {
 
     public String getMarshall() {
         return marshall;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public String getPlatform() {
@@ -148,6 +148,11 @@ public class RGroup {
                 + parseExcelDateTime.format(DateTimeFormatter.ISO_LOCAL_TIME);
     }
 
+    public void setDescription(String description) {
+        group.setDescription(description);
+        this.description = description;
+    }
+
     public void setGroup(Group group) {
         this.group = group;
     }
@@ -185,11 +190,6 @@ public class RGroup {
     public void setMarshall(String marshall) {
         group.setMarshall(marshall);
         this.marshall = marshall;
-    }
-
-    public void setDescription(String description) {
-        group.setDescription(description);
-        this.description = description;
     }
 
     public void setPlatform(String pName) {

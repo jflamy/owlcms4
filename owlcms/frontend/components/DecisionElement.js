@@ -137,10 +137,10 @@ class DecisionElement extends PolymerElement {
 				reflectToAttribute: false,
 				value: false
 			},
-            fopName: {
-                type: String,
-                notify: true
-            },
+			fopName: {
+				type: String,
+				notify: true
+			},
 			/**
 			 * Set to true to have no sound on down signal
 			 * 
@@ -177,27 +177,16 @@ class DecisionElement extends PolymerElement {
 	}
 
 	_setupAudio() {
+		window.AudioContext = window.AudioContext || window.webkitAudioContext;
+		this.audioContext = new AudioContext();
 		this._prepareAudio();
-		// if (this.audio) {
-		// 	// setup audio -- an oscillator cannot be reused.
-		// 	if (!this.context) {
-		// 		//this.context = new AudioContext();
-		// 		this.context = window.audioCtx;
-		// 	}
-		// 	this.oscillator = this.context.createOscillator();
-		// 	this.gain = this.context.createGain();
-		// 	this.gain.gain.value = 1;
-		// 	this.oscillator.frequency.value = 1000;  // maximum perceived loudness
-		// 	this.oscillator.connect(this.gain);
-		// 	this.gain.connect(this.context.destination);
-		// }
 	}
 
 	_readRef(e) {
 		if (!this.enabled) return;
 
 		var key = e.key;
-		console.warn("de key "+key);
+		console.warn("de key " + key);
 		switch (e.key) {
 			case '1':
 				this.set('ref1', true);
@@ -235,11 +224,11 @@ class DecisionElement extends PolymerElement {
 	}
 
 	_registerVote(code) {
-		console.warn("de vote "+key);
+		console.warn("de vote " + key);
 	}
 
 	/* this is called based on browser input.
-         immediate feedback is given if majority has been reached */
+		 immediate feedback is given if majority has been reached */
 	_majority(ref1, ref2, ref3) {
 		var countWhite = 0;
 		var countRed = 0;
@@ -264,9 +253,9 @@ class DecisionElement extends PolymerElement {
 	}
 
 	/* the individual values are set in the this.refN properties. this tells the server that the
-         values are are available; the server will call back the slaves operating in jury display
-         mode to update their displays immediately.  the slaves not operating in jury display mode
-         (e.g. the attempt board) will be updated after 3 seconds */
+		 values are are available; the server will call back the slaves operating in jury display
+		 mode to update their displays immediately.  the slaves not operating in jury display mode
+		 (e.g. the attempt board) will be updated after 3 seconds */
 	masterRefereeUpdate(ref1, ref2, ref3) {
 		this.$server.masterRefereeUpdate(this.fopName, ref1, ref2, ref3, this.ref1Time, this.ref2Time, this.ref3Time);
 	}
@@ -317,23 +306,13 @@ class DecisionElement extends PolymerElement {
 	*/
 	showDown(isMaster, silent) {
 		console.warn("de showDown");
+		if (!this.silent) {
+			this._playTrack("../sounds/down.mp3", window.downSignal, true, 0);
+		}
 		this.downShown = true;
 		this.$.downDiv.style.display = "flex";
 		this.$.decisionsDiv.style.display = "none";
 
-		// if (this.audio && !silent && !this.silent) {
-		// 	this.oscillator.start(0);
-		// 	this.oscillator.stop(this.context.currentTime + 2);
-		// 	this._setupAudio();
-		// }
-
-		if (!this.silent) {
-			this._playTrack("../sounds/down.mp3", window.downSignal, true, 0);
-		}
-
-		//this.$.downAudio.play();
-
-		//this.dispatchEvent(new CustomEvent('down', { bubbles: true, composed: true }))
 		// hide the down arrow after 2 seconds -- the decisions will show when available
 		// (there will be no decision lights for at least one second, more if last referee 
 		// waits after the other two have given down.
@@ -372,14 +351,15 @@ class DecisionElement extends PolymerElement {
 
 	async _playTrack(filepath, previousBuffer, play, when) {
 		if (previousBuffer) {
-			console.warn("de previous ok");
+			console.warn("de reuse track source");
 			if (play) {
 				// play previously fetched buffer
 				await this._playAudioBuffer(previousBuffer, when);
+				console.warn("de sound done");
 			}
 			return previousBuffer;
 		} else {
-			console.warn("de no previous");
+			console.warn("de no previous buffer");
 			// Safari somehow manages to lose the AudioBuffer.
 			// Massive workaround.
 			const response = await fetch(filepath);
@@ -408,17 +388,26 @@ class DecisionElement extends PolymerElement {
 		}
 	}
 
-	async _playAudioBuffer(audioBuffer, when) {
-		const trackSource = await window.audioCtx.createBufferSource();
-		trackSource.buffer = audioBuffer;;
-		trackSource.connect(audioCtx.destination);
+	setEnabled(isEnabled) {
+		console.warn("setEnabled " + isEnabled + " " + this.audioContext);
+		this.enabled = isEnabled;
+		if (isEnabled) {
+			this.trackSource = this.audioContext.createBufferSource();
+			this.trackSource.buffer = window.downSignal;
+			this.trackSource.connect(this.audioContext.destination);
+			console.warn("connected tracksource");
+		}
+	}
+
+	_playAudioBuffer(audioBuffer, when) {
+		console.warn("when "+when);
 		if (when <= 0) {
-			trackSource.start();
+			this.trackSource.start();
 		} else {
-			trackSource.start(when, 0);
+			this.trackSource.start(when, 0);
 		}
 
-		return trackSource
+		return this.trackSource
 	}
 
 	async _prepareAudio() {

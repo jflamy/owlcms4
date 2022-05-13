@@ -32,8 +32,8 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSMedalsSheet.class);
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSMedalsSheet.class);
     final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
     static {
         logger.setLevel(Level.INFO);
@@ -58,7 +58,8 @@ public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
             TreeSet<Athlete> medalists = medalCat.getValue();
             if (medalists != null && !medalists.isEmpty()) {
                 for (Athlete p : medalists) {
-                    //logger.trace("Competition.getCurrent().isSnatchCJTotalMedals() {}",Competition.getCurrent().isSnatchCJTotalMedals());
+                    // logger.trace("Competition.getCurrent().isSnatchCJTotalMedals()
+                    // {}",Competition.getCurrent().isSnatchCJTotalMedals());
                     if (Competition.getCurrent().isSnatchCJTotalMedals()) {
                         sortedAthletes
                                 .add(new MAthlete((PAthlete) p, Ranking.SNATCH, p.getSnatchRank(), p.getBestSnatch()));

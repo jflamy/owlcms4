@@ -65,8 +65,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         uiEventLogger.setLevel(Level.INFO);
     }
 
-    protected EventBus uiEventBus;
     protected EventBus fopEventBus;
+    protected EventBus uiEventBus;
     private boolean silenced;
 
     public DecisionElement() {
@@ -137,7 +137,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     }
 
     public void setSilenced(boolean b) {
-        //logger.trace("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
+        // logger.trace("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
         getModel().setSilent(b);
         silenced = b;
     }
@@ -146,16 +146,17 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     public void slaveBreakStart(UIEvent.BreakStarted e) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             logger.debug("slaveBreakStart disable");
-            getModel().setEnabled(false);
+            this.getElement().callJsFunction("setEnabled", false);
+            //getModel().setEnabled(false);
         });
     }
 
     @Subscribe
     public void slaveDownSignal(UIEvent.DownSignal e) {
-        //logger.trace("slaveDownSignal {} {} {}", this, this.getOrigin(), e.getOrigin());
+        // logger.trace("slaveDownSignal {} {} {}", this, this.getOrigin(), e.getOrigin());
         if (this.getOrigin() == e.getOrigin()) {
             // we emitted the down signal, don't do it again.
-            //logger.trace("skipping down, {} is origin",this.getOrigin());
+            // logger.trace("skipping down, {} is origin",this.getOrigin());
             return;
         }
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
@@ -180,7 +181,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
             uiEventLogger.debug("*** {} majority decision ({})", this.getOrigin(),
                     this.getParent().get().getClass().getSimpleName());
             this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
-            getModel().setEnabled(false);
+            this.getElement().callJsFunction("setEnabled", false);
+            //getModel().setEnabled(false);
         });
     }
 
@@ -188,7 +190,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     public void slaveStartTimer(UIEvent.StartTime e) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             logger.debug("slaveStartTimer enable");
-            getModel().setEnabled(true);
+            this.getElement().callJsFunction("setEnabled", true);
+            //getModel().setEnabled(true);
         });
     }
 
@@ -196,7 +199,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     public void slaveStopTimer(UIEvent.StopTime e) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             logger.debug("slaveStopTimer enable");
-            getModel().setEnabled(true);
+            this.getElement().callJsFunction("setEnabled", true);
+            //getModel().setEnabled(true);
         });
     }
 

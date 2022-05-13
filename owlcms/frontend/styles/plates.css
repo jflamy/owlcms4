@@ -14,6 +14,10 @@
 	border-color: white;
 }
 
+#loadchart .plate {
+	border-color: black;
+}
+
 .bar {
 	height: 1.5ex;
 	width: 2.5em;

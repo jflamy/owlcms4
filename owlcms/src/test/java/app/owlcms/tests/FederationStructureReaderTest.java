@@ -49,30 +49,28 @@ public class FederationStructureReaderTest {
             try {
                 wb = WorkbookFactory.create(xmlInputStream);
                 Map<String, Set<String>> membership = new FederationStructureReader().buildStructure(wb, streamURI);
-                
+
                 // base case
                 assertEquals(membership.get("IWF"), null);
-                
+
                 // continental = first induction step
-                logger.info("{} {}", "PAWF",  membership.get("PAWF"));
+                logger.info("{} {}", "PAWF", membership.get("PAWF"));
                 assertEquals(membership.get("PAWF").toString(), "[PAWF, IWF]");
-                
+
                 // country directly under continental
-                logger.info("{} {}", "VEN",  membership.get("VEN"));
+                logger.info("{} {}", "VEN", membership.get("VEN"));
                 assertEquals(membership.get("VEN").toString(), "[VEN, PAWF, IWF]");
-                
+
                 // state/provincial federation under country, multiple iwf-child federations
-                logger.info("{} {}", "BC",  membership.get("BC"));
+                logger.info("{} {}", "BC", membership.get("BC"));
                 assertEquals(membership.get("BC").toString(), "[BC, CAN, CWF, IWF, PAWF]");
-                
+
             } finally {
                 if (wb != null) {
                     wb.close();
                 }
             }
         }
-
-
 
     }
 

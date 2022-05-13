@@ -24,11 +24,11 @@ class Medals extends PolymerElement {
                 <div class="fullName ellipsis" id="fullNameDiv" inner-h-t-m-l="[[t.Medals]]"></div>
             </div>
         </div>
-        <div class="group" style$="[[hiddenStyle]]">
+        <!-- div class="group" style$="[[hiddenStyle]]">
             <div id="groupDiv">
                 <span class="groupName">[[groupName]]</span>
             </div>
-        </div>
+        </div -->
         <template is="dom-if" if="[[medalCategories]]">
             <template is="dom-repeat" id="result-table" items="[[medalCategories]]" as="mc">
                 <div id="leaders" style$="padding-top:2em;[[hiddenStyle]] ">

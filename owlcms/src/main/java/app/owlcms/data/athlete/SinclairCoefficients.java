@@ -25,12 +25,12 @@ public class SinclairCoefficients {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(SinclairCoefficients.class);
 
-    private static HashMap<Integer, Float> smm = null;
-    static Properties props = null;
     static Double menCoefficient = null;
-    static Double womenCoefficient = null;
     static Double menMaxWeight = null;
+    static Properties props = null;
+    static Double womenCoefficient = null;
     static Double womenMaxWeight = null;
+    private static HashMap<Integer, Float> smm = null;
 
     /**
      * @param age

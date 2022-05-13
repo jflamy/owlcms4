@@ -25,6 +25,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
 import com.vaadin.flow.component.html.Div;
@@ -56,11 +57,11 @@ public class ConfigEditingFormFactory
         extends OwlcmsCrudFormFactory<Config>
         implements CustomFormFactory<Config> {
 
-    @SuppressWarnings("unused")
-    private ConfigContent origin;
+    private String browserZoneId;
 
     private Logger logger = (Logger) LoggerFactory.getLogger(ConfigRepository.class);
-    private String browserZoneId;
+    @SuppressWarnings("unused")
+    private ConfigContent origin;
 
     ConfigEditingFormFactory(Class<Config> domainType, ConfigContent origin) {
         super(domainType);
@@ -114,7 +115,8 @@ public class ConfigEditingFormFactory
         FormLayout languageLayout = presentationForm();
         FormLayout publicResultsLayout = publicResultsForm();
         FormLayout localOverrideLayout = localOverrideForm();
-        FormLayout exportLayout = translationForm();
+        FormLayout translationLayout = translationForm();
+        FormLayout featuresLayout = featuresForm();
 
         Component footer = this.buildFooter(operation, config, cancelButtonClickListener,
                 c -> {
@@ -134,11 +136,14 @@ public class ConfigEditingFormFactory
                 accessLayout, separator(),
                 publicResultsLayout, separator(),
                 localOverrideLayout, separator(),
-                exportLayout);
+                featuresLayout, separator(),
+                translationLayout);
         mainLayout.setMargin(false);
         mainLayout.setPadding(false);
-
+        
+        config.setSkipReading(false);
         binder.readBean(config);
+        config.setSkipReading(true);
         return mainLayout;
     }
 
@@ -172,6 +177,8 @@ public class ConfigEditingFormFactory
 
     @Override
     public Config update(Config config) {
+        try {
+        config.setSkipReading(true);
         if (config.isClearZip()) {
             config.setLocalZipBlob(null);
             ResourceWalker.checkForLocalOverrideDirectory();
@@ -184,6 +191,9 @@ public class ConfigEditingFormFactory
         }
         UI.getCurrent().getPage().reload();
         return saved;
+        } finally {
+            config.setSkipReading(false);
+        }
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -324,6 +334,23 @@ public class ConfigEditingFormFactory
 
         return layout;
     }
+    
+    private FormLayout featuresForm() {
+        FormLayout layout = createLayout();
+        Component title = createTitle("Config.FeatureSwitchesTitle");
+        layout.add(title);
+        layout.setColspan(title, 2);
+
+        TextField featureSwitchesField = new TextField();
+        featureSwitchesField.setWidthFull();
+        FormItem fi = layout.addFormItem(featureSwitchesField, Translator.translate("Config.FeatureSwitchesLabel"));
+        layout.setColspan(fi, 2);
+        binder.forField(featureSwitchesField)
+                .withNullRepresentation("")
+                .bind(Config::getFeatureSwitches, Config::setFeatureSwitches);
+
+        return layout;
+    }
 
     private Hr separator() {
         Hr hr = new Hr();
@@ -332,6 +359,18 @@ public class ConfigEditingFormFactory
         hr.getStyle().set("background-color", "var(--lumo-contrast-30pct)");
         hr.getStyle().set("height", "2px");
         return hr;
+    }
+
+    private FormLayout translationForm() {
+        FormLayout layout = createLayout();
+        Component title = createTitle("Translation");
+        layout.add(title);
+        layout.setColspan(title, 2);
+
+        Button resetTranslation = new Button(Translator.translate("reloadTranslation"),
+                buttonClickEvent -> Translator.reset());
+        layout.addFormItem(resetTranslation, Translator.translate("reloadTranslationInfo"));
+        return layout;
     }
 
     private FormLayout tzForm() {
@@ -380,18 +419,6 @@ public class ConfigEditingFormFactory
             defaultTZ.setText(Translator.translate("Config.TZ_FromServer", defZone));
         });
 
-        return layout;
-    }
-
-    private FormLayout translationForm() {
-        FormLayout layout = createLayout();
-        Component title = createTitle("Translation");
-        layout.add(title);
-        layout.setColspan(title, 2);
-
-        Button resetTranslation = new Button(Translator.translate("reloadTranslation"),
-                buttonClickEvent -> Translator.reset());
-        layout.addFormItem(resetTranslation, Translator.translate("reloadTranslationInfo"));
         return layout;
     }
 

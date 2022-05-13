@@ -100,6 +100,9 @@ public class Platform implements Serializable, Comparable<Platform> {
         }
     }
 
+    /** The name. */
+    String name;
+
     /** The id. */
     @Id
     private
@@ -107,57 +110,54 @@ public class Platform implements Serializable, Comparable<Platform> {
     // @JsonIgnore
     Long id;
 
-    /** The name. */
-    String name;
-
-    /**
-     * true if the referee use this application to give decisions, and decision lights need to be shown on the attempt
-     * and result boards.
-     */
-    private Boolean showDecisionLights = false;
-    /**
-     * true if the time should be displayed
-     */
-    private Boolean showTimer = false;
+    private Integer lightBar = 0;
     /**
      * If mixer is not null, emit sound on the associated device
      */
     @Transient
     @JsonIgnore
     private Mixer mixer = null;
-
-    private String soundMixerName;
-
     @Transient
     @JsonIgnore
     private boolean mixerChecked;
+
     // collar
     private Integer nbC_2_5 = 1;
 
+    // large plates
+    private Integer nbL_10 = 1;
+    private Integer nbL_15 = 1;
+
+    // kid plates
+    private Integer nbL_2_5 = 0;
+    private Integer nbL_20 = 1;
+    private Integer nbL_25 = 1;
+    private Integer nbL_5 = 0;
     // small plates
     private Integer nbS_0_5 = 1;
     private Integer nbS_1 = 1;
+
     private Integer nbS_1_5 = 1;
     private Integer nbS_2 = 1;
     private Integer nbS_2_5 = 1;
     private Integer nbS_5 = 1;
 
-    // large plates
-    private Integer nbL_10 = 1;
-    private Integer nbL_15 = 1;
-    private Integer nbL_20 = 1;
-    private Integer nbL_25 = 1;
-
-    // kid plates
-    private Integer nbL_2_5 = 0;
-    private Integer nbL_5 = 0;
-
+    private boolean nonStandardBar;
     // bar
     private Integer officialBar = 0;
 
-    private Integer lightBar = 0;
+    /**
+     * true if the referee use this application to give decisions, and decision lights need to be shown on the attempt
+     * and result boards.
+     */
+    private Boolean showDecisionLights = false;
 
-    private boolean nonStandardBar;
+    /**
+     * true if the time should be displayed
+     */
+    private Boolean showTimer = false;
+
+    private String soundMixerName;
 
     /**
      * Instantiates a new platform. Used for import, no default values.

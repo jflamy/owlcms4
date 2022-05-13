@@ -13,11 +13,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneId;
-import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
-import java.time.format.FormatStyle;
 import java.util.Date;
 import java.util.Locale;
 
@@ -120,20 +117,20 @@ public class DateTimeUtils {
         return pattern;
     }
 
-    public static DateTimeFormatter localizedDateTimeFormatterOld(Locale locale) {
-        // try local date format but force 4-digit years.
-        String shortPattern = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
-                FormatStyle.SHORT,
-                null,
-                IsoChronology.INSTANCE,
-                locale);
-        // force 4 digit year.
-        if (shortPattern.contains("y") && !shortPattern.contains("yy")) {
-            shortPattern = shortPattern.replace("y", "yyyy");
-        } else if (shortPattern.contains("yy") && !shortPattern.contains("yyy")) {
-            shortPattern = shortPattern.replace("yy", "yyyy");
-        }
-        DateTimeFormatter shortStyleFormatter = DateTimeFormatter.ofPattern(shortPattern, locale);
-        return shortStyleFormatter;
-    }
+//    public static DateTimeFormatter localizedDateTimeFormatterOld(Locale locale) {
+//        // try local date format but force 4-digit years.
+//        String shortPattern = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
+//                FormatStyle.SHOR
+//                null,
+//                IsoChronology.INSTANCE,
+//                locale);
+//        // force 4 digit year.
+//        if (shortPattern.contains("y") && !shortPattern.contains("yy")) {
+//            shortPattern = shortPattern.replace("y", "yyyy");
+//        } else if (shortPattern.contains("yy") && !shortPattern.contains("yyy")) {
+//            shortPattern = shortPattern.replace("yy", "yyyy");
+//        }
+//        DateTimeFormatter shortStyleFormatter = DateTimeFormatter.ofPattern(shortPattern, locale);
+//        return shortStyleFormatter;
+//    }
 }

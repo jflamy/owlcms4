@@ -5,8 +5,7 @@ package app.owlcms.data.athleteSort;
  */
 public enum Ranking {
     SNATCH, CLEANJERK, TOTAL,
-    /** combined (men + women). */
-    SNATCH_CJ_TOTAL,
+    SNATCH_CJ_TOTAL, // sum of all three point scores
     CAT_SINCLAIR, // legacy Quebec federation, Sinclair computed at category boundary
     BW_SINCLAIR, // normal sinclair
     SMM, // Sinclair Malone-Meltzer

@@ -44,10 +44,10 @@ public class MovingDownTest {
         void doChange() throws RuleViolationException;
     }
 
-    private static Level LoggerLevel = Level.INFO;
     private static Group gA;
     private static Group gB;
     private static Group gC;
+    private static Level LoggerLevel = Level.INFO;
 
     @BeforeClass
     public static void setupTests() {
@@ -363,7 +363,8 @@ public class MovingDownTest {
         final String resName = "/initialCheck.txt";
 
         List<Athlete> allAthletes = AthleteRepository.findAll();
-        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(allAthletes, new MockCountdownTimer(), new MockCountdownTimer());
+        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(allAthletes, new MockCountdownTimer(),
+                new MockCountdownTimer());
         OwlcmsSession.setFop(fopState);
         AthleteSorter.displayOrder(allAthletes);
         AthleteSorter.assignStartNumbers(allAthletes);
@@ -745,7 +746,7 @@ public class MovingDownTest {
                     lifter.getNextAttemptRequestedWeight());
             return em.merge(lifter);
         });
-       fopState.fopEventPost(new FOPEvent.WeightChange(this, updated, false));
+        fopState.fopEventPost(new FOPEvent.WeightChange(this, updated, false));
         return updated;
     }
 
@@ -780,7 +781,7 @@ public class MovingDownTest {
             }
             return em.merge(lifter);
         });
-       fopState.fopEventPost(new FOPEvent.WeightChange(this, updated, false));
+        fopState.fopEventPost(new FOPEvent.WeightChange(this, updated, false));
         return updated;
     }
 
@@ -814,7 +815,8 @@ public class MovingDownTest {
     }
 
     private FieldOfPlay emptyFieldOfPlay() {
-        FieldOfPlay mockFieldOfPlay = FieldOfPlay.mockFieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(), new MockCountdownTimer());
+        FieldOfPlay mockFieldOfPlay = FieldOfPlay.mockFieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(),
+                new MockCountdownTimer());
         return mockFieldOfPlay;
     }
 
@@ -848,6 +850,39 @@ public class MovingDownTest {
         }
     }
 
+    private Athlete successfulLift(Athlete expected, FieldOfPlay fopState) {
+        Athlete curLifter = fopState.getCurAthlete();
+        assertEquals(expected, curLifter);
+        return JPAService.runInTransaction((em) -> {
+            logger.debug("calling lifter: {}", curLifter);
+            fopState.fopEventPost(new FOPEvent.TimeStarted(null));
+            fopState.fopEventPost(new FOPEvent.DownSignal(null));
+            fopState.fopEventPost(new FOPEvent.DecisionFullUpdate(this, curLifter, true, true, true, 0, 0, 0));
+            logger.debug("successful lift for {}", curLifter);
+            fopState.fopEventPost(new FOPEvent.DecisionReset(null));
+            return em.merge(curLifter);
+        });
+    }
+
+    private void testChange(WeightChange w, Logger logger, Class<? extends Exception> expectedException) {
+        // schneider wants to come down
+        String message = null;
+        boolean thrown = false;
+
+        try {
+            w.doChange();
+        } catch (RuleViolationException e) {
+            thrown = true;
+            message = e.getLocalizedMessage();
+            logger.info("{}{}", OwlcmsSession.getFopLoggingName(), message);
+            assertEquals(expectedException, e.getClass());
+        } finally {
+            if (expectedException != null && !thrown) {
+                fail("no exception was thrown, expected " + expectedException.getSimpleName());
+            }
+        }
+    }
+
     private void testPrepAllSame(FieldOfPlay fopState, int nbAthletes) {
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LoggerLevel);
@@ -877,7 +912,7 @@ public class MovingDownTest {
     private void testPrepSnatchCheckProgression(FieldOfPlay fopState, int nbAthletes) {
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LoggerLevel);
-        //fopState.getFopEventBus();
+        // fopState.getFopEventBus();
 
         logger.setLevel(Level.INFO);
 
@@ -911,39 +946,6 @@ public class MovingDownTest {
             return null;
         });
         fopState.loadGroup(gA, this, true);
-    }
-
-    private Athlete successfulLift(Athlete expected, FieldOfPlay fopState) {
-        Athlete curLifter = fopState.getCurAthlete();
-        assertEquals(expected, curLifter);
-        return JPAService.runInTransaction((em) -> {
-            logger.debug("calling lifter: {}", curLifter);
-            fopState.fopEventPost(new FOPEvent.TimeStarted(null));
-            fopState.fopEventPost(new FOPEvent.DownSignal(null));
-            fopState.fopEventPost(new FOPEvent.DecisionFullUpdate(this, curLifter, true, true, true, 0, 0, 0));
-            logger.debug("successful lift for {}", curLifter);
-            fopState.fopEventPost(new FOPEvent.DecisionReset(null));
-            return em.merge(curLifter);
-        });
-    }
-
-    private void testChange(WeightChange w, Logger logger, Class<? extends Exception> expectedException) {
-        // schneider wants to come down
-        String message = null;
-        boolean thrown = false;
-
-        try {
-            w.doChange();
-        } catch (RuleViolationException e) {
-            thrown = true;
-            message = e.getLocalizedMessage();
-            logger.info("{}{}", OwlcmsSession.getFopLoggingName(), message);
-            assertEquals(expectedException, e.getClass());
-        } finally {
-            if (expectedException != null && !thrown) {
-                fail("no exception was thrown, expected " + expectedException.getSimpleName());
-            }
-        }
     }
 
 }

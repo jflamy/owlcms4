@@ -19,7 +19,7 @@ public interface BreakDisplay {
     Logger logger = (Logger) LoggerFactory.getLogger(BreakDisplay.class);
 
     public void doBreak(UIEvent e);
-    
+
     public void doCeremony(UIEvent.CeremonyStarted e);
 
     public default String inferGroupName() {
@@ -59,11 +59,13 @@ public interface BreakDisplay {
             return Translator.translate("PublicMsg.JuryDeliberation");
         case GROUP_DONE:
             return Translator.translate("PublicMsg.GroupDone");
+        case MARSHAL:
+            return Translator.translate("PublicMsg.CompetitionPaused");
+        default:
+            break;
         }
         // can't happen
         return "";
     }
-
-
 
 }

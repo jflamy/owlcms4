@@ -49,4 +49,8 @@ public class Resource implements Comparable<Resource> {
     public String toString() {
         return getFileName();
     }
+    
+    public String normalizedName() {
+        return fileName != null ? fileName.replace('\\', '/') : null;
+    }
 }

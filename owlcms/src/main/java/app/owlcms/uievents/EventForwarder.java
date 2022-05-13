@@ -68,43 +68,43 @@ public class EventForwarder implements BreakDisplay {
     final private static Logger logger = (Logger) LoggerFactory.getLogger(EventForwarder.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
-    private EventBus postBus;
-//    private EventBus fopEventBus;
-    private FieldOfPlay fop;
-
-    private String categoryName;
-    private List<Athlete> groupLeaders;
-    private boolean wideTeamNames;
-    private JsonValue leaders;
-    private JsonValue groupAthletes;
-    private JsonArray sattempts;
-    private JsonArray cattempts;
-    private String liftsDone;
     private String attempt;
-    private String fullName;
-    private boolean hidden;
-    private Integer startNumber;
-    private String teamName;
-    private Integer weight;
+    private String categoryName;
 
-    private JsonObject translationMap;
-    private Integer timeAllowed;
-    private int previousHashCode = 0;
-    private long previousMillis = 0L;
-
+    private JsonArray cattempts;
+    @SuppressWarnings("unused")
+    private Boolean debugMode;
     private Boolean decisionLight1 = null;
     private Boolean decisionLight2 = null;
     private Boolean decisionLight3 = null;
-
-    private boolean down = false;
-
     private boolean decisionLightsVisible = false;
-
-    @SuppressWarnings("unused")
-    private Boolean debugMode;
-
+    private boolean down = false;
+    // private EventBus fopEventBus;
+    private FieldOfPlay fop;
+    private String fullName;
+    private JsonValue groupAthletes;
+    private List<Athlete> groupLeaders;
     private String groupName;
+    private boolean hidden;
+    private JsonValue leaders;
+
+    private String liftsDone;
+    private EventBus postBus;
+    private int previousHashCode = 0;
+    private long previousMillis = 0L;
+
+    private JsonArray sattempts;
+    private Integer startNumber;
+    private String teamName;
+
+    private Integer timeAllowed;
+
+    private JsonObject translationMap;
+
     private long translatorResetTimeStamp;
+
+    private Integer weight;
+    private boolean wideTeamNames;
 
     public EventForwarder(FieldOfPlay emittingFop) {
         this.setFop(emittingFop);
@@ -230,6 +230,10 @@ public class EventForwarder implements BreakDisplay {
             return Translator.translate("PublicMsg.JuryDeliberation");
         case GROUP_DONE:
             return Translator.translate("PublicMsg.GroupDone");
+        case MARSHAL:
+            return Translator.translate("PublicMsg.CompetitionPaused");
+        default:
+            break;
         }
         // can't happen
         return "";
@@ -292,20 +296,20 @@ public class EventForwarder implements BreakDisplay {
         pushUpdate();
         pushTimer(e);
     }
-    
-    @Subscribe
-    public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
-        uiLog(e);
-        setHidden(false);
-        doCeremony(e);
-        pushUpdate();
-    }
-    
+
     @Subscribe
     public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
         uiLog(e);
         setHidden(false);
         doBreak(e);
+        pushUpdate();
+    }
+
+    @Subscribe
+    public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
+        uiLog(e);
+        setHidden(false);
+        doCeremony(e);
         pushUpdate();
     }
 
@@ -494,7 +498,7 @@ public class EventForwarder implements BreakDisplay {
             setCategoryName(curAthlete.getCategory().getName());
             groupLeaders = fop.getLeaders();
             int size = groupLeaders.size();
-            if (size > 15) {
+            if (size > 16) {
                 setLeaders(null);
             } else if (groupLeaders.size() > 0) {
                 // null as second argument because we do not highlight current athletes in the leaderboard
@@ -511,7 +515,7 @@ public class EventForwarder implements BreakDisplay {
                 } else {
                     // nothing to show
                     setLeaders(null);
-                }
+               }
             }
         }
 

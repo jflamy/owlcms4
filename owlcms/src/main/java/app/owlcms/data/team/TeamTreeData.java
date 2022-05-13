@@ -30,15 +30,15 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class TeamTreeData extends TreeData<TeamTreeItem> {
 
-    private final Logger logger = (Logger) LoggerFactory.getLogger(TeamTreeData.class);
-
     Map<Gender, List<TeamTreeItem>> teamsByGender = new EnumMap<>(Gender.class);
-
-    private List<Group> doneGroups = null;
 
     private boolean debug = false;
 
+    private List<Group> doneGroups = null;
+
     private Gender genderFilterValue;
+
+    private final Logger logger = (Logger) LoggerFactory.getLogger(TeamTreeData.class);
 
     private HashMap<String, Object> reportingBeans;
 
@@ -72,10 +72,13 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
             TeamTreeItem curTeamItem = null;
             String key = computeGenderKey(gender) + "Team"
                     + (ageGroupPrefix != null ? ageGroupPrefix : ageDivision.name());
-            // logger.trace("looking for {} in {}",key, reportingBeans.keySet());
+            logger.trace("looking for {} in {}",key, reportingBeans.keySet());
 
             @SuppressWarnings("unchecked")
             List<Athlete> athletes = (List<Athlete>) reportingBeans.get(key);
+            if (athletes == null) {
+                return;
+            }
             athletes = athletes.stream()
 //                    .peek(a -> {
 //                        logger.debug("{} {} {} {}",a.getShortName(), ((PAthlete) a)._getOriginalParticipation().getTeamMember(), a.getClass().getSimpleName(), ((PAthlete) a).getCategory());

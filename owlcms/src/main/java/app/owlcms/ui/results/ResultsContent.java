@@ -79,8 +79,8 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "results/results", layout = AthleteGridLayout.class)
 public class ResultsContent extends AthleteGridContent implements HasDynamicTitle {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsContent.class);
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsContent.class);
     static {
         logger.setLevel(Level.INFO);
         jexlLogger.setLevel(Level.ERROR);
@@ -132,10 +132,10 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     private Group currentGroup;
-    private JXLSWorkbookStreamSource xlsWriter;
+    private DownloadButtonFactory downloadButtonFactory;
 
     private Checkbox medalsOnly;
-    private DownloadButtonFactory downloadButtonFactory;
+    private JXLSWorkbookStreamSource xlsWriter;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
@@ -492,22 +492,6 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         return liftingFop != null;
     }
 
-    private Button createGroupResultsDownloadButton() {
-        downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
-                () -> {
-                    JXLSResultSheet rs = new JXLSResultSheet();
-                    rs.setGroup(currentGroup);
-                    return rs;
-                },
-                "/templates/protocol",
-                Competition::getComputedProtocolTemplateFileName,
-                Competition::setProtocolTemplateFileName,
-                Translator.translate("GroupResults"),
-                "results", Translator.translate("Download"));
-        Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
-        return resultsButton;
-    }
-    
     private Button createGroupMedalsDownloadButton() {
         downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
                 () -> {
@@ -520,6 +504,22 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
                 Competition::setMedalsTemplateFileName,
                 Translator.translate("Results.Medals"),
                 "medals", Translator.translate("Download"));
+        Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
+        return resultsButton;
+    }
+
+    private Button createGroupResultsDownloadButton() {
+        downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
+                () -> {
+                    JXLSResultSheet rs = new JXLSResultSheet();
+                    rs.setGroup(currentGroup);
+                    return rs;
+                },
+                "/templates/protocol",
+                Competition::getComputedProtocolTemplateFileName,
+                Competition::setProtocolTemplateFileName,
+                Translator.translate("GroupResults"),
+                "results", Translator.translate("Download"));
         Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
         return resultsButton;
     }

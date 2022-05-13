@@ -32,12 +32,12 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class TeamTreeItemCrudGrid extends OwlcmsCrudGrid<TeamTreeItem> {
 
+    Athlete match = null;
     final private Logger logger = (Logger) LoggerFactory.getLogger(TeamTreeItemCrudGrid.class);
+
     {
         logger.setLevel(Level.INFO);
     }
-
-    Athlete match = null;
 
     public TeamTreeItemCrudGrid(Class<TeamTreeItem> domainType, OwlcmsGridLayout crudLayout,
             OwlcmsCrudFormFactory<TeamTreeItem> owlcmsCrudFormFactory, Grid<TeamTreeItem> grid) {

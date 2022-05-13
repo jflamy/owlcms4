@@ -76,20 +76,20 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
     }
 
     private Icon bad;
+    private BeepElement beeper;
     private Icon good;
     private Location location;
     private UI locationUI;
     private boolean redTouched;
-    private IntegerField refField;
     private Integer ref13ix = null; // 1 2 or 3
+    private IntegerField refField;
     private HorizontalLayout refVotingButtons;
     private VerticalLayout refVotingCenterHorizontally;
+    private HorizontalLayout topRow;
     private EventBus uiEventBus;
     private HashMap<String, List<String>> urlParams;
-    private boolean whiteTouched;
-    private HorizontalLayout topRow;
     private HorizontalLayout warningRow;
-    private BeepElement beeper;
+    private boolean whiteTouched;
 
     public RefContent() {
         OwlcmsFactory.waitDBInitialized();
@@ -206,6 +206,14 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
     }
 
     @Subscribe
+    public void slaveStartLifting(UIEvent.StartLifting e) {
+        logger.debug("received decision reset {}", ref13ix);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            resetRefVote();
+        });
+    }
+
+    @Subscribe
     public void slaveSummonRef(UIEvent.SummonRef e) {
         if (e.ref != ref13ix) {
             return;
@@ -217,21 +225,14 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
             warningRow.setPadding(false);
             warningRow.setMargin(false);
             H3 h3 = new H3(Translator.translate("JuryNotification.PleaseSeeJury"));
-            h3.getElement().setAttribute("style", "background-color: red; width: 100%; color: white; text-align: center; padding: 0; margin-top:0.5em");
+            h3.getElement().setAttribute("style",
+                    "background-color: red; width: 100%; color: white; text-align: center; padding: 0; margin-top:0.5em");
             h3.getClassNames().add("blink");
             h3.setWidth("100%");
             warningRow.add(h3);
             warningRow.getElement().setAttribute("style", "background-color: red; width: 100%;");
             topRow.setVisible(false);
             beeper.beep();
-        });
-    }
-    
-    @Subscribe
-    public void slaveStartLifting(UIEvent.StartLifting e) {
-        logger.debug("received decision reset {}", ref13ix);
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            resetRefVote();
         });
     }
 
@@ -252,7 +253,8 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
                 warningRow.removeAll();
                 warningRow.setVisible(true);
                 H3 h3 = new H3(Translator.translate("JuryNotification.PleaseEnterDecision"));
-                h3.getElement().setAttribute("style", "background-color: yellow; width: 100%; color: black; text-align: center; padding: 0; margin-top:0.5em");
+                h3.getElement().setAttribute("style",
+                        "background-color: yellow; width: 100%; color: black; text-align: center; padding: 0; margin-top:0.5em");
                 h3.getClassNames().add("blink");
                 h3.setWidth("100%");
                 warningRow.add(h3);

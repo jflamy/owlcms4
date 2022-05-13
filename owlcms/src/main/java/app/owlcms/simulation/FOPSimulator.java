@@ -36,21 +36,21 @@ public class FOPSimulator {
 
     static private Random r = new Random(0);
 
-    final private Logger logger = (Logger) LoggerFactory.getLogger(FOPSimulator.class);
-
-    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("Simulation-" + logger.getName());
-
     private FieldOfPlay fop;
+
+    private boolean groupDone;
+
+    private List<Group> groups;
 
 //    private EventBus fopEventBus;
 
-    private List<Group> groups;
+    final private Logger logger = (Logger) LoggerFactory.getLogger(FOPSimulator.class);
 
     private Object origin;
 
     private EventBus uiEventBus;
 
-    private boolean groupDone;
+    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("Simulation-" + logger.getName());
 
     public FOPSimulator(FieldOfPlay f, List<Group> groups) {
         this.fop = f;
@@ -185,48 +185,6 @@ public class FOPSimulator {
         return this.origin;
     }
 
-
-    private void doNextAthlete(UIEvent e) {
-        List<Athlete> order = fop.getLiftingOrder();
-        Athlete athlete = order.size() > 0 ? order.get(0) : null;
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e1) {
-        }
-        doLift(athlete);
-    }
-
-    private void doNextAthleteWithDeclaration(UIEvent e) {
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e1) {
-        }
-        
-        List<Athlete> order = fop.getLiftingOrder();
-        Athlete athlete = order.size() > 0 ? order.get(0) : null;
-        
-        String declaration = athlete.getCurrentDeclaration();
-        String automatic = athlete.getCurrentAutomatic();
-        if (declaration == null || declaration.isBlank()) {
-            // do a fake declaration at the automatic progression to force a recompute (for perfomance testing)
-            if (automatic != null && !automatic.isBlank()) {
-                try {
-                    int autoAsInt = Integer.parseInt(automatic);
-                    doDeclaration(athlete, Integer.toString(autoAsInt+1));
-                    fop.fopEventPost(new FOPEvent.WeightChange(this, athlete, false));
-                } catch (NumberFormatException e1) {
-                    // ignore
-                }
-            }
-        }
-
-        // recompute lifting order based on exception
-        order = fop.getLiftingOrder();
-        athlete = order.size() > 0 ? order.get(0) : null;
-        doLift(athlete);
-    }
-
     private void doDeclaration(Athlete athlete, String automatic) {
         final String weight = automatic;
         int liftNo = athlete.getAttemptsDone() + 1;
@@ -250,6 +208,47 @@ public class FOPSimulator {
             athlete.setCleanJerk3Declaration(weight);
             break;
         }
+    }
+
+    private void doNextAthlete(UIEvent e) {
+        List<Athlete> order = fop.getLiftingOrder();
+        Athlete athlete = order.size() > 0 ? order.get(0) : null;
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e1) {
+        }
+        doLift(athlete);
+    }
+
+    private void doNextAthleteWithDeclaration(UIEvent e) {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e1) {
+        }
+
+        List<Athlete> order = fop.getLiftingOrder();
+        Athlete athlete = order.size() > 0 ? order.get(0) : null;
+
+        String declaration = athlete.getCurrentDeclaration();
+        String automatic = athlete.getCurrentAutomatic();
+        if (declaration == null || declaration.isBlank()) {
+            // do a fake declaration at the automatic progression to force a recompute (for perfomance testing)
+            if (automatic != null && !automatic.isBlank()) {
+                try {
+                    int autoAsInt = Integer.parseInt(automatic);
+                    doDeclaration(athlete, Integer.toString(autoAsInt + 1));
+                    fop.fopEventPost(new FOPEvent.WeightChange(this, athlete, false));
+                } catch (NumberFormatException e1) {
+                    // ignore
+                }
+            }
+        }
+
+        // recompute lifting order based on exception
+        order = fop.getLiftingOrder();
+        athlete = order.size() > 0 ? order.get(0) : null;
+        doLift(athlete);
     }
 
     private void doSwitchGroup(UIEvent.SwitchGroup e) {

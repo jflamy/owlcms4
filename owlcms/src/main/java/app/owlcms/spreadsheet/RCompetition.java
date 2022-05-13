@@ -33,9 +33,9 @@ public class RCompetition {
         });
     }
 
-    Logger logger = (Logger) LoggerFactory.getLogger(RCompetition.class);
-
     Competition c = new Competition();
+
+    Logger logger = (Logger) LoggerFactory.getLogger(RCompetition.class);
 
     public Competition getCompetition() {
         return c;

@@ -13,6 +13,7 @@ class CurrentAttempt extends PolymerElement {
 
 	static get template() {
 		return html`
+<link rel="stylesheet" type="text/css" href="local/styles/colors.css">
 <link rel="stylesheet" type="text/css" href="local/styles/attemptboard.css">
 <div class="wrapper">
 <div class="attemptBoard" id="attemptBoardDiv">
@@ -24,7 +25,7 @@ class CurrentAttempt extends PolymerElement {
 	</div>
 	<div class="attempt" id="attemptDiv" inner-h-t-m-l="[[attempt]]"></div><!-- kludge to have preformatted html -->
 	<div class="weight" id="weightDiv">
-		<nobr>[[weight]]<span style="font-size: 75%">[[kgSymbol]]</span></nobr>
+		<span style="white-space: nowrap;">[[weight]]<span style="font-size: 75%">[[kgSymbol]]</span></span>
 	</div>
 	<div class="barbell" id="barbellDiv">
 		<slot name="barbell"></slot>

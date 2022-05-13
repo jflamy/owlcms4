@@ -39,12 +39,12 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsCrudGrid.class);
 
-    protected OwlcmsGridLayout owlcmsGridLayout;
     protected OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory;
-
-    private long clicked = 0L;
+    protected OwlcmsGridLayout owlcmsGridLayout;
 
     private boolean clickable = true;
+
+    private long clicked = 0L;
 
     /**
      * Instantiates a new owlcms crudGrid crudGrid.
@@ -137,7 +137,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
         });
         grid.addItemDoubleClickListener((e) -> {
         });
-        
+
         for (Column<T> c : grid.getColumns()) {
             c.setResizable(true);
         }

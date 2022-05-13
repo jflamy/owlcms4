@@ -15,7 +15,7 @@ public enum FOPState {
 
     /** during countdown to presentation or first lift and during breaks.
      * Note that BreakType describes a substate.
-     * 
+     *
      * @see app.owlcms.uievents.BreakType
      */
     BREAK,

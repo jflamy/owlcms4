@@ -46,17 +46,17 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
         return persistenceUnitInfo;
     }
 
-    private final String persistenceUnitName;
-
-    private PersistenceUnitTransactionType transactionType = PersistenceUnitTransactionType.RESOURCE_LOCAL;
+    private DataSource jtaDataSource;
 
     private final List<String> managedClassNames;
 
+    private DataSource nonJtaDataSource;
+
+    private final String persistenceUnitName;
+
     private final Properties properties;
 
-    private DataSource jtaDataSource;
-
-    private DataSource nonJtaDataSource;
+    private PersistenceUnitTransactionType transactionType = PersistenceUnitTransactionType.RESOURCE_LOCAL;
 
     /**
      * Instantiates a new persistence unit info impl.

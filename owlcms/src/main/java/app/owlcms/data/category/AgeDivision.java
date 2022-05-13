@@ -21,10 +21,8 @@ import ch.qos.logback.classic.Logger;
 public enum AgeDivision {
 
     /* the divisions are listed in preference order, from more specific to more generic */
-    MASTERS,
-    /** 35+ (30+ in some federations) */
-    U,
-    /** for age groups */
+    MASTERS,    /** 35+ (30+ in some federations) */
+    U,    /** for age groups */
     OLY,
     IWF,
     DEFAULT, /* All ages */

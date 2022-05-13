@@ -57,13 +57,13 @@ public abstract class BaseNavigationContent extends VerticalLayout
 
     protected Location location;
     protected UI locationUI;
-    protected EventBus uiEventBus;
+    protected OwlcmsRouterLayout routerLayout;
 
+    protected EventBus uiEventBus;
     /**
      * Top part content
      */
     private ComboBox<Group> groupSelect;
-    protected OwlcmsRouterLayout routerLayout;
 
     /**
      * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL

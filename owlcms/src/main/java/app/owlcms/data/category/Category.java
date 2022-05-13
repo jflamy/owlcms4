@@ -65,50 +65,50 @@ import ch.qos.logback.classic.Logger;
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 public class Category implements Serializable, Comparable<Category>, Cloneable {
 
-    @Transient
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(Category.class);
-
     public final static Double ROBI_B = 3.321928095;
 
-    /** The id. */
-    @Id
-    // @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    /** The minimum weight. */
-    Double minimumWeight; // inclusive
+    @Transient
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(Category.class);
 
     /** The maximum weight. */
     Double maximumWeight; // exclusive
 
-    /** minimum weight to be considered eligible */
-    @Column(columnDefinition = "integer default 0")
-    private int qualifyingTotal = 0;
+    /** The minimum weight. */
+    Double minimumWeight; // inclusive
+
+    @Column(columnDefinition = "boolean default false")
+    private boolean active;
 
     @ManyToOne(fetch = FetchType.LAZY) // ok in this case
     @JoinColumn(name = "agegroup_id")
     @JsonIdentityReference(alwaysAsId = true)
     private AgeGroup ageGroup;
 
+    // combines age group and bw category (which includes gender).
+    private String code;
+
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Column(columnDefinition = "boolean default false")
-    private boolean active;
+    /** The id. */
+    @Id
+    // @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
-    private Integer wrSr;
-
-    private Integer wrJr;
-
-    private Integer wrYth;
-
-    // combines age group and bw category (which includes gender).
-    private String code;
+    private String name;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Participation> participations = new ArrayList<>();
 
-    private String name;
+    /** minimum weight to be considered eligible */
+    @Column(columnDefinition = "integer default 0")
+    private int qualifyingTotal = 0;
+
+    private Integer wrJr;
+
+    private Integer wrSr;
+
+    private Integer wrYth;
 
     /**
      * Instantiates a new category.

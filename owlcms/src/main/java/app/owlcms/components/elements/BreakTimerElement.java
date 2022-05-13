@@ -31,11 +31,11 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class BreakTimerElement extends TimerElement implements SafeEventBusRegistration {
 
+    public Long id;
     final private Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElement.class);
-    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     private String parentName = "";
-    public Long id;
+    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     {
         logger.setLevel(Level.INFO);
@@ -133,13 +133,17 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
 
     @Subscribe
     public void slaveBreakDone(UIEvent.BreakDone e) {
-        if (!parentName.startsWith("BreakManagement")) uiEventLogger.trace("&&& break done {} {}", parentName, e.getOrigin());
+        if (!parentName.startsWith("BreakManagement")) {
+            uiEventLogger.trace("&&& break done {} {}", parentName, e.getOrigin());
+        }
         doStopTimer(0);
     }
 
     @Subscribe
     public void slaveBreakPause(UIEvent.BreakPaused e) {
-        if (!parentName.startsWith("BreakManagement")) uiEventLogger.trace("&&& breakTimerElement pause {} {}", parentName, e.getMillis());
+        if (!parentName.startsWith("BreakManagement")) {
+            uiEventLogger.trace("&&& breakTimerElement pause {} {}", parentName, e.getMillis());
+        }
         doStopTimer(e.getMillis());
     }
 
@@ -150,7 +154,10 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
             milliseconds = (int) LocalDateTime.now().until(e.getEnd(), ChronoUnit.MILLIS);
         } else {
             milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
-            if (!parentName.startsWith("BreakManagement")) uiEventLogger.trace("&&& breakTimerElement set {} {} {} {} {}", parentName, formatDuration(milliseconds),e.isIndefinite(), id, LoggerUtils.stackTrace());
+            if (!parentName.startsWith("BreakManagement")) {
+                uiEventLogger.trace("&&& breakTimerElement set {} {} {} {} {}", parentName,
+                        formatDuration(milliseconds), e.isIndefinite(), id, LoggerUtils.stackTrace());
+            }
         }
         doSetTimer(milliseconds);
     }
@@ -161,25 +168,15 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
             return;
         }
         Integer tr = e.isIndefinite() ? null : e.getMillis();
-        if (!parentName.startsWith("BreakManagement")) uiEventLogger.trace("&&& breakTimerElement start {} {} {} {}", parentName, tr, e.getOrigin(), LoggerUtils.whereFrom());
+        if (!parentName.startsWith("BreakManagement")) {
+            uiEventLogger.trace("&&& breakTimerElement start {} {} {} {}", parentName, tr, e.getOrigin(),
+                    LoggerUtils.whereFrom());
+        }
         if (Boolean.TRUE.equals(e.getPaused())) {
             doSetTimer(tr);
         } else {
             doStartTimer(tr, true); // true means "silent".
         }
-    }
-
-    /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        OwlcmsSession.withFop(fop -> {
-            // we listen on uiEventBus; this method ensures we stop when detached.
-            if (!parentName.startsWith("BreakManagement")) uiEventLogger.trace("&&& breakTimerElement register {} {}", parentName, LoggerUtils.whereFrom());
-            uiEventBusRegister(this, fop);
-        });
-        syncWithFopBreakTimer();
     }
 
     public void syncWithFopBreakTimer() {
@@ -188,7 +185,10 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
             // sync with current status of FOP
             IBreakTimer breakTimer = fop.getBreakTimer();
             if (breakTimer != null) {
-                if (!parentName.startsWith("BreakManagement")) uiEventLogger.trace("&&& breakTimerElement sync running {} indefinite {}", breakTimer.isRunning(), breakTimer.isIndefinite());
+                if (!parentName.startsWith("BreakManagement")) {
+                    uiEventLogger.trace("&&& breakTimerElement sync running {} indefinite {}", breakTimer.isRunning(),
+                            breakTimer.isIndefinite());
+                }
                 if (breakTimer.isRunning()) {
                     if (breakTimer.isIndefinite()) {
                         doStartTimer(null, fop.isEmitSoundsOnServer());
@@ -204,6 +204,21 @@ public class BreakTimerElement extends TimerElement implements SafeEventBusRegis
                 }
             }
         });
+    }
+
+    /*
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        OwlcmsSession.withFop(fop -> {
+            // we listen on uiEventBus; this method ensures we stop when detached.
+            if (!parentName.startsWith("BreakManagement")) {
+                uiEventLogger.trace("&&& breakTimerElement register {} {}", parentName, LoggerUtils.whereFrom());
+            }
+            uiEventBusRegister(this, fop);
+        });
+        syncWithFopBreakTimer();
     }
 
     private String formatDuration(Integer milliseconds) {

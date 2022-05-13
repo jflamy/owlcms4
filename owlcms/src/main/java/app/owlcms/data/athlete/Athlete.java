@@ -96,15 +96,12 @@ import ch.qos.logback.classic.Logger;
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 @JsonPropertyOrder({ "id", "participations", "category" })
 public class Athlete {
-    private static final int YEAR = LocalDateTime.now().getYear();
-
     @Transient
     protected final static Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
-    
-    @Transient
-    protected final Logger timingLogger = (Logger) LoggerFactory.getLogger("TimingLogger");
 
     static private boolean skipValidationsDuringImport = false;
+
+    private static final int YEAR = LocalDateTime.now().getYear();
 
     public static void conditionalCopy(Athlete dest, Athlete src, boolean copyResults) {
         boolean validation = dest.isValidation();
@@ -253,40 +250,20 @@ public class Athlete {
         }
     }
 
-    private String coach;
+    @Transient
+    protected final Logger timingLogger = (Logger) LoggerFactory.getLogger("TimingLogger");
 
     @Transient
-    private Long copyId = null;
+    DecimalFormat df = null;
 
+    /*
+     * Non-persistent properties. These properties will be lost as soon as the athlete is saved.
+     */
     @Transient
-    private final Level NORMAL_LEVEL = Level.INFO;
-
-    @Id
-    // @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    private Integer lotNumber = null;
-
-    private Integer startNumber = null;
-
-    private String firstName = "";
-
-    private String lastName = "";
-
-    private String team = "";
-
-    private Gender gender = null; // $NON-NLS-1$
-
-    private LocalDate fullBirthDate = null;
+    Integer liftOrderRank = 0;
 
     private Double bodyWeight = null;
 
-    private String membership = "";
-
-    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
-            CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "fk_group", nullable = true)
-    private Group group;
     /*
      * eager does not hurt for us.
      * https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa-and-hibernate/
@@ -297,9 +274,83 @@ public class Athlete {
     @JsonProperty(index = 300)
     @JsonIdentityReference(alwaysAsId = true)
     private Category category = null;
+
+    @Column(columnDefinition = "integer default 0")
+    private int catSinclairRank;
+
+    private String cleanJerk1ActualLift;
+
+    private String cleanJerk1Change1;
+
+    private String cleanJerk1Change2;
+
+    private String cleanJerk1Declaration;
+
+    private LocalDateTime cleanJerk1LiftTime;
+
+    private String cleanJerk2ActualLift;
+
+    private String cleanJerk2Change1;
+
+    private String cleanJerk2Change2;
+
+    private String cleanJerk2Declaration;
+    private LocalDateTime cleanJerk2LiftTime;
+    private String cleanJerk3ActualLift;
+    private String cleanJerk3Change1;
+    private String cleanJerk3Change2;
+    private String cleanJerk3Declaration;
+
+    private LocalDateTime cleanJerk3LiftTime;
+    private String coach;
+    @Column(columnDefinition = "integer default 0")
+    private int combinedRank;
+    @Transient
+    private Long copyId = null;
+    private String custom1;
+
+    private String custom2;
+    private Double customScore;
+    @Column(columnDefinition = "boolean default true")
+    private boolean eligibleForIndividualRanking = true;
+    private boolean eligibleForTeamRanking = true;
+    private String firstName = "";
+
+    /** The forced as current. */
+    @Column(columnDefinition = "boolean default false")
+    private boolean forcedAsCurrent = false;
+    private LocalDate fullBirthDate = null;
+    private Gender gender = null; // $NON-NLS-1$
+    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "fk_group", nullable = true)
+    private Group group;
+    @Id
+    // @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    private String lastName = "";
+    private Integer lotNumber = null;
+    private String membership = "";
+    @Transient
+    private final Level NORMAL_LEVEL = Level.INFO;
     @OneToMany(mappedBy = "athlete", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonProperty(index = 200)
     private List<Participation> participations = new ArrayList<>();
+
+    /**
+     * body weight inferred from category, used until real bodyweight is known.
+     */
+    private Double presumedBodyWeight;
+    private Integer qualifyingTotal = 0;
+    private Integer robiRank;
+    private Integer sinclairRank;
+    @Column(columnDefinition = "integer default 0")
+    private int smmRank;
+
+    private String snatch1ActualLift;
+    private String snatch1Change1;
+    private String snatch1Change2;
     /**
      * Using separate fields is brute force, but having embedded classes does not bring much and we don't want joins or
      * other such logic for the Athlete card. Since the Athlete card is 6 x 4 items, we take the simple route.
@@ -308,85 +359,34 @@ public class Athlete {
      * circa 2009, and migration of databases would be annoying to users.
      */
     private String snatch1Declaration;
-    private String snatch1Change1;
-    private String snatch1Change2;
-
-    private String snatch1ActualLift;
     private LocalDateTime snatch1LiftTime;
-    private String snatch2Declaration;
+    private String snatch2ActualLift;
     private String snatch2Change1;
     private String snatch2Change2;
+    private String snatch2Declaration;
 
-    private String snatch2ActualLift;
     private LocalDateTime snatch2LiftTime;
-    private String snatch3Declaration;
+    private String snatch3ActualLift;
     private String snatch3Change1;
     private String snatch3Change2;
-
-    private String snatch3ActualLift;
+    private String snatch3Declaration;
     private LocalDateTime snatch3LiftTime;
-    private String cleanJerk1Declaration;
-    private String cleanJerk1Change1;
-    private String cleanJerk1Change2;
-
-    private String cleanJerk1ActualLift;
-    private LocalDateTime cleanJerk1LiftTime;
-    private String cleanJerk2Declaration;
-    private String cleanJerk2Change1;
-    private String cleanJerk2Change2;
-
-    private String cleanJerk2ActualLift;
-    private LocalDateTime cleanJerk2LiftTime;
-    private String cleanJerk3Declaration;
-    private String cleanJerk3Change1;
-    private String cleanJerk3Change2;
-
-    private String cleanJerk3ActualLift;
-    private LocalDateTime cleanJerk3LiftTime;
-    private Integer sinclairRank;
-    private Integer robiRank;
-    private Integer teamSinclairRank;
-    private Integer teamRobiRank;
-    private Integer teamSnatchRank;
+    private Integer startNumber = null;
+    private String team = "";
     private Integer teamCleanJerkRank;
-    private Integer teamTotalRank;
 
-    private Integer teamCustomRank;
     private Integer teamCombinedRank;
-    @Column(columnDefinition = "integer default 0")
-    private int catSinclairRank;
-    @Column(columnDefinition = "integer default 0")
-    private int combinedRank;
-    @Column(columnDefinition = "integer default 0")
-    private int smmRank;
-    private Integer qualifyingTotal = 0;
-    private Double customScore;
-    @Column(columnDefinition = "boolean default true")
-    private boolean eligibleForIndividualRanking = true;
-    /** The forced as current. */
-    @Column(columnDefinition = "boolean default false")
-    private boolean forcedAsCurrent = false;
+    private Integer teamCustomRank;
+    private Integer teamRobiRank;
 
-    private boolean eligibleForTeamRanking = true;
-    /**
-     * body weight inferred from category, used until real bodyweight is known.
-     */
-    private Double presumedBodyWeight;
-    /*
-     * Non-persistent properties. These properties will be lost as soon as the athlete is saved.
-     */
-    @Transient
-    Integer liftOrderRank = 0;
+    private Integer teamSinclairRank;
+
+    private Integer teamSnatchRank;
+
+    private Integer teamTotalRank;
 
     @Transient
     private boolean validation = true;
-
-    @Transient
-    DecimalFormat df = null;
-
-    private String custom1;
-
-    private String custom2;
 
     /**
      * Instantiates a new athlete.
@@ -4039,7 +4039,7 @@ public class Athlete {
                     (startNumber2 != null ? startNumber2.toString() : "-"),
                     snatch1Request, cleanJerk1Request, missing, qualTotal);
 //            message = rule15_20Violated.getLocalizedMessage(OwlcmsSession.getLocale());
-            //getLogger().warn/**/("{}{} {}", OwlcmsSession.getFopLoggingName(), this.getShortName(), message);
+            // getLogger().warn/**/("{}{} {}", OwlcmsSession.getFopLoggingName(), this.getShortName(), message);
             throw rule15_20Violated;
         } else {
             getLogger().trace("OK margin={}", -(missing));
@@ -4188,7 +4188,8 @@ public class Athlete {
         } finally {
             getLogger().setLevel(prevLoggerLevel);
         }
-        timingLogger.info("    checkChangeVsLiftOrder {}ms {} {}", System.currentTimeMillis() - start, curLift, LoggerUtils.whereFrom());
+        timingLogger.info("    checkChangeVsLiftOrder {}ms {} {}", System.currentTimeMillis() - start, curLift,
+                LoggerUtils.whereFrom());
     }
 
     private void checkChangeVsTimer(int curLift, String declaration, String change1, String change2) {
@@ -4207,7 +4208,8 @@ public class Athlete {
         } finally {
             getLogger().setLevel(prevLoggerLevel);
         }
-        timingLogger.info("    checkChangeVsTimer {}ms {} {}", System.currentTimeMillis() - start, curLift, LoggerUtils.whereFrom());
+        timingLogger.info("    checkChangeVsTimer {}ms {} {}", System.currentTimeMillis() - start, curLift,
+                LoggerUtils.whereFrom());
     }
 
 //    @SuppressWarnings("unused")
@@ -4245,7 +4247,8 @@ public class Athlete {
                 throw new RuleViolationException.MustDeclareFirst(this, clock);
             }
         });
-        timingLogger.info("    checkDeclarationWasMade {}ms {} {}", System.currentTimeMillis() - start, curLift, LoggerUtils.whereFrom());
+        timingLogger.info("    checkDeclarationWasMade {}ms {} {}", System.currentTimeMillis() - start, curLift,
+                LoggerUtils.whereFrom());
     }
 
     private void checkSameProgression(LiftOrderInfo reference, Integer requestedWeight, int currentProgression,
@@ -4277,7 +4280,8 @@ public class Athlete {
                         fopLoggingName, reference.getLotNumber(), this.getLotNumber());
             }
         }
-        timingLogger.info("    checkSameProgression {}ms {}", System.currentTimeMillis() - start, LoggerUtils.whereFrom());
+        timingLogger.info("    checkSameProgression {}ms {}", System.currentTimeMillis() - start,
+                LoggerUtils.whereFrom());
     }
 
     private void checkSameWeightAsReference(LiftOrderInfo reference, Integer requestedWeight, int referenceWeight,
@@ -4365,7 +4369,8 @@ public class Athlete {
 
     private void doCheckChangeOwningTimer(String declaration, String change1, String change2, FieldOfPlay fop,
             int clock, int initialTime) {
-        //logger.trace("{}timing ===== initialTime={} clock={} {} {} {}", fop.getLoggingName(), initialTime, clock, declaration, change1, change2);
+        // logger.trace("{}timing ===== initialTime={} clock={} {} {} {}", fop.getLoggingName(), initialTime, clock,
+        // declaration, change1, change2);
         if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
             // validate declaration
             if (clock < initialTime - 30000) {
@@ -4429,7 +4434,6 @@ public class Athlete {
                     pastOrder.shortDump("lastLift info clock running", getLogger());
                 } else {
                     reference = pastOrder.getLastLift();
-                    // *******************************************
                     pastOrder.shortDump("lastLift info no clock", getLogger());
                 }
 
@@ -4442,9 +4446,10 @@ public class Athlete {
                 // check that we are comparing the value for the same lift
                 boolean cjClock = fop.getLiftsDoneAtLastStart() >= 3;
                 boolean cjStarted = getAttemptsDone() >= 3;
-                //logger.trace("newval {} weightAtLastStart {}", newVal, weightAtLastStart);
-                //logger.trace("lifts done at last start {} current lifts done {}", fop.getLiftsDoneAtLastStart(), getAttemptsDone());
-                if ((!cjClock && !cjStarted) || (cjStarted && cjClock)) {
+                // logger.trace("newval {} weightAtLastStart {}", newVal, weightAtLastStart);
+                // logger.trace("lifts done at last start {} current lifts done {}", fop.getLiftsDoneAtLastStart(),
+                // getAttemptsDone());
+                if (!Competition.getCurrent().isRoundRobinOrder() && ((!cjClock && !cjStarted) || (cjStarted && cjClock))) {
                     throw new RuleViolationException.ValueBelowStartedClock(this, newVal, weightAtLastStart);
                 }
             } else {
@@ -4455,19 +4460,20 @@ public class Athlete {
 
     private void doCheckChangeVsTimer(String declaration, String change1, String change2) {
         Object wi = OwlcmsSession.getAttribute("weighIn");
-        //String fopLoggingName = OwlcmsSession.getFopLoggingName();
+        // String fopLoggingName = OwlcmsSession.getFopLoggingName();
         if (wi == this) {
             // current athlete being weighed in
-            //getLogger().trace("{}weighin {}", fopLoggingName, wi);
+            // getLogger().trace("{}weighin {}", fopLoggingName, wi);
             return;
         } else {
-            //getLogger().trace("{}lifting", fopLoggingName);
+            // getLogger().trace("{}lifting", fopLoggingName);
         }
         OwlcmsSession.withFop(fop -> {
             int clock = fop.getAthleteTimer().liveTimeRemaining();
             Athlete owner = fop.getClockOwner();
             int initialTime = fop.getClockOwnerInitialTimeAllowed();
-            //logger.trace("{}athlete={} owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}", OwlcmsSession.getFopLoggingName(), this, owner, clock, initialTime, declaration, change1, change2);
+            // logger.trace("{}athlete={} owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}",
+            // OwlcmsSession.getFopLoggingName(), this, owner, clock, initialTime, declaration, change1, change2);
             if (!this.isSameAthleteAs(owner)) {
                 // clock is not running for us
                 doCheckChangeNotOwningTimer(declaration, change1, change2, fop, clock, initialTime);
@@ -4516,7 +4522,7 @@ public class Athlete {
         loi.setProgression(this.getProgression(nextAttemptRequestedWeight));
         loi.setStartNumber(this.getStartNumber());
         loi.setLotNumber(this.getLotNumber());
-        //getLogger().trace("{}clockOwner: {}", OwlcmsSession.getFopLoggingName(), loi);
+        // getLogger().trace("{}clockOwner: {}", OwlcmsSession.getFopLoggingName(), loi);
         return loi;
     }
 
@@ -4555,13 +4561,14 @@ public class Athlete {
                         // we would round up the required total, so we round down the allowed margin
                         double floor = Math.floor(margin);
                         int asInt = (int) Math.round(floor);
-                        //getLogger().trace("margin = {} floor = {} asInt = {} required = {}", margin, floor, asInt, entryTotal - asInt);
+                        // getLogger().trace("margin = {} floor = {} asInt = {} required = {}", margin, floor, asInt,
+                        // entryTotal - asInt);
                         return asInt;
                     }
                 }
             }
         } else {
-            //getLogger().trace("cat {}", cat);
+            // getLogger().trace("cat {}", cat);
         }
         return 20;
     }
@@ -4712,7 +4719,8 @@ public class Athlete {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        timingLogger.info("validateChange1 {}ms {} {}", System.currentTimeMillis() - start, curLift, LoggerUtils.whereFrom());
+        timingLogger.info("validateChange1 {}ms {} {}", System.currentTimeMillis() - start, curLift,
+                LoggerUtils.whereFrom());
     }
 
     /**
@@ -4742,7 +4750,8 @@ public class Athlete {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        timingLogger.info("validateChange2 {}ms {} {}", System.currentTimeMillis() - start, curLift, LoggerUtils.whereFrom());
+        timingLogger.info("validateChange2 {}ms {} {}", System.currentTimeMillis() - start, curLift,
+                LoggerUtils.whereFrom());
     }
 
     /**
@@ -4770,7 +4779,8 @@ public class Athlete {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        timingLogger.info("validateDeclaration {}ms {} {}", System.currentTimeMillis() - start, curLift, LoggerUtils.whereFrom());
+        timingLogger.info("validateDeclaration {}ms {} {}", System.currentTimeMillis() - start, curLift,
+                LoggerUtils.whereFrom());
     }
 
 }

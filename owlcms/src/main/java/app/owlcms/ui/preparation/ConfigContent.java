@@ -41,8 +41,8 @@ public class ConfigContent extends Composite<VerticalLayout>
         implements CrudLayout, OwlcmsContent, CrudListener<Config> {
 
     Logger logger = (Logger) LoggerFactory.getLogger(ConfigContent.class);
-    private OwlcmsRouterLayout routerLayout;
     private OwlcmsCrudFormFactory<Config> factory;
+    private OwlcmsRouterLayout routerLayout;
 
     /**
      * Instantiates a new preparation navigation content.

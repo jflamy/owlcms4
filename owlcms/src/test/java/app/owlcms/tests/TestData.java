@@ -40,13 +40,13 @@ import ch.qos.logback.classic.Logger;
  */
 public class TestData {
 
+    static int lotNumber = 1;
+    private static Clock clock = Clock.fixed(Instant.parse("2021-10-01T08:30:00.00Z"), ZoneId.systemDefault());
+
     private static Logger logger = (Logger) LoggerFactory.getLogger(TestData.class);
     static {
         logger.setLevel(Level.INFO);
     }
-
-    static int lotNumber = 1;
-    private static Clock clock = Clock.fixed(Instant.parse("2021-10-01T08:30:00.00Z"), ZoneId.systemDefault());
 
     public static void deleteAllLifters(EntityManager em) {
         List<Athlete> athletes = AthleteRepository.doFindAll(em);
@@ -192,12 +192,12 @@ public class TestData {
 //        em.persist(groupC);
     }
 
-    private static LocalDateTime testDateTimeNow() {
-        return LocalDateTime.now(clock);
-    }
-
     private static LocalDate testDateNow() {
         return LocalDate.now(clock);
+    }
+
+    private static LocalDateTime testDateTimeNow() {
+        return LocalDateTime.now(clock);
     }
 
 }

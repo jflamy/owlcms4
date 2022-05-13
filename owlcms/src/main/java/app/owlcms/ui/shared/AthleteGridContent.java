@@ -69,6 +69,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.fieldofplay.FOPError;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -81,6 +82,7 @@ import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.lifting.AnnouncerContent;
 import app.owlcms.ui.lifting.AthleteCardFormFactory;
 import app.owlcms.ui.lifting.JuryContent;
+import app.owlcms.ui.lifting.MarshallContent;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakDisplay;
@@ -236,7 +238,13 @@ public abstract class AthleteGridContent extends VerticalLayout
             if (fop.getCeremonyType() != null) {
                 breakButton.setText(getTranslation("CeremonyType." + fop.getCeremonyType()));
             } else {
-                breakButton.setText(getTranslation("BreakType." + fop.getBreakType()) + "\u00a0\u00a0");
+                BreakType breakType = fop.getBreakType();
+                if (breakType != null) {
+                    breakButton.setText(getTranslation("BreakType." + breakType) + "\u00a0\u00a0");
+                } else {
+                    logger.error("null break type {}", LoggerUtils.stackTrace());
+                    breakButton.setText(getTranslation("BreakButton.Paused") + "\u00a0\u00a0");
+                }
             }
         });
 
@@ -397,7 +405,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         // silent is the default. silent=false will cause sound
         boolean silentMode = silentParams == null || silentParams.isEmpty()
                 || silentParams.get(0).toLowerCase().equals("true");
-        switchSoundMode((Component) this, silentMode, false);
+        switchSoundMode(this, silentMode, false);
         updateParam(params, SILENT, !isSilenced() ? "false" : null);
 
         return params;
@@ -457,7 +465,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     @Override
     public void setSilenced(boolean silent) {
-        //logger.trace("{} {} {}",this.getClass().getSimpleName(), silent, LoggerUtils.whereFrom());
+        // logger.trace("{} {} {}",this.getClass().getSimpleName(), silent, LoggerUtils.whereFrom());
         this.silenced = silent;
     }
 
@@ -478,7 +486,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             }
 
             if (this instanceof AnnouncerContent) {
-                //logger.trace("%%%%%%%%%%%%%% starting break {}", LoggerUtils./**/stackTrace());
+                // logger.trace("%%%%%%%%%%%%%% starting break {}", LoggerUtils./**/stackTrace());
             }
             syncWithFOP(true);
         });
@@ -688,15 +696,14 @@ public abstract class AthleteGridContent extends VerticalLayout
                         && fopState != FOPState.TIME_RUNNING) {
                     bt = BreakType.FIRST_CJ;
                     ct = CountdownType.DURATION;
-                }
-//                else if (curAthlete.getAttemptsDone() == 0 && AthleteSorter.countLiftsDone(order) == 0
-//                        && fopState != FOPState.TIME_RUNNING) {
-//                    bt = BreakType.FIRST_SNATCH;
-//                    ct = CountdownType.DURATION;
-//                } 
-                else {
-                    bt = BreakType.TECHNICAL;
+                } else {
+                    if (this instanceof MarshallContent) {
+                        bt = BreakType.MARSHAL;
+                    } else {
+                        bt = BreakType.TECHNICAL;
+                    }
                     ct = CountdownType.INDEFINITE;
+
                 }
                 // logger.debug("requesting breaktype {}", bt);
                 breakDialog = new BreakDialog(this, bt, ct);
@@ -1151,7 +1158,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     protected void setTopBarTitle(String title) {
         this.topBarTitle = title;
-    };
+    }
 
     /**
      */
@@ -1362,4 +1369,23 @@ public abstract class AthleteGridContent extends VerticalLayout
             doNotification(text, "warning");
         }
     }
+
+    
+    @Subscribe
+    public void slaveNotification(UIEvent.Notification e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            Notification n = new Notification();
+            if (e.getFopEventString().contentEquals("TimeStarted")) {
+                // time started button was selected, but denied. reset the colors
+                // to show that time is not running.
+                buttonsTimeStopped();
+            }
+            n.setText(FOPError.translateMessage(e.getFopStateString(), e.getFopEventString()));
+            n.setPosition(Position.MIDDLE);
+            n.setDuration(3000);
+            n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            n.open();
+        });
+    }
+
 }

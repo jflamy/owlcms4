@@ -34,6 +34,7 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 public class CompetitionData {
@@ -42,10 +43,10 @@ public class CompetitionData {
 
     private List<AgeGroup> ageGroups;
     private List<Athlete> athletes;
-    private List<Group> groups;
-    private List<Platform> platforms;
     private Competition competition;
     private Config config;
+    private List<Group> groups;
+    private List<Platform> platforms;
 
     public CompetitionData() {
     }
@@ -169,7 +170,8 @@ public class CompetitionData {
 
                 CompetitionData updated = this.importData(inputStream);
                 Config config = updated.getConfig();
-
+                ResourceWalker.initLocalDir();
+                
                 Locale defaultLocale = config.getDefaultLocale();
                 Translator.reset();
                 Translator.setForcedLocale(defaultLocale);

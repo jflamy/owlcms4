@@ -31,6 +31,21 @@ public class RecordRepository {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(RecordRepository.class);
 
+    public static void clearRecords() throws IOException {
+        JPAService.runInTransaction(em -> {
+            try {
+                em.clear();
+                Query upd = em.createNativeQuery("delete from RecordEvent");
+                upd.unwrap(NativeQuery.class).addSynchronizedEntityClass(RecordEvent.class);
+                upd.executeUpdate();
+                em.flush();
+            } catch (Exception e) {
+                LoggerUtils.logError(logger, e);
+            }
+            return null;
+        });
+    }
+
     /**
      * Delete.
      *
@@ -59,7 +74,6 @@ public class RecordRepository {
         query.setParameter("name", name);
         return (RecordEvent) query.getResultList().stream().findFirst().orElse(null);
     }
-
 
     /**
      * Find all.
@@ -107,26 +121,10 @@ public class RecordRepository {
         return (RecordEvent) query.getResultList().stream().findFirst().orElse(null);
     }
 
-
     public static void reloadDefinitions(String localizedFileName) throws IOException {
         clearRecords();
         InputStream is = ResourceWalker.getResourceAsStream(localizedFileName);
         RecordDefinitionReader.readZip(is);
-    }
-    
-    public static void clearRecords() throws IOException {
-        JPAService.runInTransaction(em -> {   
-            try {
-                em.clear();
-                Query upd = em.createNativeQuery("delete from RecordEvent");
-                upd.unwrap(NativeQuery.class).addSynchronizedEntityClass(RecordEvent.class);
-                upd.executeUpdate();
-                em.flush();
-            } catch (Exception e) {
-                LoggerUtils.logError(logger, e);
-            }
-            return null;
-        });
     }
 
     /**
@@ -153,7 +151,9 @@ public class RecordRepository {
 
     @SuppressWarnings("unchecked")
     private static List<RecordEvent> doFindAll(EntityManager em) {
-        return em.createQuery("select rec from RecordEvent rec order by rec.recordFederation,rec.gender,rec.ageGrpLower,rec.ageGrpUpper,rec.bwCatUpper").getResultList();
+        return em.createQuery(
+                "select rec from RecordEvent rec order by rec.recordFederation,rec.gender,rec.ageGrpLower,rec.ageGrpUpper,rec.bwCatUpper")
+                .getResultList();
     }
 
     private static String filteringSelection(Gender gender, Integer age, Double d) {

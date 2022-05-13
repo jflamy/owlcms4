@@ -31,9 +31,9 @@ import ch.qos.logback.classic.Level;
 
 public class AthleteTest {
 
-    private static final Level LOGGER_LEVEL = Level.OFF;
     private static Athlete athlete;
-    
+    private static final Level LOGGER_LEVEL = Level.OFF;
+
     @BeforeClass
     public static void setupTests() {
         Main.injectSuppliers();
@@ -47,14 +47,14 @@ public class AthleteTest {
         JPAService.close();
     }
 
-
     @Before
     public void setupTest() {
-        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(), new MockCountdownTimer());
+        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(),
+                new MockCountdownTimer());
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LOGGER_LEVEL);
         // EventBus fopBus = fopState.getFopEventBus();
-        
+
         athlete = new Athlete();
         athlete.setLastName("Strong");
         athlete.setFirstName("Paul");
@@ -63,7 +63,8 @@ public class AthleteTest {
         athlete.setSnatch1Declaration("60");
         athlete.setCleanJerk1Declaration("80");
         athlete.setYearOfBirth(1900);
-        Category registrationCategory = new Category(67.0, 73.0, Gender.M, true, 0, 0, 348, new AgeGroup("SR", true, 15, 999, Gender.M, AgeDivision.IWF, 0),
+        Category registrationCategory = new Category(67.0, 73.0, Gender.M, true, 0, 0, 348,
+                new AgeGroup("SR", true, 15, 999, Gender.M, AgeDivision.IWF, 0),
                 0);
         athlete.setEligibleCategories(new LinkedHashSet<>(Arrays.asList(registrationCategory)));
         athlete.setCategory(registrationCategory);

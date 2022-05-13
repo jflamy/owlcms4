@@ -37,8 +37,8 @@ public class CompetitionContent extends Composite<VerticalLayout>
         implements CrudLayout, OwlcmsContent, CrudListener<Competition> {
 
     Logger logger = (Logger) LoggerFactory.getLogger(CompetitionContent.class);
-    private OwlcmsRouterLayout routerLayout;
     private OwlcmsCrudFormFactory<Competition> factory;
+    private OwlcmsRouterLayout routerLayout;
 
     /**
      * Instantiates a new preparation navigation content.

@@ -30,13 +30,13 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class RecordEvent {
 
-    public class UnknownIWFBodyWeightCategory extends Exception {
+    public class MissingAgeGroup extends Exception {
     }
 
     public class MissingGender extends Exception {
     }
 
-    public class MissingAgeGroup extends Exception {
+    public class UnknownIWFBodyWeightCategory extends Exception {
     }
 
     @Transient
@@ -64,6 +64,28 @@ public class RecordEvent {
     private Ranking recordLift;
     private String recordName;
     private int recordYear;
+
+    public void fillDefaults() throws MissingAgeGroup, MissingGender, UnknownIWFBodyWeightCategory {
+        if (ageGrp == null) {
+            throw new MissingAgeGroup();
+        }
+        ageGrp = ageGrp.trim();
+        ageGrp = ageGrp.toUpperCase();
+        if (ageGrp.equals("YTH")) {
+            ageGrpLower = ageGrpLower > 0 ? ageGrpLower : 13;
+            ageGrpUpper = ageGrpUpper > 0 ? ageGrpUpper : 17;
+        } else if (ageGrp.equals("JR")) {
+            ageGrpLower = ageGrpLower > 0 ? ageGrpLower : 15;
+            ageGrpUpper = ageGrpUpper > 0 ? ageGrpUpper : 20;
+        } else if (ageGrp.equals("SR")) {
+            ageGrpLower = ageGrpLower > 0 ? ageGrpLower : 15;
+            ageGrpUpper = ageGrpUpper > 0 ? ageGrpUpper : 999;
+        } else {
+            ageGrpLower = ageGrpLower > 0 ? ageGrpLower : 0;
+            ageGrpUpper = ageGrpUpper > 0 ? ageGrpUpper : 999;
+        }
+        fillIWFBodyWeights();
+    }
 
     public String getAgeGrp() {
         return ageGrp;
@@ -245,28 +267,6 @@ public class RecordEvent {
                 + ", event=" + event + ", eventLocation=" + eventLocation + ", gender=" + gender + ", nation=" + nation
                 + ", recordDate=" + recordDate + ", recordFederation=" + recordFederation + ", recordLift=" + recordLift
                 + ", recordName=" + recordName + ", recordYear=" + recordYear + "]";
-    }
-
-    public void fillDefaults() throws MissingAgeGroup, MissingGender, UnknownIWFBodyWeightCategory {
-        if (ageGrp == null) {
-            throw new MissingAgeGroup();
-        }
-        ageGrp = ageGrp.trim();
-        ageGrp = ageGrp.toUpperCase();
-        if (ageGrp.equals("YTH")) {
-            ageGrpLower = ageGrpLower > 0 ? ageGrpLower : 13;
-            ageGrpUpper = ageGrpUpper > 0 ? ageGrpUpper : 17;
-        } else if (ageGrp.equals("JR")) {
-            ageGrpLower = ageGrpLower > 0 ? ageGrpLower : 15;
-            ageGrpUpper = ageGrpUpper > 0 ? ageGrpUpper : 20;
-        } else if (ageGrp.equals("SR")) {
-            ageGrpLower = ageGrpLower > 0 ? ageGrpLower : 15;
-            ageGrpUpper = ageGrpUpper > 0 ? ageGrpUpper : 999;
-        } else {
-            ageGrpLower = ageGrpLower > 0 ? ageGrpLower : 0;
-            ageGrpUpper = ageGrpUpper > 0 ? ageGrpUpper : 999;
-        }
-        fillIWFBodyWeights();
     }
 
     private void fillIWFBodyWeights() throws MissingGender, UnknownIWFBodyWeightCategory {

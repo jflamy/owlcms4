@@ -65,31 +65,31 @@ import ch.qos.logback.classic.Logger;
 public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<Athlete> implements NavigationPage {
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteRegistrationFormFactory.class);
 
-    private Athlete editedAthlete = null;
-
-    private boolean catGenderOk;
-
-    private boolean genderCatOk;
-
-    private Button printButton;
-
-    private Button hiddenButton;
-
-    private StringToIntegerConverter yobConverter;
-
-    private boolean checkOther20kgFields;
-
-    private boolean changeListenersEnabled;
+    HasValue<?, ?> dateField = null;
 
     private List<Category> allEligible;
 
-    HasValue<?, ?> dateField = null;
-
     private BodyWeightField bodyWeightField;
+
+    private boolean catGenderOk;
+
+    private boolean changeListenersEnabled;
+
+    private boolean checkOther20kgFields;
+
+    private Athlete editedAthlete = null;
+
+    private boolean genderCatOk;
+
+    private Button hiddenButton;
+
+    private TextField lastNameField;
 
     private Object lastNameValue;
 
-    private TextField lastNameField;
+    private Button printButton;
+
+    private StringToIntegerConverter yobConverter;
 
     public AthleteRegistrationFormFactory(Class<Athlete> domainType) {
         super(domainType);
@@ -494,6 +494,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         return allEligible2 != null ? (allEligible2.size() > 0 ? allEligible2.get(0) : null) : null;
     }
 
+    private boolean categoryIsEligible(Category category, List<Category> eligibles) {
+        return eligibles.stream().anyMatch(c -> c.sameAs(category));
+    }
+
     private void checkOther20kgFields(String prop1, String prop2) {
         logger.debug("entering checkOther20kgFields {} {}", isCheckOther20kgFields(), LoggerUtils.whereFrom());
         if (isCheckOther20kgFields()) {
@@ -556,7 +560,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         TextField qualifyingTotalField = (TextField) qualifyingTotalBinding.getField();
 
         if (initCategories) {
-            allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField, qualifyingTotalField);
+            allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField,
+                    qualifyingTotalField);
             logger.trace("**gender = {}, eligible = {}", genderField.getValue(), allEligible);
             // ListDataProvider<Category> listDataProvider = new ListDataProvider<>(allEligible);
             updateCategoryFields(category, categoryField, eligibleField, qualifyingTotalField, allEligible, false);
@@ -701,16 +706,18 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         if (bodyWeightField.getValue() != null) {
             if (genderField.getValue() != null && dateField.getValue() != null) {
                 // body weight, gender, date
-                allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField, qualifyingTotalField);
-                //logger.debug("cat {} eli {}", value, allEligible);
+                allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField,
+                        qualifyingTotalField);
+                // logger.debug("cat {} eli {}", value, allEligible);
                 if (value != null && categoryIsEligible(value, allEligible)) {
                     // current category is amongst eligibles. Don't recompute anything.
-                    //logger.debug("leave alone");
+                    // logger.debug("leave alone");
                 } else {
-                    //logger.debug("recompute");
+                    // logger.debug("recompute");
                     // category is null or not withing eligibles, recompute
                     Category bestMatchCategory = bestMatch(allEligible);
-                    updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField, allEligible, true);
+                    updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField,
+                            allEligible, true);
                 }
             } else {
                 // cannot compute eligibility and category
@@ -724,7 +731,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 if (ageFromFields != null && ageFromFields > 5 && ageFromFields < 120) {
                     doFindEligibleCategories(genderField.getValue(), ageFromFields, bw, qualifyingTotal);
                     Category bestMatchCategory = bestMatch(allEligible);
-                    updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField, allEligible,
+                    updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField,
+                            allEligible,
                             true);
                 }
             } else {
@@ -746,10 +754,6 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 //                updateCategoryFields(category2, categoryField, eligibleField, qualifyingTotalField, allEligible, true);
 //            }
 //        }
-    }
-
-    private boolean categoryIsEligible(Category category, List<Category> eligibles) {
-        return eligibles.stream().anyMatch(c -> c.sameAs(category));
     }
 
     private void setChangeListenersEnabled(boolean changeListenersEnabled) {

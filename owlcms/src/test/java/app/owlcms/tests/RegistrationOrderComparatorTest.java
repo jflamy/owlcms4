@@ -42,11 +42,6 @@ public class RegistrationOrderComparatorTest {
             return null;
         });
     }
-    
-    @Before
-    public void setupTest() {
-        OwlcmsSession.withFop(fop -> fop.testBefore());
-    }
 
     @AfterClass
     public static void tearDownTests() {
@@ -71,6 +66,11 @@ public class RegistrationOrderComparatorTest {
     public void checkYth() {
         Collection<Category> cats = CategoryRepository.findByGenderAgeBW(Gender.M, 15, 66.0D);
         assertEquals("[U15 M 67, YTH M 67, JR M 67, SR M 67]", cats.toString());
+    }
+
+    @Before
+    public void setupTest() {
+        OwlcmsSession.withFop(fop -> fop.testBefore());
     }
 
 }

@@ -81,20 +81,20 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         logger.setLevel(Level.INFO);
     }
 
-    private TextField lastNameFilter = new TextField();
     private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
     private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
     private ComboBox<Category> categoryFilter = new ComboBox<>();
-    private ComboBox<Group> groupFilter = new ComboBox<>();
-    private ComboBox<Gender> genderFilter = new ComboBox<>();
-
-    private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
-    private OwlcmsCrudGrid<Athlete> crudGrid;
-    private OwlcmsRouterLayout routerLayout;
     private OwlcmsCrudFormFactory<Athlete> crudFormFactory;
+    private OwlcmsCrudGrid<Athlete> crudGrid;
+    private Group currentGroup;
+
+    private ComboBox<Gender> genderFilter = new ComboBox<>();
+    private ComboBox<Group> groupFilter = new ComboBox<>();
+    private TextField lastNameFilter = new TextField();
     private Location location;
     private UI locationUI;
-    private Group currentGroup;
+    private OwlcmsRouterLayout routerLayout;
+    private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
 
     /**
      * Instantiates the athlete crudGrid

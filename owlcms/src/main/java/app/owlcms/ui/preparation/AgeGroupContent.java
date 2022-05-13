@@ -68,16 +68,16 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         logger.setLevel(Level.INFO);
     }
 
-    private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
-//    private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
-    private TextField nameFilter = new TextField();
     private Checkbox activeFilter = new Checkbox();
-    private OwlcmsRouterLayout routerLayout;
-    private OwlcmsCrudFormFactory<AgeGroup> ageGroupEditingFormFactory;
-    private FlexLayout topBar;
+    private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
     private ComboBox<Resource> ageGroupDefinitionSelect;
+    private OwlcmsCrudFormFactory<AgeGroup> ageGroupEditingFormFactory;
     private GridCrud<AgeGroup> crud;
+    // private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
+    private TextField nameFilter = new TextField();
     private Button resetCats;
+    private OwlcmsRouterLayout routerLayout;
+    private FlexLayout topBar;
 
     /**
      * Instantiates the ageGroup crudGrid.

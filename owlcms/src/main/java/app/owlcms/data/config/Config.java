@@ -8,6 +8,7 @@ package app.owlcms.data.config;
 
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
@@ -47,10 +48,10 @@ public class Config {
 
     public static final int SHORT_TEAM_LENGTH = 6;
 
+    private static Config current;
+
     @Transient
     final static private Logger logger = (Logger) LoggerFactory.getLogger(Config.class);
-
-    private static Config current;
 
     /**
      * Gets the current.
@@ -60,6 +61,7 @@ public class Config {
     public static Config getCurrent() {
         // *******
         current = ConfigRepository.findAll().get(0);
+        current.setSkipReading(false);
         return current;
     }
 
@@ -74,24 +76,21 @@ public class Config {
     }
 
     public static Config setCurrent(Config config) {
-        // *******
         current = ConfigRepository.save(config);
         return current;
     }
-
-    private String timeZoneId;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
+    @Column(columnDefinition = "boolean default false")
+    private boolean clearZip;
+
+    @Convert(converter = LocaleAttributeConverter.class)
+    private Locale defaultLocale = null;
+
     private String ipAccessList;
-
-    private String pin;
-
-    private String publicResultsURL;
-
-    private String updatekey;
 
     private String ipBackdoorList;
 
@@ -102,30 +101,38 @@ public class Config {
     @Column(name = "localcontent", nullable = true)
     private Blob localOverride;
 
-    @Column(columnDefinition = "boolean default false")
-    private boolean clearZip;
+    private String pin;
 
-    @Convert(converter = LocaleAttributeConverter.class)
-    private Locale defaultLocale = null;
+    private String publicResultsURL;
 
     private String salt;
 
+    private String timeZoneId;
+
     private Boolean traceMemory;
 
-    public String defineSalt() {
-        if (salt == null) {
-            this.setSalt(Integer.toString(new Random(System.currentTimeMillis()).nextInt(), 16));
-        }
-        JPAService.runInTransaction(em -> {
-            Config newConfig = em.merge(this);
-            return newConfig;
-        });
-        return getSalt();
+    private String updatekey;
+
+    @Transient
+    @JsonIgnore
+    private boolean skipReading;
+
+    private String featureSwitches;
+
+    public String computeSalt() {
+        this.setSalt(null);
+        return Integer.toHexString(new Random(System.currentTimeMillis()).nextInt());
     }
 
     public String encodeUserPassword(String password) {
-        String encodedPassword = AccessUtils.encodePin(password, true);
-        return encodedPassword;
+        String uPin = StartupUtils.getStringParam("pin");
+        if (uPin == null) {
+            String encodedPassword = AccessUtils.encodePin(password, true);
+            return encodedPassword;
+        } else {
+            // we are comparing cleartext
+            return password;
+        }
     }
 
     @Override
@@ -183,15 +190,19 @@ public class Config {
      * @throws SQLException
      */
     public byte[] getLocalZipBlob() {
-        if (localOverride == null) {
+        //logger.debug("getLocalZipBlob skip={}",skipReading);
+        if (localOverride == null || skipReading) {
             return null;
         }
 
         return JPAService.runInTransaction(em -> {
             try {
                 Config thisConfig = em.find(Config.class, this.id);
-                return thisConfig.localOverride.getBytes(1, (int) localOverride.length());
+                byte[] res = thisConfig.localOverride.getBytes(1, (int) localOverride.length());
+                logger.debug("getLocalZipBlob read {} bytes", res.length);
+                return res;
             } catch (SQLException e) {
+                em.getTransaction().rollback();
                 throw new RuntimeException(e);
             }
         });
@@ -253,18 +264,19 @@ public class Config {
             uPin = Config.getCurrent().getPin();
             // logger.debug("pin = {}", uPin);
             if (uPin == null || uPin.isBlank()) {
-                uPin = null;
+                return null;
+            } else if (uPin.length() < 64) {
+                // assume legacy
+                String encodedPin = AccessUtils.encodePin(uPin, false);
+                return encodedPin;
+            } else {
+                return uPin; // what is in the database is already
             }
-            logger.debug("uPin as is {}", uPin);
-            String encodedPin = AccessUtils.encodePin(uPin, false);
-            return encodedPin;
         } else if (uPin.isBlank()) {
             // no password will be expected
             return null;
         } else {
-            // if the pin comes from the environment, encrypt if not already
-            String encodedPin = AccessUtils.encodePin(uPin, false);
-            return encodedPin;
+            return uPin;
         }
     }
 
@@ -344,6 +356,15 @@ public class Config {
         return FileServlet.isIgnoreCaching();
     }
 
+    @Transient
+    @JsonIgnore
+    public boolean isTraceMemory() {
+        if (traceMemory == null) {
+            traceMemory = StartupUtils.getBooleanParam("traceMemory");
+        }
+        return Boolean.TRUE.equals(traceMemory);
+    }
+
     public void setClearZip(boolean clearZipRequested) {
         this.clearZip = clearZipRequested;
     }
@@ -369,6 +390,7 @@ public class Config {
             this.localOverride = null;
             this.clearZip = false;
         } else if (localContent != null) {
+            logger.debug("setting {}", localContent.length);
             this.localOverride = BlobProxy.generateProxy(localContent);
         } else {
             this.localOverride = null;
@@ -428,14 +450,26 @@ public class Config {
         this.salt = salt;
         logger.debug("setting salt to {}", this.salt);
     }
-    
-    @Transient
-    @JsonIgnore
-    public boolean isTraceMemory() {
-        if (traceMemory == null) {
-            traceMemory = StartupUtils.getBooleanParam("traceMemory");
+
+    public void setSkipReading(boolean b) {
+        this.skipReading = b;   
+    }
+
+    public boolean featureSwitch(String string, boolean trueIfPresent) {
+        if (getFeatureSwitches() == null) {
+            return !trueIfPresent;
         }
-        return Boolean.TRUE.equals(traceMemory);
+        String[] switches = getFeatureSwitches().split("[,; ]");
+        boolean present = Arrays.asList(switches).contains(string);
+        return trueIfPresent ? present : !present;
+    }
+
+    public String getFeatureSwitches() {
+        return featureSwitches;
+    }
+
+    public void setFeatureSwitches(String featureSwitches) {
+        this.featureSwitches = featureSwitches;
     }
 
 }

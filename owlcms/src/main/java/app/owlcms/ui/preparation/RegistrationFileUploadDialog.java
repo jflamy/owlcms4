@@ -55,11 +55,11 @@ import net.sf.jxls.reader.XLSReader;
 @SuppressWarnings("serial")
 public class RegistrationFileUploadDialog extends Dialog {
 
-    private static final String REGISTRATION_READER_SPEC = "/templates/registration/RegistrationReader.xml";
-    private static final String GROUPS_READER_SPEC = "/templates/registration/GroupsReader.xml";
-
-    final static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationFileUploadDialog.class);
     final static Logger jxlsLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.reader.SimpleBlockReaderImpl");
+    final static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationFileUploadDialog.class);
+
+    private static final String GROUPS_READER_SPEC = "/templates/registration/GroupsReader.xml";
+    private static final String REGISTRATION_READER_SPEC = "/templates/registration/RegistrationReader.xml";
     static {
         jxlsLogger.setLevel(Level.ERROR);
     }

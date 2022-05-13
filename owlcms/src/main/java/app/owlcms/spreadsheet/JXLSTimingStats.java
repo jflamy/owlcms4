@@ -38,9 +38,9 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
         String groupName = null;
 
-        int nbAthletes;
         LocalDateTime maxTime = LocalDateTime.MIN; // forever ago
         LocalDateTime minTime = LocalDateTime.MAX; // long time in the future
+        int nbAthletes;
         int nbAttemptedLifts;
 
         public SessionStats() {

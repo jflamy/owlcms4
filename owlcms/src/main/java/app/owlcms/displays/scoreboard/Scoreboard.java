@@ -215,7 +215,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     public void doCeremony(UIEvent.CeremonyStarted e) {
         ceremonyGroup = e.getCeremonyGroup();
         ceremonyCategory = e.getCeremonyCategory();
-        //logger.trace("------ ceremony event = {} {}", e, e.getTrace());
+        // logger.trace("------ ceremony event = {} {}", e, e.getTrace());
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             ScoreboardModel model = getModel();
             if (e.getCeremonyType() == CeremonyType.MEDALS && this.isSwitchableDisplay() && ceremonyGroup != null) {
@@ -226,11 +226,11 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                 if (ceremonyCategory != null) {
                     map.put(DisplayParameters.CATEGORY, ceremonyCategory.getCode());
                 } else {
-                    //logger.trace("no ceremonyCategory");
+                    // logger.trace("no ceremonyCategory");
                 }
                 UI.getCurrent().navigate("displays/medals", QueryParameters.simple(map));
             }
-            
+
             String title = inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType());
             model.setFullName(title);
             model.setTeamName("");
@@ -366,6 +366,27 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     @Subscribe
+    public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
+        // logger.trace"------- slaveCeremonyDone {}", e.getCeremonyType());
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            setHidden(false);
+            // revert to current break
+            doBreak(null);
+        });
+    }
+
+    @Subscribe
+    public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
+        // logger.trace"------- slaveCeremonyStarted {}", e.getCeremonyType());
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            setHidden(false);
+            doCeremony(e);
+        });
+    }
+
+    @Subscribe
     public void slaveDecision(UIEvent.Decision e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
@@ -380,8 +401,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             setHidden(false);
-                doUpdateBottomPart(e);
-                this.getElement().callJsFunction("reset");
+            doUpdateBottomPart(e);
+            this.getElement().callJsFunction("reset");
         });
     }
 
@@ -400,27 +421,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
             doDone(e.getGroup());
-        });
-    }
-    
-    @Subscribe
-    public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
-        //logger.trace"------- slaveCeremonyDone {}", e.getCeremonyType());
-        uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            setHidden(false);
-            // revert to current break
-            doBreak(null);
-        });
-    }
-    
-    @Subscribe
-    public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
-        //logger.trace"------- slaveCeremonyStarted {}", e.getCeremonyType());
-        uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            setHidden(false);
-            doCeremony(e);
         });
     }
 
@@ -811,7 +811,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     private void uiLog(UIEvent e) {
-//        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom()); 
+//        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom());
     }
 
     private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {

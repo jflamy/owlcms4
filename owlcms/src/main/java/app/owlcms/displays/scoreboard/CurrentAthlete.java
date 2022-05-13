@@ -139,26 +139,26 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         uiEventLogger.setLevel(Level.INFO);
     }
 
-    @Id("timer")
-    private AthleteTimerElement timer; // Flow creates it
+    JsonArray cattempts;
+
+    JsonArray sattempts;
 
     @Id("breakTimer")
     private BreakTimerElement breakTimer; // Flow creates it
 
+    private boolean darkMode;
     @Id("decisions")
     private DecisionElement decisions; // Flow creates it
 
-    private EventBus uiEventBus;
-    private List<Athlete> order;
-
-    JsonArray sattempts;
-    JsonArray cattempts;
-    private boolean darkMode;
+    private Dialog dialog;
+    private boolean groupDone;
+    private boolean initializationNeeded;
     private Location location;
     private UI locationUI;
-    private boolean groupDone;
-    private Dialog dialog;
-    private boolean initializationNeeded;
+    private List<Athlete> order;
+    @Id("timer")
+    private AthleteTimerElement timer; // Flow creates it
+    private EventBus uiEventBus;
 
     /**
      * Instantiates a new results board.
@@ -190,7 +190,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
             this.getElement().callJsFunction("doBreak");
         }));
     }
-    
+
     @Override
     public void doCeremony(UIEvent.CeremonyStarted e) {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {

@@ -53,8 +53,8 @@ import net.sf.jxls.transformer.XLSTransformer;
 @SuppressWarnings("serial")
 public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWorkbookStreamSource.class);
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWorkbookStreamSource.class);
     final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
     static {
         logger.setLevel(Level.INFO);
@@ -62,18 +62,18 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         tagLogger.setLevel(Level.ERROR);
     }
 
-    private HashMap<String, Object> reportingBeans;
-
-    private boolean excludeNotWeighed;
-
-    private Group group;
-    private UI ui;
     protected List<Athlete> sortedAthletes;
-    private Category category;
-    private String templateFileName;
-    private InputStream inputStream;
+
     private AgeDivision ageDivision;
+
     private String ageGroupPrefix;
+    private Category category;
+    private boolean excludeNotWeighed;
+    private Group group;
+    private InputStream inputStream;
+    private HashMap<String, Object> reportingBeans;
+    private String templateFileName;
+    private UI ui;
 
     public JXLSWorkbookStreamSource() {
         this.ui = UI.getCurrent();

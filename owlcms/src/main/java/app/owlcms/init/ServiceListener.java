@@ -48,7 +48,7 @@ public class ServiceListener implements VaadinServiceInitListener {
             meta.attr("content", content);
             return meta;
         }
-        
+
 //        @Override
 //        public void configurePage(InitialPageSettings settings) {
 //            settings.addMetaTag("mobile-web-app-capable", "yes");
@@ -57,14 +57,14 @@ public class ServiceListener implements VaadinServiceInitListener {
 //            settings.addFavIcon("icon", "frontend/images/logo.png", "96x96");
 //            settings.setViewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes");
 //        }
-        
+
 //        public void addLink(Position position, String href,
 //                Map<String, String> attributes) {
 //            Element link = new Element(Tag.valueOf("link"), "").attr("href", href);
 //            attributes.forEach((key, value) -> link.attr(key, value));
 //            getElement(position).add(link);
 //        }
-        
+
 //        public void addFavIcon(Position position, String rel, String href,
 //                String sizes) {
 //            Element link = new Element(Tag.valueOf("link"), "").attr("href", href);
@@ -72,7 +72,6 @@ public class ServiceListener implements VaadinServiceInitListener {
 //            link.attr("sizes", sizes);
 //            getElement(position).add(link);
 //        }
-
 
     }
 

@@ -19,8 +19,8 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class BreakDialog extends Dialog {
-    final private Logger logger = (Logger) LoggerFactory.getLogger(BreakDialog.class);
     private BreakManagement content;
+    final private Logger logger = (Logger) LoggerFactory.getLogger(BreakDialog.class);
     {
         logger.setLevel(Level.INFO);
     }
@@ -62,7 +62,7 @@ public class BreakDialog extends Dialog {
      * @param cdt
      */
     public BreakDialog(Object origin, BreakType brt, CountdownType cdt) {
-        //logger.debug("BreakDialog brt = {}", brt);
+        // logger.debug("BreakDialog brt = {}", brt);
         content = new BreakManagement(origin, brt, cdt, this);
         this.add(content);
 
@@ -73,7 +73,7 @@ public class BreakDialog extends Dialog {
             try {
                 OwlcmsSession.getFop().getUiEventBus().unregister(content);
                 OwlcmsSession.getFop().getUiEventBus().unregister(breakTimer);
-                //logger.debug("++++++ unregistered {}", breakTimer.id);
+                // logger.debug("++++++ unregistered {}", breakTimer.id);
             } catch (Exception e1) {
             }
             try {
