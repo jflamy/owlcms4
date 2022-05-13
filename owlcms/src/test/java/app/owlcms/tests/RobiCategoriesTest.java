@@ -25,7 +25,7 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.init.OwlcmsSession;
 
 public class RobiCategoriesTest {
-    
+
     @BeforeClass
     public static void setupTests() {
         Main.injectSuppliers();
@@ -39,6 +39,11 @@ public class RobiCategoriesTest {
         JPAService.close();
     }
 
+    @Before
+    public void setupTest() {
+        OwlcmsSession.withFop(fop -> fop.testBefore());
+    }
+
     @Test
     public void testInside() {
         Athlete a = new Athlete();
@@ -46,6 +51,16 @@ public class RobiCategoriesTest {
         a.setGender(Gender.M);
         Category cat = RobiCategories.findRobiCategory(a);
         assertEquals("M61", cat.getComputedCode());
+    }
+
+    @Test
+    public void testNotWeighed() {
+        Athlete a = new Athlete();
+        a.setBodyWeight(null);
+        a.setGender(Gender.M);
+        a.setYearOfBirth(LocalDate.now().getYear() - 17);
+        Category cat = RobiCategories.findRobiCategory(a);
+        assertEquals(null, cat);
     }
 
     @Test
@@ -58,26 +73,6 @@ public class RobiCategoriesTest {
     }
 
     @Test
-    public void testYoung() {
-        Athlete a = new Athlete();
-        a.setBodyWeight(48.2D);
-        a.setGender(Gender.M);
-        a.setYearOfBirth(LocalDate.now().getYear() - 17);
-        Category cat = RobiCategories.findRobiCategory(a);
-        assertEquals("M49", cat.getComputedCode());
-    }
-    
-    @Test
-    public void testNotWeighed() {
-        Athlete a = new Athlete();
-        a.setBodyWeight(null);
-        a.setGender(Gender.M);
-        a.setYearOfBirth(LocalDate.now().getYear() - 17);
-        Category cat = RobiCategories.findRobiCategory(a);
-        assertEquals(null, cat);
-    }
-    
-    @Test
     public void testTooYoung() {
         Athlete a = new Athlete();
         a.setBodyWeight(null);
@@ -86,9 +81,14 @@ public class RobiCategoriesTest {
         Category cat = RobiCategories.findRobiCategory(a);
         assertEquals(null, cat);
     }
-    
-    @Before
-    public void setupTest() {
-        OwlcmsSession.withFop(fop -> fop.testBefore());
+
+    @Test
+    public void testYoung() {
+        Athlete a = new Athlete();
+        a.setBodyWeight(48.2D);
+        a.setGender(Gender.M);
+        a.setYearOfBirth(LocalDate.now().getYear() - 17);
+        Category cat = RobiCategories.findRobiCategory(a);
+        assertEquals("M49", cat.getComputedCode());
     }
 }

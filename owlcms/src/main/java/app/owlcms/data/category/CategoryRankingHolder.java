@@ -13,11 +13,11 @@ package app.owlcms.data.category;
  *
  */
 public class CategoryRankingHolder implements IRankHolder {
-    protected int snatchRank = 0;
     protected int cleanJerkRank = 0;
-    protected int totalRank = 0;
-    protected int customRank = 0;
     protected int combinedRank = 0;
+    protected int customRank = 0;
+    protected int snatchRank = 0;
+    protected int totalRank = 0;
 
     public int getCleanJerkRank() {
         return cleanJerkRank;

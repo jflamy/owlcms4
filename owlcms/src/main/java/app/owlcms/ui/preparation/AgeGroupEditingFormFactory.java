@@ -46,10 +46,10 @@ public class AgeGroupEditingFormFactory
         extends OwlcmsCrudFormFactory<AgeGroup>
         implements CustomFormFactory<AgeGroup> {
 
-    private AgeGroupContent origin;
+    private CategoryGridField catField;
     @SuppressWarnings("unused")
     private Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupRepository.class);
-    private CategoryGridField catField;
+    private AgeGroupContent origin;
 
     AgeGroupEditingFormFactory(Class<AgeGroup> domainType, AgeGroupContent origin) {
         super(domainType);
@@ -105,7 +105,8 @@ public class AgeGroupEditingFormFactory
         int maxLength = 5;
         binder.forField(codeField)
                 .withNullRepresentation("")
-                .withValidator(new StringLengthValidator(Translator.translate("CodeMustBeShort", maxLength), 0, maxLength))
+                .withValidator(
+                        new StringLengthValidator(Translator.translate("CodeMustBeShort", maxLength), 0, maxLength))
                 .bind(AgeGroup::getCode, AgeGroup::setCode);
 
         ComboBox<AgeDivision> ageDivisionField = new ComboBox<>();

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2009-2022 Jean-François Lamy
- * 
+ *
  * original code from
  * https://stackoverflow.com/questions/2469451/upload-files-from-java-client-to-a-http-server
  *******************************************************************************/
@@ -26,8 +26,7 @@ import ch.qos.logback.classic.Logger;
 public class ClientMultipartFormPost {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(ClientMultipartFormPost.class);
-    
-    
+
     public static void sendStream(URL u, InputStream is, ContentType ct) throws Exception {
 
         CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -46,7 +45,7 @@ public class ClientMultipartFormPost {
             System.out.println("executing request " + httppost.getRequestLine());
             CloseableHttpResponse response = httpclient.execute(httppost);
             try {
-                logger.info("{}",response.getStatusLine());
+                logger.info("{}", response.getStatusLine());
                 HttpEntity resEntity = response.getEntity();
                 if (resEntity != null) {
                     logger.debug("Response content length: {}", resEntity.getContentLength());

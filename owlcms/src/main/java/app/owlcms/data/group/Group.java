@@ -52,54 +52,54 @@ import ch.qos.logback.classic.Logger;
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 public class Group implements Comparable<Group> {
 
+    private final static NaturalOrderComparator<String> c = new NaturalOrderComparator<>();
+
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
 
     private final static DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder().parseLenient()
             .appendPattern(DATE_FORMAT).toFormatter();
 
-    private final static NaturalOrderComparator<String> c = new NaturalOrderComparator<>();
-
-    @Transient
-    final private Logger logger = (Logger) LoggerFactory.getLogger(Group.class);
-
-    @Id
-    // @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
     /** The platform. */
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, optional = true, fetch = FetchType.EAGER)
     @JsonIdentityReference(alwaysAsId = true)
     Platform platform;
+
+    private String announcer;
+
     /** The competition short date time. */
     private LocalDateTime competitionTime;
-
-    private LocalDateTime weighInTime;
-
-    private String name;
-    private String announcer;
-    private String marshall;
-    private String technicalController;
-
-    private String timeKeeper;
-    private String referee1;
-    private String referee2;
-
-    private String referee3;
-    private String jury1;
-    private String jury2;
-    private String jury3;
-    private String jury4;
-
-    private String jury5;
-
-    private String reserve;
+    private String description;
 
     @Column(columnDefinition = "boolean default false")
     private boolean done;
+
+    @Id
+    // @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    private String jury1;
+    private String jury2;
+    private String jury3;
+
+    private String jury4;
+    private String jury5;
+    @Transient
+    final private Logger logger = (Logger) LoggerFactory.getLogger(Group.class);
+
+    private String marshall;
+    private String name;
+    private String referee1;
+    private String referee2;
+    private String referee3;
+
+    private String reserve;
+
+    private String technicalController;
+
+    private String timeKeeper;
     private String weighIn1;
     private String weighIn2;
-    
-    private String description;
+
+    private LocalDateTime weighInTime;
 
     /**
      * Instantiates a new group.
@@ -276,6 +276,10 @@ public class Group implements Comparable<Group> {
     @JsonIgnore
     public Date getCompetitionTimeAsDate() {
         return DateTimeUtils.dateFromLocalDateTime(competitionTime);
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     /**
@@ -482,6 +486,10 @@ public class Group implements Comparable<Group> {
         this.competitionTime = c;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     /**
      * @param id the id to set
      */
@@ -632,14 +640,6 @@ public class Group implements Comparable<Group> {
 
     private void setDone(boolean b) {
         this.done = b;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
 }

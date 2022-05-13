@@ -107,12 +107,20 @@ public class IPInterfaceUtils {
             String absoluteURL = URLUtils.buildAbsoluteURL(request, null);
             logger.trace("absolute URL {}", absoluteURL);
 
-            InetAddress serverAddr = InetAddress.getByName(server);
+            boolean local = false;
             // local = isLocalAddress(server) || isLoopbackAddress(server);
-            boolean loopbackAddress = serverAddr.isLoopbackAddress();
-            boolean siteLocalAddress = serverAddr.isSiteLocalAddress();
-            boolean local = loopbackAddress || siteLocalAddress;
-            logger.trace("request {} loopback:{} sitelocal: {}", requestURL, loopbackAddress, siteLocalAddress);
+            boolean loopbackAddress;
+            boolean siteLocalAddress;
+            try {
+                InetAddress serverAddr = Inet4Address.getByName(server);
+                loopbackAddress = serverAddr.isLoopbackAddress();
+                siteLocalAddress = serverAddr.isSiteLocalAddress();
+                local = loopbackAddress || siteLocalAddress;
+                logger.trace("request {} loopback:{} sitelocal: {}", requestURL, loopbackAddress, siteLocalAddress);
+            } catch (UnknownHostException e) {
+                // reverse name lookup not configured (e.g. when running on gitpod.io)
+                local = false;
+            }
 
             if (!local || server.matches(FQDN_REGEX)) {
                 // an external name or address outside the local machine or local site (non-routable network).
@@ -132,7 +140,7 @@ public class IPInterfaceUtils {
             }
 
             checkInterfaces(protocol, requestPort, true);
-        } catch (SocketException | UnknownHostException e) {
+        } catch (SocketException e) {
             LoggerUtils.logError(logger, e);
         }
         logger.trace("wired = {} {}", wired, wired.size());

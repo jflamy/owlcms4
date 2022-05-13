@@ -13,8 +13,8 @@ import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 
 public class Tone {
-    private byte[] buf;
     private AudioFormat af;
+    private byte[] buf;
     private SourceDataLine sdl;
 
     public Tone(Mixer mixer, int hz, int msecs, double vol) throws IllegalArgumentException, LineUnavailableException {

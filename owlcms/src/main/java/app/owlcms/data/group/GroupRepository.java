@@ -28,6 +28,19 @@ public class GroupRepository {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(GroupRepository.class);
 
+    public static Group add(Group group) {
+        // first clean up the age group
+        Group nGroup = JPAService.runInTransaction(em -> {
+            try {
+                em.persist(group);
+            } catch (Exception e) {
+                LoggerUtils.logError(logger, e);
+            }
+            return null;
+        });
+        return nGroup;
+    }
+
     /**
      * Delete.
      *
@@ -131,19 +144,6 @@ public class GroupRepository {
             aQ.setParameter("groupId", g.getId());
             return aQ.getResultList();
         });
-    }
-    
-    public static Group add(Group group) {
-        // first clean up the age group
-        Group nGroup = JPAService.runInTransaction(em -> {
-            try {
-                em.persist(group);
-            } catch (Exception e) {
-                LoggerUtils.logError(logger, e);
-            }
-            return null;
-        });
-        return nGroup;
     }
 
 }

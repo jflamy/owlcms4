@@ -46,7 +46,7 @@ public class GroupCategorySelectionMenu extends MenuBar {
 //            item = this.addItem(fop.getGroup().getName() + "\u2003\u25bd");
 //            this.addThemeVariants(MenuBarVariant.LUMO_SMALL);
 //        } else {
-        String menuTitle = Translator.translate("Group")+"/"+Translator.translate("Category")+"\u2003\u25bc";
+        String menuTitle = Translator.translate("Group") + "/" + Translator.translate("Category") + "\u2003\u25bc";
         item = this.addItem(menuTitle);
         this.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY);
 //        }
@@ -61,7 +61,7 @@ public class GroupCategorySelectionMenu extends MenuBar {
                             setChecked(e.getSource(), subMenu, true);
                             item.setText(g.getName() + "\u2003\u25bd");
                         });
-    
+
                 subItem.setCheckable(true);
                 if (g.compareTo(fop.getGroup()) == 0) {
                     setChecked(subItem, subMenu, true);
@@ -104,12 +104,13 @@ public class GroupCategorySelectionMenu extends MenuBar {
         item.setEnabled(true);
     }
 
-    private void setChecked(MenuItem menuItem, SubMenu subMenu, boolean checked) {
-        for (MenuItem item : subMenu.getItems()) {
-            item.setChecked(false);
-        }
-        if (checked) {
-            menuItem.setChecked(checked);
+    @SuppressWarnings("unused")
+    private String describedName(Group g) {
+        String desc = g.getDescription();
+        if (desc == null || desc.isBlank()) {
+            return g.getName();
+        } else {
+            return g.getName() + " - " + g.getDescription();
         }
     }
 
@@ -120,13 +121,12 @@ public class GroupCategorySelectionMenu extends MenuBar {
         return finishedCategories;
     }
 
-    @SuppressWarnings("unused")
-    private String describedName(Group g) {
-        String desc = g.getDescription();
-        if (desc == null || desc.isBlank()) {
-            return g.getName();
-        } else {
-            return g.getName() + " - " + g.getDescription();
+    private void setChecked(MenuItem menuItem, SubMenu subMenu, boolean checked) {
+        for (MenuItem item : subMenu.getItems()) {
+            item.setChecked(false);
+        }
+        if (checked) {
+            menuItem.setChecked(checked);
         }
     }
 

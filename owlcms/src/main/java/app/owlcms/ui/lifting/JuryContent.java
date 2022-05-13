@@ -68,6 +68,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     Notification decisionNotification;
 
+    List<ShortcutRegistration> registrations;
     private Athlete athleteUnderReview;
     private JuryDisplayDecisionElement decisions;
     private JuryDialog juryDialog;
@@ -80,7 +81,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private int nbJurors;
     private HorizontalLayout refContainer;
     private Component refereeLabelWrapper;
-    List<ShortcutRegistration> registrations;
     private boolean summonEnabled;
 
     public JuryContent() {
@@ -205,6 +205,41 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
         // moved down to the jury section
         return new HorizontalLayout(); // juryDeliberationButtons();
+    }
+
+    @Override
+    protected void createTopBarSettingsMenu() {
+        topBarSettings = new MenuBar();
+        topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
+        MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
+        SubMenu subMenu2 = item2.getSubMenu();
+        subMenu2.addItem(
+                this.isSilenced() ? Translator.translate("Settings.TurnOnSound")
+                        : Translator.translate("Settings.TurnOffSound"),
+                e -> {
+                    switchSoundMode(this, !this.isSilenced(), true);
+                    e.getSource().setText(this.isSilenced() ? Translator.translate("Settings.TurnOnSound")
+                            : Translator.translate("Settings.TurnOffSound"));
+                    if (decisionDisplay != null) {
+                        decisionDisplay.setSilenced(this.isSilenced());
+                    }
+                    if (decisions != null) {
+                        decisions.setSilenced(this.isSilenced());
+                    }
+                    if (timer != null) {
+                        timer.setSilenced(this.isSilenced());
+                    }
+                });
+        subMenu2.addItem("3", (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                this.setNbJurors(3);
+            });
+        });
+        subMenu2.addItem("5", (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                this.setNbJurors(5);
+            });
+        });
     }
 
     /**
@@ -427,7 +462,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         technicalPauseButton.setText(getTranslation("BreakType.TECHNICAL"));
 
         HorizontalLayout buttons = new HorizontalLayout(juryDeliberationButton, technicalPauseButton);
-        
+
         if (summonEnabled) {
             Button summonRefereesButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
                 openJuryDialog(JuryDeliberationEventType.CALL_REFEREES);
@@ -436,97 +471,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             summonRefereesButton.setText(getTranslation("BreakButton.SummonReferees"));
             buttons.add(summonRefereesButton);
         }
-                
+
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
         return buttons;
-    }
-
-    protected void createTopBarSettingsMenu() {
-        topBarSettings = new MenuBar();
-        topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
-        MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
-        SubMenu subMenu2 = item2.getSubMenu();
-        subMenu2.addItem(
-                this.isSilenced() ? Translator.translate("Settings.TurnOnSound")
-                        : Translator.translate("Settings.TurnOffSound"),
-                e -> {
-                    switchSoundMode(this, !this.isSilenced(), true);
-                    e.getSource().setText(this.isSilenced() ? Translator.translate("Settings.TurnOnSound")
-                            : Translator.translate("Settings.TurnOffSound"));
-                    if (decisionDisplay != null) {
-                        decisionDisplay.setSilenced(this.isSilenced());
-                    }
-                    if (decisions != null) {
-                        decisions.setSilenced(this.isSilenced());
-                    }
-                    if (timer != null) {
-                        timer.setSilenced(this.isSilenced());
-                    }
-                });
-        subMenu2.addItem("3", (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                this.setNbJurors(3);
-            });
-        });
-        subMenu2.addItem("5", (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                this.setNbJurors(5);
-            });
-        });
-    }
-
-    @SuppressWarnings("unused")
-    private Component summonRefereeButtons() {
-        Button one = new Button("1", (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                this.summonReferee(1);
-            });
-        });
-        one.setWidth("4em");
-
-        Button two = new Button("2", (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                this.summonReferee(2);
-            });
-        });
-        two.setWidth("4em");
-
-        Button three = new Button("3", (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                this.summonReferee(3);
-            });
-        });
-        three.setWidth("4em");
-
-        Button all = new Button("*", (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                this.summonReferee(0);
-            });
-        });
-        all.setWidth("4em");
-
-        HorizontalLayout selection = new HorizontalLayout(one, two, three, all);
-        return selection;
-    }
-
-    private void summonReferee(int i) {
-        long now = System.currentTimeMillis();
-        if (now - lastOpen > 100) {
-            // start a break
-            openJuryDialog(JuryDeliberationEventType.CALL_REFEREES);
-            lastOpen = now;
-
-            OwlcmsSession.withFop(fop -> {
-                if (i > 0) {
-                    fop.fopEventPost(new FOPEvent.SummonReferee(i, this.getOrigin()));
-                } else {
-                    // i = 0 means call all refs.
-                    for (int j = 1; j <= 3; j++) {
-                        fop.fopEventPost(new FOPEvent.SummonReferee(j, this.getOrigin()));
-                    }
-                }
-            });
-        }
     }
 
     private void openJuryDialog(JuryDeliberationEventType deliberation) {
@@ -591,6 +538,60 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private void setNbJurors(int nbJurors) {
         this.removeAll();
         init(nbJurors);
+    }
+
+    private void summonReferee(int i) {
+        long now = System.currentTimeMillis();
+        if (now - lastOpen > 100) {
+            // start a break
+            openJuryDialog(JuryDeliberationEventType.CALL_REFEREES);
+            lastOpen = now;
+
+            OwlcmsSession.withFop(fop -> {
+                if (i > 0) {
+                    fop.fopEventPost(new FOPEvent.SummonReferee(i, this.getOrigin()));
+                } else {
+                    // i = 0 means call all refs.
+                    for (int j = 1; j <= 3; j++) {
+                        fop.fopEventPost(new FOPEvent.SummonReferee(j, this.getOrigin()));
+                    }
+                }
+            });
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private Component summonRefereeButtons() {
+        Button one = new Button("1", (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                this.summonReferee(1);
+            });
+        });
+        one.setWidth("4em");
+
+        Button two = new Button("2", (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                this.summonReferee(2);
+            });
+        });
+        two.setWidth("4em");
+
+        Button three = new Button("3", (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                this.summonReferee(3);
+            });
+        });
+        three.setWidth("4em");
+
+        Button all = new Button("*", (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                this.summonReferee(0);
+            });
+        });
+        all.setWidth("4em");
+
+        HorizontalLayout selection = new HorizontalLayout(one, two, three, all);
+        return selection;
     }
 
     private void swapRefereeLabel(Athlete athlete) {

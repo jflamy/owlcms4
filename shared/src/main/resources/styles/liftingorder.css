@@ -1,3 +1,5 @@
+@import 'colors.css';
+
 * {
     box-sizing: border-box;
 }
@@ -49,8 +51,8 @@
 
 .wrapper {
     font-family: Arial, Helvetica, sans-serif;
-    color: white;
-    background-color: black;
+    color: var(--pageTextColor);
+    background-color: var(--pageBackgroundColor);
     height: 100vh;
     padding: 2vmin 2vmin 2vmin 2vmin;
     overflow-y: hidden;
@@ -73,7 +75,7 @@
     font-weight: bold;
     border-width: 0.2ex;
     border-style: solid;
-    border-color: red;
+    border-color: var(--startNumberBoxColor);
     width: 1.5em;
     display: flex;
     justify-content: center;
@@ -112,12 +114,12 @@
     right: 2vmin;
     width: 15vw;
     height: 10vh;
-    background-color: black;
+    background-color: var(--pageBackgroundColor);
     display: none;
 }
 
 .athleteInfo .weight {
-    color: aqua;
+    color: var(--athleteAttemptWeightColor);
     display: flex;
     justify-content: center;
     align-items: baseline;
@@ -134,18 +136,18 @@ table.results {
     width: 100%;
     border-collapse: collapse;
     border: none;
-    background-color: black;
+    background-color: var(--darkBackgroundColor);
     /*margin-bottom: 2vmin;*/
 }
 
 :host(.dark) table.results tr {
-    background-color: black;
-    color: white;
+    background-color: var(--darkBackgroundColor);
+    color: var(--darkTextColor);
 }
 
 :host(.light) table.results tr {
-    background-color: white;
-    color: black;
+    background-color: var(--lightBackgroundColor);
+    color: var(--lightTextColor);
 }
 
 th, td {
@@ -262,33 +264,35 @@ th, td {
 }
 
 :host(.dark) .good {
-    background-color: green;
+    background-color: var(--darkGoodBackgroundColor);
+    color: var(--darkGoodTextColor);
     font-weight: bold;
 }
 
 :host(.light) .good {
-    background-color: green;
+    background-color: var(--lightGoodBackgroundColor);
+    color: var(--lightGoodTextColor);
     font-weight: bold;
-    color: white;
 }
 
 :host(.dark) .fail {
-    background-color: red;
+    background-color: var(--darkFailBackgroundColor);
+    color: var(--darkFailTextColor);
     font-weight: bold;
 }
 
 :host(.light) .fail {
-    background-color: red;
-    font-weight: bold;
-    color: white;
+    background-color: var(--lightFailBackgroundColor);
+    color: var(--lightFailTextColor);
+    font-weight:
 }
 
 :host(.dark) .spacer {
-    background-color: black;
+    background-color: var(--darkSpacerBackgroundColor);
 }
 
 :host(.light) .spacer {
-    background-color: gray;
+    background-color: var(--lightSpacerBackgroundColor);
 }
 
 .english {
@@ -296,22 +300,26 @@ th, td {
 }
 
 :host(.dark) .request {
-    background-color: black;
+    background-color: var(--darkBackgroundColor);
+    color: var(--darkTextColor);
     font-style: italic;
 }
 
 :host(.light) .request {
-    background-color: white;
+    background-color: var(--lightBackgroundColor);
+    color: var(--lightTextColor);
     font-style: italic;
 }
 
 :host(.dark) .current {
-    color: yellow;
+    background-color: var(--darkCurrentBackgroundColor);
+    color: var(--darkCurrentTextColor);
     font-weight: bold;
 }
 
 :host(.light) .current {
-    background-color: yellow;
+    background-color: var(--lightCurrentBackgroundColor);
+    color: var(--lightCurrentTextColor);
     font-weight: bold;
 }
 
@@ -333,32 +341,34 @@ th, td {
 }
 
 :host(.dark) .next {
-    color: orange;
+    background-color: var(--darkNextBackgroundColor);
+    color: var(--darkNextTextColor);
     font-weight: bold;
 }
 
 :host(.light) .next {
-    background-color: gold;
+    background-color: var(--lightNextBackgroundColor);
+    color: var(--lightNextTextColor);
     font-weight: bold;
+}
 }
 
 :host(.dark) .empty {
-    background-color: black;
+    background-color: var(--darkBackgroundColor);
     font-style: italic;
 }
 
 :host(.light) .empty {
-    background-color: white;
+    background-color: var(--lightBackgroundColor);
     font-style: italic;
 }
 
 .breakTime {
-    /* color: #99CCFF; */
-    color: SkyBlue;
+    color: var(--breakTimerColor);
 }
 
 .athleteTimer {
-    color: yellow;
+    color: var(--athleteTimerColor);
 }
 
 .v-system-error {

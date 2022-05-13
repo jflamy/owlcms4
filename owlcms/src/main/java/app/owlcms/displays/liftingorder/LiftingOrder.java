@@ -120,18 +120,18 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         uiEventLogger.setLevel(Level.INFO);
     }
 
-    private EventBus uiEventBus;
-    private List<Athlete> order;
-    private Group curGroup;
-    private int liftsDone;
-
-    JsonArray sattempts;
     JsonArray cattempts;
+    JsonArray sattempts;
+    private Group curGroup;
     private boolean darkMode;
-    private Location location;
-    private UI locationUI;
+
     private Dialog dialog;
     private boolean initializationNeeded;
+    private int liftsDone;
+    private Location location;
+    private UI locationUI;
+    private List<Athlete> order;
+    private EventBus uiEventBus;
 
     /**
      * Instantiates a new results board.
@@ -156,7 +156,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             doUpdate(fop.getCurAthlete(), null);
         }));
     }
-    
+
     @Override
     public void doCeremony(UIEvent.CeremonyStarted e) {
         doBreak(e);

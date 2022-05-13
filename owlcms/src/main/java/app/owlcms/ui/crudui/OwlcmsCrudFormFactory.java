@@ -58,11 +58,11 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         logger.setLevel(Level.INFO);
     }
 
-    protected ResponsiveStep[] responsiveSteps;
     protected Label errorLabel;
-    private boolean valid = false;
     protected TextField operationTrigger;
     protected ClickEvent<Button> operationTriggerEvent;
+    protected ResponsiveStep[] responsiveSteps;
+    private boolean valid = false;
 
     /**
      * Instantiates a new Form Factory

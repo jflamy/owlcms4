@@ -83,12 +83,8 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     }
 
     @Transient
-    Logger logger = (Logger) LoggerFactory.getLogger(AgeGroup.class);
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonIgnore
-    private Long id;
+    public String categoriesAsString;
 
     boolean active;
 
@@ -97,22 +93,26 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     @Column(name = "agkey")
     String key;
 
-    Integer minAge;
+    @Transient
+    Logger logger = (Logger) LoggerFactory.getLogger(AgeGroup.class);
 
     Integer maxAge;
+
+    Integer minAge;
 
     @Enumerated(EnumType.STRING)
     private AgeDivision ageDivision;
 
+    @OneToMany(mappedBy = "ageGroup", cascade = { CascadeType.ALL }, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Category> categories = new ArrayList<>();
+
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Transient
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonIgnore
-    public String categoriesAsString;
-
-    @OneToMany(mappedBy = "ageGroup", cascade = { CascadeType.ALL }, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Category> categories = new ArrayList<>();
+    private Long id;
 
     private Integer qualificationTotal;
 
@@ -213,7 +213,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     }
 
     public String getKey() {
-        return ageDivision.name() + "_" + gender.name() + "_" + minAge + "_" + maxAge;
+        return getCode() + "_" + ageDivision.name() + "_" + gender.name() + "_" + minAge + "_" + maxAge;
     }
 
     public Integer getMaxAge() {

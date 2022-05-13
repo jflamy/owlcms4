@@ -71,12 +71,12 @@ public class MQTTMonitor {
         logger.debug("{}MQTT summon {} {}", fop.getLoggingName(), e.ref, e.on);
         try {
             String topic = "owlcms/summon/" + fop.getName() + "/" + (e.ref);
-            //String refMacAddress = macAddress[e.ref-1];
+            // String refMacAddress = macAddress[e.ref-1];
             // insert target device mac address for cross-check
             client.publish(topic, new MqttMessage(
-                    ((e.on ? "on" : "off") 
-                            //+ (refMacAddress != null ? " " + refMacAddress : "")
-                            )
+                    ((e.on ? "on" : "off")
+                    // + (refMacAddress != null ? " " + refMacAddress : "")
+                    )
                             .getBytes(StandardCharsets.UTF_8)));
         } catch (MqttException e1) {
             logger.error("could not publish summon {}", e1.getCause());
@@ -86,13 +86,13 @@ public class MQTTMonitor {
     @Subscribe
     public void slaveWakeUpRef(UIEvent.WakeUpRef e) {
         // e.ref is 1..3
-        //logger.debug("slaveWakeUp {}", e.on);
+        // logger.debug("slaveWakeUp {}", e.on);
         try {
             String topic = "owlcms/decisionRequest/" + fop.getName() + "/" + e.ref;
             // String refMacAddress = macAddress[e.ref];
             client.publish(topic, new MqttMessage(
                     ((e.on ? "on" : "off")
-                            /* + (refMacAddress != null ? " " + refMacAddress : "")*/) 
+                    /* + (refMacAddress != null ? " " + refMacAddress : "") */)
                             .getBytes(StandardCharsets.UTF_8)));
         } catch (MqttException e1) {
             logger.error("could not publish wakeup {}", e1.getCause());
@@ -101,12 +101,13 @@ public class MQTTMonitor {
 
     private void connectionLoop() {
         while (!client.isConnected()) {
-            try { 
+            try {
                 // doConnect will generate a new client Id, and wait for completion
                 // client.reconnect() and automaticReconnection do not work as I expect.
                 doConnect();
             } catch (Exception e1) {
-                Main.logger.error("{}MQTT refereeing device server: {}", fop.getLoggingName(), e1.getCause() != null ? e1.getCause().getMessage() : e1.getMessage());
+                Main.logger.error("{}MQTT refereeing device server: {}", fop.getLoggingName(),
+                        e1.getCause() != null ? e1.getCause().getMessage() : e1.getMessage());
             }
             sleep(1000);
         }
@@ -141,10 +142,9 @@ public class MQTTMonitor {
             connOpts.setPassword(password.toCharArray());
         }
         connOpts.setCleanSession(true);
-        //connOpts.setAutomaticReconnect(true);
+        // connOpts.setAutomaticReconnect(true);
         return connOpts;
     }
-    
 
     private MqttConnectOptions setupMQTTClient() {
         MqttConnectOptions connOpts = setUpConnectionOptions(userName != null ? userName : "",
@@ -173,7 +173,7 @@ public class MQTTMonitor {
                             String[] parts = messageStr.split(" ");
                             int refIndex = Integer.parseInt(parts[0]) - 1;
                             fop.fopEventPost(new FOPEvent.DecisionUpdate(this, refIndex,
-                                    parts[parts.length-1].contentEquals("good")));
+                                    parts[parts.length - 1].contentEquals("good")));
                             macAddress[refIndex] = parts[1];
                         } catch (NumberFormatException e) {
                             logger.error("{}Malformed MQTT decision message topic='{}' message='{}'",
@@ -192,6 +192,5 @@ public class MQTTMonitor {
         } catch (InterruptedException e) {
         }
     }
-    
 
 }

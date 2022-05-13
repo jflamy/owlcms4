@@ -55,14 +55,14 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         logger.setLevel(Level.INFO);
     }
 
-    private FlexLayout topBar;
-    private ComboBox<Group> gridGroupFilter;
     private AppLayout appLayout;
-    private ComboBox<Group> groupSelect;
-    private Group group;
-    private Button startingWeightsButton;
     private Button cardsButton;
+    private ComboBox<Group> gridGroupFilter;
+    private Group group;
+    private ComboBox<Group> groupSelect;
     private Button juryButton;
+    private Button startingWeightsButton;
+    private FlexLayout topBar;
 
     public ComboBox<Group> getGroupSelect() {
         return groupSelect;

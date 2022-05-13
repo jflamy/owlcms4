@@ -16,13 +16,17 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -137,6 +141,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
         setCrudFormFactory(createFormFactory());
 
         plates = new Plates();
+        plates.setId("loadchart");
         OwlcmsSession.withFop((fop) -> {
             plates.computeImageArea(fop, false);
             platform = fop.getPlatform();
@@ -150,74 +155,71 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
         StringToIntegerConverter converter = new StringToIntegerConverter(getTranslation("MustEnterNumber"));
 
         Binder<Platform> binder = new Binder<>();
+        Converter<Boolean,Integer> bc = Converter.from(checked -> Result.ok(checked ? 1 : 0),
+                value -> value > 0);
 
         TextField nbL25 = new TextField();
+        nbL25.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
+        nbL25.setWidth("4ch");
         largePlates.addFormItem(nbL25, getTranslation("Kg", 25));
         binder.forField(nbL25).withConverter(converter).bind(Platform::getNbL_25, Platform::setNbL_25);
         nbL25.setAutoselect(true);
 
         TextField nbL20 = new TextField();
+        nbL20.setWidth("4ch");
+        nbL20.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
         largePlates.addFormItem(nbL20, getTranslation("Kg", 20));
         binder.forField(nbL20).withConverter(converter).bind(Platform::getNbL_20, Platform::setNbL_20);
         nbL20.setAutoselect(true);
 
-        TextField nbL15 = new TextField();
+        Checkbox nbL15 = new Checkbox();
         largePlates.addFormItem(nbL15, getTranslation("Kg", 15));
-        binder.forField(nbL15).withConverter(converter).bind(Platform::getNbL_15, Platform::setNbL_15);
-        nbL15.setAutoselect(true);
+        binder.forField(nbL15).withConverter(bc).bind(Platform::getNbL_15, Platform::setNbL_15);
 
-        TextField nbL10 = new TextField();
+        Checkbox nbL10 = new Checkbox();
         largePlates.addFormItem(nbL10, getTranslation("Kg", 10));
-        binder.forField(nbL10).withConverter(converter).bind(Platform::getNbL_10, Platform::setNbL_10);
-        nbL10.setAutoselect(true);
+        binder.forField(nbL10).withConverter(bc).bind(Platform::getNbL_10, Platform::setNbL_10);
 
-        TextField nbL5 = new TextField();
+        Checkbox nbL5 = new Checkbox();
         largePlates.addFormItem(nbL5, getTranslation("Kg", 5));
-        binder.forField(nbL5).withConverter(converter).bind(Platform::getNbL_5, Platform::setNbL_5);
-        nbL5.setAutoselect(true);
+        binder.forField(nbL5).withConverter(bc).bind(Platform::getNbL_5, Platform::setNbL_5);
 
-        TextField nbL2_5 = new TextField();
+        Checkbox nbL2_5 = new Checkbox();
         largePlates.addFormItem(nbL2_5, getTranslation("Kg", 2.5));
-        binder.forField(nbL2_5).withConverter(converter).bind(Platform::getNbL_2_5, Platform::setNbL_2_5);
-        nbL2_5.setAutoselect(true);
+        binder.forField(nbL2_5).withConverter(bc).bind(Platform::getNbL_2_5, Platform::setNbL_2_5);
 
-        TextField nbS5 = new TextField();
+        Checkbox nbS5 = new Checkbox();
         smallPlates.addFormItem(nbS5, getTranslation("Kg", 5));
-        binder.forField(nbS5).withConverter(converter).bind(Platform::getNbS_5, Platform::setNbS_5);
-        nbS5.setAutoselect(true);
+        binder.forField(nbS5).withConverter(bc).bind(Platform::getNbS_5, Platform::setNbS_5);
 
-        TextField nbS2_5 = new TextField();
+        Checkbox nbS2_5 = new Checkbox();
         smallPlates.addFormItem(nbS2_5, getTranslation("Kg", 2.5));
-        binder.forField(nbS2_5).withConverter(converter).bind(Platform::getNbS_2_5, Platform::setNbS_2_5);
-        nbS2_5.setAutoselect(true);
+        binder.forField(nbS2_5).withConverter(bc).bind(Platform::getNbS_2_5, Platform::setNbS_2_5);
 
-        TextField nbS2 = new TextField();
+        Checkbox nbS2 = new Checkbox();
         smallPlates.addFormItem(nbS2, getTranslation("Kg", 2));
-        binder.forField(nbS2).withConverter(converter).bind(Platform::getNbS_2, Platform::setNbS_2);
-        nbS2.setAutoselect(true);
+        binder.forField(nbS2).withConverter(bc).bind(Platform::getNbS_2, Platform::setNbS_2);
 
-        TextField nbS1_5 = new TextField();
+        Checkbox nbS1_5 = new Checkbox();
         smallPlates.addFormItem(nbS1_5, getTranslation("Kg", 1.5));
-        binder.forField(nbS1_5).withConverter(converter).bind(Platform::getNbS_1_5, Platform::setNbS_1_5);
+        binder.forField(nbS1_5).withConverter(bc).bind(Platform::getNbS_1_5, Platform::setNbS_1_5);
         nbL20.setAutoselect(true);
 
-        TextField nbS1 = new TextField();
+        Checkbox nbS1 = new Checkbox();
         smallPlates.addFormItem(nbS1, getTranslation("Kg", 1));
-        binder.forField(nbS1).withConverter(converter).bind(Platform::getNbS_1, Platform::setNbS_1);
-        nbS1.setAutoselect(true);
+        binder.forField(nbS1).withConverter(bc).bind(Platform::getNbS_1, Platform::setNbS_1);
 
-        TextField nbS0_5 = new TextField();
+        Checkbox nbS0_5 = new Checkbox();
         smallPlates.addFormItem(nbS0_5, getTranslation("Kg", 0.5));
-        binder.forField(nbS0_5).withConverter(converter).bind(Platform::getNbS_0_5, Platform::setNbS_0_5);
-        nbS0_5.setAutoselect(true);
+        binder.forField(nbS0_5).withConverter(bc).bind(Platform::getNbS_0_5, Platform::setNbS_0_5);
 
-        TextField nbC2_5 = new TextField();
+        Checkbox nbC2_5 = new Checkbox();
         collar.addFormItem(nbC2_5, getTranslation("Kg", 2.5));
-        binder.forField(nbC2_5).withConverter(converter).bind(Platform::getNbC_2_5, Platform::setNbC_2_5);
-        nbC2_5.setAutoselect(true);
-
+        binder.forField(nbC2_5).withConverter(bc).bind(Platform::getNbC_2_5, Platform::setNbC_2_5);
+        
         Checkbox useOtherBar = new Checkbox();
         TextField barWeight = new TextField();
+        barWeight.setWidth("5ch");
         lightBar.addFormItem(useOtherBar, getTranslation("NonStandardBar"));
         useOtherBar.addValueChangeListener((e) -> {
             barWeight.setEnabled(Boolean.TRUE.equals(e.getValue()));
@@ -253,16 +255,23 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
             }
 
         });
-        FlexLayout platesEdit = new FlexLayout(new H3(getTranslation("BumperPlates")), largePlates,
-                new H3(getTranslation("MetalPlates")), smallPlates, new H3(getTranslation("Collar")), collar,
-                new H3(getTranslation("Bar")), lightBar, new H3(""), applyButton);
+
+        FlexLayout platesEdit = new FlexLayout(
+                new H3(getTranslation("BumperPlates")), 
+                new Label(getTranslation("PlatesPerSide")),
+                largePlates,
+                new H3(getTranslation("MetalPlates")), smallPlates, 
+                new H3(getTranslation("Collar")), collar,
+                new H3(getTranslation("Bar")), lightBar, 
+                new H3(""), applyButton);
         platesEdit.getStyle().set("flex-direction", "column");
+        platesEdit.setWidth("120em");
         HorizontalLayout leftRight = new HorizontalLayout(platesDisplay, platesEdit);
-        leftRight.setFlexGrow(1.0D, platesDisplay, platesEdit);
+        leftRight.setFlexGrow(2.0D, platesDisplay);
         leftRight.setSizeFull();
         leftRight.setAlignItems(Alignment.CENTER);
 
-        fillHW(leftRight, this);
+        fillH(leftRight, this);
         binder.readBean(platform);
     }
 

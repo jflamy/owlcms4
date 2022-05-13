@@ -22,17 +22,17 @@ import ch.qos.logback.classic.Logger;
  */
 public class ProxyAthleteTimer implements IProxyTimer {
 
+    private FieldOfPlay fop;
     final private Logger logger = (Logger) LoggerFactory.getLogger(ProxyAthleteTimer.class);
+
+    private boolean running = false;
+    private long startMillis;
+    private long stopMillis;
+    private int timeRemaining;
+    private int timeRemainingAtLastStop;
     {
         logger.setLevel(Level.INFO);
     }
-
-    private int timeRemaining;
-    private FieldOfPlay fop;
-    private long startMillis;
-    private long stopMillis;
-    private boolean running = false;
-    private int timeRemainingAtLastStop;
 
     /**
      * Instantiates a new countdown timer.
@@ -96,11 +96,11 @@ public class ProxyAthleteTimer implements IProxyTimer {
             stopMillis = System.currentTimeMillis();
             long elapsed = stopMillis - startMillis;
             int tr = (int) (getTimeRemaining() - elapsed);
-            //logger.debug("liveTimeRemaining running {} {}", formattedDuration(tr), LoggerUtils.whereFrom());
+            // logger.debug("liveTimeRemaining running {} {}", formattedDuration(tr), LoggerUtils.whereFrom());
             return tr;
         } else {
             int tr = getTimeRemaining();
-            //logger.debug("liveTimeRemaining stopped {} {}", formattedDuration(tr), LoggerUtils.whereFrom());
+            // logger.debug("liveTimeRemaining stopped {} {}", formattedDuration(tr), LoggerUtils.whereFrom());
             return tr;
         }
     }
@@ -121,10 +121,10 @@ public class ProxyAthleteTimer implements IProxyTimer {
         if (running) {
             computeTimeRemaining();
         }
-        logger.warn("{}==== setting Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining, LoggerUtils.whereFrom());
+        // logger.trace("{}==== setting Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining, LoggerUtils.whereFrom());
         this.timeRemaining = timeRemaining;
         if (timeRemaining < 1) {
-            logger.warn("setting with no time {}", LoggerUtils.whereFrom());
+            logger.warn/**/("setting with no time {}", LoggerUtils.whereFrom());
         }
         getFop().pushOutUIEvent(new UIEvent.SetTime(timeRemaining, null));
         running = false;
@@ -137,11 +137,12 @@ public class ProxyAthleteTimer implements IProxyTimer {
     public void start() {
         if (!running) {
             startMillis = System.currentTimeMillis();
-            //logger.debug("{}starting Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining,  LoggerUtils.whereFrom());
+            // logger.debug("{}starting Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining,
+            // LoggerUtils.whereFrom());
             timeRemainingAtLastStop = timeRemaining;
         }
         if (timeRemaining < 1) {
-            logger.warn("starting with no time {}", LoggerUtils.whereFrom());
+            logger.warn/**/("starting with no time {}", LoggerUtils.whereFrom());
         }
         getFop().pushOutUIEvent(
                 new UIEvent.StartTime(timeRemaining, null, getFop().isEmitSoundsOnServer(), LoggerUtils.stackTrace()));
@@ -156,7 +157,8 @@ public class ProxyAthleteTimer implements IProxyTimer {
         if (running) {
             computeTimeRemaining();
         }
-        //logger.debug("{}stopping Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining, LoggerUtils.whereFrom());
+        // logger.debug("{}stopping Time -- timeRemaining = {} ({})", getFop().getLoggingName(), timeRemaining,
+        // LoggerUtils.whereFrom());
         timeRemainingAtLastStop = timeRemaining;
         getFop().pushOutUIEvent(new UIEvent.StopTime(timeRemaining, null));
         running = false;

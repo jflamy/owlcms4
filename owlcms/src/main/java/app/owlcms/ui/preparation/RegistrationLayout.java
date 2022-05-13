@@ -56,13 +56,13 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         logger.setLevel(Level.INFO);
     }
 
-    private FlexLayout topBar;
-    private ComboBox<Group> gridGroupFilter;
     private AppLayout appLayout;
-    private ComboBox<Group> groupSelect;
-    private Group group;
     private Button cardsButton;
+    private ComboBox<Group> gridGroupFilter;
+    private Group group;
+    private ComboBox<Group> groupSelect;
     private Button startingListButton;
+    private FlexLayout topBar;
 
     /**
      * @return the groupSelect

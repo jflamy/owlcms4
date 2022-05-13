@@ -41,21 +41,21 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class CategoryGridField extends CustomField<List<Category>> {
 
+    Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
+
     Logger logger = (Logger) LoggerFactory.getLogger(CategoryGridField.class);
 
-    private List<Category> presentationCategories = new ArrayList<>();
+    TextField qualTotField = new TextField();
 
     private AgeGroup ageGroup;
-
-    private Grid<Category> catGrid;
-
-    Collection<Button> editButtons = Collections.newSetFromMap(new WeakHashMap<>());
 
     private Binder<Category> catBinder;
 
     private Editor<Category> catEditor;
 
-    TextField qualTotField = new TextField();
+    private Grid<Category> catGrid;
+
+    private List<Category> presentationCategories = new ArrayList<>();
 
     private Grid.Column<Category> qualTotColumn;
 

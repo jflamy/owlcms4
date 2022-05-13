@@ -8,7 +8,7 @@ package app.owlcms.uievents;
 
 /**
  * A Ceremony is something that takes place during a break, but does not affect the timer
- * 
+ *
  * @author JF
  *
  */

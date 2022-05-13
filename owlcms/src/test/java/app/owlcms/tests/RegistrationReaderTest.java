@@ -36,8 +36,8 @@ import net.sf.jxls.reader.XLSReader;
 
 public class RegistrationReaderTest {
 
-    private static final String REGISTRATION_READER_SPEC = "/templates/registration/RegistrationReader.xml";
     final static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationReaderTest.class);
+    private static final String REGISTRATION_READER_SPEC = "/templates/registration/RegistrationReader.xml";
 
     @BeforeClass
     public static void setupTests() {

@@ -22,16 +22,15 @@ public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(MockCountdownTimer.class);
 
-    private int timeRemaining;
-
-    private int timeRemainingAtLastStop;
-
     private Integer breakDuration;
-
-    private boolean indefinite;
 
     private BreakType breakType;
 
+    private boolean indefinite;
+
+    private int timeRemaining;
+
+    private int timeRemainingAtLastStop;
 
     public MockCountdownTimer() {
         logger.setLevel(Level.INFO);
@@ -40,6 +39,16 @@ public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
     @Override
     public void finalWarning(Object origin) {
         // ignored
+    }
+
+    @Override
+    public Integer getBreakDuration() {
+        return this.breakDuration;
+    }
+
+    @Override
+    public BreakType getBreakType() {
+        return this.breakType;
     }
 
     /*
@@ -66,8 +75,44 @@ public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
     }
 
     @Override
+    public boolean isIndefinite() {
+        return this.indefinite;
+    }
+
+    @Override
     public boolean isRunning() {
         return timeRemaining != 0;
+    }
+
+    @Override
+    public int liveTimeRemaining() {
+        return getTimeRemaining() - 1000;
+    }
+
+    @Override
+    public void setBreakDuration(Integer breakDuration) {
+        this.breakDuration = breakDuration;
+    }
+
+    public void setBreakType(BreakType breakType) {
+        this.breakType = breakType;
+    }
+
+    @Override
+    public void setEnd(LocalDateTime targetTime) {
+    }
+
+    @Override
+    public void setFop(FieldOfPlay fieldOfPlay) {
+    }
+
+    @Override
+    public void setIndefinite() {
+        this.indefinite = true;
+    }
+
+    @Override
+    public void setOrigin(Object origin) {
     }
 
     /*
@@ -101,7 +146,7 @@ public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
     public void stop() {
         logger.debug("stopping Time -- timeRemaining = {} \t[{}]", timeRemaining, LoggerUtils.whereFrom());
         timeRemaining = (getTimeRemaining() - 2000);
-        timeRemainingAtLastStop = timeRemaining;;
+        timeRemainingAtLastStop = timeRemaining;
     }
 
     /*
@@ -114,52 +159,5 @@ public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
         stop();
         timeRemaining = 0;
     }
-
-    @Override
-    public void setEnd(LocalDateTime targetTime) {
-    }
-
-    @Override
-    public void setIndefinite() {
-        this.indefinite = true;
-    }
-
-    @Override
-    public Integer getBreakDuration() {
-        return this.breakDuration;
-    }
-
-    @Override
-    public void setBreakDuration(Integer breakDuration) {
-        this.breakDuration = breakDuration;
-    }
-
-    @Override
-    public int liveTimeRemaining() {
-        return getTimeRemaining() - 1000;
-    }
-
-    @Override
-    public boolean isIndefinite() {
-        return this.indefinite;
-    }
-
-    @Override
-    public void setOrigin(Object origin) {
-    }
-
-    @Override
-    public void setFop(FieldOfPlay fieldOfPlay) {
-    }
-
-    @Override
-    public BreakType getBreakType() {
-        return this.breakType;
-    }
-
-    public void setBreakType(BreakType breakType) {
-        this.breakType = breakType;
-    }
-
 
 }

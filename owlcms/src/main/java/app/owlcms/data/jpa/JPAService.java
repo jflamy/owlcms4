@@ -64,13 +64,13 @@ import ch.qos.logback.classic.Logger;
  */
 public class JPAService {
 
+    private static EntityManagerFactory factory;
     private static final Logger logger = (Logger) LoggerFactory.getLogger(JPAService.class);
     private static final Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
+
     static {
         logger.setLevel(Level.INFO);
     }
-
-    private static EntityManagerFactory factory;
 
     /**
      * Close.

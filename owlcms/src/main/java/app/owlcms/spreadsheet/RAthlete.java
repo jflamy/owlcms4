@@ -38,13 +38,13 @@ import ch.qos.logback.classic.Logger;
 public class RAthlete {
 
     static Pattern legacyPattern = Pattern.compile("([mMfF]?)(>?)(\\d+)");
+    Athlete a = new Athlete();
+
     final Logger logger = (Logger) LoggerFactory.getLogger(RAthlete.class);
 
     {
         logger.setLevel(Level.INFO);
     }
-
-    Athlete a = new Athlete();
 
     public Athlete getAthlete() {
         return a;

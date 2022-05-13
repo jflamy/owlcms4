@@ -1,0 +1,101 @@
+* {
+    --pageBackgroundColor: black;
+    --pageTextColor: white;
+
+    /* current attempt section */
+
+    --startNumberBoxColor: red;
+    --breakTimerColor: skyblue;
+    --athleteTimerColor: yellow;
+    --athleteAttemptWeightColor: aqua;
+    --downColor: lime;
+
+    --athleteNameColor: white;
+    --athleteCategoryColor: white;
+    --athleteTeamColor: white;
+    --athleteAttemptColor: white;
+
+    --groupInfoColor: white;
+
+    /* results table section, "black on white", cell have a full background different from page background */
+
+    --lightTableBorders: grey;
+    --lightTextColor: black;
+    --lightBackgroundColor: white;
+
+    --lightTitleTextColor: /* white; */ black;
+    --lightTitleBackgroundColor: /* #6c7ae0; */ white;
+
+    --lightCurrentTextColor: var(--lightTextColor);
+    --lightCurrentBackgroundColor: yellow;
+
+    --lightNextTextColor: var(--lightTextColor);
+    --lightNextBackgroundColor: gold;
+
+    --lightCategoryTextColor: var(--lightTextColor);
+    --lightCategoryBackgroundColor: var(--lightBackgroundColor);
+
+    --lightBirthTextColor: var(--lightTextColor);
+    --lightBirthBackgroundColor: var(--lightBackgroundColor);
+
+    --lightTeamTextColor: var(--lightTextColor);
+    --lightTeamBackgroundColor: var(--lightBackgroundColor);
+
+    --lightGoodTextColor: white;
+    --lightGoodBackgroundColor: green;
+
+    --lightFailTextColor: white;
+    --lightFailBackgroundColor: darkred;
+
+    --lightRankTextColor: var(--lightTextColor);
+    --lightRankBackgroundColor: #F9E79F;
+
+    --lightTotalRankTextColor:
+        /* white; */
+        var(--lightTextColor);
+        
+    --lightTotalRankBackgroundColor:
+        /* purple; */
+        var(--lightRankBackgroundColor);
+
+    --lightSpacerBackgroundColor: var(--lightTableBorders);
+
+    /* results table section, "white on black", most cells have same dark background as page */
+
+    --darkTableBorders: var(--pageTextColor);
+    --darkTextColor: var(--pageTextColor);
+    --darkBackgroundColor: var(--pageBackgroundColor);
+
+    --darkTitleTextColor: var(--darkTextColor);
+    --darkTitleBackgroundColor: var(--darkBackgroundColor);
+
+    --darkCurrentTextColor: yellow;
+    --darkCurrentBackgroundColor: var(--darkBackgroundColor);
+
+    --darkNextTextColor: orange;
+    --darkNextBackgroundColor: var(--darkBackgroundColor);
+
+    --darkCategoryTextColor: var(--darkTextColor);
+    --darkCategoryBackgroundColor: var(--darkBackgroundColor);
+
+    --darkBirthTextColor: var(--darkTextColor);
+    --darkBirthBackgroundColor: var(--darkBackgroundColor);
+
+    --darkTeamTextColor: var(--darkTextColor);
+    --darkTeamBackgroundColor: var(--darkBackgroundColor);
+
+    --darkGoodTextColor: white;
+    --darkGoodBackgroundColor: green;
+
+    --darkFailTextColor: white;
+    --darkFailBackgroundColor: darkred;
+
+    --darkRankTextColor: var(--darkTextColor);
+    --darkRankBackgroundColor: var(--darkBackgroundColor);
+
+    --darkTotalRankTextColor: var(--darkTextColor);
+    --darkTotalRankBackgroundColor: var(--darkBackgroundColor);
+
+    --darkSpacerBackgroundColor: var(--darkBackgroundColor);
+
+}

@@ -44,9 +44,9 @@ import ch.qos.logback.classic.Logger;
 public abstract class WrappedTextField<T> extends AbstractCompositeField<ValidationTextField, WrappedTextField<T>, T>
         implements HasValidation {
 
-    private Logger logger;
-
     protected boolean validFormat;
+
+    private Logger logger;
 
     // TextField wrappedTextField;
 

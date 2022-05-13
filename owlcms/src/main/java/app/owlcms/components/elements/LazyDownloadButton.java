@@ -61,11 +61,11 @@ public class LazyDownloadButton extends Button {
 
     private static final String DEFAULT_FILE_NAME = "download";
     private static final Supplier<String> DEFAULT_FILE_NAME_SUPPLIER = () -> DEFAULT_FILE_NAME;
+    private Anchor anchor;
+
     private Supplier<String> fileNameCallback;
 
     private InputStreamFactory inputStreamCallback;
-
-    private Anchor anchor;
 
     public LazyDownloadButton() {
     }

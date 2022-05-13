@@ -50,14 +50,14 @@ public class Main {
 
     public final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
 
-    protected static Integer serverPort;
-    protected static boolean demoMode;
-    protected static boolean memoryMode;
-    protected static boolean resetMode;
     protected static boolean demoData;
-    protected static boolean smallData;
+    protected static boolean demoMode;
     protected static boolean masters;
+    protected static boolean memoryMode;
     protected static String productionMode;
+    protected static boolean resetMode;
+    protected static Integer serverPort;
+    protected static boolean smallData;
 
     private static InitialData initialData;
 

@@ -189,22 +189,6 @@ public class JuryDialog extends EnhancedDialog {
         this.setWidth("50em");
     }
 
-    private void styleRefereeButton(Button button, boolean first) {
-        final String buttonStyle = "margin-left: 1em";
-        final String refereeStyle = "contrast";
-        button.setWidth("4em");
-        button.getElement().setAttribute("theme", refereeStyle);
-        if (!first) {
-            button.getElement().setAttribute("style", buttonStyle);
-        }
-    }
-
-    private void summonReferee(int i) {
-        OwlcmsSession.withFop(fop -> {
-            fop.fopEventPost(new FOPEvent.SummonReferee(i, this.origin));
-        });
-    }
-
     private void doBadLift(Athlete athleteUnderReview, FieldOfPlay fop) {
         if (shortcutTooSoon()) {
             return;
@@ -351,7 +335,8 @@ public class JuryDialog extends EnhancedDialog {
     private void doTechnicalPause(Object origin) {
         // technical pause from Jury
         OwlcmsSession.getFop()
-                .fopEventPost(new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null, true, this));
+                .fopEventPost(
+                        new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null, true, this));
         JuryNotification event = new UIEvent.JuryNotification(null, origin,
                 JuryDeliberationEventType.TECHNICAL_PAUSE, null);
         OwlcmsSession.getFop().getUiEventBus().post(event);
@@ -379,5 +364,21 @@ public class JuryDialog extends EnhancedDialog {
             // logger.trace("too soon {} {}", delta, LoggerUtils.whereFrom());
             return true;
         }
+    }
+
+    private void styleRefereeButton(Button button, boolean first) {
+        final String buttonStyle = "margin-left: 1em";
+        final String refereeStyle = "contrast";
+        button.setWidth("4em");
+        button.getElement().setAttribute("theme", refereeStyle);
+        if (!first) {
+            button.getElement().setAttribute("style", buttonStyle);
+        }
+    }
+
+    private void summonReferee(int i) {
+        OwlcmsSession.withFop(fop -> {
+            fop.fopEventPost(new FOPEvent.SummonReferee(i, this.origin));
+        });
     }
 }

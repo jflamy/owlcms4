@@ -108,28 +108,28 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(TopTeams.class);
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     private static final int TOP_N = 5;
+    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     static {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
     }
 
-    private EventBus uiEventBus;
+    JsonArray cattempts;
 
     JsonArray sattempts;
-    JsonArray cattempts;
+    private AgeDivision ageDivision = null;
+    private String ageGroupPrefix = null;
     private boolean darkMode;
+    private Dialog dialog;
+    private DecimalFormat floatFormat;
+    private boolean initializationNeeded;
     private Location location;
     private UI locationUI;
     private List<TeamTreeItem> mensTeams;
+    private EventBus uiEventBus;
     private List<TeamTreeItem> womensTeams;
-    private DecimalFormat floatFormat;
-    private Dialog dialog;
-    private boolean initializationNeeded;
-    private AgeDivision ageDivision = null;
-    private String ageGroupPrefix = null;
 
     /**
      * Instantiates a new results board.
@@ -196,7 +196,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
             doUpdate(fop.getCurAthlete(), null);
         }));
     }
-    
+
     @Override
     public void doCeremony(UIEvent.CeremonyStarted e) {
         doBreak(e);

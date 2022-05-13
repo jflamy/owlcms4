@@ -83,7 +83,7 @@ public class DisplayOptions {
 
         layout.add(rbgroup);
     }
-    
+
     public static void addSwitchableEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
 
         boolean switchable = dp.isSwitchableDisplay();
@@ -104,6 +104,5 @@ public class DisplayOptions {
 
         layout.add(rbgroup);
     }
-    
-    
+
 }

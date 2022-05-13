@@ -27,7 +27,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -39,7 +38,6 @@ import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.fieldofplay.FOPError;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
@@ -71,11 +69,12 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         uiEventLogger.setLevel(Level.INFO);
     }
 
-    private HorizontalLayout timerButtons;
     private HorizontalLayout decisionLights;
+    private long previousBadMillis = 0L;
 
     private long previousGoodMillis = 0L;
-    private long previousBadMillis = 0L;
+    private HorizontalLayout timerButtons;
+
     public AnnouncerContent() {
         super();
         defineFilters(crudGrid);
@@ -130,17 +129,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         return false;
     }
 
-    @Subscribe
-    public void slaveNotification(UIEvent.Notification e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            Notification n = new Notification();
-            n.setText(FOPError.translateMessage(e.getFopStateString(), e.getFopEventString()));
-            n.setPosition(Position.MIDDLE);
-            n.setDuration(3000);
-            n.addThemeVariants(NotificationVariant.LUMO_ERROR);
-            n.open();
-        });
-    }
 
     @Subscribe
     public void slaveRefereeDecision(UIEvent.Decision e) {
@@ -206,8 +194,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         introCountdownButton = new Button(getTranslation("introCountdown"), AvIcons.AV_TIMER.create(),
                 (e) -> {
                     OwlcmsSession.withFop(fop -> {
-//                        fop.fopEventPost(
-//                            new FOPEvent.BreakStarted(BreakType.BEFORE_INTRODUCTION, CountdownType.INDEFINITE, null, null, this));
                         BreakDialog dialog = new BreakDialog(this, BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET);
                         dialog.open();
                     });
@@ -226,7 +212,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             OwlcmsSession.withFop(fop -> {
                 UI.getCurrent().access(() -> createTopBar());
                 fop.fopEventPost(
-                        new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null, true, this));
+                        new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null, true,
+                                this));
             });
         });
         showResultsButton.getThemeNames().add("success primary");
@@ -319,13 +306,13 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         });
 
         OwlcmsSession.withFop(fop -> {
-            topBarMenu = new GroupSelectionMenu(groups, fop, 
-                    (g1, fop1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(g1.compareTo(fop1.getGroup()) == 0 ? null : g1, this)),
+            topBarMenu = new GroupSelectionMenu(groups, fop,
+                    (g1, fop1) -> fop.fopEventPost(
+                            new FOPEvent.SwitchGroup(g1.compareTo(fop1.getGroup()) == 0 ? null : g1, this)),
                     (g1, fop1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
             createTopBarSettingsMenu();
         });
     }
-
 
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
@@ -396,6 +383,5 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         fillTopBarLeft();
         decisionLights = null;
     }
-
 
 }

@@ -21,9 +21,6 @@ import ch.qos.logback.classic.Logger;
 
 public class TeamTreeItem {
 
-    @SuppressWarnings("unused")
-    private final static Logger logger = (Logger) LoggerFactory.getLogger(TeamTreeItem.class);
-
     public static Comparator<TeamTreeItem> pointComparator = ((a, b) -> {
         int compare = 0;
         compare = ObjectUtils.compare(a.getGender(), b.getGender(), true);
@@ -43,6 +40,9 @@ public class TeamTreeItem {
         compare = -ObjectUtils.compare(a.getSinclairScore(), b.getSinclairScore(), true);
         return compare;
     });
+
+    @SuppressWarnings("unused")
+    private final static Logger logger = (Logger) LoggerFactory.getLogger(TeamTreeItem.class);
 
     private Athlete athlete;
     private boolean done;

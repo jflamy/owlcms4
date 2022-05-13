@@ -123,7 +123,7 @@ public class RecordDefinitionReaderTest {
         List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 66.0D);
         assertEquals("wrong number of results", 9, results.size());
     }
-    
+
     @Test
     public void _05_testNoMatch() throws IOException {
         String zipURI = "/testData/records/IWFRecords.zip";
@@ -132,7 +132,7 @@ public class RecordDefinitionReaderTest {
         List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 12, 66.0D);
         assertEquals("wrong number of results", 0, results.size());
     }
-    
+
     @Test
     public void _05_testYthMatch() throws IOException {
         String zipURI = "/testData/records/IWFRecords.zip";

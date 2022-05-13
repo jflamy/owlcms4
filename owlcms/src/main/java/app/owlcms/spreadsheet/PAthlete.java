@@ -42,15 +42,15 @@ public class PAthlete extends Athlete implements IRankHolder {
 
     Logger logger = (Logger) LoggerFactory.getLogger(PAthlete.class);
 
-    private Participation p;
+    private Athlete a;
+
+    private Category c;
 
     @JsonIgnore
     @Transient
     private Participation originalParticipation;
 
-    private Athlete a;
-
-    private Category c;
+    private Participation p;
 
     public PAthlete(Participation p) {
         this.a = p.getAthlete();

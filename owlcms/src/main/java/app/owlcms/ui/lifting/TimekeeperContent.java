@@ -419,5 +419,4 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
             stopReg = null;
         }
     }
-
 }
