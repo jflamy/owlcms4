@@ -224,11 +224,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         this.sortedAthletes = sortedAthletes;
     }
 
-    public void setTemplateFileName(String templateFileName) {
-        logger.debug("setTemplateFileName {}", templateFileName);
-        this.templateFileName = templateFileName;
-    }
-
     /**
      * Attempt to erase a pair of adjoining cells.
      *
