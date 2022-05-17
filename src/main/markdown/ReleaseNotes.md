@@ -2,6 +2,8 @@
 
 - 4.31.1: Fix: the plain scoreboard was mistakenly including the leaderboard
   
+- 4.31.1: New: selecting the "Categories" template when printing a Start List creates a listing of registered athletes grouped by category instead of the usual "Groups".
+  
 - New "Feature Toggle" configuration option located at the bottom the Language and Settings page. This will be used to enable experimental features, or to select backward compatible behavior. If more than one feature keyword is needed, they are separated by commas.
   
 - New parameterized scoreboards.  Colors can be changed in the `styles/colors.css` file (*The default colors are the same as the previous defaults).*  See [Customization](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/UploadingLocalSettings) for how to proceed.
