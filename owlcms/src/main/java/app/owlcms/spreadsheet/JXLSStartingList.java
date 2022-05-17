@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.competition.Competition;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -41,14 +42,25 @@ public class JXLSStartingList extends JXLSWorkbookStreamSource {
 
     @Override
     protected List<Athlete> getSortedAthletes() {
-        return AthleteSorter.registrationOrderCopy(AthleteRepository.findAll()).stream()
-                .filter(a -> a.getGroup() != null)
-                .map(a -> {
-                    if (a.getTeam() == null) {
-                        a.setTeam("-");
-                    }
-                    return a;
-                }).collect(Collectors.toList());
+        if (Competition.getCurrent().getComputedStartListTemplateFileName().contains("Categor")) {
+            return AthleteSorter.displayOrderCopy(AthleteRepository.findAll()).stream()
+                    .filter(a -> a.getCategory() != null)
+                    .map(a -> {
+                        if (a.getTeam() == null) {
+                            a.setTeam("-");
+                        }
+                        return a;
+                    }).collect(Collectors.toList());
+        } else {
+            return AthleteSorter.registrationOrderCopy(AthleteRepository.findAll()).stream()
+                    .filter(a -> a.getGroup() != null)
+                    .map(a -> {
+                        if (a.getTeam() == null) {
+                            a.setTeam("-");
+                        }
+                        return a;
+                    }).collect(Collectors.toList());
+        }
     }
 
 }
