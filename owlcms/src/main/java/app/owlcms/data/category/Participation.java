@@ -25,7 +25,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -99,14 +98,14 @@ public class Participation implements IRankHolder {
 
     public Participation(Athlete athlete, Category category) {
         this();
-        logger.warn("new participation {} {} {}", athlete.getShortName(), category, LoggerUtils.whereFrom());
+        //logger.trace("new participation {} {} {}", athlete.getShortName(), category, LoggerUtils.whereFrom());
         this.athlete = athlete;
         this.category = category;
         this.id = new ParticipationId(athlete.getId(), category.getId());
     }
 
     public Participation(Participation p, Athlete a, Category c) {
-        logger.warn("copying participation {} {} {}", a.getShortName(), c, LoggerUtils.whereFrom());
+        //logger.trace("copying participation {} {} {}", a.getShortName(), c, LoggerUtils.whereFrom());
         this.athlete = a;
         this.category = c;
         this.cleanJerkRank = p.cleanJerkRank;
@@ -285,7 +284,7 @@ public class Participation implements IRankHolder {
     }
 
     public void setTeamMember(boolean teamMember) {
-        logger.warn("setTeamMember {} {}", teamMember, LoggerUtils.whereFrom());
+        //logger.trace("setTeamMember {} {}", teamMember, LoggerUtils.whereFrom());
         this.teamMember = teamMember;
     }
 
