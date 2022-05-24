@@ -53,12 +53,15 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.displays.athletecard.AthleteCard;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -543,6 +546,15 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     @SuppressWarnings({ "unchecked" })
     private void filterCategories(Category category, boolean initCategories) {
         setChangeListenersEnabled(false);
+        
+        Binding<Athlete, ?> groupBinding = binder.getBinding("group").get();
+        ComboBox<Group> groupField = (ComboBox<Group>) groupBinding.getField();
+        Group curGroup = groupField.getValue();
+        // force reading all groups
+        List<Group> allGroups = GroupRepository.findAll();
+        allGroups.sort(new NaturalOrderComparator<Group>());
+        groupField.setItems(allGroups);
+        groupField.setValue(curGroup);
 
         Binding<Athlete, ?> genderBinding = binder.getBinding("gender").get();
         ComboBox<Gender> genderField = (ComboBox<Gender>) genderBinding.getField();
