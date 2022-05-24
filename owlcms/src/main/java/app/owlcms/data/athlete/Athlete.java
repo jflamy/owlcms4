@@ -398,10 +398,15 @@ public class Athlete {
     }
 
     public void addEligibleCategory(Category category) {
+        addEligibleCategory(category, true);
+    }
+    
+    public void addEligibleCategory(Category category, boolean teamMember) {
         if (category == null) {
             return;
         }
         Participation participation = new Participation(this, category);
+        participation.setTeamMember(teamMember);
 
         if (participations == null) {
             participations = new ArrayList<>();
@@ -3084,20 +3089,13 @@ public class Athlete {
         this.customScore = customScore;
     }
 
-//  /**
-//   * Sets the result order rank.
-//   *
-//   * @param resultOrderRank the result order rank
-//   * @param rankingType     the ranking type
-//   */
-//  public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-//      this.resultOrderRank = resultOrderRank;
-//  }
-
     public void setEligibleCategories(Set<Category> newEligibles) {
-        logger.trace("athlete participations {}", getParticipations());
+        List<Participation> participations2 = getParticipations();
+        Set<String> membershipCategories = participations2.stream().filter(p -> p.getTeamMember()).map(p -> p.getCategory().getCode()).collect(Collectors.toSet());
+        logger.debug("athlete memberships {}", membershipCategories);
+        
         Set<Category> oldEligibles = getEligibleCategories();
-        logger.trace("setting eligible before:{} target:{}", oldEligibles, newEligibles);
+        logger.debug("setting eligible before:{} target:{}", oldEligibles, newEligibles);
         if (oldEligibles != null) {
             for (Category cat : oldEligibles) {
                 removeEligibleCategory(cat);
@@ -3105,7 +3103,9 @@ public class Athlete {
         }
         if (newEligibles != null) {
             for (Category cat : newEligibles) {
-                addEligibleCategory(cat); // creates new join table entry, links from category as well.
+                boolean membership = membershipCategories.contains(cat.getCode());
+                logger.debug("cat {} {}",cat, membership);
+                addEligibleCategory(cat, membership); // creates new join table entry, links from category as well.
             }
         }
         // logger.trace("{}{} {} after set eligible {}", OwlcmsSession.getFopLoggingName(),

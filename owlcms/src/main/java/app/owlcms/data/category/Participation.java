@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -98,12 +99,14 @@ public class Participation implements IRankHolder {
 
     public Participation(Athlete athlete, Category category) {
         this();
+        logger.warn("new participation {} {} {}", athlete.getShortName(), category, LoggerUtils.whereFrom());
         this.athlete = athlete;
         this.category = category;
         this.id = new ParticipationId(athlete.getId(), category.getId());
     }
 
     public Participation(Participation p, Athlete a, Category c) {
+        logger.warn("copying participation {} {} {}", a.getShortName(), c, LoggerUtils.whereFrom());
         this.athlete = a;
         this.category = c;
         this.cleanJerkRank = p.cleanJerkRank;
@@ -111,7 +114,7 @@ public class Participation implements IRankHolder {
         this.snatchRank = p.snatchRank;
         this.totalRank = p.totalRank;
         this.combinedRank = p.combinedRank;
-        this.teamMember = p.teamMember;
+        this.setTeamMember(p.isTeamMember());
     }
 
     protected Participation() {
@@ -145,7 +148,7 @@ public class Participation implements IRankHolder {
     @Transient
     @JsonIgnore
     public int getCleanJerkPoints() {
-        return teamMember ? AthleteSorter.pointsFormula(cleanJerkRank) : 0;
+        return isTeamMember() ? AthleteSorter.pointsFormula(cleanJerkRank) : 0;
     }
 
     public int getCleanJerkRank() {
@@ -165,7 +168,7 @@ public class Participation implements IRankHolder {
     @Transient
     @JsonIgnore
     public int getCustomPoints() {
-        return teamMember ? AthleteSorter.pointsFormula(customRank) : 0;
+        return isTeamMember() ? AthleteSorter.pointsFormula(customRank) : 0;
     }
 
     public int getCustomRank() {
@@ -179,7 +182,7 @@ public class Participation implements IRankHolder {
     @Transient
     @JsonIgnore
     public int getSnatchPoints() {
-        return teamMember ? AthleteSorter.pointsFormula(snatchRank) : 0;
+        return isTeamMember() ? AthleteSorter.pointsFormula(snatchRank) : 0;
     }
 
     public int getSnatchRank() {
@@ -195,7 +198,7 @@ public class Participation implements IRankHolder {
     }
 
     public boolean getTeamMember() {
-        return teamMember;
+        return isTeamMember();
     }
 
     public int getTeamRobiRank() {
@@ -217,7 +220,7 @@ public class Participation implements IRankHolder {
     @Transient
     @JsonIgnore
     public int getTotalPoints() {
-        return teamMember ? AthleteSorter.pointsFormula(totalRank) : 0;
+        return isTeamMember() ? AthleteSorter.pointsFormula(totalRank) : 0;
     }
 
     public int getTotalRank() {
@@ -282,6 +285,7 @@ public class Participation implements IRankHolder {
     }
 
     public void setTeamMember(boolean teamMember) {
+        logger.warn("setTeamMember {} {}", teamMember, LoggerUtils.whereFrom());
         this.teamMember = teamMember;
     }
 
@@ -310,5 +314,9 @@ public class Participation implements IRankHolder {
     @Override
     public String toString() {
         return "Participation [athlete=" + athlete + ", category=" + category + "]";
+    }
+
+    private boolean isTeamMember() {
+        return teamMember;
     }
 }
