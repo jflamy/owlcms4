@@ -1,5 +1,9 @@
 ### **Changes for release ${revision}**
 
+- 4.31.2-rc01: Preserve existing team memberships when editing an athlete or when re-assigning categories.
+  
+- 4.31.2-rc01: The athlete editing form now always reloads the list of available groups. Previously the form was only updated when the athlete list page was refreshed.
+  
 - 4.31.1: Fix: the plain scoreboard was mistakenly including the leaderboard
   
 - 4.31.1: New: selecting the "Categories" template when printing a Start List creates a listing of registered athletes grouped by category instead of the usual "Groups".
