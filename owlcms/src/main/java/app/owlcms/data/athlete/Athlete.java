@@ -4399,10 +4399,10 @@ public class Athlete {
         int checkedLift = curLift + 1;
         if (checkedLift < currentLiftNo) {
             // we are checking an earlier attempt of the athlete (e.g. when loading the athlete card)
-            logger.trace("doCheckChangeVsLiftOrder ignoring lift {} {}", checkedLift, currentLiftNo);
+            getLogger().trace("doCheckChangeVsLiftOrder ignoring lift {} {}", checkedLift, currentLiftNo);
             return;
         } else {
-            logger.trace("doCheckChangeVsLiftOrder checking lift {} {}", checkedLift, currentLiftNo);
+            getLogger().trace("doCheckChangeVsLiftOrder checking lift {} {}", checkedLift, currentLiftNo);
         }
 
         Object wi = OwlcmsSession.getAttribute("weighIn");
@@ -4420,8 +4420,7 @@ public class Athlete {
                 weightAtLastStart = null;
             }
             if (weightAtLastStart == null || weightAtLastStart == 0 || newVal == weightAtLastStart) {
-                // getLogger().trace("{}weight at last start: {} request = {}", fopLoggingName, weightAtLastStart,
-                // newVal);
+                 getLogger().trace("{}weight at last start: {} request = {}", fopLoggingName, weightAtLastStart, newVal);
                 // program has just been started, or first athlete in group, or moving down to clock value
                 // compare with what the lifting order rules say.
                 LiftOrderReconstruction pastOrder = new LiftOrderReconstruction(fop);
