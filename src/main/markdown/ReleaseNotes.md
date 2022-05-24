@@ -1,5 +1,9 @@
 ### **Changes for release ${revision}**
 
+- 4.31.2-rc02: Improved error message when athlete is requesting weight currently loaded but should have lifted earlier.  Also note added to log when marshal overrides the error message.
+  
+- 4.31.2-rc02: Translation file updated.
+  
 - 4.31.2-rc01: Preserve existing team memberships when editing an athlete or when re-assigning categories.
   
 - 4.31.2-rc01: The athlete editing form now always reloads the list of available groups. Previously the form was only updated when the athlete list page was refreshed.
