@@ -4038,8 +4038,6 @@ public class Athlete {
                     this.getFirstName(),
                     (startNumber2 != null ? startNumber2.toString() : "-"),
                     snatch1Request, cleanJerk1Request, missing, qualTotal);
-//            message = rule15_20Violated.getLocalizedMessage(OwlcmsSession.getLocale());
-            // getLogger().warn/**/("{}{} {}", OwlcmsSession.getFopLoggingName(), this.getShortName(), message);
             throw rule15_20Violated;
         } else {
             getLogger().trace("OK margin={}", -(missing));

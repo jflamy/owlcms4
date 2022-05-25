@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -26,10 +27,17 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.HasValue.ValueChangeEvent;
 import com.vaadin.flow.component.HasValue.ValueChangeListener;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Binder.Binding;
@@ -93,6 +101,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     private Button printButton;
 
     private StringToIntegerConverter yobConverter;
+
+    private Checkbox ignoreErrorsCheckbox;
 
     public AthleteRegistrationFormFactory(Class<Athlete> domainType) {
         super(domainType);
@@ -160,10 +170,14 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         printButton.addClickListener(click -> {
             try {
                 Athlete editedAthlete2 = getEditedAthlete();
+                if (isIgnoreErrors()) {
+                    getEditedAthlete().setValidation(false);
+                }
                 binder.writeBean(editedAthlete2);
                 this.update(editedAthlete2);
                 hiddenButton.clickInClient();
             } catch (ValidationException e) {
+                getEditedAthlete().setValidation(true);
                 binder.validate();
             }
 
@@ -546,7 +560,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     @SuppressWarnings({ "unchecked" })
     private void filterCategories(Category category, boolean initCategories) {
         setChangeListenersEnabled(false);
-        
+
         Binding<Athlete, ?> groupBinding = binder.getBinding("group").get();
         ComboBox<Group> groupField = (ComboBox<Group>) groupBinding.getField();
         Group curGroup = groupField.getValue();
@@ -838,6 +852,9 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     }
 
     private boolean validateStartingTotals(String mainProp, String otherProp1, String otherProp2) {
+        if (isIgnoreErrors()) {
+            return true;
+        }
         try {
             logger.debug("before {} validation", mainProp);
             getEditedAthlete().validateStartingTotalsRule(getIntegerFieldValue("snatch1Declaration"),
@@ -854,6 +871,82 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             throw e1;
         }
         return true;
+    }
+
+    /**
+     * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#buildFooter(org.vaadin.crudui.crud.CrudOperation,
+     *      java.lang.Object, com.vaadin.flow.component.ComponentEventListener,
+     *      com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.ComponentEventListener)
+     */
+    @Override
+    public Component buildFooter(CrudOperation operation,
+            Athlete athlete,
+            ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
+            ComponentEventListener<ClickEvent<Button>> postOperationCallBack, ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener,
+            boolean shortcutEnter,
+            Button... buttons) {
+
+        Button operationButton = null;
+
+        if (operation == CrudOperation.UPDATE) {
+            operationButton = buildOperationButton(CrudOperation.UPDATE, athlete, postOperationCallBack);
+        } else if (operation == CrudOperation.ADD) {
+            operationButton = buildOperationButton(CrudOperation.ADD, athlete, postOperationCallBack);
+        }
+        Button deleteButton = buildDeleteButton(CrudOperation.DELETE, athlete, deleteButtonClickListener);
+        Checkbox validateEntries = buildIgnoreErrorsCheckbox();
+        Button cancelButton = buildCancelButton(cancelButtonClickListener);
+
+        HorizontalLayout footerLayout = new HorizontalLayout();
+        footerLayout.setWidth("100%");
+        footerLayout.setSpacing(true);
+        footerLayout.setPadding(false);
+
+        if (deleteButton != null && operation != CrudOperation.ADD) {
+            footerLayout.add(deleteButton);
+        }
+
+        Label spacer = new Label();
+        footerLayout.add(spacer, operationTrigger);
+        VerticalLayout vl = new VerticalLayout();
+        vl.setSizeUndefined();
+        vl.setPadding(false);
+        vl.setMargin(false);
+        vl.add(validateEntries);
+        footerLayout.add(vl);
+        footerLayout.setAlignItems(Alignment.CENTER);
+
+        if (cancelButton != null) {
+            footerLayout.add(cancelButton);
+        }
+
+        if (operationButton != null) {
+            footerLayout.add(operationButton);
+            if (operation == CrudOperation.UPDATE && shortcutEnter) {
+                ShortcutRegistration reg = operationButton.addClickShortcut(Key.ENTER);
+                reg.allowBrowserDefault();
+            }
+        }
+        footerLayout.setFlexGrow(1.0, spacer);
+        return footerLayout;
+    }
+
+    private Checkbox buildIgnoreErrorsCheckbox() {
+        ignoreErrorsCheckbox = new Checkbox(Translator.translate("RuleViolation.ignoreErrors"), e -> {
+            if (BooleanUtils.isTrue(isIgnoreErrors())) {
+                logger./**/warn/**/("{}!Errors ignored - checkbox override for athlete {}",
+                        OwlcmsSession.getFop().getLoggingName(), this.getEditedAthlete().getShortName());
+                //binder.validate();
+                binder.writeBeanAsDraft(editedAthlete, true);
+            }
+
+        });
+        ignoreErrorsCheckbox.getStyle().set("margin-left", "3em");
+        return ignoreErrorsCheckbox;
+    }
+
+    private boolean isIgnoreErrors() {
+        return BooleanUtils.isTrue(ignoreErrorsCheckbox == null ? null : ignoreErrorsCheckbox.getValue());
     }
 
 }
