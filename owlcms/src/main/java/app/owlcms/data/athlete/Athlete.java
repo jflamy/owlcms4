@@ -4018,15 +4018,10 @@ public class Athlete {
 
         curStartingTotal = snatch1Request + cleanJerk1Request;
         int delta = qualTotal - curStartingTotal;
-//        String message = null;
         int _20kgRuleValue = getStartingTotalMargin(this.getCategory(), qualTotal);
 
-//        getLogger().trace("{} validate20kgRule {} {} {} {}, {}, {}, {}",  this, _20kgRuleValue, snatch1Request, cleanJerk1Request,
-//                curStartingTotal,
-//                qualTotal, delta, LoggerUtils.whereFrom());
-
         if (snatch1Request == 0 && cleanJerk1Request == 0) {
-//            getLogger().trace("not checking starting total - no declarations");
+            // not checking starting total - no declarations
             return true;
         }
         RuleViolationException rule15_20Violated = null;
