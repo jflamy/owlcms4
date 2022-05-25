@@ -1,5 +1,7 @@
-### **Changes for release 4.31.2-rc02**
+### **Changes for release 4.31.2-rc03**
 
+- 4.31.2-rc03: Allow save of a weigh-in form with errors such as not meeting the 20kg rule (according to rule athlete has until first clean & jerk to adjust).
+  
 - 4.31.2-rc02: Improved error message when athlete is requesting weight currently loaded but should have lifted earlier.  Also note added to log when marshal overrides the error message.
   
 - 4.31.2-rc02: Translation file updated.
