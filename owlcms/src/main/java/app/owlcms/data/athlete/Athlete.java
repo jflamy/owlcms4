@@ -3816,9 +3816,9 @@ public class Athlete {
         final int iAutomaticProgression = zeroIfInvalid(automaticProgression);
         final int liftedWeight = zeroIfInvalid(actualLift);
 
-        getLogger().trace(
-                "declaredChanges={} automaticProgression={} declaration={} change1={} change2={} liftedWeight={}",
-                lastChange, automaticProgression, declaration, change1, change2, liftedWeight);
+//        getLogger().trace(
+//                "declaredChanges={} automaticProgression={} declaration={} change1={} change2={} liftedWeight={}",
+//                lastChange, automaticProgression, declaration, change1, change2, liftedWeight);
         if (liftedWeight == 0) {
             // Athlete is not taking try; always ok no matter what was declared.
             return;
