@@ -60,7 +60,7 @@ public class Group implements Comparable<Group> {
             .appendPattern(DATE_FORMAT).toFormatter();
 
     /** The platform. */
-    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, optional = true, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = { CascadeType.MERGE }, optional = true, fetch = FetchType.EAGER)
     @JsonIdentityReference(alwaysAsId = true)
     Platform platform;
 

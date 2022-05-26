@@ -775,6 +775,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
     private Checkbox buildIgnoreErrorsCheckbox() {
         ignoreErrorsCheckbox = new Checkbox(Translator.translate("RuleViolation.ignoreErrors"), e -> {
             if (BooleanUtils.isTrue(isIgnoreErrors())) {
+                logger./**/warn/**/("{}!Errors ignored - checkbox override for athlete {}",OwlcmsSession.getFop().getLoggingName(), this.getEditedAthlete().getShortName());
                 binder.validate();
                 binder.writeBeanAsDraft(editedAthlete, true);
             }

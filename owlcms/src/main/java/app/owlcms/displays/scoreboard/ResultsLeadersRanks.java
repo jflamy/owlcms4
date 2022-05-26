@@ -148,7 +148,7 @@ public class ResultsLeadersRanks extends Results {
             Participation p = e.getValue();
             // logger,debug("a {} k {} v {}", a.getShortName(), e.getKey(), p);
             if (p == null) {
-                ranks.set(i, "");
+                ranks.set(i, formatRank(null));
             } else {
                 switch (r) {
                 case CLEANJERK:

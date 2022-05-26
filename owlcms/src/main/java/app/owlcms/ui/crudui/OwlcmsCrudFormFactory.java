@@ -39,6 +39,10 @@ import com.vaadin.flow.data.binder.BindingValidationStatus;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.dom.ClassList;
 
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.group.Group;
+import app.owlcms.data.platform.Platform;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -207,8 +211,18 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         dialog.setCloseOnEsc(false);
         dialog.setCloseOnOutsideClick(false);
 
-        H3 messageLabel = new H3(
-                Translator.translate("Delete") + " " + domainObject.toString() + Translator.translate("Question"));
+        String name = domainObject.toString();
+        if (domainObject instanceof Athlete) {
+            name = ((Athlete) domainObject).getFullName();
+        } else if (domainObject instanceof Group) {
+            name = ((Group) domainObject).getName();
+        } else if (domainObject instanceof Platform) {
+            name = ((Platform) domainObject).getName();
+        } else if (domainObject instanceof AgeGroup) {
+            name = ((AgeGroup) domainObject).getName();
+        }
+        H3 messageLabel = new H3(Translator.translate("DeleteConfirmation", name));
+                //Translator.translate("Delete") + " " + name + Translator.translate("Question"));
 
         // create a new delete button for the confirm dialog
         Button confirmButton = doBuildButton(operation);

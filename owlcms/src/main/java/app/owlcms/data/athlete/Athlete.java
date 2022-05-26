@@ -398,10 +398,15 @@ public class Athlete {
     }
 
     public void addEligibleCategory(Category category) {
+        addEligibleCategory(category, true);
+    }
+    
+    public void addEligibleCategory(Category category, boolean teamMember) {
         if (category == null) {
             return;
         }
         Participation participation = new Participation(this, category);
+        participation.setTeamMember(teamMember);
 
         if (participations == null) {
             participations = new ArrayList<>();
@@ -3084,18 +3089,11 @@ public class Athlete {
         this.customScore = customScore;
     }
 
-//  /**
-//   * Sets the result order rank.
-//   *
-//   * @param resultOrderRank the result order rank
-//   * @param rankingType     the ranking type
-//   */
-//  public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-//      this.resultOrderRank = resultOrderRank;
-//  }
-
     public void setEligibleCategories(Set<Category> newEligibles) {
-        logger.trace("athlete participations {}", getParticipations());
+        List<Participation> participations2 = getParticipations();
+        Set<String> membershipCategories = participations2.stream().filter(p -> p.getTeamMember()).map(p -> p.getCategory().getCode()).collect(Collectors.toSet());
+        logger.trace("athlete memberships {}", membershipCategories);
+        
         Set<Category> oldEligibles = getEligibleCategories();
         logger.trace("setting eligible before:{} target:{}", oldEligibles, newEligibles);
         if (oldEligibles != null) {
@@ -3105,7 +3103,9 @@ public class Athlete {
         }
         if (newEligibles != null) {
             for (Category cat : newEligibles) {
-                addEligibleCategory(cat); // creates new join table entry, links from category as well.
+                boolean membership = membershipCategories.contains(cat.getCode());
+                logger.trace("cat {} {}",cat, membership);
+                addEligibleCategory(cat, membership); // creates new join table entry, links from category as well.
             }
         }
         // logger.trace("{}{} {} after set eligible {}", OwlcmsSession.getFopLoggingName(),
@@ -3816,9 +3816,9 @@ public class Athlete {
         final int iAutomaticProgression = zeroIfInvalid(automaticProgression);
         final int liftedWeight = zeroIfInvalid(actualLift);
 
-        getLogger().trace(
-                "declaredChanges={} automaticProgression={} declaration={} change1={} change2={} liftedWeight={}",
-                lastChange, automaticProgression, declaration, change1, change2, liftedWeight);
+//        getLogger().trace(
+//                "declaredChanges={} automaticProgression={} declaration={} change1={} change2={} liftedWeight={}",
+//                lastChange, automaticProgression, declaration, change1, change2, liftedWeight);
         if (liftedWeight == 0) {
             // Athlete is not taking try; always ok no matter what was declared.
             return;
@@ -4018,15 +4018,10 @@ public class Athlete {
 
         curStartingTotal = snatch1Request + cleanJerk1Request;
         int delta = qualTotal - curStartingTotal;
-//        String message = null;
         int _20kgRuleValue = getStartingTotalMargin(this.getCategory(), qualTotal);
 
-//        getLogger().trace("{} validate20kgRule {} {} {} {}, {}, {}, {}",  this, _20kgRuleValue, snatch1Request, cleanJerk1Request,
-//                curStartingTotal,
-//                qualTotal, delta, LoggerUtils.whereFrom());
-
         if (snatch1Request == 0 && cleanJerk1Request == 0) {
-//            getLogger().trace("not checking starting total - no declarations");
+            // not checking starting total - no declarations
             return true;
         }
         RuleViolationException rule15_20Violated = null;
@@ -4038,8 +4033,6 @@ public class Athlete {
                     this.getFirstName(),
                     (startNumber2 != null ? startNumber2.toString() : "-"),
                     snatch1Request, cleanJerk1Request, missing, qualTotal);
-//            message = rule15_20Violated.getLocalizedMessage(OwlcmsSession.getLocale());
-            // getLogger().warn/**/("{}{} {}", OwlcmsSession.getFopLoggingName(), this.getShortName(), message);
             throw rule15_20Violated;
         } else {
             getLogger().trace("OK margin={}", -(missing));
@@ -4183,7 +4176,7 @@ public class Athlete {
             return;
         }
         try {
-            getLogger().setLevel(Level.DEBUG);
+            //getLogger().setLevel(Level.DEBUG);
             doCheckChangeVsLiftOrder(curLift, newVal);
         } finally {
             getLogger().setLevel(prevLoggerLevel);
@@ -4203,7 +4196,7 @@ public class Athlete {
             return;
         }
         try {
-            getLogger().setLevel(Level.DEBUG);
+            //getLogger().setLevel(Level.DEBUG);
             doCheckChangeVsTimer(declaration, change1, change2);
         } finally {
             getLogger().setLevel(prevLoggerLevel);
@@ -4399,10 +4392,10 @@ public class Athlete {
         int checkedLift = curLift + 1;
         if (checkedLift < currentLiftNo) {
             // we are checking an earlier attempt of the athlete (e.g. when loading the athlete card)
-            logger.trace("doCheckChangeVsLiftOrder ignoring lift {} {}", checkedLift, currentLiftNo);
+            getLogger().trace("doCheckChangeVsLiftOrder ignoring lift {} {}", checkedLift, currentLiftNo);
             return;
         } else {
-            logger.trace("doCheckChangeVsLiftOrder checking lift {} {}", checkedLift, currentLiftNo);
+            getLogger().trace("doCheckChangeVsLiftOrder checking lift {} {}", checkedLift, currentLiftNo);
         }
 
         Object wi = OwlcmsSession.getAttribute("weighIn");
@@ -4420,8 +4413,7 @@ public class Athlete {
                 weightAtLastStart = null;
             }
             if (weightAtLastStart == null || weightAtLastStart == 0 || newVal == weightAtLastStart) {
-                // getLogger().trace("{}weight at last start: {} request = {}", fopLoggingName, weightAtLastStart,
-                // newVal);
+                 getLogger().trace("{}weight at last start: {} request = {}", fopLoggingName, weightAtLastStart, newVal);
                 // program has just been started, or first athlete in group, or moving down to clock value
                 // compare with what the lifting order rules say.
                 LiftOrderReconstruction pastOrder = new LiftOrderReconstruction(fop);
