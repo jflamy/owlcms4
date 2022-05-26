@@ -396,6 +396,16 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     }
 
     @Subscribe
+    public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+        uiLog(e);
+        Competition competition = Competition.getCurrent();
+
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            doUpdate(competition);
+        });
+    }
+
+    @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
         uiLog(e);
         Competition competition = Competition.getCurrent();
