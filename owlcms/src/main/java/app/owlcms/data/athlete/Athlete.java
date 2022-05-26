@@ -3092,10 +3092,10 @@ public class Athlete {
     public void setEligibleCategories(Set<Category> newEligibles) {
         List<Participation> participations2 = getParticipations();
         Set<String> membershipCategories = participations2.stream().filter(p -> p.getTeamMember()).map(p -> p.getCategory().getCode()).collect(Collectors.toSet());
-        logger.debug("athlete memberships {}", membershipCategories);
+        logger.trace("athlete memberships {}", membershipCategories);
         
         Set<Category> oldEligibles = getEligibleCategories();
-        logger.debug("setting eligible before:{} target:{}", oldEligibles, newEligibles);
+        logger.trace("setting eligible before:{} target:{}", oldEligibles, newEligibles);
         if (oldEligibles != null) {
             for (Category cat : oldEligibles) {
                 removeEligibleCategory(cat);
@@ -3104,7 +3104,7 @@ public class Athlete {
         if (newEligibles != null) {
             for (Category cat : newEligibles) {
                 boolean membership = membershipCategories.contains(cat.getCode());
-                logger.debug("cat {} {}",cat, membership);
+                logger.trace("cat {} {}",cat, membership);
                 addEligibleCategory(cat, membership); // creates new join table entry, links from category as well.
             }
         }
@@ -4176,7 +4176,7 @@ public class Athlete {
             return;
         }
         try {
-            getLogger().setLevel(Level.DEBUG);
+            //getLogger().setLevel(Level.DEBUG);
             doCheckChangeVsLiftOrder(curLift, newVal);
         } finally {
             getLogger().setLevel(prevLoggerLevel);
@@ -4196,7 +4196,7 @@ public class Athlete {
             return;
         }
         try {
-            getLogger().setLevel(Level.DEBUG);
+            //getLogger().setLevel(Level.DEBUG);
             doCheckChangeVsTimer(declaration, change1, change2);
         } finally {
             getLogger().setLevel(prevLoggerLevel);
