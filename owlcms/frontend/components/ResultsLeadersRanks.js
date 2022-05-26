@@ -60,13 +60,21 @@ class ResultsFull extends PolymerElement {
                 <th class="groupCol" style="grid-row: span 2;">
                     <div style="display: grid; align-self: center" inner-h-t-m-l="[[t.Start]]"></div>
                 </th>
-                <th class="name" style="grid-row: span 2" inner-h-t-m-l="[[t.Name]]"></th>
-                <th class="category" style="grid-row: span 2" inner-h-t-m-l="[[t.Category]]"></th>
-                <th class="narrow" style="grid-row: span 2" inner-h-t-m-l="[[t.Birth]]"></th>
-                <th class="club" style="grid-row: span 2" inner-h-t-m-l="[[t.Team]]"></th>
-                <th style="grid-column: span calc(3 + var(--nbRanks));" inner-h-t-m-l="[[t.Snatch]]"></th>
-                <th style="grid-column: span calc(3 + var(--nbRanks));" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
-                <th style="grid-column: span calc(1 + var(--nbRanks));" inner-h-t-m-l="[[t.Total]]"></th>
+                <th class="name" style="grid-row: span 2">
+                    <div style="display: grid; align-self: center" inner-h-t-m-l="[[t.Name]]"></div>
+                </th>
+                <th class="category" style="grid-row: span 2">
+                    <div style="display: grid; align-self: center" inner-h-t-m-l="[[t.Category]]"></div>
+                </th>
+                <th class="narrow" style="grid-row: span 2">
+                    <div style="display: grid; align-self: center" inner-h-t-m-l="[[t.Birth]]"></div>
+                </th>
+                <th class="club" style="grid-row: span 2">
+                    <div style="display: grid; align-self: center" inner-h-t-m-l="[[t.Team]]"></div>
+                </th>
+                <th style$="grid-column: span calc(3 + [[nbRanks]]);" inner-h-t-m-l="[[t.Snatch]]"></th>
+                <th style$="grid-column: span calc(3 + [[nbRanks]]);" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
+                <th style$="grid-column: span calc(1 + [[nbRanks]]);" inner-h-t-m-l="[[t.Total]]"></th>
             </tr>
             <tr class="head">
                 <!-- second row is already partially filled from the row spans, only provide the empty cells
