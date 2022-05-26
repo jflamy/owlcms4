@@ -39,7 +39,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsCrudGrid.class);
 
-    protected OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory;
+    //private OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory;
     protected OwlcmsGridLayout owlcmsGridLayout;
 
     private boolean clickable = true;
@@ -58,7 +58,8 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
             OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory, Grid<T> grid) {
         super(domainType, crudLayout);
         this.grid = grid;
-        this.owlcmsCrudFormFactory = owlcmsCrudFormFactory;
+        //this.owlcmsCrudFormFactory = owlcmsCrudFormFactory;
+        //logger.trace("creating OwlcmsCrudGrid with formfactory {} wherefrom {}",System.identityHashCode(owlcmsCrudFormFactory), LoggerUtils.whereFrom());
         this.setCrudFormFactory(owlcmsCrudFormFactory);
         this.owlcmsGridLayout = crudLayout;
         initLayoutGrid();
@@ -178,7 +179,8 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
     @Override
     protected void showForm(CrudOperation operation, T domainObject, boolean readOnly, String successMessage,
             ComponentEventListener<ClickEvent<Button>> unused) {
-        Component form = this.owlcmsCrudFormFactory.buildNewForm(operation, domainObject, readOnly,
+        OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory = (OwlcmsCrudFormFactory<T>)this.getCrudFormFactory();
+        Component form = owlcmsCrudFormFactory.buildNewForm(operation, domainObject, readOnly,
                 cancelButtonClickEvent -> {
                     logger.debug("cancelButtonClickEvent");
                     owlcmsGridLayout.hideForm();
@@ -202,7 +204,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
                     this.deleteButtonClicked();
                 });
 
-        String caption = this.owlcmsCrudFormFactory.buildCaption(operation, domainObject);
+        String caption = owlcmsCrudFormFactory.buildCaption(operation, domainObject);
         owlcmsGridLayout.showForm(operation, form, caption);
     }
 

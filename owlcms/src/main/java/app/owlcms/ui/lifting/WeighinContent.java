@@ -84,7 +84,6 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
     private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
     private ComboBox<Category> categoryFilter = new ComboBox<>();
-    private OwlcmsCrudFormFactory<Athlete> crudFormFactory;
     private OwlcmsCrudGrid<Athlete> crudGrid;
     private Group currentGroup;
 
@@ -100,21 +99,24 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
      * Instantiates the athlete crudGrid
      */
     public WeighinContent() {
-        crudFormFactory = createFormFactory();
+        OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
         crudGrid = createGrid(crudFormFactory);
         defineFilters(crudGrid);
         fillHW(crudGrid, this);
     }
 
     @Override
-    public Athlete add(Athlete Athlete) {
-        crudFormFactory.add(Athlete);
-        return Athlete;
+    public Athlete add(Athlete athlete) {
+        if (athlete.getGroup() == null && currentGroup != null) {
+            athlete.setGroup(currentGroup);
+        }
+        ((OwlcmsCrudFormFactory<Athlete>) crudGrid.getCrudFormFactory()).add(athlete);
+        return athlete;
     }
 
     @Override
-    public void delete(Athlete Athlete) {
-        crudFormFactory.delete(Athlete);
+    public void delete(Athlete athlete) {
+        ((OwlcmsCrudFormFactory<Athlete>) crudGrid.getCrudFormFactory()).delete(athlete);
         return;
     }
 
@@ -206,9 +208,9 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
         HashMap<String, List<String>> params = new HashMap<>(parametersMap);
 
-        logger.debug("parsing query parameters RegistrationContent");
+        //logger.trace("parsing query parameters RegistrationContent");
         List<String> groupNames = params.get("group");
-        logger.debug("groupNames = {}", groupNames);
+        //logger.trace("groupNames = {}", groupNames);
         if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
             String groupName = groupNames.get(0);
             currentGroup = GroupRepository.findByName(groupName);
@@ -216,7 +218,8 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
             currentGroup = null;
         }
         if (currentGroup != null) {
-            params.put("group", Arrays.asList(URLUtils.urlEncode(currentGroup.getName())));
+            OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
+            crudGrid.setCrudFormFactory(crudFormFactory);
         } else {
             params.remove("group");
         }
@@ -234,8 +237,11 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     }
 
     @Override
-    public Athlete update(Athlete Athlete) {
-        return crudFormFactory.update(Athlete);
+    public Athlete update(Athlete athlete) {
+        OwlcmsSession.setAttribute("weighIn", athlete);
+        Athlete a = ((OwlcmsCrudFormFactory<Athlete>) crudGrid.getCrudFormFactory()).update(athlete);
+        OwlcmsSession.setAttribute("weighIn", null);
+        return a;
     }
 
     /**
@@ -244,7 +250,8 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
      * @return the form factory that will create the actual form on demand
      */
     protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-        OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory = new AthleteRegistrationFormFactory(Athlete.class);
+        OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory = new AthleteRegistrationFormFactory(Athlete.class, currentGroup);
+        //logger.trace("created form factory {} {}", System.identityHashCode(athleteEditingFormFactory), currentGroup);
         createFormLayout(athleteEditingFormFactory);
         return athleteEditingFormFactory;
     }
@@ -477,6 +484,12 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
                 location.getQueryParameters().getParameters());
         if (!isIgnoreGroupFromURL() && newGroup != null) {
             params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
+            if (newGroup != null) {
+                params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
+                currentGroup = newGroup;
+                OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
+                crudGrid.setCrudFormFactory(crudFormFactory);
+            }
         } else {
             params.remove("group");
         }

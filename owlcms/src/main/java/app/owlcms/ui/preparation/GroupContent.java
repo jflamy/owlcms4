@@ -6,6 +6,8 @@
  *******************************************************************************/
 package app.owlcms.ui.preparation;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -13,9 +15,13 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.fields.LocalDateTimeField;
@@ -26,6 +32,7 @@ import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -142,6 +149,13 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
         grid.addColumn(LocalDateTimeField.getRenderer(Group::getCompetitionTime, this.getLocale()))
                 .setHeader(getTranslation("StartTime"));
         grid.addColumn(Group::getPlatform).setHeader(getTranslation("Platform"));
+        String translation= getTranslation("EditAthletes");
+        int tSize = translation.length();
+        grid.addColumn(new ComponentRenderer<>(p -> {
+            Button technical = openInNewTab(RegistrationContent.class, translation, p.getName());
+            technical.addThemeVariants(ButtonVariant.LUMO_SMALL);
+            return technical;
+        })).setHeader("").setWidth(tSize+"ch");
 
         GridCrud<Group> crud = new OwlcmsCrudGrid<>(Group.class, new OwlcmsGridLayout(Group.class),
                 crudFormFactory, grid);
@@ -149,26 +163,18 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
         crud.setClickRowToUpdate(true);
         return crud;
     }
-//
-//    /**
-//     * Define the form used to edit a given Group.
-//     *
-//     * @return the form factory that will create the actual form on demand
-//     */
-//    private OwlcmsCrudFormFactory<Group> createFormFactory() {
-//        editingFormFactory = createGroupEditingFormFactory();
-//        createFormLayout(editingFormFactory);
-//        return editingFormFactory;
-//    }
-//
-//    /**
-//     * Create the actual form generator with all the conversions and validations required
-//     *
-//     * {@link RegistrationContent#createAthleteEditingFormFactory} for example of redefinition of bindField
-//     *
-//     * @return the actual factory, with the additional mechanisms to do validation
-//     */
-//    private OwlcmsCrudFormFactory<Group> createGroupEditingFormFactory() {
-//        return new GroupEditingFormFactory(Group.class);
-//    }
+    
+    private <T extends Component> String getWindowOpenerFromClass(Class<T> targetClass,
+            String parameter) {
+        return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?group=" + URLEncoder.encode(parameter, StandardCharsets.UTF_8)
+                + "','" + targetClass.getSimpleName() + "')";
+    }
+
+    private <T extends Component> Button openInNewTab(Class<T> targetClass,
+            String label, String parameter) {
+        Button button = new Button(label);
+        button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
+        return button;
+    }
+
 }
