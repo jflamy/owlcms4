@@ -104,8 +104,12 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     private Checkbox ignoreErrorsCheckbox;
 
-    public AthleteRegistrationFormFactory(Class<Athlete> domainType) {
+    private Group currentGroup;
+
+    public AthleteRegistrationFormFactory(Class<Athlete> domainType, Group group) {
         super(domainType);
+        //logger.trace("constructor {} {}", System.identityHashCode(this), group);
+        this.setCurrentGroup(group);
     }
 
     /**
@@ -113,7 +117,6 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
      */
     @Override
     public Athlete add(Athlete athlete) {
-        // AthleteRepository.save(athlete);
         Athlete nAthlete = JPAService.runInTransaction((em) -> {
             return em.merge(athlete);
         });
@@ -149,8 +152,12 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
         printButton = new Button(Translator.translate("AthleteCard"), IronIcons.PRINT.create());
 
+        //logger.trace("buildNewForm {} {} {}", System.identityHashCode(this), getCurrentGroup(), LoggerUtils.stackTrace());
         if (operation == CrudOperation.ADD) {
             Athlete editedAthlete2 = new Athlete();
+            if (getCurrentGroup() != null) {
+                editedAthlete2.setGroup(getCurrentGroup());
+            }
             logger.debug("created new Athlete {}", System.identityHashCode(editedAthlete2));
             setEditedAthlete(editedAthlete2);
         } else if (aFromList != null) {
@@ -882,7 +889,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     public Component buildFooter(CrudOperation operation,
             Athlete athlete,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> postOperationCallBack, ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener,
+            ComponentEventListener<ClickEvent<Button>> postOperationCallBack,
+            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener,
             boolean shortcutEnter,
             Button... buttons) {
 
@@ -936,7 +944,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             if (BooleanUtils.isTrue(isIgnoreErrors())) {
                 logger./**/warn/**/("{}!Errors ignored - checkbox override for athlete {}",
                         OwlcmsSession.getFop().getLoggingName(), this.getEditedAthlete().getShortName());
-                //binder.validate();
+                // binder.validate();
                 binder.writeBeanAsDraft(editedAthlete, true);
             }
 
@@ -947,6 +955,14 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     private boolean isIgnoreErrors() {
         return BooleanUtils.isTrue(ignoreErrorsCheckbox == null ? null : ignoreErrorsCheckbox.getValue());
+    }
+
+    private Group getCurrentGroup() {
+        return currentGroup;
+    }
+
+    private void setCurrentGroup(Group currentGroup) {
+        this.currentGroup = currentGroup;
     }
 
 }
