@@ -1,24 +1,8 @@
-### **Changes for release 4.31.2-rc04**
+### **Changes for release 4.31.2-rc05**
 
-- 4.31.2-rc04: Fix: On initial creation of a group using the web form, selecting the platform would prevent the group from being saved.
+- 4.31.2-rc05: Fixed formatting issues on the multiple age group scoreboard (multiple rank columns)
   
-- 4.31.2-rc04: Usability improvement: The "define groups" page now allows opening each group in the registration page to edit the group's athletes.
-  
-- 4.31.2-rc04: Usability improvement: If a group is selected on the registration ("edit athletes") page or the weigh-in page, then using "+" will create the athlete with the correct group.
-  
-- 4.31.2-rc03: TCRR compliance: Allow save of a weigh-in form with errors such as not meeting the 20kg rule (according to rule athlete has until first clean & jerk to adjust).
-  
-- 4.31.2-rc02: Improved error message when athlete is requesting weight currently loaded but should have lifted earlier.  Also note added to log when marshal overrides the error message.
-  
-- 4.31.2-rc02: Translation file updated.
-  
-- 4.31.2-rc01: Preserve existing team memberships when editing an athlete or when re-assigning categories.
-  
-- 4.31.2-rc01: The athlete editing form now always reloads the list of available groups. Previously the form was only updated when the athlete list page was refreshed.
-  
-- 4.31.1: Fix: the plain scoreboard was mistakenly including the leaderboard
-  
-- 4.31.1: New: selecting the "Categories" template when printing a Start List creates a listing of registered athletes grouped by category instead of the usual "Groups".
+- 4.31.2-rc05: Made the Top Sinclair scoreboard update live as opposed to the end of the group.
   
 - New "Feature Toggle" configuration option located at the bottom the Language and Settings page. This will be used to enable experimental features, or to select backward compatible behavior. If more than one feature keyword is needed, they are separated by commas.
   
@@ -37,9 +21,23 @@
   - The old URLs (displays/scoreboard, displays/scoreleader, displays/scoremultiranks) still work for the time being, but will not be updated. To keep using the old scoreboards when clicking the navigation page buttons, add the word `oldScoreboards` to the list of "Feature Toggles" at the bottom of the "Languages and Settings" page.
   - Changing `colors.css` also changes the attempt board and the decision display .  Top teams / Top Sinclair do not have a light theme, so only the background colors are changed.
   
+- Group-related fixes and improvements:
+
+  - A group can now be added to an athlete immediately after being created
+  - If the registration list or the weigh-in is filtered to a group, adding an athlete uses that group as a default
+  - On the Define Group page, it is now possible to reach the list of athletes for each group
+
+- TCRR compliance: it is now possible to save a registering athlete even if the 20kg rule is broken -- by rule the athlete can decide to wait until clean and jerk to comply.
+
+- TCRR compliance: Improved error message when athlete is requesting weight currently loaded but should have lifted earlier.  Also note added to log when marshal overrides the error message.
+
+- Fix: Preserve existing team memberships when editing an athlete or when re-assigning categories.
+
 - Improvement: a Break triggered by marshal creates a "Marshal Issue" notification to the other TOs.
 
 - Improvement: Changed the "Plates, Collar and Barbell" page to be easier to understand by using checkboxes instead of 0 and 1. Only the larger plates need a number.
+
+- Improvement: selecting the "Categories" template when printing a Start List creates a listing of registered athletes grouped by category instead of the usual "Groups".
 
 - Fix: When running a round-robin competition, the weight requested between rounds can be lower than that at the last clock start.  The normal check is therefore disabled.
 
