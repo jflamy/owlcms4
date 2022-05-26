@@ -1,6 +1,12 @@
-### **Changes for release 4.31.2-rc03**
+### **Changes for release 4.31.2-rc04**
 
-- 4.31.2-rc03: Allow save of a weigh-in form with errors such as not meeting the 20kg rule (according to rule athlete has until first clean & jerk to adjust).
+- 4.31.2-rc04: Fix: On initial creation of a group using the web form, selecting the platform would prevent the group from being saved.
+  
+- 4.31.2-rc04: Usability improvement: The "define groups" page now allows opening each group in the registration page to edit the group's athletes.
+  
+- 4.31.2-rc04: Usability improvement: If a group is selected on the registration ("edit athletes") page or the weigh-in page, then using "+" will create the athlete with the correct group.
+  
+- 4.31.2-rc03: TCRR compliance: Allow save of a weigh-in form with errors such as not meeting the 20kg rule (according to rule athlete has until first clean & jerk to adjust).
   
 - 4.31.2-rc02: Improved error message when athlete is requesting weight currently loaded but should have lifted earlier.  Also note added to log when marshal overrides the error message.
   
