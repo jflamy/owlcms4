@@ -1,9 +1,16 @@
 ### **Changes for release ${revision}**
 
-- 4.31.2-rc05: Fixed formatting issues on the multiple age group scoreboard (multiple rank columns)
-  
-- 4.31.2-rc05: Made the Top Sinclair scoreboard update live as opposed to the end of the group.
-  
+- Minor changes since 4.31.0
+  - 4.31.2: Fixed formatting issues on the multiple age group scoreboard (multiple rank columns)
+  - 4.31.2: Made the Top Sinclair scoreboard update live as opposed to the end of the group.
+  - 4.31.2: The "Define Groups" page includes a link to the athletes for each group
+  - 4.31.2: Allow save of a registered athlete that does not comply with 20kg rule
+  - 4.31.2: Better marshal message when denying a move down to the weight that is on the bar
+  - 4.31.2: Preserve team memberships when editing athletes/reloading registrations
+  - 4.31.1: Fix for plain scoreboard that was including the leaderboard
+
+### Changes for release 4.31
+
 - New "Feature Toggle" configuration option located at the bottom the Language and Settings page. This will be used to enable experimental features, or to select backward compatible behavior. If more than one feature keyword is needed, they are separated by commas.
   
 - New parameterized scoreboards.  Colors can be changed in the `styles/colors.css` file (*The default colors are the same as the previous defaults).*  See [Customization](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/UploadingLocalSettings) for how to proceed.
