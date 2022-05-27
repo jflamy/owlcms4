@@ -1289,13 +1289,12 @@ public abstract class AthleteGridContent extends VerticalLayout
         Notification n = new Notification();
         // Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
         n.getElement().getThemeList().add(theme);
-
         n.setDuration(6000);
         n.setPosition(Position.TOP_START);
-        Div label = new Div();
+        Div label = new Div();;
         label.getElement().setProperty("innerHTML", text);
         label.addClickListener((event) -> n.close());
-        label.setSizeFull();
+        label.setWidth("60ch");
         label.getStyle().set("font-size", "large");
         n.add(label);
         n.open();
@@ -1352,7 +1351,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      * @param athlete
      * @param fop
      */
-    private void warnOthersIfCurrent(UIEvent.LiftingOrderUpdated e, Athlete athlete, FieldOfPlay fop) {
+    protected void warnOthersIfCurrent(UIEvent.LiftingOrderUpdated e, Athlete athlete, FieldOfPlay fop) {
         // the athlete currently displayed is not necessarily the fop curAthlete,
         // because the lifting order has been recalculated behind the scenes
         Athlete curDisplayAthlete = displayedAthlete;
@@ -1368,9 +1367,11 @@ public abstract class AthleteGridContent extends VerticalLayout
             }
             doNotification(text, "warning");
         }
+        if (e.getNewWeight() != null) {
+            doNotification(Translator.translate("Notification.WeightToBeLoaded", e.getNewWeight()), "info");
+        }
     }
 
-    
     @Subscribe
     public void slaveNotification(UIEvent.Notification e) {
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
