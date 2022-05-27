@@ -1,63 +1,18 @@
 ### **Changes for release ${revision}**
 
-- Minor changes since 4.31.0
-  - 4.31.2: Fixed formatting issues on the multiple age group scoreboard (multiple rank columns)
-  - 4.31.2: Made the Top Sinclair scoreboard update live as opposed to the end of the group.
-  - 4.31.2: The "Define Groups" page includes a link to the athletes for each group
-  - 4.31.2: Allow save of a registered athlete that does not comply with 20kg rule
-  - 4.31.2: Better marshal message when denying a move down to the weight that is on the bar
-  - 4.31.2: Preserve team memberships when editing athletes/reloading registrations
-  - 4.31.1: Fix for plain scoreboard that was including the leaderboard
+- Changes since 4.32.0
+  - 4.32.0-alpha00: first release.  The only changes are in templates, release be used for competitions.
 
-### Changes for release 4.31
+### Changes for release 4.32
 
-- New "Feature Toggle" configuration option located at the bottom the Language and Settings page. This will be used to enable experimental features, or to select backward compatible behavior. If more than one feature keyword is needed, they are separated by commas.
-  
-- New parameterized scoreboards.  Colors can be changed in the `styles/colors.css` file (*The default colors are the same as the previous defaults).*  See [Customization](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/UploadingLocalSettings) for how to proceed.
-  
-  -  The scoreboards can be zoomed in or out using the  `Ctrl+` and `Ctrl-` keys to accommodate more lines, or to make text bigger with smaller groups.
-  - `displays/results` show results only, with ranks.  If the screen is VGA or narrower (old-style projectors) then only the total rank is kept.
-  - `displays/resultsLeaders` same as results, but with the leaders of the current athlete's main category shown at the bottom
-  - `displays/resultsLeadersRanks` same as results, but all the ranks in all the eligible categories are shown.
-  - `displays/resultsMedals` for medals.
-  - The ratio of team column to name column can be changed in `styles/results.css` for federations that use very long team names. 
-  - Ranks for snatch and clean&jerk are shown if the competition is configured to award medals for the lifts on the competition rules page, and hidden otherwise.
-  
-  <u>Notes</u>
-  
-  - The old URLs (displays/scoreboard, displays/scoreleader, displays/scoremultiranks) still work for the time being, but will not be updated. To keep using the old scoreboards when clicking the navigation page buttons, add the word `oldScoreboards` to the list of "Feature Toggles" at the bottom of the "Languages and Settings" page.
-  - Changing `colors.css` also changes the attempt board and the decision display .  Top teams / Top Sinclair do not have a light theme, so only the background colors are changed.
-  
-- Group-related fixes and improvements:
-
-  - A group can now be added to an athlete immediately after being created
-  - If the registration list or the weigh-in is filtered to a group, adding an athlete uses that group as a default
-  - On the Define Group page, it is now possible to reach the list of athletes for each group
-
-- TCRR compliance: it is now possible to save a registering athlete even if the 20kg rule is broken -- by rule the athlete can decide to wait until clean and jerk to comply.
-
-- TCRR compliance: Improved error message when athlete is requesting weight currently loaded but should have lifted earlier.  Also note added to log when marshal overrides the error message.
-
-- Fix: Preserve existing team memberships when editing an athlete or when re-assigning categories.
-
-- Improvement: a Break triggered by marshal creates a "Marshal Issue" notification to the other TOs.
-
-- Improvement: Changed the "Plates, Collar and Barbell" page to be easier to understand by using checkboxes instead of 0 and 1. Only the larger plates need a number.
-
-- Improvement: selecting the "Categories" template when printing a Start List creates a listing of registered athletes grouped by category instead of the usual "Groups".
-
-- Fix: When running a round-robin competition, the weight requested between rounds can be lower than that at the last clock start.  The normal check is therefore disabled.
-
-- Fix: Password issues. In some circumstances, password access to the application would stop working, requiring the use of configuration variables to override.
+- Officials scheduling:
+  - Registration import-export spreadsheet changed to add Marshal2 and TechnicalController2. Added a report page in the export that provides the assignments for each official.
+  - The Officials page from the start list shows the officials for each group in the official presentation order.
 
 ### Highlights from recent stable releases
 
-- Improved management of ceremonies 
-
-  - Documented new and improved [Breaks and Ceremonies](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Breaks) procedures, including the Medal Ceremony process.  Ceremonies take place without interfering with countdown timers.
-  - New Medals spreadsheet for the announcer see [Result Documents](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Documents).
-  - Selectable behavior for public vs warmup scoreboards.  Warmup scoreboards do not switch during the medal ceremonies.
-  - Additional protocol templates with predefined paper sizes. Also included a version with snatch, clean&jerk and total ranks.
+- New parameterized scoreboards.  Colors can be changed in the `styles/colors.css` file (*The default colors are the same as the previous defaults).*  See [Customization](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/UploadingLocalSettings) for how to proceed. The scoreboards can be zoomed in or out using the  `Ctrl+` and `Ctrl-` keys to accommodate more lines, or to make text bigger with smaller groups.
+- Improved management of ceremonies : see [Breaks and Ceremonies](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Breaks) procedures, and [Result Documents](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Documents) for the medals spreadsheet.
 - [Jury](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Jury) console now supports summoning the referees either individually or all together. The jury console now allows direct reversal/confirmation of lifts (#435, #427)  
 - The [Refereeing](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Refereeing) screen (typically used on phones or tablets) now displays notifications when a decision is expected or when the jury summons the referee.
 - It is now possible to build affordable physical devices to receive instructions from owlcms (decision expected, jury calls referee) using MQTT. Software and circuit schematics are available at [this location](http://github.com/jflamy/owlcms-esp32).
