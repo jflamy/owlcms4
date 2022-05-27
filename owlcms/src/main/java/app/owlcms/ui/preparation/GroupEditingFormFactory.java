@@ -155,12 +155,24 @@ public class GroupEditingFormFactory
         binder.forField(marshall)
                 .withNullRepresentation("")
                 .bind(Group::getMarshall, Group::setMarshall);
+        
+        TextField marshal2 = new TextField(Translator.translate("Marshal2"));
+        formLayout.add(marshal2);
+        binder.forField(marshal2)
+                .withNullRepresentation("")
+                .bind(Group::getMarshal2, Group::setMarshal2);
 
         TextField technicalController = new TextField(Translator.translate("TechnicalController"));
         formLayout.add(technicalController);
         binder.forField(technicalController)
                 .withNullRepresentation("")
                 .bind(Group::getTechnicalController, Group::setTechnicalController);
+        
+        TextField technicalController2 = new TextField(Translator.translate("TechnicalController2"));
+        formLayout.add(technicalController2);
+        binder.forField(technicalController2)
+                .withNullRepresentation("")
+                .bind(Group::getTechnicalController2, Group::setTechnicalController2);
 
         TextField timeKeeper = new TextField(Translator.translate("Timekeeper"));
         formLayout.add(timeKeeper);

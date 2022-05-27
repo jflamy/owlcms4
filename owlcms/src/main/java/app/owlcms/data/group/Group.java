@@ -79,14 +79,16 @@ public class Group implements Comparable<Group> {
     private String jury1;
     private String jury2;
     private String jury3;
-
     private String jury4;
     private String jury5;
+    
     @Transient
     final private Logger logger = (Logger) LoggerFactory.getLogger(Group.class);
 
     private String marshall;
+    private String marshal2;
     private String name;
+    
     private String referee1;
     private String referee2;
     private String referee3;
@@ -94,13 +96,14 @@ public class Group implements Comparable<Group> {
     private String reserve;
 
     private String technicalController;
-
+    private String technicalController2;
+    
     private String timeKeeper;
+
     private String weighIn1;
     private String weighIn2;
-
+    
     private LocalDateTime weighInTime;
-
     /**
      * Instantiates a new group.
      */
@@ -189,8 +192,6 @@ public class Group implements Comparable<Group> {
         return compare;
     }
 
-//    @Override
-
     public void doDone(boolean b) {
         logger.debug("done? {} previous={} done={} {} [{}]", getName(), this.done, b, System.identityHashCode(this),
                 LoggerUtils.whereFrom());
@@ -235,6 +236,8 @@ public class Group implements Comparable<Group> {
         // && Objects.equals(timeKeeper, other.timeKeeper) && Objects.equals(weighInTime, other.weighInTime);
         // }
     }
+
+//    @Override
 
     /**
      * Gets the announcer.
@@ -338,6 +341,10 @@ public class Group implements Comparable<Group> {
         return jury5;
     }
 
+    public String getMarshal2() {
+        return marshal2;
+    }
+
     /**
      * Gets the marshall.
      *
@@ -406,6 +413,10 @@ public class Group implements Comparable<Group> {
      */
     public String getTechnicalController() {
         return technicalController;
+    }
+
+    public String getTechnicalController2() {
+        return technicalController2;
     }
 
     /**
@@ -533,6 +544,10 @@ public class Group implements Comparable<Group> {
         this.jury5 = jury5;
     }
 
+    public void setMarshal2(String marshal2) {
+        this.marshal2 = marshal2;
+    }
+
     /**
      * Sets the marshall.
      *
@@ -601,6 +616,10 @@ public class Group implements Comparable<Group> {
      */
     public void setTechnicalController(String technicalController) {
         this.technicalController = technicalController;
+    }
+
+    public void setTechnicalController2(String technicalController2) {
+        this.technicalController2 = technicalController2;
     }
 
     /**
