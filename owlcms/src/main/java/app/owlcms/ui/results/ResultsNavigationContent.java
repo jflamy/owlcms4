@@ -53,6 +53,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 
         Div timingStats = DownloadButtonFactory.createDynamicXLSDownloadButton("timingStats",
                 getTranslation("TimingStatistics"), new JXLSTimingStats(UI.getCurrent()));
+        ((Button)timingStats.getComponentAt(0)).setWidth("95%");
 
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(groupResults, medals);
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(teamResults, teams);

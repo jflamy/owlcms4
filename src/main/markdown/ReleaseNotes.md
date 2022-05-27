@@ -6,8 +6,8 @@
 ### Changes for release 4.32
 
 - Officials scheduling:
-  - Registration import-export spreadsheet changed to add Marshal2 and TechnicalController2. Added a report page in the export that provides the assignments for each official.
-  - The Officials page from the start list shows the officials for each group in the official presentation order.
+  - Registration import-export spreadsheet changed to add additional columns for Marshal2 and TechnicalController2. Added a report page in the export that shows the assignments for each official.
+  - The Start List document has an Officials tab that shows official assignments for each group according to the introduction order.
 
 ### Highlights from recent stable releases
 
