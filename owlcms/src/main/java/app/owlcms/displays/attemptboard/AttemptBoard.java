@@ -183,10 +183,10 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     @Override
     public void doBreak(UIEvent e) {
-        logger.warn("doBreak({})", e);
+        //logger.trace("doBreak({})", e);
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             BreakType breakType = fop.getBreakType();
-            logger.warn("doBreak({}) bt={} a={}}", e, breakType, fop.getCurAthlete());
+            //logger.trace("doBreak({}) bt={} a={}}", e, breakType, fop.getCurAthlete());
             if (breakType == BreakType.GROUP_DONE) {
                 Group group = fop.getGroup();
                 Athlete a = fop.getCurAthlete();
@@ -208,7 +208,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 this.getElement().setProperty("attempt", formattedAttempt);
                 this.getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
                 showPlates();
-                logger.warn("showingPlates {}",a.getNextAttemptRequestedWeight());
+                //logger.trace("showingPlates {}",a.getNextAttemptRequestedWeight());
             } else {
                 this.getElement().setProperty("attempt", "");
                 this.getElement().setProperty("weight", "");
@@ -217,7 +217,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
 
             uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
-            logger.warn("attemptBoard showWeights ? {}", fop.getCeremonyType());
+            //logger.trace("attemptBoard showWeights ? {}", fop.getCeremonyType());
             this.getElement().callJsFunction("doBreak",fop.getCeremonyType() == null);
         }));
     }
@@ -596,7 +596,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         }
 
         boolean showWeights = fop.getCeremonyType() == null;
-        logger.warn("*** doBreak {} {} {}", showWeights, fop.getCeremonyType(), LoggerUtils.whereFrom());
+        //logger.trace("*** doBreak {} {} {}", showWeights, fop.getCeremonyType(), LoggerUtils.whereFrom());
         this.getElement().callJsFunction("doBreak", showWeights);
         uiEventLogger.debug("$$$ attemptBoard doBreak(fop)");
     }
@@ -731,7 +731,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         } else {
             Athlete curAthlete = fop.getCurAthlete();
             if (fop.getState() == FOPState.BREAK || fop.getState() == FOPState.INACTIVE) {
-                logger.warn("syncwithfop {} {}",fop.getBreakType(), fop.getCeremonyType());
+                //logger.trace("syncwithfop {} {}",fop.getBreakType(), fop.getCeremonyType());
                 if (fop.getCeremonyType() != null) {
                     doBreak(fop);
                 } else if (curAthlete != null && curAthlete.getAttemptsDone() >= 6) {

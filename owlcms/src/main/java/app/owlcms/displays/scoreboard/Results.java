@@ -163,7 +163,7 @@ public class Results extends PolymerTemplate<TemplateModel>
             breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
             setHidden(false);
             updateBottom(computeLiftType(a), fop);
-            logger.warn("doBreak results {} {} {}", fop.getCeremonyType(), a, showWeight);
+            //logger.trace("doBreak results {} {} {}", fop.getCeremonyType(), a, showWeight);
             this.getElement().callJsFunction("doBreak", showWeight);
         }));
     }
