@@ -163,7 +163,7 @@ public class Results extends PolymerTemplate<TemplateModel>
             breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
             setHidden(false);
             updateBottom(computeLiftType(a), fop);
-            //logger.trace("doBreak results {} {} {}", fop.getCeremonyType(), a, showWeight);
+            // logger.trace("doBreak results {} {} {}", fop.getCeremonyType(), a, showWeight);
             this.getElement().callJsFunction("doBreak", showWeight);
         }));
     }
@@ -433,13 +433,15 @@ public class Results extends PolymerTemplate<TemplateModel>
     }
 
     protected void doUpdate(Athlete a, UIEvent e) {
-        logger.debug("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event", a,
+        logger.warn("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event", a,
                 a != null ? a.getAttemptsDone() : null);
         boolean leaveTopAlone = false;
         if (e instanceof UIEvent.LiftingOrderUpdated) {
             LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
             if (e2.isInBreak()) {
                 leaveTopAlone = !e2.isDisplayToggle();
+                this.getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
+                doBreak(e);
             } else {
                 leaveTopAlone = !e2.isCurrentDisplayAffected();
             }
