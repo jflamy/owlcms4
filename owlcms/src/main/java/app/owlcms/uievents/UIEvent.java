@@ -552,7 +552,7 @@ public class UIEvent {
          * @param timeAllowed     the time allowed
          * @param displayToggle   if true, just update display according to lifting order.
          * @param origin          the origin
-         * @param newWeight TODO
+         * @param newWeight       newly requested weight, null if no change from previous
          */
         public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete,
                 Athlete changingAthlete, List<Athlete> liftingOrder, List<Athlete> displayOrder, Integer timeAllowed,

@@ -1294,7 +1294,6 @@ public abstract class AthleteGridContent extends VerticalLayout
         Div label = new Div();;
         label.getElement().setProperty("innerHTML", text);
         label.addClickListener((event) -> n.close());
-        label.setWidth("60ch");
         label.getStyle().set("font-size", "large");
         n.add(label);
         n.open();

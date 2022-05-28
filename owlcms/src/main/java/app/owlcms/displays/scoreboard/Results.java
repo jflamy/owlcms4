@@ -94,14 +94,14 @@ public class Results extends PolymerTemplate<TemplateModel>
     protected JsonArray sattempts;
     protected List<Athlete> displayOrder;
     protected int liftsDone;
-    
+
     @Id("timer")
     protected AthleteTimerElement timer; // Flow creates it
     @Id("breakTimer")
     private BreakTimerElement breakTimer; // Flow creates it
     @Id("decisions")
     private DecisionElement decisions; // Flow creates it
-    
+
     private Category ceremonyCategory;
     private Group ceremonyGroup = null;
     private boolean darkMode = true;
@@ -151,10 +151,20 @@ public class Results extends PolymerTemplate<TemplateModel>
             this.getElement().setProperty("fullName", title);
             this.getElement().setProperty("teamName", "");
             this.getElement().setProperty("attempt", "");
+            this.getElement().setProperty("kgSymbol", Translator.translate("kgSymbol"));
+            Athlete a = fop.getCurAthlete();
+
+            this.getElement().setProperty("weight", "");
+            boolean showWeight = false;
+            if (fop.getCeremonyType() == null && a != null) {
+                this.getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
+                showWeight = true;
+            }
             breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
             setHidden(false);
-            updateBottom(computeLiftType(fop.getCurAthlete()), fop);
-            this.getElement().callJsFunction("doBreak");
+            updateBottom(computeLiftType(a), fop);
+            logger.warn("doBreak results {} {} {}", fop.getCeremonyType(), a, showWeight);
+            this.getElement().callJsFunction("doBreak", showWeight);
         }));
     }
 
@@ -440,7 +450,7 @@ public class Results extends PolymerTemplate<TemplateModel>
             if (a != null) {
                 Group group = fop.getGroup();
                 if (group != null && !group.isDone()) {
-                    //logger.debug("updating top {} {} {}", a.getFullName(), group, System.identityHashCode(group));
+                    // logger.debug("updating top {} {} {}", a.getFullName(), group, System.identityHashCode(group));
                     this.getElement().setProperty("fullName", a.getFullName());
                     this.getElement().setProperty("teamName", a.getTeam());
                     this.getElement().setProperty("startNumber", a.getStartNumber());
@@ -454,7 +464,7 @@ public class Results extends PolymerTemplate<TemplateModel>
             }
             this.getElement().callJsFunction("reset");
         }
-        //logger.debug("updating bottom");
+        // logger.debug("updating bottom");
         updateBottom(computeLiftType(a), fop);
     }
 
@@ -671,7 +681,7 @@ public class Results extends PolymerTemplate<TemplateModel>
         return (total == null || total.trim().isEmpty()) ? "-"
                 : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
     }
-    
+
     protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
         String category;
         category = curCat != null ? curCat.getName() : "";
@@ -818,7 +828,7 @@ public class Results extends PolymerTemplate<TemplateModel>
         }
         this.getElement().setPropertyJson("athletes",
                 getAthletesJson(displayOrder, fop.getLiftingOrder(), fop));
-    
+
         int resultLines = (displayOrder != null ? displayOrder.size() : 0) + countCategories(displayOrder) + 1;
         this.getElement().setProperty("resultLines", resultLines);
         computeLeaders();
