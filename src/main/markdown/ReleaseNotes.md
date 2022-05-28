@@ -1,10 +1,12 @@
 ### **Changes for release ${revision}**
 
 - Changes since 4.32.0
+  - 4.32.0-alpha01: Announcer is notified when required weight change
   - 4.32.0-alpha00: first release.  The only changes are in templates, release be used for competitions.
 
 ### Changes for release 4.32
 
+- Announcer is notified when weight on bar needs to change.
 - Officials scheduling:
   - Registration import-export spreadsheet changed to add additional columns for Marshal2 and TechnicalController2. Added a report page in the export that shows the assignments for each official.
   - The Start List document has an Officials tab that shows official assignments for each group according to the introduction order.
