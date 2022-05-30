@@ -38,7 +38,7 @@
   * [Configuration Parameters](Configuration)
   * [Simulation and Load Testing](Simulation)
   * [MQTT Server Configuration](MQTT)
-  * [Importing PostgreSQL Cloud Databases](PostgreSQL)
+  * [Using PostgreSQL](PostgreSQL) 
   * [Contributing to the code](Gitpod)
 
 * Downloads

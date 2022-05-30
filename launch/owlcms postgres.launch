@@ -7,6 +7,7 @@
         <listEntry value="1"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+        <mapEntry key="JDBC_DATABASE_PASSWORD" value="owlcmsX"/>
         <mapEntry key="JDBC_DATABASE_URL" value="jdbc:postgresql://localhost:5432/owlcms_db"/>
         <mapEntry key="JDBC_DATABASE_USERNAME" value="postgres"/>
         <mapEntry key="OWLCMS_BACKDOOR" value="192.168.2.44,127.0.0.1,[0:0:0:0:0:0:0:1]"/>
