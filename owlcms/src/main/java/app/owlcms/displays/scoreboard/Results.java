@@ -433,8 +433,7 @@ public class Results extends PolymerTemplate<TemplateModel>
     }
 
     protected void doUpdate(Athlete a, UIEvent e) {
-        logger.warn("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event", a,
-                a != null ? a.getAttemptsDone() : null);
+        //logger.trace("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event", a, a != null ? a.getAttemptsDone() : null);
         boolean leaveTopAlone = false;
         if (e instanceof UIEvent.LiftingOrderUpdated) {
             LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;

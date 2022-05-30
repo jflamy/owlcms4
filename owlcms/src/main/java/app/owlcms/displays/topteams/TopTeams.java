@@ -108,7 +108,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(TopTeams.class);
-    private static final int TOP_N = 5;
+    private static final int SHOWN_ON_BOARD = 5;
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     static {
@@ -574,7 +574,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         }
         int size = list.size();
         if (size > 0) {
-            int min = Math.min(size, TOP_N);
+            int min = Math.min(size, SHOWN_ON_BOARD);
             list = list.subList(0, min);
         }
         return list;

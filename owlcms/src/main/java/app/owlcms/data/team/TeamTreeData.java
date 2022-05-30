@@ -72,7 +72,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
             TeamTreeItem curTeamItem = null;
             String key = computeGenderKey(gender) + "Team"
                     + (ageGroupPrefix != null ? ageGroupPrefix : ageDivision.name());
-            logger.trace("looking for {} in {}",key, reportingBeans.keySet());
+            logger.trace("looking for {} in {}", key, reportingBeans.keySet());
 
             @SuppressWarnings("unchecked")
             List<Athlete> athletes = (List<Athlete>) reportingBeans.get(key);
@@ -103,15 +103,15 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                     double curScore = a.getSinclairForDelta();
                     double curSmf = a.getSmm();
 
-                    int curTeamCount = 0;
-                    // logger.debug("---- Athlete {} {} {} {} {} {}", curTeamName, a, a.getGender(), curPoints,
-                    // curTeamCount,groupIsDone);
-
+                    Team curTeam = curTeamItem.getTeam();
                     // results are ordered by total points
-                    boolean b = curTeamCount < maxCount;
+                    boolean b = curTeam.getCounted() < maxCount;
                     boolean c = curPoints != null && curPoints > 0;
 
-                    Team curTeam = curTeamItem.getTeam();
+                    if (debug) {
+                        logger.debug("---- Athlete {} {} {} {} {} {} {} {}", curTeamName, a, a.getGender(), curPoints,
+                                curTeam.getCounted(), groupIsDone, b, c);
+                    }
 
                     if (groupIsDone && b && c) {
                         curTeam.setPoints(curTeam.getPoints() + Math.round(curPoints));
@@ -120,14 +120,13 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                         curTeam.setCounted(curTeam.getCounted() + 1);
                     }
                     curTeamItem.addTreeItemChild(a, groupIsDone);
-                    curTeamCount += 1;
                     curTeam.setSize(curTeam.getSize() + 1);
                     prevTeamName = curTeamName;
                 }
             }
         }
 
-//        dumpTrees(teamsByGender);
+        dumpTeams();
     }
 
     private String computeGenderKey(Gender gender) {
@@ -153,8 +152,8 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                 continue;
             }
             for (TeamTreeItem item : teamItems) {
-                logger.debug("team: {} {} {}", item.getName(), item.getGender(), item.getPoints(),
-                        item.getSinclairScore());
+                logger.debug("team: {} {} {} {} {}", item.getName(), item.getGender(), item.getPoints(),
+                        item.getSinclairScore(), item.getCounted());
                 List<TeamTreeItem> teamMembers = item.getTeamMembers();
                 teamMembers.sort(TeamTreeItem.sinclairScoreComparator);
                 for (TeamTreeItem t : teamMembers) {
@@ -189,6 +188,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
     private Integer getTopNTeamSize(Gender gender) {
         Integer maxCount = null;
         Competition comp = Competition.getCurrent();
+
         switch (gender) {
         case M:
             maxCount = comp.getMensTeamSize() != null ? comp.getMensTeamSize() : Integer.MAX_VALUE;
