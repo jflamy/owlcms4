@@ -1,6 +1,7 @@
-### **Changes for release 4.32.0-beta02**
+### **Changes for release 4.32.0-beta03**
 
 - Changes since 4.32.0
+  - 4.32.0-beta03: The "use best N results from team" setting was not being applied correctly on team scoreboards and the team result page.
   - 4.32.0-beta02: Weight changes during breaks were not always shown on top of scoreboards
   - 4.32.0-beta01: Requested weight is shown on attempt board and top of scoreboard during breaks (hidden during ceremonies).
   - 4.32.0-alpha01: Announcer is notified when required weight change
