@@ -1,6 +1,7 @@
-### **Changes for release 4.32.0-beta01**
+### **Changes for release 4.32.0-beta02**
 
 - Changes since 4.32.0
+  - 4.32.0-beta02: Weight changes during breaks were not always shown on top of scoreboards
   - 4.32.0-beta01: Requested weight is shown on attempt board and top of scoreboard during breaks (hidden during ceremonies).
   - 4.32.0-alpha01: Announcer is notified when required weight change
   - 4.32.0-alpha00: first release.  The only changes are in templates, release be used for competitions.
