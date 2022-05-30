@@ -19,6 +19,13 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
+/**
+ * A TeamTreeItem is either a team, or a person inside a team.
+ * A Vaadin tree contains only one type of node.
+ * 
+ * @author JF
+ *
+ */
 public class TeamTreeItem {
 
     public static Comparator<TeamTreeItem> pointComparator = ((a, b) -> {
@@ -27,6 +34,7 @@ public class TeamTreeItem {
         if (compare != 0) {
             return compare;
         }
+        // bigger is better
         compare = -ObjectUtils.compare(a.getPoints(), b.getPoints(), true);
         return compare;
     });
@@ -37,6 +45,7 @@ public class TeamTreeItem {
         if (compare != 0) {
             return compare;
         }
+        // bigger is better
         compare = -ObjectUtils.compare(a.getSinclairScore(), b.getSinclairScore(), true);
         return compare;
     });
@@ -55,7 +64,7 @@ public class TeamTreeItem {
         this.athlete = teamMember;
         this.setDone(done);
         if (this.athlete == null) {
-            // we are a team
+            // this node is a team
             this.setTeam(new Team(curTeamName, gender));
             this.teamMembers = new ArrayList<>();
         }

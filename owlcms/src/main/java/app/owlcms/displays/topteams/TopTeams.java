@@ -44,6 +44,7 @@ import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.team.Team;
@@ -205,7 +206,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     public void doUpdate(Competition competition) {
         this.getElement().callJsFunction("reset");
 
-        TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), (Gender) null);
+        TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), (Gender) null, Ranking.SNATCH_CJ_TOTAL);
         Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamItemsByGender();
 
         mensTeams = teamsByGender.get(Gender.M);

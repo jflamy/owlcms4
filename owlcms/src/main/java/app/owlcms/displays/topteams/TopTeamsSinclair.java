@@ -42,6 +42,7 @@ import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.team.Team;
@@ -174,15 +175,6 @@ public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
                 new HorizontalLayout(ageDivisionComboBox, ageGroupPrefixComboBox));
     }
 
-//    @Override
-//    public void configurePage(InitialPageSettings settings) {
-//        settings.addMetaTag("mobile-web-app-capable", "yes");
-//        settings.addMetaTag("apple-mobile-web-app-capable", "yes");
-//        settings.addLink("shortcut icon", "frontend/images/owlcms.ico");
-//        settings.addFavIcon("icon", "frontend/images/logo.png", "96x96");
-//        settings.setViewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes");
-//    }
-
     @Override
     public void doBreak(UIEvent e) {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
@@ -199,7 +191,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
     public void doUpdate(Competition competition) {
         this.getElement().callJsFunction("reset");
 
-        TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), (Gender) null);
+        TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), (Gender) null, Ranking.BW_SINCLAIR);
         Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamItemsByGender();
 
         mensTeams = teamsByGender.get(Gender.M);

@@ -20,6 +20,8 @@ import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -42,8 +44,11 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 
     private HashMap<String, Object> reportingBeans;
 
-    public TeamTreeData(String ageGroupPrefix, AgeDivision ageDivision, Gender gender) {
+    private Ranking ranking;
+
+    public TeamTreeData(String ageGroupPrefix, AgeDivision ageDivision, Gender gender, Ranking ranking) {
         genderFilterValue = gender;
+        this.setRanking(ranking);
         init(ageGroupPrefix, ageDivision);
     }
 
@@ -85,6 +90,8 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 //                    })
                     .filter(a -> a.isTeamMember())
                     .collect(Collectors.toList());
+            AthleteSorter.teamPointsOrder(athletes, ranking);
+
             String prevTeamName = null;
             if (athletes != null) {
                 // count points for each team
@@ -100,24 +107,26 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                             curTeamName != null ? curTeamName : "-");
                     boolean groupIsDone = groupIsDone(a);
                     Integer curPoints = a.getTotalPoints();
-                    double curScore = a.getSinclairForDelta();
+                    double curSinclair = a.getSinclairForDelta();
                     double curSmf = a.getSmm();
+                    double curRobi = a.getRobi();
 
                     Team curTeam = curTeamItem.getTeam();
-                    // results are ordered by total points
+
                     boolean b = curTeam.getCounted() < maxCount;
                     boolean c = curPoints != null && curPoints > 0;
 
-                    if (debug) {
-                        logger.debug("---- Athlete {} {} {} {} {} {} {} {}", curTeamName, a, a.getGender(), curPoints,
-                                curTeam.getCounted(), groupIsDone, b, c);
-                    }
+//                    if (debug) {
+//                        logger.debug("---- Athlete {} {} {} {} {} {} {} {}", curTeamName, a, a.getGender(), curPoints,
+//                                curTeam.getCounted(), groupIsDone, b, c);
+//                    }
 
                     if (groupIsDone && b && c) {
                         curTeam.setPoints(curTeam.getPoints() + Math.round(curPoints));
-                        curTeam.setSinclairScore(curTeam.getSinclairScore() + curScore);
+                        curTeam.setSinclairScore(curTeam.getSinclairScore() + curSinclair);
                         curTeam.setSmfScore(curTeam.getSmfScore() + curSmf);
                         curTeam.setCounted(curTeam.getCounted() + 1);
+                        curTeam.setRobi(curTeam.getRobi() + curRobi);
                     }
                     curTeamItem.addTreeItemChild(a, groupIsDone);
                     curTeam.setSize(curTeam.getSize() + 1);
@@ -155,9 +164,8 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                 logger.debug("team: {} {} {} {} {}", item.getName(), item.getGender(), item.getPoints(),
                         item.getSinclairScore(), item.getCounted());
                 List<TeamTreeItem> teamMembers = item.getTeamMembers();
-                teamMembers.sort(TeamTreeItem.sinclairScoreComparator);
                 for (TeamTreeItem t : teamMembers) {
-                    logger.debug("    {} {}", t.getName(), t.getSinclairScore());
+                    logger.debug("    {} {} {}", t.getName(), t.getPoints(), t.getSinclairScore());
                 }
             }
         }
@@ -226,6 +234,14 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                 addItems(teams, TeamTreeItem::getSortedTeamMembers);
             }
         }
+    }
+
+    public Ranking getRanking() {
+        return ranking;
+    }
+
+    public void setRanking(Ranking ranking) {
+        this.ranking = ranking;
     }
 
 }
