@@ -455,7 +455,7 @@ public class Config {
         this.skipReading = b;   
     }
 
-    public boolean featureSwitch(String string, boolean trueIfPresent) {
+    private boolean featureSwitch(String string, boolean trueIfPresent) {
         if (getFeatureSwitches() == null) {
             return !trueIfPresent;
         }
@@ -470,6 +470,14 @@ public class Config {
 
     public void setFeatureSwitches(String featureSwitches) {
         this.featureSwitches = featureSwitches;
+    }
+
+    public boolean isSizeOverride() {
+        return featureSwitch("sizeOverride", true);
+    }
+
+    public boolean isOldScoreboards() {
+        return featureSwitch("oldScoreboards", true);
     }
 
 }

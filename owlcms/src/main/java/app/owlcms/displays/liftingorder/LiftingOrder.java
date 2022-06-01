@@ -9,6 +9,7 @@ package app.owlcms.displays.liftingorder;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Timer;
 
 import org.slf4j.LoggerFactory;
 
@@ -132,6 +133,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     private UI locationUI;
     private List<Athlete> order;
     private EventBus uiEventBus;
+    private Timer dialogTimer;
 
     /**
      * Instantiates a new results board.
@@ -170,6 +172,11 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     @Override
     public Dialog getDialog() {
         return dialog;
+    }
+
+    @Override
+    public Timer getDialogTimer() {
+        return this.dialogTimer;
     }
 
     @Override
@@ -225,6 +232,11 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     @Override
     public void setDialog(Dialog dialog) {
         this.dialog = dialog;
+    }
+
+    @Override
+    public void setDialogTimer(Timer timer) {
+        this.dialogTimer = timer;
     }
 
     @Override

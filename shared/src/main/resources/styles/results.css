@@ -5,9 +5,6 @@
      * Customization section
      *************************/
 
-    /* results table font size */
-    --tableFontSize: 1.25rem;
-
     /* size of team column relative to name column (fr = fraction) */
     --teamColumnRatio: 0.55fr;
 
@@ -32,6 +29,9 @@
 
 /* default for page */
 .wrapper {
+    /* results table font size */
+    --tableFontSize: 1.25rem;
+
     font-family: Arial, Helvetica, sans-serif;
     color: var(--pageTextColor);
     background-color: var(--pageBackgroundColor);

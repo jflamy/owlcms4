@@ -13,6 +13,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -125,6 +126,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
     private List<TeamTreeItem> mensTeams;
     private EventBus uiEventBus;
     private List<TeamTreeItem> womensTeams;
+    private Timer dialogTimer;
 
     /**
      * Instantiates a new results board.
@@ -599,4 +601,14 @@ public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
                 getAgeDivision() != null ? getAgeDivision().name() : null);
     }
 
+    @Override
+    public Timer getDialogTimer() {
+        return this.dialogTimer;
+    }
+
+    @Override
+    public void setDialogTimer(Timer timer) {
+        this.dialogTimer = timer; 
+    }
+    
 }

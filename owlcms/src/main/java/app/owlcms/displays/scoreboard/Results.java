@@ -11,6 +11,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +51,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FOPState;
@@ -114,6 +116,9 @@ public class Results extends PolymerTemplate<TemplateModel>
     private EventBus uiEventBus;
     private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
+    protected Double emFontSize = null;
+    private Timer dialogTimer;
+
     {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
@@ -139,6 +144,10 @@ public class Results extends PolymerTemplate<TemplateModel>
         DisplayOptions.addSoundEntries(vl, target, this);
         vl.add(new Hr());
         DisplayOptions.addSwitchableEntries(vl, target, this);
+        if (Config.getCurrent().isSizeOverride()) {
+            vl.add(new Hr());
+            DisplayOptions.addSizingEntries(vl, target, this);
+        }
     }
 
     /**
@@ -156,8 +165,10 @@ public class Results extends PolymerTemplate<TemplateModel>
 
             this.getElement().setProperty("weight", "");
             boolean showWeight = false;
-            if (fop.getCeremonyType() == null && a != null) {
-                this.getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
+            Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
+            if (fop.getCeremonyType() == null && a != null && nextAttemptRequestedWeight != null
+                    && nextAttemptRequestedWeight > 0) {
+                this.getElement().setProperty("weight", nextAttemptRequestedWeight);
                 showWeight = true;
             }
             breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
@@ -207,6 +218,11 @@ public class Results extends PolymerTemplate<TemplateModel>
     @Override
     public Dialog getDialog() {
         return dialog;
+    }
+
+    @Override
+    public Double getEmFontSize() {
+        return emFontSize;
     }
 
     @Override
@@ -270,6 +286,11 @@ public class Results extends PolymerTemplate<TemplateModel>
     @Override
     public void setDialog(Dialog dialog) {
         this.dialog = dialog;
+    }
+
+    @Override
+    public void setEmFontSize(Double emFontSize) {
+        this.emFontSize = emFontSize;
     }
 
     @Override
@@ -428,12 +449,53 @@ public class Results extends PolymerTemplate<TemplateModel>
         });
     }
 
+    protected void computeLeaders() {
+        OwlcmsSession.withFop(fop -> {
+            Athlete curAthlete = fop.getCurAthlete();
+            if (curAthlete != null && curAthlete.getGender() != null) {
+                this.getElement().setProperty("categoryName", curAthlete.getCategory().getName());
+
+                displayOrder = fop.getLeaders();
+                if (displayOrder != null && displayOrder.size() > 0) {
+                    // null as second argument because we do not highlight current athletes in the leaderboard
+                    this.getElement().setPropertyJson("leaders", getAthletesJson(displayOrder, null, fop));
+                    this.getElement().setProperty("leaderLines", displayOrder.size() + 2); // spacer + title
+                } else {
+                    // nothing to show
+                    this.getElement().setPropertyJson("leaders", Json.createNull());
+                    this.getElement().setProperty("leaderLines", 1); // must be > 0
+                }
+            }
+        });
+    }
+
+    /**
+     * @param groupAthletes, List<Athlete> liftOrder
+     * @return
+     */
+    protected int countCategories(List<Athlete> displayOrder) {
+        int nbCats = 0;
+        Category prevCat = null;
+        List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
+                : Collections.emptyList();
+        for (Athlete a : athletes) {
+            Category curCat = a.getCategory();
+            if (curCat != null && !curCat.sameAs(prevCat)) {
+                // changing categories, put marker before athlete
+                prevCat = curCat;
+                nbCats++;
+            }
+        }
+        return nbCats;
+    }
+
     protected void doEmpty() {
         this.setHidden(true);
     }
 
     protected void doUpdate(Athlete a, UIEvent e) {
-        //logger.trace("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event", a, a != null ? a.getAttemptsDone() : null);
+        // logger.trace("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event", a, a != null ?
+        // a.getAttemptsDone() : null);
         boolean leaveTopAlone = false;
         if (e instanceof UIEvent.LiftingOrderUpdated) {
             LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
@@ -489,6 +551,89 @@ public class Results extends PolymerTemplate<TemplateModel>
         } else {
             return total.toString();
         }
+    }
+
+    protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
+        String category;
+        category = curCat != null ? curCat.getName() : "";
+        ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
+        ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
+        ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
+        Integer startNumber = a.getStartNumber();
+        ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
+        ja.put("category", category != null ? category : "");
+        getAttemptsJson(a, liftOrderRank, fop);
+        ja.put("sattempts", sattempts);
+        ja.put("cattempts", cattempts);
+        ja.put("total", formatInt(a.getTotal()));
+        Participation mainRankings = a.getMainRankings();
+        if (mainRankings != null) {
+            ja.put("snatchRank", formatRank(mainRankings.getSnatchRank()));
+            ja.put("cleanJerkRank", formatRank(mainRankings.getCleanJerkRank()));
+            ja.put("totalRank", formatRank(mainRankings.getTotalRank()));
+        } else {
+            logger.error("main rankings null for {}", a);
+        }
+        ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
+
+        boolean notDone = a.getAttemptsDone() < 6;
+        String blink = (notDone ? " blink" : "");
+        String highlight = "";
+        if (fop.getState() != FOPState.DECISION_VISIBLE && notDone) {
+            switch (liftOrderRank) {
+            case 1:
+                highlight = (" current" + blink);
+                break;
+            case 2:
+                highlight = " next";
+                break;
+            default:
+                highlight = "";
+            }
+        }
+        // logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
+        ja.put("classname", highlight);
+    }
+
+    /**
+     * @param groupAthletes, List<Athlete> liftOrder
+     * @return
+     */
+    protected JsonValue getAthletesJson(List<Athlete> displayOrder, List<Athlete> liftOrder, FieldOfPlay fop) {
+        JsonArray jath = Json.createArray();
+        int athx = 0;
+
+        Category prevCat = null;
+        long currentId = (liftOrder != null && liftOrder.size() > 0) ? liftOrder.get(0).getId() : -1L;
+        long nextId = (liftOrder != null && liftOrder.size() > 1) ? liftOrder.get(1).getId() : -1L;
+        List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
+                : Collections.emptyList();
+        for (Athlete a : athletes) {
+            JsonObject ja = Json.createObject();
+            Category curCat = a.getCategory();
+            if (curCat != null && !curCat.sameAs(prevCat)) {
+                // changing categories, put marker before athlete
+                ja.put("isSpacer", true);
+                jath.set(athx, ja);
+                ja = Json.createObject();
+                prevCat = curCat;
+                athx++;
+            }
+            // compute the blinking rank (1 = current, 2 = next)
+            getAthleteJson(a, ja, curCat, (a.getId() == currentId)
+                    ? 1
+                    : ((a.getId() == nextId)
+                            ? 2
+                            : 0),
+                    fop);
+            String team = a.getTeam();
+            if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
+                setWideTeamNames(true);
+            }
+            jath.set(athx, ja);
+            athx++;
+        }
+        return jath;
     }
 
     /**
@@ -607,24 +752,29 @@ public class Results extends PolymerTemplate<TemplateModel>
         this.getElement().setPropertyJson("t", translations);
     }
 
-    protected void computeLeaders() {
-        OwlcmsSession.withFop(fop -> {
-            Athlete curAthlete = fop.getCurAthlete();
-            if (curAthlete != null && curAthlete.getGender() != null) {
-                this.getElement().setProperty("categoryName", curAthlete.getCategory().getName());
+    protected void updateBottom(String liftType, FieldOfPlay fop) {
+        curGroup = fop.getGroup();
+        displayOrder = fop.getDisplayOrder();
+        if (Config.getCurrent().isSizeOverride() && getEmFontSize() != null) {
+            this.getElement().setProperty("sizeOverride", " --tableFontSize:" + getEmFontSize() + "rem;");
+        }
+        if (liftType != null) {
+            this.getElement().setProperty("groupName",
+                    curGroup != null
+                            ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
+                            : "");
+            liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+            this.getElement().setProperty("liftsDone", Translator.translate("Scoreboard.AttemptsDone", liftsDone));
+        } else {
+            this.getElement().setProperty("groupName", "");
+            this.getElement().callJsFunction("groupDone");
+        }
+        this.getElement().setPropertyJson("athletes",
+                getAthletesJson(displayOrder, fop.getLiftingOrder(), fop));
 
-                displayOrder = fop.getLeaders();
-                if (displayOrder != null && displayOrder.size() > 0) {
-                    // null as second argument because we do not highlight current athletes in the leaderboard
-                    this.getElement().setPropertyJson("leaders", getAthletesJson(displayOrder, null, fop));
-                    this.getElement().setProperty("leaderLines", displayOrder.size() + 2); // spacer + title
-                } else {
-                    // nothing to show
-                    this.getElement().setPropertyJson("leaders", Json.createNull());
-                    this.getElement().setProperty("leaderLines", 1); // must be > 0
-                }
-            }
-        });
+        int resultLines = (displayOrder != null ? displayOrder.size() : 0) + countCategories(displayOrder) + 1;
+        this.getElement().setProperty("resultLines", resultLines);
+        computeLeaders();
     }
 
     private String computeLiftType(Athlete a) {
@@ -634,26 +784,6 @@ public class Results extends PolymerTemplate<TemplateModel>
         String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
                 : Translator.translate("Snatch");
         return liftType;
-    }
-
-    /**
-     * @param groupAthletes, List<Athlete> liftOrder
-     * @return
-     */
-    protected int countCategories(List<Athlete> displayOrder) {
-        int nbCats = 0;
-        Category prevCat = null;
-        List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
-                : Collections.emptyList();
-        for (Athlete a : athletes) {
-            Category curCat = a.getCategory();
-            if (curCat != null && !curCat.sameAs(prevCat)) {
-                // changing categories, put marker before athlete
-                prevCat = curCat;
-                nbCats++;
-            }
-        }
-        return nbCats;
     }
 
     private void doDone(Group g) {
@@ -681,89 +811,6 @@ public class Results extends PolymerTemplate<TemplateModel>
     private String formatKg(String total) {
         return (total == null || total.trim().isEmpty()) ? "-"
                 : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
-    }
-
-    protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
-        String category;
-        category = curCat != null ? curCat.getName() : "";
-        ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
-        ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
-        ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
-        Integer startNumber = a.getStartNumber();
-        ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-        ja.put("category", category != null ? category : "");
-        getAttemptsJson(a, liftOrderRank, fop);
-        ja.put("sattempts", sattempts);
-        ja.put("cattempts", cattempts);
-        ja.put("total", formatInt(a.getTotal()));
-        Participation mainRankings = a.getMainRankings();
-        if (mainRankings != null) {
-            ja.put("snatchRank", formatRank(mainRankings.getSnatchRank()));
-            ja.put("cleanJerkRank", formatRank(mainRankings.getCleanJerkRank()));
-            ja.put("totalRank", formatRank(mainRankings.getTotalRank()));
-        } else {
-            logger.error("main rankings null for {}", a);
-        }
-        ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
-
-        boolean notDone = a.getAttemptsDone() < 6;
-        String blink = (notDone ? " blink" : "");
-        String highlight = "";
-        if (fop.getState() != FOPState.DECISION_VISIBLE && notDone) {
-            switch (liftOrderRank) {
-            case 1:
-                highlight = (" current" + blink);
-                break;
-            case 2:
-                highlight = " next";
-                break;
-            default:
-                highlight = "";
-            }
-        }
-        // logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
-        ja.put("classname", highlight);
-    }
-
-    /**
-     * @param groupAthletes, List<Athlete> liftOrder
-     * @return
-     */
-    protected JsonValue getAthletesJson(List<Athlete> displayOrder, List<Athlete> liftOrder, FieldOfPlay fop) {
-        JsonArray jath = Json.createArray();
-        int athx = 0;
-
-        Category prevCat = null;
-        long currentId = (liftOrder != null && liftOrder.size() > 0) ? liftOrder.get(0).getId() : -1L;
-        long nextId = (liftOrder != null && liftOrder.size() > 1) ? liftOrder.get(1).getId() : -1L;
-        List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
-                : Collections.emptyList();
-        for (Athlete a : athletes) {
-            JsonObject ja = Json.createObject();
-            Category curCat = a.getCategory();
-            if (curCat != null && !curCat.sameAs(prevCat)) {
-                // changing categories, put marker before athlete
-                ja.put("isSpacer", true);
-                jath.set(athx, ja);
-                ja = Json.createObject();
-                prevCat = curCat;
-                athx++;
-            }
-            // compute the blinking rank (1 = current, 2 = next)
-            getAthleteJson(a, ja, curCat, (a.getId() == currentId)
-                    ? 1
-                    : ((a.getId() == nextId)
-                            ? 2
-                            : 0),
-                    fop);
-            String team = a.getTeam();
-            if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
-                setWideTeamNames(true);
-            }
-            jath.set(athx, ja);
-            athx++;
-        }
-        return jath;
     }
 
     private void init() {
@@ -813,26 +860,14 @@ public class Results extends PolymerTemplate<TemplateModel>
 //        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom());
     }
 
-    protected void updateBottom(String liftType, FieldOfPlay fop) {
-        curGroup = fop.getGroup();
-        displayOrder = fop.getDisplayOrder();
-        if (liftType != null) {
-            this.getElement().setProperty("groupName",
-                    curGroup != null
-                            ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
-                            : "");
-            liftsDone = AthleteSorter.countLiftsDone(displayOrder);
-            this.getElement().setProperty("liftsDone", Translator.translate("Scoreboard.AttemptsDone", liftsDone));
-        } else {
-            this.getElement().setProperty("groupName", "");
-            this.getElement().callJsFunction("groupDone");
-        }
-        this.getElement().setPropertyJson("athletes",
-                getAthletesJson(displayOrder, fop.getLiftingOrder(), fop));
+    @Override
+    public Timer getDialogTimer() {
+        return this.dialogTimer;
+    }
 
-        int resultLines = (displayOrder != null ? displayOrder.size() : 0) + countCategories(displayOrder) + 1;
-        this.getElement().setProperty("resultLines", resultLines);
-        computeLeaders();
+    @Override
+    public void setDialogTimer(Timer timer) {
+        this.dialogTimer = timer;
     }
 
 }

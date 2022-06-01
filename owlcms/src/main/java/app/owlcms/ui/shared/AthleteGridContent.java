@@ -32,7 +32,6 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
@@ -60,7 +59,7 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
-import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.apputils.queryparameters.ContentParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
@@ -105,7 +104,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @CssImport(value = "./styles/athlete-grid.css")
 public abstract class AthleteGridContent extends VerticalLayout
-        implements CrudListener<Athlete>, OwlcmsContent, DisplayParameters, UIEventProcessor, IAthleteEditing,
+        implements CrudListener<Athlete>, OwlcmsContent, ContentParameters, UIEventProcessor, IAthleteEditing,
         BreakDisplay {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
@@ -212,10 +211,6 @@ public abstract class AthleteGridContent extends VerticalLayout
         return getAthleteEditingFormFactory().add(athlete);
     }
 
-    @Override
-    public void addDialogContent(Component target, VerticalLayout vl) {
-    }
-
     public void busyBreakButton() {
         if (breakButton == null) {
 //            logger.trace("breakButton is null\n{}", LoggerUtils. stackTrace());
@@ -279,6 +274,9 @@ public abstract class AthleteGridContent extends VerticalLayout
         getAthleteEditingFormFactory().delete(notUsed);
     }
 
+    /**
+     * @see app.owlcms.uievents.BreakDisplay#doBreak(app.owlcms.uievents.UIEvent)
+     */
     @Override
     public void doBreak(UIEvent event) {
         if (event instanceof UIEvent.BreakStarted) {
@@ -290,6 +288,9 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     }
 
+    /**
+     * @see app.owlcms.uievents.BreakDisplay#doCeremony(app.owlcms.uievents.UIEvent.CeremonyStarted)
+     */
     @Override
     public void doCeremony(UIEvent.CeremonyStarted e) {
         if (breakButton != null) {
@@ -325,11 +326,6 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     @Override
-    public Dialog getDialog() {
-        return null;
-    }
-
-    @Override
     public OwlcmsCrudGrid<?> getEditingGrid() {
         return crudGrid;
     }
@@ -360,11 +356,6 @@ public abstract class AthleteGridContent extends VerticalLayout
         return routerLayout;
     }
 
-    @Override
-    public boolean isDarkMode() {
-        return false;
-    }
-
     public boolean isIgnoreSwitchGroup() {
         return ignoreSwitchGroup;
     }
@@ -393,13 +384,14 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     }
 
+    /**
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location, java.util.Map)
+     */
     @Override
     public HashMap<String, List<String>> readParams(Location location,
             Map<String, List<String>> parametersMap) {
         // handle FOP and Group by calling superclass
-        HashMap<String, List<String>> params = DisplayParameters.super.readParams(location, parametersMap);
-
-        updateParam(params, DARK, null);
+        HashMap<String, List<String>> params = ContentParameters.super.readParams(location, parametersMap);
 
         List<String> silentParams = params.get(SILENT);
         // silent is the default. silent=false will cause sound
@@ -409,14 +401,6 @@ public abstract class AthleteGridContent extends VerticalLayout
         updateParam(params, SILENT, !isSilenced() ? "false" : null);
 
         return params;
-    }
-
-    @Override
-    public void setDarkMode(boolean dark) {
-    }
-
-    @Override
-    public void setDialog(Dialog dialog) {
     }
 
     public void setFirstNameWrapper(H2 firstNameWrapper) {
@@ -446,7 +430,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
         logger.debug("AthleteGridContent parsing URL");
-        DisplayParameters.super.setParameter(event, parameter);
+        ContentParameters.super.setParameter(event, parameter);
         setLocation(event.getLocation());
         setLocationUI(event.getUI());
     }

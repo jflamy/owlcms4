@@ -77,7 +77,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         Button scoreboardMultiRanks;
         Button currentAthlete;
         Button medals;
-        if (Config.getCurrent().featureSwitch("oldScoreboards", true)) {
+        if (Config.getCurrent().isOldScoreboards()) {
             scoreboard = openInNewTab(Scoreboard.class, getTranslation("Scoreboard"));
             scoreboardWLeaders = openInNewTab(ScoreWithLeaders.class, getTranslation("ScoreboardWLeadersButton"));
             scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));

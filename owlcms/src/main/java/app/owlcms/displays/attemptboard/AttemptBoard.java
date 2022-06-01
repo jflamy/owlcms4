@@ -7,6 +7,7 @@
 package app.owlcms.displays.attemptboard;
 
 import java.util.List;
+import java.util.Timer;
 import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
@@ -159,6 +160,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     private Plates plates;
     private boolean silenced = true;
     private EventBus uiEventBus;
+    private Timer dialogTimer;
 
     /**
      * Instantiates a new attempt board.
@@ -299,6 +301,16 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         this.dialog = dialog;
     }
 
+    @Override
+    public void setDialogTimer(Timer dialogTimer) {
+        this.dialogTimer = dialogTimer;
+    }
+    
+    @Override
+    public Timer getDialogTimer() {
+        return dialogTimer;
+    }
+    
     @Override
     public void setLocation(Location location) {
         this.location = location;

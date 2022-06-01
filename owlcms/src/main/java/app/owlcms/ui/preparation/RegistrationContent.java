@@ -40,7 +40,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
-import app.owlcms.components.fields.BodyWeightField;
+import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.ValidationTextField;
 import app.owlcms.data.agegroup.AgeGroup;
@@ -481,7 +481,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 //                new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
 //                        new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));
 
-        crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
+        crudFormFactory.setFieldType("bodyWeight", LocalizedDecimalField.class);
         crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
 
         // ValidationTextField (or a wrapper) must be used as workaround for unexplained

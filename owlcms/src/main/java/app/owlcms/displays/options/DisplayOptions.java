@@ -10,14 +10,18 @@ import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
+import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -103,6 +107,27 @@ public class DisplayOptions {
         });
 
         layout.add(rbgroup);
+    }
+
+    public static void addSizingEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
+        LocalizedDecimalField fontSizeField = new LocalizedDecimalField();
+        TextField wrappedTextField = fontSizeField.getWrappedTextField();
+        wrappedTextField.setLabel(Translator.translate("DisplayParameters.FontSizeLabel"));
+        wrappedTextField.setValueChangeMode(ValueChangeMode.ON_CHANGE);
+        wrappedTextField.addFocusListener(f -> {
+            dp.getDialogTimer().cancel();
+            dp.getDialogTimer().purge();
+        });
+        fontSizeField.setValue(dp.getEmFontSize());
+        fontSizeField.addValueChangeListener(e -> {
+            dp.getDialogTimer().cancel();
+
+            Double emSize = e.getValue();
+            dp.switchEmFontSize(target, emSize, true);
+            UI.getCurrent().getPage().reload();
+        });
+
+        layout.add(fontSizeField);
     }
 
 }
