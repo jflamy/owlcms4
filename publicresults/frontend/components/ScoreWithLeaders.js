@@ -16,8 +16,8 @@ class ScoreLeader extends PolymerElement {
 	<link rel="stylesheet" type="text/css" href="local/styles/scoreboard.css">
 	<div class$="wrapper [[teamWidthClass]] [[inactiveClass]]">
     <div style$="[[inactiveStyle]]">
-        <div class="competitionName">[[competitionName]]</div><br>
-        <div class="nextGroup">[[t.WaitingNextGroup]]</div>
+        <div style="font-size: 12vmin" class="competitionName">[[competitionName]]</div><br>
+        <div style="font-size: 7vmin" class="nextGroup">[[t.WaitingNextGroup]]</div>
     </div>
     <div class="attemptBar" style$="[[hiddenStyle]]">
         <div class="athleteInfo" id="athleteInfoDiv">
