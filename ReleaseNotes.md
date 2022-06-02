@@ -1,7 +1,7 @@
-### **Changes for release 4.32.0-rc01**
+### **Changes for release 4.32.0-rc02**
 
 - Changes since 4.32.0
-  - 4.32.0-rc01: fix font size for publicresults "Waiting for next group" on phones
+  - 4.32.0-rc02: fix font size for publicresults "Waiting for next group" on phones
   - 4.32.0-beta04: Experimental. If the feature toggle "sizeOverride" is defined on the settings page, the configuration dialog for the Results scoreboard allows giving a font size (in "em" units) instead of the default (1.25em for HD screens).  The size is also read from the URL (the CSS convention of using a "." is used). This allows fine tuning the font size when broadcasting the results with OBS which does not support zooming.
   - 4.32.0-beta03: The "use best N results from team" setting was not being applied correctly on team scoreboards and the team result page.
   - 4.32.0-beta02: Weight changes during breaks were not always shown on top of scoreboards
