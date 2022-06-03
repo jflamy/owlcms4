@@ -219,6 +219,8 @@ public class FieldOfPlay {
 
     private Integer weightAtLastStart;
 
+    private int prevWeight;
+
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
      * be used to provide the athletes and set the athleteTimer
@@ -1169,7 +1171,8 @@ public class FieldOfPlay {
         pushOutUIEvent(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, getPreviousAthlete(),
                 changingAthlete,
                 getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),
-                inBreak));
+                inBreak, prevWeight != curWeight ? curWeight : null));
+        prevWeight = curWeight;
 
         // cur athlete can be null during some tests.
         int attempts = getCurAthlete() == null ? 0 : getCurAthlete().getAttemptsDone();

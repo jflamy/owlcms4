@@ -7,6 +7,7 @@
 package app.owlcms.displays.attemptboard;
 
 import java.util.List;
+import java.util.Timer;
 import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
@@ -159,6 +160,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     private Plates plates;
     private boolean silenced = true;
     private EventBus uiEventBus;
+    private Timer dialogTimer;
 
     /**
      * Instantiates a new attempt board.
@@ -168,7 +170,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         logger.debug("*** AttemptBoard new {}", LoggerUtils.whereFrom());
         athleteTimer.setOrigin(this);
         getModel().setJavaComponentId(this.toString());
-        getModel().setKgSymbol(getTranslation("KgSymbol"));
+        this.getElement().setProperty("kgSymbol", getTranslation("KgSymbol"));
         breakTimer.setParent("attemptBoard");
     }
 
@@ -183,8 +185,10 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     @Override
     public void doBreak(UIEvent e) {
+        //logger.trace("doBreak({})", e);
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             BreakType breakType = fop.getBreakType();
+            //logger.trace("doBreak({}) bt={} a={}}", e, breakType, fop.getCurAthlete());
             if (breakType == BreakType.GROUP_DONE) {
                 Group group = fop.getGroup();
                 Athlete a = fop.getCurAthlete();
@@ -196,30 +200,35 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 }
                 return;
             }
-            getModel().setLastName(inferGroupName());
-            getModel().setFirstName(inferMessage(breakType, fop.getCeremonyType()));
-            getModel().setTeamName("");
-            getModel().setAttempt("");
+            this.getElement().setProperty("lastName", inferGroupName());
+            this.getElement().setProperty("firstName", inferMessage(breakType, fop.getCeremonyType()));
+            this.getElement().setProperty("teamName", "");
+            
+            Athlete a = fop.getCurAthlete();
+            if (a != null) {
+                String formattedAttempt = formatAttempt(a.getAttemptNumber());
+                this.getElement().setProperty("attempt", formattedAttempt);
+                this.getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
+                showPlates();
+                //logger.trace("showingPlates {}",a.getNextAttemptRequestedWeight());
+            } else {
+                this.getElement().setProperty("attempt", "");
+                this.getElement().setProperty("weight", "");
+            }
+
             breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
 
             uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
-            this.getElement().callJsFunction("doBreak");
+            //logger.trace("attemptBoard showWeights ? {}", fop.getCeremonyType());
+            this.getElement().callJsFunction("doBreak",fop.getCeremonyType() == null);
         }));
     }
 
     @Override
     public void doCeremony(UIEvent.CeremonyStarted e) {
-//        OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-//            getModel().setLastName(inferGroupName());
-//            getModel().setFirstName(inferMessage(fop.getBreakType(), fop.getCeremonyType()));
-//            getModel().setTeamName("");
-//            getModel().setAttempt("");
-//            breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
-//
-//            uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
-//            this.getElement().callJsFunction("doBreak");
-//        }));
     }
+    
+    
 
     /**
      * return dialog, but only on first call.
@@ -292,6 +301,16 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         this.dialog = dialog;
     }
 
+    @Override
+    public void setDialogTimer(Timer dialogTimer) {
+        this.dialogTimer = dialogTimer;
+    }
+    
+    @Override
+    public Timer getDialogTimer() {
+        return dialogTimer;
+    }
+    
     @Override
     public void setLocation(Location location) {
         this.location = location;
@@ -428,6 +447,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 if (e.isDisplayToggle()) {
                     Athlete a = e.getAthlete();
                     doAthleteUpdate(a);
+                } else {
+                    doBreak(e);
                 }
                 return;
             } else if (state == FOPState.INACTIVE) {
@@ -554,15 +575,14 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             return;
         }
 
-        AttemptBoardModel model = getModel();
         String lastName = a.getLastName();
-        model.setLastName(lastName.toUpperCase());
-        model.setFirstName(a.getFirstName());
-        model.setTeamName(a.getTeam());
-        model.setStartNumber(a.getStartNumber());
+        this.getElement().setProperty("lastName", lastName.toUpperCase());
+        this.getElement().setProperty("firstName", a.getFirstName());
+        this.getElement().setProperty("teamName", a.getTeam());
+        this.getElement().setProperty("startNumber", a.getStartNumber());
         String formattedAttempt = formatAttempt(a.getAttemptNumber());
-        model.setAttempt(formattedAttempt);
-        model.setWeight(a.getNextAttemptRequestedWeight());
+        this.getElement().setProperty("attempt", formattedAttempt);
+        this.getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
         showPlates();
         this.getElement().callJsFunction("reset");
 
@@ -575,11 +595,21 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      * @param fop
      */
     protected void doBreak(FieldOfPlay fop) {
-        getModel().setLastName(inferGroupName());
-        getModel().setFirstName(inferMessage(fop.getBreakType(), fop.getCeremonyType()));
-        getModel().setTeamName("");
-        getModel().setAttempt("");
-        this.getElement().callJsFunction("doBreak", 5 * 60);
+        this.getElement().setProperty("lastName", inferGroupName());
+        this.getElement().setProperty("firstName", inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+        this.getElement().setProperty("teamName", "");
+        this.getElement().setProperty("attempt", "");
+        Athlete a = fop.getCurAthlete();
+        if (a != null) {
+            String formattedAttempt = formatAttempt(a.getAttemptNumber());
+            this.getElement().setProperty("attempt", formattedAttempt);
+            this.getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
+            showPlates();
+        }
+
+        boolean showWeights = fop.getCeremonyType() == null;
+        //logger.trace("*** doBreak {} {} {}", showWeights, fop.getCeremonyType(), LoggerUtils.whereFrom());
+        this.getElement().callJsFunction("doBreak", showWeights);
         uiEventLogger.debug("$$$ attemptBoard doBreak(fop)");
     }
 
@@ -611,14 +641,14 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     private void doDone(Group g) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            AttemptBoardModel model = getModel();
-            if (model != null) {
-                if (g != null) {
-                    model.setLastName(getTranslation("Group_number_done", g.toString()));
-                } else {
-                    model.setLastName("");
-                }
+//            AttemptBoardModel model = getModel();
+//            if (model != null) {
+            if (g != null) {
+                this.getElement().setProperty("lastName", getTranslation("Group_number_done", g.toString()));
+            } else {
+                this.getElement().setProperty("lastName", "");
             }
+//            }
             this.getElement().callJsFunction("groupDone");
             hidePlates();
         });
@@ -713,6 +743,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         } else {
             Athlete curAthlete = fop.getCurAthlete();
             if (fop.getState() == FOPState.BREAK || fop.getState() == FOPState.INACTIVE) {
+                //logger.trace("syncwithfop {} {}",fop.getBreakType(), fop.getCeremonyType());
                 if (fop.getCeremonyType() != null) {
                     doBreak(fop);
                 } else if (curAthlete != null && curAthlete.getAttemptsDone() >= 6) {

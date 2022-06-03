@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -104,6 +105,7 @@ public class TeamSelectionContent extends VerticalLayout
     private ComboBox<AgeDivision> topBarAgeDivisionSelect;
     private ComboBox<String> topBarAgeGroupPrefixSelect;
     private JXLSCompetitionBook xlsWriter;
+    private Timer dialogTimer;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
@@ -211,6 +213,11 @@ public class TeamSelectionContent extends VerticalLayout
         return null;
     }
 
+    @Override
+    public Timer getDialogTimer() {
+        return dialogTimer;
+    }
+
     /**
      * @see app.owlcms.apputils.queryparameters.FOPParameters#getLocation()
      */
@@ -307,6 +314,11 @@ public class TeamSelectionContent extends VerticalLayout
 
     @Override
     public void setDialog(Dialog dialog) {
+    }
+
+    @Override
+    public void setDialogTimer(Timer dialogTimer) {
+        this.dialogTimer = dialogTimer;
     }
 
     @Override
@@ -687,5 +699,4 @@ public class TeamSelectionContent extends VerticalLayout
         updateURLLocation(UI.getCurrent(), getLocation(), "ad",
                 getAgeDivision() != null ? getAgeDivision().name() : null);
     }
-
 }

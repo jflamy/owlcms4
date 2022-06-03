@@ -9,6 +9,7 @@ package app.owlcms.displays.scoreboard;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Timer;
 
 import org.slf4j.LoggerFactory;
 
@@ -159,6 +160,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     @Id("timer")
     private AthleteTimerElement timer; // Flow creates it
     private EventBus uiEventBus;
+    private Timer dialogTimer;
 
     /**
      * Instantiates a new results board.
@@ -217,6 +219,11 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     }
 
     @Override
+    public Timer getDialogTimer() {
+        return this.dialogTimer;
+    }
+
+    @Override
     public Location getLocation() {
         return this.location;
     }
@@ -269,6 +276,11 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     @Override
     public void setDialog(Dialog dialog) {
         this.dialog = dialog;
+    }
+
+    @Override
+    public void setDialogTimer(Timer timer) {
+        this.dialogTimer = timer;
     }
 
     @Override

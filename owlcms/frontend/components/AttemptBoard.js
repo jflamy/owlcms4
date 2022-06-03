@@ -16,30 +16,30 @@ class CurrentAttempt extends PolymerElement {
 <link rel="stylesheet" type="text/css" href="local/styles/colors.css">
 <link rel="stylesheet" type="text/css" href="local/styles/attemptboard.css">
 <div class="wrapper">
-<div class="attemptBoard" id="attemptBoardDiv">
-	<div class="lastName" id="lastNameDiv">[[lastName]]</div>
-	<div class="firstName" id="firstNameDiv">[[firstName]]</div>
-	<div class="teamName" id="teamNameDiv">[[teamName]]</div>
-	<div class="startNumber" id="startNumberDiv">
-		<span>[[startNumber]]</span>
+	<div class="attemptBoard" id="attemptBoardDiv">
+		<div class="lastName" id="lastNameDiv">[[lastName]]</div>
+		<div class="firstName" id="firstNameDiv">[[firstName]]</div>
+		<div class="teamName" id="teamNameDiv">[[teamName]]</div>
+		<div class="startNumber" id="startNumberDiv">
+			<span>[[startNumber]]</span>
+		</div>
+		<div class="attempt" id="attemptDiv" inner-h-t-m-l="[[attempt]]"></div><!-- kludge to have preformatted html -->
+		<div class="weight" id="weightDiv">
+			<span style="white-space: nowrap;">[[weight]]<span style="font-size: 75%">[[kgSymbol]]</span></span>
+		</div>
+		<div class="barbell" id="barbellDiv">
+			<slot name="barbell"></slot>
+		</div>
+		<div class="timer athleteTimer" id="athleteTimerDiv">
+			<timer-element id="athleteTimer"></timer-element>
+		</div>
+		<div class="timer breakTime" id="breakTimerDiv">
+			<timer-element id="breakTimer"></timer-element>
+		</div>
+		<div class="decision" id="decisionDiv" on-down="down" on-hideX="reset">
+			<decision-element id="decisions"></decision-element>
+		</div>
 	</div>
-	<div class="attempt" id="attemptDiv" inner-h-t-m-l="[[attempt]]"></div><!-- kludge to have preformatted html -->
-	<div class="weight" id="weightDiv">
-		<span style="white-space: nowrap;">[[weight]]<span style="font-size: 75%">[[kgSymbol]]</span></span>
-	</div>
-	<div class="barbell" id="barbellDiv">
-		<slot name="barbell"></slot>
-	</div>
-	<div class="timer athleteTimer" id="athleteTimerDiv">
-		<timer-element id="athleteTimer"></timer-element>
-	</div>
-	<div class="timer breakTime" id="breakTimerDiv">
-		<timer-element id="breakTimer"></timer-element>
-	</div>
-	<div class="decision" id="decisionDiv" on-down="down" on-hideX="reset">
-		<decision-element id="decisions"></decision-element>
-	</div>
-</div>
 </div>`;
 	}
 
@@ -112,8 +112,8 @@ class CurrentAttempt extends PolymerElement {
 		console.debug("end of attemptBoard dome " + this.javaComponentId);
 	}
 
-	doBreak() {
-		console.debug("attemptBoard doBreak " + this.javaComponentId);
+	doBreak(showWeight) {
+		console.debug("attemptBoard doBreak " + this.javaComponentId + " showWeight = " + showWeight);
 		this.$.attemptBoardDiv.style.display = "grid";
 		this.$.attemptBoardDiv.style.color = "white";
 		this.$.athleteTimerDiv.style.display = "none";
@@ -121,10 +121,18 @@ class CurrentAttempt extends PolymerElement {
 		this.$.firstNameDiv.style.display = "block";
 		this.$.teamNameDiv.style.display = "none";
 		this.$.attemptDiv.style.display = "none";
-		this.$.weightDiv.style.display = "none";
 		this.$.startNumberDiv.style.display = "none";
-		this.$.barbellDiv.style.display = "none";
-		this.$.decisionDiv.style.display = "none";
+		if (showWeight) {
+			this.$.weightDiv.style.display = "block";
+			this.$.barbellDiv.style.display = "block";
+			this.$.decisionDiv.style.display = "block";
+			//this.$.breakTimerDiv.style.display = "block";
+		} else {
+			this.$.weightDiv.style.display = "none";
+			this.$.barbellDiv.style.display = "none";
+			this.$.decisionDiv.style.display = "none";
+			//this.$.breakTimerDiv.style.display = "none";
+		}
 		console.debug("attemptBoard end doBreak " + this.javaComponentId);
 	}
 

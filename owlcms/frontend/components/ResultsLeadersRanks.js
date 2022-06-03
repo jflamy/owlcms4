@@ -272,7 +272,7 @@ class ResultsFull extends PolymerElement {
         this.$.decisionDiv.style.display = "flex";
     }
 
-    doBreak() {
+    doBreak(showWeights) {
         console.debug("break");
         this.$.groupDiv.style.visibility = "hidden";
         this.$.fullNameDiv.style.visibility = "visible";
@@ -280,7 +280,14 @@ class ResultsFull extends PolymerElement {
         this.$.startNumberDiv.style.display = "none";
         this.$.teamNameDiv.style.display = "none";
         this.$.attemptDiv.style.display = "none";
-        this.$.weightDiv.style.display = "none";
+        if (showWeights) {
+            this.$.weightDiv.style.display = "block";
+            this.$.breakTimerDiv.style.display = "flex";
+        } else {
+            this.$.weightDiv.style.display = "none";
+            this.$.breakTimerDiv.style.display = "none";
+        }
+
         this.$.timerDiv.style.display = "none";
         this.$.breakTimerDiv.style.display = "flex";
         this.$.decisionDiv.style.display = "none";

@@ -1236,7 +1236,11 @@ public class Athlete {
     @Transient
     @JsonIgnore
     public Integer getCombinedPoints() {
-        return getSnatchPoints() + getCleanJerkPoints() + getTotalPoints();
+        if (Competition.getCurrent().isSnatchCJTotalMedals()) {
+            return getSnatchPoints() + getCleanJerkPoints() + getTotalPoints();
+        } else {
+            return getTotalPoints();
+        }
     }
 
     public int getCombinedRank() {

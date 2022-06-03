@@ -38,67 +38,14 @@ import app.owlcms.i18n.Translator;
  * @author owlcms
  *
  */
-public interface DisplayParameters extends FOPParameters {
+public interface DisplayParameters extends ContentParameters {
 
     public static final String CATEGORY = "cat";
     public static final String DARK = "dark";
+    public static final String FONTSIZE = "em";
     public static final String LIGHT = "light";
     public static final String PUBLIC = "public";
-    public static final String SILENT = "silent";
     public static final String SOUND = "sound";
-
-    public void addDialogContent(Component target, VerticalLayout vl);
-
-    @SuppressWarnings("unchecked")
-    public default void buildDialog(Component target) {
-        Dialog dialog = getDialogCreateIfMissing();
-        if (dialog == null) {
-            return;
-        }
-        dialog.removeAll();
-
-        dialog.setCloseOnOutsideClick(true);
-        dialog.setCloseOnEsc(true);
-        dialog.setModal(true);
-        dialog.addDialogCloseActionListener(e -> {
-            // logger.debug("closeActionListener {}", getDialog());
-            getDialog().close();
-        });
-
-        VerticalLayout vl = new VerticalLayout();
-        dialog.add(vl);
-
-        addDialogContent(target, vl);
-
-        Button button = new Button(Translator.translate("Close"), e -> {
-            // logger.debug("close button {}", getDialog());
-            getDialog().close();
-        });
-        button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
-        VerticalLayout buttons = new VerticalLayout();
-        buttons.add(button);
-        buttons.setWidthFull();
-        buttons.setAlignSelf(Alignment.END, button);
-        buttons.setMargin(false);
-        vl.setAlignSelf(Alignment.END, buttons);
-
-        vl.add(new Div());
-        vl.add(buttons);
-
-        // workaround for compilation glitch
-        @SuppressWarnings("rawtypes")
-        ComponentEventListener listener = e -> {
-            // logger.debug("opening dialog");
-            openDialog(dialog);
-            setShowInitialDialog(false);
-        };
-
-        if (isShowInitialDialog()) {
-            openDialog(dialog);
-            setShowInitialDialog(false);
-        }
-        ComponentUtil.addListener(target, ClickEvent.class, listener);
-    }
 
     public default void doNotification(boolean dark) {
         Notification n = new Notification();
@@ -116,57 +63,11 @@ public interface DisplayParameters extends FOPParameters {
         n.open();
     }
 
-    public Dialog getDialog();
-
-    default public Dialog getDialogCreateIfMissing() {
-        if (getDialog() == null) {
-            setDialog(new Dialog());
-        }
-        return getDialog();
-    }
-
-    public boolean isDarkMode();
-
-    @Override
-    public boolean isShowInitialDialog();
-
-    public boolean isSilenced();
-
-    public default boolean isSilencedByDefault() {
-        return true;
-    }
-
-    /**
-     * @return true if the display can switch during breaks (for example, to medals)
-     */
-    public default boolean isSwitchableDisplay() {
-        return false;
-    }
-
-    public default void openDialog(Dialog dialog) {
-        // logger.debug("openDialog {} {}", dialog, dialog.isOpened());
-        if (!dialog.isOpened()) {
-            dialog.open();
-            setDialog(dialog);
-            UI ui = UI.getCurrent();
-            new Timer().schedule(
-                    new TimerTask() {
-                        @Override
-                        public void run() {
-                            ui.access(() -> {
-                                // logger.debug("timer closing {}", dialog);
-                                dialog.close();
-                            });
-                        }
-                    }, 8 * 1000L);
-        }
-    }
-
     @Override
     public default HashMap<String, List<String>> readParams(Location location,
             Map<String, List<String>> parametersMap) {
         // handle FOP and Group by calling superclass
-        HashMap<String, List<String>> params = FOPParameters.super.readParams(location, parametersMap);
+        HashMap<String, List<String>> params = ContentParameters.super.readParams(location, parametersMap);
 
         List<String> darkParams = params.get(DARK);
         // dark is the default. dark=false or dark=no or ... will turn off dark mode.
@@ -193,13 +94,26 @@ public interface DisplayParameters extends FOPParameters {
         setSwitchableDisplay(switchable);
         switchSwitchable((Component) this, switchable, false);
         updateParam(params, PUBLIC, isSwitchableDisplay() ? "true" : null);
-
+        
+        List<String> sizeParams = params.get(FONTSIZE);
+        Double emSize;
+        try {
+            emSize = (sizeParams != null && !sizeParams.isEmpty() ? Double.parseDouble(sizeParams.get(0)) : 0.0D);
+            if (emSize > 0.0D) {
+                setEmFontSize(emSize);
+                updateParam(params, FONTSIZE, emSize.toString());
+            } else {
+                setEmFontSize(null);
+                updateParam(params, FONTSIZE, null);
+            }
+            buildDialog((Component)this);
+        } catch (NumberFormatException e) {
+            emSize = 0.0D;
+            setEmFontSize(null);
+            updateParam(params, FONTSIZE, null);
+        }
         return params;
     }
-
-    public void setDarkMode(boolean dark);
-
-    public void setDialog(Dialog dialog);
 
     /*
      * Process query parameters
@@ -226,10 +140,118 @@ public interface DisplayParameters extends FOPParameters {
                 new Location(location.getPath(), new QueryParameters(params)));
     }
 
+    public void addDialogContent(Component target, VerticalLayout vl);
+
+    @SuppressWarnings("unchecked")
+    public default void buildDialog(Component target) {
+        Dialog dialog = getDialogCreateIfMissing();
+        if (dialog == null) {
+            return;
+        }
+        dialog.removeAll();
+    
+        dialog.setCloseOnOutsideClick(true);
+        dialog.setCloseOnEsc(true);
+        dialog.setModal(true);
+        dialog.addDialogCloseActionListener(e -> {
+            // logger.debug("closeActionListener {}", getDialog());
+            getDialog().close();
+        });
+    
+        VerticalLayout vl = new VerticalLayout();
+        dialog.add(vl);
+    
+        addDialogContent(target, vl);
+    
+        Button button = new Button(Translator.translate("Close"), e -> {
+            // logger.debug("close button {}", getDialog());
+            getDialog().close();
+        });
+        button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
+        VerticalLayout buttons = new VerticalLayout();
+        buttons.add(button);
+        buttons.setWidthFull();
+        buttons.setAlignSelf(Alignment.END, button);
+        buttons.setMargin(false);
+        vl.setAlignSelf(Alignment.END, buttons);
+    
+        vl.add(new Div());
+        vl.add(buttons);
+    
+        // workaround for compilation glitch
+        @SuppressWarnings("rawtypes")
+        ComponentEventListener listener = e -> {
+            // logger.debug("opening dialog");
+            openDialog(dialog);
+            setShowInitialDialog(false);
+        };
+    
+        if (isShowInitialDialog()) {
+            openDialog(dialog);
+            setShowInitialDialog(false);
+        }
+        ComponentUtil.addListener(target, ClickEvent.class, listener);
+    }
+
+    public Dialog getDialog();
+
+    default public Dialog getDialogCreateIfMissing() {
+        if (getDialog() == null) {
+            setDialog(new Dialog());
+        }
+        return getDialog();
+    }
+
+    Timer getDialogTimer();
+
+    public default Double getEmFontSize() {
+        return 1.0D;
+    }
+
+    public boolean isDarkMode();
+
+    @Override
+    public boolean isShowInitialDialog();
+
+    /**
+     * @return true if the display can switch during breaks (for example, to medals)
+     */
+    public default boolean isSwitchableDisplay() {
+        return false;
+    }
+
+    public default void openDialog(Dialog dialog) {
+        // logger.debug("openDialog {} {}", dialog, dialog.isOpened());
+        if (!dialog.isOpened()) {
+            dialog.open();
+            setDialog(dialog);
+            UI ui = UI.getCurrent();
+            Timer timer = new Timer();
+            timer.schedule(
+                    new TimerTask() {
+                        @Override
+                        public void run() {
+                            ui.access(() -> {
+                                // logger.debug("timer closing {}", dialog);
+                                dialog.close();
+                            });
+                        }
+                    }, 8 * 1000L);
+            setDialogTimer(timer);
+        }
+    }
+
+    public void setDarkMode(boolean dark);
+
+    public void setDialog(Dialog dialog);
+
+    public void setDialogTimer(Timer timer);
+
+    public default void  setEmFontSize(Double emFontSize) {
+    }
+
     @Override
     public void setShowInitialDialog(boolean b);
-
-    public void setSilenced(boolean silent);
 
     public default void setSwitchableDisplay(boolean switchable) {
     }
@@ -251,6 +273,14 @@ public interface DisplayParameters extends FOPParameters {
         }
     }
 
+    public default void switchEmFontSize(Component target, Double emFontSize, boolean updateURL) {
+        setEmFontSize(emFontSize);
+        if (updateURL) {
+            updateURLLocation(getLocationUI(), getLocation(), FONTSIZE, emFontSize != null ? emFontSize.toString() : null);
+        }
+        buildDialog(target);
+    }
+
     public default void switchLightingMode(Component target, boolean dark, boolean updateURL) {
         target.getElement().getClassList().set(DARK, dark);
         target.getElement().getClassList().set(LIGHT, !dark);
@@ -258,30 +288,19 @@ public interface DisplayParameters extends FOPParameters {
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), DARK, dark ? null : "false");
         }
-
+    
         // after updateURL so that this method is usable to store the location if it needs it.
         setDarkMode(dark);
-        buildDialog(target);
-    }
-
-    public default void switchSoundMode(Component target, boolean silent, boolean updateURL) {
-        setSilenced(silent);
-        // logger.debug("switching sound");
-
-        if (updateURL) {
-            updateURLLocation(getLocationUI(), getLocation(), SILENT, silent ? "true" : "false");
-        }
         buildDialog(target);
     }
 
     public default void switchSwitchable(Component target, boolean switchable, boolean updateURL) {
         setSwitchableDisplay(switchable);
         // logger.debug("switching sound");
-
+    
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), PUBLIC, switchable ? "true" : "false");
         }
         buildDialog(target);
     }
-
 }

@@ -53,6 +53,7 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
 
         compare = comparePointsOrder(lifter1, lifter2);
         if (compare != 0) {
+            // bigger is better, so we reverse the order
             return -compare;
         }
 
@@ -60,6 +61,8 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
     }
 
     /**
+     * Return ascending order of points.  Will normally be reversed for scoring.
+     * 
      * @param lifter1
      * @param lifter2
      * @return
@@ -88,7 +91,28 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
             final int compareCombined = combinedPoints1.compareTo(combinedPoints2);
             logger.trace(
                     lifter1 + " " + combinedPoints1 + " [" + compareCombined + "]" + lifter2 + " " + combinedPoints2);
-            return compareCombined;
+            return compareCombined;     
+        case BW_SINCLAIR:
+            final Double sinclair1 = lifter1.getSinclairForDelta();
+            final Double sinclair2 = lifter2.getSinclairForDelta();
+            final int compareSinclair = sinclair1.compareTo(sinclair2);
+            logger.trace(
+                    lifter1 + " " + sinclair1 + " [" + compareSinclair + "]" + lifter2 + " " + sinclair2);
+            return compareSinclair;
+        case SMM:
+            final Double smf1 = lifter1.getSmm();
+            final Double smf2 = lifter2.getSmm();
+            final int compareSmf = smf1.compareTo(smf2);
+            logger.trace(
+                    lifter1 + " " + smf1 + " [" + compareSmf + "]" + lifter2 + " " + smf2);
+            return compareSmf;
+        case ROBI:
+            final Double robi1 = lifter1.getRobi();
+            final Double robi2 = lifter2.getRobi();
+            final int compareRobi = robi1.compareTo(robi2);
+            logger.trace(
+                    lifter1 + " " + robi1 + " [" + compareRobi + "]" + lifter2 + " " + robi2);
+            return compareRobi;
         default:
             break;
         }

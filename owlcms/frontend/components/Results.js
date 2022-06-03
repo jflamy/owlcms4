@@ -15,7 +15,7 @@ class Results extends PolymerElement {
         return html`
 <link rel="stylesheet" type="text/css" href="local/styles/results.css">
 
-<div class$="wrapper [[teamWidthClass]] [[inactiveClass]]">
+<div class$="wrapper [[teamWidthClass]] [[inactiveClass]]" style$="[[sizeOverride]]">
     <div style$="[[inactiveBlockStyle]]">
         <div class="competitionName">[[competitionName]]</div><br>
         <div class="nextGroup">[[t.WaitingNextGroup]]</div>
@@ -32,8 +32,7 @@ class Results extends PolymerElement {
             <div class="attempt" id="attemptDiv">
                 <span inner-h-t-m-l="[[attempt]]"></span>
             </div>
-            <div class="weight" id="weightDiv">
-                [[weight]]<span style="font-size: 75%">[[t.KgSymbol]]</span>
+            <div class="weight" id="weightDiv">[[weight]]<span style="font-size: 75%">[[t.KgSymbol]]</span>
             </div>
             <div class="timer athleteTimer" id="timerDiv">
                 <timer-element id="timer"></timer-element>
@@ -225,7 +224,7 @@ class Results extends PolymerElement {
         this.$.decisionDiv.style.display = "flex";
     }
 
-    doBreak() {
+    doBreak(showWeights) {
         console.debug("break");
         this.$.groupDiv.style.visibility = "hidden";
         this.$.fullNameDiv.style.visibility = "visible";
@@ -233,7 +232,14 @@ class Results extends PolymerElement {
         this.$.startNumberDiv.style.display = "none";
         this.$.teamNameDiv.style.display = "none";
         this.$.attemptDiv.style.display = "none";
-        this.$.weightDiv.style.display = "none";
+        if (showWeights) {
+            this.$.weightDiv.style.display = "block";
+            this.$.breakTimerDiv.style.display = "flex";
+        } else {
+            this.$.weightDiv.style.display = "none";
+            this.$.breakTimerDiv.style.display = "none";
+        }
+
         this.$.timerDiv.style.display = "none";
         this.$.breakTimerDiv.style.display = "flex";
         this.$.decisionDiv.style.display = "none";

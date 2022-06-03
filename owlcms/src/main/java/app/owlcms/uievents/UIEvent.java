@@ -538,6 +538,7 @@ public class UIEvent {
         private Athlete nextAthlete;
         private Athlete previousAthlete;
         private Integer timeAllowed;
+        private Integer newWeight;
 
         /**
          * Instantiates a new lifting order updated command.
@@ -551,10 +552,11 @@ public class UIEvent {
          * @param timeAllowed     the time allowed
          * @param displayToggle   if true, just update display according to lifting order.
          * @param origin          the origin
+         * @param newWeight       newly requested weight, null if no change from previous
          */
         public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete,
                 Athlete changingAthlete, List<Athlete> liftingOrder, List<Athlete> displayOrder, Integer timeAllowed,
-                boolean currentDisplayAffected, boolean displayToggle, Object origin, boolean inBreak) {
+                boolean currentDisplayAffected, boolean displayToggle, Object origin, boolean inBreak, Integer newWeight) {
             super(athlete, origin);
             this.setTrace(LoggerUtils.stackTrace());
             this.nextAthlete = nextAthlete;
@@ -566,6 +568,7 @@ public class UIEvent {
             this.currentDisplayAffected = currentDisplayAffected;
             this.setDisplayToggle(displayToggle);
             this.setInBreak(inBreak);
+            this.setNewWeight(newWeight);
         }
 
         public Athlete getChangingAthlete() {
@@ -638,6 +641,14 @@ public class UIEvent {
 
         public void setInBreak(boolean inBreak) {
             this.inBreak = inBreak;
+        }
+
+        public Integer getNewWeight() {
+            return newWeight;
+        }
+
+        public void setNewWeight(Integer newWeight) {
+            this.newWeight = newWeight;
         }
 
     }

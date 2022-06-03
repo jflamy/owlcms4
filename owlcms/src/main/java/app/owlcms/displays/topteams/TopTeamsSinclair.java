@@ -13,6 +13,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -34,8 +35,6 @@ import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.InitialPageSettings;
-import com.vaadin.flow.server.PageConfigurator;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
@@ -44,6 +43,7 @@ import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.team.Team;
@@ -75,15 +75,15 @@ import elemental.json.JsonValue;
  * @author Jean-François Lamu
  *
  */
-@SuppressWarnings({ "serial", "deprecation" })
+@SuppressWarnings("serial")
 @Tag("topteamsinclair-template")
 @JsModule("./components/TopTeamsSinclair.js")
 @Route("displays/topteamsinclair")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsSinclairModel>
+public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
         implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin, PageConfigurator {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
     /**
      * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties. When the JS
@@ -91,23 +91,23 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
      * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
      *
      */
-    public interface TopTeamsSinclairModel extends TemplateModel {
-
-        String getFullName();
-
-        Boolean isHidden();
-
-        Boolean isWideTeamNames();
-
-        void setFullName(String lastName); // misnomer, is actually the title
-
-        void setHidden(boolean b);
-
-        void setWideTeamNames(boolean b);
-    }
+//    public interface TopTeamsSinclairModel extends TemplateModel {
+//
+//        String getFullName();
+//
+//        Boolean isHidden();
+//
+//        Boolean isWideTeamNames();
+//
+//        void setFullName(String lastName); // misnomer, is actually the title
+//
+//        void setHidden(boolean b);
+//
+//        void setWideTeamNames(boolean b);
+//    }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(TopTeamsSinclair.class);
-    private static final int TOP_N = 5;
+    private static final int SHOWN_ON_BOARD = 5;
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     static {
@@ -126,6 +126,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     private List<TeamTreeItem> mensTeams;
     private EventBus uiEventBus;
     private List<TeamTreeItem> womensTeams;
+    private Timer dialogTimer;
 
     /**
      * Instantiates a new results board.
@@ -177,15 +178,6 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     }
 
     @Override
-    public void configurePage(InitialPageSettings settings) {
-        settings.addMetaTag("mobile-web-app-capable", "yes");
-        settings.addMetaTag("apple-mobile-web-app-capable", "yes");
-        settings.addLink("shortcut icon", "frontend/images/owlcms.ico");
-        settings.addFavIcon("icon", "frontend/images/logo.png", "96x96");
-        settings.setViewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes");
-    }
-
-    @Override
     public void doBreak(UIEvent e) {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             // just update the display
@@ -201,7 +193,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     public void doUpdate(Competition competition) {
         this.getElement().callJsFunction("reset");
 
-        TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), (Gender) null);
+        TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), (Gender) null, Ranking.BW_SINCLAIR);
         Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamItemsByGender();
 
         mensTeams = teamsByGender.get(Gender.M);
@@ -216,7 +208,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         }
         womensTeams = topN(womensTeams);
 
-        updateBottom(getModel());
+        updateBottom();
     }
 
     /**
@@ -411,7 +403,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         Competition competition = Competition.getCurrent();
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             doUpdate(competition);
-            getModel().setHidden(false);
+            this.getElement().setProperty("hidden",false);
             this.getElement().callJsFunction("reset");
         });
     }
@@ -445,15 +437,14 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
 
     protected void doEmpty() {
         logger.trace("doEmpty");
-        this.getModel().setHidden(true);
+        this.getElement().setProperty("hidden",true);
     }
 
     protected void doUpdate(Athlete a, UIEvent e) {
         logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            TopTeamsSinclairModel model = getModel();
             if (a != null) {
-                updateBottom(model);
+                updateBottom();
             }
         });
     }
@@ -572,7 +563,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     }
 
     private void setWide(boolean b) {
-        getModel().setWideTeamNames(b);
+        this.getElement().setProperty("wideTeamNames",b);
     }
 
     private List<TeamTreeItem> topN(List<TeamTreeItem> list) {
@@ -581,13 +572,13 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         }
         int size = list.size();
         if (size > 0) {
-            int min = Math.min(size, TOP_N);
+            int min = Math.min(size, SHOWN_ON_BOARD);
             list = list.subList(0, min);
         }
         return list;
     }
 
-    private void updateBottom(TopTeamsSinclairModel model) {
+    private void updateBottom() {
         this.getElement().setProperty("topTeamsMen",
                 mensTeams != null && mensTeams.size() > 0
                         ? getTranslation("Scoreboard.TopTeamsSinclairMen") + computeAgeGroupSuffix()
@@ -610,4 +601,14 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
                 getAgeDivision() != null ? getAgeDivision().name() : null);
     }
 
+    @Override
+    public Timer getDialogTimer() {
+        return this.dialogTimer;
+    }
+
+    @Override
+    public void setDialogTimer(Timer timer) {
+        this.dialogTimer = timer; 
+    }
+    
 }

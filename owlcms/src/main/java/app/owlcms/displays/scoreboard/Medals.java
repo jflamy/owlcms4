@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Timer;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -162,6 +163,8 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
 
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
+    private Timer dialogTimer;
+
     /**
      * Instantiates a new results board.
      */
@@ -232,6 +235,11 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     @Override
     public Dialog getDialog() {
         return dialog;
+    }
+
+    @Override
+    public Timer getDialogTimer() {
+        return this.dialogTimer;
     }
 
     public FieldOfPlay getFop() {
@@ -383,6 +391,11 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         this.dialog = dialog;
     }
 
+    @Override
+    public void setDialogTimer(Timer timer) {
+        this.dialogTimer = timer;
+    }
+
     public void setFop(FieldOfPlay fop) {
         this.fop = fop;
     }
@@ -456,6 +469,17 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         });
     }
 
+//    @Subscribe
+//    public void slaveStopBreak(UIEvent.BreakDone e) {
+//        // logger.debug("------ slaveStopBreak {}", e.getBreakType());
+//        uiLog(e);
+//        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+//            setHidden(false);
+//            this.getElement().callJsFunction("reset");
+//            doUpdate(e);
+//        });
+//    }
+
     @Subscribe
     public void slaveStartBreak(UIEvent.BreakStarted e) {
         // logger.trace("------- slaveStartBreak {}", e.getBreakType());
@@ -483,17 +507,6 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
             });
         });
     }
-
-//    @Subscribe
-//    public void slaveStopBreak(UIEvent.BreakDone e) {
-//        // logger.debug("------ slaveStopBreak {}", e.getBreakType());
-//        uiLog(e);
-//        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-//            setHidden(false);
-//            this.getElement().callJsFunction("reset");
-//            doUpdate(e);
-//        });
-//    }
 
     @Subscribe
     public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
@@ -588,6 +601,11 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         });
     }
 
+//    private void doUpdateBottomPart(UIEvent e) {
+//        MedalsTemplate model = getModel();
+//        updateBottom(model, null, OwlcmsSession.getFop());
+//    }
+
     private void computeGroupMedalsJson() {
         OwlcmsSession.withFop(fop -> {
             // logger.trace("computeGroupMedalsJson = {} {}", getGroup(), LoggerUtils.stackTrace());
@@ -621,11 +639,6 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
                 : Translator.translate("Snatch");
         return liftType;
     }
-
-//    private void doUpdateBottomPart(UIEvent e) {
-//        MedalsTemplate model = getModel();
-//        updateBottom(model, null, OwlcmsSession.getFop());
-//    }
 
     private void computeMedalsJson() {
         if (getCategory() != null) {

@@ -47,6 +47,7 @@ import com.vaadin.flow.server.StreamResource;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -139,7 +140,7 @@ public class TeamResultsContent extends VerticalLayout
         List<TeamTreeItem> allTeams = new ArrayList<>();
 
         TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(),
-                getGenderFilter().getValue());
+                getGenderFilter().getValue(), Ranking.SNATCH_CJ_TOTAL);
         Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamItemsByGender();
 
         List<TeamTreeItem> mensTeams = teamsByGender.get(Gender.M);
@@ -312,7 +313,7 @@ public class TeamResultsContent extends VerticalLayout
                 // logger.debug("refreshing grid {} {} {}",getAgeGroupPrefix(), getAgeDivision(),
                 // genderFilter.getValue());
                 TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(),
-                        genderFilter.getValue());
+                        genderFilter.getValue(), Ranking.SNATCH_CJ_TOTAL);
                 grid.setDataProvider(new TreeDataProvider<>(teamTreeData));
             }
 
@@ -502,7 +503,7 @@ public class TeamResultsContent extends VerticalLayout
             @Override
             public DataProvider<TeamTreeItem, ?> getDataProvider() {
                 return new TreeDataProvider<>(
-                        new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), getGenderFilter().getValue()));
+                        new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), getGenderFilter().getValue(), Ranking.SNATCH_CJ_TOTAL));
             }
 
             @Override

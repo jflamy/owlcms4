@@ -22,30 +22,39 @@ import ch.qos.logback.classic.Logger;
  *
  */
 public class RGroup {
-    String announcer;
+    final Logger logger = (Logger) LoggerFactory.getLogger(RGroup.class);
 
-    String competitionTime;
-
-    String description;
     Group group = new Group();
     String groupName;
+    String description;
+
     String jury1;
     String jury2;
     String jury3;
     String jury4;
     String jury5;
-    final Logger logger = (Logger) LoggerFactory.getLogger(RGroup.class);
-    String marshall;
-    String platform;
+
     String ref1;
     String ref2;
     String ref3;
-    String reserve;
-    String techController;
-    String timekeeper;
-    String weighinTime;
+
+    String marshall;
+    String marshal2;
+
     String weighInTO1;
     String weighInTO2;
+
+    String techController;
+    String techController2;
+
+    String announcer;
+    String timekeeper;
+
+    String reserve;
+
+    String competitionTime;
+    String weighinTime;
+    String platform;
 
     public String getAnnouncer() {
         return announcer;
@@ -87,6 +96,10 @@ public class RGroup {
         return jury5;
     }
 
+    public String getMarshal2() {
+        return marshal2;
+    }
+
     public String getMarshall() {
         return marshall;
     }
@@ -113,6 +126,10 @@ public class RGroup {
 
     public String getTechController() {
         return techController;
+    }
+
+    public String getTechController2() {
+        return techController2;
     }
 
     public String getTimekeeper() {
@@ -187,6 +204,11 @@ public class RGroup {
         this.jury5 = jury5;
     }
 
+    public void setMarshal2(String marshal2) {
+        group.setMarshal2(marshal2);
+        this.marshal2 = marshal2;
+    }
+
     public void setMarshall(String marshall) {
         group.setMarshall(marshall);
         this.marshall = marshall;
@@ -221,6 +243,11 @@ public class RGroup {
     public void setTechController(String techController) {
         group.setTechnicalController(techController);
         this.techController = techController;
+    }
+
+    public void setTechController2(String techController2) {
+        group.setTechnicalController2(techController2);
+        this.techController2 = techController2;
     }
 
     public void setTimekeeper(String timekeeper) {

@@ -15,17 +15,19 @@
                 <mapping row="2" col="6">g.weighInTO2</mapping>
                 <mapping row="2" col="7">g.announcer</mapping>
                 <mapping row="2" col="8">g.marshall</mapping>
-                <mapping row="2" col="9">g.timekeeper</mapping>
-                <mapping row="2" col="10">g.techController</mapping>
-                <mapping row="2" col="11">g.ref1</mapping>
-                <mapping row="2" col="12">g.ref2</mapping>
-                <mapping row="2" col="13">g.ref3</mapping>
-                <mapping row="2" col="14">g.jury1</mapping>
-                <mapping row="2" col="15">g.jury2</mapping>
-                <mapping row="2" col="16">g.jury3</mapping>
-                <mapping row="2" col="17">g.jury4</mapping>
-                <mapping row="2" col="18">g.jury5</mapping>
-                <mapping row="2" col="19">g.reserve</mapping>
+                <mapping row="2" col="9">g.marshal2</mapping>
+                <mapping row="2" col="10">g.timekeeper</mapping>
+                <mapping row="2" col="11">g.techController</mapping>
+                <mapping row="2" col="12">g.techController2</mapping>
+                <mapping row="2" col="13">g.ref1</mapping>
+                <mapping row="2" col="14">g.ref2</mapping>
+                <mapping row="2" col="15">g.ref3</mapping>
+                <mapping row="2" col="16">g.jury1</mapping>
+                <mapping row="2" col="17">g.jury2</mapping>
+                <mapping row="2" col="18">g.jury3</mapping>
+                <mapping row="2" col="19">g.jury4</mapping>
+                <mapping row="2" col="20">g.jury5</mapping>
+                <mapping row="2" col="21">g.reserve</mapping>
             </section>
             <loopbreakcondition>
                 <rowcheck offset="0">

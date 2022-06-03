@@ -1,5 +1,7 @@
 :host([theme~="info"]) [part~="overlay"] {
-	color: var(--lumo-primary-text-color);
+	color: black;
+	background-color: aqua;
+	font-weight: bold;
 }
 
 :host([theme~="success"]) [part~="overlay"] {

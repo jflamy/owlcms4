@@ -52,7 +52,7 @@ import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
 import app.owlcms.components.NavigationPage;
-import app.owlcms.components.fields.BodyWeightField;
+import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
@@ -80,7 +80,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     private List<Category> allEligible;
 
-    private BodyWeightField bodyWeightField;
+    private LocalizedDecimalField bodyWeightField;
 
     private boolean catGenderOk;
 
@@ -299,7 +299,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         Binder.BindingBuilder bindingBuilder = binder.forField(field);
 
         if ("bodyWeight".equals(property)) {
-            validateBodyWeight(bindingBuilder, ((BodyWeightField) field).isRequired());
+            validateBodyWeight(bindingBuilder, ((LocalizedDecimalField) field).isRequired());
             bindingBuilder.bind(property);
         } else if ("fullBirthDate".equals(property)) {
             validateFullBirthDate(bindingBuilder);
@@ -581,7 +581,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         ComboBox<Gender> genderField = (ComboBox<Gender>) genderBinding.getField();
 
         Binding<Athlete, ?> bodyWeightBinding = binder.getBinding("bodyWeight").get();
-        bodyWeightField = (BodyWeightField) bodyWeightBinding.getField();
+        bodyWeightField = (LocalizedDecimalField) bodyWeightBinding.getField();
 
         Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
         ComboBox<Category> categoryField = (ComboBox<Category>) categoryBinding.getField();
@@ -671,7 +671,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     }
 
     private List<Category> findEligibleCategories(ComboBox<Gender> genderField, Integer ageFromFields,
-            BodyWeightField bodyWeightField, TextField qualifyingTotalField) {
+            LocalizedDecimalField bodyWeightField, TextField qualifyingTotalField) {
         // best match is first
         return doFindEligibleCategories(genderField.getValue(),
                 ageFromFields, bodyWeightField.getValue(), Athlete.zeroIfInvalid(qualifyingTotalField.getValue()));
@@ -731,7 +731,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     }
 
     private void recomputeCategories(
-            ComboBox<Gender> genderField, BodyWeightField bodyWeightField,
+            ComboBox<Gender> genderField, LocalizedDecimalField bodyWeightField,
             ComboBox<Category> categoryField, MultiselectComboBox<Category> eligibleField,
             HasValue<?, ?> dateField, TextField qualifyingTotalField) {
 

@@ -11,6 +11,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 
 import org.slf4j.LoggerFactory;
 
@@ -165,6 +166,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     private EventBus uiEventBus;
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+    private Timer dialogTimer;
 
     {
         logger.setLevel(Level.INFO);
@@ -254,6 +256,11 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     }
 
     @Override
+    public Timer getDialogTimer() {
+        return this.dialogTimer;
+    }
+
+    @Override
     public Location getLocation() {
         return this.location;
     }
@@ -314,6 +321,11 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     @Override
     public void setDialog(Dialog dialog) {
         this.dialog = dialog;
+    }
+
+    @Override
+    public void setDialogTimer(Timer timer) {
+        this.dialogTimer = timer;
     }
 
     @Override

@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Timer;
 
 import org.slf4j.LoggerFactory;
 
@@ -118,6 +119,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     private double topManSinclair;
     private double topWomanSinclair;
     private EventBus uiEventBus;
+    private Timer dialogTimer;
 
     /**
      * Instantiates a new results board.
@@ -567,5 +569,15 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
         this.getElement().setPropertyJson("sortedWomen", getAthletesJson(sortedWomen2, false));
 
         logger.debug("updateBottom {} {}", sortedWomen2, sortedMen2);
+    }
+    
+    @Override
+    public Timer getDialogTimer() {
+        return this.dialogTimer;
+    }
+
+    @Override
+    public void setDialogTimer(Timer timer) {
+        this.dialogTimer = timer; 
     }
 }

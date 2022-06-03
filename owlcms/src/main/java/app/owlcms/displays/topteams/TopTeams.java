@@ -13,6 +13,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,7 @@ import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.team.Team;
@@ -108,7 +110,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(TopTeams.class);
-    private static final int TOP_N = 5;
+    private static final int SHOWN_ON_BOARD = 5;
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     static {
@@ -130,6 +132,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     private List<TeamTreeItem> mensTeams;
     private EventBus uiEventBus;
     private List<TeamTreeItem> womensTeams;
+    private Timer dialogTimer;
 
     /**
      * Instantiates a new results board.
@@ -205,7 +208,8 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     public void doUpdate(Competition competition) {
         this.getElement().callJsFunction("reset");
 
-        TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), (Gender) null);
+        TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), (Gender) null,
+                Ranking.SNATCH_CJ_TOTAL);
         Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamItemsByGender();
 
         mensTeams = teamsByGender.get(Gender.M);
@@ -231,6 +235,11 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     @Override
     public Dialog getDialog() {
         return dialog;
+    }
+
+    @Override
+    public Timer getDialogTimer() {
+        return this.dialogTimer;
     }
 
     /**
@@ -358,6 +367,11 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
 
     @Override
     public void setDialog(Dialog dialog) {
+    }
+
+    @Override
+    public void setDialogTimer(Timer timer) {
+        this.dialogTimer = timer;
     }
 
     @Override
@@ -574,7 +588,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         }
         int size = list.size();
         if (size > 0) {
-            int min = Math.min(size, TOP_N);
+            int min = Math.min(size, SHOWN_ON_BOARD);
             list = list.subList(0, min);
         }
         return list;
