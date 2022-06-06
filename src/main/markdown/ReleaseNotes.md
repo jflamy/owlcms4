@@ -1,18 +1,5 @@
 ### **Changes for release ${revision}**
 
-- Change log for 4.32.0
-  - 4.32.0-rc03: Adjusted margins and print areas so that the various reports print on both Excel and LibreOffice Calc.
-  - 4.32.0-rc03: Improved the Timing Stats report to better reflect the actual time used for each lift.
-  - 4.32.0-rc02: fix font size for publicresults "Waiting for next group" on phones
-  - 4.32.0-beta04: Experimental. If the feature toggle "sizeOverride" is defined on the settings page, the configuration dialog for the Results scoreboard allows giving a font size (in "em" units) instead of the default (1.25em for HD screens).  The size is also read from the URL (the CSS convention of using a "." is used). This allows fine tuning the font size when broadcasting the results with OBS which does not support zooming.
-  - 4.32.0-beta03: The "use best N results from team" setting was not being applied correctly on team scoreboards and the team result page.
-  - 4.32.0-beta02: Weight changes during breaks were not always shown on top of scoreboards
-  - 4.32.0-beta01: Requested weight is shown on attempt board and top of scoreboard during breaks (hidden during ceremonies).
-  - 4.32.0-alpha01: Announcer is notified when required weight change
-  - 4.32.0-alpha00: first release.  The only changes are in templates, release be used for competitions.
-
-### Changes for release 4.32
-
 - Requested weight is now shown on attempt board (including loading chart) and on top of scoreboard during breaks (but hidden during ceremonies).
 - Announcer is notified when weight on bar needs to change.
 - Adjusted margins and print areas of the various reports so they print correctly on both Excel and LibreOffice Calc.
