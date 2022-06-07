@@ -1,4 +1,10 @@
-### **Changes for release 4.32.0**
+### **Changes for release 4.32.1**
+
+**Changes since 4.32.0**
+
+- 4.32.1: Registration export now opens on the Athlete registration tab.
+
+**Changes for release 4.32**
 
 - Requested weight is now shown on attempt board (including loading chart) and on top of scoreboard during breaks (but hidden during ceremonies).
 - Announcer is notified when weight on bar needs to change.
