@@ -23,8 +23,12 @@ public interface BreakDisplay {
     public void doCeremony(UIEvent.CeremonyStarted e);
 
     public default String inferGroupName() {
+        return inferGroupName(null);
+    }
+
+    public default String inferGroupName(CeremonyType ceremonyType) {
         FieldOfPlay fop = OwlcmsSession.getFop();
-        if (fop == null) {
+        if (fop == null || ceremonyType == CeremonyType.MEDALS) {
             return "";
         }
         Group group = fop.getGroup();

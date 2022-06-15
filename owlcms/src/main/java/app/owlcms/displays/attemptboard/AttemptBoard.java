@@ -595,7 +595,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      * @param fop
      */
     protected void doBreak(FieldOfPlay fop) {
-        this.getElement().setProperty("lastName", inferGroupName());
+        this.getElement().setProperty("lastName", inferGroupName(fop.getCeremonyType()));
         this.getElement().setProperty("firstName", inferMessage(fop.getBreakType(), fop.getCeremonyType()));
         this.getElement().setProperty("teamName", "");
         this.getElement().setProperty("attempt", "");
