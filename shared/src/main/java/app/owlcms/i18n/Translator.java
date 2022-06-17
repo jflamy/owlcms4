@@ -232,7 +232,7 @@ public class Translator implements I18NProvider {
                             // reset stream
                             csvStream = ResourceWalker.getResourceAsStream(csvName);
                         } else {
-                            logger.debug(stringList.toString());
+                            logger.trace(stringList.toString());
                             break;
                         }
                     }
@@ -244,11 +244,11 @@ public class Translator implements I18NProvider {
                     int nbLanguages = 0;
                     for (int i = 1; i < outFiles.length; i++) {
                         String language = stringList.get(i);
-                        logger.trace("language={} {}", language, i);
-                        if (language == null || language.isBlank()) {
+                        if (language == null || language.isBlank() || "xx".contentEquals(language)) {
                             nbLanguages = i - 1;
                             break;
                         }
+                        logger.trace("language={} {}", language, i);
                         locales.add(createLocale(language));
                         if (language != null && !language.isEmpty()) {
                             language = "_" + language;
