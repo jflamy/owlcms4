@@ -2,6 +2,11 @@
 
 **Changes since 4.32.0**
 
+- 4.32.2-rc01: When entering bodyweight, if a change in category results, a confirmation is required (#499)
+- 4.32.2-rc01: Do not show leaderboard for last athlete when group is done
+- 4.32.2-rc01: Made font size override on scoreboards available by default.  Also applies to multiple ranks results screen.
+- 4.32.2-rc01: Group name is hidden on attempt board during ceremonies (#500)
+- 4.32.2-rc01: Jury reversal notification sized correctly for 4K screens
 - 4.32.1: Registration export now opens on the Athlete registration tab.
 
 **Changes for release 4.32**
