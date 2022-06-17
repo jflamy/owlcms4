@@ -9,6 +9,7 @@ package app.owlcms.displays.scoreboard;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -63,6 +64,7 @@ import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
+import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
@@ -449,14 +451,14 @@ public class Results extends PolymerTemplate<TemplateModel>
         });
     }
 
-    protected void computeLeaders() {
+    protected void computeLeaders(boolean done) {
         OwlcmsSession.withFop(fop -> {
             Athlete curAthlete = fop.getCurAthlete();
             if (curAthlete != null && curAthlete.getGender() != null) {
                 this.getElement().setProperty("categoryName", curAthlete.getCategory().getName());
 
                 displayOrder = fop.getLeaders();
-                if (displayOrder != null && displayOrder.size() > 0) {
+                if (!done && displayOrder != null && displayOrder.size() > 0) {
                     // null as second argument because we do not highlight current athletes in the leaderboard
                     this.getElement().setPropertyJson("leaders", getAthletesJson(displayOrder, null, fop));
                     this.getElement().setProperty("leaderLines", displayOrder.size() + 2); // spacer + title
@@ -769,12 +771,18 @@ public class Results extends PolymerTemplate<TemplateModel>
             this.getElement().setProperty("groupName", "");
             this.getElement().callJsFunction("groupDone");
         }
+        this.getElement().setPropertyJson("ageGroups", getAgeGroupNamesJson(fop.getAgeGroupMap()));
         this.getElement().setPropertyJson("athletes",
                 getAthletesJson(displayOrder, fop.getLiftingOrder(), fop));
 
         int resultLines = (displayOrder != null ? displayOrder.size() : 0) + countCategories(displayOrder) + 1;
         this.getElement().setProperty("resultLines", resultLines);
-        computeLeaders();
+        computeLeaders(fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE);
+    }
+    
+    protected JsonArray getAgeGroupNamesJson(LinkedHashMap<String, Participation> currentAthleteParticipations) {
+        JsonArray ageGroups = Json.createArray();
+        return ageGroups;
     }
 
     private String computeLiftType(Athlete a) {
