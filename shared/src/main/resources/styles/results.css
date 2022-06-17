@@ -29,9 +29,6 @@
 
 /* default for page */
 .wrapper {
-    /* results table font size */
-    --tableFontSize: 1.25rem;
-
     font-family: Arial, Helvetica, sans-serif;
     color: var(--pageTextColor);
     background-color: var(--pageBackgroundColor);
@@ -344,7 +341,7 @@ td {
     justify-content: center;
     align-content: center;
     font-weight: normal;
-    font-size: var(--tableFontSize);
+    /* font-size: var(--tableFontSize); */
     position: relative;
     padding-top: 2px;
     padding-bottom: 2px;
@@ -360,7 +357,7 @@ td {
     justify-content: center;
     align-content: center;
     font-weight: normal;
-    font-size: var(--tableFontSize);
+    /* font-size: var(--tableFontSize); */
     position: relative;
     padding-top: 2px;
     padding-bottom: 2px;

@@ -24,6 +24,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -110,7 +111,9 @@ public class ResultsLeadersRanks extends Results {
     protected void updateBottom(String liftType, FieldOfPlay fop) {
         curGroup = fop.getGroup();
         displayOrder = fop.getDisplayOrder();
-
+        if (Config.getCurrent().isSizeOverride() && getEmFontSize() != null) {
+            this.getElement().setProperty("sizeOverride", " --tableFontSize:" + getEmFontSize() + "rem;");
+        }
         if (liftType != null) {
             this.getElement().setProperty("groupName",
                     curGroup != null
