@@ -648,6 +648,43 @@ public class MovingDownTest {
         final Athlete sc = schneiderF;
         testChange(() -> change1(sc, "91", fopState), logger, null);
     }
+    
+    @Test
+    public void testNehme() {
+        FieldOfPlay fopState = emptyFieldOfPlay();
+        testPrepSnatchCheckProgression(fopState, 2);
+
+        List<Athlete> groupAthletes = fopState.getDisplayOrder();
+        Athlete darsigny = groupAthletes.get(0);
+        Athlete guerin = groupAthletes.get(1);
+
+        // changes
+        darsigny = declaration(darsigny, "154", fopState);
+        guerin = declaration(guerin, "156", fopState);
+
+        // darsigny succeeds 154 first lift
+        darsigny = successfulLift(darsigny, fopState);
+        // darsigny declares 90
+        darsigny = declaration(darsigny, "158", fopState);
+
+        // guerin fails 156 first lift
+        guerin = failedLift(guerin, fopState);
+        // guerin repeats 156 as second lift
+        guerin = declaration(guerin, "156", fopState);
+        guerin = successfulLift(guerin, fopState);
+        // guerin declares 159 for his third
+        guerin = declaration(guerin, "159", fopState);
+        
+        // darsigny fails 158 second lift
+        darsigny = failedLift(darsigny, fopState);
+        // darsigny repeats 158 last lift
+        darsigny = declaration(darsigny, "158", fopState);
+        darsigny = successfulLift(darsigny, fopState);
+
+        final Athlete sc = guerin;
+        // this should be denied, guerin should take 159
+        testChange(() -> change1(sc, "158", fopState), logger, RuleViolationException.LiftedEarlier.class);
+    }
 
     @Test
     public void snatchCheckStartNumber() {
