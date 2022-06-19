@@ -262,7 +262,7 @@ public class FieldOfPlay {
         return liftsDone;
     }
 
-    public void emitDown(FOPEvent e) {
+    private void emitDown(FOPEvent e) {
         logger.debug("{}Emitting down {}", getLoggingName(), LoggerUtils.whereFrom(2));
         getAthleteTimer().stop(); // paranoia
         this.setPreviousAthlete(getCurAthlete()); // would be safer to use past lifting order
@@ -272,7 +272,7 @@ public class FieldOfPlay {
         setState(DOWN_SIGNAL_VISIBLE);
     }
 
-    public void emitFinalWarning() {
+    void emitFinalWarning() {
         if (!isFinalWarningEmitted()) {
             logger.info("{}Final Warning", getLoggingName());
             if (isEmitSoundsOnServer()) {
@@ -282,7 +282,7 @@ public class FieldOfPlay {
         }
     }
 
-    public void emitInitialWarning() {
+    void emitInitialWarning() {
         if (!isInitialWarningEmitted()) {
             logger.info("{}Initial Warning", getLoggingName());
             if (isEmitSoundsOnServer()) {
@@ -292,7 +292,7 @@ public class FieldOfPlay {
         }
     }
 
-    public void emitTimeOver() {
+    void emitTimeOver() {
         if (!isTimeoutEmitted()) {
             logger.info("{}Time Over", getLoggingName());
             if (isEmitSoundsOnServer()) {
@@ -692,6 +692,7 @@ public class FieldOfPlay {
 
         case TIME_RUNNING:
             if (e instanceof DownSignal) {
+                logger.warn("emitting down");
                 emitDown(e);
             } else if (e instanceof TimeStopped) {
                 // athlete lifted the bar
@@ -724,9 +725,8 @@ public class FieldOfPlay {
 
         case TIME_STOPPED:
             if (e instanceof DownSignal) {
-                // ignore -- now processed via processRefereeDecisions()
-                // 2 referees have given same decision
-                // emitDown(e);
+                // only occurs if solo referee
+                emitDown(e);
             } else if (e instanceof DecisionFullUpdate) {
                 // decision coming from decision display or attempt board
                 updateRefereeDecisions((DecisionFullUpdate) e);

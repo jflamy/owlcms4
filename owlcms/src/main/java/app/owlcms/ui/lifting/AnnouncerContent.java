@@ -22,9 +22,13 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -40,6 +44,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
@@ -74,6 +79,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
     private long previousGoodMillis = 0L;
     private HorizontalLayout timerButtons;
+    private boolean singleReferee;
 
     public AnnouncerContent() {
         super();
@@ -128,7 +134,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     public boolean isIgnoreGroupFromURL() {
         return false;
     }
-
 
     @Subscribe
     public void slaveRefereeDecision(UIEvent.Decision e) {
@@ -324,7 +329,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 long now = System.currentTimeMillis();
                 long timeElapsed = now - previousGoodMillis;
                 // no reason to give two decisions close together
+                logger.warn("good single ref = {}",isSingleReferee());
                 if (timeElapsed > 2000) {
+                    if (isSingleReferee()) {
+                        fop.fopEventPost(new FOPEvent.DownSignal(this));
+                    }
                     fop.fopEventPost(
                             new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true, true,
                                     true));
@@ -338,8 +347,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             OwlcmsSession.withFop(fop -> {
                 long now = System.currentTimeMillis();
                 long timeElapsed = now - previousBadMillis;
-
+                logger.warn("bad single ref = {}",isSingleReferee());
                 if (timeElapsed > 2000) {
+                    if (isSingleReferee()) {
+                        fop.fopEventPost(new FOPEvent.DownSignal(this));
+                    }
                     fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
                             false, false, false));
                 }
@@ -382,6 +394,45 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         getTopBarLeft().removeAll();
         fillTopBarLeft();
         decisionLights = null;
+    }
+
+    protected void createTopBarSettingsMenu() {
+        topBarSettings = new MenuBar();
+        topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
+        MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
+        SubMenu subMenu2 = item2.getSubMenu();
+        subMenu2.addItem(
+                this.isSilenced() ? Translator.translate("Settings.TurnOnSound")
+                        : Translator.translate("Settings.TurnOffSound"),
+                e -> {
+                    switchSoundMode(this, !this.isSilenced(), true);
+                    e.getSource().setText(this.isSilenced() ? Translator.translate("Settings.TurnOnSound")
+                            : Translator.translate("Settings.TurnOffSound"));
+                    if (decisionDisplay != null) {
+                        decisionDisplay.setSilenced(this.isSilenced());
+                    }
+                    if (timer != null) {
+                        timer.setSilenced(this.isSilenced());
+                    }
+                });
+        subMenu2.addItem(
+                !this.isSingleReferee() ? Translator.translate("Settings.SingleReferee")
+                        : Translator.translate("Settings.MultipleReferees"),
+                e -> {
+                    switchSingleRefereeMode(this, !this.isSingleReferee(), true);
+                    e.getSource().setText(!this.isSingleReferee() ? Translator.translate("Settings.SingleReferee")
+                            : Translator.translate("Settings.MultipleReferees"));
+                });
+    }
+
+    @Override
+    public void setSingleReferee(boolean b) {
+        this.singleReferee = b;
+    }
+
+    @Override
+    public boolean isSingleReferee() {
+        return singleReferee;
     }
 
 }
