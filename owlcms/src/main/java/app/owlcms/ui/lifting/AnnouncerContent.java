@@ -401,13 +401,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
         MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
         SubMenu subMenu2 = item2.getSubMenu();
-        subMenu2.addItem(
-                this.isSilenced() ? Translator.translate("Settings.TurnOnSound")
-                        : Translator.translate("Settings.TurnOffSound"),
+        MenuItem subItemSoundOn = subMenu2.addItem(
+                Translator.translate("Settings.TurnOnSound"),
                 e -> {
                     switchSoundMode(this, !this.isSilenced(), true);
-                    e.getSource().setText(this.isSilenced() ? Translator.translate("Settings.TurnOnSound")
-                            : Translator.translate("Settings.TurnOffSound"));
+                    e.getSource().setChecked(!this.isSilenced());
                     if (decisionDisplay != null) {
                         decisionDisplay.setSilenced(this.isSilenced());
                     }
@@ -415,14 +413,16 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                         timer.setSilenced(this.isSilenced());
                     }
                 });
-        subMenu2.addItem(
-                !this.isSingleReferee() ? Translator.translate("Settings.SingleReferee")
-                        : Translator.translate("Settings.MultipleReferees"),
+        subItemSoundOn.setCheckable(true);
+        subItemSoundOn.setChecked(!this.isSilenced());
+        MenuItem subItemSingleRef = subMenu2.addItem(
+                Translator.translate("Settings.SingleReferee"),
                 e -> {
                     switchSingleRefereeMode(this, !this.isSingleReferee(), true);
-                    e.getSource().setText(!this.isSingleReferee() ? Translator.translate("Settings.SingleReferee")
-                            : Translator.translate("Settings.MultipleReferees"));
+                    e.getSource().setChecked(this.isSingleReferee());
                 });
+        subItemSingleRef.setCheckable(true);
+        subItemSingleRef.setChecked(this.isSingleReferee());
     }
 
     @Override
