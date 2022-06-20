@@ -1,4 +1,4 @@
-trigger:
+Atrigger:
   - none
   
 parameters:
@@ -131,13 +131,13 @@ jobs:
           git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Revision) --force
         displayName: tag origin
       - script: |
-          # publish sources and docs to prerelease repo
+          # publish sources and docs to prerelease repo (master branch)
           # library group ReleaseRepoCredentials contains github users and tokens
           git push https://$(releaseToken)@github.com/$(releaseUser)/owlcms4$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force
         condition: eq(variables['Build.SourceBranchName'], 'develop')
         displayName: sync prerelease repo
       - script: |
-          # publish sources and docs to release repo
+          # publish sources and docs to release repo (master branch)
           # library group ReleaseRepoCredentials contains github users and tokens
           git push https://$(releaseToken)@github.com/$(releaseUser)/owlcms4.git $(Build.SourceBranchName):master --force
         condition: eq(variables['Build.SourceBranchName'], 'master')
@@ -147,7 +147,7 @@ jobs:
       - task: GitHubRelease@0
         displayName: Release on Github
         inputs:
-          ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
+          ${{ if startsWith(variables['Build.SourceBranchName'], 'develop') }}:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
             isPreRelease: false
