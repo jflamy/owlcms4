@@ -2,14 +2,12 @@
 
 **Changes since 4.32.0**
 
-- 4.32.2-rc03: Translation file updated.
-- 4.32.2-rc02: Amazon Firestick 2 resolution issues: reports a 1024px width. Fixed the ability to override the font size, and (for now) removed the size-responsive hiding of lift-specific ranks. Use total-only competition option to hide the lift ranks.
-- 4.32.2-rc01: When entering bodyweight, if a change in category results, a confirmation is required (#499)
-- 4.32.2-rc01: Do not show leaderboard for last athlete when group is done
-- 4.32.2-rc01: Made font size override on scoreboards available by default.  Also applies to multiple ranks results screen.
-- 4.32.2-rc01: Group name is hidden on attempt board during ceremonies (#500)
-- 4.32.2-rc01: Jury reversal notification sized correctly for 4K screens
-- 4.32.1: Registration export now opens on the Athlete registration tab.
+- 4.32.2: Amazon Firestick 2 resolution issues: reports a 1024px width. Fixed the ability to override the font size, and (for now) removed the size-responsive hiding of lift-specific ranks. Use total-only competition option to hide the lift ranks.
+- 4.32.2: On weigh-in or registration forms, if a change in category results, a confirmation is required (#499)
+- 4.32.2: Do not show leaderboard for last athlete when group is done
+- 4.32.2: Group name is hidden on attempt board during ceremonies (#500)
+- 4.32.2: Jury reversal notification sized correctly for 4K screens
+- 4.32.1: Registration export now correctly opens on the Athlete registration tab.
 
 **Changes for release 4.32**
 
@@ -19,7 +17,7 @@
 - Officials scheduling and registration templates:
   - Registration import-export spreadsheet changed to add additional columns for Marshal2 and TechnicalController2. Added a report page in the export that shows the assignments for each official.
   - The Start List document has an Officials tab that shows official assignments for each group according to the introduction order.
-- Experimental. If the feature toggle "sizeOverride" is defined on the settings page, the configuration dialog for the Results scoreboard allows giving a font size (in "em" units) instead of the default (1.25em for HD screens).  The size is also read from the URL (the CSS convention of using a "." is used). This allows fine tuning the font size when broadcasting the results with OBS which does not support zooming.
+- The configuration dialog for the Results scoreboard allows giving a font size (in "em" units) instead of the default (1.25em for HD screens).  The size is also read from the URL (the CSS convention of using a "." is used). This allows fine tuning the font size when broadcasting the results with OBS which does not support zooming.
 - Fix: The "use best N results from team" setting was not being applied correctly on team scoreboards and the team result page.
 
 ### Highlights from recent stable releases
