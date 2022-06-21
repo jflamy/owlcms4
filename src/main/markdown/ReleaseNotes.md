@@ -2,7 +2,7 @@
 
 **Changes since 4.32.0**
 
-- 4.32.2-rc02: Translation file updated.
+- 4.32.2-rc03: Translation file updated.
 - 4.32.2-rc02: Amazon Firestick 2 resolution issues: reports a 1024px width. Fixed the ability to override the font size, and (for now) removed the size-responsive hiding of lift-specific ranks. Use total-only competition option to hide the lift ranks.
 - 4.32.2-rc01: When entering bodyweight, if a change in category results, a confirmation is required (#499)
 - 4.32.2-rc01: Do not show leaderboard for last athlete when group is done
