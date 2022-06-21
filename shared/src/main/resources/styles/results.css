@@ -6,7 +6,7 @@
      *************************/
 
     /* size of team column relative to name column (fr = fraction) */
-    --teamColumnRatio: 0.55fr;
+    --teamColumnRatio: 0.65fr;
 
     /* left column width: adjust depending on how you name groups */
     --startWidth: 4em;
@@ -344,7 +344,7 @@ td {
     justify-content: center;
     align-content: center;
     font-weight: normal;
-    font-size: var(--tableFontSize);
+    /* font-size: var(--tableFontSize); */
     position: relative;
     padding-top: 2px;
     padding-bottom: 2px;
@@ -360,7 +360,7 @@ td {
     justify-content: center;
     align-content: center;
     font-weight: normal;
-    font-size: var(--tableFontSize);
+    /* font-size: var(--tableFontSize); */
     position: relative;
     padding-top: 2px;
     padding-bottom: 2px;
@@ -523,12 +523,15 @@ div.ellipsis {
 
 /* table sizes: 1024 projector */
 @media screen and (max-width: 1025px) and (max-height: 769px) {
-    * {
+    .wrapper {
         --tableFontSize: 0.8rem;
     }
+
+    /*
     table.results {
         --rankWidth: 0;
         --rankVisibility: hidden;
 
     }
+    */
 }

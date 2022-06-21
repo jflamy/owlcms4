@@ -15,7 +15,7 @@ class Results extends PolymerElement {
         return html`
 <link rel="stylesheet" type="text/css" href="local/styles/results.css">
 
-<div class$="wrapper [[teamWidthClass]] [[inactiveClass]]" style$="[[sizeOverride]]">
+<div class$="wrapper [[teamWidthClass]] [[inactiveClass]]" style$="[[sizeOverride]];">
     <div style$="[[inactiveBlockStyle]]">
         <div class="competitionName">[[competitionName]]</div><br>
         <div class="nextGroup">[[t.WaitingNextGroup]]</div>

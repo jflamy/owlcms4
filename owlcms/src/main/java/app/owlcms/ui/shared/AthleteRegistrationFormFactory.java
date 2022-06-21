@@ -106,6 +106,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     private Group currentGroup;
 
+    private Category initialCategory;
+
     public AthleteRegistrationFormFactory(Class<Athlete> domainType, Group group) {
         super(domainType);
         //logger.trace("constructor {} {}", System.identityHashCode(this), group);
@@ -353,6 +355,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     @Override
     protected Binder<Athlete> buildBinder(CrudOperation operation, Athlete ignored) {
         binder = super.buildBinder(operation, getEditedAthlete());
+        initialCategory = getEditedAthlete().getCategory();
         setValidationStatusHandler(true);
         return binder;
     }
@@ -365,6 +368,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected void validateCategory(Binder.BindingBuilder bindingBuilder) {
+        
         // check that category is consistent with body weight
         Validator<Category> v1 = Validator.from((category) -> {
             try {
@@ -395,7 +399,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         bindingBuilder.withValidator(v1);
 
         // check that category is consistent with age
-        Validator<Category> v11 = Validator.from((category) -> {
+        Validator<Category> v2 = Validator.from((category) -> {
             try {
                 Binding<Athlete, ?> catBinding = binder.getBinding("category").get();
                 Category cat = (Category) catBinding.getField().getValue();
@@ -421,10 +425,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             }
             return true;
         }, Translator.translate("Category_no_match_age"));
-        bindingBuilder.withValidator(v11);
+        bindingBuilder.withValidator(v2);
 
         // check that category is consistent with gender
-        Validator<Category> v2 = Validator.from((category) -> {
+        Validator<Category> v3 = Validator.from((category) -> {
             try {
                 if (category == null) {
                     return true;
@@ -451,7 +455,23 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             }
             return true;
         }, Translator.translate("Category_no_match_gender"));
-        bindingBuilder.withValidator(v2);
+        bindingBuilder.withValidator(v3);
+        
+        // a category change requires explicit ok.
+
+        Validator<Category> v4 = Validator.from((category) -> {
+            try {
+                if (isIgnoreErrors() || initialCategory == null || (getEditedAthlete().getBodyWeight() == null && category == null)) {
+                    return true;
+                }
+                logger.warn("initialCategory = {}  new category = {}", initialCategory, getEditedAthlete().getCategory());
+                return category.sameAs(initialCategory);
+            } catch (Exception e) {
+                LoggerUtils.logError(logger, e);
+            }
+            return true;
+        }, Translator.translate("CategoryChange_MustForce", initialCategory));
+        bindingBuilder.withValidator(v4);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })

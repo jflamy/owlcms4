@@ -368,7 +368,7 @@ public class JPAService {
 //                .put("hibernate.c3p0.testConnectionOnCheckout", true).put("hibernate.c3p0.idle_test_period", 500)
                 .put("hibernate.connection.provider_class", cp)
                 .put("hibernate.hikari.minimumIdle", "5")
-                .put("hibernate.hikari.maximumPoolSize", "10")
+                .put("hibernate.hikari.maximumPoolSize", "15")
                 .put("hibernate.hikari.idleTimeout", "300000") // 5 minutes
                 .put("hibernate.hikari.maxLifetime", "600000") // 10 minutes (docker kills sockets after 15min)
                 .put("hibernate.hikari.initializationFailTimeout", "60000")

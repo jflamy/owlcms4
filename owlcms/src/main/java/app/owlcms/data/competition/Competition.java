@@ -186,8 +186,8 @@ public class Competition {
      */
     @Column(columnDefinition = "boolean default false")
     private boolean roundRobinOrder;
-    @Column(columnDefinition = "boolean default true")
-    private boolean snatchCJTotalMedals = true;
+    @Column(columnDefinition = "boolean default false")
+    private boolean snatchCJTotalMedals = false;
     private String startingWeightsSheetTemplateFileName;
     private String startListTemplateFileName;
     /**

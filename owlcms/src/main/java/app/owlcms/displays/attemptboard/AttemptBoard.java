@@ -143,6 +143,10 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         uiEventLogger.setLevel(Level.INFO);
     }
 
+    public static void doNotification(AttemptBoard attemptBoard, String text, String theme, int duration) {
+        attemptBoard.doNotification(text, theme, duration);
+    }
+
     @Id("athleteTimer")
     protected AthleteTimerElement athleteTimer; // created by Flow during template instanciation
 
@@ -421,7 +425,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                         "<br/>" + e.getAthlete().getFullName(),
                         previousAttemptNo % 3 + 1);
                 style = "primary error";
-                doNotification(text, style);
+                doNotification(this, text, style, (int) (2 * FieldOfPlay.DECISION_VISIBLE_DURATION));
                 break;
             case GOOD_LIFT:
                 previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
@@ -429,7 +433,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                         "<br/>" + e.getAthlete().getFullName(),
                         previousAttemptNo % 3 + 1);
                 style = "primary success";
-                doNotification(text, style);
+                doNotification(this, text, style, (int) (2 * FieldOfPlay.DECISION_VISIBLE_DURATION));
                 break;
             default:
                 break;
@@ -595,7 +599,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      * @param fop
      */
     protected void doBreak(FieldOfPlay fop) {
-        this.getElement().setProperty("lastName", inferGroupName());
+        this.getElement().setProperty("lastName", inferGroupName(fop.getCeremonyType()));
         this.getElement().setProperty("firstName", inferMessage(fop.getBreakType(), fop.getCeremonyType()));
         this.getElement().setProperty("teamName", "");
         this.getElement().setProperty("attempt", "");
@@ -654,19 +658,19 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         });
     }
 
-    private void doNotification(String text, String theme) {
+    private void doNotification(String text, String theme, int duration) {
         Notification n = new Notification();
         // Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
         n.getElement().getThemeList().add(theme);
 
-        n.setDuration((int) FieldOfPlay.DECISION_VISIBLE_DURATION);
+        n.setDuration(duration);
         n.setPosition(Position.MIDDLE);
         Div label = new Div();
         label.getElement().setProperty("innerHTML", text);
         label.getElement().setAttribute("style", "text: align-center");
         label.addClickListener((event) -> n.close());
-        label.setWidth("20em");
-        label.getStyle().set("font-size", "4em");
+        label.setWidth("70vw");
+        label.getStyle().set("font-size", "7vh");
         n.add(label);
 
         OwlcmsSession.withFop(fop -> {

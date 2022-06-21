@@ -473,7 +473,8 @@ public class Config {
     }
 
     public boolean isSizeOverride() {
-        return featureSwitch("sizeOverride", true);
+        //return featureSwitch("sizeOverride", true);
+        return true;
     }
 
     public boolean isOldScoreboards() {

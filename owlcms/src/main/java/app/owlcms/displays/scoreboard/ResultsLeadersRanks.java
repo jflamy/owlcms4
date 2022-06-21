@@ -20,13 +20,11 @@ import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
@@ -106,31 +104,8 @@ public class ResultsLeadersRanks extends Results {
         ja.put("classname", highlight);
     }
 
-    @Override
-    protected void updateBottom(String liftType, FieldOfPlay fop) {
-        curGroup = fop.getGroup();
-        displayOrder = fop.getDisplayOrder();
 
-        if (liftType != null) {
-            this.getElement().setProperty("groupName",
-                    curGroup != null
-                            ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
-                            : "");
-            liftsDone = AthleteSorter.countLiftsDone(displayOrder);
-            this.getElement().setProperty("liftsDone", Translator.translate("Scoreboard.AttemptsDone", liftsDone));
-        } else {
-            this.getElement().setProperty("groupName", "");
-            this.getElement().callJsFunction("groupDone");
-        }
-        this.getElement().setPropertyJson("ageGroups", getAgeGroupNamesJson(fop.getAgeGroupMap()));
-        this.getElement().setPropertyJson("athletes",
-                getAthletesJson(displayOrder, fop.getLiftingOrder(), fop));
-        int resultLines = (displayOrder != null ? displayOrder.size() : 0) + countCategories(displayOrder) + 1;
-        this.getElement().setProperty("resultLines", resultLines);
-        computeLeaders();
-    }
-
-    private JsonArray getAgeGroupNamesJson(LinkedHashMap<String, Participation> currentAthleteParticipations) {
+    protected JsonArray getAgeGroupNamesJson(LinkedHashMap<String, Participation> currentAthleteParticipations) {
         JsonArray ageGroups = Json.createArray();
         int i = 0;
         for (Entry<String, Participation> e : OwlcmsSession.getFop().getAgeGroupMap().entrySet()) {
