@@ -10,7 +10,8 @@
             "request": "launch",
             "mainClass": "app.owlcms.Main",
             "projectName": "owlcms",
-            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml"
+            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml", 
+            "env":{"OWLCMS_MEMORYMODE": "true", "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO"}
         },
         {
             "type": "java",
