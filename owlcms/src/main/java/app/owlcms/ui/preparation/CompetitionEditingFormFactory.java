@@ -294,28 +294,6 @@ public class CompetitionEditingFormFactory
         return span;
     }
 
-//    private FormLayout presentationForm() {
-//        FormLayout layout = createLayout();
-//        Component title = createTitle("Competition.presentationTitle");
-//        layout.add(title);
-//        layout.setColspan(title, 2);
-//
-//        ComboBox<Locale> defaultLocaleField = new ComboBox<>();
-//        defaultLocaleField.setClearButtonVisible(true);
-//        defaultLocaleField.setDataProvider(new ListDataProvider<>(Translator.getAllAvailableLocales()));
-//        defaultLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
-//        binder.forField(defaultLocaleField).bind(Competition::getDefaultLocale, Competition::setDefaultLocale);
-//        layout.addFormItem(defaultLocaleField, Translator.translate("Competition.defaultLocale"));
-//
-////        Checkbox announcerLiveDecisionsField = new Checkbox();
-////        layout.addFormItem(announcerLiveDecisionsField,
-////                labelWithHelp("Competition.announcerLiveDecisions", "Competition.announceLiverDecisionsExplanation"));
-////        binder.forField(announcerLiveDecisionsField)
-////                .bind(Competition::isAnnouncerLiveDecisions, Competition::setAnnouncerLiveDecisions);
-//
-//        return layout;
-//    }
-
     private FormLayout rulesForm() {
         FormLayout layout = createLayout();
         Component title = createTitle("Competition.rulesTitle");
@@ -394,12 +372,18 @@ public class CompetitionEditingFormFactory
         binder.forField(roundRobinOrderField)
                 .bind(Competition::isRoundRobinOrder, Competition::setRoundRobinOrder);
 
+        Checkbox roundRobinFixedOrderField = new Checkbox();
+        layout.addFormItem(roundRobinFixedOrderField,
+                labelWithHelp("Competition.fixedRoundRobinOrder", "Competition.fixedRoundRobinOrderExplanation"));
+        binder.forField(roundRobinFixedOrderField)
+                .bind(Competition::isFixedOrder, Competition::setFixedOrder);
+
         Checkbox genderOrderField = new Checkbox();
         layout.addFormItem(genderOrderField,
                 labelWithHelp("Competition.genderOrder", "Competition.genderOrderExplanation"));
         binder.forField(genderOrderField)
                 .bind(Competition::isGenderOrder, Competition::setGenderOrder);
-
+        
         Checkbox customScoreField = new Checkbox();
         layout.addFormItem(customScoreField,
                 labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));

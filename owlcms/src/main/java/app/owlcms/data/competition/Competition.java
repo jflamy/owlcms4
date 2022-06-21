@@ -151,6 +151,10 @@ public class Competition {
      */
     @Column(columnDefinition = "boolean default false")
     private boolean genderOrder;
+    
+    /* in a round-robin competition, use lot number instead of ascending weight */
+    @Column(columnDefinition = "boolean default false")
+    private boolean fixedOrder;
 
     private String juryTemplateFileName;
     private boolean masters;
@@ -215,6 +219,7 @@ public class Competition {
     private boolean useRegistrationCategory = false;
     @Column(columnDefinition = "integer default 10")
     private Integer womensTeamSize = 10;
+
 
     public Competition() {
         medalsByGroup = new HashMap<>();
@@ -709,6 +714,18 @@ public class Competition {
             setGenderOrder(true);
         }
         return genderOrder;
+    }
+
+
+    public boolean isFixedOrder() {
+        if (StartupUtils.getBooleanParam("fixedOrder")) {
+            setFixedOrder(true);
+        }
+        return fixedOrder;
+    }
+    
+    public void setFixedOrder(boolean fixedOrder) {
+        this.fixedOrder = fixedOrder;
     }
 
     /**

@@ -76,17 +76,17 @@ public interface DisplayParameters extends ContentParameters {
         switchLightingMode((Component) this, darkMode, false);
         updateParam(params, DARK, !isDarkMode() ? "false" : null);
 
-        List<String> silentParams = params.get(SILENT);
-        // silent is the default. silent=false will cause sound
-        boolean silentMode = silentParams == null || silentParams.isEmpty()
-                || silentParams.get(0).toLowerCase().equals("true");
-        if (!isSilencedByDefault()) {
-            // for referee board, default is noise
-            silentMode = silentParams != null && !silentParams.isEmpty()
-                    && silentParams.get(0).toLowerCase().equals("true");
-        }
-        switchSoundMode((Component) this, silentMode, false);
-        updateParam(params, SILENT, !isSilenced() ? "false" : "true");
+//        List<String> silentParams = params.get(SILENT);
+//        // silent is the default. silent=false will cause sound
+//        boolean silentMode = silentParams == null || silentParams.isEmpty()
+//                || silentParams.get(0).toLowerCase().equals("true");
+//        if (!isSilencedByDefault()) {
+//            // for referee board, default is noise
+//            silentMode = silentParams != null && !silentParams.isEmpty()
+//                    && silentParams.get(0).toLowerCase().equals("true");
+//        }
+//        switchSoundMode((Component) this, silentMode, false);
+//        updateParam(params, SILENT, !isSilenced() ? "false" : "true");
 
         List<String> switchableParams = params.get(PUBLIC);
         boolean switchable = switchableParams != null && !switchableParams.isEmpty()
