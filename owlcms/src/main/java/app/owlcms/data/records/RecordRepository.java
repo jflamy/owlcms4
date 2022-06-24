@@ -95,7 +95,7 @@ public class RecordRepository {
         List<RecordEvent> findFiltered = JPAService.runInTransaction(em -> {
             String qlString = "select rec from RecordEvent rec "
                     + filteringSelection(gender, age, bw)
-                    + " order by rec.gender, rec.ageGrpLower, rec.ageGrpUpper";
+                    + " order by rec.gender, rec.ageGrpLower, rec.ageGrpUpper, rec.recordValue desc";
             logger.debug("query = {}", qlString);
 
             Query query = em.createQuery(qlString);

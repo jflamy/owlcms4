@@ -48,157 +48,151 @@ public class RecordDefinitionReader {
             int iRecord = 0;
 
             for (Sheet sheet : workbook) {
-
                 processSheet: for (Row row : sheet) {
                     int iRow = row.getRowNum();
                     if (iRow == 0) {
-//                        if (! row.getCell(0).getStringCellValue().equalsIgnoreCase("Federation")) {
-//                            break processSheet;
-//                        }
                         iRow++;
                         continue;
                     }
 
                     RecordEvent rec = new RecordEvent();
 
+                    // beware: on a truly empty row we will not enter this loop.
                     for (Cell cell : row) {
                         int iColumn = cell.getAddress().getColumn();
+
+                        // logger.debug("[" + sheet.getSheetName() + "," + cell.getAddress() + "]");
+                        switch (iColumn) {
+                        case 0: { // A
+                            String cellValue = cell.getStringCellValue();
+                            String trim = cellValue.trim();
+                            if (trim.isEmpty()) {
+                                // stop processing sheet on first row with an empty first cell
+                                break processSheet;
+                            }
+                            rec.setRecordFederation(trim);
+                            break;
+                        }
+
+                        case 1: { // B
+                            String cellValue = cell.getStringCellValue();
+                            cellValue = cellValue != null ? cellValue.trim() : cellValue;
+                            rec.setRecordName(cellValue);
+                            break;
+                        }
+
+                        case 2: { // C
+                            String cellValue = cell.getStringCellValue();
+                            cellValue = cellValue != null ? cellValue.trim() : cellValue;
+                            rec.setAgeGrp(cellValue);
+                            break;
+                        }
+
+                        case 3: { // D
+                            String cellValue = cell.getStringCellValue();
+                            cellValue = cellValue != null ? cellValue.trim().toUpperCase() : cellValue;
+                            rec.setGender(Gender.valueOf(cellValue));
+                            break;
+                        }
+
+                        case 4: { // E
+                            long cellValue = Math.round(cell.getNumericCellValue());
+                            rec.setAgeGrpLower(Math.toIntExact(cellValue));
+                            break;
+                        }
+
+                        case 5: { // F
+                            long cellValue = Math.round(cell.getNumericCellValue());
+                            rec.setAgeGrpUpper(Math.toIntExact(cellValue));
+                            break;
+                        }
+
+                        case 6: { // G
+                            long cellValue = Math.round(cell.getNumericCellValue());
+                            rec.setBwCatLower(Math.toIntExact(cellValue));
+                            break;
+                        }
+
+                        case 7: { // H
+                            long cellValue = Math.round(cell.getNumericCellValue());
+                            rec.setBwCatUpper(Math.toIntExact(cellValue));
+                            break;
+                        }
+
+                        case 8: { // I
+                            String cellValue = cell.getStringCellValue();
+                            cellValue = cellValue != null ? cellValue.trim() : cellValue;
+                            rec.setRecordLift(cellValue);
+                            break;
+                        }
+
+                        case 9: { // J
+                            rec.setRecordValue(cell.getNumericCellValue());
+                            break;
+                        }
+
+                        case 10: { // K
+                            String cellValue = cell.getStringCellValue();
+                            cellValue = cellValue != null ? cellValue.trim() : cellValue;
+                            rec.setAthleteName(cellValue);
+                            break;
+                        }
+
+                        case 11: { // L
+                            long cellValue = Math.round(cell.getNumericCellValue());
+                            int intExact = Math.toIntExact(cellValue);
+                            if (cellValue < 3000) {
+                                rec.setRecordYear(intExact);
+                            } else {
+                                LocalDate epoch = LocalDate.of(1900, 1, 1);
+                                LocalDate plusDays = epoch.plusDays(intExact - 2);
+                                // Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
+                                rec.setRecordDate(plusDays);
+                            }
+                            break;
+                        }
+
+                        case 12: { // M
+                            String cellValue = cell.getStringCellValue();
+                            cellValue = cellValue != null ? cellValue.trim() : cellValue;
+                            rec.setNation(cellValue);
+                            break;
+                        }
+
+                        case 13: { // N
+                            long cellValue = Math.round(cell.getNumericCellValue());
+                            int intExact = Math.toIntExact(cellValue);
+                            if (cellValue < 3000) {
+                                rec.setRecordYear(intExact);
+                            } else {
+                                LocalDate epoch = LocalDate.of(1900, 1, 1);
+                                LocalDate plusDays = epoch.plusDays(intExact - 2);
+                                // Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
+                                rec.setRecordDate(plusDays);
+                            }
+                            break;
+                        }
+
+                        }
+
+                        iColumn++;
+                    }
+
+                    if (rec.getRecordFederation() != null) {
+                        // if row was empty, we get no cells but rec was created.
                         try {
-                            // logger.debug("[" + sheet.getSheetName() + "," + cell.getAddress() + "]");
-                            switch (iColumn) {
-                            case 0: { // A
-                                String cellValue = cell.getStringCellValue();
-                                String trim = cellValue.trim();
-                                if (trim.isEmpty()) {
-                                    // stop processing sheet on first row with an empty first cell
-                                    break processSheet;
-                                }
-                                rec.setRecordFederation(trim);
-                                break;
-                            }
-
-                            case 1: { // B
-                                String cellValue = cell.getStringCellValue();
-                                cellValue = cellValue != null ? cellValue.trim() : cellValue;
-                                rec.setRecordName(cellValue);
-                                break;
-                            }
-
-                            case 2: { // C
-                                String cellValue = cell.getStringCellValue();
-                                cellValue = cellValue != null ? cellValue.trim() : cellValue;
-                                rec.setAgeGrp(cellValue);
-                                break;
-                            }
-
-                            case 3: { // D
-                                String cellValue = cell.getStringCellValue();
-                                cellValue = cellValue != null ? cellValue.trim().toUpperCase() : cellValue;
-                                rec.setGender(Gender.valueOf(cellValue));
-                                break;
-                            }
-
-                            case 4: { // E
-                                long cellValue = Math.round(cell.getNumericCellValue());
-                                rec.setAgeGrpLower(Math.toIntExact(cellValue));
-                                break;
-                            }
-
-                            case 5: { // F
-                                long cellValue = Math.round(cell.getNumericCellValue());
-                                rec.setAgeGrpUpper(Math.toIntExact(cellValue));
-                                break;
-                            }
-
-                            case 6: { // G
-                                long cellValue = Math.round(cell.getNumericCellValue());
-                                rec.setBwCatLower(Math.toIntExact(cellValue));
-                                break;
-                            }
-
-                            case 7: { // H
-                                long cellValue = Math.round(cell.getNumericCellValue());
-                                rec.setBwCatUpper(Math.toIntExact(cellValue));
-                                break;
-                            }
-
-                            case 8: { // I
-                                String cellValue = cell.getStringCellValue();
-                                cellValue = cellValue != null ? cellValue.trim() : cellValue;
-                                rec.setRecordLift(cellValue);
-                                break;
-                            }
-
-                            case 9: { // J
-                                rec.setRecordValue(cell.getNumericCellValue());
-                                break;
-                            }
-
-                            case 10: { // K
-                                String cellValue = cell.getStringCellValue();
-                                cellValue = cellValue != null ? cellValue.trim() : cellValue;
-                                rec.setAthleteName(cellValue);
-                                break;
-                            }
-
-                            case 11: { // L
-                                long cellValue = Math.round(cell.getNumericCellValue());
-                                int intExact = Math.toIntExact(cellValue);
-                                if (cellValue < 3000) {
-                                    rec.setRecordYear(intExact);
-                                } else {
-                                    LocalDate epoch = LocalDate.of(1900, 1, 1);
-                                    LocalDate plusDays = epoch.plusDays(intExact - 2);
-                                    // Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
-                                    rec.setRecordDate(plusDays);
-                                }
-                                break;
-                            }
-
-                            case 12: { // M
-                                String cellValue = cell.getStringCellValue();
-                                cellValue = cellValue != null ? cellValue.trim() : cellValue;
-                                rec.setNation(cellValue);
-                                break;
-                            }
-
-                            case 13: { // N
-                                long cellValue = Math.round(cell.getNumericCellValue());
-                                int intExact = Math.toIntExact(cellValue);
-                                if (cellValue < 3000) {
-                                    rec.setRecordYear(intExact);
-                                } else {
-                                    LocalDate epoch = LocalDate.of(1900, 1, 1);
-                                    LocalDate plusDays = epoch.plusDays(intExact - 2);
-                                    // Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
-                                    rec.setRecordDate(plusDays);
-                                }
-                                break;
-                            }
-
-                            }
-
-                            iColumn++;
+                            rec.fillDefaults();
+                        } catch (MissingAgeGroup | MissingGender | UnknownIWFBodyWeightCategory e1) {
+                            throw new RuntimeException(e1 + " row " + iRow);
+                        }
+    
+                        try {
+                            em.persist(rec);
+                            iRecord++;
                         } catch (Exception e) {
-                            logger.error("{} {}: \\n{}", sheet.getSheetName(), cell.getAddress(),
-                                    LoggerUtils.stackTrace(e));
-                            System.exit(-1);
+                            logger.error("could not persist RecordEvent {}", LoggerUtils./**/stackTrace(e));
                         }
                     }
-
-                    try {
-                        rec.fillDefaults();
-                    } catch (MissingAgeGroup | MissingGender | UnknownIWFBodyWeightCategory e1) {
-                        throw new RuntimeException(e1 + " row " + row.getRowNum());
-                    }
-
-                    try {
-                        em.persist(rec);
-                    } catch (Exception e) {
-                        logger.error("could not persist RecordEvent {}", LoggerUtils./**/stackTrace(e));
-                    }
-
-                    iRecord++;
                 }
             }
             Competition comp = Competition.getCurrent();

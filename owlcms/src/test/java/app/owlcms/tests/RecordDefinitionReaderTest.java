@@ -102,10 +102,10 @@ public class RecordDefinitionReaderTest {
 
     @Test
     public void _02_testZippedFile() throws IOException, SAXException, InvalidFormatException {
-        String zipURI = "/testData/records/IWFRecords.zip";
+        String zipURI = "/testData/records/IWF_EWF.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
         RecordDefinitionReader.readZip(zipStream);
-        assertEquals("expected size wrong", 180, RecordRepository.findAll().size());
+        assertEquals("expected size wrong", 360, RecordRepository.findAll().size());
     }
 
     @Test
@@ -117,11 +117,11 @@ public class RecordDefinitionReaderTest {
 
     @Test
     public void _04_testRetrieval() throws IOException {
-        String zipURI = "/testData/records/IWFRecords.zip";
+        String zipURI = "/testData/records/IWF_EWF.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
         RecordDefinitionReader.readZip(zipStream);
         List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 66.0D);
-        assertEquals("wrong number of results", 9, results.size());
+        assertEquals("wrong number of results", 18, results.size());
     }
 
     @Test
