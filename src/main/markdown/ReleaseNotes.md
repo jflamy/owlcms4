@@ -2,6 +2,7 @@
 
 **Changes in 4.33.0**
 
+- 4.33.0-alpha01: Team Sinclair scoreboard now updates on every successful lift.
 - 4.33.0-alpha00: Announcer can act as solo athlete-facing referee. A setting on the announcer screen (⚙) enables emitting down signal on decision so it is heard and shown on displays.
 - 4.33.0-alpha00: Round-robin "fixed order" option for team competitions.  If this option is selected in the Competition Non-Standard Rules, athletes lift according to their lot number on each round. The lot number can be preset at registration or drawn at random depending on competition rules.
 - 4.33.0-alpha00: 24h time will now be used in the date-time picker when using English outside of the "traditional" English-speaking countries ("AU", "GB", "IN", "NZ", "PH", "US", "ZA").  On a laptop, the country is obtained from the operating system.  If using English in the cloud, we recommend setting the `OWLCMS_LOCALE` environment variable to `en_SE` in order to get English with consistent ISO date and 24h time formatting throughout the program.
