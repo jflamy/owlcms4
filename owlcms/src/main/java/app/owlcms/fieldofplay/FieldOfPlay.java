@@ -692,7 +692,7 @@ public class FieldOfPlay {
 
         case TIME_RUNNING:
             if (e instanceof DownSignal) {
-                logger.warn("emitting down");
+                logger.debug("emitting down");
                 emitDown(e);
             } else if (e instanceof TimeStopped) {
                 // athlete lifted the bar

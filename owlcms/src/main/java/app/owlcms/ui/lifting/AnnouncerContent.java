@@ -329,7 +329,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 long now = System.currentTimeMillis();
                 long timeElapsed = now - previousGoodMillis;
                 // no reason to give two decisions close together
-                logger.warn("good single ref = {}",isSingleReferee());
                 if (timeElapsed > 2000) {
                     if (isSingleReferee()) {
                         fop.fopEventPost(new FOPEvent.DownSignal(this));
@@ -347,7 +346,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             OwlcmsSession.withFop(fop -> {
                 long now = System.currentTimeMillis();
                 long timeElapsed = now - previousBadMillis;
-                logger.warn("bad single ref = {}",isSingleReferee());
                 if (timeElapsed > 2000) {
                     if (isSingleReferee()) {
                         fop.fopEventPost(new FOPEvent.DownSignal(this));
