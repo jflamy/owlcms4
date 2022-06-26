@@ -123,6 +123,8 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 
                     if (groupIsDone && b && c) {
                         curTeam.setPoints(curTeam.getPoints() + Math.round(curPoints));
+                    }
+                    if (b) {
                         curTeam.setSinclairScore(curTeam.getSinclairScore() + curSinclair);
                         curTeam.setSmfScore(curTeam.getSmfScore() + curSmf);
                         curTeam.setCounted(curTeam.getCounted() + 1);
