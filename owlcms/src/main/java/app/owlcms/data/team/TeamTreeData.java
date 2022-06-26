@@ -49,7 +49,6 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
     public TeamTreeData(String ageGroupPrefix, AgeDivision ageDivision, Gender gender, Ranking ranking) {
         genderFilterValue = gender;
         this.setRanking(ranking);
-        this.logger.setLevel(Level.DEBUG);
         init(ageGroupPrefix, ageDivision);
     }
 
