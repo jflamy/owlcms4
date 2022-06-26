@@ -2041,10 +2041,28 @@ public class Athlete {
     @JsonIgnore
     public Double getSmm() {
         final Integer birthDate1 = getYearOfBirth();
+
         if (birthDate1 == null) {
             return 0.0;
         }
-        return getSinclair() * SinclairCoefficients.getSMMCoefficient(YEAR - birthDate1);
+        double d = getSinclair() * SinclairCoefficients.getSMMCoefficient(YEAR - birthDate1);
+        return d;
+    }
+    
+    /**
+     * Gets the smm.
+     *
+     * @return the smm
+     */
+    @Transient
+    @JsonIgnore
+    public Double getSmfForDelta() {
+        final Integer birthDate1 = getYearOfBirth();
+        if (birthDate1 == null) {
+            return 0.0;
+        }
+        double d = getSinclairForDelta() * SinclairCoefficients.getSMMCoefficient(YEAR - birthDate1);
+        return d;
     }
 
     public int getSmmRank() {

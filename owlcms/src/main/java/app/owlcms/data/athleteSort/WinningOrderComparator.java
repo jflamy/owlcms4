@@ -230,7 +230,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
             return compare;
         }
 
-        compare = compareSmm(lifter1, lifter2);
+        compare = compareSmfForDelta(lifter1, lifter2);
         if (compare != 0) {
             return compare;
         }

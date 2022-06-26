@@ -74,6 +74,7 @@ public class DemoData {
         AthleteRepository.resetParticipations();
 
         JPAService.runInTransaction(em -> {
+            AthleteRepository.doFindAll(em).stream().forEach(a -> a.getParticipations().forEach(part -> part.setTeamMember(true)));
             startNumbers(em, groupM1, groupM2, groupF1, groupY1);
             return null;
         });

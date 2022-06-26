@@ -940,6 +940,11 @@ public class XAthlete extends Athlete {
     public Double getSmm() {
         return a.getSmm();
     }
+    
+    @Override
+    public Double getSmfForDelta() {
+        return a.getSmfForDelta();
+    }
 
     @Override
     public int getSmmRank() {

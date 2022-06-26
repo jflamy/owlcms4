@@ -852,6 +852,36 @@ public class AbstractLifterComparator {
         // bigger sinclair comes first
         return -lifter1Value.compareTo(lifter2Value);
     }
+    
+    /**
+     * Compare smm.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
+    int compareSmfForDelta(Athlete lifter1, Athlete lifter2) {
+        Gender gender = lifter1.getGender();
+        if (gender == null) {
+            return -1;
+        }
+        int compare = gender.compareTo(lifter2.getGender());
+        if (compare != 0) {
+            return compare;
+        }
+
+        Double lifter1Value = lifter1.getSmfForDelta();
+        Double lifter2Value = lifter2.getSmfForDelta();
+        final Double notWeighed = 0D;
+        if (lifter1Value == null) {
+            lifter1Value = notWeighed;
+        }
+        if (lifter2Value == null) {
+            lifter2Value = notWeighed;
+        }
+        // bigger sinclair comes first
+        return -lifter1Value.compareTo(lifter2Value);
+    }
 
     /**
      * Compare start number.

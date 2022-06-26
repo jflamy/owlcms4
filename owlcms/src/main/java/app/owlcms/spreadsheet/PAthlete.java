@@ -613,6 +613,11 @@ public class PAthlete extends Athlete implements IRankHolder {
     }
 
     @Override
+    public Double getSmfForDelta() {
+        return a.getSmfForDelta();
+    }
+
+    @Override
     public int getSmmRank() {
         return a.getSmmRank();
     }

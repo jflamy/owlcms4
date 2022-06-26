@@ -590,11 +590,11 @@ public class AthleteSorter implements Serializable {
         case SNATCH_CJ_TOTAL:
             return 0D; // no such thing
         case BW_SINCLAIR:
-            return curLifter.getSinclair();
+            return curLifter.getSinclairForDelta();
         case CAT_SINCLAIR:
             return curLifter.getCategorySinclair();
         case SMM:
-            return curLifter.getSmm();
+            return curLifter.getSmfForDelta();
         default:
             break;
         }
