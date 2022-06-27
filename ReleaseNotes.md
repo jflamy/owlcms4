@@ -3,6 +3,7 @@
 **Changes in 4.33.0**
 
 - 4.33.0-alpha02: Made SMF behave the same as Sinclair in preparation for SMF-based team championships (allow comparison when no clean-and-jerk has been made yet).  Fixed generated test data for team membership.
+- 4.33.0-alpha02: Changed name of default competition with no age limits on all the categories to "Open" - was "ALL".
 - 4.33.0-alpha01: Team Sinclair scoreboard now updates on every successful lift.
 - 4.33.0-alpha00: Announcer can act as solo athlete-facing referee. A setting on the announcer screen (⚙) enables emitting down signal on decision so it is heard and shown on displays.
 - 4.33.0-alpha00: Round-robin "fixed order" option for team competitions.  If this option is selected in the Competition Non-Standard Rules, athletes lift according to their lot number on each round. The lot number can be preset at registration or drawn at random depending on competition rules.
