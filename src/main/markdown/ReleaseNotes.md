@@ -2,22 +2,12 @@
 
 **Changes in 4.33.0**
 
-<<<<<<< HEAD
 - 4.33.0-alpha02: Made SMF behave the same as Sinclair in preparation for SMF-based team championships (allow comparison when no clean-and-jerk has been made yet).  Fixed generated test data for team membership.
 - 4.33.0-alpha01: Team Sinclair scoreboard now updates on every successful lift.
 - 4.33.0-alpha00: Announcer can act as solo athlete-facing referee. A setting on the announcer screen (⚙) enables emitting down signal on decision so it is heard and shown on displays.
 - 4.33.0-alpha00: Round-robin "fixed order" option for team competitions.  If this option is selected in the Competition Non-Standard Rules, athletes lift according to their lot number on each round. The lot number can be preset at registration or drawn at random depending on competition rules.
 - 4.33.0-alpha00: 24h time will now be used in the date-time picker when using English outside of the "traditional" English-speaking countries ("AU", "GB", "IN", "NZ", "PH", "US", "ZA").  On a laptop, the country is obtained from the operating system.  If using English in the cloud, we recommend setting the `OWLCMS_LOCALE` environment variable to `en_SE` in order to get English with consistent ISO date and 24h time formatting throughout the program.
 - 4.33.0-alpha00: Armenian translation
-=======
-- 4.32.3: Fix: Top Teams Sinclair was not updating on each successful lift
-- 4.32.2: Amazon Firestick 2 resolution issues: reports a 1024px width. Fixed the ability to override the font size, and (for now) removed the size-responsive hiding of lift-specific ranks. Use total-only competition option to hide the lift ranks.
-- 4.32.2: On weigh-in or registration forms, if a change in category results, a confirmation is required (#499)
-- 4.32.2: Do not show leaderboard for last athlete when group is done
-- 4.32.2: Group name is hidden on attempt board during ceremonies (#500)
-- 4.32.2: Jury reversal notification sized correctly for 4K screens
-- 4.32.1: Registration export now correctly opens on the Athlete registration tab.
->>>>>>> origin/master
 
 ### Highlights from recent stable releases
 
@@ -51,4 +41,4 @@
 
   - For **Heroku** cloud, no download is necessary. Follow the [Heroku Cloud Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Cloud) to deploy your own copy.  See also the [additional configuration steps for large competitions on Heroku](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/HerokuLarge).
 
-  - For **Kubernetes** deployments, see `k3s_setup.yaml` file for [cloud hosting using k3s](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/DigitalOcean). For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. Je
+  - For **Kubernetes** deployments, see `k3s_setup.yaml` file for [cloud hosting using k3s](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/DigitalOcean). For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 

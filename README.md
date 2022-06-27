@@ -5,10 +5,10 @@ The application can be used for anything from a club meet using a single laptop 
 
 ### Features and Documentation
 
-<u>See the application [Web Site](https://owlcms.github.io/owlcms4-prerelease/#) for a full overview</u>.  
+<u>See the application [Web Site](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#) for a full overview</u>.  
 
 ### Installation Options
-<u>See the application [Web Site](https://owlcms.github.io/owlcms4-prerelease/#) for a full overview.</u>  
+<u>See the application [Web Site](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#) for a full overview.</u>  
 
 Refer to the following [page](Releases.md) for the various setups and releases, including preliminary releases for early adopters.
 
@@ -19,9 +19,9 @@ Refer to the following [page](Releases.md) for the various setups and releases, 
 
 ### Licensing and Notes
 
-This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/owlcms/owlcms4-prerelease/releases) repository and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
+This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases) repository and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
 
-If you host the software, package it, or modify it, the license *requires* you to make the full sources to your modifications and the corresponding building instructions available for free (see the [License](https://github.com/owlcms/owlcms4-prerelease/blob/master/LICENSE.txt) for details.)  You may charge for your services and expertise, but everyone is entitled to the original software and to your modifications for free.
+If you host the software, package it, or modify it, the license *requires* you to make the full sources to your modifications and the corresponding building instructions available for free (see the [License](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/blob/master/LICENSE.txt) for details.)  You may charge for your services and expertise, but everyone is entitled to the original software and to your modifications for free.
 
 ### Authoring and Software Acknowledgments
 
