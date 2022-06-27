@@ -1,7 +1,8 @@
-### **Changes for release 4.32.3**
+### **Changes for release 4.32.4**
 
 **Changes since 4.32.0**
 
+- 4.32.4: Fix: Name of default age group with no age limits changed to "Open" (was "ALL"). 
 - 4.32.3: Fix: Top Teams Sinclair was not updating on each successful lift
 - 4.32.2: Amazon Firestick 2 resolution issues: reports a 1024px width. Fixed the ability to override the font size, and (for now) removed the size-responsive hiding of lift-specific ranks. Use total-only competition option to hide the lift ranks.
 - 4.32.2: On weigh-in or registration forms, if a change in category results, a confirmation is required (#499)
