@@ -156,14 +156,14 @@ public class RecordRepository {
                 .getResultList();
     }
 
-    private static String filteringSelection(Gender gender, Integer age, Double d) {
+    private static String filteringSelection(Gender gender, Integer age, Double bw) {
         String joins = null;
-        String where = filteringWhere(gender, age, d);
+        String where = filteringWhere(gender, age, bw);
         String selection = (joins != null ? " " + joins : "") + (where != null ? " where " + where : "");
         return selection;
     }
 
-    private static String filteringWhere(Gender gender, Integer age, Double d) {
+    private static String filteringWhere(Gender gender, Integer age, Double bw) {
         List<String> whereList = new LinkedList<>();
         if (gender != null) {
             whereList.add("rec.gender = :gender");
@@ -171,7 +171,7 @@ public class RecordRepository {
         if (age != null) {
             whereList.add("(rec.ageGrpLower <= :age) and (rec.ageGrpUpper >= :age)");
         }
-        if (d != null) {
+        if (bw != null) {
             whereList.add("(rec.bwCatLower*1.0 <= :bw) and (rec.bwCatUpper*1.0 >= :bw)");
         }
         if (whereList.size() == 0) {
@@ -191,6 +191,22 @@ public class RecordRepository {
         if (gender != null) {
             query.setParameter("gender", gender);
         }
+    }
+    
+    public static RecordEvent[][] computeRecords(Gender gender, Integer age, Double bw){
+        List<RecordEvent> records = findFiltered(gender, age, bw);
+        return buildRecordTable(records);
+    }
+
+    /**
+     * Table where rows are record types, heaviest at bottom and columns are categories, youngest first.
+     * @param records
+     * @return
+     */
+    private static RecordEvent[][] buildRecordTable(List<RecordEvent> records) {
+        records.sort((r1,r2) -> {return 0;});
+        
+        return null;
     }
 
 }
