@@ -205,9 +205,9 @@ public class RecordRepository {
         }
     }
 
-    public static List<RecordEvent>[][] computeRecords(Gender gender, Integer age, Double bw) {
+    public static JsonArray computeRecords(Gender gender, Integer age, Double bw) {
         List<RecordEvent> records = findFiltered(gender, age, bw);
-        return buildRecordTable(records);
+        return buildRecordJson(records);
     }
 
     /**
@@ -216,7 +216,7 @@ public class RecordRepository {
      * @param records
      * @return
      */
-    public static List<RecordEvent>[][] buildRecordTable(List<RecordEvent> records) {
+   public static List<RecordEvent>[][] buildRecordTable(List<RecordEvent> records) {
         // order record names according to heaviest total
         Map<String, Double> recordTypeMaxTotal = new HashMap<>();
         Multimap<Integer, RecordEvent> recordsByAgeWeight = ArrayListMultimap.create();
