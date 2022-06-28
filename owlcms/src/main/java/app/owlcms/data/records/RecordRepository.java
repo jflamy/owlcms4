@@ -8,8 +8,13 @@ package app.owlcms.data.records;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -17,11 +22,18 @@ import javax.persistence.Query;
 import org.hibernate.query.NativeQuery;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
+import elemental.json.Json;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
 
 /**
  * RecordRepository.
@@ -192,21 +204,72 @@ public class RecordRepository {
             query.setParameter("gender", gender);
         }
     }
-    
-    public static RecordEvent[][] computeRecords(Gender gender, Integer age, Double bw){
+
+    public static List<RecordEvent>[][] computeRecords(Gender gender, Integer age, Double bw) {
         List<RecordEvent> records = findFiltered(gender, age, bw);
         return buildRecordTable(records);
     }
 
     /**
      * Table where rows are record types, heaviest at bottom and columns are categories, youngest first.
+     * 
      * @param records
      * @return
      */
-    private static RecordEvent[][] buildRecordTable(List<RecordEvent> records) {
-        records.sort((r1,r2) -> {return 0;});
-        
-        return null;
+    public static List<RecordEvent>[][] buildRecordTable(List<RecordEvent> records) {
+        // order record names according to heaviest total
+        Map<String, Double> recordTypeMaxTotal = new HashMap<>();
+        Multimap<Integer, RecordEvent> recordsByAgeWeight = ArrayListMultimap.create();
+        for (RecordEvent re : records) {
+            Double curMax = recordTypeMaxTotal.get(re.getRecordName());
+            if (re.getRecordLift() == Ranking.TOTAL && (curMax == null || re.getRecordValue() > curMax)) {
+                recordTypeMaxTotal.put(re.getRecordName(), re.getRecordValue());
+            }
+            recordsByAgeWeight.put(re.getAgeGrpLower() * 1000000 + re.getAgeGrpUpper() * 1000 + re.getBwCatUpper(), re);
+        }
+        List<String> rowOrder = recordTypeMaxTotal.entrySet().stream()
+                .sorted((e1, e2) -> Double.compare(e1.getValue(), e2.getValue()))
+                .map(e -> e.getKey()).collect(Collectors.toList());
+        List<Integer> columnOrder = recordsByAgeWeight.keySet().stream().sorted((e1, e2) -> Integer.compare(e1, e2))
+                .collect(Collectors.toList());
+        logger.warn("rowOrder {}", rowOrder);
+        logger.warn("columnOrder {}", columnOrder);
+
+        @SuppressWarnings("unchecked")
+        List<RecordEvent>[][] recordTable = new ArrayList[rowOrder.size()][columnOrder.size()];
+
+        for (int j = 0; j < columnOrder.size(); j++) {
+            Collection<RecordEvent> columnRecords = recordsByAgeWeight.get(columnOrder.get(j));
+            for (int i = 0; i < rowOrder.size(); i++) {
+                String curRowRecordName = rowOrder.get(i);
+                List<RecordEvent> recordFound = columnRecords.stream()
+                        .filter(r -> r.getRecordName() == curRowRecordName).collect(Collectors.toList());
+                recordFound.sort((r1, r2) -> r1.getRecordLift().compareTo(r2.getRecordLift()));
+                recordTable[i][j] = recordFound;
+            }
+        }
+
+        return recordTable;
+    }
+
+    public static JsonArray buildRecordJson(List<RecordEvent> records) {
+        List<RecordEvent>[][] recordTable = buildRecordTable(records);
+
+        JsonArray rows = Json.createArray();
+        for (int i = 0; i < recordTable.length; i++) {
+            JsonArray rowCols = Json.createArray();
+            for (int j = 0; j < recordTable[i].length; j++) {
+                JsonObject cell = Json.createObject();
+                for (RecordEvent rec : recordTable[i][j]) {
+                    cell.put("record", rec.getRecordName());
+                    cell.put("cat", rec.getAgeGrp() + " " + rec.getBwCatUpper());
+                    cell.put(rec.getRecordLift().name(), rec.getRecordValue());
+                }
+                rowCols.set(j, cell);
+            }
+            rows.set(i, rowCols);
+        }
+        return rows;
     }
 
 }

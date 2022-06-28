@@ -10,6 +10,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -34,6 +35,7 @@ import app.owlcms.data.records.RecordRepository;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import elemental.json.JsonArray;
 
 // subsequent tests depend on features tested in earlier tests
 // tests themselves do not depend on work done in earlier tests.
@@ -134,11 +136,33 @@ public class RecordDefinitionReaderTest {
     }
 
     @Test
-    public void _05_testYthMatch() throws IOException {
+    public void _06_testYthMatch() throws IOException {
         String zipURI = "/testData/records/IWFRecords.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
         RecordDefinitionReader.readZip(zipStream);
         List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 13, 66.0D);
         assertEquals("wrong number of results", 3, results.size());
+    }
+    
+    @Test
+    public void _07_testTable() throws IOException {
+        String zipURI = "/testData/records/IWF_EWF.zip";
+        InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
+        RecordDefinitionReader.readZip(zipStream);
+        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 66.0D);
+        assertEquals("wrong number of results", 18, results.size());
+        List<RecordEvent>[][] arr = RecordRepository.buildRecordTable(results);
+        System.out.println(Arrays.deepToString(arr));
+    }
+    
+    @Test
+    public void _08_testJson() throws IOException {
+        String zipURI = "/testData/records/IWF_EWF.zip";
+        InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
+        RecordDefinitionReader.readZip(zipStream);
+        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 66.0D);
+        assertEquals("wrong number of results", 18, results.size());
+        JsonArray json = RecordRepository.buildRecordJson(results);
+        System.out.println(json.toJson());
     }
 }

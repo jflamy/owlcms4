@@ -65,6 +65,8 @@ public class RecordEvent {
     private String recordName;
     private int recordYear;
 
+    private String bwCatString;
+
     public void fillDefaults() throws MissingAgeGroup, MissingGender, UnknownIWFBodyWeightCategory {
         if (ageGrp == null) {
             throw new MissingAgeGroup();
@@ -367,5 +369,13 @@ public class RecordEvent {
             }
 
         }
+    }
+
+    public void setBwCatString(String cellValue) {
+        this.bwCatString = cellValue;
+    }
+
+    protected String getBwCatString() {
+        return bwCatString;
     }
 }

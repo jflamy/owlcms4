@@ -114,8 +114,19 @@ public class RecordDefinitionReader {
                         }
 
                         case 7: { // H
-                            long cellValue = Math.round(cell.getNumericCellValue());
-                            rec.setBwCatUpper(Math.toIntExact(cellValue));
+                            try {
+                                String cellValue = cell.getStringCellValue();
+                                rec.setBwCatString(cellValue);
+                                try {
+                                    rec.setBwCatUpper(cellValue.startsWith(">") ? 999 : Integer.parseInt(cellValue));
+                                } catch (NumberFormatException e) {
+                                    logger.error("[" + sheet.getSheetName() + "," + cell.getAddress() + "]");
+                                }
+                            } catch (IllegalStateException e) {
+                                long cellValue = Math.round(cell.getNumericCellValue());
+                                rec.setBwCatString(Long.toString(cellValue));
+                                rec.setBwCatUpper(Math.toIntExact(cellValue));
+                            }
                             break;
                         }
 
@@ -185,7 +196,7 @@ public class RecordDefinitionReader {
                         } catch (MissingAgeGroup | MissingGender | UnknownIWFBodyWeightCategory e1) {
                             throw new RuntimeException(e1 + " row " + iRow);
                         }
-    
+
                         try {
                             em.persist(rec);
                             iRecord++;
