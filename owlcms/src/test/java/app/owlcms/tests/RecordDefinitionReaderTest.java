@@ -160,7 +160,7 @@ public class RecordDefinitionReaderTest {
         String zipURI = "/testData/records/IWF_EWF.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
         RecordDefinitionReader.readZip(zipStream);
-        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 66.0D);
+        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 110.0D);
         assertEquals("wrong number of results", 18, results.size());
         JsonArray json = RecordRepository.buildRecordJson(results);
         System.out.println(json.toJson());

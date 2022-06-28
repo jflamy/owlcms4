@@ -262,7 +262,7 @@ public class RecordRepository {
                 JsonObject cell = Json.createObject();
                 for (RecordEvent rec : recordTable[i][j]) {
                     cell.put("record", rec.getRecordName());
-                    cell.put("cat", rec.getAgeGrp() + " " + rec.getBwCatUpper());
+                    cell.put("cat", rec.getAgeGrp() + " " + rec.getBwCatString());
                     cell.put(rec.getRecordLift().name(), rec.getRecordValue());
                 }
                 rowCols.set(j, cell);
