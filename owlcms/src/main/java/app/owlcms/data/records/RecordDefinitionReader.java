@@ -8,6 +8,8 @@ package app.owlcms.data.records;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.zip.ZipEntry;
 
@@ -217,6 +219,7 @@ public class RecordDefinitionReader {
     public static void readZip(InputStream source) throws IOException {
         // so that each workbook does not close the zip stream
         final ZipUtils.NoCloseInputStream zipStream = new ZipUtils.NoCloseInputStream(source);
+        RecordRepository.clearRecords();
 
         ZipEntry nextEntry;
         while ((nextEntry = zipStream.getNextEntry()) != null) {
@@ -234,6 +237,30 @@ public class RecordDefinitionReader {
             }
         }
         zipStream.doClose(); // a real close
+    }
+    
+    public static void readFolder(Path recordsPath) throws IOException {
+        // so that each workbook does not close the zip stream
+        RecordRepository.clearRecords();
+        
+        Files.walk(recordsPath).filter(f -> f.toString().endsWith(".xls") || f.toString().endsWith(".xlsx")).forEach(f -> {
+            InputStream is;
+            try {
+                is = Files.newInputStream(f);
+                try (Workbook workbook = WorkbookFactory.create(is)) {
+                    RecordRepository.logger.info("loading record definition file {}", f.toString());
+                    createRecords(workbook, f.toString());
+                } catch (Exception e) {
+                    RecordRepository.logger.error("could not process record definition file {}\n{}",
+                            LoggerUtils./**/stackTrace(e));
+                }
+            } catch (IOException e1) {
+                RecordRepository.logger.error("could not open record definition file {}\n{}",
+                        LoggerUtils./**/stackTrace(e1));
+            }
+
+        });
+        
     }
 
     static void doInsertRecords(String localizedName) {

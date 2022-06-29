@@ -55,7 +55,7 @@ table.results {
 }
 
 table.results.noranks {
-    --rankWidth: 0; 
+    --rankWidth: 0;
     --rankVisibility: hidden;
 }
 
@@ -280,22 +280,10 @@ table {
     flex: 1;
     display: grid;
     border-collapse: collapse;
-    grid-template-rows: 
-        repeat(var(--top), min-content) 
-        1fr
-        repeat(var(--bottom), min-content);
+    grid-template-rows:
+        repeat(var(--top), min-content) 1fr repeat(var(--bottom), min-content);
     grid-template-columns:
-        var(--startWidth) 
-        minmax(50px, 1fr) 
-        var(--categoryWidth)
-        var(--birthWidth)
-        minmax(50px, var(--teamColumnRatio))
-        repeat(3, var(--liftResultWidth)) 
-        repeat(var(--nbRanks), var(--rankWidth))
-        repeat(3, var(--liftResultWidth))
-        repeat(var(--nbRanks), var(--rankWidth))
-        repeat(1, var(--liftResultWidth))
-        repeat(var(--nbRanks), var(--liftResultWidth));
+        var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) minmax(50px, var(--teamColumnRatio)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(1, var(--liftResultWidth)) repeat(var(--nbRanks), var(--liftResultWidth));
 }
 
 /* grid layout */
@@ -305,17 +293,7 @@ table.medals {
     display: grid;
     border-collapse: collapse;
     grid-template-columns:
-        var(--startWidth) 
-        minmax(50px, 1fr) 
-        var(--categoryWidth)
-        var(--birthWidth)
-        minmax(50px, var(--teamColumnRatio))
-        repeat(3, var(--liftResultWidth)) 
-        repeat(var(--nbRanks), var(--rankWidth))
-        repeat(3, var(--liftResultWidth))
-        repeat(var(--nbRanks), var(--rankWidth))
-        repeat(1, var(--liftResultWidth))
-        repeat(var(--nbRanks), var(--liftResultWidth));
+        var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) minmax(50px, var(--teamColumnRatio)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(1, var(--liftResultWidth)) repeat(var(--nbRanks), var(--liftResultWidth));
 }
 
 thead,
@@ -371,8 +349,8 @@ td {
 }
 
 :host table.results tr.head td.leaderTitle {
-    grid-column: 1 / -1; 
-    justify-content: left; 
+    grid-column: 1 / -1;
+    justify-content: left;
     font-weight: bold;
 }
 
@@ -534,4 +512,29 @@ div.ellipsis {
 
     }
     */
+}
+
+/* records */
+div.recordCell {
+    float: left;
+    width: 4ch;
+    text-align: center;
+}
+
+div.recordsFiller {
+    text-align: right;
+    height: 2em;
+}
+
+div.recordCat {
+    text-align: center;
+}
+
+div.recordName {
+    text-align: right;
+}
+
+div.recordBox {
+    float: left;
+    border: 1px solid white;
 }

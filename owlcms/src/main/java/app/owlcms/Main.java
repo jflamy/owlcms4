@@ -7,7 +7,7 @@
 package app.owlcms;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.EnumSet;
 import java.util.List;
@@ -188,11 +188,9 @@ public class Main {
                     break;
                 }
                 
-                //FIXME: kludge for testing
-                String zipURI = "/records/IWF_EWF.zip";
-                InputStream zipStream = ResourceWalker.getResourceAsStream(zipURI);
+                Path recordsPath = ResourceWalker.getFileOrResourcePath("/records");
                 try {
-                    RecordDefinitionReader.readZip(zipStream);
+                    RecordDefinitionReader.readFolder(recordsPath);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
