@@ -174,37 +174,39 @@ class Results extends PolymerElement {
             </template>
         </template>
     </table>
-    <div style$="font-size: calc(var(--tableFontSize) * 1.0); [[hiddenBlockStyle]]">
-        <div class$="recordsFiller">&nbsp;</div>
+    <template is="dom-if" if="[[records]]">
+        <div style$="font-size: calc(var(--tableFontSize) * 1.0); [[hiddenBlockStyle]]">
+            <div class$="recordsFiller">&nbsp;</div>
 
-        <div style="float:left;">
-            <div class$="recordName">&nbsp;[[t.records]]</div>
-            <div class$="recordName">&nbsp;</div>
-            <template is="dom-repeat" id="result-table" items="[[records.recordNames]]" as="n">
-                <div class="recordName">[[n]]</div>
+            <div style="float:left;">
+                <div class$="recordName">&nbsp;[[t.records]]</div>
+                <div class$="recordName">&nbsp;</div>
+                <template is="dom-repeat" id="result-table" items="[[records.recordNames]]" as="n">
+                    <div class="recordName">[[n]]</div>
+                </template>
+            </div>
+
+            <template is="dom-repeat" id="result-table" items="[[records.recordTable]]" as="c">
+                <div style="float:left; margin-left: 1em;">
+                    <div class="recordBox">
+                        <div class="recordCat" inner-h-t-m-l="[[c.cat]]"></div>
+                        <div>
+                            <div class="recordCell">[[t.recordS]]</div>
+                            <div class="recordCell">[[t.recordCJ]]</div>
+                            <div class="recordCell">[[t.recordT]]</div>
+                        </div>
+                        <template is="dom-repeat" id="result-table" items="[[c.records]]" as="r">
+                            <div>
+                                <div class$="recordCell [[r.highlight]]">[[r.SNATCH]]</div>
+                                <div class$="recordCell [[r.highlight]]">[[r.CLEANJERK]]</div>
+                                <div class$="recordCell [[r.highlight]]">[[r.TOTAL]]</div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
             </template>
         </div>
-
-        <template is="dom-repeat" id="result-table" items="[[records.recordTable]]" as="c">
-            <div style="float:left; margin-left: 1em;">
-                <div class="recordBox">
-                    <div class="recordCat" inner-h-t-m-l="[[c.cat]]"></div>
-                    <div>
-                        <div class="recordCell">[[t.recordS]]</div>
-                        <div class="recordCell">[[t.recordCJ]]</div>
-                        <div class="recordCell">[[t.recordT]]</div>
-                    </div>
-                    <template is="dom-repeat" id="result-table" items="[[c.records]]" as="r">
-                        <div>
-                            <div class$="recordCell [[r.highlight]]">[[r.SNATCH]]</div>
-                            <div class$="recordCell [[r.highlight]]">[[r.CLEANJERK]]</div>
-                            <div class$="recordCell [[r.highlight]]">[[r.TOTAL]]</div>
-                        </div>
-                    </template>
-                </div>
-            </div>
-        </template>
-    </div>
+    </template>
 </div>`;
     }
 
