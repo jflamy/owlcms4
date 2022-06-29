@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -207,7 +208,7 @@ public class RecordRepository {
     }
 
     public static JsonObject buildRecordJson(List<RecordEvent> records) {
-        // order record names according to heaviest total
+        // order record names according to heaviest total - world records will be above national record
         Map<String, Double> recordTypeMaxTotal = new HashMap<>();
         Multimap<Integer, RecordEvent> recordsByAgeWeight = ArrayListMultimap.create();
         for (RecordEvent re : records) {
@@ -218,6 +219,7 @@ public class RecordRepository {
             recordsByAgeWeight.put(re.getAgeGrpLower() * 1000000 + re.getAgeGrpUpper() * 1000 + re.getBwCatUpper(), re);
         }
         
+        // order columns in ascending age groups
         List<String> rowOrder = recordTypeMaxTotal.entrySet().stream()
                 .sorted((e1, e2) -> Double.compare(e1.getValue(), e2.getValue()))
                 .map(e -> e.getKey()).collect(Collectors.toList());
@@ -228,13 +230,21 @@ public class RecordRepository {
         List<RecordEvent>[][] recordTable = new ArrayList[rowOrder.size()][columnOrder.size()];
         
         for (int j1 = 0; j1 < columnOrder.size(); j1++) {
-            Collection<RecordEvent> columnRecords = recordsByAgeWeight.get(columnOrder.get(j1));
+            Collection<RecordEvent> recordsForCurrentCategory = recordsByAgeWeight.get(columnOrder.get(j1));
             for (int i1 = 0; i1 < rowOrder.size(); i1++) {
                 String curRowRecordName = rowOrder.get(i1);
-                List<RecordEvent> recordFound = columnRecords.stream()
+
+                List<RecordEvent> recordFound = recordsForCurrentCategory.stream()
                         .filter(r -> r.getRecordName() == curRowRecordName).collect(Collectors.toList());
-                recordFound.sort((r1, r2) -> r1.getRecordLift().compareTo(r2.getRecordLift()));
-                recordTable[i1][j1] = recordFound;
+                // put them in snatch/cj/total order (not needed really), then largest record first in case of multiple records
+                recordFound.sort(Comparator.comparing(RecordEvent::getRecordLift).thenComparing(Comparator.comparing(RecordEvent::getRecordValue).reversed()));
+                
+                // put the largest record for each lift in a list in the expected lift order
+                List<RecordEvent> maxRecordFound = new ArrayList<>();
+                recordFound.stream().filter(r -> r.getRecordLift() == Ranking.SNATCH).findFirst().ifPresent(r -> maxRecordFound.add(r));
+                recordFound.stream().filter(r -> r.getRecordLift() == Ranking.CLEANJERK).findFirst().ifPresent(r -> maxRecordFound.add(r));
+                recordFound.stream().filter(r -> r.getRecordLift() == Ranking.TOTAL).findFirst().ifPresent(r -> maxRecordFound.add(r));
+                recordTable[i1][j1] = maxRecordFound;
             }
         }
         
