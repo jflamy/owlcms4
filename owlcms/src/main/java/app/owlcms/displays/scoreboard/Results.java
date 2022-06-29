@@ -54,6 +54,7 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.records.RecordRepository;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -471,6 +472,25 @@ public class Results extends PolymerTemplate<TemplateModel>
         });
     }
 
+    protected void computeRecords(boolean done) {
+        logger.warn("computeRecords");
+        OwlcmsSession.withFop(fop -> {
+            Athlete curAthlete = fop.getCurAthlete();
+            logger.warn("curAthlete {}", curAthlete);
+            if (curAthlete != null && curAthlete.getGender() != null) {
+                logger.warn("done {} displayOrder.size() {}",done, displayOrder.size());
+                if (!done) {
+                    JsonObject computeRecords = RecordRepository.computeRecords(curAthlete.getGender(), curAthlete.getAge(), curAthlete.getBodyWeight());
+                    logger.warn("computeRecords {}",computeRecords.toJson());
+                    this.getElement().setPropertyJson("records", computeRecords);
+                } else {
+                    // nothing to show
+                    this.getElement().setPropertyJson("records", Json.createNull());
+                }
+            }
+        });
+    }
+
     /**
      * @param groupAthletes, List<Athlete> liftOrder
      * @return
@@ -777,9 +797,12 @@ public class Results extends PolymerTemplate<TemplateModel>
 
         int resultLines = (displayOrder != null ? displayOrder.size() : 0) + countCategories(displayOrder) + 1;
         this.getElement().setProperty("resultLines", resultLines);
-        computeLeaders(fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE);
+        boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
+        logger.warn("updateBottom");
+        computeLeaders(done);
+        computeRecords(done);
     }
-    
+
     protected JsonArray getAgeGroupNamesJson(LinkedHashMap<String, Participation> currentAthleteParticipations) {
         JsonArray ageGroups = Json.createArray();
         return ageGroups;

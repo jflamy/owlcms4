@@ -7,6 +7,7 @@
 package app.owlcms;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.EnumSet;
 import java.util.List;
@@ -32,6 +33,7 @@ import app.owlcms.data.jpa.DemoData;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.ProdData;
 import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.data.records.RecordDefinitionReader;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.InitialData;
 import app.owlcms.init.OwlcmsFactory;
@@ -169,6 +171,7 @@ public class Main {
                 // overide - we cannot leave the database empty
                 data = InitialData.EMPTY_COMPETITION;
             }
+
             if (allCompetitions.isEmpty()) {
                 logger.info("injecting initial data {}", data);
                 switch (data) {
@@ -183,6 +186,15 @@ public class Main {
                 case SINGLE_ATHLETE_GROUPS:
                     DemoData.insertInitialData(1, ageDivisions);
                     break;
+                }
+                
+                //FIXME: kludge for testing
+                String zipURI = "/records/IWF_EWF.zip";
+                InputStream zipStream = ResourceWalker.getResourceAsStream(zipURI);
+                try {
+                    RecordDefinitionReader.readZip(zipStream);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             } else {
                 // migrations and other changes

@@ -51,7 +51,8 @@ class Results extends PolymerElement {
         </div>
     </div>
 
-    <table class$="results [[noLiftRanks]]" style$="[[hiddenGridStyle]]; --top: [[resultLines]]; --bottom: [[leaderLines]];">
+    <table class$="results [[noLiftRanks]]"
+        style$="[[hiddenGridStyle]]; --top: [[resultLines]]; --bottom: [[leaderLines]];">
         <template is="dom-if" if="[[athletes]]">
             <tr class="head">
                 <!-- [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
@@ -127,8 +128,7 @@ class Results extends PolymerElement {
                 </td>
             </tr>
             <tr>
-                <td class="spacer" style="grid-column: 1 / -1; justify-content: left;"
-                    inner-h-t-m-l="&nbsp;">
+                <td class="spacer" style="grid-column: 1 / -1; justify-content: left;" inner-h-t-m-l="&nbsp;">
                 </td>
             </tr>
             <template is="dom-repeat" id="result-table" items="[[leaders]]" as="l">
@@ -174,6 +174,37 @@ class Results extends PolymerElement {
             </template>
         </template>
     </table>
+    <div style="font-size: calc(var(--tableFontSize) * 1.0)">
+        <div style="text-align: right; height:2em">&nbsp;</div>
+
+        <div style="float:left;">
+            <div style="text-align: right;">&nbsp;[[t.records]]RECORDS</div>
+            <div style="text-align: right;">&nbsp;</div>
+            <template is="dom-repeat" id="result-table" items="[[records.recordNames]]" as="n">
+                <div style="text-align: right;">[[n]]</div>
+            </template>
+        </div>
+
+        <template is="dom-repeat" id="result-table" items="[[records.recordTable]]" as="c">
+            <div style="float:left; margin-left: 1em;">
+                <div style="float:left;  border: 1px solid white;">
+                    <div style="text-align: center;" inner-h-t-m-l="[[c.cat]]"></div>
+                    <div>
+                        <div style="float:left; width:4ch; text-align: center;">S</div>
+                        <div style="float:left; width:4ch; text-align: center;">CJ</div>
+                        <div style="float:left; width:4ch; text-align: center;">T</div>
+                    </div>
+                    <template is="dom-repeat" id="result-table" items="[[c.records]]" as="r">
+                        <div>
+                            <div style="float:left; width:4ch; text-align: center;">[[r.SNATCH]]</div>
+                            <div style="float:left; width:4ch; text-align: center;">[[r.CLEANJERK]]</div>
+                            <div style="float:left; width:4ch; text-align: center;">[[r.TOTAL]]</div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
+    </div>
 </div>`;
     }
 

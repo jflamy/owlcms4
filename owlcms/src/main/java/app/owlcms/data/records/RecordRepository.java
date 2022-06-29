@@ -28,6 +28,7 @@ import com.google.common.collect.Multimap;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
@@ -205,18 +206,12 @@ public class RecordRepository {
         }
     }
 
-    public static JsonArray computeRecords(Gender gender, Integer age, Double bw) {
+    public static JsonObject computeRecords(Gender gender, Integer age, Double bw) {
         List<RecordEvent> records = findFiltered(gender, age, bw);
         return buildRecordJson(records);
     }
 
-    /**
-     * Table where rows are record types, heaviest at bottom and columns are categories, youngest first.
-     * 
-     * @param records
-     * @return
-     */
-   public static List<RecordEvent>[][] buildRecordTable(List<RecordEvent> records) {
+    public static JsonObject buildRecordJson(List<RecordEvent> records) {
         // order record names according to heaviest total
         Map<String, Double> recordTypeMaxTotal = new HashMap<>();
         Multimap<Integer, RecordEvent> recordsByAgeWeight = ArrayListMultimap.create();
@@ -227,6 +222,7 @@ public class RecordRepository {
             }
             recordsByAgeWeight.put(re.getAgeGrpLower() * 1000000 + re.getAgeGrpUpper() * 1000 + re.getBwCatUpper(), re);
         }
+        
         List<String> rowOrder = recordTypeMaxTotal.entrySet().stream()
                 .sorted((e1, e2) -> Double.compare(e1.getValue(), e2.getValue()))
                 .map(e -> e.getKey()).collect(Collectors.toList());
@@ -234,42 +230,57 @@ public class RecordRepository {
                 .collect(Collectors.toList());
         logger.warn("rowOrder {}", rowOrder);
         logger.warn("columnOrder {}", columnOrder);
-
+        
         @SuppressWarnings("unchecked")
         List<RecordEvent>[][] recordTable = new ArrayList[rowOrder.size()][columnOrder.size()];
-
-        for (int j = 0; j < columnOrder.size(); j++) {
-            Collection<RecordEvent> columnRecords = recordsByAgeWeight.get(columnOrder.get(j));
-            for (int i = 0; i < rowOrder.size(); i++) {
-                String curRowRecordName = rowOrder.get(i);
+        
+        for (int j1 = 0; j1 < columnOrder.size(); j1++) {
+            Collection<RecordEvent> columnRecords = recordsByAgeWeight.get(columnOrder.get(j1));
+            for (int i1 = 0; i1 < rowOrder.size(); i1++) {
+                String curRowRecordName = rowOrder.get(i1);
                 List<RecordEvent> recordFound = columnRecords.stream()
                         .filter(r -> r.getRecordName() == curRowRecordName).collect(Collectors.toList());
                 recordFound.sort((r1, r2) -> r1.getRecordLift().compareTo(r2.getRecordLift()));
-                recordTable[i][j] = recordFound;
+                recordTable[i1][j1] = recordFound;
             }
         }
+        
+        JsonObject recordInfo = Json.createObject();
+        JsonArray recordFederations = Json.createArray();
+        JsonArray recordCategories = Json.createArray();
+        
+        int ix1 = 0;
+        for (String s: rowOrder) {
+            recordFederations.set(ix1++, s);
+        }
 
-        return recordTable;
-    }
-
-    public static JsonArray buildRecordJson(List<RecordEvent> records) {
-        List<RecordEvent>[][] recordTable = buildRecordTable(records);
-
-        JsonArray rows = Json.createArray();
-        for (int i = 0; i < recordTable.length; i++) {
-            JsonArray rowCols = Json.createArray();
-            for (int j = 0; j < recordTable[i].length; j++) {
+        JsonArray columns = Json.createArray();
+        for (int j = 0; j < recordTable[0].length; j++) {
+            JsonObject column = Json.createObject();
+            JsonArray columnCells = Json.createArray();
+            for (int i = 0; i < recordTable.length; i++) {
                 JsonObject cell = Json.createObject();
+                cell.put(Ranking.SNATCH.name(),"&nbsp;");
+                cell.put(Ranking.CLEANJERK.name(),"&nbsp;");
+                cell.put(Ranking.TOTAL.name(),"&nbsp;");
                 for (RecordEvent rec : recordTable[i][j]) {
-                    cell.put("record", rec.getRecordName());
-                    cell.put("cat", rec.getAgeGrp() + " " + rec.getBwCatString());
+                    if (recordCategories.length() <= j || recordCategories.get(j) == null) {
+                        String string = rec.getAgeGrp() + " " + rec.getBwCatString();
+                        recordCategories.set(j, string);
+                        column.put("cat", string);
+                    }
                     cell.put(rec.getRecordLift().name(), rec.getRecordValue());
                 }
-                rowCols.set(j, cell);
+                columnCells.set(i, cell);
             }
-            rows.set(i, rowCols);
+            column.put("records", columnCells);
+            columns.set(j, column);
         }
-        return rows;
+        
+        recordInfo.put("recordNames", recordFederations);
+        recordInfo.put("recordCategories", recordCategories);
+        recordInfo.put("recordTable",columns);
+        return recordInfo;
     }
 
 }
