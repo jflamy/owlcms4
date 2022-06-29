@@ -116,6 +116,7 @@ public class Results extends PolymerTemplate<TemplateModel>
     private final Logger logger = (Logger) LoggerFactory.getLogger(Results.class);
     private boolean silenced = true;
     private boolean switchableDisplay = true;
+    private boolean showRecords = true;
     private EventBus uiEventBus;
     private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
@@ -147,10 +148,10 @@ public class Results extends PolymerTemplate<TemplateModel>
         DisplayOptions.addSoundEntries(vl, target, this);
         vl.add(new Hr());
         DisplayOptions.addSwitchableEntries(vl, target, this);
-        if (Config.getCurrent().isSizeOverride()) {
-            vl.add(new Hr());
-            DisplayOptions.addSizingEntries(vl, target, this);
-        }
+        vl.add(new Hr());
+        DisplayOptions.addSectionEntries(vl, target, this);
+        vl.add(new Hr());
+        DisplayOptions.addSizingEntries(vl, target, this);
     }
 
     /**
@@ -273,6 +274,11 @@ public class Results extends PolymerTemplate<TemplateModel>
     public boolean isSwitchableDisplay() {
         return switchableDisplay;
     }
+    
+    @Override
+    public boolean isRecordsDisplay() {
+        return showRecords;
+    }
 
     /**
      * Reset.
@@ -325,6 +331,11 @@ public class Results extends PolymerTemplate<TemplateModel>
     @Override
     public void setSwitchableDisplay(boolean warmUpDisplay) {
         this.switchableDisplay = warmUpDisplay;
+    }
+    
+    @Override
+    public void setRecordsDisplay(boolean showRecords) {
+        this.showRecords = showRecords;
     }
 
     @Subscribe
@@ -473,12 +484,13 @@ public class Results extends PolymerTemplate<TemplateModel>
     }
 
     protected void computeRecords(boolean done) {
-        logger.warn("computeRecords");
+        if (!this.isRecordsDisplay()) {
+            this.getElement().setPropertyJson("records", Json.createNull());
+            return;
+        }
         OwlcmsSession.withFop(fop -> {
             Athlete curAthlete = fop.getCurAthlete();
-            logger.warn("curAthlete {}", curAthlete);
             if (curAthlete != null && curAthlete.getGender() != null) {
-                logger.warn("done {} displayOrder.size() {}",done, displayOrder.size());
                 if (!done) {
                     JsonObject computeRecords = RecordRepository.computeRecords(curAthlete.getGender(), curAthlete.getAge(), curAthlete.getBodyWeight());
                     logger.warn("computeRecords {}",computeRecords.toJson());
@@ -798,7 +810,6 @@ public class Results extends PolymerTemplate<TemplateModel>
         int resultLines = (displayOrder != null ? displayOrder.size() : 0) + countCategories(displayOrder) + 1;
         this.getElement().setProperty("resultLines", resultLines);
         boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
-        logger.warn("updateBottom");
         computeLeaders(done);
         computeRecords(done);
     }

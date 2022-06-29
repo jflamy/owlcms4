@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.hibernate.query.NativeQuery;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -46,11 +45,8 @@ public class RecordRepository {
     public static void clearRecords() throws IOException {
         JPAService.runInTransaction(em -> {
             try {
-                em.clear();
-                Query upd = em.createNativeQuery("delete from RecordEvent");
-                upd.unwrap(NativeQuery.class).addSynchronizedEntityClass(RecordEvent.class);
-                upd.executeUpdate();
-                em.flush();
+                int deletedCount = em.createQuery("DELETE FROM RecordEvent").executeUpdate();
+                logger.info("deleted {} record entries", deletedCount);
             } catch (Exception e) {
                 LoggerUtils.logError(logger, e);
             }
@@ -227,9 +223,7 @@ public class RecordRepository {
                 .map(e -> e.getKey()).collect(Collectors.toList());
         List<Integer> columnOrder = recordsByAgeWeight.keySet().stream().sorted((e1, e2) -> Integer.compare(e1, e2))
                 .collect(Collectors.toList());
-        logger.warn("rowOrder {}", rowOrder);
-        logger.warn("columnOrder {}", columnOrder);
-        
+
         @SuppressWarnings("unchecked")
         List<RecordEvent>[][] recordTable = new ArrayList[rowOrder.size()][columnOrder.size()];
         
@@ -259,9 +253,9 @@ public class RecordRepository {
             JsonArray columnCells = Json.createArray();
             for (int i = 0; i < recordTable.length; i++) {
                 JsonObject cell = Json.createObject();
-                cell.put(Ranking.SNATCH.name(),"&nbsp;");
-                cell.put(Ranking.CLEANJERK.name(),"&nbsp;");
-                cell.put(Ranking.TOTAL.name(),"&nbsp;");
+                cell.put(Ranking.SNATCH.name(),"\u00a0");
+                cell.put(Ranking.CLEANJERK.name(),"\u00a0");
+                cell.put(Ranking.TOTAL.name(),"\u00a0");
                 for (RecordEvent rec : recordTable[i][j]) {
                     if (recordCategories.length() <= j || recordCategories.get(j) == null) {
                         String string = rec.getAgeGrp() + " " + rec.getBwCatString();

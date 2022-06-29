@@ -769,5 +769,5 @@ Scoreboard.recordS,S,S,S,S,S,S,A,,,S,S,S,S,S,S,,765,,Record box on scoreboard
 Scoreboard.recordCJ,CJ,C&J,C&J,C&J,C&J,C&J,É-J,,,C&J,C&J,C&J,C&J,C&J,C&J,,766,,Record box on scoreboard
 Scoreboard.recordT,T,T,T,T,T,T,T,,,T,T,T,T,T,T,,767,,Record box on scoreboard
 Scoreboard.records,RECORDS,RECORDS,RECORDS,RECORDS,RECORDS,RECORDS,RECORDS,,,RECORDS,RECORDS,RECORDS,RECORDS,RECORDS,RECORDS,,768,,Records section at bottom of scoreboard
-DisplayParameters.showLeaders,Leaders,Leaders,Leaders,Leaders,Leaders,Leaders,Meneurs,,,Leaders,Leaders,Leaders,Leaders,Leaders,Leaders,,769,,Display parameters for scoreboards
-DisplayParameters.showRecords,Records,Records,Records,Records,Records,Records,Records,,,Records,Records,Records,Records,Records,Records,,770,,Display parameters for scoreboards
+DisplayParameters.ShowRecords,Show Records,Show Records,Show Records,Show Records,Show Records,Show Records,Afficher les records,,,Show Records,Show Records,Show Records,Show Records,Show Records,Show Records,,769,,Scoreboard parameter dialog
+DisplayParameters.ContentSettings,Content Settings,Content Settings,Content Settings,Content Settings,Content Settings,Content Settings,Paramètres de contenu,,,Content Settings,Content Settings,Content Settings,Content Settings,Content Settings,Content Settings,,770,,Scoreboard parameter dialog

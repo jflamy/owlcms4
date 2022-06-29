@@ -122,7 +122,9 @@ public class RecordDefinitionReader {
                                 try {
                                     rec.setBwCatUpper(cellValue.startsWith(">") ? 999 : Integer.parseInt(cellValue));
                                 } catch (NumberFormatException e) {
-                                    logger.error("[" + sheet.getSheetName() + "," + cell.getAddress() + "]");
+                                    if (cellValue != null && !cellValue.isBlank()) {
+                                        logger.error("[" + sheet.getSheetName() + "," + cell.getAddress() + "]");
+                                    }
                                 }
                             } catch (IllegalStateException e) {
                                 long cellValue = Math.round(cell.getNumericCellValue());
@@ -211,7 +213,7 @@ public class RecordDefinitionReader {
             Competition comp = Competition.getCurrent();
             Competition comp2 = em.contains(comp) ? comp : em.merge(comp);
             comp2.setAgeGroupsFileName(name);
-            logger.info("inserted {} record(s)", iRecord);
+            logger.info("inserted {} record entries.", iRecord);
             return iRecord;
         });
     }
@@ -238,29 +240,30 @@ public class RecordDefinitionReader {
         }
         zipStream.doClose(); // a real close
     }
-    
+
     public static void readFolder(Path recordsPath) throws IOException {
         // so that each workbook does not close the zip stream
         RecordRepository.clearRecords();
-        
-        Files.walk(recordsPath).filter(f -> f.toString().endsWith(".xls") || f.toString().endsWith(".xlsx")).forEach(f -> {
-            InputStream is;
-            try {
-                is = Files.newInputStream(f);
-                try (Workbook workbook = WorkbookFactory.create(is)) {
-                    RecordRepository.logger.info("loading record definition file {}", f.toString());
-                    createRecords(workbook, f.toString());
-                } catch (Exception e) {
-                    RecordRepository.logger.error("could not process record definition file {}\n{}",
-                            LoggerUtils./**/stackTrace(e));
-                }
-            } catch (IOException e1) {
-                RecordRepository.logger.error("could not open record definition file {}\n{}",
-                        LoggerUtils./**/stackTrace(e1));
-            }
 
-        });
-        
+        Files.walk(recordsPath).filter(f -> f.toString().endsWith(".xls") || f.toString().endsWith(".xlsx"))
+                .forEach(f -> {
+                    InputStream is;
+                    try {
+                        is = Files.newInputStream(f);
+                        try (Workbook workbook = WorkbookFactory.create(is)) {
+                            RecordRepository.logger.info("loading record definition file {}", f.toString());
+                            createRecords(workbook, f.toString());
+                        } catch (Exception e) {
+                            RecordRepository.logger.error("could not process record definition file {}\n{}",
+                                    LoggerUtils./**/stackTrace(e));
+                        }
+                    } catch (IOException e1) {
+                        RecordRepository.logger.error("could not open record definition file {}\n{}",
+                                LoggerUtils./**/stackTrace(e1));
+                    }
+
+                });
+
     }
 
     static void doInsertRecords(String localizedName) {
