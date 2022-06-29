@@ -174,31 +174,31 @@ class Results extends PolymerElement {
             </template>
         </template>
     </table>
-    <div style="font-size: calc(var(--tableFontSize) * 1.0)">
-        <div style="text-align: right; height:2em">&nbsp;</div>
+    <div style$="font-size: calc(var(--tableFontSize) * 1.0); [[hiddenBlockStyle]]">
+        <div class$="recordsFiller">&nbsp;</div>
 
         <div style="float:left;">
-            <div style="text-align: right;">&nbsp;[[t.records]]RECORDS</div>
-            <div style="text-align: right;">&nbsp;</div>
+            <div class$="recordName">&nbsp;[[t.records]]</div>
+            <div class$="recordName">&nbsp;</div>
             <template is="dom-repeat" id="result-table" items="[[records.recordNames]]" as="n">
-                <div style="text-align: right;">[[n]]</div>
+                <div class="recordName">[[n]]</div>
             </template>
         </div>
 
         <template is="dom-repeat" id="result-table" items="[[records.recordTable]]" as="c">
             <div style="float:left; margin-left: 1em;">
-                <div style="float:left;  border: 1px solid white;">
-                    <div style="text-align: center;" inner-h-t-m-l="[[c.cat]]"></div>
+                <div class="recordBox">
+                    <div class="recordCat" inner-h-t-m-l="[[c.cat]]"></div>
                     <div>
-                        <div style="float:left; width:4ch; text-align: center;">S</div>
-                        <div style="float:left; width:4ch; text-align: center;">CJ</div>
-                        <div style="float:left; width:4ch; text-align: center;">T</div>
+                        <div class="recordCell">[[t.recordS]]</div>
+                        <div class="recordCell">[[t.recordCJ]]</div>
+                        <div class="recordCell">[[t.recordT]]</div>
                     </div>
                     <template is="dom-repeat" id="result-table" items="[[c.records]]" as="r">
                         <div>
-                            <div style="float:left; width:4ch; text-align: center;">[[r.SNATCH]]</div>
-                            <div style="float:left; width:4ch; text-align: center;">[[r.CLEANJERK]]</div>
-                            <div style="float:left; width:4ch; text-align: center;">[[r.TOTAL]]</div>
+                            <div class$="recordCell [[r.highlight]]">[[r.SNATCH]]</div>
+                            <div class$="recordCell [[r.highlight]]">[[r.CLEANJERK]]</div>
+                            <div class$="recordCell [[r.highlight]]">[[r.TOTAL]]</div>
                         </div>
                     </template>
                 </div>
