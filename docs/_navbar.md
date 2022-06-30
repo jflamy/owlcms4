@@ -16,6 +16,7 @@
   * [Refereeing](Refereeing)
   * [Jury](Jury)
   * [Breaks and Ceremonies](Breaks)
+  * [Records](Records)
   * [Result Documents](Documents)
   
 * Virtual Competitions
@@ -24,7 +25,6 @@
   * [Running a Virtual Competition](Zoom)
   * [Optional Modified Competition Rules](ModifiedRules)
   * [Preparing the Zoom Setup](PrepareZoomBroadcasting)
-  
   * [Preparing the Video Setup](OBS)
   * [Live Streaming Events](Streaming)
   * [Automatic Scene Switching](OBSSceneSwitching)

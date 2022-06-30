@@ -15,6 +15,7 @@
   * [Refereeing](Refereeing)
   * [Jury](Jury)
   * [Breaks and Ceremonies](Breaks)
+  * [Records](Records)
   * [Result Documents](Documents)
 * Virtual Competitions
   * [Overview](VirtualOverview)
