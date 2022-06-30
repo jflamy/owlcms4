@@ -492,8 +492,15 @@ public class Results extends PolymerTemplate<TemplateModel>
             Athlete curAthlete = fop.getCurAthlete();
             if (curAthlete != null && curAthlete.getGender() != null) {
                 if (!done) {
-                    JsonObject computeRecords = RecordRepository.computeRecords(curAthlete.getGender(), curAthlete.getAge(), curAthlete.getBodyWeight());
-                    logger.warn("computeRecords {}",computeRecords.toJson());
+                    Integer request = curAthlete.getNextAttemptRequestedWeight();
+                    int attemptsDone = curAthlete.getAttemptedLifts();
+                    Integer snatchRequest = attemptsDone < 3 ? request : null;
+                    Integer cjRequest = attemptsDone >= 3 ? request : null;
+                    Integer bestSnatch = curAthlete.getBestSnatch();
+                    Integer totalRequest = attemptsDone >= 3 && bestSnatch != null && bestSnatch > 0? (bestSnatch + request) : null;
+
+                    JsonObject computeRecords = RecordRepository.computeRecords(curAthlete.getGender(), curAthlete.getAge(), curAthlete.getBodyWeight(), snatchRequest, cjRequest, totalRequest);
+                    //logger.debug("computeRecords {}",computeRecords.toJson());
                     this.getElement().setPropertyJson("records", computeRecords);
                 } else {
                     // nothing to show

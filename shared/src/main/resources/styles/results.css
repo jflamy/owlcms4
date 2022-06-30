@@ -20,6 +20,10 @@
     --topRowFontSize: 3vh;
     --athleteNameFontSize: 4vh;
     --groupInfoFontSize: 2.5vh;
+
+    /* records */
+    --recordValueCellWidth: 4rem;
+
 }
 
 * {
@@ -31,6 +35,7 @@
 .wrapper {
     /* results table font size */
     --tableFontSize: 1.25rem;
+    --recordValueCellHeight: calc(var(--tableFontSize)*1.4);
 
     font-family: Arial, Helvetica, sans-serif;
     color: var(--pageTextColor);
@@ -514,27 +519,139 @@ div.ellipsis {
     */
 }
 
-/* records */
-div.recordCell {
+/* records light theme */
+:host(.light) .recordCell {
     float: left;
-    width: 4ch;
+    width: var(--recordValueCellWidth);
+    height: var(--recordValueCellHeight);
     text-align: center;
+    background-color: var(--lightRecordValueBackground);
+    color: var(--lightRecordValueText);
 }
 
-div.recordsFiller {
-    text-align: right;
-    height: 2em;
-}
-
-div.recordCat {
-    text-align: center;
-}
-
-div.recordName {
-    text-align: right;
-}
-
-div.recordBox {
+:host(.light) .recordLiftType {
     float: left;
-    border: 1px solid white;
+    width: var(--recordValueCellWidth);
+    height: var(--recordTypeCellHeight);
+    text-align: center;
+    background-color: var(--lightRecordLiftTypeBackground);
+    color: var(--lightRecordLiftTypeText);
+    border-bottom: 1px solid var(--lightRecordBoxBorder);
+    font-weight: normal;
+    font-size: small;
+}
+
+:host(.light) .recordLiftTypeSpacer {
+    width: var(--recordValueCellWidth);
+    text-align: center;
+    background-color: var(--lightRecordLiftTypeBackground);
+    color: var(--lightRecordLiftTypeText);
+    font-weight: normal;
+    font-size: small;
+}
+
+:host(.light) .recordsFiller {
+    text-align: right;
+    height: 4rem;
+}
+
+:host(.light) .recordCat {
+    text-align: center;
+    height: var(--recordValueCellHeight);
+    background-color: var(--lightRecordBoxBackground);
+    color: var(--lightRecordBoxText);
+}
+
+:host(.light) .recordName {
+    text-align: right;
+    background-color: var(--lightRecordNameBackground);
+    color: var(--lightRecordNameText);
+}
+
+:host(.light) .recordTitle {
+    text-align: right;
+    float: left;
+    background-color: var(--lightRecordNameBackground);
+    height: var(--recordValueCellHeight);
+    color: var(--lightRecordNameText);
+}
+
+:host(.light) .recordBox {
+    float: left;
+    border: 1px solid var(--lightRecordBoxBorder);
+    background-color: var(--lightRecordBoxBackground);
+    color: var(--lightRecordBoxText);
+}
+
+:host(.light) .highlight {
+    background-color: var(--lightRecordHighlightBackground) !important;
+    color: var(--lightRecordValueText) !important;
+}
+
+/* records dark theme */
+:host(.dark) .recordCell {
+    float: left;
+    width: var(--recordValueCellWidth);
+    height: var(--recordValueCellHeight);
+    text-align: center;
+    background-color: var(--darkRecordValueBackground);
+    color: var(--darkRecordValueText);
+}
+
+:host(.dark) .recordLiftType {
+    float: left;
+    width: var(--recordValueCellWidth);
+    text-align: center;
+    background-color: var(--darkRecordLiftTypeBackground);
+    color: var(--darkRecordLiftTypeText);
+    border-bottom: 1px solid var(--darkRecordBoxBorder);
+    font-weight: normal;
+    font-size: small;
+}
+
+:host(.dark) .recordLiftTypeSpacer {
+    width: var(--recordValueCellWidth);
+    text-align: center;
+    background-color: var(--darkRecordLiftTypeBackground);
+    color: var(--darkRecordLiftTypeText);
+    font-weight: normal;
+    font-size: small;
+}
+
+:host(.dark) .recordsFiller {
+    text-align: right;
+    height: 4rem;
+}
+
+:host(.dark) .recordCat {
+    text-align: center;
+    height: var(--recordValueCellHeight);
+    background-color: var(--darkRecordBoxBackground);
+    color: var(--darkRecordBoxText);
+}
+
+:host(.dark) .recordName {
+    text-align: right;
+    height: var(--recordValueCellHeight);
+    background-color: var(--darkRecordNameBackground);
+    color: var(--darkRecordNameText);
+}
+
+:host(.dark) .recordTitle {
+    text-align: right;
+    height: var(--recordValueCellHeight);
+    background-color: var(--darkRecordNameBackground);
+    color: var(--darkRecordNameText);
+}
+
+:host(.dark) .recordBox {
+    float: left;
+    border: 1px solid var(--darkRecordBoxBorder);
+    background-color: var(--darkRecordBoxBackground);
+    color: var(--darkRecordBoxText);
+}
+
+:host(.dark) .highlight {
+    background-color: var(--darkRecordHighlightBackground) !important;
+    color: var(--darkRecordValueText) !important;
 }
