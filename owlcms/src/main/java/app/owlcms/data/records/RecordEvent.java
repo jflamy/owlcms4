@@ -375,7 +375,7 @@ public class RecordEvent {
         this.bwCatString = cellValue;
     }
 
-    protected String getBwCatString() {
+    public String getBwCatString() {
         return bwCatString;
     }
 }

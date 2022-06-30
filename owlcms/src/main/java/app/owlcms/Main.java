@@ -7,6 +7,7 @@
 package app.owlcms;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.EnumSet;
@@ -34,6 +35,7 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.ProdData;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.data.records.RecordDefinitionReader;
+import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.InitialData;
 import app.owlcms.init.OwlcmsFactory;
@@ -187,13 +189,6 @@ public class Main {
                     DemoData.insertInitialData(1, ageDivisions);
                     break;
                 }
-                
-                Path recordsPath = ResourceWalker.getFileOrResourcePath("/records");
-                try {
-                    RecordDefinitionReader.readFolder(recordsPath);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             } else {
                 // migrations and other changes
                 logger.info("database not empty: {}", allCompetitions.get(0).getCompetitionName());
@@ -226,10 +221,25 @@ public class Main {
                 }
 
                 PlatformRepository.checkPlatforms();
-
             }
+            resetRecords();
         } finally {
             Translator.setForcedLocale(locale);
+        }
+    }
+
+    private static void resetRecords() {
+        Path recordsPath = ResourceWalker.getFileOrResourcePath("/records");
+
+        try {
+            RecordRepository.clearRecords();
+            if (recordsPath != null && Files.exists(recordsPath)) {
+                RecordDefinitionReader.readFolder(recordsPath);
+            } else {
+                logger.info("no record definition files in local/records");
+            }
+        } catch (IOException e) {
+            logger.error("cannot process records {}");
         }
     }
 

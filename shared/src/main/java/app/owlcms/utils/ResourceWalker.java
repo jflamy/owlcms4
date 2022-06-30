@@ -256,7 +256,7 @@ public class ResourceWalker {
     public static Path getResourcePath(String resourcePathString) {
         URL resourceURL = ResourceWalker.class.getResource(resourcePathString);
         if (resourceURL == null) {
-            logger.error(resourcePathString + " not found");
+            //logger.error(resourcePathString + " not found");
             // throw new RuntimeException(resourcePathString + " not found");
             return null;
         }

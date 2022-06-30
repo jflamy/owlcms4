@@ -242,9 +242,9 @@ public class RecordDefinitionReader {
     }
 
     public static void readFolder(Path recordsPath) throws IOException {
-        // so that each workbook does not close the zip stream
-        RecordRepository.clearRecords();
-
+        if (recordsPath == null || !Files.exists(recordsPath)) {
+            return;
+        }
         Files.walk(recordsPath).filter(f -> f.toString().endsWith(".xls") || f.toString().endsWith(".xlsx"))
                 .forEach(f -> {
                     InputStream is;

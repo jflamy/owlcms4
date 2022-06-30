@@ -54,7 +54,6 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
-import app.owlcms.data.records.RecordRepository;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -492,16 +491,7 @@ public class Results extends PolymerTemplate<TemplateModel>
             Athlete curAthlete = fop.getCurAthlete();
             if (curAthlete != null && curAthlete.getGender() != null) {
                 if (!done) {
-                    Integer request = curAthlete.getNextAttemptRequestedWeight();
-                    int attemptsDone = curAthlete.getAttemptedLifts();
-                    Integer snatchRequest = attemptsDone < 3 ? request : null;
-                    Integer cjRequest = attemptsDone >= 3 ? request : null;
-                    Integer bestSnatch = curAthlete.getBestSnatch();
-                    Integer totalRequest = attemptsDone >= 3 && bestSnatch != null && bestSnatch > 0? (bestSnatch + request) : null;
-
-                    JsonObject computeRecords = RecordRepository.computeRecords(curAthlete.getGender(), curAthlete.getAge(), curAthlete.getBodyWeight(), snatchRequest, cjRequest, totalRequest);
-                    //logger.debug("computeRecords {}",computeRecords.toJson());
-                    this.getElement().setPropertyJson("records", computeRecords);
+                    this.getElement().setPropertyJson("records", fop.getRecordsJson());
                 } else {
                     // nothing to show
                     this.getElement().setPropertyJson("records", Json.createNull());
@@ -509,6 +499,8 @@ public class Results extends PolymerTemplate<TemplateModel>
             }
         });
     }
+
+
 
     /**
      * @param groupAthletes, List<Athlete> liftOrder

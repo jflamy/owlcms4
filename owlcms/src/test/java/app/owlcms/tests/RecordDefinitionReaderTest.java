@@ -34,7 +34,7 @@ import app.owlcms.data.records.RecordRepository;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import elemental.json.JsonObject;
+import elemental.json.JsonValue;
 
 // subsequent tests depend on features tested in earlier tests
 // tests themselves do not depend on work done in earlier tests.
@@ -150,7 +150,7 @@ public class RecordDefinitionReaderTest {
         RecordDefinitionReader.readZip(zipStream);
         List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 110.0D);
         assertEquals("wrong number of results", 18, results.size());
-        JsonObject json = RecordRepository.buildRecordJson(results, null, null, null);
+        JsonValue json = RecordRepository.buildRecordJson(results, null, null, null);
         System.out.println(json.toJson());
     }
 }

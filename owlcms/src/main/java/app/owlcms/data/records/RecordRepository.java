@@ -34,6 +34,7 @@ import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
+import elemental.json.JsonValue;
 
 /**
  * RecordRepository.
@@ -43,16 +44,125 @@ public class RecordRepository {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(RecordRepository.class);
 
+    public static JsonValue buildRecordJson(List<RecordEvent> records, Integer snatchRequest, Integer cjRequest,
+            Integer totalRequest) {
+        
+        if (records == null || records.isEmpty()) {
+            return Json.createNull();
+        }
+        
+        // order record names according to heaviest total - world records will be above national record
+        Map<String, Double> recordTypeMaxTotal = new HashMap<>();
+        Multimap<Integer, RecordEvent> recordsByAgeWeight = ArrayListMultimap.create();
+        for (RecordEvent re : records) {
+            Double curMax = recordTypeMaxTotal.get(re.getRecordName());
+            if (re.getRecordLift() == Ranking.TOTAL && (curMax == null || re.getRecordValue() > curMax)) {
+                recordTypeMaxTotal.put(re.getRecordName(), re.getRecordValue());
+            }
+            recordsByAgeWeight.put(re.getAgeGrpLower() * 1000000 + re.getAgeGrpUpper() * 1000 + re.getBwCatUpper(), re);
+        }
+
+        // order columns in ascending age groups
+        List<String> rowOrder = recordTypeMaxTotal.entrySet().stream()
+                .sorted((e1, e2) -> Double.compare(e1.getValue(), e2.getValue()))
+                .map(e -> e.getKey()).collect(Collectors.toList());
+        List<Integer> columnOrder = recordsByAgeWeight.keySet().stream().sorted((e1, e2) -> Integer.compare(e1, e2))
+                .collect(Collectors.toList());
+
+        @SuppressWarnings("unchecked")
+        List<RecordEvent>[][] recordTable = new ArrayList[rowOrder.size()][columnOrder.size()];
+
+        for (int j1 = 0; j1 < columnOrder.size(); j1++) {
+            Collection<RecordEvent> recordsForCurrentCategory = recordsByAgeWeight.get(columnOrder.get(j1));
+            for (int i1 = 0; i1 < rowOrder.size(); i1++) {
+                String curRowRecordName = rowOrder.get(i1);
+
+                List<RecordEvent> recordFound = recordsForCurrentCategory.stream()
+                        .filter(r -> r.getRecordName() == curRowRecordName).collect(Collectors.toList());
+                // put them in snatch/cj/total order (not needed really), then largest record first in case of multiple
+                // records
+                recordFound.sort(Comparator.comparing(RecordEvent::getRecordLift)
+                        .thenComparing(Comparator.comparing(RecordEvent::getRecordValue).reversed()));
+
+                // put the largest record for each lift in a list in the expected lift order
+                List<RecordEvent> maxRecordFound = new ArrayList<>();
+                recordFound.stream().filter(r -> r.getRecordLift() == Ranking.SNATCH).findFirst()
+                        .ifPresent(r -> maxRecordFound.add(r));
+                recordFound.stream().filter(r -> r.getRecordLift() == Ranking.CLEANJERK).findFirst()
+                        .ifPresent(r -> maxRecordFound.add(r));
+                recordFound.stream().filter(r -> r.getRecordLift() == Ranking.TOTAL).findFirst()
+                        .ifPresent(r -> maxRecordFound.add(r));
+                recordTable[i1][j1] = maxRecordFound;
+            }
+        }
+
+        JsonObject recordInfo = Json.createObject();
+        JsonArray recordFederations = Json.createArray();
+        JsonArray recordCategories = Json.createArray();
+
+        int ix1 = 0;
+        for (String s : rowOrder) {
+            recordFederations.set(ix1++, s);
+        }
+
+        JsonArray columns = Json.createArray();
+        for (int j = 0; j < recordTable[0].length; j++) {
+            JsonObject column = Json.createObject();
+            JsonArray columnCells = Json.createArray();
+            for (int i = 0; i < recordTable.length; i++) {
+                JsonObject cell = Json.createObject();
+                cell.put(Ranking.SNATCH.name(), "\u00a0");
+                cell.put(Ranking.CLEANJERK.name(), "\u00a0");
+                cell.put(Ranking.TOTAL.name(), "\u00a0");
+                for (RecordEvent rec : recordTable[i][j]) {
+                    if (recordCategories.length() <= j || recordCategories.get(j) == null) {
+                        String string = rec.getAgeGrp() + " " + rec.getBwCatString();
+                        recordCategories.set(j, string);
+                        column.put("cat", string);
+                    }
+                    cell.put(rec.getRecordLift().name(), rec.getRecordValue());
+
+                    if (rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null
+                            && snatchRequest > rec.getRecordValue()) {
+                        cell.put("snatchHighlight", "highlight");
+                    } else if (rec.getRecordLift() == Ranking.CLEANJERK && cjRequest != null
+                            && cjRequest > +rec.getRecordValue()) {
+                        cell.put("cjHighlight", "highlight");
+                    } else if (rec.getRecordLift() == Ranking.TOTAL && totalRequest != null
+                            && totalRequest > +rec.getRecordValue()) {
+                        cell.put("totalHighlight", "highlight");
+                    }
+                }
+                columnCells.set(i, cell);
+            }
+            column.put("records", columnCells);
+            columns.set(j, column);
+        }
+
+        recordInfo.put("recordNames", recordFederations);
+        recordInfo.put("recordCategories", recordCategories);
+        recordInfo.put("recordTable", columns);
+        return recordInfo;
+    }
+
     public static void clearRecords() throws IOException {
         JPAService.runInTransaction(em -> {
             try {
                 int deletedCount = em.createQuery("DELETE FROM RecordEvent").executeUpdate();
-                logger.info("deleted {} record entries", deletedCount);
+                if (deletedCount > 0) {
+                    logger.info("deleted {} record entries", deletedCount);
+                }
             } catch (Exception e) {
                 LoggerUtils.logError(logger, e);
             }
             return null;
         });
+    }
+
+    public static JsonValue computeRecords(Gender gender, Integer age, Double bw, Integer snatchRequest,
+            Integer cjRequest, Integer totalRequest) {
+        List<RecordEvent> records = findFiltered(gender, age, bw);
+        return buildRecordJson(records, snatchRequest, cjRequest, totalRequest);
     }
 
     /**
@@ -200,107 +310,6 @@ public class RecordRepository {
         if (gender != null) {
             query.setParameter("gender", gender);
         }
-    }
-
-    public static JsonObject computeRecords(Gender gender, Integer age, Double bw, Integer snatchRequest,
-            Integer cjRequest, Integer totalRequest) {
-        List<RecordEvent> records = findFiltered(gender, age, bw);
-        return buildRecordJson(records, snatchRequest, cjRequest, totalRequest);
-    }
-
-    public static JsonObject buildRecordJson(List<RecordEvent> records, Integer snatchRequest, Integer cjRequest, Integer totalRequest) {
-        // order record names according to heaviest total - world records will be above national record
-        Map<String, Double> recordTypeMaxTotal = new HashMap<>();
-        Multimap<Integer, RecordEvent> recordsByAgeWeight = ArrayListMultimap.create();
-        for (RecordEvent re : records) {
-            Double curMax = recordTypeMaxTotal.get(re.getRecordName());
-            if (re.getRecordLift() == Ranking.TOTAL && (curMax == null || re.getRecordValue() > curMax)) {
-                recordTypeMaxTotal.put(re.getRecordName(), re.getRecordValue());
-            }
-            recordsByAgeWeight.put(re.getAgeGrpLower() * 1000000 + re.getAgeGrpUpper() * 1000 + re.getBwCatUpper(), re);
-        }
-
-        // order columns in ascending age groups
-        List<String> rowOrder = recordTypeMaxTotal.entrySet().stream()
-                .sorted((e1, e2) -> Double.compare(e1.getValue(), e2.getValue()))
-                .map(e -> e.getKey()).collect(Collectors.toList());
-        List<Integer> columnOrder = recordsByAgeWeight.keySet().stream().sorted((e1, e2) -> Integer.compare(e1, e2))
-                .collect(Collectors.toList());
-
-        @SuppressWarnings("unchecked")
-        List<RecordEvent>[][] recordTable = new ArrayList[rowOrder.size()][columnOrder.size()];
-
-        for (int j1 = 0; j1 < columnOrder.size(); j1++) {
-            Collection<RecordEvent> recordsForCurrentCategory = recordsByAgeWeight.get(columnOrder.get(j1));
-            for (int i1 = 0; i1 < rowOrder.size(); i1++) {
-                String curRowRecordName = rowOrder.get(i1);
-
-                List<RecordEvent> recordFound = recordsForCurrentCategory.stream()
-                        .filter(r -> r.getRecordName() == curRowRecordName).collect(Collectors.toList());
-                // put them in snatch/cj/total order (not needed really), then largest record first in case of multiple
-                // records
-                recordFound.sort(Comparator.comparing(RecordEvent::getRecordLift)
-                        .thenComparing(Comparator.comparing(RecordEvent::getRecordValue).reversed()));
-
-                // put the largest record for each lift in a list in the expected lift order
-                List<RecordEvent> maxRecordFound = new ArrayList<>();
-                recordFound.stream().filter(r -> r.getRecordLift() == Ranking.SNATCH).findFirst()
-                        .ifPresent(r -> maxRecordFound.add(r));
-                recordFound.stream().filter(r -> r.getRecordLift() == Ranking.CLEANJERK).findFirst()
-                        .ifPresent(r -> maxRecordFound.add(r));
-                recordFound.stream().filter(r -> r.getRecordLift() == Ranking.TOTAL).findFirst()
-                        .ifPresent(r -> maxRecordFound.add(r));
-                recordTable[i1][j1] = maxRecordFound;
-            }
-        }
-
-        JsonObject recordInfo = Json.createObject();
-        JsonArray recordFederations = Json.createArray();
-        JsonArray recordCategories = Json.createArray();
-
-        int ix1 = 0;
-        for (String s : rowOrder) {
-            recordFederations.set(ix1++, s);
-        }
-
-        JsonArray columns = Json.createArray();
-        for (int j = 0; j < recordTable[0].length; j++) {
-            JsonObject column = Json.createObject();
-            JsonArray columnCells = Json.createArray();
-            for (int i = 0; i < recordTable.length; i++) {
-                JsonObject cell = Json.createObject();
-                cell.put(Ranking.SNATCH.name(), "\u00a0");
-                cell.put(Ranking.CLEANJERK.name(), "\u00a0");
-                cell.put(Ranking.TOTAL.name(), "\u00a0");
-                for (RecordEvent rec : recordTable[i][j]) {
-                    if (recordCategories.length() <= j || recordCategories.get(j) == null) {
-                        String string = rec.getAgeGrp() + " " + rec.getBwCatString();
-                        recordCategories.set(j, string);
-                        column.put("cat", string);
-                    }
-                    cell.put(rec.getRecordLift().name(), rec.getRecordValue());
-
-                    if (rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null
-                            && snatchRequest > rec.getRecordValue()) {
-                        cell.put("snatchHighlight", "highlight");
-                    } else if (rec.getRecordLift() == Ranking.CLEANJERK && cjRequest != null
-                            && cjRequest > +rec.getRecordValue()) {
-                        cell.put("cjHighlight", "highlight");
-                    } else if (rec.getRecordLift() == Ranking.TOTAL && totalRequest != null
-                            && totalRequest > +rec.getRecordValue()) {
-                        cell.put("totalHighlight", "highlight");
-                    }
-                }
-                columnCells.set(i, cell);
-            }
-            column.put("records", columnCells);
-            columns.set(j, column);
-        }
-
-        recordInfo.put("recordNames", recordFederations);
-        recordInfo.put("recordCategories", recordCategories);
-        recordInfo.put("recordTable", columns);
-        return recordInfo;
     }
 
 }
