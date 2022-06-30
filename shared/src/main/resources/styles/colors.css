@@ -98,4 +98,42 @@
 
     --darkSpacerBackgroundColor: var(--darkBackgroundColor);
 
+    /* records table section, white on black */
+    --lightRecordBoxBorder: var(--pageTextColor); 
+    --lightRecordBoxBackground: var(--pageBackgroundColor);
+    --lightRecordBoxText: var(--pageTextColor);
+
+    --lightRecordValueText: var(--pageTextColor);
+    --lightRecordValueBackground: var(--pageBackgroundColor);
+
+    --lightRecordHighlightBackground: purple;
+    --lightRecordHighlightText: var(--pageTextColor);
+
+    --lightRecordNameBackground: var(--pageBackgroundColor);
+    --lightRecordNameText: var(--pageTextColor);
+
+    --lightRecordLiftTypeBackground: var(--pageBackgroundColor); 
+    --lightRecordLiftTypeText: var(--pageTextColor);
+
+
+    /* records table section, black on white */
+    /* by default, same as white on black */
+
+    --darkRecordBoxBorder: var(--pageTextColor); 
+    --darkRecordBoxBackground: var(--pageBackgroundColor);
+    --darkRecordBoxText: var(--pageTextColor);
+
+    --darkRecordValueText: var(--pageTextColor);
+    --darkRecordValueBackground: var(--pageBackgroundColor);
+
+    --darkRecordHighlightBackground: purple;
+    --darkRecordHighlightText: var(--pageTextColor);
+
+    --darkRecordNameBackground: var(--pageBackgroundColor);
+    --darkRecordNameText: var(--pageTextColor);
+
+    --darkRecordLiftTypeBackground: var(--pageBackgroundColor); 
+    --darkRecordLiftTypeText: var(--pageTextColor);
+
+    
 }
