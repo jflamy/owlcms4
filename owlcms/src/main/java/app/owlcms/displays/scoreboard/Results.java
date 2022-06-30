@@ -147,7 +147,7 @@ public class Results extends PolymerTemplate<TemplateModel>
         DisplayOptions.addSoundEntries(vl, target, this);
         vl.add(new Hr());
         DisplayOptions.addSwitchableEntries(vl, target, this);
-        vl.add(new Hr());
+
         DisplayOptions.addSectionEntries(vl, target, this);
         vl.add(new Hr());
         DisplayOptions.addSizingEntries(vl, target, this);
