@@ -8,13 +8,13 @@
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="OWLCMS_BACKDOOR" value="10.0.0.221,10.0.0.162,127.0.0.1,[0:0:0:0:0:0:0:1]"/>
+        <mapEntry key="OWLCMS_H2SERVERPORT" value="9092"/>
         <mapEntry key="OWLCMS_INITIALDATA" value="SINGLE_ATHLETE_GROUPS"/>
         <mapEntry key="OWLCMS_LOCALE" value="en_CA"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="false"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="thisisaverylongsecretstring"/>
-        <mapEntry key="_OWLCMS_H2SERVERPORT" value="9092"/>
         <mapEntry key="_OWLCMS_IP" value="127.0.0.1,10.0.2.2"/>
         <mapEntry key="_OWLCMS_PIN" value="0002"/>
         <mapEntry key="_OWLCMS_REMOTE" value="http://127.0.0.1:8081/update"/>
