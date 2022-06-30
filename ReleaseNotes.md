@@ -1,12 +1,13 @@
-### **Changes for release 4.33.0-alpha04**
+### **Changes for release 4.33.0-alpha05**
 
 **Changes in 4.33.0**
 
+- 4.33-0-alpha05: Lack of local/records folder or files no longer causes errors.  The folder is now created by default, with a README.
+- 4.33-0-alpha05: When a record is broken, the display is updated on subsequent attempts. Broken records are listed in the log file. The Excel file must be changed manually (since it is "official")
 - 4.33.0-alpha04: Added highlighting of records being challenged; record section color scheme now in colors.css.
 - 4.33.0-alpha03: Show records on scoreboards
   - Records are read from Excel spreadsheets located in the local/records directory. All files in the folder are loaded when the program starts; all the tabs in each spreadsheet are read, you can put all the record entries on the same sheet if you prefer. See the following folder for examples: [Sample Record Files](https://www.dropbox.com/sh/sbr804kqfwkgs6g/AAAEcT2sih9MmnrpYzkh6Erma?dl=0) . Note that these files are samples, and most likely out of date - send a copy if you update them.   You will need to copy the files, and maybe translate the record names (second column).
   - All records for which the current athlete is between the low and high ages (inclusive) and between the body weight boundaries will be shown.  If records from several federations/associations are loaded, all are shown, whether the athlete is eligible or not, because it is interesting to compare.
-  - Records broken are not updated.
   - It is possible to hide the records if there are two many athletes in a group (using the screen dialog or by setting `records=false` in the URL parameters)
 - 4.33.0-alpha02: Made SMF behave the same as Sinclair in preparation for SMF-based team championships (allow comparison when no clean-and-jerk has been made yet).  Fixed generated test data for team membership.
 - 4.33.0-alpha01: Team Sinclair scoreboard now updates on every successful lift.
