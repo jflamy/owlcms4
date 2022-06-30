@@ -23,7 +23,6 @@
 
     /* records */
     --recordValueCellWidth: 4rem;
-
 }
 
 * {
@@ -35,7 +34,8 @@
 .wrapper {
     /* results table font size */
     --tableFontSize: 1.25rem;
-    --recordValueCellHeight: calc(var(--tableFontSize)*1.4);
+    --recordValueCellHeight: calc(var(--tableFontSize)*1.5);
+    --recordsFontRatio: 0.9;
 
     font-family: Arial, Helvetica, sans-serif;
     color: var(--pageTextColor);
@@ -524,6 +524,7 @@ div.ellipsis {
     float: left;
     width: var(--recordValueCellWidth);
     height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
     text-align: center;
     background-color: var(--lightRecordValueBackground);
     color: var(--lightRecordValueText);
@@ -552,12 +553,13 @@ div.ellipsis {
 
 :host(.light) .recordsFiller {
     text-align: right;
-    height: 4rem;
+    height: calc(var(--recordValueCellHeight)*1.2);
 }
 
 :host(.light) .recordCat {
     text-align: center;
     height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
     background-color: var(--lightRecordBoxBackground);
     color: var(--lightRecordBoxText);
 }
@@ -566,6 +568,8 @@ div.ellipsis {
     text-align: right;
     background-color: var(--lightRecordNameBackground);
     color: var(--lightRecordNameText);
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
 }
 
 :host(.light) .recordTitle {
@@ -573,6 +577,7 @@ div.ellipsis {
     float: left;
     background-color: var(--lightRecordNameBackground);
     height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
     color: var(--lightRecordNameText);
 }
 
@@ -593,6 +598,7 @@ div.ellipsis {
     float: left;
     width: var(--recordValueCellWidth);
     height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
     text-align: center;
     background-color: var(--darkRecordValueBackground);
     color: var(--darkRecordValueText);
@@ -620,12 +626,13 @@ div.ellipsis {
 
 :host(.dark) .recordsFiller {
     text-align: right;
-    height: 4rem;
+    height: calc(var(--recordValueCellHeight)*1.2);
 }
 
 :host(.dark) .recordCat {
     text-align: center;
     height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
     background-color: var(--darkRecordBoxBackground);
     color: var(--darkRecordBoxText);
 }
@@ -633,6 +640,7 @@ div.ellipsis {
 :host(.dark) .recordName {
     text-align: right;
     height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
     background-color: var(--darkRecordNameBackground);
     color: var(--darkRecordNameText);
 }
@@ -640,6 +648,7 @@ div.ellipsis {
 :host(.dark) .recordTitle {
     text-align: right;
     height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
     background-color: var(--darkRecordNameBackground);
     color: var(--darkRecordNameText);
 }
