@@ -175,8 +175,8 @@ class Results extends PolymerElement {
         </template>
     </table>
     <template is="dom-if" if="[[records]]">
-        <div style$="font-size: calc(var(--tableFontSize) * 1.0); [[hiddenBlockStyle]]">
-            <div class$="recordsFiller">&nbsp;</div>
+        <div style$="font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); [[hiddenBlockStyle]]">
+            <div class="recordsFiller">&nbsp;</div>
 
             <div style="float:left;">
                 <div class="recordName recordTitle">[[t.records]]</div>
