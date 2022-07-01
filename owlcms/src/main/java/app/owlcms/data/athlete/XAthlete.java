@@ -116,10 +116,10 @@ public class XAthlete extends Athlete {
 
     /**
      * @return
-     * @see app.owlcms.data.athlete.Athlete#getAttemptedLifts()
+     * @see app.owlcms.data.athlete.Athlete#getActuallyAttemptedLifts()
      */
     @Override
-    public int getAttemptedLifts() {
+    public int getActuallyAttemptedLifts() {
         return getAttemptsDone();
     }
 

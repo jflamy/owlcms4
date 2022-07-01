@@ -707,7 +707,7 @@ public class Athlete {
      */
     @Transient
     @JsonIgnore
-    public int getAttemptedLifts() {
+    public int getActuallyAttemptedLifts() {
         int i = 0;
         if (zeroIfInvalid(snatch1ActualLift) != 0) {
             i++;
@@ -4144,7 +4144,7 @@ public class Athlete {
         Integer requestedWeight = newVal;
         int referenceWeight = reference.getWeight();
         int referenceAttemptNo = reference.getAttemptNo();// this is the lift that was attempted by previous lifter
-        int currentLiftNo = getAttemptedLifts() + 1;
+        int currentLiftNo = getAttemptsDone() + 1; // check
         int checkedLift = curLift + 1;
         if (checkedLift < currentLiftNo) {
             // we are checking an earlier attempt of the athlete (e.g. when loading the athlete card)
@@ -4410,7 +4410,7 @@ public class Athlete {
 
     private void doCheckChangeVsLiftOrder(int curLift, int newVal) throws RuleViolationException {
 
-        int currentLiftNo = getAttemptedLifts() + 1;
+        int currentLiftNo = getAttemptsDone() + 1; // check
         int checkedLift = curLift + 1;
         if (checkedLift < currentLiftNo) {
             // we are checking an earlier attempt of the athlete (e.g. when loading the athlete card)

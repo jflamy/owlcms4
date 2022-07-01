@@ -1027,9 +1027,10 @@ public class FieldOfPlay {
             return;
         }
         Integer request = curAthlete.getNextAttemptRequestedWeight();
-        int attemptsDone = curAthlete.getAttemptedLifts();
+        int attemptsDone = curAthlete.getAttemptsDone();
         Integer snatchRequest = attemptsDone < 3 ? request : null;
         Integer cjRequest = attemptsDone >= 3 ? request : null;
+
         Integer bestSnatch = curAthlete.getBestSnatch();
         Integer totalRequest = attemptsDone >= 3 && bestSnatch != null && bestSnatch > 0 ? (bestSnatch + request)
                 : null;
@@ -1322,7 +1323,7 @@ public class FieldOfPlay {
             pushOutUIEvent(event);
             a.doLift(a.getAttemptsDone(), e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
             AthleteRepository.save(a);
-            newRecords(a,e.success);
+            newRecords(a, e.success);
             recomputeLiftingOrder(true, true);
 
             // tell ourself to reset after 3 secs.
@@ -1346,21 +1347,21 @@ public class FieldOfPlay {
                     Integer bestSnatch = a.getBestSnatch();
                     if (bestSnatch > value) {
                         logger.info("broke {}", rec);
-                        createNewRecordEvent(a, newRecords, rec, bestSnatch+0.0D);
+                        createNewRecordEvent(a, newRecords, rec, bestSnatch + 0.0D);
                     }
                     break;
                 case CLEANJERK:
                     Integer bestCleanJerk = a.getBestCleanJerk();
                     if (bestCleanJerk > value) {
                         logger.info("broke {}", rec);
-                        createNewRecordEvent(a, newRecords, rec, value+0.0D);
+                        createNewRecordEvent(a, newRecords, rec, bestCleanJerk + 0.0D);
                     }
                     break;
                 case TOTAL:
                     Integer total = a.getTotal();
                     if (total > value) {
                         logger.info("broke {}", rec);
-                        createNewRecordEvent(a, newRecords, rec, total+0.0D);
+                        createNewRecordEvent(a, newRecords, rec, total + 0.0D);
                     }
                     break;
                 default:
@@ -1368,7 +1369,7 @@ public class FieldOfPlay {
                 }
             }
             if (!newRecords.isEmpty()) {
-                logger.info("new records {}",newRecords);
+                logger.info("new records {}", newRecords);
             }
             JPAService.runInTransaction(em -> {
                 for (RecordEvent re : brokenRecords) {
@@ -1932,7 +1933,7 @@ public class FieldOfPlay {
         }
         getCurAthlete().resetForcedAsCurrent();
         AthleteRepository.save(getCurAthlete());
-        newRecords(getCurAthlete(),getGoodLift());
+        newRecords(getCurAthlete(), getGoodLift());
 
         // must set state before recomputing order so that scoreboards stop blinking the current athlete
         // must also set state prior to sending event, so that state monitor shows new state.

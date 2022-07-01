@@ -121,8 +121,8 @@ public class PAthlete extends Athlete implements IRankHolder {
     }
 
     @Override
-    public int getAttemptedLifts() {
-        return a.getAttemptedLifts();
+    public int getActuallyAttemptedLifts() {
+        return a.getActuallyAttemptedLifts();
     }
 
     @Override

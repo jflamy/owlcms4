@@ -234,7 +234,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
             LocalDateTime maxTime = curAthlete.getLastAttemptedLiftTime();
             curStat.updateMaxTime(maxTime);
 
-            int nbAttemptedLifts = curAthlete.getAttemptedLifts();
+            int nbAttemptedLifts = curAthlete.getActuallyAttemptedLifts();
             curStat.setNbAttemptedLifts(curStat.getNbAttemptedLifts() + nbAttemptedLifts);
             logger.debug(curStat.toString());
             prevGroup = curGroup;
