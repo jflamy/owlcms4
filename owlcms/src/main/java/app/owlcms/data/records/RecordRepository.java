@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.jpa.JPAService;
@@ -89,7 +91,7 @@ public class RecordRepository {
                 recordFound.sort(Comparator.comparing(RecordEvent::getRecordLift)
                         .thenComparing(Comparator.comparing(RecordEvent::getRecordValue).reversed()));
 
-                // put the largest record for each lift in a list in the expected lift order
+                // keep the largest record
                 List<RecordEvent> maxRecordFound = new ArrayList<>();
                 recordFound.stream().filter(r -> r.getRecordLift() == Ranking.SNATCH).findFirst()
                         .ifPresent(r -> maxRecordFound.add(r));
@@ -168,6 +170,27 @@ public class RecordRepository {
             Integer cjRequest, Integer totalRequest) {
         List<RecordEvent> records = findFiltered(gender, age, bw);
         return buildRecordJson(records, snatchRequest, cjRequest, totalRequest);
+    }
+    
+    public static List<RecordEvent> computeRecordsForAthlete(Athlete curAthlete) {
+        List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
+                curAthlete.getBodyWeight());
+
+//        for (RecordEvent rec : records) {
+//            logger.warn("matching record {}", rec);
+//        }
+
+        // remove duplicates for each kind of recod, keep largest
+        Map<String, RecordEvent> cleanMap = records.stream().collect(
+                Collectors.toMap(
+                        RecordEvent::getKey,
+                        Function.identity(),
+                        (r1, r2) -> r1.getRecordValue() > r2.getRecordValue() ? r1 : r2));
+//        for (Entry<String, RecordEvent> me: cleanMap.entrySet()) {
+//            logger.warn("clean *** {} {}", me.getKey(), me.getValue().getRecordValue());
+//        }
+        records = cleanMap.values().stream().collect(Collectors.toList());
+        return records;
     }
 
     /**

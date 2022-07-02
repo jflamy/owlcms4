@@ -378,4 +378,8 @@ public class RecordEvent {
     public String getBwCatString() {
         return bwCatString;
     }
+    
+    public String getKey() {
+        return getRecordName()+"_"+getRecordLift()+"_"+getBwCatLower()+"_"+getBwCatUpper()+"_"+getAgeGrpLower()+"_"+getAgeGrpUpper();
+    }
 }

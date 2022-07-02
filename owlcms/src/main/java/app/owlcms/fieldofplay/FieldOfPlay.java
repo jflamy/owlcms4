@@ -230,6 +230,7 @@ public class FieldOfPlay {
     private JsonValue recordsJson;
 
     private List<RecordEvent> challengedRecords;
+    private List<RecordEvent> newRecords;
 
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
@@ -1024,6 +1025,7 @@ public class FieldOfPlay {
         if (curAthlete == null) {
             setRecordsJson(Json.createNull());
             setChallengedRecords(List.of());
+            setNewRecords(List.of());
             return;
         }
         Integer request = curAthlete.getNextAttemptRequestedWeight();
@@ -1035,12 +1037,8 @@ public class FieldOfPlay {
         Integer totalRequest = attemptsDone >= 3 && bestSnatch != null && bestSnatch > 0 ? (bestSnatch + request)
                 : null;
 
-        List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
-                curAthlete.getBodyWeight());
-        
-        for (RecordEvent rec: records) {
-            logger.warn("matching record {}",rec);
-        }
+        List<RecordEvent> records = RecordRepository.computeRecordsForAthlete(curAthlete);
+
         List<RecordEvent> challengedRecords = new ArrayList<>();
         challengedRecords
                 .addAll(records.stream().filter(rec -> rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null
@@ -1057,7 +1055,7 @@ public class FieldOfPlay {
         setChallengedRecords(challengedRecords);
         if (!challengedRecords.isEmpty()) {
             logger.info("challenged recordsJson {}", challengedRecords);
-            notifyNewRecords(challengedRecords, false);
+            notifyRecords(challengedRecords, false);
         }
     }
 
@@ -1141,7 +1139,7 @@ public class FieldOfPlay {
     }
 
     public void setRecordsJson(JsonValue computedRecords) {
-        logger.warn("setting records json {}",computedRecords);
+        logger.warn("setting records json {}", computedRecords);
         this.recordsJson = computedRecords;
     }
 
@@ -1328,37 +1326,47 @@ public class FieldOfPlay {
             pushOutUIEvent(event);
             a.doLift(a.getAttemptsDone(), e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
             AthleteRepository.save(a);
-            List<RecordEvent> newRecords = updateRecords(a, e.success);
+
+            // reversal from bad to good should add records
+            // reversal from good to bad must remove records
+            updateRecords(a, e.success);
+
             recomputeLiftingOrder(true, true);
 
             // tell ourself to reset after 3 secs.
             new DelayTimer().schedule(() -> {
                 fopEventPost(new DecisionReset(this));
-                notifyNewRecords(newRecords, true);
+                notifyRecords(newRecords, true);
                 fopEventPost(new StartLifting(this));
             }, DECISION_VISIBLE_DURATION);
 
         }
-        // displayOrBreakIfDone(e);
     }
 
-    private void notifyNewRecords(List<RecordEvent> newRecords, boolean newRecord) {
-        for (RecordEvent rec: newRecords) {
+    private void notifyRecords(List<RecordEvent> newRecords, boolean newRecord) {
+        for (RecordEvent rec : newRecords) {
             pushOutUIEvent(
-            new UIEvent.Notification(
-                    this.getCurAthlete(),
-                    this,
-                    newRecord ? UIEvent.Notification.Level.SUCCESS : UIEvent.Notification.Level.INFO,
-                    newRecord ? "Record.NewNotification" : "Record.AttemptNotification",
-                    20000,
-                    rec.getRecordName(),
-                    Translator.translate("Record." + rec.getRecordLift().name()),
-                    rec.getAgeGrp(),
-                    rec.getBwCatString(),
-                    Long.toString(Math.round(rec.getRecordValue()))));
-        }       
+                    new UIEvent.Notification(
+                            this.getCurAthlete(),
+                            this,
+                            newRecord ? UIEvent.Notification.Level.SUCCESS : UIEvent.Notification.Level.INFO,
+                            newRecord ? "Record.NewNotification" : "Record.AttemptNotification",
+                            20000,
+                            rec.getRecordName(),
+                            Translator.translate("Record." + rec.getRecordLift().name()),
+                            rec.getAgeGrp(),
+                            rec.getBwCatString(),
+                            Long.toString(Math.round(rec.getRecordValue()))));
+        }
     }
 
+    /**
+     * add new records if success, remove records if jury reversal.
+     * 
+     * @param a
+     * @param success
+     * @return
+     */
     private List<RecordEvent> updateRecords(Athlete a, boolean success) {
         ArrayList<RecordEvent> newRecords = new ArrayList<RecordEvent>();
         if (success) {
@@ -1392,18 +1400,28 @@ public class FieldOfPlay {
                 }
             }
             JPAService.runInTransaction(em -> {
-                for (RecordEvent re : brokenRecords) {
-                    logger.info("obsolete record: {}", re);
-                    em.remove(em.merge(re));
-                }
+                // create the new records.
+                // do not remove obsolete records, in case jury reverses new record
+                // we always use the largest record, so no harm done by keeping the old ones.
                 for (RecordEvent re : newRecords) {
                     logger.info("new record: {}", re);
                     em.persist(re);
                 }
                 return null;
             });
+            return newRecords;
+        } else {
+            // remove records just established as they are invalid.
+            JPAService.runInTransaction(em -> {
+                for (RecordEvent re : getNewRecords()) {
+                    logger.info("cancelled record: {}", re);
+                    em.remove(em.merge(re));
+                }
+                return null;
+            });
+            return new ArrayList<RecordEvent>();
         }
-        return newRecords;
+
     }
 
     private void createNewRecordEvent(Athlete a, List<RecordEvent> newRecords, RecordEvent rec, Double value) {
@@ -1956,17 +1974,18 @@ public class FieldOfPlay {
         getCurAthlete().resetForcedAsCurrent();
         AthleteRepository.save(getCurAthlete());
         List<RecordEvent> newRecords = updateRecords(getCurAthlete(), getGoodLift());
-        
+        setNewRecords(newRecords);
+
         // must set state before recomputing order so that scoreboards stop blinking the current athlete
         // must also set state prior to sending event, so that state monitor shows new state.
         setState(DECISION_VISIBLE);
         uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), refereeDecision, refereeTime, origin);
         recomputeLiftingOrder(true, true);
-        
+
         // make sure decision has been shown
         new DelayTimer().schedule(
                 () -> {
-                    notifyNewRecords(newRecords,true);
+                    notifyRecords(newRecords, true);
                 }, 500);
         // tell ourself to reset after 3 secs.
         // Decision reset will handle end of group.
@@ -2220,6 +2239,14 @@ public class FieldOfPlay {
     private void weightChangeDoNotDisturb(WeightChange e) {
         recomputeOrderAndRanks(e.isResultChange());
         uiDisplayCurrentAthleteAndTime(false, e, false);
+    }
+
+    public List<RecordEvent> getNewRecords() {
+        return newRecords;
+    }
+
+    public void setNewRecords(List<RecordEvent> newRecords) {
+        this.newRecords = newRecords;
     }
 
 }
