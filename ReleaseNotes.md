@@ -1,7 +1,9 @@
-### **Changes for release 4.33.0-alpha05**
+### **Changes for release 4.33.0-alpha06**
 
 **Changes in 4.33.0**
 
+- 4.33.0-alpha06: added announcer notifications for record attempts and for successful new records
+- 4.33.0-alpha06: fixes for reported issues with records: declined (0) attempts issue, update of CJ records.
 - 4.33-0-alpha05: Lack of local/records folder or files no longer causes errors.  The folder is now created by default, with a README.
 - 4.33-0-alpha05: When a record is broken, the display is updated on subsequent attempts. Broken records are listed in the log file. The Excel file must be changed manually (since it is "official")
 - 4.33.0-alpha04: Added highlighting of records being challenged; record section color scheme now in colors.css.

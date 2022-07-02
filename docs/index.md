@@ -15,23 +15,23 @@ The following videos and demos are available
 ## Features
 
 - The following list is a sampling of the many features available.  <u>*Click on the images if you wish to view them full-sized*</u>.  The images are taken from the demo site.
-
+  
   - Run a **regular** or **masters** competition, with or without a **jury**.
-
+  
   - Ability to run in the [**cloud**](EquipmentSetup#cloud-access-over-the-internet).  Decisions, timers and sounds are handled locally in the browser to provide better feedback.
-
+  
   - [**Announcer and Marshall**](Announcing) screens (updating athlete cards and recalculation of lifting order).  
-
+  
     ![020_EditLifterCard](img/Lifting/020_EditLifterCard.png  ':size=350')
-
+  
   - [**Timekeeping**](Announcing#Starting_the_clock) Time can be [managed by the announcer](Announcing#Starting-the-clock)  (useful for smaller meets) or a dedicated [timekeeper screen](Announcing#Timekeeper) can be used. The timekeeper screen can be conveniently operated from a phone or tablet.
-
+  
     <img src="img/Lifting/050_Timekeeper.png" alt="050_Timekeeper.png" width=350 style="border-style:solid; border-width: thin" />
-
+  
   - **[Attempt Board](Displays#attempt-board)** showing current athlete information, remaining time, weight requested, down signal and decision.
-
+  
     ![032_Attempt_Running](img/Displays/032_Attempt_Running.png ':size=350' )  ![038_Attempt_Decision](img/Displays/038_Attempt_Decision.png ':size=350') 
-
+  
   - **Support for refereeing devices**
     
     - Any USB or Bluetooth [**keypad**](Refereeing#usb-or-bluetooth-keypads) that can be programmed to generate the digits 0 to 9 can be used to enter decisions
@@ -43,23 +43,13 @@ The following videos and demos are available
       ![mobile_ref](img/Refereeing/mobile_ref.png  ':size=350')
     
   - **[Athlete-facing display](Displays#attempt-board)** (the decision display matches the referee positions as seen from platform). Refereeing keypads are typically connected to this laptop.
-
+  
     ![044_AF_Down](img/Displays/044_AF_Down.png ':size=350') ![048_AF_Decision](img/Displays/048_AF_Decision.png ':size=350')
-
-  - **[Scoreboard](Displays#scoreboard)** for public or warm-up room display.  
-
-     - Shows athlete information, timer and decision lights. 
-     - Current and next lifters are highlighted. 
-     - Leaders from previous groups can beshown (for A/B/C... groups or multiple age groups)
-     - Responsive design is used to accomodate old 4:3 projectors as well as 16:9 wide screens.  A black-on-white variant is available. 
-     - Records are shown and updated
-     
-     ![records](img/Records/records.png)
-
-- Records.  Records for multiple age groups and for multiple jurisdictions can be loaded.  Records are displayed on the scoreboards, and records that could be broken are highlighted. A record set during the meet will be taken into account on subsequent lifts.
   
-- Lifting order: to assist marshals and coaches, a separate lifting order display is available.![Lifting](img/Displays/025_LiftingOrder.png  ':size=350')
+  - **[Scoreboard](Displays#scoreboard)** for public or warm-up room display.  Shows athlete information, timer and decision lights. Current and next lifters are highlighted. Responsive design to accomodate old 4:3 projectors as well as 16:9 wide screens.  Also available is a [lifting order display](Displays#lifting-order).
   
+     ![020_Scoreboard](img/Displays/020_Scoreboard.png ':size=350') ![Lifting](img/Displays/025_LiftingOrder.png  ':size=350')
+
 - [**Team Competitions and Sinclair Competitions**](Displays#Top-Teams-Scoreboard).  Team Results are computed in either the IWF points system or as a sum of Sinclair scores. The competition secretary has access to the full details.
   
     ![050_TeamScoreboard](img/Displays/050_TeamScoreboard.png ':size=350')
