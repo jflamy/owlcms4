@@ -13,12 +13,17 @@ import java.util.Objects;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
+import app.owlcms.fieldofplay.FOPError;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
+import app.owlcms.i18n.Translator;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
@@ -490,7 +495,7 @@ public class UIEvent {
          *
          * @param origin the origin
          */
-        public JuryNotification(Athlete a, Object origin, String fopStateString, String fopEventString) {
+        public JuryNotification(Athlete a, Object origin, String notificationString, String fopEventString) {
             super(a, origin);
         }
 
@@ -556,7 +561,8 @@ public class UIEvent {
          */
         public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete,
                 Athlete changingAthlete, List<Athlete> liftingOrder, List<Athlete> displayOrder, Integer timeAllowed,
-                boolean currentDisplayAffected, boolean displayToggle, Object origin, boolean inBreak, Integer newWeight) {
+                boolean currentDisplayAffected, boolean displayToggle, Object origin, boolean inBreak,
+                Integer newWeight) {
             super(athlete, origin);
             this.setTrace(LoggerUtils.stackTrace());
             this.nextAthlete = nextAthlete;
@@ -591,6 +597,10 @@ public class UIEvent {
          */
         public List<Athlete> getLiftingOrder() {
             return liftingOrder;
+        }
+
+        public Integer getNewWeight() {
+            return newWeight;
         }
 
         /**
@@ -643,10 +653,6 @@ public class UIEvent {
             this.inBreak = inBreak;
         }
 
-        public Integer getNewWeight() {
-            return newWeight;
-        }
-
         public void setNewWeight(Integer newWeight) {
             this.newWeight = newWeight;
         }
@@ -658,14 +664,26 @@ public class UIEvent {
      */
     static public class Notification extends UIEvent {
 
+        public enum Level {
+            ERROR, WARNING, SUCCESS, INFO;
+        }
+
         private String fopEventString;
 
-        private String fopStateString;
+        private String notificationString;
 
-        public Notification(Athlete curAthlete, Object origin, FOPEvent e, FOPState state) {
+        private Level level;
+
+        private String[] infos;
+
+        private Integer msDuration;
+
+        public Notification(Athlete curAthlete, Object origin, FOPEvent e, FOPState state, Notification.Level level) {
             super(curAthlete, origin);
+            logger.warn("error {} {}", e.getClass().getSimpleName(), state.toString());
             this.setFopEventString(e.getClass().getSimpleName());
-            this.setFopStateString(state.toString());
+            this.setNotificationString(state.toString());
+            this.level = level;
         }
 
         /**
@@ -673,26 +691,95 @@ public class UIEvent {
          *
          * @param origin the origin
          */
-        public Notification(Athlete a, Object origin, String fopStateString, String fopEventString) {
+        public Notification(
+                Athlete a, 
+                Object origin,
+                Notification.Level level,
+                String notificationString,
+                Integer msDuration,
+                String... infos) {
             super(a, origin);
-            this.setFopStateString(fopStateString);
+            this.setNotificationString(notificationString);
             this.setFopEventString(fopEventString);
+            this.setLevel(level);
+            this.setInfos(infos);
+            this.setMsDuration(msDuration);
+        }
+
+
+        public void doNotification() {
+            com.vaadin.flow.component.notification.Notification n = new com.vaadin.flow.component.notification.Notification();
+            Div div = new Div();
+            String close = "\u00A0\u00A0\u00A0\u2715";
+            div.addClickListener(click -> n.close());
+            if (getFopEventString() != null && !getFopEventString().isEmpty()) {
+                div.setText(FOPError.translateMessage(getNotificationString(), getFopEventString())+close);
+            } else {
+                div.setText(Translator.translate(getNotificationString(), (Object[])getInfos())+close);
+            }
+            div.getStyle().set("font-size", "large");
+            n.add(div);
+            
+            n.setPosition(getLevel() == Level.ERROR ? Position.MIDDLE : Position.TOP_START);
+            n.setDuration(getMsDuration() != null ? getMsDuration() : 3000);
+
+
+            switch (getLevel()) {
+            case ERROR:
+                n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                break;
+            case INFO:
+                n.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+                break;
+            case WARNING:
+                n.getElement().getThemeList().add("warning");
+                break;
+            case SUCCESS:
+                n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                break;
+            }
+            
+            n.open();
         }
 
         public String getFopEventString() {
             return fopEventString;
         }
 
-        public String getFopStateString() {
-            return fopStateString;
+        public String[] getInfos() {
+            return infos;
+        }
+
+        public Level getLevel() {
+            return level;
+        }
+
+        public Integer getMsDuration() {
+            return msDuration;
+        }
+
+        public String getNotificationString() {
+            return notificationString;
         }
 
         public void setFopEventString(String fopEventString) {
             this.fopEventString = fopEventString;
         }
 
-        public void setFopStateString(String fopStateString) {
-            this.fopStateString = fopStateString;
+        public void setLevel(Level level) {
+            this.level = level;
+        }
+
+        public void setNotificationString(String notificationString) {
+            this.notificationString = notificationString;
+        }
+
+        private void setInfos(String[] infos) {
+            this.infos = infos;
+        }
+
+        private void setMsDuration(Integer msDuration) {
+            this.msDuration = msDuration;
         }
     }
 

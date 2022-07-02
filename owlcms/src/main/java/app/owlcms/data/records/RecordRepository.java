@@ -51,6 +51,9 @@ public class RecordRepository {
             return Json.createNull();
         }
         
+        for (RecordEvent r : records) {
+            logger.warn("buildRecordJson 1 {}",r);
+        }
         // order record names according to heaviest total - world records will be above national record
         Map<String, Double> recordTypeMaxTotal = new HashMap<>();
         Multimap<Integer, RecordEvent> recordsByAgeWeight = ArrayListMultimap.create();
@@ -78,7 +81,9 @@ public class RecordRepository {
                 String curRowRecordName = rowOrder.get(i1);
 
                 List<RecordEvent> recordFound = recordsForCurrentCategory.stream()
-                        .filter(r -> r.getRecordName() == curRowRecordName).collect(Collectors.toList());
+                        .filter(r -> r.getRecordName().contentEquals(curRowRecordName)).collect(Collectors.toList());
+                
+
                 // put them in snatch/cj/total order (not needed really), then largest record first in case of multiple
                 // records
                 recordFound.sort(Comparator.comparing(RecordEvent::getRecordLift)

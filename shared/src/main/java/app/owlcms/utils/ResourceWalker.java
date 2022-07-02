@@ -93,8 +93,7 @@ public class ResourceWalker {
         }
         if (target != null && Files.exists(target)) {
             try {
-                // logger.trace("found overridden resource {} at {} {}", name, target.toAbsolutePath(),
-                // LoggerUtils.whereFrom(1));
+                logger.warn("found overridden resource {} at {} {}", name, target.toAbsolutePath(),LoggerUtils.whereFrom(1));
                 return Files.newInputStream(target);
             } catch (IOException e) {
                 if (name.trim().contentEquals("/") || name.isBlank()) {
@@ -107,7 +106,9 @@ public class ResourceWalker {
         } else {
             is = ResourceWalker.class.getResourceAsStream(name);
             if (is != null) {
-                // logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+                logger.warn("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+            } else {
+                logger.warn("not found {} {}", name, LoggerUtils.whereFrom(1));
             }
         }
         return is;
@@ -133,16 +134,15 @@ public class ResourceWalker {
             target = localDirPath2.resolve(relativeName);
         }
         if (target != null && Files.exists(target)) {
-            // logger.debug("found overridden resource {} at {} {}", name,
-            // target.toAbsolutePath(),LoggerUtils.whereFrom(1));
+            logger.warn("found overridden resource {} at {} {}", name,target.toAbsolutePath(),LoggerUtils.whereFrom(1));
             return target;
         } else {
             String resName = "/" + relativeName;
             target = getResourcePath(resName);
             if (target != null) {
-                // logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+                logger.warn("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
             } else {
-                // logger.debug("not found {} {}",target, resName);
+                logger.warn("not found {} {}",target, resName);
             }
 
         }
@@ -256,7 +256,7 @@ public class ResourceWalker {
     public static Path getResourcePath(String resourcePathString) {
         URL resourceURL = ResourceWalker.class.getResource(resourcePathString);
         if (resourceURL == null) {
-            //logger.error(resourcePathString + " not found");
+            logger.error(resourcePathString + " not found");
             // throw new RuntimeException(resourcePathString + " not found");
             return null;
         }

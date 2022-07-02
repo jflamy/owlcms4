@@ -74,6 +74,7 @@ import app.owlcms.fieldofplay.FOPEvent.TimeOver;
 import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
+import app.owlcms.i18n.Translator;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
 import app.owlcms.spreadsheet.PAthlete;
@@ -923,13 +924,13 @@ public class FieldOfPlay {
 
         int timeAllowed = getTimeAllowed();
         Integer attemptsDone = getCurAthlete().getAttemptsDone();
-//        logger.trace("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
-//                getLoggingName(),
-//                getCurAthlete() != null ? getCurAthlete().getFullName() : "",
-//                getPreviousAthlete() != null ? getPreviousAthlete().getFullName() : "",
-//                timeAllowed,
-//                attemptsDone,
-//                LoggerUtils.whereFrom());
+        logger.warn("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
+                getLoggingName(),
+                getCurAthlete() != null ? getCurAthlete().getFullName() : "",
+                getPreviousAthlete() != null ? getPreviousAthlete().getFullName() : "",
+                timeAllowed,
+                attemptsDone,
+                LoggerUtils.whereFrom());
         if (currentDisplayAffected) {
             getAthleteTimer().setTimeRemaining(timeAllowed, false);
         } else {
@@ -978,8 +979,7 @@ public class FieldOfPlay {
         if (athletes == null) {
             setDisplayOrder(null);
             setCurAthlete(null);
-            recomputeRecords(getCurAthlete());
-
+            recomputeRecords(null);
         } else {
             if (recomputeRanks) {
                 setMedals(Competition.getCurrent().computeMedals(g, athletes));
@@ -1037,6 +1037,10 @@ public class FieldOfPlay {
 
         List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
                 curAthlete.getBodyWeight());
+        
+        for (RecordEvent rec: records) {
+            logger.warn("matching record {}",rec);
+        }
         List<RecordEvent> challengedRecords = new ArrayList<>();
         challengedRecords
                 .addAll(records.stream().filter(rec -> rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null
@@ -1048,13 +1052,13 @@ public class FieldOfPlay {
                 .addAll(records.stream().filter(rec -> rec.getRecordLift() == Ranking.TOTAL && totalRequest != null
                         && totalRequest > rec.getRecordValue()).collect(Collectors.toList()));
 
-        if (!challengedRecords.isEmpty()) {
-            logger.info("challenged recordsJson {}", challengedRecords);
-        }
-
         JsonValue recordsJson = RecordRepository.buildRecordJson(records, snatchRequest, cjRequest, totalRequest);
         setRecordsJson(recordsJson);
         setChallengedRecords(challengedRecords);
+        if (!challengedRecords.isEmpty()) {
+            logger.info("challenged recordsJson {}", challengedRecords);
+            notifyNewRecords(challengedRecords, false);
+        }
     }
 
     /**
@@ -1136,8 +1140,9 @@ public class FieldOfPlay {
         this.platform = platform;
     }
 
-    public void setRecordsJson(JsonValue computeRecords) {
-        this.recordsJson = computeRecords;
+    public void setRecordsJson(JsonValue computedRecords) {
+        logger.warn("setting records json {}",computedRecords);
+        this.recordsJson = computedRecords;
     }
 
     /**
@@ -1323,12 +1328,13 @@ public class FieldOfPlay {
             pushOutUIEvent(event);
             a.doLift(a.getAttemptsDone(), e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
             AthleteRepository.save(a);
-            newRecords(a, e.success);
+            List<RecordEvent> newRecords = updateRecords(a, e.success);
             recomputeLiftingOrder(true, true);
 
             // tell ourself to reset after 3 secs.
             new DelayTimer().schedule(() -> {
                 fopEventPost(new DecisionReset(this));
+                notifyNewRecords(newRecords, true);
                 fopEventPost(new StartLifting(this));
             }, DECISION_VISIBLE_DURATION);
 
@@ -1336,10 +1342,27 @@ public class FieldOfPlay {
         // displayOrBreakIfDone(e);
     }
 
-    private void newRecords(Athlete a, boolean success) {
+    private void notifyNewRecords(List<RecordEvent> newRecords, boolean newRecord) {
+        for (RecordEvent rec: newRecords) {
+            pushOutUIEvent(
+            new UIEvent.Notification(
+                    this.getCurAthlete(),
+                    this,
+                    newRecord ? UIEvent.Notification.Level.SUCCESS : UIEvent.Notification.Level.INFO,
+                    newRecord ? "Record.NewNotification" : "Record.AttemptNotification",
+                    20000,
+                    rec.getRecordName(),
+                    Translator.translate("Record." + rec.getRecordLift().name()),
+                    rec.getAgeGrp(),
+                    rec.getBwCatString(),
+                    Long.toString(Math.round(rec.getRecordValue()))));
+        }       
+    }
+
+    private List<RecordEvent> updateRecords(Athlete a, boolean success) {
+        ArrayList<RecordEvent> newRecords = new ArrayList<RecordEvent>();
         if (success) {
             List<RecordEvent> brokenRecords = getChallengedRecords();
-            List<RecordEvent> newRecords = new ArrayList<>();
             for (RecordEvent rec : brokenRecords) {
                 Double value = rec.getRecordValue();
                 switch (rec.getRecordLift()) {
@@ -1368,20 +1391,19 @@ public class FieldOfPlay {
                     break;
                 }
             }
-            if (!newRecords.isEmpty()) {
-                logger.info("new records {}", newRecords);
-            }
             JPAService.runInTransaction(em -> {
                 for (RecordEvent re : brokenRecords) {
+                    logger.info("obsolete record: {}", re);
                     em.remove(em.merge(re));
                 }
                 for (RecordEvent re : newRecords) {
+                    logger.info("new record: {}", re);
                     em.persist(re);
                 }
                 return null;
             });
         }
-
+        return newRecords;
     }
 
     private void createNewRecordEvent(Athlete a, List<RecordEvent> newRecords, RecordEvent rec, Double value) {
@@ -1933,18 +1955,24 @@ public class FieldOfPlay {
         }
         getCurAthlete().resetForcedAsCurrent();
         AthleteRepository.save(getCurAthlete());
-        newRecords(getCurAthlete(), getGoodLift());
-
+        List<RecordEvent> newRecords = updateRecords(getCurAthlete(), getGoodLift());
+        
         // must set state before recomputing order so that scoreboards stop blinking the current athlete
         // must also set state prior to sending event, so that state monitor shows new state.
         setState(DECISION_VISIBLE);
         uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), refereeDecision, refereeTime, origin);
         recomputeLiftingOrder(true, true);
-
+        
+        // make sure decision has been shown
+        new DelayTimer().schedule(
+                () -> {
+                    notifyNewRecords(newRecords,true);
+                }, 500);
         // tell ourself to reset after 3 secs.
         // Decision reset will handle end of group.
         new DelayTimer().schedule(
                 () -> {
+                    logger.warn("scheduling ");
                     fopEventPost(new DecisionReset(this));
                 }, DECISION_VISIBLE_DURATION);
     }
@@ -2163,7 +2191,8 @@ public class FieldOfPlay {
         logger./**/warn("{}unexpected event {} in state {}", getLoggingName(),
                 e.getClass().getSimpleName(), state);
 
-        pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, state));
+        pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, state,
+                UIEvent.Notification.Level.ERROR));
     }
 
     private void updateRefereeDecisions(FOPEvent.DecisionFullUpdate e) {
