@@ -1337,14 +1337,14 @@ public class FieldOfPlay {
 
             // reversal from bad to good should add records
             // reversal from good to bad must remove records
-            updateRecords(a, e.success);
+            setNewRecords(updateRecords(a, e.success));
 
             recomputeLiftingOrder(true, true);
 
             // tell ourself to reset after 3 secs.
             new DelayTimer().schedule(() -> {
-                fopEventPost(new DecisionReset(this));
-                notifyRecords(newRecords, true);
+                //fopEventPost(new DecisionReset(this));
+                //notifyRecords(newRecords, true);
                 fopEventPost(new StartLifting(this));
             }, DECISION_VISIBLE_DURATION);
 
