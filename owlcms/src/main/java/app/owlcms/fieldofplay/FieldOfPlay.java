@@ -1343,8 +1343,8 @@ public class FieldOfPlay {
 
             // tell ourself to reset after 3 secs.
             new DelayTimer().schedule(() -> {
-                //fopEventPost(new DecisionReset(this));
-                //notifyRecords(newRecords, true);
+                // fopEventPost(new DecisionReset(this));
+                // notifyRecords(newRecords, true);
                 fopEventPost(new StartLifting(this));
             }, DECISION_VISIBLE_DURATION);
 
@@ -1352,6 +1352,9 @@ public class FieldOfPlay {
     }
 
     private void notifyRecords(List<RecordEvent> newRecords, boolean newRecord) {
+        if (newRecords == null) {
+            return;
+        }
         for (RecordEvent rec : newRecords) {
             pushOutUIEvent(
                     new UIEvent.Notification(
