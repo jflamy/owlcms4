@@ -55,9 +55,7 @@ public interface SafeEventBusRegistration {
 		if (c.getUI().isPresent()) {
 		    ui = c.getUI().get();
 		}
-//		else {
-//		    ui = UI.getCurrent();
-//		}
+
 		EventBus uiEventBus = fop.getUiEventBus();
 		uiEventBus.register(c);
 	    logger.trace("registering {} on bus {} {}",c, uiEventBus.identifier(), LoggerUtils.whereFrom());

@@ -323,7 +323,7 @@ public class AgeGroupRepository {
             String localizedName = ResourceWalker.getLocalizedResourceName("/agegroups/AgeGroups.xlsx");
             AgeGroupDefinitionReader.doInsertAgeGroup(es, localizedName);
         } catch (FileNotFoundException e1) {
-            throw new RuntimeException(e1);
+            //ignore
         }
     }
 

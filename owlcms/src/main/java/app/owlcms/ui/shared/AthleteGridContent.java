@@ -384,7 +384,8 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     /**
-     * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location, java.util.Map)
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
+     *      java.util.Map)
      */
     @Override
     public HashMap<String, List<String>> readParams(Location location,
@@ -624,9 +625,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             // do not send weight change notification if we are the source of the weight
             // change
             UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
-                if (e.getOrigin() != this) {
-                    warnOthersIfCurrent(e, athlete, fop);
-                }
+                warnOthersIfCurrent(e, athlete, fop);
                 doUpdateTopBar(athlete, e.getTimeAllowed());
             });
         });
@@ -1268,17 +1267,18 @@ public abstract class AthleteGridContent extends VerticalLayout
         ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
 
-    private void doNotification(String text, String theme) {
+    protected void doNotification(String text, String theme) {
         Notification n = new Notification();
         // Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
         n.getElement().getThemeList().add(theme);
         n.setDuration(6000);
         n.setPosition(Position.TOP_START);
-        Div label = new Div();;
+        Div label = new Div();
         label.getElement().setProperty("innerHTML", text);
         label.addClickListener((event) -> n.close());
         label.getStyle().set("font-size", "large");
         n.add(label);
+        n.open();
         n.open();
         return;
     }
@@ -1333,11 +1333,13 @@ public abstract class AthleteGridContent extends VerticalLayout
      * @param athlete
      * @param fop
      */
-    protected void warnOthersIfCurrent(UIEvent.LiftingOrderUpdated e, Athlete athlete, FieldOfPlay fop) {
+    private void warnOthersIfCurrent(UIEvent.LiftingOrderUpdated e, Athlete athlete, FieldOfPlay fop) {
         // the athlete currently displayed is not necessarily the fop curAthlete,
         // because the lifting order has been recalculated behind the scenes
         Athlete curDisplayAthlete = displayedAthlete;
-        if (curDisplayAthlete != null && curDisplayAthlete.equals(e.getChangingAthlete())) {
+        
+        // weight change warnings not to self.
+        if (this != e.getOrigin() && curDisplayAthlete != null && curDisplayAthlete.equals(e.getChangingAthlete())) {
             String text;
             int declaring = curDisplayAthlete.isDeclaring();
             if (declaring > 0) {
@@ -1366,7 +1368,5 @@ public abstract class AthleteGridContent extends VerticalLayout
             e.doNotification();
         });
     }
-
-
 
 }

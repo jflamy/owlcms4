@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.data.agegroup;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.EnumSet;
@@ -222,17 +223,24 @@ public class AgeGroupDefinitionReader {
 
     static void doInsertAgeGroup(EnumSet<AgeDivision> es, String localizedName) {
         // InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
-        InputStream localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
-        try (Workbook workbook = WorkbookFactory
-                .create(localizedResourceAsStream)) {
-            AgeGroupRepository.logger.info("loading configuration file {}", localizedName);
-            Map<String, Category> templates = createCategoryTemplates(workbook);
-            createAgeGroups(workbook, templates, es, localizedName);
-            workbook.close();
-        } catch (Exception e) {
-            AgeGroupRepository.logger.error("could not process ageGroup configuration\n{}",
-                    LoggerUtils./**/stackTrace(e));
+        InputStream localizedResourceAsStream;
+        try {
+            localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
+            try (Workbook workbook = WorkbookFactory
+                    .create(localizedResourceAsStream)) {
+                AgeGroupRepository.logger.info("loading configuration file {}", localizedName);
+                Map<String, Category> templates = createCategoryTemplates(workbook);
+                createAgeGroups(workbook, templates, es, localizedName);
+                workbook.close();
+            } catch (Exception e) {
+                AgeGroupRepository.logger.error("could not process ageGroup configuration\n{}",
+                        LoggerUtils./**/stackTrace(e));
+            }
+        } catch (FileNotFoundException e1) {
+            AgeGroupRepository.logger.error("could not find ageGroup configuration\n{}",
+                    LoggerUtils./**/stackTrace(e1));
         }
+
     }
 
     private static Object cellName(int iColumn, int iRow) {

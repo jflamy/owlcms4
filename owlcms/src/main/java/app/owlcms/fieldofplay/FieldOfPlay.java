@@ -880,6 +880,7 @@ public class FieldOfPlay {
         String loadGroupName = group != null ? group.getName() : null;
 
         boolean alreadyLoaded = thisGroupName == loadGroupName;
+        this.setPrevWeight(0);
         if (loadGroupName != null && alreadyLoaded && !forceLoad) {
             // already loaded
             logger.debug("{}group {} already loaded", getLoggingName(), loadGroupName);
@@ -887,6 +888,7 @@ public class FieldOfPlay {
         }
         this.setGroup(group);
         this.setCjStarted(false);
+
         if (group != null) {
             // protect against possible UI bug where switching group triggers a dropdown selection
             // which triggers a switchgroup (there may be multiple announcer screens open)
@@ -896,12 +898,14 @@ public class FieldOfPlay {
                 return;
             }
 
-            logger.debug("{}loading data for group {} [already={} forced={} from={}]",
-                    getLoggingName(),
-                    loadGroupName,
-                    alreadyLoaded,
-                    forceLoad,
-                    LoggerUtils.whereFrom());
+            if (logger.isTraceEnabled()) {
+                logger.trace("{}loading data for group {} [already={} forced={} from={}]",
+                        getLoggingName(),
+                        loadGroupName,
+                        alreadyLoaded,
+                        forceLoad,
+                        LoggerUtils.whereFrom());
+            }
             List<Athlete> groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true);
             if (groupAthletes.stream().map(Athlete::getStartNumber).anyMatch(sn -> sn == 0)) {
                 logger./**/warn("start numbers were not assigned correctly");
@@ -925,7 +929,7 @@ public class FieldOfPlay {
 
         int timeAllowed = getTimeAllowed();
         Integer attemptsDone = getCurAthlete().getAttemptsDone();
-        logger.warn("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
+        logger.debug("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
                 getLoggingName(),
                 getCurAthlete() != null ? getCurAthlete().getFullName() : "",
                 getPreviousAthlete() != null ? getPreviousAthlete().getFullName() : "",
@@ -1028,6 +1032,7 @@ public class FieldOfPlay {
             setNewRecords(List.of());
             return;
         }
+
         Integer request = curAthlete.getNextAttemptRequestedWeight();
         int attemptsDone = curAthlete.getAttemptsDone();
         Integer snatchRequest = attemptsDone < 3 ? request : null;
@@ -1053,9 +1058,8 @@ public class FieldOfPlay {
         JsonValue recordsJson = RecordRepository.buildRecordJson(records, snatchRequest, cjRequest, totalRequest);
         setRecordsJson(recordsJson);
         setChallengedRecords(challengedRecords);
-        if (!challengedRecords.isEmpty()) {
-            logger.info("challenged recordsJson {}", challengedRecords);
-            notifyRecords(challengedRecords, false);
+        for (RecordEvent re : challengedRecords) {
+            logger.info("challenged record: {}", re);
         }
     }
 
@@ -1139,7 +1143,6 @@ public class FieldOfPlay {
     }
 
     public void setRecordsJson(JsonValue computedRecords) {
-        logger.warn("setting records json {}", computedRecords);
         this.recordsJson = computedRecords;
     }
 
@@ -1198,11 +1201,13 @@ public class FieldOfPlay {
         }
         logger.trace("uiDisplayCurrentAthleteAndTime {} {} {} {} {}", getCurAthlete(), inBreak, getPreviousAthlete(),
                 nextAthlete, currentDisplayAffected);
+        Integer newWeight = getPrevWeight() != curWeight ? curWeight : null;
+
         pushOutUIEvent(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, getPreviousAthlete(),
                 changingAthlete,
                 getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),
-                inBreak, prevWeight != curWeight ? curWeight : null));
-        prevWeight = curWeight;
+                inBreak, newWeight));
+        setPrevWeight(curWeight);
 
         // cur athlete can be null during some tests.
         int attempts = getCurAthlete() == null ? 0 : getCurAthlete().getAttemptsDone();
@@ -1212,6 +1217,9 @@ public class FieldOfPlay {
                 getLoggingName(), shortName, attempts + 1, curWeight,
                 clock,
                 getClockOwnerInitialTimeAllowed());
+
+        notifyRecords(getChallengedRecords(), false);
+
         if (attempts >= 6) {
             pushOutDone();
         }
@@ -1351,7 +1359,7 @@ public class FieldOfPlay {
                             this,
                             newRecord ? UIEvent.Notification.Level.SUCCESS : UIEvent.Notification.Level.INFO,
                             newRecord ? "Record.NewNotification" : "Record.AttemptNotification",
-                            20000,
+                            2 * UIEvent.Notification.NORMAL_DURATION,
                             rec.getRecordName(),
                             Translator.translate("Record." + rec.getRecordLift().name()),
                             rec.getAgeGrp(),
@@ -1377,21 +1385,21 @@ public class FieldOfPlay {
                 case SNATCH:
                     Integer bestSnatch = a.getBestSnatch();
                     if (bestSnatch > value) {
-                        logger.info("broke {}", rec);
+                        // logger.info("broke {}", rec);
                         createNewRecordEvent(a, newRecords, rec, bestSnatch + 0.0D);
                     }
                     break;
                 case CLEANJERK:
                     Integer bestCleanJerk = a.getBestCleanJerk();
                     if (bestCleanJerk > value) {
-                        logger.info("broke {}", rec);
+                        // logger.info("broke {}", rec);
                         createNewRecordEvent(a, newRecords, rec, bestCleanJerk + 0.0D);
                     }
                     break;
                 case TOTAL:
                     Integer total = a.getTotal();
                     if (total > value) {
-                        logger.info("broke {}", rec);
+                        // logger.info("broke {}", rec);
                         createNewRecordEvent(a, newRecords, rec, total + 0.0D);
                     }
                     break;
@@ -1955,7 +1963,6 @@ public class FieldOfPlay {
      * announcer intervention is required to change and announce.
      */
     private void showDecisionNow(Object origin) {
-        logger.trace("******requesting decision display");
         // we need to recompute majority, since they may have been reversal
         int nbWhite = 0;
         for (int i = 0; i < 3; i++) {
@@ -1982,16 +1989,15 @@ public class FieldOfPlay {
         uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), refereeDecision, refereeTime, origin);
         recomputeLiftingOrder(true, true);
 
-        // make sure decision has been shown
+        // control timing of notifications
         new DelayTimer().schedule(
                 () -> {
-                    notifyRecords(newRecords, true);
+                    notifyRecords(getNewRecords(), true);
                 }, 500);
         // tell ourself to reset after 3 secs.
         // Decision reset will handle end of group.
         new DelayTimer().schedule(
                 () -> {
-                    logger.warn("scheduling ");
                     fopEventPost(new DecisionReset(this));
                 }, DECISION_VISIBLE_DURATION);
     }
@@ -2247,6 +2253,14 @@ public class FieldOfPlay {
 
     public void setNewRecords(List<RecordEvent> newRecords) {
         this.newRecords = newRecords;
+    }
+
+    private int getPrevWeight() {
+        return prevWeight;
+    }
+
+    private void setPrevWeight(int prevWeight) {
+        this.prevWeight = prevWeight;
     }
 
 }

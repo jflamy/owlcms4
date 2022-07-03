@@ -30,6 +30,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
@@ -53,9 +54,9 @@ public class RecordRepository {
             return Json.createNull();
         }
         
-        for (RecordEvent r : records) {
-            logger.warn("buildRecordJson 1 {}",r);
-        }
+//        for (RecordEvent r : records) {
+//            logger.debug("buildRecordJson 1 {}",r);
+//        }
         // order record names according to heaviest total - world records will be above national record
         Map<String, Double> recordTypeMaxTotal = new HashMap<>();
         Multimap<Integer, RecordEvent> recordsByAgeWeight = ArrayListMultimap.create();
@@ -123,7 +124,7 @@ public class RecordRepository {
                 cell.put(Ranking.TOTAL.name(), "\u00a0");
                 for (RecordEvent rec : recordTable[i][j]) {
                     if (recordCategories.length() <= j || recordCategories.get(j) == null) {
-                        String string = rec.getAgeGrp() + " " + rec.getBwCatString();
+                        String string = Translator.translate("Record.CategoryTitle",rec.getAgeGrp(),rec.getBwCatString());
                         recordCategories.set(j, string);
                         column.put("cat", string);
                     }
@@ -177,7 +178,7 @@ public class RecordRepository {
                 curAthlete.getBodyWeight());
 
 //        for (RecordEvent rec : records) {
-//            logger.warn("matching record {}", rec);
+//            logger.debug("matching record {}", rec);
 //        }
 
         // remove duplicates for each kind of recod, keep largest
@@ -187,7 +188,7 @@ public class RecordRepository {
                         Function.identity(),
                         (r1, r2) -> r1.getRecordValue() > r2.getRecordValue() ? r1 : r2));
 //        for (Entry<String, RecordEvent> me: cleanMap.entrySet()) {
-//            logger.warn("clean *** {} {}", me.getKey(), me.getValue().getRecordValue());
+//            logger.debug("clean *** {} {}", me.getKey(), me.getValue().getRecordValue());
 //        }
         records = cleanMap.values().stream().collect(Collectors.toList());
         return records;

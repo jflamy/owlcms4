@@ -668,6 +668,8 @@ public class UIEvent {
             ERROR, WARNING, SUCCESS, INFO;
         }
 
+        public static final int NORMAL_DURATION = 3000;
+
         private String fopEventString;
 
         private String notificationString;
@@ -680,7 +682,6 @@ public class UIEvent {
 
         public Notification(Athlete curAthlete, Object origin, FOPEvent e, FOPState state, Notification.Level level) {
             super(curAthlete, origin);
-            logger.warn("error {} {}", e.getClass().getSimpleName(), state.toString());
             this.setFopEventString(e.getClass().getSimpleName());
             this.setNotificationString(state.toString());
             this.level = level;
@@ -692,7 +693,7 @@ public class UIEvent {
          * @param origin the origin
          */
         public Notification(
-                Athlete a, 
+                Athlete a,
                 Object origin,
                 Notification.Level level,
                 String notificationString,
@@ -706,39 +707,38 @@ public class UIEvent {
             this.setMsDuration(msDuration);
         }
 
-
         public void doNotification() {
             com.vaadin.flow.component.notification.Notification n = new com.vaadin.flow.component.notification.Notification();
             Div div = new Div();
             String close = "\u00A0\u00A0\u00A0\u2715";
             div.addClickListener(click -> n.close());
             if (getFopEventString() != null && !getFopEventString().isEmpty()) {
-                div.setText(FOPError.translateMessage(getNotificationString(), getFopEventString())+close);
+                div.setText(FOPError.translateMessage(getNotificationString(), getFopEventString()) + close);
             } else {
-                div.setText(Translator.translate(getNotificationString(), (Object[])getInfos())+close);
+                div.setText(Translator.translate(getNotificationString(), (Object[]) getInfos()) + close);
             }
             div.getStyle().set("font-size", "large");
             n.add(div);
-            
-            n.setPosition(getLevel() == Level.ERROR ? Position.MIDDLE : Position.TOP_START);
-            n.setDuration(getMsDuration() != null ? getMsDuration() : 3000);
-
 
             switch (getLevel()) {
             case ERROR:
+                n.setPosition(Position.MIDDLE);
                 n.addThemeVariants(NotificationVariant.LUMO_ERROR);
                 break;
             case INFO:
+                n.setPosition(Position.BOTTOM_START);
                 n.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
                 break;
-            case WARNING:
-                n.getElement().getThemeList().add("warning");
-                break;
             case SUCCESS:
+                n.setPosition(Position.BOTTOM_START);
                 n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
                 break;
+            case WARNING:
+                n.setPosition(Position.TOP_START);
+                n.getElement().getThemeList().add("warning");
+                break;
             }
-            
+            n.setDuration(getMsDuration() != null ? getMsDuration() : NORMAL_DURATION);
             n.open();
         }
 

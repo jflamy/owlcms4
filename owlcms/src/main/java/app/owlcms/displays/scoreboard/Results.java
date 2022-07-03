@@ -168,7 +168,10 @@ public class Results extends PolymerTemplate<TemplateModel>
 
             this.getElement().setProperty("weight", "");
             boolean showWeight = false;
-            Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
+            Integer nextAttemptRequestedWeight = null;
+            if (a != null) {
+                nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
+            }
             if (fop.getCeremonyType() == null && a != null && nextAttemptRequestedWeight != null
                     && nextAttemptRequestedWeight > 0) {
                 this.getElement().setProperty("weight", nextAttemptRequestedWeight);

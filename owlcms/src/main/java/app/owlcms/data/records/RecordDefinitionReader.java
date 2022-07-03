@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.data.records;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -267,15 +268,22 @@ public class RecordDefinitionReader {
     }
 
     static void doInsertRecords(String localizedName) {
-        InputStream localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
-        try (Workbook workbook = WorkbookFactory
-                .create(localizedResourceAsStream)) {
-            RecordRepository.logger.info("loading record definition file {}", localizedName);
-            createRecords(workbook, localizedName);
-        } catch (Exception e) {
-            RecordRepository.logger.error("could not process record definition file {}\n{}",
-                    LoggerUtils./**/stackTrace(e));
+        InputStream localizedResourceAsStream;
+        try {
+            localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
+            try (Workbook workbook = WorkbookFactory
+                    .create(localizedResourceAsStream)) {
+                RecordRepository.logger.info("loading record definition file {}", localizedName);
+                createRecords(workbook, localizedName);
+            } catch (Exception e) {
+                RecordRepository.logger.error("could not process record definition file\n{}",
+                        LoggerUtils./**/stackTrace(e));
+            }
+        } catch (FileNotFoundException e1) {
+            RecordRepository.logger.error("could not find record definition file\n{}",
+                    LoggerUtils./**/stackTrace(e1));
         }
+
     }
 
 }

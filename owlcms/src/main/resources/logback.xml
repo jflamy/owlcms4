@@ -57,6 +57,6 @@
 
     <!-- additional tracing/debugging (set level to DEBUG or TRACE) -->
     <logger name="app.owlcms.data.config.Config" level="INFO" />
-    <logger name="app.owlcms.utils.ResourceWalker" level="TRACE" />
+    <logger name="app.owlcms.utils.ResourceWalker" level="INFO" />
     
 </configuration>

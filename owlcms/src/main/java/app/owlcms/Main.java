@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,6 +42,7 @@ import app.owlcms.init.InitialData;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.servlet.EmbeddedJetty;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
@@ -229,18 +231,24 @@ public class Main {
     }
 
     private static void resetRecords() {
-        Path recordsPath = ResourceWalker.getFileOrResourcePath("/records");
-
+        Path recordsPath;
         try {
-            RecordRepository.clearRecords();
-            if (recordsPath != null && Files.exists(recordsPath)) {
-                RecordDefinitionReader.readFolder(recordsPath);
-            } else {
-                logger.info("no record definition files in local/records");
+            recordsPath = ResourceWalker.getFileOrResourcePath("/records");
+            try {
+                RecordRepository.clearRecords();
+                if (recordsPath != null && Files.exists(recordsPath)) {
+                    RecordDefinitionReader.readFolder(recordsPath);
+                } else {
+                    logger.info("no record definition files in local/records");
+                }
+            } catch (IOException e) {
+                logger.error("cannot process records {}");
             }
-        } catch (IOException e) {
-            logger.error("cannot process records {}");
+        } catch (FileNotFoundException e1) {
+            logger.error("cannot find records {}",LoggerUtils.stackTrace(e1));
         }
+
+
     }
 
     private static Locale overrideDisplayLanguage() {
