@@ -1,22 +1,25 @@
-### **Changes for release 4.33.0-alpha06**
+## **Changes for release 4.33.0-alpha07**
 
-**Changes in 4.33.0**
+##### Changes since previous pre-releases
 
-- 4.33.0-alpha06: added announcer notifications for record attempts and for successful new records
-- 4.33.0-alpha06: fixes for reported issues with records: declined (0) attempts issue, update of CJ records.
-- 4.33-0-alpha05: Lack of local/records folder or files no longer causes errors.  The folder is now created by default, with a README.
-- 4.33-0-alpha05: When a record is broken, the display is updated on subsequent attempts. Broken records are listed in the log file. The Excel file must be changed manually (since it is "official")
-- 4.33.0-alpha04: Added highlighting of records being challenged; record section color scheme now in colors.css.
-- 4.33.0-alpha03: Show records on scoreboards
-  - Records are read from Excel spreadsheets located in the local/records directory. All files in the folder are loaded when the program starts; all the tabs in each spreadsheet are read, you can put all the record entries on the same sheet if you prefer. See the following folder for examples: [Sample Record Files](https://www.dropbox.com/sh/sbr804kqfwkgs6g/AAAEcT2sih9MmnrpYzkh6Erma?dl=0) . Note that these files are samples, and most likely out of date - send a copy if you update them.   You will need to copy the files, and maybe translate the record names (second column).
-  - All records for which the current athlete is between the low and high ages (inclusive) and between the body weight boundaries will be shown.  If records from several federations/associations are loaded, all are shown, whether the athlete is eligible or not, because it is interesting to compare.
-  - It is possible to hide the records if there are two many athletes in a group (using the screen dialog or by setting `records=false` in the URL parameters)
-- 4.33.0-alpha02: Made SMF behave the same as Sinclair in preparation for SMF-based team championships (allow comparison when no clean-and-jerk has been made yet).  Fixed generated test data for team membership.
-- 4.33.0-alpha01: Team Sinclair scoreboard now updates on every successful lift.
-- 4.33.0-alpha00: Announcer can act as solo athlete-facing referee. A setting on the announcer screen (⚙) enables emitting down signal on decision so it is heard and shown on displays.
-- 4.33.0-alpha00: Round-robin "fixed order" option for team competitions.  If this option is selected in the Competition Non-Standard Rules, athletes lift according to their lot number on each round. The lot number can be preset at registration or drawn at random depending on competition rules.
-- 4.33.0-alpha00: 24h time will now be used in the date-time picker when using English outside of the "traditional" English-speaking countries ("AU", "GB", "IN", "NZ", "PH", "US", "ZA").  On a laptop, the country is obtained from the operating system.  If using English in the cloud, we recommend setting the `OWLCMS_LOCALE` environment variable to `en_SE` in order to get English with consistent ISO date and 24h time formatting throughout the program.
-- 4.33.0-alpha00: Armenian translation
+4.33.0-alpha07:
+
+- Jury reversal reverses records just set.
+- Several changes to notifications to handle jury reversals and fix previously undetected issues (e.g. notifications on the very first attempt)
+- Translation string `Record.CategoryTitle` now used for category heading in records section.
+- Translation string `Record.AttemptNotification` modified to indicate that the value shown is the *current* value of the record.
+
+### Changes in 4.33
+
+- Records
+  - Records are read from Excel spreadsheets located in the local/records directory.  See the following folder for examples: [Sample Record Files](https://www.dropbox.com/sh/sbr804kqfwkgs6g/AAAEcT2sih9MmnrpYzkh6Erma?dl=0) . Normally you would create one file per federation (regional+national+continental+world), or for specific events, and add the files you want.
+  - Records are read when the program starts. Ideally the Excel files are edited to reflect the official federation records, once they are approved.
+  - All records potentially applicable to the current athlete are shown on the scoreboard.  Records that would be improved by the next lift are highlighted.  If there are too many athletes in a group the records can be hidden using the display-specific settings, or by adding `records=false` to the URL
+  - 
+- Fix: Team Sinclair scoreboard now updates on every successful lift.
+- New: Announcer can act as solo athlete-facing referee. A setting on the announcer screen (⚙) enables emitting down signal on decision so it is heard and shown on displays.
+- New: Round-robin "fixed order" option for team competitions.  If this option is selected in the Competition Non-Standard Rules, athletes lift according to their lot number on each round. The lot number can be preset at registration or drawn at random depending on competition rules.
+- New: 24h time will now be used in the date-time picker when using English outside of the "traditional" English-speaking countries ("AU", "GB", "IN", "NZ", "PH", "US", "ZA").  On a laptop, the country is obtained from the operating system.  If using English in the cloud, we recommend setting the `OWLCMS_LOCALE` environment variable to `en_SE` in order to get English with consistent ISO date and 24h time formatting throughout the program.
 
 ### Highlights from recent stable releases
 
