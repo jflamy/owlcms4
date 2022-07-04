@@ -1,21 +1,20 @@
-## **Changes for release 4.33.0-alpha07**
+## **Changes for release 4.33.0-beta01**
 
 ##### Changes since previous pre-releases
 
-4.33.0-alpha07:
+4.33.0-beta01:
 
-- Jury reversal reverses records just set.
-- Several changes to notifications to handle jury reversals and fix previously undetected issues (e.g. notifications on the very first attempt)
-- Translation string `Record.CategoryTitle` now used for category heading in records section.
-- Translation string `Record.AttemptNotification` modified to indicate that the value shown is the *current* value of the record.
+- Notification of new record shown when jury reverses decision and grants a record-breaking lift.
+- Records are shown according to the sorting order of the file names.
+- Longer notification for records (3 times normal notification delay)
 
 ### Changes in 4.33
 
 - Records
-  - Records are read from Excel spreadsheets located in the local/records directory.  See the following folder for examples: [Sample Record Files](https://www.dropbox.com/sh/sbr804kqfwkgs6g/AAAEcT2sih9MmnrpYzkh6Erma?dl=0) . Normally you would create one file per federation (regional+national+continental+world), or for specific events, and add the files you want.
-  - Records are read when the program starts. Ideally the Excel files are edited to reflect the official federation records, once they are approved.
+  - Records are shown if record definition Excel spreadsheets are present in the local/records directory.  See the following folder for examples: [Sample Record Files](https://www.dropbox.com/sh/sbr804kqfwkgs6g/AAAEcT2sih9MmnrpYzkh6Erma?dl=0) . 
+  - Records definitions are read when the program starts.  Records set during the competition are updated on the scoreboard, but the Excel files need to be updated manually to reflect the official federation records.
+  - Records are shown according to the sorting order of the file names. Use a numerical prefix to control the order (for example 10Canada.xlsx, 20Commonwealth.xlsx, 30PanAm.xlsx).
   - All records potentially applicable to the current athlete are shown on the scoreboard.  Records that would be improved by the next lift are highlighted.  If there are too many athletes in a group the records can be hidden using the display-specific settings, or by adding `records=false` to the URL
-  - 
 - Fix: Team Sinclair scoreboard now updates on every successful lift.
 - New: Announcer can act as solo athlete-facing referee. A setting on the announcer screen (⚙) enables emitting down signal on decision so it is heard and shown on displays.
 - New: Round-robin "fixed order" option for team competitions.  If this option is selected in the Competition Non-Standard Rules, athletes lift according to their lot number on each round. The lot number can be preset at registration or drawn at random depending on competition rules.
