@@ -380,4 +380,8 @@ public class Main {
 //        }
     }
 
+    public static Logger getStartupLogger() {
+        return (Logger) LoggerFactory.getLogger( Main.class.getSimpleName()+".startup");
+    }
+
 }

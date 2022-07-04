@@ -225,22 +225,23 @@ public class AgeGroupDefinitionReader {
     static void doInsertAgeGroup(EnumSet<AgeDivision> es, String localizedName) {
         // InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
         InputStream localizedResourceAsStream;
+        Logger mainLogger = Main.getStartupLogger();
         try {
             localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
             try (Workbook workbook = WorkbookFactory
                     .create(localizedResourceAsStream)) {
                 logger.info("loading configuration file {}", localizedName);
-                LoggerFactory.getLogger(Main.class).info("loading configuration file {}", localizedName);
+                mainLogger.info("loading configuration file {}", localizedName);
                 Map<String, Category> templates = createCategoryTemplates(workbook);
                 createAgeGroups(workbook, templates, es, localizedName);
                 workbook.close();
             } catch (Exception e) {
                 logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
-                LoggerFactory.getLogger(Main.class).error("could not process ageGroup configuration. See logs for details");
+                mainLogger.error("could not process ageGroup configuration. See logs for details");
             }
         } catch (FileNotFoundException e1) {
             logger.error("could not find ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e1));
-            LoggerFactory.getLogger(Main.class).error("could not find ageGroup configuration. See logs for details");
+            mainLogger.error("could not find ageGroup configuration. See logs for details");
         }
 
     }
