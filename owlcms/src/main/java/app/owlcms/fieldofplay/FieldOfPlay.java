@@ -1323,9 +1323,10 @@ public class FieldOfPlay {
         if (actualLift != null) {
             Integer curValue = Math.abs(actualLift);
 
+            boolean reversalToGood = e.success && actualLift <= 0;
             JuryNotification event = new UIEvent.JuryNotification(a, e.getOrigin(),
                     e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
-                    e.success && actualLift <= 0 || !e.success && actualLift > 0);
+                    reversalToGood || !e.success && actualLift > 0);
 
             // must set state before recomputing order so that scoreboards stop blinking the current athlete
             // must also set state prior to sending event, so that state monitor shows new state.
@@ -1344,7 +1345,9 @@ public class FieldOfPlay {
             // tell ourself to reset after 3 secs.
             new DelayTimer().schedule(() -> {
                 // fopEventPost(new DecisionReset(this));
-                // notifyRecords(newRecords, true);
+                if (reversalToGood) {
+                    notifyRecords(newRecords, true);
+                }
                 fopEventPost(new StartLifting(this));
             }, DECISION_VISIBLE_DURATION);
 
@@ -1362,7 +1365,7 @@ public class FieldOfPlay {
                             this,
                             newRecord ? UIEvent.Notification.Level.SUCCESS : UIEvent.Notification.Level.INFO,
                             newRecord ? "Record.NewNotification" : "Record.AttemptNotification",
-                            2 * UIEvent.Notification.NORMAL_DURATION,
+                            3 * UIEvent.Notification.NORMAL_DURATION,
                             rec.getRecordName(),
                             Translator.translate("Record." + rec.getRecordLift().name()),
                             rec.getAgeGrp(),
@@ -1423,40 +1426,23 @@ public class FieldOfPlay {
             return newRecords;
         } else {
             // remove records just established as they are invalid.
-            JPAService.runInTransaction(em -> {
-                for (RecordEvent re : getNewRecords()) {
-                    logger.info("cancelled record: {}", re);
-                    em.remove(em.merge(re));
-                }
-                return null;
-            });
+            if (getNewRecords() != null) {
+                JPAService.runInTransaction(em -> {
+                    for (RecordEvent re : getNewRecords()) {
+                        logger.info("cancelled record: {}", re);
+                        em.remove(em.merge(re));
+                    }
+                    return null;
+                });
+            }
             return new ArrayList<RecordEvent>();
         }
 
     }
 
     private void createNewRecordEvent(Athlete a, List<RecordEvent> newRecords, RecordEvent rec, Double value) {
-        RecordEvent e = new RecordEvent();
-        e.setAgeGrp(rec.getAgeGrp());
-        e.setAgeGrpLower(rec.getAgeGrpLower());
-        e.setAgeGrpUpper(rec.getAgeGrpUpper());
-        e.setAthleteName(a.getFullName());
-        e.setBirthDate(a.getFullBirthDate());
-        e.setBirthYear(a.getYearOfBirth());
-        e.setBwCatLower(rec.getBwCatLower());
-        e.setBwCatUpper(rec.getBwCatUpper());
-        e.setBwCatString(rec.getBwCatString());
-        e.setEvent(Competition.getCurrent().getCompetitionName());
-        e.setEventLocation(Competition.getCurrent().getCompetitionCity());
-        e.setGender(a.getGender());
-        e.setNation(a.getTeam());
-        e.setRecordDate(LocalDate.now());
-        e.setRecordFederation(rec.getRecordFederation());
-        e.setRecordLift(rec.getRecordLift());
-        e.setRecordName(rec.getRecordName());
-        e.setRecordValue(value);
-        e.setRecordYear(LocalDate.now().getYear());
-        newRecords.add(e);
+        RecordEvent newRecord = RecordEvent.newRecord(a, rec, value);
+        newRecords.add(newRecord);
     }
 
     private void doSetState(FOPState state) {
