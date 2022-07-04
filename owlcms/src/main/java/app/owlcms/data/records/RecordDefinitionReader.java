@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.zip.ZipEntry;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -44,7 +45,7 @@ public class RecordDefinitionReader {
 
     private final static Logger logger = (Logger) LoggerFactory.getLogger(RecordDefinitionReader.class);
 
-    public static int createRecords(Workbook workbook, String name) {
+    public static int createRecords(Workbook workbook, String name, String baseName) {
 
         return JPAService.runInTransaction(em -> {
             int iRecord = 0;
@@ -58,6 +59,7 @@ public class RecordDefinitionReader {
                     }
 
                     RecordEvent rec = new RecordEvent();
+                    rec.setFileName(baseName);
 
                     // beware: on a truly empty row we will not enter this loop.
                     for (Cell cell : row) {
@@ -232,9 +234,9 @@ public class RecordDefinitionReader {
                 mainLogger.info("unzipping {}", name);
                 // read the current zip entry
                 try (Workbook workbook = WorkbookFactory.create(zipStream)) {
-                    logger.info("loading record definition file {}", name);
+                    logger.info("loading record definition file {} {}", name, FilenameUtils.removeExtension(name));
                     mainLogger.info("loading record definition file {}", name);
-                    createRecords(workbook, name);
+                    createRecords(workbook, name, FilenameUtils.removeExtension(name));
                 } catch (Exception e) {
                     logger.error("could not process record definition file {}\n{}", name, LoggerUtils./**/stackTrace(e));
                     mainLogger.error("could not process record definition file {}. See log files for details.", name);
@@ -251,13 +253,13 @@ public class RecordDefinitionReader {
         Files.walk(recordsPath).filter(f -> f.toString().endsWith(".xls") || f.toString().endsWith(".xlsx"))
                 .forEach(f -> {
                     InputStream is;
-                    Logger mainLogger = (Logger) LoggerFactory.getLogger(Main.class);
+                    Logger mainLogger = Main.getStartupLogger();
                     try {
                         is = Files.newInputStream(f);
                         try (Workbook workbook = WorkbookFactory.create(is)) {
-                            logger.info("loading record definition file {}", f.toString());
+                            logger.info("loading record definition file {} {}", f.toString(), FilenameUtils.removeExtension(f.getFileName().toString()));
                             mainLogger.info("loading record definition file {}", f.toString());
-                            createRecords(workbook, f.toString());
+                            createRecords(workbook, f.toString(), FilenameUtils.removeExtension(f.getFileName().toString()));
                         } catch (Exception e) {
                             logger.error("could not process record definition file {}\n{}", f.toString(), LoggerUtils./**/stackTrace(e));
                             mainLogger.error("could not process record definition file {}. See log files for details.", f.toString());

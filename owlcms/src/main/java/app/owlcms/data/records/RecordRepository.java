@@ -11,10 +11,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -54,39 +54,31 @@ public class RecordRepository {
             return Json.createNull();
         }
         
-//        for (RecordEvent r : records) {
-//            logger.debug("buildRecordJson 1 {}",r);
-//        }
-        // order record names according to heaviest total - world records will be above national record
-        Map<String, Double> recordTypeMaxTotal = new HashMap<>();
         Multimap<Integer, RecordEvent> recordsByAgeWeight = ArrayListMultimap.create();
+        TreeMap<String, String> rowOrder = new TreeMap<>();
         for (RecordEvent re : records) {
-            Double curMax = recordTypeMaxTotal.get(re.getRecordName());
-            if (re.getRecordLift() == Ranking.TOTAL && (curMax == null || re.getRecordValue() > curMax)) {
-                recordTypeMaxTotal.put(re.getRecordName(), re.getRecordValue());
-            }
+            // rows are ordered according to file name.
+            rowOrder.put(re.getFileName(), re.getRecordName());
+            // synthetic key to arrange records in correct column.
             recordsByAgeWeight.put(re.getAgeGrpLower() * 1000000 + re.getAgeGrpUpper() * 1000 + re.getBwCatUpper(), re);
         }
 
-        // order columns in ascending age groups
-        List<String> rowOrder = recordTypeMaxTotal.entrySet().stream()
-                .sorted((e1, e2) -> Double.compare(e1.getValue(), e2.getValue()))
-                .map(e -> e.getKey()).collect(Collectors.toList());
+        // order columns in ascending age groups;
         List<Integer> columnOrder = recordsByAgeWeight.keySet().stream().sorted((e1, e2) -> Integer.compare(e1, e2))
                 .collect(Collectors.toList());
 
         @SuppressWarnings("unchecked")
         List<RecordEvent>[][] recordTable = new ArrayList[rowOrder.size()][columnOrder.size()];
+        ArrayList<String> rowRecordNames = new ArrayList<>(rowOrder.values());
 
         for (int j1 = 0; j1 < columnOrder.size(); j1++) {
             Collection<RecordEvent> recordsForCurrentCategory = recordsByAgeWeight.get(columnOrder.get(j1));
             for (int i1 = 0; i1 < rowOrder.size(); i1++) {
-                String curRowRecordName = rowOrder.get(i1);
+                String curRowRecordName = rowRecordNames.get(i1);
 
                 List<RecordEvent> recordFound = recordsForCurrentCategory.stream()
                         .filter(r -> r.getRecordName().contentEquals(curRowRecordName)).collect(Collectors.toList());
                 
-
                 // put them in snatch/cj/total order (not needed really), then largest record first in case of multiple
                 // records
                 recordFound.sort(Comparator.comparing(RecordEvent::getRecordLift)
@@ -109,7 +101,7 @@ public class RecordRepository {
         JsonArray recordCategories = Json.createArray();
 
         int ix1 = 0;
-        for (String s : rowOrder) {
+        for (String s : rowRecordNames) {
             recordFederations.set(ix1++, s);
         }
 

@@ -91,7 +91,7 @@ public class RecordDefinitionReaderTest {
             Workbook wb = null;
             try {
                 wb = WorkbookFactory.create(xmlInputStream);
-                int i = RecordDefinitionReader.createRecords(wb, streamURI);
+                int i = RecordDefinitionReader.createRecords(wb, streamURI, null);
                 assertEquals(180, i);
             } finally {
                 if (wb != null) {
