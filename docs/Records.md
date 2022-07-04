@@ -11,9 +11,11 @@ In the following example
 
 ### Loading Records
 
-The program reads all the tabs of all the files found in the `local/records` directory.  For legibility, we suggest using one Excel per federation/jurisdiction, and one tab per age group.  This does *not* actually matter, since the program reads all the files and all the tabs in each file.  In our example, there is a `Canada.xlsx` and a `EWF.xlsx` file.
+The program reads all the tabs of all the files found in the `local/records` directory.  For legibility, we suggest using one Excel per federation/jurisdiction, and one tab per age group.  This does *not* actually matter, since the program reads all the files and all the tabs in each file.
 
-The content of the Canada file is organized with one age group per tab.  In order to support non-standard age groups, and non-standard categories, the lower and upper bounds for ages and for body weights are given. 
+Records are shown according the the sorting order of the files.  To control the sorting order, start the file names with a numerical prefix, e.g. 10_Canada.xlsx and 20_World.xlsx and 30_Commonwealth.xlsx would display the records in that order.
+
+The following figure shows the content of the 10_Canada file, organized with one age group per tab.  In order to support non-standard age groups, and non-standard categories, the lower and upper bounds for ages and for body weights are given. 
 
 ![](img/Records/excel.png)
 
@@ -21,8 +23,8 @@ Notes:
 
 -  The lower bound for bodyweights is the top of the previous category, and the heavyweight category is given with a > (`>109` for example).
 - You can translate the RecordName and AgeGroup columns.  They are used for display only.
-- You should not translate the `Lift` column.
-- Columns after `L` can be left empty.
+- The `Lift` column relies on the first letter being S C or T to distinguish the lift types
+- Columns `K` and after are not currently displayed, but are very useful when updating the files, and for human readers.
 
 ### Updating Records
 
