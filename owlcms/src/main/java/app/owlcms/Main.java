@@ -146,6 +146,12 @@ public class Main {
         parseConfig();
         StartupUtils.setServerPort(serverPort);
         StartupUtils.logStart("owlcms", serverPort);
+        
+        // message about log locations.
+        Path logPath = Path.of("logs","owlcms.log");
+        if (Files.exists(logPath)) {
+            logger.info("Detailed log location: {}", logPath.toAbsolutePath());
+        }
 
         // technical initializations
         System.setProperty("java.net.preferIPv4Stack", "true");
@@ -153,6 +159,7 @@ public class Main {
         ConvertUtils.register(new DateConverter(null), java.util.Date.class);
         ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
 
+        // dependency injection
         injectSuppliers();
 
         return;

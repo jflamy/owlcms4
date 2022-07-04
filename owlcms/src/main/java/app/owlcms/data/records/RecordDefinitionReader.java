@@ -6,7 +6,6 @@
  *******************************************************************************/
 package app.owlcms.data.records;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -21,6 +20,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.Main;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
@@ -28,7 +28,6 @@ import app.owlcms.data.records.RecordEvent.MissingAgeGroup;
 import app.owlcms.data.records.RecordEvent.MissingGender;
 import app.owlcms.data.records.RecordEvent.UnknownIWFBodyWeightCategory;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.ZipUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -228,14 +227,17 @@ public class RecordDefinitionReader {
         while ((nextEntry = zipStream.getNextEntry()) != null) {
             String name = nextEntry.getName();
             if (!name.endsWith("/")) {
+                Logger mainLogger = (Logger) LoggerFactory.getLogger(Main.class);
                 logger.info("unzipping {}", name);
+                mainLogger.info("unzipping {}", name);
                 // read the current zip entry
                 try (Workbook workbook = WorkbookFactory.create(zipStream)) {
-                    RecordRepository.logger.info("loading record definition file {}", name);
+                    logger.info("loading record definition file {}", name);
+                    mainLogger.info("loading record definition file {}", name);
                     createRecords(workbook, name);
                 } catch (Exception e) {
-                    RecordRepository.logger.error("could not process record definition file {}\n{}",
-                            LoggerUtils./**/stackTrace(e));
+                    logger.error("could not process record definition file {}\n{}", name, LoggerUtils./**/stackTrace(e));
+                    mainLogger.error("could not process record definition file {}. See log files for details.", name);
                 }
             }
         }
@@ -249,40 +251,23 @@ public class RecordDefinitionReader {
         Files.walk(recordsPath).filter(f -> f.toString().endsWith(".xls") || f.toString().endsWith(".xlsx"))
                 .forEach(f -> {
                     InputStream is;
+                    Logger mainLogger = (Logger) LoggerFactory.getLogger(Main.class);
                     try {
                         is = Files.newInputStream(f);
                         try (Workbook workbook = WorkbookFactory.create(is)) {
-                            RecordRepository.logger.info("loading record definition file {}", f.toString());
+                            logger.info("loading record definition file {}", f.toString());
+                            mainLogger.info("loading record definition file {}", f.toString());
                             createRecords(workbook, f.toString());
                         } catch (Exception e) {
-                            RecordRepository.logger.error("could not process record definition file {}\n{}",
-                                    LoggerUtils./**/stackTrace(e));
+                            logger.error("could not process record definition file {}\n{}", f.toString(), LoggerUtils./**/stackTrace(e));
+                            mainLogger.error("could not process record definition file {}. See log files for details.", f.toString());
                         }
                     } catch (IOException e1) {
-                        RecordRepository.logger.error("could not open record definition file {}\n{}",
-                                LoggerUtils./**/stackTrace(e1));
+                        logger.error("could not open record definition file {}\n{}", f.toString(), LoggerUtils./**/stackTrace(e1));
+                        mainLogger.error("could not open record definition file {}.  See log files for details.", f.toString());
                     }
 
                 });
-
-    }
-
-    static void doInsertRecords(String localizedName) {
-        InputStream localizedResourceAsStream;
-        try {
-            localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
-            try (Workbook workbook = WorkbookFactory
-                    .create(localizedResourceAsStream)) {
-                RecordRepository.logger.info("loading record definition file {}", localizedName);
-                createRecords(workbook, localizedName);
-            } catch (Exception e) {
-                RecordRepository.logger.error("could not process record definition file\n{}",
-                        LoggerUtils./**/stackTrace(e));
-            }
-        } catch (FileNotFoundException e1) {
-            RecordRepository.logger.error("could not find record definition file\n{}",
-                    LoggerUtils./**/stackTrace(e1));
-        }
 
     }
 

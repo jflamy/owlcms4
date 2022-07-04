@@ -8,6 +8,7 @@
 package app.owlcms.publicresults;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
@@ -43,6 +44,8 @@ public class Main {
     public static void main(String... args) throws Exception {
 
         try {
+            System.err.println("gah");
+            System.out.println("what?");
             init();
             new EmbeddedJetty(new CountDownLatch(0))
                     .setStartLogger(logger)
@@ -70,6 +73,7 @@ public class Main {
      * @throws ParseException
      */
     protected static void init() throws IOException, ParseException {
+        System.err.println("init");
         // Configure logging -- must take place before anything else
         // Redirect java.util.logging logs to SLF4J
         SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -92,6 +96,8 @@ public class Main {
 
         // technical initializations
         System.setProperty("java.net.preferIPv4Stack", "true");
+        
+
         return;
     }
 
