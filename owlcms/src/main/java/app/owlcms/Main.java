@@ -190,7 +190,7 @@ public class Main {
                     ProdData.insertInitialData(0);
                     break;
                 case LARGEGROUP_DEMO:
-                    DemoData.insertInitialData(20, ageDivisions);
+                    DemoData.insertInitialData(14, ageDivisions);
                     break;
                 case LEAVE_AS_IS:
                     break;

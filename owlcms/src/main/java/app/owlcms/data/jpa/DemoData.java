@@ -257,15 +257,15 @@ public class DemoData {
         if (ageDivisions != null && ageDivisions.contains(MASTERS)) {
             createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, MASTERS, 35, 45, M);
             createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, MASTERS, 35, 50, M);
-            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, MASTERS, 35, 45, F);
+            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, (int)Math.round(liftersToLoad / 1.6), MASTERS, 35, 45, F);
             createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, U, 13, 17, Gender.M);
-            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, U, 13, 17, F);
+            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 3, U, 13, 17, F);
         } else {
             createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, DEFAULT, 18, 32, M);
             createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, DEFAULT, 18, 32, M);
-            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, DEFAULT, 18, 32, F);
-            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, DEFAULT, 13, 17, M);
-            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, DEFAULT, 13, 17, F);
+            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, (int)Math.round(liftersToLoad / 1.6), DEFAULT, 18, 32, F);
+            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, (int)Math.round(liftersToLoad / 2.5), DEFAULT, 13, 17, M);
+            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, (int)Math.round(liftersToLoad / 2.5), DEFAULT, 13, 17, F);
 
         }
     }
