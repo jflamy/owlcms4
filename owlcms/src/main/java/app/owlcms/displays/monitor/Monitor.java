@@ -113,6 +113,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
      * Instantiates a new results board.
      */
     public Monitor() {
+        logger.setLevel(Level.DEBUG);
         OwlcmsFactory.waitDBInitialized();
         this.getElement().getStyle().set("width", "100%");
         // we need two items on the stack (current + previous)
@@ -158,6 +159,13 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         if (e instanceof UIEvent.SetTime) {
             // ignore events that don't change state
             return;
+        } else if (e instanceof UIEvent.Notification) {
+            UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+                OwlcmsSession.withFop(fop -> {
+                    logger.debug("---- notification {} {}", fop.getName(),
+                            ((UIEvent.Notification) e).getNotificationString());
+                });
+            });
         }
         // uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e /*, e.getTrace()*/);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
@@ -165,7 +173,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
                 // significant transition
                 doUpdate();
             } else {
-                // logger.debug("event ignored {} : {}",e.getClass().getSimpleName(),OwlcmsSession.getFop().getState());
+                //logger.debug("event ignored {} : {}", e.getClass().getSimpleName(), OwlcmsSession.getFop().getState());
             }
         });
     }
@@ -207,7 +215,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
             history.remove(1);
             computeValues();
         } else {
-            logger.debug("normal {} {} {}", h0, h1, h2);
+            logger.trace("normal {} {} {}", h0, h1, h2);
         }
 
         if (currentState == FOPState.INACTIVE || currentState == FOPState.BREAK) {
