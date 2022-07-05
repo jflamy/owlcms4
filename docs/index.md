@@ -46,10 +46,16 @@ The following videos and demos are available
   
     ![044_AF_Down](img/Displays/044_AF_Down.png ':size=350') ![048_AF_Decision](img/Displays/048_AF_Decision.png ':size=350')
   
-  - **[Scoreboard](Displays#scoreboard)** for public or warm-up room display.  Shows athlete information, timer and decision lights. Current and next lifters are highlighted. Responsive design to accomodate old 4:3 projectors as well as 16:9 wide screens.  Also available is a [lifting order display](Displays#lifting-order).
+  - **[Scoreboard](Displays#scoreboard)** for public or warm-up room display.  Shows athlete information, timer and decision lights (same as the attempt board). Current and next lifters are highlighted.  Leaders from current and previous groups can be shown for multi-group competitions.  If record information has been loaded, the records being attempted are highlighted
   
-     ![020_Scoreboard](img/Displays/020_Scoreboard.png ':size=350') ![Lifting](img/Displays/025_LiftingOrder.png  ':size=350')
+    ![020_Scoreboard](img/Records/records.png ':size=350')
 
+  -  **[Records](Records)**  Record information can be provided using Excel files. Records for multiple federations and events can be loaded.  Record is then shown on the scoreboards, and notifications are given to the officials when records are attempted or set.  If a record is improved, the record information is updated.
+  
+  -  **[Lifting order display](Displays#lifting-order)**. Useful for the marshal or for regional championships to help newer coaches.
+  
+      ![Lifting](img/Displays/025_LiftingOrder.png  ':size=350')
+  
 - [**Team Competitions and Sinclair Competitions**](Displays#Top-Teams-Scoreboard).  Team Results are computed in either the IWF points system or as a sum of Sinclair scores. The competition secretary has access to the full details.
   
     ![050_TeamScoreboard](img/Displays/050_TeamScoreboard.png ':size=350')
