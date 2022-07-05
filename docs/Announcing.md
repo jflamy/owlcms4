@@ -27,9 +27,10 @@ Following the IWF rules, the announcer should then proceed as follows
 1. The announcer says: "**Loaders, please load 62kg on the ba**r"
 2. Once the platform is clear, the announcer says, in the local language then in English: "**The bar is now loaded with 62kg for the first attempt of Larry BROWN**"
 3. When pronouncing the **family name of the athlete in English**, [start the clock](#starting-the-clock) -- see the next section -- by using the `Play` (triangle)button.
+
 ## Starting the clock
 
-3. Either the announcer or the timekeeper can start the clock.  In most meets, in fact, it is probably more convenient that the announcer starts the clock.   We recommend that the announcer start time even when a separate person is acting as timekeeper, since that eliminates confusion.  
+Either the announcer or the timekeeper can start the clock.  In most meets, in fact, it is probably more convenient that the announcer starts the clock.   We recommend that the announcer start time even when a separate person is acting as timekeeper, since that eliminates confusion.  
 
 ![014_StartClock](img/Lifting/014_StartClock.png)
 
@@ -125,7 +126,7 @@ Useful tip: you can use the filtering box to quickly locate an athlete -- the sc
 
 The timekeeper screen operates like the announcer screen.  Both the announcer and timekeeper can start and stop time.  It is often less confusing if the announcer makes sure the platform is clear before announcing, and starts time herself.  The timekeeper can then take over and watch for the bar leaving the platform and going above the knees.
 
-Notes: 
+Notes:
 
 - the Timekeeper screen also works on iPhones, iPads and Android phones.
 - if using the phone with a laptop, you can use the `,` (comma) key to start the timer, and the `.` (period) key to stop it.  This also means that you can connect a programmable button device to control the clock
@@ -145,4 +146,3 @@ This has no incidence other than the graphics shown on the attempt board.
 In the following example, younger boys are using a 15kg bar instead of the regular 20kg bar.  This fact has been noted by clicking on `Non-standard Bar` and entering the weight of the bar.  For even smaller kids, it is possible to enter even smaller bars (10kg) and use no collars (enter 0).  Kids competitions also sometimes use 5kg and 2.5kg large plates in addition to the small metal plates.
 
 ![060_Technical](img/Lifting/060_Technical.png)
-

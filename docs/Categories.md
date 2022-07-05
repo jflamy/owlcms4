@@ -1,5 +1,4 @@
 
-
 OWLCMS computes the category of an athlete based on the age group (based on the birth year) and the body weight.  For example, IWF Youth age groups have different categories than IWF Senior age groups.
 
 The age groups and categories are fully customizable.  This section explains the full range of customizations, from how to make simple changes for a club meet to setting up a Masters event with non-standard age groups.
@@ -73,7 +72,7 @@ If your championship has qualifying totals, you can edit the qualifying totals b
 
 We type the desired total and click "Update".  You can do the same with the other categories.
 
-NOTES: 
+NOTES:
 
 1. Once we are done with all the categories, we click the blue Update at the bottom to save the Age Group.
 2. Because this is time consuming, you may prefer to enter the qualifying totals using a spreadsheet.  See further down on this page.
@@ -104,11 +103,10 @@ We now fill in the information, and select Add.
 
 The default list contains non-standard Masters age groups:
 
--  some federations accept 30-34 year-olds in their Masters meets. If you don't want these age groups, simply leave them unselected.   
+- some federations accept 30-34 year-olds in their Masters meets. If you don't want these age groups, simply leave them unselected.
 - Similarly, some federations have gender-equality rules and include the same age groups for women as for men.  The default list allows you to select a W70 for 70-74 and a W75 group if you so desire..
 
 - The applicability of the percentage rule (as opposed to the 20kg rule) is based on the category in which the athlete is registered.  If an athlete has a Masters category selected, he is expected to lift in a Masters group, where the rule will apply to all lifters.  In a mixed group with senior and Masters lifters, the which rule applies would depend on the lifter.  The fairest rule would be to set the category to Senior for all athletes: Because they are qualified as Masters, the dual eligibility athletes can still appear in the Masters result sheets.
-
 
 ## Creating a Definition File for Local or Federation Settings
 
@@ -138,4 +136,3 @@ In the example above, the cells outilned in red means that in women's <u>categor
 The drop-down at the top of the page shows the available files.  After loading the file, the athletes will automatically be reassigned.
 
 ![080_loadDefinitionFile](img/Categories/080_loadDefinitionFile.png)
-

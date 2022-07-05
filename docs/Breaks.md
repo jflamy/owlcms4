@@ -2,8 +2,6 @@ When selecting a group before the competition start, or after a group is over, t
 
 ![010_countdownToIntro](img/Breaks/010_countdownToIntro.png)
 
-
-
 The break timer dialog will then show up.  By default it will indicate a start time at the next half-hour.  The announcer can change this to be whatever time is on the schedule.  Clicking on the `Duration` radio button allows an alternative (useful if a competition is running late) of "introduction will start in *n* minutes".  The countdown starts when the "Play" button is clicked.
 
 ![020_timeLeftIntro](img/Breaks/020_timeLeftIntro.png)
@@ -25,8 +23,6 @@ The announcer proceeds with the introduction of athletes.  The "End Introduction
 This switches the attempt boards to introduction mode and the scoreboards show an informational header.  
 
 ![041_introductionMode](img/Breaks/041_introductionMode.png)
-
-
 
 ## Countdown to First Snatch
 
@@ -51,8 +47,6 @@ The process is manual (the Announcer or Timekeeper must click the button).  The 
 At any time during lifting, the announcer or technical controller or timekeeper or marshal can use the break button.  This will put the public screens in `Pause` mode.  Using the green `End Break` button exits this mode.
 
 ![070_technicalPause](img/Breaks/070_technicalPause.png)
-
-
 
 ## Medal Ceremony
 

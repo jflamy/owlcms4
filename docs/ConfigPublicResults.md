@@ -3,7 +3,7 @@
 In order to make the results available to remote gyms or to the public at large, you need to have performed the following steps beforehand.
 
 1. **install owlcms**.  For a virtual competition where officials are not all at the same competition site, you should [install owlcms in the Cloud](Heroku).
-2. **install publicresults**, 
+2. **install publicresults**,
    - Normally, publicresults is installed in the cloud as explained in [this page](Remote).
    - Note that It is also possible to install publicresults locally if you do not have internet access and wish a strictly local solution. See [this page](PublicResults_local) instead of this one.
 3. if you have already installed these applications, update them to the latest release by using the [automatic update procedure](UpdatingCloudApplications).
@@ -24,7 +24,7 @@ In order to make the results available to remote gyms or to the public at large,
 5. Start a new browser tab and go to the address for the application (or you can use the `Open app` button at the top right) and check that the application is waiting.
    ![AAAxZYQKZK](img/PublicResults/Example/AAAxZYQKZK.png)
 
-6. Open the owlcms application on Heroku and go to the `Prepare Competition` - `Language and System Settings ` page.
+6. Open the owlcms application on Heroku and go to the `Prepare Competition` - `Language and System Settings` page.
 
    - paste the secret key on the right-hand side -- use the "eye" icon to see what you pasted.
    - copy and paste the correct URL for the publicresults application we opened in step 5.
