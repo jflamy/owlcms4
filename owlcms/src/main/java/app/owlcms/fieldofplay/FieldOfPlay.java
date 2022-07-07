@@ -230,6 +230,7 @@ public class FieldOfPlay {
 
     private List<RecordEvent> challengedRecords;
     private List<RecordEvent> newRecords;
+    private List<RecordEvent> lastChallengedRecords;
 
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
@@ -1337,7 +1338,7 @@ public class FieldOfPlay {
 
             // reversal from bad to good should add records
             // reversal from good to bad must remove records
-            setNewRecords(updateRecords(a, e.success));
+            setNewRecords(updateRecords(a, e.success, getLastChallengedRecords(), getNewRecords()));
 
             recomputeLiftingOrder(true, true);
 
@@ -1380,31 +1381,28 @@ public class FieldOfPlay {
      * @param success
      * @return
      */
-    private List<RecordEvent> updateRecords(Athlete a, boolean success) {
+    private List<RecordEvent> updateRecords(Athlete a, boolean success, List<RecordEvent> challengedRecords, List<RecordEvent> voidableRecords) {
+        logger.warn("updateRecords {} {} {}",a.getShortName(),success,LoggerUtils.whereFrom());
         ArrayList<RecordEvent> newRecords = new ArrayList<RecordEvent>();
         if (success) {
-            List<RecordEvent> brokenRecords = getChallengedRecords();
-            for (RecordEvent rec : brokenRecords) {
+            for (RecordEvent rec : challengedRecords) {
                 Double value = rec.getRecordValue();
                 switch (rec.getRecordLift()) {
                 case SNATCH:
                     Integer bestSnatch = a.getBestSnatch();
                     if (bestSnatch > value) {
-                        // logger.info("broke {}", rec);
                         createNewRecordEvent(a, newRecords, rec, bestSnatch + 0.0D);
                     }
                     break;
                 case CLEANJERK:
                     Integer bestCleanJerk = a.getBestCleanJerk();
                     if (bestCleanJerk > value) {
-                        // logger.info("broke {}", rec);
                         createNewRecordEvent(a, newRecords, rec, bestCleanJerk + 0.0D);
                     }
                     break;
                 case TOTAL:
                     Integer total = a.getTotal();
                     if (total > value) {
-                        // logger.info("broke {}", rec);
                         createNewRecordEvent(a, newRecords, rec, total + 0.0D);
                     }
                     break;
@@ -1425,9 +1423,9 @@ public class FieldOfPlay {
             return newRecords;
         } else {
             // remove records just established as they are invalid.
-            if (getNewRecords() != null) {
+            if (voidableRecords != null) {
                 JPAService.runInTransaction(em -> {
-                    for (RecordEvent re : getNewRecords()) {
+                    for (RecordEvent re : voidableRecords) {
                         logger.info("cancelled record: {}", re);
                         em.remove(em.merge(re));
                     }
@@ -1959,16 +1957,18 @@ public class FieldOfPlay {
 
         if (nbWhite >= 2) {
             setGoodLift(true);
+            setLastChallengedRecords(challengedRecords);
             this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
             getCurAthlete().successfulLift();
         } else {
             setGoodLift(false);
+            setLastChallengedRecords(challengedRecords);
             this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
             getCurAthlete().failedLift();
         }
         getCurAthlete().resetForcedAsCurrent();
         AthleteRepository.save(getCurAthlete());
-        List<RecordEvent> newRecords = updateRecords(getCurAthlete(), getGoodLift());
+        List<RecordEvent> newRecords = updateRecords(getCurAthlete(), getGoodLift(), getChallengedRecords(), List.of());
         setNewRecords(newRecords);
 
         // must set state before recomputing order so that scoreboards stop blinking the current athlete
@@ -2141,6 +2141,7 @@ public class FieldOfPlay {
         resetEmittedFlags();
         prepareDownSignal();
         setWeightAtLastStart();
+        setLastChallengedRecords(List.of());
 
         // enable master to listening for decision
         setState(TIME_RUNNING);
@@ -2249,6 +2250,15 @@ public class FieldOfPlay {
 
     private void setPrevWeight(int prevWeight) {
         this.prevWeight = prevWeight;
+    }
+
+    public List<RecordEvent> getLastChallengedRecords() {
+        return this.lastChallengedRecords;
+    }
+
+    private void setLastChallengedRecords(List<RecordEvent> challengedRecords) {
+        logger.warn("*** lastChallengedRecords {}",challengedRecords);
+        this.lastChallengedRecords = challengedRecords;
     }
 
 }
