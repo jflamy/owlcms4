@@ -1,12 +1,11 @@
-## **Changes for release 4.33.0-beta01**
+## **Changes for release 4.33.0-beta02**
 
 ##### Changes since previous pre-releases
 
-4.33.0-beta01:
+4.33.0-beta02:
 
-- Notification of new record shown when jury reverses decision and grants a record-breaking lift.
-- Records are shown according to the sorting order of the file names.
-- Longer notification for records (3 times normal notification delay)
+- Added missing edge cases for record updates and announcer notifications following jury reversal.
+- Added new sub-states `CURRENT_ATHLETE_DISPLAYED.RECORD_ATTEMPT` and `DECISION_VISIBLE.GOOD_LIFT.NEW_RECORD` to support OBS scene switching automation.
 
 ### Changes in 4.33
 
