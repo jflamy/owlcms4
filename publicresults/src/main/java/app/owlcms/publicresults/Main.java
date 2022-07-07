@@ -8,7 +8,6 @@
 package app.owlcms.publicresults;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
