@@ -2,11 +2,9 @@
 
 ##### Changes since previous pre-releases
 
-4.33.0-beta01:
+4.33.0-beta02:
 
-- Notification of new record shown when jury reverses decision and grants a record-breaking lift.
-- Records are shown according to the sorting order of the file names.
-- Longer notification for records (3 times normal notification delay)
+- Fixed missing record updating cases (record broken or voided) following jury reversal.
 
 ### Changes in 4.33
 
