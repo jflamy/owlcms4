@@ -4,7 +4,8 @@
 
 4.33.0-beta02:
 
-- Fixed missing record updating cases (record broken or voided) following jury reversal.
+- Added missing edge cases for record updates and announcer notifications following jury reversal.
+- Added new sub-states `CURRENT_ATHLETE_DISPLAYED.RECORD_ATTEMPT` and `DECISION_VISIBLE.GOOD_LIFT.NEW_RECORD` to support OBS scene switching automation.
 
 ### Changes in 4.33
 
