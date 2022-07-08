@@ -23,8 +23,8 @@
     --lightTextColor: black;
     --lightBackgroundColor: white;
 
-    --lightTitleTextColor: /* white; */ black;
-    --lightTitleBackgroundColor: /* #6c7ae0; */ white;
+    --lightTitleTextColor: black;
+    --lightTitleBackgroundColor: white;
 
     --lightCurrentTextColor: var(--lightTextColor);
     --lightCurrentBackgroundColor: yellow;
@@ -50,15 +50,13 @@
     --lightRankTextColor: var(--lightTextColor);
     --lightRankBackgroundColor: #F9E79F;
 
-    --lightTotalRankTextColor:
-        /* white; */
-        var(--lightTextColor);
-        
-    --lightTotalRankBackgroundColor:
-        /* purple; */
-        var(--lightRankBackgroundColor);
+    --lightTotalRankTextColor: var(--lightTextColor);
+    --lightTotalRankBackgroundColor: var(--lightRankBackgroundColor);
+    --lightTotalTextColor: var(--lightGoodTextColor);
+    --lightTotalBackgroundColor: blue;
 
     --lightSpacerBackgroundColor: var(--lightTableBorders);
+    --lightEmptyBackgroundColor: slateGrey;
 
     /* results table section, "white on black", most cells have same dark background as page */
 
@@ -95,8 +93,11 @@
 
     --darkTotalRankTextColor: var(--darkTextColor);
     --darkTotalRankBackgroundColor: var(--darkBackgroundColor);
+    --darkTotalTextColor: var(--darkGoodTextColor);
+    --darkTotalBackgroundColor: blue;
 
     --darkSpacerBackgroundColor: var(--darkBackgroundColor);
+    --darkEmptyBackgroundColor: slateGrey;
 
     /* records table section, white on black */
     --lightRecordBoxBorder: var(--pageTextColor); 

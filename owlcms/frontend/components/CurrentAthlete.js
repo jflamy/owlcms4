@@ -31,7 +31,7 @@ class CurrentAthlete extends PolymerElement {
 		</div>
 		<div class="attempt" id="attemptDiv"><span inner-h-t-m-l="[[attempt]]"></span></div>
 		<div class="weight" id="weightDiv">
-			[[weight]]<span style="font-size: 75%">[[t.KgSymbol]]</span>
+			[[weight]]<span style="font-size: 75%"> [[t.KgSymbol]]</span>
 		</div>
 		<div class="timer athleteTimer" id="timerDiv">
 			<timer-element id="timer"></timer-element>
@@ -47,28 +47,31 @@ class CurrentAthlete extends PolymerElement {
 				<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
 					<template is="dom-if" if="[[!l.isSpacer]]">
 						<tr>
-							<td class="veryNarrow">
-								<div>[[l.yearOfBirth]]</div>
+							<td class="category">
+								<div>[[l.category]]</div>
 							</td>
+							<td class="liftName"><div inner-h-t-m-l="[[t.Snatch]]"></div></td>
 							<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-								<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
+								<td class$="[[attempt.goodBadClassName]]">
 									<div>[[attempt.stringValue]]</div>
 								</td>
 							</template>
 							<td class="showRank">
-								<div>[[l.snatchRank]]</div>
+								<div>[[t.Rank]] <b>[[l.snatchRank]]</b></div>
 							</td>
+							<td class="liftName"><div inner-h-t-m-l="[[t.Clean_and_Jerk]]"></div></td>
 							<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
 								<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
 									<div>[[attempt.stringValue]]</div>
 								</td>
 							</template>
 							<td class="showRank">
-								<div>[[l.cleanJerkRank]]</div>
+								<div><div>[[t.Rank]] <b>[[l.cleanJerkRank]]</b></div></div>
 							</td>
-							<td class="veryNarrow">[[l.total]]</td>
-							<td class="veryNarrow">
-								<div>[[l.totalRank]]</div>
+							<td class="liftName"><div inner-h-t-m-l="[[t.Total]]"></div></td>
+							<td class="total">[[l.total]]</td>
+							<td class="totalRank">
+								<div>[[t.Rank]] <b>[[l.totalRank]]</b></div>
 							</td>
 						</tr>
 					</template>
