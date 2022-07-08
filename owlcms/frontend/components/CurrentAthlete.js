@@ -42,7 +42,8 @@ class CurrentAthlete extends PolymerElement {
 		<div class="decisionBox" id="decisionDiv">
 			<decision-element id="decisions"></decision-element>
 		</div>
-			<!-- table class="results" style$="[[hiddenStyle]]">
+		<div class="attempts">
+			<table class="results" style$="[[hiddenStyle]]">
 				<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
 					<template is="dom-if" if="[[!l.isSpacer]]">
 						<tr>
@@ -72,7 +73,7 @@ class CurrentAthlete extends PolymerElement {
 						</tr>
 					</template>
 				</template>
-			</table -->
+			</table>
 		</div>
 	</div>
 </div>`;
@@ -81,7 +82,7 @@ class CurrentAthlete extends PolymerElement {
 	ready() {
 		console.debug("ready");
 		super.ready();
-		this.$.groupDiv.style.visibility = "visible";
+		document.body.setAttribute("theme","dark");
 		this.$.fullNameDiv.style.visibility = "visible";
 		this.$.fullNameDiv.style.display = "block";
 		this.$.startNumberDiv.style.display = "block";
@@ -100,7 +101,6 @@ class CurrentAthlete extends PolymerElement {
 	reset() {
 		console.debug("reset");
 		this.$.timer.reset(this.$.timer);
-		this.$.groupDiv.style.visibility = "visible";
 		this.$.fullNameDiv.style.visibility = "visible";
 		this.$.fullNameDiv.style.display = "block";
 		this.$.startNumberDiv.style.display = "block";
@@ -114,7 +114,6 @@ class CurrentAthlete extends PolymerElement {
 
 	down() {
 		console.debug("refereeDecision");
-		this.$.groupDiv.style.visibility = "visible";
 		this.$.startNumberDiv.style.display = "block";
 		this.$.teamNameDiv.style.display = "block";
 		this.$.attemptDiv.style.display = "block";
@@ -126,7 +125,6 @@ class CurrentAthlete extends PolymerElement {
 
 	doBreak() {
 		console.debug("break");
-		this.$.groupDiv.style.visibility = "hidden";
 		this.$.fullNameDiv.style.visibility = "visible";
 		this.$.fullNameDiv.style.display = "block";
 		this.$.startNumberDiv.style.display = "none";
@@ -140,7 +138,6 @@ class CurrentAthlete extends PolymerElement {
 
 	groupDone() {
 		console.debug("done");
-		this.$.groupDiv.style.visibility = "hidden";
 		this.$.fullNameDiv.style.visibility = "visible";
 		this.$.fullNameDiv.style.display = "block";
 		this.$.startNumberDiv.style.display = "none";
@@ -154,7 +151,6 @@ class CurrentAthlete extends PolymerElement {
 
 	refereeDecision() {
 		console.debug("refereeDecision");
-		this.$.groupDiv.style.visibility = "visible";
 		this.$.decisionDiv.style.display = "block";
 		this.$.weightDiv.style.display = "block";
 		this.$.timerDiv.style.display = "block";
