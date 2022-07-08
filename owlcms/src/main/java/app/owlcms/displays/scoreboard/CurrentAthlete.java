@@ -646,7 +646,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
             JsonObject jri = Json.createObject();
             String stringValue = i.getStringValue();
             boolean notDone = x.getAttemptsDone() < 6;
-            String blink = (notDone ? " blink" : "");
+            String blink = "";//(notDone ? " blink" : "");
 
             jri.put("goodBadClassName", "narrow empty");
             jri.put("stringValue", "");

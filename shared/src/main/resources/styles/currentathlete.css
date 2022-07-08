@@ -1,43 +1,45 @@
 @import 'colors.css';
 
 * {
-    box-sizing: border-box;
+    box-sizing: border-box;ga
 }
 
 .wrapper {
-      --narrow-width: 5ch;
-      --max-narrow-width: 5ch;
-      --veryNarrow-width: 4.5ch;
-      --max-veryNarrow-width: 4.5ch;
-      --medium-width: 6ch;
+    --narrow-width: 5ch;
+    --max-narrow-width: 5ch;
+    --veryNarrow-width: 4.5ch;
+    --max-veryNarrow-width: 4.5ch;
+    --medium-width: 6ch;
 }
 
 /* wide screen */
 @media screen and (min-width: 1401px) {
     .wideTeams {
-      --fontSizeRank-height: 0.9em;
-      --fontSizeRows-height: 0.9em;
-      --name-width: 20vw;
-      --name-max-width: 100%;
-      --club-width: 20vw;
-      --club-max-width: 100%;
-      --category-width: 10ch;
-      --category-max-width: 100%;
-      --rank-width: 5ch;
-      --group-width: 5vw;
+        --fontSizeRank-height: 0.75em;
+        --fontSizeRows-height: 0.75em;
+        --name-width: 20vw;
+        --name-max-width: 100%;
+        --club-width: 20vw;
+        --club-max-width: 100%;
+        --category-width: 10ch;
+        --category-max-width: 100%;
+        --rank-width: 5ch;
+        --group-width: 5vw;
     }
-    .narrowTeams {
-      --fontSizeRank-height: 0.95em;
-      --fontSizeRows-height: 1.15em;
-      --name-width: 35vw;
-      --name-max-width: 100%;
-      --club-width: 8vw;
-      --club-max-width: 100%;
-      --category-width: 12ch;
-      --category-max-width: 100%;
-      --rank-width: 5ch;
-      --group-width: 5vw;
+
+    .wideTeams {
+        --fontSizeRank-height: 0.75em;
+        --fontSizeRows-height: 0.75em;
+        --name-width: 35vw;
+        --name-max-width: 100%;
+        --club-width: 8vw;
+        --club-max-width: 100%;
+        --category-width: 12ch;
+        --category-max-width: 100%;
+        --rank-width: 5ch;
+        --group-width: 5vw;
     }
+
     .showThRank {
         border-collapse: collapse;
         border: solid 1px DarkGray;
@@ -50,17 +52,21 @@
         text-align: center;
         font-size: var(--fontSizeRank-height);
     }
+
     .showRank {
         display: table-cell;
         width: var(--rank-width);
         font-size: var(--fontSizeRows-height);
         text-align: center;
     }
-    .showRank div{
+
+    .showRank div {
         width: var(--rank-width);
         margin: auto;
     }
-    th,td {
+
+    th,
+    td {
         font-size: var(--fontSizeRows-height);
     }
 }
@@ -68,28 +74,30 @@
 /* 720 screen or 1366 laptop */
 @media screen and (max-width: 1400px) and (min-width: 1280px) {
     .wideTeams {
-      --fontSizeRank-height: 0.9em;
-      --fontSizeRows-height: 0.9em;
-      --name-width: 20vw;
-      --name-max-width: 20vw;
-      --club-width: 25vw;
-      --club-max-width: 100%;
-      --category-width: 10ch;
-      --category-max-width: 100%;
-      --rank-width: 5ch;
-      --group-width: 5vw;
+        --fontSizeRank-height: 0.75em;
+        --fontSizeRows-height: 0.75em;
+        --name-width: 20vw;
+        --name-max-width: 20vw;
+        --club-width: 25vw;
+        --club-max-width: 100%;
+        --category-width: 10ch;
+        --category-max-width: 100%;
+        --rank-width: 5ch;
+        --group-width: 5vw;
     }
+
     .narrowTeams {
-      --fontSizeRank-height: 0.9em;
-      --fontSizeRows-height: 1.1em;
-      --name-width: 35vw;
-      --name-max-width: 23vw;
-      --club-width: 12ch;
-      --club-max-width: 100%;
-      --category-width: 12ch;
-      --rank-width: 5ch;
-      --group-width: 5vw;
+        --fontSizeRank-height: 0.75em;
+        --fontSizeRows-height: 0.75em;
+        --name-width: 35vw;
+        --name-max-width: 23vw;
+        --club-width: 12ch;
+        --club-max-width: 100%;
+        --category-width: 12ch;
+        --rank-width: 5ch;
+        --group-width: 5vw;
     }
+
     .showThRank {
         border-collapse: collapse;
         border: solid 1px DarkGray;
@@ -102,17 +110,21 @@
         text-align: center;
         font-size: var(--fontSizeRank-height);
     }
+
     .showRank {
         display: table-cell;
         font-size: var(--fontSizeRows-height);
         text-align: center;
         width: var(--rank-width);
     }
-    .showRank div{
+
+    .showRank div {
         width: var(--rank-width);
         margin: auto;
     }
-    th,td {
+
+    th,
+    td {
         font-size: var(--fontSizeRows-height);
     }
 }
@@ -120,35 +132,38 @@
 /* 1024 projector */
 @media screen and (max-width: 1279px) {
     .wideTeams {
-      --fontSizeRank-height: 0.8em;
-      --fontSizeRows-height: 0.75em;
-      --name-width: 20vw;
-      --name-max-width: 30ch;
-      --club-width: 20vw;
-      --club-max-width: 30ch;
-      --clubName-max-width: 20ch;
-      --category-width: 10ch;
-      --rank-width: 6ch;
-      --group-width: 5vw;
+        --fontSizeRank-height: 0.8em;
+        --fontSizeRows-height: 0.75em;
+        --name-width: 20vw;
+        --name-max-width: 30ch;
+        --club-width: 20vw;
+        --club-max-width: 30ch;
+        --clubName-max-width: 20ch;
+        --category-width: 10ch;
+        --rank-width: 6ch;
+        --group-width: 5vw;
     }
+
     .narrowTeams {
-      --fontSizeRank-height: 0.8em;
-      --fontSizeRows-height: 0.75em;
-      --name-width: 35vw;
-      --name-max-width: 100%;
-      --club-width: 12ch;
-      --club-max-width: 100%;
-      --category-width: inherit;
-      --rank-width: 5ch;
-      --group-width: 5vw;
+        --fontSizeRank-height: 0.8em;
+        --fontSizeRows-height: 0.75em;
+        --name-width: 35vw;
+        --name-max-width: 100%;
+        --club-width: 12ch;
+        --club-max-width: 100%;
+        --category-width: inherit;
+        --rank-width: 5ch;
+        --group-width: 5vw;
     }
+
     .showThRank {
         display: none;
         width: 0px;
         padding: 0 0 0 0;
         margin: 0 0 0 0;
         font-size: var(--fontSizeRank-height);
-    }   
+    }
+
     .showRank {
         display: none;
         width: 0px;
@@ -156,7 +171,9 @@
         margin: 0 0 0 0;
         font-size: var(--fontSizeRows-height);
     }
-    th,td {
+
+    th,
+    td {
         font-size: var(--fontSizeRows-height);
     }
 }
@@ -165,7 +182,6 @@
     font-family: Arial, Helvetica, sans-serif;
     color: var(--pageTextColor);
     background-color: var(--pageBackgroundColor);
-    min-height: 100vh;
     padding: 2vmin 2vmin 2vmin 2vmin;
     overflow: hidden;
     display: flex;
@@ -174,23 +190,12 @@
     justify-content: flex-start;
 }
 
-#results {
-    flex: 1 0 auto;
-}
-
-#leaders {
-    flex: 0 0 auto;
-    width: 100%;
-    min-height: 0;
-    align-self: flex-end;
-}
-
 .attemptBar {
-    display: flex;
+    display: grid;
     font-size: 3.6vmin;
     justify-content: space-between;
-    width: 100%;
     height: 4vmin;
+    grid-template-columns: 4ch 30ch 20ch 10ch 10ch 30em;
 }
 
 .attemptBar .startNumber {
@@ -203,51 +208,67 @@
     border-width: 0.2ex;
     border-style: solid;
     border-color: var(--startNumberBoxColor);
-    width: 1.5em;
     display: flex;
+    width: 1.5em;
     justify-content: center;
     align-self: center;
+    grid-column: 1/2;
 }
 
-.attemptBar .athleteInfo {
-    display: flex;
-    font-size: 3.6vmin;
-    justify-content: space-between;
-    align-items: baseline;
-    width: 100%;
-}
 
-.athleteInfo .fullName {
+.attemptBar .fullName {
     font-weight: bold;
-    flex: 0 0 35%;
     text-align: left;
-    flex-grow: 0.5;
+    grid-column: 2/3;
 }
 
-.athleteInfo .timer {
-    flex: 0 0 15%;
+.attemptBar .club {
+    width: var(--club-width);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    grid-area: 3/4;
+}
+
+.attemptBar .attempt {
+    grid-column: 4/5;
+}
+
+.attemptBar .weight {
+    color: var(--athleteAttemptWeightColor);
+    justify-content: center;
+    align-items: baseline;
+    grid-column: 5/6
+}
+
+.attemptBar .timer {
     text-align: right;
     font-weight: bold;
     width: 10vw;
-    display: flex;
-    justify-content: flex-end;
+    grid-column: 6/7;
 }
 
-.athleteInfo .decisionBox {
-    position: fixed;
+.attemptBar .decisionBox {
+    /*position: fixed;
     top: 2vmin;
     right: 2vmin;
+    */
     width: 15vw;
     height: 10vh;
     background-color: var(--pageBackgroundColor);
-    display: none;
+    grid-column: 6/7;
 }
 
-.athleteInfo .weight {
-    color: var(--athleteAttemptWeightColor);
-    display: flex;
-    justify-content: center;
-    align-items: baseline;
+.breakTime {
+    /* color: #99CCFF; */
+    color: SkyBlue;
+    grid-column: 6/7;
+}
+
+.athleteTimer {
+    color: yellow;
+    grid-column: 6/7;
 }
 
 .group {
@@ -258,10 +279,10 @@
 
 table.results {
     table-layout: fixed;
-    width: 100%;
     border-collapse: collapse;
     border: none;
     background-color: var(--darkBackgroundColor);
+    grid-area:2/2 span 4
     /*margin-bottom: 2vmin;*/
 }
 
@@ -275,19 +296,22 @@ table.results {
     color: var(--lightTextColor);
 }
 
-th, td {
+th,
+td {
     border-collapse: collapse;
     border: solid 1px DarkGray;
     padding: 0.4vmin 1vmin 0.4vmin 1vmin;
     background-clip: padding-box;
-    font-size: var(--fontSizeRows-height);
+    font-size: var();
 }
 
-:host(.dark) th, td {
+:host(.dark) th,
+td {
     font-weight: normal;
 }
 
-:host(.light) th, td {
+:host(.light) th,
+td {
     font-weight: bold;
 }
 
@@ -305,13 +329,6 @@ th, td {
     text-overflow: ellipsis;
 }
 
-.club {
-    width: var(--club-width);
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
 
 .club div {
     max-width: var(--club-max-width);
@@ -323,9 +340,9 @@ th, td {
 }
 
 .ellipsis {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .thRank {
@@ -340,7 +357,7 @@ th, td {
     font-size: var(--fontSizeRank-height);
 }
 
-.thRank div{
+.thRank div {
     width: var(--rank-width);
     margin: auto;
 }
@@ -349,6 +366,7 @@ th, td {
     width: var(--narrow-width);
     text-align: center;
 }
+
 .narrow div {
     width: var(--max-narrow-width);
     display: inline-block;
@@ -358,6 +376,7 @@ th, td {
     width: var(--veryNarrow-width);
     text-align: center;
 }
+
 .veryNarrow div {
     width: var(--max-veryNarrow-width);
     display: inline-block;
@@ -369,6 +388,7 @@ th, td {
     text-align: center;
     font-size: var(--fontSizeRank-height)
 }
+
 .groupCol div {
     width: var(--group-width);
     display: inline-block;
@@ -409,12 +429,12 @@ th, td {
     font-weight: bold;
 }
 
-:host(.dark)  .spacer {
+:host(.dark) .spacer {
     background-color: var(--darkSpacerBackgroundColor);
 }
 
 
-:host(.light)  .spacer {
+:host(.light) .spacer {
     background-color: var(--lightSpacerBackgroundColor);
 }
 
@@ -433,13 +453,13 @@ th, td {
 }
 
 :host(.dark) td.current {
-  color: yellow;
-  font-weight: bold;
+    color: yellow;
+    font-weight: bold;
 }
 
 :host(.light) td.current {
-  background-color: yellow;
-  font-weight: bold;
+    background-color: yellow;
+    font-weight: bold;
 }
 
 
@@ -447,11 +467,17 @@ th, td {
     animation: blink 1.5s step-start 0s infinite;
     -webkit-animation: blink 1.5s step-start 0s infinite;
 }
+
 @keyframes blink {
-   50% {opacity: 0.0;}
+    50% {
+        opacity: 0.0;
+    }
 }
+
 @-webkit-keyframes blink {
-   50% {opacity: 0.0;}
+    50% {
+        opacity: 0.0;
+    }
 }
 
 :host(.dark) .next {
@@ -479,26 +505,28 @@ th, td {
     font-style: italic;
 }
 
-.breakTime {
-    /* color: #99CCFF; */
-    color: SkyBlue;
-}
-
-.athleteTimer {
-    color: yellow;
-}
 
 .v-system-error {
     display: none;
 }
 
-thead { display:none}
+thead {
+    display: none
+}
 
 table#leaders-table thead tr.hide {
-    visibility: hidden; height:1px; line-height: 1px; font-size:1px;
+    visibility: hidden;
+    height: 1px;
+    line-height: 1px;
+    font-size: 1px;
 }
+
 table#leaders-table thead tr.hide th {
-    visibility: hidden; height:1px; line-height: 1px; font-size:1px; padding:0;
+    visibility: hidden;
+    height: 1px;
+    line-height: 1px;
+    font-size: 1px;
+    padding: 0;
 }
 
 .clubNameEllipsis {
@@ -513,14 +541,17 @@ table#leaders-table thead tr.hide th {
 .hiddenTitle {
     display: none;
 }
+
 .bigTitle {
     align-items: center;
     justify-content: center;
     text-align: center;
 }
+
 .competitionName {
     font-size: 4em;
 }
+
 .nextGroup {
     font-size: 2em;
 }
