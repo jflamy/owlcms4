@@ -2,10 +2,10 @@
 
 ##### Changes since previous pre-releases
 
-4.33.0-beta02:
+4.33.0-beta03:
 
-- Added missing edge cases for record updates and announcer notifications following jury reversal.
-- Added new sub-states `CURRENT_ATHLETE_DISPLAYED.RECORD_ATTEMPT` and `DECISION_VISIBLE.GOOD_LIFT.NEW_RECORD` to support OBS scene switching automation.
+- Redid the current athlete view to include previous attempts.  Moved the view button the bottom of the display list.  Renamed the section to "video streaming", edited the description.
+- Sub-state `.RECORD_ATTEMPT` is now appended whenever there are records being challenged.
 
 ### Changes in 4.33
 
