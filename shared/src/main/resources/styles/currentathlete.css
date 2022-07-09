@@ -152,7 +152,6 @@
 }
 
 .attemptBar .timer {
-    text-align: right;
     font-weight: bold;
     grid-column: 6/7;
     grid-row: 1/2;
@@ -245,7 +244,6 @@ table.results td div {
 
 .club div {
     max-width: var(--club-max-width);
-    text-align: center;
     margin: auto;
     white-space: nowrap;
     overflow: hidden;
@@ -269,16 +267,15 @@ table.results td.totalRank {
     background-color: var(--pageBackgroundColor);
     color: var(--pageTextColor);
     /*! width: var(--narrow-width); */
-    text-align: center;
 }
 
 table.results td.category {
     width: var(--category-width);
     white-space: nowrap;
-    /*! text-align: center; */
     border: none;
     background-color: var(--pageBackgroundColor);
     font-size: 0.9em;
+    text-align: center;
 }
 
 table.results td.category div {
@@ -290,9 +287,9 @@ table.results td.category div {
 table.results td.liftName {
     /*! width: var(--category-width); */
     white-space: nowrap;
-    text-align: center;
     border: none;
     background-color: var(--pageBackgroundColor);
+    text-align: center;
 }
 
 table.results td.liftName div {
@@ -353,6 +350,7 @@ table.results td.liftName div {
     background-color: black;
     font-style: italic;
     width: var(--narrow-width);
+    text-align: center;
 }
 
 :host(.light) .request {
