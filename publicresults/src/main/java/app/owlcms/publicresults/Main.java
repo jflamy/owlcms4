@@ -43,8 +43,6 @@ public class Main {
     public static void main(String... args) throws Exception {
 
         try {
-            System.err.println("gah");
-            System.out.println("what?");
             init();
             new EmbeddedJetty(new CountDownLatch(0))
                     .setStartLogger(logger)
@@ -72,7 +70,6 @@ public class Main {
      * @throws ParseException
      */
     protected static void init() throws IOException, ParseException {
-        System.err.println("init");
         // Configure logging -- must take place before anything else
         // Redirect java.util.logging logs to SLF4J
         SLF4JBridgeHandler.removeHandlersForRootLogger();
