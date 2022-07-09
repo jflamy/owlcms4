@@ -106,7 +106,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         VerticalLayout intro1 = new VerticalLayout();
         addP(intro1, getTranslation("darkModeSelect"));
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
-                scoreboardMultiRanks, liftingOrder, currentAthlete,
+                scoreboardMultiRanks, liftingOrder,
                 topSinclair, topTeams, topTeamsSinclair, medals);
         doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
 
@@ -120,7 +120,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 
         VerticalLayout intro4 = new VerticalLayout();
         addP(intro4, getTranslation("OBS.MonitoringExplanation"));
-        FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(obsMonitor);
+        FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(obsMonitor, currentAthlete);
         doGroup(getTranslation("OBS.MonitoringTitle"), intro4, grid4, this);
 
         DebugUtils.gc();

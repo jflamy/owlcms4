@@ -239,7 +239,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
                 // special case where state changes too quickly;
                 pageTitle.append(".NEW_RECORD");
             }
-        } else if (currentState == FOPState.CURRENT_ATHLETE_DISPLAYED && currentChallengedRecords) {
+        } else if (currentChallengedRecords) {
                 pageTitle.append(".RECORD_ATTEMPT");
         }
         
