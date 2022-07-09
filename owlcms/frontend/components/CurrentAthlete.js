@@ -31,7 +31,7 @@ class CurrentAthlete extends PolymerElement {
 		</div>
 		<div class="attempt" id="attemptDiv"><span inner-h-t-m-l="[[attempt]]"></span></div>
 		<div class="weight" id="weightDiv">
-			[[weight]]<span style="font-size: 75%"> [[t.KgSymbol]]</span>
+			<span>[[weight]]<span style="font-size: 75%">&nbsp;[[t.KgSymbol]]</span></span>
 		</div>
 		<div class="timer athleteTimer" id="timerDiv">
 			<timer-element id="timer"></timer-element>
@@ -87,12 +87,12 @@ class CurrentAthlete extends PolymerElement {
 		super.ready();
 		document.body.setAttribute("theme","dark");
 		this.$.fullNameDiv.style.visibility = "visible";
-		this.$.fullNameDiv.style.display = "block";
-		this.$.startNumberDiv.style.display = "block";
-		this.$.teamNameDiv.style.display = "block";
-		this.$.attemptDiv.style.display = "block";
-		this.$.weightDiv.style.display = "block";
-		this.$.timerDiv.style.display = "block";
+		this.$.fullNameDiv.style.display = "grid";
+		this.$.startNumberDiv.style.display = "grid";
+		this.$.teamNameDiv.style.display = "grid";
+		this.$.attemptDiv.style.display = "grid";
+		this.$.weightDiv.style.display = "grid";
+		this.$.timerDiv.style.display = "grid";
 		this.$.breakTimerDiv.style.display = "none";
 		this.$.decisionDiv.style.display = "none";
 	}
@@ -105,44 +105,44 @@ class CurrentAthlete extends PolymerElement {
 		console.debug("reset");
 		this.$.timer.reset(this.$.timer);
 		this.$.fullNameDiv.style.visibility = "visible";
-		this.$.fullNameDiv.style.display = "block";
-		this.$.startNumberDiv.style.display = "block";
-		this.$.teamNameDiv.style.display = "block";
-		this.$.attemptDiv.style.display = "block";
-		this.$.weightDiv.style.display = "block";
-		this.$.timerDiv.style.display = "block";
+		this.$.fullNameDiv.style.display = "grid";
+		this.$.startNumberDiv.style.display = "grid";
+		this.$.teamNameDiv.style.display = "grid";
+		this.$.attemptDiv.style.display = "grid";
+		this.$.weightDiv.style.display = "grid";
+		this.$.timerDiv.style.display = "grid";
 		this.$.breakTimerDiv.style.display = "none";
 		this.$.decisionDiv.style.display = "none";
 	}
 
 	down() {
 		console.debug("refereeDecision");
-		this.$.startNumberDiv.style.display = "block";
-		this.$.teamNameDiv.style.display = "block";
-		this.$.attemptDiv.style.display = "block";
-		this.$.weightDiv.style.display = "block";
-		this.$.timerDiv.style.display = "block";
+		this.$.startNumberDiv.style.display = "grid";
+		this.$.teamNameDiv.style.display = "grid";
+		this.$.attemptDiv.style.display = "grid";
+		this.$.weightDiv.style.display = "grid";
+		this.$.timerDiv.style.display = "grid";
 		this.$.breakTimerDiv.style.display = "none";
-		this.$.decisionDiv.style.display = "block";
+		this.$.decisionDiv.style.display = "grid";
 	}
 
 	doBreak() {
 		console.debug("break");
 		this.$.fullNameDiv.style.visibility = "visible";
-		this.$.fullNameDiv.style.display = "block";
+		this.$.fullNameDiv.style.display = "grid";
 		this.$.startNumberDiv.style.display = "none";
 		this.$.teamNameDiv.style.display = "none";
 		this.$.attemptDiv.style.display = "none";
 		this.$.weightDiv.style.display = "none";
 		this.$.timerDiv.style.display = "none";
-		this.$.breakTimerDiv.style.display = "block";
+		this.$.breakTimerDiv.style.display = "grid";
 		this.$.decisionDiv.style.display = "none";
 	}
 
 	groupDone() {
 		console.debug("done");
 		this.$.fullNameDiv.style.visibility = "visible";
-		this.$.fullNameDiv.style.display = "block";
+		this.$.fullNameDiv.style.display = "grid";
 		this.$.startNumberDiv.style.display = "none";
 		this.$.teamNameDiv.style.display = "none";
 		this.$.attemptDiv.style.display = "none";
@@ -154,9 +154,9 @@ class CurrentAthlete extends PolymerElement {
 
 	refereeDecision() {
 		console.debug("refereeDecision");
-		this.$.decisionDiv.style.display = "block";
-		this.$.weightDiv.style.display = "block";
-		this.$.timerDiv.style.display = "block";
+		this.$.decisionDiv.style.display = "grid";
+		this.$.weightDiv.style.display = "grid";
+		this.$.timerDiv.style.display = "grid";
 		this.$.breakTimerDiv.style.display = "none";
 	}
 
