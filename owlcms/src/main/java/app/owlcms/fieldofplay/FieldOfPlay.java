@@ -231,6 +231,7 @@ public class FieldOfPlay {
     private List<RecordEvent> challengedRecords;
     private List<RecordEvent> newRecords;
     private List<RecordEvent> lastChallengedRecords;
+    private List<RecordEvent> lastNewRecords;
 
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
@@ -1290,6 +1291,7 @@ public class FieldOfPlay {
         pushOutUIEvent(new UIEvent.DecisionReset(getCurAthlete(), this));
         setClockOwner(null);
         // MUST NOT change setClockOwnerInitialTimeAllowed
+        setNewRecords(List.of());
 
         if (getCurAthlete() != null && getCurAthlete().getAttemptsDone() < 6) {
             setState(CURRENT_ATHLETE_DISPLAYED);
@@ -1338,7 +1340,7 @@ public class FieldOfPlay {
 
             // reversal from bad to good should add records
             // reversal from good to bad must remove records
-            setNewRecords(updateRecords(a, e.success, getLastChallengedRecords(), getNewRecords()));
+            setNewRecords(updateRecords(a, e.success, getLastChallengedRecords(), getLastNewRecords()));
 
             recomputeLiftingOrder(true, true);
 
@@ -1955,14 +1957,15 @@ public class FieldOfPlay {
             nbWhite = nbWhite + (Boolean.TRUE.equals(refereeDecision[i]) ? 1 : 0);
         }
 
+        setLastChallengedRecords(challengedRecords);
+        setLastNewRecords(newRecords);
         if (nbWhite >= 2) {
             setGoodLift(true);
-            setLastChallengedRecords(challengedRecords);
             this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
             getCurAthlete().successfulLift();
         } else {
             setGoodLift(false);
-            setLastChallengedRecords(challengedRecords);
+
             this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
             getCurAthlete().failedLift();
         }
@@ -2241,6 +2244,9 @@ public class FieldOfPlay {
     }
 
     public void setNewRecords(List<RecordEvent> newRecords) {
+        if (newRecords == null || newRecords.isEmpty()) {
+            logger.warn("*** clearing records {}", LoggerUtils.whereFrom());
+        }
         this.newRecords = newRecords;
     }
 
@@ -2259,6 +2265,15 @@ public class FieldOfPlay {
     private void setLastChallengedRecords(List<RecordEvent> challengedRecords) {
         logger.warn("*** lastChallengedRecords {}",challengedRecords);
         this.lastChallengedRecords = challengedRecords;
+    }
+    
+    private void setLastNewRecords(List<RecordEvent> newRecords) {
+        logger.warn("*** lastNewRecords {}",newRecords);
+        this.lastNewRecords = newRecords;
+    }
+
+    private List<RecordEvent> getLastNewRecords() {
+        return lastNewRecords;
     }
 
 }

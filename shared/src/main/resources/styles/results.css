@@ -589,7 +589,7 @@ div.ellipsis {
 }
 
 :host(.light) .highlight {
-    background-color: var(--lightRecordHighlightBackground) !important;
+    background-color: var(--lightAttemptHighlightBackground) !important;
     color: var(--lightRecordValueText) !important;
 }
 
@@ -661,6 +661,46 @@ div.ellipsis {
 }
 
 :host(.dark) .highlight {
-    background-color: var(--darkRecordHighlightBackground) !important;
+    background-color: var(--darkAttemptHighlightBackground) !important;
     color: var(--darkRecordValueText) !important;
+}
+
+.recordRow {
+    grid-template-columns: repeat(var(--nbRecords), max-content) 1fr;
+    grid-column-gap: 1em;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-rows: max-content;
+}
+
+.recordNotification {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    height: 100%;
+    font-size: var(--athleteNameFontSize);
+}
+
+:host(.dark) .recordNotification.new {
+    background-color: var(--darkRecordHighlightBackground);
+    color: var(--darkRecordHighlightText);
+}
+
+:host(.dark) .recordNotification.attempt {
+    background-color: var(--darkAttemptHighlightBackground);
+    color: var(--darkAttemptHighlightText);
+}
+
+:host(.light) .recordNotification.new {
+    background-color: var(--lightRecordHighlightBackground);
+    color: var(--lightRecordHighlightText);
+}
+
+:host(.light) .recordNotification.attempt {
+    background-color: var(--lightAttemptHighlightBackground);
+    color: var(--lightAttemptHighlightText);
+}
+
+.recordNotification.none {
+    visibility: hidden;
 }

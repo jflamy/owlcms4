@@ -227,6 +227,11 @@ public class Results extends PolymerTemplate<TemplateModel>
     }
 
     @Override
+    public Timer getDialogTimer() {
+        return this.dialogTimer;
+    }
+
+    @Override
     public Double getEmFontSize() {
         return emFontSize;
     }
@@ -256,6 +261,11 @@ public class Results extends PolymerTemplate<TemplateModel>
         return true;
     }
 
+    @Override
+    public boolean isRecordsDisplay() {
+        return showRecords;
+    }
+
     /**
      * @see app.owlcms.apputils.queryparameters.DisplayParameters#isShowInitialDialog()
      */
@@ -276,11 +286,6 @@ public class Results extends PolymerTemplate<TemplateModel>
     public boolean isSwitchableDisplay() {
         return switchableDisplay;
     }
-    
-    @Override
-    public boolean isRecordsDisplay() {
-        return showRecords;
-    }
 
     /**
      * Reset.
@@ -300,6 +305,11 @@ public class Results extends PolymerTemplate<TemplateModel>
     }
 
     @Override
+    public void setDialogTimer(Timer timer) {
+        this.dialogTimer = timer;
+    }
+
+    @Override
     public void setEmFontSize(Double emFontSize) {
         this.emFontSize = emFontSize;
     }
@@ -312,6 +322,11 @@ public class Results extends PolymerTemplate<TemplateModel>
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    @Override
+    public void setRecordsDisplay(boolean showRecords) {
+        this.showRecords = showRecords;
     }
 
     /**
@@ -333,11 +348,6 @@ public class Results extends PolymerTemplate<TemplateModel>
     @Override
     public void setSwitchableDisplay(boolean warmUpDisplay) {
         this.switchableDisplay = warmUpDisplay;
-    }
-    
-    @Override
-    public void setRecordsDisplay(boolean showRecords) {
-        this.showRecords = showRecords;
     }
 
     @Subscribe
@@ -503,8 +513,6 @@ public class Results extends PolymerTemplate<TemplateModel>
         });
     }
 
-
-
     /**
      * @param groupAthletes, List<Athlete> liftOrder
      * @return
@@ -587,6 +595,11 @@ public class Results extends PolymerTemplate<TemplateModel>
         } else {
             return total.toString();
         }
+    }
+
+    protected JsonArray getAgeGroupNamesJson(LinkedHashMap<String, Participation> currentAthleteParticipations) {
+        JsonArray ageGroups = Json.createArray();
+        return ageGroups;
     }
 
     protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
@@ -791,6 +804,11 @@ public class Results extends PolymerTemplate<TemplateModel>
     protected void updateBottom(String liftType, FieldOfPlay fop) {
         curGroup = fop.getGroup();
         displayOrder = fop.getDisplayOrder();
+        if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
+            highlightRecord();
+        } else {
+            highlightAttemptOrNone(fop, this);
+        }
         if (Config.getCurrent().isSizeOverride() && getEmFontSize() != null) {
             this.getElement().setProperty("sizeOverride", " --tableFontSize:" + getEmFontSize() + "rem;");
         }
@@ -814,11 +832,6 @@ public class Results extends PolymerTemplate<TemplateModel>
         boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
         computeLeaders(done);
         computeRecords(done);
-    }
-
-    protected JsonArray getAgeGroupNamesJson(LinkedHashMap<String, Participation> currentAthleteParticipations) {
-        JsonArray ageGroups = Json.createArray();
-        return ageGroups;
     }
 
     private String computeLiftType(Athlete a) {
@@ -855,6 +868,21 @@ public class Results extends PolymerTemplate<TemplateModel>
     private String formatKg(String total) {
         return (total == null || total.trim().isEmpty()) ? "-"
                 : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
+    }
+
+    private void highlightAttemptOrNone(FieldOfPlay fop, Results parentThis) {
+        if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
+            parentThis.getElement().setProperty("recordKind", "attempt");
+            parentThis.getElement().setProperty("recordMessage",
+                    Translator.translate("Scoreboard.RecordAttempt"));
+        } else {
+            parentThis.getElement().setProperty("recordKind", "none");
+        }
+    }
+
+    private void highlightRecord() {
+        this.getElement().setProperty("recordKind", "new");
+        this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.NewRecord"));
     }
 
     private void init() {
@@ -902,16 +930,6 @@ public class Results extends PolymerTemplate<TemplateModel>
 
     private void uiLog(UIEvent e) {
 //        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom());
-    }
-
-    @Override
-    public Timer getDialogTimer() {
-        return this.dialogTimer;
-    }
-
-    @Override
-    public void setDialogTimer(Timer timer) {
-        this.dialogTimer = timer;
     }
 
 }

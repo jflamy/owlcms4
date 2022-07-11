@@ -142,6 +142,8 @@ public class RecordRepository {
         recordInfo.put("recordNames", recordFederations);
         recordInfo.put("recordCategories", recordCategories);
         recordInfo.put("recordTable", columns);
+        recordInfo.put("nbRecords", Json.create(recordTable[0].length+1));
+        
         return recordInfo;
     }
 

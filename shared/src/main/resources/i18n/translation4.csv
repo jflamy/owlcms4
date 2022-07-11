@@ -778,7 +778,7 @@ Record.CategoryTitle,{0} {1},{0} {1},{0} {1},{0} {1},{0} {1},{0} {1},{0} {1},,,{
 Record.SNATCH,Snatch,Պոկում,Arrancada,Arrancada,Snatch,Snatch,ARRACHÉ,,,Træk,рывке,Snatch,Snatch,Reissen,Snatch,,774,,used for record notifications (use correct declension)
 Record.CLEANJERK,Clean & Jerk,Հրում,Dos Tiempos,Dos Tiempos,Clean & Jerk,Clean & Jerk,ÉPAULÉ-JETÉ,,,Stød,толчке,Clean & Jerk,Clean & Jerk,Stossen,Clean & Jerk,,775,,used for record notifications (use correct declension)
 Record.TOTAL,Total,Երկամարտ,Total Olímpico,Total Olímpico,Total,Total,TOTAL,,,Tokamp,сумме двоеборья,Total,Total,Gesamt,Total,,776,,used for record notifications (use correct declension)
-OBS.MonitoringTitle,Video Streaming,Video Streaming,Video Streaming,Video Streaming,Video Streaming,Video Streaming,Diffusion vidéo,,,Video Streaming,Video Streaming,Video Streaming,Video Streaming,Video Streaming,Video Streaming,,677,,Section title on display selection page
+OBS.MonitoringTitle,Video Streaming,Video Streaming,Video Streaming,Video Streaming,Video Streaming,Video Streaming,Diffusion vidéo,,,Video Streaming,Потоковое видео,Video Streaming,Video Streaming,Video Streaming,Video Streaming,,677,,Section title on display selection page
 OBS.MonitoringExplanation,"The window title of the status monitor reflects the current status of the platform and can be used to control automatic scene switching for video production using OBS Studio and similar software.
 The current athlete view is like the top of the scoreboards, but also includes the previous attempts.","Այս էկրանի պատուհանի վերնագիրը կարտացոլի հարթակի ներկայիս կարգավիճակը և կարող է օգտագործվել OBS Studio-ի և նմանատիպ ծրագրերի միջոցով տեսանկարահանման համար տեսարանների ավտոմատ փոխարկումը կառավարելու համար:
 
@@ -794,9 +794,9 @@ The current athlete view is like the top of the scoreboards, but also includes t
 
 La vue de l'athlète courant est comme le haut des tableaux de résultats, mais montre également les essais.",,,"Titlen på dette display vil afspejle nuværende status for platformen og kan anvendes til at kontrollere automatisk scene switching for video produktion vha OBS Studio og lign. software.
 
-The current athlete view is like the top of the scoreboards, but also includes the previous attempts.","Заголовок окна этого дисплея будет отражать текущее состояние соревнований и может использоваться для управления автоматическим переключением сцен при производстве видео с использованием OBS Studio и аналогичного программного обеспечения.
+The current athlete view is like the top of the scoreboards, but also includes the previous attempts.","Заголовок окна ""Монитор состояния"" будет отражать текущее состояние соревнований и может использоваться для управления автоматическим переключением сцен при производстве видео с использованием OBS Studio и аналогичного программного обеспечения.
 
-The current athlete view is like the top of the scoreboards, but also includes the previous attempts.","The window title of this display will reflect the current status of the platform and can be used to control automatic scene switching for video production using OBS Studio and similar software.
+Экран ""Вызванный спортсмен"" похож на верхнюю часть табло, но также включает в себя предыдущие попытки.","The window title of this display will reflect the current status of the platform and can be used to control automatic scene switching for video production using OBS Studio and similar software.
 
 The current athlete view is like the top of the scoreboards, but also includes the previous attempts.","The window title of this display will reflect the current status of the platform and can be used to control automatic scene switching for video production using OBS Studio and similar software.
 
@@ -805,3 +805,5 @@ The current athlete view is like the top of the scoreboards, but also includes t
 The current athlete view is like the top of the scoreboards, but also includes the previous attempts.","O título da janela desta exibição refletirá o status atual da plataforma e pode ser usado para controlar a troca automática de cena para produção de vídeo usando o OBS Studio ou software similar.
 
 The current athlete view is like the top of the scoreboards, but also includes the previous attempts.",,678,,Explanation of status monitoring on the display selection page
+Scoreboard.NewRecord,New Record!,New Record!,New Record!,New Record!,New Record!,New Record!,Nouveau record !,,,New Record!,New Record!,New Record!,New Record!,New Record!,New Record!,,777,,short message on scoreboard
+Scoreboard.RecordAttempt,Record Attempt,Record Attempt,Record Attempt,Record Attempt,Record Attempt,Record Attempt,Tentative de record,,,Record Attempt,Record Attempt,Record Attempt,Record Attempt,Record Attempt,Record Attempt,,778,,short message on scoreboard

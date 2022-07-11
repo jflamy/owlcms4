@@ -107,14 +107,16 @@
     --lightRecordValueText: var(--pageTextColor);
     --lightRecordValueBackground: var(--pageBackgroundColor);
 
-    --lightRecordHighlightBackground: purple;
-    --lightRecordHighlightText: var(--pageTextColor);
-
     --lightRecordNameBackground: var(--pageBackgroundColor);
     --lightRecordNameText: var(--pageTextColor);
 
     --lightRecordLiftTypeBackground: var(--pageBackgroundColor); 
     --lightRecordLiftTypeText: var(--pageTextColor);
+
+    --lightRecordHighlightBackground: green;
+    --lightRecordHighlightText: white;
+    --lightAttemptHighlightText: white;
+    --lightAttemptHighlightBackground: purple;
 
 
     /* records table section, black on white */
@@ -127,14 +129,14 @@
     --darkRecordValueText: var(--pageTextColor);
     --darkRecordValueBackground: var(--pageBackgroundColor);
 
-    --darkRecordHighlightBackground: purple;
-    --darkRecordHighlightText: var(--pageTextColor);
-
     --darkRecordNameBackground: var(--pageBackgroundColor);
     --darkRecordNameText: var(--pageTextColor);
 
     --darkRecordLiftTypeBackground: var(--pageBackgroundColor); 
     --darkRecordLiftTypeText: var(--pageTextColor);
 
-    
+    --darkRecordHighlightBackground: green;
+    --darkRecordHighlightText: white;
+    --darkAttemptHighlightText: white;
+    --darkAttemptHighlightBackground: purple;
 }
