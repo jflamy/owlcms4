@@ -426,6 +426,17 @@ public class Results extends PolymerTemplate<TemplateModel>
             doDone(e.getGroup());
         });
     }
+    
+    @Subscribe
+    public void slaveJuryNotification(UIEvent.JuryNotification e) {
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            setHidden(false);
+            if (Boolean.TRUE.equals(e.getNewRecord())) {
+                spotlightNewRecord();
+            }
+        });
+    }
 
     @Subscribe
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
@@ -805,9 +816,9 @@ public class Results extends PolymerTemplate<TemplateModel>
         curGroup = fop.getGroup();
         displayOrder = fop.getDisplayOrder();
         if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
-            highlightRecord();
+            spotlightNewRecord();
         } else {
-            highlightAttemptOrNone(fop, this);
+            spotlightAttemptOrNone(fop, this);
         }
         if (Config.getCurrent().isSizeOverride() && getEmFontSize() != null) {
             this.getElement().setProperty("sizeOverride", " --tableFontSize:" + getEmFontSize() + "rem;");
@@ -870,7 +881,7 @@ public class Results extends PolymerTemplate<TemplateModel>
                 : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
     }
 
-    private void highlightAttemptOrNone(FieldOfPlay fop, Results parentThis) {
+    private void spotlightAttemptOrNone(FieldOfPlay fop, Results parentThis) {
         if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
             parentThis.getElement().setProperty("recordKind", "attempt");
             parentThis.getElement().setProperty("recordMessage",
@@ -880,7 +891,7 @@ public class Results extends PolymerTemplate<TemplateModel>
         }
     }
 
-    private void highlightRecord() {
+    private void spotlightNewRecord() {
         this.getElement().setProperty("recordKind", "new");
         this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.NewRecord"));
     }
@@ -930,17 +941,6 @@ public class Results extends PolymerTemplate<TemplateModel>
 
     private void uiLog(UIEvent e) {
 //        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom());
-    }
-    
-    @Subscribe
-    public void slaveNotification(UIEvent.Notification e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            String notificationString = e.getNotificationString();
-            if (notificationString != null && notificationString.startsWith("Record.New")) {
-                logger.warn("highlighting");
-                highlightRecord();
-            }
-        });
     }
 
 }

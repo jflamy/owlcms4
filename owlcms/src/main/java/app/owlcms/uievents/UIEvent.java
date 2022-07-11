@@ -481,13 +481,15 @@ public class UIEvent {
     static public class JuryNotification extends UIEvent {
 
         private JuryDeliberationEventType deliberationEventType;
+        private Boolean newRecord;
         private Boolean reversal;
 
         public JuryNotification(Athlete athleteUnderReview, Object origin,
-                JuryDeliberationEventType deliberationEventType, Boolean reversal) {
+                JuryDeliberationEventType deliberationEventType, Boolean reversal, Boolean newRecord) {
             super(athleteUnderReview, origin);
             this.setDeliberationEventType(deliberationEventType);
             this.setReversal(reversal);
+            this.setNewRecord(newRecord);
         }
 
         /**
@@ -504,6 +506,10 @@ public class UIEvent {
          */
         public JuryDeliberationEventType getDeliberationEventType() {
             return deliberationEventType;
+        }
+
+        public Boolean getNewRecord() {
+            return newRecord;
         }
 
         /**
@@ -525,6 +531,10 @@ public class UIEvent {
          */
         public void setReversal(Boolean reversal) {
             this.reversal = reversal;
+        }
+
+        private void setNewRecord(Boolean newRecord) {
+            this.newRecord = newRecord;
         }
 
     }

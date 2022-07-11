@@ -2,8 +2,10 @@
     --pageBackgroundColor: black;
     --pageTextColor: white;
 
-    /* current attempt section */
+    /* large record notifications: set this variable to hidden if they are not wanted. */
+    --showRecordNotifications: visible;
 
+    /* current attempt section */
     --startNumberBoxColor: red;
     --breakTimerColor: skyblue;
     --athleteTimerColor: yellow;
@@ -98,12 +100,9 @@
 
     --darkSpacerBackgroundColor: var(--darkBackgroundColor);
     --darkEmptyBackgroundColor: slateGrey;
-    
-    /* large record notifications: set to hidden if they are not wanted. */
-    --showRecordNotifications: visible
 
     /* records table section, white on black */
-    --lightRecordBoxBorder: var(--pageTextColor); 
+    --lightRecordBoxBorder: var(--pageTextColor);
     --lightRecordBoxBackground: var(--pageBackgroundColor);
     --lightRecordBoxText: var(--pageTextColor);
 
@@ -113,7 +112,7 @@
     --lightRecordNameBackground: var(--pageBackgroundColor);
     --lightRecordNameText: var(--pageTextColor);
 
-    --lightRecordLiftTypeBackground: var(--pageBackgroundColor); 
+    --lightRecordLiftTypeBackground: var(--pageBackgroundColor);
     --lightRecordLiftTypeText: var(--pageTextColor);
 
     --lightRecordHighlightBackground: green;
@@ -124,7 +123,7 @@
     /* records table section, black on white */
     /* by default, same as white on black */
 
-    --darkRecordBoxBorder: var(--pageTextColor); 
+    --darkRecordBoxBorder: var(--pageTextColor);
     --darkRecordBoxBackground: var(--pageBackgroundColor);
     --darkRecordBoxText: var(--pageTextColor);
 
@@ -134,7 +133,7 @@
     --darkRecordNameBackground: var(--pageBackgroundColor);
     --darkRecordNameText: var(--pageTextColor);
 
-    --darkRecordLiftTypeBackground: var(--pageBackgroundColor); 
+    --darkRecordLiftTypeBackground: var(--pageBackgroundColor);
     --darkRecordLiftTypeText: var(--pageTextColor);
 
     --darkRecordHighlightBackground: green;

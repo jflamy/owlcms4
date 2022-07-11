@@ -1326,9 +1326,12 @@ public class FieldOfPlay {
             Integer curValue = Math.abs(actualLift);
 
             boolean reversalToGood = e.success && actualLift <= 0;
+            boolean reversalToBad = !e.success && actualLift > 0;
+            boolean newRecord = e.success && getLastChallengedRecords() != null
+                    && !getLastChallengedRecords().isEmpty();
             JuryNotification event = new UIEvent.JuryNotification(a, e.getOrigin(),
                     e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
-                    reversalToGood || !e.success && actualLift > 0);
+                    reversalToGood || reversalToBad, newRecord);
 
             // must set state before recomputing order so that scoreboards stop blinking the current athlete
             // must also set state prior to sending event, so that state monitor shows new state.
@@ -1384,8 +1387,9 @@ public class FieldOfPlay {
      * @param success
      * @return
      */
-    private List<RecordEvent> updateRecords(Athlete a, boolean success, List<RecordEvent> challengedRecords, List<RecordEvent> voidableRecords) {
-        logger.warn("updateRecords {} {} {}",a.getShortName(),success,LoggerUtils.whereFrom());
+    private List<RecordEvent> updateRecords(Athlete a, boolean success, List<RecordEvent> challengedRecords,
+            List<RecordEvent> voidableRecords) {
+        logger.debug("updateRecords {} {} {}", a.getShortName(), success, LoggerUtils.whereFrom());
         ArrayList<RecordEvent> newRecords = new ArrayList<RecordEvent>();
         if (success) {
             for (RecordEvent rec : challengedRecords) {
@@ -2131,7 +2135,7 @@ public class FieldOfPlay {
         }
 
         setWeightAtLastStart(0);
-        setNewRecords(List.of()); //FIXME: check this...
+        setNewRecords(List.of()); // FIXME: check this...
         pushOutStartLifting(getGroup(), e.getOrigin());
         uiDisplayCurrentAthleteAndTime(true, e, false);
     }
@@ -2247,7 +2251,7 @@ public class FieldOfPlay {
 
     public void setNewRecords(List<RecordEvent> newRecords) {
         if (newRecords == null || newRecords.isEmpty()) {
-            logger.warn("*** clearing records {}", LoggerUtils.whereFrom());
+            logger.debug("{} + clearing records {}", getLoggingName(), LoggerUtils.whereFrom());
         }
         this.newRecords = newRecords;
     }
@@ -2265,12 +2269,12 @@ public class FieldOfPlay {
     }
 
     private void setLastChallengedRecords(List<RecordEvent> challengedRecords) {
-        logger.warn("*** lastChallengedRecords {}",challengedRecords);
+        logger.debug("{} + lastChallengedRecords {}", getLoggingName(), challengedRecords);
         this.lastChallengedRecords = challengedRecords;
     }
-    
+
     private void setLastNewRecords(List<RecordEvent> newRecords) {
-        logger.warn("*** lastNewRecords {}",newRecords);
+        logger.debug("{} + lastNewRecords {}", getLoggingName(), newRecords);
         this.lastNewRecords = newRecords;
     }
 
