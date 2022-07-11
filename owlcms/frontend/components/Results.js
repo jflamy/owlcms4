@@ -175,19 +175,20 @@ class Results extends PolymerElement {
         </template>
     </table>
     <template is="dom-if" if="[[records]]">
-        <div style$="font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); [[hiddenBlockStyle]]">
+        <div
+            style$="font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); [[hiddenBlockStyle]]; height: 100%;">
             <div class="recordsFiller">&nbsp;</div>
 
-            <div style="float:left;">
-                <div class="recordName recordTitle">[[t.records]]</div>
-                <div class="recordLiftTypeSpacer">&nbsp;</div>
-                <template is="dom-repeat" id="result-table" items="[[records.recordNames]]" as="n">
-                    <div class="recordName">[[n]]</div>
-                </template>
-            </div>
+            <div class="recordRow" style$="--nbRecords: [[records.nbRecords]];">
+                <div>
+                    <div class="recordName recordTitle">[[t.records]]</div>
+                    <div class="recordLiftTypeSpacer">&nbsp;</div>
+                    <template is="dom-repeat" id="result-table" items="[[records.recordNames]]" as="n">
+                        <div class="recordName">[[n]]</div>
+                    </template>
+                </div>
 
-            <template is="dom-repeat" id="result-table" items="[[records.recordTable]]" as="c">
-                <div style="float:left; margin-left: 1em;">
+                <template is="dom-repeat" id="result-table" items="[[records.recordTable]]" as="c">
                     <div class="recordBox">
                         <div class="recordCat" inner-h-t-m-l="[[c.cat]]"></div>
                         <div>
@@ -203,8 +204,10 @@ class Results extends PolymerElement {
                             </div>
                         </template>
                     </div>
-                </div>
-            </template>
+                </template>
+
+                <div class$="recordNotification [[recordKind]]">[[recordMessage]]</div>
+            </div>
         </div>
     </template>
 </div>`;
