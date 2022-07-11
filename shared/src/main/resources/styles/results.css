@@ -684,21 +684,25 @@ div.ellipsis {
 :host(.dark) .recordNotification.new {
     background-color: var(--darkRecordHighlightBackground);
     color: var(--darkRecordHighlightText);
+    visibility: var(--showRecordNotifications);
 }
 
 :host(.dark) .recordNotification.attempt {
     background-color: var(--darkAttemptHighlightBackground);
     color: var(--darkAttemptHighlightText);
+    visibility: var(--showRecordNotifications);
 }
 
 :host(.light) .recordNotification.new {
     background-color: var(--lightRecordHighlightBackground);
     color: var(--lightRecordHighlightText);
+    visibility: var(--showRecordNotifications);
 }
 
 :host(.light) .recordNotification.attempt {
     background-color: var(--lightAttemptHighlightBackground);
     color: var(--lightAttemptHighlightText);
+    visibility: var(--showRecordNotifications);
 }
 
 .recordNotification.none {

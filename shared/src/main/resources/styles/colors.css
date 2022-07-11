@@ -98,6 +98,9 @@
 
     --darkSpacerBackgroundColor: var(--darkBackgroundColor);
     --darkEmptyBackgroundColor: slateGrey;
+    
+    /* large record notifications: set to hidden if they are not wanted. */
+    --showRecordNotifications: visible
 
     /* records table section, white on black */
     --lightRecordBoxBorder: var(--pageTextColor); 
@@ -117,7 +120,6 @@
     --lightRecordHighlightText: white;
     --lightAttemptHighlightText: white;
     --lightAttemptHighlightBackground: purple;
-
 
     /* records table section, black on white */
     /* by default, same as white on black */

@@ -931,5 +931,16 @@ public class Results extends PolymerTemplate<TemplateModel>
     private void uiLog(UIEvent e) {
 //        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom());
     }
+    
+    @Subscribe
+    public void slaveNotification(UIEvent.Notification e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            String notificationString = e.getNotificationString();
+            if (notificationString != null && notificationString.startsWith("Record.New")) {
+                logger.warn("highlighting");
+                highlightRecord();
+            }
+        });
+    }
 
 }

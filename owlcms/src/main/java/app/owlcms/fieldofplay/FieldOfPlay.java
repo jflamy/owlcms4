@@ -1349,6 +1349,7 @@ public class FieldOfPlay {
                 // fopEventPost(new DecisionReset(this));
                 if (reversalToGood) {
                     notifyRecords(newRecords, true);
+                    setLastNewRecords(getNewRecords());
                 }
                 fopEventPost(new StartLifting(this));
             }, DECISION_VISIBLE_DURATION);
@@ -2130,6 +2131,7 @@ public class FieldOfPlay {
         }
 
         setWeightAtLastStart(0);
+        setNewRecords(List.of()); //FIXME: check this...
         pushOutStartLifting(getGroup(), e.getOrigin());
         uiDisplayCurrentAthleteAndTime(true, e, false);
     }
