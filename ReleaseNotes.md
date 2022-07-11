@@ -1,11 +1,11 @@
-## **Changes for release 4.33.0-beta03**
+## **Changes for release 4.33.0-beta04**
 
 ##### Changes since previous pre-releases
 
-4.33.0-beta03:
+4.33.0-beta04:
 
-- Redid the current athlete view to include previous attempts.  Moved the view button the bottom of the display list.  Renamed the section to "video streaming", edited the description.
-- Sub-state `.RECORD_ATTEMPT` is now appended whenever there are records being challenged.
+- Added large notifications in the record section for record attempts and new records.  You can hide the scoreboard record notifications by setting the `--showRecordNotifications` variable at the top of `colors.css` to `hidden` if you do not want them.
+- Adjusted the jury reversal processing to support notifications on the scoreboard.
 
 ### Changes in 4.33
 
