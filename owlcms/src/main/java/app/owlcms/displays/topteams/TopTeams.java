@@ -367,6 +367,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
 
     @Override
     public void setDialog(Dialog dialog) {
+        this.dialog = dialog;
     }
 
     @Override
