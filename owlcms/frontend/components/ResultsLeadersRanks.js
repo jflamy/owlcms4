@@ -68,12 +68,21 @@ class ResultsFull extends PolymerElement {
                 <th class="narrow" style="grid-row: span 2">
                     <div style="display: grid; align-self: center" inner-h-t-m-l="[[t.Birth]]"></div>
                 </th>
+                <th class="custom1" style="grid-row: span 2">
+                    <div style="display: grid; align-self: center" inner-h-t-m-l="[[t.Custom1]]"></div>
+                </th>
+                <th class="custom2" style="grid-row: span 2">
+                    <div style="display: grid; align-self: center" inner-h-t-m-l="[[t.Custom2]]"></div>
+                </th>
                 <th class="club" style="grid-row: span 2">
                     <div style="display: grid; align-self: center" inner-h-t-m-l="[[t.Team]]"></div>
                 </th>
                 <th style$="grid-column: span calc(3 + [[nbRanks]]);" inner-h-t-m-l="[[t.Snatch]]"></th>
                 <th style$="grid-column: span calc(3 + [[nbRanks]]);" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
                 <th style$="grid-column: span calc(1 + [[nbRanks]]);" inner-h-t-m-l="[[t.Total]]"></th>
+                <th class="sinclair" style="grid-row: span 2">
+                    <div style="display: grid; align-self: center" inner-h-t-m-l="[[t.Sinclair]]"></div>
+                </th>
             </tr>
             <tr class="head">
                 <!-- second row is already partially filled from the row spans, only provide the empty cells
@@ -121,6 +130,12 @@ class ResultsFull extends PolymerElement {
                         <td class="yob">
                             <div>[[l.yearOfBirth]]</div>
                         </td>
+                        <td class="custom1">
+                            <div>[[l.custom1]]</div>
+                        </td>
+                        <td class="custom2">
+                            <div>[[l.custom2]]</div>
+                        </td>
                         <td class="club">
                             <div class="ellipsis">[[l.teamName]]</div>
                         </td>
@@ -152,6 +167,9 @@ class ResultsFull extends PolymerElement {
                                 <div inner-h-t-m-l="[[tr]]"></div>
                             </td>
                         </template>
+                        <td class="sinclair">
+                            <div>[[l.sinclair]]</div>
+                        </td>
                     </tr>
                 </template>
             </template>
@@ -160,12 +178,12 @@ class ResultsFull extends PolymerElement {
             <td class="filler" style="grid-column: 1 / -1">&nbsp;</td>
         </tr>
         <template is="dom-if" if="[[leaders]]">
-            <tr class="head" style="[[leadersDisplay]]">
+            <tr class="head" style$="[[leadersDisplay]]">
                 <td style="grid-column: 1 / -1; justify-content: left;" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
                 </td>
             </tr>
             <tr>
-            <tr style="[[leadersDisplay]]">
+            <tr style$="[[leadersDisplay]]">
                 <td class="spacer" style="grid-column: 1 / -1; justify-content: left;"
                     inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
                 </td>
@@ -184,6 +202,12 @@ class ResultsFull extends PolymerElement {
                         </td>
                         <td class="yob">
                             <div>[[l.yearOfBirth]]</div>
+                        </td>
+                        <td class="custom1">
+                            <div>[[l.custom1]]</div>
+                        </td>
+                        <td class="custom2">
+                            <div>[[l.custom2]]</div>
                         </td>
                         <td class="club">
                             <div class="ellipsis">[[l.teamName]]</div>
@@ -216,11 +240,50 @@ class ResultsFull extends PolymerElement {
                                 <div inner-h-t-m-l="[[tr]]"></div>
                             </td>
                         </template>
+                        <td class="sinclair">
+                            <div>[[l.sinclair]]</div>
+                        </td>
                     </tr>
                 </template>
             </template>
         </template>
     </table>
+    <template is="dom-if" if="[[records]]">
+        <div
+            style$="font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); [[hiddenBlockStyle]]; height: 100%;">
+            <div class="recordsFiller">&nbsp;</div>
+
+            <div class="recordRow" style$="--nbRecords: [[records.nbRecords]];">
+                <div>
+                    <div class="recordName recordTitle">[[t.records]]</div>
+                    <div class="recordLiftTypeSpacer">&nbsp;</div>
+                    <template is="dom-repeat" id="result-table" items="[[records.recordNames]]" as="n">
+                        <div class="recordName">[[n]]</div>
+                    </template>
+                </div>
+
+                <template is="dom-repeat" id="result-table" items="[[records.recordTable]]" as="c">
+                    <div class="recordBox">
+                        <div class="recordCat" inner-h-t-m-l="[[c.cat]]"></div>
+                        <div>
+                            <div class="recordLiftType">[[t.recordS]]</div>
+                            <div class="recordLiftType">[[t.recordCJ]]</div>
+                            <div class="recordLiftType">[[t.recordT]]</div>
+                        </div>
+                        <template is="dom-repeat" id="result-table" items="[[c.records]]" as="r">
+                            <div>
+                                <div class$="recordCell [[r.snatchHighlight]]">[[r.SNATCH]]</div>
+                                <div class$="recordCell [[r.cjHighlight]]">[[r.CLEANJERK]]</div>
+                                <div class$="recordCell [[r.totalHighlight]]">[[r.TOTAL]]</div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <div class$="recordNotification [[recordKind]]">[[recordMessage]]</div>
+            </div>
+        </div>
+    </template>
 </div>`;
     }
 
