@@ -7,6 +7,7 @@
 - Fixed missing values in top Sinclair
 - Fixed missing initialization for Team Membership preparation and Top Team display
 - Fixed display dialog colors to use dark theme on all pages
+- Downloaded translation file
 
 4.33.0-beta06:
 
