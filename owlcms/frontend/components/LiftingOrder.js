@@ -55,6 +55,7 @@ class Scoreboard extends PolymerElement {
 
 	ready() {
 		super.ready();
+		document.body.setAttribute("theme","dark");
 		this.$.groupDiv.style.visibility="visible";
 		this.$.fullNameDiv.style.display="block";
 		this.$.orderDiv.style.visibility="visible"

@@ -63,6 +63,7 @@ class TopTeamsSinclair extends PolymerElement {
 
 	ready() {
 		super.ready();
+		document.body.setAttribute("theme","dark");
 		this.$.resultBoardDiv.style.display="block";
 	}
 
