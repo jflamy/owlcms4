@@ -347,7 +347,7 @@ table.medals {
     display: grid;
     border-collapse: collapse;
     grid-template-columns:
-        var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) var(--birthWidth) var(--birthWidth) minmax(50px, var(--teamColumnRatio)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(1, var(--liftResultWidth)) repeat(var(--nbRanks), var(--liftResultWidth)) var(--sinclairWidth);
+    var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) var(--custom1Width) var(--custom2Width) minmax(50px, var(--teamColumnRatio)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(1, var(--liftResultWidth)) repeat(var(--nbRanks), var(--liftResultWidth)) var(--sinclairWidth);
 }
 
 thead,
