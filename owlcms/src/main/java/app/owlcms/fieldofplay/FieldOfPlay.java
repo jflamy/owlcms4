@@ -1963,7 +1963,7 @@ public class FieldOfPlay {
         }
 
         setLastChallengedRecords(challengedRecords);
-        setLastNewRecords(newRecords);
+        
         if (nbWhite >= 2) {
             setGoodLift(true);
             this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
@@ -1978,6 +1978,7 @@ public class FieldOfPlay {
         AthleteRepository.save(getCurAthlete());
         List<RecordEvent> newRecords = updateRecords(getCurAthlete(), getGoodLift(), getChallengedRecords(), List.of());
         setNewRecords(newRecords);
+        setLastNewRecords(newRecords);
 
         // must set state before recomputing order so that scoreboards stop blinking the current athlete
         // must also set state prior to sending event, so that state monitor shows new state.
