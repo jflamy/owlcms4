@@ -171,19 +171,13 @@ public class RecordRepository {
         List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
                 curAthlete.getBodyWeight());
 
-//        for (RecordEvent rec : records) {
-//            logger.debug("matching record {}", rec);
-//        }
-
-        // remove duplicates for each kind of recod, keep largest
+        // remove duplicates for each kind of record, keep largest
         Map<String, RecordEvent> cleanMap = records.stream().collect(
                 Collectors.toMap(
                         RecordEvent::getKey,
                         Function.identity(),
                         (r1, r2) -> r1.getRecordValue() > r2.getRecordValue() ? r1 : r2));
-//        for (Entry<String, RecordEvent> me: cleanMap.entrySet()) {
-//            logger.debug("clean *** {} {}", me.getKey(), me.getValue().getRecordValue());
-//        }
+
         records = cleanMap.values().stream().collect(Collectors.toList());
         return records;
     }
@@ -314,7 +308,7 @@ public class RecordRepository {
             whereList.add("(rec.ageGrpLower <= :age) and (rec.ageGrpUpper >= :age)");
         }
         if (bw != null) {
-            whereList.add("(rec.bwCatLower*1.0 <= :bw) and (rec.bwCatUpper*1.0 >= :bw)");
+            whereList.add("(rec.bwCatLower*1.0 < :bw) and (rec.bwCatUpper*1.0 >= :bw)");
         }
         if (whereList.size() == 0) {
             return null;
