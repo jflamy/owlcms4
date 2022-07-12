@@ -28,6 +28,7 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UpdateEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ProxyUtils;
+import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -78,6 +79,21 @@ public class UpdateReceiverServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
+            String updateKey = req.getParameter("updateKey");
+            if (updateKey == null || !updateKey.equals(secret)) {
+                logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), secret, updateKey);
+                resp.sendError(401, "Denied, wrong credentials");
+                return;
+            }
+            
+            try {
+                ResourceWalker.getFileOrResource("styles/results.css");
+            } catch (Exception e) {
+                logger.info("requesting customization");
+                resp.sendError(412, "Missing configuration files.");
+                return;
+            }
+            
             if (StartupUtils.isDebugSetting()) {
                 logger.setLevel(Level.DEBUG);
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
@@ -87,13 +103,6 @@ public class UpdateReceiverServlet extends HttpServlet {
                         logger./**/debug("    {} = {}", pair.getKey(), pair.getValue()[0]);
                     }
                 }
-            }
-
-            String updateKey = req.getParameter("updateKey");
-            if (updateKey == null || !updateKey.equals(secret)) {
-                logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), secret, updateKey);
-                resp.sendError(401, "Denied, wrong credentials");
-                return;
             }
 
             UpdateEvent updateEvent = new UpdateEvent();

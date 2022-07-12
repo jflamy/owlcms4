@@ -425,7 +425,7 @@ public class Config {
     /**
      * @return the public results url stored in the database, except if overridden by system property or envariable.
      */
-    private String getParamPublicResultsURL() {
+    public String getParamPublicResultsURL() {
         String uURL = StartupUtils.getStringParam("remote");
         if (uURL != null) {
             // old configs with environment variable may still have a trailing /update.

@@ -2136,7 +2136,7 @@ public class FieldOfPlay {
         }
 
         setWeightAtLastStart(0);
-        setNewRecords(List.of()); // FIXME: check this...
+        setNewRecords(List.of());
         pushOutStartLifting(getGroup(), e.getOrigin());
         uiDisplayCurrentAthleteAndTime(true, e, false);
     }

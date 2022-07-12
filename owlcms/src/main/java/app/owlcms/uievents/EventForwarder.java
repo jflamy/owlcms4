@@ -6,7 +6,9 @@
  *******************************************************************************/
 package app.owlcms.uievents;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -17,11 +19,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
@@ -55,6 +60,7 @@ import app.owlcms.uievents.UIEvent.SetTime;
 import app.owlcms.uievents.UIEvent.StartTime;
 import app.owlcms.uievents.UIEvent.StopTime;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -515,7 +521,7 @@ public class EventForwarder implements BreakDisplay {
                 } else {
                     // nothing to show
                     setLeaders(null);
-               }
+                }
             }
         }
 
@@ -701,6 +707,9 @@ public class EventForwarder implements BreakDisplay {
                 if (statusCode != null && statusCode != 200) {
                     logger.error("could not post to {} {} {}", url, statusLine, LoggerUtils.whereFrom(1));
                 }
+                if (statusCode != null && statusCode == 412) {
+                    sendConfig();
+                }
                 EntityUtils.toString(response.getEntity());
             } catch (Exception e1) {
                 logger.error("could not post to {} {}", url, LoggerUtils.exceptionMessage(e1));
@@ -708,6 +717,45 @@ public class EventForwarder implements BreakDisplay {
         } catch (UnsupportedEncodingException e2) {
             // can't happen.
             logger.error("could not post to {} {}", url, LoggerUtils.exceptionMessage(e2));
+        }
+    }
+
+    private void sendConfig() {
+        String destination = Config.getCurrent().getParamPublicResultsURL()+"/config";
+        try {
+            logger.warn("sending config");
+
+            HttpPost post = new HttpPost(destination);
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            InputStream inputStream;
+            
+            try {
+                inputStream = ResourceWalker.getFileOrResource("/styles/results.css");
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            builder.addBinaryBody("upstream", inputStream, ContentType.create("text/css"), "results.css");
+            try {
+                inputStream = ResourceWalker.getFileOrResource("/styles/colors.css");
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            builder.addBinaryBody("upstream", inputStream, ContentType.create("text/css"), "colors.css");
+            HttpEntity entity = builder.build();
+            post.setEntity(entity);
+            try (CloseableHttpClient httpClient = HttpClients.createDefault();
+                    CloseableHttpResponse response = httpClient.execute(post)) {
+                StatusLine statusLine = response.getStatusLine();
+                Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
+                if (statusCode != null && statusCode != 200) {
+                    logger.error("could not send config to {} {} {}", destination, statusLine, LoggerUtils.whereFrom(1));
+                }
+                EntityUtils.toString(response.getEntity());
+            } catch (Exception e1) {
+                logger.error("could not send config to {} {}", destination, LoggerUtils.exceptionMessage(e1));
+            }
+        } catch (Exception e2) {
+            logger.error("could not send config to {} {}", destination, e2);
         }
     }
 
