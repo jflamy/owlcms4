@@ -292,6 +292,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
 
     @Override
     public void setDialog(Dialog dialog) {
+        this.dialog = dialog;
     }
 
     @Override

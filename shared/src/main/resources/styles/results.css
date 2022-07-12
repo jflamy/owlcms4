@@ -16,6 +16,14 @@
     --birthWidth: 6ch;
     --liftResultWidth: 8ch;
 
+    /* change to show these columns */
+    --custom1Width: 0;
+    --custom1Visibility: hidden;
+    --custom2Width: 0;
+    --custom2Visibility: hidden;
+    --sinclairWidth: 0px;
+    --sinclairVisibility: hidden;
+
     /* top part: current attempt information */
     --topRowFontSize: 3vh;
     --athleteNameFontSize: 4vh;
@@ -56,7 +64,6 @@ table.results {
     font-size: var(--tableFontSize);
     --rankWidth: var(--liftResultWidth);
     --rankVisibility: visible;
-
 }
 
 table.results.noranks {
@@ -182,12 +189,55 @@ table.results.noranks {
     color: var(--lightRankTextColor);
 }
 
+/* custom fields */
+
+:host(.dark) table.results tr td.custom1,
+:host(.dark) table.results tr th.custom1 {
+    background-color: var(--darkBackgroundColor);
+    color: var(--darkTextColor);
+    visibility: var(--custom1Visibility);
+}
+
+:host(.light) table.results tr td.custom1,
+:host(.light) table.results tr th.custom1{
+    background-color: var(--lightBackgroundColor);
+    color: var(--lightTextColor);
+    visibility: var(--custom1Visibility);
+}
+
+:host(.dark) table.results tr td.custom2,
+:host(.dark) table.results tr th.custom2 {
+    background-color: var(--darkBackgroundColor);
+    color: var(--darkTextColor);
+    visibility: var(--custom2Visibility);
+}
+
+:host(.light) table.results tr td.custom2
+:host(.light) table.results tr th.custom2{
+    background-color: var(--lightBackgroundColor);
+    color: var(--lightTextColor);
+    visibility: var(--custom2Visibility);
+}
+
+:host(.dark) table.results tr td.sinclair,
+:host(.dark) table.results tr th.sinclair {
+    background-color: var(--darkBackgroundColor);
+    color: var(--darkTextColor);
+    visibility: var(--sinclairVisibility);
+}
+
+:host(.light) table.results tr td.sinclair
+:host(.light) table.results tr th.sinclair {
+    background-color: var(--lightBackgroundColor);
+    color: var(--lightTextColor);
+    visibility: var(--sinclairVisibility);
+}
+
 /* spacer line between categories */
 :host(.dark) table.results tr td.spacer {
     background-color: var(--darkSpacerBackgroundColor);
     padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
     border-right: 0;
-    /* grid-column: 1 / -1;*/
     border: none;
     max-height: 2px;
 }
@@ -195,7 +245,6 @@ table.results.noranks {
 :host(.light) table.results tr td.spacer {
     background-color: var(--lightSpacerBackgroundColor);
     padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
-    /* grid-column: 1 / -1;*/
     border: none;
     max-height: 2px;
 }
@@ -288,7 +337,7 @@ table {
     grid-template-rows:
         repeat(var(--top), min-content) 1fr repeat(var(--bottom), min-content);
     grid-template-columns:
-        var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) minmax(50px, var(--teamColumnRatio)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(1, var(--liftResultWidth)) repeat(var(--nbRanks), var(--liftResultWidth));
+        var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) var(--custom1Width) var(--custom2Width) minmax(50px, var(--teamColumnRatio)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(1, var(--liftResultWidth)) repeat(var(--nbRanks), var(--liftResultWidth)) var(--sinclairWidth);
 }
 
 /* grid layout */
@@ -298,7 +347,7 @@ table.medals {
     display: grid;
     border-collapse: collapse;
     grid-template-columns:
-        var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) minmax(50px, var(--teamColumnRatio)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(1, var(--liftResultWidth)) repeat(var(--nbRanks), var(--liftResultWidth));
+        var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) var(--birthWidth) var(--birthWidth) minmax(50px, var(--teamColumnRatio)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(1, var(--liftResultWidth)) repeat(var(--nbRanks), var(--liftResultWidth)) var(--sinclairWidth);
 }
 
 thead,
@@ -323,7 +372,7 @@ td {
 
 :host(.dark) table.results tr.head td,
 :host(.dark) table.results tr.head th {
-    position: sticky;
+    /* position: sticky; */
     justify-content: center;
     align-content: center;
     font-weight: normal;

@@ -806,4 +806,5 @@ The current athlete view is like the top of the scoreboards, but also includes t
 
 The current athlete view is like the top of the scoreboards, but also includes the previous attempts.",,678,,Explanation of status monitoring on the display selection page
 Scoreboard.NewRecord,New Record!,New Record!,New Record!,New Record!,New Record!,New Record!,Nouveau record !,,,New Record!,New Record!,New Record!,New Record!,New Record!,New Record!,,777,,short message on scoreboard
-Scoreboard.RecordAttempt,Record Attempt,Record Attempt,Record Attempt,Record Attempt,Record Attempt,Record Attempt,Tentative de record,,,Record Attempt,Record Attempt,Record Attempt,Record Attempt,Record Attempt,Record Attempt,,778,,short message on scoreboard
+Scoreboard.Custom1,Additional Info 1,Մարզական կարգ,Información adicional 1,Información adicional 1,Información adicional 1,Información adicional 1,Info 1,,,Yderligere Info 1,Отчество,Additional Info 1,Ytterligare Info 1,Zusatzinfo 1,Informação Adicional 1,,668,,
+Scoreboard.Custom2,Additional Info 2,Այլ տեղեկություն,Información adicional 2,Información adicional 2,Información adicional 2,Información adicional 2,Info 2,,,Yderligere Info 2,Разряд (звание),Additional Info 2,Ytterligare Info 2,Zusatzinfo 2,Informação Adicional 2,,669,,

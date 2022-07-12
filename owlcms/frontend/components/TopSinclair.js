@@ -87,7 +87,7 @@ class TopSinclair extends PolymerElement {
 					</template>
 					<td class="narrow"><div>[[l.total]]</div></td>	
 					<td class="medium"><div>[[l.bw]]</div></td>
-					<td class="medium sinclair"><div>[[l.sinclair]]</div></td>
+					<td class="medium sinclair"><div>[[l.sinclairForDelta]]</div></td>
 					<td class="needed"><div>[[l.needed]]</div></td>
 				</tr>
 			</template>
@@ -98,6 +98,7 @@ class TopSinclair extends PolymerElement {
 
 	ready() {
 		super.ready();
+		document.body.setAttribute("theme","dark");
 		this.$.resultBoardDiv.style.display="block";
 	}
 
