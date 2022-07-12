@@ -2,15 +2,10 @@
 
 ##### Changes since previous pre-releases
 
-4.33.0-beta05:
+4.33.0-beta06:
 
-- Added the custom1 and custom2 fields to the scoreboards (after the year of birth).  They are hidden by default; change the width to non-zero and visibility to `visible` in results.css in order to show one or the other or both.
-- Added the sinclair score to the scoreboards, at the end. Same process as above to enable.
-- Updated the medals and multi-rank scoreboards to use the same results.css stylesheet.
-
-4.33.0-beta04:
-
-- Added large notifications in the record section for record attempts and new records.  You can hide the scoreboard record notifications by setting the `--showRecordNotifications` variable at the top of `colors.css` to `hidden` if you do not want them.
+- Regressions fixed: jury reversal, missing translation line
+- Category boundary issue fixed (next category was included by error if athlete at upper bound)
 
 ### Changes in 4.33
 
@@ -19,6 +14,10 @@
   - Records definitions are read when the program starts.  Records set during the competition are updated on the scoreboard, but the Excel files need to be updated manually to reflect the official federation records.
   - Records are shown according to the sorting order of the file names. Use a numerical prefix to control the order (for example 10Canada.xlsx, 20Commonwealth.xlsx, 30PanAm.xlsx).
   - All records potentially applicable to the current athlete are shown on the scoreboard.  Records that would be improved by the next lift are highlighted.  If there are too many athletes in a group the records can be hidden using the display-specific settings, or by adding `records=false` to the URL
+  - Added large notifications in the record section for record attempts and new records.  You can hide the scoreboard record notifications by setting the `--showRecordNotifications` variable at the top of `colors.css` to `hidden` if you do not want them.
+- Additional hidden fields on the scoreboards
+  - Added the custom1 and custom2 fields to the scoreboards (after the year of birth).  They are hidden by default; change the width to non-zero and visibility to `visible` in results.css in order to show one or the other or both.
+  - Added the Sinclair score to the scoreboards, at the end. Same process as above to enable.
 - Fix: Team Sinclair scoreboard now updates on every successful lift.
 - New: Announcer can act as solo athlete-facing referee. A setting on the announcer screen (⚙) enables emitting down signal on decision so it is heard and shown on displays.
 - New: Round-robin "fixed order" option for team competitions.  If this option is selected in the Competition Non-Standard Rules, athletes lift according to their lot number on each round. The lot number can be preset at registration or drawn at random depending on competition rules.
