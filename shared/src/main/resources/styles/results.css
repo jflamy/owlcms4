@@ -16,7 +16,7 @@
     --birthWidth: 6ch;
     --liftResultWidth: 8ch;
 
-    /* change to show these columns */
+    /* change to show these columns (visibility=visible, width=...ch)*/
     --custom1Width: 0;
     --custom1Visibility: hidden;
     --custom2Width: 0;
