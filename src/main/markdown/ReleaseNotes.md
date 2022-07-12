@@ -2,6 +2,12 @@
 
 ##### Changes since previous pre-releases
 
+4.33.0-beta07:
+
+- Fixed missing values in top Sinclair
+- Fixed missing initialization for Team Membership preparation and Top Team display
+- Fixed display dialog colors to use dark theme on all pages
+
 4.33.0-beta06:
 
 - Regressions fixed: jury reversal, missing translation line
