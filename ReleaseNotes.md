@@ -1,11 +1,16 @@
-## **Changes for release 4.33.0-beta04**
+## **Changes for release 4.33.0-beta05**
 
 ##### Changes since previous pre-releases
+
+4.33.0-beta05:
+
+- Added the custom1 and custom2 fields to the scoreboards (after the year of birth).  They are hidden by default; change the width to non-zero and visibility to `visible` in results.css in order to show one or the other or both.
+- Added the sinclair score to the scoreboards, at the end. Same process as above to enable.
+- Updated the medals and multi-rank scoreboards to use the same results.css stylesheet.
 
 4.33.0-beta04:
 
 - Added large notifications in the record section for record attempts and new records.  You can hide the scoreboard record notifications by setting the `--showRecordNotifications` variable at the top of `colors.css` to `hidden` if you do not want them.
-- Adjusted the jury reversal processing to support notifications on the scoreboard.
 
 ### Changes in 4.33
 
