@@ -20,18 +20,13 @@
     - change hidden to visible
     - set the width to value like 8ch 
     */
-    --totalRankWidth: var(--liftResultWidth);
-    --totalRankVisibility: visible;
     --custom1Width: 0;
     --custom1Visibility: hidden;
     --custom2Width: 0;
     --custom2Visibility: hidden;
-    --sinclairWidth: 0;
-    --sinclairVisibility: hidden;
-    --sinclairRankWidth: 0;
-    --sinclairRankVisibility: hidden;
-    --totalWidth: var(--liftResultWidth);
-    --totalVisibility: visible;
+
+    --rankWidth: var(--liftResultWidth);
+    --rankVisibility: visible;
 
     /* top part: current attempt information */
     --topRowFontSize: 3vh;
@@ -71,13 +66,40 @@
 table.results {
     border-collapse: collapse;
     font-size: var(--tableFontSize);
-    --rankWidth: var(--liftResultWidth);
-    --rankVisibility: visible;
+    --totalRankWidth: var(--liftResultWidth);
+    --totalRankVisibility: visible;
+    --totalWidth: var(--liftResultWidth);
+    --totalVisibility: visible;
+    --sinclairWidth: 0;
+    --sinclairVisibility: hidden;
+    --sinclairRankWidth: 0;
+    --sinclairRankVisibility: hidden;
 }
 
 table.results.noranks {
     --rankWidth: 0;
     --rankVisibility: hidden;
+    --totalRankWidth: var(--liftResultWidth);
+    --totalRankVisibility: visible;
+    --totalWidth: var(--liftResultWidth);
+    --totalVisibility: visible;
+    --sinclairWidth: 0;
+    --sinclairVisibility: hidden;
+    --sinclairRankWidth: 0;
+    --sinclairRankVisibility: hidden;
+}
+
+table.results.sinclair {
+    --rankWidth: 0;
+    --rankVisibility: hidden;
+    --totalRankWidth: 0;
+    --totalRankVisibility: hidden;
+    --sinclairWidth: 8ch;
+    --sinclairVisibility: visible;
+    --sinclairRankWidth: 8ch;
+    --sinclairRankVisibility: visible;
+    --totalWidth: var(--liftResultWidth);
+    --totalVisibility: visible;
 }
 
 /* default cell colors, backgrounds and borders */

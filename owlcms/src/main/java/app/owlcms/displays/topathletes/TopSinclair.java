@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Timer;
 
 import org.slf4j.LoggerFactory;
@@ -29,8 +28,6 @@ import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.InitialPageSettings;
-import com.vaadin.flow.server.PageConfigurator;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
@@ -41,6 +38,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -66,14 +64,14 @@ import elemental.json.JsonValue;
  * Show athlete lifting order
  *
  */
-@SuppressWarnings({ "serial", "deprecation" })
+@SuppressWarnings({ "serial" })
 @Tag("topsinclair-template")
 @JsModule("./components/TopSinclair.js")
 @Route("displays/topsinclair")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
 public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin, PageConfigurator {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
     /**
      * LiftingOrderModel
@@ -137,14 +135,14 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
         DisplayOptions.addLightingEntries(vl, target, this);
     }
 
-    @Override
-    public void configurePage(InitialPageSettings settings) {
-        settings.addMetaTag("mobile-web-app-capable", "yes");
-        settings.addMetaTag("apple-mobile-web-app-capable", "yes");
-        settings.addLink("shortcut icon", "frontend/images/owlcms.ico");
-        settings.addFavIcon("icon", "frontend/images/logo.png", "96x96");
-        settings.setViewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes");
-    }
+//    @Override
+//    public void configurePage(InitialPageSettings settings) {
+//        settings.addMetaTag("mobile-web-app-capable", "yes");
+//        settings.addMetaTag("apple-mobile-web-app-capable", "yes");
+//        settings.addLink("shortcut icon", "frontend/images/owlcms.ico");
+//        settings.addFavIcon("icon", "frontend/images/logo.png", "96x96");
+//        settings.setViewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes");
+//    }
 
     @Override
     public void doBreak(UIEvent e) {
@@ -163,55 +161,20 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
         this.getElement().callJsFunction("reset");
 
         // create copies because we want to change the list
-        setSortedMen(competition.getGlobalSinclairRanking(Gender.M));
-        setSortedWomen(competition.getGlobalSinclairRanking(Gender.F));
-
-        topManSinclair = 0.0D;
-        List<Athlete> sortedMen2 = getSortedMen();
-        if (sortedMen2 != null && !sortedMen2.isEmpty()) {
-            ListIterator<Athlete> iterMen = sortedMen2.listIterator();
-            while (iterMen.hasNext()) {
-                Athlete curMan = iterMen.next();
-                Double curSinclair = (curMan.getAttemptsDone() <= 3 ? curMan.getSinclairForDelta()
-                        : curMan.getSinclair());
-                if (curSinclair <= 0) {
-                    iterMen.remove();
-                } else {
-                    if (curSinclair > topManSinclair) {
-                        topManSinclair = curSinclair;
-                    }
-                }
-            }
-            int minMen = java.lang.Math.min(5, sortedMen2.size());
-            setSortedMen(sortedMen2.subList(0, minMen));
-        } else {
-            setSortedMen(new ArrayList<Athlete>());
-        }
-
-        topWomanSinclair = 0.0D;
-        List<Athlete> sortedWomen2 = getSortedWomen();
-        if (sortedWomen2 != null && !sortedWomen2.isEmpty()) {
-            ListIterator<Athlete> iterWomen = sortedWomen2.listIterator();
-            while (iterWomen.hasNext()) {
-                Athlete curWoman = iterWomen.next();
-                Double curSinclair = (curWoman.getAttemptsDone() <= 3 ? curWoman.getSinclairForDelta()
-                        : curWoman.getSinclair());
-                if (curSinclair <= 0) {
-                    iterWomen.remove();
-                } else {
-                    if (curSinclair > topWomanSinclair) {
-                        topWomanSinclair = curSinclair;
-                    }
-                }
-            }
-            int minWomen = java.lang.Math.min(5, getSortedWomen().size());
-            setSortedWomen(getSortedWomen().subList(0, minWomen));
-        } else {
-            setSortedWomen(new ArrayList<Athlete>());
-        }
+        AthleteSorter.TopSinclair topSinclair;
+        List<Athlete> sortedMen2 = new ArrayList<Athlete>(competition.getGlobalSinclairRanking(Gender.M));
+        topSinclair = (AthleteSorter.topSinclair(sortedMen2,5));
+        setSortedMen(topSinclair.topAthletes);
+        topManSinclair = topSinclair.best;
+        
+        List<Athlete> sortedWomen2 = new ArrayList<Athlete>(competition.getGlobalSinclairRanking(Gender.F));
+        topSinclair = (AthleteSorter.topSinclair(sortedWomen2,5));
+        setSortedWomen(topSinclair.topAthletes);
+        topWomanSinclair = topSinclair.best;
 
         updateBottom(getModel());
     }
+
 
     public void getAthleteJson(Athlete a, JsonObject ja, Gender g, int needed) {
         String category;

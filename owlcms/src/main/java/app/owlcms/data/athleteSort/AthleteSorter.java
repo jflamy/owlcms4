@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -630,4 +631,38 @@ public class AthleteSorter implements Serializable {
         }
         return 0D;
     }
+    
+    public static class TopSinclair {
+        public double best;
+        public List<Athlete> topAthletes;
+        TopSinclair(double best, List<Athlete> topAthletes) {
+            this.best = best;
+            this.topAthletes = topAthletes;
+        }
+    }
+
+    public static TopSinclair topSinclair(List<Athlete> sortedAthletes, int nbAthletes) {
+        double topSinclair = 0.0D;
+        if (sortedAthletes != null && !sortedAthletes.isEmpty()) {
+            ListIterator<Athlete> iterAthletes = sortedAthletes.listIterator();
+            while (iterAthletes.hasNext()) {
+                Athlete curMan = iterAthletes.next();
+                Double curSinclair = (curMan.getAttemptsDone() <= 3 ? curMan.getSinclairForDelta()
+                        : curMan.getSinclair());
+                if (curSinclair <= 0) {
+                    iterAthletes.remove();
+                } else {
+                    if (curSinclair > topSinclair) {
+                        topSinclair = curSinclair;
+                    }
+                }
+            }
+            int minAthletes = java.lang.Math.min(nbAthletes, sortedAthletes.size());
+            return new TopSinclair(topSinclair, sortedAthletes.subList(0, minAthletes));
+        } else {
+            sortedAthletes = (new ArrayList<Athlete>());
+            return new TopSinclair(0.0D, List.of());
+        }
+    }
+
 }

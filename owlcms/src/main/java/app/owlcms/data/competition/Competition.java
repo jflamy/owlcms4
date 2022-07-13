@@ -49,6 +49,7 @@ import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.i18n.Translator;
@@ -1456,5 +1457,9 @@ public class Competition {
         AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SMM);
 
         reportSMF(sortedMen, sortedWomen);
+    }
+
+    public boolean isSinclair() {
+        return Config.getCurrent().featureSwitch("SinclairMeet",true);
     }
 }
