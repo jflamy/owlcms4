@@ -1,6 +1,10 @@
-## **Changes for release 4.33.0-beta07**
+## **Changes for release 4.33.0-beta08**
 
 ##### Changes since previous pre-releases
+
+4.33.0-beta08:
+
+- Added Sinclair rank at the end of the scoreboard. Total and total rank can also be hidden using the CSS visibility and width technique. This allows a competition with only Sinclair rankings to hide the normal rankings.
 
 4.33.0-beta07:
 
@@ -8,11 +12,6 @@
 - Fixed missing initialization for Team Membership preparation and Top Team display
 - Fixed display dialog colors to use dark theme on all pages
 - Downloaded translation file
-
-4.33.0-beta06:
-
-- Regressions fixed: jury reversal, missing translation line
-- Category boundary issue fixed (next category was included by error if athlete at upper bound)
 
 ### Changes in 4.33
 
