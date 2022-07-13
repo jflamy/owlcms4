@@ -106,7 +106,6 @@ public class TeamSelectionContent extends VerticalLayout
     private ComboBox<String> topBarAgeGroupPrefixSelect;
     private JXLSCompetitionBook xlsWriter;
     private Timer dialogTimer;
-    private Dialog dialog;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
@@ -211,7 +210,7 @@ public class TeamSelectionContent extends VerticalLayout
 
     @Override
     public Dialog getDialog() {
-        return dialog;
+        return null;
     }
 
     @Override
@@ -300,7 +299,7 @@ public class TeamSelectionContent extends VerticalLayout
 //        switchLightingMode(this, darkMode, false);
         updateURLLocations();
 
-        buildDialog(this);
+        //buildDialog(this);
         return params1;
     }
 
@@ -315,7 +314,6 @@ public class TeamSelectionContent extends VerticalLayout
 
     @Override
     public void setDialog(Dialog dialog) {
-        this.dialog = dialog;
     }
 
     @Override
