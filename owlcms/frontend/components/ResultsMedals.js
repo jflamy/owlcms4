@@ -108,7 +108,7 @@ class ResultsMedals extends PolymerElement {
                     </tr>
                 </template>
                 <tr>
-                    <td class="filler" style="grid-column: 1 / -1; line-height:50%">&nbsp;</td>
+                    <td class="filler" style="grid-column: 1 / -1; line-height:100%">&nbsp;</td>
                 </tr>
             </template>
         </table>
