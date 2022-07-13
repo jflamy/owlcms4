@@ -203,30 +203,38 @@ public class AthleteRepository {
 
     public static List<Athlete> findAthletesForGlobalRanking(Group g) {
         return JPAService.runInTransaction((em) -> {
-            String onlyCategoriesFromCurrentGroup = "";
-            if (g != null) {
-                String categoriesFromCurrentGroup = "select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId";
-                onlyCategoriesFromCurrentGroup = " join p.category c where exists (" + categoriesFromCurrentGroup
-                        + " and c2.id = c.id)";
+            return doFindAthletesForGlobalRanking(g, em);
+        });
+    }
+
+    public static List<Athlete> findAthletesForGlobalRanking(EntityManager emgr, Group g) {
+        return doFindAthletesForGlobalRanking(g, emgr);
+    }
+
+    private static List<Athlete> doFindAthletesForGlobalRanking(Group g, EntityManager em) {
+        String onlyCategoriesFromCurrentGroup = "";
+        if (g != null) {
+            String categoriesFromCurrentGroup = "select distinct c2 from Athlete b join b.group g join b.participations p join p.category c2 where g.id = :groupId";
+            onlyCategoriesFromCurrentGroup = " join p.category c where exists (" + categoriesFromCurrentGroup
+                    + " and c2.id = c.id)";
 //                Query q2 = em.createQuery(categoriesFromCurrentGroup);
 //                q2.setParameter("groupId", g.getId());
 //                List<Category> q2Results = q2.getResultList();
 //                logger.debug("categories for currentGroup {}",q2Results);
-            }
-            Query q = em.createQuery(
-                    "select distinct a, p from Athlete a join fetch a.participations p"
-                            + onlyCategoriesFromCurrentGroup);
-            if (g != null) {
-                q.setParameter("groupId", g.getId());
-            }
+        }
+        Query q = em.createQuery(
+                "select distinct a, p from Athlete a join fetch a.participations p"
+                        + onlyCategoriesFromCurrentGroup);
+        if (g != null) {
+            q.setParameter("groupId", g.getId());
+        }
 
-            @SuppressWarnings("unchecked")
-            List<Athlete> resultList = (List<Athlete>) q.getResultList().stream().filter(a -> {
-                Double bw = ((Athlete) a).getBodyWeight();
-                return bw != null && bw >= 0.01;
-            }).collect(Collectors.toList());
-            return resultList;
-        });
+        @SuppressWarnings("unchecked")
+        List<Athlete> resultList = (List<Athlete>) q.getResultList().stream().filter(a -> {
+            Double bw = ((Athlete) a).getBodyWeight();
+            return bw != null && bw >= 0.01;
+        }).collect(Collectors.toList());
+        return resultList;
     }
 
     public static Athlete findById(long id) {

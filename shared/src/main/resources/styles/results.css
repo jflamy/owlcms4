@@ -16,13 +16,22 @@
     --birthWidth: 6ch;
     --liftResultWidth: 8ch;
 
-    /* change to show these columns (visibility=visible, width=...ch)*/
+    /* to show these columns 
+    - change hidden to visible
+    - set the width to value like 8ch 
+    */
+    --totalRankWidth: var(--liftResultWidth);
+    --totalRankVisibility: visible;
     --custom1Width: 0;
     --custom1Visibility: hidden;
     --custom2Width: 0;
     --custom2Visibility: hidden;
-    --sinclairWidth: 0px;
+    --sinclairWidth: 0;
     --sinclairVisibility: hidden;
+    --sinclairRankWidth: 0;
+    --sinclairRankVisibility: hidden;
+    --totalWidth: var(--liftResultWidth);
+    --totalVisibility: visible;
 
     /* top part: current attempt information */
     --topRowFontSize: 3vh;
@@ -166,7 +175,6 @@ table.results.noranks {
     background-color: var(--darkRankBackgroundColor);
     color: var(--darkRankTextColor);
     visibility: var(--rankVisibility);
-    column-width: 0;
     display: flex;
 }
 
@@ -174,19 +182,37 @@ table.results.noranks {
     background-color: var(--lightRankBackgroundColor);
     color: var(--lightRankTextColor);
     visibility: var(--rankVisibility);
-    column-width: 0;
     display: flex;
 }
 
 /* total rank */
-:host(.dark) table.results tr td.totalRank {
+:host(.dark) table.results tr td.totalRank,
+:host(.dark) table.results tr th.totalRank {
     background-color: var(--darkRankBackgroundColor);
     color: var(--darkRankTextColor);
+    visibility: var(--totalRankVisibility);
 }
 
-:host(.light) table.results tr td.totalRank {
+:host(.light) table.results tr td.totalRank,
+:host(.light) table.results th td.totalRank {
     background-color: var(--lightRankBackgroundColor);
     color: var(--lightRankTextColor);
+    visibility: var(--totalRankVisibility);
+}
+
+/* sinclair rank */
+:host(.dark) table.results tr td.sinclairRank,
+:host(.dark) table.results tr th.sinclairRank {
+    background-color: var(--darkRankBackgroundColor);
+    color: var(--darkRankTextColor);
+    visibility: var(--sinclairRankVisibility);
+}
+
+:host(.light) table.results tr td.sinclairRank,
+:host(.light) table.results tr th.sinclairRank {
+    background-color: var(--lightRankBackgroundColor);
+    color: var(--lightRankTextColor);
+    visibility: var(--sinclairRankVisibility);
 }
 
 /* custom fields */
@@ -199,7 +225,7 @@ table.results.noranks {
 }
 
 :host(.light) table.results tr td.custom1,
-:host(.light) table.results tr th.custom1{
+:host(.light) table.results tr th.custom1 {
     background-color: var(--lightBackgroundColor);
     color: var(--lightTextColor);
     visibility: var(--custom1Visibility);
@@ -212,8 +238,8 @@ table.results.noranks {
     visibility: var(--custom2Visibility);
 }
 
-:host(.light) table.results tr td.custom2
-:host(.light) table.results tr th.custom2{
+:host(.light) table.results tr td.custom2,
+:host(.light) table.results tr th.custom2 {
     background-color: var(--lightBackgroundColor);
     color: var(--lightTextColor);
     visibility: var(--custom2Visibility);
@@ -226,11 +252,25 @@ table.results.noranks {
     visibility: var(--sinclairVisibility);
 }
 
-:host(.light) table.results tr td.sinclair
+:host(.light) table.results tr td.sinclair,
 :host(.light) table.results tr th.sinclair {
     background-color: var(--lightBackgroundColor);
     color: var(--lightTextColor);
     visibility: var(--sinclairVisibility);
+}
+
+:host(.dark) table.results tr td.total,
+:host(.dark) table.results tr th.total {
+    background-color: var(--darkBackgroundColor);
+    color: var(--darkTextColor);
+    visibility: var(--totalVisibility);
+}
+
+:host(.light) table.results tr td.total,
+:host(.light) table.results tr th.total {
+    background-color: var(--lightBackgroundColor);
+    color: var(--lightTextColor);
+    visibility: var(--totalVisibility);
 }
 
 /* spacer line between categories */
@@ -337,7 +377,34 @@ table {
     grid-template-rows:
         repeat(var(--top), min-content) 1fr repeat(var(--bottom), min-content);
     grid-template-columns:
-        var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) var(--custom1Width) var(--custom2Width) minmax(50px, var(--teamColumnRatio)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(1, var(--liftResultWidth)) repeat(var(--nbRanks), var(--liftResultWidth)) var(--sinclairWidth);
+        /* start */
+        var(--startWidth)
+        /* name */
+        minmax(50px, 1fr)
+        /* category */
+        var(--categoryWidth)
+        /* birth */
+        var(--birthWidth)
+        /* custom fields */
+        var(--custom1Width) var(--custom2Width)
+        /* team name */
+        minmax(50px, var(--teamColumnRatio))
+        /* snatch results */
+        repeat(3, var(--liftResultWidth))
+        /* one snatch rank per category */
+        repeat(var(--nbRanks), var(--rankWidth))
+        /* clean&jerk */
+        repeat(3, var(--liftResultWidth))
+        /* one snatch rank per category */
+        repeat(var(--nbRanks), var(--rankWidth))
+        /* total */
+        repeat(1, var(--liftResultWidth))
+        /* one total rank per category */
+        repeat(var(--nbRanks), var(--totalRankWidth))
+        /* sinclair result */
+        var(--sinclairWidth)
+        /* sinclair ranks */
+        var(--sinclairRankWidth);
 }
 
 /* grid layout */
@@ -347,7 +414,34 @@ table.medals {
     display: grid;
     border-collapse: collapse;
     grid-template-columns:
-    var(--startWidth) minmax(50px, 1fr) var(--categoryWidth) var(--birthWidth) var(--custom1Width) var(--custom2Width) minmax(50px, var(--teamColumnRatio)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(3, var(--liftResultWidth)) repeat(var(--nbRanks), var(--rankWidth)) repeat(1, var(--liftResultWidth)) repeat(var(--nbRanks), var(--liftResultWidth)) var(--sinclairWidth);
+        /* group */
+        var(--startWidth)
+        /* name */
+        minmax(50px, 1fr)
+        /* category */
+        var(--categoryWidth)
+        /* birth */
+        var(--birthWidth)
+        /* custom fields */
+        var(--custom1Width) var(--custom2Width)
+        /* team name */
+        minmax(50px, var(--teamColumnRatio))
+        /* snatch results */
+        repeat(3, var(--liftResultWidth))
+        /* one snatch rank per category */
+        repeat(var(--nbRanks), var(--rankWidth))
+        /* clean&jerk */
+        repeat(3, var(--liftResultWidth))
+        /* one snatch rank per category */
+        repeat(var(--nbRanks), var(--rankWidth))
+        /* total */
+        repeat(1, var(--liftResultWidth))
+        /* one total rank per category */
+        repeat(var(--nbRanks), var(--totalRankWidth))
+        /* sinclair result */
+        var(--sinclairWidth)
+        /* sinclair ranks */
+        var(--sinclairRankWidth);
 }
 
 thead,

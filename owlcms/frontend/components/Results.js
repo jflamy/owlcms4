@@ -67,9 +67,10 @@ class Results extends PolymerElement {
                 <th class="rank" inner-h-t-m-l="[[t.Rank]]"></th>
                 <th style="grid-column: span 3;" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
                 <th class="rank" inner-h-t-m-l="[[t.Rank]]"></th>
-                <th class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
+                <th class="total" inner-h-t-m-l="[[t.Total]]"></th>
                 <th class="totalRank" inner-h-t-m-l="[[t.Rank]]"></th>
                 <th class="sinclair" inner-h-t-m-l="[[t.Sinclair]]"></th>
+                <th class="sinclairRank" inner-h-t-m-l="[[t.Rank]]"></th>
             </tr>
             <template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
                 <template is="dom-if" if="[[l.isSpacer]]">
@@ -127,6 +128,9 @@ class Results extends PolymerElement {
                         <td class="sinclair">
                             <div>[[l.sinclair]]</div>
                         </td>
+                        <td class="sinclairRank">
+                            <div>[[l.sinclairRank]]</div>
+                        </td>
                     </tr>
                 </template>
             </template>
@@ -181,7 +185,7 @@ class Results extends PolymerElement {
                         <td class="rank">
                             <div inner-h-t-m-l="[[l.cleanJerkRank]]"></div>
                         </td>
-                        <td class="narrow">
+                        <td class="total">
                             <div>[[l.total]]</div>
                         </td>
                         <td class="totalRank">
@@ -189,6 +193,9 @@ class Results extends PolymerElement {
                         </td>
                         <td class="sinclair">
                             <div>[[l.sinclair]]</div>
+                        </td>
+                        <td class="sinclairRank">
+                            <div>[[l.sinclairRank]]</div>
                         </td>
                     </tr>
                 </template>
@@ -237,6 +244,7 @@ class Results extends PolymerElement {
     ready() {
         console.debug("ready");
         super.ready();
+        document.body.setAttribute("theme","dark");
         this.$.groupDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";
