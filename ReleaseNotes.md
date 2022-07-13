@@ -1,17 +1,11 @@
-## **Changes for release 4.33.0-beta08**
+## **Changes for release 4.33.0-beta09**
 
 ##### Changes since previous pre-releases
 
-4.33.0-beta08:
+4.33.0-beta09:
 
-- Added Sinclair rank at the end of the scoreboard. Total and total rank can also be hidden using the CSS visibility and width technique. This allows a competition with only Sinclair rankings to hide the normal rankings.
-
-4.33.0-beta07:
-
-- Fixed missing values in top Sinclair
-- Fixed missing initialization for Team Membership preparation and Top Team display
-- Fixed display dialog colors to use dark theme on all pages
-- Downloaded translation file
+- Experimental "Sinclair meet" feature added.  If the feature switch `SinclairMeet` is defined on the Language and Settings page, then the scoreboard hides the lift and total ranks, and shows the Sinclair and Sinclair rank.  Also, the leaders section uses the Sinclair ranking.  It is no longer necessary to edit the results.css file for this situation.
+- Fixed athlete filters and spurious dialog on the Team selection page.
 
 ### Changes in 4.33
 
