@@ -103,37 +103,50 @@ table.results.sinclair {
 }
 
 /* default cell colors, backgrounds and borders */
-:host(.dark) table.results tr td {
+:host(.dark) table.results tr td, 
+:host(.dark) table.results tr th {
     background-color: var(--darkBackgroundColor);
     color: var(--darkTextColor);
-    border: 1px solid;
-    border-color: var(--darkTableBorders)
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--darkTableBorders);
+    justify-content: center;
+    font-weight: bold;
 }
 
-:host(.light) table.results tr td {
+:host(.light) table.results tr td,
+:host(.light) table.results tr th {
     background-color: var(--lightBackgroundColor);
     color: var(--lightTextColor);
-    border: 1px solid;
-    border-color: var(--lightTableBorders)
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--lightTableBorders);
+    justify-content: center;
+    font-weight: bold;
 }
 
-/* name is not centered */
-:host(.dark) td.name,
-:host(.light) td.name {
+/* start */
+:host(.light) table.results tr td.start {
+    background-color: var(--lightStartBackgroundColor);
+    color: var(--lightStartTextColor);
+}
+
+:host(.dark) table.results tr td.start {
+    background-color: var(--darkStartBackgroundColor);
+    color: var(--darkStartTextColor);
+}
+
+/* name */
+:host(.light) table.results tr td.name {
+    background-color: var(--lightNameBackgroundColor);
+    color: var(--lightNameTextColor);
     justify-content: left;
 }
 
-/* other items are centered */
-:host(.dark) th,
-:host(.dark) td {
-    font-weight: normal;
-    justify-content: center;
-}
-
-:host(.light) th,
-:host(.light) td {
-    font-weight: bold;
-    justify-content: center;
+:host(.dark) table.results tr td.name {
+    background-color: var(--darkNameBackgroundColor);
+    color: var(--darkNameTextColor);
+    justify-content: left;
 }
 
 /* category */
@@ -210,15 +223,15 @@ table.results.sinclair {
 /* total rank */
 :host(.dark) table.results tr td.totalRank,
 :host(.dark) table.results tr th.totalRank {
-    background-color: var(--darkRankBackgroundColor);
-    color: var(--darkRankTextColor);
+    background-color: var(--darkTotalRankBackgroundColor);
+    color: var(--darkTotalRankTextColor);
     visibility: var(--totalRankVisibility);
 }
 
 :host(.light) table.results tr td.totalRank,
 :host(.light) table.results th td.totalRank {
-    background-color: var(--lightRankBackgroundColor);
-    color: var(--lightRankTextColor);
+    background-color: var(--lightTotalRankBackgroundColor);
+    color: var(--lightTotalRankTextColor);
     visibility: var(--totalRankVisibility);
 }
 
@@ -235,6 +248,16 @@ table.results.sinclair {
     background-color: var(--lightRankBackgroundColor);
     color: var(--lightRankTextColor);
     visibility: var(--sinclairRankVisibility);
+}
+
+/* group */
+:host(.light) table.results tr td.groupCol {
+    background-color: var(--lightStartBackgroundColor);
+    color: var(--lightStartTextColor);
+}
+:host(.dark) table.results tr td.groupCol {
+    background-color: var(--darkStartBackgroundColor);
+    color: var(--darkStartTextColor);
 }
 
 /* custom fields */
@@ -283,16 +306,18 @@ table.results.sinclair {
 
 :host(.dark) table.results tr td.total,
 :host(.dark) table.results tr th.total {
-    background-color: var(--darkBackgroundColor);
-    color: var(--darkTextColor);
+    background-color: var(--darkTotalBackgroundColor);
+    color: var(--darkTotalTextColor);
     visibility: var(--totalVisibility);
+    font-weight: bold;
 }
 
 :host(.light) table.results tr td.total,
 :host(.light) table.results tr th.total {
-    background-color: var(--lightBackgroundColor);
-    color: var(--lightTextColor);
+    background-color: var(--lightTotalBackgroundColor);
+    color: var(--lightTotalTextColor);
     visibility: var(--totalVisibility);
+    font-weight: bold;
 }
 
 /* spacer line between categories */
@@ -333,11 +358,14 @@ table.results.sinclair {
 }
 
 /* requested weight column */
-:host(.dark) .request {
+:host(.dark) table.results tr td.request {
+    background-color: var(--darkRequestBackgroundColor);
+    color: var(--darkRequestTextColor);
     font-style: italic;
 }
-
-:host(.light) .request {
+:host(.light) table.results tr td.request {
+    background-color: var(--lightRequestBackgroundColor);
+    color: var(--lightRequestTextColor);
     font-style: italic;
 }
 
@@ -378,15 +406,15 @@ table.results.sinclair {
 }
 
 /* empty cells */
-:host(.dark) .empty {
-    color: var(--darkTextColor);
-    background-color: var(--darkBackgroundColor);
+:host(.dark) table.results tr td.empty {
+    color: var(--darkEmptyTextColor);
+    background-color: var(--darkEmptyBackgroundColor);
     font-style: italic;
 }
 
-:host(.light) .empty {
-    color: var(--lightTextColor);
-    background-color: var(--lightBackgroundColor);
+:host(.light) table.results tr td.empty {
+    color: var(--lightEmptyTextColor);
+    background-color: var(--lightEmptyBackgroundColor);
     font-style: italic;
 }
 
@@ -693,6 +721,7 @@ div.ellipsis {
     text-align: center;
     background-color: var(--lightRecordValueBackground);
     color: var(--lightRecordValueText);
+    border: 1px solid var(--lightRecordCellBorderColor);
 }
 
 :host(.light) .recordLiftType {
@@ -702,7 +731,7 @@ div.ellipsis {
     text-align: center;
     background-color: var(--lightRecordLiftTypeBackground);
     color: var(--lightRecordLiftTypeText);
-    border-bottom: 1px solid var(--lightRecordBoxBorder);
+    border: 1px solid var(--lightRecordLiftTypeBorder);
     font-weight: normal;
     font-size: small;
 }
@@ -767,6 +796,7 @@ div.ellipsis {
     text-align: center;
     background-color: var(--darkRecordValueBackground);
     color: var(--darkRecordValueText);
+    border: 1px solid var(--darkRecordCellBorderColor);
 }
 
 :host(.dark) .recordLiftType {
@@ -775,7 +805,7 @@ div.ellipsis {
     text-align: center;
     background-color: var(--darkRecordLiftTypeBackground);
     color: var(--darkRecordLiftTypeText);
-    border-bottom: 1px solid var(--darkRecordBoxBorder);
+    border: 1px solid var(--darkRecordLiftTypeBorder);
     font-weight: normal;
     font-size: small;
 }

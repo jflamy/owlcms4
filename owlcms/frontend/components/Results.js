@@ -32,7 +32,7 @@ class Results extends PolymerElement {
             <div class="attempt" id="attemptDiv">
                 <span inner-h-t-m-l="[[attempt]]"></span>
             </div>
-            <div class="weight" id="weightDiv">[[weight]]<span style="font-size: 75%">[[t.KgSymbol]]</span>
+            <div class="weight" id="weightDiv">[[weight]]<span style="font-size: 75%">&hairsp;[[t.KgSymbol]]</span>
             </div>
             <div class="timer athleteTimer" id="timerDiv">
                 <timer-element id="timer"></timer-element>
@@ -59,7 +59,7 @@ class Results extends PolymerElement {
                 <th class="groupCol" inner-h-t-m-l="[[t.Start]]"></th>
                 <th class="name" inner-h-t-m-l="[[t.Name]]"></th>
                 <th class="category" inner-h-t-m-l="[[t.Category]]"></th>
-                <th class="narrow" inner-h-t-m-l="[[t.Birth]]"></th>
+                <th class="yob" inner-h-t-m-l="[[t.Birth]]"></th>
                 <th class="custom1" inner-h-t-m-l="[[t.Custom1]]"></th>
                 <th class="custom2" inner-h-t-m-l="[[t.Custom2]]"></th>
                 <th class="club" inner-h-t-m-l="[[t.Team]]"></th>
@@ -82,7 +82,7 @@ class Results extends PolymerElement {
                 </template>
                 <template is="dom-if" if="[[!l.isSpacer]]">
                     <tr class="athlete">
-                        <td class$="groupCol [[l.classname]]">
+                        <td class$="start [[l.classname]]">
                             <div class$="[[l.classname]]">[[l.startNumber]]</div>
                         </td>
                         <td class$="name [[l.classname]]">
@@ -121,7 +121,7 @@ class Results extends PolymerElement {
                         <td class="rank">
                             <div inner-h-t-m-l="[[l.cleanJerkRank]]"></div>
                         </td>
-                        <td class="narrow">[[l.total]]</td>
+                        <td class="total">[[l.total]]</td>
                         <td class="totalRank">
                             <div inner-h-t-m-l="[[l.totalRank]]"></div>
                         </td>
@@ -159,7 +159,7 @@ class Results extends PolymerElement {
                         <td class="category">
                             <div>[[l.category]]</div>
                         </td>
-                        <td class="narrow">[[l.yearOfBirth]]</td>
+                        <td class="yob">[[l.yearOfBirth]]</td>
                         <td class="custom1">
                             <div>[[l.custom1]]</div>
                         </td>

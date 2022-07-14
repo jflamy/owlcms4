@@ -65,7 +65,7 @@ class ResultsFull extends PolymerElement {
                 <th class="category" style="grid-row: span 2">
                     <div style="display: grid; align-self: center" inner-h-t-m-l="[[t.Category]]"></div>
                 </th>
-                <th class="narrow" style="grid-row: span 2">
+                <th class="yob" style="grid-row: span 2">
                     <div style="display: grid; align-self: center" inner-h-t-m-l="[[t.Birth]]"></div>
                 </th>
                 <th class="custom1" style="grid-row: span 2">

@@ -38,7 +38,7 @@ class ResultsMedals extends PolymerElement {
                     <th class="groupCol" inner-h-t-m-l="[[t.Group]]"></th>
                     <th class="name" inner-h-t-m-l="[[t.Name]]"></th>
                     <th class="category" inner-h-t-m-l="[[t.Category]]"></th>
-                    <th class="narrow" inner-h-t-m-l="[[t.Birth]]"></th>
+                    <th class="yob" inner-h-t-m-l="[[t.Birth]]"></th>
                     <th class="custom1" inner-h-t-m-l="[[t.Custom1]]"></th>
                     <th class="custom2" inner-h-t-m-l="[[t.Custom2]]"></th>
                     <th class="club" inner-h-t-m-l="[[t.Team]]"></th>
@@ -46,7 +46,7 @@ class ResultsMedals extends PolymerElement {
                     <th class="rank" inner-h-t-m-l="[[t.Rank]]"></th>
                     <th style="grid-column: span 3;" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
                     <th class="rank" inner-h-t-m-l="[[t.Rank]]"></th>
-                    <th class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
+                    <th class="total" inner-h-t-m-l="[[t.Total]]"></th>
                     <th class="totalRank" inner-h-t-m-l="[[t.Rank]]"></th>
                     <th class="sinclair" inner-h-t-m-l="[[t.Sinclair]]"></th>
                     <th class="sinclairRank" inner-h-t-m-l="[[t.Rank]]"></th>
@@ -67,7 +67,7 @@ class ResultsMedals extends PolymerElement {
                         <td class="category">
                             <div>[[l.category]]</div>
                         </td>
-                        <td class="narrow">[[l.yearOfBirth]]</td>
+                        <td class="yob">[[l.yearOfBirth]]</td>
                         <td class="custom1">
                             <div>[[l.custom1]]</div>
                         </td>
@@ -93,7 +93,7 @@ class ResultsMedals extends PolymerElement {
                         <td class="rank">
                             <div inner-h-t-m-l="[[l.cleanJerkRank]]"></div>
                         </td>
-                        <td class="narrow">
+                        <td class="total">
                             <div>[[l.total]]</div>
                         </td>
                         <td class="totalRank">

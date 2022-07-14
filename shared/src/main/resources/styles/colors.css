@@ -34,6 +34,15 @@
     --lightNextTextColor: var(--lightTextColor);
     --lightNextBackgroundColor: gold;
 
+    --lightRequestTextColor: var(--lightTextColor);
+    --lightRequestBackgroundColor: var(--lightBackgroundColor);
+    
+    --lightStartBackgroundColor: var(--lightBackgroundColor);
+    --lightStartTextColor: var(--lightTextColor);
+    
+    --lightNameBackgroundColor: var(--lightBackgroundColor);
+    --lightNameTextColor:  var(--lightTextColor);
+        
     --lightCategoryTextColor: var(--lightTextColor);
     --lightCategoryBackgroundColor: var(--lightBackgroundColor);
 
@@ -54,11 +63,13 @@
 
     --lightTotalRankTextColor: var(--lightTextColor);
     --lightTotalRankBackgroundColor: var(--lightRankBackgroundColor);
+    
     --lightTotalTextColor: var(--lightGoodTextColor);
     --lightTotalBackgroundColor: blue;
 
     --lightSpacerBackgroundColor: var(--lightTableBorders);
-    --lightEmptyBackgroundColor: slateGrey;
+    --lightEmptyTextColor:  #cccccc;
+    --lightEmptyBackgroundColor: #cccccc;
 
     /* results table section, "white on black", most cells have same dark background as page */
 
@@ -74,6 +85,15 @@
 
     --darkNextTextColor: orange;
     --darkNextBackgroundColor: var(--darkBackgroundColor);
+
+    --darkRequestTextColor: var(--darkTextColor);
+    --darkRequestBackgroundColor: var(--darkBackgroundColor);
+
+    --darkStartBackgroundColor: var(--darkBackgroundColor);
+    --darkStartTextColor:  var(--darkTextColor);
+    
+    --darkNameBackgroundColor: var(--darkBackgroundColor);
+    --darkNameTextColor:  var(--darkTextColor);
 
     --darkCategoryTextColor: var(--darkTextColor);
     --darkCategoryBackgroundColor: var(--darkBackgroundColor);
@@ -95,11 +115,13 @@
 
     --darkTotalRankTextColor: var(--darkTextColor);
     --darkTotalRankBackgroundColor: var(--darkBackgroundColor);
+    
     --darkTotalTextColor: var(--darkGoodTextColor);
     --darkTotalBackgroundColor: blue;
 
     --darkSpacerBackgroundColor: var(--darkBackgroundColor);
-    --darkEmptyBackgroundColor: slateGrey;
+    --darkEmptyTextColor: #4d4d4d;
+    --darkEmptyBackgroundColor: #4d4d4d;
 
     /* records table section, white on black */
     --lightRecordBoxBorder: var(--pageTextColor);
@@ -108,12 +130,14 @@
 
     --lightRecordValueText: var(--pageTextColor);
     --lightRecordValueBackground: var(--pageBackgroundColor);
+    --lightRecordCellBorderColor: var(--pageTextColor);
 
     --lightRecordNameBackground: var(--pageBackgroundColor);
     --lightRecordNameText: var(--pageTextColor);
 
     --lightRecordLiftTypeBackground: var(--pageBackgroundColor);
     --lightRecordLiftTypeText: var(--pageTextColor);
+    --lightRecordLiftTypeBorder: var(--pageTextColor);
 
     --lightRecordHighlightBackground: green;
     --lightRecordHighlightText: white;
@@ -129,12 +153,14 @@
 
     --darkRecordValueText: var(--pageTextColor);
     --darkRecordValueBackground: var(--pageBackgroundColor);
+    --darkRecordCellBorderColor: var(--pageTextColor);
 
     --darkRecordNameBackground: var(--pageBackgroundColor);
     --darkRecordNameText: var(--pageTextColor);
 
     --darkRecordLiftTypeBackground: var(--pageBackgroundColor);
     --darkRecordLiftTypeText: var(--pageTextColor);
+    --darkRecordLiftTypeBorder: var(--pageTextColor);
 
     --darkRecordHighlightBackground: green;
     --darkRecordHighlightText: white;
