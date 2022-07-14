@@ -33,6 +33,7 @@
 
   * [Updating Cloud-based Applications](UpdatingCloudApplications)
   * [Customization](UploadingLocalSettings)
+  * [Changing Scoreboard Colors](Styles)
   * [Excel Template Variables](TemplateVariables)
   * [Translations](Translation)
   * [Configuration Parameters](Configuration)

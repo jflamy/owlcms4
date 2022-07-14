@@ -2,6 +2,12 @@
 
 ##### Changes since previous pre-releases
 
+4.33.0-beta10:
+
+- All the distinct areas and cells of the scoreboard should now have their own color definitions in `colors.css`  Editing colors.css should now suffice to create a full new color scheme.
+  - Documentation now includes a tutorial on how to change the scoreboard colors: [Scoreboard Colors](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styles) 
+- Fixed layout for the multiple ranks scoreboard
+
 4.33.0-beta09:
 
 - Experimental "Sinclair meet" feature added.  If the feature switch `SinclairMeet` is defined on the Language and Settings page, then the scoreboard hides the lift and total ranks, and shows the Sinclair and Sinclair rank.  Also, the leaders section uses the Sinclair ranking.  It is no longer necessary to edit the results.css file for this situation.

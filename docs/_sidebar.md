@@ -31,6 +31,7 @@
 * Advanced Topics
   * [Updating Cloud-based Applications](UpdatingCloudApplications)
   * [Customization](UploadingLocalSettings)
+  * [Scoreboard Colors](Styles)
   * [Excel Template Variables](TemplateVariables)
   * [Translations](Translation)
   * [Configuration Parameters](Configuration)

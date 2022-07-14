@@ -83,6 +83,7 @@ class ResultsFull extends PolymerElement {
                 <th class="sinclair" style="grid-row: span 2">
                     <div style="display: grid; align-self: center" inner-h-t-m-l="[[t.Sinclair]]"></div>
                 </th>
+                <th class="sinclairRank" style="grid-row: span 2" inner-h-t-m-l="[[t.Rank]]"></th>
             </tr>
             <tr class="head">
                 <!-- second row is already partially filled from the row spans, only provide the empty cells
@@ -170,6 +171,9 @@ class ResultsFull extends PolymerElement {
                         <td class="sinclair">
                             <div>[[l.sinclair]]</div>
                         </td>
+                        <td class="sinclairRank">
+                            <div>[[l.sinclairRank]]</div>
+                        </td>
                     </tr>
                 </template>
             </template>
@@ -243,6 +247,9 @@ class ResultsFull extends PolymerElement {
                         <td class="sinclair">
                             <div>[[l.sinclair]]</div>
                         </td>
+                        <td class="sinclairRank">
+                            <div>[[l.sinclairRank]]</div>
+                        </td>
                     </tr>
                 </template>
             </template>
@@ -290,6 +297,7 @@ class ResultsFull extends PolymerElement {
     ready() {
         console.debug("ready");
         super.ready();
+        document.body.setAttribute("theme","dark");
         this.$.groupDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";

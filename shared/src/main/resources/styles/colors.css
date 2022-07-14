@@ -36,13 +36,13 @@
 
     --lightRequestTextColor: var(--lightTextColor);
     --lightRequestBackgroundColor: var(--lightBackgroundColor);
-    
+
     --lightStartBackgroundColor: var(--lightBackgroundColor);
     --lightStartTextColor: var(--lightTextColor);
-    
+
     --lightNameBackgroundColor: var(--lightBackgroundColor);
-    --lightNameTextColor:  var(--lightTextColor);
-        
+    --lightNameTextColor: var(--lightTextColor);
+
     --lightCategoryTextColor: var(--lightTextColor);
     --lightCategoryBackgroundColor: var(--lightBackgroundColor);
 
@@ -63,12 +63,12 @@
 
     --lightTotalRankTextColor: var(--lightTextColor);
     --lightTotalRankBackgroundColor: var(--lightRankBackgroundColor);
-    
+
     --lightTotalTextColor: var(--lightGoodTextColor);
     --lightTotalBackgroundColor: blue;
 
     --lightSpacerBackgroundColor: var(--lightTableBorders);
-    --lightEmptyTextColor:  #cccccc;
+    --lightEmptyTextColor: #cccccc;
     --lightEmptyBackgroundColor: #cccccc;
 
     /* results table section, "white on black", most cells have same dark background as page */
@@ -90,10 +90,10 @@
     --darkRequestBackgroundColor: var(--darkBackgroundColor);
 
     --darkStartBackgroundColor: var(--darkBackgroundColor);
-    --darkStartTextColor:  var(--darkTextColor);
-    
+    --darkStartTextColor: var(--darkTextColor);
+
     --darkNameBackgroundColor: var(--darkBackgroundColor);
-    --darkNameTextColor:  var(--darkTextColor);
+    --darkNameTextColor: var(--darkTextColor);
 
     --darkCategoryTextColor: var(--darkTextColor);
     --darkCategoryBackgroundColor: var(--darkBackgroundColor);
@@ -115,7 +115,7 @@
 
     --darkTotalRankTextColor: var(--darkTextColor);
     --darkTotalRankBackgroundColor: var(--darkBackgroundColor);
-    
+
     --darkTotalTextColor: var(--darkGoodTextColor);
     --darkTotalBackgroundColor: blue;
 
