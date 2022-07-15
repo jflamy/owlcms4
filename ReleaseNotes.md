@@ -1,6 +1,12 @@
-## **Changes for release 4.33.0-beta09**
+## **Changes for release 4.33.0-beta10**
 
 ##### Changes since previous pre-releases
+
+4.33.0-beta10:
+
+- All the distinct areas and cells of the scoreboard should now have their own color definitions in `colors.css`  Editing colors.css should now suffice to create a full new color scheme.
+  - Documentation now includes a tutorial on how to change the scoreboard colors: [Scoreboard Colors](https://owlcms.github.io/owlcms4-prerelease/#/Styles) 
+- Fixed layout for the multiple ranks scoreboard
 
 4.33.0-beta09:
 
