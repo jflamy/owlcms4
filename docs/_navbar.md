@@ -30,7 +30,6 @@
   * [Automatic Scene Switching](OBSSceneSwitching)
   
 * Advanced
-
   * [Updating Cloud-based Applications](UpdatingCloudApplications)
   * [Customization](UploadingLocalSettings)
   * [Changing Scoreboard Colors](Styles)
