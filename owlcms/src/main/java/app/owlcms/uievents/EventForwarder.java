@@ -27,6 +27,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
@@ -708,7 +709,7 @@ public class EventForwarder implements BreakDisplay {
                     logger.error("could not post to {} {} {}", url, statusLine, LoggerUtils.whereFrom(1));
                 }
                 if (statusCode != null && statusCode == 412) {
-                    sendConfig();
+                    sendConfig(parameters.get("updateKey"));
                 }
                 EntityUtils.toString(response.getEntity());
             } catch (Exception e1) {
@@ -720,15 +721,16 @@ public class EventForwarder implements BreakDisplay {
         }
     }
 
-    private void sendConfig() {
+    private void sendConfig(String updateKey) {
         String destination = Config.getCurrent().getParamPublicResultsURL()+"/config";
         try {
             logger.warn("sending config");
 
             HttpPost post = new HttpPost(destination);
+
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             InputStream inputStream;
-            
+            builder.addPart("updateKey",new StringBody(updateKey, ContentType.TEXT_PLAIN));
             try {
                 inputStream = ResourceWalker.getFileOrResource("/styles/results.css");
             } catch (FileNotFoundException e) {
@@ -742,6 +744,7 @@ public class EventForwarder implements BreakDisplay {
             }
             builder.addBinaryBody("upstream", inputStream, ContentType.create("text/css"), "colors.css");
             HttpEntity entity = builder.build();
+
             post.setEntity(entity);
             try (CloseableHttpClient httpClient = HttpClients.createDefault();
                     CloseableHttpResponse response = httpClient.execute(post)) {

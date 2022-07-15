@@ -338,6 +338,20 @@ public class ResourceWalker {
             checkForLocalOverrideDirectory();
         }
     }
+    
+    public static synchronized Path createLocalDir() {
+        Path f = null;
+        try {
+            f = MemTempUtils.createTempDirectory("owlcmsOverride");
+            logger.trace("created temp directory " + f);
+            setLocalDirPath(f);
+            setInitializedLocalDir(true);
+            logger.info("new in-memory override path {}", getLocalDirPath().normalize());
+            return f;
+        } catch (IOException e) {
+            throw new RuntimeException("cannot create directory ", e);
+        }
+    }
 
     public static boolean isInitializedLocalDir() {
         return initializedLocalDir;
