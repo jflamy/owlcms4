@@ -338,7 +338,7 @@ public class ResourceWalker {
             checkForLocalOverrideDirectory();
         }
     }
-    
+
     public static synchronized Path createLocalDir() {
         Path f = null;
         try {
@@ -392,6 +392,16 @@ public class ResourceWalker {
         } catch (IOException e) {
             throw new Exception("cannot unzip", e);
         }
+    }
+
+    public static void unzipBlobToTemp(InputStream in) throws IOException {
+        Path f = null;
+        f = MemTempUtils.createTempDirectory("owlcmsOverride");
+        logger.trace("created temp directory " + f);
+        ZipUtils.unzip(in, f);
+        setLocalDirPath(f);
+        setInitializedLocalDir(true);
+        logger.info("new in-memory override path {}", getLocalDirPath().normalize());
     }
 
     /**

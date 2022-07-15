@@ -100,7 +100,7 @@ public class ConfigReceiverServlet extends HttpServlet {
                 if (!item.getContentType().contains("zip")) {
                     copyFile(item);
                 } else {
-                    // FIXME : unzip
+                    ResourceWalker.unzipBlobToTemp(item.getInputStream());
                 }
             }
         }

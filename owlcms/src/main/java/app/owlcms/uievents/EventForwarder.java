@@ -18,6 +18,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -722,27 +723,38 @@ public class EventForwarder implements BreakDisplay {
     }
 
     private void sendConfig(String updateKey) {
-        String destination = Config.getCurrent().getParamPublicResultsURL()+"/config";
+        String destination = Config.getCurrent().getParamPublicResultsURL() + "/config";
         try {
             logger.warn("sending config");
 
+            Supplier<byte[]> localZipBlobSupplier = ResourceWalker.getLocalZipBlobSupplier();
+            byte[] blob = null;
+            if (localZipBlobSupplier != null) {
+                blob = localZipBlobSupplier.get();
+            }
             HttpPost post = new HttpPost(destination);
 
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.addPart("updateKey", new StringBody(updateKey, ContentType.TEXT_PLAIN));
             InputStream inputStream;
-            builder.addPart("updateKey",new StringBody(updateKey, ContentType.TEXT_PLAIN));
-            try {
-                inputStream = ResourceWalker.getFileOrResource("/styles/results.css");
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
+            if (blob == null) {
+                try {
+                    inputStream = ResourceWalker.getFileOrResource("/styles/results.css");
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                builder.addBinaryBody("reusults", inputStream, ContentType.create("text/css"), "results.css");
+                
+                try {
+                    inputStream = ResourceWalker.getFileOrResource("/styles/colors.css");
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                builder.addBinaryBody("colors", inputStream, ContentType.create("text/css"), "colors.css");
+            } else {
+                builder.addBinaryBody("local", blob, ContentType.create("application/zip"), "local.zip");
             }
-            builder.addBinaryBody("upstream", inputStream, ContentType.create("text/css"), "results.css");
-            try {
-                inputStream = ResourceWalker.getFileOrResource("/styles/colors.css");
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-            builder.addBinaryBody("upstream", inputStream, ContentType.create("text/css"), "colors.css");
+
             HttpEntity entity = builder.build();
 
             post.setEntity(entity);
@@ -751,7 +763,8 @@ public class EventForwarder implements BreakDisplay {
                 StatusLine statusLine = response.getStatusLine();
                 Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
                 if (statusCode != null && statusCode != 200) {
-                    logger.error("could not send config to {} {} {}", destination, statusLine, LoggerUtils.whereFrom(1));
+                    logger.error("could not send config to {} {} {}", destination, statusLine,
+                            LoggerUtils.whereFrom(1));
                 }
                 EntityUtils.toString(response.getEntity());
             } catch (Exception e1) {
