@@ -2,16 +2,12 @@
 
 ##### Changes since previous pre-releases
 
-4.33.0-beta10:
+4.33.0-rc01:
 
-- All the distinct areas and cells of the scoreboard should now have their own color definitions in `colors.css`  Editing colors.css should now suffice to create a full new color scheme.
-  - Documentation now includes a tutorial on how to change the scoreboard colors: [Scoreboard Colors](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styles) 
-- Fixed layout for the multiple ranks scoreboard
-
-4.33.0-beta09:
-
-- Experimental "Sinclair meet" feature added.  If the feature switch `SinclairMeet` is defined on the Language and Settings page, then the scoreboard hides the lift and total ranks, and shows the Sinclair and Sinclair rank.  Also, the leaders section uses the Sinclair ranking.  It is no longer necessary to edit the results.css file for this situation.
-- Fixed athlete filters and spurious dialog on the Team selection page.
+- Masters rulebook
+  - Updated the default AgeGroups.xlsx definition file for the W80, W85, M85 and M85 age categories.
+  - Updated the age-adjusted Sinclair calculation for women to use the SMHF coefficients.
+- Scoreboard style sheets: Simplified the way the width of the name and team columns is defined in results.css
 
 ### Changes in 4.33
 
@@ -23,8 +19,9 @@
   - Added large notifications in the record section for record attempts and new records.  You can hide the scoreboard record notifications by setting the `--showRecordNotifications` variable at the top of `colors.css` to `hidden` if you do not want them.
 - Additional hidden fields on the scoreboards
   - Added the custom1 and custom2 fields to the scoreboards (after the year of birth).  They are hidden by default; change the width to non-zero and visibility to `visible` in results.css in order to show one or the other or both.
-  - Added the Sinclair score to the scoreboards, at the end. Same process as above to enable.
-- Fix: Team Sinclair scoreboard now updates on every successful lift.
+- Sinclair meets
+  - If the feature switch `SinclairMeet` is defined on the Language and Settings page, then the scoreboard hides the lift and total ranks, and shows the Sinclair and Sinclair rank.  Also, the leaders section uses the Sinclair ranking.
+- Documentation now includes a tutorial on how to change the scoreboard colors: [Scoreboard Colors](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styles) 
 - New: Announcer can act as solo athlete-facing referee. A setting on the announcer screen (⚙) enables emitting down signal on decision so it is heard and shown on displays.
 - New: Round-robin "fixed order" option for team competitions.  If this option is selected in the Competition Non-Standard Rules, athletes lift according to their lot number on each round. The lot number can be preset at registration or drawn at random depending on competition rules.
 - New: 24h time will now be used in the date-time picker when using English outside of the "traditional" English-speaking countries ("AU", "GB", "IN", "NZ", "PH", "US", "ZA").  On a laptop, the country is obtained from the operating system.  If using English in the cloud, we recommend setting the `OWLCMS_LOCALE` environment variable to `en_SE` in order to get English with consistent ISO date and 24h time formatting throughout the program.
