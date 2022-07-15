@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -48,6 +49,7 @@ import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.i18n.Translator;
@@ -313,8 +315,8 @@ public class Competition {
 
 //            logger.debug("medalists for {}", category);
 //            for (Athlete medalist : medalists) {
-//                logger.debug("{}\t{} {} {}", medalist.getShortName(), medalist.getSnatchRank(),
-//                        medalist.getCleanJerkRank(), medalist.getTotalRank());
+//                logger.debug("{}\t{} {} {} S {}", medalist.getShortName(), medalist.getSnatchRank(),
+//                        medalist.getCleanJerkRank(), medalist.getTotalRank(), medalist.getSinclairRank());
 //            }
         }
         medalsByGroup.put(g, medals);
@@ -1244,8 +1246,17 @@ public class Competition {
         return list;
     }
 
-    private void globalRankings() {
+    public void globalRankings() {
         List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
+        doGlobalRankings(athletes);
+    }
+    
+    public void globalRankings(EntityManager em) {
+        List<Athlete> athletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, null, true, null);
+        doGlobalRankings(athletes);
+    }
+
+    private void doGlobalRankings(List<Athlete> athletes) {
         List<Athlete> sortedAthletes;
         List<Athlete> sortedMen;
         List<Athlete> sortedWomen;
@@ -1446,5 +1457,9 @@ public class Competition {
         AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SMM);
 
         reportSMF(sortedMen, sortedWomen);
+    }
+
+    public boolean isSinclair() {
+        return Config.getCurrent().featureSwitch("SinclairMeet",true);
     }
 }

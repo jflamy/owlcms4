@@ -8,6 +8,7 @@ package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -161,6 +162,31 @@ public class AthleteTest {
         athlete.setCleanJerk2ActualLift("81");
         athlete.setCleanJerk3ActualLift("-");
         assertEquals("total with snatch bomb out", 0, (long) athlete.getTotal());
+    }
+    
+    @Test
+    public void testMaleSMF() {
+        athlete.setSnatch1ActualLift("60");
+        athlete.setSnatch2ActualLift("61");
+        athlete.setSnatch3ActualLift("62");
+        athlete.setCleanJerk1ActualLift("80");
+        athlete.setCleanJerk2ActualLift("81");
+        athlete.setCleanJerk3ActualLift("82");
+        athlete.setFullBirthDate(LocalDate.now().minusYears(60));
+        assertEquals("SMF 144kg for 68.5kg 60 year old male athlete ", 291.093D ,athlete.getSmm(), 0.0005D);
+    }
+    
+    @Test
+    public void testFemaleSMHF() {
+        athlete.setSnatch1ActualLift("60");
+        athlete.setSnatch2ActualLift("61");
+        athlete.setSnatch3ActualLift("62");
+        athlete.setCleanJerk1ActualLift("80");
+        athlete.setCleanJerk2ActualLift("81");
+        athlete.setCleanJerk3ActualLift("82");
+        athlete.setFullBirthDate(LocalDate.now().minusYears(60));
+        athlete.setGender(Gender.F);
+        assertEquals("SMHF 144kg for 68.5kg 60 year old female athlete ", 306.574D ,athlete.getSmm(), 0.0005D);
     }
 
 }

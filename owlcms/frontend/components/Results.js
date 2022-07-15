@@ -32,7 +32,7 @@ class Results extends PolymerElement {
             <div class="attempt" id="attemptDiv">
                 <span inner-h-t-m-l="[[attempt]]"></span>
             </div>
-            <div class="weight" id="weightDiv">[[weight]]<span style="font-size: 75%">[[t.KgSymbol]]</span>
+            <div class="weight" id="weightDiv">[[weight]]<span style="font-size: 75%">&hairsp;[[t.KgSymbol]]</span>
             </div>
             <div class="timer athleteTimer" id="timerDiv">
                 <timer-element id="timer"></timer-element>
@@ -59,7 +59,7 @@ class Results extends PolymerElement {
                 <th class="groupCol" inner-h-t-m-l="[[t.Start]]"></th>
                 <th class="name" inner-h-t-m-l="[[t.Name]]"></th>
                 <th class="category" inner-h-t-m-l="[[t.Category]]"></th>
-                <th class="narrow" inner-h-t-m-l="[[t.Birth]]"></th>
+                <th class="yob" inner-h-t-m-l="[[t.Birth]]"></th>
                 <th class="custom1" inner-h-t-m-l="[[t.Custom1]]"></th>
                 <th class="custom2" inner-h-t-m-l="[[t.Custom2]]"></th>
                 <th class="club" inner-h-t-m-l="[[t.Team]]"></th>
@@ -67,21 +67,22 @@ class Results extends PolymerElement {
                 <th class="rank" inner-h-t-m-l="[[t.Rank]]"></th>
                 <th style="grid-column: span 3;" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
                 <th class="rank" inner-h-t-m-l="[[t.Rank]]"></th>
-                <th class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
+                <th class="total" inner-h-t-m-l="[[t.Total]]"></th>
                 <th class="totalRank" inner-h-t-m-l="[[t.Rank]]"></th>
                 <th class="sinclair" inner-h-t-m-l="[[t.Sinclair]]"></th>
+                <th class="sinclairRank" inner-h-t-m-l="[[t.Rank]]"></th>
             </tr>
             <template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
                 <template is="dom-if" if="[[l.isSpacer]]">
                     <tr>
                         <td class="spacer" style="grid-column: 1 / -1; justify-content: left;"
-                            inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
+                            inner-h-t-m-l="-">
                         </td>
                     </tr>
                 </template>
                 <template is="dom-if" if="[[!l.isSpacer]]">
                     <tr class="athlete">
-                        <td class$="groupCol [[l.classname]]">
+                        <td class$="start [[l.classname]]">
                             <div class$="[[l.classname]]">[[l.startNumber]]</div>
                         </td>
                         <td class$="name [[l.classname]]">
@@ -120,12 +121,15 @@ class Results extends PolymerElement {
                         <td class="rank">
                             <div inner-h-t-m-l="[[l.cleanJerkRank]]"></div>
                         </td>
-                        <td class="narrow">[[l.total]]</td>
+                        <td class="total">[[l.total]]</td>
                         <td class="totalRank">
                             <div inner-h-t-m-l="[[l.totalRank]]"></div>
                         </td>
                         <td class="sinclair">
                             <div>[[l.sinclair]]</div>
+                        </td>
+                        <td class="sinclairRank">
+                            <div>[[l.sinclairRank]]</div>
                         </td>
                     </tr>
                 </template>
@@ -155,7 +159,7 @@ class Results extends PolymerElement {
                         <td class="category">
                             <div>[[l.category]]</div>
                         </td>
-                        <td class="narrow">[[l.yearOfBirth]]</td>
+                        <td class="yob">[[l.yearOfBirth]]</td>
                         <td class="custom1">
                             <div>[[l.custom1]]</div>
                         </td>
@@ -181,7 +185,7 @@ class Results extends PolymerElement {
                         <td class="rank">
                             <div inner-h-t-m-l="[[l.cleanJerkRank]]"></div>
                         </td>
-                        <td class="narrow">
+                        <td class="total">
                             <div>[[l.total]]</div>
                         </td>
                         <td class="totalRank">
@@ -189,6 +193,9 @@ class Results extends PolymerElement {
                         </td>
                         <td class="sinclair">
                             <div>[[l.sinclair]]</div>
+                        </td>
+                        <td class="sinclairRank">
+                            <div>[[l.sinclairRank]]</div>
                         </td>
                     </tr>
                 </template>
@@ -237,6 +244,7 @@ class Results extends PolymerElement {
     ready() {
         console.debug("ready");
         super.ready();
+        document.body.setAttribute("theme","dark");
         this.$.groupDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";

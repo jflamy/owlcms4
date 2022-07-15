@@ -20,6 +20,7 @@ import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -970,15 +971,26 @@ public class FieldOfPlay {
         if (recomputeRanks) {
             // we update the ranks of affected athletes in the database
             athletes = JPAService.runInTransaction(em -> {
-                List<Athlete> l = AthleteSorter.assignCategoryRanks(g);
+                List<Athlete> l = AthleteSorter.assignCategoryRanks(em, g);
+                List<Athlete> nl = new LinkedList<>();
+                Competition.getCurrent().globalRankings(em);
                 for (Athlete a : l) {
-                    em.merge(a);
+                    nl.add(em.merge(a));
                 }
                 em.flush();
-                return l;
+                return nl;
             });
         } else {
-            athletes = AthleteRepository.findAthletesForGlobalRanking(g);
+            athletes = JPAService.runInTransaction(em -> {
+                List<Athlete> l =  AthleteRepository.findAthletesForGlobalRanking(em,g);
+                List<Athlete> nl = new LinkedList<>();
+                Competition.getCurrent().globalRankings(em);
+                for (Athlete a : l) {
+                    nl.add(em.merge(a));
+                }
+                em.flush();
+                return nl;
+            });
         }
         endAssignRanks = System.nanoTime();
 
@@ -987,6 +999,7 @@ public class FieldOfPlay {
             setCurAthlete(null);
             recomputeRecords(null);
         } else {
+
             if (recomputeRanks) {
                 setMedals(Competition.getCurrent().computeMedals(g, athletes));
             }
@@ -1002,6 +1015,7 @@ public class FieldOfPlay {
                         }
                     })
                     .collect(Collectors.toList());
+            
             setDisplayOrder(currentGroupAthletes);
             setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
             endDisplayOrder = System.nanoTime();
@@ -1010,6 +1024,9 @@ public class FieldOfPlay {
             setCurAthlete(liftingOrder2 != null && liftingOrder2.size() > 0 ? liftingOrder2.get(0) : null);
             recomputeCurrentLeaders(athletes);
             recomputeRecords(curAthlete);
+//            for (Athlete a : liftingOrder2) {
+//                logger.debug("sinclair {} {}",a.getShortName(), a.getSinclairRank());
+//            }
             endLeaders = System.nanoTime();
         }
 

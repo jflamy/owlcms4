@@ -1,31 +1,19 @@
 ## **Changes for release ${revision}**
 
-##### Changes since previous pre-releases
-
-4.33.0-beta07:
-
-- Fixed missing values in top Sinclair
-- Fixed missing initialization for Team Membership preparation and Top Team display
-- Fixed display dialog colors to use dark theme on all pages
-- Downloaded translation file
-
-4.33.0-beta06:
-
-- Regressions fixed: jury reversal, missing translation line
-- Category boundary issue fixed (next category was included by error if athlete at upper bound)
-
-### Changes in 4.33
-
 - Records
   - Records are shown if record definition Excel spreadsheets are present in the local/records directory.  See the following folder for examples: [Sample Record Files](https://www.dropbox.com/sh/sbr804kqfwkgs6g/AAAEcT2sih9MmnrpYzkh6Erma?dl=0) . 
   - Records definitions are read when the program starts.  Records set during the competition are updated on the scoreboard, but the Excel files need to be updated manually to reflect the official federation records.
   - Records are shown according to the sorting order of the file names. Use a numerical prefix to control the order (for example 10Canada.xlsx, 20Commonwealth.xlsx, 30PanAm.xlsx).
   - All records potentially applicable to the current athlete are shown on the scoreboard.  Records that would be improved by the next lift are highlighted.  If there are too many athletes in a group the records can be hidden using the display-specific settings, or by adding `records=false` to the URL
   - Added large notifications in the record section for record attempts and new records.  You can hide the scoreboard record notifications by setting the `--showRecordNotifications` variable at the top of `colors.css` to `hidden` if you do not want them.
-- Additional hidden fields on the scoreboards
+- Sinclair meets
+  - If the feature switch `SinclairMeet` is defined on the Language and Settings page, then the scoreboard hides the lift and total ranks, and shows the Sinclair and Sinclair rank.  Also, the leaders section uses the Sinclair ranking.
+- Documentation now includes a tutorial on how to change the scoreboard colors: [Scoreboard Colors](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styles) 
+- Additional fields on the scoreboards
   - Added the custom1 and custom2 fields to the scoreboards (after the year of birth).  They are hidden by default; change the width to non-zero and visibility to `visible` in results.css in order to show one or the other or both.
-  - Added the Sinclair score to the scoreboards, at the end. Same process as above to enable.
-- Fix: Team Sinclair scoreboard now updates on every successful lift.
+- Masters rulebook
+  - Updated the default AgeGroups.xlsx definition file for the W80, W85, M85 and M85 age categories.
+  - Updated the age-adjusted Sinclair calculation for women to use the SMHF coefficients.
 - New: Announcer can act as solo athlete-facing referee. A setting on the announcer screen (⚙) enables emitting down signal on decision so it is heard and shown on displays.
 - New: Round-robin "fixed order" option for team competitions.  If this option is selected in the Competition Non-Standard Rules, athletes lift according to their lot number on each round. The lot number can be preset at registration or drawn at random depending on competition rules.
 - New: 24h time will now be used in the date-time picker when using English outside of the "traditional" English-speaking countries ("AU", "GB", "IN", "NZ", "PH", "US", "ZA").  On a laptop, the country is obtained from the operating system.  If using English in the cloud, we recommend setting the `OWLCMS_LOCALE` environment variable to `en_SE` in order to get English with consistent ISO date and 24h time formatting throughout the program.

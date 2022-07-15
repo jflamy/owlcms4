@@ -2045,7 +2045,7 @@ public class Athlete {
         if (birthDate1 == null) {
             return 0.0;
         }
-        double d = getSinclair() * SinclairCoefficients.getSMMCoefficient(YEAR - birthDate1);
+        double d = getSinclair() * SinclairCoefficients.getSMMCoefficient(YEAR - birthDate1, getGender());
         return d;
     }
     
@@ -2061,7 +2061,7 @@ public class Athlete {
         if (birthDate1 == null) {
             return 0.0;
         }
-        double d = getSinclairForDelta() * SinclairCoefficients.getSMMCoefficient(YEAR - birthDate1);
+        double d = getSinclairForDelta() * SinclairCoefficients.getSMMCoefficient(YEAR - birthDate1, getGender());
         return d;
     }
 

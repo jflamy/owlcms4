@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.displays.scoreboard;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -426,7 +427,7 @@ public class Results extends PolymerTemplate<TemplateModel>
             doDone(e.getGroup());
         });
     }
-    
+
     @Subscribe
     public void slaveJuryNotification(UIEvent.JuryNotification e) {
         uiLog(e);
@@ -492,8 +493,15 @@ public class Results extends PolymerTemplate<TemplateModel>
             if (curAthlete != null && curAthlete.getGender() != null) {
                 this.getElement().setProperty("categoryName", curAthlete.getCategory().getName());
 
-                displayOrder = fop.getLeaders();
-                if (!done && displayOrder != null && displayOrder.size() > 0) {
+                if (Competition.getCurrent().isSinclair()) {
+                    List<Athlete> sortedAthletes = new ArrayList<Athlete>(
+                            Competition.getCurrent().getGlobalSinclairRanking(curAthlete.getGender()));
+                    displayOrder = AthleteSorter.topSinclair(sortedAthletes, 3).topAthletes;
+                    this.getElement().setProperty("categoryName", Translator.translate("sinclair"));
+                } else {
+                    displayOrder = fop.getLeaders();
+                }
+                if ((!done || Competition.getCurrent().isSinclair()) && displayOrder != null && displayOrder.size() > 0) {
                     // null as second argument because we do not highlight current athletes in the leaderboard
                     this.getElement().setPropertyJson("leaders", getAthletesJson(displayOrder, null, fop));
                     this.getElement().setProperty("leaderLines", displayOrder.size() + 2); // spacer + title
@@ -638,8 +646,9 @@ public class Results extends PolymerTemplate<TemplateModel>
         Double double1 = a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
                 : a.getSinclair();
         ja.put("sinclair", double1 > 0.001 ? String.format("%.3f", double1) : "-");
-        ja.put("custom1", a.getCustom1() != null ?  a.getCustom1() : "");
-        ja.put("custom2", a.getCustom2() != null ?  a.getCustom2() : "");
+        ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
+        ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
+        ja.put("sinclairRank", a.getSinclairRank() != null && a.getSinclairRank() > 0 ? "" + a.getSinclairRank() : "-");
 
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
@@ -783,9 +792,6 @@ public class Results extends PolymerTemplate<TemplateModel>
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        // crude workaround -- randomly getting light or dark due to multiple themes detected in app.
-        getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
-
         // fop obtained via FOPParameters interface default methods.
         OwlcmsSession.withFop(fop -> {
             init();
@@ -798,7 +804,9 @@ public class Results extends PolymerTemplate<TemplateModel>
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
-        if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
+        if (Competition.getCurrent().isSinclair()) {
+            getElement().setProperty("noLiftRanks", "sinclair");
+        } else if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
             getElement().setProperty("noLiftRanks", "noranks");
         }
         SoundUtils.enableAudioContextNotification(this.getElement());
