@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -281,10 +282,14 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         for (String ext : extensionList) {
             for (String suffix : tryList) {
                 String name = templateName + suffix + ext;
-                final InputStream resourceAsStream = ResourceWalker.getFileOrResource(name);
-                // logger.debug("trying {} : {}", name, resourceAsStream);
-                if (resourceAsStream != null) {
-                    return resourceAsStream;
+                try {
+                    final InputStream resourceAsStream = ResourceWalker.getFileOrResource(name);
+                    // logger.debug("trying {} : {}", name, resourceAsStream);
+                    if (resourceAsStream != null) {
+                        return resourceAsStream;
+                    }
+                } catch (FileNotFoundException e) {
+                    // ignore
                 }
             }
         }
