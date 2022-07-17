@@ -19,6 +19,7 @@ import app.owlcms.publicresults.TimerReceiverServlet;
 import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.uievents.BreakTimerEvent;
 import app.owlcms.uievents.UpdateEvent;
+import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -28,29 +29,39 @@ import ch.qos.logback.classic.Logger;
  */
 public class BreakTimerElementPR extends TimerElementPR {
 
+    public Long id;
     final private Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElementPR.class);
-    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+
     private String parentName = "";
+    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
     }
 
+    public BreakTimerElementPR() {
+        super();
+        id = IdUtils.getTimeBasedId();
+        // logger./**/warn(LoggerUtils./**/stackTrace());
+    }
+
     /**
      * Instantiates a new timer element.
      */
-    public BreakTimerElementPR() {
-        // logger./**/warn(LoggerUtils.stackTrace());
+    public BreakTimerElementPR(String parentName) {
+        super();
+        id = IdUtils.getTimeBasedId();
+        // logger./**/warn(LoggerUtils./**/stackTrace());
     }
 
     @Override
-    public void clientFinalWarning() {
+    public void clientFinalWarning(String fopName) {
         // ignored
     }
 
     @Override
-    public void clientInitialWarning() {
+    public void clientInitialWarning(String fopName) {
         // ignored
     }
 
@@ -59,7 +70,7 @@ public class BreakTimerElementPR extends TimerElementPR {
      */
     @Override
     @ClientCallable
-    public void clientSyncTime() {
+    public void clientSyncTime(String fopName) {
     }
 
     /**
@@ -69,7 +80,18 @@ public class BreakTimerElementPR extends TimerElementPR {
      */
     @Override
     @ClientCallable
-    public void clientTimeOver() {
+    public void clientTimeOver(String fopName) {
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see app.owlcms.displays.attemptboard.TimerElement#clientTimerStopped(double)
+     */
+    @Override
+    @ClientCallable
+    public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
+        logger.trace("break timer {} starting on client: remaining = {}", from, remainingTime);
     }
 
     /**
@@ -79,8 +101,8 @@ public class BreakTimerElementPR extends TimerElementPR {
      */
     @Override
     @ClientCallable
-    public void clientTimerStopped(double remainingTime) {
-        logger.trace("timer stopped from client" + remainingTime);
+    public void clientTimerStopped(String fopName, double remainingTime, String from) {
+        logger.trace("break timer {} stopped on client: remaining = {}", from, remainingTime);
     }
 
     public void setParent(String s) {
@@ -93,18 +115,15 @@ public class BreakTimerElementPR extends TimerElementPR {
             // event is not for us
             return;
         }
-        uiEventLogger.debug("&&& break done {} {}", parentName);
-        doStopTimer();
+        doStopTimer(0);
     }
 
     @Subscribe
     public void slaveBreakPause(BreakTimerEvent.BreakPaused e) {
-        if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
-            // event is not for us
-            return;
+        if (!parentName.startsWith("BreakManagement")) {
+            uiEventLogger.trace("&&& breakTimerElement pause {} {}", parentName, e.getTimeRemaining());
         }
-        uiEventLogger.debug("&&& breakTimer pause {} {}", parentName);
-        doStopTimer();
+        doStopTimer(e.getTimeRemaining());
     }
 
     @Subscribe
@@ -121,7 +140,6 @@ public class BreakTimerElementPR extends TimerElementPR {
                 e.isIndefinite(), LoggerUtils.whereFrom());
         doSetTimer(milliseconds);
     }
-
     @Subscribe
     public void slaveBreakStart(BreakTimerEvent.BreakStart e) {
         if (getFopName() == null || e.getFopName() == null || !getFopName().contentEquals(e.getFopName())) {
@@ -132,7 +150,7 @@ public class BreakTimerElementPR extends TimerElementPR {
         uiEventLogger.debug("&&& breakTimer start {} {} {}", parentName, tr, LoggerUtils.whereFrom());
         doStartTimer(tr, true); // true means "silent".
     }
-
+    
     @Subscribe
     // not clear why we listen to this event.
     public void slaveOrderUpdated(UpdateEvent e) {
@@ -146,7 +164,7 @@ public class BreakTimerElementPR extends TimerElementPR {
             doStartTimer(breakRemaining, true);
         }
     }
-
+    
     /*
      * (non-Javadoc)
      *
@@ -155,7 +173,7 @@ public class BreakTimerElementPR extends TimerElementPR {
     @Override
     protected void init() {
         super.init();
-        setSilent(true);
+        setSilenced(true);
         getModel().setSilent(true); // do not emit sounds
     }
 
@@ -172,7 +190,7 @@ public class BreakTimerElementPR extends TimerElementPR {
 
         setFopName((String) OwlcmsSession.getAttribute("fopName"));
     }
-
+    
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
@@ -187,7 +205,10 @@ public class BreakTimerElementPR extends TimerElementPR {
         }
     }
 
+
     private String formatDuration(Integer milliseconds) {
-        return milliseconds != null ? DurationFormatUtils.formatDurationHMS(milliseconds) : "null";
+        return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds)
+                : (milliseconds != null ? milliseconds.toString() : "-");
     }
+
 }

@@ -53,65 +53,15 @@ import elemental.json.impl.JreJsonFactory;
  * Show athlete 6-attempt results
  *
  */
-@Tag("scoreleader-template")
-@JsModule("./components/ScoreWithLeaders.js")
-@Route("displays/scoreleader")
+@Tag("resultsPR-template")
+@JsModule("./components/ResultsPR.js")
+@Route("displays/resultsLeader")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.ScoreboardModel>
+public class ResultPR extends PolymerTemplate<TemplateModel>
         implements QueryParameterReader, DarkModeParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
 
-    /**
-     * ScoreboardModel
-     *
-     * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties. When the JS
-     * properties are changed, a "propname-changed" event is triggered.
-     * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
-     *
-     */
-    public interface ScoreboardModel extends TemplateModel {
-        String getAttempt();
-
-        String getCategoryName();
-
-        String getCompetitionName();
-
-        String getFullName();
-
-        Integer getStartNumber();
-
-        String getTeamName();
-
-        Integer getWeight();
-
-//        Boolean isHidden();
-
-        Boolean isWideTeamNames();
-
-        void setAttempt(String formattedAttempt);
-
-        void setCategoryName(String categoryName);
-
-        void setCompetitionName(String competitionName);
-
-        void setFullName(String lastName);
-
-        void setGroupName(String name);
-
-//        void setHidden(boolean b);
-
-        void setLiftsDone(String formattedDone);
-
-        void setStartNumber(Integer integer);
-
-        void setTeamName(String teamName);
-
-        void setWeight(Integer weight);
-
-        void setWideTeamNames(boolean b);
-    }
-
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(ScoreWithLeaders.class);
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultPR.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     static {
@@ -140,7 +90,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     /**
      * Instantiates a new results board.
      */
-    public ScoreWithLeaders() {
+    public ResultPR() {
         setDarkMode(true);
     }
 
@@ -280,19 +230,19 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             this.getElement().setPropertyJson("t",
                     translationMap != null ? jreJsonFactory.parse(translationMap) : Json.createNull());
 
-            getModel().setCompetitionName(e.getCompetitionName());
-            getModel().setAttempt(e.getAttempt());
-            getModel().setFullName(e.getFullName());
+            getElement().setProperty("competitionName", e.getCompetitionName());
+            getElement().setProperty("attempt",e.getAttempt());
+            getElement().setProperty("fullName", e.getFullName());
             String groupName = e.getGroupName();
-            getModel().setGroupName(groupName);
+            getElement().setProperty("groupName",groupName);
             setHidden(e.getHidden());
-            getModel().setStartNumber(e.getStartNumber());
-            getModel().setTeamName(e.getTeamName());
-            getModel().setWeight(e.getWeight());
-            getModel().setCategoryName(e.getCategoryName());
+            getElement().setProperty("startNumber", e.getStartNumber());
+            getElement().setProperty("teamName",e.getTeamName());
+            getElement().setProperty("weight",e.getWeight());
+            getElement().setProperty("categoryName",e.getCategoryName());
             setWideTeamNames(e.getWideTeamNames());
             String liftsDone = e.getLiftsDone();
-            getModel().setLiftsDone(liftsDone);
+            getElement().setProperty("liftsDone",liftsDone);
 
             if (StartupUtils.isDebugSetting()) {
                 logger./**/warn("### state {} {}", fopState, e.getBreakType());
@@ -345,8 +295,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             slaveGlobalRankingUpdated(initEvent);
             timer.slaveOrderUpdated(initEvent);
         } else {
-            getModel().setFullName(Translator.translate("WaitingForSite"));
-            getModel().setGroupName("");
+            getElement().setProperty("fulName",Translator.translate("WaitingForSite"));
+            getElement().setProperty("groupName","");
             getElement().callJsFunction("groupDone");
         }
     }
@@ -373,8 +323,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         if (str == null) {
             doEmpty();
         } else {
-//            getModel().setFullName(getTranslation("Group_number_results", groupName));
-            getModel().setFullName(str);
+            getElement().setProperty("fullName",str);
             this.getElement().callJsFunction("groupDone");
         }
     }

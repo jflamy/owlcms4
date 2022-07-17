@@ -33,7 +33,7 @@ import ch.qos.logback.classic.Logger;
  * ExplicitDecision display element.
  */
 @Tag("decision-element-pr")
-@JsModule("./components/DecisionElement.js")
+@JsModule("./components/DecisionElementPR.js")
 public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.DecisionModel>
         implements IFopName, SafeEventBusRegistrationPR {
 
