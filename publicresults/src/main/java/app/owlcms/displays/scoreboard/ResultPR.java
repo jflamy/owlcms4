@@ -45,6 +45,8 @@ import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
+import elemental.json.JsonArray;
+import elemental.json.JsonValue;
 import elemental.json.impl.JreJsonFactory;
 
 /**
@@ -223,26 +225,42 @@ public class ResultPR extends PolymerTemplate<TemplateModel>
             String translationMap = e.getTranslationMap();
 
             JreJsonFactory jreJsonFactory = new JreJsonFactory();
-            this.getElement().setPropertyJson("leaders",
-                    leaders != null ? jreJsonFactory.parse(leaders) : Json.createNull());
-            this.getElement().setPropertyJson("athletes",
-                    athletes != null ? jreJsonFactory.parse(athletes) : Json.createNull());
+
+
+            if (leaders != null) {
+                JsonArray leaderList = (JsonArray) jreJsonFactory.parse(leaders);
+                this.getElement().setPropertyJson("leaders", leaderList);
+                this.getElement().setProperty("leaderLines", leaderList.length()+1);
+            } else {
+                this.getElement().setPropertyJson("leaders", Json.createNull());
+                this.getElement().setProperty("leaderLines", 0);
+            }
+            
+            if (athletes != null) {
+                JsonArray athleteList = (JsonArray) jreJsonFactory.parse(athletes);
+                this.getElement().setPropertyJson("athletes",athleteList);
+                this.getElement().setProperty("resultLines", athleteList.length()+1);
+            } else {
+                this.getElement().setPropertyJson("athletes", Json.createNull());
+                this.getElement().setProperty("resultLines", 0);
+            }
+
             this.getElement().setPropertyJson("t",
                     translationMap != null ? jreJsonFactory.parse(translationMap) : Json.createNull());
 
             getElement().setProperty("competitionName", e.getCompetitionName());
-            getElement().setProperty("attempt",e.getAttempt());
+            getElement().setProperty("attempt", e.getAttempt());
             getElement().setProperty("fullName", e.getFullName());
             String groupName = e.getGroupName();
-            getElement().setProperty("groupName",groupName);
+            getElement().setProperty("groupName", groupName);
             setHidden(e.getHidden());
             getElement().setProperty("startNumber", e.getStartNumber());
-            getElement().setProperty("teamName",e.getTeamName());
-            getElement().setProperty("weight",e.getWeight());
-            getElement().setProperty("categoryName",e.getCategoryName());
+            getElement().setProperty("teamName", e.getTeamName());
+            getElement().setProperty("weight", e.getWeight() != null ? e.getWeight() : 0);
+            getElement().setProperty("categoryName", e.getCategoryName());
             setWideTeamNames(e.getWideTeamNames());
             String liftsDone = e.getLiftsDone();
-            getElement().setProperty("liftsDone",liftsDone);
+            getElement().setProperty("liftsDone", liftsDone);
 
             if (StartupUtils.isDebugSetting()) {
                 logger./**/warn("### state {} {}", fopState, e.getBreakType());
@@ -295,8 +313,8 @@ public class ResultPR extends PolymerTemplate<TemplateModel>
             slaveGlobalRankingUpdated(initEvent);
             timer.slaveOrderUpdated(initEvent);
         } else {
-            getElement().setProperty("fulName",Translator.translate("WaitingForSite"));
-            getElement().setProperty("groupName","");
+            getElement().setProperty("fulName", Translator.translate("WaitingForSite"));
+            getElement().setProperty("groupName", "");
             getElement().callJsFunction("groupDone");
         }
     }
@@ -323,7 +341,7 @@ public class ResultPR extends PolymerTemplate<TemplateModel>
         if (str == null) {
             doEmpty();
         } else {
-            getElement().setProperty("fullName",str);
+            getElement().setProperty("fullName", str);
             this.getElement().callJsFunction("groupDone");
         }
     }
@@ -358,11 +376,13 @@ public class ResultPR extends PolymerTemplate<TemplateModel>
     }
 
     private void setHidden(boolean hidden) {
-        this.getElement().setProperty("hiddenStyle", (hidden ? "display:none" : "display:block"));
-        this.getElement().setProperty("inactiveStyle", (hidden ? "display:block" : "display:none"));
+        this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
+        this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
+        this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
+        this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
         this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
     }
-
+    
     private void setWideTeamNames(boolean wide) {
         this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
     }
