@@ -19,8 +19,10 @@ import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.competition.Competition;
 import ch.qos.logback.classic.Logger;
 
 @Entity
@@ -64,6 +66,9 @@ public class RecordEvent {
     private Ranking recordLift;
     private String recordName;
     private int recordYear;
+    private String fileName;
+
+    private String bwCatString;
 
     public void fillDefaults() throws MissingAgeGroup, MissingGender, UnknownIWFBodyWeightCategory {
         if (ageGrp == null) {
@@ -261,12 +266,10 @@ public class RecordEvent {
 
     @Override
     public String toString() {
-        return "RecordEvent [id=" + id + ", recordValue=" + recordValue + ", ageGrp=" + ageGrp + ", ageGrpLower="
-                + ageGrpLower + ", ageGrpUpper=" + ageGrpUpper + ", athleteName=" + athleteName + ", bwCatLower="
-                + bwCatLower + ", bwCatUpper=" + bwCatUpper + ", birthDate=" + birthDate + ", birthYear=" + birthYear
-                + ", event=" + event + ", eventLocation=" + eventLocation + ", gender=" + gender + ", nation=" + nation
-                + ", recordDate=" + recordDate + ", recordFederation=" + recordFederation + ", recordLift=" + recordLift
-                + ", recordName=" + recordName + ", recordYear=" + recordYear + "]";
+        return "RecordEvent [recordFederation=" + recordFederation + ", recordName=" + recordName + ", recordLift="
+                + recordLift + ", recordValue=" + recordValue + ", athleteName=" + athleteName + ", ageGrp=" + ageGrp
+                + ", ageGrpLower=" + ageGrpLower + ", ageGrpUpper=" + ageGrpUpper + ", bwCatLower=" + bwCatLower
+                + ", bwCatUpper=" + bwCatUpper + ", fileName=" + fileName + "]";
     }
 
     private void fillIWFBodyWeights() throws MissingGender, UnknownIWFBodyWeightCategory {
@@ -367,5 +370,50 @@ public class RecordEvent {
             }
 
         }
+    }
+
+    public void setBwCatString(String cellValue) {
+        this.bwCatString = cellValue;
+    }
+
+    public String getBwCatString() {
+        return bwCatString;
+    }
+    
+    public String getKey() {
+        return getRecordName()+"_"+getRecordLift()+"_"+getBwCatLower()+"_"+getBwCatUpper()+"_"+getAgeGrpLower()+"_"+getAgeGrpUpper();
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+    
+    public static RecordEvent newRecord(Athlete a, RecordEvent rec, Double value) {
+        RecordEvent newRecord = new RecordEvent();
+        newRecord.setAgeGrp(rec.getAgeGrp());
+        newRecord.setAgeGrpLower(rec.getAgeGrpLower());
+        newRecord.setAgeGrpUpper(rec.getAgeGrpUpper());
+        newRecord.setAthleteName(a.getFullName());
+        newRecord.setBirthDate(a.getFullBirthDate());
+        newRecord.setBirthYear(a.getYearOfBirth());
+        newRecord.setBwCatLower(rec.getBwCatLower());
+        newRecord.setBwCatUpper(rec.getBwCatUpper());
+        newRecord.setBwCatString(rec.getBwCatString());
+        newRecord.setEvent(Competition.getCurrent().getCompetitionName());
+        newRecord.setEventLocation(Competition.getCurrent().getCompetitionCity());
+        newRecord.setGender(a.getGender());
+        newRecord.setNation(a.getTeam());
+        newRecord.setRecordDate(LocalDate.now());
+        newRecord.setRecordFederation(rec.getRecordFederation());
+        newRecord.setRecordLift(rec.getRecordLift());
+        newRecord.setRecordName(rec.getRecordName());
+        newRecord.setRecordValue(value);
+        newRecord.setRecordYear(LocalDate.now().getYear());
+        newRecord.setFileName(rec.getFileName());
+        return newRecord;
     }
 }

@@ -12,6 +12,9 @@ import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -22,6 +25,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.components.fields.LocalizedDecimalField;
+import app.owlcms.data.records.RecordRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -128,6 +132,25 @@ public class DisplayOptions {
         });
 
         layout.add(fontSizeField);
+    }
+
+    public static void addSectionEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
+        if (RecordRepository.findAll().isEmpty()) {
+            return;
+        }
+        layout.add(new Hr());
+        boolean showRecords = dp.isRecordsDisplay();
+        Checkbox recordsDisplayCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowRecords"));//
+        recordsDisplayCheckbox.setValue(showRecords);
+        recordsDisplayCheckbox.addValueChangeListener(e -> {
+            dp.switchRecords(target, e.getValue(), true);
+            UI.getCurrent().getPage().reload();
+        });
+        CheckboxGroup<Boolean> cbg = new CheckboxGroup<>();
+        cbg.add(recordsDisplayCheckbox);
+        cbg.setLabel(Translator.translate("DisplayParameters.ContentSettings"));
+
+        layout.add(cbg);
     }
 
 }

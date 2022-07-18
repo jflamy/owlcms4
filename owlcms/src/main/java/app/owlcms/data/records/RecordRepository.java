@@ -8,20 +8,36 @@ package app.owlcms.data.records;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.hibernate.query.NativeQuery;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
+import elemental.json.Json;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
+import elemental.json.JsonValue;
 
 /**
  * RecordRepository.
@@ -31,19 +47,139 @@ public class RecordRepository {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(RecordRepository.class);
 
+    public static JsonValue buildRecordJson(List<RecordEvent> records, Integer snatchRequest, Integer cjRequest,
+            Integer totalRequest) {
+        
+        if (records == null || records.isEmpty()) {
+            return Json.createNull();
+        }
+        
+        Multimap<Integer, RecordEvent> recordsByAgeWeight = ArrayListMultimap.create();
+        TreeMap<String, String> rowOrder = new TreeMap<>();
+        for (RecordEvent re : records) {
+            // rows are ordered according to file name.
+            rowOrder.put(re.getFileName(), re.getRecordName());
+            // synthetic key to arrange records in correct column.
+            recordsByAgeWeight.put(re.getAgeGrpLower() * 1000000 + re.getAgeGrpUpper() * 1000 + re.getBwCatUpper(), re);
+        }
+
+        // order columns in ascending age groups;
+        List<Integer> columnOrder = recordsByAgeWeight.keySet().stream().sorted((e1, e2) -> Integer.compare(e1, e2))
+                .collect(Collectors.toList());
+
+        @SuppressWarnings("unchecked")
+        List<RecordEvent>[][] recordTable = new ArrayList[rowOrder.size()][columnOrder.size()];
+        ArrayList<String> rowRecordNames = new ArrayList<>(rowOrder.values());
+
+        for (int j1 = 0; j1 < columnOrder.size(); j1++) {
+            Collection<RecordEvent> recordsForCurrentCategory = recordsByAgeWeight.get(columnOrder.get(j1));
+            for (int i1 = 0; i1 < rowOrder.size(); i1++) {
+                String curRowRecordName = rowRecordNames.get(i1);
+
+                List<RecordEvent> recordFound = recordsForCurrentCategory.stream()
+                        .filter(r -> r.getRecordName().contentEquals(curRowRecordName)).collect(Collectors.toList());
+                
+                // put them in snatch/cj/total order (not needed really), then largest record first in case of multiple
+                // records
+                recordFound.sort(Comparator.comparing(RecordEvent::getRecordLift)
+                        .thenComparing(Comparator.comparing(RecordEvent::getRecordValue).reversed()));
+
+                // keep the largest record
+                List<RecordEvent> maxRecordFound = new ArrayList<>();
+                recordFound.stream().filter(r -> r.getRecordLift() == Ranking.SNATCH).findFirst()
+                        .ifPresent(r -> maxRecordFound.add(r));
+                recordFound.stream().filter(r -> r.getRecordLift() == Ranking.CLEANJERK).findFirst()
+                        .ifPresent(r -> maxRecordFound.add(r));
+                recordFound.stream().filter(r -> r.getRecordLift() == Ranking.TOTAL).findFirst()
+                        .ifPresent(r -> maxRecordFound.add(r));
+                recordTable[i1][j1] = maxRecordFound;
+            }
+        }
+
+        JsonObject recordInfo = Json.createObject();
+        JsonArray recordFederations = Json.createArray();
+        JsonArray recordCategories = Json.createArray();
+
+        int ix1 = 0;
+        for (String s : rowRecordNames) {
+            recordFederations.set(ix1++, s);
+        }
+
+        JsonArray columns = Json.createArray();
+        for (int j = 0; j < recordTable[0].length; j++) {
+            JsonObject column = Json.createObject();
+            JsonArray columnCells = Json.createArray();
+            for (int i = 0; i < recordTable.length; i++) {
+                JsonObject cell = Json.createObject();
+                cell.put(Ranking.SNATCH.name(), "\u00a0");
+                cell.put(Ranking.CLEANJERK.name(), "\u00a0");
+                cell.put(Ranking.TOTAL.name(), "\u00a0");
+                for (RecordEvent rec : recordTable[i][j]) {
+                    if (recordCategories.length() <= j || recordCategories.get(j) == null) {
+                        String string = Translator.translate("Record.CategoryTitle",rec.getAgeGrp(),rec.getBwCatString());
+                        recordCategories.set(j, string);
+                        column.put("cat", string);
+                    }
+                    cell.put(rec.getRecordLift().name(), rec.getRecordValue());
+
+                    if (rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null
+                            && snatchRequest > rec.getRecordValue()) {
+                        cell.put("snatchHighlight", "highlight");
+                    } else if (rec.getRecordLift() == Ranking.CLEANJERK && cjRequest != null
+                            && cjRequest > +rec.getRecordValue()) {
+                        cell.put("cjHighlight", "highlight");
+                    } else if (rec.getRecordLift() == Ranking.TOTAL && totalRequest != null
+                            && totalRequest > +rec.getRecordValue()) {
+                        cell.put("totalHighlight", "highlight");
+                    }
+                }
+                columnCells.set(i, cell);
+            }
+            column.put("records", columnCells);
+            columns.set(j, column);
+        }
+
+        recordInfo.put("recordNames", recordFederations);
+        recordInfo.put("recordCategories", recordCategories);
+        recordInfo.put("recordTable", columns);
+        recordInfo.put("nbRecords", Json.create(recordTable[0].length+1));
+        
+        return recordInfo;
+    }
+
     public static void clearRecords() throws IOException {
         JPAService.runInTransaction(em -> {
             try {
-                em.clear();
-                Query upd = em.createNativeQuery("delete from RecordEvent");
-                upd.unwrap(NativeQuery.class).addSynchronizedEntityClass(RecordEvent.class);
-                upd.executeUpdate();
-                em.flush();
+                int deletedCount = em.createQuery("DELETE FROM RecordEvent").executeUpdate();
+                if (deletedCount > 0) {
+                    logger.info("deleted {} record entries", deletedCount);
+                }
             } catch (Exception e) {
                 LoggerUtils.logError(logger, e);
             }
             return null;
         });
+    }
+
+    public static JsonValue computeRecords(Gender gender, Integer age, Double bw, Integer snatchRequest,
+            Integer cjRequest, Integer totalRequest) {
+        List<RecordEvent> records = findFiltered(gender, age, bw);
+        return buildRecordJson(records, snatchRequest, cjRequest, totalRequest);
+    }
+    
+    public static List<RecordEvent> computeRecordsForAthlete(Athlete curAthlete) {
+        List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
+                curAthlete.getBodyWeight());
+
+        // remove duplicates for each kind of record, keep largest
+        Map<String, RecordEvent> cleanMap = records.stream().collect(
+                Collectors.toMap(
+                        RecordEvent::getKey,
+                        Function.identity(),
+                        (r1, r2) -> r1.getRecordValue() > r2.getRecordValue() ? r1 : r2));
+
+        records = cleanMap.values().stream().collect(Collectors.toList());
+        return records;
     }
 
     /**
@@ -95,7 +231,7 @@ public class RecordRepository {
         List<RecordEvent> findFiltered = JPAService.runInTransaction(em -> {
             String qlString = "select rec from RecordEvent rec "
                     + filteringSelection(gender, age, bw)
-                    + " order by rec.gender, rec.ageGrpLower, rec.ageGrpUpper";
+                    + " order by rec.gender, rec.ageGrpLower, rec.ageGrpUpper, rec.recordValue desc";
             logger.debug("query = {}", qlString);
 
             Query query = em.createQuery(qlString);
@@ -156,14 +292,14 @@ public class RecordRepository {
                 .getResultList();
     }
 
-    private static String filteringSelection(Gender gender, Integer age, Double d) {
+    private static String filteringSelection(Gender gender, Integer age, Double bw) {
         String joins = null;
-        String where = filteringWhere(gender, age, d);
+        String where = filteringWhere(gender, age, bw);
         String selection = (joins != null ? " " + joins : "") + (where != null ? " where " + where : "");
         return selection;
     }
 
-    private static String filteringWhere(Gender gender, Integer age, Double d) {
+    private static String filteringWhere(Gender gender, Integer age, Double bw) {
         List<String> whereList = new LinkedList<>();
         if (gender != null) {
             whereList.add("rec.gender = :gender");
@@ -171,8 +307,8 @@ public class RecordRepository {
         if (age != null) {
             whereList.add("(rec.ageGrpLower <= :age) and (rec.ageGrpUpper >= :age)");
         }
-        if (d != null) {
-            whereList.add("(rec.bwCatLower*1.0 <= :bw) and (rec.bwCatUpper*1.0 >= :bw)");
+        if (bw != null) {
+            whereList.add("(rec.bwCatLower*1.0 < :bw) and (rec.bwCatUpper*1.0 >= :bw)");
         }
         if (whereList.size() == 0) {
             return null;

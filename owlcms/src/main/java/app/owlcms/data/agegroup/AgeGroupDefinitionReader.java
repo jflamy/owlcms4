@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.data.agegroup;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.EnumSet;
@@ -22,6 +23,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.Main;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
@@ -222,17 +224,26 @@ public class AgeGroupDefinitionReader {
 
     static void doInsertAgeGroup(EnumSet<AgeDivision> es, String localizedName) {
         // InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
-        InputStream localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
-        try (Workbook workbook = WorkbookFactory
-                .create(localizedResourceAsStream)) {
-            AgeGroupRepository.logger.info("loading configuration file {}", localizedName);
-            Map<String, Category> templates = createCategoryTemplates(workbook);
-            createAgeGroups(workbook, templates, es, localizedName);
-            workbook.close();
-        } catch (Exception e) {
-            AgeGroupRepository.logger.error("could not process ageGroup configuration\n{}",
-                    LoggerUtils./**/stackTrace(e));
+        InputStream localizedResourceAsStream;
+        Logger mainLogger = Main.getStartupLogger();
+        try {
+            localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
+            try (Workbook workbook = WorkbookFactory
+                    .create(localizedResourceAsStream)) {
+                logger.info("loading configuration file {}", localizedName);
+                mainLogger.info("loading configuration file {}", localizedName);
+                Map<String, Category> templates = createCategoryTemplates(workbook);
+                createAgeGroups(workbook, templates, es, localizedName);
+                workbook.close();
+            } catch (Exception e) {
+                logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
+                mainLogger.error("could not process ageGroup configuration. See logs for details");
+            }
+        } catch (FileNotFoundException e1) {
+            logger.error("could not find ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e1));
+            mainLogger.error("could not find ageGroup configuration. See logs for details");
         }
+
     }
 
     private static Object cellName(int iColumn, int iRow) {

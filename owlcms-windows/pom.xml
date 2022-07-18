@@ -89,7 +89,7 @@
                                     <groupId>app.owlcms</groupId>
                                     <artifactId>owlcms</artifactId>
                                     <outputDirectory>${project.build.directory}/owlcms-win32/local</outputDirectory>
-                                    <includes>i18n**/**,templates**/**,config**/**,styles**/**,agegroups**/**,sinclair**/**,sounds**/**</includes>
+                                    <includes>i18n**/**,templates**/**,config**/**,styles**/**,agegroups**/**,sinclair**/**,sounds**/**,records/**</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

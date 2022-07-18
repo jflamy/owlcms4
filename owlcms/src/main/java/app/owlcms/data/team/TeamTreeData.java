@@ -77,7 +77,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
             TeamTreeItem curTeamItem = null;
             String key = computeGenderKey(gender) + "Team"
                     + (ageGroupPrefix != null ? ageGroupPrefix : ageDivision.name());
-            logger.trace("looking for {} in {}", key, reportingBeans.keySet());
+            logger.debug("looking for {} in {}", key, reportingBeans.keySet());
 
             @SuppressWarnings("unchecked")
             List<Athlete> athletes = (List<Athlete>) reportingBeans.get(key);
@@ -108,7 +108,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                     boolean groupIsDone = groupIsDone(a);
                     Integer curPoints = a.getTotalPoints();
                     double curSinclair = a.getSinclairForDelta();
-                    double curSmf = a.getSmm();
+                    double curSmf = a.getSmfForDelta();
                     double curRobi = a.getRobi();
 
                     Team curTeam = curTeamItem.getTeam();
@@ -207,7 +207,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
             maxCount = comp.getWomensTeamSize() != null ? comp.getWomensTeamSize() : Integer.MAX_VALUE;
             break;
         case MIXED:
-            throw new RuntimeException("Can't happen: there is no Top JsonUploadDialog mixed size");
+            throw new RuntimeException("Can't happen: there is no Top mixed size");
         }
         return maxCount;
     }

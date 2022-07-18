@@ -34,6 +34,7 @@ import app.owlcms.data.records.RecordRepository;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import elemental.json.JsonValue;
 
 // subsequent tests depend on features tested in earlier tests
 // tests themselves do not depend on work done in earlier tests.
@@ -90,7 +91,7 @@ public class RecordDefinitionReaderTest {
             Workbook wb = null;
             try {
                 wb = WorkbookFactory.create(xmlInputStream);
-                int i = RecordDefinitionReader.createRecords(wb, streamURI);
+                int i = RecordDefinitionReader.createRecords(wb, streamURI, null);
                 assertEquals(180, i);
             } finally {
                 if (wb != null) {
@@ -102,10 +103,10 @@ public class RecordDefinitionReaderTest {
 
     @Test
     public void _02_testZippedFile() throws IOException, SAXException, InvalidFormatException {
-        String zipURI = "/testData/records/IWFRecords.zip";
+        String zipURI = "/testData/records/IWF_EWF.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
         RecordDefinitionReader.readZip(zipStream);
-        assertEquals("expected size wrong", 180, RecordRepository.findAll().size());
+        assertEquals("expected size wrong", 360, RecordRepository.findAll().size());
     }
 
     @Test
@@ -117,11 +118,11 @@ public class RecordDefinitionReaderTest {
 
     @Test
     public void _04_testRetrieval() throws IOException {
-        String zipURI = "/testData/records/IWFRecords.zip";
+        String zipURI = "/testData/records/IWF_EWF.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
         RecordDefinitionReader.readZip(zipStream);
         List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 66.0D);
-        assertEquals("wrong number of results", 9, results.size());
+        assertEquals("wrong number of results", 18, results.size());
     }
 
     @Test
@@ -134,11 +135,22 @@ public class RecordDefinitionReaderTest {
     }
 
     @Test
-    public void _05_testYthMatch() throws IOException {
+    public void _06_testYthMatch() throws IOException {
         String zipURI = "/testData/records/IWFRecords.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
         RecordDefinitionReader.readZip(zipStream);
         List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 13, 66.0D);
         assertEquals("wrong number of results", 3, results.size());
+    }
+    
+    @Test
+    public void _08_testJson() throws IOException {
+        String zipURI = "/testData/records/IWF_EWF.zip";
+        InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
+        RecordDefinitionReader.readZip(zipStream);
+        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 110.0D);
+        assertEquals("wrong number of results", 18, results.size());
+        JsonValue json = RecordRepository.buildRecordJson(results, null, null, null);
+        System.out.println(json.toJson());
     }
 }

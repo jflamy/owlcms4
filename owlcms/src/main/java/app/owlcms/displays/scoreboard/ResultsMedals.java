@@ -496,9 +496,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        // crude workaround -- randomly getting light or dark due to multiple themes detected in app.
-        getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
-
         // fop obtained via FOPParameters interface default methods.
         OwlcmsSession.withFop(fop -> {
             init();
@@ -510,6 +507,9 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
             uiEventBus = uiEventBusRegister(this, fop);
         });
         switchLightingMode(this, isDarkMode(), true);
+        if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
+            getElement().setProperty("noLiftRanks", "noranks");
+        }
         SoundUtils.enableAudioContextNotification(this.getElement());
     }
 
@@ -646,6 +646,13 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
             logger.error("main rankings null for {}", a);
         }
         ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
+        Double double1 = a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
+                : a.getSinclair();
+        ja.put("sinclair", double1 > 0.001 ? String.format("%.3f", double1) : "-");
+        ja.put("custom1", a.getCustom1() != null ?  a.getCustom1() : "");
+        ja.put("custom2", a.getCustom2() != null ?  a.getCustom2() : "");
+        ja.put("sinclairRank", a.getSinclairRank() != null ? ""+a.getSinclairRank() : "-");
+
 
         String highlight = "";
         ja.put("classname", highlight);

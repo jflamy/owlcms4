@@ -30,24 +30,41 @@ public class SinclairCoefficients {
     static Properties props = null;
     static Double womenCoefficient = null;
     static Double womenMaxWeight = null;
-    private static HashMap<Integer, Float> smm = null;
+    private static HashMap<Integer, Float> smf = null;
+    private static HashMap<Integer, Float> smhf = null;
 
     /**
      * @param age
      * @return the Sinclair-Malone-Meltzer Coefficient for that age.
      * @throws IOException
      */
-    public static Float getSMMCoefficient(Integer age) {
-        if (smm == null) {
-            loadSMM();
+    @SuppressWarnings("incomplete-switch")
+    public static Float getSMMCoefficient(Integer age, Gender gender) {
+        switch (gender) {
+        case F:
+            if (smhf == null) {
+                loadSMM();
+            }
+            if (age <= 30) {
+                return 1.0F;
+            }
+            if (age >= 80) {
+                return smhf.get(80);
+            }
+            return smhf.get(age);  
+        case M:
+            if (smf == null) {
+                loadSMM();
+            }
+            if (age <= 30) {
+                return 1.0F;
+            }
+            if (age >= 90) {
+                return smf.get(90);
+            }
+            return smf.get(age);    
         }
-        if (age <= 30) {
-            return 1.0F;
-        }
-        if (age >= 90) {
-            return smm.get(90);
-        }
-        return smm.get(age);
+        return null;
     }
 
     /**
@@ -123,13 +140,17 @@ public class SinclairCoefficients {
             loadProps();
         }
 
-        smm = new HashMap<>((int) (props.size() * 1.4));
+        smf = new HashMap<>((int) (props.size()));
+        smhf = new HashMap<>((int) (props.size()));
+        
         for (Entry<Object, Object> entry : props.entrySet()) {
             String curKey = (String) entry.getKey();
-            if (curKey.startsWith("smm.")) {
-                smm.put(Integer.valueOf(curKey.replace("smm.", "")), Float.valueOf((String) entry.getValue()));
-            }
+            if (curKey.startsWith("smf.")) {
+                smf.put(Integer.valueOf(curKey.replace("smf.", "")), Float.valueOf((String) entry.getValue()));
+            } else if (curKey.startsWith("smhf.")) {
+                smhf.put(Integer.valueOf(curKey.replace("smhf.", "")), Float.valueOf((String) entry.getValue()));
+            } 
         }
-        return smm;
+        return smf;
     }
 }

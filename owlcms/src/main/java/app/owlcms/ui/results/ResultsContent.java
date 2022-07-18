@@ -122,10 +122,10 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
                     .setComparator(new WinningOrderComparator(Ranking.CAT_SINCLAIR, true));
         }
 
-        grid.addColumn(new NumberRenderer<>(Athlete::getSinclair, "%.3f", OwlcmsSession.getLocale(), "0.000"),
+        grid.addColumn(new NumberRenderer<>(Athlete::getSinclairForDelta, "%.3f", OwlcmsSession.getLocale(), "0.000"),
                 "sinclair").setHeader(Translator.translate("sinclair"))
                 .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR, true));
-        grid.addColumn(new NumberRenderer<>(Athlete::getSmm, "%.3f", OwlcmsSession.getLocale(), "-"), "smm")
+        grid.addColumn(new NumberRenderer<>(Athlete::getSmfForDelta, "%.3f", OwlcmsSession.getLocale(), "-"), "smm")
                 .setHeader(Translator.translate("smm")).setSortProperty("smm")
                 .setComparator(new WinningOrderComparator(Ranking.SMM, true));
         return grid;

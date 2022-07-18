@@ -20,6 +20,7 @@ import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -54,6 +55,8 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.data.records.RecordEvent;
+import app.owlcms.data.records.RecordRepository;
 import app.owlcms.fieldofplay.FOPEvent.BarbellOrPlatesChanged;
 import app.owlcms.fieldofplay.FOPEvent.CeremonyDone;
 import app.owlcms.fieldofplay.FOPEvent.CeremonyStarted;
@@ -71,6 +74,7 @@ import app.owlcms.fieldofplay.FOPEvent.TimeOver;
 import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
+import app.owlcms.i18n.Translator;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
 import app.owlcms.spreadsheet.PAthlete;
@@ -84,6 +88,8 @@ import app.owlcms.uievents.UIEvent.JuryNotification;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
+import elemental.json.Json;
+import elemental.json.JsonValue;
 
 /**
  * This class describes one field of play at runtime.
@@ -221,6 +227,13 @@ public class FieldOfPlay {
 
     private int prevWeight;
 
+    private JsonValue recordsJson;
+
+    private List<RecordEvent> challengedRecords;
+    private List<RecordEvent> newRecords;
+    private List<RecordEvent> lastChallengedRecords;
+    private List<RecordEvent> lastNewRecords;
+
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
      * be used to provide the athletes and set the athleteTimer
@@ -262,46 +275,6 @@ public class FieldOfPlay {
         return liftsDone;
     }
 
-    public void emitDown(FOPEvent e) {
-        logger.debug("{}Emitting down {}", getLoggingName(), LoggerUtils.whereFrom(2));
-        getAthleteTimer().stop(); // paranoia
-        this.setPreviousAthlete(getCurAthlete()); // would be safer to use past lifting order
-        setClockOwner(null); // athlete has lifted, time does not keep running for them
-        setClockOwnerInitialTimeAllowed(0);
-        uiShowDownSignalOnSlaveDisplays(e.origin);
-        setState(DOWN_SIGNAL_VISIBLE);
-    }
-
-    public void emitFinalWarning() {
-        if (!isFinalWarningEmitted()) {
-            logger.info("{}Final Warning", getLoggingName());
-            if (isEmitSoundsOnServer()) {
-                new Sound(getSoundMixer(), "finalWarning.wav").emit();
-            }
-            setFinalWarningEmitted(true);
-        }
-    }
-
-    public void emitInitialWarning() {
-        if (!isInitialWarningEmitted()) {
-            logger.info("{}Initial Warning", getLoggingName());
-            if (isEmitSoundsOnServer()) {
-                new Sound(getSoundMixer(), "initialWarning.wav").emit();
-            }
-            setInitialWarningEmitted(true);
-        }
-    }
-
-    public void emitTimeOver() {
-        if (!isTimeoutEmitted()) {
-            logger.info("{}Time Over", getLoggingName());
-            if (isEmitSoundsOnServer()) {
-                new Sound(getSoundMixer(), "timeOver.wav").emit();
-            }
-            setTimeoutEmitted(true);
-        }
-    }
-
     public void fopEventPost(FOPEvent e) {
         e.setFop(this);
         handleFOPEvent(e);
@@ -330,6 +303,10 @@ public class FieldOfPlay {
 
     public CeremonyType getCeremonyType() {
         return ceremonyType;
+    }
+
+    public List<RecordEvent> getChallengedRecords() {
+        return challengedRecords;
     }
 
     public Athlete getClockOwner() {
@@ -445,6 +422,12 @@ public class FieldOfPlay {
      */
     public Athlete getPreviousAthlete() {
         return previousAthlete;
+    }
+
+    public JsonValue getRecordsJson() {
+        if (recordsJson == null)
+            return Json.createNull();
+        return recordsJson;
     }
 
     /**
@@ -692,6 +675,7 @@ public class FieldOfPlay {
 
         case TIME_RUNNING:
             if (e instanceof DownSignal) {
+                logger.debug("emitting down");
                 emitDown(e);
             } else if (e instanceof TimeStopped) {
                 // athlete lifted the bar
@@ -724,9 +708,8 @@ public class FieldOfPlay {
 
         case TIME_STOPPED:
             if (e instanceof DownSignal) {
-                // ignore -- now processed via processRefereeDecisions()
-                // 2 referees have given same decision
-                // emitDown(e);
+                // only occurs if solo referee
+                emitDown(e);
             } else if (e instanceof DecisionFullUpdate) {
                 // decision coming from decision display or attempt board
                 updateRefereeDecisions((DecisionFullUpdate) e);
@@ -899,6 +882,7 @@ public class FieldOfPlay {
         String loadGroupName = group != null ? group.getName() : null;
 
         boolean alreadyLoaded = thisGroupName == loadGroupName;
+        this.setPrevWeight(0);
         if (loadGroupName != null && alreadyLoaded && !forceLoad) {
             // already loaded
             logger.debug("{}group {} already loaded", getLoggingName(), loadGroupName);
@@ -906,6 +890,7 @@ public class FieldOfPlay {
         }
         this.setGroup(group);
         this.setCjStarted(false);
+
         if (group != null) {
             // protect against possible UI bug where switching group triggers a dropdown selection
             // which triggers a switchgroup (there may be multiple announcer screens open)
@@ -915,12 +900,14 @@ public class FieldOfPlay {
                 return;
             }
 
-            logger.debug("{}loading data for group {} [already={} forced={} from={}]",
-                    getLoggingName(),
-                    loadGroupName,
-                    alreadyLoaded,
-                    forceLoad,
-                    LoggerUtils.whereFrom());
+            if (logger.isTraceEnabled()) {
+                logger.trace("{}loading data for group {} [already={} forced={} from={}]",
+                        getLoggingName(),
+                        loadGroupName,
+                        alreadyLoaded,
+                        forceLoad,
+                        LoggerUtils.whereFrom());
+            }
             List<Athlete> groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true);
             if (groupAthletes.stream().map(Athlete::getStartNumber).anyMatch(sn -> sn == 0)) {
                 logger./**/warn("start numbers were not assigned correctly");
@@ -944,17 +931,17 @@ public class FieldOfPlay {
 
         int timeAllowed = getTimeAllowed();
         Integer attemptsDone = getCurAthlete().getAttemptsDone();
-//        logger.trace("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
-//                getLoggingName(),
-//                getCurAthlete() != null ? getCurAthlete().getFullName() : "",
-//                getPreviousAthlete() != null ? getPreviousAthlete().getFullName() : "",
-//                timeAllowed,
-//                attemptsDone,
-//                LoggerUtils.whereFrom());
+        logger.debug("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
+                getLoggingName(),
+                getCurAthlete() != null ? getCurAthlete().getFullName() : "",
+                getPreviousAthlete() != null ? getPreviousAthlete().getFullName() : "",
+                timeAllowed,
+                attemptsDone,
+                LoggerUtils.whereFrom());
         if (currentDisplayAffected) {
             getAthleteTimer().setTimeRemaining(timeAllowed, false);
         } else {
-            //logger.debug("not affected {}", LoggerUtils.stackTrace());
+            // logger.debug("not affected {}", LoggerUtils.stackTrace());
         }
         // for the purpose of showing team scores, this is good enough.
         // if the current athlete has done all lifts, the group is marked as done.
@@ -984,22 +971,35 @@ public class FieldOfPlay {
         if (recomputeRanks) {
             // we update the ranks of affected athletes in the database
             athletes = JPAService.runInTransaction(em -> {
-                List<Athlete> l = AthleteSorter.assignCategoryRanks(g);
+                List<Athlete> l = AthleteSorter.assignCategoryRanks(em, g);
+                List<Athlete> nl = new LinkedList<>();
+                Competition.getCurrent().globalRankings(em);
                 for (Athlete a : l) {
-                    em.merge(a);
+                    nl.add(em.merge(a));
                 }
                 em.flush();
-                return l;
+                return nl;
             });
         } else {
-            athletes = AthleteRepository.findAthletesForGlobalRanking(g);
+            athletes = JPAService.runInTransaction(em -> {
+                List<Athlete> l =  AthleteRepository.findAthletesForGlobalRanking(em,g);
+                List<Athlete> nl = new LinkedList<>();
+                Competition.getCurrent().globalRankings(em);
+                for (Athlete a : l) {
+                    nl.add(em.merge(a));
+                }
+                em.flush();
+                return nl;
+            });
         }
         endAssignRanks = System.nanoTime();
 
         if (athletes == null) {
             setDisplayOrder(null);
             setCurAthlete(null);
+            recomputeRecords(null);
         } else {
+
             if (recomputeRanks) {
                 setMedals(Competition.getCurrent().computeMedals(g, athletes));
             }
@@ -1015,6 +1015,7 @@ public class FieldOfPlay {
                         }
                     })
                     .collect(Collectors.toList());
+            
             setDisplayOrder(currentGroupAthletes);
             setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
             endDisplayOrder = System.nanoTime();
@@ -1022,6 +1023,10 @@ public class FieldOfPlay {
             List<Athlete> liftingOrder2 = getLiftingOrder();
             setCurAthlete(liftingOrder2 != null && liftingOrder2.size() > 0 ? liftingOrder2.get(0) : null);
             recomputeCurrentLeaders(athletes);
+            recomputeRecords(curAthlete);
+//            for (Athlete a : liftingOrder2) {
+//                logger.debug("sinclair {} {}",a.getShortName(), a.getSinclairRank());
+//            }
             endLeaders = System.nanoTime();
         }
 
@@ -1036,6 +1041,44 @@ public class FieldOfPlay {
                     (endLeaders - endDisplayOrder) / 1000000.0);
         }
 
+    }
+
+    public void recomputeRecords(Athlete curAthlete) {
+        if (curAthlete == null) {
+            setRecordsJson(Json.createNull());
+            setChallengedRecords(List.of());
+            setNewRecords(List.of());
+            return;
+        }
+
+        Integer request = curAthlete.getNextAttemptRequestedWeight();
+        int attemptsDone = curAthlete.getAttemptsDone();
+        Integer snatchRequest = attemptsDone < 3 ? request : null;
+        Integer cjRequest = attemptsDone >= 3 ? request : null;
+
+        Integer bestSnatch = curAthlete.getBestSnatch();
+        Integer totalRequest = attemptsDone >= 3 && bestSnatch != null && bestSnatch > 0 ? (bestSnatch + request)
+                : null;
+
+        List<RecordEvent> records = RecordRepository.computeRecordsForAthlete(curAthlete);
+
+        List<RecordEvent> challengedRecords = new ArrayList<>();
+        challengedRecords
+                .addAll(records.stream().filter(rec -> rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null
+                        && snatchRequest > rec.getRecordValue()).collect(Collectors.toList()));
+        challengedRecords
+                .addAll(records.stream().filter(rec -> rec.getRecordLift() == Ranking.CLEANJERK && cjRequest != null
+                        && cjRequest > rec.getRecordValue()).collect(Collectors.toList()));
+        challengedRecords
+                .addAll(records.stream().filter(rec -> rec.getRecordLift() == Ranking.TOTAL && totalRequest != null
+                        && totalRequest > rec.getRecordValue()).collect(Collectors.toList()));
+
+        JsonValue recordsJson = RecordRepository.buildRecordJson(records, snatchRequest, cjRequest, totalRequest);
+        setRecordsJson(recordsJson);
+        setChallengedRecords(challengedRecords);
+        for (RecordEvent re : challengedRecords) {
+            logger.info("challenged record: {}", re);
+        }
     }
 
     /**
@@ -1054,6 +1097,10 @@ public class FieldOfPlay {
 
     public void setCeremonyType(CeremonyType ceremonyType) {
         this.ceremonyType = ceremonyType;
+    }
+
+    public void setChallengedRecords(List<RecordEvent> challengedRecords) {
+        this.challengedRecords = challengedRecords;
     }
 
     public void setCjStarted(boolean cjStarted) {
@@ -1113,6 +1160,10 @@ public class FieldOfPlay {
         this.platform = platform;
     }
 
+    public void setRecordsJson(JsonValue computedRecords) {
+        this.recordsJson = computedRecords;
+    }
+
     /**
      * @param testingMode true if we don't want wait delays during testing.
      */
@@ -1168,11 +1219,13 @@ public class FieldOfPlay {
         }
         logger.trace("uiDisplayCurrentAthleteAndTime {} {} {} {} {}", getCurAthlete(), inBreak, getPreviousAthlete(),
                 nextAthlete, currentDisplayAffected);
+        Integer newWeight = getPrevWeight() != curWeight ? curWeight : null;
+
         pushOutUIEvent(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, getPreviousAthlete(),
                 changingAthlete,
                 getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),
-                inBreak, prevWeight != curWeight ? curWeight : null));
-        prevWeight = curWeight;
+                inBreak, newWeight));
+        setPrevWeight(curWeight);
 
         // cur athlete can be null during some tests.
         int attempts = getCurAthlete() == null ? 0 : getCurAthlete().getAttemptsDone();
@@ -1182,8 +1235,41 @@ public class FieldOfPlay {
                 getLoggingName(), shortName, attempts + 1, curWeight,
                 clock,
                 getClockOwnerInitialTimeAllowed());
+
+        notifyRecords(getChallengedRecords(), false);
+
         if (attempts >= 6) {
             pushOutDone();
+        }
+    }
+
+    void emitFinalWarning() {
+        if (!isFinalWarningEmitted()) {
+            logger.info("{}Final Warning", getLoggingName());
+            if (isEmitSoundsOnServer()) {
+                new Sound(getSoundMixer(), "finalWarning.wav").emit();
+            }
+            setFinalWarningEmitted(true);
+        }
+    }
+
+    void emitInitialWarning() {
+        if (!isInitialWarningEmitted()) {
+            logger.info("{}Initial Warning", getLoggingName());
+            if (isEmitSoundsOnServer()) {
+                new Sound(getSoundMixer(), "initialWarning.wav").emit();
+            }
+            setInitialWarningEmitted(true);
+        }
+    }
+
+    void emitTimeOver() {
+        if (!isTimeoutEmitted()) {
+            logger.info("{}Time Over", getLoggingName());
+            if (isEmitSoundsOnServer()) {
+                new Sound(getSoundMixer(), "timeOver.wav").emit();
+            }
+            setTimeoutEmitted(true);
         }
     }
 
@@ -1222,6 +1308,7 @@ public class FieldOfPlay {
         pushOutUIEvent(new UIEvent.DecisionReset(getCurAthlete(), this));
         setClockOwner(null);
         // MUST NOT change setClockOwnerInitialTimeAllowed
+        setNewRecords(List.of());
 
         if (getCurAthlete() != null && getCurAthlete().getAttemptsDone() < 6) {
             setState(CURRENT_ATHLETE_DISPLAYED);
@@ -1255,9 +1342,13 @@ public class FieldOfPlay {
         if (actualLift != null) {
             Integer curValue = Math.abs(actualLift);
 
+            boolean reversalToGood = e.success && actualLift <= 0;
+            boolean reversalToBad = !e.success && actualLift > 0;
+            boolean newRecord = e.success && getLastChallengedRecords() != null
+                    && !getLastChallengedRecords().isEmpty();
             JuryNotification event = new UIEvent.JuryNotification(a, e.getOrigin(),
                     e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
-                    e.success && actualLift <= 0 || !e.success && actualLift > 0);
+                    reversalToGood || reversalToBad, newRecord);
 
             // must set state before recomputing order so that scoreboards stop blinking the current athlete
             // must also set state prior to sending event, so that state monitor shows new state.
@@ -1266,16 +1357,113 @@ public class FieldOfPlay {
             pushOutUIEvent(event);
             a.doLift(a.getAttemptsDone(), e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
             AthleteRepository.save(a);
+
+            // reversal from bad to good should add records
+            // reversal from good to bad must remove records
+            setNewRecords(updateRecords(a, e.success, getLastChallengedRecords(), getLastNewRecords()));
+
             recomputeLiftingOrder(true, true);
 
             // tell ourself to reset after 3 secs.
             new DelayTimer().schedule(() -> {
-                fopEventPost(new DecisionReset(this));
+                // fopEventPost(new DecisionReset(this));
+                if (reversalToGood) {
+                    notifyRecords(newRecords, true);
+                    setLastNewRecords(getNewRecords());
+                }
                 fopEventPost(new StartLifting(this));
             }, DECISION_VISIBLE_DURATION);
 
         }
-        // displayOrBreakIfDone(e);
+    }
+
+    private void notifyRecords(List<RecordEvent> newRecords, boolean newRecord) {
+        if (newRecords == null) {
+            return;
+        }
+        for (RecordEvent rec : newRecords) {
+            pushOutUIEvent(
+                    new UIEvent.Notification(
+                            this.getCurAthlete(),
+                            this,
+                            newRecord ? UIEvent.Notification.Level.SUCCESS : UIEvent.Notification.Level.INFO,
+                            newRecord ? "Record.NewNotification" : "Record.AttemptNotification",
+                            3 * UIEvent.Notification.NORMAL_DURATION,
+                            rec.getRecordName(),
+                            Translator.translate("Record." + rec.getRecordLift().name()),
+                            rec.getAgeGrp(),
+                            rec.getBwCatString(),
+                            Long.toString(Math.round(rec.getRecordValue()))));
+        }
+    }
+
+    /**
+     * add new records if success, remove records if jury reversal.
+     * 
+     * @param a
+     * @param success
+     * @return
+     */
+    private List<RecordEvent> updateRecords(Athlete a, boolean success, List<RecordEvent> challengedRecords,
+            List<RecordEvent> voidableRecords) {
+        logger.debug("updateRecords {} {} {}", a.getShortName(), success, LoggerUtils.whereFrom());
+        ArrayList<RecordEvent> newRecords = new ArrayList<RecordEvent>();
+        if (success) {
+            for (RecordEvent rec : challengedRecords) {
+                Double value = rec.getRecordValue();
+                switch (rec.getRecordLift()) {
+                case SNATCH:
+                    Integer bestSnatch = a.getBestSnatch();
+                    if (bestSnatch > value) {
+                        createNewRecordEvent(a, newRecords, rec, bestSnatch + 0.0D);
+                    }
+                    break;
+                case CLEANJERK:
+                    Integer bestCleanJerk = a.getBestCleanJerk();
+                    if (bestCleanJerk > value) {
+                        createNewRecordEvent(a, newRecords, rec, bestCleanJerk + 0.0D);
+                    }
+                    break;
+                case TOTAL:
+                    Integer total = a.getTotal();
+                    if (total > value) {
+                        createNewRecordEvent(a, newRecords, rec, total + 0.0D);
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+            JPAService.runInTransaction(em -> {
+                // create the new records.
+                // do not remove obsolete records, in case jury reverses new record
+                // we always use the largest record, so no harm done by keeping the old ones.
+                for (RecordEvent re : newRecords) {
+                    logger.info("new record: {}", re);
+                    em.persist(re);
+                }
+                return null;
+            });
+            return newRecords;
+        } else {
+            // remove records just established as they are invalid.
+            if (voidableRecords != null) {
+                JPAService.runInTransaction(em -> {
+                    for (RecordEvent re : voidableRecords) {
+                        logger.info("cancelled record: {}", re);
+                        em.remove(em.merge(re));
+                    }
+                    return null;
+                });
+            }
+            return new ArrayList<RecordEvent>();
+        }
+
+    }
+
+    private void createNewRecordEvent(Athlete a, List<RecordEvent> newRecords, RecordEvent rec, Double value) {
+        RecordEvent newRecord = RecordEvent.newRecord(a, rec, value);
+        newRecords.add(newRecord);
     }
 
     private void doSetState(FOPState state) {
@@ -1398,6 +1586,16 @@ public class FieldOfPlay {
                 getCurAthlete(), currentDisplayAffected, newState);
         setStateUnlessInBreak(newState);
         uiDisplayCurrentAthleteAndTime(currentDisplayAffected, wc, false);
+    }
+
+    private void emitDown(FOPEvent e) {
+        logger.debug("{}Emitting down {}", getLoggingName(), LoggerUtils.whereFrom(2));
+        getAthleteTimer().stop(); // paranoia
+        this.setPreviousAthlete(getCurAthlete()); // would be safer to use past lifting order
+        setClockOwner(null); // athlete has lifted, time does not keep running for them
+        setClockOwnerInitialTimeAllowed(0);
+        uiShowDownSignalOnSlaveDisplays(e.origin);
+        setState(DOWN_SIGNAL_VISIBLE);
     }
 
     private Mixer getSoundMixer() {
@@ -1775,24 +1973,29 @@ public class FieldOfPlay {
      * announcer intervention is required to change and announce.
      */
     private void showDecisionNow(Object origin) {
-        logger.trace("******requesting decision display");
         // we need to recompute majority, since they may have been reversal
         int nbWhite = 0;
         for (int i = 0; i < 3; i++) {
             nbWhite = nbWhite + (Boolean.TRUE.equals(refereeDecision[i]) ? 1 : 0);
         }
 
+        setLastChallengedRecords(challengedRecords);
+        
         if (nbWhite >= 2) {
             setGoodLift(true);
             this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
             getCurAthlete().successfulLift();
         } else {
             setGoodLift(false);
+
             this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
             getCurAthlete().failedLift();
         }
         getCurAthlete().resetForcedAsCurrent();
         AthleteRepository.save(getCurAthlete());
+        List<RecordEvent> newRecords = updateRecords(getCurAthlete(), getGoodLift(), getChallengedRecords(), List.of());
+        setNewRecords(newRecords);
+        setLastNewRecords(newRecords);
 
         // must set state before recomputing order so that scoreboards stop blinking the current athlete
         // must also set state prior to sending event, so that state monitor shows new state.
@@ -1800,6 +2003,11 @@ public class FieldOfPlay {
         uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), refereeDecision, refereeTime, origin);
         recomputeLiftingOrder(true, true);
 
+        // control timing of notifications
+        new DelayTimer().schedule(
+                () -> {
+                    notifyRecords(getNewRecords(), true);
+                }, 500);
         // tell ourself to reset after 3 secs.
         // Decision reset will handle end of group.
         new DelayTimer().schedule(
@@ -1945,6 +2153,7 @@ public class FieldOfPlay {
         }
 
         setWeightAtLastStart(0);
+        setNewRecords(List.of()); // FIXME: check this...
         pushOutStartLifting(getGroup(), e.getOrigin());
         uiDisplayCurrentAthleteAndTime(true, e, false);
     }
@@ -1959,6 +2168,7 @@ public class FieldOfPlay {
         resetEmittedFlags();
         prepareDownSignal();
         setWeightAtLastStart();
+        setLastChallengedRecords(List.of());
 
         // enable master to listening for decision
         setState(TIME_RUNNING);
@@ -2022,7 +2232,8 @@ public class FieldOfPlay {
         logger./**/warn("{}unexpected event {} in state {}", getLoggingName(),
                 e.getClass().getSimpleName(), state);
 
-        pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, state));
+        pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, state,
+                UIEvent.Notification.Level.ERROR));
     }
 
     private void updateRefereeDecisions(FOPEvent.DecisionFullUpdate e) {
@@ -2050,6 +2261,43 @@ public class FieldOfPlay {
     private void weightChangeDoNotDisturb(WeightChange e) {
         recomputeOrderAndRanks(e.isResultChange());
         uiDisplayCurrentAthleteAndTime(false, e, false);
+    }
+
+    public List<RecordEvent> getNewRecords() {
+        return newRecords;
+    }
+
+    public void setNewRecords(List<RecordEvent> newRecords) {
+        if (newRecords == null || newRecords.isEmpty()) {
+            logger.debug("{} + clearing records {}", getLoggingName(), LoggerUtils.whereFrom());
+        }
+        this.newRecords = newRecords;
+    }
+
+    private int getPrevWeight() {
+        return prevWeight;
+    }
+
+    private void setPrevWeight(int prevWeight) {
+        this.prevWeight = prevWeight;
+    }
+
+    public List<RecordEvent> getLastChallengedRecords() {
+        return this.lastChallengedRecords;
+    }
+
+    private void setLastChallengedRecords(List<RecordEvent> challengedRecords) {
+        logger.debug("{} + lastChallengedRecords {}", getLoggingName(), challengedRecords);
+        this.lastChallengedRecords = challengedRecords;
+    }
+
+    private void setLastNewRecords(List<RecordEvent> newRecords) {
+        logger.debug("{} + lastNewRecords {}", getLoggingName(), newRecords);
+        this.lastNewRecords = newRecords;
+    }
+
+    private List<RecordEvent> getLastNewRecords() {
+        return lastNewRecords;
     }
 
 }

@@ -1,29 +1,35 @@
-### **Changes for release ${revision}**
+## **Changes for release ${revision}**
 
-**Changes since 4.32.0**
+- 4.33.0-rc02: fixed exception for registration template
 
-- 4.32.4: Fix: Name of default age group with no age limits changed to "Open" (was "ALL"). 
-- 4.32.3: Fix: Top Teams Sinclair was not updating on each successful lift
-- 4.32.2: Amazon Firestick 2 resolution issues: reports a 1024px width. Fixed the ability to override the font size, and (for now) removed the size-responsive hiding of lift-specific ranks. Use total-only competition option to hide the lift ranks.
-- 4.32.2: On weigh-in or registration forms, if a change in category results, a confirmation is required (#499)
-- 4.32.2: Do not show leaderboard for last athlete when group is done
-- 4.32.2: Group name is hidden on attempt board during ceremonies (#500)
-- 4.32.2: Jury reversal notification sized correctly for 4K screens
-- 4.32.1: Registration export now correctly opens on the Athlete registration tab.
+#### Changes for 4.33
 
-**Changes for release 4.32**
-
-- Requested weight is now shown on attempt board (including loading chart) and on top of scoreboard during breaks (but hidden during ceremonies).
-- Announcer is notified when weight on bar needs to change.
-- Adjusted margins and print areas of the various reports so they print correctly on both Excel and LibreOffice Calc.
-- Officials scheduling and registration templates:
-  - Registration import-export spreadsheet changed to add additional columns for Marshal2 and TechnicalController2. Added a report page in the export that shows the assignments for each official.
-  - The Start List document has an Officials tab that shows official assignments for each group according to the introduction order.
-- The configuration dialog for the Results scoreboard allows giving a font size (in "em" units) instead of the default (1.25em for HD screens).  The size is also read from the URL (the CSS convention of using a "." is used). This allows fine tuning the font size when broadcasting the results with OBS which does not support zooming.
-- Fix: The "use best N results from team" setting was not being applied correctly on team scoreboards and the team result page.
+- Records
+  - Records are shown if record definition Excel spreadsheets are present in the local/records directory.  See the following folder for examples: [Sample Record Files](https://www.dropbox.com/sh/sbr804kqfwkgs6g/AAAEcT2sih9MmnrpYzkh6Erma?dl=0) . 
+  - Records definitions are read when the program starts.  Records set during the competition are updated on the scoreboard, but the Excel files need to be updated manually to reflect the official federation records.
+  - Records are shown according to the sorting order of the file names. Use a numerical prefix to control the order (for example 10Canada.xlsx, 20Commonwealth.xlsx, 30PanAm.xlsx).
+  - All records potentially applicable to the current athlete are shown on the scoreboard.  Records that would be improved by the next lift are highlighted.  If there are too many athletes in a group the records can be hidden using the display-specific settings, or by adding `records=false` to the URL
+  - Added large notifications in the record section for record attempts and new records.  You can hide the scoreboard record notifications by setting the `--showRecordNotifications` variable at the top of `colors.css` to `hidden` if you do not want them.
+- Sinclair meets
+  - If the feature switch `SinclairMeet` is defined on the Language and Settings page, then the scoreboard hides the lift and total ranks, and shows the Sinclair and Sinclair rank.  Also, the leaders section uses the Sinclair ranking.
+- Documentation now includes a tutorial on how to change the scoreboard colors: [Scoreboard Colors](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styles) 
+- Additional fields on the scoreboards
+  - Added the custom1 and custom2 fields to the scoreboards (after the year of birth).  They are hidden by default; change the width to non-zero and visibility to `visible` in results.css in order to show one or the other or both.
+- Masters rulebook
+  - Updated the default AgeGroups.xlsx definition file for the W80, W85, M85 and M85 age categories.
+  - Updated the age-adjusted Sinclair calculation for women to use the SMHF coefficients.
+- New: Announcer can act as solo athlete-facing referee. A setting on the announcer screen (⚙) enables emitting down signal on decision so it is heard and shown on displays.
+- New: Round-robin "fixed order" option for team competitions.  If this option is selected in the Competition Non-Standard Rules, athletes lift according to their lot number on each round. The lot number can be preset at registration or drawn at random depending on competition rules.
+- New: 24h time will now be used in the date-time picker when using English outside of the "traditional" English-speaking countries ("AU", "GB", "IN", "NZ", "PH", "US", "ZA").  On a laptop, the country is obtained from the operating system.  If using English in the cloud, we recommend setting the `OWLCMS_LOCALE` environment variable to `en_SE` in order to get English with consistent ISO date and 24h time formatting throughout the program.
 
 ### Highlights from recent stable releases
 
+- On weigh-in or registration forms, if a change in category results, a confirmation is required (#499)
+- Requested weight is now shown on attempt board (including loading chart) and on top of scoreboard during breaks (but hidden during ceremonies).
+- Announcer is notified when weight on bar needs to change.
+- Officials scheduling and registration templates:
+  - Registration import-export spreadsheet changed to add additional columns for Marshal2 and TechnicalController2. Added a report page in the export that shows the assignments for each official.
+  - The Start List document has an Officials tab that shows official assignments for each group according to the introduction order.
 - New parameterized scoreboards.  Colors can be changed in the `styles/colors.css` file (*The default colors are the same as the previous defaults).*  See [Customization](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/UploadingLocalSettings) for how to proceed. The scoreboards can be zoomed in or out using the  `Ctrl+` and `Ctrl-` keys to accommodate more lines, or to make text bigger with smaller groups.
 - Improved management of ceremonies : see [Breaks and Ceremonies](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Breaks) procedures, and [Result Documents](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Documents) for the medals spreadsheet.
 - [Jury](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Jury) console now supports summoning the referees either individually or all together. The jury console now allows direct reversal/confirmation of lifts (#435, #427)  
@@ -48,4 +54,4 @@
 
   - For **Heroku** cloud, no download is necessary. Follow the [Heroku Cloud Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Cloud) to deploy your own copy.  See also the [additional configuration steps for large competitions on Heroku](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/HerokuLarge).
 
-  - For **Kubernetes** deployments, see `k3s_setup.yaml` file for [cloud hosting using k3s](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/DigitalOcean). For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. Je
+  - For **Kubernetes** deployments, see `k3s_setup.yaml` file for [cloud hosting using k3s](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/DigitalOcean). For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 

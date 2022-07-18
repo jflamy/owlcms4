@@ -464,7 +464,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 if (isIgnoreErrors() || initialCategory == null || (getEditedAthlete().getBodyWeight() == null && category == null)) {
                     return true;
                 }
-                logger.warn("initialCategory = {}  new category = {}", initialCategory, getEditedAthlete().getCategory());
+                logger.debug("initialCategory = {}  new category = {}", initialCategory, getEditedAthlete().getCategory());
                 return category.sameAs(initialCategory);
             } catch (Exception e) {
                 LoggerUtils.logError(logger, e);

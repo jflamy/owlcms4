@@ -26,6 +26,7 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
+import app.owlcms.data.records.RecordEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
@@ -60,17 +61,18 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
 
     class Status {
         BreakType breakType;
-
         CeremonyType ceremonyType;
-
         Boolean decision;
         FOPState state;
+        boolean challengedRecords;
 
-        public Status(FOPState state, BreakType breakType, CeremonyType ceremonyType, Boolean decision) {
+        public Status(FOPState state, BreakType breakType, CeremonyType ceremonyType, Boolean decision,
+                List<RecordEvent> list) {
             this.state = state;
             this.breakType = breakType;
             this.ceremonyType = ceremonyType;
             this.decision = decision;
+            this.challengedRecords = list != null && !list.isEmpty();
         }
 
         @Override
@@ -94,6 +96,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     private BreakType currentBreakType;
     private CeremonyType currentCeremony;
     private Boolean currentDecision;
+    private boolean currentChallengedRecords;
     private String currentFOP;
     private FOPState currentState;
     private Status h0;
@@ -104,6 +107,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     private BreakType previousBreakType;
     private CeremonyType previousCeremony;
     private Boolean previousDecision;
+    private boolean previousChallengedRecords;
     private FOPState previousState;
     private String prevTitle;
     private String title;
@@ -116,8 +120,8 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         OwlcmsFactory.waitDBInitialized();
         this.getElement().getStyle().set("width", "100%");
         // we need two items on the stack (current + previous)
-        doPush(new Status(FOPState.INACTIVE, null, null, null));
-        doPush(new Status(FOPState.INACTIVE, null, null, null));
+        doPush(new Status(FOPState.INACTIVE, null, null, null, null));
+        doPush(new Status(FOPState.INACTIVE, null, null, null, null));
     }
 
     @Override
@@ -158,6 +162,13 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         if (e instanceof UIEvent.SetTime) {
             // ignore events that don't change state
             return;
+        } else if (e instanceof UIEvent.Notification) {
+            UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+                OwlcmsSession.withFop(fop -> {
+                    logger.debug("---- notification {} {}", fop.getName(),
+                            ((UIEvent.Notification) e).getNotificationString());
+                });
+            });
         }
         // uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e /*, e.getTrace()*/);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
@@ -165,7 +176,8 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
                 // significant transition
                 doUpdate();
             } else {
-                // logger.debug("event ignored {} : {}",e.getClass().getSimpleName(),OwlcmsSession.getFop().getState());
+                // logger.debug("event ignored {} : {}", e.getClass().getSimpleName(),
+                // OwlcmsSession.getFop().getState());
             }
         });
     }
@@ -194,12 +206,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     private String computePageTitle() {
         StringBuilder pageTitle = new StringBuilder();
         computeValues();
-//        if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
-//                && h1 != null && h1.state == FOPState.BREAK && h1.breakType == BreakType.MEDALS) {
-//            logger.debug("hiding restart after medals {} {} {}", h0, h1, h2);
-//            history.remove(0);
-//            computeValues();
-//        } else
+
         if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
                 && h1 != null && h1.state == FOPState.DECISION_VISIBLE
                 && h2 != null && h2.state == FOPState.BREAK && h2.breakType == BreakType.JURY) {
@@ -207,7 +214,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
             history.remove(1);
             computeValues();
         } else {
-            logger.debug("normal {} {} {}", h0, h1, h2);
+            logger.trace("normal {} {} {}", h0, h1, h2);
         }
 
         if (currentState == FOPState.INACTIVE || currentState == FOPState.BREAK) {
@@ -226,7 +233,16 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         } else if (currentState == FOPState.DECISION_VISIBLE) {
             pageTitle.append(".");
             pageTitle.append(currentDecision == null ? "UNDECIDED" : (currentDecision ? "GOOD_LIFT" : "BAD_LIFT"));
+            if (currentDecision && currentChallengedRecords) {
+                pageTitle.append(".NEW_RECORD");
+            } else if (previousState == FOPState.DECISION_VISIBLE && previousDecision && previousChallengedRecords) {
+                // special case where state changes too quickly;
+                pageTitle.append(".NEW_RECORD");
+            }
+        } else if (currentChallengedRecords) {
+                pageTitle.append(".RECORD_ATTEMPT");
         }
+        
         pageTitle.append(";");
         pageTitle.append("previous=");
         pageTitle.append(previousState.name());
@@ -257,10 +273,12 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         currentBreakType = h0 != null ? h0.breakType : null;
         currentCeremony = h0 != null ? h0.ceremonyType : null;
         currentDecision = h0 != null ? h0.decision : null;
+        currentChallengedRecords = h0 != null ? h0.challengedRecords : false;
         previousState = h1 != null ? h1.state : null;
         previousBreakType = h1 != null ? h1.breakType : null;
         previousCeremony = h1 != null ? h1.ceremonyType : null;
         previousDecision = h1 != null ? h1.decision : null;
+        previousChallengedRecords = h1 != null ? h1.challengedRecords : null;
     }
 
     private void doPush(Status status) {
@@ -307,13 +325,17 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         boolean significant[] = { false };
         OwlcmsSession.withFop(fop -> {
             currentFOP = fop.getName();
-            if (fop.getState() != history.get(0).state) {
-                doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), fop.getGoodLift()));
+            boolean fopChallengedRecords = fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty();
+            boolean curChallengedRecords = history.get(0).challengedRecords;
+            if (fop.getState() != history.get(0).state || fopChallengedRecords != curChallengedRecords) {
+                doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), fop.getGoodLift(),
+                        fop.getChallengedRecords()));
                 significant[0] = true;
             } else if (fop.getState() == FOPState.BREAK) {
                 if (fop.getBreakType() != history.get(0).breakType
                         || fop.getCeremonyType() != history.get(0).ceremonyType) {
-                    doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), null));
+                    doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), null,
+                            fop.getChallengedRecords()));
                     significant[0] = true;
                 } else {
                     // logger.debug("*** Monitor ignored duplicate {} {}", fop.getBreakType(), fop.getCeremonyType());

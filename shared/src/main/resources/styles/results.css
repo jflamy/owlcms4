@@ -5,8 +5,11 @@
      * Customization section
      *************************/
 
-    /* size of team column relative to name column (fr = fraction) */
-    --teamColumnRatio: 0.65fr;
+    /* variable-size columns. fr = free space after other columns have been allocated.
+       for ease of understanding, sum of all fr columns should be 1.00.
+    */
+    --nameWidth: 0.60fr;
+    --clubWidth: 0.40fr;
 
     /* left column width: adjust depending on how you name groups */
     --startWidth: 4em;
@@ -16,10 +19,25 @@
     --birthWidth: 6ch;
     --liftResultWidth: 8ch;
 
+    /* to show these columns 
+    - change hidden to visible
+    - set the width to value like 8ch 
+    */
+    --custom1Width: 0;
+    --custom1Visibility: hidden;
+    --custom2Width: 0;
+    --custom2Visibility: hidden;
+
+    --rankWidth: var(--liftResultWidth);
+    --rankVisibility: visible;
+
     /* top part: current attempt information */
     --topRowFontSize: 3vh;
     --athleteNameFontSize: 4vh;
     --groupInfoFontSize: 2.5vh;
+
+    /* records */
+    --recordValueCellWidth: 4rem;
 }
 
 * {
@@ -31,6 +49,8 @@
 .wrapper {
     /* results table font size */
     --tableFontSize: 1.25rem;
+    --recordValueCellHeight: calc(var(--tableFontSize)*1.5);
+    --recordsFontRatio: 0.9;
 
     font-family: Arial, Helvetica, sans-serif;
     color: var(--pageTextColor);
@@ -49,48 +69,87 @@
 table.results {
     border-collapse: collapse;
     font-size: var(--tableFontSize);
-    --rankWidth: var(--liftResultWidth);
-    --rankVisibility: visible;
-
+    --totalRankWidth: var(--liftResultWidth);
+    --totalRankVisibility: visible;
+    --totalWidth: var(--liftResultWidth);
+    --totalVisibility: visible;
+    --sinclairWidth: 0;
+    --sinclairVisibility: hidden;
+    --sinclairRankWidth: 0;
+    --sinclairRankVisibility: hidden;
 }
 
 table.results.noranks {
-    --rankWidth: 0; 
+    --rankWidth: 0;
     --rankVisibility: hidden;
+    --totalRankWidth: var(--liftResultWidth);
+    --totalRankVisibility: visible;
+    --totalWidth: var(--liftResultWidth);
+    --totalVisibility: visible;
+    --sinclairWidth: 0;
+    --sinclairVisibility: hidden;
+    --sinclairRankWidth: 0;
+    --sinclairRankVisibility: hidden;
+}
+
+table.results.sinclair {
+    --rankWidth: 0;
+    --rankVisibility: hidden;
+    --totalRankWidth: 0;
+    --totalRankVisibility: hidden;
+    --sinclairWidth: 8ch;
+    --sinclairVisibility: visible;
+    --sinclairRankWidth: 8ch;
+    --sinclairRankVisibility: visible;
+    --totalWidth: var(--liftResultWidth);
+    --totalVisibility: visible;
 }
 
 /* default cell colors, backgrounds and borders */
-:host(.dark) table.results tr td {
+:host(.dark) table.results tr td, 
+:host(.dark) table.results tr th {
     background-color: var(--darkBackgroundColor);
     color: var(--darkTextColor);
-    border: 1px solid;
-    border-color: var(--darkTableBorders)
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--darkTableBorders);
+    justify-content: center;
+    font-weight: bold;
 }
 
-:host(.light) table.results tr td {
+:host(.light) table.results tr td,
+:host(.light) table.results tr th {
     background-color: var(--lightBackgroundColor);
     color: var(--lightTextColor);
-    border: 1px solid;
-    border-color: var(--lightTableBorders)
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--lightTableBorders);
+    justify-content: center;
+    font-weight: bold;
 }
 
-/* name is not centered */
-:host(.dark) td.name,
-:host(.light) td.name {
+/* start */
+:host(.light) table.results tr td.start {
+    background-color: var(--lightStartBackgroundColor);
+    color: var(--lightStartTextColor);
+}
+
+:host(.dark) table.results tr td.start {
+    background-color: var(--darkStartBackgroundColor);
+    color: var(--darkStartTextColor);
+}
+
+/* name */
+:host(.light) table.results tr td.name {
+    background-color: var(--lightNameBackgroundColor);
+    color: var(--lightNameTextColor);
     justify-content: left;
 }
 
-/* other items are centered */
-:host(.dark) th,
-:host(.dark) td {
-    font-weight: normal;
-    justify-content: center;
-}
-
-:host(.light) th,
-:host(.light) td {
-    font-weight: bold;
-    justify-content: center;
+:host(.dark) table.results tr td.name {
+    background-color: var(--darkNameBackgroundColor);
+    color: var(--darkNameTextColor);
+    justify-content: left;
 }
 
 /* category */
@@ -154,7 +213,6 @@ table.results.noranks {
     background-color: var(--darkRankBackgroundColor);
     color: var(--darkRankTextColor);
     visibility: var(--rankVisibility);
-    column-width: 0;
     display: flex;
 }
 
@@ -162,19 +220,107 @@ table.results.noranks {
     background-color: var(--lightRankBackgroundColor);
     color: var(--lightRankTextColor);
     visibility: var(--rankVisibility);
-    column-width: 0;
     display: flex;
 }
 
 /* total rank */
-:host(.dark) table.results tr td.totalRank {
-    background-color: var(--darkRankBackgroundColor);
-    color: var(--darkRankTextColor);
+:host(.dark) table.results tr td.totalRank,
+:host(.dark) table.results tr th.totalRank {
+    background-color: var(--darkTotalRankBackgroundColor);
+    color: var(--darkTotalRankTextColor);
+    visibility: var(--totalRankVisibility);
 }
 
-:host(.light) table.results tr td.totalRank {
+:host(.light) table.results tr td.totalRank,
+:host(.light) table.results th td.totalRank {
+    background-color: var(--lightTotalRankBackgroundColor);
+    color: var(--lightTotalRankTextColor);
+    visibility: var(--totalRankVisibility);
+}
+
+/* sinclair rank */
+:host(.dark) table.results tr td.sinclairRank,
+:host(.dark) table.results tr th.sinclairRank {
+    background-color: var(--darkRankBackgroundColor);
+    color: var(--darkRankTextColor);
+    visibility: var(--sinclairRankVisibility);
+}
+
+:host(.light) table.results tr td.sinclairRank,
+:host(.light) table.results tr th.sinclairRank {
     background-color: var(--lightRankBackgroundColor);
     color: var(--lightRankTextColor);
+    visibility: var(--sinclairRankVisibility);
+}
+
+/* group */
+:host(.light) table.results tr td.groupCol {
+    background-color: var(--lightStartBackgroundColor);
+    color: var(--lightStartTextColor);
+}
+:host(.dark) table.results tr td.groupCol {
+    background-color: var(--darkStartBackgroundColor);
+    color: var(--darkStartTextColor);
+}
+
+/* custom fields */
+
+:host(.dark) table.results tr td.custom1,
+:host(.dark) table.results tr th.custom1 {
+    background-color: var(--darkBackgroundColor);
+    color: var(--darkTextColor);
+    visibility: var(--custom1Visibility);
+}
+
+:host(.light) table.results tr td.custom1,
+:host(.light) table.results tr th.custom1 {
+    background-color: var(--lightBackgroundColor);
+    color: var(--lightTextColor);
+    visibility: var(--custom1Visibility);
+}
+
+:host(.dark) table.results tr td.custom2,
+:host(.dark) table.results tr th.custom2 {
+    background-color: var(--darkBackgroundColor);
+    color: var(--darkTextColor);
+    visibility: var(--custom2Visibility);
+}
+
+:host(.light) table.results tr td.custom2,
+:host(.light) table.results tr th.custom2 {
+    background-color: var(--lightBackgroundColor);
+    color: var(--lightTextColor);
+    visibility: var(--custom2Visibility);
+}
+
+:host(.dark) table.results tr td.sinclair,
+:host(.dark) table.results tr th.sinclair {
+    background-color: var(--darkBackgroundColor);
+    color: var(--darkTextColor);
+    visibility: var(--sinclairVisibility);
+}
+
+:host(.light) table.results tr td.sinclair,
+:host(.light) table.results tr th.sinclair {
+    background-color: var(--lightBackgroundColor);
+    color: var(--lightTextColor);
+    visibility: var(--sinclairVisibility);
+}
+
+:host(.dark) table.results tr td.total,
+:host(.dark) table.results tr th.total {
+    background-color: var(--darkTotalBackgroundColor);
+    color: var(--darkTotalTextColor);
+    visibility: var(--totalVisibility);
+    font-weight: bold;
+}
+
+:host(.light) table.results tr td.total,
+:host(.light) table.results tr th.total {
+    background-color: var(--lightTotalBackgroundColor);
+    color: var(--lightTotalTextColor);
+    visibility: var(--totalVisibility);
+    font-weight: bold;
 }
 
 /* spacer line between categories */
@@ -182,7 +328,6 @@ table.results.noranks {
     background-color: var(--darkSpacerBackgroundColor);
     padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
     border-right: 0;
-    /* grid-column: 1 / -1;*/
     border: none;
     max-height: 2px;
 }
@@ -190,7 +335,6 @@ table.results.noranks {
 :host(.light) table.results tr td.spacer {
     background-color: var(--lightSpacerBackgroundColor);
     padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
-    /* grid-column: 1 / -1;*/
     border: none;
     max-height: 2px;
 }
@@ -217,11 +361,14 @@ table.results.noranks {
 }
 
 /* requested weight column */
-:host(.dark) .request {
+:host(.dark) table.results tr td.request {
+    background-color: var(--darkRequestBackgroundColor);
+    color: var(--darkRequestTextColor);
     font-style: italic;
 }
-
-:host(.light) .request {
+:host(.light) table.results tr td.request {
+    background-color: var(--lightRequestBackgroundColor);
+    color: var(--lightRequestTextColor);
     font-style: italic;
 }
 
@@ -262,15 +409,15 @@ table.results.noranks {
 }
 
 /* empty cells */
-:host(.dark) .empty {
-    color: var(--darkTextColor);
-    background-color: var(--darkBackgroundColor);
+:host(.dark) table.results tr td.empty {
+    color: var(--darkEmptyTextColor);
+    background-color: var(--darkEmptyBackgroundColor);
     font-style: italic;
 }
 
-:host(.light) .empty {
-    color: var(--lightTextColor);
-    background-color: var(--lightBackgroundColor);
+:host(.light) table.results tr td.empty {
+    color: var(--lightEmptyTextColor);
+    background-color: var(--lightEmptyBackgroundColor);
     font-style: italic;
 }
 
@@ -280,22 +427,37 @@ table {
     flex: 1;
     display: grid;
     border-collapse: collapse;
-    grid-template-rows: 
-        repeat(var(--top), min-content) 
-        1fr
-        repeat(var(--bottom), min-content);
+    grid-template-rows:
+        repeat(var(--top), min-content) 1fr repeat(var(--bottom), min-content);
     grid-template-columns:
-        var(--startWidth) 
-        minmax(50px, 1fr) 
+        /* start */
+        var(--startWidth)
+        /* name */
+        minmax(50px, var(--nameWidth))
+        /* category */
         var(--categoryWidth)
+        /* birth */
         var(--birthWidth)
-        minmax(50px, var(--teamColumnRatio))
-        repeat(3, var(--liftResultWidth)) 
-        repeat(var(--nbRanks), var(--rankWidth))
+        /* custom fields */
+        var(--custom1Width) var(--custom2Width)
+        /* team name */
+        minmax(50px, var(--clubWidth))
+        /* snatch results */
         repeat(3, var(--liftResultWidth))
+        /* one snatch rank per category */
         repeat(var(--nbRanks), var(--rankWidth))
+        /* clean&jerk */
+        repeat(3, var(--liftResultWidth))
+        /* one snatch rank per category */
+        repeat(var(--nbRanks), var(--rankWidth))
+        /* total */
         repeat(1, var(--liftResultWidth))
-        repeat(var(--nbRanks), var(--liftResultWidth));
+        /* one total rank per category */
+        repeat(var(--nbRanks), var(--totalRankWidth))
+        /* sinclair result */
+        var(--sinclairWidth)
+        /* sinclair ranks */
+        var(--sinclairRankWidth);
 }
 
 /* grid layout */
@@ -305,17 +467,34 @@ table.medals {
     display: grid;
     border-collapse: collapse;
     grid-template-columns:
-        var(--startWidth) 
-        minmax(50px, 1fr) 
+        /* group */
+        var(--startWidth)
+        /* name */
+        minmax(50px, var(--nameWidth))
+        /* category */
         var(--categoryWidth)
+        /* birth */
         var(--birthWidth)
-        minmax(50px, var(--teamColumnRatio))
-        repeat(3, var(--liftResultWidth)) 
-        repeat(var(--nbRanks), var(--rankWidth))
+        /* custom fields */
+        var(--custom1Width) var(--custom2Width)
+        /* team name */
+        minmax(50px, var(--clubWidth))
+        /* snatch results */
         repeat(3, var(--liftResultWidth))
+        /* one snatch rank per category */
         repeat(var(--nbRanks), var(--rankWidth))
+        /* clean&jerk */
+        repeat(3, var(--liftResultWidth))
+        /* one snatch rank per category */
+        repeat(var(--nbRanks), var(--rankWidth))
+        /* total */
         repeat(1, var(--liftResultWidth))
-        repeat(var(--nbRanks), var(--liftResultWidth));
+        /* one total rank per category */
+        repeat(var(--nbRanks), var(--totalRankWidth))
+        /* sinclair result */
+        var(--sinclairWidth)
+        /* sinclair ranks */
+        var(--sinclairRankWidth);
 }
 
 thead,
@@ -340,7 +519,7 @@ td {
 
 :host(.dark) table.results tr.head td,
 :host(.dark) table.results tr.head th {
-    position: sticky;
+    /* position: sticky; */
     justify-content: center;
     align-content: center;
     font-weight: normal;
@@ -371,8 +550,8 @@ td {
 }
 
 :host table.results tr.head td.leaderTitle {
-    grid-column: 1 / -1; 
-    justify-content: left; 
+    grid-column: 1 / -1;
+    justify-content: left;
     font-weight: bold;
 }
 
@@ -534,4 +713,196 @@ div.ellipsis {
 
     }
     */
+}
+
+/* records light theme */
+:host(.light) .recordCell {
+    float: left;
+    width: var(--recordValueCellWidth);
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    text-align: center;
+    background-color: var(--lightRecordValueBackground);
+    color: var(--lightRecordValueText);
+    border: 1px solid var(--lightRecordCellBorderColor);
+}
+
+:host(.light) .recordLiftType {
+    float: left;
+    width: var(--recordValueCellWidth);
+    height: var(--recordTypeCellHeight);
+    text-align: center;
+    background-color: var(--lightRecordLiftTypeBackground);
+    color: var(--lightRecordLiftTypeText);
+    border: 1px solid var(--lightRecordLiftTypeBorder);
+    font-weight: normal;
+    font-size: small;
+}
+
+:host(.light) .recordLiftTypeSpacer {
+    width: var(--recordValueCellWidth);
+    text-align: center;
+    background-color: var(--lightRecordLiftTypeBackground);
+    color: var(--lightRecordLiftTypeText);
+    font-weight: normal;
+    font-size: small;
+}
+
+:host(.light) .recordsFiller {
+    text-align: right;
+    height: calc(var(--recordValueCellHeight)*1.2);
+}
+
+:host(.light) .recordCat {
+    text-align: center;
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    background-color: var(--lightRecordBoxBackground);
+    color: var(--lightRecordBoxText);
+}
+
+:host(.light) .recordName {
+    text-align: right;
+    background-color: var(--lightRecordNameBackground);
+    color: var(--lightRecordNameText);
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+}
+
+:host(.light) .recordTitle {
+    text-align: right;
+    float: left;
+    background-color: var(--lightRecordNameBackground);
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    color: var(--lightRecordNameText);
+}
+
+:host(.light) .recordBox {
+    float: left;
+    border: 1px solid var(--lightRecordBoxBorder);
+    background-color: var(--lightRecordBoxBackground);
+    color: var(--lightRecordBoxText);
+}
+
+:host(.light) .highlight {
+    background-color: var(--lightAttemptHighlightBackground) !important;
+    color: var(--lightRecordValueText) !important;
+}
+
+/* records dark theme */
+:host(.dark) .recordCell {
+    float: left;
+    width: var(--recordValueCellWidth);
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    text-align: center;
+    background-color: var(--darkRecordValueBackground);
+    color: var(--darkRecordValueText);
+    border: 1px solid var(--darkRecordCellBorderColor);
+}
+
+:host(.dark) .recordLiftType {
+    float: left;
+    width: var(--recordValueCellWidth);
+    text-align: center;
+    background-color: var(--darkRecordLiftTypeBackground);
+    color: var(--darkRecordLiftTypeText);
+    border: 1px solid var(--darkRecordLiftTypeBorder);
+    font-weight: normal;
+    font-size: small;
+}
+
+:host(.dark) .recordLiftTypeSpacer {
+    width: var(--recordValueCellWidth);
+    text-align: center;
+    background-color: var(--darkRecordLiftTypeBackground);
+    color: var(--darkRecordLiftTypeText);
+    font-weight: normal;
+    font-size: small;
+}
+
+:host(.dark) .recordsFiller {
+    text-align: right;
+    height: calc(var(--recordValueCellHeight)*1.2);
+}
+
+:host(.dark) .recordCat {
+    text-align: center;
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    background-color: var(--darkRecordBoxBackground);
+    color: var(--darkRecordBoxText);
+}
+
+:host(.dark) .recordName {
+    text-align: right;
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    background-color: var(--darkRecordNameBackground);
+    color: var(--darkRecordNameText);
+}
+
+:host(.dark) .recordTitle {
+    text-align: right;
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    background-color: var(--darkRecordNameBackground);
+    color: var(--darkRecordNameText);
+}
+
+:host(.dark) .recordBox {
+    float: left;
+    border: 1px solid var(--darkRecordBoxBorder);
+    background-color: var(--darkRecordBoxBackground);
+    color: var(--darkRecordBoxText);
+}
+
+:host(.dark) .highlight {
+    background-color: var(--darkAttemptHighlightBackground) !important;
+    color: var(--darkRecordValueText) !important;
+}
+
+.recordRow {
+    grid-template-columns: repeat(var(--nbRecords), max-content) 1fr;
+    grid-column-gap: 1em;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-rows: max-content;
+}
+
+.recordNotification {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    height: 100%;
+    font-size: var(--athleteNameFontSize);
+}
+
+:host(.dark) .recordNotification.new {
+    background-color: var(--darkRecordHighlightBackground);
+    color: var(--darkRecordHighlightText);
+    visibility: var(--showRecordNotifications);
+}
+
+:host(.dark) .recordNotification.attempt {
+    background-color: var(--darkAttemptHighlightBackground);
+    color: var(--darkAttemptHighlightText);
+    visibility: var(--showRecordNotifications);
+}
+
+:host(.light) .recordNotification.new {
+    background-color: var(--lightRecordHighlightBackground);
+    color: var(--lightRecordHighlightText);
+    visibility: var(--showRecordNotifications);
+}
+
+:host(.light) .recordNotification.attempt {
+    background-color: var(--lightAttemptHighlightBackground);
+    color: var(--lightAttemptHighlightText);
+    visibility: var(--showRecordNotifications);
+}
+
+.recordNotification.none {
+    visibility: hidden;
 }

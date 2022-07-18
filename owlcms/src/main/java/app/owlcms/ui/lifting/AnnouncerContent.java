@@ -22,9 +22,13 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -40,6 +44,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
@@ -74,6 +79,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
     private long previousGoodMillis = 0L;
     private HorizontalLayout timerButtons;
+    private boolean singleReferee;
 
     public AnnouncerContent() {
         super();
@@ -128,7 +134,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     public boolean isIgnoreGroupFromURL() {
         return false;
     }
-
 
     @Subscribe
     public void slaveRefereeDecision(UIEvent.Decision e) {
@@ -325,6 +330,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 long timeElapsed = now - previousGoodMillis;
                 // no reason to give two decisions close together
                 if (timeElapsed > 2000) {
+                    if (isSingleReferee()) {
+                        fop.fopEventPost(new FOPEvent.DownSignal(this));
+                    }
                     fop.fopEventPost(
                             new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true, true,
                                     true));
@@ -338,8 +346,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             OwlcmsSession.withFop(fop -> {
                 long now = System.currentTimeMillis();
                 long timeElapsed = now - previousBadMillis;
-
                 if (timeElapsed > 2000) {
+                    if (isSingleReferee()) {
+                        fop.fopEventPost(new FOPEvent.DownSignal(this));
+                    }
                     fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
                             false, false, false));
                 }
@@ -384,4 +394,55 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         decisionLights = null;
     }
 
+    protected void createTopBarSettingsMenu() {
+        topBarSettings = new MenuBar();
+        topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
+        MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
+        SubMenu subMenu2 = item2.getSubMenu();
+        MenuItem subItemSoundOn = subMenu2.addItem(
+                Translator.translate("Settings.TurnOnSound"),
+                e -> {
+                    switchSoundMode(this, !this.isSilenced(), true);
+                    e.getSource().setChecked(!this.isSilenced());
+                    if (decisionDisplay != null) {
+                        decisionDisplay.setSilenced(this.isSilenced());
+                    }
+                    if (timer != null) {
+                        timer.setSilenced(this.isSilenced());
+                    }
+                });
+        subItemSoundOn.setCheckable(true);
+        subItemSoundOn.setChecked(!this.isSilenced());
+        MenuItem subItemSingleRef = subMenu2.addItem(
+                Translator.translate("Settings.SingleReferee"),
+                e -> {
+                    switchSingleRefereeMode(this, !this.isSingleReferee(), true);
+                    e.getSource().setChecked(this.isSingleReferee());
+                });
+        subItemSingleRef.setCheckable(true);
+        subItemSingleRef.setChecked(this.isSingleReferee());
+    }
+
+    @Override
+    public void setSingleReferee(boolean b) {
+        this.singleReferee = b;
+    }
+
+    @Override
+    public boolean isSingleReferee() {
+        return singleReferee;
+    }
+
+    @Subscribe
+    public void slaveNotification(UIEvent.Notification e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            String fopEventString = e.getFopEventString();
+            if (fopEventString != null && fopEventString.contentEquals("TimeStarted")) {
+                // time started button was selected, but denied. reset the colors
+                // to show that time is not running.
+                buttonsTimeStopped();
+            }
+            e.doNotification();
+        });
+    }
 }

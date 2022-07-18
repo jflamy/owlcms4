@@ -299,7 +299,7 @@ public class TeamSelectionContent extends VerticalLayout
 //        switchLightingMode(this, darkMode, false);
         updateURLLocations();
 
-        buildDialog(this);
+        //buildDialog(this);
         return params1;
     }
 

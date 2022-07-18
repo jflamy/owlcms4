@@ -707,7 +707,7 @@ public class Athlete {
      */
     @Transient
     @JsonIgnore
-    public int getAttemptedLifts() {
+    public int getActuallyAttemptedLifts() {
         int i = 0;
         if (zeroIfInvalid(snatch1ActualLift) != 0) {
             i++;
@@ -2041,10 +2041,28 @@ public class Athlete {
     @JsonIgnore
     public Double getSmm() {
         final Integer birthDate1 = getYearOfBirth();
+
         if (birthDate1 == null) {
             return 0.0;
         }
-        return getSinclair() * SinclairCoefficients.getSMMCoefficient(YEAR - birthDate1);
+        double d = getSinclair() * SinclairCoefficients.getSMMCoefficient(YEAR - birthDate1, getGender());
+        return d;
+    }
+    
+    /**
+     * Gets the smm.
+     *
+     * @return the smm
+     */
+    @Transient
+    @JsonIgnore
+    public Double getSmfForDelta() {
+        final Integer birthDate1 = getYearOfBirth();
+        if (birthDate1 == null) {
+            return 0.0;
+        }
+        double d = getSinclairForDelta() * SinclairCoefficients.getSMMCoefficient(YEAR - birthDate1, getGender());
+        return d;
     }
 
     public int getSmmRank() {
@@ -4126,7 +4144,7 @@ public class Athlete {
         Integer requestedWeight = newVal;
         int referenceWeight = reference.getWeight();
         int referenceAttemptNo = reference.getAttemptNo();// this is the lift that was attempted by previous lifter
-        int currentLiftNo = getAttemptedLifts() + 1;
+        int currentLiftNo = getAttemptsDone() + 1; // check
         int checkedLift = curLift + 1;
         if (checkedLift < currentLiftNo) {
             // we are checking an earlier attempt of the athlete (e.g. when loading the athlete card)
@@ -4392,7 +4410,7 @@ public class Athlete {
 
     private void doCheckChangeVsLiftOrder(int curLift, int newVal) throws RuleViolationException {
 
-        int currentLiftNo = getAttemptedLifts() + 1;
+        int currentLiftNo = getAttemptsDone() + 1; // check
         int checkedLift = curLift + 1;
         if (checkedLift < currentLiftNo) {
             // we are checking an earlier attempt of the athlete (e.g. when loading the athlete card)

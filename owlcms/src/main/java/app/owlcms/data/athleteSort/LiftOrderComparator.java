@@ -57,6 +57,13 @@ public class LiftOrderComparator extends AbstractLifterComparator implements Com
                 return compare;
             }
         }
+        
+        if (Competition.getCurrent().isFixedOrder()) {
+            compare = compareLotNumber(lifter1, lifter2);
+            if (compare != 0) {
+                return compare;
+            }
+        }
 
         compare = compareRequestedWeight(lifter1, lifter2);
         if (compare != 0) {

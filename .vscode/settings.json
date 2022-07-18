@@ -13,5 +13,6 @@
             "vmargs": [ "-ea"],
             "env": { "key": "value" },
         }
-    ]
+    ],
+    "maven.view": "flat"
 }

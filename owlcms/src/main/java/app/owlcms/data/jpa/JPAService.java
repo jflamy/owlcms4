@@ -200,6 +200,29 @@ public class JPAService {
             }
         }
     }
+    
+    /**
+     * Run in transaction.
+     *
+     * @param <T>      the generic type
+     * @param function the function
+     * @return the t
+     */
+    public static <T> T runInTransaction(EntityManager entityManager, Function<EntityManager, T> function) {
+        try {
+            entityManager.getTransaction().begin();
+
+            T result = function.apply(entityManager);
+
+            entityManager.getTransaction().commit();
+            return result;
+
+        } finally {
+            if (entityManager != null) {
+                entityManager.close();
+            }
+        }
+    }
 
     /**
      * Run in transaction.

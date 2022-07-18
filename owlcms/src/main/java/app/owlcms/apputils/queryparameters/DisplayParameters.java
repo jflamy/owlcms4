@@ -46,6 +46,7 @@ public interface DisplayParameters extends ContentParameters {
     public static final String LIGHT = "light";
     public static final String PUBLIC = "public";
     public static final String SOUND = "sound";
+    public static final String RECORDS = "records";
 
     public default void doNotification(boolean dark) {
         Notification n = new Notification();
@@ -76,24 +77,19 @@ public interface DisplayParameters extends ContentParameters {
         switchLightingMode((Component) this, darkMode, false);
         updateParam(params, DARK, !isDarkMode() ? "false" : null);
 
-        List<String> silentParams = params.get(SILENT);
-        // silent is the default. silent=false will cause sound
-        boolean silentMode = silentParams == null || silentParams.isEmpty()
-                || silentParams.get(0).toLowerCase().equals("true");
-        if (!isSilencedByDefault()) {
-            // for referee board, default is noise
-            silentMode = silentParams != null && !silentParams.isEmpty()
-                    && silentParams.get(0).toLowerCase().equals("true");
-        }
-        switchSoundMode((Component) this, silentMode, false);
-        updateParam(params, SILENT, !isSilenced() ? "false" : "true");
-
         List<String> switchableParams = params.get(PUBLIC);
         boolean switchable = switchableParams != null && !switchableParams.isEmpty()
                 && switchableParams.get(0).toLowerCase().equals("true");
         setSwitchableDisplay(switchable);
         switchSwitchable((Component) this, switchable, false);
         updateParam(params, PUBLIC, isSwitchableDisplay() ? "true" : null);
+        
+        List<String> records = params.get(RECORDS);
+        boolean showRecords = records == null || records.isEmpty()
+                || records.get(0).toLowerCase().equals("true");
+        setRecordsDisplay(showRecords);
+        switchRecords((Component) this, showRecords, false);
+        updateParam(params, PUBLIC, isRecordsDisplay() ? "true" : null);
         
         List<String> sizeParams = params.get(FONTSIZE);
         Double emSize;
@@ -199,6 +195,8 @@ public interface DisplayParameters extends ContentParameters {
         if (getDialog() == null) {
             setDialog(new Dialog());
         }
+        getDialog().setResizable(true);
+        getDialog().setDraggable(true);
         return getDialog();
     }
 
@@ -217,6 +215,10 @@ public interface DisplayParameters extends ContentParameters {
      * @return true if the display can switch during breaks (for example, to medals)
      */
     public default boolean isSwitchableDisplay() {
+        return false;
+    }
+    
+    public default boolean isRecordsDisplay() {
         return false;
     }
 
@@ -255,6 +257,10 @@ public interface DisplayParameters extends ContentParameters {
 
     public default void setSwitchableDisplay(boolean switchable) {
     }
+    
+    public default void setRecordsDisplay(boolean showRecords) {
+    }
+
 
     /**
      * called by updateURLLocation
@@ -296,10 +302,16 @@ public interface DisplayParameters extends ContentParameters {
 
     public default void switchSwitchable(Component target, boolean switchable, boolean updateURL) {
         setSwitchableDisplay(switchable);
-        // logger.debug("switching sound");
-    
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), PUBLIC, switchable ? "true" : "false");
+        }
+        buildDialog(target);
+    }
+    
+    public default void switchRecords(Component target, boolean showRecords, boolean updateURL) {
+        setRecordsDisplay(showRecords);
+        if (updateURL) {
+            updateURLLocation(getLocationUI(), getLocation(), RECORDS, showRecords ? "true" : "false");
         }
         buildDialog(target);
     }

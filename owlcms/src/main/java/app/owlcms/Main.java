@@ -6,7 +6,10 @@
  *******************************************************************************/
 package app.owlcms;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.EnumSet;
 import java.util.List;
@@ -32,11 +35,14 @@ import app.owlcms.data.jpa.DemoData;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.ProdData;
 import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.data.records.RecordDefinitionReader;
+import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.InitialData;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.servlet.EmbeddedJetty;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
@@ -140,6 +146,12 @@ public class Main {
         parseConfig();
         StartupUtils.setServerPort(serverPort);
         StartupUtils.logStart("owlcms", serverPort);
+        
+        // message about log locations.
+        Path logPath = Path.of("logs","owlcms.log");
+        if (Files.exists(logPath)) {
+            logger.info("Detailed log location: {}", logPath.toAbsolutePath());
+        }
 
         // technical initializations
         System.setProperty("java.net.preferIPv4Stack", "true");
@@ -147,6 +159,7 @@ public class Main {
         ConvertUtils.register(new DateConverter(null), java.util.Date.class);
         ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
 
+        // dependency injection
         injectSuppliers();
 
         return;
@@ -169,6 +182,7 @@ public class Main {
                 // overide - we cannot leave the database empty
                 data = InitialData.EMPTY_COMPETITION;
             }
+
             if (allCompetitions.isEmpty()) {
                 logger.info("injecting initial data {}", data);
                 switch (data) {
@@ -176,7 +190,7 @@ public class Main {
                     ProdData.insertInitialData(0);
                     break;
                 case LARGEGROUP_DEMO:
-                    DemoData.insertInitialData(20, ageDivisions);
+                    DemoData.insertInitialData(14, ageDivisions);
                     break;
                 case LEAVE_AS_IS:
                     break;
@@ -216,11 +230,32 @@ public class Main {
                 }
 
                 PlatformRepository.checkPlatforms();
-
             }
+            resetRecords();
         } finally {
             Translator.setForcedLocale(locale);
         }
+    }
+
+    private static void resetRecords() {
+        Path recordsPath;
+        try {
+            recordsPath = ResourceWalker.getFileOrResourcePath("/records");
+            try {
+                RecordRepository.clearRecords();
+                if (recordsPath != null && Files.exists(recordsPath)) {
+                    RecordDefinitionReader.readFolder(recordsPath);
+                } else {
+                    logger.info("no record definition files in local/records");
+                }
+            } catch (IOException e) {
+                logger.error("cannot process records {}");
+            }
+        } catch (FileNotFoundException e1) {
+            logger.error("cannot find records {}",LoggerUtils.stackTrace(e1));
+        }
+
+
     }
 
     private static Locale overrideDisplayLanguage() {
@@ -343,6 +378,10 @@ public class Main {
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
+    }
+
+    public static Logger getStartupLogger() {
+        return (Logger) LoggerFactory.getLogger( Main.class.getSimpleName()+".startup");
     }
 
 }

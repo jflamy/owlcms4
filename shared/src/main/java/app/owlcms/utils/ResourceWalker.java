@@ -77,8 +77,9 @@ public class ResourceWalker {
      *
      * @param name
      * @return an input stream with the requested content, null if not found.
+     * @throws FileNotFoundException
      */
-    public static InputStream getFileOrResource(String name) {
+    public static InputStream getFileOrResource(String name) throws FileNotFoundException {
         InputStream is = null;
         String relativeName;
         if (name.startsWith("/")) {
@@ -93,8 +94,8 @@ public class ResourceWalker {
         }
         if (target != null && Files.exists(target)) {
             try {
-                // logger.trace("found overridden resource {} at {} {}", name, target.toAbsolutePath(),
-                // LoggerUtils.whereFrom(1));
+                logger.trace("found overridden resource {} at {} {}", name, target.toAbsolutePath(),
+                        LoggerUtils.whereFrom(1));
                 return Files.newInputStream(target);
             } catch (IOException e) {
                 if (name.trim().contentEquals("/") || name.isBlank()) {
@@ -107,7 +108,10 @@ public class ResourceWalker {
         } else {
             is = ResourceWalker.class.getResourceAsStream(name);
             if (is != null) {
-                // logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+                logger.trace("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+            } else {
+                logger.trace("not found {} {}", name, LoggerUtils.whereFrom(1));
+                throw new FileNotFoundException(name);
             }
         }
         return is;
@@ -119,8 +123,9 @@ public class ResourceWalker {
      *
      * @param name
      * @return an input stream with the requested content, null if not found.
+     * @throws FileNotFoundException
      */
-    public static Path getFileOrResourcePath(String name) {
+    public static Path getFileOrResourcePath(String name) throws FileNotFoundException {
         String relativeName;
         if (name.startsWith("/")) {
             relativeName = name.substring(1);
@@ -133,16 +138,17 @@ public class ResourceWalker {
             target = localDirPath2.resolve(relativeName);
         }
         if (target != null && Files.exists(target)) {
-            // logger.debug("found overridden resource {} at {} {}", name,
-            // target.toAbsolutePath(),LoggerUtils.whereFrom(1));
+            logger.trace("found overridden resource {} at {} {}", name, target.toAbsolutePath(),
+                    LoggerUtils.whereFrom(1));
             return target;
         } else {
             String resName = "/" + relativeName;
             target = getResourcePath(resName);
             if (target != null) {
-                // logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+                logger.trace("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
             } else {
-                // logger.debug("not found {} {}",target, resName);
+                logger.trace("not found {} {}", target, resName);
+                throw new FileNotFoundException(name);
             }
 
         }
@@ -171,33 +177,46 @@ public class ResourceWalker {
         Locale locale = getLocaleSupplier().get();
 
         String suffix = "_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant();
-        InputStream result = getResourceAsStream(baseName + suffix + extension);
-        if (result != null) {
+        InputStream result;
+        try {
+            result = getResourceAsStream(baseName + suffix + extension);
             return result;
+        } catch (FileNotFoundException e1) {
+            // ignore
         }
 
         suffix = "_" + locale.getLanguage() + "_" + locale.getCountry();
-        result = getResourceAsStream(baseName + suffix + extension);
-        if (result != null) {
+        try {
+            result = getResourceAsStream(baseName + suffix + extension);
             return result;
+        } catch (FileNotFoundException e) {
+            // ignore
         }
 
         suffix = "_" + locale.getLanguage();
-        result = getResourceAsStream(baseName + suffix + extension);
-        if (result != null) {
+        try {
+            result = getResourceAsStream(baseName + suffix + extension);
             return result;
+        } catch (FileNotFoundException e) {
+            // ignore
         }
 
         suffix = "_en";
-        result = getResourceAsStream(baseName + suffix + extension);
-        if (result != null) {
+        try {
+            result = getResourceAsStream(baseName + suffix + extension);
             return result;
+        } catch (FileNotFoundException e) {
+            // ignore
         }
 
-        suffix = "";
-        result = getResourceAsStream(baseName + suffix + extension);
+        try {
+            suffix = "";
+            result = getResourceAsStream(baseName + suffix + extension);
+            return result;
+        } catch (FileNotFoundException e) {
+            return null;
+        }
 
-        return result;
     }
 
     public static String getLocalizedResourceName(String rawName) throws FileNotFoundException {
@@ -209,54 +228,70 @@ public class ResourceWalker {
 
         String suffix = "_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant();
         String name = baseName + suffix + extension;
-        InputStream result = getResourceAsStream(name);
-        if (result != null) {
-            return name;
+        InputStream result;
+        try {
+            result = getResourceAsStream(name);
+            if (result != null) {
+                return name;
+            }
+        } catch (FileNotFoundException e) {
+            // ignore
         }
 
         suffix = "_" + locale.getLanguage() + "_" + locale.getCountry();
         name = baseName + suffix + extension;
-        result = getResourceAsStream(name);
-        if (result != null) {
-            return name;
+        try {
+            result = getResourceAsStream(name);
+            if (result != null) {
+                return name;
+            }
+        } catch (FileNotFoundException e) {
+            // ignore
         }
 
         suffix = "_" + locale.getLanguage();
         name = baseName + suffix + extension;
-        result = getResourceAsStream(name);
-        if (result != null) {
-            return name;
+        try {
+            result = getResourceAsStream(name);
+            if (result != null) {
+                return name;
+            }
+        } catch (FileNotFoundException e) {
+            // ignore
         }
 
         suffix = "_en";
         name = baseName + suffix + extension;
-        result = getResourceAsStream(name);
-        if (result != null) {
-            return name;
+        try {
+            result = getResourceAsStream(name);
+            if (result != null) {
+                return name;
+            }
+        } catch (FileNotFoundException e) {
+            // ignore
         }
 
         suffix = "";
         name = baseName + suffix + extension;
-        result = ResourceWalker.class.getResourceAsStream(name);
+        result = getResourceAsStream(name);
         if (result != null) {
             return name;
-        } else {
-            throw new FileNotFoundException(rawName);
         }
+        return null;
     }
 
     public static Supplier<byte[]> getLocalZipBlobSupplier() {
         return localZipBlobSupplier;
     }
 
-    public static InputStream getResourceAsStream(String name) {
+    public static InputStream getResourceAsStream(String name) throws FileNotFoundException {
         return getFileOrResource(name);
     }
 
     public static Path getResourcePath(String resourcePathString) {
         URL resourceURL = ResourceWalker.class.getResource(resourcePathString);
         if (resourceURL == null) {
-            logger.error(resourcePathString + " not found");
+            // logger.error(resourcePathString + " not found");
             // throw new RuntimeException(resourcePathString + " not found");
             return null;
         }

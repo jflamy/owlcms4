@@ -455,7 +455,7 @@ public class Config {
         this.skipReading = b;   
     }
 
-    private boolean featureSwitch(String string, boolean trueIfPresent) {
+    public boolean featureSwitch(String string, boolean trueIfPresent) {
         if (getFeatureSwitches() == null) {
             return !trueIfPresent;
         }

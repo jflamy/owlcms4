@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.data.category;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -112,60 +113,72 @@ public class RobiCategories {
 
     private static void loadJrSrReferenceCategories() {
         String localizedName = "/agegroups/AgeGroups.xlsx";
-        InputStream localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
-        try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
-            Map<String, Category> referenceCategoryMap = AgeGroupDefinitionReader.createCategoryTemplates(workbook);
-            // get the IWF categories, sorted.
-            jrSrReferenceCategories = referenceCategoryMap.values()
-                    .stream()
-                    .filter(c -> c.getWrSr() > 0)
-                    .sorted()
-                    // .peek(c -> {logger.trace(c.getCode());})
-                    .collect(Collectors.toCollection(ArrayList::new));
-            workbook.close();
-        } catch (Exception e) {
-            logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
-        }
-        Double prevMax = 0.0D;
-//        int i = 0;
-        for (Category refCat : jrSrReferenceCategories) {
-            refCat.setMinimumWeight(prevMax);
-//            logger.trace(i + " " + dumpCat(referenceCategories.get(i)));
-            prevMax = refCat.getMaximumWeight();
-            if (prevMax >= 998.00D) {
-                prevMax = 0.0D;
+        InputStream localizedResourceAsStream;
+        try {
+            localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
+            try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
+                Map<String, Category> referenceCategoryMap = AgeGroupDefinitionReader.createCategoryTemplates(workbook);
+                // get the IWF categories, sorted.
+                jrSrReferenceCategories = referenceCategoryMap.values()
+                        .stream()
+                        .filter(c -> c.getWrSr() > 0)
+                        .sorted()
+                        // .peek(c -> {logger.trace(c.getCode());})
+                        .collect(Collectors.toCollection(ArrayList::new));
+                workbook.close();
+            } catch (Exception e) {
+                logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
             }
-//            i++;
+            Double prevMax = 0.0D;
+//            int i = 0;
+            for (Category refCat : jrSrReferenceCategories) {
+                refCat.setMinimumWeight(prevMax);
+//                logger.trace(i + " " + dumpCat(referenceCategories.get(i)));
+                prevMax = refCat.getMaximumWeight();
+                if (prevMax >= 998.00D) {
+                    prevMax = 0.0D;
+                }
+//                i++;
+            }
+        } catch (FileNotFoundException e1) {
+            logger.error("could not read ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e1));
         }
+
     }
 
     private static void loadYthReferenceCategories() {
         String localizedName = "/agegroups/AgeGroups.xlsx";
-        InputStream localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
-        try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
-            Map<String, Category> referenceCategoryMap = AgeGroupDefinitionReader.createCategoryTemplates(workbook);
-            // get the IWF categories, sorted.
-            ythReferenceCategories = referenceCategoryMap.values()
-                    .stream()
-                    .filter(c -> c.getWrYth() > 0)
-                    .sorted()
-                    // .peek(c -> {logger.trace(c.getCode());})
-                    .collect(Collectors.toCollection(ArrayList::new));
-            workbook.close();
-        } catch (Exception e) {
-            logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
-        }
-        Double prevMax = 0.0D;
-//        int i = 0;
-        for (Category refCat : ythReferenceCategories) {
-            refCat.setMinimumWeight(prevMax);
-//            logger.trace(i + " " + dumpCat(ythReferenceCategories.get(i)));
-            prevMax = refCat.getMaximumWeight();
-            if (prevMax >= 998.00D) {
-                prevMax = 0.0D;
+        InputStream localizedResourceAsStream;
+        try {
+            localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
+            try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
+                Map<String, Category> referenceCategoryMap = AgeGroupDefinitionReader.createCategoryTemplates(workbook);
+                // get the IWF categories, sorted.
+                ythReferenceCategories = referenceCategoryMap.values()
+                        .stream()
+                        .filter(c -> c.getWrYth() > 0)
+                        .sorted()
+                        // .peek(c -> {logger.trace(c.getCode());})
+                        .collect(Collectors.toCollection(ArrayList::new));
+                workbook.close();
+            } catch (Exception e) {
+                logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
             }
-//            i++;
+            Double prevMax = 0.0D;
+//            int i = 0;
+            for (Category refCat : ythReferenceCategories) {
+                refCat.setMinimumWeight(prevMax);
+//                logger.trace(i + " " + dumpCat(ythReferenceCategories.get(i)));
+                prevMax = refCat.getMaximumWeight();
+                if (prevMax >= 998.00D) {
+                    prevMax = 0.0D;
+                }
+//                i++;
+            }
+        } catch (FileNotFoundException e1) {
+            logger.error("could not find ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e1));
         }
+
     }
 
 }

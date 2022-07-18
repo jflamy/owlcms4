@@ -48,7 +48,7 @@ public class AgeGroupEditingFormFactory
 
     private CategoryGridField catField;
     @SuppressWarnings("unused")
-    private Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupRepository.class);
+    private Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupEditingFormFactory.class);
     private AgeGroupContent origin;
 
     AgeGroupEditingFormFactory(Class<AgeGroup> domainType, AgeGroupContent origin) {

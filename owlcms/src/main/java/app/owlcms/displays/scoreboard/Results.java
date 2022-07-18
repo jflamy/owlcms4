@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.displays.scoreboard;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -115,6 +116,7 @@ public class Results extends PolymerTemplate<TemplateModel>
     private final Logger logger = (Logger) LoggerFactory.getLogger(Results.class);
     private boolean silenced = true;
     private boolean switchableDisplay = true;
+    private boolean showRecords = true;
     private EventBus uiEventBus;
     private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
@@ -146,10 +148,10 @@ public class Results extends PolymerTemplate<TemplateModel>
         DisplayOptions.addSoundEntries(vl, target, this);
         vl.add(new Hr());
         DisplayOptions.addSwitchableEntries(vl, target, this);
-        if (Config.getCurrent().isSizeOverride()) {
-            vl.add(new Hr());
-            DisplayOptions.addSizingEntries(vl, target, this);
-        }
+
+        DisplayOptions.addSectionEntries(vl, target, this);
+        vl.add(new Hr());
+        DisplayOptions.addSizingEntries(vl, target, this);
     }
 
     /**
@@ -167,7 +169,10 @@ public class Results extends PolymerTemplate<TemplateModel>
 
             this.getElement().setProperty("weight", "");
             boolean showWeight = false;
-            Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
+            Integer nextAttemptRequestedWeight = null;
+            if (a != null) {
+                nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
+            }
             if (fop.getCeremonyType() == null && a != null && nextAttemptRequestedWeight != null
                     && nextAttemptRequestedWeight > 0) {
                 this.getElement().setProperty("weight", nextAttemptRequestedWeight);
@@ -223,6 +228,11 @@ public class Results extends PolymerTemplate<TemplateModel>
     }
 
     @Override
+    public Timer getDialogTimer() {
+        return this.dialogTimer;
+    }
+
+    @Override
     public Double getEmFontSize() {
         return emFontSize;
     }
@@ -250,6 +260,11 @@ public class Results extends PolymerTemplate<TemplateModel>
     @Override
     public boolean isIgnoreGroupFromURL() {
         return true;
+    }
+
+    @Override
+    public boolean isRecordsDisplay() {
+        return showRecords;
     }
 
     /**
@@ -291,6 +306,11 @@ public class Results extends PolymerTemplate<TemplateModel>
     }
 
     @Override
+    public void setDialogTimer(Timer timer) {
+        this.dialogTimer = timer;
+    }
+
+    @Override
     public void setEmFontSize(Double emFontSize) {
         this.emFontSize = emFontSize;
     }
@@ -303,6 +323,11 @@ public class Results extends PolymerTemplate<TemplateModel>
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    @Override
+    public void setRecordsDisplay(boolean showRecords) {
+        this.showRecords = showRecords;
     }
 
     /**
@@ -404,6 +429,17 @@ public class Results extends PolymerTemplate<TemplateModel>
     }
 
     @Subscribe
+    public void slaveJuryNotification(UIEvent.JuryNotification e) {
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            setHidden(false);
+            if (Boolean.TRUE.equals(e.getNewRecord())) {
+                spotlightNewRecord();
+            }
+        });
+    }
+
+    @Subscribe
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
@@ -457,8 +493,15 @@ public class Results extends PolymerTemplate<TemplateModel>
             if (curAthlete != null && curAthlete.getGender() != null) {
                 this.getElement().setProperty("categoryName", curAthlete.getCategory().getName());
 
-                displayOrder = fop.getLeaders();
-                if (!done && displayOrder != null && displayOrder.size() > 0) {
+                if (Competition.getCurrent().isSinclair()) {
+                    List<Athlete> sortedAthletes = new ArrayList<Athlete>(
+                            Competition.getCurrent().getGlobalSinclairRanking(curAthlete.getGender()));
+                    displayOrder = AthleteSorter.topSinclair(sortedAthletes, 3).topAthletes;
+                    this.getElement().setProperty("categoryName", Translator.translate("sinclair"));
+                } else {
+                    displayOrder = fop.getLeaders();
+                }
+                if ((!done || Competition.getCurrent().isSinclair()) && displayOrder != null && displayOrder.size() > 0) {
                     // null as second argument because we do not highlight current athletes in the leaderboard
                     this.getElement().setPropertyJson("leaders", getAthletesJson(displayOrder, null, fop));
                     this.getElement().setProperty("leaderLines", displayOrder.size() + 2); // spacer + title
@@ -466,6 +509,24 @@ public class Results extends PolymerTemplate<TemplateModel>
                     // nothing to show
                     this.getElement().setPropertyJson("leaders", Json.createNull());
                     this.getElement().setProperty("leaderLines", 1); // must be > 0
+                }
+            }
+        });
+    }
+
+    protected void computeRecords(boolean done) {
+        if (!this.isRecordsDisplay()) {
+            this.getElement().setPropertyJson("records", Json.createNull());
+            return;
+        }
+        OwlcmsSession.withFop(fop -> {
+            Athlete curAthlete = fop.getCurAthlete();
+            if (curAthlete != null && curAthlete.getGender() != null) {
+                if (!done) {
+                    this.getElement().setPropertyJson("records", fop.getRecordsJson());
+                } else {
+                    // nothing to show
+                    this.getElement().setPropertyJson("records", Json.createNull());
                 }
             }
         });
@@ -555,6 +616,11 @@ public class Results extends PolymerTemplate<TemplateModel>
         }
     }
 
+    protected JsonArray getAgeGroupNamesJson(LinkedHashMap<String, Participation> currentAthleteParticipations) {
+        JsonArray ageGroups = Json.createArray();
+        return ageGroups;
+    }
+
     protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
         String category;
         category = curCat != null ? curCat.getName() : "";
@@ -577,6 +643,12 @@ public class Results extends PolymerTemplate<TemplateModel>
             logger.error("main rankings null for {}", a);
         }
         ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
+        Double double1 = a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
+                : a.getSinclair();
+        ja.put("sinclair", double1 > 0.001 ? String.format("%.3f", double1) : "-");
+        ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
+        ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
+        ja.put("sinclairRank", a.getSinclairRank() != null && a.getSinclairRank() > 0 ? "" + a.getSinclairRank() : "-");
 
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
@@ -720,9 +792,6 @@ public class Results extends PolymerTemplate<TemplateModel>
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        // crude workaround -- randomly getting light or dark due to multiple themes detected in app.
-        getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
-
         // fop obtained via FOPParameters interface default methods.
         OwlcmsSession.withFop(fop -> {
             init();
@@ -735,7 +804,9 @@ public class Results extends PolymerTemplate<TemplateModel>
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
-        if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
+        if (Competition.getCurrent().isSinclair()) {
+            getElement().setProperty("noLiftRanks", "sinclair");
+        } else if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
             getElement().setProperty("noLiftRanks", "noranks");
         }
         SoundUtils.enableAudioContextNotification(this.getElement());
@@ -757,6 +828,11 @@ public class Results extends PolymerTemplate<TemplateModel>
     protected void updateBottom(String liftType, FieldOfPlay fop) {
         curGroup = fop.getGroup();
         displayOrder = fop.getDisplayOrder();
+        if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
+            spotlightNewRecord();
+        } else {
+            spotlightAttemptOrNone(fop, this);
+        }
         if (Config.getCurrent().isSizeOverride() && getEmFontSize() != null) {
             this.getElement().setProperty("sizeOverride", " --tableFontSize:" + getEmFontSize() + "rem;");
         }
@@ -777,12 +853,9 @@ public class Results extends PolymerTemplate<TemplateModel>
 
         int resultLines = (displayOrder != null ? displayOrder.size() : 0) + countCategories(displayOrder) + 1;
         this.getElement().setProperty("resultLines", resultLines);
-        computeLeaders(fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE);
-    }
-    
-    protected JsonArray getAgeGroupNamesJson(LinkedHashMap<String, Participation> currentAthleteParticipations) {
-        JsonArray ageGroups = Json.createArray();
-        return ageGroups;
+        boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
+        computeLeaders(done);
+        computeRecords(done);
     }
 
     private String computeLiftType(Athlete a) {
@@ -819,6 +892,21 @@ public class Results extends PolymerTemplate<TemplateModel>
     private String formatKg(String total) {
         return (total == null || total.trim().isEmpty()) ? "-"
                 : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
+    }
+
+    private void spotlightAttemptOrNone(FieldOfPlay fop, Results parentThis) {
+        if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
+            parentThis.getElement().setProperty("recordKind", "attempt");
+            parentThis.getElement().setProperty("recordMessage",
+                    Translator.translate("Scoreboard.RecordAttempt"));
+        } else {
+            parentThis.getElement().setProperty("recordKind", "none");
+        }
+    }
+
+    private void spotlightNewRecord() {
+        this.getElement().setProperty("recordKind", "new");
+        this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.NewRecord"));
     }
 
     private void init() {
@@ -866,16 +954,6 @@ public class Results extends PolymerTemplate<TemplateModel>
 
     private void uiLog(UIEvent e) {
 //        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom());
-    }
-
-    @Override
-    public Timer getDialogTimer() {
-        return this.dialogTimer;
-    }
-
-    @Override
-    public void setDialogTimer(Timer timer) {
-        this.dialogTimer = timer;
     }
 
 }

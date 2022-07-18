@@ -26,9 +26,9 @@ class ResultsMedals extends PolymerElement {
         </div>
     </div>
     <template is="dom-if" if="[[medalCategories]]">
-        <table class="results medals" style$="[[hiddenGridStyle]]; padding-top: 1em;">
+        <table class$="results medals [[noLiftRanks]]" style$="[[hiddenGridStyle]]; padding-top: 1em;">
             <template is="dom-repeat" id="result-table" items="[[medalCategories]]" as="mc">
-                <tr class="head" style="[[leadersDisplay]]">
+                <tr class="head" style$="[[leadersDisplay]]">
                     <td style="grid-column: 1 / -1; justify-content: left; font-weight: bold"
                         inner-h-t-m-l="[[mc.categoryName]]">
                     </td>
@@ -38,14 +38,18 @@ class ResultsMedals extends PolymerElement {
                     <th class="groupCol" inner-h-t-m-l="[[t.Group]]"></th>
                     <th class="name" inner-h-t-m-l="[[t.Name]]"></th>
                     <th class="category" inner-h-t-m-l="[[t.Category]]"></th>
-                    <th class="narrow" inner-h-t-m-l="[[t.Birth]]"></th>
+                    <th class="yob" inner-h-t-m-l="[[t.Birth]]"></th>
+                    <th class="custom1" inner-h-t-m-l="[[t.Custom1]]"></th>
+                    <th class="custom2" inner-h-t-m-l="[[t.Custom2]]"></th>
                     <th class="club" inner-h-t-m-l="[[t.Team]]"></th>
                     <th style="grid-column: span 3;" inner-h-t-m-l="[[t.Snatch]]"></th>
                     <th class="rank" inner-h-t-m-l="[[t.Rank]]"></th>
                     <th style="grid-column: span 3;" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
                     <th class="rank" inner-h-t-m-l="[[t.Rank]]"></th>
-                    <th class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
+                    <th class="total" inner-h-t-m-l="[[t.Total]]"></th>
                     <th class="totalRank" inner-h-t-m-l="[[t.Rank]]"></th>
+                    <th class="sinclair" inner-h-t-m-l="[[t.Sinclair]]"></th>
+                    <th class="sinclairRank" inner-h-t-m-l="[[t.Rank]]"></th>
                 </tr>
                 <tr>
                     <td class="spacer" style="grid-column: 1 / -1; justify-content: left;"
@@ -53,7 +57,7 @@ class ResultsMedals extends PolymerElement {
                     </td>
                 </tr>
                 <template is="dom-repeat" id="result-table" items="[[mc.leaders]]" as="l">
-                    <tr class="athlete" style="[[leadersDisplay]]">
+                    <tr class="athlete" style$="[[leadersDisplay]]">
                         <td class="groupCol">
                             <div>[[l.group]]</div>
                         </td>
@@ -63,7 +67,13 @@ class ResultsMedals extends PolymerElement {
                         <td class="category">
                             <div>[[l.category]]</div>
                         </td>
-                        <td class="narrow">[[l.yearOfBirth]]</td>
+                        <td class="yob">[[l.yearOfBirth]]</td>
+                        <td class="custom1">
+                            <div>[[l.custom1]]</div>
+                        </td>
+                        <td class="custom2">
+                            <div>[[l.custom2]]</div>
+                        </td>
                         <td class="club">
                             <div class="ellipsis">[[l.teamName]]</div>
                         </td>
@@ -83,16 +93,22 @@ class ResultsMedals extends PolymerElement {
                         <td class="rank">
                             <div inner-h-t-m-l="[[l.cleanJerkRank]]"></div>
                         </td>
-                        <td class="narrow">
+                        <td class="total">
                             <div>[[l.total]]</div>
                         </td>
                         <td class="totalRank">
                             <div inner-h-t-m-l="[[l.totalRank]]"></div>
                         </td>
+                        <td class="sinclair">
+                            <div>[[l.sinclair]]</div>
+                        </td>
+                        <td class="sinclairRank">
+                            <div>[[l.sinclairRank]]</div>
+                        </td>
                     </tr>
                 </template>
                 <tr>
-                    <td class="filler" style="grid-column: 1 / -1; line-height:50%">&nbsp;</td>
+                    <td class="filler" style="grid-column: 1 / -1; line-height:100%">&nbsp;</td>
                 </tr>
             </template>
         </table>
@@ -103,6 +119,7 @@ class ResultsMedals extends PolymerElement {
     ready() {
         console.debug("ready");
         super.ready();
+        document.body.setAttribute("theme","dark");
         this.$.groupDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";

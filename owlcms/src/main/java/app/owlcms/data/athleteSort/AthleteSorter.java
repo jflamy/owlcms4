@@ -10,10 +10,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +55,35 @@ public class AthleteSorter implements Serializable {
 //            logger.debug("all athletes in group's categories {}", impactedAthletes);
         } else {
             impactedAthletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
+            // logger.debug("all athletes in all groups {}", impactedAthletes);
+        }
+
+        List<Athlete> sortedAthletes;
+        sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.SNATCH, true);
+        AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.SNATCH);
+        sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.CLEANJERK, true);
+        AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
+        sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.TOTAL, true);
+        AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.TOTAL);
+        sortedAthletes = AthleteSorter.resultsOrderCopy(impactedAthletes, Ranking.CUSTOM, true);
+        AthleteSorter.assignEligibleCategoryRanks(sortedAthletes, Ranking.CUSTOM);
+
+//        if (logger.isEnabledFor(Level.DEBUG)) {
+//            for (Athlete a : impactedAthletes) {
+//                Participation p = a.getMainRankings();
+//                if (p != null) logger.debug("** {} {}", a, p.long_dump());
+//            }
+//        }
+        return impactedAthletes;
+    }
+    
+    public static List<Athlete> assignCategoryRanks(EntityManager em, Group g) {
+        List<Athlete> impactedAthletes;
+        if (g != null) {
+            impactedAthletes = AthleteRepository.findAthletesForGlobalRanking(em, g);
+//            logger.debug("all athletes in group's categories {}", impactedAthletes);
+        } else {
+            impactedAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, null, true, null);
             // logger.debug("all athletes in all groups {}", impactedAthletes);
         }
 
@@ -590,14 +621,48 @@ public class AthleteSorter implements Serializable {
         case SNATCH_CJ_TOTAL:
             return 0D; // no such thing
         case BW_SINCLAIR:
-            return curLifter.getSinclair();
+            return curLifter.getSinclairForDelta();
         case CAT_SINCLAIR:
             return curLifter.getCategorySinclair();
         case SMM:
-            return curLifter.getSmm();
+            return curLifter.getSmfForDelta();
         default:
             break;
         }
         return 0D;
     }
+    
+    public static class TopSinclair {
+        public double best;
+        public List<Athlete> topAthletes;
+        TopSinclair(double best, List<Athlete> topAthletes) {
+            this.best = best;
+            this.topAthletes = topAthletes;
+        }
+    }
+
+    public static TopSinclair topSinclair(List<Athlete> sortedAthletes, int nbAthletes) {
+        double topSinclair = 0.0D;
+        if (sortedAthletes != null && !sortedAthletes.isEmpty()) {
+            ListIterator<Athlete> iterAthletes = sortedAthletes.listIterator();
+            while (iterAthletes.hasNext()) {
+                Athlete curMan = iterAthletes.next();
+                Double curSinclair = (curMan.getAttemptsDone() <= 3 ? curMan.getSinclairForDelta()
+                        : curMan.getSinclair());
+                if (curSinclair <= 0) {
+                    iterAthletes.remove();
+                } else {
+                    if (curSinclair > topSinclair) {
+                        topSinclair = curSinclair;
+                    }
+                }
+            }
+            int minAthletes = java.lang.Math.min(nbAthletes, sortedAthletes.size());
+            return new TopSinclair(topSinclair, sortedAthletes.subList(0, minAthletes));
+        } else {
+            sortedAthletes = (new ArrayList<Athlete>());
+            return new TopSinclair(0.0D, List.of());
+        }
+    }
+
 }

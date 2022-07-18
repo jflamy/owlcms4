@@ -216,6 +216,7 @@ public class Translator implements I18NProvider {
 
                 logger.debug("reloading translation bundles");
                 InputStream csvStream = ResourceWalker.getResourceAsStream(csvName);
+                logger.debug("csvStream {} {}",csvName, csvStream);
                 ICsvListReader listReader = null;
                 try {
                     CsvPreference[] preferences = new CsvPreference[] { CsvPreference.STANDARD_PREFERENCE,

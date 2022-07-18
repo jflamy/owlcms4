@@ -110,7 +110,7 @@ public class JuryDialog extends EnhancedDialog {
                 endEvent = JuryDeliberationEventType.END_JURY_BREAK;
                 break;
             }
-            JuryNotification event = new UIEvent.JuryNotification(reviewedAthlete, origin, endEvent, null);
+            JuryNotification event = new UIEvent.JuryNotification(reviewedAthlete, origin, endEvent, null, null);
             OwlcmsSession.getFop().getUiEventBus().post(event);
             if (noAction) {
                 ((JuryContent) origin).doSync();
@@ -205,7 +205,7 @@ public class JuryDialog extends EnhancedDialog {
             return;
         }
         JuryNotification event = new UIEvent.JuryNotification(null, origin,
-                JuryDeliberationEventType.CALL_TECHNICAL_CONTROLLER, null);
+                JuryDeliberationEventType.CALL_TECHNICAL_CONTROLLER, null, null);
         OwlcmsSession.getFop().getUiEventBus().post(event);
         return;
     }
@@ -215,7 +215,7 @@ public class JuryDialog extends EnhancedDialog {
         OwlcmsSession.getFop()
                 .fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
         JuryNotification event = new UIEvent.JuryNotification(athleteUnderReview, origin,
-                JuryDeliberationEventType.START_DELIBERATION, null);
+                JuryDeliberationEventType.START_DELIBERATION, null, null);
         OwlcmsSession.getFop().getUiEventBus().post(event);
 
         Button goodLift = new Button(IronIcons.DONE.create(),
@@ -323,7 +323,7 @@ public class JuryDialog extends EnhancedDialog {
         OwlcmsSession.getFop()
                 .fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
         JuryNotification event = new UIEvent.JuryNotification(null, origin, JuryDeliberationEventType.CALL_REFEREES,
-                null);
+                null, null);
         OwlcmsSession.getFop().getUiEventBus().post(event);
         endBreakText = Translator.translate("JuryDialog.ResumeCompetition");
 
@@ -338,7 +338,7 @@ public class JuryDialog extends EnhancedDialog {
                 .fopEventPost(
                         new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null, true, this));
         JuryNotification event = new UIEvent.JuryNotification(null, origin,
-                JuryDeliberationEventType.TECHNICAL_PAUSE, null);
+                JuryDeliberationEventType.TECHNICAL_PAUSE, null, null);
         OwlcmsSession.getFop().getUiEventBus().post(event);
         endBreakText = Translator.translate("JuryDialog.ResumeCompetition");
 

@@ -6,7 +6,7 @@
  *******************************************************************************/
 package app.owlcms.utils;
 
-import java.io.InputStream;
+import java.io.FileNotFoundException;
 import java.net.HttpURLConnection;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -193,9 +193,9 @@ public class IPInterfaceUtils {
     }
 
     private void checkTargetFileOk(String targetFile) {
-        // ignore the prefix, only used for the URL
-        InputStream targetResource = ResourceWalker.getResourceAsStream("/" + targetFile); // $NON-NLS-1$
-        if (targetResource == null) {
+        try {
+            ResourceWalker.getResourceAsStream("/" + targetFile);
+        } catch (FileNotFoundException e) {
             throw new RuntimeException("test resource not found " + targetFile);
         }
     }

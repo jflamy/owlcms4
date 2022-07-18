@@ -19,10 +19,11 @@ For example, instead of starting a browser as your attempt board display, you wi
 
 2. The status monitor starts in its own tab.  Close the other tabs so it is alone in a window.  The window content is the same as what is actually in the title (even though the title is visually cut off.)  In the following example, the title indicates that the athlete information is visible on the various displays and scoreboards (CURRENT_ATHLETE_DISPLAYED). 
    
+
 ![statusMonitorExample](img/OBS/statusMonitorExample.png)
-   
+
    > The full set of possible state transitions is documented further down on this page.
-   
+
 3. We can also see that the *previous* state is shown in the monitor.  This allows special cases with different scene transitions
 
    - For example, when the jury decides that a lift is denied, the status will start with `state=DECISION_VISIBLE.BAD_LIFT;previous=BREAK.JURY` because the decision took place while the system was in a jury break  
@@ -129,7 +130,7 @@ state=DECISION_VISIBLE.BAD_LIFT;previous=BREAK.JURY;fop=A
 state=CURRENT_ATHLETE_DISPLAYED;previous=BREAK.JURY;fop=A
 ```
 
-6. Break after last lift in the snatch is started by the announcer and currently is NOT automatic.
+6. Break after last lift in the snatch (is started by the announcer).
 
 ```
 state=CURRENT_ATHLETE_DISPLAYED;previous=DECISION_VISIBLE.GOOD_LIFT;fop=A
@@ -174,5 +175,11 @@ break=BREAK.MEDALS;previous=BREAK.GROUP_DONE;fop=A
 break=BREAK.GROUP_DONE;previous=BREAK.MEDALS;fop=A 
 ```
 
+11. Additional cases for records attempted or broken
 
+```
+state=CURRENT_ATHLETE_DISPLAYED.RECORD_ATTEMPT
+state=DECISION_VISIBLE.GOOD_LIFT.NEW_RECORD
+```
 
+ 

@@ -1,4 +1,5 @@
 [Home](index)
+
 * Installation
   * [Downloads](Downloads)
   * [Installation](InstallationOverview)
@@ -15,6 +16,7 @@
   * [Refereeing](Refereeing)
   * [Jury](Jury)
   * [Breaks and Ceremonies](Breaks)
+  * [Records](Records)
   * [Result Documents](Documents)
 * Virtual Competitions
   * [Overview](VirtualOverview)
@@ -29,6 +31,7 @@
 * Advanced Topics
   * [Updating Cloud-based Applications](UpdatingCloudApplications)
   * [Customization](UploadingLocalSettings)
+  * [Scoreboard Colors](Styles)
   * [Excel Template Variables](TemplateVariables)
   * [Translations](Translation)
   * [Configuration Parameters](Configuration)

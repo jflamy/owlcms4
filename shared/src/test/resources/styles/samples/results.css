@@ -1,0 +1,739 @@
+@import 'colors.css';
+
+* {
+    /*************************
+     * Customization section
+     *************************/
+
+    /* size of team column relative to name column (fr = fraction) */
+    --teamColumnRatio: 0.65fr;
+
+    /* left column width: adjust depending on how you name groups */
+    --startWidth: 6em;
+
+    /* normally these do not need to change */
+    --categoryWidth: 11ch;
+    --birthWidth: 6ch;
+    --liftResultWidth: 8ch;
+
+    /* top part: current attempt information */
+    --topRowFontSize: 3vh;
+    --athleteNameFontSize: 3vh;
+    --groupInfoFontSize: 2vh;
+
+/* records */
+    --recordValueCellWidth: 4rem;
+
+}
+
+* {
+    box-sizing: border-box;
+    --nbRanks: 1;
+}
+
+/* default for page */
+.wrapper {
+    /* results table font size */
+    --tableFontSize: 1.25rem;
+
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--pageTextColor);
+    background-color: var(--pageBackgroundColor);
+
+    min-height: 100vh;
+    padding: 1vmin 2vmin 2vmin 2vmin;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: no-wrap;
+    justify-content: flex-start;
+}
+
+/* table general parameters */
+table.results {
+    border-collapse: collapse;
+    font-size: var(--tableFontSize);
+    --rankWidth: var(--liftResultWidth);
+    --rankVisibility: visible;
+
+}
+
+table.results.noranks {
+    --rankWidth: 0; 
+    --rankVisibility: hidden;
+}
+
+/* default cell colors, backgrounds and borders */
+:host(.dark) table.results tr td {
+    border: 1px solid;
+    border-color: #ffffff
+}
+
+:host(.dark) td.narrow {
+     color: #ffffff;
+     background-color: #480073;
+     font-weight: bold;
+}
+
+:host(.dark) td.groupCol {
+     background-color: #7b0000;
+     color: #ffffff;
+    font-weight: bold;
+}
+
+:host(.light) table.results tr td {
+    background-color: var(--lightBackgroundColor);
+    color: var(--lightTextColor);
+    border: 1px solid;
+    border-color: var(--lightTableBorders)
+}
+
+/* name is not centered */
+:host(.dark) td.name,
+:host(.light) td.name {
+    background-color: #000000;
+    color: #ffdb00;
+    font-weight: bold;
+    justify-content: left;
+}
+
+/* other items are centered */
+:host(.dark) th,
+:host(.dark) td {
+    font-weight: normal;
+    justify-content: center;
+}
+
+:host(.light) th,
+:host(.light) td {
+    font-weight: bold;
+    justify-content: center;
+}
+
+/* category */
+:host(.dark) table.results tr td.category {
+    font-weight: bold;
+    background-color: var(--darkCategoryBackgroundColor);
+    color: var(--darkCategoryTextColor);
+}
+
+:host(.light) table.results tr td.category {
+    background-color: var(--lightCategoryBackgroundColor);
+    color: var(--lightCategoryTextColor);
+}
+
+/* birth */
+:host(.dark) table.results tr td.yob {
+    font-weight: bold;
+    background-color: var(--darkBirthBackgroundColor);
+    color: var(--darkBirthTextColor);
+}
+
+:host(.light) table.results tr td.yob {
+    background-color: var(--lightBirthBackgroundColor);
+    color: var(--lightBirthTextColor);
+}
+
+/* team */
+:host(.dark) table.results tr td.club {
+    font-weight: bold;
+    background-color: var(--darkTeamBackgroundColor);
+    color: var(--darkTeamTextColor);
+}
+
+:host(.light) table.results tr td.club {
+    background-color: var(--lightTeamBackgroundColor);
+    color: var(--lightTeamTextColor);
+}
+
+/* good/bad cells */
+:host(.dark) table.results tr td.good {
+    background-color: var(--darkGoodBackgroundColor);
+    color: var(--lightGoodTextColor);
+    font-weight: bold;
+}
+
+:host(.light) table.results tr td.good {
+    background-color: var(--lightGoodBackgroundColor);
+    color: var(--lightGoodTextColor);
+}
+
+:host(.dark) table.results tr td.fail {
+    background-color: var(--darkFailBackgroundColor);
+    color: var(--darkFailTextColor);
+    font-weight: bold;
+}
+
+:host(.light) table.results tr td.fail {
+    background-color: var(--lightFailBackgroundColor);
+    color: var(--lightFailTextColor);
+}
+
+/* snatch and c&j ranks */
+:host(.dark) table.results tr td.rank {
+    background-color: #ffb300;
+    color: #000000;
+    visibility: var(--rankVisibility);
+    font-weight: bold;
+    column-width: 0;
+    display: flex;
+}
+
+:host(.light) table.results tr td.rank {
+    background-color: var(--lightRankBackgroundColor);
+    color: var(--lightRankTextColor);
+    visibility: var(--rankVisibility);
+    column-width: 0;
+    display: flex;
+}
+
+/* total rank */
+:host(.dark) table.results tr td.totalRank {
+    background-color: #7b0000;
+    color: white;
+    font-weight: bold;
+}
+
+:host(.light) table.results tr td.totalRank {
+    background-color: var(--lightRankBackgroundColor);
+    color: var(--lightRankTextColor);
+}
+
+/* spacer line between categories */
+:host(.dark) table.results tr td.spacer {
+    background-color: var(--darkSpacerBackgroundColor);
+    color:#00053c;
+    padding: 0.4vmin 0.4vmin 0.4vmin 0.vmin;
+    border-right: 0;
+    /* grid-column: 1 / -1;*/
+    border: none;
+    max-height: 1px;
+}
+
+:host(.light) table.results tr td.spacer {
+    background-color: var(--lightSpacerBackgroundColor);
+    padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
+    /* grid-column: 1 / -1;*/
+    border: none;
+    max-height: 1px;
+}
+
+/* filler space above leaders */
+:host(.dark) table.results tr td.filler {
+    background-color: var(--pageBackgroundColor);
+    grid-column: 1 / -1;
+    align-content: stretch;
+    border: none;
+    margin: 0;
+    padding: 0;
+    line-height: 90%;
+}
+
+:host(.light) table.results tr td.filler {
+    background-color: var(--pageBackgroundColor);
+    grid-column: 1 / -1;
+    align-content: stretch;
+    border: none;
+    margin: 0;
+    padding: 0;
+    line-height: 90%;
+}
+
+/* requested weight column */
+:host(.dark) td.narrow.request {
+    font-style: italic;
+    font-weight: bold;
+    background-color: #000000;
+    color: yellow;
+}
+
+:host(.light) .request {
+    font-style: italic;
+}
+
+/* current athlete colors and blinks */
+:host(.dark) table.results tr td.current {
+    color: black;
+    background-color: #3dff00;
+    font-weight: bold;
+}
+
+:host(.light) table.results tr td.current {
+    color: var(--lightCurrentTextColor);
+    background-color: var(--lightCurrentBackgroundColor);
+    font-weight: bold;
+}
+
+/* blinking text is done with a div animation */
+:host(.dark) table.results td.blink {
+    animation: blink 1.5s step-start 0s infinite;
+}
+
+/* blinking a background is done with the changeColor animation defined below */
+:host(.dark) table.results td.blink {
+    animation: changeColor 1.5s step-start 0s infinite;
+}
+
+/* next athlete colors */
+:host(.dark) table.results tr td.next {
+    color: var(--darkNextTextColor);
+    background-color: var(--darkNextBackgroundColor);
+    font-weight: bold;
+}
+:host(.dark) td.next {
+    color: var(--darkNextTextColor);
+    background-color: var(--darkNextBackgroundColor);
+    font-weight: bold;
+}
+
+:host(.light) table.results tr td.next {
+    color: var(--lightNextTextColor);
+    background-color: var(--lightNextBackgroundColor);
+    font-weight: bold;
+}
+
+/* empty cells */
+:host(.dark) td.empty {
+    color: var(--darkTextColor);
+    background-color: #a5a5a5;
+    font-style: italic;
+}
+
+:host(.light) .empty {
+    color: var(--lightTextColor);
+    background-color: var(--lightBackgroundColor);
+    font-style: italic;
+}
+
+/* grid layout */
+table {
+    /* use all available vertical space */
+    flex: 1;
+    display: grid;
+    border-collapse: collapse;
+    grid-template-rows: 
+        repeat(var(--top), min-content) 
+        1fr
+        repeat(var(--bottom), min-content);
+    grid-template-columns:
+        var(--startWidth) 
+        minmax(50px, 1fr) 
+        var(--categoryWidth)
+        var(--birthWidth)
+        minmax(50px, var(--teamColumnRatio))
+        repeat(3, var(--liftResultWidth)) 
+        repeat(var(--nbRanks), var(--rankWidth))
+        repeat(3, var(--liftResultWidth))
+        repeat(var(--nbRanks), var(--rankWidth))
+        repeat(1, var(--liftResultWidth))
+        repeat(var(--nbRanks), var(--liftResultWidth));
+}
+
+/* grid layout */
+table.medals {
+    /* do not use all available vertical space */
+    flex: 0;
+    display: grid;
+    border-collapse: collapse;
+    grid-template-columns:
+        var(--startWidth) 
+        minmax(50px, 1fr) 
+        var(--categoryWidth)
+        var(--birthWidth)
+        minmax(50px, var(--teamColumnRatio))
+        repeat(3, var(--liftResultWidth)) 
+        repeat(var(--nbRanks), var(--rankWidth))
+        repeat(3, var(--liftResultWidth))
+        repeat(var(--nbRanks), var(--rankWidth))
+        repeat(1, var(--liftResultWidth))
+        repeat(var(--nbRanks), var(--liftResultWidth));
+}
+
+thead,
+tbody,
+tr {
+    display: contents;
+}
+
+th,
+td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    align-content: stretch;
+    padding-left: 0.2em;
+    padding-right: 2px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    margin: 0;
+}
+
+:host(.dark) table.results tr.head td,
+:host(.dark) table.results tr.head th {
+    position: sticky;
+    justify-content: center;
+    align-content: center;
+    font-weight: bold;
+    /* font-size: var(--tableFontSize); */
+    position: relative;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border: 1px solid;
+    background: #7b0000;
+    color: #ffffff;
+    border-color: #ffffff;
+}
+
+:host(.light) table.results tr.head td,
+:host(.light) table.results tr.head th {
+    position: sticky;
+    justify-content: center;
+    align-content: center;
+    font-weight: normal;
+    /* font-size: var(--tableFontSize); */
+    position: relative;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border: 1px solid;
+    background: var(--lightTitleBackgroundColor);
+    color: var(--lightTitleTextColor);
+    border-color: var(--lightTableBorders);
+}
+
+:host table.results tr.head td.leaderTitle {
+    grid-column: 1 / -1;
+    justify-content: left;
+    font-weight: bold;
+    background-color: #285b16;
+}
+
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+@keyframes changeColor {
+    0% {
+        background-color: var(--lightCurrentBackgroundColor);
+    }
+
+    49.9% {
+        background-color: var(--lightCurrentBackgroundColor);
+    }
+
+    50% {
+        color:black;
+        background-color: var(--lightBackgroundColor);
+    }
+
+    100% {
+        color:#00ff18;
+        background-color: var(--lightBackgroundColor);
+    }
+}
+
+/* top part formatting */
+.attemptBar {
+    display: flex;
+    font-size: var(--topRowFontSize);
+    justify-content: space-between;
+    width: 100%;
+    height: 4vmin;
+}
+
+.attemptBar .startNumber {
+    align-self: center;
+}
+
+.attemptBar .startNumber span {
+    font-size: 70%;
+    font-weight: bold;
+    border-width: 0.2ex;
+    border-style: solid;
+    border-color: var(--startNumberBoxColor);
+    width: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-self: center;
+}
+
+.attemptBar .athleteInfo {
+    display: flex;
+    font-size: 3.4vh;
+    justify-content: space-between;
+    align-items: baseline;
+    width: 100%;
+}
+
+.athleteInfo .fullName {
+    align-self: center;
+    font-weight: bold;
+    flex: 0 0 45%;
+    text-align: left;
+    flex-grow: 0.5;
+    color: var(--athleteNameColor);
+    font-size: var(--athleteNameFontSize)
+}
+
+.athleteInfo .clubName {
+    align-self: center;
+    font-size: 3vh;
+    color: var(--athleteTeamColor);
+}
+
+.athleteInfo .attempt {
+    align-self: center;
+    font-size: 3vh;
+    color: var(--athleteAttemptColor);
+}
+
+.athleteInfo .weight {
+    align-self: center;
+    font-size: 4vh;
+    color: var(--athleteAttemptWeightColor);
+    display: flex;
+    justify-content:
+    center;
+    align-items: baseline;
+    font-weight: bold;
+}
+
+.athleteInfo .timer {
+    flex: 0 0 12%;
+    text-align: right;
+    font-weight: bold;
+    width: 10vw;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.athleteInfo .decisionBox {
+    position: fixed;
+    top: 1vmin;
+    right: 2vmin;
+    width: 12vw;
+    height: 8vh;
+    background-color: var(--pageBackgroundColor);
+    display: none;
+}
+
+.group {
+    color: var(--groupInfoColor);
+    font-size: var(--groupInfoFontSize);
+    margin-top: 3vh;
+    margin-bottom: 2vh;
+}
+
+.breakTime {
+    /* color: #99CCFF; */
+    font-size: 5vh;
+    color: var(--breakTimerColor);
+}
+
+.athleteTimer {
+    font-size: 5vh;
+    color: var(--athleteTimerColor);
+}
+
+.hiddenTitle {
+    display: none;
+}
+
+.bigTitle {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.competitionName {
+    font-size: 5em;
+    color:#ffff00;
+     text-shadow: 10px 5px 5px #000;
+}
+
+.nextGroup {
+    font-size: 3em;
+    color:#00f900;
+     text-shadow: 5px 5px 5px #000;
+}
+
+.english {
+    font-size: 85%;
+}
+
+div.ellipsis {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* table sizes: 1024 projector */
+@media screen and (max-width: 1025px) and (max-height: 769px) {
+    .wrapper {
+        --tableFontSize: 0.1rem;
+    }
+
+    /*
+    table.results {
+        --rankWidth: 0;
+        --rankVisibility: hidden;
+
+    }
+    */
+}
+
+/* records light theme */
+:host(.light) .recordCell {
+    float: left;
+    width: var(--recordValueCellWidth);
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    text-align: center;
+    background-color: var(--lightRecordValueBackground);
+    color: var(--lightRecordValueText);
+}
+
+:host(.light) .recordLiftType {
+    float: left;
+    width: var(--recordValueCellWidth);
+    height: var(--recordTypeCellHeight);
+    text-align: center;
+    background-color: var(--lightRecordLiftTypeBackground);
+    color: var(--lightRecordLiftTypeText);
+    border-bottom: 1px solid var(--lightRecordBoxBorder);
+    font-weight: normal;
+    font-size: small;
+}
+
+:host(.light) .recordLiftTypeSpacer {
+    width: var(--recordValueCellWidth);
+    text-align: center;
+    background-color: var(--lightRecordLiftTypeBackground);
+    color: var(--lightRecordLiftTypeText);
+    font-weight: normal;
+    font-size: small;
+}
+
+:host(.light) .recordsFiller {
+    text-align: right;
+    height: calc(var(--recordValueCellHeight)*1.2);
+}
+
+:host(.light) .recordCat {
+    text-align: center;
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    background-color: var(--lightRecordBoxBackground);
+    color: var(--lightRecordBoxText);
+}
+
+:host(.light) .recordName {
+    text-align: right;
+    background-color: var(--lightRecordNameBackground);
+    color: var(--lightRecordNameText);
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+}
+
+:host(.light) .recordTitle {
+    text-align: right;
+    float: left;
+    background-color: var(--lightRecordNameBackground);
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    color: var(--lightRecordNameText);
+}
+
+:host(.light) .recordBox {
+    float: left;
+    border: 1px solid var(--lightRecordBoxBorder);
+    background-color: var(--lightRecordBoxBackground);
+    color: var(--lightRecordBoxText);
+}
+
+:host(.light) .highlight {
+    background-color: var(--lightRecordHighlightBackground) !important;
+    color: var(--lightRecordValueText) !important;
+}
+
+/* records dark theme */
+:host(.dark) .recordCell {
+    border: 1px solid white;
+    float: left;
+    width: var(--recordValueCellWidth);
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    text-align: center;
+    background-color: var(--darkRecordValueBackground);
+    color: var(--darkRecordValueText);
+}
+
+:host(.dark) .recordLiftType {
+    border: 1px solid white;
+    float: left;
+    width: var(--recordValueCellWidth);
+    text-align: center;
+    font-weight: bold;
+    background-color: #00053c;
+    color: yellow;
+    font-size: small;
+}
+
+:host(.dark) .recordLiftTypeSpacer {
+    width: var(--recordValueCellWidth);
+    text-align: center;
+    background-color: var(--darkRecordLiftTypeBackground);
+    color: var(--darkRecordLiftTypeText);
+    font-weight: normal;
+    font-size: 0em;
+}
+
+:host(.dark) .recordsFiller {
+    text-align: right;
+    height: calc(var(--recordValueCellHeight)*1.2);
+}
+
+:host(.dark) .recordCat {
+    border-bottom: 1px solid black;
+    text-align: center;
+    font-weight: bold;
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    background-color: aqua;
+    color: black;
+}
+
+:host(.dark) .recordName {
+    font-size: 1.1em;
+    font-weight: bold;
+    text-align: right;
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    background-color: var(--darkRecordNameBackground);
+    color: #00ff00;
+}
+
+:host(.dark) .recordTitle {
+    font-size: 2em;
+    text-align: right;
+    height: var(--recordValueCellHeight);
+    line-height: var(--recordValueCellHeight);
+    background-color: var(--darkRecordNameBackground);
+    color: #02ffff;
+}
+
+:host(.dark) .recordBox {
+    float: left;
+    border: 2px solid;
+    background-color: var(--darkRecordBoxBackground);
+    color: var(--darkRecordBoxText);
+}
+
+:host(.dark) .highlight {
+    font-weight: bold;
+    background-color: yellow !important;
+    color: black !important;
+}

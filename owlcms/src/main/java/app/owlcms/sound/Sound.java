@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.sound;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import javax.sound.sampled.AudioInputStream;
@@ -38,7 +39,12 @@ public class Sound {
     public Sound(Mixer mixer, String soundRelativeURL) throws IllegalArgumentException {
         this.mixer = mixer;
         this.soundURL = SOUND_PREFIX + soundRelativeURL;
-        this.resource = ResourceWalker.getResourceAsStream(soundURL);
+        try {
+            this.resource = ResourceWalker.getResourceAsStream(soundURL);
+        } catch (FileNotFoundException e) {
+            logger.error("cannot find sound {}", soundURL);
+            this.resource = null;
+        }
     }
 
     public synchronized void emit() {

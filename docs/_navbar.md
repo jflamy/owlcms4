@@ -16,6 +16,7 @@
   * [Refereeing](Refereeing)
   * [Jury](Jury)
   * [Breaks and Ceremonies](Breaks)
+  * [Records](Records)
   * [Result Documents](Documents)
   
 * Virtual Competitions
@@ -24,21 +25,20 @@
   * [Running a Virtual Competition](Zoom)
   * [Optional Modified Competition Rules](ModifiedRules)
   * [Preparing the Zoom Setup](PrepareZoomBroadcasting)
-  
   * [Preparing the Video Setup](OBS)
   * [Live Streaming Events](Streaming)
   * [Automatic Scene Switching](OBSSceneSwitching)
   
 * Advanced
-
   * [Updating Cloud-based Applications](UpdatingCloudApplications)
   * [Customization](UploadingLocalSettings)
+  * [Changing Scoreboard Colors](Styles)
   * [Excel Template Variables](TemplateVariables)
   * [Translations](Translation)
   * [Configuration Parameters](Configuration)
   * [Simulation and Load Testing](Simulation)
   * [MQTT Server Configuration](MQTT)
-  * [Using PostgreSQL](PostgreSQL) 
+  * [Using PostgreSQL](PostgreSQL)
   * [Contributing to the code](Gitpod)
 
 * Downloads
