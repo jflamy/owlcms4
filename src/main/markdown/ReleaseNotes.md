@@ -1,5 +1,9 @@
 ## **Changes for release ${revision}**
 
+- 4.33.0-rc02: fixed exception for registration template
+
+#### Changes for 4.33
+
 - Records
   - Records are shown if record definition Excel spreadsheets are present in the local/records directory.  See the following folder for examples: [Sample Record Files](https://www.dropbox.com/sh/sbr804kqfwkgs6g/AAAEcT2sih9MmnrpYzkh6Erma?dl=0) . 
   - Records definitions are read when the program starts.  Records set during the competition are updated on the scoreboard, but the Excel files need to be updated manually to reflect the official federation records.
