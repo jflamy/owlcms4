@@ -1,6 +1,4 @@
-## **Changes for release ${revision}**
-
-- 4.33.0-rc02: fixed exception for registration template
+## **Release ${revision}**
 
 #### Changes for 4.33
 
