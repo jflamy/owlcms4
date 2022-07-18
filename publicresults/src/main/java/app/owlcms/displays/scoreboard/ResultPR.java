@@ -46,7 +46,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
-import elemental.json.JsonValue;
 import elemental.json.impl.JreJsonFactory;
 
 /**
@@ -57,6 +56,7 @@ import elemental.json.impl.JreJsonFactory;
  */
 @Tag("resultsPR-template")
 @JsModule("./components/ResultsPR.js")
+@JsModule("./components/AudioContext.js")
 @Route("displays/resultsLeader")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push

@@ -352,6 +352,21 @@ public class ResourceWalker {
             throw new RuntimeException("cannot create directory ", e);
         }
     }
+    
+    public static synchronized Path createLocalRealDir() {
+        Path f = null;
+        try {
+            f = Files.createTempDirectory("config");
+            logger.trace("created temp directory " + f);
+            setLocalDirPath(f);
+            setInitializedLocalDir(true);
+            logger.info("new temporary directory {}", getLocalDirPath().normalize());
+            return f;
+        } catch (IOException e) {
+            throw new RuntimeException("cannot create directory ", e);
+        }
+    }
+
 
     public static boolean isInitializedLocalDir() {
         return initializedLocalDir;

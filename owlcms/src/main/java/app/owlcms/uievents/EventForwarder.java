@@ -743,7 +743,7 @@ public class EventForwarder implements BreakDisplay {
                 } catch (FileNotFoundException e) {
                     throw new RuntimeException(e);
                 }
-                builder.addBinaryBody("reusults", inputStream, ContentType.create("text/css"), "results.css");
+                builder.addBinaryBody("results", inputStream, ContentType.create("text/css"), "results.css");
                 
                 try {
                     inputStream = ResourceWalker.getFileOrResource("/styles/colors.css");

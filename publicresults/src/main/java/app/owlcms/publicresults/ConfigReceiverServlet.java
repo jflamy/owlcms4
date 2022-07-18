@@ -113,10 +113,13 @@ public class ConfigReceiverServlet extends HttpServlet {
     private void copyFile(FileItem item) throws IOException {
         Path localDirPath = ResourceWalker.getLocalDirPath();
         if (localDirPath == null) {
-            localDirPath = ResourceWalker.createLocalDir();
+            localDirPath = ResourceWalker.createLocalRealDir(); //FIXME
         }
+        Path name = localDirPath.resolve("styles/"+item.getName());
+        Files.createDirectories(name.getParent());
         try (InputStream uploadedStream = item.getInputStream();
-                OutputStream out = Files.newOutputStream(localDirPath.resolve(item.getName()))) {
+                OutputStream out = Files.newOutputStream(name)) {
+            logger.warn("copying to abs {}",name.toAbsolutePath());
             IOUtils.copy(uploadedStream, out);
             out.close();
         }
