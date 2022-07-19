@@ -7,7 +7,6 @@
 package app.owlcms.uievents;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
@@ -113,6 +112,7 @@ public class EventForwarder implements BreakDisplay {
 
     private Integer weight;
     private boolean wideTeamNames;
+    private String noLiftRanks;
 
     public EventForwarder(FieldOfPlay emittingFop) {
         this.setFop(emittingFop);
@@ -495,7 +495,16 @@ public class EventForwarder implements BreakDisplay {
         } else {
             setGroupAthletes(null);
         }
+        if (Competition.getCurrent().isSinclair()) {
+            setNoLiftRanks("sinclair");
+        } else if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
+            setNoLiftRanks("noranks");
+        }
         computeLeaders();
+    }
+
+    private void setNoLiftRanks(String string) {
+        this.noLiftRanks = string;
     }
 
     private void computeLeaders() {
@@ -648,6 +657,7 @@ public class EventForwarder implements BreakDisplay {
         mapPut(sb, "liftsDone", getLiftsDone());
 
         // bottom tables
+        mapPut(sb, "noLiftRanks", noLiftRanks);
         if (groupAthletes != null) {
             mapPut(sb, "groupAthletes", groupAthletes.toJson());
         }
@@ -693,6 +703,8 @@ public class EventForwarder implements BreakDisplay {
         pushUpdate();
     }
 
+    public static final Object singleThreadLock = new Object();
+
     private void doPost(String url, Map<String, String> parameters) {
         HttpPost post = new HttpPost(url);
         // add request parameters or form parameters
@@ -702,33 +714,38 @@ public class EventForwarder implements BreakDisplay {
 
         boolean done = false;
         int nbTries = 0;
-        // send post.  if missing config, we send it back, and try again one more time
+        // send post. if missing config, we send it back, and try again one more time
         while (!done && nbTries <= 1) {
             try {
                 post.setEntity(new UrlEncodedFormEntity(urlParameters, "UTF-8"));
-                logger.warn("posting update");
+                logger.warn("{}posting update", getFop().getLoggingName());
                 try (CloseableHttpClient httpClient = HttpClients.createDefault();
                         CloseableHttpResponse response = httpClient.execute(post)) {
                     StatusLine statusLine = response.getStatusLine();
                     Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
                     if (statusCode != null && statusCode != 200) {
-                        logger.error("could not post to {} {} {}", url, statusLine, LoggerUtils.whereFrom(1));
-                        if (nbTries == 0 && statusCode != null && statusCode == 412) {
-                            sendConfig(parameters.get("updateKey"));
-                            nbTries++;
-                        } else {
-                            done = true;
+                        logger.error("{}could not post to {} {} {}", getFop().getLoggingName(), url, statusLine,
+                                LoggerUtils.whereFrom(1));
+                        synchronized (singleThreadLock) {
+                            if (nbTries == 0 && statusCode != null && statusCode == 412) {
+                                sendConfig(parameters.get("updateKey"));
+                                nbTries++;
+                            } else {
+                                done = true;
+                            }
                         }
                     } else {
                         done = true;
                     }
                 } catch (Exception e1) {
-                    logger.error("could not post to {} {}", url, LoggerUtils.exceptionMessage(e1));
+                    logger.error("{}could not post to {} {}", getFop().getLoggingName(), url,
+                            LoggerUtils.exceptionMessage(e1));
                     done = true;
                 }
             } catch (UnsupportedEncodingException e2) {
                 // can't happen.
-                logger.error("could not post to {} {}", url, LoggerUtils.exceptionMessage(e2));
+                logger.error("{}could not post to {} {}", getFop().getLoggingName(), url,
+                        LoggerUtils.exceptionMessage(e2));
                 done = true;
             }
         }
@@ -737,7 +754,7 @@ public class EventForwarder implements BreakDisplay {
     private void sendConfig(String updateKey) {
         String destination = Config.getCurrent().getParamPublicResultsURL() + "/config";
         try {
-            logger.warn("sending config");
+            logger.warn("{}sending config", getFop().getLoggingName());
 
             Supplier<byte[]> localZipBlobSupplier = ResourceWalker.getLocalZipBlobSupplier();
             byte[] blob = null;
@@ -775,15 +792,17 @@ public class EventForwarder implements BreakDisplay {
                 StatusLine statusLine = response.getStatusLine();
                 Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
                 if (statusCode != null && statusCode != 200) {
-                    logger.error("could not send config to {} {} {}", destination, statusLine,
+                    logger.error("{}could not send config to {} {} {}", getFop().getLoggingName(), destination,
+                            statusLine,
                             LoggerUtils.whereFrom(1));
                 }
                 EntityUtils.toString(response.getEntity());
             } catch (Exception e1) {
-                logger.error("could not send config to {} {}", destination, LoggerUtils.exceptionMessage(e1));
+                logger.error("{}could not send config to {} {}", getFop().getLoggingName(), destination,
+                        LoggerUtils.exceptionMessage(e1));
             }
         } catch (Exception e2) {
-            logger.error("could not send config to {} {}", destination, e2);
+            logger.error("{}could not send config to {} {}", getFop().getLoggingName(), destination, e2);
         }
     }
 
@@ -1004,12 +1023,8 @@ public class EventForwarder implements BreakDisplay {
         if (decisionUrl == null) {
             return;
         }
-        try {
-            logger.trace("pushing {}", det);
-            sendPost(decisionUrl, createDecision(det));
-        } catch (IOException e) {
-            logger./**/warn("cannot push: {} {}", decisionUrl, e.getMessage());
-        }
+        logger.trace("pushing {}", det);
+        sendPost(decisionUrl, createDecision(det));
     }
 
     private void pushTimer(UIEvent e) {
@@ -1017,11 +1032,7 @@ public class EventForwarder implements BreakDisplay {
         if (timerUrl == null) {
             return;
         }
-        try {
-            sendPost(timerUrl, createTimer(e));
-        } catch (IOException ex) {
-            logger./**/warn("cannot push: {} {}", timerUrl, ex.getMessage());
-        }
+        sendPost(timerUrl, createTimer(e));
     }
 
     private void pushUpdate() {
@@ -1030,14 +1041,10 @@ public class EventForwarder implements BreakDisplay {
         if (updateUrl == null) {
             return;
         }
-        try {
-            sendPost(updateUrl, createUpdate());
-        } catch (IOException e) {
-            logger./**/warn("cannot push: {} {}", updateUrl, e.getMessage());
-        }
+        sendPost(updateUrl, createUpdate());
     }
 
-    private void sendPost(String url, Map<String, String> parameters) throws IOException {
+    private void sendPost(String url, Map<String, String> parameters) {
 
         long deltaMillis = System.currentTimeMillis() - previousMillis;
         int hashCode = parameters.hashCode();
