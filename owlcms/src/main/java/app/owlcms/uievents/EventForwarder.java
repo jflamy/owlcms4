@@ -700,25 +700,37 @@ public class EventForwarder implements BreakDisplay {
         parameters.entrySet().stream()
                 .forEach((e) -> urlParameters.add(new BasicNameValuePair(e.getKey(), e.getValue())));
 
-        try {
-            post.setEntity(new UrlEncodedFormEntity(urlParameters, "UTF-8"));
-            try (CloseableHttpClient httpClient = HttpClients.createDefault();
-                    CloseableHttpResponse response = httpClient.execute(post)) {
-                StatusLine statusLine = response.getStatusLine();
-                Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
-                if (statusCode != null && statusCode != 200) {
-                    logger.error("could not post to {} {} {}", url, statusLine, LoggerUtils.whereFrom(1));
+        boolean done = false;
+        int nbTries = 0;
+        // send post.  if missing config, we send it back, and try again one more time
+        while (!done && nbTries <= 1) {
+            try {
+                post.setEntity(new UrlEncodedFormEntity(urlParameters, "UTF-8"));
+                logger.warn("posting update");
+                try (CloseableHttpClient httpClient = HttpClients.createDefault();
+                        CloseableHttpResponse response = httpClient.execute(post)) {
+                    StatusLine statusLine = response.getStatusLine();
+                    Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
+                    if (statusCode != null && statusCode != 200) {
+                        logger.error("could not post to {} {} {}", url, statusLine, LoggerUtils.whereFrom(1));
+                        if (nbTries == 0 && statusCode != null && statusCode == 412) {
+                            sendConfig(parameters.get("updateKey"));
+                            nbTries++;
+                        } else {
+                            done = true;
+                        }
+                    } else {
+                        done = true;
+                    }
+                } catch (Exception e1) {
+                    logger.error("could not post to {} {}", url, LoggerUtils.exceptionMessage(e1));
+                    done = true;
                 }
-                if (statusCode != null && statusCode == 412) {
-                    sendConfig(parameters.get("updateKey"));
-                }
-                EntityUtils.toString(response.getEntity());
-            } catch (Exception e1) {
-                logger.error("could not post to {} {}", url, LoggerUtils.exceptionMessage(e1));
+            } catch (UnsupportedEncodingException e2) {
+                // can't happen.
+                logger.error("could not post to {} {}", url, LoggerUtils.exceptionMessage(e2));
+                done = true;
             }
-        } catch (UnsupportedEncodingException e2) {
-            // can't happen.
-            logger.error("could not post to {} {}", url, LoggerUtils.exceptionMessage(e2));
         }
     }
 
@@ -744,7 +756,7 @@ public class EventForwarder implements BreakDisplay {
                     throw new RuntimeException(e);
                 }
                 builder.addBinaryBody("results", inputStream, ContentType.create("text/css"), "results.css");
-                
+
                 try {
                     inputStream = ResourceWalker.getFileOrResource("/styles/colors.css");
                 } catch (FileNotFoundException e) {

@@ -60,10 +60,10 @@ import elemental.json.impl.JreJsonFactory;
 @Route("displays/resultsLeader")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class ResultPR extends PolymerTemplate<TemplateModel>
+public class ResultsPR extends PolymerTemplate<TemplateModel>
         implements QueryParameterReader, DarkModeParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultPR.class);
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsPR.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     static {
@@ -92,7 +92,7 @@ public class ResultPR extends PolymerTemplate<TemplateModel>
     /**
      * Instantiates a new results board.
      */
-    public ResultPR() {
+    public ResultsPR() {
         setDarkMode(true);
     }
 
@@ -233,7 +233,7 @@ public class ResultPR extends PolymerTemplate<TemplateModel>
                 this.getElement().setProperty("leaderLines", leaderList.length()+1);
             } else {
                 this.getElement().setPropertyJson("leaders", Json.createNull());
-                this.getElement().setProperty("leaderLines", 0);
+                this.getElement().setProperty("leaderLines", 1);
             }
             
             if (athletes != null) {
@@ -242,7 +242,7 @@ public class ResultPR extends PolymerTemplate<TemplateModel>
                 this.getElement().setProperty("resultLines", athleteList.length()+1);
             } else {
                 this.getElement().setPropertyJson("athletes", Json.createNull());
-                this.getElement().setProperty("resultLines", 0);
+                this.getElement().setProperty("resultLines", 1);
             }
 
             this.getElement().setPropertyJson("t",

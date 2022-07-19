@@ -26,7 +26,7 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.displays.scoreboard.ResultPR;
+import app.owlcms.displays.scoreboard.ResultsPR;
 import app.owlcms.i18n.Translator;
 import app.owlcms.uievents.UpdateEvent;
 import app.owlcms.utils.URLUtils;
@@ -109,7 +109,7 @@ public class MainView extends VerticalLayout {
         fopNames.stream().sorted().forEach(fopName -> {
             Button fopButton = new Button(getTranslation("Platform") + " " + fopName,
                     buttonClickEvent -> {
-                        String url = URLUtils.getRelativeURLFromTargetClass(ResultPR.class);
+                        String url = URLUtils.getRelativeURLFromTargetClass(ResultsPR.class);
                         HashMap<String, List<String>> params = new HashMap<>();
                         params.put("fop", Arrays.asList(fopName));
                         QueryParameters parameters = new QueryParameters(params);
