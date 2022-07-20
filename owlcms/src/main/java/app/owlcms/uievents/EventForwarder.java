@@ -376,6 +376,8 @@ public class EventForwarder implements BreakDisplay {
             computeCurrentGroup(g);
             // wait until next event.
             return;
+        } else {
+            computeCurrentGroup(g);
         }
         if (g == null) {
             setHidden(true);
@@ -739,7 +741,6 @@ public class EventForwarder implements BreakDisplay {
         while (!done && nbTries <= 1) {
             try {
                 post.setEntity(new UrlEncodedFormEntity(urlParameters, "UTF-8"));
-                logger.warn("{}posting update", getFop().getLoggingName());
                 try (CloseableHttpClient httpClient = HttpClients.createDefault();
                         CloseableHttpResponse response = httpClient.execute(post)) {
                     StatusLine statusLine = response.getStatusLine();
@@ -924,6 +925,7 @@ public class EventForwarder implements BreakDisplay {
 
             jri.put("goodBadClassName", "narrow empty");
             jri.put("stringValue", "");
+            logger.warn("{} {} {}",x.getAttemptsDone(), i.getLiftNo(), i.getChangeNo(), i.getValue());
             if (i.getChangeNo() >= 0) {
                 String trim = stringValue != null ? stringValue.trim() : "";
                 switch (Changes.values()[i.getChangeNo()]) {
@@ -1066,7 +1068,7 @@ public class EventForwarder implements BreakDisplay {
     }
 
     private void sendPost(String url, Map<String, String> parameters) {
-
+        logger.warn("{}posting update {}", getFop().getLoggingName(), LoggerUtils.whereFrom());
         long deltaMillis = System.currentTimeMillis() - previousMillis;
         int hashCode = parameters.hashCode();
         // debounce, sometimes several identical updates in a rapid succession
