@@ -123,8 +123,12 @@ public class UpdateReceiverServlet extends HttpServlet {
             String weight = req.getParameter("weight");
             updateEvent.setWeight(weight != null ? Integer.parseInt(weight) : null);
 
+            updateEvent.setNoLiftRanks(req.getParameter("noLiftRanks"));
             updateEvent.setAthletes(req.getParameter("groupAthletes"));
             updateEvent.setLeaders(req.getParameter("leaders"));
+            updateEvent.setRecords(req.getParameter("records"));
+            updateEvent.setRecordKind(req.getParameter("recordKind"));
+            updateEvent.setRecordMessage(req.getParameter("recordMessage"));
             updateEvent.setLiftsDone(req.getParameter("liftsDone"));
 
             updateEvent.setWideTeamNames(Boolean.parseBoolean(req.getParameter("wideTeamNames")));

@@ -18,6 +18,8 @@ public class DecisionEvent {
     private DecisionEventType eventType;
     private boolean done;
     private String groupName;
+    private String recordKind;
+    private String recordMessage;
 
     public DecisionEvent() {
     }
@@ -44,6 +46,14 @@ public class DecisionEvent {
 
     public String getGroupName() {
         return groupName;
+    }
+
+    public String getRecordKind() {
+        return recordKind;
+    }
+
+    public String getRecordMessage() {
+        return recordMessage;
     }
 
     public boolean isBreak() {
@@ -100,6 +110,14 @@ public class DecisionEvent {
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
+    }
+
+    public void setRecordKind(String recordKind) {
+        this.recordKind = recordKind;
+    }
+
+    public void setRecordMessage(String recordMessage) {
+        this.recordMessage = recordMessage;
     }
 
 }

@@ -278,7 +278,7 @@ class Results extends PolymerElement {
     }
 
     down() {
-        console.debug("refereeDecision");
+        console.debug("down");
         this.$.groupDiv.style.visibility = "visible";
         this.$.startNumberDiv.style.display = "flex";
         this.$.teamNameDiv.style.display = "flex";

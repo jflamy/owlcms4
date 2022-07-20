@@ -46,6 +46,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
+import elemental.json.JsonObject;
 import elemental.json.impl.JreJsonFactory;
 
 /**
@@ -169,7 +170,7 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
             // event is not for us
             return;
         }
-        logger.debug("### received DecisionEvent {}", e.getEventType());
+        logger.warn("### Results received DecisionEvent {}", e.getEventType());
         DecisionEventType eventType = e.getEventType();
         switch (eventType) {
         case DOWN_SIGNAL:
@@ -200,6 +201,8 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
             ui.access(() -> {
                 setHidden(false);
                 this.getElement().callJsFunction("refereeDecision");
+                this.getElement().setProperty("recordKind", e.getRecordKind());
+                this.getElement().setProperty("recordMessage", e.getRecordMessage());
             });
             break;
         default:
@@ -222,31 +225,43 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
         ui.access(() -> {
             String athletes = e.getAthletes();
             String leaders = e.getLeaders();
+            String records = e.getRecords();
             String translationMap = e.getTranslationMap();
 
             JreJsonFactory jreJsonFactory = new JreJsonFactory();
 
-
-            if (leaders != null) {
-                JsonArray leaderList = (JsonArray) jreJsonFactory.parse(leaders);
-                this.getElement().setPropertyJson("leaders", leaderList);
-                this.getElement().setProperty("leaderLines", leaderList.length()+1);
-            } else {
-                this.getElement().setPropertyJson("leaders", Json.createNull());
-                this.getElement().setProperty("leaderLines", 1);
-            }
-            
             if (athletes != null) {
                 JsonArray athleteList = (JsonArray) jreJsonFactory.parse(athletes);
-                this.getElement().setPropertyJson("athletes",athleteList);
-                this.getElement().setProperty("resultLines", athleteList.length()+1);
+                this.getElement().setPropertyJson("athletes", athleteList);
+                this.getElement().setProperty("resultLines", athleteList.length() + 1);
             } else {
                 this.getElement().setPropertyJson("athletes", Json.createNull());
                 this.getElement().setProperty("resultLines", 1);
             }
 
+            if (leaders != null) {
+                JsonArray leaderList = (JsonArray) jreJsonFactory.parse(leaders);
+                this.getElement().setPropertyJson("leaders", leaderList);
+                this.getElement().setProperty("leaderLines", leaderList.length() + 1);
+            } else {
+                this.getElement().setPropertyJson("leaders", Json.createNull());
+                this.getElement().setProperty("leaderLines", 1);
+            }
+
+            if (records != null) {
+                logger.warn("records = {}", records);
+                JsonObject recordList = (JsonObject) jreJsonFactory.parse(records);
+                this.getElement().setPropertyJson("records", recordList);
+                this.getElement().setProperty("recordKind", e.getRecordKind());
+                this.getElement().setProperty("recordMessage", e.getRecordMessage());
+            } else {
+                this.getElement().setPropertyJson("records", Json.createNull());
+            }
+
             this.getElement().setPropertyJson("t",
                     translationMap != null ? jreJsonFactory.parse(translationMap) : Json.createNull());
+
+            getElement().setProperty("noLiftRanks", e.getNoLiftRanks());
 
             getElement().setProperty("competitionName", e.getCompetitionName());
             getElement().setProperty("attempt", e.getAttempt());
@@ -382,7 +397,7 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
         this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
         this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
     }
-    
+
     private void setWideTeamNames(boolean wide) {
         this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
     }
