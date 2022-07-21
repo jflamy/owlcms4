@@ -1,6 +1,10 @@
 ## **Changes for release ${revision}**
 
-- 4.33.0-rc02: fixed exception for registration template
+##### Changes since last pre-release
+
+- 4.33.1-alpha00: Shared styling between owlcms and publicresults.
+  - publicresults scoreboard now uses the same colors.css and results.css stylesheets as owlcms.  owlcms sends the exact files it is using for itself
+  - Priority order: 1. css in an uploaded zip,  2. css in local/styles,  3. css found in owlcms distribution. 
 
 #### Changes for 4.33
 
