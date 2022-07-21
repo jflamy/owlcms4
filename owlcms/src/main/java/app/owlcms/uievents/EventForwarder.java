@@ -855,12 +855,22 @@ public class EventForwarder implements BreakDisplay {
         } else {
             logger.error("main rankings null for {}", a);
         }
+        if (a.getSinclairForDelta() != null) {
+            ja.put("sinclair", formatSinclair(a.getSinclairForDelta()));
+        }
+        if (a.getSinclairRank() != null) {
+            ja.put("sinclairRank", formatInt(a.getSinclairRank()));
+        }
         ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
         if (notDone) {
             ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
         }
+    }
+
+    private String formatSinclair(Double sinclairForDelta) {
+        return sinclairForDelta > 0.001 ? String.format("%01.3f", sinclairForDelta) : "-";
     }
 
     /**
