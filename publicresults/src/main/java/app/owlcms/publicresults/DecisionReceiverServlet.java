@@ -101,7 +101,7 @@ public class DecisionReceiverServlet extends HttpServlet {
         decisionEvent.setDown(Boolean.valueOf(req.getParameter("down")));
         decisionEvent.setFopName(req.getParameter("fop"));
         decisionEvent.setRecordKind(req.getParameter("recordKind"));
-        decisionEvent.setRecordKind(req.getParameter("recordName"));
+        decisionEvent.setRecordMessage(req.getParameter("recordMessage"));
 
         String fopName = decisionEvent.getFopName();
 
