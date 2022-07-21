@@ -63,6 +63,7 @@
     flex-direction: column;
     flex-wrap: no-wrap;
     justify-content: flex-start;
+    line-height: unset;
 }
 
 /* table general parameters */

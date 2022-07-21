@@ -26,7 +26,7 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.displays.scoreboard.ScoreWithLeaders;
+import app.owlcms.displays.scoreboard.ResultsPR;
 import app.owlcms.i18n.Translator;
 import app.owlcms.uievents.UpdateEvent;
 import app.owlcms.utils.URLUtils;
@@ -89,8 +89,8 @@ public class MainView extends VerticalLayout {
             Map<String, String> parameterMap = new HashMap<>();
             String fop = fopNames.stream().findFirst().get();
             parameterMap.put("FOP", fop);
-            // ui.navigate("displays/scoreleader", QueryParameters.simple(parameterMap));
-            ui.getPage().executeJs("window.location.href='displays/scoreleader?fop=" + fop + "'");
+            // ui.navigate("displays/resultsLeader", QueryParameters.simple(parameterMap));
+            ui.getPage().executeJs("window.location.href='displays/resultsLeader?fop=" + fop + "'");
         } else {
             createButtons(fopNames);
         }
@@ -109,7 +109,7 @@ public class MainView extends VerticalLayout {
         fopNames.stream().sorted().forEach(fopName -> {
             Button fopButton = new Button(getTranslation("Platform") + " " + fopName,
                     buttonClickEvent -> {
-                        String url = URLUtils.getRelativeURLFromTargetClass(ScoreWithLeaders.class);
+                        String url = URLUtils.getRelativeURLFromTargetClass(ResultsPR.class);
                         HashMap<String, List<String>> params = new HashMap<>();
                         params.put("fop", Arrays.asList(fopName));
                         QueryParameters parameters = new QueryParameters(params);

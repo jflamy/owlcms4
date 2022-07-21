@@ -45,6 +45,8 @@ import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
 import elemental.json.impl.JreJsonFactory;
 
 /**
@@ -53,65 +55,16 @@ import elemental.json.impl.JreJsonFactory;
  * Show athlete 6-attempt results
  *
  */
-@Tag("scoreleader-template")
-@JsModule("./components/ScoreWithLeaders.js")
-@Route("displays/scoreleader")
+@Tag("resultsPR-template")
+@JsModule("./components/ResultsPR.js")
+@JsModule("./components/AudioContext.js")
+@Route("displays/resultsLeader")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.ScoreboardModel>
+public class ResultsPR extends PolymerTemplate<TemplateModel>
         implements QueryParameterReader, DarkModeParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
 
-    /**
-     * ScoreboardModel
-     *
-     * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties. When the JS
-     * properties are changed, a "propname-changed" event is triggered.
-     * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
-     *
-     */
-    public interface ScoreboardModel extends TemplateModel {
-        String getAttempt();
-
-        String getCategoryName();
-
-        String getCompetitionName();
-
-        String getFullName();
-
-        Integer getStartNumber();
-
-        String getTeamName();
-
-        Integer getWeight();
-
-//        Boolean isHidden();
-
-        Boolean isWideTeamNames();
-
-        void setAttempt(String formattedAttempt);
-
-        void setCategoryName(String categoryName);
-
-        void setCompetitionName(String competitionName);
-
-        void setFullName(String lastName);
-
-        void setGroupName(String name);
-
-//        void setHidden(boolean b);
-
-        void setLiftsDone(String formattedDone);
-
-        void setStartNumber(Integer integer);
-
-        void setTeamName(String teamName);
-
-        void setWeight(Integer weight);
-
-        void setWideTeamNames(boolean b);
-    }
-
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(ScoreWithLeaders.class);
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsPR.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     static {
@@ -140,7 +93,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     /**
      * Instantiates a new results board.
      */
-    public ScoreWithLeaders() {
+    public ResultsPR() {
         setDarkMode(true);
     }
 
@@ -217,7 +170,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             // event is not for us
             return;
         }
-        logger.debug("### received DecisionEvent {}", e.getEventType());
+        //logger.debug("### Results received DecisionEvent {} {} {}", e.getEventType(), e.getRecordKind(), e.getRecordMessage());
         DecisionEventType eventType = e.getEventType();
         switch (eventType) {
         case DOWN_SIGNAL:
@@ -248,6 +201,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             ui.access(() -> {
                 setHidden(false);
                 this.getElement().callJsFunction("refereeDecision");
+                this.getElement().setProperty("recordKind", e.getRecordKind());
+                this.getElement().setProperty("recordMessage", e.getRecordMessage());
             });
             break;
         default:
@@ -266,33 +221,63 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             return;
         }
         String fopState = e.getFopState();
+        BreakType breakType = e.getBreakType();
 
         ui.access(() -> {
             String athletes = e.getAthletes();
             String leaders = e.getLeaders();
+            String records = e.getRecords();
             String translationMap = e.getTranslationMap();
 
             JreJsonFactory jreJsonFactory = new JreJsonFactory();
-            this.getElement().setPropertyJson("leaders",
-                    leaders != null ? jreJsonFactory.parse(leaders) : Json.createNull());
-            this.getElement().setPropertyJson("athletes",
-                    athletes != null ? jreJsonFactory.parse(athletes) : Json.createNull());
+
+            if (athletes != null) {
+                JsonArray athleteList = (JsonArray) jreJsonFactory.parse(athletes);
+                this.getElement().setPropertyJson("athletes", athleteList);
+                this.getElement().setProperty("resultLines", athleteList.length() + 1);
+            } else {
+                this.getElement().setPropertyJson("athletes", Json.createNull());
+                this.getElement().setProperty("resultLines", 1);
+            }
+
+            if (leaders != null && breakType != BreakType.GROUP_DONE) {
+                JsonArray leaderList = (JsonArray) jreJsonFactory.parse(leaders);
+                this.getElement().setPropertyJson("leaders", leaderList);
+                this.getElement().setProperty("leaderLines", leaderList.length() + 1);
+            } else {
+                this.getElement().setPropertyJson("leaders", Json.createNull());
+                this.getElement().setProperty("leaderLines", 1);
+            }
+
+            if (records != null) {
+                //logger.debug("records = {}", records);
+                JsonObject recordList = (JsonObject) jreJsonFactory.parse(records);
+                this.getElement().setPropertyJson("records", recordList);
+                this.getElement().setProperty("recordKind", e.getRecordKind());
+                this.getElement().setProperty("recordMessage", e.getRecordMessage());
+            } else {
+                //logger.debug("null records = {}", records);
+                this.getElement().setPropertyJson("records", Json.createNull());
+            }
+
             this.getElement().setPropertyJson("t",
                     translationMap != null ? jreJsonFactory.parse(translationMap) : Json.createNull());
 
-            getModel().setCompetitionName(e.getCompetitionName());
-            getModel().setAttempt(e.getAttempt());
-            getModel().setFullName(e.getFullName());
+            getElement().setProperty("noLiftRanks", e.getNoLiftRanks());
+
+            getElement().setProperty("competitionName", e.getCompetitionName());
+            getElement().setProperty("attempt", e.getAttempt());
+            getElement().setProperty("fullName", e.getFullName());
             String groupName = e.getGroupName();
-            getModel().setGroupName(groupName);
+            getElement().setProperty("groupName", groupName);
             setHidden(e.getHidden());
-            getModel().setStartNumber(e.getStartNumber());
-            getModel().setTeamName(e.getTeamName());
-            getModel().setWeight(e.getWeight());
-            getModel().setCategoryName(e.getCategoryName());
+            getElement().setProperty("startNumber", e.getStartNumber());
+            getElement().setProperty("teamName", e.getTeamName());
+            getElement().setProperty("weight", e.getWeight() != null ? e.getWeight() : 0);
+            getElement().setProperty("categoryName", e.getCategoryName());
             setWideTeamNames(e.getWideTeamNames());
             String liftsDone = e.getLiftsDone();
-            getModel().setLiftsDone(liftsDone);
+            getElement().setProperty("liftsDone", liftsDone);
 
             if (StartupUtils.isDebugSetting()) {
                 logger./**/warn("### state {} {}", fopState, e.getBreakType());
@@ -345,8 +330,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             slaveGlobalRankingUpdated(initEvent);
             timer.slaveOrderUpdated(initEvent);
         } else {
-            getModel().setFullName(Translator.translate("WaitingForSite"));
-            getModel().setGroupName("");
+            getElement().setProperty("fulName", Translator.translate("WaitingForSite"));
+            getElement().setProperty("groupName", "");
             getElement().callJsFunction("groupDone");
         }
     }
@@ -373,8 +358,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         if (str == null) {
             doEmpty();
         } else {
-//            getModel().setFullName(getTranslation("Group_number_results", groupName));
-            getModel().setFullName(str);
+            getElement().setProperty("fullName", str);
             this.getElement().callJsFunction("groupDone");
         }
     }
@@ -409,8 +393,10 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     }
 
     private void setHidden(boolean hidden) {
-        this.getElement().setProperty("hiddenStyle", (hidden ? "display:none" : "display:block"));
-        this.getElement().setProperty("inactiveStyle", (hidden ? "display:block" : "display:none"));
+        this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
+        this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
+        this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
+        this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
         this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
     }
 

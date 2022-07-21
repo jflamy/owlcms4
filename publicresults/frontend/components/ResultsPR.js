@@ -8,7 +8,7 @@ import { PolymerElement, html } from "@polymer/polymer/polymer-element.js";
 
 class Results extends PolymerElement {
     static get is() {
-        return "results-template";
+        return "resultspr-template";
     }
 
     static get template() {
@@ -41,7 +41,7 @@ class Results extends PolymerElement {
                 <timer-element id="breakTimer"></timer-element>
             </div>
             <div class="decisionBox" id="decisionDiv">
-                <decision-element style="width: 100%" id="decisions"></decision-element>
+                <decision-element-pr style="width: 100%" id="decisions"></decision-element-pr>
             </div>
         </div>
     </div>
@@ -278,7 +278,7 @@ class Results extends PolymerElement {
     }
 
     down() {
-        console.debug("refereeDecision");
+        console.debug("down");
         this.$.groupDiv.style.visibility = "visible";
         this.$.startNumberDiv.style.display = "flex";
         this.$.teamNameDiv.style.display = "flex";

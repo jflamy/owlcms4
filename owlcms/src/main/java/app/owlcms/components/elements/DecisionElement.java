@@ -147,7 +147,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             logger.debug("slaveBreakStart disable");
             this.getElement().callJsFunction("setEnabled", false);
-            //getModel().setEnabled(false);
+            // getModel().setEnabled(false);
         });
     }
 
@@ -182,7 +182,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
                     this.getParent().get().getClass().getSimpleName());
             this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
             this.getElement().callJsFunction("setEnabled", false);
-            //getModel().setEnabled(false);
+            // getModel().setEnabled(false);
         });
     }
 
@@ -191,7 +191,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             logger.debug("slaveStartTimer enable");
             this.getElement().callJsFunction("setEnabled", true);
-            //getModel().setEnabled(true);
+            // getModel().setEnabled(true);
         });
     }
 
@@ -200,7 +200,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             logger.debug("slaveStopTimer enable");
             this.getElement().callJsFunction("setEnabled", true);
-            //getModel().setEnabled(true);
+            // getModel().setEnabled(true);
         });
     }
 

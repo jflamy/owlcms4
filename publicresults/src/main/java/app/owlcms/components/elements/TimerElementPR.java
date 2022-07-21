@@ -6,7 +6,6 @@
  *******************************************************************************/
 package app.owlcms.components.elements;
 
-import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.AttachEvent;
@@ -20,6 +19,7 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.prutils.DebugUtils;
 import app.owlcms.prutils.SafeEventBusRegistrationPR;
 import app.owlcms.publicresults.DecisionReceiverServlet;
 import app.owlcms.publicresults.TimerReceiverServlet;
@@ -74,7 +74,7 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
         boolean isRunning();
 
         /**
-         * Checks if timer is silent.
+         * Checks if timer is silenced.
          *
          * @return true, if sounds are to be emitted.
          */
@@ -93,6 +93,8 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
          * @param seconds the new current time
          */
         void setCurrentTime(double seconds);
+
+        void setFopName(String fopName);
 
         /**
          * If indefinite, the timer doesn't start or stop, it just stays there with --:--
@@ -123,21 +125,26 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
         void setStartTime(double seconds);
     }
 
-    private String fopName;
+    protected String fopName;
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(TimerElementPR.class);
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-
     {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
     }
-
+    
     private Element timerElement;
     private boolean indefinite;
     private Integer msRemaining;
-    private boolean silent;
+    private boolean silenced = true;
     protected UI ui;
+    
+    public long lastStartMillis;
+    public long lastStopMillis;
+
+    private boolean serverSound;
+
 
     /**
      * Instantiates a new timer element.
@@ -146,23 +153,26 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
     }
 
     @ClientCallable
-    abstract public void clientFinalWarning();
+    abstract public void clientFinalWarning(String fopName);
 
     @ClientCallable
-    abstract public void clientInitialWarning();
+    abstract public void clientInitialWarning(String fopName);
 
     /**
      * Client requests that the server send back the remaining time. Intended to be used after client has been hidden
      * and is made visible again.
      */
     @ClientCallable
-    abstract public void clientSyncTime();
+    abstract public void clientSyncTime(String fopName);
 
     /**
      * Timer ran down to zero.
      */
     @ClientCallable
-    abstract public void clientTimeOver();
+    abstract public void clientTimeOver(String fopName);
+
+    @ClientCallable
+    abstract public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from);
 
     /**
      * Timer has been stopped on the client side.
@@ -170,7 +180,7 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
      * @param remainingTime
      */
     @ClientCallable
-    abstract public void clientTimerStopped(double remainingTime);
+    abstract public void clientTimerStopped(String fopName, double remainingTime, String from);
 
     /** @see app.owlcms.components.elements.IFopName#getFopName() */
     @Override
@@ -183,13 +193,23 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
     public void setFopName(String fopName) {
         this.fopName = fopName;
     }
+    
+    public boolean isServerSound() {
+        return serverSound;
+    }
+
+    public void setSilenced(boolean b) {
+        logger.debug("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
+        silenced = b;
+    }
 
     protected final void doSetTimer(Integer milliseconds) {
         if (ui == null || ui.isClosing()) {
             return;
         }
         ui.access(() -> {
-            stop(getMsRemaining(), isIndefinite(), isSilent());
+            String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
+            stop(getMsRemaining(), isIndefinite(), isSilenced(), parent);
             initTime(milliseconds);
         });
     }
@@ -201,17 +221,24 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
         ui.access(() -> {
             setIndefinite(milliseconds == null);
             setMsRemaining(milliseconds);
-            getModel().setSilent(silent);
-            start(milliseconds, isIndefinite(), isSilent());
+            String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
+            lastStartMillis = System.currentTimeMillis();
+            logger.trace("server starting timer {}, {}, {}", parent, milliseconds, lastStartMillis);
+            getModel().setSilent(isSilent());
+            start(milliseconds, isIndefinite(), isSilent(), parent);
         });
     }
 
-    protected void doStopTimer() {
+    protected void doStopTimer(Integer milliseconds) {
         if (ui == null || ui.isClosing()) {
             return;
         }
         ui.access(() -> {
-            stop(getMsRemaining(), isIndefinite(), isSilent());
+            setMsRemaining(milliseconds);
+            String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
+            lastStopMillis = System.currentTimeMillis();
+            logger.trace("server stopping timer {}, {}, {}", parent, milliseconds, lastStopMillis);
+            stop(getMsRemaining(), isIndefinite(), isSilent(), parent);
         });
     }
 
@@ -220,27 +247,34 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
     }
 
     protected void init() {
+        setFopName((String)OwlcmsSession.getAttribute("fopName"));
         setTimerElement(this.getElement());
         double seconds = 0.00D;
         setMsRemaining(0);
-        setSilent(true);
+        setServerSound(false);
+        setSilenced(false);
         setIndefinite(false);
+        if (UI.getCurrent() == null) {
+            return;
+        }
         UI.getCurrent().access(() -> {
             TimerModel model = getModel();
             model.setStartTime(0.0D);
             model.setCurrentTime(seconds);
             model.setCountUp(false);
             model.setRunning(false);
-            model.setSilent(true);
+            model.setSilent(false);
+            model.setFopName(fopName);
         });
+        //vsession = VaadinSession.getCurrent();
     }
 
     protected boolean isIndefinite() {
         return indefinite;
     }
 
-    protected boolean isSilent() {
-        return silent;
+    protected boolean isSilenced() {
+        return silenced;
     }
 
     /*
@@ -254,8 +288,6 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
         eventBusRegister(this, TimerReceiverServlet.getEventBus());
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
         eventBusRegister(this, DecisionReceiverServlet.getEventBus());
-
-        setFopName((String) OwlcmsSession.getAttribute("fopName"));
     }
 
     @Override
@@ -267,9 +299,9 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
             TimerReceiverServlet.getEventBus().unregister(this);
         } catch (Exception e) {
         }
-
+        
         // tell the javascript to stay quiet
-        setSilent(true);
+        setSilenced(true);
         setTimerElement(null);
         getModel().setSilent(true);
     }
@@ -278,16 +310,8 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
         this.indefinite = indefinite;
     }
 
-    protected void setSilent(boolean b) {
-        silent = b;
-    }
-
     protected void setTimerElement(Element timerElement) {
         this.timerElement = timerElement;
-    }
-
-    private String formatDuration(Integer milliseconds) {
-        return milliseconds != null ? DurationFormatUtils.formatDurationHMS(milliseconds) : null;
     }
 
     private Integer getMsRemaining() {
@@ -296,22 +320,31 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
 
     private void initTime(Integer milliseconds) {
         if (this instanceof BreakTimerElementPR) {
-            logger.debug("set time remaining = {} from {} ", formatDuration(milliseconds), LoggerUtils.whereFrom());
+            // logger.trace("set time remaining = {} from {} ", formatDuration(milliseconds), LoggerUtils.whereFrom());
         }
         setIndefinite(milliseconds == null);
         setMsRemaining(milliseconds);
 
         if (!isIndefinite()) {
             if (this instanceof BreakTimerElementPR) {
-                logger.debug("not indefinite {}", formatDuration(milliseconds));
+                // logger.trace("not indefinite {}", formatDuration(milliseconds));
             }
-            setDisplay(milliseconds, isIndefinite(), isSilent());
+            setDisplay(milliseconds, isIndefinite(), isSilenced());
         } else {
             if (this instanceof BreakTimerElementPR) {
-                logger.debug("indefinite");
+                // logger.trace("indefinite");
             }
             setDisplay(milliseconds, true, true);
         }
+    }
+
+    /**
+     * No sound if sound is emitted on server, or if silenced through the interface.
+     *
+     * @return
+     */
+    private boolean isSilent() {
+        return isServerSound() || (!isServerSound() && isSilenced());
     }
 
     private void setDisplay(Integer milliseconds, Boolean indefinite, Boolean silent) {
@@ -326,19 +359,27 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
         msRemaining = milliseconds;
     }
 
-    private void start(Integer milliseconds, Boolean indefinite, Boolean silent) {
+    @SuppressWarnings("unused")
+    private void setServerSound(boolean serverSound) {
+        this.serverSound = serverSound;
+    }
+
+    private void start(Integer milliseconds, Boolean indefinite, Boolean silent, String from) {
         Element timerElement2 = getTimerElement();
         if (timerElement2 != null) {
             double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
-            timerElement2.callJsFunction("start", seconds, indefinite, silent, timerElement2);
+            timerElement2.callJsFunction("start", seconds, indefinite, silent, timerElement2,
+                    Long.toString(System.currentTimeMillis()), from);
         }
     }
 
-    private void stop(Integer milliseconds, Boolean indefinite, Boolean silent) {
+    private void stop(Integer milliseconds, Boolean indefinite, Boolean silent, String from) {
         Element timerElement2 = getTimerElement();
         if (timerElement2 != null) {
             double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
-            timerElement2.callJsFunction("pause", seconds, indefinite, silent, timerElement2);
+            timerElement2.callJsFunction("pause", seconds, indefinite, silent, timerElement2,
+                    Long.toString(System.currentTimeMillis()), from);
         }
     }
+
 }
