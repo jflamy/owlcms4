@@ -110,7 +110,7 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
         ui.access(() -> {
             if (de.isBreak()) {
                 logger.debug("break: slaveDecision disable");
-                getModel().setEnabled(false);
+                this.getElement().callJsFunction("setEnabled", false);
             } else {
                 switch (de.getEventType()) {
                 case DOWN_SIGNAL:
@@ -122,7 +122,7 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
                     this.getElement().callJsFunction("showDecisions", false, de.getDecisionLight1(),
                             de.getDecisionLight2(),
                             de.getDecisionLight3());
-                    getModel().setEnabled(false);
+                    this.getElement().callJsFunction("setEnabled", false);
                     break;
                 case RESET:
                     logger.debug("calling reset");
@@ -147,7 +147,8 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
             return;
         }
         ui.access(() -> {
-            getModel().setEnabled(true);
+            // was true !?
+            this.getElement().callJsFunction("setEnabled", false);
         });
     }
 
@@ -161,7 +162,7 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
             return;
         }
         ui.access(() -> {
-            getModel().setEnabled(true);
+            this.getElement().callJsFunction("setEnabled", true);
         });
     }
 
@@ -175,7 +176,7 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
             return;
         }
         ui.access(() -> {
-            getModel().setEnabled(true);
+            this.getElement().callJsFunction("setEnabled", true);
         });
     }
 
@@ -189,7 +190,7 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
             return;
         }
         ui.access(() -> {
-            getModel().setEnabled(true);
+            this.getElement().callJsFunction("setEnabled", true);
         });
     }
 
@@ -203,7 +204,7 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
             return;
         }
         ui.access(() -> {
-            getModel().setEnabled(true);
+            this.getElement().callJsFunction("setEnabled", true);
         });
     }
 

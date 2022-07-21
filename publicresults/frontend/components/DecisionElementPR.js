@@ -307,7 +307,7 @@ class DecisionElementPR extends PolymerElement {
 	showDown(isMaster, silent) {
 		console.warn("de showDown");
 		if (!this.silent) {
-			this._playTrack("../sounds/down.mp3", window.downSignal, true, 0);
+			this._playTrack("../local/sounds/down.mp3", window.downSignal, true, 0);
 		}
 		this.downShown = true;
 		this.$.downDiv.style.display = "flex";
