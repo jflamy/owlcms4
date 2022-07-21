@@ -251,7 +251,8 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
         setTimerElement(this.getElement());
         double seconds = 0.00D;
         setMsRemaining(0);
-        //setSilenced(true);  //FIXME: needed ?
+        setServerSound(false);
+        setSilenced(false);
         setIndefinite(false);
         if (UI.getCurrent() == null) {
             return;
@@ -262,7 +263,7 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
             model.setCurrentTime(seconds);
             model.setCountUp(false);
             model.setRunning(false);
-            model.setSilent(true);
+            model.setSilent(false);
             model.setFopName(fopName);
         });
         //vsession = VaadinSession.getCurrent();
