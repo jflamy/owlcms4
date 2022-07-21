@@ -129,7 +129,7 @@ class TimerElement extends PolymerElement {
 			}
 		}
 		console.warn("timer start " + seconds + " late = " + lateMillis + "ms");
-		this.$server.clientTimerStarting(this.fopName, seconds, lateMillis, (this.isIOS() ? "iPad" : "browser") +" "+from);
+		this.$server.clientTimerStarting(this.fopName, seconds, lateMillis, (this.isIOS() ? "iPad" : "browser") + " " + from);
 
 		this._prepareAudio();
 
@@ -165,7 +165,7 @@ class TimerElement extends PolymerElement {
 		// }
 		this.running = false;
 		// if (this.$server != null) {
-		this.$server.clientTimerStopped(this.fopName, this.currentTime, (this.isIOS() ? "iPad" : "browser") +" "+from);
+		this.$server.clientTimerStopped(this.fopName, this.currentTime, (this.isIOS() ? "iPad" : "browser") + " " + from);
 		// } else {
 		// 	console.warn("no server$");
 		// }
@@ -295,18 +295,22 @@ class TimerElement extends PolymerElement {
 					if (play) {
 						// duplicated code from _playAudioBuffer
 						// can't figure out how to invoke it with JavaScript "this" semantics.
-						const trackSource = await window.audioCtx.createBufferSource();
-						trackSource.buffer = audioBuffer;
-						trackSource.connect(window.audioCtx.destination);
-						if (when <= 0) {
-							trackSource.start();
-						} else {
-							trackSource.start(when, 0);
+						if (window.audioCtx) {
+							const trackSource = await window.audioCtx.createBufferSource();
+							if (trackSource) {
+								trackSource.buffer = audioBuffer;
+								trackSource.connect(window.audioCtx.destination);
+								if (when <= 0) {
+									trackSource.start();
+								} else {
+									trackSource.start(when, 0);
+								}
+							}
 						}
 					}
 				},
 				(e) => {
-					console.error("could not decode " + e.err);
+					console.error("could not decode sound");
 				}
 			);
 			return newBuffer;
