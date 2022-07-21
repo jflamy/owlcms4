@@ -221,6 +221,7 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
             return;
         }
         String fopState = e.getFopState();
+        BreakType breakType = e.getBreakType();
 
         ui.access(() -> {
             String athletes = e.getAthletes();
@@ -239,7 +240,7 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
                 this.getElement().setProperty("resultLines", 1);
             }
 
-            if (leaders != null) {
+            if (leaders != null && breakType != BreakType.GROUP_DONE) {
                 JsonArray leaderList = (JsonArray) jreJsonFactory.parse(leaders);
                 this.getElement().setPropertyJson("leaders", leaderList);
                 this.getElement().setProperty("leaderLines", leaderList.length() + 1);

@@ -207,7 +207,7 @@ class Results extends PolymerElement {
             style$="font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); [[hiddenBlockStyle]]; height: 100%;">
             <div class="recordsFiller">&nbsp;</div>
 
-            <div class="recordRow" style$="--nbRecords: [[records.nbRecords]];">
+            <div class="recordRow" style$="[[hiddenGridStyle]]; --nbRecords: [[records.nbRecords]];">
                 <div>
                     <div class="recordName recordTitle">[[t.records]]</div>
                     <div class="recordLiftTypeSpacer">&nbsp;</div>
