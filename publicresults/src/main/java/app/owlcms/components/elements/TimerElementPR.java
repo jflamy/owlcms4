@@ -251,7 +251,7 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
         setTimerElement(this.getElement());
         double seconds = 0.00D;
         setMsRemaining(0);
-        setSilenced(true);  //FIXME: needed ?
+        //setSilenced(true);  //FIXME: needed ?
         setIndefinite(false);
         if (UI.getCurrent() == null) {
             return;

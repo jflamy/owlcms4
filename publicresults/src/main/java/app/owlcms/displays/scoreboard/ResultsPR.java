@@ -170,7 +170,7 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
             // event is not for us
             return;
         }
-        logger.warn("### Results received DecisionEvent {} {} {}", e.getEventType(), e.getRecordKind(), e.getRecordMessage());
+        //logger.debug("### Results received DecisionEvent {} {} {}", e.getEventType(), e.getRecordKind(), e.getRecordMessage());
         DecisionEventType eventType = e.getEventType();
         switch (eventType) {
         case DOWN_SIGNAL:
@@ -249,13 +249,13 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
             }
 
             if (records != null) {
-                logger.warn("records = {}", records);
+                //logger.debug("records = {}", records);
                 JsonObject recordList = (JsonObject) jreJsonFactory.parse(records);
                 this.getElement().setPropertyJson("records", recordList);
                 this.getElement().setProperty("recordKind", e.getRecordKind());
                 this.getElement().setProperty("recordMessage", e.getRecordMessage());
             } else {
-                logger.warn("null records = {}", records);
+                //logger.debug("null records = {}", records);
                 this.getElement().setPropertyJson("records", Json.createNull());
             }
 

@@ -88,11 +88,9 @@ public class ConfigReceiverServlet extends HttpServlet {
             String fieldName = item.getFieldName();
             if (item.isFormField()) {
                 String string = item.getString();
-                logger.warn("form field {} {}", fieldName, string);
                 // updateKey should come first
                 authenticated = checkUpdateKey(req, resp, authenticated, fieldName, string);
             } else {
-                logger.warn("file field {} {} {}", fieldName, item.getName(), item.getContentType());
                 if (!authenticated) {
                     deny(req, resp, null);
                     return;
@@ -113,7 +111,7 @@ public class ConfigReceiverServlet extends HttpServlet {
     private void copyFile(FileItem item) throws IOException {
         Path localDirPath = ResourceWalker.getLocalDirPath();
         if (localDirPath == null) {
-            localDirPath = ResourceWalker.createLocalRealDir(); //FIXME
+            localDirPath = ResourceWalker.createLocalDir();
         }
         Path name = localDirPath.resolve("styles/"+item.getName());
         Files.createDirectories(name.getParent());

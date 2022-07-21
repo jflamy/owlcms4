@@ -925,7 +925,6 @@ public class EventForwarder implements BreakDisplay {
 
             jri.put("goodBadClassName", "narrow empty");
             jri.put("stringValue", "");
-            logger.warn("{} {} {}",x.getAttemptsDone(), i.getLiftNo(), i.getChangeNo(), i.getValue());
             if (i.getChangeNo() >= 0) {
                 String trim = stringValue != null ? stringValue.trim() : "";
                 switch (Changes.values()[i.getChangeNo()]) {
@@ -1015,7 +1014,7 @@ public class EventForwarder implements BreakDisplay {
     private void sendConfig(String updateKey) {
         String destination = Config.getCurrent().getParamPublicResultsURL() + "/config";
         try {
-            logger.warn("{}sending config", getFop().getLoggingName());
+            logger.info("{}sending config", getFop().getLoggingName());
 
             Supplier<byte[]> localZipBlobSupplier = ResourceWalker.getLocalZipBlobSupplier();
             byte[] blob = null;
