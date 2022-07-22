@@ -233,10 +233,14 @@ public interface DisplayParameters extends ContentParameters {
                     new TimerTask() {
                         @Override
                         public void run() {
+                            try {
                             ui.access(() -> {
                                 // logger.debug("timer closing {}", dialog);
                                 dialog.close();
                             });
+                            } catch (Exception e) {
+                                // ignore.
+                            }
                         }
                     }, 8 * 1000L);
             setDialogTimer(timer);
@@ -315,4 +319,6 @@ public interface DisplayParameters extends ContentParameters {
         }
         buildDialog(target);
     }
+    
+
 }

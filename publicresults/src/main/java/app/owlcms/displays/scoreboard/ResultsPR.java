@@ -100,6 +100,7 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     private boolean initializationNeeded;
     private boolean silenced;
     private String fopName;
+    private boolean recordsDisplay;
 
     /**
      * Instantiates a new results board.
@@ -111,13 +112,14 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     @Override
     public void addDialogContent(Component target, VerticalLayout vl) {
         DisplayOptions.addLightingEntries(vl, target, this);
-        vl.add(new Hr());
+        DisplayOptions.addRule(vl);
         DisplayOptions.addSoundEntries(vl, target, this);
-        //vl.add(new Hr());
-        //DisplayOptions.addSwitchableEntries(vl, target, this);
-        //DisplayOptions.addSectionEntries(vl, target, this);
-        //vl.add(new Hr());
-        //DisplayOptions.addSizingEntries(vl, target, this);
+//        vl.add(new Hr());
+//        DisplayOptions.addSwitchableEntries(vl, target, this);
+        DisplayOptions.addRule(vl);
+        DisplayOptions.addSectionEntries(vl, target, this);
+//        vl.add(new Hr());
+//        DisplayOptions.addSizingEntries(vl, target, this);
     }
 
     @Override
@@ -133,6 +135,11 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     @Override
     public Double getEmFontSize() {
         return emFontSize;
+    }
+
+    @Override
+    public String getFopName() {
+        return this.fopName;
     }
 
     @Override
@@ -158,6 +165,11 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     @Override
     public boolean isIgnoreGroupFromURL() {
         return true;
+    }
+
+    @Override
+    public boolean isRecordsDisplay() {
+        return recordsDisplay;
     }
 
     @Override
@@ -191,6 +203,11 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     }
 
     @Override
+    public void setFopName(String decoded) {
+        this.fopName = decoded;
+    }
+
+    @Override
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -198,6 +215,11 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    @Override
+    public void setRecordsDisplay(boolean showRecords) {
+        this.recordsDisplay = showRecords;
     }
 
     /**
@@ -210,7 +232,6 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
 
     @Override
     public void setSilenced(boolean silenced) {
-        logger.warn("setting silenced {}",silenced);
         this.timer.setSilenced(silenced);
         this.breakTimer.setSilenced(silenced);
         this.decisions.setSilenced(silenced);
@@ -314,7 +335,7 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
                 this.getElement().setProperty("leaderLines", 1);
             }
 
-            if (records != null) {
+            if (records != null && isRecordsDisplay()) {
                 // logger.debug("records = {}", records);
                 JsonObject recordList = (JsonObject) jreJsonFactory.parse(records);
                 this.getElement().setPropertyJson("records", recordList);
@@ -428,10 +449,6 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
         }
     }
 
-    public String getFopName() {
-        return this.fopName;
-    }
-
     @SuppressWarnings("unused")
     private String inferMessage(BreakType bt) {
         if (bt == null) {
@@ -468,10 +485,4 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     private void setWideTeamNames(boolean wide) {
         this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
     }
-
-    @Override
-    public void setFopName(String decoded) {
-        this.fopName = decoded;
-    }
 }
-    

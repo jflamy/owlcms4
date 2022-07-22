@@ -232,10 +232,14 @@ public interface DisplayParameters extends ContentParameters {
                     new TimerTask() {
                         @Override
                         public void run() {
-                            ui.access(() -> {
-                                // logger.debug("timer closing {}", dialog);
-                                dialog.close();
-                            });
+                            try {
+                                ui.access(() -> {
+                                    // logger.debug("timer closing {}", dialog);
+                                    dialog.close();
+                                });
+                            } catch (Throwable e) {
+                                // ignore.
+                            }
                         }
                     }, 8 * 1000L);
             setDialogTimer(timer);

@@ -152,5 +152,12 @@ public class DisplayOptions {
 
         layout.add(cbg);
     }
+    
+    public static void addRule(VerticalLayout vl) {
+        Hr hr = new Hr();
+        hr.getStyle().set("border-top", "1px solid");
+        hr.getStyle().set("margin-top", "1em");
+        vl.add(hr);
+    }
 
 }

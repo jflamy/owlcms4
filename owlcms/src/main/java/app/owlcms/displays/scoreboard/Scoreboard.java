@@ -189,9 +189,9 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     @Override
     public void addDialogContent(Component target, VerticalLayout vl) {
         DisplayOptions.addLightingEntries(vl, target, this);
-        vl.add(new Hr());
+        DisplayOptions.addRule(vl);
         DisplayOptions.addSoundEntries(vl, target, this);
-        vl.add(new Hr());
+        DisplayOptions.addRule(vl);
         DisplayOptions.addSwitchableEntries(vl, target, this);
     }
 
