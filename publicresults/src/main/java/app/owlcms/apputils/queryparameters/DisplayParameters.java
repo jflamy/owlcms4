@@ -45,7 +45,6 @@ public interface DisplayParameters extends ContentParameters {
     public static final String FONTSIZE = "em";
     public static final String LIGHT = "light";
     public static final String PUBLIC = "public";
-    public static final String SOUND = "sound";
     public static final String RECORDS = "records";
 
     public default void doNotification(boolean dark) {

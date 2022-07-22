@@ -210,6 +210,7 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
 
     @Override
     public void setSilenced(boolean silenced) {
+        logger.warn("setting silenced {}",silenced);
         this.timer.setSilenced(silenced);
         this.breakTimer.setSilenced(silenced);
         this.decisions.setSilenced(silenced);
