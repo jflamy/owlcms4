@@ -6,15 +6,20 @@
  *******************************************************************************/
 package app.owlcms.displays.scoreboard;
 
+import java.util.Timer;
+
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
@@ -25,16 +30,17 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.components.elements.AthleteTimerElementPR;
 import app.owlcms.components.elements.BreakTimerElementPR;
 import app.owlcms.components.elements.DecisionElementPR;
+import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.i18n.Translator;
 import app.owlcms.prutils.SafeEventBusRegistrationPR;
+import app.owlcms.prutils.SoundUtils;
 import app.owlcms.publicresults.DecisionReceiverServlet;
 import app.owlcms.publicresults.TimerReceiverServlet;
 import app.owlcms.publicresults.UpdateReceiverServlet;
-import app.owlcms.ui.parameters.DarkModeParameters;
-import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.uievents.BreakTimerEvent;
 import app.owlcms.uievents.BreakTimerEvent.BreakStart;
 import app.owlcms.uievents.BreakType;
@@ -62,7 +68,7 @@ import elemental.json.impl.JreJsonFactory;
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
 public class ResultsPR extends PolymerTemplate<TemplateModel>
-        implements QueryParameterReader, DarkModeParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
+        implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsPR.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -82,13 +88,18 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     private DecisionElementPR decisions; // Flow creates it
 
     private boolean darkMode;
-    private ContextMenu contextMenu;
     private Location location;
     private UI locationUI;
-    private String fopName;
     private boolean needReset = false;
     private boolean decisionVisible;
     private UI ui;
+
+    protected Dialog dialog;
+    private Timer dialogTimer;
+    private Double emFontSize;
+    private boolean initializationNeeded;
+    private boolean silenced;
+    private String fopName;
 
     /**
      * Instantiates a new results board.
@@ -98,8 +109,30 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     }
 
     @Override
-    public ContextMenu getContextMenu() {
-        return contextMenu;
+    public void addDialogContent(Component target, VerticalLayout vl) {
+        DisplayOptions.addLightingEntries(vl, target, this);
+        vl.add(new Hr());
+        DisplayOptions.addSoundEntries(vl, target, this);
+        //vl.add(new Hr());
+        //DisplayOptions.addSwitchableEntries(vl, target, this);
+        //DisplayOptions.addSectionEntries(vl, target, this);
+        //vl.add(new Hr());
+        //DisplayOptions.addSizingEntries(vl, target, this);
+    }
+
+    @Override
+    public Dialog getDialog() {
+        return this.dialog;
+    }
+
+    @Override
+    public Timer getDialogTimer() {
+        return this.dialogTimer;
+    }
+
+    @Override
+    public Double getEmFontSize() {
+        return emFontSize;
     }
 
     @Override
@@ -128,8 +161,13 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     }
 
     @Override
-    public void setContextMenu(ContextMenu contextMenu) {
-        this.contextMenu = contextMenu;
+    public boolean isShowInitialDialog() {
+        return this.initializationNeeded;
+    }
+
+    @Override
+    public boolean isSilenced() {
+        return silenced;
     }
 
     @Override
@@ -137,10 +175,19 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
         this.darkMode = dark;
     }
 
-    /** @see app.owlcms.ui.parameters.QueryParameterReader#setFopName(java.lang.String) */
     @Override
-    public void setFopName(String fopName) {
-        this.fopName = fopName;
+    public void setDialog(Dialog dialog) {
+        this.dialog = dialog;
+    }
+
+    @Override
+    public void setDialogTimer(Timer timer) {
+        this.dialogTimer = timer;
+    }
+
+    @Override
+    public void setEmFontSize(Double emFontSize) {
+        this.emFontSize = emFontSize;
     }
 
     @Override
@@ -151,6 +198,22 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    /**
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#setShowInitialDialog(boolean)
+     */
+    @Override
+    public void setShowInitialDialog(boolean b) {
+        this.initializationNeeded = true;
+    }
+
+    @Override
+    public void setSilenced(boolean silenced) {
+        this.timer.setSilenced(silenced);
+        this.breakTimer.setSilenced(silenced);
+        this.decisions.setSilenced(silenced);
+        this.silenced = silenced;
     }
 
     @Subscribe
@@ -170,7 +233,8 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
             // event is not for us
             return;
         }
-        //logger.debug("### Results received DecisionEvent {} {} {}", e.getEventType(), e.getRecordKind(), e.getRecordMessage());
+        // logger.debug("### Results received DecisionEvent {} {} {}", e.getEventType(), e.getRecordKind(),
+        // e.getRecordMessage());
         DecisionEventType eventType = e.getEventType();
         switch (eventType) {
         case DOWN_SIGNAL:
@@ -250,13 +314,13 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
             }
 
             if (records != null) {
-                //logger.debug("records = {}", records);
+                // logger.debug("records = {}", records);
                 JsonObject recordList = (JsonObject) jreJsonFactory.parse(records);
                 this.getElement().setPropertyJson("records", recordList);
                 this.getElement().setProperty("recordKind", e.getRecordKind());
                 this.getElement().setProperty("recordMessage", e.getRecordMessage());
             } else {
-                //logger.debug("null records = {}", records);
+                // logger.debug("null records = {}", records);
                 this.getElement().setPropertyJson("records", Json.createNull());
             }
 
@@ -316,15 +380,15 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     /** @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        // crude workaround -- randomly getting light or dark due to multiple themes detected in app.
-        getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
+        SoundUtils.enableAudioContextNotification(this.getElement());
+
         ui = UI.getCurrent();
 
         eventBusRegister(this, TimerReceiverServlet.getEventBus());
         eventBusRegister(this, DecisionReceiverServlet.getEventBus());
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
 
-        setDarkMode(this, isDarkMode(), false);
+        // setDarkMode(this, isDarkMode(), false);
         UpdateEvent initEvent = UpdateReceiverServlet.sync(getFopName());
         if (initEvent != null) {
             slaveGlobalRankingUpdated(initEvent);
@@ -363,8 +427,8 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
         }
     }
 
-    private String getFopName() {
-        return fopName;
+    public String getFopName() {
+        return this.fopName;
     }
 
     @SuppressWarnings("unused")
@@ -404,4 +468,9 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
         this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
     }
 
+    @Override
+    public void setFopName(String decoded) {
+        this.fopName = decoded;
+    }
 }
+    

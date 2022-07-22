@@ -67,6 +67,7 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
     protected EventBus fopEventBus;
     private UI ui;
     private String fopName;
+    private boolean silenced;
 
     public DecisionElementPR() {
     }
@@ -81,6 +82,10 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
         return getModel().isPublicFacing();
     }
 
+    public boolean isSilenced() {
+        return silenced;
+    }
+
     /** @see app.owlcms.components.elements.IFopName#setFopName(java.lang.String) */
     @Override
     public void setFopName(String fopName) {
@@ -93,6 +98,10 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
 
     public void setPublicFacing(boolean publicFacing) {
         getModel().setPublicFacing(publicFacing);
+    }
+
+    public void setSilenced(boolean silenced) {
+        this.silenced = silenced;
     }
 
     @Subscribe
@@ -115,7 +124,7 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
                 switch (de.getEventType()) {
                 case DOWN_SIGNAL:
                     logger.debug("showing down");
-                    this.getElement().callJsFunction("showDown", false, false);
+                    this.getElement().callJsFunction("showDown", false, isSilenced());
                     break;
                 case FULL_DECISION:
                     logger.debug("calling full decision");
@@ -228,7 +237,7 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
         eventBusRegister(this, DecisionReceiverServlet.getEventBus());
         eventBusRegister(this, TimerReceiverServlet.getEventBus());
 
-        setFopName((String) OwlcmsSession.getAttribute("fopName"));
+        setFopName(OwlcmsSession.getFopName());
     }
 
     @Override
@@ -249,4 +258,5 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
         DecisionModel model = getModel();
         model.setPublicFacing(true);
     }
+
 }

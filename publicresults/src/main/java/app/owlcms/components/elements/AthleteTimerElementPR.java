@@ -149,7 +149,7 @@ public class AthleteTimerElementPR extends TimerElementPR {
             return;
         }
         
-        doStartTimer(milliseconds, e.isSilent());  //FIXME: original is e.isServerSound().
+        doStartTimer(milliseconds, e.isSilent());  //check: original is e.isServerSound().
     }
 
     @Subscribe
@@ -185,7 +185,7 @@ public class AthleteTimerElementPR extends TimerElementPR {
         eventBusRegister(this, DecisionReceiverServlet.getEventBus());
 
         ui = UI.getCurrent();
-        this.setFopName((String) OwlcmsSession.getAttribute("fopName"));
+        this.setFopName(OwlcmsSession.getFopName());
     }
 
     @Override

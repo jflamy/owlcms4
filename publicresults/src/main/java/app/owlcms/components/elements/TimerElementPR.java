@@ -125,7 +125,7 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
         void setStartTime(double seconds);
     }
 
-    protected String fopName;
+    private String fopName;
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(TimerElementPR.class);
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -133,18 +133,17 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
     }
-    
+
     private Element timerElement;
     private boolean indefinite;
     private Integer msRemaining;
     private boolean silenced = true;
     protected UI ui;
-    
+
     public long lastStartMillis;
     public long lastStopMillis;
 
     private boolean serverSound;
-
 
     /**
      * Instantiates a new timer element.
@@ -188,14 +187,14 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
         return this.fopName;
     }
 
+    public boolean isServerSound() {
+        return serverSound;
+    }
+
     /** @see app.owlcms.components.elements.IFopName#setFopName(java.lang.String) */
     @Override
     public void setFopName(String fopName) {
         this.fopName = fopName;
-    }
-    
-    public boolean isServerSound() {
-        return serverSound;
     }
 
     public void setSilenced(boolean b) {
@@ -247,7 +246,7 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
     }
 
     protected void init() {
-        setFopName((String)OwlcmsSession.getAttribute("fopName"));
+        setFopName(OwlcmsSession.getFopName());
         setTimerElement(this.getElement());
         double seconds = 0.00D;
         setMsRemaining(0);
@@ -264,9 +263,9 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
             model.setCountUp(false);
             model.setRunning(false);
             model.setSilent(false);
-            model.setFopName(fopName);
+            model.setFopName(getFopName());
         });
-        //vsession = VaadinSession.getCurrent();
+        // vsession = VaadinSession.getCurrent();
     }
 
     protected boolean isIndefinite() {
@@ -299,7 +298,7 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
             TimerReceiverServlet.getEventBus().unregister(this);
         } catch (Exception e) {
         }
-        
+
         // tell the javascript to stay quiet
         setSilenced(true);
         setTimerElement(null);
@@ -359,7 +358,6 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
         msRemaining = milliseconds;
     }
 
-    @SuppressWarnings("unused")
     private void setServerSound(boolean serverSound) {
         this.serverSound = serverSound;
     }

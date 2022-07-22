@@ -117,7 +117,7 @@ public class ConfigReceiverServlet extends HttpServlet {
         Files.createDirectories(name.getParent());
         try (InputStream uploadedStream = item.getInputStream();
                 OutputStream out = Files.newOutputStream(name)) {
-            logger.warn("copying to abs {}",name.toAbsolutePath());
+            //logger.debug("copying to abs {}",name.toAbsolutePath());
             IOUtils.copy(uploadedStream, out);
             out.close();
         }

@@ -39,11 +39,19 @@ public class UpdateReceiverServlet extends HttpServlet {
     private static String defaultFopName;
     static EventBus eventBus = new AsyncEventBus(UpdateReceiverServlet.class.getSimpleName(),
             Executors.newCachedThreadPool());
-    static Map<String, UpdateEvent> updateCache = new HashMap<>();
+    private static Map<String, UpdateEvent> updateCache = new HashMap<>();
     static long lastUpdate = 0;
 
     public static EventBus getEventBus() {
         return eventBus;
+    }
+
+    public static Map<String, UpdateEvent> getUpdateCache() {
+        return updateCache;
+    }
+
+    public static void setUpdateCache(Map<String, UpdateEvent> updateCache) {
+        UpdateReceiverServlet.updateCache = updateCache;
     }
 
     public static UpdateEvent sync(String fopName) {
@@ -85,7 +93,7 @@ public class UpdateReceiverServlet extends HttpServlet {
                 resp.sendError(401, "Denied, wrong credentials");
                 return;
             }
-            
+
             try {
                 ResourceWalker.getFileOrResource("styles/results.css");
             } catch (Exception e) {
@@ -93,7 +101,7 @@ public class UpdateReceiverServlet extends HttpServlet {
                 resp.sendError(412, "Missing configuration files.");
                 return;
             }
-            
+
             if (StartupUtils.isDebugSetting()) {
                 logger.setLevel(Level.DEBUG);
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
@@ -126,7 +134,7 @@ public class UpdateReceiverServlet extends HttpServlet {
             updateEvent.setNoLiftRanks(req.getParameter("noLiftRanks"));
             updateEvent.setAthletes(req.getParameter("groupAthletes"));
             updateEvent.setLeaders(req.getParameter("leaders"));
-            logger.warn("setRecords {}",LoggerUtils.whereFrom());
+
             updateEvent.setRecords(req.getParameter("records"));
             updateEvent.setRecordKind(req.getParameter("recordKind"));
             updateEvent.setRecordMessage(req.getParameter("recordMessage"));
@@ -147,7 +155,7 @@ public class UpdateReceiverServlet extends HttpServlet {
             updateEvent.setBreakType(bt);
             updateEvent.setBreakRemaining(breakRemainingString != null ? Integer.parseInt(breakRemainingString) : null);
             updateEvent.setIndefinite(Boolean.parseBoolean(breakIsIndefiniteString));
-            
+
             if (bt == BreakType.GROUP_DONE) {
                 updateEvent.setRecords(null);
                 updateEvent.setRecordKind("none");

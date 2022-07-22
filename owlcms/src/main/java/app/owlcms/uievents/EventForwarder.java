@@ -1077,7 +1077,7 @@ public class EventForwarder implements BreakDisplay {
     }
 
     private void sendPost(String url, Map<String, String> parameters) {
-        logger.warn("{}posting update {}", getFop().getLoggingName(), LoggerUtils.whereFrom());
+        //logger.debug("{}posting update {}", getFop().getLoggingName(), LoggerUtils.whereFrom());
         long deltaMillis = System.currentTimeMillis() - previousMillis;
         int hashCode = parameters.hashCode();
         // debounce, sometimes several identical updates in a rapid succession

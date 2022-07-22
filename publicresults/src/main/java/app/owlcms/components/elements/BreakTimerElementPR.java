@@ -188,7 +188,7 @@ public class BreakTimerElementPR extends TimerElementPR {
         eventBusRegister(this, TimerReceiverServlet.getEventBus());
         eventBusRegister(this, UpdateReceiverServlet.getEventBus());
 
-        setFopName((String) OwlcmsSession.getAttribute("fopName"));
+        setFopName(OwlcmsSession.getFopName());
     }
     
     @Override

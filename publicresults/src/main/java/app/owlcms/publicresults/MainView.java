@@ -80,7 +80,7 @@ public class MainView extends VerticalLayout {
 
     private void buildHomePage() {
         // we cache the last update received for each field of play, indexed by fop name
-        Set<String> fopNames = UpdateReceiverServlet.updateCache.keySet();
+        Set<String> fopNames = UpdateReceiverServlet.getUpdateCache().keySet();
         if (fopNames.size() == 0 || ui == null) {
             removeAll();
             add(text);
@@ -98,7 +98,7 @@ public class MainView extends VerticalLayout {
 
     private void createButtons(Set<String> fopNames) {
         removeAll();
-        UpdateEvent updateEvent = UpdateReceiverServlet.updateCache.entrySet().stream().findFirst().orElse(null)
+        UpdateEvent updateEvent = UpdateReceiverServlet.getUpdateCache().entrySet().stream().findFirst().orElse(null)
                 .getValue();
         if (updateEvent == null) {
             return;
