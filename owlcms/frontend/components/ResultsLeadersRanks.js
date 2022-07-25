@@ -31,8 +31,7 @@ class ResultsFull extends PolymerElement {
             <div class="attempt" id="attemptDiv">
                 <span inner-h-t-m-l="[[attempt]]"></span>
             </div>
-            <div class="weight" id="weightDiv">
-                [[weight]]<span style="font-size: 75%">[[t.KgSymbol]]</span>
+            <div class="weight" id="weightDiv">[[weight]]<span style="font-size: 75%">&hairsp;[[t.KgSymbol]]</span>
             </div>
             <div class="timer athleteTimer" id="timerDiv">
                 <timer-element id="timer"></timer-element>
@@ -52,7 +51,7 @@ class ResultsFull extends PolymerElement {
     </div>
 
     <table class="results"
-        style$="[[hiddenGridStyle]]; --top: calc([[resultLines]] + 1); --bottom: [[leaderLines]]; --nbRanks: [[nbRanks]]">
+        style$="[[hiddenGridStyle]]; --top: calc([[resultLines]] + 1); --bottom: [[leaderLines]]; --nbRanks: [[nbRanks]]; [[leadersLineHeight]];">
         <template is="dom-if" if="[[athletes]]">
             <tr class="head">
                 <!-- first row is all the row spans and the top cells -->
@@ -162,7 +161,7 @@ class ResultsFull extends PolymerElement {
                                 <div inner-h-t-m-l="[[cjr]]"></div>
                             </td>
                         </template>
-                        <td class="narrow">[[l.total]]</td>
+                        <td class="total">[[l.total]]</td>
                         <template is="dom-repeat" id="totalRanks" items="[[l.totalRanks]]" as="tr">
                             <td class="totalRank">
                                 <div inner-h-t-m-l="[[tr]]"></div>
@@ -182,82 +181,83 @@ class ResultsFull extends PolymerElement {
             <td class="filler" style="grid-column: 1 / -1">&nbsp;</td>
         </tr>
         <template is="dom-if" if="[[leaders]]">
-            <tr class="head" style$="[[leadersDisplay]]">
-                <td style="grid-column: 1 / -1; justify-content: left;" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
-                </td>
-            </tr>
-            <tr>
-            <tr style$="[[leadersDisplay]]">
-                <td class="spacer" style="grid-column: 1 / -1; justify-content: left;"
-                    inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
-                </td>
-            </tr>
-            <template is="dom-repeat" id="result-table" items="[[leaders]]" as="l">
-                <template is="dom-if" if="[[!l.isSpacer]]">
-                    <tr class="athlete">
-                        <td class$="groupCol [[l.classname]]">
-                            <div class$="[[l.classname]]">[[l.startNumber]]</div>
-                        </td>
-                        <td class$="name [[l.classname]]">
-                            <div class$="name ellipsis [[l.classname]]">[[l.fullName]]</div>
-                        </td>
-                        <td class="category">
-                            <div>[[l.category]]</div>
-                        </td>
-                        <td class="yob">
-                            <div>[[l.yearOfBirth]]</div>
-                        </td>
-                        <td class="custom1">
-                            <div>[[l.custom1]]</div>
-                        </td>
-                        <td class="custom2">
-                            <div>[[l.custom2]]</div>
-                        </td>
-                        <td class="club">
-                            <div class="ellipsis">[[l.teamName]]</div>
-                        </td>
-                        <template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-                            <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
-                                <div class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]
-                                </div>
+            <tbody class="leaders" style$="[[leadersVisibility]]">
+                <tr class="head">
+                    <td style="grid-column: 1 / -1; justify-content: left;"
+                        inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="spacer" style$="grid-column: 1 / -1; justify-content: left; [[leadersVisibility]];"
+                        inner-h-t-m-l="&nbsp;">
+                    </td>
+                </tr>
+                <template is="dom-repeat" id="result-table" items="[[leaders]]" as="l">
+                    <template is="dom-if" if="[[!l.isSpacer]]">
+                        <tr class="athlete">
+                            <td class="groupCol">
+                                <div>[[l.group]]</div>
                             </td>
-                        </template>
-                        <template is="dom-repeat" id="snatchRanks" items="[[l.snatchRanks]]" as="sr">
-                            <td class="rank">
-                                <div inner-h-t-m-l="[[sr]]"></div>
+                            <td class$="name [[l.classname]]">
+                                <div class="ellipsis">[[l.fullName]]</div>
                             </td>
-                        </template>
-                        <template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
-                            <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
-                                <div class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]
-                                </div>
+                            <td class="category">
+                                <div>[[l.category]]</div>
                             </td>
-                        </template>
-                        <template is="dom-repeat" id="cleanJerkRanks" items="[[l.cleanJerkRanks]]" as="cjr">
-                            <td class="rank">
-                                <div inner-h-t-m-l="[[cjr]]"></div>
+                            <td class="yob">
+                                <div>[[l.yearOfBirth]]</div>
                             </td>
-                        </template>
-                        <td class="narrow">[[l.total]]</td>
-                        <template is="dom-repeat" id="totalRanks" items="[[l.totalRanks]]" as="tr">
-                            <td class="thRank">
-                                <div inner-h-t-m-l="[[tr]]"></div>
+                            <td class="custom1" style$="[[leadersVisibility]]">
+                                <div>[[l.custom1]]</div>
                             </td>
-                        </template>
-                        <td class="sinclair">
-                            <div>[[l.sinclair]]</div>
-                        </td>
-                        <td class="sinclairRank">
-                            <div>[[l.sinclairRank]]</div>
-                        </td>
-                    </tr>
+                            <td class="custom2" style$="[[leadersVisibility]]">
+                                <div>[[l.custom2]]</div>
+                            </td>
+                            <td class="club">
+                                <div class="ellipsis">[[l.teamName]]</div>
+                            </td>
+                            <template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
+                                <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
+                                    <div>[[attempt.stringValue]]</div>
+                                </td>
+                            </template>
+                            <template is="dom-repeat" id="snatchRanks" items="[[l.snatchRanks]]" as="sr">
+                                <td class="rank" style$="[[leadersVisibility]]">
+                                    <div inner-h-t-m-l="[[sr]]"></div>
+                                </td>
+                            </template>
+                            <template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
+                                <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
+                                    <div>[[attempt.stringValue]]</div>
+                                </td>
+                            </template>
+                            <template is="dom-repeat" id="cleanJerkRanks" items="[[l.cleanJerkRanks]]" as="cjr">
+                                <td class="rank" style$="[[leadersVisibility]]">
+                                    <div inner-h-t-m-l="[[cjr]]"></div>
+                                </td>
+                            </template>
+                            <td class="total" style$="[[leadersVisibility]]">[[l.total]]</td>
+
+                            <template is="dom-repeat" id="totalRanks" items="[[l.totalRanks]]" as="tr">
+                                <td class="totalRank" style$="[[leadersVisibility]]">
+                                    <div inner-h-t-m-l="[[tr]]"></div>
+                                </td>
+                            </template>
+                            <td class="sinclair" style$="[[leadersVisibility]]">
+                                <div>[[l.sinclair]]</div>
+                            </td>
+                            <td class="sinclairRank" style$="[[leadersVisibility]]">
+                                <div>[[l.sinclairRank]]</div>
+                            </td>
+                        </tr>
+                    </template>
                 </template>
-            </template>
+            </tbody>
         </template>
     </table>
     <template is="dom-if" if="[[records]]">
         <div
-            style$="font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); [[hiddenBlockStyle]]; height: 100%;">
+            style$="font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); [[hiddenBlockStyle]]; [[recordsDisplay]]; height: 100%;">
             <div class="recordsFiller">&nbsp;</div>
 
             <div class="recordRow" style$="--nbRecords: [[records.nbRecords]];">
@@ -297,7 +297,7 @@ class ResultsFull extends PolymerElement {
     ready() {
         console.debug("ready");
         super.ready();
-        document.body.setAttribute("theme","dark");
+        document.body.setAttribute("theme", "dark");
         this.$.groupDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";

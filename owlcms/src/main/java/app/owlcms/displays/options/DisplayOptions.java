@@ -35,7 +35,7 @@ public class DisplayOptions {
 
     public static void addLightingEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
         Label label = new Label(Translator.translate("DisplayParameters.VisualSettings"));
-        
+
         boolean darkMode = dp.isDarkMode();
         Button darkButton = new Button(Translator.translate(DisplayParameters.DARK));
         darkButton.getStyle().set("color", "white");
@@ -135,7 +135,6 @@ public class DisplayOptions {
 
             Double emSize = e.getValue();
             dp.switchEmFontSize(target, emSize, true);
-            // UI.getCurrent().getPage().reload();
         });
 
         layout.add(label);
@@ -144,19 +143,18 @@ public class DisplayOptions {
 
     public static void addSectionEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
         Label label = new Label(Translator.translate("DisplayParameters.Content"));
-        if (RecordRepository.findAll().isEmpty()) {
-            return;
-        }
 
-        boolean showRecords = dp.isRecordsDisplay();
-        Checkbox recordsDisplayCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowRecords"));//
-        recordsDisplayCheckbox.setValue(showRecords);
-        recordsDisplayCheckbox.addValueChangeListener(e -> {
-            if (e.isFromClient()) {
-                dp.switchRecords(target, e.getValue(), true);
-            }
-            // UI.getCurrent().getPage().reload();
-        });
+        Checkbox recordsDisplayCheckbox = null;
+        if (!RecordRepository.findAll().isEmpty()) {
+            boolean showRecords = dp.isRecordsDisplay();
+            recordsDisplayCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowRecords"));//
+            recordsDisplayCheckbox.setValue(showRecords);
+            recordsDisplayCheckbox.addValueChangeListener(e -> {
+                if (e.isFromClient()) {
+                    dp.switchRecords(target, e.getValue(), true);
+                }
+            });
+        }
 
         boolean showLeaders = dp.isLeadersDisplay();
         Checkbox leadersDisplayCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowLeaders"));//
@@ -165,10 +163,14 @@ public class DisplayOptions {
             if (e.isFromClient() && e.getSource() == leadersDisplayCheckbox) {
                 dp.switchLeaders(target, e.getValue(), true);
             }
-            //UI.getCurrent().getPage().reload();
-        });       
+        });
 
-        HorizontalLayout horizontalLayout = new HorizontalLayout(recordsDisplayCheckbox, leadersDisplayCheckbox);
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.add(leadersDisplayCheckbox);
+        if (recordsDisplayCheckbox != null) {
+            horizontalLayout.add(recordsDisplayCheckbox);
+        }
+
         layout.add(label);
         layout.add(horizontalLayout);
 

@@ -161,7 +161,9 @@ class Results extends PolymerElement {
                             <td class="category">
                                 <div>[[l.category]]</div>
                             </td>
-                            <td class="yob">[[l.yearOfBirth]]</td>
+                        <td class="yob">
+                            <div>[[l.yearOfBirth]]</div>
+                        </td>
                             <td class="custom1" style$="[[leadersVisibility]]">
                                 <div>[[l.custom1]]</div>
                             </td>
