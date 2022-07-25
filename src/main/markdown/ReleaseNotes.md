@@ -2,6 +2,7 @@
 
 ##### Changes since last pre-release
 
+- 4.33.1-beta03: Updated the scoreboard with multiple category ranks to work like the others.
 - 4.33.1-beta02: Live selection of scoreboard sections on both owlcms and publicresults
   - Records and Leader sections can now be shown/hidden from the pop-up dialog on the scoreboard screens.  There is no longer a reload (visibility is controlled by changing the CSS settings)
 - 4.33.1-beta02: Sinclair Meet added as a non-standard competition rule.  This is for meets where the medals are for men and for women independently of the bodyweight and age.  The feature switch still works, but there is now a checkbox on the competition page.
