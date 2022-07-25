@@ -63,7 +63,7 @@ import elemental.json.impl.JreJsonFactory;
 @Tag("resultsPR-template")
 @JsModule("./components/ResultsPR.js")
 @JsModule("./components/AudioContext.js")
-@Route("displays/resultsLeader")
+@Route("results")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
 public class ResultsPR extends PolymerTemplate<TemplateModel>
@@ -101,6 +101,8 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     private String fopName;
     private boolean recordsDisplay;
     private boolean leadersDisplay;
+    private boolean defaultRecordsDisplay;
+    private boolean defaultLeadersDisplay;
 
     /**
      * Instantiates a new results board.
@@ -165,6 +167,16 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     }
 
     @Override
+    public boolean isDefaultLeadersDisplay() {
+        return defaultLeadersDisplay;
+    }
+
+    @Override
+    public boolean isDefaultRecordsDisplay() {
+        return defaultRecordsDisplay;
+    }
+
+    @Override
     public boolean isIgnoreGroupFromURL() {
         return true;
     }
@@ -192,6 +204,16 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     @Override
     public void setDarkMode(boolean dark) {
         this.darkMode = dark;
+    }
+
+    @Override
+    public void setDefaultLeadersDisplay(boolean b) {
+        this.defaultLeadersDisplay = true;
+    }
+
+    @Override
+    public void setDefaultRecordsDisplay(boolean b) {
+        this.defaultRecordsDisplay = true;
     }
 
     @Override
@@ -350,7 +372,7 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
                 this.getElement().setProperty("resultLines", 1);
             }
 
-            if (leaders != null && breakType != BreakType.GROUP_DONE) {
+            if (leaders != null && (breakType != BreakType.GROUP_DONE || e.isSinclairMeet())) {
                 JsonArray leaderList = (JsonArray) jreJsonFactory.parse(leaders);
                 this.getElement().setPropertyJson("leaders", leaderList);
                 this.getElement().setProperty("leaderLines", leaderList.length() + 1);
@@ -359,7 +381,7 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
                 this.getElement().setProperty("leaderLines", 1);
             }
 
-            if (records != null && isRecordsDisplay()) {
+            if (records != null) {
                 // logger.debug("records = {}", records);
                 JsonObject recordList = (JsonObject) jreJsonFactory.parse(records);
                 this.getElement().setPropertyJson("records", recordList);

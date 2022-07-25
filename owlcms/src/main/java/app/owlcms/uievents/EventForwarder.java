@@ -94,27 +94,20 @@ public class EventForwarder implements BreakDisplay {
     private List<Athlete> groupLeaders;
     private String groupName;
     private boolean hidden;
-
     private JsonValue leaders;
     private String liftsDone;
     private EventBus postBus;
     private int previousHashCode = 0;
-
     private long previousMillis = 0L;
     private JsonArray sattempts;
     private Integer startNumber;
-
     private String teamName;
-
     private Integer timeAllowed;
-
     private JsonObject translationMap;
-
     private long translatorResetTimeStamp;
     private Integer weight;
     private boolean wideTeamNames;
     private String noLiftRanks;
-
     private JsonValue records;
 
     public EventForwarder(FieldOfPlay emittingFop) {
@@ -678,6 +671,7 @@ public class EventForwarder implements BreakDisplay {
         mapPut(sb, "translationMap", translationMap.toJson());
         mapPut(sb, "hidden", String.valueOf(hidden));
         mapPut(sb, "wideTeamNames", String.valueOf(wideTeamNames));
+        mapPut(sb, "sinclairMeet", Boolean.toString(Competition.getCurrent().isSinclair()));
 
         return sb;
     }
@@ -746,13 +740,15 @@ public class EventForwarder implements BreakDisplay {
                     StatusLine statusLine = response.getStatusLine();
                     Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
                     if (statusCode != null && statusCode != 200) {
-                        logger.error("{}could not post to {} {} {}", getFop().getLoggingName(), url, statusLine,
-                                LoggerUtils.whereFrom(1));
                         synchronized (singleThreadLock) {
                             if (nbTries == 0 && statusCode != null && statusCode == 412) {
+                                logger.error("{}missing remote configuration {} {} {}", getFop().getLoggingName(), url, statusLine,
+                                        LoggerUtils.whereFrom(1));
                                 sendConfig(parameters.get("updateKey"));
                                 nbTries++;
                             } else {
+                                logger.error("{}could not post to {} {} {}", getFop().getLoggingName(), url, statusLine,
+                                        LoggerUtils.whereFrom(1));
                                 done = true;
                             }
                         }

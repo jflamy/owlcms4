@@ -51,7 +51,7 @@ class Results extends PolymerElement {
         </div>
     </div>
 
-    <table class$="results [[noLiftRanks]] [[noLeaders]]"
+    <table class$="results [[noLiftRanks]]"
         style$="[[hiddenGridStyle]]; --top: [[resultLines]]; --bottom: [[leaderLines]]; [[leadersLineHeight]];">
         <template is="dom-if" if="[[athletes]]">
             <tr class="head">
@@ -194,7 +194,7 @@ class Results extends PolymerElement {
                                 <div inner-h-t-m-l="[[l.totalRank]]"></div>
                             </td>
                             <td class="sinclair" style$="[[leadersVisibility]]">
-                                <div>[[l.sinclair]]</div>f
+                                <div>[[l.sinclair]]</div>
                             </td>
                             <td class="sinclairRank" style$="[[leadersVisibility]]">
                                 <div>[[l.sinclairRank]]</div>

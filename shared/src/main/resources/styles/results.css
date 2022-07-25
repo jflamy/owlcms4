@@ -321,10 +321,6 @@ table.results.sinclair {
     color: var(--lightRankTextColor);
     visibility: var(--sinclairRankVisibility);
 }
-:host(.light) table.results .noleaders tr td.sinclairRank,
-:host(.light) table.results .noleaders tr th.sinclairRank {
-    visibility: hidden;
-}
 
 :host(.dark) table.results tr td.total,
 :host(.dark) table.results tr th.total {

@@ -137,7 +137,6 @@ public class DisplayOptions {
         recordsDisplayCheckbox.setValue(showRecords);
         recordsDisplayCheckbox.addValueChangeListener(e -> {
             if (e.isFromClient()) {
-                logger.warn("changing records");
                 dp.switchRecords(target, e.getValue(), true);
             }
             // UI.getCurrent().getPage().reload();

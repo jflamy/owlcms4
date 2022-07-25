@@ -155,6 +155,9 @@ public class UpdateReceiverServlet extends HttpServlet {
             updateEvent.setBreakType(bt);
             updateEvent.setBreakRemaining(breakRemainingString != null ? Integer.parseInt(breakRemainingString) : null);
             updateEvent.setIndefinite(Boolean.parseBoolean(breakIsIndefiniteString));
+            
+            String sinclairMeetString = req.getParameter("sinclairMeet");
+            updateEvent.setSinclairMeet(Boolean.parseBoolean(sinclairMeetString));
 
             if (bt == BreakType.GROUP_DONE) {
                 updateEvent.setRecords(null);

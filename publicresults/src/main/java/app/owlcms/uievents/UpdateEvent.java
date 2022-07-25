@@ -35,6 +35,7 @@ public class UpdateEvent {
     private String records;
     private String recordKind;
     private String recordMessage;
+    private boolean sinclairMeet;
 
     public UpdateEvent() {
         setLeaders(leaders);
@@ -170,6 +171,10 @@ public class UpdateEvent {
         return this.indefinite;
     }
 
+    public boolean isSinclairMeet() {
+        return this.sinclairMeet;
+    }
+
     public void setAthletes(String athletes) {
         this.athletes = athletes;
     }
@@ -244,6 +249,10 @@ public class UpdateEvent {
 
     public void setRecords(String records) {
         this.records = records;
+    }
+
+    public void setSinclairMeet(boolean sinclairMeet) {
+        this.sinclairMeet = sinclairMeet;
     }
 
     public void setStartNumber(Integer parameter) {
