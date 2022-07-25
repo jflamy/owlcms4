@@ -221,6 +221,9 @@ public class Competition {
     private boolean useRegistrationCategory = false;
     @Column(columnDefinition = "integer default 10")
     private Integer womensTeamSize = 10;
+    
+    @Column(columnDefinition = "boolean default false")
+    private boolean sinclairMeet;
 
 
     public Competition() {
@@ -1460,6 +1463,10 @@ public class Competition {
     }
 
     public boolean isSinclair() {
-        return Config.getCurrent().featureSwitch("SinclairMeet",true);
+        return this.sinclairMeet || Config.getCurrent().featureSwitch("SinclairMeet",true);
     }
+    public void setSinclair(boolean b) {
+        this.sinclairMeet = b;
+    }
+
 }

@@ -2,10 +2,13 @@
 
 ##### Changes since last pre-release
 
+- 4.33.1-beta02: Live selection of scoreboard sections on both owlcms and publicresults
+  - Records and Leader sections can now be shown/hidden from the pop-up dialog on the scoreboard screens.  There is no longer a reload (visibility is controlled by changing the CSS settings)
+- 4.33.1-beta02: Sinclair Meet added as a non-standard competition rule.  This is for meets where the medals are for men and for women independently of the bodyweight and age.  The feature switch still works, but there is now a checkbox on the competition page.
 - 4.33.1-beta01: Standardized the display options dialog between owlcms and publicresults
 - 4.33.1-alpha00: Shared styling between owlcms and publicresults.
   - publicresults scoreboard now uses the same colors.css and results.css stylesheets as owlcms.  owlcms sends the exact files it is using for itself
-  - Priority order: 1. css in an uploaded zip,  2. css in local/styles,  3. css found in owlcms distribution.
+  - Priority order to locate the style sheets: 1. css in an uploaded zip,  2. css in local/styles,  3. css found in owlcms distribution.
 - 4.33.1-alpha00: Swedish translation
 
 #### Changes for 4.33

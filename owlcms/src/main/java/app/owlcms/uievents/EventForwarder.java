@@ -498,9 +498,11 @@ public class EventForwarder implements BreakDisplay {
             setGroupAthletes(null);
         }
         if (Competition.getCurrent().isSinclair()) {
-            setNoLiftRanks("sinclair");
+            setNoLiftRanks("noranks sinclair");
         } else if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
             setNoLiftRanks("noranks");
+        } else {
+            setNoLiftRanks("");
         }
         computeLeaders();
         setRecords(fop.getRecordsJson());
@@ -658,7 +660,7 @@ public class EventForwarder implements BreakDisplay {
         mapPut(sb, "liftsDone", getLiftsDone());
 
         // bottom tables
-        mapPut(sb, "noLiftRanks", noLiftRanks);
+        mapPut(sb, "noLiftRanks", getNoLiftRanks());
         if (groupAthletes != null) {
             mapPut(sb, "groupAthletes", groupAthletes.toJson());
         }
@@ -1130,6 +1132,10 @@ public class EventForwarder implements BreakDisplay {
     private void uiLog(UIEvent e) {
         uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 null, e.getOrigin(), LoggerUtils.whereFrom());
+    }
+
+    private String getNoLiftRanks() {
+        return noLiftRanks;
     }
 
 }
