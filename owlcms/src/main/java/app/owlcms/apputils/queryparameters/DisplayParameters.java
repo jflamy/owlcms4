@@ -258,7 +258,7 @@ public interface DisplayParameters extends ContentParameters {
                                 // logger.debug("timer closing {}", dialog);
                                 dialog.close();
                             });
-                            } catch (Exception e) {
+                            } catch (Throwable e) {
                                 // ignore.
                             }
                         }

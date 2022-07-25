@@ -51,8 +51,8 @@ class Results extends PolymerElement {
         </div>
     </div>
 
-    <table class$="results [[noLiftRanks]]"
-        style$="[[hiddenGridStyle]]; --top: [[resultLines]]; --bottom: [[leaderLines]];">
+    <table class$="results [[noLiftRanks]] [[noLeaders]]"
+        style$="[[hiddenGridStyle]]; --top: [[resultLines]]; --bottom: [[leaderLines]]; [[leadersLineHeight]];">
         <template is="dom-if" if="[[athletes]]">
             <tr class="head">
                 <!-- [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
@@ -75,8 +75,7 @@ class Results extends PolymerElement {
             <template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
                 <template is="dom-if" if="[[l.isSpacer]]">
                     <tr>
-                        <td class="spacer" style="grid-column: 1 / -1; justify-content: left;"
-                            inner-h-t-m-l="-">
+                        <td class="spacer" style="grid-column: 1 / -1; justify-content: left;" inner-h-t-m-l="-">
                         </td>
                     </tr>
                 </template>
@@ -139,12 +138,15 @@ class Results extends PolymerElement {
             <td class="filler" style="grid-column: 1 / -1">&nbsp;</td>
         </tr>
         <template is="dom-if" if="[[leaders]]">
+            <tbody class="leaders" style$="[[leadersVisibility]]">
             <tr class="head">
                 <td class="leaderTitle" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
                 </td>
             </tr>
             <tr>
-                <td class="spacer" style="grid-column: 1 / -1; justify-content: left;" inner-h-t-m-l="&nbsp;">
+                    <td class="spacer"
+                        style$="grid-column: 1 / -1; justify-content: left; [[leadersVisibility]];"
+                        inner-h-t-m-l="&nbsp;">
                 </td>
             </tr>
             <template is="dom-repeat" id="result-table" items="[[leaders]]" as="l">
@@ -160,10 +162,10 @@ class Results extends PolymerElement {
                             <div>[[l.category]]</div>
                         </td>
                         <td class="yob">[[l.yearOfBirth]]</td>
-                        <td class="custom1">
+                            <td class="custom1" style$="[[leadersVisibility]]">
                             <div>[[l.custom1]]</div>
                         </td>
-                        <td class="custom2">
+                            <td class="custom2" style$="[[leadersVisibility]]">
                             <div>[[l.custom2]]</div>
                         </td>
                         <td class="club">
@@ -174,7 +176,7 @@ class Results extends PolymerElement {
                                 <div>[[attempt.stringValue]]</div>
                             </td>
                         </template>
-                        <td class="rank">
+                            <td class="rank" style$="[[leadersVisibility]]">
                             <div inner-h-t-m-l="[[l.snatchRank]]"></div>
                         </td>
                         <template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
@@ -182,29 +184,30 @@ class Results extends PolymerElement {
                                 <div>[[attempt.stringValue]]</div>
                             </td>
                         </template>
-                        <td class="rank">
+                            <td class="rank" style$="[[leadersVisibility]]">
                             <div inner-h-t-m-l="[[l.cleanJerkRank]]"></div>
                         </td>
-                        <td class="total">
+                            <td class="total" style$="[[leadersVisibility]]">
                             <div>[[l.total]]</div>
                         </td>
-                        <td class="totalRank">
+                            <td class="totalRank" style$="[[leadersVisibility]]">
                             <div inner-h-t-m-l="[[l.totalRank]]"></div>
                         </td>
-                        <td class="sinclair">
-                            <div>[[l.sinclair]]</div>
+                            <td class="sinclair" style$="[[leadersVisibility]]">
+                                <div>[[l.sinclair]]</div>f
                         </td>
-                        <td class="sinclairRank">
+                            <td class="sinclairRank" style$="[[leadersVisibility]]">
                             <div>[[l.sinclairRank]]</div>
                         </td>
                     </tr>
                 </template>
             </template>
+            </tbody>
         </template>
     </table>
     <template is="dom-if" if="[[records]]">
         <div
-            style$="font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); [[hiddenBlockStyle]]; height: 100%;">
+            style$="font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); [[hiddenBlockStyle]]; [[recordsDisplay]]; height: 100%;">
             <div class="recordsFiller">&nbsp;</div>
 
             <div class="recordRow" style$="[[hiddenGridStyle]]; --nbRecords: [[records.nbRecords]];">

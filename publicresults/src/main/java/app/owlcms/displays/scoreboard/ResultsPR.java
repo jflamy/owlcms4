@@ -100,12 +100,15 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     private boolean silenced;
     private String fopName;
     private boolean recordsDisplay;
+    private boolean leadersDisplay;
 
     /**
      * Instantiates a new results board.
      */
     public ResultsPR() {
         setDarkMode(true);
+        setDefaultLeadersDisplay(true);
+        setDefaultRecordsDisplay(true);
     }
 
     @Override
@@ -113,11 +116,11 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
         DisplayOptions.addLightingEntries(vl, target, this);
         DisplayOptions.addRule(vl);
         DisplayOptions.addSoundEntries(vl, target, this);
-//        vl.add(new Hr());
+//        DisplayOptions.addRule(vl);
 //        DisplayOptions.addSwitchableEntries(vl, target, this);
         DisplayOptions.addRule(vl);
         DisplayOptions.addSectionEntries(vl, target, this);
-//        vl.add(new Hr());
+//        DisplayOptions.addRule(vl);
 //        DisplayOptions.addSizingEntries(vl, target, this);
     }
 
@@ -167,6 +170,11 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     }
 
     @Override
+    public boolean isLeadersDisplay() {
+        return leadersDisplay;
+    }
+
+    @Override
     public boolean isRecordsDisplay() {
         return recordsDisplay;
     }
@@ -207,6 +215,18 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     }
 
     @Override
+    public void setLeadersDisplay(boolean showLeaders) {
+        this.leadersDisplay = showLeaders;
+        if (showLeaders) {
+            this.getElement().setProperty("leadersVisibility", "");
+            this.getElement().setProperty("leadersLineHeight", "min-content");
+        } else {
+            this.getElement().setProperty("leadersVisibility", "visibility: hidden;");
+            this.getElement().setProperty("leadersLineHeight", "0px");
+        }
+    }
+
+    @Override
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -219,6 +239,11 @@ public class ResultsPR extends PolymerTemplate<TemplateModel>
     @Override
     public void setRecordsDisplay(boolean showRecords) {
         this.recordsDisplay = showRecords;
+        if (showRecords) {
+            this.getElement().setProperty("recordsDisplay", "display: block");
+        } else {
+            this.getElement().setProperty("recordsDisplay", "display: none");
+        }
     }
 
     /**

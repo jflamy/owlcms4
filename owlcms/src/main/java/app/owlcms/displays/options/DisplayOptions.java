@@ -54,6 +54,7 @@ public class DisplayOptions {
         rbgroup.addValueChangeListener(e -> {
             dp.switchLightingMode(target, e.getValue(), true);
         });
+        rbgroup.getStyle().set("margin-top", "0px");
 
         layout.add(label);
         layout.add(rbgroup);
@@ -122,7 +123,7 @@ public class DisplayOptions {
 
         LocalizedDecimalField fontSizeField = new LocalizedDecimalField();
         TextField wrappedTextField = fontSizeField.getWrappedTextField();
-
+        wrappedTextField.setLabel(null);
         wrappedTextField.setValueChangeMode(ValueChangeMode.ON_CHANGE);
         wrappedTextField.addFocusListener(f -> {
             dp.getDialogTimer().cancel();

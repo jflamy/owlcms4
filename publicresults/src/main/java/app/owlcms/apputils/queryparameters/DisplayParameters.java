@@ -45,7 +45,9 @@ public interface DisplayParameters extends ContentParameters {
     public static final String FONTSIZE = "em";
     public static final String LIGHT = "light";
     public static final String PUBLIC = "public";
+    public static final String SOUND = "sound";
     public static final String RECORDS = "records";
+    public static final String LEADERS = "leaders";
 
     public default void doNotification(boolean dark) {
         Notification n = new Notification();
@@ -84,11 +86,26 @@ public interface DisplayParameters extends ContentParameters {
         updateParam(params, PUBLIC, isSwitchableDisplay() ? "true" : null);
         
         List<String> records = params.get(RECORDS);
-        boolean showRecords = records == null || records.isEmpty()
-                || records.get(0).toLowerCase().equals("true");
+        boolean showRecords = isDefaultRecordsDisplay();
+        if (isDefaultRecordsDisplay()) {
+            showRecords = records == null || records.isEmpty() || ! "false".contentEquals(records.get(0));
+        } else {
+            showRecords = records != null && !records.isEmpty() && "true".contentEquals(records.get(0));
+        }
         setRecordsDisplay(showRecords);
         switchRecords((Component) this, showRecords, false);
-        updateParam(params, PUBLIC, isRecordsDisplay() ? "true" : null);
+        updateParam(params, PUBLIC, isRecordsDisplay() != isDefaultRecordsDisplay() ? Boolean.toString(isRecordsDisplay()) : null);
+        
+        List<String> leaders = params.get(LEADERS);
+        boolean showLeaders = isDefaultLeadersDisplay();
+        if (isDefaultLeadersDisplay()) {
+            showLeaders = leaders == null || leaders.isEmpty() || ! "false".contentEquals(leaders.get(0));
+        } else {
+            showLeaders = leaders != null && !leaders.isEmpty() && "true".contentEquals(leaders.get(0));
+        }
+        setLeadersDisplay(showLeaders);
+        switchLeaders((Component) this, showLeaders, false);
+        updateParam(params, LEADERS, isLeadersDisplay() != isDefaultLeadersDisplay() ? Boolean.toString(isLeadersDisplay()) : null);
         
         List<String> sizeParams = params.get(FONTSIZE);
         Double emSize;
@@ -221,6 +238,10 @@ public interface DisplayParameters extends ContentParameters {
         return false;
     }
 
+    public default boolean isLeadersDisplay() {
+        return false;
+    }
+
     public default void openDialog(Dialog dialog) {
         // logger.debug("openDialog {} {}", dialog, dialog.isOpened());
         if (!dialog.isOpened()) {
@@ -264,6 +285,8 @@ public interface DisplayParameters extends ContentParameters {
     public default void setRecordsDisplay(boolean showRecords) {
     }
 
+    public default void setLeadersDisplay(boolean showLeaders) {
+    }
 
     /**
      * called by updateURLLocation
@@ -311,11 +334,34 @@ public interface DisplayParameters extends ContentParameters {
         buildDialog(target);
     }
     
+    public default void setDefaultRecordsDisplay(boolean b) {}
+
+    public default void setDefaultLeadersDisplay(boolean b) {}
+
+    public default boolean isDefaultRecordsDisplay() {
+        return false;
+    }
+
+    public default boolean isDefaultLeadersDisplay() {
+        return false;
+    }
+
     public default void switchRecords(Component target, boolean showRecords, boolean updateURL) {
         setRecordsDisplay(showRecords);
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), RECORDS, showRecords ? "true" : "false");
         }
-        buildDialog(target);
+//        buildDialog(target);
     }
+    
+    public default void switchLeaders(Component target, boolean showLeaders, boolean updateURL) {
+        setLeadersDisplay(showLeaders);
+        if (updateURL) {
+            updateURLLocation(getLocationUI(), getLocation(), LEADERS, showLeaders ? "true" : "false");
+        }
+//        buildDialog(target);
+    }
+
+
+
 }
