@@ -544,4 +544,5 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     public void setDialogTimer(Timer timer) {
         this.dialogTimer = timer; 
     }
+
 }

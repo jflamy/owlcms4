@@ -816,4 +816,5 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
         this.getElement().setProperty("liftDone", "-");
         computeMedalsJson();
     }
+
 }

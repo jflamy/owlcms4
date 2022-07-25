@@ -860,4 +860,5 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         // this.getElement().callJsFunction("groupDone");
         computeMedalsJson();
     }
+
 }
