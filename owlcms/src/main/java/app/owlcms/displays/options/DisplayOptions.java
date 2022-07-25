@@ -142,7 +142,7 @@ public class DisplayOptions {
     }
 
     public static void addSectionEntries(VerticalLayout layout, Component target, DisplayParameters dp) {
-        Label label = new Label("DisplayParameters.Content");
+        Label label = new Label(Translator.translate("DisplayParameters.Content"));
         if (RecordRepository.findAll().isEmpty()) {
             return;
         }
@@ -163,7 +163,6 @@ public class DisplayOptions {
         leadersDisplayCheckbox.setValue(showLeaders);
         leadersDisplayCheckbox.addValueChangeListener(e -> {
             if (e.isFromClient() && e.getSource() == leadersDisplayCheckbox) {
-                logger.warn("changing leaders");
                 dp.switchLeaders(target, e.getValue(), true);
             }
             //UI.getCurrent().getPage().reload();
