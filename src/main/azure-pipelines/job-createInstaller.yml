@@ -13,7 +13,7 @@ jobs:
       vmImage: windows-latest
     steps:
       - template: steps-prepare-maven-windows.yml
-      - task: Maven@3
+      - task: Maven@3.205.1
         displayName: Create ${{ parameters.moduleName }} installer
         inputs:
           mavenPomFile: pom.xml
