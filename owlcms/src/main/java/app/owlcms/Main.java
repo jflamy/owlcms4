@@ -381,7 +381,8 @@ public class Main {
     }
 
     public static Logger getStartupLogger() {
-        return (Logger) LoggerFactory.getLogger( Main.class.getSimpleName()+".startup");
+        String name = Main.class.getName()+".startup";
+        return (Logger) LoggerFactory.getLogger( name);
     }
 
 }
