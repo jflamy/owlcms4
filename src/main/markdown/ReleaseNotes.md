@@ -2,6 +2,7 @@
 
 ##### Changes since last pre-release
 
+- 4.33.1-beta05: Fix for missing "new record" indication on the video status monitor when jury reverses decision and grants a record on 3rd lift.
 - 4.33.1-beta04: The video switching status window now includes `liftType=SNATCH` or `liftType=CLEANJERK` when lifting is taking place.
 - 4.33.1-beta03: Updated the scoreboard with multiple category ranks to work like the others.
 - 4.33.1-beta02: Live selection of scoreboard sections on both owlcms and publicresults
