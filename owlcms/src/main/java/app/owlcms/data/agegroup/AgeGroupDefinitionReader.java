@@ -230,8 +230,8 @@ public class AgeGroupDefinitionReader {
             localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
             try (Workbook workbook = WorkbookFactory
                     .create(localizedResourceAsStream)) {
-                logger.info("loading configuration file {}", localizedName);
-                mainLogger.info("loading configuration file {}", localizedName);
+                logger.info("loading age group configuration file {}", localizedName);
+                mainLogger.info("loading age group definitions {}", localizedName);
                 Map<String, Category> templates = createCategoryTemplates(workbook);
                 createAgeGroups(workbook, templates, es, localizedName);
                 workbook.close();
