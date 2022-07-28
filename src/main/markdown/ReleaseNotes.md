@@ -1,10 +1,6 @@
-<<<<<<< HEAD
-## **Release ${revision}**
-=======
 **Changes for release ${revision}**
 
 - 4.33.1-rc01: Release candidate.
->>>>>>> origin/develop
 
 #### Changes for 4.33.1
 
