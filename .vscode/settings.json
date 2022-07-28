@@ -1,5 +1,6 @@
 {
     "java.configuration.updateBuildConfiguration": "automatic",
+    "java.jdt.ls.home": "/home/gitpod/.sdkman/candidates/java/current",
     "files.exclude": {
         "**/.classpath": true,
         "**/.project": true,
