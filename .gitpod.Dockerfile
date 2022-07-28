@@ -1,7 +1,7 @@
 FROM gitpod/workspace-java-17
 
-#RUN bash -c ". /home/gitpod/.sdkman/bin/sdkman-init.sh && sdk install java 11.0.9-trava"
-#RUN echo "JAVA_HOME=/home/gitpod/.sdkman/candidates/java/current" > ~/.mavenrc
+RUN bash -c ". /home/gitpod/.sdkman/bin/sdkman-init.sh && sdk install java 17.0.3-tem"
+RUN echo "JAVA_HOME=/home/gitpod/.sdkman/candidates/java/current" > ~/.mavenrc
 ENV JAVA_HOME=/home/gitpod/.sdkman/candidates/java/current/bin/java
              
 USER gitpod
