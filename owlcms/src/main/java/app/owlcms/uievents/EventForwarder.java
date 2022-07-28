@@ -566,7 +566,7 @@ public class EventForwarder implements BreakDisplay {
         mapPut(sb, "d3", getDecisionLight3() != null ? getDecisionLight3().toString() : null);
         mapPut(sb, "decisionsVisible", Boolean.toString(isDecisionLightsVisible()));
         mapPut(sb, "down", Boolean.toString(isDown()));
-        
+
         createRecord(sb);
 
         return sb;
@@ -744,7 +744,8 @@ public class EventForwarder implements BreakDisplay {
                     if (statusCode != null && statusCode != 200) {
                         synchronized (singleThreadLock) {
                             if (nbTries == 0 && statusCode != null && statusCode == 412) {
-                                logger.error("{}missing remote configuration {} {} {}", getFop().getLoggingName(), url, statusLine,
+                                logger.error("{}missing remote configuration {} {} {}", getFop().getLoggingName(), url,
+                                        statusLine,
                                         LoggerUtils.whereFrom(1));
                                 sendConfig(parameters.get("updateKey"));
                                 nbTries++;
@@ -1021,61 +1022,65 @@ public class EventForwarder implements BreakDisplay {
 
     private void sendConfig(String updateKey) {
         String destination = Config.getCurrent().getParamPublicResultsURL() + "/config";
-        try {
-            logger.info("{}sending config", getFop().getLoggingName());
+        // wait for previous send to finish.
+        // no consequences sending it multiple times in a row -- we have no idea why it is being requested again.
+        synchronized (Config.getCurrent()) {
+            try {
+                logger.info("{}sending config", getFop().getLoggingName());
 
-            Supplier<byte[]> localZipBlobSupplier = ResourceWalker.getLocalZipBlobSupplier();
-            byte[] blob = null;
-            if (localZipBlobSupplier != null) {
-                blob = localZipBlobSupplier.get();
-            }
-            HttpPost post = new HttpPost(destination);
-
-            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addPart("updateKey", new StringBody(updateKey, ContentType.TEXT_PLAIN));
-            InputStream inputStream;
-            if (blob == null) {
-                try {
-                    inputStream = ResourceWalker.getFileOrResource("/styles/results.css");
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
+                Supplier<byte[]> localZipBlobSupplier = ResourceWalker.getLocalZipBlobSupplier();
+                byte[] blob = null;
+                if (localZipBlobSupplier != null) {
+                    blob = localZipBlobSupplier.get();
                 }
-                builder.addBinaryBody("results", inputStream, ContentType.create("text/css"), "results.css");
+                HttpPost post = new HttpPost(destination);
 
-                try {
-                    inputStream = ResourceWalker.getFileOrResource("/styles/colors.css");
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
+                MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+                builder.addPart("updateKey", new StringBody(updateKey, ContentType.TEXT_PLAIN));
+                InputStream inputStream;
+                if (blob == null) {
+                    try {
+                        inputStream = ResourceWalker.getFileOrResource("/styles/results.css");
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                    builder.addBinaryBody("results", inputStream, ContentType.create("text/css"), "results.css");
+
+                    try {
+                        inputStream = ResourceWalker.getFileOrResource("/styles/colors.css");
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                    builder.addBinaryBody("colors", inputStream, ContentType.create("text/css"), "colors.css");
+                } else {
+                    builder.addBinaryBody("local", blob, ContentType.create("application/zip"), "local.zip");
                 }
-                builder.addBinaryBody("colors", inputStream, ContentType.create("text/css"), "colors.css");
-            } else {
-                builder.addBinaryBody("local", blob, ContentType.create("application/zip"), "local.zip");
-            }
 
-            HttpEntity entity = builder.build();
+                HttpEntity entity = builder.build();
 
-            post.setEntity(entity);
-            try (CloseableHttpClient httpClient = HttpClients.createDefault();
-                    CloseableHttpResponse response = httpClient.execute(post)) {
-                StatusLine statusLine = response.getStatusLine();
-                Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
-                if (statusCode != null && statusCode != 200) {
-                    logger.error("{}could not send config to {} {} {}", getFop().getLoggingName(), destination,
-                            statusLine,
-                            LoggerUtils.whereFrom(1));
+                post.setEntity(entity);
+                try (CloseableHttpClient httpClient = HttpClients.createDefault();
+                        CloseableHttpResponse response = httpClient.execute(post)) {
+                    StatusLine statusLine = response.getStatusLine();
+                    Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
+                    if (statusCode != null && statusCode != 200) {
+                        logger.error("{}could not send config to {} {} {}", getFop().getLoggingName(), destination,
+                                statusLine,
+                                LoggerUtils.whereFrom(1));
+                    }
+                    EntityUtils.toString(response.getEntity());
+                } catch (Exception e1) {
+                    logger.error("{}could not send config to {} {}", getFop().getLoggingName(), destination,
+                            LoggerUtils.exceptionMessage(e1));
                 }
-                EntityUtils.toString(response.getEntity());
-            } catch (Exception e1) {
-                logger.error("{}could not send config to {} {}", getFop().getLoggingName(), destination,
-                        LoggerUtils.exceptionMessage(e1));
+            } catch (Exception e2) {
+                logger.error("{}could not send config to {} {}", getFop().getLoggingName(), destination, e2);
             }
-        } catch (Exception e2) {
-            logger.error("{}could not send config to {} {}", getFop().getLoggingName(), destination, e2);
         }
     }
 
     private void sendPost(String url, Map<String, String> parameters) {
-        //logger.debug("{}posting update {}", getFop().getLoggingName(), LoggerUtils.whereFrom());
+        // logger.debug("{}posting update {}", getFop().getLoggingName(), LoggerUtils.whereFrom());
         long deltaMillis = System.currentTimeMillis() - previousMillis;
         int hashCode = parameters.hashCode();
         // debounce, sometimes several identical updates in a rapid succession
