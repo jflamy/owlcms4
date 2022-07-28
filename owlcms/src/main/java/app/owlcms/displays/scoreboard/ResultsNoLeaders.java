@@ -7,7 +7,6 @@
 package app.owlcms.displays.scoreboard;
 
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.router.Route;
@@ -16,7 +15,6 @@ import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
-import elemental.json.Json;
 
 /**
  * Class Scoreboard
@@ -40,6 +38,8 @@ public class ResultsNoLeaders extends Results {
         OwlcmsFactory.waitDBInitialized();
         timer.setOrigin(this);
         setDarkMode(true);
+        setDefaultLeadersDisplay(false);
+        setDefaultRecordsDisplay(false);
     }
 
     @Override
@@ -47,11 +47,11 @@ public class ResultsNoLeaders extends Results {
         return getTranslation("Scoreboard") + OwlcmsSession.getFopNameIfMultiple();
     }
 
-    @Override
-    protected void computeLeaders(boolean done) {
-        UI.getCurrent().access(() -> {
-            this.getElement().setPropertyJson("leaders", Json.createNull());
-            this.getElement().setProperty("leaderLines", 1); // must be > 0
-        });
-    }
+//    @Override
+//    protected void computeLeaders(boolean done) {
+//        UI.getCurrent().access(() -> {
+//            this.getElement().setPropertyJson("leaders", Json.createNull());
+//            this.getElement().setProperty("leaderLines", 1); // must be > 0
+//        });
+//    }
 }

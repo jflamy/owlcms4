@@ -26,7 +26,7 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.displays.scoreboard.ScoreWithLeaders;
+import app.owlcms.displays.scoreboard.ResultsPR;
 import app.owlcms.i18n.Translator;
 import app.owlcms.uievents.UpdateEvent;
 import app.owlcms.utils.URLUtils;
@@ -80,7 +80,7 @@ public class MainView extends VerticalLayout {
 
     private void buildHomePage() {
         // we cache the last update received for each field of play, indexed by fop name
-        Set<String> fopNames = UpdateReceiverServlet.updateCache.keySet();
+        Set<String> fopNames = UpdateReceiverServlet.getUpdateCache().keySet();
         if (fopNames.size() == 0 || ui == null) {
             removeAll();
             add(text);
@@ -89,8 +89,8 @@ public class MainView extends VerticalLayout {
             Map<String, String> parameterMap = new HashMap<>();
             String fop = fopNames.stream().findFirst().get();
             parameterMap.put("FOP", fop);
-            // ui.navigate("displays/scoreleader", QueryParameters.simple(parameterMap));
-            ui.getPage().executeJs("window.location.href='displays/scoreleader?fop=" + fop + "'");
+            // ui.navigate("displays/resultsLeader", QueryParameters.simple(parameterMap));
+            ui.getPage().executeJs("window.location.href='results?fop=" + fop + "'");
         } else {
             createButtons(fopNames);
         }
@@ -98,7 +98,7 @@ public class MainView extends VerticalLayout {
 
     private void createButtons(Set<String> fopNames) {
         removeAll();
-        UpdateEvent updateEvent = UpdateReceiverServlet.updateCache.entrySet().stream().findFirst().orElse(null)
+        UpdateEvent updateEvent = UpdateReceiverServlet.getUpdateCache().entrySet().stream().findFirst().orElse(null)
                 .getValue();
         if (updateEvent == null) {
             return;
@@ -109,7 +109,7 @@ public class MainView extends VerticalLayout {
         fopNames.stream().sorted().forEach(fopName -> {
             Button fopButton = new Button(getTranslation("Platform") + " " + fopName,
                     buttonClickEvent -> {
-                        String url = URLUtils.getRelativeURLFromTargetClass(ScoreWithLeaders.class);
+                        String url = URLUtils.getRelativeURLFromTargetClass(ResultsPR.class);
                         HashMap<String, List<String>> params = new HashMap<>();
                         params.put("fop", Arrays.asList(fopName));
                         QueryParameters parameters = new QueryParameters(params);

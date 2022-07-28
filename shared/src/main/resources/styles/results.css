@@ -38,6 +38,9 @@
 
     /* records */
     --recordValueCellWidth: 4rem;
+
+    /* leaders section control grid lines visibility */
+    --leaderLineHeight: min-content;
 }
 
 * {
@@ -63,6 +66,7 @@
     flex-direction: column;
     flex-wrap: no-wrap;
     justify-content: flex-start;
+    line-height: unset;
 }
 
 /* table general parameters */
@@ -238,21 +242,6 @@ table.results.sinclair {
     visibility: var(--totalRankVisibility);
 }
 
-/* sinclair rank */
-:host(.dark) table.results tr td.sinclairRank,
-:host(.dark) table.results tr th.sinclairRank {
-    background-color: var(--darkRankBackgroundColor);
-    color: var(--darkRankTextColor);
-    visibility: var(--sinclairRankVisibility);
-}
-
-:host(.light) table.results tr td.sinclairRank,
-:host(.light) table.results tr th.sinclairRank {
-    background-color: var(--lightRankBackgroundColor);
-    color: var(--lightRankTextColor);
-    visibility: var(--sinclairRankVisibility);
-}
-
 /* group */
 :host(.light) table.results tr td.groupCol {
     background-color: var(--lightStartBackgroundColor);
@@ -264,7 +253,6 @@ table.results.sinclair {
 }
 
 /* custom fields */
-
 :host(.dark) table.results tr td.custom1,
 :host(.dark) table.results tr th.custom1 {
     background-color: var(--darkBackgroundColor);
@@ -299,12 +287,39 @@ table.results.sinclair {
     color: var(--darkTextColor);
     visibility: var(--sinclairVisibility);
 }
+:host(.dark) table.results .nosinclair tr td.sinclair,
+:host(.dark) table.results .nosinclair tr th.sinclair {
+    visibility: hidden;
+}
 
 :host(.light) table.results tr td.sinclair,
 :host(.light) table.results tr th.sinclair {
     background-color: var(--lightBackgroundColor);
     color: var(--lightTextColor);
     visibility: var(--sinclairVisibility);
+}
+:host(.light) table.results .nosinclair tr td.sinclair,
+:host(.light) table.results .nosinclair tr th.sinclair {
+    visibility: hidden;
+}
+
+/* sinclair rank */
+:host(.dark) table.results tr td.sinclairRank,
+:host(.dark) table.results tr th.sinclairRank {
+    background-color: var(--darkRankBackgroundColor);
+    color: var(--darkRankTextColor);
+    visibility: var(--sinclairRankVisibility);
+}
+:host(.dark) table.results .nosinclair tr td.sinclairRank,
+:host(.dark) table.results .nosinclair tr th.sinclairRank {
+    visibility: hidden;
+}
+
+:host(.light) table.results tr td.sinclairRank,
+:host(.light) table.results tr th.sinclairRank {
+    background-color: var(--lightRankBackgroundColor);
+    color: var(--lightRankTextColor);
+    visibility: var(--sinclairRankVisibility);
 }
 
 :host(.dark) table.results tr td.total,
@@ -428,7 +443,7 @@ table {
     display: grid;
     border-collapse: collapse;
     grid-template-rows:
-        repeat(var(--top), min-content) 1fr repeat(var(--bottom), min-content);
+        repeat(var(--top), min-content) 1fr repeat(var(--bottom), var(--leaderLineHeight));
     grid-template-columns:
         /* start */
         var(--startWidth)

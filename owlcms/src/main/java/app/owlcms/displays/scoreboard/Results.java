@@ -26,7 +26,6 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
@@ -122,7 +121,9 @@ public class Results extends PolymerTemplate<TemplateModel>
 
     protected Double emFontSize = null;
     private Timer dialogTimer;
-
+    private boolean showLeaders;
+    private boolean defaultLeadersDisplay;
+    private boolean defaultRecordsDisplay;
     {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
@@ -135,6 +136,8 @@ public class Results extends PolymerTemplate<TemplateModel>
         OwlcmsFactory.waitDBInitialized();
         timer.setOrigin(this);
         setDarkMode(true);
+        setDefaultLeadersDisplay(true);
+        setDefaultRecordsDisplay(true);
     }
 
     /**
@@ -144,13 +147,13 @@ public class Results extends PolymerTemplate<TemplateModel>
     @Override
     public void addDialogContent(Component target, VerticalLayout vl) {
         DisplayOptions.addLightingEntries(vl, target, this);
-        vl.add(new Hr());
+        DisplayOptions.addRule(vl);
         DisplayOptions.addSoundEntries(vl, target, this);
-        vl.add(new Hr());
+        DisplayOptions.addRule(vl);
         DisplayOptions.addSwitchableEntries(vl, target, this);
-
+        DisplayOptions.addRule(vl);
         DisplayOptions.addSectionEntries(vl, target, this);
-        vl.add(new Hr());
+        DisplayOptions.addRule(vl);
         DisplayOptions.addSizingEntries(vl, target, this);
     }
 
@@ -258,8 +261,23 @@ public class Results extends PolymerTemplate<TemplateModel>
     }
 
     @Override
+    public boolean isDefaultLeadersDisplay() {
+        return defaultLeadersDisplay;
+    }
+
+    @Override
+    public boolean isDefaultRecordsDisplay() {
+        return defaultRecordsDisplay;
+    }
+
+    @Override
     public boolean isIgnoreGroupFromURL() {
         return true;
+    }
+
+    @Override
+    public boolean isLeadersDisplay() {
+        return showLeaders;
     }
 
     @Override
@@ -313,6 +331,19 @@ public class Results extends PolymerTemplate<TemplateModel>
     @Override
     public void setEmFontSize(Double emFontSize) {
         this.emFontSize = emFontSize;
+        doChangeEmSize();
+    }
+
+    @Override
+    public void setLeadersDisplay(boolean showLeaders) {
+        this.showLeaders = showLeaders;
+        if (showLeaders) {
+            this.getElement().setProperty("leadersVisibility", "");
+            this.getElement().setProperty("leadersLineHeight", "min-content");
+        } else {
+            this.getElement().setProperty("leadersVisibility", "visibility: hidden;");
+            this.getElement().setProperty("leadersLineHeight", "0px");
+        }
     }
 
     @Override
@@ -328,6 +359,11 @@ public class Results extends PolymerTemplate<TemplateModel>
     @Override
     public void setRecordsDisplay(boolean showRecords) {
         this.showRecords = showRecords;
+        if (showRecords) {
+            this.getElement().setProperty("recordsDisplay", "display: block");
+        } else {
+            this.getElement().setProperty("recordsDisplay", "display: none");
+        }
     }
 
     /**
@@ -494,14 +530,15 @@ public class Results extends PolymerTemplate<TemplateModel>
                 this.getElement().setProperty("categoryName", curAthlete.getCategory().getName());
 
                 if (Competition.getCurrent().isSinclair()) {
-                    List<Athlete> sortedAthletes = new ArrayList<Athlete>(
+                    List<Athlete> sortedAthletes = new ArrayList<>(
                             Competition.getCurrent().getGlobalSinclairRanking(curAthlete.getGender()));
                     displayOrder = AthleteSorter.topSinclair(sortedAthletes, 3).topAthletes;
                     this.getElement().setProperty("categoryName", Translator.translate("sinclair"));
                 } else {
                     displayOrder = fop.getLeaders();
                 }
-                if ((!done || Competition.getCurrent().isSinclair()) && displayOrder != null && displayOrder.size() > 0) {
+                if ((!done || Competition.getCurrent().isSinclair()) && displayOrder != null
+                        && displayOrder.size() > 0) {
                     // null as second argument because we do not highlight current athletes in the leaderboard
                     this.getElement().setPropertyJson("leaders", getAthletesJson(displayOrder, null, fop));
                     this.getElement().setProperty("leaderLines", displayOrder.size() + 2); // spacer + title
@@ -515,10 +552,11 @@ public class Results extends PolymerTemplate<TemplateModel>
     }
 
     protected void computeRecords(boolean done) {
-        if (!this.isRecordsDisplay()) {
-            this.getElement().setPropertyJson("records", Json.createNull());
-            return;
-        }
+        // always compute
+//        if (!this.isRecordsDisplay()) {
+//            this.getElement().setPropertyJson("records", Json.createNull());
+//            return;
+//        }
         OwlcmsSession.withFop(fop -> {
             Athlete curAthlete = fop.getCurAthlete();
             if (curAthlete != null && curAthlete.getGender() != null) {
@@ -804,10 +842,13 @@ public class Results extends PolymerTemplate<TemplateModel>
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
+
         if (Competition.getCurrent().isSinclair()) {
-            getElement().setProperty("noLiftRanks", "sinclair");
+            getElement().setProperty("noLiftRanks", "noranks sinclair");
         } else if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
-            getElement().setProperty("noLiftRanks", "noranks");
+            getElement().setProperty("noLiftRanks", "noranks nosinclair");
+        } else {
+            getElement().setProperty("noLiftRanks", "nosinclair");
         }
         SoundUtils.enableAudioContextNotification(this.getElement());
         storeReturnURL();
@@ -833,9 +874,7 @@ public class Results extends PolymerTemplate<TemplateModel>
         } else {
             spotlightAttemptOrNone(fop, this);
         }
-        if (Config.getCurrent().isSizeOverride() && getEmFontSize() != null) {
-            this.getElement().setProperty("sizeOverride", " --tableFontSize:" + getEmFontSize() + "rem;");
-        }
+        doChangeEmSize();
         if (liftType != null) {
             this.getElement().setProperty("groupName",
                     curGroup != null
@@ -867,6 +906,12 @@ public class Results extends PolymerTemplate<TemplateModel>
         return liftType;
     }
 
+    private void doChangeEmSize() {
+        if (Config.getCurrent().isSizeOverride() && getEmFontSize() != null) {
+            this.getElement().setProperty("sizeOverride", " --tableFontSize:" + getEmFontSize() + "rem;");
+        }
+    }
+
     private void doDone(Group g) {
         logger.debug("doDone {}", g == null ? null : g.getName());
         if (g == null) {
@@ -894,6 +939,40 @@ public class Results extends PolymerTemplate<TemplateModel>
                 : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
     }
 
+    private void init() {
+        OwlcmsSession.withFop(fop -> {
+            logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
+            setId("scoreboard-" + fop.getName());
+            curGroup = fop.getGroup();
+            setWideTeamNames(false);
+            this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
+        });
+        setTranslationMap();
+        displayOrder = ImmutableList.of();
+    }
+
+    @Override
+    public void setDefaultLeadersDisplay(boolean b) {
+        this.defaultLeadersDisplay = b;
+    }
+
+    @Override
+    public void setDefaultRecordsDisplay(boolean b) {
+        this.defaultRecordsDisplay = b;
+    }
+
+    private void setHidden(boolean hidden) {
+        this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
+        this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
+        this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
+        this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
+        this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
+    }
+
+    private void setWideTeamNames(boolean wide) {
+        this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
+    }
+
     private void spotlightAttemptOrNone(FieldOfPlay fop, Results parentThis) {
         if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
             parentThis.getElement().setProperty("recordKind", "attempt");
@@ -907,30 +986,6 @@ public class Results extends PolymerTemplate<TemplateModel>
     private void spotlightNewRecord() {
         this.getElement().setProperty("recordKind", "new");
         this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.NewRecord"));
-    }
-
-    private void init() {
-        OwlcmsSession.withFop(fop -> {
-            logger.trace("{}Starting result board on FOP {}", fop.getLoggingName());
-            setId("scoreboard-" + fop.getName());
-            curGroup = fop.getGroup();
-            setWideTeamNames(false);
-            this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
-        });
-        setTranslationMap();
-        displayOrder = ImmutableList.of();
-    }
-
-    private void setHidden(boolean hidden) {
-        this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
-        this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
-        this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
-        this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
-        this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
-    }
-
-    private void setWideTeamNames(boolean wide) {
-        this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
     }
 
     private void syncWithFOP(UIEvent.SwitchGroup e) {

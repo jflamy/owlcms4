@@ -19,7 +19,7 @@ jobs:
           git checkout $(Build.SourceBranchName)
           git pull
         displayName: Checkout $(Build.SourceBranchName)
-      - task: Maven@3
+      - task: Maven@3.205.1
         displayName: Release Notes Parameter Substitutions
         inputs:
           mavenPomFile: pom.xml

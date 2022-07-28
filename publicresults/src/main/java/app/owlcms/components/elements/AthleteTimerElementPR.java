@@ -32,7 +32,6 @@ public class AthleteTimerElementPR extends TimerElementPR {
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteTimerElementPR.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     static {
-        logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
     }
 
@@ -42,13 +41,15 @@ public class AthleteTimerElementPR extends TimerElementPR {
      * Instantiates a new timer element.
      */
     public AthleteTimerElementPR() {
+        super();
         this.setOrigin(null); // force exception
-        logger.debug("### AthleteTimerElementPR new {}", origin);
+        logger.trace("### AthleteTimerElement new {}", origin);
     }
 
     public AthleteTimerElementPR(Object origin) {
+        super();
         this.setOrigin(origin);
-        logger.debug("### AthleteTimerElementPR new {} {}", origin, LoggerUtils.whereFrom());
+        logger.trace("### AthleteTimerElement new {} {}", origin, LoggerUtils.whereFrom());
     }
 
     /**
@@ -56,7 +57,7 @@ public class AthleteTimerElementPR extends TimerElementPR {
      */
     @Override
     @ClientCallable
-    public void clientFinalWarning() {
+    public void clientFinalWarning(String fopName) {
     }
 
     /**
@@ -64,7 +65,7 @@ public class AthleteTimerElementPR extends TimerElementPR {
      */
     @Override
     @ClientCallable
-    public void clientInitialWarning() {
+    public void clientInitialWarning(String fopName) {
     }
 
     /*
@@ -74,7 +75,7 @@ public class AthleteTimerElementPR extends TimerElementPR {
      */
     @Override
     @ClientCallable
-    public void clientSyncTime() {
+    public void clientSyncTime(String fopName) {
         return;
     }
 
@@ -83,7 +84,7 @@ public class AthleteTimerElementPR extends TimerElementPR {
      */
     @Override
     @ClientCallable
-    public void clientTimeOver() {
+    public void clientTimeOver(String fopName) {
     }
 
     /*
@@ -93,7 +94,17 @@ public class AthleteTimerElementPR extends TimerElementPR {
      */
     @Override
     @ClientCallable
-    public void clientTimerStopped(double remainingTime) {
+    public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see app.owlcms.displays.attemptboard.TimerElement#clientTimerStopped(double)
+     */
+    @Override
+    @ClientCallable
+    public void clientTimerStopped(String fopName, double remainingTime, String from) {
     }
 
     /**
@@ -106,6 +117,7 @@ public class AthleteTimerElementPR extends TimerElementPR {
     public void setOrigin(Object origin) {
         this.origin = origin;
     }
+
 
     // we do not listen to the bus for this event. Score with leaders forwards this event
     // when appropriate
@@ -125,7 +137,6 @@ public class AthleteTimerElementPR extends TimerElementPR {
             // event is not for us
             return;
         }
-
         doSetTimer(milliseconds);
     }
 
@@ -137,8 +148,8 @@ public class AthleteTimerElementPR extends TimerElementPR {
             // event is not for us
             return;
         }
-
-        doStartTimer(milliseconds, e.isSilent());
+        
+        doStartTimer(milliseconds, e.isSilent());  //check: original is e.isServerSound().
     }
 
     @Subscribe
@@ -147,7 +158,8 @@ public class AthleteTimerElementPR extends TimerElementPR {
             // event is not for us
             return;
         }
-        doStopTimer();
+        Integer milliseconds = e.getTimeRemaining();
+        doStopTimer(milliseconds);
     }
 
     /*
@@ -173,7 +185,7 @@ public class AthleteTimerElementPR extends TimerElementPR {
         eventBusRegister(this, DecisionReceiverServlet.getEventBus());
 
         ui = UI.getCurrent();
-        this.setFopName((String) OwlcmsSession.getAttribute("fopName"));
+        this.setFopName(OwlcmsSession.getFopName());
     }
 
     @Override

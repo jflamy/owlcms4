@@ -4,11 +4,14 @@ trigger:
 parameters:
   - name: Revision
     type: string
+<<<<<<< HEAD
     default: 4.33.0
+=======
+    default: 4.33.1-rc01
+>>>>>>> origin/develop
   - name: SkipTests
     type: string
     default: 'false'
-
 
 variables:
   # overrides pom.xml; must be unique if BuildGoal is set to deploy.
@@ -89,7 +92,7 @@ jobs:
 #           command: login
 #           containerRegistry: docker.io
 #       - script: ls -la
-      - task: Maven@3
+      - task: Maven@3.205.1
         displayName: Build and Push Docker Images
         inputs:
           mavenPomFile: owlcms-docker/pom.xml
@@ -104,7 +107,7 @@ jobs:
           DOCKER_USER: $(DOCKER_USER)
           DOCKER_TOKEN: $(DOCKER_TOKEN)
           DOCKER_TAG: $(DOCKER_TAG)
-      - task: Maven@3
+      - task: Maven@3.205.1
         displayName: Pre-process Release Notes
         inputs:
           mavenPomFile: pom.xml

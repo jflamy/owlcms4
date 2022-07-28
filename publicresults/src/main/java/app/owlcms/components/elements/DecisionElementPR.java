@@ -33,7 +33,7 @@ import ch.qos.logback.classic.Logger;
  * ExplicitDecision display element.
  */
 @Tag("decision-element-pr")
-@JsModule("./components/DecisionElement.js")
+@JsModule("./components/DecisionElementPR.js")
 public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.DecisionModel>
         implements IFopName, SafeEventBusRegistrationPR {
 
@@ -67,6 +67,7 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
     protected EventBus fopEventBus;
     private UI ui;
     private String fopName;
+    private boolean silenced;
 
     public DecisionElementPR() {
     }
@@ -81,6 +82,10 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
         return getModel().isPublicFacing();
     }
 
+    public boolean isSilenced() {
+        return silenced;
+    }
+
     /** @see app.owlcms.components.elements.IFopName#setFopName(java.lang.String) */
     @Override
     public void setFopName(String fopName) {
@@ -93,6 +98,10 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
 
     public void setPublicFacing(boolean publicFacing) {
         getModel().setPublicFacing(publicFacing);
+    }
+
+    public void setSilenced(boolean silenced) {
+        this.silenced = silenced;
     }
 
     @Subscribe
@@ -110,19 +119,19 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
         ui.access(() -> {
             if (de.isBreak()) {
                 logger.debug("break: slaveDecision disable");
-                getModel().setEnabled(false);
+                this.getElement().callJsFunction("setEnabled", false);
             } else {
                 switch (de.getEventType()) {
                 case DOWN_SIGNAL:
                     logger.debug("showing down");
-                    this.getElement().callJsFunction("showDown", false, false);
+                    this.getElement().callJsFunction("showDown", false, isSilenced());
                     break;
                 case FULL_DECISION:
                     logger.debug("calling full decision");
                     this.getElement().callJsFunction("showDecisions", false, de.getDecisionLight1(),
                             de.getDecisionLight2(),
                             de.getDecisionLight3());
-                    getModel().setEnabled(false);
+                    this.getElement().callJsFunction("setEnabled", false);
                     break;
                 case RESET:
                     logger.debug("calling reset");
@@ -147,7 +156,8 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
             return;
         }
         ui.access(() -> {
-            getModel().setEnabled(true);
+            // was true !?
+            this.getElement().callJsFunction("setEnabled", false);
         });
     }
 
@@ -161,7 +171,7 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
             return;
         }
         ui.access(() -> {
-            getModel().setEnabled(true);
+            this.getElement().callJsFunction("setEnabled", true);
         });
     }
 
@@ -175,7 +185,7 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
             return;
         }
         ui.access(() -> {
-            getModel().setEnabled(true);
+            this.getElement().callJsFunction("setEnabled", true);
         });
     }
 
@@ -189,7 +199,7 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
             return;
         }
         ui.access(() -> {
-            getModel().setEnabled(true);
+            this.getElement().callJsFunction("setEnabled", true);
         });
     }
 
@@ -203,7 +213,7 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
             return;
         }
         ui.access(() -> {
-            getModel().setEnabled(true);
+            this.getElement().callJsFunction("setEnabled", true);
         });
     }
 
@@ -227,7 +237,7 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
         eventBusRegister(this, DecisionReceiverServlet.getEventBus());
         eventBusRegister(this, TimerReceiverServlet.getEventBus());
 
-        setFopName((String) OwlcmsSession.getAttribute("fopName"));
+        setFopName(OwlcmsSession.getFopName());
     }
 
     @Override
@@ -248,4 +258,5 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
         DecisionModel model = getModel();
         model.setPublicFacing(true);
     }
+
 }

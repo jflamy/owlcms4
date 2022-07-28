@@ -52,7 +52,7 @@ class Results extends PolymerElement {
     </div>
 
     <table class$="results [[noLiftRanks]]"
-        style$="[[hiddenGridStyle]]; --top: [[resultLines]]; --bottom: [[leaderLines]];">
+        style$="[[hiddenGridStyle]]; --top: [[resultLines]]; --bottom: [[leaderLines]]; [[leadersLineHeight]];">
         <template is="dom-if" if="[[athletes]]">
             <tr class="head">
                 <!-- [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
@@ -75,8 +75,7 @@ class Results extends PolymerElement {
             <template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
                 <template is="dom-if" if="[[l.isSpacer]]">
                     <tr>
-                        <td class="spacer" style="grid-column: 1 / -1; justify-content: left;"
-                            inner-h-t-m-l="-">
+                        <td class="spacer" style="grid-column: 1 / -1; justify-content: left;" inner-h-t-m-l="-">
                         </td>
                     </tr>
                 </template>
@@ -139,75 +138,81 @@ class Results extends PolymerElement {
             <td class="filler" style="grid-column: 1 / -1">&nbsp;</td>
         </tr>
         <template is="dom-if" if="[[leaders]]">
-            <tr class="head">
-                <td class="leaderTitle" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
-                </td>
-            </tr>
-            <tr>
-                <td class="spacer" style="grid-column: 1 / -1; justify-content: left;" inner-h-t-m-l="&nbsp;">
-                </td>
-            </tr>
-            <template is="dom-repeat" id="result-table" items="[[leaders]]" as="l">
-                <template is="dom-if" if="[[!l.isSpacer]]">
-                    <tr class="athlete">
-                        <td class="groupCol">
-                            <div>[[l.group]]</div>
-                        </td>
-                        <td class$="name [[l.classname]]">
-                            <div class="ellipsis">[[l.fullName]]</div>
-                        </td>
-                        <td class="category">
-                            <div>[[l.category]]</div>
-                        </td>
-                        <td class="yob">[[l.yearOfBirth]]</td>
-                        <td class="custom1">
-                            <div>[[l.custom1]]</div>
-                        </td>
-                        <td class="custom2">
-                            <div>[[l.custom2]]</div>
-                        </td>
-                        <td class="club">
-                            <div class="ellipsis">[[l.teamName]]</div>
-                        </td>
-                        <template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-                            <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
-                                <div>[[attempt.stringValue]]</div>
+            <tbody class="leaders" style$="[[leadersVisibility]]">
+                <tr class="head">
+                    <td class="leaderTitle" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="spacer"
+                        style$="grid-column: 1 / -1; justify-content: left; [[leadersVisibility]];"
+                        inner-h-t-m-l="&nbsp;">
+                    </td>
+                </tr>
+                <template is="dom-repeat" id="result-table" items="[[leaders]]" as="l">
+                    <template is="dom-if" if="[[!l.isSpacer]]">
+                        <tr class="athlete">
+                            <td class="groupCol">
+                                <div>[[l.group]]</div>
                             </td>
-                        </template>
-                        <td class="rank">
-                            <div inner-h-t-m-l="[[l.snatchRank]]"></div>
-                        </td>
-                        <template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
-                            <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
-                                <div>[[attempt.stringValue]]</div>
+                            <td class$="name [[l.classname]]">
+                                <div class="ellipsis">[[l.fullName]]</div>
                             </td>
-                        </template>
-                        <td class="rank">
-                            <div inner-h-t-m-l="[[l.cleanJerkRank]]"></div>
+                            <td class="category">
+                                <div>[[l.category]]</div>
+                            </td>
+                        <td class="yob">
+                            <div>[[l.yearOfBirth]]</div>
                         </td>
-                        <td class="total">
-                            <div>[[l.total]]</div>
-                        </td>
-                        <td class="totalRank">
-                            <div inner-h-t-m-l="[[l.totalRank]]"></div>
-                        </td>
-                        <td class="sinclair">
-                            <div>[[l.sinclair]]</div>
-                        </td>
-                        <td class="sinclairRank">
-                            <div>[[l.sinclairRank]]</div>
-                        </td>
-                    </tr>
+                            <td class="custom1" style$="[[leadersVisibility]]">
+                                <div>[[l.custom1]]</div>
+                            </td>
+                            <td class="custom2" style$="[[leadersVisibility]]">
+                                <div>[[l.custom2]]</div>
+                            </td>
+                            <td class="club">
+                                <div class="ellipsis">[[l.teamName]]</div>
+                            </td>
+                            <template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
+                                <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
+                                    <div>[[attempt.stringValue]]</div>
+                                </td>
+                            </template>
+                            <td class="rank" style$="[[leadersVisibility]]">
+                                <div inner-h-t-m-l="[[l.snatchRank]]"></div>
+                            </td>
+                            <template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
+                                <td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
+                                    <div>[[attempt.stringValue]]</div>
+                                </td>
+                            </template>
+                            <td class="rank" style$="[[leadersVisibility]]">
+                                <div inner-h-t-m-l="[[l.cleanJerkRank]]"></div>
+                            </td>
+                            <td class="total" style$="[[leadersVisibility]]">
+                                <div>[[l.total]]</div>
+                            </td>
+                            <td class="totalRank" style$="[[leadersVisibility]]">
+                                <div inner-h-t-m-l="[[l.totalRank]]"></div>
+                            </td>
+                            <td class="sinclair" style$="[[leadersVisibility]]">
+                                <div>[[l.sinclair]]</div>
+                            </td>
+                            <td class="sinclairRank" style$="[[leadersVisibility]]">
+                                <div>[[l.sinclairRank]]</div>
+                            </td>
+                        </tr>
+                    </template>
                 </template>
-            </template>
+            </tbody>
         </template>
     </table>
     <template is="dom-if" if="[[records]]">
         <div
-            style$="font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); [[hiddenBlockStyle]]; height: 100%;">
+            style$="font-size: calc(var(--tableFontSize) * var(--recordsFontRatio)); [[hiddenBlockStyle]]; [[recordsDisplay]]; height: 100%;">
             <div class="recordsFiller">&nbsp;</div>
 
-            <div class="recordRow" style$="--nbRecords: [[records.nbRecords]];">
+            <div class="recordRow" style$="[[hiddenGridStyle]]; --nbRecords: [[records.nbRecords]];">
                 <div>
                     <div class="recordName recordTitle">[[t.records]]</div>
                     <div class="recordLiftTypeSpacer">&nbsp;</div>
@@ -244,7 +249,7 @@ class Results extends PolymerElement {
     ready() {
         console.debug("ready");
         super.ready();
-        document.body.setAttribute("theme","dark");
+        document.body.setAttribute("theme", "dark");
         this.$.groupDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.visibility = "visible";
         this.$.fullNameDiv.style.display = "flex";

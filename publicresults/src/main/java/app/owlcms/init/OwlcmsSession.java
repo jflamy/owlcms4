@@ -17,7 +17,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.i18n.Translator;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -35,10 +34,6 @@ public class OwlcmsSession {
         logger.setLevel(Level.INFO);
     }
 
-//    private static final String FOP = "fop";
-
-    private static OwlcmsSession owlcmsSessionSingleton = null;
-
     /**
      * Gets the attribute.
      *
@@ -54,18 +49,18 @@ public class OwlcmsSession {
         if (currentVaadinSession != null) {
             OwlcmsSession owlcmsSession = (OwlcmsSession) currentVaadinSession.getAttribute("owlcmsSession");
             if (owlcmsSession == null) {
-                logger.trace("creating new OwlcmsSession {}", LoggerUtils.whereFrom());
                 owlcmsSession = new OwlcmsSession();
                 currentVaadinSession.setAttribute("owlcmsSession", owlcmsSession);
             }
             return owlcmsSession;
         } else {
-            // Used for testing, return a singleton
-            if (owlcmsSessionSingleton == null) {
-                owlcmsSessionSingleton = new OwlcmsSession();
-            }
-            return owlcmsSessionSingleton;
+            logger.error("no vaadin session : can't happen");
+            return null;
         }
+    }
+
+    public static String getFopName() {
+        return getCurrent().fopName;
     }
 
 //    public static FieldOfPlay getFop() {
@@ -143,8 +138,14 @@ public class OwlcmsSession {
 //        }
 //    }
 
+    private String fopName;
+
     private Properties attributes = new Properties();
 
     private OwlcmsSession() {
+    }
+
+    public void setFopName(String fopName) {
+        this.fopName = fopName;
     }
 }

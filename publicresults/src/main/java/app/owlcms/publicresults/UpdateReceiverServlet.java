@@ -28,6 +28,7 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UpdateEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ProxyUtils;
+import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -38,11 +39,19 @@ public class UpdateReceiverServlet extends HttpServlet {
     private static String defaultFopName;
     static EventBus eventBus = new AsyncEventBus(UpdateReceiverServlet.class.getSimpleName(),
             Executors.newCachedThreadPool());
-    static Map<String, UpdateEvent> updateCache = new HashMap<>();
+    private static Map<String, UpdateEvent> updateCache = new HashMap<>();
     static long lastUpdate = 0;
 
     public static EventBus getEventBus() {
         return eventBus;
+    }
+
+    public static Map<String, UpdateEvent> getUpdateCache() {
+        return updateCache;
+    }
+
+    public static void setUpdateCache(Map<String, UpdateEvent> updateCache) {
+        UpdateReceiverServlet.updateCache = updateCache;
     }
 
     public static UpdateEvent sync(String fopName) {
@@ -78,6 +87,21 @@ public class UpdateReceiverServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
+            String updateKey = req.getParameter("updateKey");
+            if (updateKey == null || !updateKey.equals(secret)) {
+                logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), secret, updateKey);
+                resp.sendError(401, "Denied, wrong credentials");
+                return;
+            }
+
+            try {
+                ResourceWalker.getFileOrResource("styles/results.css");
+            } catch (Exception e) {
+                logger.info("requesting customization");
+                resp.sendError(412, "Missing configuration files.");
+                return;
+            }
+
             if (StartupUtils.isDebugSetting()) {
                 logger.setLevel(Level.DEBUG);
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
@@ -87,13 +111,6 @@ public class UpdateReceiverServlet extends HttpServlet {
                         logger./**/debug("    {} = {}", pair.getKey(), pair.getValue()[0]);
                     }
                 }
-            }
-
-            String updateKey = req.getParameter("updateKey");
-            if (updateKey == null || !updateKey.equals(secret)) {
-                logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), secret, updateKey);
-                resp.sendError(401, "Denied, wrong credentials");
-                return;
             }
 
             UpdateEvent updateEvent = new UpdateEvent();
@@ -114,8 +131,13 @@ public class UpdateReceiverServlet extends HttpServlet {
             String weight = req.getParameter("weight");
             updateEvent.setWeight(weight != null ? Integer.parseInt(weight) : null);
 
+            updateEvent.setNoLiftRanks(req.getParameter("noLiftRanks"));
             updateEvent.setAthletes(req.getParameter("groupAthletes"));
             updateEvent.setLeaders(req.getParameter("leaders"));
+
+            updateEvent.setRecords(req.getParameter("records"));
+            updateEvent.setRecordKind(req.getParameter("recordKind"));
+            updateEvent.setRecordMessage(req.getParameter("recordMessage"));
             updateEvent.setLiftsDone(req.getParameter("liftsDone"));
 
             updateEvent.setWideTeamNames(Boolean.parseBoolean(req.getParameter("wideTeamNames")));
@@ -129,9 +151,19 @@ public class UpdateReceiverServlet extends HttpServlet {
             String breakRemainingString = req.getParameter("breakRemaining");
             String breakIsIndefiniteString = req.getParameter("breakIsIndefinite");
             updateEvent.setBreak(breakString != null ? Boolean.valueOf(breakString) : null);
-            updateEvent.setBreakType(breakTypeString != null ? BreakType.valueOf(breakTypeString) : null);
+            BreakType bt = breakTypeString != null ? BreakType.valueOf(breakTypeString) : null;
+            updateEvent.setBreakType(bt);
             updateEvent.setBreakRemaining(breakRemainingString != null ? Integer.parseInt(breakRemainingString) : null);
             updateEvent.setIndefinite(Boolean.parseBoolean(breakIsIndefiniteString));
+            
+            String sinclairMeetString = req.getParameter("sinclairMeet");
+            updateEvent.setSinclairMeet(Boolean.parseBoolean(sinclairMeetString));
+
+            if (bt == BreakType.GROUP_DONE) {
+                updateEvent.setRecords(null);
+                updateEvent.setRecordKind("none");
+                updateEvent.setRecordMessage("");
+            }
 
             String fopName = updateEvent.getFopName();
             // put in the cache first so events can know which FOPs are active;

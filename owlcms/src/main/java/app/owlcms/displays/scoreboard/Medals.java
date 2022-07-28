@@ -181,8 +181,6 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
     @Override
     public void addDialogContent(Component target, VerticalLayout vl) {
         DisplayOptions.addLightingEntries(vl, target, this);
-        // vl.add(new Hr());
-        // DisplayOptions.addSoundEntries(vl, target, this);
     }
 
     @Override
@@ -862,4 +860,5 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         // this.getElement().callJsFunction("groupDone");
         computeMedalsJson();
     }
+
 }

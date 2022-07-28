@@ -100,6 +100,8 @@ public class DecisionReceiverServlet extends HttpServlet {
         decisionEvent.setDecisionLightsVisible(Boolean.valueOf(req.getParameter("decisionsVisible")));
         decisionEvent.setDown(Boolean.valueOf(req.getParameter("down")));
         decisionEvent.setFopName(req.getParameter("fop"));
+        decisionEvent.setRecordKind(req.getParameter("recordKind"));
+        decisionEvent.setRecordMessage(req.getParameter("recordMessage"));
 
         String fopName = decisionEvent.getFopName();
 

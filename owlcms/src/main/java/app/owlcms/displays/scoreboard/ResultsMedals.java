@@ -131,8 +131,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
     @Override
     public void addDialogContent(Component target, VerticalLayout vl) {
         DisplayOptions.addLightingEntries(vl, target, this);
-        // vl.add(new Hr());
-        // DisplayOptions.addSoundEntries(vl, target, this);
     }
 
     @Override
@@ -818,4 +816,5 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
         this.getElement().setProperty("liftDone", "-");
         computeMedalsJson();
     }
+
 }

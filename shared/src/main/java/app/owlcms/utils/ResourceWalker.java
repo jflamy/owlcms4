@@ -339,6 +339,35 @@ public class ResourceWalker {
         }
     }
 
+    public static synchronized Path createLocalDir() {
+        Path f = null;
+        try {
+            f = MemTempUtils.createTempDirectory("owlcmsOverride");
+            logger.trace("created temp directory " + f);
+            setLocalDirPath(f);
+            setInitializedLocalDir(true);
+            logger.info("new in-memory override path {}", getLocalDirPath().normalize());
+            return f;
+        } catch (IOException e) {
+            throw new RuntimeException("cannot create directory ", e);
+        }
+    }
+    
+    public static synchronized Path createLocalRealDir() {
+        Path f = null;
+        try {
+            f = Files.createTempDirectory("config");
+            logger.trace("created temp directory " + f);
+            setLocalDirPath(f);
+            setInitializedLocalDir(true);
+            logger.info("new temporary directory {}", getLocalDirPath().normalize());
+            return f;
+        } catch (IOException e) {
+            throw new RuntimeException("cannot create directory ", e);
+        }
+    }
+
+
     public static boolean isInitializedLocalDir() {
         return initializedLocalDir;
     }
@@ -378,6 +407,16 @@ public class ResourceWalker {
         } catch (IOException e) {
             throw new Exception("cannot unzip", e);
         }
+    }
+
+    public static void unzipBlobToTemp(InputStream in) throws IOException {
+        Path f = null;
+        f = MemTempUtils.createTempDirectory("owlcmsOverride");
+        logger.trace("created temp directory " + f);
+        ZipUtils.unzip(in, f);
+        setLocalDirPath(f);
+        setInitializedLocalDir(true);
+        logger.info("new in-memory override path {}", getLocalDirPath().normalize());
     }
 
     /**

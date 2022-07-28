@@ -78,7 +78,11 @@ export RESULTS=results.owlcms.youraccount.usw1.k8g8.com
 2. This step fetches the configuration and substitutes the values for OFFICIALS and RESULTS before applying it. 
 
 ```powershell
+<<<<<<< HEAD
 curl -sfL https://github.com/owlcms/owlcms4/releases/download/4.33.0/k3d_setup.yaml | envsubst | kubectl apply -f - 
+=======
+curl -sfL https://github.com/owlcms/owlcms4/releases/download/4.33.1-rc01/k3d_setup.yaml | envsubst | kubectl apply -f - 
+>>>>>>> origin/develop
 ```
 
 > Note: you may have to execute the command several times, because some steps take time to complete.  There is no harm done repeating the steps.  Wait 30 seconds or so between each attempt, every attempt will get further down the steps.  This is simpler than breaking down the setup in several steps. 

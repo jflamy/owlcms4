@@ -46,6 +46,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
@@ -435,6 +436,29 @@ public class FieldOfPlay {
      */
     public FOPState getState() {
         return state;
+    }
+
+    public LiftDefinition.Stage getCurrentStage() {
+        if (state == INACTIVE) {
+            return null;
+        } else if (state == BREAK) {
+            switch (breakType) {
+            case BEFORE_INTRODUCTION:
+            case FIRST_SNATCH:
+            case FIRST_CJ:
+            case GROUP_DONE:
+                return null;
+            default:
+                break;
+            }
+        }
+
+        LiftDefinition.Stage stage = null;
+        if (curAthlete != null) {
+            return curAthlete.getAttemptsDone() < 3 ? LiftDefinition.Stage.SNATCH : LiftDefinition.Stage.CLEANJERK;
+        }
+
+        return stage;
     }
 
     /**
@@ -982,7 +1006,7 @@ public class FieldOfPlay {
             });
         } else {
             athletes = JPAService.runInTransaction(em -> {
-                List<Athlete> l =  AthleteRepository.findAthletesForGlobalRanking(em,g);
+                List<Athlete> l = AthleteRepository.findAthletesForGlobalRanking(em, g);
                 List<Athlete> nl = new LinkedList<>();
                 Competition.getCurrent().globalRankings(em);
                 for (Athlete a : l) {
@@ -1015,7 +1039,7 @@ public class FieldOfPlay {
                         }
                     })
                     .collect(Collectors.toList());
-            
+
             setDisplayOrder(currentGroupAthletes);
             setLiftingOrder(AthleteSorter.liftingOrderCopy(currentGroupAthletes));
             endDisplayOrder = System.nanoTime();
@@ -1980,7 +2004,7 @@ public class FieldOfPlay {
         }
 
         setLastChallengedRecords(challengedRecords);
-        
+
         if (nbWhite >= 2) {
             setGoodLift(true);
             this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
@@ -2153,7 +2177,7 @@ public class FieldOfPlay {
         }
 
         setWeightAtLastStart(0);
-        setNewRecords(List.of()); // FIXME: check this...
+        setNewRecords(List.of());
         pushOutStartLifting(getGroup(), e.getOrigin());
         uiDisplayCurrentAthleteAndTime(true, e, false);
     }

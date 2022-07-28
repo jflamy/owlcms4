@@ -31,6 +31,11 @@ public class UpdateEvent {
     private BreakType breakType;
     private Integer breakRemaining;
     private boolean indefinite;
+    private String noLiftRanks;
+    private String records;
+    private String recordKind;
+    private String recordMessage;
+    private boolean sinclairMeet;
 
     public UpdateEvent() {
         setLeaders(leaders);
@@ -111,6 +116,22 @@ public class UpdateEvent {
         return this.liftsDone;
     }
 
+    public String getNoLiftRanks() {
+        return noLiftRanks;
+    }
+
+    public String getRecordKind() {
+        return recordKind;
+    }
+
+    public String getRecordMessage() {
+        return recordMessage;
+    }
+
+    public String getRecords() {
+        return records;
+    }
+
     public Integer getStartNumber() {
         return startNumber;
     }
@@ -148,6 +169,10 @@ public class UpdateEvent {
 
     public boolean isIndefinite() {
         return this.indefinite;
+    }
+
+    public boolean isSinclairMeet() {
+        return this.sinclairMeet;
     }
 
     public void setAthletes(String athletes) {
@@ -208,6 +233,26 @@ public class UpdateEvent {
 
     public void setLiftsDone(String liftsDone) {
         this.liftsDone = liftsDone;
+    }
+
+    public void setNoLiftRanks(String parameter) {
+        this.noLiftRanks = parameter;
+    }
+
+    public void setRecordKind(String kind) {
+        this.recordKind = kind;
+    }
+
+    public void setRecordMessage(String recordMessage) {
+        this.recordMessage = recordMessage;
+    }
+
+    public void setRecords(String records) {
+        this.records = records;
+    }
+
+    public void setSinclairMeet(boolean sinclairMeet) {
+        this.sinclairMeet = sinclairMeet;
     }
 
     public void setStartNumber(Integer parameter) {

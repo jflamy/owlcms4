@@ -201,7 +201,8 @@ public class DemoData {
         LocalDateTime c = w.plusHours((long) 2.0);
 
         Platform platform1 = new Platform("A");
-        Platform platform2 = new Platform("B");
+        //Platform platform2 = new Platform("B");
+        Platform platform2 = platform1;
 
         groupM1 = new Group("M1", w, c);
         groupM1.setPlatform(platform1);

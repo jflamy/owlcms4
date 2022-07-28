@@ -489,7 +489,7 @@ public class UIEvent {
             super(athleteUnderReview, origin);
             this.setDeliberationEventType(deliberationEventType);
             this.setReversal(reversal);
-            this.setNewRecord(newRecord);
+            this.setNewRecord(newRecord != null && newRecord);
         }
 
         /**
@@ -508,7 +508,7 @@ public class UIEvent {
             return deliberationEventType;
         }
 
-        public Boolean getNewRecord() {
+        public boolean getNewRecord() {
             return newRecord;
         }
 

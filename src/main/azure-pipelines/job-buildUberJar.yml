@@ -23,7 +23,7 @@ jobs:
         value: /usr/local/openjdk-11
     steps:
       - template: steps-prepare-maven.yml
-      - task: Maven@3
+      - task: Maven@3.205.1
         displayName: build ${{ parameters.moduleName }} uberJar and publish to maven repository
         inputs:
           mavenPomFile: pom.xml

@@ -6,7 +6,11 @@
  *******************************************************************************/
 package app.owlcms.prutils;
 
+import java.util.Optional;
+
 import org.slf4j.LoggerFactory;
+
+import com.vaadin.flow.component.Component;
 
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
@@ -29,5 +33,22 @@ public class DebugUtils {
             }
 
         }).start();
+    }
+    
+
+    public static String getOwlcmsParentName(Component e) {
+        Class<? extends Component> class1 = e.getClass();
+        String className = class1.getName();
+        if (className.contains("vaadin") || (!className.endsWith("Board") && !className.endsWith("Content")
+                && !className.endsWith("Display") && !className.endsWith("Layout"))) {
+            Optional<Component> parent = e.getParent();
+            if (parent.isPresent()) {
+                return getOwlcmsParentName(parent.get());
+            } else {
+                return class1.getSimpleName();
+            }
+        } else {
+            return class1.getSimpleName();
+        }
     }
 }

@@ -384,6 +384,12 @@ public class CompetitionEditingFormFactory
         binder.forField(genderOrderField)
                 .bind(Competition::isGenderOrder, Competition::setGenderOrder);
         
+        Checkbox sinclairMeetField = new Checkbox();
+        layout.addFormItem(sinclairMeetField,
+                labelWithHelp("Competition.SinclairMeet", "Competition.SinclairMeetExplanation"));
+        binder.forField(sinclairMeetField)
+                .bind(Competition::isSinclair, Competition::setSinclair);
+        
         Checkbox customScoreField = new Checkbox();
         layout.addFormItem(customScoreField,
                 labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));

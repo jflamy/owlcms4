@@ -6,7 +6,8 @@
  *******************************************************************************/
 package app.owlcms.uievents;
 
-import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -16,12 +17,17 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
@@ -55,6 +61,7 @@ import app.owlcms.uievents.UIEvent.SetTime;
 import app.owlcms.uievents.UIEvent.StartTime;
 import app.owlcms.uievents.UIEvent.StopTime;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -68,9 +75,10 @@ public class EventForwarder implements BreakDisplay {
     final private static Logger logger = (Logger) LoggerFactory.getLogger(EventForwarder.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
+    public static final Object singleThreadLock = new Object();
     private String attempt;
-    private String categoryName;
 
+    private String categoryName;
     private JsonArray cattempts;
     @SuppressWarnings("unused")
     private Boolean debugMode;
@@ -87,24 +95,20 @@ public class EventForwarder implements BreakDisplay {
     private String groupName;
     private boolean hidden;
     private JsonValue leaders;
-
     private String liftsDone;
     private EventBus postBus;
     private int previousHashCode = 0;
     private long previousMillis = 0L;
-
     private JsonArray sattempts;
     private Integer startNumber;
     private String teamName;
-
     private Integer timeAllowed;
-
     private JsonObject translationMap;
-
     private long translatorResetTimeStamp;
-
     private Integer weight;
     private boolean wideTeamNames;
+    private String noLiftRanks;
+    private JsonValue records;
 
     public EventForwarder(FieldOfPlay emittingFop) {
         this.setFop(emittingFop);
@@ -187,6 +191,10 @@ public class EventForwarder implements BreakDisplay {
 
     public String getLiftsDone() {
         return liftsDone;
+    }
+
+    public JsonValue getRecords() {
+        return records;
     }
 
     public Integer getTimeAllowed() {
@@ -361,6 +369,8 @@ public class EventForwarder implements BreakDisplay {
             computeCurrentGroup(g);
             // wait until next event.
             return;
+        } else {
+            computeCurrentGroup(g);
         }
         if (g == null) {
             setHidden(true);
@@ -487,7 +497,15 @@ public class EventForwarder implements BreakDisplay {
         } else {
             setGroupAthletes(null);
         }
+        if (Competition.getCurrent().isSinclair()) {
+            setNoLiftRanks("noranks sinclair");
+        } else if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
+            setNoLiftRanks("noranks");
+        } else {
+            setNoLiftRanks("");
+        }
         computeLeaders();
+        setRecords(fop.getRecordsJson());
     }
 
     private void computeLeaders() {
@@ -515,7 +533,7 @@ public class EventForwarder implements BreakDisplay {
                 } else {
                     // nothing to show
                     setLeaders(null);
-               }
+                }
             }
         }
 
@@ -548,6 +566,8 @@ public class EventForwarder implements BreakDisplay {
         mapPut(sb, "d3", getDecisionLight3() != null ? getDecisionLight3().toString() : null);
         mapPut(sb, "decisionsVisible", Boolean.toString(isDecisionLightsVisible()));
         mapPut(sb, "down", Boolean.toString(isDown()));
+
+        createRecord(sb);
 
         return sb;
     }
@@ -640,19 +660,38 @@ public class EventForwarder implements BreakDisplay {
         mapPut(sb, "liftsDone", getLiftsDone());
 
         // bottom tables
+        mapPut(sb, "noLiftRanks", getNoLiftRanks());
         if (groupAthletes != null) {
             mapPut(sb, "groupAthletes", groupAthletes.toJson());
         }
         if (leaders != null) {
             mapPut(sb, "leaders", leaders.toJson());
         }
+        createRecord(sb);
 
         // presentation information
         mapPut(sb, "translationMap", translationMap.toJson());
         mapPut(sb, "hidden", String.valueOf(hidden));
         mapPut(sb, "wideTeamNames", String.valueOf(wideTeamNames));
+        mapPut(sb, "sinclairMeet", Boolean.toString(Competition.getCurrent().isSinclair()));
 
         return sb;
+    }
+
+    private void createRecord(Map<String, String> sb) {
+        if (records != null) {
+            if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
+                mapPut(sb, "recordKind", "new");
+                mapPut(sb, "recordMessage", Translator.translate("Scoreboard.NewRecord"));
+            } else if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
+                mapPut(sb, "recordKind", "attempt");
+                mapPut(sb, "recordMessage",
+                        Translator.translate("Scoreboard.RecordAttempt"));
+            } else {
+                mapPut(sb, "recordKind", "none");
+            }
+            mapPut(sb, "records", records.toJson());
+        }
     }
 
     private void doBreak(Group g) {
@@ -692,22 +731,44 @@ public class EventForwarder implements BreakDisplay {
         parameters.entrySet().stream()
                 .forEach((e) -> urlParameters.add(new BasicNameValuePair(e.getKey(), e.getValue())));
 
-        try {
-            post.setEntity(new UrlEncodedFormEntity(urlParameters, "UTF-8"));
-            try (CloseableHttpClient httpClient = HttpClients.createDefault();
-                    CloseableHttpResponse response = httpClient.execute(post)) {
-                StatusLine statusLine = response.getStatusLine();
-                Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
-                if (statusCode != null && statusCode != 200) {
-                    logger.error("could not post to {} {} {}", url, statusLine, LoggerUtils.whereFrom(1));
+        boolean done = false;
+        int nbTries = 0;
+        // send post. if missing config, we send it back, and try again one more time
+        while (!done && nbTries <= 1) {
+            try {
+                post.setEntity(new UrlEncodedFormEntity(urlParameters, "UTF-8"));
+                try (CloseableHttpClient httpClient = HttpClients.createDefault();
+                        CloseableHttpResponse response = httpClient.execute(post)) {
+                    StatusLine statusLine = response.getStatusLine();
+                    Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
+                    if (statusCode != null && statusCode != 200) {
+                        synchronized (singleThreadLock) {
+                            if (nbTries == 0 && statusCode != null && statusCode == 412) {
+                                logger.error("{}missing remote configuration {} {} {}", getFop().getLoggingName(), url,
+                                        statusLine,
+                                        LoggerUtils.whereFrom(1));
+                                sendConfig(parameters.get("updateKey"));
+                                nbTries++;
+                            } else {
+                                logger.error("{}could not post to {} {} {}", getFop().getLoggingName(), url, statusLine,
+                                        LoggerUtils.whereFrom(1));
+                                done = true;
+                            }
+                        }
+                    } else {
+                        done = true;
+                    }
+                } catch (Exception e1) {
+                    logger.error("{}could not post to {} {}", getFop().getLoggingName(), url,
+                            LoggerUtils.exceptionMessage(e1));
+                    done = true;
                 }
-                EntityUtils.toString(response.getEntity());
-            } catch (Exception e1) {
-                logger.error("could not post to {} {}", url, LoggerUtils.exceptionMessage(e1));
+            } catch (UnsupportedEncodingException e2) {
+                // can't happen.
+                logger.error("{}could not post to {} {}", getFop().getLoggingName(), url,
+                        LoggerUtils.exceptionMessage(e2));
+                done = true;
             }
-        } catch (UnsupportedEncodingException e2) {
-            // can't happen.
-            logger.error("could not post to {} {}", url, LoggerUtils.exceptionMessage(e2));
         }
     }
 
@@ -793,12 +854,22 @@ public class EventForwarder implements BreakDisplay {
         } else {
             logger.error("main rankings null for {}", a);
         }
+        if (a.getSinclairForDelta() != null) {
+            ja.put("sinclair", formatSinclair(a.getSinclairForDelta()));
+        }
+        if (a.getSinclairRank() != null) {
+            ja.put("sinclairRank", formatInt(a.getSinclairRank()));
+        }
         ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
         if (notDone) {
             ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
         }
+    }
+
+    private String formatSinclair(Double sinclairForDelta) {
+        return sinclairForDelta > 0.001 ? String.format("%01.3f", sinclairForDelta) : "-";
     }
 
     /**
@@ -928,12 +999,8 @@ public class EventForwarder implements BreakDisplay {
         if (decisionUrl == null) {
             return;
         }
-        try {
-            logger.trace("pushing {}", det);
-            sendPost(decisionUrl, createDecision(det));
-        } catch (IOException e) {
-            logger./**/warn("cannot push: {} {}", decisionUrl, e.getMessage());
-        }
+        logger.trace("pushing {}", det);
+        sendPost(decisionUrl, createDecision(det));
     }
 
     private void pushTimer(UIEvent e) {
@@ -941,11 +1008,7 @@ public class EventForwarder implements BreakDisplay {
         if (timerUrl == null) {
             return;
         }
-        try {
-            sendPost(timerUrl, createTimer(e));
-        } catch (IOException ex) {
-            logger./**/warn("cannot push: {} {}", timerUrl, ex.getMessage());
-        }
+        sendPost(timerUrl, createTimer(e));
     }
 
     private void pushUpdate() {
@@ -954,15 +1017,70 @@ public class EventForwarder implements BreakDisplay {
         if (updateUrl == null) {
             return;
         }
-        try {
-            sendPost(updateUrl, createUpdate());
-        } catch (IOException e) {
-            logger./**/warn("cannot push: {} {}", updateUrl, e.getMessage());
+        sendPost(updateUrl, createUpdate());
+    }
+
+    private void sendConfig(String updateKey) {
+        String destination = Config.getCurrent().getParamPublicResultsURL() + "/config";
+        // wait for previous send to finish.
+        // no consequences sending it multiple times in a row -- we have no idea why it is being requested again.
+        synchronized (Config.getCurrent()) {
+            try {
+                logger.info("{}sending config", getFop().getLoggingName());
+
+                Supplier<byte[]> localZipBlobSupplier = ResourceWalker.getLocalZipBlobSupplier();
+                byte[] blob = null;
+                if (localZipBlobSupplier != null) {
+                    blob = localZipBlobSupplier.get();
+                }
+                HttpPost post = new HttpPost(destination);
+
+                MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+                builder.addPart("updateKey", new StringBody(updateKey, ContentType.TEXT_PLAIN));
+                InputStream inputStream;
+                if (blob == null) {
+                    try {
+                        inputStream = ResourceWalker.getFileOrResource("/styles/results.css");
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                    builder.addBinaryBody("results", inputStream, ContentType.create("text/css"), "results.css");
+
+                    try {
+                        inputStream = ResourceWalker.getFileOrResource("/styles/colors.css");
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                    builder.addBinaryBody("colors", inputStream, ContentType.create("text/css"), "colors.css");
+                } else {
+                    builder.addBinaryBody("local", blob, ContentType.create("application/zip"), "local.zip");
+                }
+
+                HttpEntity entity = builder.build();
+
+                post.setEntity(entity);
+                try (CloseableHttpClient httpClient = HttpClients.createDefault();
+                        CloseableHttpResponse response = httpClient.execute(post)) {
+                    StatusLine statusLine = response.getStatusLine();
+                    Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
+                    if (statusCode != null && statusCode != 200) {
+                        logger.error("{}could not send config to {} {} {}", getFop().getLoggingName(), destination,
+                                statusLine,
+                                LoggerUtils.whereFrom(1));
+                    }
+                    EntityUtils.toString(response.getEntity());
+                } catch (Exception e1) {
+                    logger.error("{}could not send config to {} {}", getFop().getLoggingName(), destination,
+                            LoggerUtils.exceptionMessage(e1));
+                }
+            } catch (Exception e2) {
+                logger.error("{}could not send config to {} {}", getFop().getLoggingName(), destination, e2);
+            }
         }
     }
 
-    private void sendPost(String url, Map<String, String> parameters) throws IOException {
-
+    private void sendPost(String url, Map<String, String> parameters) {
+        // logger.debug("{}posting update {}", getFop().getLoggingName(), LoggerUtils.whereFrom());
         long deltaMillis = System.currentTimeMillis() - previousMillis;
         int hashCode = parameters.hashCode();
         // debounce, sometimes several identical updates in a rapid succession
@@ -996,6 +1114,14 @@ public class EventForwarder implements BreakDisplay {
         this.leaders = athletesJson;
     }
 
+    private void setNoLiftRanks(String string) {
+        this.noLiftRanks = string;
+    }
+
+    private void setRecords(JsonValue recordsJson) {
+        this.records = recordsJson;
+    }
+
     private void setTimeAllowed(Integer timeAllowed) {
         this.timeAllowed = timeAllowed;
     }
@@ -1011,6 +1137,10 @@ public class EventForwarder implements BreakDisplay {
     private void uiLog(UIEvent e) {
         uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 null, e.getOrigin(), LoggerUtils.whereFrom());
+    }
+
+    private String getNoLiftRanks() {
+        return noLiftRanks;
     }
 
 }

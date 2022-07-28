@@ -510,4 +510,5 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
         this.getElement().setPropertyJson("athletes", getAthletesJson(order));
     }
+
 }

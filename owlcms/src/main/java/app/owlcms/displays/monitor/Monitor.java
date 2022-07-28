@@ -26,6 +26,8 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
+import app.owlcms.data.athlete.LiftDefinition;
+import app.owlcms.data.athlete.LiftDefinition.Stage;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.init.OwlcmsFactory;
@@ -65,19 +67,31 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         Boolean decision;
         FOPState state;
         boolean challengedRecords;
+        private Stage liftType;
 
         public Status(FOPState state, BreakType breakType, CeremonyType ceremonyType, Boolean decision,
-                List<RecordEvent> list) {
+                boolean challengedRecords, LiftDefinition.Stage liftType) {
+            logger.setLevel(Level.DEBUG);
             this.state = state;
             this.breakType = breakType;
             this.ceremonyType = ceremonyType;
             this.decision = decision;
-            this.challengedRecords = list != null && !list.isEmpty();
+            this.challengedRecords = challengedRecords;
+            this.setLiftType(liftType);
         }
 
         @Override
         public String toString() {
-            return "[state=" + state + ", breakType=" + breakType + ", decision=" + decision + "]";
+            return "Status [breakType=" + breakType + ", ceremonyType=" + ceremonyType + ", decision=" + decision
+                    + ", state=" + state + ", challengedRecords=" + challengedRecords + ", liftType=" + liftType + "]";
+        }
+
+        public Stage getLiftType() {
+            return liftType;
+        }
+
+        public void setLiftType(Stage liftType) {
+            this.liftType = liftType;
         }
     }
 
@@ -113,6 +127,9 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     private String title;
     private EventBus uiEventBus;
 
+    private Object currentLiftType;
+    private Object previousLiftType;
+
     /**
      * Instantiates a new results board.
      */
@@ -120,8 +137,8 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         OwlcmsFactory.waitDBInitialized();
         this.getElement().getStyle().set("width", "100%");
         // we need two items on the stack (current + previous)
-        doPush(new Status(FOPState.INACTIVE, null, null, null, null));
-        doPush(new Status(FOPState.INACTIVE, null, null, null, null));
+        doPush(new Status(FOPState.INACTIVE, null, null, null, false, null));
+        doPush(new Status(FOPState.INACTIVE, null, null, null, false, null));
     }
 
     @Override
@@ -165,7 +182,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         } else if (e instanceof UIEvent.Notification) {
             UIEventProcessor.uiAccess(this, uiEventBus, () -> {
                 OwlcmsSession.withFop(fop -> {
-                    logger.debug("---- notification {} {}", fop.getName(),
+                    logger.trace("---- notification {} {}", fop.getName(),
                             ((UIEvent.Notification) e).getNotificationString());
                 });
             });
@@ -210,7 +227,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
                 && h1 != null && h1.state == FOPState.DECISION_VISIBLE
                 && h2 != null && h2.state == FOPState.BREAK && h2.breakType == BreakType.JURY) {
-            logger.debug("fixing display after jury {} {} {}", h0, h1, h2);
+            logger.trace("fixing display after jury {} {} {}", h0, h1, h2);
             history.remove(1);
             computeValues();
         } else {
@@ -256,6 +273,12 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
             pageTitle.append(".");
             pageTitle.append(previousDecision == null ? "UNDECIDED" : (previousDecision ? "GOOD_LIFT" : "BAD_LIFT"));
         }
+        
+        if (currentLiftType != null) {
+            pageTitle.append(";");
+            pageTitle.append("liftType=");
+            pageTitle.append(currentLiftType.toString());
+        }
         pageTitle.append(";");
         pageTitle.append("fop=");
         pageTitle.append(currentFOP);
@@ -263,6 +286,17 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         String string = pageTitle.toString();
 
         return string;
+    }
+
+    @Override
+    public String toString() {
+        return "Monitor [history=" + history + ", currentBreakType=" + currentBreakType + ", currentCeremony="
+                + currentCeremony + ", currentDecision=" + currentDecision + ", currentChallengedRecords="
+                + currentChallengedRecords + ", currentFOP=" + currentFOP + ", currentState=" + currentState
+                + ", previousBreakType=" + previousBreakType + ", previousCeremony=" + previousCeremony
+                + ", previousDecision=" + previousDecision + ", previousChallengedRecords=" + previousChallengedRecords
+                + ", previousState=" + previousState + ", prevTitle=" + prevTitle + ", title=" + title + ", uiEventBus="
+                + uiEventBus + ", currentLiftType=" + currentLiftType + ", previousLiftType=" + previousLiftType + "]";
     }
 
     private void computeValues() {
@@ -274,11 +308,14 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         currentCeremony = h0 != null ? h0.ceremonyType : null;
         currentDecision = h0 != null ? h0.decision : null;
         currentChallengedRecords = h0 != null ? h0.challengedRecords : false;
+        currentLiftType = h0 != null ? h0.liftType : null;
+        
         previousState = h1 != null ? h1.state : null;
         previousBreakType = h1 != null ? h1.breakType : null;
         previousCeremony = h1 != null ? h1.ceremonyType : null;
         previousDecision = h1 != null ? h1.decision : null;
         previousChallengedRecords = h1 != null ? h1.challengedRecords : null;
+        previousLiftType = h1 != null ? h1.liftType : null;
     }
 
     private void doPush(Status status) {
@@ -326,24 +363,29 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         OwlcmsSession.withFop(fop -> {
             currentFOP = fop.getName();
             boolean fopChallengedRecords = fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty();
+            boolean newRecord = e instanceof UIEvent.JuryNotification && ((UIEvent.JuryNotification)e).getNewRecord();
             boolean curChallengedRecords = history.get(0).challengedRecords;
             if (fop.getState() != history.get(0).state || fopChallengedRecords != curChallengedRecords) {
                 doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), fop.getGoodLift(),
-                        fop.getChallengedRecords()));
+                        isNotEmpty(fop.getChallengedRecords()) || newRecord, fop.getCurrentStage()));
                 significant[0] = true;
             } else if (fop.getState() == FOPState.BREAK) {
                 if (fop.getBreakType() != history.get(0).breakType
                         || fop.getCeremonyType() != history.get(0).ceremonyType) {
                     doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), null,
-                            fop.getChallengedRecords()));
+                            isNotEmpty(fop.getChallengedRecords()), null));
                     significant[0] = true;
                 } else {
-                    // logger.debug("*** Monitor ignored duplicate {} {}", fop.getBreakType(), fop.getCeremonyType());
+                    // logger.trace("*** Monitor ignored duplicate {} {}", fop.getBreakType(), fop.getCeremonyType());
                 }
             } else {
-                // logger.debug("*** Monitor non break {}", fop.getState());
+                // logger.trace("*** Monitor non break {}", fop.getState());
             }
         });
         return significant[0];
+    }
+    
+    private boolean isNotEmpty(List<RecordEvent> list) {
+        return list != null && !list.isEmpty();
     }
 }
