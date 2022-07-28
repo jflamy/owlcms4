@@ -18,7 +18,7 @@ Digital Ocean (DO) is a cloud provider where you can create your own server.  Ev
 2. Create a Droplet: 
     1. Select Ubuntu 20.04 as the operating system
     2. Start with the **Basic** plan (1GB RAM + 25GB SSD image).  We will resize it in an upcoming step. The disk size is large enough and gives us the opportunity to increase memory, number of CPUs, or both. 
-    3. If you use the "password" option, make sure that your password is very long.  A phrase of 12 characters or more is recommended.  Something like "IReallyLikeGymNoise!". For a more secure alternative go to the [SSL Instructions](#Using-SSL) bottom of this page for instructions and come back here.
+    3. If you use the "password" option, make sure that your password is very long.  A phrase of 12 characters or more is recommended.  Something like "IReallyLikeGymNoise!". For a more secure alternative go to the [SSL Instructions](#using-ssl) bottom of this page for instructions and come back here.
     4. Copy the internet address for the machine (4 numbers separated by dots)
         ![droplet_ip](img/K3S/droplet_ip.png)
 3. Configure ssh access to the machine
