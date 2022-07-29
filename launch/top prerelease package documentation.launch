@@ -7,7 +7,7 @@
     <stringAttribute key="M2_PROFILES" value=""/>
     <listAttribute key="M2_PROPERTIES"/>
     <stringAttribute key="M2_RUNTIME" value="EMBEDDED"/>
-    <booleanAttribute key="M2_SKIP_TESTS" value="false"/>
+    <booleanAttribute key="M2_SKIP_TESTS" value="true"/>
     <intAttribute key="M2_THREADS" value="1"/>
     <booleanAttribute key="M2_UPDATE_SNAPSHOTS" value="false"/>
     <stringAttribute key="M2_USER_SETTINGS" value=""/>
@@ -19,6 +19,7 @@
         <mapEntry key="REPO_OWNER" value="jflamy-dev"/>
     </mapAttribute>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_SHOW_CODEDETAILS_IN_EXCEPTION_MESSAGES" value="true"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
     <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:/owlcms4top}"/>
 </launchConfiguration>
