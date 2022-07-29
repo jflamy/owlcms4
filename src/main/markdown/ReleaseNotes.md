@@ -1,8 +1,4 @@
-**Changes for release ${revision}**
-
-- 4.33.1-rc01: Release candidate.
-
-#### Changes for 4.33.1
+**Changes for ${revision}**
 
 - Shared visual styling between owlcms and publicresults.
   - publicresults scoreboard now uses the same colors.css and results.css stylesheets as owlcms.  owlcms sends the exact files it is using for itself to publicresults. The priority used by owlcms to find the style sheets is as follows:
@@ -12,7 +8,7 @@
   - The Records and Leader sections can now be shown/hidden from the pop-up dialog on the scoreboard screens for both owlcms and publicresults
 - Sinclair Meet added as a non-standard competition rule.  This is for meets where the medals are for men and for women independently of the bodyweight and age.  The feature switch still works, but there is now a checkbox on the competition page.
 
-#### Changes for 4.33.0
+##### Changes for 4.33.0
 
 - Records
   - Records are shown if record definition Excel spreadsheets are present in the local/records directory.  See the following folder for examples: [Sample Record Files](https://www.dropbox.com/sh/sbr804kqfwkgs6g/AAAEcT2sih9MmnrpYzkh6Erma?dl=0) . 
