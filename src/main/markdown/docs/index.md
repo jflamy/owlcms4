@@ -1,8 +1,10 @@
 # Olympic Weightlifting Competition Management System 
 
-This software is a full rewrite of a package which has been used to manage Olympic Weightlifting competitions world-wide since 2009.
+This free application is a fully-compliant weightlifting competition management system. 
 
-The application can be used for anything from a club meet using a single laptop all the way up to a national championship with several platform, full jury, integration with streaming, and public internet scoreboards.
+It has been used to manage national championships and even continental championships, worldwide.
+
+Yet it is simple enough to setup that you can use it to run a club or regional competition.
 
 ## Demo
 
