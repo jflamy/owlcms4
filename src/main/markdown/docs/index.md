@@ -38,11 +38,11 @@ The following list is a sampling of the many features available.  <u>*Click on t
 
      ![022_Scoreboard_Decision](img/Displays/022_Scoreboard_Decision.png)
 
-- [**Announcer and Marshall**](Announcing) screens (updating athlete cards and recalculation of lifting order).  
+- [**Announcer and Marshall**](Announcing) screens (updating athlete cards and recalculation of lifting order).    The information is laid out as on the official cards.  Messages are given for late changes, and the changes are checked for correctness relative to the lifting order. 
   
     ![020_EditLifterCard](img/Lifting/020_EditLifterCard.png  ':size=350')
   
-- [**Timekeeping**](Announcing#Starting_the_clock) Time can be [managed by the announcer](Announcing#Starting-the-clock)  (useful for smaller meets) or a dedicated [timekeeper screen](Announcing#Timekeeper) can be used. The timekeeper screen can be conveniently operated from a phone or tablet.
+- [**Timekeeping**](Announcing#Starting_the_clock) Time can either be [managed by the announcer](Announcing#Starting-the-clock)  (useful for smaller meets) or a dedicated [timekeeper screen](Announcing#Timekeeper) can be used. The timekeeper screen can be conveniently operated from a phone or tablet.
   
     <img src="img/Lifting/050_Timekeeper.png" alt="050_Timekeeper.png" width=350 style="border-style:solid; border-width: thin" />
 
