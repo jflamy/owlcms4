@@ -1,6 +1,6 @@
 **Changes for ${revision}**
 
-- 4.33.2-rc02: updated documentation for Heroku scale up/down
+- 4.33.2-rc03: updated documentation front page (pictures, feature descriptions)
 
 ##### Changes for 4.33.1
 
