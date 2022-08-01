@@ -1,5 +1,9 @@
 **Changes for ${revision}**
 
+- 4.33.2-rc03: updated documentation front page (pictures, feature descriptions)
+
+##### Changes for 4.33.1
+
 - Shared visual styling between owlcms and publicresults.
   - publicresults scoreboard now uses the same colors.css and results.css stylesheets as owlcms.  owlcms sends the exact files it is using for itself to publicresults. The priority used by owlcms to find the style sheets is as follows:
     1. css loaded in a zip using the Settings page,  
