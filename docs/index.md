@@ -1,8 +1,14 @@
 # Olympic Weightlifting Competition Management System 
 
-This software is a full rewrite of a package which has been used to manage Olympic Weightlifting competitions world-wide since 2009.
+This free application is a fully-compliant weightlifting competition management system. 
 
-The application can be used for anything from a club meet using a single laptop all the way up to a national championship with several platform, full jury, integration with streaming, and public internet scoreboards.
+It has been used to manage national championships and even continental championships, worldwide.
+
+Yet it is simple enough to setup that you can use it to run a club or regional competition (click on pictures to enlarge).
+
+![Club Meet (Chelles, France)](img/Gallery/chelles.jpg ':size=250')![IMG_1480](img/Gallery/IMG_1480.jpg ':size=250')![gaspe2018](img/Gallery/gaspe2018.png ':size=250')![nordic2021](img/Gallery/nordic2021.png ':size=250')![mexicoNational](img/Gallery/mexicoNational.jpg ':size=250')![u15panam](img/Gallery/u15panam.jpg ':size=250')
+<br>
+[^images]
 
 ## Demo
 
@@ -36,11 +42,11 @@ The following list is a sampling of the many features available.  <u>*Click on t
 
      ![022_Scoreboard_Decision](img/Displays/022_Scoreboard_Decision.png)
 
-- [**Announcer and Marshall**](Announcing) screens (updating athlete cards and recalculation of lifting order).  
+- [**Announcer and Marshall**](Announcing) screens (updating athlete cards and recalculation of lifting order).    The information is laid out as on the official cards.  Messages are given for late changes, and the changes are checked for correctness relative to the lifting order. 
   
     ![020_EditLifterCard](img/Lifting/020_EditLifterCard.png  ':size=350')
   
-- [**Timekeeping**](Announcing#Starting_the_clock) Time can be [managed by the announcer](Announcing#Starting-the-clock)  (useful for smaller meets) or a dedicated [timekeeper screen](Announcing#Timekeeper) can be used. The timekeeper screen can be conveniently operated from a phone or tablet.
+- [**Timekeeping**](Announcing#Starting_the_clock) Time can either be [managed by the announcer](Announcing#Starting-the-clock)  (useful for smaller meets) or a dedicated [timekeeper screen](Announcing#Timekeeper) can be used. The timekeeper screen can be conveniently operated from a phone or tablet.
   
     <img src="img/Lifting/050_Timekeeper.png" alt="050_Timekeeper.png" width=350 style="border-style:solid; border-width: thin" />
 
@@ -127,3 +133,14 @@ The following list is a sampling of the many features available.  <u>*Click on t
 - [Discussion list](https://groups.google.com/forum/#!forum/owlcms)  If you wish to discuss the program or ask questions, please add yourself to this discussion [group](https://groups.google.com/forum/#!forum/owlcms).  You can withdraw at any time.
 - [Issues and Feature Requests](https://github.com/jflamy/owlcms4/projects/1)  Use the "Issues" icon at the top of the page.
 - [Project board](https://github.com/jflamy/owlcms4/projects/1) This shows what we are working on, and our work priorities.  Check here first, we may actually already be working on it
+<br><br>
+<br><br>
+
+
+[^images]: <span style="font-size:1.5em">Description of the images</span> (click on underlined text to return)
+  - Club meet in Chelles, France (2021)
+  - Canadian Senior National Championship 2022
+  - 2018 PanAmerican Masters Championships (Gaspé, CA)
+  - Nordic Championships 2021 (Scandinavian nations, including video overlays produced by owlcms)
+  - Mexican National Games 2022 (4 simultaneous platforms)
+  - 2022 PanAmerican U15 and U17 Championships (Monterey, MX)
