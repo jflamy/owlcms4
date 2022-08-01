@@ -1,6 +1,6 @@
 **Changes for ${revision}**
 
-- 4.33.2-rc03: updated documentation front page (pictures, feature descriptions)
+- 4.33.2: Minor updates to documentation. No changes to the program.
 
 ##### Changes for 4.33.1
 
