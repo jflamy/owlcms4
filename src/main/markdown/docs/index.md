@@ -4,7 +4,11 @@ This free application is a fully-compliant weightlifting competition management 
 
 It has been used to manage national championships and even continental championships, worldwide.
 
-Yet it is simple enough to setup that you can use it to run a club or regional competition.
+Yet it is simple enough to setup that you can use it to run a club or regional competition (click on pictures to enlarge).
+
+![Club Meet (Chelles, France)](img/Gallery/chelles.jpg ':size=250')![IMG_1480](img/Gallery/IMG_1480.jpg ':size=250')![gaspe2018](img/Gallery/gaspe2018.png ':size=250')![nordic2021](img/Gallery/nordic2021.png ':size=250')![mexicoNational](img/Gallery/mexicoNational.jpg ':size=250')![u15panam](img/Gallery/u15panam.jpg ':size=250')
+<br>
+[^images]
 
 ## Demo
 
@@ -129,3 +133,14 @@ The following list is a sampling of the many features available.  <u>*Click on t
 - [Discussion list](https://groups.google.com/forum/#!forum/owlcms)  If you wish to discuss the program or ask questions, please add yourself to this discussion [group](https://groups.google.com/forum/#!forum/owlcms).  You can withdraw at any time.
 - [Issues and Feature Requests](https://github.com/jflamy/owlcms4/projects/1)  Use the "Issues" icon at the top of the page.
 - [Project board](https://github.com/jflamy/owlcms4/projects/1) This shows what we are working on, and our work priorities.  Check here first, we may actually already be working on it
+<br><br>
+<br><br>
+
+
+[^images]: <span style="font-size:1.5em">Description of the images</span> (click on underlined text to return)
+  - Club meet in Chelles, France (2021)
+  - Canadian Senior National Championship 2022
+  - 2018 PanAmerican Masters Championships (Gaspé, CA)
+  - Nordic Championships 2021 (Scandinavian nations, including video overlays produced by owlcms)
+  - Mexican National Games 2022 (4 simultaneous platforms)
+  - 2022 PanAmerican U15 and U17 Championships (Monterey, MX)
