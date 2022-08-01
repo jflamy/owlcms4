@@ -5,19 +5,17 @@ It is being used worldwide to manage national championships and even continental
 
 Yet it is simple enough to setup that you can use it to run a club or regional competition.
 
-### Features and Documentation
+### Features, Documentation and Installation
 
 See the application **[Web Site](https://owlcms.github.io/owlcms4/#)** for a full overview.  
 
-### Installation Options
-See the application **[Web Site](https://owlcms.github.io/owlcms4/#)** for a full overview.  
-
-Refer to the following [page](Releases.md) for the various setups and releases, including preliminary releases for early adopters.
+Refer to the [Installation Overview](https://owlcms.github.io/owlcms4/#/InstallationOverview) and
+to the following [page](Releases.md) for the various setups and releases.
 
 ### Support
 
 - [Discussion list](https://groups.google.com/forum/#!forum/owlcms)  If you wish to discuss the program or ask questions, please add yourself to this discussion [group](https://groups.google.com/forum/#!forum/owlcms).  You can withdraw at any time.
-- [Project board](https://github.com/jflamy/owlcms4/projects/1) This shows what we are working on, and our work priorities.  Check here first, we may actually already be working on it...
+- [Issues and Feature Requests](https://github.com/jflamy/owlcms4/projects/1) This shows what we are working on, and our work priorities. To open an issue or make a request, use the Issues link at the top.
 
 ### Licensing and Notes
 
