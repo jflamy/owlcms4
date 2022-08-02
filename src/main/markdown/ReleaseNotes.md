@@ -1,6 +1,6 @@
 **Changes for ${revision}**
 
-- 4.33.3-alpha00: Attempt board shows notifications for record attempts and new records.
+- 4.33.3-rc01: CSS variable `--zIndexRecordNotifications` in `colors.css` now controls if record notifications are shown on the scoreboard and the attempt board. A value of 10 shows the notifications, a value of -10 hides the notifications.
 
 ##### Changes for 4.33.2
 
@@ -12,7 +12,7 @@
   - publicresults scoreboard now uses the same colors.css and results.css stylesheets as owlcms.  owlcms sends the exact files it is using for itself to publicresults. The priority used by owlcms to find the style sheets is as follows:
     1. css loaded in a zip using the Settings page,  
     2. css in the local/styles folder where owlcms is installed
-    3. 3. css found in the binary files of the owlcms distribution.
+    3. css found in the binary files of the owlcms distribution.
   - The Records and Leader sections can now be shown/hidden from the pop-up dialog on the scoreboard screens for both owlcms and publicresults
 - Sinclair Meet added as a non-standard competition rule.  This is for meets where the medals are for men and for women independently of the bodyweight and age.  The feature switch still works, but there is now a checkbox on the competition page.
 

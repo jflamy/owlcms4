@@ -19,7 +19,8 @@ class CurrentAttempt extends PolymerElement {
 	<div class="attemptBoard" id="attemptBoardDiv">
 		<div class="lastName" id="lastNameDiv">[[lastName]]</div>
 		<div class="firstName" id="firstNameDiv">[[firstName]]</div>
-		<div class$="[[recordKind]]" id="teamNameDiv">[[teamName]]</div>
+		<div class="teamName" id="teamNameDiv">[[teamName]]</div>
+		<div class$="[[recordKind]]" id="recordDiv">[[recordMessage]]</div>
 		<div class="startNumber" id="startNumberDiv">
 			<span>[[startNumber]]</span>
 		</div>
