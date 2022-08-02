@@ -580,7 +580,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             return;
         }
 
-        logger.debug("$$$  a {} state {}", a, state);
         if (a == null) {
             doEmpty();
             return;
@@ -592,6 +591,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         String lastName = a.getLastName();
         this.getElement().setProperty("lastName", lastName.toUpperCase());
         this.getElement().setProperty("firstName", a.getFirstName());
+        this.getElement().setProperty("teamName", a.getTeam());
 
         spotlightRecords(fop);
 
@@ -607,13 +607,12 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     private void spotlightNewRecord() {
         this.getElement().setProperty("recordKind", "recordNotification new");
-        this.getElement().setProperty("teamName", Translator.translate("Scoreboard.NewRecord"));
+        this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.NewRecord"));
     }
 
     private void spotlightRecordAttempt() {
         this.getElement().setProperty("recordKind", "recordNotification attempt");
-        this.getElement().setProperty("teamName",
-                Translator.translate("Scoreboard.RecordAttempt"));
+        this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.RecordAttempt"));
     }
 
     private void spotlightRecords(FieldOfPlay fop) {
@@ -622,7 +621,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         } else if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
             spotlightRecordAttempt();
         } else {
-            this.getElement().setProperty("recordKind", "teamName");
+            this.getElement().setProperty("recordKind", "recordNotification none");
             this.getElement().setProperty("teamName", fop.getCurAthlete().getTeam());
         }
     }
