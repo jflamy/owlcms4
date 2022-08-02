@@ -1,6 +1,10 @@
 **Changes for ${revision}**
 
-- 4.33.2: Minor updates to documentation. No changes to the program.
+- 4.33.3-alpha00: Attempt board shows notifications for record attempts and new records.
+
+##### Changes for 4.33.2
+
+- Documentation only (Heroku setup, pictures on home page)
 
 ##### Changes for 4.33.1
 

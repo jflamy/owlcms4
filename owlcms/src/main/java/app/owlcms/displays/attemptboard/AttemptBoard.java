@@ -443,8 +443,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                         (e.getNewRecord() ? "<br/>" + Translator.translate("Scoreboard.NewRecord") : ""),
                         style,
                         (int) (2 * FieldOfPlay.DECISION_VISIBLE_DURATION));
-                logger.warn("new record {}", e.getNewRecord());
-
                 break;
             default:
                 break;
