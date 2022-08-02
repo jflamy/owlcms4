@@ -319,6 +319,16 @@ public class Results extends PolymerTemplate<TemplateModel>
     }
 
     @Override
+    public void setDefaultLeadersDisplay(boolean b) {
+        this.defaultLeadersDisplay = b;
+    }
+
+    @Override
+    public void setDefaultRecordsDisplay(boolean b) {
+        this.defaultRecordsDisplay = b;
+    }
+
+    @Override
     public void setDialog(Dialog dialog) {
         this.dialog = dialog;
     }
@@ -469,7 +479,7 @@ public class Results extends PolymerTemplate<TemplateModel>
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             setHidden(false);
-            if (Boolean.TRUE.equals(e.getNewRecord())) {
+            if (e.getNewRecord()) {
                 spotlightNewRecord();
             }
         });
@@ -869,11 +879,8 @@ public class Results extends PolymerTemplate<TemplateModel>
     protected void updateBottom(String liftType, FieldOfPlay fop) {
         curGroup = fop.getGroup();
         displayOrder = fop.getDisplayOrder();
-        if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
-            spotlightNewRecord();
-        } else {
-            spotlightAttemptOrNone(fop, this);
-        }
+        spotlightRecords(fop);
+
         doChangeEmSize();
         if (liftType != null) {
             this.getElement().setProperty("groupName",
@@ -951,16 +958,6 @@ public class Results extends PolymerTemplate<TemplateModel>
         displayOrder = ImmutableList.of();
     }
 
-    @Override
-    public void setDefaultLeadersDisplay(boolean b) {
-        this.defaultLeadersDisplay = b;
-    }
-
-    @Override
-    public void setDefaultRecordsDisplay(boolean b) {
-        this.defaultRecordsDisplay = b;
-    }
-
     private void setHidden(boolean hidden) {
         this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
         this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
@@ -973,19 +970,25 @@ public class Results extends PolymerTemplate<TemplateModel>
         this.getElement().setProperty("teamWidthClass", (wide ? "wideTeams" : "narrowTeams"));
     }
 
-    private void spotlightAttemptOrNone(FieldOfPlay fop, Results parentThis) {
-        if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
-            parentThis.getElement().setProperty("recordKind", "attempt");
-            parentThis.getElement().setProperty("recordMessage",
-                    Translator.translate("Scoreboard.RecordAttempt"));
-        } else {
-            parentThis.getElement().setProperty("recordKind", "none");
-        }
-    }
-
     private void spotlightNewRecord() {
         this.getElement().setProperty("recordKind", "new");
         this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.NewRecord"));
+    }
+
+    private void spotlightRecordAttempt() {
+        this.getElement().setProperty("recordKind", "attempt");
+        this.getElement().setProperty("recordMessage",
+                Translator.translate("Scoreboard.RecordAttempt"));
+    }
+
+    private void spotlightRecords(FieldOfPlay fop) {
+        if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
+            spotlightNewRecord();
+        } else if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
+            spotlightRecordAttempt();
+        } else {
+            this.getElement().setProperty("recordKind", "none");
+        }
     }
 
     private void syncWithFOP(UIEvent.SwitchGroup e) {

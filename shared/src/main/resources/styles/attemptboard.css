@@ -71,6 +71,44 @@
 	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
 }
 
+.attemptBoard .teamName {
+	justify-self: left;
+	font-size: 8vh;
+	height: 100%;
+	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
+}
+
+.attemptBoard .recordNotification {
+	justify-self: center;
+	font-size: 8vh;
+	height: 100%;
+	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
+}
+
+.attemptBoard .recordNotification.new {
+	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
+    background-color: var(--darkRecordHighlightBackground);
+    color: var(--darkRecordHighlightText);
+    visibility: var(--showRecordNotifications);
+    width: 100%;
+    align-self: center;
+    justify-content: center;
+    align-content: center;
+    padding: 0.4em;
+}
+
+.attemptBoard .recordNotification.attempt {
+	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
+    background-color: var(--darkAttemptHighlightBackground);
+    color: var(--darkAttemptHighlightText);
+    visibility: var(--showRecordNotifications);
+    width: 100%;
+    align-self: center;
+    justify-content: center;
+    align-content: center;
+    padding: 0.4em;
+}
+
 @media screen and (max-width: 1300px) {
 	.attemptBoard .teamName {
 		font-size: 8vh;

@@ -19,7 +19,7 @@ class CurrentAttempt extends PolymerElement {
 	<div class="attemptBoard" id="attemptBoardDiv">
 		<div class="lastName" id="lastNameDiv">[[lastName]]</div>
 		<div class="firstName" id="firstNameDiv">[[firstName]]</div>
-		<div class="teamName" id="teamNameDiv">[[teamName]]</div>
+		<div class$="[[recordKind]]" id="teamNameDiv">[[teamName]]</div>
 		<div class="startNumber" id="startNumberDiv">
 			<span>[[startNumber]]</span>
 		</div>
@@ -91,14 +91,14 @@ class CurrentAttempt extends PolymerElement {
 		this.$.attemptBoardDiv.style.display = "grid";
 		this.$.attemptBoardDiv.style.color = "white";
 		this.$.athleteTimer.reset(this.$.athleteTimer);
-		this.$.athleteTimerDiv.style.display = "block";
-		this.$.firstNameDiv.style.display = "block";
-		this.$.teamNameDiv.style.display = "block";
+		this.$.athleteTimerDiv.style.display = "grid";
+		this.$.firstNameDiv.style.display = "grid";
+		this.$.teamNameDiv.style.display = "grid";
 		this.$.attemptDiv.style.display = "block";
 		this.$.breakTimerDiv.style.display = "none";
-		this.$.weightDiv.style.display = "block";
+		this.$.weightDiv.style.display = "grid";
 		this.$.startNumberDiv.style.display = "block";
-		this.$.barbellDiv.style.display = "block";
+		this.$.barbellDiv.style.display = "grid";
 		this.$.decisionDiv.style.display = "none";
 		console.debug("end of attemptBoard reset " + this.javaComponentId);
 	}
@@ -108,7 +108,7 @@ class CurrentAttempt extends PolymerElement {
 		this.$.athleteTimerDiv.style.display = "none";
 		this.$.breakTimerDiv.style.display = "none";
 		this.$.barbellDiv.style.display = "none";
-		this.$.decisionDiv.style.display = "block";
+		this.$.decisionDiv.style.display = "grid";
 		console.debug("end of attemptBoard dome " + this.javaComponentId);
 	}
 
@@ -117,16 +117,16 @@ class CurrentAttempt extends PolymerElement {
 		this.$.attemptBoardDiv.style.display = "grid";
 		this.$.attemptBoardDiv.style.color = "white";
 		this.$.athleteTimerDiv.style.display = "none";
-		this.$.breakTimerDiv.style.display = "block";
-		this.$.firstNameDiv.style.display = "block";
+		this.$.breakTimerDiv.style.display = "grid";
+		this.$.firstNameDiv.style.display = "grid";
 		this.$.teamNameDiv.style.display = "none";
 		this.$.attemptDiv.style.display = "none";
 		this.$.startNumberDiv.style.display = "none";
 		if (showWeight) {
-			this.$.weightDiv.style.display = "block";
-			this.$.barbellDiv.style.display = "block";
-			this.$.decisionDiv.style.display = "block";
-			//this.$.breakTimerDiv.style.display = "block";
+			this.$.weightDiv.style.display = "grid";
+			this.$.barbellDiv.style.display = "grid";
+			this.$.decisionDiv.style.display = "grid";
+			//this.$.breakTimerDiv.style.display = "grid";
 		} else {
 			this.$.weightDiv.style.display = "none";
 			this.$.barbellDiv.style.display = "none";
