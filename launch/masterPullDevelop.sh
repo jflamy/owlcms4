@@ -7,20 +7,20 @@
 # merge the develop branch to master prior to stable release build
 cd publicresults-heroku
 git checkout master
-git pull
+git fetch
 git merge origin/develop --no-ff
 git commit -a -m "start [skip ci]"
 git push origin master
 cd ..
 cd owlcms-heroku
 git checkout master
-git pull
+git fetch
 git merge origin/develop --no-ff
 git commit -a -m "start [skip ci]"
 git push origin master
 cd ..
 git checkout master
-git pull
+git fetch
 git merge origin/develop --no-ff
 git commit -a -m "start [skip ci]"
 git push origin master

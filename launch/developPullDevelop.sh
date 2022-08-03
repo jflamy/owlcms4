@@ -6,17 +6,20 @@
 # Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
 # License text at https://opensource.org/licenses/NPOSL-3.0
 #*******************************************************************************
-git pull
+git fetch
+git merge origin/develop --no-ff
 
 cd owlcms-heroku
 git checkout develop
-git pull
+git fetch
+git merge origin/develop --no-ff
 git commit -m "sync submodules [skip ci]" .
 git push
 
 cd ../publicresults-heroku
 git checkout develop
-git pull
+git fetch
+git merge origin/develop --no-ff
 git commit -m "sync submodules [skip ci]" .
 git push
 
