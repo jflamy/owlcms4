@@ -1,6 +1,11 @@
 **Changes for ${revision}**
 
-- 4.33.3-rc01: CSS variable `--zIndexRecordNotifications` in `colors.css` now controls if record notifications are shown on the scoreboard and the attempt board. A value of 10 shows the notifications, a value of -10 hides the notifications.
+- 4.33.3-rc01: Release candidate; routine build before merge to main branch.
+
+##### Changes for 4.33.3
+
+- Record attempts and new records now advertised on the attempt board.
+  - Record notifications can be enabled/disabled on the scoreboards and attempt board using the z-index CSS property. Set the variable `--zIndexRecordNotifications` in `colors.css` to a positive value (ex: 10) to enable the notifications, and a negative value (ex: -10) to always hide them.
 
 ##### Changes for 4.33.2
 
@@ -10,7 +15,7 @@
 
 - Shared visual styling between owlcms and publicresults.
   - publicresults scoreboard now uses the same colors.css and results.css stylesheets as owlcms.  owlcms sends the exact files it is using for itself to publicresults. The priority used by owlcms to find the style sheets is as follows:
-    1. css loaded in a zip using the Settings page,  
+    1. css loaded in a zip using the Language and Settings page, found in the local/styles folder of the zip.  
     2. css in the local/styles folder where owlcms is installed
     3. css found in the binary files of the owlcms distribution.
   - The Records and Leader sections can now be shown/hidden from the pop-up dialog on the scoreboard screens for both owlcms and publicresults
