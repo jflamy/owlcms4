@@ -15,18 +15,18 @@ cd publicresults-heroku
 git checkout $LOCAL
 git fetch
 git merge origin/$REMOTE --no-ff -m "merge $REMOTE [skip ci]"
-git push origin develop
+git push origin $LOCAL
 cd ..
 cd owlcms-heroku
 git checkout $LOCAL
 git fetch
 git merge origin/$REMOTE --no-ff -m "merge $REMOTE [skip ci]"
-git push origin develop
+git push origin $LOCAL
 cd ..
 git checkout $LOCAL
 git fetch
 git merge origin/$REMOTE --no-ff -m "merge $REMOTE [skip ci]"
-git push origin develop
+git push origin $LOCAL
 echo Done.  pulled $REMOTE into $LOCAL.
 
 
