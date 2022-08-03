@@ -7,7 +7,7 @@
 # License text at https://opensource.org/licenses/NPOSL-3.0
 #*******************************************************************************
 
-# merge the master branch back into develop
+# merge the remote master branch back into local develop
 LOCAL=develop
 REMOTE=master
 
