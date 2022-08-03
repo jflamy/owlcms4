@@ -2,8 +2,9 @@
     --pageBackgroundColor: black;
     --pageTextColor: white;
 
-    /* large record notifications: set this variable to hidden if they are not wanted. */
-    --showRecordNotifications: visible;
+    /* control record notification on scoreboard and attempt board.
+       Set to 10 to show notifications, set to -10 if notifications not wanted */
+    --zIndexRecordNotifications: 10;
 
     /* current attempt section */
     --startNumberBoxColor: red;

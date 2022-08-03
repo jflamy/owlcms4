@@ -897,27 +897,27 @@ div.ellipsis {
 :host(.dark) .recordNotification.new {
     background-color: var(--darkRecordHighlightBackground);
     color: var(--darkRecordHighlightText);
-    visibility: var(--showRecordNotifications);
+    z-index: var(--zIndexRecordNotifications);
 }
 
 :host(.dark) .recordNotification.attempt {
     background-color: var(--darkAttemptHighlightBackground);
     color: var(--darkAttemptHighlightText);
-    visibility: var(--showRecordNotifications);
+    z-index: var(--zIndexRecordNotifications);
 }
 
 :host(.light) .recordNotification.new {
     background-color: var(--lightRecordHighlightBackground);
     color: var(--lightRecordHighlightText);
-    visibility: var(--showRecordNotifications);
+    z-index: var(--zIndexRecordNotifications);
 }
 
 :host(.light) .recordNotification.attempt {
     background-color: var(--lightAttemptHighlightBackground);
     color: var(--lightAttemptHighlightText);
-    visibility: var(--showRecordNotifications);
+    z-index: var(--zIndexRecordNotifications);
 }
 
 .recordNotification.none {
-    visibility: hidden;
+    z-index: -10;
 }

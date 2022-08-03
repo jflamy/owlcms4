@@ -4,10 +4,11 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.33.2
+    default: 4.33.3-rc01
   - name: SkipTests
     type: string
     default: 'false'
+
 
 variables:
   # overrides pom.xml; must be unique if BuildGoal is set to deploy.

@@ -71,6 +71,62 @@
 	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
 }
 
+.attemptBoard .teamName {
+	justify-self: left;
+	font-size: 8vh;
+	height: 100%;
+	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
+}
+
+.attemptBoard .recordNotification {
+	justify-self: center;
+	font-size: 8vh;
+	height: 100%;
+	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
+}
+
+.attemptBoard .recordNotification.new {
+	display: grid;
+	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
+    background-color: var(--darkRecordHighlightBackground);
+    color: var(--darkRecordHighlightText);
+    visibility: var(--showRecordNotifications);
+    width: 100%;
+    align-self: center;
+    justify-content: center;
+    align-content: center;
+    padding: 0.4em;
+	z-index: var(--zIndexRecordNotifications);
+}
+
+.attemptBoard .recordNotification.attempt {
+	display: grid;
+	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
+    background-color: var(--darkAttemptHighlightBackground);
+    color: var(--darkAttemptHighlightText);
+    visibility: var(--showRecordNotifications);
+    width: 100%;
+    align-self: center;
+    justify-content: center;
+    align-content: center;
+    padding: 0.4em;
+	z-index: var(--zIndexRecordNotifications);
+}
+
+.attemptBoard .recordNotification.none {
+	display: grid;
+	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
+    background-color: var(--darkAttemptHighlightBackground);
+    color: var(--darkAttemptHighlightText);
+    visibility: var(--showRecordNotifications);
+    width: 100%;
+    align-self: center;
+    justify-content: center;
+    align-content: center;
+    padding: 0.4em;
+	z-index: -10;
+}
+
 @media screen and (max-width: 1300px) {
 	.attemptBoard .teamName {
 		font-size: 8vh;
