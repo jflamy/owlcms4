@@ -1,27 +1,33 @@
+#!/bin/bash 
+
 #*******************************************************************************
 # Copyright (c) 2009-2022 Jean-François Lamy
 #
 # Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
 # License text at https://opensource.org/licenses/NPOSL-3.0
 #*******************************************************************************
-# merge the develop branch to master prior to stable release build
+
+# merge the remote develop branch back into local master
+LOCAL=master
+REMOTE=develop
+
 cd publicresults-heroku
-git checkout master
+git checkout $LOCAL
 git fetch
-git merge origin/develop --no-ff
-git commit -a -m "start [skip ci]"
-git push origin master
+git merge origin/$REMOTE --no-ff
+git commit -a -m "merge $REMOTE [skip ci]"
+git push origin develop
 cd ..
 cd owlcms-heroku
-git checkout master
+git checkout $LOCAL
 git fetch
-git merge origin/develop --no-ff
-git commit -a -m "start [skip ci]"
-git push origin master
+git merge origin/$REMOTE --no-ff
+git commit -a -m "merge $REMOTE [skip ci]"
+git push origin develop
 cd ..
-git checkout master
+git checkout $LOCAL
 git fetch
-git merge origin/develop --no-ff
-git commit -a -m "start [skip ci]"
-git push origin master
-echo Done.  pulled develop into master.
+git merge origin/$REMOTE --no-ff
+git commit -a -m "merge $REMOTE [skip ci]"
+git push origin develop
+echo Done.  pulled $REMOTE into $LOCAL.

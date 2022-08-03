@@ -6,26 +6,30 @@
 # Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
 # License text at https://opensource.org/licenses/NPOSL-3.0
 #*******************************************************************************
-git fetch
-git merge origin/develop --no-ff
 
-cd owlcms-heroku
-git checkout develop
-git fetch
-git merge origin/develop --no-ff
-git commit -m "sync submodules [skip ci]" .
-git push
+# merge the remote develop branch back into local develop
+LOCAL=develop
+REMOTE=develop
 
-cd ../publicresults-heroku
-git checkout develop
+cd publicresults-heroku
+git checkout $LOCAL
 git fetch
-git merge origin/develop --no-ff
-git commit -m "sync submodules [skip ci]" .
-git push
-
+git merge origin/$REMOTE --no-ff
+git commit -a -m "merge $REMOTE [skip ci]"
+git push origin develop
 cd ..
-git commit -m "sync submodules [skip ci]" owlcms-heroku publicresults-heroku
-git push
-echo Done. synced develop submodules.
+cd owlcms-heroku
+git checkout $LOCAL
+git fetch
+git merge origin/$REMOTE --no-ff
+git commit -a -m "merge $REMOTE [skip ci]"
+git push origin develop
+cd ..
+git checkout $LOCAL
+git fetch
+git merge origin/$REMOTE --no-ff
+git commit -a -m "merge $REMOTE [skip ci]"
+git push origin develop
+echo Done.  pulled $REMOTE into $LOCAL.
 
 

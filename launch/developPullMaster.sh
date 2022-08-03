@@ -6,24 +6,28 @@
 # Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
 # License text at https://opensource.org/licenses/NPOSL-3.0
 #*******************************************************************************
-# merge the develop branch to master prior to stable release build
+
+# merge the master branch back into develop
+LOCAL=develop
+REMOTE=master
+
 cd publicresults-heroku
-git checkout develop
+git checkout $LOCAL
 git fetch
-git merge origin/master --no-ff
-git commit -a -m "merge master [skip ci]"
+git merge origin/$REMOTE --no-ff
+git commit -a -m "merge $REMOTE [skip ci]"
 git push origin develop
 cd ..
 cd owlcms-heroku
-git checkout develop
+git checkout $LOCAL
 git fetch
-git merge origin/master --no-ff
-git commit -a -m "merge master [skip ci]"
+git merge origin/$REMOTE --no-ff
+git commit -a -m "merge $REMOTE [skip ci]"
 git push origin develop
 cd ..
-git checkout develop
+git checkout $LOCAL
 git fetch
-git merge origin/master --no-ff
-git commit -a -m "merge master [skip ci]"
+git merge origin/$REMOTE --no-ff
+git commit -a -m "merge $REMOTE [skip ci]"
 git push origin develop
-echo Done.  pulled master into develop.
+echo Done.  pulled $REMOTE into $LOCAL.

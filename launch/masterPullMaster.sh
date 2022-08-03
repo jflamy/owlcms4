@@ -1,23 +1,33 @@
+#!/bin/bash 
+
 #*******************************************************************************
 # Copyright (c) 2009-2022 Jean-François Lamy
 #
 # Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
 # License text at https://opensource.org/licenses/NPOSL-3.0
 #*******************************************************************************
-git pull
-git submodule update --init --recursive --remote
+
+# merge the remote master branch back into local develop
+LOCAL=master
+REMOTE=master
+
 cd publicresults-heroku
-git checkout master
-git pull
+git checkout $LOCAL
+git fetch
+git merge origin/$REMOTE --no-ff
+git commit -a -m "merge $REMOTE [skip ci]"
+git push origin develop
 cd ..
 cd owlcms-heroku
-git checkout master
-git pull
+git checkout $LOCAL
+git fetch
+git merge origin/$REMOTE --no-ff
+git commit -a -m "merge $REMOTE [skip ci]"
+git push origin develop
 cd ..
-git checkout master
-git pull
-git add .
-git commit -a -m " [skip ci]"
-git push
-echo Done. synced master submodules.
-
+git checkout $LOCAL
+git fetch
+git merge origin/$REMOTE --no-ff
+git commit -a -m "merge $REMOTE [skip ci]"
+git push origin develop
+echo Done.  pulled $REMOTE into $LOCAL.
