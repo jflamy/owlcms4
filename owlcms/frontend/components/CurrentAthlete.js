@@ -66,10 +66,10 @@ class CurrentAthlete extends PolymerElement {
 								</td>
 							</template>
 							<td class="showRank">
-								<div><div>[[t.Rank]] <b>[[l.cleanJerkRank]]</b></div></div>
+								<div>[[t.Rank]] <b>[[l.cleanJerkRank]]</b></div>
 							</td>
 							<td class="liftName"><div inner-h-t-m-l="[[t.Total]]"></div></td>
-							<td class="total">[[l.total]]</td>
+							<td class="total"><div></div>[[l.total]]</div></td>
 							<td class="totalRank">
 								<div>[[t.Rank]] <b>[[l.totalRank]]</b></div>
 							</td>
