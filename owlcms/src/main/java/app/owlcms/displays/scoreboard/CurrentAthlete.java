@@ -77,7 +77,7 @@ import elemental.json.JsonValue;
 @Route("displays/currentathlete")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardModel>
+public class CurrentAthlete extends PolymerTemplate<TemplateModel>
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
         RequireLogin {
 
@@ -89,47 +89,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
      * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
      *
      */
-    public interface ScoreboardModel extends TemplateModel {
-        String getAttempt();
-
-        String getCategoryName();
-
-        String getCompetitionName();
-
-        String getFullName();
-
-        Integer getStartNumber();
-
-        String getTeamName();
-
-        Integer getWeight();
-
-        Boolean isHidden();
-
-        Boolean isWideTeamNames();
-
-        void setAttempt(String formattedAttempt);
-
-        void setCategoryName(String categoryName);
-
-        void setCompetitionName(String competitionName);
-
-        void setFullName(String lastName);
-
-        void setGroupName(String name);
-
-        void setHidden(boolean b);
-
-        void setLiftsDone(String formattedDone);
-
-        void setStartNumber(Integer integer);
-
-        void setTeamName(String teamName);
-
-        void setWeight(Integer weight);
-
-        void setWideTeamNames(boolean b);
-    }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(CurrentAthlete.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -180,13 +139,13 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     @Override
     public void doBreak(UIEvent e) {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            ScoreboardModel model = getModel();
-            model.setFullName(inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
-            model.setTeamName("");
-            model.setAttempt("");
+            getElement().setProperty("fullName",
+                    inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+            getElement().setProperty("teamName", "");
+            getElement().setProperty("attempt", "");
             setHidden(false);
 
-            updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
+            updateBottom(computeLiftType(fop.getCurAthlete()), fop);
             uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
             this.getElement().callJsFunction("doBreak");
         }));
@@ -195,13 +154,13 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     @Override
     public void doCeremony(UIEvent.CeremonyStarted e) {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            ScoreboardModel model = getModel();
-            model.setFullName(inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
-            model.setTeamName("");
-            model.setAttempt("");
+            getElement().setProperty("fullName",
+                    inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+            getElement().setProperty("teamName", "");
+            getElement().setProperty("attempt", "");
             setHidden(false);
 
-            updateBottom(model, computeLiftType(fop.getCurAthlete()), fop);
+            updateBottom(computeLiftType(fop.getCurAthlete()), fop);
             uiEventLogger.debug("$$$ attemptBoard calling doCeremony()");
             this.getElement().callJsFunction("doBreak");
         }));
@@ -436,7 +395,6 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     protected void doUpdate(Athlete a, UIEvent e) {
 //        logger.debug("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event", a,
 //                a != null ? a.getAttemptsDone() : null);
-        ScoreboardModel model = getModel();
         boolean leaveTopAlone = false;
         if (e instanceof UIEvent.LiftingOrderUpdated) {
             LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
@@ -453,12 +411,12 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
                 Group group = fop.getGroup();
                 if (!group.isDone()) {
                     logger.debug("updating top {} {} {}", a.getFullName(), group, System.identityHashCode(group));
-                    model.setFullName(a.getFullName());
-                    model.setTeamName(a.getTeam());
-                    model.setStartNumber(a.getStartNumber());
+                    getElement().setProperty("fullName", a.getFullName());
+                    getElement().setProperty("teamName", a.getTeam());
+                    getElement().setProperty("startNumber", a.getStartNumber());
                     String formattedAttempt = formatAttempt(a.getAttemptsDone());
-                    model.setAttempt(formattedAttempt);
-                    model.setWeight(a.getNextAttemptRequestedWeight());
+                    getElement().setProperty("attempt", formattedAttempt);
+                    getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
                 } else {
                     logger.debug("group done {} {}", group, System.identityHashCode(group));
                     doBreak(e);
@@ -469,7 +427,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
             // current athlete bottom should only change when top does
             if (fop.getState() != FOPState.DECISION_VISIBLE) {
 //                logger.debug("updating bottom {}", fop.getState());
-                updateBottom(model, computeLiftType(a), fop);
+                updateBottom(computeLiftType(a), fop);
             } else {
 //                logger.debug("not updating bottom {}", fop.getState());
             }
@@ -477,7 +435,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         }
 //        logger.debug("{} {}", leaveTopAlone, fop.getState());
         if (leaveTopAlone && fop.getState() == FOPState.CURRENT_ATHLETE_DISPLAYED) {
-            updateBottom(model, computeLiftType(a), fop);
+            updateBottom(computeLiftType(a), fop);
         }
 
     }
@@ -529,17 +487,16 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
             doEmpty();
         } else {
             OwlcmsSession.withFop(fop -> {
-                updateBottom(getModel(), null, fop);
-                getModel().setFullName(getTranslation("Group_number_done", g.toString()));
+                updateBottom(null, fop);
+                getElement().setProperty("fullName",getTranslation("Group_number_done", g.toString()));
                 this.getElement().callJsFunction("groupDone");
             });
         }
     }
 
     private void doUpdateBottomPart(UIEvent e) {
-        ScoreboardModel model = getModel();
         Athlete a = e.getAthlete();
-        updateBottom(model, computeLiftType(a), OwlcmsSession.getFop());
+        updateBottom(computeLiftType(a), OwlcmsSession.getFop());
     }
 
     private String formatAttempt(Integer attemptNo) {
@@ -645,7 +602,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
             JsonObject jri = Json.createObject();
             String stringValue = i.getStringValue();
             boolean notDone = x.getAttemptsDone() < 6;
-            String blink = "";//(notDone ? " blink" : "");
+            String blink = "";// (notDone ? " blink" : "");
 
             jri.put("goodBadClassName", "empty");
             jri.put("stringValue", "");
@@ -671,6 +628,8 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
                         String highlight = "";
                         // don't blink while decision is visible. wait until lifting order has been
                         // recomputed and we get DECISION_RESET
+                        
+
                         if (i.getLiftNo() == curLift && (fop.getState() != FOPState.DECISION_VISIBLE)) {
                             switch (liftOrderRank) {
                             case 1:
@@ -711,7 +670,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
             logger.trace("{}Starting result board", fop.getLoggingName());
             setId("scoreboard-" + fop.getName());
             setWideTeamNames(false);
-            getModel().setCompetitionName(Competition.getCurrent().getCompetitionName());
+            this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
         });
         setTranslationMap();
         order = ImmutableList.of();
@@ -726,8 +685,10 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
     }
 
     private void setHidden(boolean hidden) {
-        this.getElement().setProperty("hiddenStyle", (hidden ? "display:none" : "display:block"));
-        this.getElement().setProperty("inactiveStyle", (hidden ? "display:block" : "display:none"));
+        this.getElement().setProperty("hiddenBlockStyle", (hidden ? "display:none" : "display:block"));
+        this.getElement().setProperty("inactiveBlockStyle", (hidden ? "display:block" : "display:none"));
+        this.getElement().setProperty("hiddenGridStyle", (hidden ? "display:none" : "display:grid"));
+        this.getElement().setProperty("inactiveGridStyle", (hidden ? "display:grid" : "display:none"));
         this.getElement().setProperty("inactiveClass", (hidden ? "bigTitle" : ""));
     }
 
@@ -754,13 +715,13 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.ScoreboardMod
         }
     }
 
-    private void updateBottom(ScoreboardModel model, String liftType, FieldOfPlay fop) {
+    private void updateBottom(String liftType, FieldOfPlay fop) {
         if (liftType != null) {
-            model.setGroupName("");
-            model.setLiftsDone("");
+            getElement().setProperty("groupName", "");
+            getElement().setProperty("liftsDone", "");
         } else {
-            model.setGroupName("X");
-            model.setLiftsDone("Y");
+            getElement().setProperty("groupName", "X");
+            getElement().setProperty("liftsDone", "Y");
             this.getElement().callJsFunction("groupDone");
         }
         this.getElement().setPropertyJson("athletes",

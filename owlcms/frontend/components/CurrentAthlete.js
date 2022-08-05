@@ -17,13 +17,13 @@ class CurrentAthlete extends PolymerElement {
 <div class$="wrapper [[teamWidthClass]] [[inactiveClass]]">
 
 	<!-- this div is SHOWN when the platform is inactive -->
-	<div style$="[[inactiveStyle]]">
-		<div class="competitionName">[[competitionName]]</div><br>
+	<div style$="[[inactiveGridStyle]]">
+		<!-- div class="competitionName">[[competitionName]]</div><br -->
 		<div class="nextGroup">[[t.WaitingNextGroup]]</div>
 	</div>
 
-	<!-- the remaining divs are HIDDEN when the platform is inactive -->
-	<div class="attemptBar" style$="[[hiddenStyle]]; display: grid;">
+	<!-- this div is HIDDEN when the platform is inactive -->
+	<div class="attemptBar" style$="[[hiddenGridStyle]]; ">
 		<div class="startNumber" id="startNumberDiv"><span>[[startNumber]]</span></div>
 		<div class="fullName ellipsis" id="fullNameDiv" inner-h-t-m-l="[[fullName]]">[[fullName]]</div>
 		<div class="clubName ellipsis" id="teamNameDiv">
@@ -52,7 +52,7 @@ class CurrentAthlete extends PolymerElement {
 							</td>
 							<td class="liftName"><div inner-h-t-m-l="[[t.Snatch]]"></div></td>
 							<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-								<td class$="[[attempt.goodBadClassName]]">
+								<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
 									<div>[[attempt.stringValue]]</div>
 								</td>
 							</template>
