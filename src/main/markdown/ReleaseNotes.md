@@ -1,6 +1,6 @@
 ### **Changes for ${revision}**
 
-- 4.34.0-alpha00.
+- 4.33.4-rc00: Current Athlete view layout fixed for current attempt highlight and to behave correctly when there is no current group.  Use 1920x1080 resolution to include in OBS.
 
 ### Highlights from recent stable releases
 
