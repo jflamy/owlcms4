@@ -1,6 +1,7 @@
-### **Changes for 4.33.4-rc01**
+### **Changes for 4.33.4-rc02**
 
-- 4.33.4-rc00: Current Athlete view layout fixed for current attempt highlight and to behave correctly when there is no current group.  Use 1920x1080 resolution to include in OBS.
+- 4.33.4-rc02: Security update for postgresql JDBC driver.
+- 4.33.4-rc01: Current Athlete view layout fixed for current attempt highlight and to behave correctly when there is no current group.  Use 1920x1080 resolution to include in OBS.
 
 ### Highlights from recent stable releases
 
