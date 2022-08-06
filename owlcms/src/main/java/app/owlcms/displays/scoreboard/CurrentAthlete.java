@@ -288,6 +288,10 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             setHidden(false);
             doUpdateBottomPart(e);
+            this.getElement().setProperty("hideBlock", "visibility:hidden");
+            this.getElement().setProperty("noneBlock", "display:none");
+            this.getElement().setProperty("hideInherited", "visibility:hidden");
+            this.getElement().setProperty("hideTableCell", "visibility:hidden");
             this.getElement().callJsFunction("refereeDecision");
         });
     }
@@ -301,6 +305,10 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
                 doDone(e.getAthlete().getGroup());
             } else {
                 doUpdateBottomPart(e);
+                this.getElement().setProperty("hideBlock", "visibility:visible");
+                this.getElement().setProperty("noneBlock", "display:block");
+                this.getElement().setProperty("hideInherited", "visibility:visible");
+                this.getElement().setProperty("hideTableCell", "visibility:visible");
                 this.getElement().callJsFunction("reset");
             }
         });
