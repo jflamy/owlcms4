@@ -391,9 +391,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     public void slaveDownSignal(UIEvent.DownSignal e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-//        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-//            this.getElement().callJsFunction("down");
-//        });
         // don't block others
         new Thread(() -> {
             UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
@@ -488,6 +485,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         // hide the athleteTimer except if the down signal came from this ui.
+        // in which case the down has already been shown.
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
             this.getElement().callJsFunction("down");
         });
