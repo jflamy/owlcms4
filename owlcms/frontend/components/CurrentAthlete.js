@@ -43,7 +43,7 @@ class CurrentAthlete extends PolymerElement {
 			<decision-element id="decisions"></decision-element>
 		</div>
 		<div class="attempts">
-			<table class="results" style$="[[hiddenStyle]]">
+			<table class="results" style$="[[hiddenStyle]]" id="resultsDiv">
 				<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
 					<template is="dom-if" if="[[!l.isSpacer]]">
 						<tr>
@@ -79,7 +79,7 @@ class CurrentAthlete extends PolymerElement {
 								<div id="totalCellTd" style$="[[noneBlock]]">[[l.total]]</div>
 							</td>
 							<td class="totalRank">
-								<div id="totalRankTd" style$="[[hideBlock]]" >[[t.Rank]] <b>[[l.totalRank]]</b></div>
+								<div id="totalRankTd" style$="[[hideBlock]]">[[t.Rank]] <b>[[l.totalRank]]</b></div>
 							</td>
 						</tr>
 					</template>
@@ -103,6 +103,7 @@ class CurrentAthlete extends PolymerElement {
 		this.$.timerDiv.style.display = "grid";
 		this.$.breakTimerDiv.style.display = "none";
 		this.$.decisionDiv.style.display = "none";
+		this.$.resultsDiv.style.visibility = "visible";
 		// this.$.totalNameTd.style.display = "block";
 		// this.$.totalCellTd.style.display = "block";
 		// this.$.totalRankTd.style.display = "block";
@@ -124,6 +125,7 @@ class CurrentAthlete extends PolymerElement {
 		this.$.timerDiv.style.display = "grid";
 		this.$.breakTimerDiv.style.display = "none";
 		this.$.decisionDiv.style.display = "none";
+		this.$.resultsDiv.style.visibility = "visible";
 		// this.$.totalNameTd.style.display = "block";
 		// this.$.totalCellTd.style.display = "block";
 		// this.$.totalRankTd.style.display = "block";
@@ -154,6 +156,7 @@ class CurrentAthlete extends PolymerElement {
 		this.$.timerDiv.style.display = "none";
 		this.$.breakTimerDiv.style.display = "grid";
 		this.$.decisionDiv.style.display = "none";
+		this.$.resultsDiv.style.visibility = "hidden";
 		// this.$.totalNameTd.style.display = "block";
 		// this.$.totalCellTd.style.display = "block";
 		// this.$.totalRankTd.style.display = "block";
@@ -161,18 +164,7 @@ class CurrentAthlete extends PolymerElement {
 
 	groupDone() {
 		console.debug("done");
-		this.$.fullNameDiv.style.visibility = "visible";
-		this.$.fullNameDiv.style.display = "grid";
-		this.$.startNumberDiv.style.display = "none";
-		this.$.teamNameDiv.style.display = "none";
-		this.$.attemptDiv.style.display = "none";
-		this.$.weightDiv.style.display = "none";
-		this.$.timerDiv.style.display = "none";
-		this.$.breakTimerDiv.style.display = "none";
-		this.$.decisionDiv.style.display = "none";
-		// this.$.totalNameTd.style.display = "none";
-		// this.$.totalCellTd.style.display = "none";
-		// this.$.totalRankTd.style.display = "none";
+		this.doBreak();
 	}
 
 	refereeDecision() {
