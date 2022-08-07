@@ -1,5 +1,7 @@
-### **Changes for 4.33.4-rc02**
+### **Changes for 4.33.4-rc03**
 
+- 4.33.4-rc03: Current Athlete view layout now displays correctly on 1280 (720p TV), 1366 (common laptops) and 1920 (HD TV) resolutions.
+- 4.33.4-rc03: A public-facing view decisions display has been added to the streaming-oriented displays, for convenience.  Currently this is the same as cropping the top-right corner of the scoreboard. In the future there might be options to just have the timer and the decisions.
 - 4.33.4-rc02: Security update for postgresql JDBC driver.
 - 4.33.4-rc01: Current Athlete view layout fixed for current attempt highlight and to behave correctly when there is no current group.  Use 1920x1080 resolution to include in OBS.
 
