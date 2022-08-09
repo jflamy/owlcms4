@@ -1,5 +1,7 @@
 ### **Changes for ${revision}**
 
+- 4.33.4-rc04: Workaround for a really obscure issue that would cause birth date information to be one day early, but only when using H2, only during certain hours and only in time zones sufficiently far away from the UTC meridian. (#513)
+- 4.33.4-rc04: Added a missing translation string for public-facing decisions.
 - 4.33.4-rc04: Workaround for a really obscure issue that would cause birth date information to be one day early, when using H2 during certain hours and in certain time zones. SQL Standards mandate that a date has no hours and minutes, and this processing is not well handled.  Not observed under Postgresql. (#513)
 - 4.33.4-rc03: Current Athlete view layout now displays correctly on 1280 (720p TV), 1366 (common laptops) and 1920 (HD TV) resolutions.
 - 4.33.4-rc03: A public-facing view decisions display has been added to the streaming-oriented displays, for convenience.  Currently this is the same as cropping the top-right corner of the scoreboard. In the future there might be options to just have the timer and the decisions.
