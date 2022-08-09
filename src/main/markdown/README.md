@@ -5,19 +5,16 @@ It is being used worldwide to manage national championships and even continental
 
 Yet it is simple enough to setup that you can use it to run a club or regional competition.
 
-### Features and Documentation
 
-See the application **[Web Site](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#)** for a full overview.  
+### Features, Documentation and Installation
+- See the application **[Web Site](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#)** for a full overview and extensive documentation.
+- Refer to the [Installation Overview](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/InstallationOverview) and to the following [page](Releases.md) for the various setups and releases.
 
-### Installation Options
-See the application **[Web Site](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#)** for a full overview.  
-
-Refer to the following [page](Releases.md) for the various setups and releases, including preliminary releases for early adopters.
-
-### Support
+### Help, Issues, Feature Requests
 
 - [Discussion list](https://groups.google.com/forum/#!forum/owlcms)  If you wish to discuss the program or ask questions, please add yourself to this discussion [group](https://groups.google.com/forum/#!forum/owlcms).  You can withdraw at any time.
-- [Project board](https://github.com/jflamy/owlcms4/projects/1) This shows what we are working on, and our work priorities.  Check here first, we may actually already be working on it...
+- [Issues and Feature Requests](https://github.com/jflamy/owlcms4/issues) To open an issue or make a request, use that link.
+- [Work in Progress and Priorities](https://github.com/users/jflamy/projects/2/views/7) Shows what we are working on and what is currently planned.
 
 ### Licensing and Notes
 

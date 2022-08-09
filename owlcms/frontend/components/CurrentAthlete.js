@@ -17,13 +17,13 @@ class CurrentAthlete extends PolymerElement {
 <div class$="wrapper [[teamWidthClass]] [[inactiveClass]]">
 
 	<!-- this div is SHOWN when the platform is inactive -->
-	<div style$="[[inactiveStyle]]">
-		<div class="competitionName">[[competitionName]]</div><br>
+	<div style$="[[inactiveGridStyle]]">
+		<!-- div class="competitionName">[[competitionName]]</div><br -->
 		<div class="nextGroup">[[t.WaitingNextGroup]]</div>
 	</div>
 
-	<!-- the remaining divs are HIDDEN when the platform is inactive -->
-	<div class="attemptBar" style$="[[hiddenStyle]]; display: grid;">
+	<!-- this div is HIDDEN when the platform is inactive -->
+	<div class="attemptBar" style$="[[hiddenGridStyle]]; ">
 		<div class="startNumber" id="startNumberDiv"><span>[[startNumber]]</span></div>
 		<div class="fullName ellipsis" id="fullNameDiv" inner-h-t-m-l="[[fullName]]">[[fullName]]</div>
 		<div class="clubName ellipsis" id="teamNameDiv">
@@ -43,35 +43,43 @@ class CurrentAthlete extends PolymerElement {
 			<decision-element id="decisions"></decision-element>
 		</div>
 		<div class="attempts">
-			<table class="results" style$="[[hiddenStyle]]">
+			<table class="results" style$="[[hiddenStyle]]" id="resultsDiv">
 				<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
 					<template is="dom-if" if="[[!l.isSpacer]]">
 						<tr>
 							<td class="category">
 								<div>[[l.category]]</div>
 							</td>
-							<td class="liftName"><div inner-h-t-m-l="[[t.Snatch]]"></div></td>
+							<td class="liftName">
+								<div inner-h-t-m-l="[[t.Snatch]]"></div>
+							</td>
 							<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-								<td class$="[[attempt.goodBadClassName]]">
+								<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
 									<div>[[attempt.stringValue]]</div>
 								</td>
 							</template>
 							<td class="showRank">
 								<div>[[t.Rank]] <b>[[l.snatchRank]]</b></div>
 							</td>
-							<td class="liftName"><div inner-h-t-m-l="[[t.Clean_and_Jerk]]"></div></td>
+							<td class="liftName">
+								<div inner-h-t-m-l="[[t.Clean_and_Jerk]]"></div>
+							</td>
 							<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
 								<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
 									<div>[[attempt.stringValue]]</div>
 								</td>
 							</template>
 							<td class="showRank">
-								<div><div>[[t.Rank]] <b>[[l.cleanJerkRank]]</b></div></div>
+								<div>[[t.Rank]] <b>[[l.cleanJerkRank]]</b></div>
 							</td>
-							<td class="liftName"><div inner-h-t-m-l="[[t.Total]]"></div></td>
-							<td class="total">[[l.total]]</td>
+							<td class="liftName">
+								<div id="totalNameTd" style$="[[hideInherited]]" inner-h-t-m-l="[[t.Total]]"></div>
+							</td>
+							<td class="total" style$="[[hideTableCell]]">
+								<div id="totalCellTd" style$="[[noneBlock]]">[[l.total]]</div>
+							</td>
 							<td class="totalRank">
-								<div>[[t.Rank]] <b>[[l.totalRank]]</b></div>
+								<div id="totalRankTd" style$="[[hideBlock]]">[[t.Rank]] <b>[[l.totalRank]]</b></div>
 							</td>
 						</tr>
 					</template>
@@ -85,7 +93,7 @@ class CurrentAthlete extends PolymerElement {
 	ready() {
 		console.debug("ready");
 		super.ready();
-		document.body.setAttribute("theme","dark");
+		document.body.setAttribute("theme", "dark");
 		this.$.fullNameDiv.style.visibility = "visible";
 		this.$.fullNameDiv.style.display = "grid";
 		this.$.startNumberDiv.style.display = "grid";
@@ -95,6 +103,10 @@ class CurrentAthlete extends PolymerElement {
 		this.$.timerDiv.style.display = "grid";
 		this.$.breakTimerDiv.style.display = "none";
 		this.$.decisionDiv.style.display = "none";
+		this.$.resultsDiv.style.visibility = "visible";
+		// this.$.totalNameTd.style.display = "block";
+		// this.$.totalCellTd.style.display = "block";
+		// this.$.totalRankTd.style.display = "block";
 	}
 
 	start() {
@@ -113,6 +125,10 @@ class CurrentAthlete extends PolymerElement {
 		this.$.timerDiv.style.display = "grid";
 		this.$.breakTimerDiv.style.display = "none";
 		this.$.decisionDiv.style.display = "none";
+		this.$.resultsDiv.style.visibility = "visible";
+		// this.$.totalNameTd.style.display = "block";
+		// this.$.totalCellTd.style.display = "block";
+		// this.$.totalRankTd.style.display = "block";
 	}
 
 	down() {
@@ -124,6 +140,9 @@ class CurrentAthlete extends PolymerElement {
 		this.$.timerDiv.style.display = "grid";
 		this.$.breakTimerDiv.style.display = "none";
 		this.$.decisionDiv.style.display = "grid";
+		// this.$.totalNameTd.style.display = "none";
+		// this.$.totalCellTd.style.display = "none";
+		// this.$.totalRankTd.style.display = "none";
 	}
 
 	doBreak() {
@@ -137,19 +156,15 @@ class CurrentAthlete extends PolymerElement {
 		this.$.timerDiv.style.display = "none";
 		this.$.breakTimerDiv.style.display = "grid";
 		this.$.decisionDiv.style.display = "none";
+		this.$.resultsDiv.style.visibility = "hidden";
+		// this.$.totalNameTd.style.display = "block";
+		// this.$.totalCellTd.style.display = "block";
+		// this.$.totalRankTd.style.display = "block";
 	}
 
 	groupDone() {
 		console.debug("done");
-		this.$.fullNameDiv.style.visibility = "visible";
-		this.$.fullNameDiv.style.display = "grid";
-		this.$.startNumberDiv.style.display = "none";
-		this.$.teamNameDiv.style.display = "none";
-		this.$.attemptDiv.style.display = "none";
-		this.$.weightDiv.style.display = "none";
-		this.$.timerDiv.style.display = "none";
-		this.$.breakTimerDiv.style.display = "none";
-		this.$.decisionDiv.style.display = "none";
+		this.doBreak();
 	}
 
 	refereeDecision() {
@@ -158,6 +173,9 @@ class CurrentAthlete extends PolymerElement {
 		this.$.weightDiv.style.display = "grid";
 		this.$.timerDiv.style.display = "grid";
 		this.$.breakTimerDiv.style.display = "none";
+		// this.$.totalNameTd.style.display = "none";
+		// this.$.totalCellTd.style.display = "none";
+		// this.$.totalRankTd.style.display = "none";
 	}
 
 	_isEqualTo(title, string) {

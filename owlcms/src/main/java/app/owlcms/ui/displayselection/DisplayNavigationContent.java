@@ -25,6 +25,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.displays.attemptboard.AthleteFacingAttemptBoard;
 import app.owlcms.displays.attemptboard.AthleteFacingDecisionBoard;
 import app.owlcms.displays.attemptboard.AttemptBoard;
+import app.owlcms.displays.attemptboard.PublicFacingDecisionBoard;
 import app.owlcms.displays.liftingorder.LiftingOrder;
 import app.owlcms.displays.monitor.Monitor;
 import app.owlcms.displays.scoreboard.CurrentAthlete;
@@ -100,6 +101,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         Button topTeamsSinclair = openInNewTab(TopTeamsSinclair.class, getTranslation("Scoreboard.TopTeamsSinclair"));
 
         Button obsMonitor = openInNewTab(Monitor.class, getTranslation("OBS.MonitoringButton"));
+        Button publicDecisions = openInNewTab(PublicFacingDecisionBoard.class, getTranslation("RefereeDecisions"));
 
         fillH(intro, this);
 
@@ -120,7 +122,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 
         VerticalLayout intro4 = new VerticalLayout();
         addP(intro4, getTranslation("OBS.MonitoringExplanation"));
-        FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(obsMonitor, currentAthlete);
+        FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(obsMonitor, currentAthlete, publicDecisions);
         doGroup(getTranslation("OBS.MonitoringTitle"), intro4, grid4, this);
 
         DebugUtils.gc();

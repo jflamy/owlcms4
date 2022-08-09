@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -53,6 +54,7 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.category.RobiCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.jpa.LocalDateAttributeConverter;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.LiftOrderInfo;
@@ -319,7 +321,10 @@ public class Athlete {
     /** The forced as current. */
     @Column(columnDefinition = "boolean default false")
     private boolean forcedAsCurrent = false;
+    
+    @Convert(converter = LocalDateAttributeConverter.class)
     private LocalDate fullBirthDate = null;
+    
     private Gender gender = null; // $NON-NLS-1$
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
@@ -2457,8 +2462,9 @@ public class Athlete {
      * @return the year of birth
      */
     public Integer getYearOfBirth() {
-        if (this.fullBirthDate != null) {
-            return fullBirthDate.getYear();
+        if (this.getFullBirthDate() != null) {
+            //logger.trace(" getYearOfBirth {} {} {}",  getFullBirthDate(), getFullBirthDate().getYear(), LoggerUtils.whereFrom());
+            return getFullBirthDate().getYear();
         } else {
             return null;
         }
@@ -3178,6 +3184,7 @@ public class Athlete {
      * @param fullBirthDate the fullBirthDate to set
      */
     public void setFullBirthDate(LocalDate fullBirthDate) {
+        //logger.trace("setting {} {} {}",getShortName(), fullBirthDate, LoggerUtils.whereFrom());
         this.fullBirthDate = fullBirthDate;
     }
 
@@ -4674,9 +4681,10 @@ public class Athlete {
 
     private void setFullBirthDateFromYear(Integer yearOfBirth) {
         if (yearOfBirth != null) {
-            this.fullBirthDate = LocalDate.of(yearOfBirth, 1, 1);
+            this.setFullBirthDate(LocalDate.of(yearOfBirth, 1, 1));
+            //logger.trace("{} {}",yearOfBirth,getFullBirthDate());
         } else {
-            this.fullBirthDate = null;
+            this.setFullBirthDate(null);
         }
     }
 
