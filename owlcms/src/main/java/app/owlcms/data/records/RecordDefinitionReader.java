@@ -61,141 +61,149 @@ public class RecordDefinitionReader {
                     RecordEvent rec = new RecordEvent();
                     rec.setFileName(baseName);
 
+
                     // beware: on a truly empty row we will not enter this loop.
+                    boolean error = false;
                     for (Cell cell : row) {
-                        int iColumn = cell.getAddress().getColumn();
+                        try {
+                            int iColumn = cell.getAddress().getColumn();
 
-                        // logger.debug("[" + sheet.getSheetName() + "," + cell.getAddress() + "]");
-                        switch (iColumn) {
-                        case 0: { // A
-                            String cellValue = cell.getStringCellValue();
-                            String trim = cellValue.trim();
-                            if (trim.isEmpty()) {
-                                // stop processing sheet on first row with an empty first cell
-                                break processSheet;
-                            }
-                            rec.setRecordFederation(trim);
-                            break;
-                        }
-
-                        case 1: { // B
-                            String cellValue = cell.getStringCellValue();
-                            cellValue = cellValue != null ? cellValue.trim() : cellValue;
-                            rec.setRecordName(cellValue);
-                            break;
-                        }
-
-                        case 2: { // C
-                            String cellValue = cell.getStringCellValue();
-                            cellValue = cellValue != null ? cellValue.trim() : cellValue;
-                            rec.setAgeGrp(cellValue);
-                            break;
-                        }
-
-                        case 3: { // D
-                            String cellValue = cell.getStringCellValue();
-                            cellValue = cellValue != null ? cellValue.trim().toUpperCase() : cellValue;
-                            rec.setGender(Gender.valueOf(cellValue));
-                            break;
-                        }
-
-                        case 4: { // E
-                            long cellValue = Math.round(cell.getNumericCellValue());
-                            rec.setAgeGrpLower(Math.toIntExact(cellValue));
-                            break;
-                        }
-
-                        case 5: { // F
-                            long cellValue = Math.round(cell.getNumericCellValue());
-                            rec.setAgeGrpUpper(Math.toIntExact(cellValue));
-                            break;
-                        }
-
-                        case 6: { // G
-                            long cellValue = Math.round(cell.getNumericCellValue());
-                            rec.setBwCatLower(Math.toIntExact(cellValue));
-                            break;
-                        }
-
-                        case 7: { // H
-                            try {
+                            // logger.debug("[" + sheet.getSheetName() + "," + cell.getAddress() + "]");
+                            switch (iColumn) {
+                            case 0: { // A
                                 String cellValue = cell.getStringCellValue();
-                                rec.setBwCatString(cellValue);
-                                try {
-                                    rec.setBwCatUpper(cellValue.startsWith(">") ? 999 : Integer.parseInt(cellValue));
-                                } catch (NumberFormatException e) {
-                                    if (cellValue != null && !cellValue.isBlank()) {
-                                        logger.error("[" + sheet.getSheetName() + "," + cell.getAddress() + "]");
-                                    }
+                                String trim = cellValue.trim();
+                                if (trim.isEmpty()) {
+                                    // stop processing sheet on first row with an empty first cell
+                                    break processSheet;
                                 }
-                            } catch (IllegalStateException e) {
+                                rec.setRecordFederation(trim);
+                                break;
+                            }
+
+                            case 1: { // B
+                                String cellValue = cell.getStringCellValue();
+                                cellValue = cellValue != null ? cellValue.trim() : cellValue;
+                                rec.setRecordName(cellValue);
+                                break;
+                            }
+
+                            case 2: { // C
+                                String cellValue = cell.getStringCellValue();
+                                cellValue = cellValue != null ? cellValue.trim() : cellValue;
+                                rec.setAgeGrp(cellValue);
+                                break;
+                            }
+
+                            case 3: { // D
+                                String cellValue = cell.getStringCellValue();
+                                cellValue = cellValue != null ? cellValue.trim().toUpperCase() : cellValue;
+                                rec.setGender(Gender.valueOf(cellValue));
+                                break;
+                            }
+
+                            case 4: { // E
                                 long cellValue = Math.round(cell.getNumericCellValue());
-                                rec.setBwCatString(Long.toString(cellValue));
-                                rec.setBwCatUpper(Math.toIntExact(cellValue));
+                                rec.setAgeGrpLower(Math.toIntExact(cellValue));
+                                break;
                             }
-                            break;
-                        }
 
-                        case 8: { // I
-                            String cellValue = cell.getStringCellValue();
-                            cellValue = cellValue != null ? cellValue.trim() : cellValue;
-                            rec.setRecordLift(cellValue);
-                            break;
-                        }
-
-                        case 9: { // J
-                            rec.setRecordValue(cell.getNumericCellValue());
-                            break;
-                        }
-
-                        case 10: { // K
-                            String cellValue = cell.getStringCellValue();
-                            cellValue = cellValue != null ? cellValue.trim() : cellValue;
-                            rec.setAthleteName(cellValue);
-                            break;
-                        }
-
-                        case 11: { // L
-                            long cellValue = Math.round(cell.getNumericCellValue());
-                            int intExact = Math.toIntExact(cellValue);
-                            if (cellValue < 3000) {
-                                rec.setRecordYear(intExact);
-                            } else {
-                                LocalDate epoch = LocalDate.of(1900, 1, 1);
-                                LocalDate plusDays = epoch.plusDays(intExact - 2);
-                                // Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
-                                rec.setRecordDate(plusDays);
+                            case 5: { // F
+                                long cellValue = Math.round(cell.getNumericCellValue());
+                                rec.setAgeGrpUpper(Math.toIntExact(cellValue));
+                                break;
                             }
-                            break;
-                        }
 
-                        case 12: { // M
-                            String cellValue = cell.getStringCellValue();
-                            cellValue = cellValue != null ? cellValue.trim() : cellValue;
-                            rec.setNation(cellValue);
-                            break;
-                        }
-
-                        case 13: { // N
-                            long cellValue = Math.round(cell.getNumericCellValue());
-                            int intExact = Math.toIntExact(cellValue);
-                            if (cellValue < 3000) {
-                                rec.setRecordYear(intExact);
-                            } else {
-                                LocalDate epoch = LocalDate.of(1900, 1, 1);
-                                LocalDate plusDays = epoch.plusDays(intExact - 2);
-                                // Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
-                                rec.setRecordDate(plusDays);
+                            case 6: { // G
+                                long cellValue = Math.round(cell.getNumericCellValue());
+                                rec.setBwCatLower(Math.toIntExact(cellValue));
+                                break;
                             }
-                            break;
-                        }
 
-                        }
+                            case 7: { // H
+                                try {
+                                    String cellValue = cell.getStringCellValue();
+                                    rec.setBwCatString(cellValue);
+                                    try {
+                                        rec.setBwCatUpper(
+                                                cellValue.startsWith(">") ? 999 : Integer.parseInt(cellValue));
+                                    } catch (NumberFormatException e) {
+                                        if (cellValue != null && !cellValue.isBlank()) {
+                                            logger.error("[" + sheet.getSheetName() + "," + cell.getAddress() + "]");
+                                        }
+                                    }
+                                } catch (IllegalStateException e) {
+                                    long cellValue = Math.round(cell.getNumericCellValue());
+                                    rec.setBwCatString(Long.toString(cellValue));
+                                    rec.setBwCatUpper(Math.toIntExact(cellValue));
+                                }
+                                break;
+                            }
 
-                        iColumn++;
+                            case 8: { // I
+                                String cellValue = cell.getStringCellValue();
+                                cellValue = cellValue != null ? cellValue.trim() : cellValue;
+                                rec.setRecordLift(cellValue);
+                                break;
+                            }
+
+                            case 9: { // J
+                                rec.setRecordValue(cell.getNumericCellValue());
+                                break;
+                            }
+
+                            case 10: { // K
+                                String cellValue = cell.getStringCellValue();
+                                cellValue = cellValue != null ? cellValue.trim() : cellValue;
+                                rec.setAthleteName(cellValue);
+                                break;
+                            }
+
+                            case 11: { // L
+                                long cellValue = Math.round(cell.getNumericCellValue());
+                                int intExact = Math.toIntExact(cellValue);
+                                if (cellValue < 3000) {
+                                    rec.setRecordYear(intExact);
+                                } else {
+                                    LocalDate epoch = LocalDate.of(1900, 1, 1);
+                                    LocalDate plusDays = epoch.plusDays(intExact - 2);
+                                    // Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
+                                    rec.setRecordDate(plusDays);
+                                }
+                                break;
+                            }
+
+                            case 12: { // M
+                                String cellValue = cell.getStringCellValue();
+                                cellValue = cellValue != null ? cellValue.trim() : cellValue;
+                                rec.setNation(cellValue);
+                                break;
+                            }
+
+                            case 13: { // N
+                                long cellValue = Math.round(cell.getNumericCellValue());
+                                int intExact = Math.toIntExact(cellValue);
+                                if (cellValue < 3000) {
+                                    rec.setRecordYear(intExact);
+                                } else {
+                                    LocalDate epoch = LocalDate.of(1900, 1, 1);
+                                    LocalDate plusDays = epoch.plusDays(intExact - 2);
+                                    // Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
+                                    rec.setRecordDate(plusDays);
+                                }
+                                break;
+                            }
+
+                            }
+
+                            iColumn++;
+                        } catch (Exception e) {
+                            logger.error("{}[{}] {} ", sheet.getSheetName(), cell.getAddress(), e.getMessage());
+                            error = true;
+                        }
                     }
 
-                    if (rec.getRecordFederation() != null) {
+                    if (rec.getRecordFederation() != null && !error) {
                         // if row was empty, we get no cells but rec was created.
                         try {
                             rec.fillDefaults();
@@ -238,7 +246,8 @@ public class RecordDefinitionReader {
                     mainLogger.info("loading record definition file {}", name);
                     createRecords(workbook, name, FilenameUtils.removeExtension(name));
                 } catch (Exception e) {
-                    logger.error("could not process record definition file {}\n{}", name, LoggerUtils./**/stackTrace(e));
+                    logger.error("could not process record definition file {}\n{}", name,
+                            LoggerUtils./**/stackTrace(e));
                     mainLogger.error("could not process record definition file {}. See log files for details.", name);
                 }
             }
@@ -257,16 +266,22 @@ public class RecordDefinitionReader {
                     try {
                         is = Files.newInputStream(f);
                         try (Workbook workbook = WorkbookFactory.create(is)) {
-                            logger.info("loading record definition file {} {}", f.toString(), FilenameUtils.removeExtension(f.getFileName().toString()));
+                            logger.info("loading record definition file {} {}", f.toString(),
+                                    FilenameUtils.removeExtension(f.getFileName().toString()));
                             mainLogger.info("loading record definition file {}", f.toString());
-                            createRecords(workbook, f.toString(), FilenameUtils.removeExtension(f.getFileName().toString()));
+                            createRecords(workbook, f.toString(),
+                                    FilenameUtils.removeExtension(f.getFileName().toString()));
                         } catch (Exception e) {
-                            logger.error("could not process record definition file {}\n{}", f.toString(), LoggerUtils./**/stackTrace(e));
-                            mainLogger.error("could not process record definition file {}. See log files for details.", f.toString());
+                            logger.error("could not process record definition file {}\n{}", f.toString(),
+                                    LoggerUtils./**/stackTrace(e));
+                            mainLogger.error("could not process record definition file {}. See log files for details.",
+                                    f.toString());
                         }
                     } catch (IOException e1) {
-                        logger.error("could not open record definition file {}\n{}", f.toString(), LoggerUtils./**/stackTrace(e1));
-                        mainLogger.error("could not open record definition file {}.  See log files for details.", f.toString());
+                        logger.error("could not open record definition file {}\n{}", f.toString(),
+                                LoggerUtils./**/stackTrace(e1));
+                        mainLogger.error("could not open record definition file {}.  See log files for details.",
+                                f.toString());
                     }
 
                 });
