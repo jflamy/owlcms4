@@ -27,9 +27,6 @@ import ch.qos.logback.classic.Logger;
 public class LocalDateAttributeConverter implements AttributeConverter<LocalDate, Date> {
 
     Logger logger = (Logger) LoggerFactory.getLogger(LocalDateAttributeConverter.class);
-    {
-        logger.setLevel(Level.DEBUG);
-    }
 
     /*
      * (non-Javadoc)
