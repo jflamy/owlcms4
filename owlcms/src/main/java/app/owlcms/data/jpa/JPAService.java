@@ -150,10 +150,10 @@ public class JPAService {
             }
         } else if (postgresHost != null && !postgresHost.isBlank()) {
             // postgres container configuration
-            String postgresPort = System.getenv("POSTGRES_PORT");
-            String postgresDb = System.getenv("POSTGRES_DB");
-            userName = System.getenv("POSTGRES_USER");
-            password = System.getenv("POSTGRES_PASSWORD");
+            String postgresPort = StartupUtils.getRawStringParam("POSTGRES_PORT");
+            String postgresDb = StartupUtils.getRawStringParam("POSTGRES_DB");
+            userName = StartupUtils.getRawStringParam("POSTGRES_USER");
+            password = StartupUtils.getRawStringParam("POSTGRES_PASSWORD");
             properties = pgProperties(schemaGeneration, dbUrl, postgresHost, postgresPort, postgresDb, userName,
                     password);
         } else {
