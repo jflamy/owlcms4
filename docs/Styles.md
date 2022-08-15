@@ -64,4 +64,11 @@ Typing "Ctrl-S" in the colors.css file should save it. You can also do a "Save A
 ### Other tips
 
 - If the files in the Filesystem section no longer show the circle icon, this means that they have become unsynchronized. Normally, doing a Ctrl-F5 to force the browser to reload will resynchronize things.
-- You can actually edit results.css in the same way, to change things like the font-weight (to go bold, for example), or to edit border styles.  Just remember that you are more likely to have to redo these changes because results.css is likely to change.
+- You can actually edit results.css in the same way, to change things like the font-weight (to go bold, for example), or to edit border styles.  Just remember that you are more likely to have to redo these changes because results.css is likely to change. 
+
+### Hiding Notifications
+
+Notifications of record attempts and new records are shown on the scoreboard and attempt board.
+
+If you prefer showing record notifications by using [OBS scene switching](OBSSceneSwitching), you can hide them using a CSS variable. Set `--zIndexRecordNotifications` in `colors.css` to a positive value (ex: 10) to enable the notifications, and a negative value (ex: -10) to always hide them.
+
