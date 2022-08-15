@@ -1,9 +1,7 @@
-##### **Changes for ${revision}**
+> Recommended update if your current version is older than 4.33.4
 
-- rc02: Documented and cleaned-up processing of database environment variables
-- rc01: Log file now contains specific location of errors found when reading the record definition files. (#514)
-
-##### Changes for 4.33
+- 4.33.5: Documented and cleaned-up processing of database environment variables
+- 4.33.5: Log file now contains specific location of errors found when reading the record definition files. (#514)
 
 - Recommended update: Fix for possible birth date errors (one day early) on laptop installations
   - Due to a bug in the way the H2 database driver stores dates that have no time zone (#513),  the birth date of the athletes would, in some time zones, be converted to the day before.
