@@ -1,7 +1,7 @@
 > Recommended update if your current version is older than 4.33.4
 
-- 4.33.6-rc01: new translation string, new language translations
-- 4.33.6-rc01: usability: more consistent naming of window tabs for results
+- 4.33.6-rc01: new translation string for break management dialog, new language translations
+- 4.33.6-rc01: usability: more consistent naming of window tabs for group results
 - 4.33.6-rc01: small bug fixes when reading record definition files with U age groups.
 - Documented and cleaned-up processing of database environment variables
 - Log file now contains specific location of errors found when reading the record definition files. (#514)
