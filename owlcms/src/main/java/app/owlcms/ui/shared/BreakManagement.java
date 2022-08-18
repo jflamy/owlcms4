@@ -13,8 +13,8 @@ import static app.owlcms.ui.shared.BreakManagement.CountdownType.TARGET;
 import static app.owlcms.uievents.BreakType.BEFORE_INTRODUCTION;
 import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
 import static app.owlcms.uievents.BreakType.JURY;
-import static app.owlcms.uievents.BreakType.TECHNICAL;
 import static app.owlcms.uievents.BreakType.MARSHAL;
+import static app.owlcms.uievents.BreakType.TECHNICAL;
 import static java.time.temporal.ChronoUnit.MILLIS;
 
 import java.time.Duration;
@@ -64,6 +64,7 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IBreakTimer;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.uievents.BreakType;
@@ -292,7 +293,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
      */
     private boolean checkImmediateBreak() {
         return (getRequestedBreakType() != null
-                && (getRequestedBreakType() == JURY || getRequestedBreakType() == TECHNICAL || getRequestedBreakType() == MARSHAL));
+                && (getRequestedBreakType() == JURY || getRequestedBreakType() == TECHNICAL
+                        || getRequestedBreakType() == MARSHAL));
     }
 
     private void computeDefaultTimeValues() {
@@ -562,7 +564,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         Locale locale = new Locale("en", "SE"); // ISO 8601 style dates and time
         timePicker.setLocale(locale);
         datePicker.setLocale(locale);
-        minutes = new Label("minutes");
+        minutes = new Label(Translator.translate("minutes"));
 
         durationRadios.addComponents(DURATION, durationField, new Label(" "), minutes, new Div());
         durationRadios.addComponents(TARGET, datePicker, new Label(" "), timePicker);
