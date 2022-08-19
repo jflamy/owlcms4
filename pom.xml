@@ -215,6 +215,7 @@
 
         <plugins>
             <plugin>
+            <?m2e ignore ?>
                 <!-- this ensures that ${revision} is substituted in the installed/deployed jars -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
