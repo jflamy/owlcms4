@@ -218,7 +218,7 @@
                 <!-- this ensures that ${revision} is substituted in the installed/deployed jars -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>1.2.2</version>
+                <version>1.2.5</version>
                 <configuration>
                     <updatePomFile>true</updatePomFile>
                     <flattenMode>fatjar</flattenMode>
