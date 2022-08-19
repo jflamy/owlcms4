@@ -1,15 +1,24 @@
-### **Changes for ${revision}**
+> Recommended update if your current version is older than 4.33.4
 
-- 4.34.0-alpha00.
+- 4.33.6-rc01: new translation string for break management dialog, new language translations
+- 4.33.6-rc01: usability: more consistent naming of window tabs for group results
+- 4.33.6-rc01: small bug fixes when reading record definition files with U age groups.
+- Documented and cleaned-up processing of database environment variables
+- Log file now contains specific location of errors found when reading the record definition files. (#514)
+- Recommended update: Fix for possible birth date errors (one day early) on laptop installations
+  - Due to a bug in the way the H2 database driver stores dates that have no time zone (#513),  the birth date of the athletes would, in some time zones, be converted to the day before.
+- Current Athlete view layout now displays correctly on 1280 (720p TV), 1366 (common laptops) and 1920 (HD TV) resolutions.
+- A public-facing view decisions display has been added to the streaming-oriented displays, for convenience.  Currently this is the same as cropping the top-right corner of the scoreboard. In the future there might be options to just have the timer and the decisions.
+- Security update for postgresql JDBC driver.
 
-### Highlights from recent stable releases
+##### Highlights from recent stable releases
 
 - Records
   - Records are shown if record definition Excel spreadsheets are present in the local/records directory.  See the following folder for examples: [Sample Record Files](https://www.dropbox.com/sh/sbr804kqfwkgs6g/AAAEcT2sih9MmnrpYzkh6Erma?dl=0) . 
   - Records definitions are read when the program starts.  Records set during the competition are updated on the scoreboard, but the Excel files need to be updated manually to reflect the official federation records.
   - Records are shown according to the sorting order of the file names. Use a numerical prefix to control the order (for example 10Canada.xlsx, 20Commonwealth.xlsx, 30PanAm.xlsx).
   - All records potentially applicable to the current athlete are shown on the scoreboard.  Records that would be improved by the next lift are highlighted.  If there are too many athletes in a group the records can be hidden using the display-specific settings, or by adding `records=false` to the URL
-  - Notifications of record attempts and new records are shown on the scoreboard and attempt board. These record notifications can be enabled/disabled using a CSS variable. Set `--zIndexRecordNotifications` in `colors.css` to a positive value (ex: 10) to enable the notifications, and a negative value (ex: -10) to always hide them.
+  - Notifications of record attempts and new records are shown on the scoreboard and attempt board. See [this reference](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Styles#hiding-notifications) if you need to disable.
 - Additional fields on the scoreboards
   - Added the custom1 and custom2 fields to the scoreboards (after the year of birth).  They are hidden by default; change the width to non-zero and visibility to `visible` in results.css in order to show one or the other or both.
 - Shared visual styling between owlcms and publicresults.

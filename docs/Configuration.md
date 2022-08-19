@@ -30,3 +30,30 @@ Parameters can be set in several ways:
 | mqttUserName              | OWLCMS_MQTTUSERNAME       |                   | Login for MQTT server                                        |
 | mqttPassword              | OWLCMS_MQTTPASSWORD       |                   | Password for MQTT server.  The file from which this value is fetched should be protected.  Do not add the actual cleartext value to a command-line parameter in a script. |
 | H2ServerPort              | OWLCMS_H2SERVERPORT       |                   | Normally given as 9092.  owlcms will tell its embedded H2 server to listen on this port.  This enables the h2.jar file to be run and start an H2 console.  In H2 console, use an URL of the form `jdbc:h2:tcp://localhost:9092/path`<br />where path is something like `c:/.../owlcms/database/owlcms-h2v2` . There is no .db extension at the end, replace `...` with the the actual path. Forward slashes are used even on Windows. |
+
+### JDBC Parameters
+
+The following parameters are used to control where the database is found.  For Postgresql, it is usually more convenient to use Postgres-specific values, see below.  When using H2, these values are normally computed by the program, and don't need to be changed, except perhaps when using Docker and storing the database on a volume.
+
+These values are provided as environment variables or as Java definitions.  When passing them as Java definitions, use the syntax `-DJDBC_DATABASE_USERNAME=owlcms`  (each parameter has a separate `-D`)  When using environment variables, there is no `-D`. 
+
+| Environment Variable Name | Description                                                  |
+| ------------------------- | ------------------------------------------------------------ |
+| JDBC_DATABASE_URL         | H2 default:  `jdbc:h2:file:./database/owlcms-h2-v2`<br />Postgres format: `jdbc:postgresql://localhost:5432/owlcms_db` |
+| JDBC_DATABASE_USERNAME    | username for the database                                    |
+| JDBC_DATABASE_PASSWORD    | password for the database.                                   |
+
+
+### Postgresql Parameters
+
+These parameters can be used instead of the JDBC parameters if the database is Postgres.  For example, these are the parameters used with Heroku cloud or with Docker. 
+
+These values are provided as environment variables or as Java definitions.  When passing them as Java definitions, use the syntax `-DPOSTGRES_PORT=5432` (each parameter has a separate `-D`)  When using environment variables, there is no `-D`. 
+
+| Environment Variable Name | Description                                              |
+| ------------------------- | -------------------------------------------------------- |
+| POSTGRES_HOST             | address of postgres server                               |
+| POSTGRES_PORT             | port number of the postgres server (5432 is the default) |
+| POSTGRES_DB               | name of postgres database                                |
+| POSTGRES_USER             | name of postgres user                                    |
+| POSTGRES_PASSWORD         | password for postgres password                           |

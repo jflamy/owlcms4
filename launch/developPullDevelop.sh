@@ -11,21 +11,27 @@
 LOCAL=develop
 REMOTE=develop
 
+git checkout $LOCAL
+git fetch
+
 cd publicresults-heroku
 git checkout $LOCAL
 git fetch
-git merge origin/$REMOTE --no-ff -m "merge $REMOTE [skip ci]"
+git merge origin/$REMOTE --no-ff -m "merge origin/$REMOTE [skip ci]"
 git push origin $LOCAL
 cd ..
+git add publicresults-heroku
+
 cd owlcms-heroku
 git checkout $LOCAL
 git fetch
-git merge origin/$REMOTE --no-ff -m "merge $REMOTE [skip ci]"
+git merge origin/$REMOTE --no-ff -m "merge origin/$REMOTE [skip ci]"
 git push origin $LOCAL
 cd ..
-git checkout $LOCAL
-git fetch
-git merge origin/$REMOTE --no-ff -m "merge $REMOTE [skip ci]"
+git add owlcms-heroku
+
+git commit -m "sync submodules"
+git merge origin/$REMOTE --no-ff -m "merge origin/$REMOTE [skip ci]"
 git push origin $LOCAL
 echo Done.  pulled $REMOTE into $LOCAL.
 

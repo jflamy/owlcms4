@@ -27,7 +27,7 @@
     <properties>
         <!-- revision is overridden by azure-pipelines.yml for the official builds. this value is only used for local development -->
 
-        <revision>4.33.3</revision>
+        <revision>4.33.6-rc01</revision>
         <owlcms-maven-url>http://maven.owlcms.mywire.org:8088</owlcms-maven-url>
         <owlcms-maven-suffix>/releases</owlcms-maven-suffix><!-- /snapshots if revision is -SNAPSHOT -->
         <owlcms-docker>docker.io/owlcms</owlcms-docker>
@@ -42,7 +42,7 @@
         <vaadin.version>14.8.10</vaadin.version>
         <logback.version>1.2.9</logback.version>
         <slf4j.version>1.7.26</slf4j.version>
-        <hibernate.version>5.6.5.Final</hibernate.version>
+        <hibernate.version>5.6.10.Final</hibernate.version>
         <guava.version>30.1.1-jre</guava.version>
 
         <!-- Plugins -->

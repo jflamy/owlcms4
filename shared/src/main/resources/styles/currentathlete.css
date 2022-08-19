@@ -4,92 +4,47 @@
     box-sizing: border-box;
 }
 
-
-/* wide screen */
-@media screen and (min-width: 1601px) {
-    .wrapper {
-        --attemptBarFontSize: 1.8em;
-    }
-    table.results tr td {
-        --narrow-width: 3em;
-        --rank-width: 10ch;
-        --max-narrow-width: 5ch;
-        --veryNarrow-width: 4.5ch;
-        --max-veryNarrow-width: 4.5ch;
-        --medium-width: 6ch;
-        --category-width: 9ch;
-        line-height: 115%;
-    }
-
-    .showRank {
-        display: table-cell;
-        width: var(--rank-width);
-        font-size: var(--fontSizeRows-height);
-        text-align: center;
-        background-color: var(--pageBackgroundColor);
-    }
-
-    .showRank div {
-        width: var(--rank-width);
-        margin-right: 2em;
-        border: none;
-        background-color: var(--pageBackgroundColor);
-        color: var(--pageTextColor);
-    }
+.wrapper {
+    --attemptBarFontSize: 1.8em;
+    --fontSizeRows-height: 2.2vh;
 }
 
-/* 720 screen or 1366 laptop */
-@media screen and (max-width: 1600px) and (min-width: 1280px) {
-    .wrapper {
-        --attemptBarFontSize: 1.3em;
-    }
-    table.results tr td {
-        --narrow-width: 3em;
-        --rank-width: 10ch;
-        --max-narrow-width: 5ch;
-        --veryNarrow-width: 4.5ch;
-        --max-veryNarrow-width: 4.5ch;
-        --medium-width: 6ch;
-        --category-width: 9ch;
-        line-height: 115%;
-    }
-
-    .showRank {
-        display: table-cell;
-        font-size: var(--fontSizeRows-height);
-        text-align: center;
-        width: var(--rank-width);
-    }
-
-    .showRank div {
-        width: var(--rank-width);
-        margin: auto;
-    }
+table.results tr td {
+    --narrow-width: 4em;
+    --rank-width: 10ch;
+    --max-narrow-width: 5ch;
+    --veryNarrow-width: 4.5ch;
+    --max-veryNarrow-width: 4.5ch;
+    --medium-width: 6ch;
+    --category-width: 9ch;
+    line-height: 135%;
+    display: table-cell;
 }
 
-/* 1024 projector */
-@media screen and (max-width: 1279px) {
-    .wrapper {
-        --attemptBarFontSize: 1.0em;
-    }
-    table.results tr td {
-        --narrow-width: 3em;
-        --rank-width: 10ch;
-        --max-narrow-width: 5ch;
-        --veryNarrow-width: 4.5ch;
-        --max-veryNarrow-width: 4.5ch;
-        --medium-width: 6ch;
-        --category-width: 9ch;
-        line-height: 120%;
-    }
+table.results tr td div {
+    /* happens to work with 1280, 1366 and 1920. */
+    width: calc(var(--narrow-width) * 1.05);
+}
 
-    .showRank {
-        display: none;
-        width: 0px;
-        padding: 0 0 0 0;
-        margin: 0 0 0 0;
-        font-size: var(--fontSizeRows-height);
-    }
+.showRank {
+    display: table-cell;
+    width: var(--rank-width);
+    text-align: left;
+    background-color: var(--pageBackgroundColor);
+    background-color: green;
+}
+
+.showRank div, .totalRank div {
+    margin-right: 0.8em;
+    margin-left: 0.5em;
+    border: none;
+    background-color: var(--pageBackgroundColor);
+    color: var(--pageTextColor);
+    font-size: var(--fontSizeRows-height);
+}
+
+div > div.attemptBar > div.attempts > table > tr > td.totalRank {
+    margin-right: 0;
 }
 
 .wrapper {
@@ -163,12 +118,16 @@
     background-color: var(--pageBackgroundColor);
     grid-column: 6/7;
     grid-row: 1/3;
+    z-index: 10;
 }
 
 .attemptBar .attempts {
-    grid-column: 2/4;
+    FONT-WEIGHT: 200;
+    /* display: grid; */
+    grid-column: 2/6;
     grid-row: 2/3;
     justify-self: left;
+    /* display: inline-grid; */
 }
 
 .breakTime {
@@ -182,11 +141,14 @@
 }
 
 table.results {
-    table-layout: fixed;
+    /* display: grid; */
+    /* grid-column: 2/span 4; */
+    /* grid-row: 2/3; */
     border: none;
     background-color: var(--darkBackgroundColor);
-    grid-row: 2/span 4;
     border-spacing: 0.2em;
+    margin-left: -0.2em;
+    width:  100%;
 }
 
 :host(.dark) table.results tr {
@@ -204,8 +166,7 @@ table.results td {
     padding: 0;
     margin: 0;
     background-clip: padding-box;
-    font-size: 0.6em;
-    line-height: 0.9em;
+    font-size: var(--fontSizeRows-height);
 }
 
 :host(.dark) th,
@@ -219,12 +180,6 @@ table.results td {
     font-weight: bold;
     /* intentional dark border */
     border: solid 1px var(--darkTableBorders);
-}
-
-table.results th div,
-table.results td div {
-    width: var(--narrowWidth);
-    /*! color: red; */
 }
 
 .name {
@@ -256,17 +211,13 @@ table.results td div {
     text-overflow: ellipsis;
 }
 
-table.results td.showRank {
+table.results td.showRank, table.results td.totalRank {
     border: none;
-    width: var(--narrowWidth);
-    font-size: 0.6em;
-}
-
-table.results td.totalRank {
-    border: none;
-    background-color: var(--pageBackgroundColor);
+    font-size: var(--tableFontSize);
+    background-color: var(--darkBackgroundColor);
     color: var(--pageTextColor);
-    /*! width: var(--narrow-width); */
+    width: var(--rank-width);
+    font-weight: normal;
 }
 
 table.results td.category {
@@ -274,8 +225,7 @@ table.results td.category {
     white-space: nowrap;
     border: none;
     background-color: var(--pageBackgroundColor);
-    font-size: 0.9em;
-    text-align: center;
+    font-size: var(--fontSizeRows-height)*1.1;
 }
 
 table.results td.category div {
@@ -294,11 +244,11 @@ table.results td.liftName {
 
 table.results td.liftName div {
     /*! width: var(--category-width); */
-    display: inline-block;
+    display: inherit;
     color: var(--pageTextColor);
-    font-size: 1.1em;
-    margin-right: 1ch;
-    margin-left: 2ch;
+    font-size: var(--fontSizeRows-height);
+    /* margin-right: 0.5em; */
+    /* margin-left: 2ch; */
 }
 
 :host(.dark) td.good {
@@ -465,6 +415,8 @@ thead {
     align-items: center;
     justify-content: center;
     text-align: center;
+    height: 140px;
+    line-height: 90px;
 }
 
 .competitionName {

@@ -183,16 +183,17 @@ public class RAthlete {
             long l = Long.parseLong(content);
             if (l < 3000) {
                 a.setYearOfBirth((int) l);
-                logger.trace("short " + l);
+                //logger.debug("short " + l);
             } else {
                 LocalDate epoch = LocalDate.of(1900, 1, 1);
                 LocalDate plusDays = epoch.plusDays(l - 2); // Excel quirks: 1 is 1900-01-01 and 1900-02-29 did not
                                                             // exist.
-                logger.trace("long " + plusDays);
+                //logger.debug("long " + plusDays);
                 a.setFullBirthDate(plusDays);
             }
             return;
         } catch (NumberFormatException e) {
+            //logger.debug("localized");
             LocalDate parse = DateTimeUtils.parseLocalizedOrISO8601Date(content, OwlcmsSession.getLocale());
             a.setFullBirthDate(parse);
         }
