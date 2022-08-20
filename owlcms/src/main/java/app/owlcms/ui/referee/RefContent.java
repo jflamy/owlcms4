@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.slf4j.LoggerFactory;
 
@@ -67,14 +69,29 @@ import ch.qos.logback.classic.Logger;
 public class RefContent extends VerticalLayout implements FOPParameters, SafeEventBusRegistration,
         UIEventProcessor, HasDynamicTitle, RequireLogin, PageConfigurator, BeforeEnterListener {
 
+    private class DelayTimer {
+        private final Timer t = new Timer();
+
+        public TimerTask schedule(final Runnable r, long delay) {
+            final TimerTask task = new TimerTask() {
+                @Override
+                public void run() {
+                    r.run();
+                }
+            };
+            t.schedule(task, delay);
+            return task;
+        }
+    }
+
     final private static Logger logger = (Logger) LoggerFactory.getLogger(RefContent.class);
     private static final String REF_INDEX = "num";
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+
     static {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
     }
-
     private Icon bad;
     private BeepElement beeper;
     private Icon good;
@@ -89,6 +106,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
     private EventBus uiEventBus;
     private HashMap<String, List<String>> urlParams;
     private HorizontalLayout warningRow;
+
     private boolean whiteTouched;
 
     public RefContent() {
@@ -127,7 +145,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
     @Override
     public String getPageTitle() {
         return Translator.translate("Referee") + OwlcmsSession.getFopNameIfMultiple()
-                + (ref13ix != null ? (" " + ref13ix) : "");
+                + (getRef13ix() != null ? (" " + getRef13ix()) : "");
     }
 
     @Override
@@ -167,11 +185,11 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
         if (nums != null) {
             num = nums.get(0);
             try {
-                ref13ix = Integer.parseInt(num);
+                setRef13ix(Integer.parseInt(num));
                 logger.debug("parsed {} parameter = {}", REF_INDEX, num);
-                refField.setValue(ref13ix.intValue());
+                refField.setValue(getRef13ix().intValue());
             } catch (NumberFormatException e) {
-                ref13ix = null;
+                setRef13ix(null);
                 num = null;
                 LoggerUtils.logError(logger, e);
             }
@@ -195,7 +213,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
      */
     @Subscribe
     public void slaveDecisionReset(UIEvent.DecisionReset e) {
-        logger.debug("received decision reset {}", ref13ix);
+        logger.debug("received decision reset {}", getRef13ix());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             resetRefVote();
         });
@@ -207,7 +225,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 
     @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
-        logger.debug("received decision reset {}", ref13ix);
+        logger.debug("received decision reset {}", getRef13ix());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             resetRefVote();
         });
@@ -215,7 +233,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 
     @Subscribe
     public void slaveSummonRef(UIEvent.SummonRef e) {
-        if (e.ref != ref13ix) {
+        if (getRef13ix() == null || e.ref != getRef13ix()) {
             return;
         }
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
@@ -233,6 +251,14 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
             warningRow.getElement().setAttribute("style", "background-color: red; width: 100%;");
             topRow.setVisible(false);
             beeper.beep();
+            UI currentUI = UI.getCurrent();
+            new DelayTimer().schedule(() -> currentUI.access(() -> {
+                beeper.beep();
+            }), 1000);
+            new DelayTimer().schedule(() -> currentUI.access(() -> {
+                warningRow.setVisible(false);
+                topRow.setVisible(true);
+            }), 9000);
         });
     }
 
@@ -245,7 +271,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 
     @Subscribe
     public void slaveWakeUpRef(UIEvent.WakeUpRef e) {
-        if (e.ref != ref13ix) {
+        if (getRef13ix() == null || e.ref != getRef13ix()) {
             return;
         }
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
@@ -260,7 +286,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
                 warningRow.add(h3);
                 warningRow.getElement().setAttribute("style", "background-color: yellow; width: 100%;");
                 topRow.setVisible(false);
-                this.getElement().callJsFunction("beep");
+                beeper.beep();
             } else {
                 warningRow.setVisible(false);
                 topRow.setVisible(true);
@@ -289,6 +315,9 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
+        // crude workaround -- randomly getting light or dark due to multiple themes detected in app.
+        getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
+
         SoundUtils.enableAudioContextNotification(this.getElement(), true);
         OwlcmsSession.withFop(fop -> {
             // we listen on uiEventBus.
@@ -320,12 +349,12 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
         refField.setStep(1);
         refField.setMax(3);
         refField.setMin(1);
-        refField.setValue(ref13ix == null ? null : ref13ix.intValue());
+        refField.setValue(getRef13ix() == null ? null : getRef13ix().intValue());
         refField.setPlaceholder(getTranslation("Number"));
         refField.setHasControls(true);
         refField.addValueChangeListener((e) -> {
-            ref13ix = e.getValue();
-            setUrl(ref13ix != null ? ref13ix.toString() : null);
+            setRef13ix(e.getValue());
+            setUrl(getRef13ix() != null ? getRef13ix().toString() : null);
         });
 
         ComboBox<FieldOfPlay> fopSelect = createFopSelect();
@@ -377,7 +406,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 
     private void doRed() {
         OwlcmsSession.withFop(fop -> {
-            fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), ref13ix - 1, false));
+            fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), getRef13ix() - 1, false));
         });
         good.getStyle().set("color", "DarkSlateGrey");
         good.getStyle().set("outline-color", "white");
@@ -385,7 +414,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 
     private void doWhite() {
         OwlcmsSession.withFop(fop -> {
-            fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), ref13ix - 1, true));
+            fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), getRef13ix() - 1, true));
         });
         bad.getStyle().set("color", "DarkSlateGrey");
         bad.getStyle().set("outline-color", "white");
@@ -393,6 +422,10 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 
     private Object getOrigin() {
         return this;
+    }
+
+    private Integer getRef13ix() {
+        return ref13ix;
     }
 
     private void redClicked(DomEvent e) {
@@ -418,6 +451,10 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
         refVotingButtons.add(bad, good);
         topRow.setVisible(true);
         warningRow.setVisible(false);
+    }
+
+    private void setRef13ix(Integer ref13ix) {
+        this.ref13ix = ref13ix;
     }
 
     private void setUrl(String num) {

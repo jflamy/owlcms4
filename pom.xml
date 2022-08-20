@@ -27,7 +27,7 @@
     <properties>
         <!-- revision is overridden by azure-pipelines.yml for the official builds. this value is only used for local development -->
 
-        <revision>4.33.5</revision>
+        <revision>4.33.6-rc02</revision>
         <owlcms-maven-url>http://maven.owlcms.mywire.org:8088</owlcms-maven-url>
         <owlcms-maven-suffix>/releases</owlcms-maven-suffix><!-- /snapshots if revision is -SNAPSHOT -->
         <owlcms-docker>docker.io/owlcms</owlcms-docker>
@@ -215,10 +215,11 @@
 
         <plugins>
             <plugin>
+            <?m2e ignore ?>
                 <!-- this ensures that ${revision} is substituted in the installed/deployed jars -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>1.2.2</version>
+                <version>1.2.5</version>
                 <configuration>
                     <updatePomFile>true</updatePomFile>
                     <flattenMode>fatjar</flattenMode>

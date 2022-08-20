@@ -16,7 +16,7 @@ import ch.qos.logback.classic.Logger;
 /**
  * The Class JettyErrorHandler.
  */
-@SuppressWarnings("serial")
+
 public class JettyErrorHandler extends DefaultErrorHandler {
     private final static Logger logger = (Logger) LoggerFactory.getLogger(JettyErrorHandler.class);
 

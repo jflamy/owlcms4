@@ -76,6 +76,8 @@ public class RecordEvent {
         }
         ageGrp = ageGrp.trim();
         ageGrp = ageGrp.toUpperCase();
+        
+        boolean knownAgeGroup = true;
         if (ageGrp.equals("YTH")) {
             ageGrpLower = ageGrpLower > 0 ? ageGrpLower : 13;
             ageGrpUpper = ageGrpUpper > 0 ? ageGrpUpper : 17;
@@ -86,10 +88,12 @@ public class RecordEvent {
             ageGrpLower = ageGrpLower > 0 ? ageGrpLower : 15;
             ageGrpUpper = ageGrpUpper > 0 ? ageGrpUpper : 999;
         } else {
-            ageGrpLower = ageGrpLower > 0 ? ageGrpLower : 0;
-            ageGrpUpper = ageGrpUpper > 0 ? ageGrpUpper : 999;
+            knownAgeGroup = false;
         }
-        fillIWFBodyWeights();
+        
+        if (knownAgeGroup) {
+            fillIWFBodyWeights();
+        }
     }
 
     public String getAgeGrp() {

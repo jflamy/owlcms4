@@ -272,8 +272,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
      */
     @Override
     public void timeOver(Object origin) {
-        // logger.debug("break {} {} timeover = {} [{}]", isRunning(), isIndefinite(), getTimeRemaining(),
-        // LoggerUtils.whereFrom());
+        //logger.debug("break {} {} timeover = {} [{}]", isRunning(), isIndefinite(), getTimeRemaining(), LoggerUtils.stackTrace());
         if (isRunning() && !isIndefinite()) {
             long now = System.currentTimeMillis();
             if (now - lastStop > 1000) {
@@ -283,14 +282,13 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
             } else {
                 return;
             }
+            // should emit sound at end of break
+            getFop().pushOutUIEvent(new UIEvent.BreakDone(origin, getFop().getBreakType()));
+            getFop().fopEventPost(new FOPEvent.BreakDone(getFop().getBreakType(), origin));
         } else {
             // we've already signaled time over.
             return;
         }
-
-        // should emit sound at end of break
-        getFop().pushOutUIEvent(new UIEvent.BreakDone(origin, getFop().getBreakType()));
-        getFop().fopEventPost(new FOPEvent.BreakDone(getFop().getBreakType(), origin));
     }
 
     /**

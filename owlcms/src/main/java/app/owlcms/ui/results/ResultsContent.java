@@ -237,7 +237,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("Results");
+        return getTranslation("GroupResults");
     }
 
     @Override
