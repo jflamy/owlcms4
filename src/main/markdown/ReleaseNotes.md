@@ -1,5 +1,7 @@
 > Recommended update if your current version is older than 4.33.4
 
+- 4.33.6-rc02: fix missing decision reminder when using phone or tablet
+- 4.33.6-rc02: wait for the actual 1/2/3/all button press to inform announcer that referee has been summoned
 - 4.33.6-rc01: new translation string for break management dialog, new language translations
 - 4.33.6-rc01: usability: more consistent naming of window tabs for group results
 - 4.33.6-rc01: small bug fixes when reading record definition files with U age groups.
