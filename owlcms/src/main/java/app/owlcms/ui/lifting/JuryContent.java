@@ -267,10 +267,10 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     protected void init(int nbj) {
-        summonEnabled = false;
-        OwlcmsSession.withFop(fop -> {
-            summonEnabled = fop.getMqttServer() != null;
-        });
+        summonEnabled = true; // works with phones/tablets
+//        OwlcmsSession.withFop(fop -> {
+//            summonEnabled = fop.getMqttServer() != null;
+//        });
         registrations = new ArrayList<>();
         this.setBoxSizing(BoxSizing.BORDER_BOX);
         this.setSizeFull();
@@ -295,7 +295,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         Label spacer = new Label();
         spacer.setWidth("3em");
         topRow.add(labelWrapper, juryDeliberationButtons(),
-                juryDecisionButtons() /* , spacer, summonRefereeButtons() */);
+                juryDecisionButtons());
         topRow.setDefaultVerticalComponentAlignment(Alignment.CENTER);
 
         buildJuryVoting();
