@@ -27,8 +27,8 @@
     <properties>
         <!-- revision is overridden by azure-pipelines.yml for the official builds. this value is only used for local development -->
 
-        <revision>4.33.6</revision>
-        <owlcms-maven-url>http://maven.owlcms.mywire.org:8088</owlcms-maven-url>
+        <revision>4.33.7-rc01</revision>
+        <owlcms-maven-url>http://maven.lerta.ca:8088</owlcms-maven-url>
         <owlcms-maven-suffix>/releases</owlcms-maven-suffix><!-- /snapshots if revision is -SNAPSHOT -->
         <owlcms-docker>docker.io/owlcms</owlcms-docker>
 
@@ -159,7 +159,7 @@
     <distributionManagement>
         <repository>
             <id>owlcms-maven-repo</id>
-            <url>http://maven.owlcms.mywire.org:8088/releases</url>
+            <url>http://maven.lerta.ca:8088/releases</url>
         </repository>
     </distributionManagement>
 

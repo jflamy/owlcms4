@@ -51,6 +51,7 @@ import ch.qos.logback.classic.Logger;
 
 public class Translator implements I18NProvider {
 
+    private static final long serialVersionUID = 687252956819191905L;
     private static final Logger logger = (Logger) LoggerFactory.getLogger(Translator.class);
     private static Translator helper = new Translator();
     private static final String BUNDLE_BASE = "translation4";
