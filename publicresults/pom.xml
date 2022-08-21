@@ -403,7 +403,7 @@
                                 <configuration>
                                     <file>target/${project.artifactId}-${project.version}.jar</file>
                                     <repositoryId>owlcms-maven-repo</repositoryId>
-                                    <url>http://maven.owlcms.mywire.org:8088/releases</url>
+                                    <url>http://maven.lerta.ca:8088/releases</url>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>${project.artifactId}</artifactId>
                                     <version>${project.version}</version>
