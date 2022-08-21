@@ -61,7 +61,6 @@ public class RecordDefinitionReader {
                     RecordEvent rec = new RecordEvent();
                     rec.setFileName(baseName);
 
-
                     // beware: on a truly empty row we will not enter this loop.
                     boolean error = false;
                     for (Cell cell : row) {
@@ -198,12 +197,15 @@ public class RecordDefinitionReader {
 
                             iColumn++;
                         } catch (Exception e) {
-                            logger.error("{}[{}] {} ", sheet.getSheetName(), cell.getAddress(), e.getMessage());
-                            error = true;
+                            // do not report errors on empty rows
+                            if (!isEmptyRow(rec)) {
+                                logger.error("{}[{}] {} ", sheet.getSheetName(), cell.getAddress(), e.getMessage());
+                                error = true;
+                            }
                         }
                     }
 
-                    if (rec.getRecordFederation() != null && !error) {
+                    if (!error && !isEmptyRow(rec)) {
                         // if row was empty, we get no cells but rec was created.
                         try {
                             rec.fillDefaults();
@@ -226,6 +228,10 @@ public class RecordDefinitionReader {
             logger.info("inserted {} record entries.", iRecord);
             return iRecord;
         });
+    }
+
+    private static boolean isEmptyRow(RecordEvent rec) {
+        return rec.getRecordFederation() == null || rec.getRecordFederation().isBlank();
     }
 
     public static void readZip(InputStream source) throws IOException {
