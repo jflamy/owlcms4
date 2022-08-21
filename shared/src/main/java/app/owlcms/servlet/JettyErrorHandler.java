@@ -18,6 +18,10 @@ import ch.qos.logback.classic.Logger;
  */
 
 public class JettyErrorHandler extends DefaultErrorHandler {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -3601423112228045354L;
     private final static Logger logger = (Logger) LoggerFactory.getLogger(JettyErrorHandler.class);
 
     /*
