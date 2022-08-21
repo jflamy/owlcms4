@@ -1,5 +1,7 @@
 > Recommended update if your current version is older than 4.33.4
 
+- 4.33.7-rc01: minor change to build procedures.
+- 4.33.7-rc01: fix processing of empty rows in record definition files.
 - 4.33.6: fix missing decision reminder when using phone or tablet
 - 4.33.6: wait for the actual 1/2/3/all button press to inform announcer that referee has been summoned
 - 4.33.6: new translation string for break management dialog, new language translations
