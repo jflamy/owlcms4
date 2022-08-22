@@ -27,6 +27,7 @@ import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
+import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
@@ -97,7 +98,8 @@ public class DownloadButtonFactory {
         templateSelect.setPlaceholder(Translator.translate("AvailableTemplates"));
         templateSelect.setHelperText(Translator.translate("SelectTemplate"));
         List<Resource> resourceList = new ResourceWalker().getResourceList(resourceDirectoryLocation,
-                ResourceWalker::relativeName, null, OwlcmsSession.getLocale());
+                ResourceWalker::relativeName, null, OwlcmsSession.getLocale(),
+                Config.getCurrent().isLocalTemplatesOnly());
         templateSelect.setItems(resourceList);
         templateSelect.setValue(null);
         templateSelect.setWidth("15em");

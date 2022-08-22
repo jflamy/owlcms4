@@ -71,6 +71,34 @@ public class ResourceWalker {
         }
     }
 
+    public static synchronized Path createLocalDir() {
+        Path f = null;
+        try {
+            f = MemTempUtils.createTempDirectory("owlcmsOverride");
+            logger.trace("created temp directory " + f);
+            setLocalDirPath(f);
+            setInitializedLocalDir(true);
+            logger.info("new in-memory override path {}", getLocalDirPath().normalize());
+            return f;
+        } catch (IOException e) {
+            throw new RuntimeException("cannot create directory ", e);
+        }
+    }
+
+    public static synchronized Path createLocalRealDir() {
+        Path f = null;
+        try {
+            f = Files.createTempDirectory("config");
+            logger.trace("created temp directory " + f);
+            setLocalDirPath(f);
+            setInitializedLocalDir(true);
+            logger.info("new temporary directory {}", getLocalDirPath().normalize());
+            return f;
+        } catch (IOException e) {
+            throw new RuntimeException("cannot create directory ", e);
+        }
+    }
+
     /**
      * Fetch a named file content. First looking in a local override directory structure, and if not found, as a
      * resource on the classpath.
@@ -339,35 +367,6 @@ public class ResourceWalker {
         }
     }
 
-    public static synchronized Path createLocalDir() {
-        Path f = null;
-        try {
-            f = MemTempUtils.createTempDirectory("owlcmsOverride");
-            logger.trace("created temp directory " + f);
-            setLocalDirPath(f);
-            setInitializedLocalDir(true);
-            logger.info("new in-memory override path {}", getLocalDirPath().normalize());
-            return f;
-        } catch (IOException e) {
-            throw new RuntimeException("cannot create directory ", e);
-        }
-    }
-    
-    public static synchronized Path createLocalRealDir() {
-        Path f = null;
-        try {
-            f = Files.createTempDirectory("config");
-            logger.trace("created temp directory " + f);
-            setLocalDirPath(f);
-            setInitializedLocalDir(true);
-            logger.info("new temporary directory {}", getLocalDirPath().normalize());
-            return f;
-        } catch (IOException e) {
-            throw new RuntimeException("cannot create directory ", e);
-        }
-    }
-
-
     public static boolean isInitializedLocalDir() {
         return initializedLocalDir;
     }
@@ -487,6 +486,11 @@ public class ResourceWalker {
         }
     }
 
+    public List<Resource> getResourceList(String absoluteRoot, BiFunction<Path, Path, String> nameGenerator,
+            String startsWith, Locale locale) {
+        return getResourceList(absoluteRoot, nameGenerator, startsWith, locale, false);
+    }
+
     /**
      * Find all available files that start with a given prefix, either in a local file structure or on the classpath.
      *
@@ -496,6 +500,7 @@ public class ResourceWalker {
      * @param absoluteRoot  a starting point (absolute resource name starts with a /)
      * @param nameGenerator a function that takes the current file path and the starting path and returns a (unique)
      *                      display name.
+     * @param overridesOnly if true, do not include classpath resources - use only explicitly provided files
      * @param locale2
      * @return a list of <display name, file path> entries
      * @throws IOException
@@ -503,12 +508,13 @@ public class ResourceWalker {
      */
     // Path rootPath = null;
     public List<Resource> getResourceList(String absoluteRoot, BiFunction<Path, Path, String> nameGenerator,
-            String startsWith, Locale locale) {
+            String startsWith, Locale locale, boolean overridesOnly) {
 
-        Map<String, Resource> classPathResourcesMap = getResourceListFromPath(nameGenerator, startsWith,
-                getResourcePath(absoluteRoot), locale)
-                        .stream()
-                        .collect(Collectors.toMap(Resource::normalizedName, Function.identity()));
+        Map<String, Resource> classPathResourcesMap = overridesOnly ? Map.of()
+                : getResourceListFromPath(nameGenerator, startsWith,
+                        getResourcePath(absoluteRoot), locale)
+                                .stream()
+                                .collect(Collectors.toMap(Resource::normalizedName, Function.identity()));
         Map<String, Resource> overrideResourcesMap = getLocalOverrideResourceList(absoluteRoot, nameGenerator,
                 startsWith, locale)
                         .stream()
@@ -519,8 +525,8 @@ public class ResourceWalker {
 
         Set<String> classPathResourceNames = classPathResourcesMap.keySet();
         Set<String> overrideResourceNames = overrideResourcesMap.keySet();
-        logger.trace("classpath resources {}", classPathResourceNames);
-        logger.trace("override resources {}", overrideResourceNames);
+        //logger.trace("classpath resources {}", classPathResourceNames);
+        //logger.trace("override resources {}", overrideResourceNames);
         TreeSet<String> allResourceNames = new TreeSet<>();
         allResourceNames.addAll(classPathResourceNames);
         allResourceNames.addAll(overrideResourceNames);
@@ -529,9 +535,8 @@ public class ResourceWalker {
             Resource r = overrideResourcesMap.get(rn);
             return r != null ? r : classPathResourcesMap.get(rn);
         }).collect(Collectors.toList());
-        logger.trace("merged list {}", resourceList);
+        //logger.trace("merged list {}", resourceList);
         return resourceList;
-
     }
 
     /**

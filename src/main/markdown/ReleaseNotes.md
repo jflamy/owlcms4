@@ -1,5 +1,7 @@
 > Recommended update if your current version is older than 4.33.4
 
+- 4.37.8-rc01: fixed uploading of zip file containing local overrides to support zips with non-Latin file names (replaced the standard Java library with an improved one)
+- 4.37.8-rc01: added a Feature Toggle "localTemplatesOnly".  If this toggle is defined on the Languages and Settings page, the built-in templates will not be shown. Only what is in the local/templates folder (or has been uploaded as a zip) with be shown. You can therefore remove files you don't use and rename the templates to your local language if you wish.
 - 4.33.7: fix processing of empty rows in record definition files. Added Examples for Masters and for different file formats to [Record Definition Examples](https://www.dropbox.com/sh/409fqybabjv6byt/AADZIcMxn2Q8epqiZQX3EQk4a?dl=0)
 - 4.33.6: fix missing decision reminder when using phone or tablet
 - 4.33.6: wait for the actual 1/2/3/all button press to inform announcer that referee has been summoned

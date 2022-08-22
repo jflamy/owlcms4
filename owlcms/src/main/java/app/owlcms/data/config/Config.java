@@ -459,8 +459,8 @@ public class Config {
         if (getFeatureSwitches() == null) {
             return !trueIfPresent;
         }
-        String[] switches = getFeatureSwitches().split("[,; ]");
-        boolean present = Arrays.asList(switches).contains(string);
+        String[] switches = getFeatureSwitches().toLowerCase().split("[,; ]");
+        boolean present = Arrays.asList(switches).contains(string.toLowerCase());
         return trueIfPresent ? present : !present;
     }
 
@@ -479,6 +479,10 @@ public class Config {
 
     public boolean isOldScoreboards() {
         return featureSwitch("oldScoreboards", true);
+    }
+
+    public boolean isLocalTemplatesOnly() {
+        return featureSwitch("localTemplatesOnly", true);
     }
 
 }
