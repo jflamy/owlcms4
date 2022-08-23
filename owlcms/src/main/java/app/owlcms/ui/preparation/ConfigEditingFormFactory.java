@@ -280,6 +280,12 @@ public class ConfigEditingFormFactory
         layout.addFormItem(clearField, Translator.translate("Config.ClearZipLabel"));
         binder.forField(clearField)
                 .bind(Config::isClearZip, Config::setClearZip);
+        
+        Checkbox localTemplatesField = new Checkbox(Translator.translate("Config.LocalTemplate"));
+        localTemplatesField.setWidthFull();
+        layout.addFormItem(localTemplatesField, Translator.translate("Config.LocalTemplateLabel"));
+        binder.forField(localTemplatesField)
+                .bind(Config::isLocalTemplatesOnly, Config::setLocalTemplatesOnly);
 
 //        Checkbox ignoreCaching = new Checkbox(Translator.translate("Config.NoCaching"));
 //        ignoreCaching.setWidthFull();

@@ -43,20 +43,25 @@ Go to the `Prepare Competition`- `Language and System Settings` page.
 
 In a gym setting, people can read the web addresses on the screens, and one day, some "funny" person will log in to the system and be tempted to mess things up.
 
-- You should therefore set a PIN or Password that officials will be required to type when first logging in.  This is done on via the `Prepare Competition` page, using the `Language and System Settings` button.
+- **Password** : should therefore set a PIN or Password that officials will be required to type when first logging in.  This is done on via the `Prepare Competition` page, using the `Language and System Settings` button.
+  - Once you type a PIN or password, it will immediately be replaced by a very long string called a cryptographic hash.  That way if you export the database no one can actually figure out what the password is.
 
 ![053_editPIN](img/PublicResults/053_editPIN.png)
 
-- If running from a competition site, you can restrict access to the cloud application to come only from your competition site router. The access list is a comma-separated list of allowed IPv4 addresses.   In order to find the proper value:
+- **Authorized IP Addresses** running from a competition site, you can restrict access to the cloud application to come only from your competition site router. The access list is a comma-separated list of allowed IPv4 addresses.  The addresses listed will be allowed, but the password will still be required.
 
+  In order to find the proper value:
+  
   - From your competition site, browse to <https://google.com> and
   
-  - Type the string  `my ip`  in the search box.  
+- Type the string  `my ip`  in the search box.  
     This will display the address of your competition site router as seen from the cloud.  
-
+  
   - You should see a set of four numbers separated by dots like `24.157.203.247`  . This the address you should use -- owlcms will reject connections coming from other places than your competition router.
   
-Note that if you use the OWLCMS_IP or -Dip settings, these will take precedence over what is in the database.
+  Note that if you use the OWLCMS_IP or -Dip settings, these will take precedence over what is in the database.
+
+- **Backdoor Access IP List**  These IP addresses will be allowed access without a password.  This is normally used when streaming: the machine that connects to owlcms to grab the scoreboards is not in the cloud, and it is inconvenient to type the password for that one machine.
 
 ## Configuration Parameters
 

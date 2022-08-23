@@ -119,6 +119,13 @@ public class Config {
 
     private String featureSwitches;
 
+    @Column(columnDefinition = "boolean default false")
+    private boolean localTemplatesOnly;
+
+    public void setLocalTemplatesOnly(boolean localTemplatesOnly) {
+        this.localTemplatesOnly = localTemplatesOnly;
+    }
+
     public String computeSalt() {
         this.setSalt(null);
         return Integer.toHexString(new Random(System.currentTimeMillis()).nextInt());
@@ -482,7 +489,7 @@ public class Config {
     }
 
     public boolean isLocalTemplatesOnly() {
-        return featureSwitch("localTemplatesOnly", true);
+        return this.localTemplatesOnly || featureSwitch("localTemplatesOnly", true);
     }
 
 }

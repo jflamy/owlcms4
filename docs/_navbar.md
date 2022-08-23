@@ -36,6 +36,7 @@
   * [Excel Template Variables](TemplateVariables)
   * [Translations](Translation)
   * [Configuration Parameters](Configuration)
+  * [Feature Toggles](FeatureToggles)
   * [Simulation and Load Testing](Simulation)
   * [MQTT Server Configuration](MQTT)
   * [Using PostgreSQL](PostgreSQL)
