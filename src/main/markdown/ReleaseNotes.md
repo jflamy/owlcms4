@@ -1,10 +1,7 @@
 > Recommended update if your current version is older than 4.33.4
 
-- 4.33.8-rc03: fix to build process
-- 4.33.8-rc02: A new "local templates only" checkbox is added on the Languages and Settings page. If selected, the built-in Excel templates will not be listed in the dropdown lists. Only what is in the local/templates folder (or has been uploaded as a zip) with be shown. You can therefore remove files you don't use and rename the templates to your local language if you wish.  This feature is also available using the "localTemplatesOnly" feature toggle.
-- 4.33.8-rc02: added documentation for the Feature Toggles under Advanced Settings.  Updated the documentation for Competition Settings and for the Uploading Customization pages.
-- 4.33.8-rc02: Updated translations.
-- 4.33.8-rc01: fixed uploading of zip file containing local overrides to support zips with non-Latin file names (replaced the standard Java library with an improved one)
+- 4.33.8: A new "local templates only" checkbox is added on the Languages and Settings page. If selected, the built-in Excel templates will not be listed in the dropdown lists. Only what is in the `local/templates` folder (or has been uploaded as a zip) with be shown. You can therefore remove files you don't use from local/templates and rename the templates to your local language if you wish. 
+- 4.33.8: fixed uploading of zip file containing local overrides to support zips with non-Latin file names (replaced the standard Java library with an improved one)
 - 4.33.7: fix processing of empty rows in record definition files. Added Examples for Masters and for different file formats to [Record Definition Examples](https://www.dropbox.com/sh/409fqybabjv6byt/AADZIcMxn2Q8epqiZQX3EQk4a?dl=0)
 - 4.33.6: fix missing decision reminder when using phone or tablet
 - 4.33.6: wait for the actual 1/2/3/all button press to inform announcer that referee has been summoned
