@@ -28,7 +28,7 @@ Go to the `Prepare Competition`- `Language and System Settings` page.
 
 The installation directory on a laptop contains a folder called `local`.  Underneath that folder are all the files and resources used by the program.  You may edit these files if you need to change translation wording, scoreboard colors, the Excel templates, etc.   
 
-If you want to run the program in the cloud, you will need to perform the changes on a local laptop, and zip the local directory.  See the section on [Uploading Customizations](UploadingLocalSettings) for details.
+If you want to run the program in the cloud, you will need to perform the changes on a local laptop, and zip the local directory.  See the page on [Uploading Customizations](UploadingLocalSettings) for details.
 
 ### Access Control
 

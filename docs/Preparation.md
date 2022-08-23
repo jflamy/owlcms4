@@ -8,20 +8,35 @@ To prepare for a competition, select the `Prepare Competition` menu entry from t
 
 ## Competition Information
 
-The `Edit Competition Information` button leads to a page where the information used on the various competition documents is defined.  It also allows options to be set that define the competition behavior.
+The `Edit Competition Information` button leads to a page where the name and other data about the competition is provided in order to use it on the various competition documents
+
+![030_Competition](img/Preparation/030_Competition.png) 
+
+#### Standard Competition Rules
+
+The screen also allows selecting common variations on IWF rules.
+
+![031_options](img/Preparation/031_options.png)
 
 - The `Apply initial total weight rule` determines whether the 20kg rule (15/10 for Masters) will be enforced.  Some local or regional meets do not enforce this rule.
 - The `Use Birth Year Only` allows the use of only the 4-digit birth year for athletes, instead of a full date as required by IWF.
+- The Masters switch is used when running a Masters-only competition, and is not required for competitions that have both Masters and non-Masters groups.
 
-![030_Competition](img/Preparation/030_Competition.png)
+  - The Masters settings changes the sorting order for displays and weigh-ins -- Masters traditionally start with the older lifters, whereas in an age-group competition the younger age groups are typically listed and weighed-in first.
+  - Note that the determination to apply the IWF 20kg or the IWF Masters 80% rule is automatic, based on whether the athlete is registered in a regular or Masters category.
+- `Medals for snatch, clean & jerk, total` This setting controls whether there will be ranks and points awarded for the lifts, or only for the total.  It changes whether the corresponding columns are shown or not on the scoreboards
+- `Referee Decision Reminder Delay` When using phones/tablets to referee, or MQTT devices that can provide feedback to the referee, this determines the delay before sending a reminder.
 
-## Masters
+#### Non-Standard Rules
 
-This setting is normally used when running a Masters-only competition, and is not required for competitions that have both Masters and non-Masters groups.
+Additional options are used when running team, kid, or virtual competitions. 
 
-- The Masters settings changes the sorting order for displays and weigh-ins -- Masters traditionally start with the older lifters, whereas in an age-group competition the younger age groups are typically listed and weighed-in first.
-
-- The determination to apply the IWF 20kg or the IWF Masters 80% rule is individual, based on whether the athlete is registered in a regular or Masters category.  The "Masters" setting  does not affect this behavior.
+- `Top Resuts Team Sizes`  in some competitions, points are awarded as usual, but the lifters who scored more points are the ones included in the team total. For example, there may be 10 athletes on the Men's team, but the 5 better point scores from the team will be used.  The number is how many athletes to count.
+- `Round-Robin Order` In team leagues, it is common for all 1st lifts to be done before 2nd, and so on.
+- `Group Athletes by Gender`  When hosting kid competitions, it is sometimes simpler to use round-robin, and in addition, have girls go first to avoid changing bars.
+- `Fixed order for lifting` Some league competitions use round-robin play and also decide in advance the lifting order.  This setting means that the lot number assigned to the athlete decides the lifting order.
+- `Enable Custom Score` This adds a box on the Athlete Card where a custom score can be entered.  This will typically be the total + bonus points or minus penalty points.  This is sometimes used for kid competitions for 5/6 or 6/6 performances.
+- `Sinclair Meet` If this is selected, the program will behave as if there was a single male and a single female categories.  The scoreboards will show the Sinclair score, and the leader board will consider all the athletes of the same gender.
 
 
 ## Defining Age Groups and Categories

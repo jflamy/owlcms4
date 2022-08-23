@@ -19,6 +19,7 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
@@ -75,7 +76,9 @@ public class LocalOverrideUploadDialog extends Dialog {
             ResourceWalker.unzipBlobToTemp(bytes);
             f.setValue(bytes);
         } catch (Exception e) {
-            appendErrors(ta, e.getLocalizedMessage());
+            String localizedMessage = e.getLocalizedMessage();
+            appendErrors(ta, localizedMessage != null ? localizedMessage : e.toString());
+            logger.error("{}",LoggerUtils.stackTrace(e));
         }
         return;
     }

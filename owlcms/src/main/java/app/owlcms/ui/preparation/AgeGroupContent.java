@@ -234,8 +234,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
 
         ageGroupDefinitionSelect = new ComboBox<>();
         ageGroupDefinitionSelect.setPlaceholder(getTranslation("ResetCategories.AvailableDefinitions"));
-        List<Resource> resourceList = new ResourceWalker().getResourceList("/agegroups",
-                ResourceWalker::relativeName, null, new Locale(""));
+        List<Resource> resourceList = new ResourceWalker().getResourceList("/agegroups", ResourceWalker::relativeName, null, new Locale(""));
         resourceList.sort((a, b) -> a.compareTo(b));
         ageGroupDefinitionSelect.setItems(resourceList);
         ageGroupDefinitionSelect.setValue(null);

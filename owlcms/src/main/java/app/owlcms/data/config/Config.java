@@ -119,6 +119,13 @@ public class Config {
 
     private String featureSwitches;
 
+    @Column(columnDefinition = "boolean default false")
+    private boolean localTemplatesOnly;
+
+    public void setLocalTemplatesOnly(boolean localTemplatesOnly) {
+        this.localTemplatesOnly = localTemplatesOnly;
+    }
+
     public String computeSalt() {
         this.setSalt(null);
         return Integer.toHexString(new Random(System.currentTimeMillis()).nextInt());
@@ -459,8 +466,8 @@ public class Config {
         if (getFeatureSwitches() == null) {
             return !trueIfPresent;
         }
-        String[] switches = getFeatureSwitches().split("[,; ]");
-        boolean present = Arrays.asList(switches).contains(string);
+        String[] switches = getFeatureSwitches().toLowerCase().split("[,; ]");
+        boolean present = Arrays.asList(switches).contains(string.toLowerCase());
         return trueIfPresent ? present : !present;
     }
 
@@ -479,6 +486,10 @@ public class Config {
 
     public boolean isOldScoreboards() {
         return featureSwitch("oldScoreboards", true);
+    }
+
+    public boolean isLocalTemplatesOnly() {
+        return this.localTemplatesOnly || featureSwitch("localTemplatesOnly", true);
     }
 
 }
