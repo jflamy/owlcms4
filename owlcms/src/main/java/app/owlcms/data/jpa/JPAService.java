@@ -125,16 +125,36 @@ public class JPAService {
         String schemaGeneration = reset ? "drop-and-create" : "update";
         boolean embeddedH2Server = false;
 
-        // Environment variables (set by the operating system or container)
-        String dbUrl = StartupUtils.getRawStringParam("JDBC_DATABASE_URL");
-        if (dbUrl == null) {
-            // fly.io format
-            dbUrl = StartupUtils.getRawStringParam("DATABASE_URL");
-        }
         String postgresHost = StartupUtils.getRawStringParam("POSTGRES_HOST");
         String userName = StartupUtils.getRawStringParam("JDBC_DATABASE_USERNAME");
         String password = StartupUtils.getRawStringParam("JDBC_DATABASE_PASSWORD");
 
+        // Environment variables (set by the operating system or container)
+
+        String flyUrl = StartupUtils.getRawStringParam("DATABASE_URL");
+        logger.warn("flyUrl {}", flyUrl);
+        if (flyUrl != null && !flyUrl.isBlank()) {
+            int ix = flyUrl.indexOf("//") + 2;
+            int ixEnd = flyUrl.indexOf(":", ix);
+            userName = flyUrl.substring(ix, ixEnd);
+            logger.warn("userName {}", userName);
+
+            ix = ixEnd + 1;
+            ixEnd = flyUrl.indexOf("@", ix);
+            password = flyUrl.substring(ix, ixEnd);
+            logger.warn("password {}", password);
+
+            ix = ixEnd + 1;
+            ixEnd = flyUrl.indexOf(":", ix);
+            postgresHost = flyUrl.substring(ix, ixEnd);
+            logger.warn("postgresHost {}", postgresHost);
+
+            properties = pgProperties(schemaGeneration, null, postgresHost, "5432", userName, userName,
+                    password);
+            return properties;
+        }
+
+        String dbUrl = StartupUtils.getRawStringParam("JDBC_DATABASE_URL");
         if (dbUrl != null && !dbUrl.isBlank()) {
             // explicit url provided
             if (inMemory || dbUrl.startsWith("jdbc:h2:mem")) {
@@ -150,7 +170,7 @@ public class JPAService {
             } else if (dbUrl.startsWith("jdbc:postgres")) {
                 properties = pgProperties(schemaGeneration, dbUrl, null, null, null, userName, password);
             } else if (dbUrl.startsWith("postgres")) {
-                properties = pgProperties(schemaGeneration, "jdbc:"+dbUrl, null, null, null, userName, password);
+                properties = pgProperties(schemaGeneration, "jdbc:" + dbUrl, null, null, null, userName, password);
             } else {
                 throw new RuntimeException("Unsupported database: " + dbUrl);
             }
@@ -207,7 +227,7 @@ public class JPAService {
             }
         }
     }
-    
+
     /**
      * Run in transaction.
      *
