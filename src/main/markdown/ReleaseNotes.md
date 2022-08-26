@@ -1,5 +1,6 @@
 > Recommended update if your current version is older than 4.33.4
 
+- 4.33.9-beta00: Experimental: adding DATABASE_URL parameter to test automatic connection to Postgres database if deploying on fly.io
 - 4.33.8: A new "local templates only" checkbox is added on the Languages and Settings page. If selected, the built-in Excel templates will not be listed in the dropdown lists. Only what is in the `local/templates` folder (or has been uploaded as a zip) with be shown. You can therefore remove files you don't use from local/templates and rename the templates to your local language if you wish. 
 - 4.33.8: fixed uploading of zip file containing local overrides to support zips with non-Latin file names (replaced the standard Java library with an improved one)
 - 4.33.7: fix processing of empty rows in record definition files. Added Examples for Masters and for different file formats to [Record Definition Examples](https://www.dropbox.com/sh/409fqybabjv6byt/AADZIcMxn2Q8epqiZQX3EQk4a?dl=0)

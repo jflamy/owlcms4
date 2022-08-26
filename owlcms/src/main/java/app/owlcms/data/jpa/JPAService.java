@@ -149,6 +149,8 @@ public class JPAService {
                 properties = h2ServerProperties(schemaGeneration, dbUrl, userName, password);
             } else if (dbUrl.startsWith("jdbc:postgres")) {
                 properties = pgProperties(schemaGeneration, dbUrl, null, null, null, userName, password);
+            } else if (dbUrl.startsWith("postgres")) {
+                properties = pgProperties(schemaGeneration, "jdbc:"+dbUrl, null, null, null, userName, password);
             } else {
                 throw new RuntimeException("Unsupported database: " + dbUrl);
             }
