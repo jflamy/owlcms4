@@ -127,6 +127,10 @@ public class JPAService {
 
         // Environment variables (set by the operating system or container)
         String dbUrl = StartupUtils.getRawStringParam("JDBC_DATABASE_URL");
+        if (dbUrl == null) {
+            // fly.io format
+            dbUrl = StartupUtils.getRawStringParam("DATABASE_URL");
+        }
         String postgresHost = StartupUtils.getRawStringParam("POSTGRES_HOST");
         String userName = StartupUtils.getRawStringParam("JDBC_DATABASE_USERNAME");
         String password = StartupUtils.getRawStringParam("JDBC_DATABASE_PASSWORD");

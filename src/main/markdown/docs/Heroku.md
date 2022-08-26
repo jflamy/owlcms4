@@ -2,14 +2,16 @@
 
 # Deploy OWLCMS on Heroku
 
-Heroku is a cloud service provider that provides an attractive free (0$) pricing plan for running programs like OWLCMS.  The installation process for Heroku is extremely simple and there is nothing whatsoever that needs to be installed on any of the laptops other than a browser.
+Heroku is a cloud service provider that provides an attractive pricing plan for running programs like OWLCMS.  The installation process for Heroku is extremely simple and there is nothing whatsoever that needs to be installed on any of the laptops other than a browser.  
 
-The free tier is fine for running club or regional competitions with about 50 athletes.  For larger competitions, you can run a meet for less than 10$ per day, see the [large competition instructions](HerokuLarge).
+There used to be a completely free plan, but this was discontinued in 2022. Because Heroku bills by the second, you can actually turn off your site when you don't use it.  By doing so the costs for preparing, running a competition and gathering the results is roughly 0.50 US$ per day.
+
+For larger competitions, you can run a meet for less than 10$ per day, see the [large competition instructions](HerokuLarge).
 
 **1. Create a free Heroku Account**
 
 - Go to page https://heroku.com
-- Create a free account.  Yes, it is free.  Remember the login and password information.
+- Create an account. Remember the login and password information.
 
 **2. Start the deployment process**
 

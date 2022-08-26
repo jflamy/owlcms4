@@ -1,10 +1,10 @@
-# Large Competition Setup on Heroku
+# Larger Competition Setup on Heroku
 
-Heroku is a cloud service that makes it easy to start from a free service for small competitions, but also support an affordable paid tier for larger meets.  In order to host a large competition, we need to update so the application gets dedicated and faster computing resources as well as more memory. 
+Heroku is a cloud service that makes it easy to start from a very affordable service for small competitions, but also support a still affordable tier for larger meets.  In order to host a large competition, we need to update so the application gets dedicated and faster computing resources as well as more memory. 
 
-As an order of magnitude, running a large 2-day national competition would cost something like 20 US$  You can create your application as a free setup, and scale it up to high-capacity, then scale it down back to the free tier when you are done (or delete it).  Pricing is by second, based on the actual elapsed time the application is running.
+As an order of magnitude, running a large national competition would cost something like 2US$ per day (from the time you scale it up to the higher performance mode).  You can create your application as a hobby-level setup, and scale it up to high-capacity, then scale it down back to the hobby tier when you are done. To stop billing, you can turn off the application (scale it to 0), or delete it.  Pricing is by second, based on the actual elapsed time the application is running.
 
-> The key thing when using paid tiers is to *scale down* when done, otherwise billing continues. See the [Scale Down](#scale-down) section below
+> The key thing when using paid tiers is to *scale down* when done, otherwise billing continues. See the [Scale Down](#scale-down) section below for details.
 
 ## Initial Setup
 
@@ -26,11 +26,11 @@ These steps are needed a few hours before the competition.  They will cause the 
       ![20](img/Heroku/20.png)
    
    3. Select "Standard-2X" as the performance level by clicking on the hexagon and dropping in the menu.  This will give us the memory we need.
-     ![2x](img\Heroku\30.png)
+       ![2x](img\Heroku\30.png)
    
    4. **IMPORTANT**: **DO NOT CHANGE THE DYNO COUNT**.  **The value should be 1** (actually the only other value you can use is 0 to turn off the application).  
-     Values larger than 1 are not needed, do not help in any way, and actually cause problems.
-     ![dynocount](img\Heroku\35.png)
+       Values larger than 1 are not needed, do not help in any way, and actually cause problems.
+       ![dynocount](img\Heroku\35.png)
    
 
 ## Scale-down
