@@ -21,7 +21,7 @@ For larger competitions, you can run a very large meet for less than 10$ per day
 
 Click on this purple button to start installation of owlcms on Heroku cloud.
 
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/owlcms/owlcms-heroku-prerelease)
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/owlcms/owlcms-heroku)
 
 **2. Name your application and deploy**
 
