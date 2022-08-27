@@ -15,6 +15,7 @@
         <mapEntry key="OWLCMS_MQTTUSERNAME" value="owlcms"/>
         <mapEntry key="OWLCMS_PIN" value=""/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
+        <mapEntry key="OWLCMS_REMOTE" value="http://127.0.0.1:8082/update"/>
         <mapEntry key="OWLCMS_RESETMODE" value="false"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="thisisaverylongsecretstring"/>
         <mapEntry key="_JDBC_DATABASE_PASSWORD" value="owlcms"/>
@@ -24,7 +25,6 @@
         <mapEntry key="_OWLCMS_MQTTPASSWORD" value="xFVaFVLcM79IzhyBFV4wWlfs7zmIXSKm"/>
         <mapEntry key="_OWLCMS_MQTTSERVER" value="msawmg.stackhero-network.com"/>
         <mapEntry key="_OWLCMS_MQTTUSERNAME" value="jflamy-dev"/>
-        <mapEntry key="_OWLCMS_REMOTE" value="http://127.0.0.1:8082/update"/>
     </mapAttribute>
     <mapAttribute key="org.eclipse.debug.core.preferred_launchers">
         <mapEntry key="[debug]" value="org.eclipse.jdt.launching.localJavaApplication"/>

@@ -1,19 +1,12 @@
-- 4.33.9-beta0x: Experimental: adding DATABASE_URL parameter to test automatic connection to Postgres database if deploying on fly.io
+- 4.33.9-rc01: Cloud Support Changes
+  - Added instructions for using [fly.io](https://fly.io) as a cloud provider. owlcms detects and connects to the postgres database provided by fly.io .
+  - Adjusted instructions for using Heroku now that there is no longer a free tier.
 - 4.33.8: A new "local templates only" checkbox is added on the Languages and Settings page. If selected, the built-in Excel templates will not be listed in the dropdown lists. Only what is in the `local/templates` folder (or has been uploaded as a zip) with be shown. You can therefore remove files you don't use from local/templates and rename the templates to your local language if you wish. 
-- 4.33.8: fixed uploading of zip file containing local overrides to support zips with non-Latin file names (replaced the standard Java library with an improved one)
-- 4.33.7: fix processing of empty rows in record definition files. Added Examples for Masters and for different file formats to [Record Definition Examples](https://www.dropbox.com/sh/409fqybabjv6byt/AADZIcMxn2Q8epqiZQX3EQk4a?dl=0)
-- 4.33.6: fix missing decision reminder when using phone or tablet
-- 4.33.6: wait for the actual 1/2/3/all button press to inform announcer that referee has been summoned
-- 4.33.6: new translation string for break management dialog, new language translations
-- 4.33.6: usability: more consistent naming of window tabs for group results
-- 4.33.6: small bug fixes when reading record definition files with U age groups.
-- Documented and cleaned-up processing of database environment variables
-- Log file now contains specific location of errors found when reading the record definition files. (#514)
-- Recommended update: Fix for possible birth date errors (one day early) on laptop installations
+- 4.33.7: Examples for Masters and for different file formats to [Record Definition Examples](https://www.dropbox.com/sh/409fqybabjv6byt/AADZIcMxn2Q8epqiZQX3EQk4a?dl=0)
+- 4.33.6: fixes for jury summoning referees and for referre reminders
+- **Recommended update if current version older than 4.33.4:** Fix for possible birth date errors (one day early) on laptop installations
   - Due to a bug in the way the H2 database driver stores dates that have no time zone (#513),  the birth date of the athletes would, in some time zones, be converted to the day before.
-- Current Athlete view layout now displays correctly on 1280 (720p TV), 1366 (common laptops) and 1920 (HD TV) resolutions.
 - A public-facing view decisions display has been added to the streaming-oriented displays, for convenience.  Currently this is the same as cropping the top-right corner of the scoreboard. In the future there might be options to just have the timer and the decisions.
-- Security update for postgresql JDBC driver.
 
 ##### Highlights from recent stable releases
 
