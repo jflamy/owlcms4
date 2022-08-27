@@ -32,5 +32,5 @@ If you want to run the program in the cloud, you will need to perform the change
 
 ### Access Control
 
-Refer to the [Cloud](Cloud) and [Public Scoreboard](Remote) pages for details on how these features work.
+Refer to the [Heroku](Heroku) or the [Fly](Fly) pages for details on how these features work.
 

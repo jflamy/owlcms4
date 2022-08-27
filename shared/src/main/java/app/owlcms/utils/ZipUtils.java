@@ -113,7 +113,7 @@ public class ZipUtils {
             ArchiveEntry archiveEntry = null;
             while ((archiveEntry = archiveInputStream.getNextEntry()) != null) {
                 String name = archiveEntry.getName();
-                logger.debug("reading {}", name);
+                logger.warn("reading {}", name);
                 // ignore directory entries, only process files.
                 if (!name.endsWith("/")) {
                     final String prefix = "local/";

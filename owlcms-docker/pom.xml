@@ -128,9 +128,9 @@
                                 </assembly>
                                 <entryPoint>
                                     <arg>java</arg>
-                                    <arg>-Djava.net.preferIPv4Stack=true</arg>
-                                    <arg>-Dcom.sun.management.jmxremote.ssl=false</arg>
-                                    <arg>-Dcom.sun.management.jmxremote.authenticate=false</arg>
+<!--                                     <arg>-Djava.net.preferIPv4Stack=true</arg> -->
+<!--                                     <arg>-Dcom.sun.management.jmxremote.ssl=false</arg> -->
+<!--                                     <arg>-Dcom.sun.management.jmxremote.authenticate=false</arg> -->
                                     <arg>-cp</arg>
                                     <arg>maven/classes:/maven/owlcms-${project.version}.jar</arg>
                                     <arg>app.owlcms.Main</arg>
@@ -151,9 +151,9 @@
                                 </assembly>
                                 <entryPoint>
                                     <arg>java</arg>
-                                    <arg>-Djava.net.preferIPv4Stack=true</arg>
-                                    <arg>-Dcom.sun.management.jmxremote.ssl=false</arg>
-                                    <arg>-Dcom.sun.management.jmxremote.authenticate=false</arg>
+<!--                                     <arg>-Djava.net.preferIPv4Stack=true</arg> -->
+<!--                                     <arg>-Dcom.sun.management.jmxremote.ssl=false</arg> -->
+<!--                                     <arg>-Dcom.sun.management.jmxremote.authenticate=false</arg> -->
                                     <arg>-cp</arg>
                                     <arg>maven/classes:/maven/publicresults-${project.version}.jar</arg>
                                     <arg>app.owlcms.publicresults.Main</arg>
