@@ -1,9 +1,9 @@
-- 4.33.9-rc01: Cloud Support Changes
-  - Added instructions for using [fly.io](https://fly.io) as a cloud provider. owlcms detects and connects to the postgres database provided by fly.io .
-  - Adjusted instructions for using Heroku now that there is no longer a free tier.
+- 4.33.9: Cloud Support Changes
+  - Added [instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Fly) for using [fly.io](https://fly.io) as a cloud provider. owlcms now automatically detects and uses the postgres database provided by fly.io .
+  - Adjusted [instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Heroku) for using Heroku now that there is no longer a free tier.
 - 4.33.8: A new "local templates only" checkbox is added on the Languages and Settings page. If selected, the built-in Excel templates will not be listed in the dropdown lists. Only what is in the `local/templates` folder (or has been uploaded as a zip) with be shown. You can therefore remove files you don't use from local/templates and rename the templates to your local language if you wish. 
 - 4.33.7: Examples for Masters and for different file formats to [Record Definition Examples](https://www.dropbox.com/sh/409fqybabjv6byt/AADZIcMxn2Q8epqiZQX3EQk4a?dl=0)
-- 4.33.6: fixes for jury summoning referees and for referre reminders
+- 4.33.6: fixes for jury summoning referees and for decision reminders
 - **Recommended update if current version older than 4.33.4:** Fix for possible birth date errors (one day early) on laptop installations
   - Due to a bug in the way the H2 database driver stores dates that have no time zone (#513),  the birth date of the athletes would, in some time zones, be converted to the day before.
 - A public-facing view decisions display has been added to the streaming-oriented displays, for convenience.  Currently this is the same as cropping the top-right corner of the scoreboard. In the future there might be options to just have the timer and the decisions.
