@@ -149,9 +149,10 @@ Windows installation is done with PowerShell, which is installed by default on a
 - Find Powershell by clicking on the start menu and typing `powershell`
 
 - Right-click on the `Windows PowerShell` icon that appears in the search results at the left, and select `Run as administrator`
+
   ![PowerShell](img/Fly.io/PowerShell.png ':size=500')
 
-- Then paste the creation command.
+- Then paste the application creation command.
 
   ```
   iwr https://fly.io/install.ps1 -useb | iex 
