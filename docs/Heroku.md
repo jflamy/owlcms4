@@ -4,44 +4,44 @@
 
 Heroku is a cloud service provider that provides an attractive pricing plan for running programs like OWLCMS.  The installation process for Heroku is extremely simple and there is nothing whatsoever that needs to be installed on any of the laptops other than a browser.  
 
-There used to be a completely free plan, but this was discontinued in 2022. Because Heroku bills by the second, you can actually turn off your site when you don't use it.  By doing so the costs for preparing, running a competition and gathering the results is roughly 0.50 US$ per day.
+There used to be a completely free plan, but this was discontinued in 2022. Because Heroku bills by the second, you can actually turn off your site when you don't use it.  By doing so the costs for preparing, running a competition and gathering the results is roughly 0.50 US$ per day.  You can then stop billing (see the [Stopping and Resuming Billing](#stopping-and-resuming-billing) section below)
 
-For larger competitions, you can run a meet for less than 10$ per day, see the [large competition instructions](HerokuLarge).
+For larger competitions, you can run a very large meet for less than 10$ per day, see the [large competition instructions](HerokuLarge).  The instructions explain how to go back to the more economical setting afterwards  (or you can stop billing)
 
-**1. Create a free Heroku Account**
+### Preparation Step
+
+**1. Create a Heroku Account**
 
 - Go to page https://heroku.com
 - Create an account. Remember the login and password information.
 
-**2. Start the deployment process**
+### Install owlcms
+
+**1. Start the deployment process**
 
 Click on this purple button to start installation of owlcms on Heroku cloud.
 
 [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/owlcms/owlcms-heroku-prerelease)
 
-**3. Name your application and deploy**
+**2. Name your application and deploy**
 
 Enter the name that will be used by the officials.  Once you are done start the deployment (this will prepare the application and make it available)
 
 ![020_selectName](img/Heroku/020_selectName.png)
 
-**4. Check correct deployment**
+**3. Check correct deployment**
 
 ![030_deployApp](img/Heroku/030_deployApp.png)
 
-**5. Go to the application**
+**4. Go to the application**
 
 ![040_success](img/Heroku/040_success.png)
 
-**6. Time zone configuration**
+**5. Time zone configuration**
 
 Heroku data centers run on universal time by default (UTC).  So the times appearing in the intermission timers will be wrong, for instance.  You will therefore need to [set the competition time zone](Preparation#time-zone) according to the published schedule when  entering the competition information.
 
-## Check for updates
-
-Once you have created the application once, you can download a program that will check for updates and remote control Heroku to grab them.   See [Instructions](https://github.com/owlcms/owlcms-heroku-updater) and [Releases · owlcms/owlcms4-heroku-updater (github.com)](https://github.com/owlcms/owlcms4-heroku-updater/releases)
-
-## Control access to the application
+### Control access to the application
 
 In a gym setting, people can read the web addresses on the screens, and one day, some "funny" person will log in to the system and be tempted to mess things up.
 - We suggest that you set a PIN or Password that officials will be required to type when first logging in.  This is done on via the `Prepare Competition` page, using the `Language and System Settings` button.
@@ -61,6 +61,32 @@ In a gym setting, people can read the web addresses on the screens, and one day,
   
 - If you have set a password, you may need to set the OWLCMS_BACKDOOR variable to avoid entering passwords on the screens used for video broadcasting.
 
-## Configuration Parameters
+### Stopping and Resuming Billing
 
-See the [Configuration Parameters](./Configuration.md ':include') page to see additional configuration options in addition to the ones presented on this page.
+> The easiest way to stop billing is to actually to delete the application from the Heroku page.   This is not as bad as it seems, because the installation process is very quick. This also ensures that you have the latest version the next time around.
+
+In order to stop billing *without* uninstalling the application, you need to install a command interface from [this page](https://devcenter.heroku.com/articles/heroku-cli). NOTE: you can IGNORE the prerequisite about `git`. It is NOT needed for our purpose.
+
+- First, start a command line window and type
+
+  ```
+  heroku login
+  ```
+
+- In order to stop billing on your application "myowlcms" (use your own name)
+
+  ```
+  heroku scale web:0 -a myowlcms
+  ```
+
+  Repeat with any other app you may have (for example, if you have installed publicresults)
+
+- In order to restart the application
+
+  ```
+  heroku scale web:1 -a myowlcms
+  ```
+
+### Scaling Up or Down
+
+In order to run a very large competition (say over 100 athletes), you may want to allocate more memory and use a larger CPU.  You can run a very large meet for less than 10$ per day, by changing the settings as explained in [large competition instructions](HerokuLarge).  The instructions explain how to go back to the more economical setting afterwards  (or you can stop billing)
