@@ -132,22 +132,22 @@ public class JPAService {
         // Environment variables (set by the operating system or container)
 
         String flyUrl = StartupUtils.getRawStringParam("DATABASE_URL");
-        logger.warn("flyUrl {}", flyUrl);
+        //logger.debug("flyUrl {}", flyUrl);
         if (flyUrl != null && !flyUrl.isBlank()) {
             int ix = flyUrl.indexOf("//") + 2;
             int ixEnd = flyUrl.indexOf(":", ix);
             userName = flyUrl.substring(ix, ixEnd);
-            logger.warn("userName {}", userName);
+            //logger.debug("userName {}", userName);
 
             ix = ixEnd + 1;
             ixEnd = flyUrl.indexOf("@", ix);
             password = flyUrl.substring(ix, ixEnd);
-            logger.warn("password {}", password);
+            //logger.debug("password {}", password);
 
             ix = ixEnd + 1;
             ixEnd = flyUrl.indexOf(":", ix);
             postgresHost = flyUrl.substring(ix, ixEnd);
-            logger.warn("postgresHost {}", postgresHost);
+            //logger.debug("postgresHost {}", postgresHost);
 
             properties = pgProperties(schemaGeneration, null, postgresHost, "5432", userName, userName,
                     password);
