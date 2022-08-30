@@ -15,7 +15,7 @@
     <distributionManagement>
         <repository>
             <id>owlcms-maven-repo</id>
-            <url>http://maven.lerta.ca:8088/releases</url>
+            <url>http://maven.lerta.ca:8880/releases</url>
         </repository>
     </distributionManagement>
 
