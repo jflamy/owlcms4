@@ -179,6 +179,10 @@ public class StartupUtils {
 
     public static void startBrowser() {
         try {
+            if (getBooleanParam("publicDemo")) {
+                logger.warn("public demo, not starting browser");
+                return;
+            }
             InetAddress localMachine = InetAddress.getLocalHost();
             String hostName = localMachine.getHostName();
             Desktop desktop = null;

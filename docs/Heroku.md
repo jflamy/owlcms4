@@ -21,7 +21,7 @@ For larger competitions, you can run a very large meet for less than 10$ per day
 
 Click on this purple button to start installation of owlcms on Heroku cloud.
 
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/owlcms/owlcms-heroku)
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/jflamy-dev/owlcms-heroku-prerelease)
 
 **2. Name your application and deploy**
 
@@ -61,6 +61,46 @@ In a gym setting, people can read the web addresses on the screens, and one day,
   
 - If you have set a password, you may need to set the OWLCMS_BACKDOOR variable to avoid entering passwords on the screens used for video broadcasting.
 
+### Install the Public Results Scoreboard (optional)
+
+The public results scoreboard is an optional module.  It allows people with internet access to follow the competition scoreboard.  This can be the coaches using in a tablet in the warmup room, people in the audience, or people watching a live stream of the competition.
+
+See [this page](PublicResults) for details.
+
+The process is the same as for the owlcms application
+
+1. Click on the purple button below to start the installation of the public scoreboard on Heroku Cloud.
+
+   [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/jflamy-dev/publicresults-heroku-prerelease)
+
+2. Enter your Heroku account (or create one if you haven't)
+
+3. Enter a meaningful application name.  In the following example, we use `owlcms-test-publicresults` We will later use `owlcms-test-publicresults.herokuapp.com`  to see the results.  You should use a name that makes sense to your club or federation.
+
+   *(Reminder: You can click on the images to make them bigger)*
+
+   ![020_appName](img/PublicResults/020_appName.png)
+
+4. Deploy the application. This will fetch the application, install it, and make it available to the public.
+   ![030_deploy](img/PublicResults/030_deploy.png)
+
+5. You can check that the application is running by starting a new browser tab. In our example, we connect to `https://owlcms-test-publicresults.herokuapp.com`.  Since we have not yet connected owlcms to feed publicresults, you will see this screen.
+   ![032_viewApp1](img/PublicResults/032_viewApp1.png)
+
+6. We now need to configure a secret code to keep communications secure between the competition site and the publicresults repeater.  Go to the `Settings` page for the application.
+   ![040_configureServerKey](img/PublicResults/040_configureServerKey.png)
+7. Create configuration variable `OWLCMS_UPDATEKEY` and set it to the secret key that will be shared with owlcms.  **Use something easy to type, but quite long**, and not easily guessed.  The  password to your Heroku account and the update key is what prevents vandals from messing up your scoreboards.  Do not share them, and make sure they cannot be guessed easily.
+   ![ljyvckBm6F](img/PublicResults/Example/ljyvckBm6F.png)
+8. Copy the value for the update key (Ctrl-C)
+
+9. Restart the publicresults application
+   ![6Ihs0ei0Ad](img/PublicResults/Example/6Ihs0ei0Ad.png)
+
+10. Start a new browser tab and go to the address for the application (or you can use the `Open app` button at the top right) and check that the application is again waiting.
+    ![AAAxZYQKZK](img/PublicResults/Example/AAAxZYQKZK.png)
+
+11. You now need to connect the two applications together, so that publicresults receives updates from owlcms.  See [this page](PublicResults) for instructions.
+
 ### Stopping and Resuming Billing
 
 > The easiest way to stop billing is to actually to delete the application from the Heroku page.   This is not as bad as it seems, because the installation process is very quick. This also ensures that you have the latest version the next time around.
@@ -73,10 +113,10 @@ In order to stop billing *without* uninstalling the application, you need to ins
   heroku login
   ```
 
-- In order to stop billing on your application "myowlcms" (use your own name)
+- In order to stop billing on your application "myclub" (use your own name).  The same apply for myclub-results
 
   ```
-  heroku scale web:0 -a myowlcms
+  heroku scale web:0 -a myclub
   ```
 
   Repeat with any other app you may have (for example, if you have installed publicresults)

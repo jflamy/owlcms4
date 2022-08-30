@@ -24,8 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.Executors;
@@ -86,6 +84,7 @@ import app.owlcms.uievents.EventForwarder;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.JuryNotification;
+import app.owlcms.utils.DelayTimer;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
@@ -104,26 +103,6 @@ import elemental.json.JsonValue;
  * @author owlcms
  */
 public class FieldOfPlay {
-
-    private class DelayTimer {
-        private final Timer t = new Timer();
-
-        public TimerTask schedule(final Runnable r, long delay) {
-            if (isTestingMode()) {
-                r.run();
-                return null;
-            } else {
-                final TimerTask task = new TimerTask() {
-                    @Override
-                    public void run() {
-                        r.run();
-                    }
-                };
-                t.schedule(task, delay);
-                return task;
-            }
-        }
-    }
 
     public static final long DECISION_VISIBLE_DURATION = 3500;
 

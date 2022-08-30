@@ -11,17 +11,15 @@ The following example shows owlcms running standalone in a gym, sending informat
 
 The other common configuration is when both owlcms and publicresults are in the cloud,  That scenario is discussed [here](VirtualOverview).
 
-### Installing the Public Scoreboard Module
+## Install publicresults
 
-There are three ways to install public results
+There are three ways to install and run publicresults.  The first two options are usual, since the purpose is normally go give access to all persons in attendance and all persons live streaming.
 
-1. In the Heroku cloud.  Refer to [this page](Heroku) for instructions.
-2. In the Fly.io cloud. Refer to [this page](Fly) for instructions.
-3. Locally.  Download the publicresults.exe file from the results directory.  See [this page]() for discussion.
+1. Install it on the Heroku cloud.  See [this page](Heroku) for details
+2. Install it on the Fly.io cloud.  See [this page](Fly) for details.
+3. Install it locally.  See [this page](PublicResults_Local) for details.
 
-### Configure Updates from owlcms
-
-At this stage, you should have configured your publicresults to have an OWLCMS_UPDATEKEY secret. 
+## Configure Updates from `owlcms`
 
 1. Open the owlcms application on Heroku and go to the `Prepare Competition` - `Language and System Settings ` page.
 
@@ -31,7 +29,7 @@ At this stage, you should have configured your publicresults to have an OWLCMS_U
 
      ![GkwHZ4ZHeW](img/PublicResults/Example/GkwHZ4ZHeW.png)
 
- ### Test the setup
+ ## Test the setup
 
 1. Create the athletes for a group
 
@@ -51,4 +49,8 @@ At this stage, you should have configured your publicresults to have an OWLCMS_U
 6. The publicresults screen immediately switches to the countdown.![X0qHw40LKh](img/PublicResults/Example/X0qHw40LKh.png)
 
 7. From then on, the publicresults screen will track the competition. It just repeats the events taking place on the local scoreboard.
+
+## Check for updates
+
+Once you have created the application once, you can download a program that will check for updates and remote control Heroku to grab them.   See [Instructions](https://github.com/jflamy-dev/owlcms-heroku-updater) and [Releases · owlcms/owlcms4-heroku-updater (github.com)](https://github.com/owlcms/owlcms4-heroku-updater/releases)
 

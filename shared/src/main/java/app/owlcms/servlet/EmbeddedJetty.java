@@ -79,6 +79,8 @@ public class EmbeddedJetty {
 
     private Runnable initData;
 
+    private Server server;
+
     public EmbeddedJetty(CountDownLatch latch) {
         this.setLatch(latch);
     }
@@ -116,7 +118,7 @@ public class EmbeddedJetty {
         servletContext.setExtendedListenerTypes(true);
         context.addEventListener(new ServletContextListeners());
 
-        Server server = new Server(port);
+        server = new Server(port);
         server.setHandler(context);
         ServletContextHandler scHandler = (ServletContextHandler) server.getHandler();
         scHandler.getServletHandler().addFilterWithMapping(HttpsEnforcer.class, "/*",
@@ -191,6 +193,13 @@ public class EmbeddedJetty {
 
     private void setLatch(CountDownLatch latch) {
         this.latch = latch;
+    }
+
+    public void stop() {
+        try {
+            server.stop();
+        } catch (Exception e) {
+        }
     }
 
 }

@@ -31,10 +31,15 @@ See the following instructions
 In this scenario, the owlcms software runs as a web site on the Internet, but it is your own private copy, with your own database.  All that is needed is a good internet connection from the competition site.
 
 - We provide instructions for two inexpensive cloud services
-  - For Heroku, there is an extremely simple one-click install. See [Heroku Cloud Installation Instructions](Heroku).  Current pricing is about 0.50 US$ per day when the application is active (when preparing and running a competition, the billing can be turned off the rest of the time.)
-  - A second cloud offering, fly.io, is also supported.  It is actually cheaper at 0.10 US$ per day when the application is active (the application can be turned off when not needed). The only minor drawback is that the initial installation requires typing a few commands. See the [Fly Cloud Installation Instructions](Fly).
+  - **Heroku**: For Heroku, there is an extremely simple one-click install. See [Heroku Cloud Installation Instructions](Heroku).  Current pricing is about 0.50 US$ per day when the application is active (when preparing and running a competition, the billing can be turned off the rest of the time.)
+  - **Fly.io**: A second cloud offering, fly.io, is also supported.  It is actually cheaper at 0.10 US$ per day when the application is active (the application can be turned off when not needed). The only minor drawback is that the initial installation requires typing a few commands. See the [Fly Cloud Installation Instructions](Fly).
 - All the various display screens and devices connect to the cloud using the competition site's network.
 - In the following diagram phones are shown as the referee device.  But you can actually referee using hand signals, flags, phones, or dedicated keypads (USB or Bluetooth). See [this page](Refereeing)
 
 ![Slide9](img/PublicResults/CloudExplained/Slide9.SVG)
 
+## Public Scoreboard
+
+A complementary module to owlcms allows anyone with Internet access to see the competition scoreboard.  This means that anyone in the audience with a phone can follow the scoreboard on site.  People watching live streaming or participating in a virtual competition can also see the scoreboard (including the countdown and decisions). And finally, coaches in the warmup room can be given a Wifi connection and watch the scoreboard on a tablet.
+
+See the [Public Scoreboard](PublicResults) page for more information.  Note that this module is normally installed in the cloud and its installation is covered in the [Heroku Cloud Installation Instructions](Heroku) and [Fly Cloud Installation Instructions](Fly).

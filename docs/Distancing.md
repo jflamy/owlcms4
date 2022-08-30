@@ -6,7 +6,7 @@ In order to provide individual scoreboards to coaches and allow them to stay on 
 
 Whenever possible,  Publicresults is installed in the cloud, and anyone can access it (coaches, athletes, even members of the public).  Publicresults gets its updates from owlcms.  No one other than the officials gets access to the competition system owlcms, to reduce the security risks.
 
-The cloud-based setup is explained in [this page](Remote).
+The cloud-based setup is explained in [this page](PublicResults).
 
 ![Slide2](img/PublicResults/CloudExplained/Slide10.SVG)
 

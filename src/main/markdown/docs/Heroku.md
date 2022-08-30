@@ -65,13 +65,13 @@ In a gym setting, people can read the web addresses on the screens, and one day,
 
 The public results scoreboard is an optional module.  It allows people with internet access to follow the competition scoreboard.  This can be the coaches using in a tablet in the warmup room, people in the audience, or people watching a live stream of the competition.
 
-See [this page](Remote) for details.
+See [this page](PublicResults) for details.
 
 The process is the same as for the owlcms application
 
-1. Click on the purple button below to start the installation on Heroku Cloud.
+1. Click on the purple button below to start the installation of the public scoreboard on Heroku Cloud.
 
-   [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/${env.REPO_OWNER}/${env.H_REPO_NAME})
+   [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/${env.REPO_OWNER}/${env.P_REPO_NAME})
 
 2. Enter your Heroku account (or create one if you haven't)
 
@@ -99,7 +99,7 @@ The process is the same as for the owlcms application
 10. Start a new browser tab and go to the address for the application (or you can use the `Open app` button at the top right) and check that the application is again waiting.
     ![AAAxZYQKZK](img/PublicResults/Example/AAAxZYQKZK.png)
 
-11. You now need to connect the two applications together, so that publicresults receives updates from owlcms.  See [this page](Remote) for instructions.
+11. You now need to connect the two applications together, so that publicresults receives updates from owlcms.  See [this page](PublicResults) for instructions.
 
 ### Stopping and Resuming Billing
 
