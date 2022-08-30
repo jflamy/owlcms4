@@ -1,3 +1,4 @@
+- 4.33.10-rc01: Documentation changes for fly.io;  other minor changes to avoid redundancies.
 - 4.33.9: Cloud Support Changes
   - Added [instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Fly) for using [fly.io](https://fly.io) as a cloud provider. owlcms now automatically detects and uses the postgres database provided by fly.io .
   - Adjusted [instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Heroku) for using Heroku now that there is no longer a free tier.
