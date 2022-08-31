@@ -4,18 +4,18 @@ Fly.io is a cloud service that is very affordable.  Running a small competition 
 
 Compared to Heroku, the only drawback is that the configuration is done from an application installed on the laptop, but this actually makes other things like updating easier. 
 
-### Think about application names
+### Choose Application Names
 
-All the names in fly.io are global.  You will be asked for two names;
+The application names in fly.io are global, so someone may have already used the name you want.  You will be asked for two names;
 
-- one for <u>owlcms</u> -- this is the one you will be using to setup the competition, and from the competition site.  If your club is named `myclub`,  you might pick `myclub-competition` as the name, and the URL will be `https://myclub-competition.fly.dev`.  Few people will use the name, so it can be a touch longer
-- one for the <u>public scoreboard</u>.  Whether you intend to use it immediately or not, it comes for free, so you might as well configure it.  This allows anyone in the world to watch the scoreboard, including the audience (useful if the scoreboard is small or faint).  Something like `myclub-results` makes sense as a name, and people would then use `https://myclub-results.fly.dev` to reach the scoreboard.
+- one for <u>owlcms</u> -- this is the one you will be using to setup the competition, and from the competition site.  If your club is named `myclub`,  you might pick `myclub-competition` as the name, and the URL would be `https://myclub-competition.fly.dev`
+- one for the <u>public scoreboard</u>.  Whether you intend to use it immediately or not, it comes for free, so you might as well configure it.  This allows anyone in the world to watch the scoreboard, including the audience (useful if the scoreboard is small or faint).  Something like `myclub-results` makes sense as a name, and people would then use `myclub-results.fly.dev` to reach the scoreboard from their phone.
 
-You should check that the names are free: type the URL in your browser, and if the name is still free, you will get an error saying the name could not be found.
+You should check that the names are free: type the URL in your browser. If you get a 404 Not Found error, then the name is still free and you can claim it.
 
 Note that if you own your own domain, you can add names under your own domain to reach the fly.io applications. After creating your applications, you will be able to go to the Certificates section on the dashboard and request free automatically renewed certificates for the desired aliases. 
 
-### Installation
+### Install
 
 1. Install the `flyctl` tool (`fly` for short) as explained on [this page](https://fly.io/docs/hands-on/installing/).  You can install it on a Mac, Linux, or Windows. 
 
@@ -34,16 +34,17 @@ Note that if you own your own domain, you can add names under your own domain to
    fly auth login
    ```
    
-4. Create two installation directories.  Each application needs one for its configuration file. 
+4. Go to the location where you want to keep your application configurations.  In this example the `cd` command brings us to our home directory. Then we create two installation directories, because we will be creating two applications (owlcms and its complementary module, publicresults)
 
    ```
-mkdir owlcms_config
+cd
+   mkdir owlcms_config
    mkdir results_config
    ```
    
 5. install owlcms and give it enough memory.
 
-   > Answer `y` (YES) when asked if you want a Postgres database.  This is required for owlcms to store its data.  Postgres fits in the free tier, so the only charge is for the additional memory on owlcms.
+   *<u>Answer `y`</u> (YES) when asked if you want a Postgres database.  This is required for owlcms to store its data.  Postgres fits in the free tier, so the only charge is for the additional memory on owlcms.*
 
    ```
    fly launch --image owlcms/owlcms:latest --path owlcms_config
@@ -53,7 +54,7 @@ mkdir owlcms_config
 
 5. Install public results.
    
-   > <u>Answer `n`</u> (NO) when asked if you want a Postgres database.  publicresults does not need a database.  It does not need additional memory, so it runs in the free tier (0$)
+   *<u>Answer `n`</u> (NO) when asked if you want a Postgres database.  publicresults does not need a database.  It does not need additional memory, so it runs in the free tier (0$)*
 
    ```
    fly launch --image owlcms/publicresults:latest --path results_config
@@ -72,16 +73,17 @@ mkdir owlcms_config
 
 ### Updating
 
-owlcms and publicresults are packaged as Docker images. The `fly deploy` command fetches the newest version available from the public hub.docker.com repository and restarts the application using the current `fly.toml` configuration.   Note that the applications must first be scaled running before they can be updated.
+owlcms and publicresults are packaged as Docker images. The `fly deploy` command fetches the newest version available from the public hub.docker.com repository and restarts the application using the current `fly.toml` configuration.   The `cd` command brings us back to the home directory, which is where we created our configs in the initial installation.
 
    ```
+cd
 fly deploy --config owlcms_config/fly.toml
 fly deploy --config results_config/fly.toml
    ```
 
 ### Using pre-releases
 
-In order to switch to a prerelease, edit the `fly.toml` configuration files.  Change the image name to use `prerelease` instead of `latest`.  Then run the 
+In order to switch to a prerelease, edit the `fly.toml` configuration files.  Change the image name to use `prerelease` instead of `latest`.  Then run the  `fly deploy` command.
 
 ### Stopping and Resuming Billing
 
@@ -89,9 +91,10 @@ The nice thing about cloud services is that they are billed according to actual 
 
 You can run the commands from any command shell you have.
 
-1. If you want to stop the applications (and stopped being billed) -- use your own application names.
+1. If you want to stop the applications (and stopped being billed) 
 
    ```
+   cd
    fly scale count 0 --config owlcms_config/fly.toml
    fly scale count 0 --config results_config/fly.toml
    ```
@@ -100,6 +103,7 @@ You can run the commands from any command shell you have.
 2. If you then want to start using the applications again, scale them back up to 1. <u>Do NOT use any other value than 0 or 1</u>.
 
    ```
+   cd
    fly scale count 1 --config owlcms_config/fly.toml
    fly scale count 1 --config results_config/fly.toml
    ```
@@ -112,17 +116,18 @@ For a larger competition, you might want to give owlcms a dedicated virtual mach
 
 > NOTE: scaling the memory must be done after scaling the vm because default sizes are re-applied.
 
-1. Make the application bigger.   Use the name of your application instead of myclub-competition.
+1. Make the application bigger. 
 
    ```
+   cd
    fly scale vm dedicated-cpu-1x --config owlcms_config/fly.toml
    fly scale memory 1024 --config owlcms_config/fly.toml
-   
    ```
    
 2. Revert to cheaper settings: make the application smaller, use a smaller computer, and either shut it down (count 0) or leave it running (count 1)
 
    ```
+   cd
    fly scale vm shared-cpu-1x --config owlcms_config/fly.toml
    fly scale memory 512 --config owlcms_config/fly.toml
    fly scale count 0 --config owlcms_config/fly.toml

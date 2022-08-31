@@ -121,7 +121,7 @@ public class Main {
                 try {
                     embeddedJetty.run(serverPort, "/");
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("cannot start server {}\\n{}",e,LoggerUtils.stackTrace(e));
                 }
 
             });
