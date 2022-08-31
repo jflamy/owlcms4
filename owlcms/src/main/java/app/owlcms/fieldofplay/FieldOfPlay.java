@@ -1368,7 +1368,7 @@ public class FieldOfPlay {
             recomputeLiftingOrder(true, true);
 
             // tell ourself to reset after 3 secs.
-            new DelayTimer().schedule(() -> {
+            new DelayTimer(isTestingMode()).schedule(() -> {
                 // fopEventPost(new DecisionReset(this));
                 if (reversalToGood) {
                     notifyRecords(newRecords, true);
@@ -1967,7 +1967,7 @@ public class FieldOfPlay {
         logger.trace("{}scheduling decision display", getLoggingName());
         assert !isDecisionDisplayScheduled(); // caller checks.
         setDecisionDisplayScheduled(true); // so there are never two scheduled...
-        new DelayTimer().schedule(() -> showDecisionNow(origin2), REVERSAL_DELAY);
+        new DelayTimer(isTestingMode()).schedule(() -> showDecisionNow(origin2), REVERSAL_DELAY);
 
     }
 
@@ -2007,13 +2007,13 @@ public class FieldOfPlay {
         recomputeLiftingOrder(true, true);
 
         // control timing of notifications
-        new DelayTimer().schedule(
+        new DelayTimer(isTestingMode()).schedule(
                 () -> {
                     notifyRecords(getNewRecords(), true);
                 }, 500);
         // tell ourself to reset after 3 secs.
         // Decision reset will handle end of group.
-        new DelayTimer().schedule(
+        new DelayTimer(isTestingMode()).schedule(
                 () -> {
                     fopEventPost(new DecisionReset(this));
                 }, DECISION_VISIBLE_DURATION);
