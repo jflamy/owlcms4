@@ -129,7 +129,7 @@ public class Main {
             if (!publicDemo) {
                 break;
             }
-            Thread.sleep(60 * 1000);
+            Thread.sleep(180 * 60 * 1000);
             logger.warn("restarting server");
             embeddedJetty.stop();
         }
