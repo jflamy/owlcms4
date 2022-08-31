@@ -9,7 +9,6 @@ parameters:
     type: string
     default: 'false'
 
-
 variables:
   # overrides pom.xml; must be unique if BuildGoal is set to deploy.
   - name: Revision
