@@ -7,13 +7,13 @@
         <listEntry value="1"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-        <mapEntry key="DATABASE_URL" value="postgres://owlcms:vRHnjjoWbuafl9H@top2.nearest.of.owlcms-db.internal:5432/owlcms"/>
         <mapEntry key="JDBC_DATABASE_PASSWORD" value="owlcmsX"/>
         <mapEntry key="JDBC_DATABASE_URL" value="jdbc:postgresql://localhost:5432/owlcms_db"/>
         <mapEntry key="JDBC_DATABASE_USERNAME" value="postgres"/>
         <mapEntry key="OWLCMS_BACKDOOR" value="192.168.2.44,127.0.0.1,[0:0:0:0:0:0:0:1]"/>
         <mapEntry key="OWLCMS_INITIALDATA" value="LARGEGROUP_DEMO"/>
         <mapEntry key="OWLCMS_RESETMODE" value="false"/>
+        <mapEntry key="_DATABASE_URL" value="not here"/>
         <mapEntry key="_OWLCMS_REMOTE" value="http://127.0.0.1:8081/update"/>
     </mapAttribute>
     <mapAttribute key="org.eclipse.debug.core.preferred_launchers">

@@ -132,30 +132,17 @@ public class JPAService {
         // Environment variables (set by the operating system or container)
 
         String flyUrl = StartupUtils.getRawStringParam("DATABASE_URL");
+        String dbUrl = StartupUtils.getRawStringParam("JDBC_DATABASE_URL");
+        boolean jdbcUrlPresent = dbUrl != null && !dbUrl.isBlank();
+        
         //logger.debug("flyUrl {}", flyUrl);
-        if (flyUrl != null && !flyUrl.isBlank()) {
-            int ix = flyUrl.indexOf("//") + 2;
-            int ixEnd = flyUrl.indexOf(":", ix);
-            userName = flyUrl.substring(ix, ixEnd);
-            //logger.debug("userName {}", userName);
-
-            ix = ixEnd + 1;
-            ixEnd = flyUrl.indexOf("@", ix);
-            password = flyUrl.substring(ix, ixEnd);
-            //logger.debug("password {}", password);
-
-            ix = ixEnd + 1;
-            ixEnd = flyUrl.indexOf(":", ix);
-            postgresHost = flyUrl.substring(ix, ixEnd);
-            //logger.debug("postgresHost {}", postgresHost);
-
-            properties = pgProperties(schemaGeneration, null, postgresHost, "5432", userName, userName,
-                    password);
-            return properties;
+        
+        // if JDBC_DATABASE_URL is available, don't parse DATABASE_URL
+        if (!jdbcUrlPresent && flyUrl != null && !flyUrl.isBlank() && flyUrl.startsWith("postgres:")) {
+            return parsePostgresUrl(schemaGeneration, flyUrl);
         }
 
-        String dbUrl = StartupUtils.getRawStringParam("JDBC_DATABASE_URL");
-        if (dbUrl != null && !dbUrl.isBlank()) {
+        if (jdbcUrlPresent) {
             // explicit url provided
             if (inMemory || dbUrl.startsWith("jdbc:h2:mem")) {
                 embeddedH2Server = true;
@@ -197,6 +184,37 @@ public class JPAService {
         }
 
         return properties;
+    }
+
+    private static Properties parsePostgresUrl(String schemaGeneration, String flyUrl) {
+        // this assumes the postgres format.
+        int ix = flyUrl.indexOf("//") + 2;
+        int ixEnd = flyUrl.indexOf(":", ix);
+        String userName1 = flyUrl.substring(ix, ixEnd);
+        logger.debug("userName {}", userName1);
+
+        ix = ixEnd + 1;
+        ixEnd = flyUrl.indexOf("@", ix);
+        String password1 = flyUrl.substring(ix, ixEnd);
+        logger.debug("password {}", password1);
+
+        ix = ixEnd + 1;
+        ixEnd = flyUrl.indexOf(":", ix);
+        String postgresHost1 = flyUrl.substring(ix, ixEnd);
+        logger.debug("postgresHost {}", postgresHost1);
+        
+        ix = ixEnd + 1;
+        ixEnd = flyUrl.indexOf("/", ix);
+        String postgresPort = flyUrl.substring(ix, ixEnd);
+        logger.debug("port {}", postgresPort);
+        
+        ix = ixEnd + 1;
+        String database = flyUrl.substring(ix);
+        logger.debug("database {}", database);
+
+        Properties properties1 = pgProperties(schemaGeneration, null, postgresHost1, postgresPort, database, userName1,
+                password1);
+        return properties1;
     }
 
     /**
