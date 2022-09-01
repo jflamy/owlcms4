@@ -23,15 +23,19 @@ import ch.qos.logback.classic.Logger;
  */
 public class SinclairCoefficients {
 
-    static Logger logger = (Logger) LoggerFactory.getLogger(SinclairCoefficients.class);
+    Logger logger = (Logger) LoggerFactory.getLogger(SinclairCoefficients.class);
 
-    static Double menCoefficient = null;
-    static Double menMaxWeight = null;
-    static Properties props = null;
-    static Double womenCoefficient = null;
-    static Double womenMaxWeight = null;
-    private static HashMap<Integer, Float> smf = null;
-    private static HashMap<Integer, Float> smhf = null;
+    Double menCoefficient = null;
+    Double menMaxWeight = null;
+    Properties props = null;
+    Double womenCoefficient = null;
+    Double womenMaxWeight = null;
+    private HashMap<Integer, Float> smf = null;
+    private HashMap<Integer, Float> smhf = null;
+
+    public SinclairCoefficients(int i) {
+        // TODO Auto-generated constructor stub
+    }
 
     /**
      * @param age
@@ -39,7 +43,7 @@ public class SinclairCoefficients {
      * @throws IOException
      */
     @SuppressWarnings("incomplete-switch")
-    public static Float getSMMCoefficient(Integer age, Gender gender) {
+    public Float getAgeGenderCoefficient(Integer age, Gender gender) {
         switch (gender) {
         case F:
             if (smhf == null) {
@@ -70,7 +74,7 @@ public class SinclairCoefficients {
     /**
      * @return
      */
-    public static Double menCoefficient() {
+    public Double menCoefficient() {
         if (menCoefficient == null) {
             loadCoefficients();
         }
@@ -80,7 +84,7 @@ public class SinclairCoefficients {
     /**
      * @return
      */
-    public static Double menMaxWeight() {
+    public Double menMaxWeight() {
         if (menMaxWeight == null) {
             loadCoefficients();
         }
@@ -90,7 +94,7 @@ public class SinclairCoefficients {
     /**
      * @return
      */
-    public static Double womenCoefficient() {
+    public Double womenCoefficient() {
         if (womenCoefficient == null) {
             loadCoefficients();
         }
@@ -100,14 +104,14 @@ public class SinclairCoefficients {
     /**
      * @return
      */
-    public static Double womenMaxWeight() {
+    public Double womenMaxWeight() {
         if (womenMaxWeight == null) {
             loadCoefficients();
         }
         return womenMaxWeight;
     }
 
-    private static void loadCoefficients() {
+    private void loadCoefficients() {
         if (props == null) {
             loadProps();
         }
@@ -120,7 +124,7 @@ public class SinclairCoefficients {
     /**
      * @throws IOException
      */
-    private static void loadProps() {
+    private void loadProps() {
         props = new Properties();
         try {
             InputStream stream = ResourceWalker.getResourceAsStream("/sinclair/sinclair.properties");
@@ -134,7 +138,7 @@ public class SinclairCoefficients {
      * @return
      * @throws IOException
      */
-    private static HashMap<Integer, Float> loadSMM() {
+    private HashMap<Integer, Float> loadSMM() {
 
         if (props == null) {
             loadProps();
