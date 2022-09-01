@@ -1,4 +1,4 @@
-- 4.33.11: Database location parsing was broken for Heroku in releases 33.9 and 33.10. We now  give precedence to JDBC_DATABASE_URL over DATABASE_URL if both are present (as is the case on Heroku). Parsing of DATABASE_URL was also fixed for completeness.
+- 4.33.11: Database location parsing was broken for Heroku in releases 4.33.9 and 4.33.10. We now  give precedence to JDBC_DATABASE_URL over DATABASE_URL if both are provided (as is the case on Heroku). Parsing of DATABASE_URL was also fixed for completeness.
 - 4.33.10: Cloud documentation reorganized to avoid redundancies and increase visibility of publicresults.
 - 4.33.9: Cloud Support Changes
   - Added [instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Fly) for using [fly.io](https://fly.io) as a cloud provider. owlcms now automatically detects and uses the postgres database provided by fly.io .
