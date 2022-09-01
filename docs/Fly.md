@@ -44,7 +44,7 @@ cd
    
 5. install owlcms and give it enough memory.
 
-   *<u>Answer `y`</u> (YES) when asked if you want a Postgres database.  This is required for owlcms to store its data.  Postgres fits in the free tier, so the only charge is for the additional memory on owlcms.*
+   **Answer `y` (YES) ** when asked if you want a Postgres database.  This is required for owlcms to store its data.  Postgres also fits in the free tier, so the only charge is for the additional memory on owlcms.
 
    ```
    fly launch --image owlcms/owlcms:latest --path owlcms_config
@@ -54,7 +54,7 @@ cd
 
 5. Install public results.
    
-   *<u>Answer `n`</u> (NO) when asked if you want a Postgres database.  publicresults does not need a database.  It does not need additional memory, so it runs in the free tier (0$)*
+   **Answer `n` (NO)** when asked if you want a Postgres database.  publicresults does not need a database.  It does not need additional memory and it runs in the free tier (0$)
 
    ```
    fly launch --image owlcms/publicresults:latest --path results_config
