@@ -21,7 +21,7 @@ For larger competitions, you can run a very large meet for less than 10$ per day
 
 Click on this purple button to start installation of owlcms on Heroku cloud.
 
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/jflamy-dev/owlcms-heroku-prerelease)
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/owlcms/owlcms-heroku-prerelease)
 
 **2. Name your application and deploy**
 
@@ -71,7 +71,7 @@ The process is the same as for the owlcms application
 
 1. Click on the purple button below to start the installation of the public scoreboard on Heroku Cloud.
 
-   [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/jflamy-dev/publicresults-heroku-prerelease)
+   [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/owlcms/publicresults-heroku-prerelease)
 
 2. Enter your Heroku account (or create one if you haven't)
 
