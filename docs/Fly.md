@@ -1,122 +1,136 @@
 # Installation on fly.io
 
-Fly.io is a cloud service that is very affordable.  Running a small competition would cost less than 10 cents per day, and large national competition would cost something like 1US$ per day.  You can scale up or down as you wish, and turn off the application to stop paying. See the [Stopping and Resuming Billing](#stopping-and-resuming-billing) section below.
+Fly.io is a cloud service that is very affordable.  Running a small competition should cost less than 10 cents per day, and very large national competition should cost something like 1.50 US$ per day.  You can scale up or down as you wish, and turn off the application to stop paying. See the [Stopping and Resuming Billing](#stopping-and-resuming-billing) section below.
 
-Compared to Heroku, the only drawback is that the configuration is done from an application installed on the laptop, but other things like updating are actually easier. 
+Compared to Heroku, the only drawback is that the configuration is done from an application installed on the laptop, but this actually makes other things like updating easier. 
 
-### First-time-only Preparation
+### Choose Application Names
 
-1. Install the `flyctl` tool as explained on [this page](https://fly.io/docs/hands-on/installing/).  You can install it on a Mac, Linux, or Windows. `flyctl` can be invoked as `fly` for short.  See the [Windows Installation Notes](#windows-installation-notes) section at the bottom for additional advice when installing on Windows.
-2. Go to https://fly.io and create an account.  Associate a credit card number (or buy a preset amount of credits).  Running owlcms is very inexpensive (it would cost less than 5$ per month to leave it running all the time, but you can turn it off when not needed).
+The application names in fly.io are global, so someone may have already used the name you want.  You will be asked for two names;
 
+- one for <u>owlcms</u> -- this is the one you will be using to setup the competition, and from the competition site.  If your club is named `myclub`,  you might pick `myclub-competition` as the name, and the URL would be `https://myclub-competition.fly.dev`
+- one for the <u>public scoreboard</u>.  Whether you intend to use it immediately or not, it comes for free, so you might as well configure it.  This allows anyone in the world to watch the scoreboard, including the audience (useful if the scoreboard is small or faint).  Something like `myclub-results` makes sense as a name, and people would then use `myclub-results.fly.dev` to reach the scoreboard from their phone.
 
-3. Open a terminal/command line interface and login to your account using the following command.  This will open a browser where you will login to your account.
+You should check that the names are free: type the URL in your browser. If you get a 404 Not Found error, then the name is still free and you can claim it.
+
+Note that if you own your own domain, you can add names under your own domain to reach the fly.io applications. After creating your applications, you will be able to go to the Certificates section on the dashboard and request free automatically renewed certificates for the desired aliases. 
+
+### Install
+
+1. Install the `flyctl` tool (`fly` for short) as explained on [this page](https://fly.io/docs/hands-on/installing/).  You can install it on a Mac, Linux, or Windows. 
+
+   > If you are running on Windows, you will need to start a PowerShell in administrative mode as explained [here](https://www.howtogeek.com/742916/how-to-open-windows-powershell-as-an-admin-in-windows-10/).  Then paste the 
+   > `iwr https://fly.io/install.ps1 -useb | iex` 
+
+2. If you do not have a fly.io account, type the following command.   You need to either associate a credit card with the account, or to allocate a preset amount of money. 
+
+   ```
+   fly auth create
+   ```
+
+3. If you already have a fly.io account, type this command instead.
 
    ```powershell
-   fly login
+   fly auth login
    ```
-
-### Install owlcms
-
-
-1. Create a directory to contain your configuration files.  Create a separate directory for each of your applications. In this example  we use`fly_owlcms` for the owlcms application  .  The directory name does not matter, the name of the application that will be used in the web URL will be determined in the next step. 
-   IMPORTANT: you need to be in the correct configuration directory for the commands to be sent to the correct application
-
-   ```powershell
-   mkdir fly_owlcms
-   cd fly_owlcms
-   ```
-
-2. Create an owlcms application.  The command to use is shown below.
-
-   - Pick carefully a name for your application.  If you choose `myclub` the application will be `myclub.fly.dev`.  The application names cannot be changed easily, you will have to delete and recreate if you change your mind.
-    If you have your own DNS domain, there is `Certificates` section for each application which makes it extremely easy to associate an additional name from your own domain.
-   - Say `y` when prompted to accept the creation of a Postgres database.  This will  also connect the database to the new application.
-- You will be prompted for a region - pick the closest to your competition site.
-  
-```
-   fly launch --image owlcms/owlcms:latest
-```
-
-4. At this point, the application attempts to start, but does not have enough memory to actually run.  So we increase the available memory.  The application will reload and will be available under the name you picked.
-
-   ```
-   fly scale memory 512 vm shared-cpu-1x
-   ```
-
-
-### Install the Public Scoreboard Module
-
-1. Create a second directory to contain the configuration files.  The actual name of the application will be chosen later.
-   IMPORTANT: you need to be in the correct configuration directory for the commands to be sent to the correct application
-
-   ```powershell
-   mkdir fly_results
-   cd fly_results
-   ```
-
-2. Create an owlcms application.  `owlcms/publicresults:latest` is the name in the public repository of Docker images (use `prerelease` instead of `stable` if you want the early adopter versions). 
-
-   - Choose carefully the application name, because it is *not* possible to change it easily
-     The application will be known as https://*name*.fly.dev where *name* is the name you picked for publicresults. 
    
-   - No database is needed for publicresults. So say `n` when prompted in order to decline the creation of a Postgres database.
-     
-- You will be prompted for a region, pick one close to where your audience will be.
-  
-   ```
-   fly launch --image owlcms/publicresults:latest
-   ```
-
-3. Create a secret that owlcms will use as an update key to send us the updates.  Pick your own secret  !
+4. Go to the location where you want to keep your application configurations.  In this example the `cd` command brings us to our home directory. Then we create two installation directories, because we will be creating two applications (owlcms and its complementary module, publicresults)
 
    ```
-   fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb
+cd
+   mkdir owlcms_config
+   mkdir results_config
+   ```
+   
+5. install owlcms and give it enough memory.
+
+   **Answer `y` (YES) ** when asked if you want a Postgres database.  This is required for owlcms to store its data.  Postgres also fits in the free tier, so the only charge is for the additional memory on owlcms.
+
+   ```
+   fly launch --image owlcms/owlcms:latest --path owlcms_config
+   fly scale memory 512 --config owlcms_config/fly.toml
    ```
 
-4. Go to the Preparation area of owlcms, use the Language and System Settings page to configure the URL and the secret update key.  The URL to use is https://*name*.fly.dev (where you replace *name* with what you picked at step 2).  Don't forget to use the Update button at the top of the page.
+
+5. Install public results.
+   
+   **Answer `n` (NO)** when asked if you want a Postgres database.  publicresults does not need a database.  It does not need additional memory and it runs in the free tier (0$)
+
+   ```
+   fly launch --image owlcms/publicresults:latest --path results_config
+   ```
+   
+6. Create a secret that owlcms will use as an update key to send its  updates to the public scoreboard.  See [this page](PublicResults) for an overview of how owlcms and publicresults work together.
+
+   Use your own secret - do not paste this line as is !
+
+   ```
+   fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --config results_config/fly.toml
+   ```
+
+7. Copy the secret to owlcms so it can update the public scoreboard.  This is done in the web application itself.  Use your browser to go to your owlcms application (if your competition application is called `myclub-competition` then you would use `https://myclub-competition.fly.dev`).  
+   Then follow [this procedure](Remote#configure-updates-from-owlcms).   Don't forget to use the Update button at the top of the page.
 
 ### Updating
 
-Go to each of the two folders, and type the following command.  This will automatically re-fetch the latest release and restart the application.
+owlcms and publicresults are packaged as Docker images. The `fly deploy` command fetches the newest version available from the public hub.docker.com repository and restarts the application using the current `fly.toml` configuration.   The `cd` command brings us back to the home directory, which is where we created our configs in the initial installation.
 
-```
-fly deploy
-```
+   ```
+cd
+fly deploy --config owlcms_config/fly.toml
+fly deploy --config results_config/fly.toml
+   ```
+
+### Using pre-releases
+
+In order to switch to a prerelease, edit the `fly.toml` configuration files.  Change the image name to use `prerelease` instead of `latest`.  Then run the  `fly deploy` command.
 
 ### Stopping and Resuming Billing
 
 The nice thing about cloud services is that they are billed according to actual use, by the second.  The not so nice thing is that you have to remember to stop the billing.
 
-1. If you want to stop the application (and stopped being billed)
+You can run the commands from any command shell you have.
+
+1. If you want to stop the applications (and stopped being billed) 
 
    ```
-   fly scale count 0
+   cd
+   fly scale count 0 --config owlcms_config/fly.toml
+   fly scale count 0 --config results_config/fly.toml
    ```
 
-2. If you then want to start using the application again, scale it back up to 1. <u>Do NOT use any other value than 0 or 1</u>.
+
+2. If you then want to start using the applications again, scale them back up to 1. <u>Do NOT use any other value than 0 or 1</u>.
 
    ```
-   fly scale count 1
+   cd
+   fly scale count 1 --config owlcms_config/fly.toml
+   fly scale count 1 --config results_config/fly.toml
    ```
 
 
 
 ### Scale-up and Scale-down of owlcms
 
-For a larger competition, you might want to give owlcms a dedicated virtual machine with more memory.  You only need this for owlcms, not for publicresults.
+For a larger competition, you might want to give owlcms a dedicated virtual machine with more memory.  You only need this for owlcms
 
-1. Make the application bigger.  Go to the directory for your owlcms application
+> NOTE: scaling the memory must be done after scaling the vm because default sizes are re-applied.
+
+1. Make the application bigger. 
 
    ```
-   cd fly_myclub
-   fly scale memory 1024 vm dedicated-cpu-1x
+   cd
+   fly scale vm dedicated-cpu-1x --config owlcms_config/fly.toml
+   fly scale memory 1024 --config owlcms_config/fly.toml
    ```
-
+   
 2. Revert to cheaper settings: make the application smaller, use a smaller computer, and either shut it down (count 0) or leave it running (count 1)
 
    ```
-   fly scale memory 512 vm shared-cpu-1x count 0
+   cd
+   fly scale vm shared-cpu-1x --config owlcms_config/fly.toml
+   fly scale memory 512 --config owlcms_config/fly.toml
+   fly scale count 0 --config owlcms_config/fly.toml
    ```
 
 
@@ -139,20 +153,3 @@ In a gym setting, people can read the web addresses on the screens, and one day,
   - You should see a set of four numbers separated by dots like `24.157.203.247`  . This the address you should use -- owlcms will reject connections coming from other places than your competition router. 
 
   Note that if you use the OWLCMS_IP environment setting in your fly.toml file, these will take precedence over what is in the database.
-
-- If you have set a password, you may need to set the OWLCMS_BACKDOOR variable to avoid entering passwords on the screens used for video broadcasting.  This would be done by editing the fly.toml file.
-
-### Windows Installation Notes
-
-Windows installation is done with PowerShell, which is installed by default on all Windows 10 and 11 machines.
-
-- Find Powershell by clicking on the start menu and typing `powershell`
-
-- Right-click on the `Windows PowerShell` icon that appears in the search results at the left, and select `Run as administrator`
-  ![PowerShell](img/Fly.io/PowerShell.png ':size=500')
-
-- Then paste the creation command.
-
-  ```
-  iwr https://fly.io/install.ps1 -useb | iex 
-  ```

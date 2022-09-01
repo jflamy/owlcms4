@@ -703,7 +703,7 @@ public class MovingDownTest {
         // simpsonR successful at 60
         simpsonR = successfulLift(simpsonR, fopState);
 
-        // schneiderF cannot move back to 60 because of his start number
+        // schneiderF cannot move back to 60 because of his start number 1 lower than 2 who has just lifted.
         final Athlete sc = schneiderF;
         testChange(() -> change2(sc, "60", fopState), logger, RuleViolationException.StartNumberTooHigh.class);
 

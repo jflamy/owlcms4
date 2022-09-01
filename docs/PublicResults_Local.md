@@ -1,6 +1,6 @@
-## Individual Scoreboards Local Setup
+## Public Scoreboard Local Setup
 
-If you have Internet access, we suggest that you install [`publicresults` in the cloud](Remote), because it is simpler.  
+If you have Internet access, we suggest that you install [`publicresults` in the cloud](PublicResults), because it is simpler.  
 
 If there is no Internet, you can use a setup as follows to provide individual scoreboard displays.
 

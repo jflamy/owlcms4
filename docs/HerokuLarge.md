@@ -9,7 +9,7 @@ As an order of magnitude, running a large national competition would cost someth
 ## Initial Setup
 
 1. Install owlcms, as described on [this page](Heroku).
-2. Install publicresults, and connect the two applications together, as explained on [this page](Remote)
+2. Install publicresults, and connect the two applications together, as explained on [this page](PublicResults)
 3. Associate a credit card with your account.  This is done by clicking on your profile icon at the top right and changing the account settings.
 
 ## Scale-up

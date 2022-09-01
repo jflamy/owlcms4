@@ -4,7 +4,7 @@ In order to make the results available to remote gyms or to the public at large,
 
 1. **install owlcms**.  For a virtual competition where officials are not all at the same competition site, you should [install owlcms in the Cloud](Heroku).
 2. **install publicresults**,
-   - Normally, publicresults is installed in the cloud as explained in [this page](Remote).
+   - Normally, publicresults is installed in the cloud as explained in [this page](PublicResults).
    - Note that It is also possible to install publicresults locally if you do not have internet access and wish a strictly local solution. See [this page](PublicResults_local) instead of this one.
 3. if you have already installed these applications, update them to the latest release by using the [automatic update procedure](UpdatingCloudApplications).
 

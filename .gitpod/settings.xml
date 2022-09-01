@@ -5,7 +5,7 @@
             <id>my-repository-http-unblocker</id>
             <mirrorOf>owlcms-maven-repo</mirrorOf>
             <name></name>
-            <url>http://maven.lerta.ca:8088/releases</url>
+            <url>http://maven.lerta.ca:8880/releases</url>
             <blocked>false</blocked>
         </mirror>
     </mirrors>

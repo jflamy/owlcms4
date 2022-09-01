@@ -15,6 +15,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.DateConverter;
@@ -106,19 +107,34 @@ public class Main {
      * @throws Exception the exception
      */
     public static void main(String... args) throws Exception {
+        boolean publicDemo = StartupUtils.getBooleanParam("publicDemo") || true;
+        init();
+        CountDownLatch latch = OwlcmsFactory.getInitializationLatch();
+        EmbeddedJetty embeddedJetty = new EmbeddedJetty(latch)
+                .setStartLogger(logger)
+                .setInitConfig(Main::initConfig)
+                .setInitData(Main::initData);
 
-        try {
-            init();
-            startRemoteMonitoring();
-            new EmbeddedJetty(OwlcmsFactory.getInitializationLatch())
-                    .setStartLogger(logger)
-                    .setInitConfig(Main::initConfig)
-                    .setInitData(Main::initData)
-                    .run(serverPort, "/");
-        } finally {
-            tearDown();
+        // restart automatically forever if running as public demo
+        while (true) {
+            Thread server = new Thread(() -> {
+                try {
+                    embeddedJetty.run(serverPort, "/");
+                } catch (Exception e) {
+                    logger.error("cannot start server {}\\n{}",e,LoggerUtils.stackTrace(e));
+                }
+
+            });
+            server.start();
+            if (!publicDemo) {
+                break;
+            }
+            Thread.sleep(180 * 60 * 1000);
+            logger.warn("restarting server");
+            embeddedJetty.stop();
         }
     }
+
 
     /**
      * Prepare owlcms
@@ -146,9 +162,9 @@ public class Main {
         parseConfig();
         StartupUtils.setServerPort(serverPort);
         StartupUtils.logStart("owlcms", serverPort);
-        
+
         // message about log locations.
-        Path logPath = Path.of("logs","owlcms.log");
+        Path logPath = Path.of("logs", "owlcms.log");
         if (Files.exists(logPath)) {
             logger.info("Detailed log location: {}", logPath.toAbsolutePath());
         }
@@ -252,9 +268,8 @@ public class Main {
                 logger.error("cannot process records {}");
             }
         } catch (FileNotFoundException e1) {
-            logger.error("cannot find records {}",LoggerUtils.stackTrace(e1));
+            logger.error("cannot find records {}", LoggerUtils.stackTrace(e1));
         }
-
 
     }
 
@@ -315,8 +330,6 @@ public class Main {
 
         StartupUtils.setServerPort(serverPort);
 
-        processLegacyOptions();
-
         // drop the schema first
         resetMode = StartupUtils.getBooleanParam("resetMode") || demoMode || memoryMode;
 
@@ -343,46 +356,9 @@ public class Main {
         masters = StartupUtils.getBooleanParam("masters");
     }
 
-    private static void processLegacyOptions() {
-        // same as devMode + resetMode + memoryMode
-        demoMode = StartupUtils.getBooleanParam("demoMode");
-
-        // run in memory
-        memoryMode = StartupUtils.getBooleanParam("memoryMode") || demoMode;
-
-        // load large demo data if empty
-        demoData = StartupUtils.getBooleanParam("devMode") || demoMode;
-
-        // load small dummy data if empty
-        smallData = StartupUtils.getBooleanParam("smallMode");
-    }
-
-    private static void startRemoteMonitoring() {
-//        try {
-//            // Get the MBean server for monitoring/controlling the JVM
-//            MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-//
-//            // Create a JMXMP connector server
-//            String jmxPortString = System.getenv("OWLCMS_JMXPORT");
-//            jmxPortString = jmxPortString == null ? System.getProperty("jmxPort") : jmxPortString;
-//            if (jmxPortString != null) {
-//                int jmxPort = StartupUtils.getIntegerParam("jmxPort", 1098);
-//                JMXServiceURL url = new JMXServiceURL("jmxmp", "localhost", jmxPort);
-//                StartupUtils.getMainLogger().info(
-//                        "JMX port {} listening. Connect to service:jmx:jmxmp://externalIp:{}/",
-//                        jmxPort,
-//                        jmxPort, url);
-//                JMXConnectorServer cs = JMXConnectorServerFactory.newJMXConnectorServer(url, null, mbs);
-//                cs.start();
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-    }
-
     public static Logger getStartupLogger() {
-        String name = Main.class.getName()+".startup";
-        return (Logger) LoggerFactory.getLogger( name);
+        String name = Main.class.getName() + ".startup";
+        return (Logger) LoggerFactory.getLogger(name);
     }
 
 }

@@ -12,7 +12,7 @@
     <distributionManagement>
         <repository>
             <id>owlcms-maven-repo</id>
-            <url>http://maven.lerta.ca:8088/releases</url>
+            <url>http://maven.lerta.ca:8880/releases</url>
         </repository>
     </distributionManagement>
 
@@ -137,7 +137,7 @@
                                 <configuration>
                                     <file>target/innosetup.zip</file>
                                     <repositoryId>owlcms-maven-repo</repositoryId>
-                                    <url>http://maven.lerta.ca:8088/releases</url>
+                                    <url>http://maven.lerta.ca:8880/releases</url>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>${project.artifactId}</artifactId>
                                     <version>${project.version}</version>
@@ -156,7 +156,7 @@
                                 <configuration>
                                     <file>target/jre.zip</file>
                                     <repositoryId>owlcms-maven-repo</repositoryId>
-                                    <url>http://maven.lerta.ca:8088/releases</url>
+                                    <url>http://maven.lerta.ca:8880/releases</url>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>${project.artifactId}</artifactId>
                                     <version>${project.version}</version>

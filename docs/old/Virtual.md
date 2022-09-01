@@ -8,7 +8,7 @@ There is a sister application to owlcms called *publicresults*.  Publicresults i
 
 ![](img/PublicResults/CloudExplained/Slide2.SVG)
 
-The details of using `publicresults` and `owlcms` in this fashion are explained on the [Cloud Installation of the publicresults Application](Remote) page.
+The details of using `publicresults` and `owlcms` in this fashion are explained on the [Cloud Installation of the publicresults Application](PublicResults) page.
 
 ## Remote Officials Using Cloud-Based owlcms 
 
