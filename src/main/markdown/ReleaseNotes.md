@@ -1,20 +1,16 @@
-- 4.33.12: Fix issue introduced in 4.33.11 that will cause the http server that dispatches work to restart after 3 hours or so.  The pages would have reloaded correctly in any case.
-- 4.33.11: Database location parsing was broken for Heroku in releases 4.33.9 and 4.33.10. We now  give precedence to JDBC_DATABASE_URL over DATABASE_URL if both are provided (as is the case on Heroku). Parsing of DATABASE_URL was also fixed for completeness.
-- 4.33.10: Cloud documentation reorganized to avoid redundancies and increase visibility of publicresults.
-- 4.33.9: Cloud Support Changes
-  - Added [instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Fly) for using [fly.io](https://fly.io) as a cloud provider. owlcms now automatically detects and uses the postgres database provided by fly.io .
-  - Adjusted [instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Heroku) for using Heroku now that there is no longer a free tier.
-- 4.33.8: A new "local templates only" checkbox is added on the Languages and Settings page. If selected, the built-in Excel templates will not be listed in the dropdown lists. Only what is in the `local/templates` folder (or has been uploaded as a zip) with be shown. You can therefore remove files you don't use from local/templates and rename the templates to your local language if you wish. 
-- 4.33.7: Examples for Masters and for different file formats to [Record Definition Examples](https://www.dropbox.com/sh/409fqybabjv6byt/AADZIcMxn2Q8epqiZQX3EQk4a?dl=0)
-- 4.33.6: fixes for jury summoning referees and for decision reminders
-- **Recommended update if current version older than 4.33.4:** Fix for possible birth date errors (one day early) on laptop installations
-  - Due to a bug in the way the H2 database driver stores dates that have no time zone (#513),  the birth date of the athletes would, in some time zones, be converted to the day before.
-- A public-facing view decisions display has been added to the streaming-oriented displays, for convenience.  Currently this is the same as cropping the top-right corner of the scoreboard. In the future there might be options to just have the timer and the decisions.
+- 4.34.0-alpha00: Added new Sinclair coefficients for the 2024 Olympiad.  An option on the Competition rules page allows selecting the previous (2020 Olympiad) values.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
+- 4.34.0-alpha00: Internal option for public demo site. The public demo site will be reset every few hours (more precisely, will exit and will be respawned automatically).
 
 ##### Highlights from recent stable releases
 
+- Cloud Support Changes
+  - Added [instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Fly) for using [fly.io](https://fly.io) as a cloud provider. owlcms now automatically detects and uses the postgres database provided by fly.io .
+  - Adjusted [instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Heroku) for using Heroku now that there is no longer a free tier.
+- Ability to hide unwanted templates and rename to local language
+  - A new "local templates only" checkbox is added on the Languages and Settings page. If selected, the built-in Excel templates will not be listed in the dropdown lists. Only what is in the `local/templates` folder (or has been uploaded as a zip) with be shown. You can therefore remove files you don't use from local/templates and rename the templates to your local language if you wish. 
+
 - Records
-  - Records are shown if record definition Excel spreadsheets are present in the local/records directory.  See the following folder for examples: [Sample Record Files](https://www.dropbox.com/sh/sbr804kqfwkgs6g/AAAEcT2sih9MmnrpYzkh6Erma?dl=0) . 
+  - Records are shown if record definition Excel spreadsheets are present in the local/records directory.  See the following folder for examples: [Sample Record Files](https://www.dropbox.com/sh/sbr804kqfwkgs6g/AAAEcT2sih9MmnrpYzkh6Erma?dl=0) (includes examples for Masters)
   - Records definitions are read when the program starts.  Records set during the competition are updated on the scoreboard, but the Excel files need to be updated manually to reflect the official federation records.
   - Records are shown according to the sorting order of the file names. Use a numerical prefix to control the order (for example 10Canada.xlsx, 20Commonwealth.xlsx, 30PanAm.xlsx).
   - All records potentially applicable to the current athlete are shown on the scoreboard.  Records that would be improved by the next lift are highlighted.  If there are too many athletes in a group the records can be hidden using the display-specific settings, or by adding `records=false` to the URL
