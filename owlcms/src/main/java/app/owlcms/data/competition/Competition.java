@@ -239,8 +239,6 @@ public class Competition {
     
     @Column(columnDefinition = "boolean default false")
     private boolean sinclairMeet;
-    private boolean publicDemo;
-
 
     public Competition() {
         medalsByGroup = new HashMap<>();

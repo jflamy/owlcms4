@@ -130,7 +130,6 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
     
     @Subscribe
     public void slaveAppNotification(AppEvent.AppNotification e) {
-        System.err.println(this + " "+ui);
         if (ui == null) {
             return;
         }
@@ -141,7 +140,6 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
     
     @Subscribe
     public void slaveAppClose(AppEvent.CloseUI e) {
-        System.err.println(this + " "+ui);
         if (ui == null) {
             return;
         }
