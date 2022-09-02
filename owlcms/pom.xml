@@ -345,6 +345,7 @@
                     </from>
                     <to>
                         <image>owlcms</image>
+                        <tags>prerelease</tags>
                     </to>
                     <container>
                         <ports>

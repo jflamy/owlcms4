@@ -4,6 +4,9 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+
+import app.owlcms.i18n.Translator;
+
 import com.vaadin.flow.component.notification.NotificationVariant;
 
 public class AppEvent {
@@ -37,7 +40,7 @@ public class AppEvent {
             UI.getCurrent().access(() -> {
                 Notification notification = new Notification();
                 Div div = new Div();
-                div.setText("Closing" + "\u00A0\u00A0\u00A0" + "\u2715");
+                div.setText(Translator.translate("App.Closing") + "\u00A0\u00A0\u00A0" + "\u2715");
                 div.addClickListener(e -> notification.close());
                 notification.add(div);
                 notification.addThemeVariants(NotificationVariant.LUMO_ERROR);

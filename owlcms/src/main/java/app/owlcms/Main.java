@@ -56,6 +56,8 @@ import ch.qos.logback.classic.Logger;
  */
 public class Main {
 
+    private static final int WARNING_MINUTES = 5;
+
     public final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
 
     protected static boolean demoData;
@@ -109,13 +111,19 @@ public class Main {
 
     /**
      * The main method.
+     * 
+     * Start a web server and do all the required initializations for the application
+     * If running normally, we run until killed.
+     * If running as a public demo, we sleep for awhile, and then exit.  Some external mechanism
+     * such as Kubernetes will notice and restart another instance.
      *
      * @param args the arguments
      * @throws Exception the exception
      */
     public static void main(String... args) throws Exception {
         // there is no config read so far.
-        boolean publicDemo = StartupUtils.getBooleanParam("publicDemo");
+        Integer demoResetDelay = StartupUtils.getIntegerParam("publicDemo", null);
+        logger.info("public demo, will reset after {} seconds",demoResetDelay);
 
         init();
         CountDownLatch latch = OwlcmsFactory.getInitializationLatch();
@@ -135,21 +143,28 @@ public class Main {
 
             });
             server.start();
-            if (!publicDemo) {
+            if (demoResetDelay == null) {
                 break;
+            } else {
+                warnAndExit(demoResetDelay);
             }
-            Thread.sleep(60 * 1000);
-            AppEvent.AppNotification warning = new AppEvent.AppNotification("Will reset in 5 minutes");
-            OwlcmsFactory.getAppUIBus().post(warning);
-            
-            logger.warn("restarting server");
-            Thread.sleep(5 * 1000);
-            OwlcmsFactory.getAppUIBus().post(new AppEvent.CloseUI());
-            Thread.sleep(5 * 1000);
-            
-            // public demo is run with a restart policy of "always", so k8s will restart everything
-            System.exit(0);
         }
+    }
+
+    private static AppEvent.AppNotification warnAndExit(Integer demoResetDelay) throws InterruptedException {
+        Thread.sleep(demoResetDelay * 1000);
+        AppEvent.AppNotification warning = new AppEvent.AppNotification(Translator.translate("App.ResetWarning",WARNING_MINUTES));
+        OwlcmsFactory.getAppUIBus().post(warning);
+        Thread.sleep(WARNING_MINUTES * 60 * 1000);
+        logger.info("server stop scheduled in {} minutes",WARNING_MINUTES);
+        
+        OwlcmsFactory.getAppUIBus().post(new AppEvent.CloseUI());
+        Thread.sleep(5 * 1000);
+        logger.info("stopping server");
+        
+        // public demo is run with a restart policy of "always", so k8s will restart everything
+        System.exit(0);
+        return warning;
     }
 
     /**
