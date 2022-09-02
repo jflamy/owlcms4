@@ -133,6 +133,7 @@ public class EmbeddedJetty {
             getStartLogger().info("started on port {}", port);
 
             // start JPA+Hibernate, initialize database if needed, etc.
+            System.err.println("initdata");
             initData.run();
 
             // server threads blocking on latch will now go ahead.
@@ -198,6 +199,7 @@ public class EmbeddedJetty {
     public void stop() {
         try {
             server.stop();
+            server.destroy();
         } catch (Exception e) {
         }
     }

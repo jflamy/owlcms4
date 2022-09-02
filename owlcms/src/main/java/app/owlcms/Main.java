@@ -43,6 +43,7 @@ import app.owlcms.init.InitialData;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.servlet.EmbeddedJetty;
+import app.owlcms.uievents.AppEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
@@ -69,8 +70,14 @@ public class Main {
     private static InitialData initialData;
 
     public static void initConfig() {
-        // setup database
-        JPAService.init(memoryMode, resetMode);
+        // there is no config read so far.
+        boolean publicDemo = StartupUtils.getBooleanParam("publicDemo");
+        if (publicDemo) {
+            JPAService.init(true, true);
+        } else {
+            // setup database
+            JPAService.init(memoryMode, resetMode);
+        }
         // check for database override of resource files
         Config.initConfig();
     }
@@ -107,21 +114,22 @@ public class Main {
      * @throws Exception the exception
      */
     public static void main(String... args) throws Exception {
-        boolean publicDemo = StartupUtils.getBooleanParam("publicDemo") || true;
-        init();
+        // there is no config read so far.
+        boolean publicDemo = StartupUtils.getBooleanParam("publicDemo");
+        
         CountDownLatch latch = OwlcmsFactory.getInitializationLatch();
-        EmbeddedJetty embeddedJetty = new EmbeddedJetty(latch)
-                .setStartLogger(logger)
-                .setInitConfig(Main::initConfig)
-                .setInitData(Main::initData);
 
         // restart automatically forever if running as public demo
         while (true) {
+            EmbeddedJetty embeddedJetty = new EmbeddedJetty(latch)
+                    .setStartLogger(logger)
+                    .setInitConfig(Main::initConfig)
+                    .setInitData(Main::initData);
             Thread server = new Thread(() -> {
                 try {
                     embeddedJetty.run(serverPort, "/");
                 } catch (Exception e) {
-                    logger.error("cannot start server {}\\n{}",e,LoggerUtils.stackTrace(e));
+                    logger.error("cannot start server {}\\n{}", e, LoggerUtils.stackTrace(e));
                 }
 
             });
@@ -129,12 +137,16 @@ public class Main {
             if (!publicDemo) {
                 break;
             }
-            Thread.sleep(180 * 60 * 1000);
-            logger.warn("restarting server");
+            Thread.sleep(20 * 1000);
+            AppEvent.AppNotification warning = new AppEvent.AppNotification("Will reset in 5 minutes");
+            OwlcmsFactory.getAppUIBus().post(warning);
+            System.err.println("restarting server");
+            Thread.sleep(5 * 1000);
+            OwlcmsFactory.getAppUIBus().post(new AppEvent.CloseUI());
+            Thread.sleep(5 * 1000);
             embeddedJetty.stop();
         }
     }
-
 
     /**
      * Prepare owlcms
@@ -199,7 +211,9 @@ public class Main {
                 data = InitialData.EMPTY_COMPETITION;
             }
 
-            if (allCompetitions.isEmpty()) {
+            // there is no config read so far.
+            boolean publicDemo = StartupUtils.getBooleanParam("publicDemo");
+            if (allCompetitions.isEmpty() || publicDemo) {
                 logger.info("injecting initial data {}", data);
                 switch (data) {
                 case EMPTY_COMPETITION:

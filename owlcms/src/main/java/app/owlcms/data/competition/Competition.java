@@ -239,6 +239,7 @@ public class Competition {
     
     @Column(columnDefinition = "boolean default false")
     private boolean sinclairMeet;
+    private boolean publicDemo;
 
 
     public Competition() {
@@ -1483,5 +1484,4 @@ public class Competition {
     public void setSinclair(boolean b) {
         this.sinclairMeet = b;
     }
-
 }
