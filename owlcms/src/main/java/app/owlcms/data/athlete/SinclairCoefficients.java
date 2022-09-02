@@ -33,8 +33,10 @@ public class SinclairCoefficients {
     private HashMap<Integer, Float> smf = null;
     private HashMap<Integer, Float> smhf = null;
 
+    private int sinclairYear;
+
     public SinclairCoefficients(int i) {
-        // TODO Auto-generated constructor stub
+        sinclairYear = i;
     }
 
     /**
@@ -127,7 +129,7 @@ public class SinclairCoefficients {
     private void loadProps() {
         props = new Properties();
         try {
-            InputStream stream = ResourceWalker.getResourceAsStream("/sinclair/sinclair.properties");
+            InputStream stream = ResourceWalker.getResourceAsStream("/sinclair/sinclair"+sinclairYear+".properties");
             props.load(stream);
         } catch (IOException e) {
             LoggerUtils.logError(logger, e);
