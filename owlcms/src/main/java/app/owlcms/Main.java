@@ -71,6 +71,11 @@ public class Main {
 
     private static InitialData initialData;
 
+    public static Logger getStartupLogger() {
+        String name = Main.class.getName() + ".startup";
+        return (Logger) LoggerFactory.getLogger(name);
+    }
+
     public static void initConfig() {
         // there is no config read so far.
         boolean publicDemo = StartupUtils.getBooleanParam("publicDemo");
@@ -111,7 +116,7 @@ public class Main {
 
     /**
      * The main method.
-     * 
+     *
      * Start a web server and do all the required initializations for the application If running normally, we run until
      * killed. If running as a public demo, we sleep for awhile, and then exit. Some external mechanism such as
      * Kubernetes will notice and restart another instance.
@@ -150,30 +155,6 @@ public class Main {
         }
     }
 
-    private static AppEvent.AppNotification warnAndExit(Integer demoResetDelay, EmbeddedJetty server)
-            throws InterruptedException {
-
-        Thread.sleep(demoResetDelay * 1000);
-        String warningText = Translator.translate("App.ResetWarning", Integer.toString(WARNING_MINUTES));
-        AppEvent.AppNotification warning = new AppEvent.AppNotification(warningText);
-        // server.start() hijacks stderr and stdout. Must use new thread to log.
-        new Thread(() -> {
-            logger.info(warningText);
-        }).start();
-
-        OwlcmsFactory.getAppUIBus().post(warning);
-        Thread.sleep(WARNING_MINUTES * 60 * 1000);
-        OwlcmsFactory.getAppUIBus().post(new AppEvent.CloseUI());
-        Thread.sleep(5 * 1000);
-
-        // public demo is run with a restart policy of "always", so k8s will restart everything
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            logger.info("public demo server shut down");
-        }));
-        System.exit(0);
-        return warning;
-    }
-
     /**
      * Prepare owlcms
      *
@@ -208,8 +189,6 @@ public class Main {
         }
 
         // technical initializations
-//        System.setProperty("java.net.preferIPv4Stack", "true");
-//        System.setProperty("java.net.preferIPv6Addresses", "false");
         ConvertUtils.register(new DateConverter(null), java.util.Date.class);
         ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
 
@@ -291,26 +270,6 @@ public class Main {
         } finally {
             Translator.setForcedLocale(locale);
         }
-    }
-
-    private static void resetRecords() {
-        Path recordsPath;
-        try {
-            recordsPath = ResourceWalker.getFileOrResourcePath("/records");
-            try {
-                RecordRepository.clearRecords();
-                if (recordsPath != null && Files.exists(recordsPath)) {
-                    RecordDefinitionReader.readFolder(recordsPath);
-                } else {
-                    logger.info("no record definition files in local/records");
-                }
-            } catch (IOException e) {
-                logger.error("cannot process records {}");
-            }
-        } catch (FileNotFoundException e1) {
-            logger.error("cannot find records {}", LoggerUtils.stackTrace(e1));
-        }
-
     }
 
     private static Locale overrideDisplayLanguage() {
@@ -396,9 +355,48 @@ public class Main {
         masters = StartupUtils.getBooleanParam("masters");
     }
 
-    public static Logger getStartupLogger() {
-        String name = Main.class.getName() + ".startup";
-        return (Logger) LoggerFactory.getLogger(name);
+    private static void resetRecords() {
+        Path recordsPath;
+        try {
+            recordsPath = ResourceWalker.getFileOrResourcePath("/records");
+            try {
+                RecordRepository.clearRecords();
+                if (recordsPath != null && Files.exists(recordsPath)) {
+                    RecordDefinitionReader.readFolder(recordsPath);
+                } else {
+                    logger.info("no record definition files in local/records");
+                }
+            } catch (IOException e) {
+                logger.error("cannot process records {}");
+            }
+        } catch (FileNotFoundException e1) {
+            logger.error("cannot find records {}", LoggerUtils.stackTrace(e1));
+        }
+
+    }
+
+    private static void warnAndExit(Integer demoResetDelay, EmbeddedJetty server)
+            throws InterruptedException {
+
+        Thread.sleep(demoResetDelay * 1000);
+        String warningText = Translator.translate("App.ResetWarning", Integer.toString(WARNING_MINUTES));
+        AppEvent.AppNotification warning = new AppEvent.AppNotification(warningText);
+        // server.start() hijacks stderr and stdout. Must use new thread to log.
+        new Thread(() -> {
+            logger.info(warningText);
+        }).start();
+
+        OwlcmsFactory.getAppUIBus().post(warning);
+        Thread.sleep(WARNING_MINUTES * 60 * 1000);
+        OwlcmsFactory.getAppUIBus().post(new AppEvent.CloseUI());
+        Thread.sleep(5 * 1000);
+
+        // public demo is run with a restart policy of "always", so k8s will restart everything
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logger.info("public demo server shut down");
+        }));
+        System.exit(0);
+        return;
     }
 
 }
