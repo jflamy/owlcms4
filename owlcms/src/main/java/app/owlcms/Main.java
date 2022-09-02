@@ -114,9 +114,14 @@ public class Main {
      * @throws Exception the exception
      */
     public static void main(String... args) throws Exception {
+<<<<<<< HEAD
         // there is no config read so far.
         boolean publicDemo = StartupUtils.getBooleanParam("publicDemo");
         
+=======
+        boolean publicDemo = StartupUtils.getBooleanParam("publicDemo");
+        init();
+>>>>>>> origin/master
         CountDownLatch latch = OwlcmsFactory.getInitializationLatch();
 
         // restart automatically forever if running as public demo
