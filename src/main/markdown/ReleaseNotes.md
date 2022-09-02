@@ -1,3 +1,4 @@
+- 4.33.12: Fix issue introduced in 4.33.11 that will cause the http server that dispatches work to restart after 3 hours or so.  The pages would have reloaded correctly in any case.
 - 4.33.11: Database location parsing was broken for Heroku in releases 4.33.9 and 4.33.10. We now  give precedence to JDBC_DATABASE_URL over DATABASE_URL if both are provided (as is the case on Heroku). Parsing of DATABASE_URL was also fixed for completeness.
 - 4.33.10: Cloud documentation reorganized to avoid redundancies and increase visibility of publicresults.
 - 4.33.9: Cloud Support Changes
