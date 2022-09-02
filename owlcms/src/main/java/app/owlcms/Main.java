@@ -114,14 +114,10 @@ public class Main {
      * @throws Exception the exception
      */
     public static void main(String... args) throws Exception {
-<<<<<<< HEAD
         // there is no config read so far.
         boolean publicDemo = StartupUtils.getBooleanParam("publicDemo");
-        
-=======
-        boolean publicDemo = StartupUtils.getBooleanParam("publicDemo");
+
         init();
->>>>>>> origin/master
         CountDownLatch latch = OwlcmsFactory.getInitializationLatch();
 
         // restart automatically forever if running as public demo
@@ -142,14 +138,17 @@ public class Main {
             if (!publicDemo) {
                 break;
             }
-            Thread.sleep(20 * 1000);
+            Thread.sleep(60 * 1000);
             AppEvent.AppNotification warning = new AppEvent.AppNotification("Will reset in 5 minutes");
             OwlcmsFactory.getAppUIBus().post(warning);
-            System.err.println("restarting server");
+            
+            logger.warn("restarting server");
             Thread.sleep(5 * 1000);
             OwlcmsFactory.getAppUIBus().post(new AppEvent.CloseUI());
             Thread.sleep(5 * 1000);
-            embeddedJetty.stop();
+            
+            // public demo is run with a restart policy of "always", so k8s will restart everything
+            System.exit(0);
         }
     }
 

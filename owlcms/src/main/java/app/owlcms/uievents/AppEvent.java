@@ -44,8 +44,6 @@ public class AppEvent {
                 notification.setPosition(Position.MIDDLE);
                 notification.setDuration(0);
                 notification.open();
-                UI.getCurrent().close();
-                UI.getCurrent().getPage().setLocation("about:blank");
             });
         }
     }
