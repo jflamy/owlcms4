@@ -107,7 +107,7 @@ public class Main {
      * @throws Exception the exception
      */
     public static void main(String... args) throws Exception {
-        boolean publicDemo = StartupUtils.getBooleanParam("publicDemo") || true;
+        boolean publicDemo = StartupUtils.getBooleanParam("publicDemo");
         init();
         CountDownLatch latch = OwlcmsFactory.getInitializationLatch();
         EmbeddedJetty embeddedJetty = new EmbeddedJetty(latch)
