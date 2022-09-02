@@ -112,10 +112,9 @@ public class Main {
     /**
      * The main method.
      * 
-     * Start a web server and do all the required initializations for the application
-     * If running normally, we run until killed.
-     * If running as a public demo, we sleep for awhile, and then exit.  Some external mechanism
-     * such as Kubernetes will notice and restart another instance.
+     * Start a web server and do all the required initializations for the application If running normally, we run until
+     * killed. If running as a public demo, we sleep for awhile, and then exit. Some external mechanism such as
+     * Kubernetes will notice and restart another instance.
      *
      * @param args the arguments
      * @throws Exception the exception
@@ -123,7 +122,7 @@ public class Main {
     public static void main(String... args) throws Exception {
         // there is no config read so far.
         Integer demoResetDelay = StartupUtils.getIntegerParam("publicDemo", null);
-        logger.info("public demo, will reset after {} seconds",demoResetDelay);
+        logger.info("Public demo server, will reset after {} seconds", demoResetDelay);
 
         init();
         CountDownLatch latch = OwlcmsFactory.getInitializationLatch();
@@ -146,23 +145,31 @@ public class Main {
             if (demoResetDelay == null) {
                 break;
             } else {
-                warnAndExit(demoResetDelay);
+                warnAndExit(demoResetDelay, embeddedJetty);
             }
         }
     }
 
-    private static AppEvent.AppNotification warnAndExit(Integer demoResetDelay) throws InterruptedException {
+    private static AppEvent.AppNotification warnAndExit(Integer demoResetDelay, EmbeddedJetty server)
+            throws InterruptedException {
+
         Thread.sleep(demoResetDelay * 1000);
-        AppEvent.AppNotification warning = new AppEvent.AppNotification(Translator.translate("App.ResetWarning",WARNING_MINUTES));
+        String warningText = Translator.translate("App.ResetWarning", Integer.toString(WARNING_MINUTES));
+        AppEvent.AppNotification warning = new AppEvent.AppNotification(warningText);
+        // server.start() hijacks stderr and stdout. Must use new thread to log.
+        new Thread(() -> {
+            logger.info(warningText);
+        }).start();
+
         OwlcmsFactory.getAppUIBus().post(warning);
         Thread.sleep(WARNING_MINUTES * 60 * 1000);
-        logger.info("server stop scheduled in {} minutes",WARNING_MINUTES);
-        
         OwlcmsFactory.getAppUIBus().post(new AppEvent.CloseUI());
         Thread.sleep(5 * 1000);
-        logger.info("stopping server");
-        
+
         // public demo is run with a restart policy of "always", so k8s will restart everything
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logger.info("public demo server shut down");
+        }));
         System.exit(0);
         return warning;
     }
