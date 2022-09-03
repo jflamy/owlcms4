@@ -2,7 +2,7 @@
 
 - 34.0.0-beta01: Ready for translations.  Fixed logging for public demonstration mode.
 - **34.0.0:** **Added new Sinclair coefficients for the 2024 Olympiad**.  An option on the Competition rules page allows selecting the previous (2020 Olympiad) values.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
-- 34.0.0: Additional configuration options for the public demonstration site. Environment variable OWLCMS_PUBLICDEMO, if present, gives the number of seconds before the system exits. A warning is given beforehand.  When running under Kubernetes or under Docker with a restart policy, the process is immediately respawned from scratch. Windows will reload as soon as the site comes back, but with the clean data.
+- 34.0.0: Additional environment variable OWLCMS_PUBLICDEMO for restarting periodically the public demonstration site.
 
 ##### Highlights from recent stable releases
 
