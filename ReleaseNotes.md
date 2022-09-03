@@ -1,8 +1,8 @@
-- 34.0.0-beta00: 
-  - Ready for translations.
-  - New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = minor user interface or perceptible technical improvements.  Third level = bug fixes.
-- 34.0.0: Added <u>new Sinclair coefficients for the 2024 Olympiad</u>.  An option on the Competition rules page allows selecting the previous (2020 Olympiad) values.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
-- 34.0.0: Additional configuration options for the public demonstration site. The site reset every few hours (it will exit and will be respawned automatically). A warning is given beforehand.  Windows will reload as soon as the site comes back, but with the clean data.
+> New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = minor user interface or perceptible technical improvements.  Third level = bug fixes.
+
+- 34.0.0-beta01: Ready for translations.  Fixed logging for public demonstration mode.
+- **34.0.0:** **Added new Sinclair coefficients for the 2024 Olympiad**.  An option on the Competition rules page allows selecting the previous (2020 Olympiad) values.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
+- 34.0.0: Additional environment variable OWLCMS_PUBLICDEMO for restarting periodically the public demonstration site.
 
 ##### Highlights from recent stable releases
 
