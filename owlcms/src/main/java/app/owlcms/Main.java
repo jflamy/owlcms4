@@ -127,7 +127,9 @@ public class Main {
     public static void main(String... args) throws Exception {
         // there is no config read so far.
         Integer demoResetDelay = StartupUtils.getIntegerParam("publicDemo", null);
-        logger.info("Public demo server, will reset after {} seconds", demoResetDelay);
+        if (demoResetDelay != null) {
+            logger.info("Public demo server, will reset after {} seconds", demoResetDelay);
+        }
 
         init();
         CountDownLatch latch = OwlcmsFactory.getInitializationLatch();
