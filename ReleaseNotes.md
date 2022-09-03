@@ -1,20 +1,23 @@
-- 4.34.0-alpha00: Added new Sinclair coefficients for the 2024 Olympiad.  An option on the Competition rules page allows selecting the previous (2020 Olympiad) values.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
-- 4.34.0-alpha00: Internal option for public demo site. The public demo site will be reset every few hours (more precisely, will exit and will be respawned automatically).
+- 34.0.0-beta00: 
+  - Ready for translations.
+  - New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = minor user interface or perceptible technical improvements.  Third level = bug fixes.
+- 34.0.0: Added <u>new Sinclair coefficients for the 2024 Olympiad</u>.  An option on the Competition rules page allows selecting the previous (2020 Olympiad) values.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
+- 34.0.0: Additional configuration options for the public demonstration site. The site reset every few hours (it will exit and will be respawned automatically). A warning is given beforehand.  Windows will reload as soon as the site comes back, but with the clean data.
 
 ##### Highlights from recent stable releases
 
 - Cloud Support Changes
-  - Added [instructions](https://owlcms.github.io/owlcms4-prerelease/#/Fly) for using [fly.io](https://fly.io) as a cloud provider. owlcms now automatically detects and uses the postgres database provided by fly.io .
+  - Added [instructions](https://owlcms.github.io/owlcms4-prerelease/#/Fly) for using [fly.io](https://fly.io) as a cloud provider (cheaper alternative to Heroku)
   - Adjusted [instructions](https://owlcms.github.io/owlcms4-prerelease/#/Heroku) for using Heroku now that there is no longer a free tier.
-- Ability to hide unwanted templates and rename to local language
-  - A new "local templates only" checkbox is added on the Languages and Settings page. If selected, the built-in Excel templates will not be listed in the dropdown lists. Only what is in the `local/templates` folder (or has been uploaded as a zip) with be shown. You can therefore remove files you don't use from local/templates and rename the templates to your local language if you wish. 
+- Ability to hide unneeded templates and rename templates to local language
+  - A new "local templates only" checkbox is added on the Languages and Settings page. If selected, the built-in Excel templates will not be listed in the dropdown lists. Only what is in the `local/templates` folder (or has been uploaded as a zip) with be shown. You can therefore remove files you don't use from local/templates and rename the templates to your local language if you wish (non-Latin languages are supported).
 
 - Records
   - Records are shown if record definition Excel spreadsheets are present in the local/records directory.  See the following folder for examples: [Sample Record Files](https://www.dropbox.com/sh/sbr804kqfwkgs6g/AAAEcT2sih9MmnrpYzkh6Erma?dl=0) (includes examples for Masters)
-  - Records definitions are read when the program starts.  Records set during the competition are updated on the scoreboard, but the Excel files need to be updated manually to reflect the official federation records.
+  - Records definitions are read when the program starts.  Records set during the competition are updated on the scoreboard, but the Excel files need to be updated manually once the federations makes the record official.
   - Records are shown according to the sorting order of the file names. Use a numerical prefix to control the order (for example 10Canada.xlsx, 20Commonwealth.xlsx, 30PanAm.xlsx).
-  - All records potentially applicable to the current athlete are shown on the scoreboard.  Records that would be improved by the next lift are highlighted.  If there are too many athletes in a group the records can be hidden using the display-specific settings, or by adding `records=false` to the URL
-  - Notifications of record attempts and new records are shown on the scoreboard and attempt board. See [this reference](https://owlcms.github.io/owlcms4-prerelease/#/Styles#hiding-notifications) if you need to disable.
+  - If there are too many athletes in a group the records can be hidden using the display-specific settings, or by adding `records=false` to the URL
+  - Notifications of record attempts and new records are shown on the scoreboard and attempt board. See [this reference](https://owlcms.github.io/owlcms4-prerelease/#/Styles#hiding-notifications) if you need to disable the notifications.
 - Additional fields on the scoreboards
   - Added the custom1 and custom2 fields to the scoreboards (after the year of birth).  They are hidden by default; change the width to non-zero and visibility to `visible` in results.css in order to show one or the other or both.
 - Shared visual styling between owlcms and publicresults.
@@ -39,12 +42,14 @@
 
   - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
-    > If you get a blue window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
+    > If you get a window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
   - For **Linux** and **Mac OS**, download the `owlcms.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
-    For **Heroku** cloud, no download is necessary. Follow the [Heroku Cloud Installation](https://owlcms.github.io/owlcms4-prerelease/#/Cloud) to deploy your own copy.  See also the [additional configuration steps for large competitions on Heroku](https://owlcms.github.io/owlcms4-prerelease/#/HerokuLarge).  You may also use the Docker container if you prefer.
+  - For cloud installs, no download is necessary. Follow the **[Heroku](Heroku) **or **[Fly.io](Fly)** installation instructions.
 
-- For **Docker**, you may use the `owlcms/owlcms` and `owlcms/publicresults` images on hub.docker.com.  `latest` is the tag for the latest stable image, `prerelease` is used for the latest prerelease.  You will need to provide the `JDBC_DATABASE_URL` `JDBC_DATABASE_USERNAME` and `JDBC_DATABASE_PASSWORD` environment and point them to a Postgres database instance (for example, in another container). owlcms will create/alter the required tables and the account requires the privileges to do so. See [Postgres database creation](https://owlcms.github.io/owlcms4-prerelease/#/PostgreSQL?id=initial-configuration-of-postgresql) for additional info.
+- For **Docker**, you may use the `owlcms/owlcms` and `owlcms/publicresults` images on hub.docker.com.  `latest` is the tag for the latest stable image, `prerelease` is used for the latest prerelease.  
+  In the environment variables for owlcms, provide a standard DATABASE_URL to a running postgres instance or container. `postgres://{user}:{password}@{hostname}:{port}/{database-name}` (all parameters are required).
+  The database is initially empty. owlcms will create/alter the required tables so the account used requires the privileges to do so. See [Postgres database creation](https://owlcms.github.io/owlcms4-prerelease/#/PostgreSQL?id=initial-configuration-of-postgresql) for additional info.
 
 - For **Kubernetes** deployments, see `k3s_setup.yaml` file for [cloud hosting using k3s](https://owlcms.github.io/owlcms4-prerelease/#/DigitalOcean). For other setups, download the `kustomize` files from `k8s.zip` file adapt them for your specific cluster and host names. 
