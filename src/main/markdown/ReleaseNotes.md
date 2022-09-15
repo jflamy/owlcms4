@@ -1,6 +1,7 @@
 > New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = minor user interface or perceptible technical improvements.  Third level = bug fixes.
 
 - 34.0.0-beta02: Setting a password no longer shows the confusing encrypted password, but rather a string of 10 black circles.  The length of the actual password is not revealed.  Clearing the string clears the password.
+- 34.0.0-beta02:  Swedish, Armenian, German translations updated
 - 34.0.0-beta01: Ready for translations.  Fixed logging for public demonstration mode.
 - **34.0.0:** **Added new Sinclair coefficients for the 2024 Olympiad**.  An option on the Competition rules page allows selecting the previous (2020 Olympiad) values.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
 - 34.0.0: Additional environment variable OWLCMS_PUBLICDEMO for restarting periodically the public demonstration site.
