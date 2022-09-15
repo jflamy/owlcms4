@@ -214,7 +214,7 @@ public class ConfigEditingFormFactory
         configLayout.addFormItem(passwordField, Translator.translate("Config.PasswordOrPIN"));
         binder.forField(passwordField)
                 .withNullRepresentation("")
-                .bind(Config::getPin, Config::setPin);
+                .bind(Config::getDisplayPin, Config::setPin);
 
         configLayout.addFormItem(new Html("<br/>"), "");
 

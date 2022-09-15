@@ -46,6 +46,8 @@ import ch.qos.logback.classic.Logger;
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 public class Config {
 
+    private static final String FAKE_PIN = "\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF";
+
     public static final int SHORT_TEAM_LENGTH = 6;
 
     private static Config current;
@@ -321,7 +323,15 @@ public class Config {
     public String getPin() {
         return pin;
     }
-
+    
+    public String getDisplayPin() {
+        if (pin == null) {
+            return "";
+        } else {
+            return FAKE_PIN;
+        }
+    }
+ 
     public String getPublicResultsURL() {
         return publicResultsURL;
     }
@@ -405,7 +415,7 @@ public class Config {
     }
 
     public void setPin(String pin) {
-        if (pin != null && pin.length() != 64) {
+        if (pin != null && pin.length() != 64 && pin != FAKE_PIN) {
             this.pin = AccessUtils.encodePin(pin, false);
         } else {
             this.pin = pin;
