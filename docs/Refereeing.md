@@ -50,7 +50,7 @@ There are three ways to create such a keypad
 
 1. USB keypads: they emulate a USB keyboard.
 2. Joystick keypads: they emulate a joystick, and a small piece of software converts the joystick button press to a keyboard press.
-3. Bluetooth keypads: they emulate a Bluetooth keyboard
+3. Bluetooth keypads: they emulate a Bluetooth keyboard and work with most devices such as iPads and Windows laptops.
 
 #### **Example of USB keypads**
 
@@ -77,9 +77,9 @@ The refereeing computer sees the device as a Joystick.  To convert the button pr
 
 #### Example of Bluetooth buttons
 
-You can use Bluetooth buttons to control an iPad, or a Raspberry Pi.  You can find Bluetooth buttons from Home Automation providers, such as Flic.  Illustrated below, [Flic2](https://flic.io/) buttons can act as stand-alone devices using their [Universal mode](https://flic.io/flic-universal) (you only need the buttons, not the hub)
+You can use Bluetooth buttons to control an iPad or a Windows laptop.  You can find Bluetooth buttons from Home Automation providers, such as Flic.  Illustrated below, [Flic2](https://flic.io/) buttons can act as stand-alone devices using their [Universal mode](https://flic.io/flic-universal) (you only need the buttons, not the hub)
 
-You can also build your own, 
+You can also build your own Bluetooth buttons, 
 
 - You can program an Arduino-like device, the ESP32, to [act as a Bluetooth keyboard](https://gist.github.com/manuelbl/66f059effc8a7be148adb1f104666467).  
 - You can also find devices that do the Bluetooth emulation. See  [these instructions](https://learn.adafruit.com/introducing-the-adafruit-bluefruit-spi-breakout/hidkeyboard) as a starting point.
