@@ -13,6 +13,8 @@ In the following example
 
 The program reads all the tabs of all the files found in the `local/records` directory.  For legibility, we suggest using one Excel per federation/jurisdiction, and one tab per age group.  This does *not* actually matter, since the program reads all the files and all the tabs in each file.
 
+> Note that `local/records` is case-sensitive (lowercase `r`)
+
 Records are shown according the the sorting order of the files.  To control the sorting order, start the file names with a numerical prefix, e.g. 10_Canada.xlsx and 20_World.xlsx and 30_Commonwealth.xlsx would display the records in that order.
 
 The following figure shows the content of the 10_Canada file, organized with one age group per tab.  In order to support non-standard age groups, and non-standard categories, the lower and upper bounds for ages and for body weights are given. 

@@ -391,7 +391,20 @@ public class Athlete {
     private Integer teamTotalRank;
 
     @Transient
+    @JsonIgnore
     private boolean validation = true;
+
+    @Transient
+    @JsonIgnore
+    private SinclairCoefficients sinclairProperties;
+
+    @Transient
+    @JsonIgnore
+    private static SinclairCoefficients sinclairProperties2020 = new SinclairCoefficients(2020);
+
+    @Transient
+    @JsonIgnore
+    private static SinclairCoefficients sinclairProperties2024 = new SinclairCoefficients(2024);
 
     /**
      * Instantiates a new athlete.
@@ -945,14 +958,14 @@ public class Athlete {
         if (getGender() == Gender.M) { // $NON-NLS-1$
             if (categoryWeight < 55.0) {
                 categoryWeight = 55.0;
-            } else if (categoryWeight > SinclairCoefficients.menMaxWeight()) {
-                categoryWeight = SinclairCoefficients.menMaxWeight();
+            } else if (categoryWeight > getSinclairProperties().menMaxWeight()) {
+                categoryWeight = getSinclairProperties().menMaxWeight();
             }
         } else {
             if (categoryWeight < 45.0) {
                 categoryWeight = 45.0;
-            } else if (categoryWeight > SinclairCoefficients.womenMaxWeight()) {
-                categoryWeight = SinclairCoefficients.womenMaxWeight();
+            } else if (categoryWeight > getSinclairProperties().womenMaxWeight()) {
+                categoryWeight = getSinclairProperties().womenMaxWeight();
             }
         }
         return getSinclair(categoryWeight);
@@ -2004,11 +2017,11 @@ public class Athlete {
     @JsonIgnore
     public Double getSinclairFactor() {
         if (gender == Gender.M) {
-            return sinclairFactor(this.bodyWeight, SinclairCoefficients.menCoefficient(),
-                    SinclairCoefficients.menMaxWeight());
+            return sinclairFactor(this.bodyWeight, getSinclairProperties().menCoefficient(),
+                    getSinclairProperties().menMaxWeight());
         } else {
-            return sinclairFactor(this.bodyWeight, SinclairCoefficients.womenCoefficient(),
-                    SinclairCoefficients.womenMaxWeight());
+            return sinclairFactor(this.bodyWeight, getSinclairProperties().womenCoefficient(),
+                    getSinclairProperties().womenMaxWeight());
         }
     }
 
@@ -2026,6 +2039,58 @@ public class Athlete {
         }
         Integer total1 = getBestCleanJerk() + getBestSnatch();
         return getSinclair(bodyWeight1, total1);
+    }
+    
+    /**
+     * Gets the 2020 Sinclair for use in SMF for Delta
+     *
+     * @return a Sinclair value even if c&j has not started
+     */
+    @Transient
+    @JsonIgnore
+    private Double getMastersSinclairForDelta() {
+        final Double bodyWeight1 = getBodyWeight();
+        if (bodyWeight1 == null) {
+            return 0.0;
+        }
+        Integer total1 = getBestCleanJerk() + getBestSnatch();
+        if (total1 == null || total1 < 0.1 || (gender == null)) {
+            return 0.0;
+        }
+        if (gender == Gender.M) { // $NON-NLS-1$
+            return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.menCoefficient(),
+                    sinclairProperties2020.menMaxWeight());
+        } else {
+            return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.womenCoefficient(),
+                    sinclairProperties2020.womenMaxWeight());
+        }
+    }
+    
+    /**
+     * Gets the 2020 Sinclair for use in SMF for Delta
+     *
+     * @return a Sinclair value even if c&j has not started
+     */
+    @Transient
+    @JsonIgnore
+    private Double getMastersSinclair() {
+        final Double bodyWeight1 = getBodyWeight();
+        if (bodyWeight1 == null) {
+            return 0.0;
+        }
+        Integer bestCleanJerk = getBestCleanJerk();
+        Integer bestSnatch = getBestSnatch();
+        Integer total1 = bestCleanJerk + bestSnatch;
+        if (bestCleanJerk == null || bestSnatch == null || total1 == null || total1 < 0.1 || (gender == null)) {
+            return 0.0;
+        }
+        if (gender == Gender.M) { // $NON-NLS-1$
+            return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.menCoefficient(),
+                    sinclairProperties2020.menMaxWeight());
+        } else {
+            return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.womenCoefficient(),
+                    sinclairProperties2020.womenMaxWeight());
+        }
     }
 
     /**
@@ -2050,10 +2115,18 @@ public class Athlete {
         if (birthDate1 == null) {
             return 0.0;
         }
-        double d = getSinclair() * SinclairCoefficients.getSMMCoefficient(YEAR - birthDate1, getGender());
+        double d = getMastersSinclair() * sinclairProperties2020.getAgeGenderCoefficient(YEAR - birthDate1, getGender());
         return d;
     }
     
+    
+    private SinclairCoefficients getSinclairProperties() {
+        if (sinclairProperties == null) {
+            sinclairProperties = (Competition.getCurrent().getSinclairYear() == 2024 ? sinclairProperties2024 : sinclairProperties2020);
+        }
+        return sinclairProperties;
+    }
+
     /**
      * Gets the smm.
      *
@@ -2066,7 +2139,7 @@ public class Athlete {
         if (birthDate1 == null) {
             return 0.0;
         }
-        double d = getSinclairForDelta() * SinclairCoefficients.getSMMCoefficient(YEAR - birthDate1, getGender());
+        double d = getMastersSinclairForDelta() * sinclairProperties2020.getAgeGenderCoefficient(YEAR - birthDate1, getGender());
         return d;
     }
 
@@ -4554,11 +4627,11 @@ public class Athlete {
             return 0.0;
         }
         if (gender == Gender.M) { // $NON-NLS-1$
-            return total1 * sinclairFactor(bodyWeight1, SinclairCoefficients.menCoefficient(),
-                    SinclairCoefficients.menMaxWeight());
+            return total1 * sinclairFactor(bodyWeight1, getSinclairProperties().menCoefficient(),
+                    getSinclairProperties().menMaxWeight());
         } else {
-            return total1 * sinclairFactor(bodyWeight1, SinclairCoefficients.womenCoefficient(),
-                    SinclairCoefficients.womenMaxWeight());
+            return total1 * sinclairFactor(bodyWeight1, getSinclairProperties().womenCoefficient(),
+                    getSinclairProperties().womenMaxWeight());
         }
     }
 

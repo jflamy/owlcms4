@@ -29,6 +29,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -314,6 +315,12 @@ public class CompetitionEditingFormFactory
         layout.addFormItem(useBirthYearField, Translator.translate("Competition.useBirthYear"));
         binder.forField(useBirthYearField)
                 .bind(Competition::isUseBirthYear, Competition::setUseBirthYear);
+        
+        RadioButtonGroup<Integer> sinclairYear = new RadioButtonGroup<>();
+        layout.addFormItem(sinclairYear, Translator.translate("sinclair"));
+        sinclairYear.setItems(2020, 2024);
+        binder.forField(sinclairYear)
+                .bind(Competition::getSinclairYear, Competition::setSinclairYear);
 
         IntegerField wakeUpDelayField = new IntegerField();
         layout.addFormItem(wakeUpDelayField, Translator.translate("Competition.decisionRequestDelayLabel"));

@@ -49,6 +49,8 @@ public class OwlcmsFactory {
     private static FieldOfPlay defaultFOP;
     private static CountDownLatch latch = new CountDownLatch(1);
 
+    private static EventBus appEventBus;
+
     final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsFactory.class);
     static {
         logger.setLevel(Level.INFO);
@@ -195,6 +197,13 @@ public class OwlcmsFactory {
      */
     private static void setDefaultFOP(FieldOfPlay defaultFOP) {
         OwlcmsFactory.defaultFOP = defaultFOP;
+    }
+
+    public static EventBus getAppUIBus() {
+        if (appEventBus == null) {
+            appEventBus = new EventBus();
+        }
+        return appEventBus;
     }
 
 }

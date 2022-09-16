@@ -42,6 +42,10 @@
                     <groupId>org.webjars.bowergithub.webcomponents</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.webjars.npm</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -336,15 +340,15 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.3.0</version>
                 <configuration>
+                    <containerizingMode>packaged</containerizingMode>
                     <from>
-                        <!-- image>gcr.io/distroless/java:11-debug</image -->
                         <image>adoptopenjdk:11-jre-openj9</image>
-                        <!-- image>owlcms/travajdk-jre:latest</image -->
                     </from>
                     <to>
                         <image>owlcms</image>
+                        <tags>prerelease</tags>
                     </to>
                     <container>
                         <ports>

@@ -198,6 +198,7 @@ public class EmbeddedJetty {
     public void stop() {
         try {
             server.stop();
+            server.destroy();
         } catch (Exception e) {
         }
     }

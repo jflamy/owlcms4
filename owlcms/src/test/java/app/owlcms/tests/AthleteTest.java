@@ -188,5 +188,31 @@ public class AthleteTest {
         athlete.setGender(Gender.F);
         assertEquals("SMHF 144kg for 68.5kg 60 year old female athlete ", 306.574D ,athlete.getSmm(), 0.0005D);
     }
+    
+    @Test
+    public void testFemaleSinclair2024() {
+        athlete.setSnatch1ActualLift("60");
+        athlete.setSnatch2ActualLift("61");
+        athlete.setSnatch3ActualLift("62");
+        athlete.setCleanJerk1ActualLift("80");
+        athlete.setCleanJerk2ActualLift("81");
+        athlete.setCleanJerk3ActualLift("82");
+        athlete.setFullBirthDate(LocalDate.now().minusYears(60));
+        athlete.setGender(Gender.F);
+        assertEquals("Sinclair2024 144kg for 68.5kg female athlete ", 180.0536D ,athlete.getSinclair(), 0.0005D);
+    }
+    
+    @Test
+    public void testFemaleSinclair2020() {
+        athlete.setSnatch1ActualLift("60");
+        athlete.setSnatch2ActualLift("61");
+        athlete.setSnatch3ActualLift("62");
+        athlete.setCleanJerk1ActualLift("80");
+        athlete.setCleanJerk2ActualLift("81");
+        athlete.setCleanJerk3ActualLift("82");
+        athlete.setFullBirthDate(LocalDate.now().minusYears(30));
+        athlete.setGender(Gender.F);
+        assertEquals("Sinclair2020 144kg for 68.5kg female athlete ", 179.8088D ,athlete.getSmm(), 0.0005D);
+    }
 
 }

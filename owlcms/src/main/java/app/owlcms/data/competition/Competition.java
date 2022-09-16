@@ -207,6 +207,21 @@ public class Competition {
      */
     @Column(columnDefinition = "boolean default false")
     private boolean useCategorySinclair = false;
+    
+    /**
+     * Idiosyncratic rule in Québec federation computes best lifter using Sinclair at bodyweight boundary.
+     */
+    @Column(columnDefinition = "integer default 2024")
+    private int sinclairYear = 2024;
+
+
+    public int getSinclairYear() {
+        return sinclairYear;
+    }
+
+    public void setSinclairYear(int sinclairYear) {
+        this.sinclairYear = sinclairYear;
+    }
 
     /**
      * For traditional competitions that have lower body weight comes out first. Tie breaker for identical Sinclair.
@@ -224,7 +239,6 @@ public class Competition {
     
     @Column(columnDefinition = "boolean default false")
     private boolean sinclairMeet;
-
 
     public Competition() {
         medalsByGroup = new HashMap<>();
@@ -1468,5 +1482,4 @@ public class Competition {
     public void setSinclair(boolean b) {
         this.sinclairMeet = b;
     }
-
 }

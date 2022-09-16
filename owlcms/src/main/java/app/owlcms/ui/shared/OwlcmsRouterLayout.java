@@ -22,6 +22,7 @@ import com.github.appreciated.app.layout.component.menu.left.items.LeftClickable
 import com.github.appreciated.app.layout.component.menu.left.items.LeftHeaderItem;
 import com.github.appreciated.app.layout.component.menu.left.items.LeftNavigationItem;
 import com.github.appreciated.app.layout.component.router.AppLayoutRouterLayout;
+import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
@@ -45,6 +46,7 @@ import app.owlcms.ui.home.InfoNavigationContent;
 import app.owlcms.ui.lifting.LiftingNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
 import app.owlcms.ui.results.ResultsNavigationContent;
+import app.owlcms.uievents.AppEvent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -110,6 +112,8 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
     final private Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsRouterLayout.class);
     private Class<? extends AppLayout> variant;
 
+    private UI ui;
+
     {
         logger.setLevel(Level.INFO);
     }
@@ -118,11 +122,33 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
     public OwlcmsRouterLayout() {
         try {
             OwlcmsFactory.getInitializationLatch().await();
+            OwlcmsFactory.getAppUIBus().register(this);
         } catch (InterruptedException e) {
         }
         init(getLayoutConfiguration(variant));
     }
-
+    
+    @Subscribe
+    public void slaveAppNotification(AppEvent.AppNotification e) {
+        if (ui == null) {
+            return;
+        }
+        ui.access(() -> {
+            e.doNotification();
+        });
+    }
+    
+    @Subscribe
+    public void slaveAppClose(AppEvent.CloseUI e) {
+        if (ui == null) {
+            return;
+        }
+        ui.access(() -> {
+            OwlcmsFactory.getAppUIBus().unregister(this);
+            e.closeUI();
+        });
+    }
+    
     @Override
     public void configurePage(InitialPageSettings settings) {
         settings.addInlineWithContents("<link rel=\"icon\" href=\"./frontend/images/owlcms.ico\">",
@@ -188,6 +214,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
+        this.ui = UI.getCurrent();
         // crude workaround -- randomly getting "dark" due to multiple themes detected in app.
         getElement().executeJs("document.querySelector('html').setAttribute('theme', 'light');");
         super.onAttach(attachEvent);
