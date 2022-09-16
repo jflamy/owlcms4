@@ -1,16 +1,14 @@
-> New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = minor user interface or perceptible technical improvements.  Third level = bug fixes.
+> New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = smaller features such as user interface improvements or perceptible technical changes.  Third level = bug fixes.
 
-- 34.0.0-beta02: Setting a password no longer shows the confusing encrypted password, but rather a string of 10 black circles.  The length of the actual password is not revealed.  Clearing the string clears the password.
-- 34.0.0-beta02: missing translation lines added for error message when starting/stopping medal ceremonies at a meaningless time.
-- 34.0.0-beta02:  Swedish, Armenian, German translations updated
-- 34.0.0-beta01: Ready for translations.  Fixed logging for public demonstration mode.
+- 34.0.0-rc01: Release candidate ([definition](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate)), usable in competitions.
 - **34.0.0:** **Added new Sinclair coefficients for the 2024 Olympiad**.  An option on the Competition rules page allows selecting the previous (2020 Olympiad) values.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
+- 34.0.0: Setting a password no longer shows the confusing encrypted password, but rather a string of 10 black circles, so that neither the password nor its length is revealed.  Clearing the string clears the password.
 - 34.0.0: Additional environment variable OWLCMS_PUBLICDEMO for restarting periodically the public demonstration site.
 
 ##### Highlights from recent stable releases
 
 - Cloud Support Changes
-  - Added [instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Fly) for using [fly.io](https://fly.io) as a cloud provider (cheaper alternative to Heroku)
+  - Added [instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Fly) for using [fly.io](https://fly.io) as a cloud provider (cheaper alternative to Heroku that is no longer free)
   - Adjusted [instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Heroku) for using Heroku now that there is no longer a free tier.
 - Ability to hide unneeded templates and rename templates to local language
   - A new "local templates only" checkbox is added on the Languages and Settings page. If selected, the built-in Excel templates will not be listed in the dropdown lists. Only what is in the `local/templates` folder (or has been uploaded as a zip) with be shown. You can therefore remove files you don't use from local/templates and rename the templates to your local language if you wish (non-Latin languages are supported).
