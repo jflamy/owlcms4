@@ -1,4 +1,4 @@
-> New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = smaller features such as user interface improvements or perceptible technical changes.  Third level = bug fixes.
+> New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
 - **34.0.0:** **New Sinclair coefficients for the 2024 Olympiad**.  An option on the Competition rules page allows using the previous (2020 Olympiad) values if your local rules require them.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
 - 34.0.0: Setting a password no longer shows the confusing encrypted password, but rather a string of 10 black circles, so that neither the password nor its length is revealed.  Clearing the string clears the password.
