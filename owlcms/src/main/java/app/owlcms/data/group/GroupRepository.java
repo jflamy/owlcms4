@@ -146,4 +146,10 @@ public class GroupRepository {
         });
     }
 
+    public static Group getById(Long id) {
+        return JPAService.runInTransaction((em) -> {
+            return getById(id,em);
+        });
+    }
+
 }

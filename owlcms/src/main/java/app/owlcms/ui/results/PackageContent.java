@@ -55,6 +55,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -575,13 +576,14 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     private Button createCategoryResultsDownloadButton() {
-        downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
+        downloadButtonFactory = new DownloadButtonFactory(
                 () -> {
                     JXLSResultSheet rs = new JXLSResultSheet();
                     rs.setAgeDivision(ageDivision);
                     rs.setAgeGroupPrefix(ageGroupPrefix);
                     rs.setCategory(categoryValue);
-                    rs.setGroup(currentGroup);
+                    // group may have been edited since the page was loaded
+                    rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
                     rs.setSortedAthletes((List<Athlete>) findAll());
                     return rs;
                 },
@@ -595,10 +597,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     private Button createFinalPackageDownloadButton() {
-        downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
+        downloadButtonFactory = new DownloadButtonFactory(
                 () -> {
                     JXLSCompetitionBook rs = new JXLSCompetitionBook(locationUI);
-                    rs.setGroup(currentGroup);
+                    // group may have been edited since the page was loaded
+                    rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
                     rs.setAgeDivision(ageDivision);
                     rs.setAgeGroupPrefix(ageGroupPrefix);
                     rs.setCategory(categoryValue);

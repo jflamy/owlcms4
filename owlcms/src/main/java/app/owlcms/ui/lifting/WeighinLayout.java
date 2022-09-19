@@ -109,10 +109,8 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 
         JXLSCards cardsWriter = new JXLSCards();
         JXLSJurySheet juryWriter = new JXLSJurySheet();
-        JXLSWeighInSheet startingWeightsWriter = new JXLSWeighInSheet();
-
         cardsButton = createCardsButton(cardsWriter);
-        startingWeightsButton = createStartingWeightsButton(startingWeightsWriter);
+        startingWeightsButton = createStartingWeightsButton();
         juryButton = createJuryButton(juryWriter);
 
         Button start = new Button(getTranslation("GenerateStartNumbers"), (e) -> {
@@ -191,10 +189,11 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         String resourceDirectoryLocation = "/templates/cards";
         String title = Translator.translate("AthleteCards");
         String downloadedFilePrefix = "cards";
-        DownloadButtonFactory cardsButtonFactory = new DownloadButtonFactory(cardsWriter,
+        DownloadButtonFactory cardsButtonFactory = new DownloadButtonFactory(
                 () -> {
                     JXLSCards rs = new JXLSCards();
-                    rs.setGroup(group);
+                    // group may have been edited since the page was loaded
+                    rs.setGroup(group != null ? GroupRepository.getById(group.getId()) : null);
                     return rs;
                 },
                 resourceDirectoryLocation,
@@ -211,10 +210,11 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         String title = Translator.translate("Jury");
         String downloadedFilePrefix = "jury";
 
-        DownloadButtonFactory juryButton = new DownloadButtonFactory(juryWriter,
+        DownloadButtonFactory juryButton = new DownloadButtonFactory(
                 () -> {
                     JXLSJurySheet rs = new JXLSJurySheet();
-                    rs.setGroup(group);
+                    // group may have been edited since the page was loaded
+                    rs.setGroup(group != null ? GroupRepository.getById(group.getId()) : null);
                     return rs;
                 },
                 resourceDirectoryLocation,
@@ -226,15 +226,16 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         return juryButton.createTopBarDownloadButton();
     }
 
-    private Button createStartingWeightsButton(JXLSWeighInSheet weighinListWriter) {
+    private Button createStartingWeightsButton() {
         String resourceDirectoryLocation = "/templates/weighin";
         String title = Translator.translate("StartingWeightsSheet");
         String downloadedFilePrefix = "startingWeights";
 
-        DownloadButtonFactory startingWeightsButton = new DownloadButtonFactory(weighinListWriter,
+        DownloadButtonFactory startingWeightsButton = new DownloadButtonFactory(
                 () -> {
                     JXLSWeighInSheet rs = new JXLSWeighInSheet();
-                    rs.setGroup(group);
+                    // group may have been edited since the page was loaded
+                    rs.setGroup(group != null ? GroupRepository.getById(group.getId()) : null);
                     return rs;
                 },
                 resourceDirectoryLocation,
