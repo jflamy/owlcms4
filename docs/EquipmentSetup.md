@@ -38,10 +38,11 @@ You can also add a jury laptop with 5 refereeing devices, add additional results
 
 ## Networking Requirements
 
-When running locally, all that is required is a local Wi-Fi router.  
+When running locally, all that is required is a local Wi-Fi router.  We recommend that the main laptop be connected using an ethernet wire to the router.   If there is Wi-Fi interference in the competition area (which is fairly common), the following minimal setup using Ethernet wires can be used. 
 
-- We recommend that the main laptop be connected using an ethernet wire to the router.
-- If you are of the nervous kind, the attempt board, and the athlete-facing display where the referees are can also be use a wired connection.
+![wirednetwork](img/equipment/wirednetwork.png)
+
+In the diagram above, computers that are essential to the competition flow are wired.  Other computers such as the one used to enter weigh-in information or to print results can be connected using Wi-Fi.   If you need to wire more devices, you can [connect as many switches as you want](https://www.linksys.com/support-article?articleNum=139602) to your router.
 
 When running over the cloud, the additional requirement is that the main router be connected to the internet with a reliable connection.
 
