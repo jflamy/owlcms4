@@ -223,10 +223,11 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         String resourceDirectoryLocation = "/templates/cards";
         String title = Translator.translate("AthleteCards");
         String downloadedFilePrefix = "cards";
-        DownloadButtonFactory cardsButtonFactory = new DownloadButtonFactory(cardsWriter,
+        DownloadButtonFactory cardsButtonFactory = new DownloadButtonFactory(
                 () -> {
                     JXLSCards rs = new JXLSCards();
-                    rs.setGroup(group);
+                    // group may have been edited since the page was loaded
+                    rs.setGroup(group != null ? GroupRepository.getById(group.getId()) : null);
                     return rs;
                 },
                 resourceDirectoryLocation,
@@ -243,10 +244,11 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         String title = Translator.translate("StartingList");
         String downloadedFilePrefix = "startingList";
 
-        DownloadButtonFactory startingListFactory = new DownloadButtonFactory(startingListWriter,
+        DownloadButtonFactory startingListFactory = new DownloadButtonFactory(
                 () -> {
                     JXLSStartingList rs = new JXLSStartingList();
-                    rs.setGroup(group);
+                    // group may have been edited since the page was loaded
+                    rs.setGroup(group != null ? GroupRepository.getById(group.getId()) : null);
                     return rs;
                 },
                 resourceDirectoryLocation,

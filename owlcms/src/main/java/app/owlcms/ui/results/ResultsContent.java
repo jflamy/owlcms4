@@ -59,7 +59,6 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSMedalsSheet;
 import app.owlcms.spreadsheet.JXLSResultSheet;
-import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AthleteCrudGrid;
@@ -135,7 +134,6 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     private DownloadButtonFactory downloadButtonFactory;
 
     private Checkbox medalsOnly;
-    private JXLSWorkbookStreamSource xlsWriter;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
@@ -493,10 +491,11 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     private Button createGroupMedalsDownloadButton() {
-        downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
+        downloadButtonFactory = new DownloadButtonFactory(
                 () -> {
                     JXLSMedalsSheet rs = new JXLSMedalsSheet();
-                    rs.setGroup(currentGroup);
+                    // group may have been edited since the page was loaded
+                    rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
                     return rs;
                 },
                 "/templates/medals",
@@ -509,10 +508,11 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     private Button createGroupResultsDownloadButton() {
-        downloadButtonFactory = new DownloadButtonFactory(xlsWriter,
+        downloadButtonFactory = new DownloadButtonFactory(
                 () -> {
                     JXLSResultSheet rs = new JXLSResultSheet();
-                    rs.setGroup(currentGroup);
+                    // group may have been edited since the page was loaded
+                    rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
                     return rs;
                 },
                 "/templates/protocol",

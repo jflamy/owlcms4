@@ -60,13 +60,11 @@ public class DownloadButtonFactory {
      * @return
      */
     public DownloadButtonFactory(
-            JXLSWorkbookStreamSource xlsWriter,
             Supplier<JXLSWorkbookStreamSource> streamSourceSupplier,
             String resourceDirectoryLocation,
             Function<Competition, String> fileNameGetter,
             BiConsumer<Competition, String> fileNameSetter,
             String dialogTitle, String outputFileName, String buttonLabel) {
-        this.xlsWriter = xlsWriter;
         this.outputFileName = outputFileName;
         this.streamSourceSupplier = streamSourceSupplier;
         this.resourceDirectoryLocation = resourceDirectoryLocation;
