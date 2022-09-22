@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,8 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.Participation;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -51,9 +54,23 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         AgeDivision currentAgeDivision = getAgeDivision();
         String currentAgeGroupPrefix = getAgeGroupPrefix();
         List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(currentGroup);
+        
+        // get all the PAthletes for the current group - athletes show as many times as they have participations.
+        List<Athlete> pAthletes;
+        if (Config.getCurrent().featureSwitch("oldProtocol", false)) {
+            pAthletes = new ArrayList<Athlete>(rankedAthletes.size()*2);
+            for (Athlete a : rankedAthletes) {
+                for (Participation p : a.getParticipations()) {
+                    pAthletes.add(new PAthlete(p));
+                }
+            }
+        } else {
+            pAthletes = rankedAthletes;
+        }
+        
 
         // @formatter:off
-        List<Athlete> athletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
+        List<Athlete> athletes = AthleteSorter.displayOrderCopy(pAthletes).stream()
                 .filter(a -> {
                     Double bw;
                     return a.getCategory() != null && (bw = a.getBodyWeight()) != null && bw > 0.01;

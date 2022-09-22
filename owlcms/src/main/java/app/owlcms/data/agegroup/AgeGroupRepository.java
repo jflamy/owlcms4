@@ -175,6 +175,25 @@ public class AgeGroupRepository {
         });
         return parts.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
     }
+    
+    /**
+     * List all participations for the categories present in the age group
+     *
+     * @param agPrefix age range (no gender) ex: JR, SR, YTH, U15, M55
+     * @param g        gender
+     * @return
+     */
+    public static List<PAthlete> allPAthletesFoGroup(Group gr) {
+        List<Participation> parts = JPAService.runInTransaction((em) -> {
+           TypedQuery<Participation> q = em.createQuery(
+                    "select distinct p from Participation p join p.athlete a where a.group = :competitionGroup",
+                    Participation.class);
+            q.setParameter("competitionGroup", gr);
+            List<Participation> resultSet = q.getResultList();
+            return resultSet;
+        });
+        return parts.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
+    }
 
     public static List<PAthlete> allPAthletesForAgeGroupAgeDivision(String ageGroupPrefix, AgeDivision ageDivision) {
         List<Participation> participations = allParticipationsForAgeGroupAgeDivision(ageGroupPrefix, ageDivision);
