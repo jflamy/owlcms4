@@ -8,6 +8,7 @@ package app.owlcms.servlet;
 
 import java.io.IOException;
 import java.net.BindException;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.URL;
 import java.util.EnumSet;
@@ -143,10 +144,11 @@ public class EmbeddedJetty {
             server.join();
         } catch (Exception e) {
             Throwable cause = e.getCause();
-            if (cause instanceof BindException) {
+            if (cause instanceof BindException || cause instanceof SocketException) {
                 logger.error("another server is already running on port {}", port);
-                System.err.println("another program is already using port " + port
-                        + "; set the environment variable OWLCMS_PORT to use another port number");
+                System.err.println("Another program is already using port " + port+" ; Please use another port number.");
+                System.err.println("To change the port number, set the environment variable OWLCMS_PORT");
+                System.err.println("or use the -Dport=number java option.");
             } else {
                 logger.error(LoggerUtils./**/stackTrace());
                 System.err.println("server could not be started");
