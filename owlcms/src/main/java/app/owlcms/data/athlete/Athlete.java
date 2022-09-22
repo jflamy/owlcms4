@@ -4197,6 +4197,24 @@ public class Athlete {
             setCleanJerk3LiftTime(null);
         }
     }
+    
+    /**
+     * Withdraw.
+     */
+    public void withdrawFromSnatch() {
+        if (snatch1ActualLift != null && snatch1ActualLift.trim().isEmpty()) {
+            setSnatch1ActualLift("0");
+            setSnatch1LiftTime(null);
+        }
+        if (snatch2ActualLift != null && snatch2ActualLift.trim().isEmpty()) {
+            setSnatch2ActualLift("0");
+            setSnatch2LiftTime(null);
+        }
+        if (snatch3ActualLift != null && snatch3ActualLift.trim().isEmpty()) {
+            setSnatch3ActualLift("0");
+            setSnatch3LiftTime(null);
+        }
+    }
 
     /**
      * As integer.
