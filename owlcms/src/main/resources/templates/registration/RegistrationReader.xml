@@ -3,6 +3,10 @@
 	<worksheet idx="0">
         <!-- export format -->
         <section startRow="0" endRow="7">
+            <mapping cell="A1">competition.federation</mapping>
+            <mapping cell="A2">competition.federationAddress</mapping>
+            <mapping cell="A3">competition.federationWebSite</mapping>
+            <mapping cell="A4">competition.federationEMail</mapping>
             <mapping cell="F1">competition.competitionName</mapping>
             <mapping cell="F3">competition.competitionSite</mapping>
             <mapping cell="F4">competition.competitionOrganizer</mapping>

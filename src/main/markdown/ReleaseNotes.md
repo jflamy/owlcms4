@@ -1,5 +1,6 @@
 > New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
-- 34.1.0: Ready for translations.
+- 34.1.1: Ready for translations.
+- 34.1.1: Values in cells A1..A4 of the registration spreadsheet contain federation data. The cells were included in the exported file but not read back on import.
 - 34.1.0:  User interface improvement: Added athlete card button to handle athlete withdrawing from snatch but continuing with clean & jerk.
 - 34.0.1: When creating the Excel reports for a group, the group definition is now read again from the database to ensure its correctness.
 - **34.0.0:** **New Sinclair coefficients for the 2024 Olympiad**.  An option on the Competition rules page allows using the previous (2020 Olympiad) values if your local rules require them.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.

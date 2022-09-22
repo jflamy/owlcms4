@@ -97,6 +97,9 @@ public class RCompetition {
      * @see app.owlcms.data.competition.Competition#setFederation(java.lang.String)
      */
     public void setFederation(String federation) {
+        if (federation == null || federation.isBlank()) {
+            return;
+        }
         c.setFederation(federation);
     }
 
@@ -105,6 +108,9 @@ public class RCompetition {
      * @see app.owlcms.data.competition.Competition#setFederationAddress(java.lang.String)
      */
     public void setFederationAddress(String federationAddress) {
+        if (federationAddress == null || federationAddress.isBlank()) {
+            return;
+        }
         c.setFederationAddress(federationAddress);
     }
 
@@ -113,6 +119,9 @@ public class RCompetition {
      * @see app.owlcms.data.competition.Competition#setFederationEMail(java.lang.String)
      */
     public void setFederationEMail(String federationEMail) {
+        if (federationEMail == null || federationEMail.isBlank()) {
+            return;
+        }
         c.setFederationEMail(federationEMail);
     }
 
@@ -121,6 +130,9 @@ public class RCompetition {
      * @see app.owlcms.data.competition.Competition#setFederationWebSite(java.lang.String)
      */
     public void setFederationWebSite(String federationWebSite) {
+        if (federationWebSite == null || federationWebSite.isBlank()) {
+            return;
+        }
         c.setFederationWebSite(federationWebSite);
     }
 
