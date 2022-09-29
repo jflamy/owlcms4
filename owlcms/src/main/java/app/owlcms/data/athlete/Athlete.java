@@ -512,7 +512,7 @@ public class Athlete {
         }
     }
 
-    public void computeMainCategory() {
+    public void computeMainAndEligibleCategories() {
         Double weight = this.getBodyWeight();
         Integer age = this.getAge();
         if (weight == null || weight < 0.01) {
@@ -532,11 +532,8 @@ public class Athlete {
                 List<Category> categories = CategoryRepository.findByGenderAgeBW(
                         this.getGender(), age, weight);
 
+                // TODO: add additional qualiying criteria - all the ones in the age group definition must be met.
                 categories = categories.stream()
-//                        .peek((c) -> {
-//                            logger.trace("no weight a {} aq {} cq {}", this.getShortName(), this.getQualifyingTotal(),
-//                                    c.getQualifyingTotal());
-//                        })
                         .filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
 //                logger.trace("{} presumed weight {} age {} {} {}",this.getShortName(), presumedBodyWeight, age, this.getCategory(), categories);
                 setEligibles(this, categories);

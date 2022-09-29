@@ -298,7 +298,7 @@ public class AthleteRepository {
         JPAService.runInTransaction(em -> {
             List<Athlete> athletes = AthleteRepository.doFindAll(em);
             for (Athlete a : athletes) {
-                a.computeMainCategory();
+                a.computeMainAndEligibleCategories();
                 em.merge(a);
             }
             em.flush();

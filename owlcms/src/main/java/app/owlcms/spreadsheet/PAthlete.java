@@ -93,7 +93,7 @@ public class PAthlete extends Athlete implements IRankHolder {
     }
 
     @Override
-    public void computeMainCategory() {
+    public void computeMainAndEligibleCategories() {
         a.getCategory();
     }
 
