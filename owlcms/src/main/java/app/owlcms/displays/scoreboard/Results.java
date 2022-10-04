@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
+import java.util.function.BiPredicate;
 
 import org.slf4j.LoggerFactory;
 
@@ -116,7 +117,7 @@ public class Results extends PolymerTemplate<TemplateModel>
     private boolean silenced = true;
     private boolean switchableDisplay = true;
     private boolean showRecords = true;
-    private EventBus uiEventBus;
+    protected EventBus uiEventBus;
     private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     protected Double emFontSize = null;
@@ -490,7 +491,7 @@ public class Results extends PolymerTemplate<TemplateModel>
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Athlete a = e.getAthlete();
-            displayOrder = e.getDisplayOrder();
+            displayOrder = getOrder(OwlcmsSession.getFop());
             liftsDone = AthleteSorter.countLiftsDone(displayOrder);
             doUpdate(a, e);
         });
@@ -725,24 +726,22 @@ public class Results extends PolymerTemplate<TemplateModel>
         JsonArray jath = Json.createArray();
         int athx = 0;
 
-        Category prevCat = null;
+        Athlete prevAthlete = null;
         long currentId = (liftOrder != null && liftOrder.size() > 0) ? liftOrder.get(0).getId() : -1L;
         long nextId = (liftOrder != null && liftOrder.size() > 1) ? liftOrder.get(1).getId() : -1L;
         List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
                 : Collections.emptyList();
         for (Athlete a : athletes) {
             JsonObject ja = Json.createObject();
-            Category curCat = a.getCategory();
-            if (curCat != null && !curCat.sameAs(prevCat)) {
+            if (getSeparatorPredicate().test(a, prevAthlete)) {
                 // changing categories, put marker before athlete
                 ja.put("isSpacer", true);
                 jath.set(athx, ja);
                 ja = Json.createObject();
-                prevCat = curCat;
                 athx++;
             }
             // compute the blinking rank (1 = current, 2 = next)
-            getAthleteJson(a, ja, curCat, (a.getId() == currentId)
+            getAthleteJson(a, ja, a.getCategory(), (a.getId() == currentId)
                     ? 1
                     : ((a.getId() == nextId)
                             ? 2
@@ -754,6 +753,7 @@ public class Results extends PolymerTemplate<TemplateModel>
             }
             jath.set(athx, ja);
             athx++;
+            prevAthlete = a;
         }
         return jath;
     }
@@ -835,6 +835,20 @@ public class Results extends PolymerTemplate<TemplateModel>
         }
     }
 
+    protected List<Athlete> getOrder(FieldOfPlay fop) {
+        return fop.getDisplayOrder();
+    }
+
+    /**
+     * @return the separator
+     */
+    protected BiPredicate<Athlete, Athlete> getSeparatorPredicate() {
+        BiPredicate<Athlete, Athlete> separator = (cur, prev) -> prev == null
+                || (cur.getCategory() != null
+                        && !cur.getCategory().sameAs(prev.getCategory()));
+        return separator;
+    }
+
     /*
      * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
      */
@@ -845,7 +859,7 @@ public class Results extends PolymerTemplate<TemplateModel>
             init();
 
             // get the global category rankings (attached to each athlete)
-            displayOrder = fop.getDisplayOrder();
+            displayOrder = getOrder(fop);
 
             liftsDone = AthleteSorter.countLiftsDone(displayOrder);
             syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
@@ -876,9 +890,13 @@ public class Results extends PolymerTemplate<TemplateModel>
         this.getElement().setPropertyJson("t", translations);
     }
 
+    protected void uiLog(UIEvent e) {
+//        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom());
+    }
+
     protected void updateBottom(String liftType, FieldOfPlay fop) {
         curGroup = fop.getGroup();
-        displayOrder = fop.getDisplayOrder();
+        displayOrder = getOrder(fop);
         spotlightRecords(fop);
 
         doChangeEmSize();
@@ -897,11 +915,16 @@ public class Results extends PolymerTemplate<TemplateModel>
         this.getElement().setPropertyJson("athletes",
                 getAthletesJson(displayOrder, fop.getLiftingOrder(), fop));
 
-        int resultLines = (displayOrder != null ? displayOrder.size() : 0) + countCategories(displayOrder) + 1;
+        List<Athlete> order = getOrder(OwlcmsSession.getFop());
+        int resultLines = (order != null ? order.size() : 0) + countSubsets(order);
         this.getElement().setProperty("resultLines", resultLines);
         boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
         computeLeaders(done);
         computeRecords(done);
+    }
+
+    protected int countSubsets(List<Athlete> order) {
+        return countCategories(order) + 1;
     }
 
     private String computeLiftType(Athlete a) {
@@ -1008,10 +1031,6 @@ public class Results extends PolymerTemplate<TemplateModel>
             setHidden(false);
             doUpdate(e.getAthlete(), e);
         }
-    }
-
-    private void uiLog(UIEvent e) {
-//        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getOrigin(), LoggerUtils.whereFrom());
     }
 
 }
