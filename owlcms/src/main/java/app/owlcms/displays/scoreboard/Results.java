@@ -601,6 +601,10 @@ public class Results extends PolymerTemplate<TemplateModel>
         return nbCats;
     }
 
+    protected int countSubsets(List<Athlete> order) {
+        return countCategories(order) + 1;
+    }
+
     protected void doEmpty() {
         this.setHidden(true);
     }
@@ -835,6 +839,10 @@ public class Results extends PolymerTemplate<TemplateModel>
         }
     }
 
+    protected String getDisplayType() {
+        return "";
+    }
+
     protected List<Athlete> getOrder(FieldOfPlay fop) {
         return fop.getDisplayOrder();
     }
@@ -900,6 +908,9 @@ public class Results extends PolymerTemplate<TemplateModel>
         spotlightRecords(fop);
 
         doChangeEmSize();
+        if (liftType != null && curGroup != null) {
+            this.getElement().setProperty("displayType", getDisplayType());
+        }
         if (liftType != null) {
             this.getElement().setProperty("groupName",
                     curGroup != null
@@ -921,10 +932,6 @@ public class Results extends PolymerTemplate<TemplateModel>
         boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
         computeLeaders(done);
         computeRecords(done);
-    }
-
-    protected int countSubsets(List<Athlete> order) {
-        return countCategories(order) + 1;
     }
 
     private String computeLiftType(Athlete a) {

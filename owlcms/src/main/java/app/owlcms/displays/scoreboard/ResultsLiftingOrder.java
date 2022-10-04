@@ -7,6 +7,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 
 @SuppressWarnings("serial")
@@ -14,8 +15,20 @@ import app.owlcms.init.OwlcmsSession;
 public class ResultsLiftingOrder extends Results {
 
     @Override
+    public String getDisplayType() {
+        return Translator.translate("Scoreboard.LiftingOrder") + ": " ;
+    }
+
+    @Override
     public String getPageTitle() {
         return getTranslation("Scoreboard.LiftingOrder") + OwlcmsSession.getFopNameIfMultiple();
+    }
+
+    @Override
+    protected int countSubsets(List<Athlete> athlete) {
+        boolean snatchPresent = (athlete.get(0).getActuallyAttemptedLifts() < 3);
+        boolean cjPresent = (athlete.get(athlete.size()-1).getActuallyAttemptedLifts() >= 3);
+        return (snatchPresent ? 1 : 0) + (cjPresent ? 1 : 0) + 1;
     }
 
     @Override
@@ -32,11 +45,6 @@ public class ResultsLiftingOrder extends Results {
                 cur.getActuallyAttemptedLifts() >= 3
                         && (prev.getActuallyAttemptedLifts() < 3);
         return separator;
-    }
-
-    @Override
-    protected int countSubsets(List<Athlete> athlete) {
-        return 1 + (athlete.get(0).getActuallyAttemptedLifts() >= 3 ? 2 : 1);
     }
 
 }
