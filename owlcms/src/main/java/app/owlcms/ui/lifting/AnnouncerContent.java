@@ -399,6 +399,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
         MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
         SubMenu subMenu2 = item2.getSubMenu();
+        FieldOfPlay fop = OwlcmsSession.getFop();
         MenuItem subItemSoundOn = subMenu2.addItem(
                 Translator.translate("Settings.TurnOnSound"),
                 e -> {
@@ -421,6 +422,15 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 });
         subItemSingleRef.setCheckable(true);
         subItemSingleRef.setChecked(this.isSingleReferee());
+        MenuItem immediateDecision = subMenu2.addItem(
+                Translator.translate("Settings.ImmediateDecision"),
+                e -> {
+                    switchImmediateDecisionMode(this, !fop.isAnnouncerDecisionImmediate(), true);
+                    e.getSource().setChecked(fop.isAnnouncerDecisionImmediate());
+                });
+        immediateDecision.setCheckable(true);
+        immediateDecision.setChecked(fop.isAnnouncerDecisionImmediate());
+                
     }
 
     @Override

@@ -864,7 +864,7 @@ public class MovingDownTest {
             logger.debug("calling lifter: {}", curLifter);
             fopState.fopEventPost(new FOPEvent.TimeStarted(null));
             fopState.fopEventPost(new FOPEvent.DownSignal(null));
-            fopState.fopEventPost(new FOPEvent.DecisionFullUpdate(this, curLifter, false, false, false, 0, 0, 0));
+            fopState.fopEventPost(new FOPEvent.DecisionFullUpdate(this, curLifter, false, false, false, 0, 0, 0, false));
             logger.debug("failed lift for {}", curLifter);
             fopState.fopEventPost(new FOPEvent.DecisionReset(null));
             return em.merge(curLifter);
@@ -894,7 +894,7 @@ public class MovingDownTest {
             logger.debug("calling lifter: {}", curLifter);
             fopState.fopEventPost(new FOPEvent.TimeStarted(null));
             fopState.fopEventPost(new FOPEvent.DownSignal(null));
-            fopState.fopEventPost(new FOPEvent.DecisionFullUpdate(this, curLifter, true, true, true, 0, 0, 0));
+            fopState.fopEventPost(new FOPEvent.DecisionFullUpdate(this, curLifter, true, true, true, 0, 0, 0, false));
             logger.debug("successful lift for {}", curLifter);
             fopState.fopEventPost(new FOPEvent.DecisionReset(null));
             return em.merge(curLifter);

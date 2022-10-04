@@ -214,6 +214,8 @@ public class FieldOfPlay {
     private List<RecordEvent> lastChallengedRecords;
     private List<RecordEvent> lastNewRecords;
 
+    private boolean announcerDecisionImmediate = false;
+
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
      * be used to provide the athletes and set the athleteTimer
@@ -311,6 +313,29 @@ public class FieldOfPlay {
         return curAthlete;
     }
 
+    public LiftDefinition.Stage getCurrentStage() {
+        if (state == INACTIVE) {
+            return null;
+        } else if (state == BREAK) {
+            switch (breakType) {
+            case BEFORE_INTRODUCTION:
+            case FIRST_SNATCH:
+            case FIRST_CJ:
+            case GROUP_DONE:
+                return null;
+            default:
+                break;
+            }
+        }
+
+        LiftDefinition.Stage stage = null;
+        if (curAthlete != null) {
+            return curAthlete.getAttemptsDone() < 3 ? LiftDefinition.Stage.SNATCH : LiftDefinition.Stage.CLEANJERK;
+        }
+
+        return stage;
+    }
+
     public List<Athlete> getDisplayOrder() {
         return displayOrder;
     }
@@ -334,6 +359,10 @@ public class FieldOfPlay {
      */
     public Group getGroup() {
         return group;
+    }
+
+    public List<RecordEvent> getLastChallengedRecords() {
+        return this.lastChallengedRecords;
     }
 
     /**
@@ -386,6 +415,10 @@ public class FieldOfPlay {
         return name;
     }
 
+    public List<RecordEvent> getNewRecords() {
+        return newRecords;
+    }
+
     /**
      * @return the platform
      */
@@ -405,8 +438,9 @@ public class FieldOfPlay {
     }
 
     public JsonValue getRecordsJson() {
-        if (recordsJson == null)
+        if (recordsJson == null) {
             return Json.createNull();
+        }
         return recordsJson;
     }
 
@@ -415,29 +449,6 @@ public class FieldOfPlay {
      */
     public FOPState getState() {
         return state;
-    }
-
-    public LiftDefinition.Stage getCurrentStage() {
-        if (state == INACTIVE) {
-            return null;
-        } else if (state == BREAK) {
-            switch (breakType) {
-            case BEFORE_INTRODUCTION:
-            case FIRST_SNATCH:
-            case FIRST_CJ:
-            case GROUP_DONE:
-                return null;
-            default:
-                break;
-            }
-        }
-
-        LiftDefinition.Stage stage = null;
-        if (curAthlete != null) {
-            return curAthlete.getAttemptsDone() < 3 ? LiftDefinition.Stage.SNATCH : LiftDefinition.Stage.CLEANJERK;
-        }
-
-        return stage;
     }
 
     /**
@@ -1085,6 +1096,13 @@ public class FieldOfPlay {
     }
 
     /**
+     * @param announcerDecisionImmediate the announcerDecisionImmediate to set
+     */
+    public void setAnnouncerDecisionImmediate(boolean announcerDecisionImmediate) {
+        this.announcerDecisionImmediate = announcerDecisionImmediate;
+    }
+
+    /**
      * Sets the athleteTimer.
      *
      * @param athleteTimer the new athleteTimer
@@ -1152,6 +1170,13 @@ public class FieldOfPlay {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setNewRecords(List<RecordEvent> newRecords) {
+        if (newRecords == null || newRecords.isEmpty()) {
+            logger.debug("{} + clearing records {}", getLoggingName(), LoggerUtils.whereFrom());
+        }
+        this.newRecords = newRecords;
     }
 
     /**
@@ -1303,6 +1328,11 @@ public class FieldOfPlay {
         wakeUpRef = null;
     }
 
+    private void createNewRecordEvent(Athlete a, List<RecordEvent> newRecords, RecordEvent rec, Double value) {
+        RecordEvent newRecord = RecordEvent.newRecord(a, rec, value);
+        newRecords.add(newRecord);
+    }
+
     private void doDecisionReset(FOPEvent e) {
         logger.debug("{}resetting decisions", getLoggingName());
         // the state will be rewritten in displayOrBreakIfDone
@@ -1378,95 +1408,6 @@ public class FieldOfPlay {
             }, DECISION_VISIBLE_DURATION);
 
         }
-    }
-
-    private void notifyRecords(List<RecordEvent> newRecords, boolean newRecord) {
-        if (newRecords == null) {
-            return;
-        }
-        for (RecordEvent rec : newRecords) {
-            pushOutUIEvent(
-                    new UIEvent.Notification(
-                            this.getCurAthlete(),
-                            this,
-                            newRecord ? UIEvent.Notification.Level.SUCCESS : UIEvent.Notification.Level.INFO,
-                            newRecord ? "Record.NewNotification" : "Record.AttemptNotification",
-                            3 * UIEvent.Notification.NORMAL_DURATION,
-                            rec.getRecordName(),
-                            Translator.translate("Record." + rec.getRecordLift().name()),
-                            rec.getAgeGrp(),
-                            rec.getBwCatString(),
-                            Long.toString(Math.round(rec.getRecordValue()))));
-        }
-    }
-
-    /**
-     * add new records if success, remove records if jury reversal.
-     * 
-     * @param a
-     * @param success
-     * @return
-     */
-    private List<RecordEvent> updateRecords(Athlete a, boolean success, List<RecordEvent> challengedRecords,
-            List<RecordEvent> voidableRecords) {
-        logger.debug("updateRecords {} {} {}", a.getShortName(), success, LoggerUtils.whereFrom());
-        ArrayList<RecordEvent> newRecords = new ArrayList<RecordEvent>();
-        if (success) {
-            for (RecordEvent rec : challengedRecords) {
-                Double value = rec.getRecordValue();
-                switch (rec.getRecordLift()) {
-                case SNATCH:
-                    Integer bestSnatch = a.getBestSnatch();
-                    if (bestSnatch > value) {
-                        createNewRecordEvent(a, newRecords, rec, bestSnatch + 0.0D);
-                    }
-                    break;
-                case CLEANJERK:
-                    Integer bestCleanJerk = a.getBestCleanJerk();
-                    if (bestCleanJerk > value) {
-                        createNewRecordEvent(a, newRecords, rec, bestCleanJerk + 0.0D);
-                    }
-                    break;
-                case TOTAL:
-                    Integer total = a.getTotal();
-                    if (total > value) {
-                        createNewRecordEvent(a, newRecords, rec, total + 0.0D);
-                    }
-                    break;
-                default:
-                    break;
-                }
-            }
-            JPAService.runInTransaction(em -> {
-                // create the new records.
-                // do not remove obsolete records, in case jury reverses new record
-                // we always use the largest record, so no harm done by keeping the old ones.
-                for (RecordEvent re : newRecords) {
-                    logger.info("new record: {}", re);
-                    em.persist(re);
-                }
-                return null;
-            });
-            return newRecords;
-        } else {
-            // remove records just established as they are invalid.
-            if (voidableRecords != null) {
-                JPAService.runInTransaction(em -> {
-                    for (RecordEvent re : voidableRecords) {
-                        logger.info("cancelled record: {}", re);
-                        em.remove(em.merge(re));
-                    }
-                    return null;
-                });
-            }
-            return new ArrayList<RecordEvent>();
-        }
-
-    }
-
-    private void createNewRecordEvent(Athlete a, List<RecordEvent> newRecords, RecordEvent rec, Double value) {
-        RecordEvent newRecord = RecordEvent.newRecord(a, rec, value);
-        newRecords.add(newRecord);
     }
 
     private void doSetState(FOPState state) {
@@ -1601,6 +1542,14 @@ public class FieldOfPlay {
         setState(DOWN_SIGNAL_VISIBLE);
     }
 
+    private List<RecordEvent> getLastNewRecords() {
+        return lastNewRecords;
+    }
+
+    private int getPrevWeight() {
+        return prevWeight;
+    }
+
     private Mixer getSoundMixer() {
         Platform platform2 = getPlatform();
         return platform2 == null ? null : platform2.getMixer();
@@ -1616,6 +1565,10 @@ public class FieldOfPlay {
         } else {
             return "?";
         }
+    }
+
+    public boolean isAnnouncerDecisionImmediate() {
+        return announcerDecisionImmediate;
     }
 
     private boolean isDecisionDisplayScheduled() {
@@ -1636,6 +1589,26 @@ public class FieldOfPlay {
 
     private synchronized boolean isInitialWarningEmitted() {
         return initialWarningEmitted;
+    }
+
+    private void notifyRecords(List<RecordEvent> newRecords, boolean newRecord) {
+        if (newRecords == null) {
+            return;
+        }
+        for (RecordEvent rec : newRecords) {
+            pushOutUIEvent(
+                    new UIEvent.Notification(
+                            this.getCurAthlete(),
+                            this,
+                            newRecord ? UIEvent.Notification.Level.SUCCESS : UIEvent.Notification.Level.INFO,
+                            newRecord ? "Record.NewNotification" : "Record.AttemptNotification",
+                            3 * UIEvent.Notification.NORMAL_DURATION,
+                            rec.getRecordName(),
+                            Translator.translate("Record." + rec.getRecordLift().name()),
+                            rec.getAgeGrp(),
+                            rec.getBwCatString(),
+                            Long.toString(Math.round(rec.getRecordValue()))));
+        }
     }
 
     private void prepareDownSignal() {
@@ -1707,7 +1680,15 @@ public class FieldOfPlay {
             }
             setGoodLift(nbWhite >= 2);
             if (!isDecisionDisplayScheduled()) {
-                showDecisionAfterDelay(this);
+                if (e instanceof FOPEvent.DecisionFullUpdate) {
+                    if (((FOPEvent.DecisionFullUpdate) e).isImmediate()) {
+                        showDecisionNow(e.getOrigin());
+                    } else {
+                        showDecisionAfterDelay(e.getOrigin(), REVERSAL_DELAY);
+                    }
+                } else {
+                    showDecisionAfterDelay(this, REVERSAL_DELAY);
+                }
             }
         }
     }
@@ -1909,6 +1890,16 @@ public class FieldOfPlay {
         this.initialWarningEmitted = initialWarningEmitted;
     }
 
+    private void setLastChallengedRecords(List<RecordEvent> challengedRecords) {
+        logger.debug("{} + lastChallengedRecords {}", getLoggingName(), challengedRecords);
+        this.lastChallengedRecords = challengedRecords;
+    }
+
+    private void setLastNewRecords(List<RecordEvent> newRecords) {
+        logger.debug("{} + lastNewRecords {}", getLoggingName(), newRecords);
+        this.lastNewRecords = newRecords;
+    }
+
     private void setLiftingOrder(List<Athlete> liftingOrder) {
         this.liftingOrder = liftingOrder;
     }
@@ -1916,6 +1907,10 @@ public class FieldOfPlay {
     private void setPreviousAthlete(Athlete athlete) {
         logger.trace("setting previousAthlete to {}", getCurAthlete());
         this.previousAthlete = athlete;
+    }
+
+    private void setPrevWeight(int prevWeight) {
+        this.prevWeight = prevWeight;
     }
 
     /**
@@ -1963,11 +1958,11 @@ public class FieldOfPlay {
         setWeightAtLastStart(getCurAthlete().getNextAttemptRequestedWeight());
     }
 
-    synchronized private void showDecisionAfterDelay(Object origin2) {
+    synchronized private void showDecisionAfterDelay(Object origin2, int reversalDelay) {
         logger.trace("{}scheduling decision display", getLoggingName());
         assert !isDecisionDisplayScheduled(); // caller checks.
         setDecisionDisplayScheduled(true); // so there are never two scheduled...
-        new DelayTimer(isTestingMode()).schedule(() -> showDecisionNow(origin2), REVERSAL_DELAY);
+        new DelayTimer(isTestingMode()).schedule(() -> showDecisionNow(origin2), reversalDelay);
 
     }
 
@@ -2031,7 +2026,7 @@ public class FieldOfPlay {
         }
         setState(DOWN_SIGNAL_VISIBLE);
         DecisionFullUpdate ne = new DecisionFullUpdate(ed.getOrigin(), ed.getAthlete(), ed.ref1, ed.ref2, ed.ref3, now,
-                now, now);
+                now, now, isAnnouncerDecisionImmediate());
         refereeForcedDecision = true;
         updateRefereeDecisions(ne);
         uiShowUpdateOnJuryScreen();
@@ -2239,6 +2234,70 @@ public class FieldOfPlay {
                 UIEvent.Notification.Level.ERROR));
     }
 
+    /**
+     * add new records if success, remove records if jury reversal.
+     *
+     * @param a
+     * @param success
+     * @return
+     */
+    private List<RecordEvent> updateRecords(Athlete a, boolean success, List<RecordEvent> challengedRecords,
+            List<RecordEvent> voidableRecords) {
+        logger.debug("updateRecords {} {} {}", a.getShortName(), success, LoggerUtils.whereFrom());
+        ArrayList<RecordEvent> newRecords = new ArrayList<>();
+        if (success) {
+            for (RecordEvent rec : challengedRecords) {
+                Double value = rec.getRecordValue();
+                switch (rec.getRecordLift()) {
+                case SNATCH:
+                    Integer bestSnatch = a.getBestSnatch();
+                    if (bestSnatch > value) {
+                        createNewRecordEvent(a, newRecords, rec, bestSnatch + 0.0D);
+                    }
+                    break;
+                case CLEANJERK:
+                    Integer bestCleanJerk = a.getBestCleanJerk();
+                    if (bestCleanJerk > value) {
+                        createNewRecordEvent(a, newRecords, rec, bestCleanJerk + 0.0D);
+                    }
+                    break;
+                case TOTAL:
+                    Integer total = a.getTotal();
+                    if (total > value) {
+                        createNewRecordEvent(a, newRecords, rec, total + 0.0D);
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+            JPAService.runInTransaction(em -> {
+                // create the new records.
+                // do not remove obsolete records, in case jury reverses new record
+                // we always use the largest record, so no harm done by keeping the old ones.
+                for (RecordEvent re : newRecords) {
+                    logger.info("new record: {}", re);
+                    em.persist(re);
+                }
+                return null;
+            });
+            return newRecords;
+        } else {
+            // remove records just established as they are invalid.
+            if (voidableRecords != null) {
+                JPAService.runInTransaction(em -> {
+                    for (RecordEvent re : voidableRecords) {
+                        logger.info("cancelled record: {}", re);
+                        em.remove(em.merge(re));
+                    }
+                    return null;
+                });
+            }
+            return new ArrayList<>();
+        }
+
+    }
+
     private void updateRefereeDecisions(FOPEvent.DecisionFullUpdate e) {
         refereeDecision[0] = e.ref1;
         refereeTime[0] = e.ref1Time;
@@ -2264,43 +2323,6 @@ public class FieldOfPlay {
     private void weightChangeDoNotDisturb(WeightChange e) {
         recomputeOrderAndRanks(e.isResultChange());
         uiDisplayCurrentAthleteAndTime(false, e, false);
-    }
-
-    public List<RecordEvent> getNewRecords() {
-        return newRecords;
-    }
-
-    public void setNewRecords(List<RecordEvent> newRecords) {
-        if (newRecords == null || newRecords.isEmpty()) {
-            logger.debug("{} + clearing records {}", getLoggingName(), LoggerUtils.whereFrom());
-        }
-        this.newRecords = newRecords;
-    }
-
-    private int getPrevWeight() {
-        return prevWeight;
-    }
-
-    private void setPrevWeight(int prevWeight) {
-        this.prevWeight = prevWeight;
-    }
-
-    public List<RecordEvent> getLastChallengedRecords() {
-        return this.lastChallengedRecords;
-    }
-
-    private void setLastChallengedRecords(List<RecordEvent> challengedRecords) {
-        logger.debug("{} + lastChallengedRecords {}", getLoggingName(), challengedRecords);
-        this.lastChallengedRecords = challengedRecords;
-    }
-
-    private void setLastNewRecords(List<RecordEvent> newRecords) {
-        logger.debug("{} + lastNewRecords {}", getLoggingName(), newRecords);
-        this.lastNewRecords = newRecords;
-    }
-
-    private List<RecordEvent> getLastNewRecords() {
-        return lastNewRecords;
     }
 
 }

@@ -296,8 +296,10 @@ public class FOPEvent {
         public Boolean ref3;
         public Integer ref3Time;
 
+        private boolean immediate;
+
         public DecisionFullUpdate(Object origin, Athlete athlete, Boolean ref1, Boolean ref2, Boolean ref3,
-                Integer long1, Integer long2, Integer long3) {
+                Integer long1, Integer long2, Integer long3, boolean immediate) {
             super(athlete, origin);
             this.ref1 = ref1;
             this.ref2 = ref2;
@@ -305,6 +307,7 @@ public class FOPEvent {
             this.ref1Time = long1;
             this.ref2Time = long2;
             this.ref3Time = long3;
+            this.immediate = immediate;
         }
 
         @Override
@@ -327,6 +330,10 @@ public class FOPEvent {
             int result = super.hashCode();
             result = prime * result + Objects.hash(ref1, ref1Time, ref2, ref2Time, ref3, ref3Time);
             return result;
+        }
+
+        public boolean isImmediate() {
+            return immediate;
         }
 
     }

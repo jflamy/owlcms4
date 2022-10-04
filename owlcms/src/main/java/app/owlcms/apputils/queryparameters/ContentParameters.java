@@ -7,10 +7,14 @@ import java.util.Map;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.Location;
 
+import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.init.OwlcmsSession;
+
 public interface ContentParameters extends FOPParameters {
 
     public static final String SILENT = "silent";
     public static final String SINGLEREF = "singleRef";
+    public static final String IMMEDIATE = "immediate";
 
     public boolean isSilenced();
 
@@ -42,6 +46,17 @@ public interface ContentParameters extends FOPParameters {
         if (updateURL) {
             updateURLLocation(getLocationUI(), getLocation(), SINGLEREF, b ? "true" : "false");
         }
+    }    
+    
+    public default void switchImmediateDecisionMode(Component component, boolean b, boolean updateURL) {
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        if (fop == null) {
+            return;
+        }
+        fop.setAnnouncerDecisionImmediate(b);
+        if (updateURL) {
+            updateURLLocation(getLocationUI(), getLocation(), IMMEDIATE, b ? "true" : "false");
+        }
     }
 
     public default void setSingleReferee(boolean b) {
@@ -72,6 +87,15 @@ public interface ContentParameters extends FOPParameters {
         switchSingleRefereeMode((Component) this, sr, false);
         updateParam(params, SINGLEREF, isSingleReferee() ? "true" : null);
         
+        List<String> immParams = params.get(IMMEDIATE);
+        boolean imm = immParams != null && !immParams.isEmpty()
+                && immParams.get(0).toLowerCase().equals("true");
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        if (fop != null) {
+            fop.setAnnouncerDecisionImmediate(imm);
+            switchImmediateDecisionMode((Component) this, imm, false);
+            updateParam(params, IMMEDIATE, imm ? "true" : null);
+        }
         return params;
     }
 }
