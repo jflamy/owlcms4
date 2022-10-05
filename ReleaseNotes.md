@@ -1,4 +1,7 @@
 > New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
+
+- 34.2.0: The lifting order display is now a full scoreboard (shows the 6 attempts)
+- 34.2.0: Decisions entered by the announcer are now shown immediately by default, unless the option to show the down signal is enabled.  This is useful when flags or standalone systems are used, so that the decision is shown on scoreboards without a superfluous 3-second delay.
 - 34.2.0: On the protocol sheets, when athletes are eligible for multiple age groups they will now be shown in each eligible grouping, with the corresponding ranking and Robi.  To get the old behavior back (each athlete shown only once in their "natural" age group) you can use the "oldProtocol" feature toggle.
 - 34.1.1: Values in cells A1..A4 of the registration spreadsheet contain federation data. The cells were included in the exported file but not read back on import.
 - 34.1.0:  User interface improvement: Added athlete card button to handle athlete withdrawing from snatch but continuing with clean & jerk.
