@@ -38,6 +38,7 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -193,6 +194,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     private boolean silenced = true;
     private HorizontalLayout topBarLeft;
     private String topBarTitle;
+    private HorizontalLayout attempts;
 
     /**
      * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -961,6 +963,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      * @param crudGrid the crudGrid that will be filtered.
      */
     protected void defineFilters(GridCrud<Athlete> crud) {
+
         lastNameFilter.setPlaceholder(getTranslation("LastName"));
         lastNameFilter.setClearButtonVisible(true);
         lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
@@ -976,6 +979,25 @@ public abstract class AthleteGridContent extends VerticalLayout
         getGroupFilter().getStyle().set("display", "none");
         // note: group switching is done from the announcer menu, not in the grid filters.
         crudLayout.addFilterComponent(getGroupFilter());
+        
+        if (attempts == null) {
+            attempts = new HorizontalLayout();
+            attempts.setHeight("100%");
+//            for (int i = 0; i < 6; i++) {
+//                Paragraph div = new Paragraph();
+//                div.getElement().setAttribute("style", "border: 1; width: 5ch; background-color: pink; text-align: center");
+//                div.getElement().setProperty("innerHTML", i+1+"");
+//                attempts.add(div);
+//            }
+        }
+        attempts.getElement().setAttribute("style", "float: right");
+        HorizontalLayout horizontalLayout = (HorizontalLayout)crudLayout.getFilterLayout();
+        horizontalLayout.add(attempts);
+        
+        HorizontalLayout toolbarLayout = (HorizontalLayout)crudLayout.getToolbarLayout();
+        toolbarLayout.setSizeUndefined();
+        
+        horizontalLayout.getParent().get().getElement().setAttribute("style", "width: 100%");
     }
 
     protected void doStartTime() {
@@ -1337,7 +1359,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         // the athlete currently displayed is not necessarily the fop curAthlete,
         // because the lifting order has been recalculated behind the scenes
         Athlete curDisplayAthlete = displayedAthlete;
-        
+
         // weight change warnings not to self.
         if (this != e.getOrigin() && curDisplayAthlete != null && curDisplayAthlete.equals(e.getChangingAthlete())) {
             String text;
