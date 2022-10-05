@@ -214,7 +214,7 @@ public class FieldOfPlay {
     private List<RecordEvent> lastChallengedRecords;
     private List<RecordEvent> lastNewRecords;
 
-    private boolean announcerDecisionImmediate = false;
+    private boolean announcerDecisionImmediate = true;
 
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later

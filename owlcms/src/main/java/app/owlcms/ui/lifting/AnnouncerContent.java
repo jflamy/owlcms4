@@ -399,6 +399,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
         MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
         SubMenu subMenu2 = item2.getSubMenu();
+
         FieldOfPlay fop = OwlcmsSession.getFop();
         MenuItem subItemSoundOn = subMenu2.addItem(
                 Translator.translate("Settings.TurnOnSound"),
@@ -414,23 +415,28 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 });
         subItemSoundOn.setCheckable(true);
         subItemSoundOn.setChecked(!this.isSilenced());
+
         MenuItem subItemSingleRef = subMenu2.addItem(
-                Translator.translate("Settings.SingleReferee"),
-                e -> {
-                    switchSingleRefereeMode(this, !this.isSingleReferee(), true);
-                    e.getSource().setChecked(this.isSingleReferee());
-                });
+                Translator.translate("Settings.SingleReferee"));
         subItemSingleRef.setCheckable(true);
         subItemSingleRef.setChecked(this.isSingleReferee());
         MenuItem immediateDecision = subMenu2.addItem(
-                Translator.translate("Settings.ImmediateDecision"),
-                e -> {
-                    switchImmediateDecisionMode(this, !fop.isAnnouncerDecisionImmediate(), true);
-                    e.getSource().setChecked(fop.isAnnouncerDecisionImmediate());
-                });
+                Translator.translate("Settings.ImmediateDecision"));
         immediateDecision.setCheckable(true);
         immediateDecision.setChecked(fop.isAnnouncerDecisionImmediate());
-                
+
+        immediateDecision.addClickListener(e -> {
+            switchImmediateDecisionMode(this, !fop.isAnnouncerDecisionImmediate(), true);
+            e.getSource().setChecked(fop.isAnnouncerDecisionImmediate());
+        });
+        subItemSingleRef.addClickListener(e -> {
+            // single referee implies not immediate so down is shown
+            switchSingleRefereeMode(this, !this.isSingleReferee(), true);
+            switchImmediateDecisionMode(this, !this.isSingleReferee(), true);
+            immediateDecision.setChecked(fop.isAnnouncerDecisionImmediate());
+            e.getSource().setChecked(this.isSingleReferee());
+        });
+
     }
 
     @Override
