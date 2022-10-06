@@ -17,7 +17,7 @@ tasks:
     init: |
       echo init
     command: |
-      echo command!
+      echo command
       cp /workspace/owlcms4/.gitpod/settings.xml /home/gitpod/settings.xml
 
     # changing of working directory is not required as these tasks will
