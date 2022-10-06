@@ -95,7 +95,7 @@ In MQTT, all communications go through an intermediate server (often called the 
    2022-02-02T14:09:03:    owlcms/# (QoS 0)
    ```
 
-6. Start owlcms.  When owlcms starts, it sends a message to turn on the LED on and off. So in the Subscription section of the application, you should see something like this for each of your platforms (`A` will be replaced by the actual name of your platform(s))![03lensMessagesReceived](img/MQTT/03lensMessagesReceived.png)
+6. Start owlcms.  When owlcms starts, it sends a message to turn the LED on and off. So in the Subscription section of the application, you should see something like this for each of your platforms (`A` will be replaced by the actual name of your platform(s))![03lensMessagesReceived](img/MQTT/03lensMessagesReceived.png)
 
 7. Mosquitto shows the message received from owlcms ("received publish") and the send to Lens ("sending publish").  "paho" is the name of the library used by owlcms.
 
@@ -118,7 +118,7 @@ In MQTT, all communications go through an intermediate server (often called the 
 2022-02-02T14:23:40: Sending PUBLISH to lens_QHQNpt4hPp5h5RWQBnRHBsmLXEX (d0, q0, r0, m0, 'owlcms/decision/A', ... (6 bytes))
 ```
 
-10. You can send a second message `2 good`. After the second decision, owlcms will send two messages to `owlcms/decisionRequest/A/3` indicating that referee 3. There will be an `on` message, and two seconds later, an `off` message.  The device will use this to remind the referee, and after two seconds,  owlcms tells the device to end the reminder.  The device can either do its own timing (and ignore the end message), or wait for the owlcms message.
+10. You can send a second message `2 good`. After the second decision, owlcms will send two messages to `owlcms/decisionRequest/A/3` indicating that referee 3 needs to make a decision. There will be an `on` message, and two seconds later, an `off` message.  The device will use this to remind the referee, and after two seconds, owlcms tells the device to end the reminder.  The device can either do its own timing (and ignore the end message), or wait for the owlcms message.
 
 ### Running Mosquitto as a background service.
 
