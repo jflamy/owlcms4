@@ -9,8 +9,14 @@ ports:
 
 # List the start up tasks. You can start them in parallel in multiple terminals. See https://www.gitpod.io/docs/44_config_start_tasks/
 tasks:
-  - init: echo 'init script' # runs during prebuild
+  - name: init
+    init: echo 'init script' # runs during prebuild
+    
+  - name: start
     command: echo 'start script'
+    
+  - name: copy
+    command: cp /workspace/owlcms4/.gitpod/settings.xml /home/gitpod/.m2/settings2.xml
 
 vscode:
   extensions:
