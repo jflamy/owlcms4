@@ -1,1 +1,4 @@
-mvn --settings .gitpod/settings.xml -q exec:exec -Dexec.executable=java -Dexec.args="-cp owlcms/target/classes:owlcms/target:shared/target/classes:%classpath app.owlcms.Main"
+cd owlcms
+mvn -s ../.gitpod/settings.xml dependency:build-classpath -Dmdep.outputFile=cp.txt
+cd ..
+java -cp "owlcms/target/classes:owlcms/target:shared/target/classes:`cat owlcms/cp.txt`" app.owlcms.Main
