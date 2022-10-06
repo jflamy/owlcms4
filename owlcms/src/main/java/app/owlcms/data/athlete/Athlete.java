@@ -532,7 +532,7 @@ public class Athlete {
                 List<Category> categories = CategoryRepository.findByGenderAgeBW(
                         this.getGender(), age, weight);
 
-                // TODO: add additional qualiying criteria - all the ones in the age group definition must be met.
+                // TODO: add additional qualiying criteria (eg. southamerican medal during panam).
                 categories = categories.stream()
                         .filter(c -> this.getQualifyingTotal() >= c.getQualifyingTotal()).collect(Collectors.toList());
 //                logger.trace("{} presumed weight {} age {} {} {}",this.getShortName(), presumedBodyWeight, age, this.getCategory(), categories);
