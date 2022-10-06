@@ -36,6 +36,7 @@ import app.owlcms.data.agegroup.AgeGroup;
  */
 public class RegistrationPreferenceComparator implements Comparator<Category> {
 
+    @SuppressWarnings("null")
     @Override
     public int compare(Category c1, Category c2) {
         // null is larger -- will show at the end

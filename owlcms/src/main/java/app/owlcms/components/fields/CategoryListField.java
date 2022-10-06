@@ -95,6 +95,7 @@ public class CategoryListField extends CustomField<List<Category>> {
             Notification notif = new Notification();
             notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
             notif.setText(getTranslation("SaveAgeGroupBefore"));
+            return; // there was no return
         }
         if ((value == null) || value.trim().isEmpty()) {
             return;

@@ -229,6 +229,9 @@ public class FOPSimulator {
 
         List<Athlete> order = fop.getLiftingOrder();
         Athlete athlete = order.size() > 0 ? order.get(0) : null;
+        if (athlete == null) {
+            return;
+        }
 
         String declaration = athlete.getCurrentDeclaration();
         String automatic = athlete.getCurrentAutomatic();
