@@ -9,7 +9,7 @@ ports:
 
 # List the start up tasks. You can start them in parallel in multiple terminals. See https://www.gitpod.io/docs/44_config_start_tasks/
 tasks:
-  - name: backend
+  - name: maven
     # change working directory as per configured in `checkoutLocation`
     # which is configured above as `/workspaces/backend`
     before: |
@@ -17,17 +17,8 @@ tasks:
     init: |
       echo init
     command: |
-      echo command
+      echo copying settings
       cp /workspace/owlcms4/.gitpod/settings.xml /home/gitpod/settings.xml
-
-    # changing of working directory is not required as these tasks will
-    # by default by executed in `/workspaces/demo-multi-repo-frontend`
-  - name: frontend
-    init: |
-      echo npm install
-      echo npm run build
-    command: |
-      echo npm run dev
 
 vscode:
   extensions:
