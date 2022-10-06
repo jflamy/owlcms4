@@ -144,19 +144,19 @@ public class JPAService {
 
         if (jdbcUrlPresent) {
             // explicit url provided
-            if (inMemory || dbUrl.startsWith("jdbc:h2:mem")) {
+            if (inMemory || (dbUrl != null && dbUrl.startsWith("jdbc:h2:mem"))) {
                 embeddedH2Server = true;
                 properties = h2MemProperties(schemaGeneration);
-            } else if (dbUrl.startsWith("jdbc:h2:file")) {
+            } else if (dbUrl != null && dbUrl.startsWith("jdbc:h2:file")) {
                 embeddedH2Server = true;
                 properties = h2FileProperties(schemaGeneration, dbUrl, userName, password);
-            } else if (dbUrl.startsWith("jdbc:h2:")) {
+            } else if (dbUrl != null && dbUrl.startsWith("jdbc:h2:")) {
                 // remote h2
                 embeddedH2Server = false;
                 properties = h2ServerProperties(schemaGeneration, dbUrl, userName, password);
-            } else if (dbUrl.startsWith("jdbc:postgres")) {
+            } else if (dbUrl != null && dbUrl.startsWith("jdbc:postgres")) {
                 properties = pgProperties(schemaGeneration, dbUrl, null, null, null, userName, password);
-            } else if (dbUrl.startsWith("postgres")) {
+            } else if (dbUrl != null && dbUrl.startsWith("postgres")) {
                 properties = pgProperties(schemaGeneration, "jdbc:" + dbUrl, null, null, null, userName, password);
             } else {
                 throw new RuntimeException("Unsupported database: " + dbUrl);

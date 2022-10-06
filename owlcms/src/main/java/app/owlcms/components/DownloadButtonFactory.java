@@ -124,6 +124,7 @@ public class DownloadButtonFactory {
                     Resource res = searchMatch(resourceList, fileName);
                     logger.debug("(2) template found {}", res != null ? res.getFileName() : null);
 
+                    @SuppressWarnings("null")
                     InputStream is = res.getStream();
                     xlsWriter.setInputStream(is);
                     logger.debug("(2) filter present = {}", xlsWriter.getGroup());

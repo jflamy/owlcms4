@@ -764,7 +764,7 @@ public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardM
                             jri.put("goodBadClassName", "narrow fail");
                             jri.put("stringValue", "-");
                         } else {
-                            boolean failed = stringValue.startsWith("-");
+                            boolean failed = stringValue != null && stringValue.startsWith("-");
                             jri.put("goodBadClassName", failed ? "narrow fail" : "narrow good");
                             jri.put("stringValue", formatKg(stringValue));
                         }

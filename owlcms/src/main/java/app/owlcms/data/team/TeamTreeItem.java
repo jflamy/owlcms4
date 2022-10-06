@@ -152,7 +152,7 @@ public class TeamTreeItem {
     }
 
     public long getSize() {
-        return team != null ? team.getSize() : null;
+        return team != null ? team.getSize() : 0;
     }
 
     public Double getSmfScore() {

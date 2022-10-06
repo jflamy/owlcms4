@@ -380,7 +380,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                     logger.debug("1 category {} {} bw {}", category, cat, bw);
                     return true;
                 } else if (bw == null) {
-                    logger.debug("2 category {} {} bw {}", category.getName(), cat, bw);
+                    logger.debug("2 category {} {} bw {}", category != null ? category.getName() : null, cat, bw);
                     // no body weight - no contradiction
                     return true;
                 } else if (bw != null && category == null) {
@@ -408,7 +408,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                     logger.debug("1 category {} {} age {}", category, cat, age);
                     return true;
                 } else if (age == null) {
-                    logger.debug("2 category {} {} age {}", category.getName(), cat, age);
+                    logger.debug("2 category {} {} age {}", category != null ? category.getName() : null, cat, age);
                     // no body weight - no contradiction
                     return true;
                 }

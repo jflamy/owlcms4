@@ -99,7 +99,7 @@ public class CompetitionEditingFormFactory
             ComponentEventListener<ClickEvent<Button>> operationButtonClickListener) {
         String email = domainObject.getFederationEMail();
         String trimmedMail = email != null ? email.trim() : email;
-        if (email != null && email.length() != trimmedMail.length()) {
+        if (email != null && trimmedMail != null && email.length() != trimmedMail.length()) {
             // kludge to remove spurious message
             domainObject.setFederationEMail(trimmedMail);
         }

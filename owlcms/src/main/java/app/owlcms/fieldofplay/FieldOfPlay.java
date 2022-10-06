@@ -852,7 +852,7 @@ public class FieldOfPlay {
 
         // force a wake up on user interfaces
         if (!alreadyLoaded) {
-            logger.info("{}group {} athletes={}", getLoggingName(), getGroup(), athletes.size());
+            logger.info("{}group {} athletes={}", getLoggingName(), getGroup(), athletes != null ? athletes.size() : null);
             pushOutSwitchGroup(this);
         }
     }

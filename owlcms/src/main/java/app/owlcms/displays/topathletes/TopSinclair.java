@@ -375,7 +375,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
                             jri.put("goodBadClassName", "veryNarrow fail");
                             jri.put("stringValue", "-");
                         } else {
-                            boolean failed = stringValue.startsWith("-");
+                            boolean failed = stringValue != null && stringValue.startsWith("-");
                             jri.put("goodBadClassName", failed ? "veryNarrow fail" : "veryNarrow good");
                             jri.put("stringValue", formatKg(stringValue));
                         }

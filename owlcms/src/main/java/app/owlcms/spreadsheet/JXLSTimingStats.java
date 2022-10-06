@@ -194,6 +194,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         return getLocalizedTemplate("/templates/timing/TimingStats", ".xls", locale);
     }
 
+    @SuppressWarnings("null")
     @Override
     protected List<Athlete> getSortedAthletes() {
         HashMap<String, Object> reportingBeans = getReportingBeans();

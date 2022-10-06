@@ -623,7 +623,7 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
                             jri.put("goodBadClassName", "fail");
                             jri.put("stringValue", "-");
                         } else {
-                            boolean failed = stringValue.startsWith("-");
+                            boolean failed = stringValue != null && stringValue.startsWith("-");
                             jri.put("goodBadClassName", failed ? "fail" : "good");
                             jri.put("stringValue", formatKg(stringValue));
                         }

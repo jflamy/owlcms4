@@ -321,10 +321,10 @@ public class Athlete {
     /** The forced as current. */
     @Column(columnDefinition = "boolean default false")
     private boolean forcedAsCurrent = false;
-    
+
     @Convert(converter = LocalDateAttributeConverter.class)
     private LocalDate fullBirthDate = null;
-    
+
     private Gender gender = null; // $NON-NLS-1$
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
@@ -418,7 +418,7 @@ public class Athlete {
     public void addEligibleCategory(Category category) {
         addEligibleCategory(category, true);
     }
-    
+
     public void addEligibleCategory(Category category, boolean teamMember) {
         if (category == null) {
             return;
@@ -2037,7 +2037,7 @@ public class Athlete {
         Integer total1 = getBestCleanJerk() + getBestSnatch();
         return getSinclair(bodyWeight1, total1);
     }
-    
+
     /**
      * Gets the 2020 Sinclair for use in SMF for Delta
      *
@@ -2062,7 +2062,7 @@ public class Athlete {
                     sinclairProperties2020.womenMaxWeight());
         }
     }
-    
+
     /**
      * Gets the 2020 Sinclair for use in SMF for Delta
      *
@@ -2112,14 +2112,15 @@ public class Athlete {
         if (birthDate1 == null) {
             return 0.0;
         }
-        double d = getMastersSinclair() * sinclairProperties2020.getAgeGenderCoefficient(YEAR - birthDate1, getGender());
+        double d = getMastersSinclair()
+                * sinclairProperties2020.getAgeGenderCoefficient(YEAR - birthDate1, getGender());
         return d;
     }
-    
-    
+
     private SinclairCoefficients getSinclairProperties() {
         if (sinclairProperties == null) {
-            sinclairProperties = (Competition.getCurrent().getSinclairYear() == 2024 ? sinclairProperties2024 : sinclairProperties2020);
+            sinclairProperties = (Competition.getCurrent().getSinclairYear() == 2024 ? sinclairProperties2024
+                    : sinclairProperties2020);
         }
         return sinclairProperties;
     }
@@ -2136,7 +2137,8 @@ public class Athlete {
         if (birthDate1 == null) {
             return 0.0;
         }
-        double d = getMastersSinclairForDelta() * sinclairProperties2020.getAgeGenderCoefficient(YEAR - birthDate1, getGender());
+        double d = getMastersSinclairForDelta()
+                * sinclairProperties2020.getAgeGenderCoefficient(YEAR - birthDate1, getGender());
         return d;
     }
 
@@ -2533,7 +2535,8 @@ public class Athlete {
      */
     public Integer getYearOfBirth() {
         if (this.getFullBirthDate() != null) {
-            //logger.trace(" getYearOfBirth {} {} {}",  getFullBirthDate(), getFullBirthDate().getYear(), LoggerUtils.whereFrom());
+            // logger.trace(" getYearOfBirth {} {} {}", getFullBirthDate(), getFullBirthDate().getYear(),
+            // LoggerUtils.whereFrom());
             return getFullBirthDate().getYear();
         } else {
             return null;
@@ -2725,7 +2728,9 @@ public class Athlete {
             if (athleteEqual && categoryEqual) {
                 logger.trace("removeCategory removing {} {}", category, participation);
                 iterator.remove();
-                category2.getParticipations().remove(participation);
+                if (category2 != null) {
+                    category2.getParticipations().remove(participation);
+                }
                 participation.setAthlete(null);
                 participation.setCategory(null);
             } else {
@@ -3189,9 +3194,10 @@ public class Athlete {
 
     public void setEligibleCategories(Set<Category> newEligibles) {
         List<Participation> participations2 = getParticipations();
-        Set<String> membershipCategories = participations2.stream().filter(p -> p.getTeamMember()).map(p -> p.getCategory().getCode()).collect(Collectors.toSet());
+        Set<String> membershipCategories = participations2.stream().filter(p -> p.getTeamMember())
+                .map(p -> p.getCategory().getCode()).collect(Collectors.toSet());
         logger.trace("athlete memberships {}", membershipCategories);
-        
+
         Set<Category> oldEligibles = getEligibleCategories();
         logger.trace("setting eligible before:{} target:{}", oldEligibles, newEligibles);
         if (oldEligibles != null) {
@@ -3202,7 +3208,7 @@ public class Athlete {
         if (newEligibles != null) {
             for (Category cat : newEligibles) {
                 boolean membership = membershipCategories.contains(cat.getCode());
-                logger.trace("cat {} {}",cat, membership);
+                logger.trace("cat {} {}", cat, membership);
                 addEligibleCategory(cat, membership); // creates new join table entry, links from category as well.
             }
         }
@@ -3254,7 +3260,7 @@ public class Athlete {
      * @param fullBirthDate the fullBirthDate to set
      */
     public void setFullBirthDate(LocalDate fullBirthDate) {
-        //logger.trace("setting {} {} {}",getShortName(), fullBirthDate, LoggerUtils.whereFrom());
+        // logger.trace("setting {} {} {}",getShortName(), fullBirthDate, LoggerUtils.whereFrom());
         this.fullBirthDate = fullBirthDate;
     }
 
@@ -4194,7 +4200,7 @@ public class Athlete {
             setCleanJerk3LiftTime(null);
         }
     }
-    
+
     /**
      * Withdraw.
      */
@@ -4293,7 +4299,7 @@ public class Athlete {
             return;
         }
         try {
-            //getLogger().setLevel(Level.DEBUG);
+            // getLogger().setLevel(Level.DEBUG);
             doCheckChangeVsLiftOrder(curLift, newVal);
         } finally {
             getLogger().setLevel(prevLoggerLevel);
@@ -4313,7 +4319,7 @@ public class Athlete {
             return;
         }
         try {
-            //getLogger().setLevel(Level.DEBUG);
+            // getLogger().setLevel(Level.DEBUG);
             doCheckChangeVsTimer(declaration, change1, change2);
         } finally {
             getLogger().setLevel(prevLoggerLevel);
@@ -4530,7 +4536,7 @@ public class Athlete {
                 weightAtLastStart = null;
             }
             if (weightAtLastStart == null || weightAtLastStart == 0 || newVal == weightAtLastStart) {
-                 getLogger().trace("{}weight at last start: {} request = {}", fopLoggingName, weightAtLastStart, newVal);
+                getLogger().trace("{}weight at last start: {} request = {}", fopLoggingName, weightAtLastStart, newVal);
                 // program has just been started, or first athlete in group, or moving down to clock value
                 // compare with what the lifting order rules say.
                 LiftOrderReconstruction pastOrder = new LiftOrderReconstruction(fop);
@@ -4558,7 +4564,8 @@ public class Athlete {
                 // logger.trace("newval {} weightAtLastStart {}", newVal, weightAtLastStart);
                 // logger.trace("lifts done at last start {} current lifts done {}", fop.getLiftsDoneAtLastStart(),
                 // getAttemptsDone());
-                if (!Competition.getCurrent().isRoundRobinOrder() && ((!cjClock && !cjStarted) || (cjStarted && cjClock))) {
+                if (!Competition.getCurrent().isRoundRobinOrder()
+                        && ((!cjClock && !cjStarted) || (cjStarted && cjClock))) {
                     throw new RuleViolationException.ValueBelowStartedClock(this, newVal, weightAtLastStart);
                 }
             } else {
@@ -4770,7 +4777,7 @@ public class Athlete {
     private void setFullBirthDateFromYear(Integer yearOfBirth) {
         if (yearOfBirth != null) {
             this.setFullBirthDate(LocalDate.of(yearOfBirth, 1, 1));
-            //logger.trace("{} {}",yearOfBirth,getFullBirthDate());
+            // logger.trace("{} {}",yearOfBirth,getFullBirthDate());
         } else {
             this.setFullBirthDate(null);
         }

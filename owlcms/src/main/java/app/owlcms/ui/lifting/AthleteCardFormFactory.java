@@ -1017,7 +1017,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
             } else {
                 field.setReadOnly(false);
             }
-        } else if (value.equals("-")) {
+        } else if (value != null && value.equals("-")) {
             field.getElement().getClassList().clear();
             field.getElement().getClassList().add("bad");
             if (!isUpdatingResults()) {
