@@ -46,7 +46,7 @@
         <guava.version>30.1.1-jre</guava.version>
 
         <!-- Plugins -->
-        <jetty.version>9.4.44.v20210927</jetty.version>
+        <jetty.version>9.4.49.v20220914</jetty.version>
 
         <rootOutputDir>${project.build.directory}</rootOutputDir>
     </properties>
@@ -90,9 +90,15 @@
             <dependency>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-bom</artifactId>
+                <version>${vaadin.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-                <version>${vaadin.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.vaadin</groupId>
+                        <artifactId>flow-dnd</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -149,6 +155,11 @@
                 <groupId>app.owlcms</groupId>
                 <artifactId>shared</artifactId>
                 <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.webjars.npm</groupId>
+                <artifactId>mobile-drag-drop</artifactId>
+                <version>2.3.0-rc.1</version>
             </dependency>
         </dependencies>
 
@@ -208,6 +219,15 @@
                         <processAllModules>true</processAllModules>
                         <allowAnyUpdates>true</allowAnyUpdates>
                         <allowDowngrade>true</allowDowngrade>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>3.1.0</version>
+                    <configuration>
+                        <skip>true</skip>
+                        <executable>java</executable>
                     </configuration>
                 </plugin>
             </plugins>
