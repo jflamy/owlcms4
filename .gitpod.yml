@@ -12,13 +12,13 @@ tasks:
   - name: maven
     # change working directory as per configured in `checkoutLocation`
     # which is configured above as `/workspaces/backend`
-    before: |
-      echo before
-    init: |
-      echo init
+    #before: |
+    #  echo before
+    #init: |
+    #  echo init
     command: |
-      echo copying settings
-      cp /workspace/owlcms4/.gitpod/settings.xml /home/gitpod/settings.xml
+      echo Copying settings
+      cp -f /workspace/owlcms4/.gitpod/settings.xml /home/gitpod/settings.xml
 
 vscode:
   extensions:
