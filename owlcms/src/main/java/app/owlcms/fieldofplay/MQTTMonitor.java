@@ -63,8 +63,8 @@ public class MQTTMonitor {
 
     public void setFop(FieldOfPlay fop) {
         this.fop = fop;
-        this.decisionTopicName = "/decision/" + fop.getName();
-        this.clockTopicName = "/clock/" + fop.getName();
+        this.decisionTopicName = "owlcms/decision/" + fop.getName();
+        this.clockTopicName = "owlcms/clock/" + fop.getName();
     }
 
     @Subscribe
@@ -123,9 +123,10 @@ public class MQTTMonitor {
 
         ledOnOff();
 
-        String topicFilter = "owlcms/decision/" + fop.getName();
-        client.subscribe(topicFilter, 0);
-        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), topicFilter, client.getCurrentServerURI());
+        client.subscribe(decisionTopicName, 0);
+        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), decisionTopicName, client.getCurrentServerURI());
+        client.subscribe(clockTopicName, 0);
+        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), clockTopicName, client.getCurrentServerURI());
     }
 
     private void ledOnOff() throws MqttException, MqttPersistenceException {
@@ -195,6 +196,9 @@ public class MQTTMonitor {
                             logger.error("{}Malformed MQTT clock message topic='{}' message='{}'",
                                     fop.getLoggingName(), topic, messageStr);
                         }
+                    } else {
+                        logger.error("{}Malformed MQTT unrecognized topic message topic='{}' message='{}'",
+                                fop.getLoggingName(), topic, messageStr);
                     }
                 }).start();
             }

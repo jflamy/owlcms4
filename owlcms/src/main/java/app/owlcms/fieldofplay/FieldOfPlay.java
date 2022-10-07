@@ -617,9 +617,10 @@ public class FieldOfPlay {
         switch (this.getState()) {
 
         case INACTIVE:
-            if (e instanceof TimeStarted) {
-                transitionToTimeRunning();
-            } else if (e instanceof WeightChange) {
+//            if (e instanceof TimeStarted) {
+//                transitionToTimeRunning();
+//            } else 
+            if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof FOPEvent.CeremonyStarted) {
                 getBreakTimer().setIndefinite();
