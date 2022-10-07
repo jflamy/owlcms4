@@ -27,6 +27,7 @@ public class MQTTMonitor {
 
     private MqttAsyncClient client;
     private String decisionTopicName;
+    private String clockTopicName;
     private FieldOfPlay fop;
     private Logger logger = (Logger) LoggerFactory.getLogger(MQTTMonitor.class);
     private String[] macAddress = new String[3];
@@ -63,6 +64,7 @@ public class MQTTMonitor {
     public void setFop(FieldOfPlay fop) {
         this.fop = fop;
         this.decisionTopicName = "/decision/" + fop.getName();
+        this.clockTopicName = "/clock/" + fop.getName();
     }
 
     @Subscribe
@@ -177,6 +179,20 @@ public class MQTTMonitor {
                             macAddress[refIndex] = parts[1];
                         } catch (NumberFormatException e) {
                             logger.error("{}Malformed MQTT decision message topic='{}' message='{}'",
+                                    fop.getLoggingName(), topic, messageStr);
+                        }
+                    } else if (topic.endsWith(clockTopicName)) {
+                        messageStr = messageStr.trim();
+                        if (messageStr.equalsIgnoreCase("start")) {
+                            fop.fopEventPost(new FOPEvent.TimeStarted(this));
+                        } else if (messageStr.equalsIgnoreCase("stop")) {
+                            fop.fopEventPost(new FOPEvent.TimeStopped(this));
+                        } else if (messageStr.equalsIgnoreCase("60")) {
+                            fop.fopEventPost(new FOPEvent.ForceTime(60000, this));
+                        } else if (messageStr.equalsIgnoreCase("120")) {
+                            fop.fopEventPost(new FOPEvent.ForceTime(120000, this));
+                        } else {
+                            logger.error("{}Malformed MQTT clock message topic='{}' message='{}'",
                                     fop.getLoggingName(), topic, messageStr);
                         }
                     }
