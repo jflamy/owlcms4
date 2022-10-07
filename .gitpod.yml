@@ -16,9 +16,12 @@ tasks:
     #  echo before
     #init: |
     #  echo init
-    command: |
+    #command: |
+    init: |
       echo Copying settings
       cp -f /workspace/owlcms4/.gitpod/settings.xml /home/gitpod/.m2/settings.xml
+      echo creating shared
+      mvn -pl shared install
 
 vscode:
   extensions:
