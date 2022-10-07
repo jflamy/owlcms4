@@ -9,15 +9,22 @@ ports:
 
 # List the start up tasks. You can start them in parallel in multiple terminals. See https://www.gitpod.io/docs/44_config_start_tasks/
 tasks:
-  - name: init
-    init: echo 'init script' # runs during prebuild
-    
-  - name: start
-    command: echo 'start script'
-    
-  - name: copy
-    command: cp /workspace/owlcms4/.gitpod/settings.xml /home/gitpod/.m2/settings2.xml
+  - name: maven
+    # change working directory as per configured in `checkoutLocation`
+    # which is configured above as `/workspaces/backend`
+    #before: |
+    #  echo before
+    #init: |
+    #  echo init
+    #command: |
+    init: |
+      echo Copying settings
+      cp -f /workspace/owlcms4/.gitpod/settings.xml /home/gitpod/.m2/settings.xml
+      echo creating shared
+      mvn -pl shared install
 
 vscode:
   extensions:
     - redhat.fabric8-analytics
+
+
