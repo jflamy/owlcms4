@@ -1,5 +1,6 @@
 > New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
+- 34.2.0-beta03: Produce correct error messages + logs when timekeeping MQTT messages were received in incorrect field of play state; fixed intermittent incorrect initialization of MQTT topics.
 - 34.2.0: MQTT timekeeping device support: An MQTT timekeeper device can send one of the 4 following commands (*platform* is the code for the targeted platform): `/clock/platform/start` `/clock/platform/stop` `/clock/platform/60` `/clock/platform/120`
   Note that only 60 and 120 are the only legal numerical values to reset the clock to the corresponding number of seconds.
 - 34.2.0: The lifting order display is now a full scoreboard (shows the 6 attempts)
