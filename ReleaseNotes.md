@@ -1,5 +1,7 @@
 > New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
+- 34.2.0: MQTT timekeeping device support: An MQTT timekeeper device can send one of the 4 following commands (*platform* is the code for the targeted platform): `/clock/platform/start` `/clock/platform/stop` `/clock/platform/60` `/clock/platform/120`
+  Note that only 60 and 120 are the only legal numerical values to reset the clock to the corresponding number of seconds.
 - 34.2.0: The lifting order display is now a full scoreboard (shows the 6 attempts)
 - 34.2.0: Decisions entered by the announcer are now shown immediately by default, unless the option to show the down signal is enabled.  This is useful when flags or standalone systems are used, so that the decision is shown on scoreboards without a superfluous 3-second delay.
 - 34.2.0: On the protocol sheets, when athletes are eligible for multiple age groups they will now be shown in each eligible grouping, with the corresponding ranking and Robi.  To get the old behavior back (each athlete shown only once in their "natural" age group) you can use the "oldProtocol" feature toggle.
