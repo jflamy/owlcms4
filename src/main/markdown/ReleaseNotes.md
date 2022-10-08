@@ -1,8 +1,9 @@
 > New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
+- 34.2.0-rc02:  Corrected unwarranted error messages on the announcer screen that could occur in special cases that require explicitly entering a flag decision (e.g. when down signal is visible shown but 3rd referee device is faulty or disconnected).
 - 34.2.0-rc01: **Important update**: Fixed a *very rare issue* *that could stop the competition from proceeding*. Sorting the ranks would crash, for example, if an "in-progress" Sinclair value based on the snatch exceeded the "official" Sinclair of another earlier competitor. Because ranks are updated after every lift, this could block the updating of the lifting order.
-- 34.2.0-rc01: Fixed the competition simulator to correctly handle the end-of-group events that were cleaned-up to support automatic scene switching during streaming.
-- 34.2.0-rc01: Fixed group selection menus to use natural ordering (1A comes before 10A).
+- 34.2.0-rc01: Fixed the competition simulator to correctly handle the end-of-group events.
+- 34.2.0-rc01: Fixed group selection menus to use natural ordering (5A now comes before 10A instead of after).
 - 34.2.0-beta03: Ability to run correctly under gitpod.io to facilitate testing of patches and pull requests and enable remote sharing of workspaces. Includes minor code clean-up to remove compiler warnings shown in that environment.
 - 34.2.0-beta03: Produce correct error messages and logs when timekeeping MQTT messages were received in incorrect field of play state; fixed intermittent incorrect initialization of MQTT topics.
 - 34.2.0: MQTT timekeeping device support: An MQTT timekeeper device can send one of the 4 following commands (*platform* is the code for the targeted platform): `/clock/platform/start` `/clock/platform/stop` `/clock/platform/60` `/clock/platform/120`
