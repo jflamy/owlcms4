@@ -2025,7 +2025,7 @@ public class FieldOfPlay {
         if (getAthleteTimer().isRunning()) {
             getAthleteTimer().stop();
         }
-        setState(DOWN_SIGNAL_VISIBLE);
+//        setState(DOWN_SIGNAL_VISIBLE);
         DecisionFullUpdate ne = new DecisionFullUpdate(ed.getOrigin(), ed.getAthlete(), ed.ref1, ed.ref2, ed.ref3, now,
                 now, now, isAnnouncerDecisionImmediate());
         refereeForcedDecision = true;

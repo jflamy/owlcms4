@@ -44,6 +44,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -332,8 +333,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 long now = System.currentTimeMillis();
                 long timeElapsed = now - previousGoodMillis;
                 // no reason to give two decisions close together
-                if (timeElapsed > 2000) {
-                    if (isSingleReferee()) {
+                if (timeElapsed > 2000  || isSingleReferee()) {
+                    if (isSingleReferee() && (fop.getState() == FOPState.TIME_STOPPED || fop.getState() == FOPState.TIME_RUNNING)) {
                         fop.fopEventPost(new FOPEvent.DownSignal(this));
                     }
                     fop.fopEventPost(
@@ -349,8 +350,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             OwlcmsSession.withFop(fop -> {
                 long now = System.currentTimeMillis();
                 long timeElapsed = now - previousBadMillis;
-                if (timeElapsed > 2000) {
-                    if (isSingleReferee()) {
+                if (timeElapsed > 2000 || isSingleReferee()) {
+                    if (isSingleReferee() && (fop.getState() == FOPState.TIME_STOPPED || fop.getState() == FOPState.TIME_RUNNING)) {
                         fop.fopEventPost(new FOPEvent.DownSignal(this));
                     }
                     fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
