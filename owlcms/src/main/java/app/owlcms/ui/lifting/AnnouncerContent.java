@@ -315,10 +315,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         });
 
         OwlcmsSession.withFop(fop -> {
-            topBarMenu = new GroupSelectionMenu(groups, fop,
-                    (g1, fop1) -> fop.fopEventPost(
-                            new FOPEvent.SwitchGroup(g1.compareTo(fop1.getGroup()) == 0 ? null : g1, this)),
-                    (g1, fop1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
+            topBarMenu = new GroupSelectionMenu(groups, fop.getGroup(),
+                    fop,
+                    (g1) -> fop.fopEventPost(
+                            new FOPEvent.SwitchGroup(g1.compareTo(fop.getGroup()) == 0 ? null : g1, this)),
+                    (g1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
             createTopBarSettingsMenu();
         });
     }
@@ -333,8 +334,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 long now = System.currentTimeMillis();
                 long timeElapsed = now - previousGoodMillis;
                 // no reason to give two decisions close together
-                if (timeElapsed > 2000  || isSingleReferee()) {
-                    if (isSingleReferee() && (fop.getState() == FOPState.TIME_STOPPED || fop.getState() == FOPState.TIME_RUNNING)) {
+                if (timeElapsed > 2000 || isSingleReferee()) {
+                    if (isSingleReferee()
+                            && (fop.getState() == FOPState.TIME_STOPPED || fop.getState() == FOPState.TIME_RUNNING)) {
                         fop.fopEventPost(new FOPEvent.DownSignal(this));
                     }
                     fop.fopEventPost(
@@ -351,7 +353,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 long now = System.currentTimeMillis();
                 long timeElapsed = now - previousBadMillis;
                 if (timeElapsed > 2000 || isSingleReferee()) {
-                    if (isSingleReferee() && (fop.getState() == FOPState.TIME_STOPPED || fop.getState() == FOPState.TIME_RUNNING)) {
+                    if (isSingleReferee()
+                            && (fop.getState() == FOPState.TIME_STOPPED || fop.getState() == FOPState.TIME_RUNNING)) {
                         fop.fopEventPost(new FOPEvent.DownSignal(this));
                     }
                     fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,

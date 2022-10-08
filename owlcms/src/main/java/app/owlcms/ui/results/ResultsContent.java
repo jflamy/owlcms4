@@ -25,12 +25,9 @@ import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.contextmenu.MenuItem;
-import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.menubar.MenuBar;
-import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -46,6 +43,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.DownloadButtonFactory;
+import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -280,15 +278,27 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         List<String> groupNames = params.get("group");
         if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
             String groupName = groupNames.get(0);
-            currentGroup = GroupRepository.findByName(groupName);
+            if (groupName == "*") {
+                // special group to show all athletes
+                currentGroup = null;
+            } else {
+                currentGroup = GroupRepository.findByName(groupName);
+            }
         } else {
-            currentGroup = null;
+            // if no group, we pick the first alphabetical group as a filter
+            // to avoid showing hundreds of athlete at the end of each of the groups
+            // (which has a noticeable impact on slower machines)
+            List<Group> groups = GroupRepository.findAll();
+            groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+            currentGroup = (groups.size() > 0 ? groups.get(0) : null);
         }
         if (currentGroup != null) {
             params.put("group", Arrays.asList(URLUtils.urlEncode(currentGroup.getName())));
         } else {
-            params.remove("group");
+            // params.remove("group");
+            params.put("group", Arrays.asList(URLUtils.urlEncode("*")));
         }
+        doSwitchGroup(currentGroup);
         params.remove("fop");
         logger.debug("params {}", params);
 
@@ -384,33 +394,29 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         OwlcmsSession.withFop(fop -> {
             logger.trace("initial setting group to {} {}", currentGroup, LoggerUtils.whereFrom());
             getGroupFilter().setValue(currentGroup);
-
-            topBarMenu = new MenuBar();
-            MenuItem item;
-            if (currentGroup != null) {
-                item = topBarMenu.addItem(currentGroup.getName() + "\u2003\u25bd");
-                topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL);
-            } else {
-                item = topBarMenu.addItem(Translator.translate("Group") + "\u2003\u25bc");
-                topBarMenu.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY);
-            }
-            SubMenu subMenu = item.getSubMenu();
-            for (Group g : groups) {
-                boolean checked = g.compareTo(currentGroup) == 0;
-                MenuItem subItem = subMenu.addItem(
-                        describedName(g),
-                        e -> {
-                            currentGroup = (checked ? null : g);
-                            setGridGroup(currentGroup);
-                            downloadButtonFactory.createTopBarDownloadButton();
-                            MenuBar oldMenu = topBarMenu;
-                            createTopBarGroupSelect();
-                            topBar.replace(oldMenu, topBarMenu);
-                        });
-                subItem.setCheckable(true);
-                subItem.setChecked(checked);
-            }
+            // switching to group "*" is understood to mean all groups
+            topBarMenu = new GroupSelectionMenu(groups, currentGroup,
+                    fop,
+                    (g1) -> doSwitchGroup(g1),
+                    (g1) -> doSwitchGroup(new Group("*")),
+                    null, 
+                    Translator.translate("AllGroups"));
         });
+    }
+
+    private void doSwitchGroup(Group newCurrentGroup) {
+        if (newCurrentGroup != null && newCurrentGroup.getName() == "*") {
+            currentGroup = null;
+        } else {
+            currentGroup = newCurrentGroup;
+        }
+        setGridGroup(currentGroup);
+        if (downloadButtonFactory != null)
+            downloadButtonFactory.createTopBarDownloadButton();
+        MenuBar oldMenu = topBarMenu;
+        createTopBarGroupSelect();
+        if (topBar != null)
+            topBar.replace(oldMenu, topBarMenu);
     }
 
     /**
@@ -527,15 +533,6 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
                 "results", Translator.translate("Download"));
         Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
         return resultsButton;
-    }
-
-    private String describedName(Group g) {
-        String desc = g.getDescription();
-        if (desc == null || desc.isBlank()) {
-            return g.getName();
-        } else {
-            return g.getName() + " - " + g.getDescription();
-        }
     }
 
 }
