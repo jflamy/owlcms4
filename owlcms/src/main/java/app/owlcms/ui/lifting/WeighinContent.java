@@ -9,6 +9,7 @@ package app.owlcms.ui.lifting;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,6 +62,7 @@ import app.owlcms.ui.crudui.OwlcmsMultiSelectComboBoxProvider;
 import app.owlcms.ui.shared.AthleteRegistrationFormFactory;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -334,7 +336,9 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crudGrid.getCrudLayout().addFilterComponent(categoryFilter);
 
         groupFilter.setPlaceholder(getTranslation("Group"));
-        groupFilter.setItems(GroupRepository.findAll());
+        List<Group> groups = GroupRepository.findAll();
+        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+        groupFilter.setItems(groups);
         groupFilter.setItemLabelGenerator(Group::getName);
         groupFilter.setClearButtonVisible(true);
         groupFilter.addValueChangeListener(e -> {
@@ -452,8 +456,10 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
         crudFormFactory.setFieldProvider("gender", new OwlcmsComboBoxProvider<>(getTranslation("Gender"),
                 Arrays.asList(Gender.mfValues()), new TextRenderer<>(Gender::name), Gender::name));
+        List<Group> groups = GroupRepository.findAll();
+        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
         crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(getTranslation("Group"),
-                GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
+                groups, new TextRenderer<>(Group::getName), Group::getName));
         crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
                 CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName));
         crudFormFactory.setFieldProvider("eligibleCategories",

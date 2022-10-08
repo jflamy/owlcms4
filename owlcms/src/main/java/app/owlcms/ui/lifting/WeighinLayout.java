@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.ui.lifting;
 
+import java.util.Comparator;
 import java.util.List;
 
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,7 @@ import app.owlcms.spreadsheet.JXLSJurySheet;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -100,7 +102,9 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 
         groupSelect = new ComboBox<>();
         groupSelect.setPlaceholder(getTranslation("Group"));
-        groupSelect.setItems(GroupRepository.findAll());
+        List<Group> groups = GroupRepository.findAll();
+        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+        groupSelect.setItems(groups);
         groupSelect.setItemLabelGenerator(Group::getName);
         groupSelect.setClearButtonVisible(true);
         groupSelect.addValueChangeListener(e -> {

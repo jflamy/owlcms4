@@ -36,63 +36,64 @@ import app.owlcms.data.agegroup.AgeGroup;
  */
 public class RegistrationPreferenceComparator implements Comparator<Category> {
 
-    @SuppressWarnings("null")
     @Override
     public int compare(Category c1, Category c2) {
         // null is larger -- will show at the end
         if (c1 == null && c2 == null) {
             return 0;
-        }
-        if (c1 == null && c2 != null) {
+        } else if (c1 == null && c2 != null) {
             return 1;
-        }
-        if (c1 != null && c2 == null) {
+        } else if (c1 != null && c2 == null) {
             return -1;
+        } else if (c1 != null && c2 != null) {
+            AgeGroup ag1 = c1.getAgeGroup();
+            AgeGroup ag2 = c2.getAgeGroup();
+            AgeDivision ad1 = (ag1 != null ? ag1.getAgeDivision() : null);
+            AgeDivision ad2 = (ag2 != null ? ag2.getAgeDivision() : null);
+           
+            int compare = 0;
+            if (ad1 != null && ad2 != null && ag1 != null && ag2 != null) {
+                compare = ObjectUtils.compare(c1.getGender(), c2.getGender());
+                if (compare != 0) {
+                    return compare;
+                }
+
+                // age divisions are in registration preference order
+                // U before M before OLY before IWF before DEFAULT
+                compare = ObjectUtils.compare(ad1, ad2);
+                if (compare != 0) {
+                    return compare;
+                }
+
+                // athlete will be placed in youngest age group by default
+                compare = Integer.compare(ag1.getMinAge(), ag2.getMinAge());
+                if (compare != 0) {
+                    return compare;
+                }
+
+                // same minimum age, listed in most specific age category
+                compare = ObjectUtils.compare(ag1.getMaxAge(), ag2.getMaxAge());
+                if (compare != 0) {
+                    return compare;
+                }
+
+                // compare age divisions -- grasping at straws to get a total order.
+                compare = ObjectUtils.compare(ad1, ad2);
+                if (compare != 0) {
+                    return compare;
+                }
+            }
+
+            // compare max body weights
+            compare = Double.compare(c1.getMaximumWeight(), c2.getMaximumWeight());
+            if (compare != 0) {
+                return compare;
+            }
+
+            return 0;
+        } else {
+            throw new RuntimeException("can't happen");
         }
-
-        AgeGroup ag1 = c1.getAgeGroup();
-        AgeDivision ad1 = (ag1 != null ? ag1.getAgeDivision() : null);
-        AgeGroup ag2 = c2.getAgeGroup();
-        AgeDivision ad2 = (ag2 != null ? ag2.getAgeDivision() : null);
-
-        int compare = 0;
-        compare = ObjectUtils.compare(c1.getGender(), c2.getGender());
-        if (compare != 0) {
-            return compare;
-        }
-
-        // age divisions are in registration preference order
-        // U before M before OLY before IWF before DEFAULT
-        compare = ad1.compareTo(ad2);
-        if (compare != 0) {
-            return compare;
-        }
-
-        // athlete will be placed in youngest age group by default
-        compare = Integer.compare(ag1.getMinAge(), ag2.getMinAge());
-        if (compare != 0) {
-            return compare;
-        }
-
-        // same minimum age, listed in most specific age category
-        compare = Integer.compare(ag1.getMaxAge(), ag2.getMaxAge());
-        if (compare != 0) {
-            return compare;
-        }
-
-        // compare age divisions -- grasping at straws to get a total order.
-        compare = ad1.compareTo(ad2);
-        if (compare != 0) {
-            return compare;
-        }
-
-        // compare max body weights
-        compare = Double.compare(c1.getMaximumWeight(), c2.getMaximumWeight());
-        if (compare != 0) {
-            return compare;
-        }
-
-        return 0;
     }
 
 }

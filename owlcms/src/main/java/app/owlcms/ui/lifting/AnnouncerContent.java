@@ -8,6 +8,7 @@
 package app.owlcms.ui.lifting;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,6 +54,7 @@ import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -303,6 +305,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         // filter.
 
         List<Group> groups = GroupRepository.findAll();
+        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
 
         OwlcmsSession.withFop((fop) -> {
             Group group = fop.getGroup();

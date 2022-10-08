@@ -194,7 +194,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         return getLocalizedTemplate("/templates/timing/TimingStats", ".xls", locale);
     }
 
-    @SuppressWarnings("null")
+
     @Override
     protected List<Athlete> getSortedAthletes() {
         HashMap<String, Object> reportingBeans = getReportingBeans();
@@ -214,7 +214,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
         List<SessionStats> sessions = new LinkedList<>();
 
-        SessionStats curStat = null;
+        SessionStats curStat = new SessionStats("");
         for (Athlete curAthlete : athletes) {
             curGroup = curAthlete.getGroup();
             logger.debug("athlete = {} {}", curAthlete, curGroup);

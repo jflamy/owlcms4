@@ -9,6 +9,7 @@ package app.owlcms.ui.results;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +66,7 @@ import app.owlcms.ui.shared.AthleteCrudGrid;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -377,6 +379,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         // filter.
 
         List<Group> groups = GroupRepository.findAll();
+        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
 
         OwlcmsSession.withFop(fop -> {
             logger.trace("initial setting group to {} {}", currentGroup, LoggerUtils.whereFrom());
@@ -422,7 +425,9 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         }
 
         getGroupFilter().setPlaceholder(getTranslation("Group"));
-        getGroupFilter().setItems(GroupRepository.findAll());
+        List<Group> groups = GroupRepository.findAll();
+        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+        getGroupFilter().setItems(groups);
         getGroupFilter().setItemLabelGenerator(Group::getName);
         // hide because the top bar has it
         getGroupFilter().getStyle().set("display", "none");

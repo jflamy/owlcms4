@@ -120,16 +120,17 @@ public class RecordRepository {
                         recordCategories.set(j, string);
                         column.put("cat", string);
                     }
-                    cell.put(rec.getRecordLift().name(), rec.getRecordValue());
+                    Double recordValue = rec.getRecordValue();
+                    cell.put(rec.getRecordLift().name(), recordValue != null ? recordValue : 999.0D);
 
-                    if (rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null
-                            && snatchRequest > rec.getRecordValue()) {
+                    if (rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null && recordValue != null
+                            && snatchRequest > recordValue) {
                         cell.put("snatchHighlight", "highlight");
-                    } else if (rec.getRecordLift() == Ranking.CLEANJERK && cjRequest != null
-                            && cjRequest > +rec.getRecordValue()) {
+                    } else if (rec.getRecordLift() == Ranking.CLEANJERK && cjRequest != null && recordValue != null
+                            && cjRequest > +recordValue) {
                         cell.put("cjHighlight", "highlight");
-                    } else if (rec.getRecordLift() == Ranking.TOTAL && totalRequest != null
-                            && totalRequest > +rec.getRecordValue()) {
+                    } else if (rec.getRecordLift() == Ranking.TOTAL && totalRequest != null && recordValue != null
+                            && totalRequest > +recordValue) {
                         cell.put("totalHighlight", "highlight");
                     }
                 }

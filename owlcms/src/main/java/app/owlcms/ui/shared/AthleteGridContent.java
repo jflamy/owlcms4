@@ -9,6 +9,7 @@ package app.owlcms.ui.shared;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +90,7 @@ import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -972,7 +974,9 @@ public abstract class AthleteGridContent extends VerticalLayout
         crudLayout.addFilterComponent(lastNameFilter);
 
         getGroupFilter().setPlaceholder(getTranslation("Group"));
-        getGroupFilter().setItems(GroupRepository.findAll());
+        List<Group> groups = GroupRepository.findAll();
+        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+        getGroupFilter().setItems(groups);
         getGroupFilter().setItemLabelGenerator(Group::getName);
         // hide because the top bar has it
         getGroupFilter().getStyle().set("display", "none");

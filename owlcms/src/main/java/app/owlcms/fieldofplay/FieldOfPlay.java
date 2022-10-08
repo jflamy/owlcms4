@@ -1079,13 +1079,13 @@ public class FieldOfPlay {
 
         List<RecordEvent> challengedRecords = new ArrayList<>();
         challengedRecords
-                .addAll(records.stream().filter(rec -> rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null
+                .addAll(records.stream().filter(rec -> rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null && rec.getRecordValue() != null
                         && snatchRequest > rec.getRecordValue()).collect(Collectors.toList()));
         challengedRecords
-                .addAll(records.stream().filter(rec -> rec.getRecordLift() == Ranking.CLEANJERK && cjRequest != null
+                .addAll(records.stream().filter(rec -> rec.getRecordLift() == Ranking.CLEANJERK && cjRequest != null && rec.getRecordValue() != null
                         && cjRequest > rec.getRecordValue()).collect(Collectors.toList()));
         challengedRecords
-                .addAll(records.stream().filter(rec -> rec.getRecordLift() == Ranking.TOTAL && totalRequest != null
+                .addAll(records.stream().filter(rec -> rec.getRecordLift() == Ranking.TOTAL && totalRequest != null && rec.getRecordValue() != null
                         && totalRequest > rec.getRecordValue()).collect(Collectors.toList()));
 
         JsonValue recordsJson = RecordRepository.buildRecordJson(records, snatchRequest, cjRequest, totalRequest);
