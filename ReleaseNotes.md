@@ -1,8 +1,10 @@
 > New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
+- 34.2.0-rc02:  Group Results page no longer shows all athletes by default, as this takes too long for large competitions with several hundred competitors.  At the end of a group, the Competition Secretary picks the last group, which is very fast.  Selecting "All Groups" can still be done, but needs to be done using the drop-down menu. All Groups is used at the end of the meet to create a full results sheet for the federation.
+- 34.2.0-rc02:  Removed unwarranted error messages on the announcer screen that could occur in special cases, when entering a flag decision (for example, when down signal was shown but 3rd referee device was faulty or disconnected, there would be misleading messages if the announcer entered the decision).
 - 34.2.0-rc01: **Important update**: Fixed a *very rare issue* *that could stop the competition from proceeding*. Sorting the ranks would crash, for example, if an "in-progress" Sinclair value based on the snatch exceeded the "official" Sinclair of another earlier competitor. Because ranks are updated after every lift, this could block the updating of the lifting order.
-- 34.2.0-rc01: Fixed the competition simulator to correctly handle the end-of-group events that were cleaned-up to support automatic scene switching during streaming.
-- 34.2.0-rc01: Fixed group selection menus to use natural ordering (1A comes before 10A).
+- 34.2.0-rc01: Fixed the competition simulator to correctly handle the end-of-group events.
+- 34.2.0-rc01: Fixed group selection menus to use natural ordering (5A now comes before 10A instead of after).
 - 34.2.0-beta03: Ability to run correctly under gitpod.io to facilitate testing of patches and pull requests and enable remote sharing of workspaces. Includes minor code clean-up to remove compiler warnings shown in that environment.
 - 34.2.0-beta03: Produce correct error messages and logs when timekeeping MQTT messages were received in incorrect field of play state; fixed intermittent incorrect initialization of MQTT topics.
 - 34.2.0: MQTT timekeeping device support: An MQTT timekeeper device can send one of the 4 following commands (*platform* is the code for the targeted platform): `/clock/platform/start` `/clock/platform/stop` `/clock/platform/60` `/clock/platform/120`
