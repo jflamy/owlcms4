@@ -20,11 +20,8 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
-import app.owlcms.data.group.GroupRepository;
-import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.preparation.RegistrationFileUploadDialog;
 import app.owlcms.utils.DateTimeUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -89,14 +86,11 @@ public class RAthlete {
             Category c;
             if ((c = RCompetition.getActiveCategories().get(catName)) != null) {
                 // exact match for a category.
-                a.setCategory(c);
-                logger.warn("====== a={} c={}", a.getShortName(), c.getName());
+                Set<Category> eligibleCategories = new LinkedHashSet<>();
+                eligibleCategories.add(c);
                 if (parts.length > 1) {
                     String[] eligibleNames = parts[1].split(";");
-                    Set<Category> eligibleCategories = new LinkedHashSet<>();
-                    eligibleCategories.add(c);
                     for (String eligibleName : eligibleNames) {
-                        logger.warn("   e={}", eligibleName);
                         Category c2;
                         if ((c2 = RCompetition.getActiveCategories().get(eligibleName.trim())) != null) {
                             eligibleCategories.add(c2);
@@ -105,8 +99,8 @@ public class RAthlete {
                                     Translator.translate("Upload.CategoryNotFoundByName", eligibleName.trim()));
                         }
                     }
-                    a.setEligibleCategories(eligibleCategories);
                 }
+                RCompetition.getAthleteToEligibles().put(a.getId(),eligibleCategories);
             } else {
                 setCategoryHeuristics(categoryName);
             }
@@ -253,19 +247,9 @@ public class RAthlete {
         if (groupName == null) {
             return;
         }
-        Group group = GroupRepository.findByName(groupName);
-        if (group == null) {
-            group = new Group();
-            group.setName(groupName);
-            group.setPlatform(PlatformRepository.findAll().get(0));
-            Group nGroup = GroupRepository.save(group);
-            a.setGroup(nGroup);
-            logger.debug("creating group {}", groupName);
-            RegistrationFileUploadDialog.listGroups("group creation");
-//            throw new Exception(
-//                    Translator.translate("Upload.GroupNotDefined", groupName));
-        } else {
-            a.setGroup(group);
+        Group g;
+        if ((g = RCompetition.getActiveGroups().get(groupName)) != null) {
+            a.setGroup(g);
         }
     }
 

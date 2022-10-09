@@ -270,8 +270,8 @@ public class Athlete {
      * eager does not hurt for us.
      * https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa-and-hibernate/
      */
-    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
-            CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = { CascadeType.MERGE,
+            CascadeType.REFRESH }, optional = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_categ", nullable = true)
     @JsonProperty(index = 300)
     @JsonIdentityReference(alwaysAsId = true)
