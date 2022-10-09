@@ -1420,6 +1420,22 @@ public class Athlete {
         return s;
     }
 
+    @Transient
+    @JsonIgnore
+    public String getAllCategoriesAsString() {
+        String mainCategory = this.getMainRankings().getCategory().getName();
+        // get all eligibles except main category.
+        String eligiblesAsString = this.getEligibleCategories().stream()
+                .map(Category::getName)
+                .filter(c -> !c.contentEquals(mainCategory))
+                .collect(Collectors.joining(";"));
+        if (eligiblesAsString.isBlank()) {
+            return mainCategory;
+        } else {
+            return mainCategory + "|" + eligiblesAsString;
+        }
+    }
+
     public Integer getEntryTotal() {
         // intentional, this is the legacy name of the column in the database
         return getQualifyingTotal();

@@ -76,6 +76,8 @@ public class RegistrationFileUploadDialog extends Dialog {
 //        });
     }
 
+    private boolean keepParticipations;
+
     public RegistrationFileUploadDialog() {
 
         H5 label = new H5(Translator.translate("Upload.WarningWillReplaceAll"));
@@ -129,6 +131,7 @@ public class RegistrationFileUploadDialog extends Dialog {
             if (e != null) {
                 Throwable cause = e.getCause();
                 String causeMessage = cause != null ? cause.getLocalizedMessage() : e.getLocalizedMessage();
+                causeMessage = LoggerUtils.stackTrace(cause);
                 causeMessage = causeMessage != null ? causeMessage : e.toString();
                 if (causeMessage.contentEquals("text")) {
                     causeMessage = "Empty or invalid.";
@@ -164,6 +167,10 @@ public class RegistrationFileUploadDialog extends Dialog {
                 beans.put("athletes", athletes);
 
                 XLSReadStatus status = reader.read(inputStream, beans);
+                
+                // we created a batch of new athletes. the ones that are exact matches have 
+                // their eligibility already done.
+                keepParticipations = beans.values().stream().filter(r -> ((RAthlete)r).getAthlete().getEligibleCategories() != null).findFirst().isPresent();
 
                 logger.info(getTranslation("DataRead") + " " + athletes.size() + " athletes");
                 if (dryRun) {
@@ -178,9 +185,11 @@ public class RegistrationFileUploadDialog extends Dialog {
                 }
                 return athletes.size();
             } catch (InvalidFormatException | IOException e) {
+                LoggerUtils.stackTrace(e);
                 LoggerUtils.logError(logger, e);
             }
         } catch (IOException | SAXException e1) {
+            LoggerUtils.stackTrace(e1);
             LoggerUtils.logError(logger, e1);
         }
         return 0;
@@ -236,7 +245,9 @@ public class RegistrationFileUploadDialog extends Dialog {
 
         // process athletes now that groups have been adjusted
         processAthletes(inputStream, ta, false);
-        AthleteRepository.resetParticipations();
+        if (!keepParticipations) {
+            AthleteRepository.resetParticipations();
+        }
         listGroups("after processAthletes real");
         return;
     }
@@ -286,10 +297,12 @@ public class RegistrationFileUploadDialog extends Dialog {
                 // new athletes if the file is reloaded.
                 athletes.stream().forEach(r -> {
                     Athlete athlete = r.getAthlete();
-                    em.merge(athlete);
+                    logger.warn("id={}",athlete.getId());
+                    em.persist(athlete);
                 });
                 em.flush();
             } catch (IllegalAccessException | InvocationTargetException | RuntimeException e) {
+                LoggerUtils.stackTrace(e);
                 sb.append(e.getLocalizedMessage());
             }
 

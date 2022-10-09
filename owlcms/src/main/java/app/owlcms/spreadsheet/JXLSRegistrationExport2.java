@@ -26,10 +26,10 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-public class JXLSRegistrationExport extends JXLSWorkbookStreamSource {
+public class JXLSRegistrationExport2 extends JXLSWorkbookStreamSource {
 
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSRegistrationExport.class);
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSRegistrationExport2.class);
     final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
     static {
         logger.setLevel(Level.INFO);
@@ -37,13 +37,13 @@ public class JXLSRegistrationExport extends JXLSWorkbookStreamSource {
         tagLogger.setLevel(Level.ERROR);
     }
 
-    public JXLSRegistrationExport(UI ui) {
+    public JXLSRegistrationExport2(UI ui) {
         super();
     }
 
     @Override
     public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/registration/RegistrationExport2", ".xls", locale);
+        return getLocalizedTemplate("/templates/registration/RegistrationExport", ".xls", locale);
     }
 
     @Override

@@ -83,6 +83,39 @@ public class RAthlete {
             return;
         }
 
+        String[] parts = categoryName.split("\\|");
+        if (parts.length >= 1) {
+            String catName = parts[0].trim();
+            Category c;
+            if ((c = RCompetition.getActiveCategories().get(catName)) != null) {
+                // exact match for a category.
+                a.setCategory(c);
+                logger.warn("====== a={} c={}", a.getShortName(), c.getName());
+                if (parts.length > 1) {
+                    String[] eligibleNames = parts[1].split(";");
+                    Set<Category> eligibleCategories = new LinkedHashSet<>();
+                    eligibleCategories.add(c);
+                    for (String eligibleName : eligibleNames) {
+                        logger.warn("   e={}", eligibleName);
+                        Category c2;
+                        if ((c2 = RCompetition.getActiveCategories().get(eligibleName.trim())) != null) {
+                            eligibleCategories.add(c2);
+                        } else {
+                            throw new Exception(
+                                    Translator.translate("Upload.CategoryNotFoundByName", eligibleName.trim()));
+                        }
+                    }
+                    a.setEligibleCategories(eligibleCategories);
+                }
+            } else {
+                setCategoryHeuristics(categoryName);
+            }
+        }
+
+        return;
+    }
+
+    private void setCategoryHeuristics(String categoryName) throws Exception {
         Matcher legacyResult = legacyPattern.matcher(categoryName);
         double searchBodyWeight;
         if (!legacyResult.matches()) {
@@ -115,9 +148,9 @@ public class RAthlete {
         }
 
         List<Category> found = CategoryRepository.findByGenderAgeBW(a.getGender(), age, searchBodyWeight);
-        Set<Category> eligibles = new LinkedHashSet<>();
-        eligibles.addAll(found);
-        a.setEligibleCategories(eligibles);
+//        Set<Category> eligibles = new LinkedHashSet<>();
+//        eligibles.addAll(found);
+//        a.setEligibleCategories(eligibles);
         Category category = found.size() > 0 ? found.get(0) : null;
         if (category == null) {
             throw new Exception(
@@ -183,17 +216,17 @@ public class RAthlete {
             long l = Long.parseLong(content);
             if (l < 3000) {
                 a.setYearOfBirth((int) l);
-                //logger.debug("short " + l);
+                // logger.debug("short " + l);
             } else {
                 LocalDate epoch = LocalDate.of(1900, 1, 1);
                 LocalDate plusDays = epoch.plusDays(l - 2); // Excel quirks: 1 is 1900-01-01 and 1900-02-29 did not
                                                             // exist.
-                //logger.debug("long " + plusDays);
+                // logger.debug("long " + plusDays);
                 a.setFullBirthDate(plusDays);
             }
             return;
         } catch (NumberFormatException e) {
-            //logger.debug("localized");
+            // logger.debug("localized");
             LocalDate parse = DateTimeUtils.parseLocalizedOrISO8601Date(content, OwlcmsSession.getLocale());
             a.setFullBirthDate(parse);
         }
