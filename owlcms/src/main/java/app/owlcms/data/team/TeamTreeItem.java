@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
@@ -60,6 +61,8 @@ public class TeamTreeItem {
 
     private List<TeamTreeItem> teamMembers;
 
+    private boolean combinedPoints;
+
     public TeamTreeItem(String curTeamName, Gender gender, Athlete teamMember, boolean done) {
         this.athlete = teamMember;
         this.setDone(done);
@@ -68,6 +71,7 @@ public class TeamTreeItem {
             this.setTeam(new Team(curTeamName, gender));
             this.teamMembers = new ArrayList<>();
         }
+        this.combinedPoints = Competition.getCurrent().isSnatchCJTotalMedals();
     }
 
     public void addTreeItemChild(Athlete a, boolean done) {
@@ -142,7 +146,7 @@ public class TeamTreeItem {
         if (athlete == null) {
             pts = getTeam().getPoints();
         } else {
-            pts = isDone() ? getTotalPoints() : null;
+            pts = isDone() ? (combinedPoints ? getCombinedPoints() : getTotalPoints()) : null;
         }
         return pts;
     }

@@ -94,6 +94,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 
             String prevTeamName = null;
             if (athletes != null) {
+                boolean combinedTotal = Competition.getCurrent().isSnatchCJTotalMedals();
                 // count points for each team
                 for (Athlete a : athletes) {
                     // check if competition is a "best n results" team comp.
@@ -106,7 +107,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                             curTeamItem,
                             curTeamName != null ? curTeamName : "-");
                     boolean groupIsDone = groupIsDone(a);
-                    Integer curPoints = a.getTotalPoints();
+                    Integer curPoints = combinedTotal ? a.getCombinedPoints() : a.getTotalPoints();
                     double curSinclair = a.getSinclairForDelta();
                     double curSmf = a.getSmfForDelta();
                     double curRobi = a.getRobi();
