@@ -7,7 +7,5 @@
 /.apt_generated_tests/
 /local/
 /.flattened-pom.xml
-
 /webpack.generated.js
-/package-lock.json
 /cp.txt
