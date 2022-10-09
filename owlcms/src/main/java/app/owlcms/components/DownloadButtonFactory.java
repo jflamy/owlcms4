@@ -122,6 +122,9 @@ public class DownloadButtonFactory {
 
                     // supplier is a lambda that sets the template and the filter values in the xls source
                     Resource res = searchMatch(resourceList, fileName);
+                    if (res == null) {
+                        throw new Exception("template note found "+fileName);
+                    }
                     logger.debug("(2) template found {}", res != null ? res.getFileName() : null);
 
                     InputStream is = res.getStream();

@@ -125,12 +125,12 @@ public final class WaveFileReader extends SunFileReader {
         // part of fix for 4325421
         try {
             fileFormat = getFMT(fis, false);
+            return new AudioInputStream(fis, fileFormat.getFormat(), fileFormat.getFrameLength());
         } finally {
             if (fileFormat == null) {
                 fis.close();
             }
         }
-        return new AudioInputStream(fis, fileFormat.getFormat(), fileFormat.getFrameLength());
     }
 
     /**
@@ -172,12 +172,13 @@ public final class WaveFileReader extends SunFileReader {
         AudioFileFormat fileFormat = null;
         try {
             fileFormat = getFMT(urlStream, false);
+            return new AudioInputStream(urlStream, fileFormat.getFormat(), fileFormat.getFrameLength());
         } finally {
             if (fileFormat == null) {
                 urlStream.close();
             }
         }
-        return new AudioInputStream(urlStream, fileFormat.getFormat(), fileFormat.getFrameLength());
+
     }
 
     // --------------------------------------------------------------------

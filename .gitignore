@@ -27,3 +27,5 @@ hs_err_pid*
 database/owlcms.mv.db
 /.flattened-pom.xml
 /database/
+/cp.txt
+/logs/

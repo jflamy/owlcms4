@@ -27,6 +27,7 @@ import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -53,7 +54,7 @@ public class CompetitionSimulator {
 
         Map<Platform, List<Group>> groupsByPlatform = new TreeMap<>();
         List<Platform> ps = PlatformRepository.findAll().stream().collect(Collectors.toList());
-        List<Group> gs = GroupRepository.findAll().stream().sorted((a, b) -> {
+        List<Group> gs = GroupRepository.findAll().stream().sorted(new NaturalOrderComparator<>()).sorted((a, b) -> {
             LocalDateTime ta = a.getCompetitionTime();
             LocalDateTime tb = b.getCompetitionTime();
             return ObjectUtils.compare(ta, tb, true);
@@ -135,12 +136,23 @@ public class CompetitionSimulator {
             }
             double bodyWeight = catLimit - (r.nextDouble() * 2.0);
             a.setBodyWeight(bodyWeight);
-            double sd = catLimit * (1 + (r.nextGaussian() / 10));
-            long isd = Math.round(sd);
-            a.setSnatch1Declaration(Long.toString(isd));
-            long icjd = Math.round(sd * 1.20D);
-            a.setCleanJerk1Declaration(Long.toString(icjd));
-            AthleteRepository.save(a);
+            
+            
+            Integer entryTotal = a.getEntryTotal();
+            if (entryTotal != null && entryTotal > 0) {
+                long isd = Math.round(entryTotal * 0.44D); // qualification snatch
+                long icjd  = Math.round(entryTotal * 0.56D); // qualification CJ
+                a.setSnatch1Declaration(Long.toString(isd));
+                a.setCleanJerk1Declaration(Long.toString(icjd));
+                AthleteRepository.save(a);
+            } else {
+                double sd = catLimit * (1 + (r.nextGaussian() / 10));
+                long isd = Math.round(sd);
+                a.setSnatch1Declaration(Long.toString(isd));
+                long icjd = Math.round(sd * 1.20D);
+                a.setCleanJerk1Declaration(Long.toString(icjd));
+                AthleteRepository.save(a);
+            }
         }
         return as;
     }

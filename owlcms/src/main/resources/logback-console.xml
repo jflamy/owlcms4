@@ -43,5 +43,5 @@
     <logger name="app.owlcms.data.config.Config" level="INFO" />
     <logger name="app.owlcms.utils.ResourceWalker" level="INFO" />
     <logger name="app.owlcms.displays.monitor.Monitor" level="DEBUG" />
-
+    <logger name="org.hibernate.SQL" level="WARN" />
 </configuration>

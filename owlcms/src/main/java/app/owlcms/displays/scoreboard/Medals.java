@@ -18,6 +18,8 @@ import java.util.Timer;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.annotation.Nonnull;
+
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -296,6 +298,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
         // get the fop from the query parameters, set to the default FOP if not provided
         FieldOfPlay fop = null;
 
+        @Nonnull
         List<String> fopNames = parametersMap.get("fop");
         boolean fopFound = fopNames != null && fopNames.get(0) != null;
         if (!fopFound) {
@@ -764,7 +767,7 @@ public class Medals extends PolymerTemplate<Medals.MedalsTemplate>
                             jri.put("goodBadClassName", "narrow fail");
                             jri.put("stringValue", "-");
                         } else {
-                            boolean failed = stringValue.startsWith("-");
+                            boolean failed = stringValue != null && stringValue.startsWith("-");
                             jri.put("goodBadClassName", failed ? "narrow fail" : "narrow good");
                             jri.put("stringValue", formatKg(stringValue));
                         }

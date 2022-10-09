@@ -9,6 +9,7 @@ package app.owlcms.ui.shared;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +90,7 @@ import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -193,6 +195,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     private boolean silenced = true;
     private HorizontalLayout topBarLeft;
     private String topBarTitle;
+    private HorizontalLayout attempts;
 
     /**
      * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -961,6 +964,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      * @param crudGrid the crudGrid that will be filtered.
      */
     protected void defineFilters(GridCrud<Athlete> crud) {
+
         lastNameFilter.setPlaceholder(getTranslation("LastName"));
         lastNameFilter.setClearButtonVisible(true);
         lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
@@ -970,12 +974,33 @@ public abstract class AthleteGridContent extends VerticalLayout
         crudLayout.addFilterComponent(lastNameFilter);
 
         getGroupFilter().setPlaceholder(getTranslation("Group"));
-        getGroupFilter().setItems(GroupRepository.findAll());
+        List<Group> groups = GroupRepository.findAll();
+        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+        getGroupFilter().setItems(groups);
         getGroupFilter().setItemLabelGenerator(Group::getName);
         // hide because the top bar has it
         getGroupFilter().getStyle().set("display", "none");
         // note: group switching is done from the announcer menu, not in the grid filters.
         crudLayout.addFilterComponent(getGroupFilter());
+        
+        if (attempts == null) {
+            attempts = new HorizontalLayout();
+            attempts.setHeight("100%");
+//            for (int i = 0; i < 6; i++) {
+//                Paragraph div = new Paragraph();
+//                div.getElement().setAttribute("style", "border: 1; width: 5ch; background-color: pink; text-align: center");
+//                div.getElement().setProperty("innerHTML", i+1+"");
+//                attempts.add(div);
+//            }
+        }
+        attempts.getElement().setAttribute("style", "float: right");
+        HorizontalLayout horizontalLayout = (HorizontalLayout)crudLayout.getFilterLayout();
+        horizontalLayout.add(attempts);
+        
+        HorizontalLayout toolbarLayout = (HorizontalLayout)crudLayout.getToolbarLayout();
+        toolbarLayout.setSizeUndefined();
+        
+        horizontalLayout.getParent().get().getElement().setAttribute("style", "width: 100%");
     }
 
     protected void doStartTime() {
@@ -1337,7 +1362,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         // the athlete currently displayed is not necessarily the fop curAthlete,
         // because the lifting order has been recalculated behind the scenes
         Athlete curDisplayAthlete = displayedAthlete;
-        
+
         // weight change warnings not to self.
         if (this != e.getOrigin() && curDisplayAthlete != null && curDisplayAthlete.equals(e.getChangingAthlete())) {
             String text;

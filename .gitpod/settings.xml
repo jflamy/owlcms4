@@ -1,5 +1,5 @@
 <settings>
-    <localRepository>/workspace/m3-repository/</localRepository>
+    <localRepository>/workspace/m2-repository/</localRepository>
     <mirrors>
         <mirror>
             <id>my-repository-http-unblocker</id>

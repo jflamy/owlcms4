@@ -8,6 +8,7 @@
 package app.owlcms.ui.lifting;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,6 +44,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -53,6 +55,7 @@ import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -303,6 +306,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         // filter.
 
         List<Group> groups = GroupRepository.findAll();
+        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
 
         OwlcmsSession.withFop((fop) -> {
             Group group = fop.getGroup();
@@ -311,10 +315,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         });
 
         OwlcmsSession.withFop(fop -> {
-            topBarMenu = new GroupSelectionMenu(groups, fop,
-                    (g1, fop1) -> fop.fopEventPost(
-                            new FOPEvent.SwitchGroup(g1.compareTo(fop1.getGroup()) == 0 ? null : g1, this)),
-                    (g1, fop1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
+            topBarMenu = new GroupSelectionMenu(groups, fop.getGroup(),
+                    fop,
+                    (g1) -> fop.fopEventPost(
+                            new FOPEvent.SwitchGroup(g1.compareTo(fop.getGroup()) == 0 ? null : g1, this)),
+                    (g1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
             createTopBarSettingsMenu();
         });
     }
@@ -329,8 +334,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 long now = System.currentTimeMillis();
                 long timeElapsed = now - previousGoodMillis;
                 // no reason to give two decisions close together
-                if (timeElapsed > 2000) {
-                    if (isSingleReferee()) {
+                if (timeElapsed > 2000 || isSingleReferee()) {
+                    if (isSingleReferee()
+                            && (fop.getState() == FOPState.TIME_STOPPED || fop.getState() == FOPState.TIME_RUNNING)) {
                         fop.fopEventPost(new FOPEvent.DownSignal(this));
                     }
                     fop.fopEventPost(
@@ -346,8 +352,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             OwlcmsSession.withFop(fop -> {
                 long now = System.currentTimeMillis();
                 long timeElapsed = now - previousBadMillis;
-                if (timeElapsed > 2000) {
-                    if (isSingleReferee()) {
+                if (timeElapsed > 2000 || isSingleReferee()) {
+                    if (isSingleReferee()
+                            && (fop.getState() == FOPState.TIME_STOPPED || fop.getState() == FOPState.TIME_RUNNING)) {
                         fop.fopEventPost(new FOPEvent.DownSignal(this));
                     }
                     fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
@@ -399,6 +406,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
         MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
         SubMenu subMenu2 = item2.getSubMenu();
+
+        FieldOfPlay fop = OwlcmsSession.getFop();
         MenuItem subItemSoundOn = subMenu2.addItem(
                 Translator.translate("Settings.TurnOnSound"),
                 e -> {
@@ -413,14 +422,28 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 });
         subItemSoundOn.setCheckable(true);
         subItemSoundOn.setChecked(!this.isSilenced());
+
         MenuItem subItemSingleRef = subMenu2.addItem(
-                Translator.translate("Settings.SingleReferee"),
-                e -> {
-                    switchSingleRefereeMode(this, !this.isSingleReferee(), true);
-                    e.getSource().setChecked(this.isSingleReferee());
-                });
+                Translator.translate("Settings.SingleReferee"));
         subItemSingleRef.setCheckable(true);
         subItemSingleRef.setChecked(this.isSingleReferee());
+        MenuItem immediateDecision = subMenu2.addItem(
+                Translator.translate("Settings.ImmediateDecision"));
+        immediateDecision.setCheckable(true);
+        immediateDecision.setChecked(fop.isAnnouncerDecisionImmediate());
+
+        immediateDecision.addClickListener(e -> {
+            switchImmediateDecisionMode(this, !fop.isAnnouncerDecisionImmediate(), true);
+            e.getSource().setChecked(fop.isAnnouncerDecisionImmediate());
+        });
+        subItemSingleRef.addClickListener(e -> {
+            // single referee implies not immediate so down is shown
+            switchSingleRefereeMode(this, !this.isSingleReferee(), true);
+            switchImmediateDecisionMode(this, !this.isSingleReferee(), true);
+            immediateDecision.setChecked(fop.isAnnouncerDecisionImmediate());
+            e.getSource().setChecked(this.isSingleReferee());
+        });
+
     }
 
     @Override

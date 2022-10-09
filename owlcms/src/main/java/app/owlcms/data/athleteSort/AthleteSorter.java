@@ -448,6 +448,7 @@ public class AthleteSorter implements Serializable {
         case SNATCH_CJ_TOTAL:
         case ROBI:
         case SMM:
+            //logger.warn("ranking type {}",rankingType);
             resultsOrder(sorted, rankingType, true);
             break;
         case SNATCH:

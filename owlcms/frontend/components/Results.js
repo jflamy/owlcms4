@@ -47,7 +47,7 @@ class Results extends PolymerElement {
     </div>
     <div class="group" style$="[[hiddenBlockStyle]]">
         <div id="groupDiv">
-            <span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
+            <span class="groupName">[[displayType]][[groupName]]</span> &ndash; [[liftsDone]]
         </div>
     </div>
 

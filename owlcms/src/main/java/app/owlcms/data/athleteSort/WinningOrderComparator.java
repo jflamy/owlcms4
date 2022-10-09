@@ -199,19 +199,19 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
         if (compare != 0) {
             return compare;
         }
-        if ((lifter1 != null && lifter1.getAttemptsDone() <= 3)
-                && (lifter2 != null && lifter2.getAttemptsDone() <= 3)) {
-            // compare tentative sinclair
-            compare = compareSinclairForDelta(lifter1, lifter2);
-            if (compare != 0) {
-                return compare;
-            }
-        } else {
+//        if ((lifter1 != null && lifter1.getAttemptsDone() <= 3)
+//                && (lifter2 != null && lifter2.getAttemptsDone() <= 3)) {
+//            // compare tentative sinclair
+//            compare = compareSinclairForDelta(lifter1, lifter2);
+//            if (compare != 0) {
+//                return compare;
+//            }
+//        } else {
             compare = compareSinclair(lifter1, lifter2);
             if (compare != 0) {
                 return compare;
             }
-        }
+//        }
         // for sinclair, lighter Athlete that achieves same sinclair is better
         return tieBreak(lifter1, lifter2, true);
     }

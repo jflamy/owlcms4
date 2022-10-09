@@ -60,6 +60,8 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> implements CustomFormFactory<Athlete> {
 
+    private static final String CHECKBOX_MARGIN = "0em";
+
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteCardFormFactory.class);
 
     private static final int HEADER = 1;
@@ -173,7 +175,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
             operationButton = buildOperationButton(CrudOperation.ADD, originalAthlete, postOperationCallBack);
         }
         Button deleteButton = buildDeleteButton(CrudOperation.DELETE, originalAthlete, null);
-        Button withdrawButton = buildWithdrawButton();
+        Component withdrawButtons = buildWithdrawButtons();
         Checkbox forcedCurrentCheckbox = buildForcedCurrentCheckbox();
         Checkbox validateEntries = buildIgnoreErrorsCheckbox();
         Checkbox allowResultsEditing = buildAllowResultsEditingCheckbox();
@@ -187,11 +189,11 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         if (deleteButton != null && operation != CrudOperation.ADD) {
             footerLayout.add(deleteButton);
         }
-        if (withdrawButton != null && operation != CrudOperation.ADD) {
-            footerLayout.add(withdrawButton);
+        if (withdrawButtons != null && operation != CrudOperation.ADD) {
+            footerLayout.add(withdrawButtons);
         }
+        VerticalLayout vl = new VerticalLayout();
         if (forcedCurrentCheckbox != null && operation != CrudOperation.ADD) {
-            VerticalLayout vl = new VerticalLayout();
             vl.setSizeUndefined();
             vl.setPadding(false);
             vl.setMargin(false);
@@ -199,7 +201,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
             vl.add(allowResultsEditing);
             vl.add(forcedCurrentCheckbox);
             footerLayout.add(vl);
-
         }
 
         Label spacer = new Label();
@@ -217,7 +218,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                 reg.allowBrowserDefault();
             }
         }
-        footerLayout.setFlexGrow(1.0, spacer);
+        footerLayout.setFlexGrow(1.0, vl);
         return footerLayout;
     }
 
@@ -330,9 +331,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
             }
         });
         // field must visible and added to the layout for focus() to work, so we hide it
-        // brutally
-        atRowAndColumn(gridLayout, operationTrigger, AUTOMATIC, SNATCH1);
+        // brutally. operationTrigger is placed in the footer.
+
         operationTrigger.getStyle().set("z-index", "-10");
+        operationTrigger.setWidth("1px");
         return operationTrigger;
     }
 
@@ -757,7 +759,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
     private Checkbox buildAllowResultsEditingCheckbox() {
         Checkbox checkbox = new Checkbox(Translator.translate("AllowResultsEditing"));
-        checkbox.getStyle().set("margin-left", "3em");
+        checkbox.getStyle().set("margin-left", CHECKBOX_MARGIN);
         binder.forField(checkbox).bind((a) -> isUpdatingResults(), (a, readonly) -> {
             setUpdatingResults(readonly);
             adjustResultsFields(readonly);
@@ -767,7 +769,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
     private Checkbox buildForcedCurrentCheckbox() {
         Checkbox checkbox = new Checkbox(Translator.translate("ForcedAsCurrent"));
-        checkbox.getStyle().set("margin-left", "3em");
+        checkbox.getStyle().set("margin-left", CHECKBOX_MARGIN);
         binder.forField(checkbox).bind(Athlete::isForcedAsCurrent, Athlete::setForcedAsCurrent);
         return checkbox;
     }
@@ -775,17 +777,34 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
     private Checkbox buildIgnoreErrorsCheckbox() {
         ignoreErrorsCheckbox = new Checkbox(Translator.translate("RuleViolation.ignoreErrors"), e -> {
             if (BooleanUtils.isTrue(isIgnoreErrors())) {
-                logger./**/warn/**/("{}!Errors ignored - checkbox override for athlete {}",OwlcmsSession.getFop().getLoggingName(), this.getEditedAthlete().getShortName());
+                logger./**/warn/**/("{}!Errors ignored - checkbox override for athlete {}",
+                        OwlcmsSession.getFop().getLoggingName(), this.getEditedAthlete().getShortName());
                 binder.validate();
                 binder.writeBeanAsDraft(editedAthlete, true);
             }
 
         });
-        ignoreErrorsCheckbox.getStyle().set("margin-left", "3em");
+        ignoreErrorsCheckbox.getStyle().set("margin-left", CHECKBOX_MARGIN);
         return ignoreErrorsCheckbox;
     }
 
-    private Button buildWithdrawButton() {
+    private Component buildWithdrawButtons() {
+        Integer attemptsDone = getEditedAthlete().getAttemptsDone();
+        VerticalLayout vl = new VerticalLayout();
+
+        Button snatchWithdrawalButton = new Button(Translator.translate("SnatchWithdrawal"),
+                IronIcons.EXIT_TO_APP.create(),
+                (e) -> {
+                    Athlete.conditionalCopy(originalAthlete, getEditedAthlete(), true);
+                    originalAthlete.withdrawFromSnatch();
+                    AthleteRepository.save(originalAthlete);
+                    OwlcmsSession.withFop((fop) -> {
+                        fop.fopEventPost(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete, true));
+                    });
+                    origin.closeDialog();
+                });
+        snatchWithdrawalButton.getElement().setAttribute("theme", "error");
+
         Button withdrawalButton = new Button(Translator.translate("Withdrawal"), IronIcons.EXIT_TO_APP.create(),
                 (e) -> {
                     Athlete.conditionalCopy(originalAthlete, getEditedAthlete(), true);
@@ -797,7 +816,16 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                     origin.closeDialog();
                 });
         withdrawalButton.getElement().setAttribute("theme", "error");
-        return withdrawalButton;
+        
+
+        if (attemptsDone < 3) {
+            vl.add(snatchWithdrawalButton, withdrawalButton);
+        } else {
+            vl.add(withdrawalButton);
+        }
+
+        vl.setSizeUndefined();
+        return vl;
     }
 
     private void checkWithdrawal(BindingValidationStatus<?> status, TextField change,
@@ -989,7 +1017,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
             } else {
                 field.setReadOnly(false);
             }
-        } else if (value.equals("-")) {
+        } else if (value != null && value.equals("-")) {
             field.getElement().getClassList().clear();
             field.getElement().getClassList().add("bad");
             if (!isUpdatingResults()) {

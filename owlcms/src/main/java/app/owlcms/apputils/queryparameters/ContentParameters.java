@@ -7,10 +7,14 @@ import java.util.Map;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.Location;
 
+import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.init.OwlcmsSession;
+
 public interface ContentParameters extends FOPParameters {
 
     public static final String SILENT = "silent";
     public static final String SINGLEREF = "singleRef";
+    public static final String IMMEDIATE = "immediate";
 
     public boolean isSilenced();
 
@@ -44,9 +48,20 @@ public interface ContentParameters extends FOPParameters {
         }
     }
 
+    public default void switchImmediateDecisionMode(Component component, boolean b, boolean updateURL) {
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        if (fop == null) {
+            return;
+        }
+        fop.setAnnouncerDecisionImmediate(b);
+        if (updateURL) {
+            updateURLLocation(getLocationUI(), getLocation(), IMMEDIATE, b ? null : "false");
+        }
+    }
+
     public default void setSingleReferee(boolean b) {
     };
-    
+
     @Override
     public default HashMap<String, List<String>> readParams(Location location,
             Map<String, List<String>> parametersMap) {
@@ -71,7 +86,25 @@ public interface ContentParameters extends FOPParameters {
         setSingleReferee(sr);
         switchSingleRefereeMode((Component) this, sr, false);
         updateParam(params, SINGLEREF, isSingleReferee() ? "true" : null);
-        
+
+        // immediate is true by default, except if single ref.
+        List<String> immParams = params.get(IMMEDIATE);
+        boolean imm = true;
+        if (immParams != null && !immParams.isEmpty()) {
+            if (immParams.get(0).toLowerCase().equalsIgnoreCase("false")) {
+                imm = false;
+            } else if (immParams.get(0).toLowerCase().equalsIgnoreCase("true")) {
+                imm = true;
+            } 
+        } else if (sr) {
+            imm = false;
+        }
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        if (fop != null) {
+            fop.setAnnouncerDecisionImmediate(imm);
+            switchImmediateDecisionMode((Component) this, imm, false);
+            updateParam(params, IMMEDIATE, imm ? null : "false");
+        }
         return params;
     }
 }

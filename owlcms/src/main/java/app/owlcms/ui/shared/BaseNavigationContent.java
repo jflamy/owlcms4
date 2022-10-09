@@ -8,6 +8,7 @@
 package app.owlcms.ui.shared;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -35,6 +36,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
+import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -81,7 +83,9 @@ public abstract class BaseNavigationContent extends VerticalLayout
     public ComboBox<Group> createGroupSelect(String placeHolder) {
         groupSelect = new ComboBox<>();
         groupSelect.setPlaceholder(placeHolder);
-        groupSelect.setItems(GroupRepository.findAll());
+        List<Group> groups = GroupRepository.findAll();
+        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+        groupSelect.setItems(groups);
         groupSelect.setItemLabelGenerator(Group::getName);
         groupSelect.setWidth("10rem");
         return groupSelect;

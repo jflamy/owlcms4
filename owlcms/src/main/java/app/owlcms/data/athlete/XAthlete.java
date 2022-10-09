@@ -57,8 +57,8 @@ public class XAthlete extends Athlete {
     }
 
     @Override
-    public void computeMainCategory() {
-        a.computeMainCategory();
+    public void computeMainAndEligibleCategories() {
+        a.computeMainAndEligibleCategories();
     }
 
     @Override

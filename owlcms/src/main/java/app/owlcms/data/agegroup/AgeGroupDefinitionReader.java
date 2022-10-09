@@ -80,6 +80,7 @@ public class AgeGroupDefinitionReader {
                 case 1: {
                     String cellValue = dataFormatter.formatCellValue(cell);
                     if (cellValue != null && !cellValue.trim().isEmpty()) {
+                        // TODO: gender X. do not assume not F == M !
                         c.setGender(cellValue.contentEquals("F") ? Gender.F : Gender.M);
                     }
                 }

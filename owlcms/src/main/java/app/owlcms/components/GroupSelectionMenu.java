@@ -1,7 +1,9 @@
 package app.owlcms.components;
 
 import java.util.List;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons.Icon;
@@ -17,15 +19,29 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
+import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class GroupSelectionMenu extends MenuBar {
+    
+    Logger logger = (Logger)LoggerFactory.getLogger(GroupSelectionMenu.class);
+    static Icon xIcon;
+    {
+        xIcon = IronIcons.CLEAR.create();
+        xIcon.getElement().setAttribute("style", "margin: 0px; padding: 0px");
+    }
+    
+    public GroupSelectionMenu(List<Group> groups, Group curGroup, FieldOfPlay fop2,
+            Consumer<Group> whenChecked, Consumer<Group> whenUnselected) {
 
-    public GroupSelectionMenu(List<Group> groups, FieldOfPlay fop, BiConsumer<Group, FieldOfPlay> whenChecked,
-            BiConsumer<Group, FieldOfPlay> whenUnselected) {
+        this(groups, curGroup, fop2, whenChecked, whenUnselected, xIcon, Translator.translate("NoGroup"));
+    }
+
+    public GroupSelectionMenu(List<Group> groups, Group curGroup, FieldOfPlay fop2,
+            Consumer<Group> whenChecked, Consumer<Group> whenUnselected, Icon unselectedIcon, String unselectedLabel) {
         MenuItem item;
-        if (fop.getGroup() != null) {
-            item = this.addItem(fop.getGroup().getName() + "\u2003\u25bd");
+        if (curGroup != null) {
+            item = this.addItem(curGroup.getName() + "\u2003\u25bd");
             this.addThemeVariants(MenuBarVariant.LUMO_SMALL);
         } else {
             item = this.addItem(Translator.translate("Group") + "\u2003\u25bc");
@@ -37,7 +53,7 @@ public class GroupSelectionMenu extends MenuBar {
             MenuItem subItem = subMenu.addItem(
                     describedName(g),
                     e -> {
-                        whenChecked.accept(g, fop);
+                        whenChecked.accept(g);
                         if (currentlyChecked[0] != null) {
                             currentlyChecked[0].setChecked(false);
                         }
@@ -46,9 +62,9 @@ public class GroupSelectionMenu extends MenuBar {
                         item.setText(g.getName() + "\u2003\u25bd");
                     });
             subItem.setCheckable(true);
-            subItem.setChecked(g.compareTo(fop.getGroup()) == 0);
+            subItem.setChecked(g.compareTo(curGroup) == 0);
             subItem.getElement().setAttribute("style", "margin: 0px; padding: 0px");
-            if (g.compareTo(fop.getGroup()) == 0) {
+            if (g.compareTo(curGroup) == 0) {
                 currentlyChecked[0] = subItem;
             }
         }
@@ -58,19 +74,23 @@ public class GroupSelectionMenu extends MenuBar {
         MenuItem separator = subMenu.addItem(ruler);
         separator.getElement().setAttribute("style",
                 "margin-top: -1em; margin-bottom: -1.5em; margin-left: -1.5em; padding: 0px; padding-left: -1em;");
-        Icon icon = IronIcons.CLEAR.create();
-        icon.getElement().setAttribute("style", "margin: 0px; padding: 0px");
-        HorizontalLayout component = new HorizontalLayout(icon, new Label(Translator.translate("NoGroup")));
-        component.setPadding(false);
-        component.setMargin(false);
-        component.getElement().setAttribute("style", "margin: 0; padding: 0");
-        component.setAlignItems(Alignment.CENTER);
-        MenuItem item3 = subMenu.addItem(component,
+        
+        HorizontalLayout hl = new HorizontalLayout();
+        if (unselectedIcon != null) {
+            hl.add(unselectedIcon);
+        }
+        hl.add(new Label(unselectedLabel));
+
+        hl.setPadding(false);
+        hl.setMargin(false);
+        hl.getElement().setAttribute("style", "margin: 0; padding: 0");
+        hl.setAlignItems(Alignment.CENTER);
+        MenuItem item3 = subMenu.addItem(hl,
                 e -> {
                     if (currentlyChecked[0] != null) {
                         currentlyChecked[0].setChecked(false);
                     }
-                    whenUnselected.accept(null, fop);
+                    whenUnselected.accept(null);
                     item.setText(Translator.translate("Group") + "\u2003\u25bd");
                 });
         item3.setCheckable(false);

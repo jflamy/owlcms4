@@ -137,7 +137,7 @@ public class SimulationServlet extends HttpServlet {
             logger.error("{}", LoggerUtils.stackTrace(t));
             response.setStatus(500);
         } finally {
-            output.close();
+            if (output != null) output.close();
         }
     }
 

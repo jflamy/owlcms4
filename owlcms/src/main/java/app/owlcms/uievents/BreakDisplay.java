@@ -50,6 +50,9 @@ public interface BreakDisplay {
                 return Translator.translate("BreakMgmt.IntroductionOfOfficials");
             }
         }
+        if (breakType == null) {
+            return "";
+        }
         switch (breakType) {
         case FIRST_CJ:
             return Translator.translate("BreakType.FIRST_CJ");

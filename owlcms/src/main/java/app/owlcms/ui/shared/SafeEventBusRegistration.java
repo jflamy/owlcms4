@@ -66,6 +66,9 @@ public interface SafeEventBusRegistration {
             unregister(c, uiEventBus);
             UnloadObserver.remove();
         });
+        if (ui == null) {
+            return uiEventBus;
+        }
         ui.add(unloadObserver);
 
 		ui.addBeforeLeaveListener((e) -> {

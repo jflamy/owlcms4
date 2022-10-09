@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -73,6 +74,7 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.BreakSetTime;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -483,6 +485,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         HorizontalLayout medalButtons = new HorizontalLayout();
 
         List<Group> groups = GroupRepository.findAll();
+        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
         FieldOfPlay fop2 = OwlcmsSession.getFop();
         GroupCategorySelectionMenu groupCategorySelectionMenu = new GroupCategorySelectionMenu(groups, fop2,
                 // group has been selected

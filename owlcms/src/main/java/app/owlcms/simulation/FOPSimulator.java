@@ -95,17 +95,14 @@ public class FOPSimulator {
     public void slaveGroupDone(UIEvent.GroupDone e) throws InterruptedException {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-
-        // this event happens several times per group due to the possibility of jury reversal of the last
-        // lift. So we wait for the first decision after group done (i.e. the decision for the last athlete)
-        // to do anything
-
         // note that the group is done.
-        groupDone = true;
+        groupDone = false;  // WAS true
         new Thread(() -> {
             logger.info("########## group {} done", e.getGroup());
             if (groups.size() > 0) {
-                groups.remove(0);
+                if (((Group)groups.get(0)).getName().contentEquals(e.getGroup().getName())) {
+                    groups.remove(0);
+                }
                 startNextGroup(groups);
             } else {
                 return;
@@ -229,6 +226,9 @@ public class FOPSimulator {
 
         List<Athlete> order = fop.getLiftingOrder();
         Athlete athlete = order.size() > 0 ? order.get(0) : null;
+        if (athlete == null) {
+            return;
+        }
 
         String declaration = athlete.getCurrentDeclaration();
         String automatic = athlete.getCurrentAutomatic();
@@ -284,7 +284,7 @@ public class FOPSimulator {
                 Thread.sleep(6000);
             } catch (InterruptedException e) {
             }
-            logger.info("########## switching group {} of {}", g, curGs);
+            logger.info("########## switching to group {} of {}", g, curGs);
             fop.fopEventPost(new FOPEvent.SwitchGroup(g, this));
             logger.info("########## starting group");
             groupDone = false;

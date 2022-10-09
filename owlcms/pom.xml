@@ -17,6 +17,10 @@
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-core</artifactId>
             <exclusions>
+                <exclusion>
+                    <groupId>com.vaadin</groupId>
+                    <artifactId>flow-dnd</artifactId>
+                </exclusion>
                 <!-- Webjars are only needed when running in Vaadin 14 compatibility mode -->
                 <exclusion>
                     <groupId>com.vaadin.webjar</groupId>
@@ -268,6 +272,44 @@
             <version>1.2.5</version>
         </dependency>
 
+        <!-- web server -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-plus</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-continuation</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>javax-websocket-server-impl</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+
+        <!-- temporary files -->
+        <dependency>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+            <version>1.2</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -383,7 +425,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
                 <executions>
                     <execution>
                         <id>default-cli</id>
@@ -391,6 +432,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
+                            <skip>false</skip>
                             <mainClass>app.owlcms.Main</mainClass>
                             <systemProperties>
                                 <systemProperty>
@@ -414,6 +456,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
+                            <skip>false</skip>
                             <mainClass>app.owlcms.Main</mainClass>
                             <systemProperties>
                                 <systemProperty>
@@ -464,6 +507,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
+                            <skip>false</skip>
                             <mainClass>app.owlcms.Main</mainClass>
                             <systemProperties>
                                 <systemProperty>
@@ -491,6 +535,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
+                            <skip>false</skip>
                             <mainClass>app.owlcms.Main</mainClass>
                             <systemProperties>
                                 <systemProperty>
@@ -518,6 +563,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
+                            <skip>false</skip>
                             <mainClass>app.owlcms.Main</mainClass>
                             <systemProperties>
                                 <systemProperty>

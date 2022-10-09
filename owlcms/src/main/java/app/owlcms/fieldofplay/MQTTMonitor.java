@@ -27,6 +27,7 @@ public class MQTTMonitor {
 
     private MqttAsyncClient client;
     private String decisionTopicName;
+    private String clockTopicName;
     private FieldOfPlay fop;
     private Logger logger = (Logger) LoggerFactory.getLogger(MQTTMonitor.class);
     private String[] macAddress = new String[3];
@@ -62,7 +63,8 @@ public class MQTTMonitor {
 
     public void setFop(FieldOfPlay fop) {
         this.fop = fop;
-        this.decisionTopicName = "/decision/" + fop.getName();
+        this.decisionTopicName = "owlcms/decision/" + fop.getName();
+        this.clockTopicName = "owlcms/clock/" + fop.getName();
     }
 
     @Subscribe
@@ -121,9 +123,10 @@ public class MQTTMonitor {
 
         ledOnOff();
 
-        String topicFilter = "owlcms/decision/" + fop.getName();
-        client.subscribe(topicFilter, 0);
-        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), topicFilter, client.getCurrentServerURI());
+        client.subscribe(decisionTopicName, 0);
+        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), decisionTopicName, client.getCurrentServerURI());
+        client.subscribe(clockTopicName, 0);
+        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), clockTopicName, client.getCurrentServerURI());
     }
 
     private void ledOnOff() throws MqttException, MqttPersistenceException {
@@ -179,6 +182,23 @@ public class MQTTMonitor {
                             logger.error("{}Malformed MQTT decision message topic='{}' message='{}'",
                                     fop.getLoggingName(), topic, messageStr);
                         }
+                    } else if (topic.endsWith(clockTopicName)) {
+                        messageStr = messageStr.trim();
+                        if (messageStr.equalsIgnoreCase("start")) {
+                            fop.fopEventPost(new FOPEvent.TimeStarted(this));
+                        } else if (messageStr.equalsIgnoreCase("stop")) {
+                            fop.fopEventPost(new FOPEvent.TimeStopped(this));
+                        } else if (messageStr.equalsIgnoreCase("60")) {
+                            fop.fopEventPost(new FOPEvent.ForceTime(60000, this));
+                        } else if (messageStr.equalsIgnoreCase("120")) {
+                            fop.fopEventPost(new FOPEvent.ForceTime(120000, this));
+                        } else {
+                            logger.error("{}Malformed MQTT clock message topic='{}' message='{}'",
+                                    fop.getLoggingName(), topic, messageStr);
+                        }
+                    } else {
+                        logger.error("{}Malformed MQTT unrecognized topic message topic='{}' message='{}'",
+                                fop.getLoggingName(), topic, messageStr);
                     }
                 }).start();
             }
