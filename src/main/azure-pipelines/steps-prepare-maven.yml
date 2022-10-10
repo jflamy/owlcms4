@@ -4,8 +4,7 @@ steps:
 -  script: |
      echo A
      curl -fsSL https://nodejs.org/dist/v16.17.1/node-v16.17.1-linux-x64.tar.xz | tar xvz - -C $HOME/downloads
-     cd $HOME/downloads/node-v16.17.1-linux-x64
-     ls bin
+     cd $HOME/downloads/node-v16.17.1-linux-x64/bin
      ./node --version
      ./npm --version
 -  script: |
