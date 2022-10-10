@@ -3,8 +3,8 @@ steps:
    submodules: recursive
 -  script: |
      echo A
-     curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-     sudo apt-get install nodejs npm
+     curl -fsSL https://deb.nodesource.com/setup_16.x | /usr/bin/sudo -E bash -
+     /usr/bin/sudo apt-get install nodejs npm
 -  script: |
      mkdir $HOME/.m2
      cp src/main/azure-pipelines/settings.xml $HOME/.m2/settings.xml
