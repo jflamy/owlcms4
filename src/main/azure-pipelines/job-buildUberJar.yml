@@ -17,10 +17,10 @@ jobs:
   - job: ${{ parameters.jobName }}
     pool:
       vmImage: ubuntu-latest
-    container: gitpod/workspace-full:latest
+    container: maven:3.8.1-openjdk-11-slim
     variables:
       - name: JAVA_HOME_11_X64
-        value: /home/gitpod/.sdkman/candidates/java/11.0.15.fx-zulu
+        value: /usr/local/openjdk-11
     steps:
       - template: steps-prepare-maven.yml
       - task: Maven@3.205.1
