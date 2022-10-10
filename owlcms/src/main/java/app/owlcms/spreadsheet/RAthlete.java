@@ -34,8 +34,11 @@ import ch.qos.logback.classic.Logger;
  */
 public class RAthlete {
 
-    static Pattern legacyPattern = Pattern.compile("([mMfF]?)(>?)(\\d+)");
+    private Pattern legacyPattern;
     Athlete a = new Athlete();
+
+    public RAthlete() {
+    }
 
     final Logger logger = (Logger) LoggerFactory.getLogger(RAthlete.class);
 
@@ -100,7 +103,7 @@ public class RAthlete {
                         }
                     }
                 }
-                RCompetition.getAthleteToEligibles().put(a.getId(),eligibleCategories);
+                RCompetition.getAthleteToEligibles().put(a.getId(), eligibleCategories);
             } else {
                 setCategoryHeuristics(categoryName);
             }
@@ -110,9 +113,10 @@ public class RAthlete {
     }
 
     private void setCategoryHeuristics(String categoryName) throws Exception {
-        Matcher legacyResult = legacyPattern.matcher(categoryName);
+        Matcher legacyResult = getLegacyPattern().matcher(categoryName);
         double searchBodyWeight;
         if (!legacyResult.matches()) {
+
             // try by explicit name
             Category category = RCompetition.getActiveCategories().get(categoryName);
             if (category == null) {
@@ -126,11 +130,13 @@ public class RAthlete {
             return;
         } else {
             fixLegacyGender(legacyResult);
-            if (!legacyResult.group(2).isEmpty()) {
-                searchBodyWeight = 998.0D;
+            if (!legacyResult.group(2).isEmpty() || !legacyResult.group(4).isEmpty()) {
+                // > or +
+                searchBodyWeight = Integer.parseInt(legacyResult.group(3)) + 0.1D;
             } else {
                 searchBodyWeight = Integer.parseInt(legacyResult.group(3)) - 0.1D;
             }
+            //logger.debug("gt 1:'{}' 2:'{}' 3:'{}' 4:'{}'", legacyResult.group(1), legacyResult.group(2), legacyResult.group(3), legacyResult.group(4));
         }
 
         int age;
@@ -142,9 +148,9 @@ public class RAthlete {
         }
 
         List<Category> found = CategoryRepository.findByGenderAgeBW(a.getGender(), age, searchBodyWeight);
-//        Set<Category> eligibles = new LinkedHashSet<>();
-//        eligibles.addAll(found);
-//        a.setEligibleCategories(eligibles);
+        Set<Category> eligibles = new LinkedHashSet<>();
+        eligibles.addAll(found);
+        a.setEligibleCategories(eligibles);
         Category category = found.size() > 0 ? found.get(0) : null;
         if (category == null) {
             throw new Exception(
@@ -320,6 +326,18 @@ public class RAthlete {
         } else {
             // nothing to do gender is known and consistent.
         }
+    }
+
+    Pattern getLegacyPattern() {
+        if (legacyPattern == null) {
+            setLegacyPattern(Pattern
+                    .compile("([mMfF]?) *([>" + Pattern.quote("+") + "]?) *(\\d+) *(" + Pattern.quote("+") + "?)$"));
+        }
+        return legacyPattern;
+    }
+
+    void setLegacyPattern(Pattern legacyPattern) {
+        this.legacyPattern = legacyPattern;
     }
 
 }

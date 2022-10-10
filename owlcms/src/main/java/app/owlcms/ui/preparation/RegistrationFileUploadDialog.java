@@ -324,8 +324,6 @@ public class RegistrationFileUploadDialog extends Dialog {
                     a2.setCategory(first);
                     a2.setEligibleCategories(eligibles);
                     em.merge(a2);
-                } else {
-                    logger.error("no eligibles for {}", a2.getId());
                 }
             });
             em.flush();
