@@ -1999,7 +1999,7 @@ public class FieldOfPlay {
         // must set state before recomputing order so that scoreboards stop blinking the current athlete
         // must also set state prior to sending event, so that state monitor shows new state.
         setState(DECISION_VISIBLE);
-        uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), refereeDecision, refereeTime, origin);
+        uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), refereeDecision, refereeTime, this);
         recomputeLiftingOrder(true, true);
 
         // control timing of notifications
