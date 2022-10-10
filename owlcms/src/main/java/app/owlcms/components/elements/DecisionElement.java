@@ -123,7 +123,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
      */
     public void masterShowDown(String fopName, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
         Object origin = this.getOrigin();
-        logger.debug("=== master {} down: decision={} ({} {} {})", origin, decision.getClass().getSimpleName(), ref1,
+        logger.warn("=== master {} down: decision={} ({} {} {})", origin, decision.getClass().getSimpleName(), ref1,
                 ref2, ref3);
         OwlcmsSession.getFop().fopEventPost(new FOPEvent.DownSignal(origin));
     }
