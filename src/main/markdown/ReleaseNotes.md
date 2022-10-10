@@ -1,5 +1,6 @@
 > New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
+- 34.2.1: **Required update if using refereeing devices**. Decisions were not being shown on the display with the refereeing devices.
 - 34.2.0: **Important update**: Fixed an *extremely rare issue* *that could nevertheless stop the competition from proceeding*.  Ranks are updated after every lift, before updating the lifting order, so a fatal error in updating the ranks would prevent the lifting order update.
 - 34.2.0: Improvement: The lifting order display is now a full scoreboard (shows the 6 attempts)
 - 34.2.0: Decisions entered by the announcer are now shown immediately by default, unless there is a single referee using the screen and the "emit a down signal" setting is enabled.  This is useful when flags or standalone systems are used, or when there is a refereeing device disconnected.
