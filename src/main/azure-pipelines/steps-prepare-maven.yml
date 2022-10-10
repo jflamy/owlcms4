@@ -3,10 +3,8 @@ steps:
    submodules: recursive
 -  script: |
      echo A
-     touch ~/.bash_profile
-     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-     source ~/.bash_profile
-     $HOME/.nvm/nvm install --lts
+     curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+     apt-get install nodejs npm
 -  script: |
      mkdir $HOME/.m2
      cp src/main/azure-pipelines/settings.xml $HOME/.m2/settings.xml
