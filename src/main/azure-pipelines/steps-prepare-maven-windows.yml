@@ -11,7 +11,7 @@ steps:
 -  task: Cache@2
    displayName: Cache Maven local repository
    inputs:
-      key: '"maven15.0.1a" | $(Agent.OS)'
+      key: '"maven20221011a" | $(Agent.OS)'
       path: $(MavenCacheFolder)
 - task: Maven@3.205.1
   displayName: update revision property
