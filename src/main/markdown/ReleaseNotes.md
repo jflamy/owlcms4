@@ -1,5 +1,6 @@
 > New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
+- 34.3.0: Support for export/import of eligibility categories using the registration spreadsheet.  To perform bulk changes, create new groups, reassign athletes, change the schedule, etc. , export the current registration data, make the changes, and reload. This allows all such changes to be made using Excel until the actual start of competition.
 - 34.2.1: Fix for refereeing devices: When using USB or Bluetooth devices attached to the athlete-facing display, decisions were not shown on that display, but were shown on all others ((problem introduced in 34.2.0)
 - 34.2.1: **Important update**: Fixed an *extremely rare issue* *that could nevertheless stop the competition from proceeding*.  Ranks are updated after every lift, before updating the lifting order, so a fatal error in updating the ranks would prevent the lifting order update.
 - 34.2.0: Improvement: The lifting order display is now a full scoreboard (shows the 6 attempts)
