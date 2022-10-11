@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +32,7 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -75,6 +77,8 @@ public class RegistrationFileUploadDialog extends Dialog {
 //            return null;
 //        });
     }
+
+    private boolean keepParticipations;
 
     public RegistrationFileUploadDialog() {
 
@@ -129,6 +133,7 @@ public class RegistrationFileUploadDialog extends Dialog {
             if (e != null) {
                 Throwable cause = e.getCause();
                 String causeMessage = cause != null ? cause.getLocalizedMessage() : e.getLocalizedMessage();
+                causeMessage = LoggerUtils.stackTrace(cause);
                 causeMessage = causeMessage != null ? causeMessage : e.toString();
                 if (causeMessage.contentEquals("text")) {
                     causeMessage = "Empty or invalid.";
@@ -156,6 +161,8 @@ public class RegistrationFileUploadDialog extends Dialog {
             try (InputStream xlsInputStream = inputStream) {
                 RCompetition c = new RCompetition();
                 RCompetition.resetActiveCategories();
+                RCompetition.resetActiveGroups();
+                RCompetition.resetAthleteToEligibles();
 
                 List<RAthlete> athletes = new ArrayList<>();
 
@@ -164,6 +171,12 @@ public class RegistrationFileUploadDialog extends Dialog {
                 beans.put("athletes", athletes);
 
                 XLSReadStatus status = reader.read(inputStream, beans);
+
+                // we created a batch of new athletes. the ones that are exact matches have
+                // their eligibility already done.
+                keepParticipations = beans.values().stream()
+                        .filter(r -> ((RAthlete) r).getAthlete().getEligibleCategories() != null).findFirst()
+                        .isPresent();
 
                 logger.info(getTranslation("DataRead") + " " + athletes.size() + " athletes");
                 if (dryRun) {
@@ -178,9 +191,11 @@ public class RegistrationFileUploadDialog extends Dialog {
                 }
                 return athletes.size();
             } catch (InvalidFormatException | IOException e) {
+                LoggerUtils.stackTrace(e);
                 LoggerUtils.logError(logger, e);
             }
         } catch (IOException | SAXException e1) {
+            LoggerUtils.stackTrace(e1);
             LoggerUtils.logError(logger, e1);
         }
         return 0;
@@ -236,7 +251,9 @@ public class RegistrationFileUploadDialog extends Dialog {
 
         // process athletes now that groups have been adjusted
         processAthletes(inputStream, ta, false);
-        AthleteRepository.resetParticipations();
+        if (!keepParticipations) {
+            AthleteRepository.resetParticipations();
+        }
         listGroups("after processAthletes real");
         return;
     }
@@ -266,8 +283,10 @@ public class RegistrationFileUploadDialog extends Dialog {
     }
 
     private void updateAthletes(StringBuffer sb, RCompetition c, List<RAthlete> athletes) {
+//      for (Category c1: athlete.getEligibleCategories()) {
+//      em.merge(c1);
+//  }
         JPAService.runInTransaction(em -> {
-
             Competition curC = Competition.getCurrent();
             try {
                 Competition rCompetition = c.getCompetition();
@@ -281,17 +300,33 @@ public class RegistrationFileUploadDialog extends Dialog {
                 // update in database and set current to result of JPA merging.
                 Competition.setCurrent(em.merge(curC));
 
-                // update the athletes with the values read; create if not present.
-                // because the athletes in the file have got no Id, this will create
-                // new athletes if the file is reloaded.
+                // Create the new athletes.
                 athletes.stream().forEach(r -> {
                     Athlete athlete = r.getAthlete();
                     em.merge(athlete);
                 });
                 em.flush();
             } catch (IllegalAccessException | InvocationTargetException | RuntimeException e) {
+                LoggerUtils.stackTrace(e);
                 sb.append(e.getLocalizedMessage());
             }
+
+            return null;
+        });
+
+        JPAService.runInTransaction(em -> {
+            AthleteRepository.findAll().stream().forEach(a2 -> {
+                LinkedHashSet<Category> eligibles = (LinkedHashSet<Category>) RCompetition
+                        .getAthleteToEligibles()
+                        .get(a2.getId());
+                if (eligibles != null) {
+                    Category first = eligibles.stream().findFirst().orElse(null);
+                    a2.setCategory(first);
+                    a2.setEligibleCategories(eligibles);
+                    em.merge(a2);
+                }
+            });
+            em.flush();
 
             return null;
         });

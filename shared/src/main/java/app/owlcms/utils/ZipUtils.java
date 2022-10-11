@@ -41,70 +41,6 @@ public class ZipUtils {
 
     final static Logger logger = (Logger) LoggerFactory.getLogger(ZipUtils.class);
 
-//    /**
-//     * @param source zip stream
-//     * @param target target directory
-//     * @throws IOException extraction failed
-//     */
-//    private static void unzip(InputStream source, File target) throws IOException {
-//        final ZipInputStream zipStream = new ZipInputStream(source);
-//        ZipEntry nextEntry;
-//        while ((nextEntry = zipStream.getNextEntry()) != null) {
-//            String name = nextEntry.getName();
-//            // only extract files
-//            if (!name.endsWith("/")) {
-//                String prefix = "local/";
-//                if (name.startsWith(prefix)) {
-//                    name = name.substring(prefix.length());
-//                }
-//                final File nextFile = new File(target, name);
-//                logger.debug("unzipping {}", nextFile.getAbsolutePath());
-//
-//                // create directories
-//                final File parent = nextFile.getParentFile();
-//                if (parent != null) {
-//                    parent.mkdirs();
-//                }
-//
-//                // write file
-//                try (OutputStream targetStream = new FileOutputStream(nextFile)) {
-//                    copy(zipStream, targetStream);
-//                }
-//            }
-//        }
-//    }
-//
-//    /**
-//     * @param source zip stream
-//     * @param target target directory
-//     * @throws IOException extraction failed
-//     */
-//    private static void unzip(InputStream source, Path target) throws IOException {
-//        final ZipInputStream zipStream = new ZipInputStream(source);
-//        ZipEntry nextEntry;
-//        while ((nextEntry = zipStream.getNextEntry()) != null) {
-//            String name = nextEntry.getName();
-//            logger.warn("reading {}", name);
-//            // only extract files
-//            if (!name.endsWith("/")) {
-//                String prefix = "local/";
-//                if (name.startsWith(prefix)) {
-//                    name = name.substring(prefix.length());
-//                }
-//                Path outputfilePath = target.resolve(name);
-//                Files.createDirectories(outputfilePath.getParent());
-//                Files.createFile(outputfilePath);
-//
-//                // logger.debug("unzipping {}", outputfilePath);
-//
-//                // write file
-//                try (OutputStream targetStream = Files.newOutputStream(outputfilePath)) {
-//                    copy(zipStream, targetStream);
-//                }
-//            }
-//        }
-//    }
-
     public static void extractZip(InputStream inputStream, Path target) throws IOException {
         try {
             ArchiveStreamFactory archiveStreamFactory = new ArchiveStreamFactory();
@@ -113,7 +49,7 @@ public class ZipUtils {
             ArchiveEntry archiveEntry = null;
             while ((archiveEntry = archiveInputStream.getNextEntry()) != null) {
                 String name = archiveEntry.getName();
-                logger.warn("reading {}", name);
+                //logger.debug("reading {}", name);
                 // ignore directory entries, only process files.
                 if (!name.endsWith("/")) {
                     final String prefix = "local/";

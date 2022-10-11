@@ -20,11 +20,8 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
-import app.owlcms.data.group.GroupRepository;
-import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.preparation.RegistrationFileUploadDialog;
 import app.owlcms.utils.DateTimeUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -37,8 +34,11 @@ import ch.qos.logback.classic.Logger;
  */
 public class RAthlete {
 
-    static Pattern legacyPattern = Pattern.compile("([mMfF]?)(>?)(\\d+)");
+    private Pattern legacyPattern;
     Athlete a = new Athlete();
+
+    public RAthlete() {
+    }
 
     final Logger logger = (Logger) LoggerFactory.getLogger(RAthlete.class);
 
@@ -83,9 +83,40 @@ public class RAthlete {
             return;
         }
 
-        Matcher legacyResult = legacyPattern.matcher(categoryName);
+        String[] parts = categoryName.split("\\|");
+        if (parts.length >= 1) {
+            String catName = parts[0].trim();
+            Category c;
+            if ((c = RCompetition.getActiveCategories().get(catName)) != null) {
+                // exact match for a category.
+                Set<Category> eligibleCategories = new LinkedHashSet<>();
+                eligibleCategories.add(c);
+                if (parts.length > 1) {
+                    String[] eligibleNames = parts[1].split(";");
+                    for (String eligibleName : eligibleNames) {
+                        Category c2;
+                        if ((c2 = RCompetition.getActiveCategories().get(eligibleName.trim())) != null) {
+                            eligibleCategories.add(c2);
+                        } else {
+                            throw new Exception(
+                                    Translator.translate("Upload.CategoryNotFoundByName", eligibleName.trim()));
+                        }
+                    }
+                }
+                RCompetition.getAthleteToEligibles().put(a.getId(), eligibleCategories);
+            } else {
+                setCategoryHeuristics(categoryName);
+            }
+        }
+
+        return;
+    }
+
+    private void setCategoryHeuristics(String categoryName) throws Exception {
+        Matcher legacyResult = getLegacyPattern().matcher(categoryName);
         double searchBodyWeight;
         if (!legacyResult.matches()) {
+
             // try by explicit name
             Category category = RCompetition.getActiveCategories().get(categoryName);
             if (category == null) {
@@ -99,11 +130,13 @@ public class RAthlete {
             return;
         } else {
             fixLegacyGender(legacyResult);
-            if (!legacyResult.group(2).isEmpty()) {
-                searchBodyWeight = 998.0D;
+            if (!legacyResult.group(2).isEmpty() || !legacyResult.group(4).isEmpty()) {
+                // > or +
+                searchBodyWeight = Integer.parseInt(legacyResult.group(3)) + 0.1D;
             } else {
                 searchBodyWeight = Integer.parseInt(legacyResult.group(3)) - 0.1D;
             }
+            //logger.debug("gt 1:'{}' 2:'{}' 3:'{}' 4:'{}'", legacyResult.group(1), legacyResult.group(2), legacyResult.group(3), legacyResult.group(4));
         }
 
         int age;
@@ -183,17 +216,17 @@ public class RAthlete {
             long l = Long.parseLong(content);
             if (l < 3000) {
                 a.setYearOfBirth((int) l);
-                //logger.debug("short " + l);
+                // logger.debug("short " + l);
             } else {
                 LocalDate epoch = LocalDate.of(1900, 1, 1);
                 LocalDate plusDays = epoch.plusDays(l - 2); // Excel quirks: 1 is 1900-01-01 and 1900-02-29 did not
                                                             // exist.
-                //logger.debug("long " + plusDays);
+                // logger.debug("long " + plusDays);
                 a.setFullBirthDate(plusDays);
             }
             return;
         } catch (NumberFormatException e) {
-            //logger.debug("localized");
+            // logger.debug("localized");
             LocalDate parse = DateTimeUtils.parseLocalizedOrISO8601Date(content, OwlcmsSession.getLocale());
             a.setFullBirthDate(parse);
         }
@@ -220,19 +253,9 @@ public class RAthlete {
         if (groupName == null) {
             return;
         }
-        Group group = GroupRepository.findByName(groupName);
-        if (group == null) {
-            group = new Group();
-            group.setName(groupName);
-            group.setPlatform(PlatformRepository.findAll().get(0));
-            Group nGroup = GroupRepository.save(group);
-            a.setGroup(nGroup);
-            logger.debug("creating group {}", groupName);
-            RegistrationFileUploadDialog.listGroups("group creation");
-//            throw new Exception(
-//                    Translator.translate("Upload.GroupNotDefined", groupName));
-        } else {
-            a.setGroup(group);
+        Group g;
+        if ((g = RCompetition.getActiveGroups().get(groupName)) != null) {
+            a.setGroup(g);
         }
     }
 
@@ -303,6 +326,18 @@ public class RAthlete {
         } else {
             // nothing to do gender is known and consistent.
         }
+    }
+
+    Pattern getLegacyPattern() {
+        if (legacyPattern == null) {
+            setLegacyPattern(Pattern
+                    .compile("([mMfF]?) *([>" + Pattern.quote("+") + "]?) *(\\d+) *(" + Pattern.quote("+") + "?)$"));
+        }
+        return legacyPattern;
+    }
+
+    void setLegacyPattern(Pattern legacyPattern) {
+        this.legacyPattern = legacyPattern;
     }
 
 }

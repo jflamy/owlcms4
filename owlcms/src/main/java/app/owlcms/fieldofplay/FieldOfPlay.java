@@ -1627,6 +1627,7 @@ public class FieldOfPlay {
      * events resulting from decisions received so far (down signal, stopping timer, all decisions entered, etc.)
      */
     private void processRefereeDecisions(FOPEvent e) {
+        logger.warn("*** process referee decisions");
         int nbRed = 0;
         int nbWhite = 0;
         int nbDecisions = 0;
@@ -1680,16 +1681,23 @@ public class FieldOfPlay {
                 cancelWakeUpRef();
             }
             setGoodLift(nbWhite >= 2);
+            logger.warn("*** 3 decisions");
             if (!isDecisionDisplayScheduled()) {
+                logger.warn("*** not scheduled");
                 if (e instanceof FOPEvent.DecisionFullUpdate) {
                     if (((FOPEvent.DecisionFullUpdate) e).isImmediate()) {
+                        logger.warn("*** is Immediate, full update NOW");
                         showDecisionNow(e.getOrigin());
                     } else {
+                        logger.warn("*** NOT immediate, full update scheduling");
                         showDecisionAfterDelay(e.getOrigin(), REVERSAL_DELAY);
                     }
                 } else {
+                    logger.warn("*** partial update scheduling");
                     showDecisionAfterDelay(this, REVERSAL_DELAY);
                 }
+            } else {
+                logger.warn("*** already scheduled");
             }
         }
     }
@@ -1960,7 +1968,7 @@ public class FieldOfPlay {
     }
 
     synchronized private void showDecisionAfterDelay(Object origin2, int reversalDelay) {
-        logger.trace("{}scheduling decision display", getLoggingName());
+        logger.warn("{}scheduling decision display in {}ms", getLoggingName(), reversalDelay);
         assert !isDecisionDisplayScheduled(); // caller checks.
         setDecisionDisplayScheduled(true); // so there are never two scheduled...
         new DelayTimer(isTestingMode()).schedule(() -> showDecisionNow(origin2), reversalDelay);
@@ -1972,6 +1980,7 @@ public class FieldOfPlay {
      * announcer intervention is required to change and announce.
      */
     private void showDecisionNow(Object origin) {
+        logger.warn("*** Show decision now - enter");
         // we need to recompute majority, since they may have been reversal
         int nbWhite = 0;
         for (int i = 0; i < 3; i++) {
@@ -1986,7 +1995,6 @@ public class FieldOfPlay {
             getCurAthlete().successfulLift();
         } else {
             setGoodLift(false);
-
             this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
             getCurAthlete().failedLift();
         }
@@ -1999,6 +2007,8 @@ public class FieldOfPlay {
         // must set state before recomputing order so that scoreboards stop blinking the current athlete
         // must also set state prior to sending event, so that state monitor shows new state.
         setState(DECISION_VISIBLE);
+        logger.warn("*** Show decision now - doit");
+        // use "this" because the origin must also show the decision.
         uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), refereeDecision, refereeTime, this);
         recomputeLiftingOrder(true, true);
 

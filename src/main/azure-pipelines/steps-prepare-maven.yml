@@ -1,6 +1,17 @@
 steps:
 -  checkout: self
    submodules: recursive
+# -  script: |
+#      echo A
+#      mkdir /tmp/downloads
+#      mkdir $HOME/node
+#      curl -fsSL https://nodejs.org/dist/v16.17.1/node-v16.17.1-linux-x64.tar.xz > /tmp/downloads/f.tar.xz
+#      tar -xvf /tmp/downloads/f.tar.xz -C $HOME/node
+#      cd $HOME/node/node-v16.17.1-linux-x64/bin
+#      ./node --version
+#      ./npm --version
+#      cp ./node /usr/local/bin
+#      cp ./npm /usr/local/bin
 -  script: |
      mkdir $HOME/.m2
      cp src/main/azure-pipelines/settings.xml $HOME/.m2/settings.xml

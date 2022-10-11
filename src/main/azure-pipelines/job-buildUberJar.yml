@@ -22,6 +22,14 @@ jobs:
       - name: JAVA_HOME_11_X64
         value: /usr/local/openjdk-11
     steps:
+      # Node.js tool installer
+      # Finds or downloads and caches the specified version spec of Node.js and adds it to the PATH
+      - task: NodeTool@0
+        displayName: install nodejs 16.17.1
+        inputs:
+          versionSpec: '16.17.1' 
+          #force32bit: false # Optional
+          #checkLatest: false # Optional
       - template: steps-prepare-maven.yml
       - task: Maven@3.205.1
         displayName: build ${{ parameters.moduleName }} uberJar and publish to maven repository

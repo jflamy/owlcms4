@@ -180,7 +180,7 @@ public class StartupUtils {
     public static void startBrowser() {
         try {
             if (getBooleanParam("publicDemo")) {
-                logger.warn("public demo, not starting browser");
+                logger./**/warn("public demo, not starting browser");
                 return;
             }
             InetAddress localMachine = InetAddress.getLocalHost();
