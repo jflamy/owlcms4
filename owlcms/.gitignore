@@ -7,6 +7,4 @@
 /.apt_generated_tests/
 /local/
 /.flattened-pom.xml
-/webpack.generated.js
 /cp.txt
-/_node_modules/
