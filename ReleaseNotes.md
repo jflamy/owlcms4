@@ -1,12 +1,11 @@
 > New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 34.2.1: **Fix for refereeing devices**: If refereeing devices attached to the athlete-facing display were used (USB, Bluetooth), decisions were not being shown on that display (but were shown on all others)
-- 34.2.0: **Important update**: Fixed an *extremely rare issue* *that could nevertheless stop the competition from proceeding*.  Ranks are updated after every lift, before updating the lifting order, so a fatal error in updating the ranks would prevent the lifting order update.
+- 34.2.1: Fix for refereeing devices: When using USB or Bluetooth devices attached to the athlete-facing display, decisions were not shown on that display, but were shown on all others ((problem introduced in 34.2.0)
+- 34.2.1: **Important update**: Fixed an *extremely rare issue* *that could nevertheless stop the competition from proceeding*.  Ranks are updated after every lift, before updating the lifting order, so a fatal error in updating the ranks would prevent the lifting order update.
 - 34.2.0: Improvement: The lifting order display is now a full scoreboard (shows the 6 attempts)
 - 34.2.0: Decisions entered by the announcer are now shown immediately by default, unless there is a single referee using the screen and the "emit a down signal" setting is enabled.  This is useful when flags or standalone systems are used, or when there is a refereeing device disconnected.
 - 34.2.0: On the protocol sheets, when athletes are eligible for multiple age groups they will now be shown in each eligible grouping, with the corresponding ranking and Robi.  To get the old behavior back (each athlete shown only once in their "natural" age group) you can use the "6Attempts" template.
-- 34.2.0:  Group Results page no longer shows all athletes by default, as this is inconvenient for large competitions with hundreds of competitors.  The "All Groups" option can be used at the end of the meet to create a full results sheet for the federation. 
-- 34.2.0:  Fix: In a combined Snatch + Clean & Jerk + Total competition, the team scoreboards and team results screen in the application were not showing the combined points (but the Final Results Package was correct).
+- 34.2.0:  Group Results page no longer shows all athletes by default, as this is inconvenient for large competitions with hundreds of competitors.  The "All Groups" option can be used at the end of the meet to create a full results sheet for the federation.
 - 34.2.0: MQTT timekeeping device support: An MQTT timekeeper device can send one of the 4 following commands (*platform* is the code for the targeted platform): `/clock/platform/start` `/clock/platform/stop` `/clock/platform/60` `/clock/platform/120`
   Note that only 60 and 120 are the only legal numerical values to reset the clock to the corresponding number of seconds.
 - 34.2.0: Fixed the competition simulator to correctly handle the end-of-group events.
