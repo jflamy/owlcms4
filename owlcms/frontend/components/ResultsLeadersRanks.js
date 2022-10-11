@@ -112,7 +112,7 @@ class ResultsFull extends PolymerElement {
                 <template is="dom-if" if="[[l.isSpacer]]">
                     <tr>
                         <td class="spacer" style="grid-column: 1 / -1; justify-content: left;"
-                            inner-h-t-m-l="[[t.Leaders]] [[categoryName]]">
+                            inner-h-t-m-l="&nbsp;">
                         </td>
                     </tr>
                 </template>
