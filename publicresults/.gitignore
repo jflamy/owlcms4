@@ -4,11 +4,7 @@
 /logs/
 /target/
 /node_modules/
-/webpack.generated.js
-/package-lock.json
 /logs/
 /dependency-reduced-pom.xml
-/package.json
 /.flattened-pom.xml
-/webpack.config.js
 /cp.txt
