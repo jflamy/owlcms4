@@ -1,5 +1,6 @@
 > New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
+- 34.3.0-beta02: Improved order of records in the records export.  Changed title of button to include "Export" same as all export formats.  Added a button to clear records established during competition (useful for testing after using "clear lifts"). Added new translation strings for titles and explanations.
 - 34.3.0: New end of competition report: records set during the meet are exported in the same format as the input files, to facilitate updates.
 - 34.3.0: Support for export/import of eligibility categories using the registration spreadsheet.  To perform bulk changes, create new groups, reassign athletes, change the schedule, etc. , export the current registration data, make the changes, and reload. This allows all such changes to be made using Excel until the actual start of competition.
 - 34.2.1: Fix for refereeing devices: When using USB or Bluetooth devices attached to the athlete-facing display, decisions were not shown on that display, but were shown on all others ((problem introduced in 34.2.0)
