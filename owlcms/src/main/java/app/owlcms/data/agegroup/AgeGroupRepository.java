@@ -183,7 +183,7 @@ public class AgeGroupRepository {
      * @param g        gender
      * @return
      */
-    public static List<PAthlete> allPAthletesFoGroup(Group gr) {
+    public static List<PAthlete> allPAthletesForGroup(Group gr) {
         List<Participation> parts = JPAService.runInTransaction((em) -> {
            TypedQuery<Participation> q = em.createQuery(
                     "select distinct p from Participation p join p.athlete a where a.group = :competitionGroup",

@@ -121,7 +121,7 @@ public class RecordDefinitionReaderTest {
         String zipURI = "/testData/records/IWF_EWF.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
         RecordDefinitionReader.readZip(zipStream);
-        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 66.0D);
+        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 66.0, null, null);
         assertEquals("wrong number of results", 18, results.size());
     }
 
@@ -130,7 +130,7 @@ public class RecordDefinitionReaderTest {
         String zipURI = "/testData/records/IWFRecords.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
         RecordDefinitionReader.readZip(zipStream);
-        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 12, 66.0D);
+        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 12, 66.0D, null, null);
         assertEquals("wrong number of results", 0, results.size());
     }
 
@@ -139,7 +139,7 @@ public class RecordDefinitionReaderTest {
         String zipURI = "/testData/records/IWFRecords.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
         RecordDefinitionReader.readZip(zipStream);
-        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 13, 66.0D);
+        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 13, 66.0D, null, null);
         assertEquals("wrong number of results", 3, results.size());
     }
     
@@ -148,7 +148,7 @@ public class RecordDefinitionReaderTest {
         String zipURI = "/testData/records/IWF_EWF.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
         RecordDefinitionReader.readZip(zipStream);
-        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 110.0D);
+        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 110.0D, null, null);
         assertEquals("wrong number of results", 18, results.size());
         JsonValue json = RecordRepository.buildRecordJson(results, null, null, null);
         System.out.println(json.toJson());

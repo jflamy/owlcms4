@@ -164,13 +164,13 @@ public class RecordRepository {
 
     public static JsonValue computeRecords(Gender gender, Integer age, Double bw, Integer snatchRequest,
             Integer cjRequest, Integer totalRequest) {
-        List<RecordEvent> records = findFiltered(gender, age, bw);
+        List<RecordEvent> records = findFiltered(gender, age, bw, null, null);
         return buildRecordJson(records, snatchRequest, cjRequest, totalRequest);
     }
     
     public static List<RecordEvent> computeRecordsForAthlete(Athlete curAthlete) {
         List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
-                curAthlete.getBodyWeight());
+                curAthlete.getBodyWeight(), null, null);
 
         // remove duplicates for each kind of record, keep largest
         Map<String, RecordEvent> cleanMap = records.stream().collect(
@@ -227,16 +227,15 @@ public class RecordRepository {
         });
     }
 
-    public static List<RecordEvent> findFiltered(Gender gender, Integer age, Double bw) {
-
+    public static List<RecordEvent> findFiltered(Gender gender, Integer age, Double bw, String groupName, Boolean newRecords) {
         List<RecordEvent> findFiltered = JPAService.runInTransaction(em -> {
             String qlString = "select rec from RecordEvent rec "
-                    + filteringSelection(gender, age, bw)
-                    + " order by rec.gender, rec.ageGrpLower, rec.ageGrpUpper, rec.recordValue desc";
+                    + filteringSelection(gender, age, bw, groupName, newRecords)
+                    + " order by rec.gender, rec.ageGrpLower, rec.ageGrpUpper, rec.bwCatUpper, rec.recordValue desc";
             logger.debug("query = {}", qlString);
 
             Query query = em.createQuery(qlString);
-            setFilteringParameters(gender, age, bw, query);
+            setFilteringParameters(gender, age, bw, groupName, newRecords, query);
             @SuppressWarnings("unchecked")
             List<RecordEvent> resultList = query.getResultList();
             return resultList;
@@ -293,14 +292,14 @@ public class RecordRepository {
                 .getResultList();
     }
 
-    private static String filteringSelection(Gender gender, Integer age, Double bw) {
+    private static String filteringSelection(Gender gender, Integer age, Double bw, String groupName, Boolean newRecords) {
         String joins = null;
-        String where = filteringWhere(gender, age, bw);
+        String where = filteringWhere(gender, age, bw, groupName, newRecords);
         String selection = (joins != null ? " " + joins : "") + (where != null ? " where " + where : "");
         return selection;
     }
 
-    private static String filteringWhere(Gender gender, Integer age, Double bw) {
+    private static String filteringWhere(Gender gender, Integer age, Double bw, String groupName, Boolean newRecords) {
         List<String> whereList = new LinkedList<>();
         if (gender != null) {
             whereList.add("rec.gender = :gender");
@@ -311,6 +310,12 @@ public class RecordRepository {
         if (bw != null) {
             whereList.add("(rec.bwCatLower*1.0 < :bw) and (rec.bwCatUpper*1.0 >= :bw)");
         }
+        if (groupName != null) {
+            whereList.add("(groupNameString = :groupName)");
+        }
+        if (newRecords != null) {
+            whereList.add("(groupNameString is not null)");
+        }
         if (whereList.size() == 0) {
             return null;
         } else {
@@ -318,7 +323,7 @@ public class RecordRepository {
         }
     }
 
-    private static void setFilteringParameters(Gender gender, Integer age, Double bw, Query query) {
+    private static void setFilteringParameters(Gender gender, Integer age, Double bw, String groupName, Boolean newRecords, Query query) {
         if (age != null) {
             query.setParameter("age", age);
         }
@@ -327,6 +332,9 @@ public class RecordRepository {
         }
         if (gender != null) {
             query.setParameter("gender", gender);
+        }
+        if (groupName != null) {
+            query.setParameter("groupName", gender);
         }
     }
 
