@@ -63,14 +63,16 @@ public class RecordDefinitionReaderTest {
     @Before
     public void _00_beforeEachTest() {
         try {
-            RecordRepository.clearRecords();
+            RecordRepository.clearLoadedRecords();
+            RecordRepository.clearNewRecords();
         } catch (IOException e) {
         }
     }
 
     @Test
     public void _00_testClear() throws IOException {
-        RecordRepository.clearRecords();
+        RecordRepository.clearLoadedRecords();
+        RecordRepository.clearNewRecords();
         JPAService.runInTransaction(em -> {
             try {
                 List<RecordEvent> all = RecordRepository.findAll();

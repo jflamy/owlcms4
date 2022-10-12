@@ -7,6 +7,7 @@
 
 package app.owlcms.ui.preparation;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,8 @@ import app.owlcms.apputils.DebugUtils;
 import app.owlcms.components.NavigationPage;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.data.records.RecordRepository;
+import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.JXLSRegistration;
 import app.owlcms.spreadsheet.JXLSRegistrationExport;
 import app.owlcms.ui.home.HomeNavigationContent;
@@ -68,8 +71,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, getTranslation("DefineAgeGroups"));
         Button groups = openInNewTabNoParam(GroupContent.class, getTranslation("DefineGroups"));
         Button platforms = openInNewTabNoParam(PlatformContent.class, getTranslation("DefineFOP"));
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, groups,
-                platforms);
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, platforms, groups);
         doGroup(getTranslation("PreCompetitionSetup"), grid1, this);
 
         Div downloadDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("registration",
@@ -101,6 +103,18 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         exportJsonDiv.setWidthFull();
         FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson/* , clearDatabase */);
         doGroup(getTranslation("ExportDatabase.ExportImport"), grid4, this);
+        
+        Button clearNewRecords = new Button(getTranslation("Preparation.ClearNewRecords"),
+                buttonClickEvent -> {
+                    try {
+                        RecordRepository.clearNewRecords();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+        clearNewRecords.getElement().setProperty("title", Translator.translate("Preparation.ClearNewRecordsExplanation"));
+        FlexibleGridLayout grid5 = HomeNavigationContent.navigationGrid(clearNewRecords);
+        doGroup(getTranslation("Preparation.Records"), grid5, this);
 
         DebugUtils.gc();
     }

@@ -61,7 +61,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(groupResults, medals);
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(teamResults, teams);
-        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(finalPackage, newRecords, categoryResults, timingStats);
+        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(finalPackage, categoryResults, newRecords, timingStats);
 
         doGroup(getTranslation("ForEachCompetitionGroup"), grid1, this);
         doGroup(getTranslation("TeamResults.Title"), grid2, this);
