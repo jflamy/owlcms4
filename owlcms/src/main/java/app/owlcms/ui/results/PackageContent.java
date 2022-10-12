@@ -83,7 +83,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
     final private static Logger logger = (Logger) LoggerFactory.getLogger(PackageContent.class);
-    private static final String TITLE = "CategoryResults";
+    private static final String TITLE = "Results.EndOfCompetition";
     static {
         logger.setLevel(Level.INFO);
         jexlLogger.setLevel(Level.ERROR);

@@ -151,7 +151,8 @@ public class RecordRepository {
     public static void clearRecords() throws IOException {
         JPAService.runInTransaction(em -> {
             try {
-                int deletedCount = em.createQuery("DELETE FROM RecordEvent").executeUpdate();
+                // do not delete records set in the current competition.
+                int deletedCount = em.createQuery("DELETE FROM RecordEvent rec WHERE rec.groupNameString IS NULL").executeUpdate();
                 if (deletedCount > 0) {
                     logger.info("deleted {} record entries", deletedCount);
                 }

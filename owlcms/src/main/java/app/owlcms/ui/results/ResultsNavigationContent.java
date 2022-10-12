@@ -56,7 +56,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
                 getTranslation("TimingStatistics"), new JXLSTimingStats(UI.getCurrent()));
         ((Button)timingStats.getComponentAt(0)).setWidth("95%");
         Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
-                getTranslation("NewRecords"), new JXLSExportRecords(UI.getCurrent()));
+                getTranslation("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent()));
         ((Button)newRecords.getComponentAt(0)).setWidth("95%");
 
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(groupResults, medals);
@@ -65,7 +65,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 
         doGroup(getTranslation("ForEachCompetitionGroup"), grid1, this);
         doGroup(getTranslation("TeamResults.Title"), grid2, this);
-        doGroup(getTranslation("EndOfCompetitionDocuments"), grid3, this);
+        doGroup(getTranslation("Results.EndOfCompetition"), grid3, this);
 
         DebugUtils.gc();
     }
