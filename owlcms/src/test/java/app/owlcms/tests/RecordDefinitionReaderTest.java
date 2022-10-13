@@ -161,7 +161,6 @@ public class RecordDefinitionReaderTest {
     }
 
     @Test
-    @Ignore
     public void _09_testOrder() throws IOException {
         String streamURI = "/testData/records/ruRecords.xlsx";
         final String resName = "/records/orderCheck.txt";
