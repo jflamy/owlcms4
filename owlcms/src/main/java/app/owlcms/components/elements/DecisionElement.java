@@ -177,8 +177,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     @Subscribe
     public void slaveShowDecision(UIEvent.Decision e) {
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
-            uiEventLogger.debug("*** {} majority decision ({})", this.getOrigin(),
-                    this.getParent().get().getClass().getSimpleName());
+            uiEventLogger.debug("*** {} majority decision ({})", this.getOrigin(), this.getParent().get().getClass().getSimpleName());
             this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
             this.getElement().callJsFunction("setEnabled", false);
             // getModel().setEnabled(false);

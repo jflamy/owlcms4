@@ -640,7 +640,7 @@ public class EventForwarder implements BreakDisplay {
                 : null;
 
         mapPut(sb, "breakType", bts);
-        logger.trace("***** break {} breakType {}", isBreak, bts);
+        //logger.trace("***** break {} breakType {}", isBreak, bts);
         IBreakTimer breakTimer = getFop().getBreakTimer();
         int breakTimeRemaining = breakTimer != null ? breakTimer.liveTimeRemaining() : 0;
         mapPut(sb, "breakRemaining", Integer.toString(breakTimeRemaining));

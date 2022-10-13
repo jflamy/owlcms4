@@ -62,7 +62,7 @@ public class FOPSimulator {
         uiEventBus.register(this);
         this.setOrigin(this);
 
-        logger.info("****** simulating fop {}", fop.getName());
+        logger.info("simulating fop {}", fop.getName());
         startNextGroup(groups);
     }
 
@@ -145,7 +145,7 @@ public class FOPSimulator {
     }
 
     public void unregister() {
-        logger.debug("***** unregister simulator {}", this.fop.getName());
+        logger.debug("unregister simulator {}", this.fop.getName());
         uiEventBus.unregister(this);
     }
 
