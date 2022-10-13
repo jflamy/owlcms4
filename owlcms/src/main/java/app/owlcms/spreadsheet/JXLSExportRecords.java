@@ -61,17 +61,22 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
         }
 
         List<RecordEvent> records = RecordRepository.findFiltered(null, null, null, null, true);
-        records.sort(
-                Comparator.comparing(RecordEvent::getRecordFederation)
-                        .thenComparing(RecordEvent::getRecordName)
-                        .thenComparing(RecordEvent::getAgeGrp)
-                        .thenComparing(RecordEvent::getAgeGrpLower)
-                        .thenComparing(RecordEvent::getAgeGrpUpper)
-                        .thenComparing(RecordEvent::getBwCatUpper)
-                        .thenComparing((r) -> r.getRecordLift().ordinal())
-        );
+        records.sort(sortRecords());
         reportingBeans.put("records", records);
         return athletes;
+    }
+
+    public Comparator<RecordEvent> sortRecords() {
+        return Comparator
+                .comparing(RecordEvent::getRecordFederation) // all records for a federation go together (masters are separate)
+                .thenComparing(RecordEvent::getRecordName) // sometimes several record names for same federation (example: event-specific)
+                .thenComparing(RecordEvent::getGender) // all women, then all men
+                .thenComparing(RecordEvent::getAgeGrpUpper) // U13 U15 U17 U20 U23 SR
+                .thenComparing(RecordEvent::getAgeGrpLower) // increasing age groups for masters (35, 40, 45...)
+                .thenComparing(RecordEvent::getBwCatUpper) // increasing body weights
+                .thenComparing((r) -> r.getRecordLift().ordinal()) // SNATCH, CJ, TOTAL
+                .thenComparing(RecordEvent::getRecordValue) // increasing records
+;
     }
 
 }

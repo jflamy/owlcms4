@@ -179,8 +179,8 @@ public class RecordRepository {
                 // do not delete records set in the current competition.
                 int deletedCount = em.createQuery("DELETE FROM RecordEvent rec WHERE rec.groupNameString IS NOT NULL")
                         .executeUpdate();
-                if (deletedCount > 0) {
-                    logger.info("deleted {} record entries", deletedCount);
+                if (deletedCount >= 0) {
+                    logger.info("deleted {} competition record entries", deletedCount);
                 }
             } catch (Exception e) {
                 LoggerUtils.logError(logger, e);

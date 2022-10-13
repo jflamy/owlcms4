@@ -74,8 +74,7 @@ public class RecordEvent {
         newRecord.setFileName(rec.getFileName());
         newRecord.setGroupNameString(currentGroup != null ? currentGroup.getName() : null);
         newRecord.setCategoryString(a.getDisplayCategory());
-        logger.warn("*** {} {} {}", newRecord.getRecordDateAsString(), newRecord.getGroupNameString(),
-                newRecord.getCategoryString());
+        //logger.debug("*** {} {} {}", newRecord.getRecordDateAsString(), newRecord.getGroupNameString(), newRecord.getCategoryString());
         return newRecord;
     }
 
