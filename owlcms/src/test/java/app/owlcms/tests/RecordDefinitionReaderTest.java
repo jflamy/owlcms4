@@ -21,6 +21,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.slf4j.LoggerFactory;
@@ -160,6 +161,7 @@ public class RecordDefinitionReaderTest {
     }
 
     @Test
+    @Ignore
     public void _09_testOrder() throws IOException {
         String streamURI = "/testData/records/ruRecords.xlsx";
         final String resName = "/records/orderCheck.txt";
