@@ -1,7 +1,8 @@
-> New numbering scheme.  First level = significant features that can affect competition flow or results interpretation.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
+> New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 34.3.0-beta02: Improved order of records in the records export.  Changed title of button to include "Export" same as all export formats.  Added a button to clear records established during competition (useful for testing after using "clear lifts"). Added new translation strings for titles and explanations.
-- 34.3.0: New end of competition report: records set during the meet are exported in the same format as the input files, to facilitate updates.
+- 34.3.0-beta03: More improvements to the order of exported records.
+- 34.3.0-beta03: Translations (Danish, Spanish (ES, SV), Portuguese, French, Russian)
+- 34.3.0: New end of competition report: records set during the meet are exported in the same format as the input files, to facilitate updates.  Newly set records are kept in the database and preserved on application restart; a new "Clear New Records" is available to remove them  when doing pre-competition tests.
 - 34.3.0: Support for export/import of eligibility categories using the registration spreadsheet.  To perform bulk changes, create new groups, reassign athletes, change the schedule, etc. , export the current registration data, make the changes, and reload. This allows all such changes to be made using Excel until the actual start of competition.
 - 34.2.1: Fix for refereeing devices: When using USB or Bluetooth devices attached to the athlete-facing display, decisions were not shown on that display, but were shown on all others ((problem introduced in 34.2.0)
 - 34.2.1: **Important update**: Fixed an *extremely rare issue* *that could nevertheless stop the competition from proceeding*.  Ranks are updated after every lift, before updating the lifting order, so a fatal error in updating the ranks would prevent the lifting order update.
