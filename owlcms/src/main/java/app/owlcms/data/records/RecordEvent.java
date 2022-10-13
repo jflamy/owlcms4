@@ -366,7 +366,7 @@ public class RecordEvent {
      */
     @Override
     public String toString() {
-        return "RecordEvent [id=" + id + ", groupNameString=" + groupNameString + ", recordDate=" + recordDate
+        return "RecordEvent [ groupNameString=" + groupNameString + ", recordDate=" + recordDate
                 + ", recordValue="
                 + recordValue + ", athleteName=" + athleteName + ", ageGrp=" + ageGrp + ", bwCatUpper=" + bwCatUpper
                 + ", event=" + event + ", eventLocation=" + eventLocation + ", gender=" + gender + ", nation=" + nation

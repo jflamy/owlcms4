@@ -147,7 +147,7 @@ public class RecordDefinitionReaderTest {
         List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 13, 66.0D, null, null);
         assertEquals("wrong number of results", 3, results.size());
     }
-    
+
     @Test
     public void _08_testJson() throws IOException {
         String zipURI = "/testData/records/IWF_EWF.zip";
@@ -158,7 +158,7 @@ public class RecordDefinitionReaderTest {
         JsonValue json = RecordRepository.buildRecordJson(results, null, null, null);
         System.out.println(json.toJson());
     }
-    
+
     @Test
     public void _09_testOrder() throws IOException {
         String streamURI = "/testData/records/ruRecords.xlsx";
@@ -173,8 +173,9 @@ public class RecordDefinitionReaderTest {
                 List<RecordEvent> records = RecordRepository.findFiltered(null, null, null, null, null);
                 records.sort(new JXLSExportRecords(null).sortRecords());
                 
-                String results = records.stream().map(RecordEvent::toString).collect(Collectors.joining(System.lineSeparator()));
-                assertEqualsToReferenceFile(resName, results+System.lineSeparator());
+                String results = records.stream().map(RecordEvent::toString).collect(
+                        Collectors.joining(System.lineSeparator(),"",System.lineSeparator()));
+                assertEqualsToReferenceFile(resName, results);
             } finally {
                 if (wb != null) {
                     wb.close();
