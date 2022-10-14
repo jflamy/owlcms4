@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.data.records;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -29,6 +30,7 @@ import app.owlcms.data.records.RecordEvent.MissingAgeGroup;
 import app.owlcms.data.records.RecordEvent.MissingGender;
 import app.owlcms.data.records.RecordEvent.UnknownIWFBodyWeightCategory;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.ZipUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -237,7 +239,7 @@ public class RecordDefinitionReader {
     public static void readZip(InputStream source) throws IOException {
         // so that each workbook does not close the zip stream
         final ZipUtils.NoCloseInputStream zipStream = new ZipUtils.NoCloseInputStream(source);
-        RecordRepository.clearRecords();
+        RecordRepository.clearLoadedRecords();
 
         ZipEntry nextEntry;
         while ((nextEntry = zipStream.getNextEntry()) != null) {
@@ -259,6 +261,26 @@ public class RecordDefinitionReader {
             }
         }
         zipStream.doClose(); // a real close
+    }
+    
+    public static void resetRecords() {
+        Path recordsPath;
+        try {
+            recordsPath = ResourceWalker.getFileOrResourcePath("/records");
+            try {
+                RecordRepository.clearLoadedRecords();
+                if (recordsPath != null && Files.exists(recordsPath)) {
+                    RecordDefinitionReader.readFolder(recordsPath);
+                } else {
+                    logger.info("no record definition files in local/records");
+                }
+            } catch (IOException e) {
+                logger.error("cannot process records {}");
+            }
+        } catch (FileNotFoundException e1) {
+            logger.error("cannot find records {}", LoggerUtils.stackTrace(e1));
+        }
+
     }
 
     public static void readFolder(Path recordsPath) throws IOException {

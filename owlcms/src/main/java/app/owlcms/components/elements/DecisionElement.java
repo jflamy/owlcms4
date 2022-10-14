@@ -123,8 +123,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
      */
     public void masterShowDown(String fopName, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
         Object origin = this.getOrigin();
-        logger.warn("=== master {} down: decision={} ({} {} {})", origin, decision.getClass().getSimpleName(), ref1,
-                ref2, ref3);
+        //logger.debug("=== master {} down: decision={} ({} {} {})", origin, decision.getClass().getSimpleName(), ref1, ref2, ref3);
         OwlcmsSession.getFop().fopEventPost(new FOPEvent.DownSignal(origin));
     }
 
@@ -178,8 +177,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     @Subscribe
     public void slaveShowDecision(UIEvent.Decision e) {
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
-            uiEventLogger.debug("*** {} majority decision ({})", this.getOrigin(),
-                    this.getParent().get().getClass().getSimpleName());
+            uiEventLogger.debug("*** {} majority decision ({})", this.getOrigin(), this.getParent().get().getClass().getSimpleName());
             this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
             this.getElement().callJsFunction("setEnabled", false);
             // getModel().setEnabled(false);

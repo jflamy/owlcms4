@@ -42,10 +42,14 @@ public class AllTests {
         logger.info("comparing results to reference file {}", name);
         if (is != null) {
             String expected = getContents(is);
+            expected = expected.trim();
+            actual = actual.trim();
+            expected.replaceAll("\\r\\n?", "\n");
+            actual.replaceAll("\\r\\n?", "\n");
             assertEquals(referenceFilePath, expected, actual);
         } else {
             System.out.println("------ if ok, copy following to " + referenceFilePath);
-            System.out.println(actual);
+            System.out.println(actual.replaceAll("\n", System.getProperty("line.separator")));
             System.out.println("------");
             fail(referenceFilePath + " not found");
         }

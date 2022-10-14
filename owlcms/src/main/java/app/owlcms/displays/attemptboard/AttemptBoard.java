@@ -58,7 +58,6 @@ import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -172,7 +171,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      */
     public AttemptBoard() {
         OwlcmsFactory.waitDBInitialized();
-        logger.debug("*** AttemptBoard new {}", LoggerUtils.whereFrom());
+        // logger.debug("*** AttemptBoard new {}", LoggerUtils.whereFrom());
         athleteTimer.setOrigin(this);
         getModel().setJavaComponentId(this.toString());
         this.getElement().setProperty("kgSymbol", getTranslation("KgSymbol"));

@@ -49,11 +49,11 @@ public class RecordRepository {
 
     public static JsonValue buildRecordJson(List<RecordEvent> records, Integer snatchRequest, Integer cjRequest,
             Integer totalRequest) {
-        
+
         if (records == null || records.isEmpty()) {
             return Json.createNull();
         }
-        
+
         Multimap<Integer, RecordEvent> recordsByAgeWeight = ArrayListMultimap.create();
         TreeMap<String, String> rowOrder = new TreeMap<>();
         for (RecordEvent re : records) {
@@ -78,7 +78,7 @@ public class RecordRepository {
 
                 List<RecordEvent> recordFound = recordsForCurrentCategory.stream()
                         .filter(r -> r.getRecordName().contentEquals(curRowRecordName)).collect(Collectors.toList());
-                
+
                 // put them in snatch/cj/total order (not needed really), then largest record first in case of multiple
                 // records
                 recordFound.sort(Comparator.comparing(RecordEvent::getRecordLift)
@@ -116,7 +116,8 @@ public class RecordRepository {
                 cell.put(Ranking.TOTAL.name(), "\u00a0");
                 for (RecordEvent rec : recordTable[i][j]) {
                     if (recordCategories.length() <= j || recordCategories.get(j) == null) {
-                        String string = Translator.translate("Record.CategoryTitle",rec.getAgeGrp(),rec.getBwCatString());
+                        String string = Translator.translate("Record.CategoryTitle", rec.getAgeGrp(),
+                                rec.getBwCatString());
                         recordCategories.set(j, string);
                         column.put("cat", string);
                     }
@@ -143,15 +144,21 @@ public class RecordRepository {
         recordInfo.put("recordNames", recordFederations);
         recordInfo.put("recordCategories", recordCategories);
         recordInfo.put("recordTable", columns);
-        recordInfo.put("nbRecords", Json.create(recordTable[0].length+1));
-        
+        recordInfo.put("nbRecords", Json.create(recordTable[0].length + 1));
+
         return recordInfo;
     }
 
-    public static void clearRecords() throws IOException {
+    /**
+     * @param keepNewRecords if true, records established in a group of the current meet are kept.
+     * @throws IOException
+     */
+    public static void clearLoadedRecords() throws IOException {
         JPAService.runInTransaction(em -> {
             try {
-                int deletedCount = em.createQuery("DELETE FROM RecordEvent").executeUpdate();
+                // do not delete records set in the current competition.
+                int deletedCount = em.createQuery("DELETE FROM RecordEvent rec WHERE rec.groupNameString IS NULL")
+                        .executeUpdate();
                 if (deletedCount > 0) {
                     logger.info("deleted {} record entries", deletedCount);
                 }
@@ -162,15 +169,35 @@ public class RecordRepository {
         });
     }
 
+    /**
+     * @param keepNewRecords if true, records established in a group of the current meet are kept.
+     * @throws IOException
+     */
+    public static void clearNewRecords() throws IOException {
+        JPAService.runInTransaction(em -> {
+            try {
+                // do not delete records set in the current competition.
+                int deletedCount = em.createQuery("DELETE FROM RecordEvent rec WHERE rec.groupNameString IS NOT NULL")
+                        .executeUpdate();
+                if (deletedCount >= 0) {
+                    logger.info("deleted {} competition record entries", deletedCount);
+                }
+            } catch (Exception e) {
+                LoggerUtils.logError(logger, e);
+            }
+            return null;
+        });
+    }
+
     public static JsonValue computeRecords(Gender gender, Integer age, Double bw, Integer snatchRequest,
             Integer cjRequest, Integer totalRequest) {
-        List<RecordEvent> records = findFiltered(gender, age, bw);
+        List<RecordEvent> records = findFiltered(gender, age, bw, null, null);
         return buildRecordJson(records, snatchRequest, cjRequest, totalRequest);
     }
-    
+
     public static List<RecordEvent> computeRecordsForAthlete(Athlete curAthlete) {
         List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
-                curAthlete.getBodyWeight());
+                curAthlete.getBodyWeight(), null, null);
 
         // remove duplicates for each kind of record, keep largest
         Map<String, RecordEvent> cleanMap = records.stream().collect(
@@ -227,16 +254,16 @@ public class RecordRepository {
         });
     }
 
-    public static List<RecordEvent> findFiltered(Gender gender, Integer age, Double bw) {
-
+    public static List<RecordEvent> findFiltered(Gender gender, Integer age, Double bw, String groupName,
+            Boolean newRecords) {
         List<RecordEvent> findFiltered = JPAService.runInTransaction(em -> {
             String qlString = "select rec from RecordEvent rec "
-                    + filteringSelection(gender, age, bw)
-                    + " order by rec.gender, rec.ageGrpLower, rec.ageGrpUpper, rec.recordValue desc";
+                    + filteringSelection(gender, age, bw, groupName, newRecords)
+                    + " order by rec.gender, rec.ageGrpLower, rec.ageGrpUpper, rec.bwCatUpper, rec.recordValue desc";
             logger.debug("query = {}", qlString);
 
             Query query = em.createQuery(qlString);
-            setFilteringParameters(gender, age, bw, query);
+            setFilteringParameters(gender, age, bw, groupName, newRecords, query);
             @SuppressWarnings("unchecked")
             List<RecordEvent> resultList = query.getResultList();
             return resultList;
@@ -259,11 +286,13 @@ public class RecordRepository {
     }
 
     public static void reloadDefinitions(String localizedFileName) throws IOException {
-        clearRecords();
+        clearLoadedRecords();
         InputStream is = ResourceWalker.getResourceAsStream(localizedFileName);
         RecordDefinitionReader.readZip(is);
     }
 
+
+    
     /**
      * Save.
      *
@@ -293,14 +322,15 @@ public class RecordRepository {
                 .getResultList();
     }
 
-    private static String filteringSelection(Gender gender, Integer age, Double bw) {
+    private static String filteringSelection(Gender gender, Integer age, Double bw, String groupName,
+            Boolean newRecords) {
         String joins = null;
-        String where = filteringWhere(gender, age, bw);
+        String where = filteringWhere(gender, age, bw, groupName, newRecords);
         String selection = (joins != null ? " " + joins : "") + (where != null ? " where " + where : "");
         return selection;
     }
 
-    private static String filteringWhere(Gender gender, Integer age, Double bw) {
+    private static String filteringWhere(Gender gender, Integer age, Double bw, String groupName, Boolean newRecords) {
         List<String> whereList = new LinkedList<>();
         if (gender != null) {
             whereList.add("rec.gender = :gender");
@@ -311,6 +341,12 @@ public class RecordRepository {
         if (bw != null) {
             whereList.add("(rec.bwCatLower*1.0 < :bw) and (rec.bwCatUpper*1.0 >= :bw)");
         }
+        if (groupName != null) {
+            whereList.add("(groupNameString = :groupName)");
+        }
+        if (newRecords != null) {
+            whereList.add("(groupNameString is not null)");
+        }
         if (whereList.size() == 0) {
             return null;
         } else {
@@ -318,7 +354,8 @@ public class RecordRepository {
         }
     }
 
-    private static void setFilteringParameters(Gender gender, Integer age, Double bw, Query query) {
+    private static void setFilteringParameters(Gender gender, Integer age, Double bw, String groupName,
+            Boolean newRecords, Query query) {
         if (age != null) {
             query.setParameter("age", age);
         }
@@ -327,6 +364,9 @@ public class RecordRepository {
         }
         if (gender != null) {
             query.setParameter("gender", gender);
+        }
+        if (groupName != null) {
+            query.setParameter("groupName", gender);
         }
     }
 

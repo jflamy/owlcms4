@@ -6,11 +6,13 @@
  *******************************************************************************/
 package app.owlcms.tests;
 
+import static app.owlcms.tests.AllTests.assertEqualsToReferenceFile;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -31,6 +33,7 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.records.RecordDefinitionReader;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
+import app.owlcms.spreadsheet.JXLSExportRecords;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -63,14 +66,16 @@ public class RecordDefinitionReaderTest {
     @Before
     public void _00_beforeEachTest() {
         try {
-            RecordRepository.clearRecords();
+            RecordRepository.clearLoadedRecords();
+            RecordRepository.clearNewRecords();
         } catch (IOException e) {
         }
     }
 
     @Test
     public void _00_testClear() throws IOException {
-        RecordRepository.clearRecords();
+        RecordRepository.clearLoadedRecords();
+        RecordRepository.clearNewRecords();
         JPAService.runInTransaction(em -> {
             try {
                 List<RecordEvent> all = RecordRepository.findAll();
@@ -121,7 +126,7 @@ public class RecordDefinitionReaderTest {
         String zipURI = "/testData/records/IWF_EWF.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
         RecordDefinitionReader.readZip(zipStream);
-        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 66.0D);
+        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 66.0, null, null);
         assertEquals("wrong number of results", 18, results.size());
     }
 
@@ -130,7 +135,7 @@ public class RecordDefinitionReaderTest {
         String zipURI = "/testData/records/IWFRecords.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
         RecordDefinitionReader.readZip(zipStream);
-        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 12, 66.0D);
+        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 12, 66.0D, null, null);
         assertEquals("wrong number of results", 0, results.size());
     }
 
@@ -139,18 +144,44 @@ public class RecordDefinitionReaderTest {
         String zipURI = "/testData/records/IWFRecords.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
         RecordDefinitionReader.readZip(zipStream);
-        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 13, 66.0D);
+        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 13, 66.0D, null, null);
         assertEquals("wrong number of results", 3, results.size());
     }
-    
+
     @Test
     public void _08_testJson() throws IOException {
         String zipURI = "/testData/records/IWF_EWF.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
         RecordDefinitionReader.readZip(zipStream);
-        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 110.0D);
+        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 110.0D, null, null);
         assertEquals("wrong number of results", 18, results.size());
         JsonValue json = RecordRepository.buildRecordJson(results, null, null, null);
         System.out.println(json.toJson());
+    }
+
+    @Test
+    public void _09_testOrder() throws IOException {
+        String streamURI = "/testData/records/ruRecords.xlsx";
+        final String resName = "/records/orderCheck.txt";
+        
+        try (InputStream xmlInputStream = this.getClass().getResourceAsStream(streamURI)) {
+            Workbook wb = null;
+            try {
+                wb = WorkbookFactory.create(xmlInputStream);
+                RecordDefinitionReader.createRecords(wb, streamURI, null);
+                
+                List<RecordEvent> records = RecordRepository.findFiltered(null, null, null, null, null);
+                records.sort(new JXLSExportRecords(null).sortRecords());
+                
+                String results = records.stream().map(RecordEvent::toString).collect(
+                        Collectors.joining(System.lineSeparator(),"",System.lineSeparator()));
+                assertEqualsToReferenceFile(resName, results);
+            } finally {
+                if (wb != null) {
+                    wb.close();
+                }
+            }
+        }
+        
     }
 }

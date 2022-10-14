@@ -6,7 +6,6 @@
  *******************************************************************************/
 package app.owlcms;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,7 +36,6 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.ProdData;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.data.records.RecordDefinitionReader;
-import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.InitialData;
 import app.owlcms.init.OwlcmsFactory;
@@ -268,7 +266,7 @@ public class Main {
 
                 PlatformRepository.checkPlatforms();
             }
-            resetRecords();
+            RecordDefinitionReader.resetRecords();
         } finally {
             Translator.setForcedLocale(locale);
         }
@@ -357,25 +355,7 @@ public class Main {
         masters = StartupUtils.getBooleanParam("masters");
     }
 
-    private static void resetRecords() {
-        Path recordsPath;
-        try {
-            recordsPath = ResourceWalker.getFileOrResourcePath("/records");
-            try {
-                RecordRepository.clearRecords();
-                if (recordsPath != null && Files.exists(recordsPath)) {
-                    RecordDefinitionReader.readFolder(recordsPath);
-                } else {
-                    logger.info("no record definition files in local/records");
-                }
-            } catch (IOException e) {
-                logger.error("cannot process records {}");
-            }
-        } catch (FileNotFoundException e1) {
-            logger.error("cannot find records {}", LoggerUtils.stackTrace(e1));
-        }
 
-    }
 
     private static void warnAndExit(Integer demoResetDelay, EmbeddedJetty server)
             throws InterruptedException {
