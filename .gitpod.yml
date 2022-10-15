@@ -22,6 +22,11 @@ tasks:
       cp -f /workspace/owlcms4/.gitpod/settings.xml /home/gitpod/.m2/settings.xml
       echo creating shared
       mvn -pl shared install
+    command: |
+      echo Copying settings
+      cp -f /workspace/owlcms4/.gitpod/settings.xml /home/gitpod/.m2/settings.xml
+      echo creating shared
+      mvn -pl shared install
 
 vscode:
   extensions:
