@@ -256,6 +256,8 @@ public class RAthlete {
         Group g;
         if ((g = RCompetition.getActiveGroups().get(groupName)) != null) {
             a.setGroup(g);
+        } else {
+            throw new Exception(Translator.translate("Upload.GroupNotDefined", groupName));
         }
     }
 

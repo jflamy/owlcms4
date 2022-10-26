@@ -988,7 +988,11 @@ public class FieldOfPlay {
             athletes = JPAService.runInTransaction(em -> {
                 List<Athlete> l = AthleteSorter.assignCategoryRanks(em, g);
                 List<Athlete> nl = new LinkedList<>();
-                Competition.getCurrent().globalRankings(em);
+                try {
+                    Competition.getCurrent().globalRankings(em);
+                } catch (Exception e) {
+                    logger.error("{} global ranking exception {}\n ", getLoggingName(), e, LoggerUtils.stackTrace(e));
+                }
                 for (Athlete a : l) {
                     nl.add(em.merge(a));
                 }
@@ -999,7 +1003,11 @@ public class FieldOfPlay {
             athletes = JPAService.runInTransaction(em -> {
                 List<Athlete> l = AthleteRepository.findAthletesForGlobalRanking(em, g);
                 List<Athlete> nl = new LinkedList<>();
-                Competition.getCurrent().globalRankings(em);
+                try {
+                    Competition.getCurrent().globalRankings(em);
+                } catch (Exception e) {
+                    logger.error("{} global ranking exception {}\n ", getLoggingName(), e, LoggerUtils.stackTrace(e));
+                };
                 for (Athlete a : l) {
                     nl.add(em.merge(a));
                 }

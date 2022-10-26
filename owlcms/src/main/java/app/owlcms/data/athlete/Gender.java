@@ -10,7 +10,7 @@ package app.owlcms.data.athlete;
  * The Enum Gender.
  */
 public enum Gender {
-    F, M, MIXED;
+    F, M;
 
     static Gender[] mfValueArray = new Gender[] { F, M };
 
