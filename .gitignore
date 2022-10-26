@@ -29,4 +29,5 @@ database/owlcms.mv.db
 /database/
 /cp.txt
 /logs/
+/node_modules/
 /.metadata/
