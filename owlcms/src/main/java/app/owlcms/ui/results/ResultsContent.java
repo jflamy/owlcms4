@@ -45,6 +45,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.DownloadButtonFactory;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
@@ -332,6 +333,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     protected Component createReset() {
         reset = new Button(getTranslation("RecomputeRanks"), IronIcons.REFRESH.create(),
                 (e) -> OwlcmsSession.withFop((fop) -> {
+                    AthleteRepository.assignCategoryRanks();
                     refresh();
                 }));
 

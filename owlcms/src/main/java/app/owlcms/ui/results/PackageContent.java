@@ -49,6 +49,7 @@ import com.vaadin.flow.server.StreamResource;
 import app.owlcms.components.DownloadButtonFactory;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
@@ -364,6 +365,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     protected Component createReset() {
         reset = new Button(getTranslation("RecomputeRanks"), IronIcons.REFRESH.create(),
                 (e) -> OwlcmsSession.withFop((fop) -> {
+                    AthleteRepository.assignCategoryRanks();
                     refresh();
                 }));
 
