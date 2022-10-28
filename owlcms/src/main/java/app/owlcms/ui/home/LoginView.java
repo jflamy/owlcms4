@@ -60,7 +60,7 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
         pinField.setWidthFull();
         pinField.addValueChangeListener(event -> {
             String value = event.getValue();
-            if (!AccessUtils.checkAuthenticated(value)) {
+            if (checkAuthenticated(value)) {
                 pinField.setErrorMessage(getTranslation("LoginDenied"));
                 pinField.setInvalid(true);
             } else {
@@ -92,6 +92,10 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
 
         getContent().add(form);
 
+    }
+
+    protected boolean checkAuthenticated(String value) {
+        return !AccessUtils.checkAuthenticated(value);
     }
 
     @Override

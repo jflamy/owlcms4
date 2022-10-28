@@ -62,7 +62,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.shared.RequireLogin;
+import app.owlcms.ui.shared.RequireDisplayLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.CeremonyType;
@@ -90,7 +90,7 @@ import elemental.json.JsonValue;
 @Push
 public class ScoreMultiRanks extends PolymerTemplate<ScoreMultiRanks.ScoreboardModel>
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
-        RequireLogin {
+        RequireDisplayLogin {
 
     /**
      * ScoreboardModel

@@ -92,8 +92,10 @@ public class Config {
     @Convert(converter = LocaleAttributeConverter.class)
     private Locale defaultLocale = null;
 
+    private String pin;
+    private String displayPin;
     private String ipAccessList;
-
+    private String ipDisplayList;
     private String ipBackdoorList;
 
     /**
@@ -102,8 +104,6 @@ public class Config {
     @Lob
     @Column(name = "localcontent", nullable = true)
     private Blob localOverride;
-
-    private String pin;
 
     private String publicResultsURL;
 
@@ -123,10 +123,6 @@ public class Config {
 
     @Column(columnDefinition = "boolean default false")
     private boolean localTemplatesOnly;
-
-    public void setLocalTemplatesOnly(boolean localTemplatesOnly) {
-        this.localTemplatesOnly = localTemplatesOnly;
-    }
 
     public String computeSalt() {
         this.setSalt(null);
@@ -157,6 +153,15 @@ public class Config {
         return id != null && id.equals(other.getId());
     }
 
+    public boolean featureSwitch(String string, boolean trueIfPresent) {
+        if (getFeatureSwitches() == null) {
+            return !trueIfPresent;
+        }
+        String[] switches = getFeatureSwitches().toLowerCase().split("[,; ]");
+        boolean present = Arrays.asList(switches).contains(string.toLowerCase());
+        return trueIfPresent ? present : !present;
+    }
+
     /**
      * Gets the default locale.
      *
@@ -164,6 +169,26 @@ public class Config {
      */
     public Locale getDefaultLocale() {
         return defaultLocale;
+    }
+
+    public String getDisplayPinForField() {
+        if (displayPin == null) {
+            return "";
+        } else {
+            return FAKE_PIN;
+        }
+    }
+    
+    public String getPinForField() {
+        if (pin == null) {
+            return "";
+        } else {
+            return FAKE_PIN;
+        }
+    }
+
+    public String getFeatureSwitches() {
+        return featureSwitches;
     }
 
     /**
@@ -199,7 +224,7 @@ public class Config {
      * @throws SQLException
      */
     public byte[] getLocalZipBlob() {
-        //logger.debug("getLocalZipBlob skip={}",skipReading);
+        // logger.debug("getLocalZipBlob skip={}",skipReading);
         if (localOverride == null || skipReading) {
             return null;
         }
@@ -259,6 +284,46 @@ public class Config {
         return paramPublicResultsURL != null ? paramPublicResultsURL + "/decision" : null;
     }
 
+    @Transient
+    @JsonIgnore
+    public String getParamDisplayList() {
+        String uAccessList = StartupUtils.getStringParam("displayList");
+        if (uAccessList == null) {
+            // use access list from database
+            uAccessList = Config.getCurrent().getIpDisplayList();
+            if (uAccessList == null || uAccessList.isBlank()) {
+                uAccessList = null;
+            }
+        }
+        return uAccessList;
+    }
+
+    /**
+     * @return the current password.
+     */
+    @Transient
+    @JsonIgnore
+    public String getParamDisplayPin() {
+        String uPin = StartupUtils.getStringParam("displayPin");
+        if (uPin == null) {
+            // not defined in environment
+            // use pin from database, which is either empty (no password required)
+            // or current.
+            uPin = Config.getCurrent().getDisplayPin();
+            // logger.debug("pin = {}", uPin);
+            if (uPin == null || uPin.isBlank()) {
+                return null;
+            } else {
+                return uPin; // what is in the database is already encrypted
+            }
+        } else if (uPin.isBlank()) {
+            // no password will be expected
+            return null;
+        } else {
+            return uPin;
+        }
+    }
+
     /**
      * @return the current password.
      */
@@ -286,6 +351,27 @@ public class Config {
             return null;
         } else {
             return uPin;
+        }
+    }
+
+    /**
+     * @return the public results url stored in the database, except if overridden by system property or envariable.
+     */
+    public String getParamPublicResultsURL() {
+        String uURL = StartupUtils.getStringParam("remote");
+        if (uURL != null) {
+            // old configs with environment variable may still have a trailing /update.
+            uURL = uURL.replaceFirst("/update$", "");
+            return uURL;
+        } else {
+            uURL = publicResultsURL;
+            if (uURL == null || uURL.isBlank()) {
+                return null;
+            } else {
+                // user may have copied URL with trailing /
+                uURL = uURL.replaceFirst("/$", "");
+                return uURL;
+            }
         }
     }
 
@@ -325,13 +411,9 @@ public class Config {
     }
     
     public String getDisplayPin() {
-        if (pin == null) {
-            return "";
-        } else {
-            return FAKE_PIN;
-        }
+        return displayPin;
     }
- 
+
     public String getPublicResultsURL() {
         return publicResultsURL;
     }
@@ -373,6 +455,19 @@ public class Config {
         return FileServlet.isIgnoreCaching();
     }
 
+    public boolean isLocalTemplatesOnly() {
+        return this.localTemplatesOnly || featureSwitch("localTemplatesOnly", true);
+    }
+
+    public boolean isOldScoreboards() {
+        return featureSwitch("oldScoreboards", true);
+    }
+
+    public boolean isSizeOverride() {
+        // return featureSwitch("sizeOverride", true);
+        return true;
+    }
+
     @Transient
     @JsonIgnore
     public boolean isTraceMemory() {
@@ -390,6 +485,18 @@ public class Config {
         this.defaultLocale = defaultLocale;
     }
 
+    public void setDisplayPin(String displayPin) {
+        if (displayPin != null && displayPin.length() != 64 && displayPin != FAKE_PIN) {
+            this.displayPin = AccessUtils.encodePin(displayPin, false);
+        } else {
+            this.displayPin = displayPin;
+        }
+    }
+
+    public void setFeatureSwitches(String featureSwitches) {
+        this.featureSwitches = featureSwitches;
+    }
+
     public void setIgnoreCaching(boolean ignoreCaching) {
         FileServlet.setIgnoreCaching(ignoreCaching);
     }
@@ -400,6 +507,10 @@ public class Config {
 
     public void setIpBackdoorList(String ipBackdoorList) {
         this.ipBackdoorList = ipBackdoorList;
+    }
+
+    public void setLocalTemplatesOnly(boolean localTemplatesOnly) {
+        this.localTemplatesOnly = localTemplatesOnly;
     }
 
     public void setLocalZipBlob(byte[] localContent) {
@@ -426,6 +537,10 @@ public class Config {
         this.publicResultsURL = publicResultsURL;
     }
 
+    public void setSkipReading(boolean b) {
+        this.skipReading = b;
+    }
+
     public void setTimeZone(TimeZone timeZone) {
         if (timeZone == null) {
             this.timeZoneId = null;
@@ -440,27 +555,6 @@ public class Config {
     }
 
     /**
-     * @return the public results url stored in the database, except if overridden by system property or envariable.
-     */
-    public String getParamPublicResultsURL() {
-        String uURL = StartupUtils.getStringParam("remote");
-        if (uURL != null) {
-            // old configs with environment variable may still have a trailing /update.
-            uURL = uURL.replaceFirst("/update$", "");
-            return uURL;
-        } else {
-            uURL = publicResultsURL;
-            if (uURL == null || uURL.isBlank()) {
-                return null;
-            } else {
-                // user may have copied URL with trailing /
-                uURL = uURL.replaceFirst("/$", "");
-                return uURL;
-            }
-        }
-    }
-
-    /**
      * @param salt the salt to set
      */
     private void setSalt(String salt) {
@@ -468,38 +562,12 @@ public class Config {
         logger.debug("setting salt to {}", this.salt);
     }
 
-    public void setSkipReading(boolean b) {
-        this.skipReading = b;   
+    public String getIpDisplayList() {
+        return ipDisplayList;
     }
 
-    public boolean featureSwitch(String string, boolean trueIfPresent) {
-        if (getFeatureSwitches() == null) {
-            return !trueIfPresent;
-        }
-        String[] switches = getFeatureSwitches().toLowerCase().split("[,; ]");
-        boolean present = Arrays.asList(switches).contains(string.toLowerCase());
-        return trueIfPresent ? present : !present;
-    }
-
-    public String getFeatureSwitches() {
-        return featureSwitches;
-    }
-
-    public void setFeatureSwitches(String featureSwitches) {
-        this.featureSwitches = featureSwitches;
-    }
-
-    public boolean isSizeOverride() {
-        //return featureSwitch("sizeOverride", true);
-        return true;
-    }
-
-    public boolean isOldScoreboards() {
-        return featureSwitch("oldScoreboards", true);
-    }
-
-    public boolean isLocalTemplatesOnly() {
-        return this.localTemplatesOnly || featureSwitch("localTemplatesOnly", true);
+    public void setIpDisplayList(String ipDisplayList) {
+        this.ipDisplayList = ipDisplayList;
     }
 
 }

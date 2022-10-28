@@ -53,7 +53,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.shared.RequireLogin;
+import app.owlcms.ui.shared.RequireDisplayLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
@@ -82,7 +82,7 @@ import ch.qos.logback.classic.Logger;
 @Route("displays/attemptBoard")
 @Push
 public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel> implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin {
 
     /**
      * AttemptBoardModel

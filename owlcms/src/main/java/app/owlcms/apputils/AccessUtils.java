@@ -34,8 +34,8 @@ public class AccessUtils {
             // check for PIN if one is specified
             String expectedPin = Config.getCurrent().getParamPin();
             String hashedPassword = Config.getCurrent().encodeUserPassword(password);
-            logger.debug("checking whiteListed={} pin={} password={} hashedPassword={}", whiteListed,
-                    expectedPin, password, hashedPassword);
+            //logger.debug("checking whiteListed={} pin={} password={} hashedPassword={}", whiteListed, expectedPin, password, hashedPassword);
+            //logger.debug("{}", LoggerUtils.stackTrace());
             if (whiteListed && (expectedPin == null || expectedPin.isBlank())) {
                 // there is no password provided in the environmet, or it is empty. Check that there is no password in
                 // the database.
@@ -51,6 +51,33 @@ public class AccessUtils {
         }
         return true;
     }
+    
+    public static boolean checkDisplayAuthenticated(String password) {
+        boolean isAuthenticated = OwlcmsSession.isDisplayAuthenticated();
+
+        if (!isAuthenticated) {
+            boolean whiteListed = AccessUtils.checkDisplayList(getClientIp());
+
+            // check for PIN if one is specified
+            String expectedPin = Config.getCurrent().getParamDisplayPin();
+            String hashedPassword = Config.getCurrent().encodeUserPassword(password);
+            //logger.debug("checking displayWhiteListed={} pin={} password={} hashedPassword={}", whiteListed, expectedPin, password, hashedPassword);
+            //logger.debug("{}", LoggerUtils.stackTrace());
+            if (whiteListed && (expectedPin == null || expectedPin.isBlank())) {
+                // there is no password provided in the environmet, or it is empty. Check that there is no password in
+                // the database.
+                OwlcmsSession.setDisplayAuthenticated(true);
+                return true;
+            } else if (whiteListed && (expectedPin.contentEquals(hashedPassword))) {
+                OwlcmsSession.setDisplayAuthenticated(true);
+                return true;
+            } else {
+                OwlcmsSession.setDisplayAuthenticated(false);
+                return false;
+            }
+        }
+        return true;
+    }
 
     public static boolean checkBackdoor(String clientIp) {
         String backdoorList = Config.getCurrent().getParamBackdoorList();
@@ -60,6 +87,11 @@ public class AccessUtils {
     public static boolean checkWhitelist(String clientIp) {
         String whiteList = Config.getCurrent().getParamAccessList();
         return checkListMembership(clientIp, whiteList, true);
+    }
+    
+    public static boolean checkDisplayList(String clientIp) {
+        String displayList = Config.getCurrent().getParamDisplayList();
+        return checkListMembership(clientIp, displayList, true);
     }
 
     public static String encodePin(String pin, boolean checkingPassword) {

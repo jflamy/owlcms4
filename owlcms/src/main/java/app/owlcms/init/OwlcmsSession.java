@@ -32,6 +32,8 @@ import ch.qos.logback.classic.Logger;
  */
 public class OwlcmsSession {
 
+    private static final String DISPLAY_AUTHENTICATED = "displayAuthenticated";
+    private static final String AUTHENTICATED = "authenticated";
     private static final String FOP = "fop";
     private final static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsSession.class);
 
@@ -148,7 +150,7 @@ public class OwlcmsSession {
     }
 
     public static boolean isAuthenticated() {
-        return Boolean.TRUE.equals(getAttribute("authenticated"));
+        return Boolean.TRUE.equals(getAttribute(AUTHENTICATED));
     }
 
     /**
@@ -166,7 +168,7 @@ public class OwlcmsSession {
     }
 
     public static void setAuthenticated(boolean isAuthenticated) {
-        setAttribute("authenticated", isAuthenticated);
+        setAttribute(AUTHENTICATED, isAuthenticated);
     }
 
     public static void setFop(FieldOfPlay fop) {
@@ -191,5 +193,13 @@ public class OwlcmsSession {
     private Properties attributes = new Properties();
 
     private OwlcmsSession() {
+    }
+
+    public static boolean isDisplayAuthenticated() {
+        return isAuthenticated() || Boolean.TRUE.equals(getAttribute(DISPLAY_AUTHENTICATED));
+    }
+    
+    public static void setDisplayAuthenticated(boolean b) {
+        setAttribute(DISPLAY_AUTHENTICATED, b);
     }
 }
