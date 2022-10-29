@@ -129,10 +129,10 @@ public class Config {
         return Integer.toHexString(new Random(System.currentTimeMillis()).nextInt());
     }
 
-    public String encodeUserPassword(String password) {
+    public String encodeUserPassword(String password, String storedPassword) {
         String uPin = StartupUtils.getStringParam("pin");
         if (uPin == null) {
-            String encodedPassword = AccessUtils.encodePin(password, true);
+            String encodedPassword = AccessUtils.encodePin(password, storedPassword, true);
             return encodedPassword;
         } else {
             // we are comparing cleartext
@@ -171,16 +171,14 @@ public class Config {
         return defaultLocale;
     }
 
-    public String getDisplayPinForField() {
-        if (displayPin == null) {
-            return "";
-        } else {
-            return FAKE_PIN;
-        }
+    public String getDisplayPin() {
+        return displayPin;
     }
-    
-    public String getPinForField() {
-        if (pin == null) {
+
+    @Transient
+    @JsonIgnore
+    public String getDisplayPinForField() {
+        if (getDisplayPin() == null) {
             return "";
         } else {
             return FAKE_PIN;
@@ -206,6 +204,10 @@ public class Config {
 
     public String getIpBackdoorList() {
         return ipBackdoorList;
+    }
+
+    public String getIpDisplayList() {
+        return ipDisplayList;
     }
 
     /**
@@ -336,12 +338,13 @@ public class Config {
             // use pin from database, which is either empty (no password required)
             // or legacy (not crypted) or current.
             uPin = Config.getCurrent().getPin();
-            // logger.debug("pin = {}", uPin);
-            if (uPin == null || uPin.isBlank()) {
+            logger.warn("getParamPin pin = {}", uPin);
+            if (uPin == null || uPin.isBlank() || uPin.trim().contentEquals(FAKE_PIN)) {
+                logger.warn("no pin");
                 return null;
             } else if (uPin.length() < 64) {
                 // assume legacy
-                String encodedPin = AccessUtils.encodePin(uPin, false);
+                String encodedPin = AccessUtils.encodePin(uPin, Config.getCurrent().getPin(), false);
                 return encodedPin;
             } else {
                 return uPin; // what is in the database is already
@@ -409,9 +412,15 @@ public class Config {
     public String getPin() {
         return pin;
     }
-    
-    public String getDisplayPin() {
-        return displayPin;
+
+    @Transient
+    @JsonIgnore
+    public String getPinForField() {
+        if (getPin() == null) {
+            return "";
+        } else {
+            return FAKE_PIN;
+        }
     }
 
     public String getPublicResultsURL() {
@@ -486,10 +495,19 @@ public class Config {
     }
 
     public void setDisplayPin(String displayPin) {
+        logger.warn("setting displayPin {}",displayPin);
+        this.displayPin = displayPin;
+    }
+
+    public void setDisplayPinForField(String displayPin) {
+        logger.warn("setDisplayPinForField with {}", displayPin);
         if (displayPin != null && displayPin.length() != 64 && displayPin != FAKE_PIN) {
-            this.displayPin = AccessUtils.encodePin(displayPin, false);
+            String encodedPin = AccessUtils.encodePin(displayPin, Config.getCurrent().getPin(), false);
+            logger.warn("encoded displayPin {}", encodedPin);
+            this.setDisplayPin(encodedPin);
         } else {
-            this.displayPin = displayPin;
+            logger.warn("plain {}", displayPin);
+            this.setDisplayPin(displayPin);
         }
     }
 
@@ -509,6 +527,10 @@ public class Config {
         this.ipBackdoorList = ipBackdoorList;
     }
 
+    public void setIpDisplayList(String ipDisplayList) {
+        this.ipDisplayList = ipDisplayList;
+    }
+
     public void setLocalTemplatesOnly(boolean localTemplatesOnly) {
         this.localTemplatesOnly = localTemplatesOnly;
     }
@@ -526,10 +548,16 @@ public class Config {
     }
 
     public void setPin(String pin) {
+        logger.warn("setting pin {}",pin);
+        this.pin = pin;
+    }
+
+    public void setPinForField(String pin) {
+        logger.warn("displayPin setter called with {}", displayPin);
         if (pin != null && pin.length() != 64 && pin != FAKE_PIN) {
-            this.pin = AccessUtils.encodePin(pin, false);
+            this.setPin(AccessUtils.encodePin(pin, Config.getCurrent().getPin(), false));
         } else {
-            this.pin = pin;
+            this.setPin(pin);
         }
     }
 
@@ -560,14 +588,6 @@ public class Config {
     private void setSalt(String salt) {
         this.salt = salt;
         logger.debug("setting salt to {}", this.salt);
-    }
-
-    public String getIpDisplayList() {
-        return ipDisplayList;
-    }
-
-    public void setIpDisplayList(String ipDisplayList) {
-        this.ipDisplayList = ipDisplayList;
     }
 
 }

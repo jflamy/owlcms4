@@ -33,8 +33,8 @@ public class AccessUtils {
 
             // check for PIN if one is specified
             String expectedPin = Config.getCurrent().getParamPin();
-            String hashedPassword = Config.getCurrent().encodeUserPassword(password);
-            //logger.debug("checking whiteListed={} pin={} password={} hashedPassword={}", whiteListed, expectedPin, password, hashedPassword);
+            String hashedPassword = Config.getCurrent().encodeUserPassword(password, Config.getCurrent().getPin());
+            logger.warn("checking whiteListed={} pin={} password={} hashedPassword={}", whiteListed, expectedPin, password, hashedPassword);
             //logger.debug("{}", LoggerUtils.stackTrace());
             if (whiteListed && (expectedPin == null || expectedPin.isBlank())) {
                 // there is no password provided in the environmet, or it is empty. Check that there is no password in
@@ -60,8 +60,8 @@ public class AccessUtils {
 
             // check for PIN if one is specified
             String expectedPin = Config.getCurrent().getParamDisplayPin();
-            String hashedPassword = Config.getCurrent().encodeUserPassword(password);
-            //logger.debug("checking displayWhiteListed={} pin={} password={} hashedPassword={}", whiteListed, expectedPin, password, hashedPassword);
+            String hashedPassword = Config.getCurrent().encodeUserPassword(password, Config.getCurrent().getDisplayPin());
+            logger.warn("checking displayWhiteListed={} pin={} password={} hashedPassword={}", whiteListed, expectedPin, password, hashedPassword);
             //logger.debug("{}", LoggerUtils.stackTrace());
             if (whiteListed && (expectedPin == null || expectedPin.isBlank())) {
                 // there is no password provided in the environmet, or it is empty. Check that there is no password in
@@ -94,7 +94,7 @@ public class AccessUtils {
         return checkListMembership(clientIp, displayList, true);
     }
 
-    public static String encodePin(String pin, boolean checkingPassword) {
+    public static String encodePin(String pin, String storedPin, boolean checkingPassword) {
         if (pin == null) {
             return null;
         }
@@ -103,8 +103,7 @@ public class AccessUtils {
         String salt = config.getSalt();
 
         String doSHA = doSHA(pin, salt);
-        if (checkingPassword) {
-            String storedPin = config.getPin();
+        if (checkingPassword) {;
             if (salt == null || salt.isBlank()) {
                 // use new technique - salt is after the encrypted password
                 if (storedPin.length() > 64) {

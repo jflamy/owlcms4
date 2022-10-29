@@ -60,17 +60,13 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
         pinField.setWidthFull();
         pinField.addValueChangeListener(event -> {
             String value = event.getValue();
+            logger.warn("login input {}",value);
             if (checkAuthenticated(value)) {
                 pinField.setErrorMessage(getTranslation("LoginDenied"));
                 pinField.setInvalid(true);
             } else {
                 pinField.setInvalid(false);
-                String requestedUrl = OwlcmsSession.getRequestedUrl();
-                if (requestedUrl != null) {
-                    UI.getCurrent().navigate(requestedUrl);
-                } else {
-                    UI.getCurrent().navigate(HomeNavigationContent.class);
-                }
+                redirect();
             }
         });
 
@@ -92,6 +88,15 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
 
         getContent().add(form);
 
+    }
+
+    protected void redirect() {
+        String requestedUrl = OwlcmsSession.getRequestedUrl();
+        if (requestedUrl != null) {
+            UI.getCurrent().navigate(requestedUrl);
+        } else {
+            UI.getCurrent().navigate(HomeNavigationContent.class);
+        }
     }
 
     protected boolean checkAuthenticated(String value) {

@@ -213,7 +213,7 @@ public class ConfigEditingFormFactory
         configLayout.addFormItem(passwordField, Translator.translate("Config.PasswordOrPIN"));
         binder.forField(passwordField)
                 .withNullRepresentation("")
-                .bind(Config::getPinForField, Config::setPin);
+                .bind(Config::getPinForField, Config::setPinForField);
 
         //configLayout.addFormItem(new Html("<br/>"), "");
 
@@ -230,7 +230,7 @@ public class ConfigEditingFormFactory
         configLayout.addFormItem(displayPasswordField, Translator.translate("Config.DisplayPIN"));
         binder.forField(displayPasswordField)
                 .withNullRepresentation("")
-                .bind(Config::getDisplayPinForField, Config::setDisplayPin);
+                .bind(Config::getDisplayPinForField, Config::setDisplayPinForField);
 
         //configLayout.addFormItem(new Html("<br/>"), "");
 
