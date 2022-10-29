@@ -34,7 +34,7 @@ public class AccessUtils {
             // check for PIN if one is specified
             String expectedPin = Config.getCurrent().getParamPin();
             String hashedPassword = Config.getCurrent().encodeUserPassword(password, Config.getCurrent().getPin());
-            logger.warn("checking whiteListed={} pin={} password={} hashedPassword={}", whiteListed, expectedPin, password, hashedPassword);
+            //logger.debug("checking whiteListed={} pin={} password={} hashedPassword={}", whiteListed, expectedPin, password, hashedPassword);
             //logger.debug("{}", LoggerUtils.stackTrace());
             if (whiteListed && (expectedPin == null || expectedPin.isBlank())) {
                 // there is no password provided in the environmet, or it is empty. Check that there is no password in
@@ -61,7 +61,7 @@ public class AccessUtils {
             // check for PIN if one is specified
             String expectedPin = Config.getCurrent().getParamDisplayPin();
             String hashedPassword = Config.getCurrent().encodeUserPassword(password, Config.getCurrent().getDisplayPin());
-            logger.warn("checking displayWhiteListed={} pin={} password={} hashedPassword={}", whiteListed, expectedPin, password, hashedPassword);
+            //logger.debug("checking displayWhiteListed={} pin={} password={} hashedPassword={}", whiteListed, expectedPin, password, hashedPassword);
             //logger.debug("{}", LoggerUtils.stackTrace());
             if (whiteListed && (expectedPin == null || expectedPin.isBlank())) {
                 // there is no password provided in the environmet, or it is empty. Check that there is no password in

@@ -94,7 +94,7 @@ public interface DisplayParameters extends ContentParameters {
         }
         setRecordsDisplay(showRecords);
         switchRecords((Component) this, showRecords, false);
-        updateParam(params, PUBLIC, isRecordsDisplay() != isDefaultRecordsDisplay() ? Boolean.toString(isRecordsDisplay()) : null);
+        updateParam(params, RECORDS, isRecordsDisplay() != isDefaultRecordsDisplay() ? Boolean.toString(isRecordsDisplay()) : null);
         
         List<String> leaders = params.get(LEADERS);
         boolean showLeaders = isDefaultLeadersDisplay();

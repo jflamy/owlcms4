@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.data.config.Config;
@@ -34,6 +35,7 @@ public interface RequireDisplayLogin extends BeforeEnterObserver {
         }
 
         String path = event.getLocation().getPath();
+        QueryParameters queryParameters = event.getLocation().getQueryParameters();
         String displayList = Config.getCurrent().getParamDisplayList();
         String displayPin = Config.getCurrent().getParamDisplayPin();
         String backdoorList = Config.getCurrent().getParamBackdoorList();
@@ -59,6 +61,7 @@ public interface RequireDisplayLogin extends BeforeEnterObserver {
             // (if whitelist membership is required, will be prompted even if no PIN is
             // required, so that an error message is shown)
             OwlcmsSession.setRequestedUrl(path);
+            OwlcmsSession.setRequestedQueryParameters(queryParameters);
             event.forwardTo(DisplayLoginView.LOGIN);
         } else {
             // already on login view, do nothing.

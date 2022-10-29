@@ -338,9 +338,9 @@ public class Config {
             // use pin from database, which is either empty (no password required)
             // or legacy (not crypted) or current.
             uPin = Config.getCurrent().getPin();
-            logger.warn("getParamPin pin = {}", uPin);
+            //logger.debug("getParamPin pin = {}", uPin);
             if (uPin == null || uPin.isBlank() || uPin.trim().contentEquals(FAKE_PIN)) {
-                logger.warn("no pin");
+                //logger.debug("no pin");
                 return null;
             } else if (uPin.length() < 64) {
                 // assume legacy
@@ -495,18 +495,18 @@ public class Config {
     }
 
     public void setDisplayPin(String displayPin) {
-        logger.warn("setting displayPin {}",displayPin);
+        //logger.debug("setting displayPin {}",displayPin);
         this.displayPin = displayPin;
     }
 
     public void setDisplayPinForField(String displayPin) {
-        logger.warn("setDisplayPinForField with {}", displayPin);
+        //logger.debug("setDisplayPinForField with {}", displayPin);
         if (displayPin != null && displayPin.length() != 64 && displayPin != FAKE_PIN) {
             String encodedPin = AccessUtils.encodePin(displayPin, Config.getCurrent().getPin(), false);
-            logger.warn("encoded displayPin {}", encodedPin);
+            //logger.debug("encoded displayPin {}", encodedPin);
             this.setDisplayPin(encodedPin);
         } else {
-            logger.warn("plain {}", displayPin);
+            //logger.debug("plain {}", displayPin);
             this.setDisplayPin(displayPin);
         }
     }
@@ -548,12 +548,12 @@ public class Config {
     }
 
     public void setPin(String pin) {
-        logger.warn("setting pin {}",pin);
+        //logger.debug("setting pin {}",pin);
         this.pin = pin;
     }
 
     public void setPinForField(String pin) {
-        logger.warn("displayPin setter called with {}", displayPin);
+        //logger.debug("displayPin setter called with {}", displayPin);
         if (pin != null && pin.length() != 64 && pin != FAKE_PIN) {
             this.setPin(AccessUtils.encodePin(pin, Config.getCurrent().getPin(), false));
         } else {

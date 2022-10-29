@@ -34,10 +34,7 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
 /**
- * Class Scoreboard
- *
- * Show athlete 6-attempt results and leaders for the athlete's category
- *
+ * Show ranks for multiple age group competitions
  */
 @SuppressWarnings("serial")
 @Tag("resultsfull-template")

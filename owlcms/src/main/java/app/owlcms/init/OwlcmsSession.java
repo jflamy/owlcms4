@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -32,6 +33,8 @@ import ch.qos.logback.classic.Logger;
  */
 public class OwlcmsSession {
 
+    private static final String REQUESTED_URL = "requestedURL";
+    private static final String QUERY_PARAMETERS = "queryParameters";
     private static final String DISPLAY_AUTHENTICATED = "displayAuthenticated";
     private static final String AUTHENTICATED = "authenticated";
     private static final String FOP = "fop";
@@ -115,8 +118,6 @@ public class OwlcmsSession {
             locale = currentUi.getLocale();
             logger.trace("browser locale = {}", locale);
         }
-        
-        
 
         // get first defined locale from translation file, else default
         if (locale == null) {
@@ -145,12 +146,20 @@ public class OwlcmsSession {
         return locale;
     }
 
+    public static QueryParameters getRequestedQueryParameters() {
+        return (QueryParameters) getAttribute(QUERY_PARAMETERS);
+    }
+
     public static String getRequestedUrl() {
-        return (String) getAttribute("requestedURL");
+        return (String) getAttribute(REQUESTED_URL);
     }
 
     public static boolean isAuthenticated() {
         return Boolean.TRUE.equals(getAttribute(AUTHENTICATED));
+    }
+
+    public static boolean isDisplayAuthenticated() {
+        return isAuthenticated() || Boolean.TRUE.equals(getAttribute(DISPLAY_AUTHENTICATED));
     }
 
     /**
@@ -171,13 +180,21 @@ public class OwlcmsSession {
         setAttribute(AUTHENTICATED, isAuthenticated);
     }
 
+    public static void setDisplayAuthenticated(boolean b) {
+        setAttribute(DISPLAY_AUTHENTICATED, b);
+    }
+
     public static void setFop(FieldOfPlay fop) {
         logger.trace("setFop {} from {}", (fop != null ? fop.getName() : null), LoggerUtils.whereFrom());
         setAttribute(FOP, fop);
     }
 
+    public static void setRequestedQueryParameters(QueryParameters queryParameters) {
+        setAttribute(QUERY_PARAMETERS, queryParameters);
+    }
+
     public static void setRequestedUrl(String url) {
-        setAttribute("requestedURL", url);
+        setAttribute(REQUESTED_URL, url);
     }
 
     public static void withFop(Consumer<FieldOfPlay> command) {
@@ -193,13 +210,5 @@ public class OwlcmsSession {
     private Properties attributes = new Properties();
 
     private OwlcmsSession() {
-    }
-
-    public static boolean isDisplayAuthenticated() {
-        return isAuthenticated() || Boolean.TRUE.equals(getAttribute(DISPLAY_AUTHENTICATED));
-    }
-    
-    public static void setDisplayAuthenticated(boolean b) {
-        setAttribute(DISPLAY_AUTHENTICATED, b);
     }
 }
