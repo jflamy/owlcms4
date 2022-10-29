@@ -1,5 +1,7 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
+- 34.4.0-beta04: Fixed:  "public=true" URL parameter for the main scoreboard was erroneously being cleaned out of the URL even though the default is "false".
+- 34.4.0-beta04: Fixed: Query parameters present in the URL were not being passed if a password was required to reach the page
 - 34.4.0-beta03: Restored capability to load .json database exports from prior releases
 - 34.4.0: Added hard page breaks to the Athlete cards; this works around a problem whereby Excel showed a correct print preview but the printer driver miscalculated margins.
 - 34.4.0: New WeighinSummary template as used in Pan-American federation to facilitate data entry (body weight and declarations are copied one per line and countersigned).
