@@ -1,11 +1,12 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
+- 34.4.0-beta03: Restored capability to load .json database exports from prior releases
 - 34.4.0: Added hard page breaks to the Athlete cards; this works around a problem whereby Excel showed a correct print preview but the printer driver miscalculated margins.
 - 34.4.0: New WeighinSummary template as used in Pan-American federation to facilitate data entry (body weight and declarations are copied one per line and countersigned).
 - 34.4.0: New Jury template with bigger cells and with additional info (team, entry total)
 - 34.4.0: There are now separate passwords for officials (OWLCMS_PIN) and for displays (OWLCMS_DISPLAYPIN).  Normally only the officials password is set. This protects the competition input screens but keeps password-less access to the displays. If needed, scoreboards can also be protected by a password and by a separate list of authorized access lists.
 - 34.4.0: The "Recompute Ranks" button on the Results and End of Competition pages now performs a full recalculation of all the ranks taking into account all the eligibilities.  This will now reflect eligibility changes made in the course of the competition, if any.
-- 34.4.0: Fix problem when assigning gender-specific or age-dependent ranks (Sinclair, SMF/SMHF) when either age or gender was undefined.
+- 34.4.0: Fixed problem when assigning gender-specific or age-dependent ranks (Sinclair, SMF/SMHF) when either age or gender was undefined.
 - 34.3.0: New end of competition report: records set during the meet are exported in the same format as the record definition files, to facilitate post-competition updates. Newly set records are kept in the database and preserved on application restart; a new "Clear New Records" is available to remove them when doing pre-competition tests.
 - 34.3.0: Safe export/import of all registration data, including eligibility categories. Until competition start, it is now possible to use Excel to safely reassign athletes to groups, change athlete categories (including the additional categories where the athlete is eligible), to define new groups, to change referee assignments, etc.  This recreates clean athletes and groups, after weigh-ins have started changes must be made using the program screen.
 - 34.2.1: Fix for refereeing devices: When using USB or Bluetooth devices attached to the athlete-facing display, decisions were not shown on that display, but were shown on all others ((problem introduced in 34.2.0)
