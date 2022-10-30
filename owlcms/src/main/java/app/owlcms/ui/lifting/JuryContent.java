@@ -161,6 +161,8 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             swapRefereeLabel(e.getAthlete());
         });
     }
+    
+    //TODO slave jury member decisions
 
     @Override
     @Subscribe
@@ -174,20 +176,18 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     @Subscribe
     public void slaveTimeStarted(UIEvent.StartTime e) {
-        // FIXME: should not clear decisions on stop/no knee/start
         OwlcmsSession.withFop(fop -> {
             currentAthleteAtStart = fop.getClockOwner();
             currentAttemptNumber = fop.getClockOwner().getActuallyAttemptedLifts();
             newClock = e.getTimeRemaining() == 60000 || e.getTimeRemaining() == 120000;
         });
-        logger.warn("curr {} {} prev {} {} reset {}", currentAthleteAtStart, currentAttemptNumber, previousAthleteAtStart, previousAttemptNumber, newClock);
+        //logger.debug("curr {} {} prev {} {} reset {}", currentAthleteAtStart, currentAttemptNumber, previousAthleteAtStart, previousAttemptNumber, newClock);
         if ((currentAthleteAtStart != previousAthleteAtStart)
                 || (currentAttemptNumber != previousAttemptNumber)
                 || newClock ) {
             // we switched lifter, or we switched attempt.
             // reset the decisions.
-            logger.warn("RESETTING");
-
+            //logger.debug("RESETTING");
             UIEventProcessor.uiAccess(this, uiEventBus, () -> {
                 decisions.doReset();
                 juryVotingButtons.removeAll();
@@ -201,7 +201,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
                 swapRefereeLabel(null);
             });
         } else {
-            logger.warn("NOT resetting");
+            //logger.debug("NOT resetting");
         }
         previousAthleteAtStart = currentAthleteAtStart;
         previousAttemptNumber = currentAttemptNumber;
