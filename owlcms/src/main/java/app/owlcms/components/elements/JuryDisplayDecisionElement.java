@@ -29,10 +29,17 @@ public class JuryDisplayDecisionElement extends DecisionElement {
         uiEventLogger.setLevel(Level.INFO);
     }
 
+    private boolean automaticReset;
+
     public JuryDisplayDecisionElement() {
         super();
         this.setJury(true);
         this.getElement().getStyle().set("font-size", "19vh");
+    }
+
+    public JuryDisplayDecisionElement(boolean b) {
+        this();
+        this.setAutomaticReset(b);
     }
 
     @Subscribe
@@ -40,7 +47,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
         OwlcmsSession.withFop((fop) -> {
             UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
                 uiEventLogger.debug("*** {} break start -> reset", this.getOrigin());
-                this.getElement().callJsFunction("reset", false);
+                doReset();
             });
         });
     }
@@ -55,7 +62,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
                 // don't reset on a break we just created !
                 UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
                     uiEventLogger.debug("*** {} break start -> reset", this.getOrigin());
-                    this.getElement().callJsFunction("reset", false);
+                    doReset();
                 });
             }
         });
@@ -89,8 +96,22 @@ public class JuryDisplayDecisionElement extends DecisionElement {
     public void slaveStartTime(UIEvent.StartTime e) {
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
             uiEventLogger.debug("*** {} startTime -> reset", this.getOrigin());
-            this.getElement().callJsFunction("reset", false);
+            if (isAutomaticReset()) {
+                doReset();
+            }
         });
+    }
+
+    public void doReset() {
+        this.getElement().callJsFunction("reset", false);
+    }
+
+    private boolean isAutomaticReset() {
+        return automaticReset;
+    }
+
+    private void setAutomaticReset(boolean automaticReset) {
+        this.automaticReset = automaticReset;
     }
 
 }
