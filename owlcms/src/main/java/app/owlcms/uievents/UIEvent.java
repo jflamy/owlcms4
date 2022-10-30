@@ -939,9 +939,10 @@ public class UIEvent {
         public boolean on;
         public int ref;
 
-        public SummonRef(int lastRef, boolean b, Object origin) {
+        public SummonRef(int refNum, boolean b, Object origin) {
+            // ref 1..3 ; 4 is technical controller.
             super(origin);
-            this.ref = lastRef;
+            this.ref = refNum;
             this.on = b;
         }
 
