@@ -1,5 +1,6 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
+- 34.4.0-beta07: Ensured that MQTT monitor is same as in last stable release (referees and timekeeper support). MQTT for jury moved to a future branch.
 - 34.4.0-beta06: When using flags, the announcer-entered decision is now correctly redisplaying the new clock value when the same athlete follows in sequence.
 - 34.4.0-beta06: Fixed: Jury display. Reds given if bar had gone past the knee and then put down are no longer erased from the referee decision section when the clock is restarted.  
 - 34.4.0-beta05: Adjustments to the statuses provided for automatic video scene switching
