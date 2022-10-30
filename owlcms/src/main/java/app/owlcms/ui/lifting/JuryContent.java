@@ -82,6 +82,12 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private HorizontalLayout refContainer;
     private Component refereeLabelWrapper;
     private boolean summonEnabled;
+    
+    Athlete previousAthleteAtStart;
+    int previousAttemptNumber;
+    Athlete currentAthleteAtStart;
+    int currentAttemptNumber;
+    private boolean newClock;
 
     public JuryContent() {
         // we don't actually inherit behaviour from the superclass because
@@ -148,7 +154,8 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             label.getStyle().set("font-size", "large");
             decisionNotification.add(label);
             decisionNotification.setPosition(Position.TOP_START);
-            // decisionNotification.setDuration(5000);
+            // let the lift/no lift decision go away - people can see the referee lights.
+            decisionNotification.setDuration(5000);
             decisionNotification.open();
 
             swapRefereeLabel(e.getAthlete());
@@ -167,17 +174,37 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     @Subscribe
     public void slaveTimeStarted(UIEvent.StartTime e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            juryVotingButtons.removeAll();
-            resetJuryVoting();
-            decisions.setSilenced(this.isSilenced());
-            if (decisionNotification != null) {
-                decisionNotification.close();
-            }
-            // referee decisions handle reset on their own, nothing to do.
-            // reset referee decision label
-            swapRefereeLabel(null);
+        // FIXME: should not clear decisions on stop/no knee/start
+        OwlcmsSession.withFop(fop -> {
+            currentAthleteAtStart = fop.getClockOwner();
+            currentAttemptNumber = fop.getClockOwner().getActuallyAttemptedLifts();
+            newClock = e.getTimeRemaining() == 60000 || e.getTimeRemaining() == 120000;
         });
+        logger.warn("curr {} {} prev {} {} reset {}", currentAthleteAtStart, currentAttemptNumber, previousAthleteAtStart, previousAttemptNumber, newClock);
+        if ((currentAthleteAtStart != previousAthleteAtStart)
+                || (currentAttemptNumber != previousAttemptNumber)
+                || newClock ) {
+            // we switched lifter, or we switched attempt.
+            // reset the decisions.
+            logger.warn("RESETTING");
+
+            UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+                decisions.doReset();
+                juryVotingButtons.removeAll();
+                resetJuryVoting();
+                decisions.setSilenced(this.isSilenced());
+                if (decisionNotification != null) {
+                    decisionNotification.close();
+                }
+                // referee decisions handle reset on their own, nothing to do.
+                // reset referee decision label
+                swapRefereeLabel(null);
+            });
+        } else {
+            logger.warn("NOT resetting");
+        }
+        previousAthleteAtStart = currentAthleteAtStart;
+        previousAttemptNumber = currentAttemptNumber;
     }
 
     /**
@@ -339,7 +366,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private void buildRefereeBox(VerticalLayout container) {
         refereeLabelWrapper = createRefereeLabel(null);
 
-        decisions = new JuryDisplayDecisionElement();
+        decisions = new JuryDisplayDecisionElement(false);
         decisions.getElement().setAttribute("theme", "dark");
         Div decisionWrapper = new Div(decisions);
         decisionWrapper.getStyle().set("width", "50%");
