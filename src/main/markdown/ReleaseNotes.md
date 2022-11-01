@@ -1,11 +1,11 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 34.4.0: Improvements
+- 34.4.0 release candidate: Improvements
   - New Weigh-in Starting Weights template to create a WeighinSummary. Meant to facilitate data entry. As used in Pan-American federation, the body weight and declarations are copied one per line and countersigned.
   - New Jury template with bigger cells and with additional info (team, entry total)
   - There are now separate passwords for officials (OWLCMS_PIN) and for displays (OWLCMS_DISPLAYPIN).  Normally only the officials password is set. This protects the competition input screens but keeps password-less access to the displays. If needed, scoreboards can also be protected by a password and by a separate list of authorized access lists.
   - The "Recompute Ranks" button on the Results and End of Competition pages now performs a full recalculation of all the ranks taking into account all the eligibilities.  This will now reflect eligibility changes made in the course of the competition, if any.
-- 34.4.0: Fixes:
+- 34.4.0 release candidate: Fixes:
   - Added hard page breaks to the Athlete cards; this works around a problem whereby Excel showed a correct print preview but the printer driver miscalculated margins.
   - When using flags, the announcer-entered decision is now correctly redisplaying the new clock value when the same athlete follows in sequence.
   - Fix: Jury display. Reds given if bar had gone past the knee and then put down are no longer erased from the referee decision section when the clock is restarted.  
