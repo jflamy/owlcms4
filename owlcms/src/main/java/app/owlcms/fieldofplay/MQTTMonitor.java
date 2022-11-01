@@ -249,7 +249,6 @@ public class MQTTMonitor {
     }
 
     private MqttAsyncClient client;
-
     private FieldOfPlay fop;
     private Logger logger = (Logger) LoggerFactory.getLogger(MQTTMonitor.class);
     private String[] macAddress = new String[3];
@@ -257,8 +256,8 @@ public class MQTTMonitor {
     private String port;
     private String server;
     private String userName;
-
     private MQTTCallback callback;
+
 
     MQTTMonitor(FieldOfPlay fop) {
         logger.setLevel(Level.DEBUG);
@@ -315,6 +314,7 @@ public class MQTTMonitor {
         default:
             break;
         }
+
     }
 
     @Subscribe
@@ -332,6 +332,7 @@ public class MQTTMonitor {
             client.publish("owlcms/fop/" + fop.getName(),
                     new MqttMessage("clockStart".getBytes(StandardCharsets.UTF_8)));
         } catch (MqttException e1) {
+
         }
     }
 
