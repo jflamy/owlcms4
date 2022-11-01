@@ -5,6 +5,7 @@
   - New Jury template with bigger cells and with additional info (team, entry total)
   - There are now separate passwords for officials (OWLCMS_PIN) and for displays (OWLCMS_DISPLAYPIN).  Normally only the officials password is set. This protects the competition input screens but keeps password-less access to the displays. If needed, scoreboards can also be protected by a password and by a separate list of authorized access lists.
   - The "Recompute Ranks" button on the Results and End of Competition pages now performs a full recalculation of all the ranks taking into account all the eligibilities.  This will now reflect eligibility changes made in the course of the competition, if any.
+  - Added USAW Age group file and updated the results sheet to be in the USA BARS format.  To produce results for BARS you need to have loaded the USA Age Groups file and assigned the athletes using the USA Age Groups.
 - 34.4.0 release candidate: Fixes:
   - Added hard page breaks to the Athlete cards; this works around a problem whereby Excel showed a correct print preview but the printer driver miscalculated margins.
   - When using flags, the announcer-entered decision is now correctly redisplaying the new clock value when the same athlete follows in sequence.
