@@ -239,6 +239,9 @@ public class Competition {
     
     @Column(columnDefinition = "boolean default false")
     private boolean sinclairMeet;
+    
+    @Column(columnDefinition = "integer default 3")
+    private int jurySize;
 
     public Competition() {
         medalsByGroup = new HashMap<>();
@@ -1481,5 +1484,14 @@ public class Competition {
     }
     public void setSinclair(boolean b) {
         this.sinclairMeet = b;
+    }
+
+    public int getJurySize() {
+        // TODO Auto-generated method stub
+        return jurySize;
+    }
+
+    public void setJurySize(int jurySize) {
+        this.jurySize = jurySize;
     }
 }

@@ -28,6 +28,19 @@ import ch.qos.logback.classic.Logger;
  */
 public class FOPEvent {
 
+    public static class JuryMemberDecisionUpdate extends FOPEvent {
+
+        public boolean decision;
+        public int refIndex;
+
+        public JuryMemberDecisionUpdate(Object origin, int refIndex, boolean decision) {
+            super(origin);
+            this.refIndex = refIndex;
+            this.decision = decision;      
+        }
+
+    }
+
     /**
      * Class BarbellOrPlatesChanged
      */

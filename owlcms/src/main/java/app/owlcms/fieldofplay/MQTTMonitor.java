@@ -31,7 +31,7 @@ import ch.qos.logback.classic.Logger;
 
 public class MQTTMonitor {
 
-    public class MQTTCallback implements MqttCallback {
+    public class MQTTCallback implements MqttCallback, JuryEvents {
         // TODO athlete under review is last one who lifted, not the current athlete
         private Athlete athleteUnderReview;
 
@@ -136,19 +136,19 @@ public class MQTTMonitor {
                 logger.info("{}{} : {}", fop.getLoggingName(), topic, messageStr);
 
                 if (topic.endsWith(decisionTopicName) || topic.endsWith(oldDecisionTopicName)) {
-                    publishFopDecisionUpdate(topic, messageStr);
+                    fopEventRefereeDecisionUpdate(topic, messageStr);
                 } else if (topic.endsWith(downEmittedTopicName)) {
-                    publishDownEmitted(topic, messageStr);
+                    fopEventDownEmitted(topic, messageStr);
                 } else if (topic.endsWith(clockTopicName)) {
-                    publishFopTimeEvents(topic, messageStr);
+                    fopTimeEvents(topic, messageStr);
                 } else if (topic.endsWith(getJuryBreakTopicName())) {
-                    publishJuryBreakEvents(topic, messageStr);
+                    fopJuryBreakEvents(topic, messageStr);
                 } else if (topic.endsWith(getJuryMemberDecisionTopicName())) {
-                    // TODO juryMemberDecisionTopicName
+                    fopEventJuryMemberDecisionUpdate(topic, messageStr);
                 } else if (topic.endsWith(juryDecisionTopicName)) {
-                    // TODO juryDecisionTopicName
+                    fopEventJuryDecision(topic, messageStr);
                 } else if (topic.endsWith(jurySummonTopicName)) {
-                    // TODO jurySummonTopicName
+                    fopEventSummonReferee(topic, messageStr);
                 } else {
                     logger.error("{}Malformed MQTT unrecognized topic message topic='{}' message='{}'",
                             fop.getLoggingName(), topic, messageStr);
@@ -163,12 +163,12 @@ public class MQTTMonitor {
             this.athleteUnderReview = athleteUnderReview;
         }
 
-        private void publishDownEmitted(String topic, String messageStr) {
+        private void fopEventDownEmitted(String topic, String messageStr) {
             messageStr = messageStr.trim();
             fop.fopEventPost(new FOPEvent.DownSignal(this));
         }
 
-        private void publishFopDecisionUpdate(String topic, String messageStr) {
+        private void fopEventRefereeDecisionUpdate(String topic, String messageStr) {
             messageStr = messageStr.trim();
             try {
                 String[] parts = messageStr.split(" ");
@@ -181,8 +181,43 @@ public class MQTTMonitor {
                         fop.getLoggingName(), topic, messageStr);
             }
         }
+        
+        private void fopEventSummonReferee(String topic, String messageStr) {
+            messageStr = messageStr.trim();
+            try {
+                String[] parts = messageStr.split(" ");
+                int refIndex = Integer.parseInt(parts[0]) - 1;
+                fop.fopEventPost(new FOPEvent.DecisionUpdate(this, refIndex,
+                        parts[parts.length - 1].contentEquals("good")));
+            } catch (NumberFormatException e) {
+                logger.error("{}Malformed MQTT decision message topic='{}' message='{}'",
+                        fop.getLoggingName(), topic, messageStr);
+            }
+        }
+        
+        private void fopEventJuryMemberDecisionUpdate(String topic, String messageStr) {
+            messageStr = messageStr.trim();
+            try {
+                String[] parts = messageStr.split(" ");
+                int refIndex = Integer.parseInt(parts[0]) - 1;
+                fop.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(MQTTMonitor.this, refIndex, parts[parts.length - 1].contentEquals("good")));
+            } catch (NumberFormatException e) {
+                logger.error("{}Malformed MQTT decision message topic='{}' message='{}'",
+                        fop.getLoggingName(), topic, messageStr);
+            }
+        }
+        
+        private void fopEventJuryDecision(String topic, String messageStr) {
+            messageStr = messageStr.trim();
+            try {
+                fop.fopEventPost(new FOPEvent.JuryDecision(getAthleteUnderReview(), this, messageStr.contentEquals("good")));
+            } catch (NumberFormatException e) {
+                logger.error("{}Malformed MQTT decision message topic='{}' message='{}'",
+                        fop.getLoggingName(), topic, messageStr);
+            }
+        }
 
-        private void publishFopTimeEvents(String topic, String messageStr) {
+        private void fopTimeEvents(String topic, String messageStr) {
             messageStr = messageStr.trim();
             if (messageStr.equalsIgnoreCase("start")) {
                 fop.fopEventPost(new FOPEvent.TimeStarted(this));
@@ -198,7 +233,7 @@ public class MQTTMonitor {
             }
         }
 
-        private void publishJuryBreakEvents(String topic, String messageStr) {
+        private void fopJuryBreakEvents(String topic, String messageStr) {
             messageStr = messageStr.trim();
             if (messageStr.equalsIgnoreCase("technical")) {
                 // TODO start jury technical break (FOP Event and UI event)

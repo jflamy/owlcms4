@@ -26,8 +26,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FOPEvent;
-import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.JuryEvents;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
@@ -39,7 +39,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-public class JuryDialog extends EnhancedDialog {
+public class JuryDialog extends EnhancedDialog implements JuryEvents {
     private JuryDeliberationEventType deliberation;
     private String endBreakText;
 
@@ -166,7 +166,7 @@ public class JuryDialog extends EnhancedDialog {
 
         Button all = new Button(Translator.translate("JuryDialog.AllReferees"), (e) -> {
             OwlcmsSession.withFop(fop -> {
-                postJurySummonNotification();
+                postJurySummonNotification(fop, this);
                 // i = 0 means call all refs.
                 for (int j = 1; j <= 3; j++) {
                     fop.fopEventPost(new FOPEvent.SummonReferee(j, this.origin));
@@ -329,16 +329,6 @@ public class JuryDialog extends EnhancedDialog {
         });
     }
 
-    private void postJurySummonNotification() {
-        FieldOfPlay fop = OwlcmsSession.getFop();
-        if (fop.getState() != FOPState.BREAK) {
-            fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
-        }
-        JuryNotification event = new UIEvent.JuryNotification(null, origin, JuryDeliberationEventType.CALL_REFEREES,
-                null, null);
-        fop.getUiEventBus().post(event);
-    }
-
     private void doTechnicalPause(Object origin) {
         // technical pause from Jury
         OwlcmsSession.getFop()
@@ -385,7 +375,7 @@ public class JuryDialog extends EnhancedDialog {
 
     private void summonReferee(int i) {
         OwlcmsSession.withFop(fop -> {
-            postJurySummonNotification();
+            postJurySummonNotification(fop, this);
             fop.fopEventPost(new FOPEvent.SummonReferee(i, this.origin));
         });
     }

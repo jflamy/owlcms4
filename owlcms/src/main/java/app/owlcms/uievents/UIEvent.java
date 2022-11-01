@@ -38,6 +38,20 @@ import ch.qos.logback.classic.Logger;
 
 public class UIEvent {
 
+    static public class JuryUpdate extends UIEvent{
+
+        public JuryUpdate(Object origin, boolean unanimous, Boolean[] juryMemberDecision, int jurySize) {
+            super(origin);
+            //TODO JuryUpdate
+        }
+
+        public JuryUpdate(Object origin, int i) {
+            super(origin);
+            // TODO JuryUpdate
+        }
+
+    }
+
     static public class BarbellOrPlatesChanged extends UIEvent {
         public BarbellOrPlatesChanged(Object object) {
             super(object);

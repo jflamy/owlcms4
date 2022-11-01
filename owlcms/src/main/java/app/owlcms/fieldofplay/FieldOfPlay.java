@@ -66,6 +66,7 @@ import app.owlcms.fieldofplay.FOPEvent.DownSignal;
 import app.owlcms.fieldofplay.FOPEvent.ExplicitDecision;
 import app.owlcms.fieldofplay.FOPEvent.ForceTime;
 import app.owlcms.fieldofplay.FOPEvent.JuryDecision;
+import app.owlcms.fieldofplay.FOPEvent.JuryMemberDecisionUpdate;
 import app.owlcms.fieldofplay.FOPEvent.StartLifting;
 import app.owlcms.fieldofplay.FOPEvent.SummonReferee;
 import app.owlcms.fieldofplay.FOPEvent.SwitchGroup;
@@ -215,6 +216,10 @@ public class FieldOfPlay {
     private List<RecordEvent> lastNewRecords;
 
     private boolean announcerDecisionImmediate = true;
+
+    private Boolean[] juryMemberDecision;
+
+    private int[] juryMemberTime;
 
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
@@ -610,6 +615,8 @@ public class FieldOfPlay {
                 loadGroup(newGroup, this, true);
             }
             return;
+        } else if (e instanceof JuryMemberDecisionUpdate) {
+
         }
 
         // ======= state-dependent processing. Depends on the current state.
@@ -853,7 +860,8 @@ public class FieldOfPlay {
 
         // force a wake up on user interfaces
         if (!alreadyLoaded) {
-            logger.info("{}group {} athletes={}", getLoggingName(), getGroup(), athletes != null ? athletes.size() : null);
+            logger.info("{}group {} athletes={}", getLoggingName(), getGroup(),
+                    athletes != null ? athletes.size() : null);
             pushOutSwitchGroup(this);
         }
     }
@@ -1007,7 +1015,8 @@ public class FieldOfPlay {
                     Competition.getCurrent().globalRankings(em);
                 } catch (Exception e) {
                     logger.error("{} global ranking exception {}\n ", getLoggingName(), e, LoggerUtils.stackTrace(e));
-                };
+                }
+                ;
                 for (Athlete a : l) {
                     nl.add(em.merge(a));
                 }
@@ -1087,14 +1096,23 @@ public class FieldOfPlay {
 
         List<RecordEvent> challengedRecords = new ArrayList<>();
         challengedRecords
-                .addAll(records.stream().filter(rec -> rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null && rec.getRecordValue() != null
-                        && snatchRequest > rec.getRecordValue()).collect(Collectors.toList()));
+                .addAll(records.stream()
+                        .filter(rec -> rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null
+                                && rec.getRecordValue() != null
+                                && snatchRequest > rec.getRecordValue())
+                        .collect(Collectors.toList()));
         challengedRecords
-                .addAll(records.stream().filter(rec -> rec.getRecordLift() == Ranking.CLEANJERK && cjRequest != null && rec.getRecordValue() != null
-                        && cjRequest > rec.getRecordValue()).collect(Collectors.toList()));
+                .addAll(records.stream()
+                        .filter(rec -> rec.getRecordLift() == Ranking.CLEANJERK && cjRequest != null
+                                && rec.getRecordValue() != null
+                                && cjRequest > rec.getRecordValue())
+                        .collect(Collectors.toList()));
         challengedRecords
-                .addAll(records.stream().filter(rec -> rec.getRecordLift() == Ranking.TOTAL && totalRequest != null && rec.getRecordValue() != null
-                        && totalRequest > rec.getRecordValue()).collect(Collectors.toList()));
+                .addAll(records.stream()
+                        .filter(rec -> rec.getRecordLift() == Ranking.TOTAL && totalRequest != null
+                                && rec.getRecordValue() != null
+                                && totalRequest > rec.getRecordValue())
+                        .collect(Collectors.toList()));
 
         JsonValue recordsJson = RecordRepository.buildRecordJson(records, snatchRequest, cjRequest, totalRequest);
         setRecordsJson(recordsJson);
@@ -1635,7 +1653,7 @@ public class FieldOfPlay {
      * events resulting from decisions received so far (down signal, stopping timer, all decisions entered, etc.)
      */
     private void processRefereeDecisions(FOPEvent e) {
-        //logger.debug("*** process referee decisions");
+        // logger.debug("*** process referee decisions");
         int nbRed = 0;
         int nbWhite = 0;
         int nbDecisions = 0;
@@ -1689,25 +1707,60 @@ public class FieldOfPlay {
                 cancelWakeUpRef();
             }
             setGoodLift(nbWhite >= 2);
-            //logger.debug("*** 3 decisions");
+            // logger.debug("*** 3 decisions");
             if (!isDecisionDisplayScheduled()) {
-                //logger.debug("*** not scheduled");
+                // logger.debug("*** not scheduled");
                 if (e instanceof FOPEvent.DecisionFullUpdate) {
                     if (((FOPEvent.DecisionFullUpdate) e).isImmediate()) {
-                        //logger.debug("*** is Immediate, full update NOW");
+                        // logger.debug("*** is Immediate, full update NOW");
                         showDecisionNow(e.getOrigin());
                     } else {
-                        //logger.debug("*** NOT immediate, full update scheduling");
+                        // logger.debug("*** NOT immediate, full update scheduling");
                         showDecisionAfterDelay(e.getOrigin(), REVERSAL_DELAY);
                     }
                 } else {
-                    //logger.debug("*** partial update scheduling");
+                    // logger.debug("*** partial update scheduling");
                     showDecisionAfterDelay(this, REVERSAL_DELAY);
                 }
             } else {
-                //logger.debug("*** already scheduled");
+                // logger.debug("*** already scheduled");
             }
         }
+    }
+
+    /**
+     * events resulting from decisions received so far (down signal, stopping timer, all decisions entered, etc.)
+     */
+    private void processJuryMemberDecisions(FOPEvent.JuryMemberDecisionUpdate e) {
+        // logger.debug("*** process jury member decisions");
+        int nbRed = 0;
+        int nbWhite = 0;
+        int nbDecisions = 0;
+        int jurySize = Competition.getCurrent().getJurySize();
+        for (int i = 0; i < jurySize; i++) {
+            if (juryMemberDecision[i] != null) {
+                if (juryMemberDecision[i]) {
+                    nbWhite++;
+                } else {
+                    nbRed++;
+                }
+                showJuryMemberDecisionReceived(this, i);
+                nbDecisions++;
+            }
+        }
+        if (nbDecisions == 3) {
+            showJuryDecisionNow(e.getOrigin(), (nbRed == jurySize || nbWhite == jurySize), jurySize, juryMemberDecision);
+        }
+    }
+
+    private void showJuryDecisionNow(Object origin, boolean unanimous, int jurySize, Boolean[] juryMemberDecision2) {
+        // show full decision
+        getUiEventBus().post(new UIEvent.JuryUpdate(origin, unanimous, juryMemberDecision, jurySize));
+    }
+
+    private void showJuryMemberDecisionReceived(Object origin, int i) {
+        // show that one jury decision has been received (green LED)
+        getUiEventBus().post(new UIEvent.JuryUpdate(origin, i));
     }
 
     private void pushOutDone() {
@@ -1976,7 +2029,7 @@ public class FieldOfPlay {
     }
 
     synchronized private void showDecisionAfterDelay(Object origin2, int reversalDelay) {
-        //logger.debug("{}scheduling decision display in {}ms", getLoggingName(), reversalDelay);
+        // logger.debug("{}scheduling decision display in {}ms", getLoggingName(), reversalDelay);
         assert !isDecisionDisplayScheduled(); // caller checks.
         setDecisionDisplayScheduled(true); // so there are never two scheduled...
         new DelayTimer(isTestingMode()).schedule(() -> showDecisionNow(origin2), reversalDelay);
@@ -1988,7 +2041,7 @@ public class FieldOfPlay {
      * announcer intervention is required to change and announce.
      */
     private void showDecisionNow(Object origin) {
-        //logger.debug("*** Show decision now - enter");
+        // logger.debug("*** Show decision now - enter");
         // we need to recompute majority, since they may have been reversal
         int nbWhite = 0;
         for (int i = 0; i < 3; i++) {
@@ -2015,7 +2068,7 @@ public class FieldOfPlay {
         // must set state before recomputing order so that scoreboards stop blinking the current athlete
         // must also set state prior to sending event, so that state monitor shows new state.
         setState(DECISION_VISIBLE);
-        //logger.debug("*** Show decision now - doit");
+        // logger.debug("*** Show decision now - doit");
         // use "this" because the origin must also show the decision.
         uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), refereeDecision, refereeTime, this);
         recomputeLiftingOrder(true, true);
@@ -2331,6 +2384,12 @@ public class FieldOfPlay {
         refereeDecision[e.refIndex] = e.decision;
         refereeTime[e.refIndex] = 0;
         processRefereeDecisions(e);
+    }
+
+    private void updateJuryMemberDecisions(FOPEvent.JuryMemberDecisionUpdate e) {
+        juryMemberDecision[e.refIndex] = e.decision;
+        juryMemberTime[e.refIndex] = 0;
+        processJuryMemberDecisions(e);
     }
 
     /**
