@@ -616,7 +616,7 @@ public class FieldOfPlay {
             }
             return;
         } else if (e instanceof JuryMemberDecisionUpdate) {
-
+            updateJuryMemberDecisions((JuryMemberDecisionUpdate) e);
         }
 
         // ======= state-dependent processing. Depends on the current state.
@@ -1276,6 +1276,7 @@ public class FieldOfPlay {
                 nextAthlete, currentDisplayAffected);
         Integer newWeight = getPrevWeight() != curWeight ? curWeight : null;
 
+        logger.warn("&&&& previous {} current {} change {} from[{}]", getPrevWeight(), curWeight,  newWeight, LoggerUtils.whereFrom());
         pushOutUIEvent(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, getPreviousAthlete(),
                 changingAthlete,
                 getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),

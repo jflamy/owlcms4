@@ -19,11 +19,7 @@ import com.google.common.eventbus.Subscribe;
 import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.shared.BreakManagement.CountdownType;
-import app.owlcms.uievents.BreakType;
-import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.uievents.UIEvent.JuryNotification;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
@@ -32,9 +28,7 @@ import ch.qos.logback.classic.Logger;
 public class MQTTMonitor {
 
     public class MQTTCallback implements MqttCallback, JuryEvents {
-        // TODO athlete under review is last one who lifted, not the current athlete
         private Athlete athleteUnderReview;
-
         private String juryBreakTopicName;
         private String juryMemberDecisionTopicName;
         private String juryDecisionTopicName;
@@ -181,7 +175,7 @@ public class MQTTMonitor {
                         fop.getLoggingName(), topic, messageStr);
             }
         }
-        
+
         private void fopEventSummonReferee(String topic, String messageStr) {
             messageStr = messageStr.trim();
             try {
@@ -194,23 +188,25 @@ public class MQTTMonitor {
                         fop.getLoggingName(), topic, messageStr);
             }
         }
-        
+
         private void fopEventJuryMemberDecisionUpdate(String topic, String messageStr) {
             messageStr = messageStr.trim();
             try {
                 String[] parts = messageStr.split(" ");
                 int refIndex = Integer.parseInt(parts[0]) - 1;
-                fop.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(MQTTMonitor.this, refIndex, parts[parts.length - 1].contentEquals("good")));
+                fop.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(MQTTMonitor.this, refIndex,
+                        parts[parts.length - 1].contentEquals("good")));
             } catch (NumberFormatException e) {
                 logger.error("{}Malformed MQTT decision message topic='{}' message='{}'",
                         fop.getLoggingName(), topic, messageStr);
             }
         }
-        
+
         private void fopEventJuryDecision(String topic, String messageStr) {
             messageStr = messageStr.trim();
             try {
-                fop.fopEventPost(new FOPEvent.JuryDecision(getAthleteUnderReview(), this, messageStr.contentEquals("good")));
+                fop.fopEventPost(
+                        new FOPEvent.JuryDecision(getAthleteUnderReview(), this, messageStr.contentEquals("good")));
             } catch (NumberFormatException e) {
                 logger.error("{}Malformed MQTT decision message topic='{}' message='{}'",
                         fop.getLoggingName(), topic, messageStr);
@@ -236,9 +232,9 @@ public class MQTTMonitor {
         private void fopJuryBreakEvents(String topic, String messageStr) {
             messageStr = messageStr.trim();
             if (messageStr.equalsIgnoreCase("technical")) {
-                // TODO start jury technical break (FOP Event and UI event)
+                postJuryTechnicalPause(fop, this);
             } else if (messageStr.equalsIgnoreCase("deliberation")) {
-                doDeliberation(this, getAthleteUnderReview());
+                postJuryDeliberation(OwlcmsSession.getFop(), this, getAthleteUnderReview());
             } else if (messageStr.equalsIgnoreCase("stop")) {
                 // TODO resume competition
             } else {
@@ -257,7 +253,6 @@ public class MQTTMonitor {
     private String server;
     private String userName;
     private MQTTCallback callback;
-
 
     MQTTMonitor(FieldOfPlay fop) {
         logger.setLevel(Level.DEBUG);
@@ -299,8 +294,13 @@ public class MQTTMonitor {
     }
 
     @Subscribe
+    public void slaveRefereeDecision(UIEvent.Decision e) {
+        callback.setAthleteUnderReview(e.getAthlete());
+    }
+
+    @Subscribe
     public void slaveJuryDecision(FOPEvent.JuryDecision jd) {
-        logger.warn("MQTT monitor FOPEvent jd {}", jd.getClass().getSimpleName());
+        logger.warn("MQTT monitor received FOPEvent {}", jd.getClass().getSimpleName());
     }
 
     @Subscribe
@@ -375,20 +375,14 @@ public class MQTTMonitor {
         ledOnOff();
 
         client.subscribe(callback.getOldDecisionTopicName(), 0);
-        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.getOldDecisionTopicName(), client.getCurrentServerURI());
+        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.getOldDecisionTopicName(),
+                client.getCurrentServerURI());
         client.subscribe(callback.getDecisionTopicName(), 0);
-        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.getDecisionTopicName(), client.getCurrentServerURI());
+        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.getDecisionTopicName(),
+                client.getCurrentServerURI());
         client.subscribe(callback.getClockTopicName(), 0);
-        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.getClockTopicName(), client.getCurrentServerURI());
-    }
-
-    private void doDeliberation(Object origin, Athlete athleteUnderReview) {
-        // stop competition
-        OwlcmsSession.getFop()
-                .fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
-        JuryNotification event = new UIEvent.JuryNotification(athleteUnderReview, origin,
-                JuryDeliberationEventType.START_DELIBERATION, null, null);
-        OwlcmsSession.getFop().getUiEventBus().post(event);
+        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.getClockTopicName(),
+                client.getCurrentServerURI());
     }
 
     private void doSummonRef(int ref, boolean on) {

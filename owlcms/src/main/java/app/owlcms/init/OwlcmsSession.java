@@ -38,6 +38,7 @@ public class OwlcmsSession {
     private static final String DISPLAY_AUTHENTICATED = "displayAuthenticated";
     private static final String AUTHENTICATED = "authenticated";
     private static final String FOP = "fop";
+    private static final String LOCALE = "locale";
     private final static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsSession.class);
 
     private static OwlcmsSession owlcmsSessionSingleton = null;
@@ -104,13 +105,23 @@ public class OwlcmsSession {
         }
     }
 
-    /**
-     * Copied from Vaadin {@link Component} to ensure consistent behavior. {@link Translator} will enforce a language if
-     * the competition screens must ignore browser settings
-     *
-     * @return
-     */
     public static Locale getLocale() {
+        Locale locale = (Locale) getAttribute(LOCALE);
+        if (locale != null) {
+            return locale;
+        }
+        return computeLocale();
+    }
+    
+    public void setLocale(Locale locale) {
+        if (locale == null) {
+            getCurrent().attributes.remove(LOCALE);
+        } else {
+            setAttribute(LOCALE, locale);
+        }
+    }
+
+    private static Locale computeLocale() {
         Locale locale = Translator.getForcedLocale();
         logger.trace("forced locale = {}", locale);
         UI currentUi = UI.getCurrent();

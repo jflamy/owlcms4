@@ -139,7 +139,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             int d = e.decision ? 1 : 0;
             String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
             // logger.debug("setting athleteUnderReview2 {}", e.getAthlete());
-            athleteUnderReview = e.getAthlete();
+            setAthleteUnderReview(e.getAthlete());
 
             decisionNotification = new Notification();
             // Notification theme styling is done in
@@ -506,7 +506,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private void openJuryDialog(JuryDeliberationEventType deliberation) {
         long now = System.currentTimeMillis();
         if (now - lastOpen > 100 && (juryDialog == null || !juryDialog.isOpened())) {
-            juryDialog = new JuryDialog(JuryContent.this, athleteUnderReview, deliberation, summonEnabled);
+            juryDialog = new JuryDialog(JuryContent.this, getAthleteUnderReview(), deliberation, summonEnabled);
             juryDialog.open();
             lastOpen = now;
         }
@@ -625,6 +625,14 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         Component nc = createRefereeLabel(athlete);
         this.replace(refereeLabelWrapper, nc);
         refereeLabelWrapper = nc;
+    }
+
+    private Athlete getAthleteUnderReview() {
+        return athleteUnderReview;
+    }
+
+    private void setAthleteUnderReview(Athlete athleteUnderReview) {
+        this.athleteUnderReview = athleteUnderReview;
     }
 
 }

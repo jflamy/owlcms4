@@ -196,6 +196,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     private HorizontalLayout topBarLeft;
     private String topBarTitle;
     private HorizontalLayout attempts;
+    private Integer prevWeight;
 
     /**
      * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -627,6 +628,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             // uiEventLogger.debug("slaveUpdateAnnouncerBar in {} origin {}", this, LoggerUtils. stackTrace());
             // do not send weight change notification if we are the source of the weight
             // change
+            //logger.debug("slaveUpdateAnnouncerBar {}\n=======\n {}", LoggerUtils.stackTrace(), e.getTrace());
             UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
                 warnOthersIfCurrent(e, athlete, fop);
                 doUpdateTopBar(athlete, e.getTimeAllowed());
@@ -1376,8 +1378,11 @@ public abstract class AthleteGridContent extends VerticalLayout
             }
             doNotification(text, "warning");
         }
-        if (e.getNewWeight() != null) {
-            doNotification(Translator.translate("Notification.WeightToBeLoaded", e.getNewWeight()), "info");
+        Integer newWeight = e.getNewWeight();
+        // avoid duplicate info to officials
+        if (newWeight != null && prevWeight != newWeight) {
+            doNotification(Translator.translate("Notification.WeightToBeLoaded", newWeight), "info");
+            prevWeight = newWeight;
         }
     }
 

@@ -1487,7 +1487,6 @@ public class Competition {
     }
 
     public int getJurySize() {
-        // TODO Auto-generated method stub
         return jurySize;
     }
 

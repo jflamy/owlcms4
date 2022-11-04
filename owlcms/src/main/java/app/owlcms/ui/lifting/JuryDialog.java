@@ -30,11 +30,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.JuryEvents;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.shared.BreakManagement.CountdownType;
-import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
-import app.owlcms.uievents.UIEvent;
-import app.owlcms.uievents.UIEvent.JuryNotification;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -68,7 +64,7 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
         logger.info(
                 deliberation == JuryDeliberationEventType.START_DELIBERATION ? "{}{} reviewedAthlete {}" : "{}{}",
                 OwlcmsSession.getFop().getLoggingName(), deliberation, athleteUnderReview);
-        this.reviewedAthlete = athleteUnderReview;
+        this.setReviewedAthlete(athleteUnderReview);
         this.setWidth("50em");
         switch (deliberation) {
         case CALL_REFEREES:
@@ -95,23 +91,7 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
 
     public void doClose(boolean noAction) {
         UI.getCurrent().access(() -> {
-            JuryDeliberationEventType endEvent = null;
-            switch (deliberation) {
-            case CALL_REFEREES:
-                endEvent = JuryDeliberationEventType.END_CALL_REFEREES;
-                break;
-            case START_DELIBERATION:
-                endEvent = JuryDeliberationEventType.END_DELIBERATION;
-                break;
-            case TECHNICAL_PAUSE:
-                endEvent = JuryDeliberationEventType.END_TECHNICAL_PAUSE;
-                break;
-            default:
-                endEvent = JuryDeliberationEventType.END_JURY_BREAK;
-                break;
-            }
-            JuryNotification event = new UIEvent.JuryNotification(reviewedAthlete, origin, endEvent, null, null);
-            OwlcmsSession.getFop().getUiEventBus().post(event);
+            postJuryResumeCompetition(OwlcmsSession.getFop(), origin, getReviewedAthlete());
             if (noAction) {
                 ((JuryContent) origin).doSync();
             }
@@ -205,19 +185,13 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
         if (shortcutTooSoon()) {
             return;
         }
-        JuryNotification event = new UIEvent.JuryNotification(null, origin,
-                JuryDeliberationEventType.CALL_TECHNICAL_CONTROLLER, null, null);
-        OwlcmsSession.getFop().getUiEventBus().post(event);
+        postJuryCallController(fop, this);
         return;
     }
 
     private void doDeliberation(Object origin, Athlete athleteUnderReview) {
         // stop competition
-        OwlcmsSession.getFop()
-                .fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
-        JuryNotification event = new UIEvent.JuryNotification(athleteUnderReview, origin,
-                JuryDeliberationEventType.START_DELIBERATION, null, null);
-        OwlcmsSession.getFop().getUiEventBus().post(event);
+        postJuryDeliberation(OwlcmsSession.getFop(), origin, athleteUnderReview);
 
         Button goodLift = new Button(IronIcons.DONE.create(),
                 (e) -> doGoodLift(athleteUnderReview, OwlcmsSession.getFop()));
@@ -248,9 +222,9 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
         this.add(layoutGreen, layoutRed);
 
         this.addAttachListener((e) -> {
-            if (reviewedAthlete != null) {
-                reviewedLift = reviewedAthlete.getAttemptsDone();
-                liftValue = reviewedAthlete.getActualLift(reviewedLift);
+            if (getReviewedAthlete() != null) {
+                reviewedLift = getReviewedAthlete().getAttemptsDone();
+                liftValue = getReviewedAthlete().getActualLift(reviewedLift);
                 String status;
                 if (liftValue != null) {
                     status = (liftValue > 0 ? Translator.translate("JuryDialog.RefGoodLift")
@@ -270,7 +244,7 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
                 }
                 H3 status1 = new H3(status);
                 H3 weight = new H3(liftValue != null ? Translator.translate("Kg", Math.abs(liftValue)) : "");
-                H3 athlete = new H3(reviewedAthlete.getFullId());
+                H3 athlete = new H3(getReviewedAthlete().getFullId());
                 HorizontalLayout header = new HorizontalLayout(
                         athlete,
                         weight,
@@ -321,7 +295,7 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
 
     private void doSummonReferees(Object origin2) {
         // jury calls referees
-//        postJurySummonNotification();
+        postJurySummonNotification(OwlcmsSession.getFop(),origin2);
         endBreakText = Translator.translate("JuryDialog.ResumeCompetition");
 
         this.addAttachListener((e) -> {
@@ -330,13 +304,7 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
     }
 
     private void doTechnicalPause(Object origin) {
-        // technical pause from Jury
-        OwlcmsSession.getFop()
-                .fopEventPost(
-                        new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null, true, this));
-        JuryNotification event = new UIEvent.JuryNotification(null, origin,
-                JuryDeliberationEventType.TECHNICAL_PAUSE, null, null);
-        OwlcmsSession.getFop().getUiEventBus().post(event);
+        postJuryTechnicalPause(OwlcmsSession.getFop(),origin);
         endBreakText = Translator.translate("JuryDialog.ResumeCompetition");
 
         this.addAttachListener((e) -> {
@@ -378,5 +346,13 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
             postJurySummonNotification(fop, this);
             fop.fopEventPost(new FOPEvent.SummonReferee(i, this.origin));
         });
+    }
+
+    private Athlete getReviewedAthlete() {
+        return reviewedAthlete;
+    }
+
+    private void setReviewedAthlete(Athlete reviewedAthlete) {
+        this.reviewedAthlete = reviewedAthlete;
     }
 }

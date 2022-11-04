@@ -38,20 +38,6 @@ import ch.qos.logback.classic.Logger;
 
 public class UIEvent {
 
-    static public class JuryUpdate extends UIEvent{
-
-        public JuryUpdate(Object origin, boolean unanimous, Boolean[] juryMemberDecision, int jurySize) {
-            super(origin);
-            //TODO JuryUpdate
-        }
-
-        public JuryUpdate(Object origin, int i) {
-            super(origin);
-            // TODO JuryUpdate
-        }
-
-    }
-
     static public class BarbellOrPlatesChanged extends UIEvent {
         public BarbellOrPlatesChanged(Object object) {
             super(object);
@@ -549,6 +535,56 @@ public class UIEvent {
 
         private void setNewRecord(Boolean newRecord) {
             this.newRecord = newRecord;
+        }
+
+    }
+
+    static public class JuryUpdate extends UIEvent {
+
+        private Boolean unanimous;
+        private Boolean[] juryMemberDecision;
+        private int jurySize;
+
+        private Integer juryMemberUpdated;
+
+        public JuryUpdate(Object origin, boolean unanimous, Boolean[] juryMemberDecision, int jurySize) {
+            super(origin);
+            this.unanimous = unanimous;
+            this.juryMemberDecision = juryMemberDecision;
+            this.jurySize = jurySize;
+        }
+
+        public JuryUpdate(Object origin, int i) {
+            super(origin);
+            this.juryMemberUpdated = i;
+        }
+
+        /**
+         * @return the juryMemberDecision
+         */
+        public Boolean[] getJuryMemberDecision() {
+            return juryMemberDecision;
+        }
+
+        /**
+         * @return the juryMemberUpdated
+         */
+        public Integer getJuryMemberUpdated() {
+            return juryMemberUpdated;
+        }
+
+        /**
+         * @return the jurySize
+         */
+        public int getJurySize() {
+            return jurySize;
+        }
+
+        /**
+         * @return the unanimous
+         */
+        public Boolean getUnanimous() {
+            return unanimous;
         }
 
     }
