@@ -297,7 +297,7 @@ public class MQTTMonitor {
                 || (currentAttemptNumber != previousAttemptNumber)
                 || newClock) {
             // we switched lifter, or we switched attempt. reset the decisions.
-            publishMqtResetAllDecisions();
+            publishMqttResetAllDecisions();
         }
         previousAthleteAtStart = currentAthleteAtStart;
         previousAttemptNumber = currentAttemptNumber;
@@ -347,10 +347,10 @@ public class MQTTMonitor {
                 client.getCurrentServerURI());
     }
 
-    private void publishMqtResetAllDecisions() {
+    private void publishMqttResetAllDecisions() {
         logger.debug("{}MQTT resetDecisions", fop.getLoggingName());
         try {
-            client.publish("owlcms/fop/resetDecisions" + fop.getName(),
+            client.publish("owlcms/fop/resetDecisions/" + fop.getName(),
                     new MqttMessage("reset".getBytes(StandardCharsets.UTF_8)));
         } catch (MqttException e1) {
 
