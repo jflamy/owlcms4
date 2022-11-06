@@ -94,7 +94,6 @@ public class JuryDialog extends EnhancedDialog {
     }
 
     public void doClose(boolean noAction) {
-
         UI.getCurrent().access(() -> {
             JuryDeliberationEventType endEvent = null;
             switch (deliberation) {

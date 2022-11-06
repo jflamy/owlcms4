@@ -133,7 +133,7 @@ public class RegistrationFileUploadDialog extends Dialog {
             if (e != null) {
                 Throwable cause = e.getCause();
                 String causeMessage = cause != null ? cause.getLocalizedMessage() : e.getLocalizedMessage();
-                causeMessage = LoggerUtils.stackTrace(cause);
+                //causeMessage = LoggerUtils.stackTrace(cause);
                 causeMessage = causeMessage != null ? causeMessage : e.toString();
                 if (causeMessage.contentEquals("text")) {
                     causeMessage = "Empty or invalid.";

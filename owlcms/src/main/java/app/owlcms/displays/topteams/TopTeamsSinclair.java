@@ -55,7 +55,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.shared.RequireLogin;
+import app.owlcms.ui.shared.RequireDisplayLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
@@ -83,7 +83,7 @@ import elemental.json.JsonValue;
 @Push
 public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
         implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin {
 
     /**
      * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties. When the JS

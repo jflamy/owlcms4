@@ -15,6 +15,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
@@ -45,6 +46,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.ui.shared.RequireDisplayLogin;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -53,7 +55,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "displays", layout = OwlcmsRouterLayout.class)
-public class DisplayNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
+public class DisplayNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle, RequireDisplayLogin {
 
     final static Logger logger = (Logger) LoggerFactory.getLogger(DisplayNavigationContent.class);
     static {
@@ -188,4 +190,10 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
     protected String getTitle() {
         return getTranslation("StartDisplays");
     }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        RequireDisplayLogin.super.beforeEnter(event);
+    }
+
 }

@@ -8,6 +8,7 @@ package app.owlcms.spreadsheet;
 
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,20 +16,11 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.competition.Competition;
 
 @SuppressWarnings("serial")
 public class JXLSCards extends JXLSWorkbookStreamSource {
 
-    /**
-     * Number of rows in a card
-     */
-    final static int CARD_SIZE = 10;
-    /**
-     * Number of cards per page
-     */
-    final static int CARDS_PER_PAGE = 2;
-
-    @SuppressWarnings("unused")
     private final static Logger logger = LoggerFactory.getLogger(JXLSCards.class);
 
     public JXLSCards() {
@@ -56,19 +48,24 @@ public class JXLSCards extends JXLSWorkbookStreamSource {
      */
     @Override
     protected void postProcess(Workbook workbook) {
-//        setPageBreaks(workbook);
+        if (Competition.getCurrent().getComputedCardsTemplateFileName().contains("IWF-")) {
+            setPageBreaks(workbook, 1, 17);
+        } else if (Competition.getCurrent().getComputedCardsTemplateFileName().contains("SmallCards")) {
+            setPageBreaks(workbook, 2, 10);
+        }
     }
 
-//    private void setPageBreaks(Workbook workbook) {
-//        Sheet sheet = workbook.getSheetAt(0);
-//        int lastRowNum = sheet.getLastRowNum();
-//        sheet.setAutobreaks(false);
-//        int increment = CARDS_PER_PAGE * CARD_SIZE + (CARDS_PER_PAGE - 1);
-//
-//        for (int curRowNum = increment; curRowNum < lastRowNum;) {
-//            sheet.setRowBreak(curRowNum - 1);
-//            curRowNum += increment;
-//        }
-//    }
+    private void setPageBreaks(Workbook workbook, int cardsPerPage, int linesPerCard) {
+        Sheet sheet = workbook.getSheetAt(0);
+        int lastRowNum = sheet.getLastRowNum();
+        sheet.setAutobreaks(false);
+        int increment = cardsPerPage * linesPerCard + (cardsPerPage - 1);
+
+        for (int curRowNum = increment; curRowNum < lastRowNum;) {
+            logger.debug("setting break on line {}",curRowNum);
+            sheet.setRowBreak(curRowNum - 1);
+            curRowNum += increment;
+        }
+    }
 
 }

@@ -1,8 +1,19 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
+- 34.4.0 release candidate: Improvements
+  - New Weigh-in Starting Weights template to create a WeighinSummary. Meant to facilitate data entry. As used in Pan-American federation, the body weight and declarations are copied one per line and countersigned.
+  - New Jury template with bigger cells and with additional info (team, entry total)
+  - There are now separate passwords for officials (OWLCMS_PIN) and for displays (OWLCMS_DISPLAYPIN).  Normally only the officials password is set. This protects the competition input screens but keeps password-less access to the displays. If needed, scoreboards can also be protected by a password and by a separate list of authorized access lists.
+  - The "Recompute Ranks" button on the Results and End of Competition pages now performs a full recalculation of all the ranks taking into account all the eligibilities.  This will now reflect eligibility changes made in the course of the competition, if any.
+  - Added USAW Age group file and updated the results sheet to be in the USA BARS format.  To produce results for BARS you need to have loaded the USA Age Groups file and assigned the athletes using the USA Age Groups.
+- 34.4.0 release candidate: Fixes:
+  - Added hard page breaks to the Athlete cards; this works around a problem whereby Excel showed a correct print preview but the printer driver miscalculated margins.
+  - When using flags, the announcer-entered decision is now correctly redisplaying the new clock value when the same athlete follows in sequence.
+  - Fix: Jury display. Reds given if bar had gone past the knee and then put down are no longer erased from the referee decision section when the clock is restarted.  
+  - Adjustments to the statuses provided for automatic video scene switching
+  - Bookmarking the main screen with "public=true" now works.
 - 34.3.0: New end of competition report: records set during the meet are exported in the same format as the record definition files, to facilitate post-competition updates. Newly set records are kept in the database and preserved on application restart; a new "Clear New Records" is available to remove them when doing pre-competition tests.
 - 34.3.0: Safe export/import of all registration data, including eligibility categories. Until competition start, it is now possible to use Excel to safely reassign athletes to groups, change athlete categories (including the additional categories where the athlete is eligible), to define new groups, to change referee assignments, etc.  This recreates clean athletes and groups, after weigh-ins have started changes must be made using the program screen.
--   Until the beginning of the meet, it is possible to  perform bulk changes, create new groups, reassign athletes, change the schedule, etc. , export the current registration data, make the changes, and reload. This allows all such changes to be made using Excel until the actual start of competition.
 - 34.2.1: Fix for refereeing devices: When using USB or Bluetooth devices attached to the athlete-facing display, decisions were not shown on that display, but were shown on all others ((problem introduced in 34.2.0)
 - 34.2.1: **Important update**: Fixed an *extremely rare issue* *that could nevertheless stop the competition from proceeding*.  Ranks are updated after every lift, before updating the lifting order, so a fatal error in updating the ranks would prevent the lifting order update.
 - 34.2.0: Improvement: The lifting order display is now a full scoreboard (shows the 6 attempts)

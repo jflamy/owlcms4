@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import javax.annotation.Nullable;
+
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.utils.LoggerUtils;
@@ -44,20 +46,14 @@ public class SinclairCoefficients {
      * @return the Sinclair-Malone-Meltzer Coefficient for that age.
      * @throws IOException
      */
-    @SuppressWarnings("incomplete-switch")
-    public Float getAgeGenderCoefficient(Integer age, Gender gender) {
-        switch (gender) {
-        case F:
-            if (smhf == null) {
-                loadSMM();
-            }
-            if (age <= 30) {
-                return 1.0F;
-            }
-            if (age >= 80) {
-                return smhf.get(80);
-            }
-            return smhf.get(age);  
+    public Float getAgeGenderCoefficient(@Nullable Integer age, @Nullable Gender gender) {
+        if (gender == null) {
+            return 0.0F;
+        }
+        if (age == null) {
+            return 0.0F;
+        }
+        switch (gender) {  
         case M:
             if (smf == null) {
                 loadSMM();
@@ -68,9 +64,20 @@ public class SinclairCoefficients {
             if (age >= 90) {
                 return smf.get(90);
             }
-            return smf.get(age);    
+            return smf.get(age);
+        case F:
+            if (smhf == null) {
+                loadSMM();
+            }
+            if (age <= 30) {
+                return 1.0F;
+            }
+            if (age >= 80) {
+                return smhf.get(80);
+            }
+            return smhf.get(age);
         }
-        return null;
+        return 0.0F;
     }
 
     /**

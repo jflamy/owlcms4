@@ -97,11 +97,10 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
 
     final static int HISTORY_SIZE = 3;
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(Monitor.class);
+    final private Logger logger = (Logger) LoggerFactory.getLogger(Monitor.class);
 
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + Monitor.class.getSimpleName());
     static {
-        logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
     }
 
@@ -224,14 +223,15 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         StringBuilder pageTitle = new StringBuilder();
         computeValues();
 
-        if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
-                && h1 != null && h1.state == FOPState.DECISION_VISIBLE
-                && h2 != null && h2.state == FOPState.BREAK && h2.breakType == BreakType.JURY) {
-            logger.trace("fixing display after jury {} {} {}", h0, h1, h2);
-            history.remove(1);
-            computeValues();
-        } else {
-            logger.trace("normal {} {} {}", h0, h1, h2);
+//        if (h0 != null && h0.state == FOPState.CURRENT_ATHLETE_DISPLAYED
+//                && h1 != null && h1.state == FOPState.DECISION_VISIBLE
+//                && h2 != null && h2.state == FOPState.BREAK && h2.breakType == BreakType.JURY) {
+//            logger.debug("!! fixing display after jury {} {} {}", h0, h1, h2);
+//            history.remove(1);
+//            computeValues();
+//        } else 
+        {
+            logger.debug("-- normal {} {} {}", h0, h1, h2);
         }
 
         if (currentState == FOPState.INACTIVE || currentState == FOPState.BREAK) {
@@ -327,19 +327,22 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
 
     private synchronized void doUpdate() {
         title = computePageTitle();
+        String comparisonTitle = title != null ? title.substring(0,title.indexOf(";")) : title;
+        String comparisonPrevTitle = prevTitle != null ? prevTitle.substring(0,prevTitle.indexOf(";")) : prevTitle;
+        logger.debug("comparing comparisonTitle={} with comparisonPrevTitle={}", comparisonTitle, comparisonPrevTitle);
         boolean same = false;
-        if (prevTitle == null || title == null) {
+        if (comparisonPrevTitle == null || comparisonTitle == null) {
             // same if both null
-            same = (title == prevTitle);
-        } else if (title != null) {
+            same = (comparisonTitle == comparisonPrevTitle);
+        } else if (comparisonTitle != null) {
             // same if same content comparison
             // prevTitle cannot be null (tested in previous branch)
-            same = title.contentEquals(prevTitle);
+            same = comparisonTitle.contentEquals(comparisonPrevTitle);
         }
-        if (!same && !(title == null) && !title.isBlank()) {
+        if (!same && !(comparisonTitle == null) && !comparisonTitle.isBlank()) {
             this.getElement().setProperty("title", title);
             this.getElement().callJsFunction("setTitle", title);
-            logger.debug("---- monitor {}", title);
+            logger.info("#### monitor {}", title);
             prevTitle = title;
         }
         if (same) {

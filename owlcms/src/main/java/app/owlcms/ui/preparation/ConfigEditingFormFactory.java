@@ -19,7 +19,6 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
-import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -214,9 +213,9 @@ public class ConfigEditingFormFactory
         configLayout.addFormItem(passwordField, Translator.translate("Config.PasswordOrPIN"));
         binder.forField(passwordField)
                 .withNullRepresentation("")
-                .bind(Config::getDisplayPin, Config::setPin);
+                .bind(Config::getPinForField, Config::setPinForField);
 
-        configLayout.addFormItem(new Html("<br/>"), "");
+        //configLayout.addFormItem(new Html("<br/>"), "");
 
         TextField accessListField = new TextField();
         accessListField.setWidthFull();
@@ -225,6 +224,23 @@ public class ConfigEditingFormFactory
                 .withNullRepresentation("")
                 .bind(Config::getIpAccessList, Config::setIpAccessList);
 
+
+        PasswordField displayPasswordField = new PasswordField();
+        displayPasswordField.setWidthFull();
+        configLayout.addFormItem(displayPasswordField, Translator.translate("Config.DisplayPIN"));
+        binder.forField(displayPasswordField)
+                .withNullRepresentation("")
+                .bind(Config::getDisplayPinForField, Config::setDisplayPinForField);
+
+        //configLayout.addFormItem(new Html("<br/>"), "");
+
+        TextField displayListField = new TextField();
+        displayListField.setWidthFull();
+        configLayout.addFormItem(displayListField, Translator.translate("Config.DisplayAccessList"));
+        binder.forField(displayListField)
+                .withNullRepresentation("")
+                .bind(Config::getIpDisplayList, Config::setIpDisplayList);
+        
         TextField backdoorField = new TextField();
         backdoorField.setWidthFull();
         configLayout.addFormItem(backdoorField, Translator.translate("Config.Backdoor"));
@@ -287,12 +303,6 @@ public class ConfigEditingFormFactory
         binder.forField(localTemplatesField)
                 .bind(Config::isLocalTemplatesOnly, Config::setLocalTemplatesOnly);
 
-//        Checkbox ignoreCaching = new Checkbox(Translator.translate("Config.NoCaching"));
-//        ignoreCaching.setWidthFull();
-//        layout.addFormItem(ignoreCaching, Translator.translate("Config.NoCachingLabel"));
-//        binder.forField(ignoreCaching)
-//                .bind(Config::isIgnoreCaching, Config::setIgnoreCaching);
-
         return layout;
     }
 
@@ -308,12 +318,6 @@ public class ConfigEditingFormFactory
         defaultLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
         binder.forField(defaultLocaleField).bind(Config::getDefaultLocale, Config::setDefaultLocale);
         layout.addFormItem(defaultLocaleField, Translator.translate("Competition.defaultLocale"));
-
-//        Checkbox announcerLiveDecisionsField = new Checkbox();
-//        layout.addFormItem(announcerLiveDecisionsField,
-//                labelWithHelp("Competition.announcerLiveDecisions", "Competition.announceLiverDecisionsExplanation"));
-//        binder.forField(announcerLiveDecisionsField)
-//                .bind(Competition::isAnnouncerLiveDecisions, Competition::setAnnouncerLiveDecisions);
 
         return layout;
     }

@@ -44,7 +44,7 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.AthleteGridContent;
-import app.owlcms.ui.shared.RequireLogin;
+import app.owlcms.ui.shared.RequireDisplayLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
@@ -69,7 +69,7 @@ import elemental.json.JsonValue;
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
 public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel> implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin {
 
     /**
      * LiftingOrderModel
