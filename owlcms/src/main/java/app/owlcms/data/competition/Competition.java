@@ -241,7 +241,7 @@ public class Competition {
     private boolean sinclairMeet;
     
     @Column(columnDefinition = "integer default 3")
-    private int jurySize;
+    private Integer jurySize = 3;
 
     public Competition() {
         medalsByGroup = new HashMap<>();
@@ -1486,11 +1486,14 @@ public class Competition {
         this.sinclairMeet = b;
     }
 
-    public int getJurySize() {
+    public Integer getJurySize() {
+        if (jurySize == null || jurySize < 3) {
+            return 3;
+        }
         return jurySize;
     }
 
-    public void setJurySize(int jurySize) {
+    public void setJurySize(Integer jurySize) {
         this.jurySize = jurySize;
     }
 }

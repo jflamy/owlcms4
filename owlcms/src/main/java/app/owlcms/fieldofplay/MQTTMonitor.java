@@ -129,6 +129,7 @@ public class MQTTMonitor {
             try {
                 String[] parts = messageStr.split(" ");
                 int refIndex = Integer.parseInt(parts[0]) - 1;
+                logger.warn("JuryMemberDecisionUpdate {} {}", parts, refIndex);
                 fop.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(MQTTMonitor.this, refIndex,
                         parts[parts.length - 1].contentEquals("good")));
             } catch (NumberFormatException e) {
@@ -173,7 +174,7 @@ public class MQTTMonitor {
             } else if (messageStr.equalsIgnoreCase("deliberation")) {
                 postJuryDeliberation(OwlcmsSession.getFop(), this, athleteUnderReview);
             } else if (messageStr.equalsIgnoreCase("stop")) {
-                // TODO resume competition
+                postJuryResumeCompetition(OwlcmsSession.getFop(), this, athleteUnderReview);
             } else {
                 logger.error("{}Malformed MQTT clock message topic='{}' message='{}'",
                         fop.getLoggingName(), topic, messageStr);
@@ -337,6 +338,9 @@ public class MQTTMonitor {
                 client.getCurrentServerURI());
         client.subscribe(callback.decisionTopicName, 0);
         logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.decisionTopicName,
+                client.getCurrentServerURI());
+        client.subscribe(callback.juryMemberDecisionTopicName, 0);
+        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.juryMemberDecisionTopicName,
                 client.getCurrentServerURI());
         client.subscribe(callback.clockTopicName, 0);
         logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.clockTopicName,

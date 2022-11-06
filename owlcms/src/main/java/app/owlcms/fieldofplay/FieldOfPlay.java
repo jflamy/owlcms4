@@ -218,8 +218,7 @@ public class FieldOfPlay {
     private boolean announcerDecisionImmediate = true;
 
     private Boolean[] juryMemberDecision;
-
-    private int[] juryMemberTime;
+    private Integer[] juryMemberTime;
 
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
@@ -616,7 +615,8 @@ public class FieldOfPlay {
             }
             return;
         } else if (e instanceof JuryMemberDecisionUpdate) {
-            updateJuryMemberDecisions((JuryMemberDecisionUpdate) e);
+            doJuryMemberDecisionUpdate((JuryMemberDecisionUpdate) e);
+            return;
         }
 
         // ======= state-dependent processing. Depends on the current state.
@@ -672,7 +672,9 @@ public class FieldOfPlay {
                 doEndCeremony((FOPEvent.CeremonyDone) e);
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
-            } else if (e instanceof JuryDecision) {
+            } else if (e instanceof JuryMemberDecisionUpdate) {
+                doJuryMemberDecisionUpdate((JuryMemberDecisionUpdate) e);
+             } else if (e instanceof JuryDecision) {
                 doJuryDecision((JuryDecision) e);
             } else if (e instanceof SummonReferee) {
                 doSummonReferee((SummonReferee) e);
@@ -1732,8 +1734,8 @@ public class FieldOfPlay {
     /**
      * events resulting from decisions received so far (down signal, stopping timer, all decisions entered, etc.)
      */
-    private void processJuryMemberDecisions(FOPEvent.JuryMemberDecisionUpdate e) {
-        // logger.debug("*** process jury member decisions");
+    private void processJuryMemberDecisions(Object origin) {
+        logger.debug("*** process jury member decisions {} {} {} {}", Competition.getCurrent().getJurySize(), juryMemberDecision[0],  juryMemberDecision[1],  juryMemberDecision[2]);
         int nbRed = 0;
         int nbWhite = 0;
         int nbDecisions = 0;
@@ -1745,23 +1747,23 @@ public class FieldOfPlay {
                 } else {
                     nbRed++;
                 }
-                showJuryMemberDecisionReceived(this, i);
+                showJuryMemberDecisionReceived(this, i, juryMemberDecision, jurySize);
                 nbDecisions++;
             }
         }
         if (nbDecisions == 3) {
-            showJuryDecisionNow(e.getOrigin(), (nbRed == jurySize || nbWhite == jurySize), jurySize, juryMemberDecision);
+            showJuryDecisionNow(origin, (nbRed == jurySize || nbWhite == jurySize), jurySize, juryMemberDecision);
         }
     }
 
     private void showJuryDecisionNow(Object origin, boolean unanimous, int jurySize, Boolean[] juryMemberDecision2) {
-        // show full decision
         getUiEventBus().post(new UIEvent.JuryUpdate(origin, unanimous, juryMemberDecision, jurySize));
     }
 
-    private void showJuryMemberDecisionReceived(Object origin, int i) {
+    private void showJuryMemberDecisionReceived(Object origin, int i, Boolean[] juryMemberDecision2, int jurySize) {
         // show that one jury decision has been received (green LED)
-        getUiEventBus().post(new UIEvent.JuryUpdate(origin, i));
+        logger.warn("updating jury member {}",i);
+        getUiEventBus().post(new UIEvent.JuryUpdate(origin, i, juryMemberDecision2, jurySize));
     }
 
     private void pushOutDone() {
@@ -1843,8 +1845,11 @@ public class FieldOfPlay {
      * Reset decisions. Invoked when recomputing lifting order when a fresh clock is given.
      */
     private void resetDecisions() {
+        logger.warn("!!! resetting decisions");
         refereeDecision = new Boolean[3];
+        juryMemberDecision = new Boolean[5];
         refereeTime = new Integer[3];
+        juryMemberTime = new Integer[5];
         refereeForcedDecision = false;
     }
 
@@ -2387,10 +2392,10 @@ public class FieldOfPlay {
         processRefereeDecisions(e);
     }
 
-    private void updateJuryMemberDecisions(FOPEvent.JuryMemberDecisionUpdate e) {
+    private void doJuryMemberDecisionUpdate(FOPEvent.JuryMemberDecisionUpdate e) {
         juryMemberDecision[e.refIndex] = e.decision;
         juryMemberTime[e.refIndex] = 0;
-        processJuryMemberDecisions(e);
+        processJuryMemberDecisions(e.origin);
     }
 
     /**

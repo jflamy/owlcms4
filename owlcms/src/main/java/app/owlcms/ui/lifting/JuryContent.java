@@ -82,7 +82,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private HorizontalLayout refContainer;
     private Component refereeLabelWrapper;
     private boolean summonEnabled;
-    
+
     Athlete previousAthleteAtStart;
     int previousAttemptNumber;
     Athlete currentAthleteAtStart;
@@ -161,8 +161,24 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             swapRefereeLabel(e.getAthlete());
         });
     }
+
     
-    //TODO slave jury member decisions
+    @Subscribe
+    public void slaveJuryMemberDecision(UIEvent.JuryUpdate e) {
+        Boolean[] decision = e.getJuryMemberDecision();
+        Integer juryMember = e.getJuryMemberUpdated();
+        Boolean goodBad = juryMember != null ? decision[juryMember] : null;
+        logger.warn("update jury decisions {} {}", goodBad, juryMember);
+        if (juryMember != null && goodBad != null) {
+            UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+                Icon votedIcon = bigIcon(VaadinIcon.CIRCLE, "gray");
+                juryVotingButtons.replace(juryIcons[juryMember], votedIcon);
+                juryIcons[juryMember] = votedIcon;
+                juryVotes[juryMember] = goodBad;
+                checkAllVoted();
+            });
+        }
+    }
 
     @Override
     @Subscribe
@@ -181,13 +197,14 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             currentAttemptNumber = fop.getClockOwner().getActuallyAttemptedLifts();
             newClock = e.getTimeRemaining() == 60000 || e.getTimeRemaining() == 120000;
         });
-        //logger.debug("curr {} {} prev {} {} reset {}", currentAthleteAtStart, currentAttemptNumber, previousAthleteAtStart, previousAttemptNumber, newClock);
+        // logger.debug("curr {} {} prev {} {} reset {}", currentAthleteAtStart, currentAttemptNumber,
+        // previousAthleteAtStart, previousAttemptNumber, newClock);
         if ((currentAthleteAtStart != previousAthleteAtStart)
                 || (currentAttemptNumber != previousAttemptNumber)
-                || newClock ) {
+                || newClock) {
             // we switched lifter, or we switched attempt.
             // reset the decisions.
-            //logger.debug("RESETTING");
+            // logger.debug("RESETTING");
             UIEventProcessor.uiAccess(this, uiEventBus, () -> {
                 decisions.doReset();
                 juryVotingButtons.removeAll();
@@ -201,7 +218,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
                 swapRefereeLabel(null);
             });
         } else {
-            //logger.debug("NOT resetting");
+            // logger.debug("NOT resetting");
         }
         previousAthleteAtStart = currentAthleteAtStart;
         previousAttemptNumber = currentAttemptNumber;

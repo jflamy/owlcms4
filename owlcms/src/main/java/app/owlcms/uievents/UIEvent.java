@@ -554,9 +554,11 @@ public class UIEvent {
             this.jurySize = jurySize;
         }
 
-        public JuryUpdate(Object origin, int i) {
+        public JuryUpdate(Object origin, int i, Boolean[] juryMemberDecision2, int jurySize) {
             super(origin);
+            this.unanimous = null;
             this.juryMemberUpdated = i;
+            this.juryMemberDecision = juryMemberDecision2;
         }
 
         /**
