@@ -156,6 +156,9 @@ public class MQTTMonitor {
             try {
                 String[] parts = messageStr.split(" ");
                 int refIndex = Integer.parseInt(parts[0]) - 1;
+                // calling referee triggers a jury break
+                postJurySummonNotification(fop, parts);
+                // do the actual summoning
                 fop.fopEventPost(new FOPEvent.SummonReferee(this, refIndex));
             } catch (NumberFormatException e) {
                 logger.error("{}Malformed MQTT decision message topic='{}' message='{}'",

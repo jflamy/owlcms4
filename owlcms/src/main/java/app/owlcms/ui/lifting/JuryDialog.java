@@ -297,7 +297,6 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
         // jury calls referees
         postJurySummonNotification(OwlcmsSession.getFop(),origin2);
         endBreakText = Translator.translate("JuryDialog.ResumeCompetition");
-
         this.addAttachListener((e) -> {
             this.setHeader(Translator.translate("JuryDialog.CALL_REFEREES"));
         });

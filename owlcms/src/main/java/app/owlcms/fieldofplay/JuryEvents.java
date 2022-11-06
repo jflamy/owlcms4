@@ -1,5 +1,7 @@
 package app.owlcms.fieldofplay;
 
+import org.slf4j.LoggerFactory;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
@@ -7,16 +9,20 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.JuryNotification;
+import ch.qos.logback.classic.Logger;
 
 public interface JuryEvents {
 
     public default void postJurySummonNotification(FieldOfPlay fop, Object origin) {
+        Logger logger = (Logger) LoggerFactory.getLogger("JuryEvents");
+        logger.warn("fop.getState() = {}", fop.getState());
         if (fop.getState() != FOPState.BREAK) {
             fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
+            // do not notify multiple times if calling all referees.
+            JuryNotification event = new UIEvent.JuryNotification(null, origin, JuryDeliberationEventType.CALL_REFEREES,
+                    null, null);
+            fop.getUiEventBus().post(event);
         }
-        JuryNotification event = new UIEvent.JuryNotification(null, origin, JuryDeliberationEventType.CALL_REFEREES,
-                null, null);
-        fop.getUiEventBus().post(event);
     }
 
     public default void postJuryTechnicalPause(FieldOfPlay fop, Object origin) {
