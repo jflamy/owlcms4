@@ -542,7 +542,7 @@ public class FOPEvent {
 
         public int refNumber;
 
-        public SummonReferee(int refNumber, Object origin) {
+        public SummonReferee(Object origin, int refNumber) {
             super(origin);
             this.refNumber = refNumber;
         }

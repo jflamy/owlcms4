@@ -576,11 +576,11 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
             OwlcmsSession.withFop(fop -> {
                 if (i > 0) {
-                    fop.fopEventPost(new FOPEvent.SummonReferee(i, this.getOrigin()));
+                    fop.fopEventPost(new FOPEvent.SummonReferee(this.getOrigin(), i));
                 } else {
                     // i = 0 means call all refs.
                     for (int j = 1; j <= 3; j++) {
-                        fop.fopEventPost(new FOPEvent.SummonReferee(j, this.getOrigin()));
+                        fop.fopEventPost(new FOPEvent.SummonReferee(this.getOrigin(), j));
                     }
                 }
             });

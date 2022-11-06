@@ -1464,6 +1464,7 @@ public class FieldOfPlay {
 
     private void doSummonReferee(SummonReferee e) {
         getUiEventBus().post(new UIEvent.SummonRef(e.refNumber, true, this));
+        //FIXME: do we need to post false to turn off.
     }
 
     /**

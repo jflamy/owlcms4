@@ -149,7 +149,7 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
                 postJurySummonNotification(fop, this);
                 // i = 0 means call all refs.
                 for (int j = 1; j <= 3; j++) {
-                    fop.fopEventPost(new FOPEvent.SummonReferee(j, this.origin));
+                    fop.fopEventPost(new FOPEvent.SummonReferee(this.origin, j));
                 }
             });
         });
@@ -344,7 +344,7 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
     private void summonReferee(int i) {
         OwlcmsSession.withFop(fop -> {
             postJurySummonNotification(fop, this);
-            fop.fopEventPost(new FOPEvent.SummonReferee(i, this.origin));
+            fop.fopEventPost(new FOPEvent.SummonReferee(this.origin, i));
         });
     }
 

@@ -143,7 +143,8 @@ public class MQTTMonitor {
                 String[] parts = messageStr.split(" ");
                 int refIndex = Integer.parseInt(parts[0]) - 1;
                 fop.fopEventPost(new FOPEvent.DecisionUpdate(this, refIndex,
-                        parts[parts.length - 1].contentEquals("good")));;
+                        parts[parts.length - 1].contentEquals("good")));
+                ;
             } catch (NumberFormatException e) {
                 logger.error("{}Malformed MQTT decision message topic='{}' message='{}'",
                         fop.getLoggingName(), topic, messageStr);
@@ -155,8 +156,7 @@ public class MQTTMonitor {
             try {
                 String[] parts = messageStr.split(" ");
                 int refIndex = Integer.parseInt(parts[0]) - 1;
-                fop.fopEventPost(new FOPEvent.DecisionUpdate(this, refIndex,
-                        parts[parts.length - 1].contentEquals("good")));
+                fop.fopEventPost(new FOPEvent.SummonReferee(this, refIndex));
             } catch (NumberFormatException e) {
                 logger.error("{}Malformed MQTT decision message topic='{}' message='{}'",
                         fop.getLoggingName(), topic, messageStr);
@@ -240,11 +240,12 @@ public class MQTTMonitor {
 
     @Subscribe
     public void slaveDecisionReset(UIEvent.DecisionReset e) {
-        try {
-            client.publish("owlcms/fop/" + fop.getName(),
-                    new MqttMessage("decisionReset".getBytes(StandardCharsets.UTF_8)));
-        } catch (MqttException e1) {
-        }
+        // Ignored.  We reset all devices on the clock start for next attempt (resetDecisions MQTT)
+//        try {
+//            client.publish("owlcms/fop/" + fop.getName(),
+//                    new MqttMessage("decisionReset".getBytes(StandardCharsets.UTF_8)));
+//        } catch (MqttException e1) {
+//        }
     }
 
     @Subscribe
@@ -292,7 +293,7 @@ public class MQTTMonitor {
                 || (currentAttemptNumber != previousAttemptNumber)
                 || newClock) {
             // we switched lifter, or we switched attempt. reset the decisions.
-            publishMqttDecisionReset();
+            publishMqtResetAllDecisions();
         }
         previousAthleteAtStart = currentAthleteAtStart;
         previousAttemptNumber = currentAttemptNumber;
@@ -339,10 +340,10 @@ public class MQTTMonitor {
                 client.getCurrentServerURI());
     }
 
-    private void publishMqttDecisionReset() {
-        logger.debug("{}MQTT DecisionReset", fop.getLoggingName());
+    private void publishMqtResetAllDecisions() {
+        logger.debug("{}MQTT resetDecisions", fop.getLoggingName());
         try {
-            client.publish("owlcms/fop/decisionReset" + fop.getName(),
+            client.publish("owlcms/fop/resetDecisions" + fop.getName(),
                     new MqttMessage("reset".getBytes(StandardCharsets.UTF_8)));
         } catch (MqttException e1) {
 
@@ -351,7 +352,7 @@ public class MQTTMonitor {
 
     private void publishMqttLedOnOff() throws MqttException, MqttPersistenceException {
         logger.debug("{}MQTT LedOnOff", fop.getLoggingName());
-        String topic = "owlcms/fop/led/" + fop.getName();
+        String topic = "owlcms/fop/startup/" + fop.getName();
         String deprecatedTopic = "owlcms/led/" + fop.getName();
         client.publish(topic, new MqttMessage("on".getBytes(StandardCharsets.UTF_8)));
         client.publish(deprecatedTopic, new MqttMessage("on".getBytes(StandardCharsets.UTF_8)));
@@ -377,8 +378,9 @@ public class MQTTMonitor {
     private void publishMqttWakeUpRef(int ref, boolean onOff) {
         logger.debug("{}MQTT decisionRequest {} {}", fop.getLoggingName(), ref, onOff);
         try {
-            // specific referee is added at the end of the topic.
-            String topic = "owlcms/fop/decisionRequest/" + fop.getName() + "/" + ref;
+            // updated: no referee in the topic
+            String topic = "owlcms/fop/decisionRequest/" + fop.getName();
+            // Legacy : specific referee is added at the end of the topic.
             String deprecatedTopic = "owlcms/decisionRequest/" + fop.getName() + "/" + ref;
             client.publish(topic,
                     new MqttMessage((ref + " " + (onOff ? "on" : "off")).getBytes(StandardCharsets.UTF_8)));
