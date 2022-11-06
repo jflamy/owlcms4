@@ -276,6 +276,12 @@ public class MQTTMonitor {
         // the deliberation is about the last athlete judged, not on the current athlete.
         callback.setAthleteUnderReview(e.getAthlete());
     }
+    
+    @Subscribe
+    public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
+        // the deliberation is about the last athlete judged, not on the current athlete.
+        publishMqttRefereeUpdates(e.ref1, e.ref2, e.ref3);
+    }
 
     @Subscribe
     public void slaveSummonRef(UIEvent.SummonRef e) {
@@ -310,6 +316,7 @@ public class MQTTMonitor {
         int ref = e.ref;
         publishMqttWakeUpRef(ref, e.on);
     }
+    
 
     private void connectionLoop() {
         while (!client.isConnected()) {
@@ -357,6 +364,26 @@ public class MQTTMonitor {
         }
     }
 
+    private void publishMqttRefereeUpdates(Boolean ref1, Boolean ref2, Boolean ref3) {
+        logger.debug("{}MQTT publishMqttRefereeUpdates {} {} {}", fop.getLoggingName(), ref1, ref2, ref3);
+        try {
+            if (ref1 != null) {
+                client.publish("owlcms/fop/decision/" + fop.getName(),
+                        new MqttMessage((1 + " " + (ref1 ? "good" : "bad")).getBytes(StandardCharsets.UTF_8)));
+            }
+            if (ref1 != null) {
+                client.publish("owlcms/fop/decision/" + fop.getName(),
+                        new MqttMessage((2 + " " + (ref2 ? "good" : "bad")).getBytes(StandardCharsets.UTF_8)));
+            }
+            if (ref1 != null) {
+                client.publish("owlcms/fop/decision/" + fop.getName(),
+                        new MqttMessage((3 + " " + (ref3 ? "good" : "bad")).getBytes(StandardCharsets.UTF_8)));
+            }
+        } catch (MqttException e1) {
+
+        }
+        
+    }
     private void publishMqttLedOnOff() throws MqttException, MqttPersistenceException {
         logger.debug("{}MQTT LedOnOff", fop.getLoggingName());
         String topic = "owlcms/fop/startup/" + fop.getName();
