@@ -341,9 +341,14 @@ public class MQTTMonitor {
         // e.ref is 1..3
         // logger.debug("slaveWakeUp {}", e.on);
         try {
-            String topic = "owlcms/decisionRequest/" + fop.getName() + "/" + e.ref;
+            String topic = "owlcms/fop/decisionRequest/" + fop.getName();
+            String oldTopic = "owlcms/decisionRequest/" + fop.getName() + "/" + e.ref;
             // String refMacAddress = macAddress[e.ref];
             client.publish(topic, new MqttMessage(
+                    (e.ref + " " + (e.on ? "on" : "off")
+                    /* + (refMacAddress != null ? " " + refMacAddress : "") */)
+                            .getBytes(StandardCharsets.UTF_8)));
+            client.publish(oldTopic, new MqttMessage(
                     ((e.on ? "on" : "off")
                     /* + (refMacAddress != null ? " " + refMacAddress : "") */)
                             .getBytes(StandardCharsets.UTF_8)));
@@ -388,10 +393,16 @@ public class MQTTMonitor {
     private void doSummonRef(int ref, boolean on) {
         logger.debug("{}MQTT summon {} {}", fop.getLoggingName(), ref, on);
         try {
-            String topic = "owlcms/summon/" + fop.getName() + "/" + ref;
+            String topic = "owlcms/fop/summon/" + fop.getName();
+            String oldTopic = "owlcms/summon/" + fop.getName() + "/" + ref;
             // String refMacAddress = macAddress[e.ref-1];
             // insert target device mac address for cross-check
             client.publish(topic, new MqttMessage(
+                    (ref + " " + (on ? "on" : "off")
+                    // + (refMacAddress != null ? " " + refMacAddress : "")
+                    )
+                            .getBytes(StandardCharsets.UTF_8)));
+            client.publish(oldTopic, new MqttMessage(
                     ((on ? "on" : "off")
                     // + (refMacAddress != null ? " " + refMacAddress : "")
                     )
@@ -402,8 +413,10 @@ public class MQTTMonitor {
     }
 
     private void ledOnOff() throws MqttException, MqttPersistenceException {
+        client.publish("owlcms/fop/startup/" + fop.getName(), new MqttMessage("on".getBytes(StandardCharsets.UTF_8)));
         client.publish("owlcms/led/" + fop.getName(), new MqttMessage("on".getBytes(StandardCharsets.UTF_8)));
         sleep(1000);
+        client.publish("owlcms/fop/startup/" + fop.getName(), new MqttMessage("off".getBytes(StandardCharsets.UTF_8)));
         client.publish("owlcms/led/" + fop.getName(), new MqttMessage("off".getBytes(StandardCharsets.UTF_8)));
     }
 
