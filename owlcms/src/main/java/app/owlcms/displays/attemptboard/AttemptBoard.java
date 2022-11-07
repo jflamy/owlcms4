@@ -682,6 +682,10 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             } else {
                 this.getElement().setProperty("lastName", "");
             }
+            // erase record notification if any
+            this.getElement().setProperty("recordKind", "recordNotification none");
+            this.getElement().setProperty("teamName", "");
+            this.getElement().setProperty("firstName", "");
 //            }
             this.getElement().callJsFunction("groupDone");
             hidePlates();
