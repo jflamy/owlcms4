@@ -1,6 +1,15 @@
-https://github.com/jflamy/owlcms-esp32 contains Arduino code and simple circuit schematics to build a simple refereeing device with an indicator LED and a buzzer to remind a referee to enter a decision.
+MQTT is used for communication between refereeing, jury and timekeeper devices built using Arduino, ESP32, Raspberry Pi and other device controllers.
+
+For example
+
+- https://github.com/jflamy/owlcms-esp32 contains Arduino code and simple circuit schematics to build a simple refereeing device with an indicator LED and a buzzer to remind a referee to enter a decision.
+
+- [scottgonzalez/blue-owl: Technical Official device integration for OWLCMS (github.com)](https://github.com/scottgonzalez/blue-owl) is another example, using Johnny-Five to drive the device controllers.
+- https://github.com/kingbutter/owlcms4-ref-m5stack-core2 uses the M5Stack devices as a basis for touchscreen-based refereeing devices.
 
 The devices and owlcms use the MQTT protocol to communicate with each other.  The communication goes through an MQTT server that can be installed on the local area network or in the cloud.  MQTT is very lightweight and is used in home automation, in industrial telemetry application and other "Internet of Things" (IoT) settings.
+
+See [MQTT Messages](MQTTMessages) for details on how MQTT is used.
 
 ### Local Installation of the MQTT server and tools
 
@@ -67,7 +76,7 @@ owlcms needs to connect to your MQTT server.
 -DmqttPort=1883
 ```
 
-> Once we are done with the initial tests, we will add a password file (see [Passwords](#Passwords) later in this page)
+> Once we are done with the initial tests, we will add a password file (see [Passwords](#passwords) later in this page)
 
 ### Local Testing
 
@@ -170,49 +179,3 @@ Once initial testing is done, you should add passwords to the configuration.
    ```
 
 4. In the owlcms installation directory, change the owlcms.l4j.ini configuration file to use the username and password
-
-## MQTT message sequence
-
-The current sequence of message is as follows (subject to change based on real use and feedback)
-
-1. owlcms startup. owlcms publishes the following (the topic is shown first, followed by the message). There is a one second interval between the two messages.
-
-   ```
-   owlcms/led/A on
-   owlcms/led/A off
-   ```
-
-2. Referee decisions. The first two referees will send their decision  (1 and 3 in the example, `good` or `bad`)
-   If the timer is not started, the decisions will be ignored by owlcms (but a notice will be given to the announcer)
-
-   ```
-   owlcms/decision/A 1 good
-   owlcms/decision/A 3 good
-   ```
-
-3. owlcms sends a reminder as soon as the 2 decisions have been entered.  The refereeing device can choose to wait a few seconds before starting its feedback.  
-
-   ```
-   owlcms/decisionRequest/A/2 on
-   ```
-
-   owlcms sends a stop 2 seconds later. The `off` message is NOT a confirmation that a decision has been received, it is just a convenience for device programmers that don't want to implement a timer.  A device that manages its own timers can ignore.
-
-   ```
-   owlcms/decisionRequest/A/2 off
-   ```
-
-4. The third referee sends the decision
-
-   ```
-   owlcms/decision/A 1 bad
-   ```
-
-5. The jury summons a referee (three messages, one per referee if all three are summoned).  The `off` message is a convenience for device programmers that don't want to implement their own timer.
-
-   ```
-   owlcms/summon/A/1 on
-   owlcms/summon/A/1 off
-   ```
-
-   

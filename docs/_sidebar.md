@@ -38,6 +38,7 @@
   * [Feature Toggles](FeatureToggles)
   * [Simulation and Load Testing](Simulation)
   * [MQTT Server Configuration](MQTT)
+  * [MQTT Messaging Specification](MQTTMessages)
   * [Using PostgreSQL](PostgreSQL)
   * [Contributing to the code](Gitpod)
 * Downloads

@@ -1,32 +1,61 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 34.4.0 release candidate: Improvements
-  - New Weigh-in Starting Weights template to create a WeighinSummary. Meant to facilitate data entry. As used in Pan-American federation, the body weight and declarations are copied one per line and countersigned.
-  - New Jury template with bigger cells and with additional info (team, entry total)
-  - There are now separate passwords for officials (OWLCMS_PIN) and for displays (OWLCMS_DISPLAYPIN).  Normally only the officials password is set. This protects the competition input screens but keeps password-less access to the displays. If needed, scoreboards can also be protected by a password and by a separate list of authorized access lists.
-  - The "Recompute Ranks" button on the Results and End of Competition pages now performs a full recalculation of all the ranks taking into account all the eligibilities.  This will now reflect eligibility changes made in the course of the competition, if any.
-  - Added USAW Age group file and updated the results sheet to be in the USA BARS format.  To produce results for BARS you need to have loaded the USA Age Groups file and assigned the athletes using the USA Age Groups.
-- 34.4.0 release candidate: Fixes:
-  - Added hard page breaks to the Athlete cards; this works around a problem whereby Excel showed a correct print preview but the printer driver miscalculated margins.
-  - When using flags, the announcer-entered decision is now correctly redisplaying the new clock value when the same athlete follows in sequence.
-  - Fix: Jury display. Reds given if bar had gone past the knee and then put down are no longer erased from the referee decision section when the clock is restarted.  
-  - Adjustments to the statuses provided for automatic video scene switching
-  - Bookmarking the main screen with "public=true" now works.
+- 34.5.0-alpha00
+
+  - Enhancement: added the missing MQTT messages to allow jury/referee/timekeeper devices that sends MQTT commands instead of key presses.
+  - Fix: Final Package was including SMF and Sinclair results for all athletes, ignoring the filtering requested.
+
+- 34.4.0
+
+  - Improvements
+
+    - New Weigh-in Starting Weights template to create a WeighinSummary. Meant to facilitate data entry. As used in Pan-American federation, the body weight and declarations are copied one per line and countersigned.
+    - New Jury template with bigger cells and with additional info (team, entry total)
+    - There are now separate passwords for officials (OWLCMS_PIN) and for displays (OWLCMS_DISPLAYPIN).  Normally only the officials password is set. This protects the competition input screens but keeps password-less access to the displays. If needed, scoreboards can also be protected by a password and by a separate list of authorized access lists.
+    - The "Recompute Ranks" button on the Results and End of Competition pages now performs a full recalculation of all the ranks taking into account all the eligibilities.  This will now reflect eligibility changes made in the course of the competition, if any.
+    - Added USAW Age group file and updated the results sheet to be in the USA BARS format.  To produce results for BARS you need to have loaded the USA Age Groups file and assigned the athletes using the USA Age Groups.
+
+  -  Fixes:
+
+    - Added hard page breaks to the Athlete cards; this works around a problem whereby Excel showed a correct print preview but the printer driver miscalculated margins.
+
+    - When using flags, the announcer-entered decision is now correctly redisplaying the new clock value when the same athlete follows in sequence.
+
+    - Fix: Jury display. Reds given if bar had gone past the knee and then put down are no longer erased from the referee decision section when the clock is restarted.  
+
+    - Adjustments to the statuses provided for automatic video scene switching
+
+    - Bookmarking the main screen with "public=true" now works.
+
 - 34.3.0: New end of competition report: records set during the meet are exported in the same format as the record definition files, to facilitate post-competition updates. Newly set records are kept in the database and preserved on application restart; a new "Clear New Records" is available to remove them when doing pre-competition tests.
+
 - 34.3.0: Safe export/import of all registration data, including eligibility categories. Until competition start, it is now possible to use Excel to safely reassign athletes to groups, change athlete categories (including the additional categories where the athlete is eligible), to define new groups, to change referee assignments, etc.  This recreates clean athletes and groups, after weigh-ins have started changes must be made using the program screen.
+
 - 34.2.1: Fix for refereeing devices: When using USB or Bluetooth devices attached to the athlete-facing display, decisions were not shown on that display, but were shown on all others ((problem introduced in 34.2.0)
+
 - 34.2.1: **Important update**: Fixed an *extremely rare issue* *that could nevertheless stop the competition from proceeding*.  Ranks are updated after every lift, before updating the lifting order, so a fatal error in updating the ranks would prevent the lifting order update.
+
 - 34.2.0: Improvement: The lifting order display is now a full scoreboard (shows the 6 attempts)
+
 - 34.2.0: Decisions entered by the announcer are now shown immediately by default, unless there is a single referee using the screen and the "emit a down signal" setting is enabled.  This is useful when flags or standalone systems are used, or when there is a refereeing device disconnected.
+
 - 34.2.0: On the protocol sheets, when athletes are eligible for multiple age groups they will now be shown in each eligible grouping, with the corresponding ranking and Robi.  To get the old behavior back (each athlete shown only once in their "natural" age group) you can use the "6Attempts" template.
+
 - 34.2.0:  Group Results page no longer shows all athletes by default, as this is inconvenient for large competitions with hundreds of competitors.  The "All Groups" option can be used at the end of the meet to create a full results sheet for the federation.
+
 - 34.2.0: MQTT timekeeping device support: An MQTT timekeeper device can send one of the 4 following commands (*platform* is the code for the targeted platform): `/clock/platform/start` `/clock/platform/stop` `/clock/platform/60` `/clock/platform/120`
   Note that only 60 and 120 are the only legal numerical values to reset the clock to the corresponding number of seconds.
+
 - 34.2.0: Fixed the competition simulator to correctly handle the end-of-group events.
+
 - 34.1.0:  User interface improvement: Added athlete card button to handle athlete withdrawing from snatch but continuing with clean & jerk.
+
 - 34.0.1: When creating the Excel reports for a group, the group definition is now read again from the database to ensure its correctness.
+
 - **34.0.0:** **New Sinclair coefficients for the 2024 Olympiad**.  An option on the Competition rules page allows using the previous (2020 Olympiad) values if your local rules require them.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
+
 - 34.0.0: Setting a password no longer shows the confusing encrypted password, but rather a string of 10 black circles, so that neither the password nor its length is revealed.  Clearing the string clears the password.
+
 - 34.0.0: Additional environment variable OWLCMS_PUBLICDEMO for restarting periodically the public demonstration site.
 
 ##### Highlights from recent stable releases
