@@ -134,7 +134,7 @@ public class MQTTMonitor {
             try {
                 String[] parts = messageStr.split(" ");
                 int refIndex = Integer.parseInt(parts[0]) - 1;
-                logger.warn("JuryMemberDecisionUpdate {} {}", parts, refIndex);
+                logger.debug("JuryMemberDecisionUpdate {} {}", parts, refIndex);
                 fop.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(MQTTMonitor.this, refIndex,
                         parts[parts.length - 1].contentEquals("good")));
             } catch (NumberFormatException e) {
@@ -271,7 +271,7 @@ public class MQTTMonitor {
 
     @Subscribe
     public void slaveJuryDecision(FOPEvent.JuryDecision jd) {
-        logger.warn("MQTT monitor received FOPEvent {}", jd.getClass().getSimpleName());
+        logger.debug("MQTT monitor received FOPEvent {}", jd.getClass().getSimpleName());
     }
     
     @Subscribe

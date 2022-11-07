@@ -1274,11 +1274,10 @@ public class FieldOfPlay {
         if (state == FOPState.BREAK) {
             inBreak = ((breakTimer != null && breakTimer.isRunning()));
         }
-        logger.trace("uiDisplayCurrentAthleteAndTime {} {} {} {} {}", getCurAthlete(), inBreak, getPreviousAthlete(),
-                nextAthlete, currentDisplayAffected);
+        //logger.trace("uiDisplayCurrentAthleteAndTime {} {} {} {} {}", getCurAthlete(), inBreak, getPreviousAthlete(), nextAthlete, currentDisplayAffected);
         Integer newWeight = getPrevWeight() != curWeight ? curWeight : null;
 
-        logger.warn("&&&& previous {} current {} change {} from[{}]", getPrevWeight(), curWeight,  newWeight, LoggerUtils.whereFrom());
+        //logger.debug("&&&& previous {} current {} change {} from[{}]", getPrevWeight(), curWeight,  newWeight, LoggerUtils.whereFrom());
         pushOutUIEvent(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, getPreviousAthlete(),
                 changingAthlete,
                 getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),
@@ -1762,7 +1761,7 @@ public class FieldOfPlay {
 
     private void showJuryMemberDecisionReceived(Object origin, int i, Boolean[] juryMemberDecision2, int jurySize) {
         // show that one jury decision has been received (green LED)
-        logger.warn("updating jury member {}",i);
+        logger.debug("updating jury member {}",i);
         getUiEventBus().post(new UIEvent.JuryUpdate(origin, i, juryMemberDecision2, jurySize));
     }
 
@@ -1845,7 +1844,7 @@ public class FieldOfPlay {
      * Reset decisions. Invoked when recomputing lifting order when a fresh clock is given.
      */
     private void resetDecisions() {
-        logger.warn("!!! resetting decisions");
+        //logger.trace("{}resetting decisions", getLoggingName());
         refereeDecision = new Boolean[3];
         juryMemberDecision = new Boolean[5];
         refereeTime = new Integer[3];

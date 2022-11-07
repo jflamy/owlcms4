@@ -15,7 +15,7 @@ public interface JuryEvents {
 
     public default void postJurySummonNotification(FieldOfPlay fop, Object origin) {
         Logger logger = (Logger) LoggerFactory.getLogger("JuryEvents");
-        logger.warn("fop.getState() = {}", fop.getState());
+        //logger.debug("fop.getState() = {}", fop.getState());
         if (fop.getState() != FOPState.BREAK) {
             fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
             // do not notify multiple times if calling all referees.

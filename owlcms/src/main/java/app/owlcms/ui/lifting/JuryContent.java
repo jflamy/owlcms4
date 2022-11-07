@@ -168,7 +168,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         Boolean[] decision = e.getJuryMemberDecision();
         Integer juryMember = e.getJuryMemberUpdated();
         Boolean goodBad = juryMember != null ? decision[juryMember] : null;
-        logger.warn("update jury decisions {} {}", goodBad, juryMember);
+        logger.debug("update jury decisions {} {}", goodBad, juryMember);
         if (juryMember != null && goodBad != null) {
             UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
                 Icon votedIcon = bigIcon(VaadinIcon.CIRCLE, "gray");
