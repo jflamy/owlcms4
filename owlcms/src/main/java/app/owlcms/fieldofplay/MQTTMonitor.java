@@ -108,6 +108,11 @@ public class MQTTMonitor {
             this.athleteUnderReview = athleteUnderReview;
         }
 
+        /**
+         * Tell others that the refbox has given the down signal
+         * @param topic
+         * @param messageStr
+         */
         private void postFopEventDownEmitted(String topic, String messageStr) {
             messageStr = messageStr.trim();
             fop.fopEventPost(new FOPEvent.DownSignal(this));
@@ -252,11 +257,23 @@ public class MQTTMonitor {
 //        }
     }
 
+    /**
+     * A display or console has triggered the down signal (e.g. keypad connected to a laptop) and down signal post connected via MQTT.
+     * @param d
+     */
+    @Subscribe
+    public void slaveDownSignal(UIEvent.DownSignal d) {
+        try {
+            publishMqttDownSignal();
+        } catch (MqttException e) {
+        }
+    }
+
     @Subscribe
     public void slaveJuryDecision(FOPEvent.JuryDecision jd) {
         logger.warn("MQTT monitor received FOPEvent {}", jd.getClass().getSimpleName());
     }
-
+    
     @Subscribe
     public void slaveJuryNotification(UIEvent.JuryNotification jn) {
         // these events come from the Jury Console as UI Events
@@ -268,7 +285,6 @@ public class MQTTMonitor {
         default:
             break;
         }
-
     }
 
     @Subscribe
@@ -276,13 +292,13 @@ public class MQTTMonitor {
         // the deliberation is about the last athlete judged, not on the current athlete.
         callback.setAthleteUnderReview(e.getAthlete());
     }
-    
+
     @Subscribe
     public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
         // the deliberation is about the last athlete judged, not on the current athlete.
         publishMqttRefereeUpdates(e.ref1, e.ref2, e.ref3);
     }
-
+    
     @Subscribe
     public void slaveSummonRef(UIEvent.SummonRef e) {
         // e.ref is 1..3
@@ -316,7 +332,6 @@ public class MQTTMonitor {
         int ref = e.ref;
         publishMqttWakeUpRef(ref, e.on);
     }
-    
 
     private void connectionLoop() {
         while (!client.isConnected()) {
@@ -331,6 +346,7 @@ public class MQTTMonitor {
             sleep(1000);
         }
     }
+    
 
     private void doConnect() throws MqttSecurityException, MqttException {
         userName = StartupUtils.getStringParam("mqttUserName");
@@ -354,14 +370,20 @@ public class MQTTMonitor {
                 client.getCurrentServerURI());
     }
 
-    private void publishMqttResetAllDecisions() {
-        logger.debug("{}MQTT resetDecisions", fop.getLoggingName());
-        try {
-            client.publish("owlcms/fop/resetDecisions/" + fop.getName(),
-                    new MqttMessage("reset".getBytes(StandardCharsets.UTF_8)));
-        } catch (MqttException e1) {
+    private void publishMqttDownSignal() throws MqttException, MqttPersistenceException {
+        String topic = "owlcms/fop/down/" + fop.getName();
+        client.publish(topic, new MqttMessage("on".getBytes(StandardCharsets.UTF_8)));
+    }
 
-        }
+    private void publishMqttLedOnOff() throws MqttException, MqttPersistenceException {
+        logger.debug("{}MQTT LedOnOff", fop.getLoggingName());
+        String topic = "owlcms/fop/startup/" + fop.getName();
+        String deprecatedTopic = "owlcms/led/" + fop.getName();
+        client.publish(topic, new MqttMessage("on".getBytes(StandardCharsets.UTF_8)));
+        client.publish(deprecatedTopic, new MqttMessage("on".getBytes(StandardCharsets.UTF_8)));
+        sleep(1000);
+        client.publish(topic, new MqttMessage("off".getBytes(StandardCharsets.UTF_8)));
+        client.publish(deprecatedTopic, new MqttMessage("off".getBytes(StandardCharsets.UTF_8)));
     }
 
     private void publishMqttRefereeUpdates(Boolean ref1, Boolean ref2, Boolean ref3) {
@@ -384,15 +406,14 @@ public class MQTTMonitor {
         }
         
     }
-    private void publishMqttLedOnOff() throws MqttException, MqttPersistenceException {
-        logger.debug("{}MQTT LedOnOff", fop.getLoggingName());
-        String topic = "owlcms/fop/startup/" + fop.getName();
-        String deprecatedTopic = "owlcms/led/" + fop.getName();
-        client.publish(topic, new MqttMessage("on".getBytes(StandardCharsets.UTF_8)));
-        client.publish(deprecatedTopic, new MqttMessage("on".getBytes(StandardCharsets.UTF_8)));
-        sleep(1000);
-        client.publish(topic, new MqttMessage("off".getBytes(StandardCharsets.UTF_8)));
-        client.publish(deprecatedTopic, new MqttMessage("off".getBytes(StandardCharsets.UTF_8)));
+    private void publishMqttResetAllDecisions() {
+        logger.debug("{}MQTT resetDecisions", fop.getLoggingName());
+        try {
+            client.publish("owlcms/fop/resetDecisions/" + fop.getName(),
+                    new MqttMessage("reset".getBytes(StandardCharsets.UTF_8)));
+        } catch (MqttException e1) {
+
+        }
     }
 
     private void publishMqttSummonRef(int ref, boolean onOff) {
