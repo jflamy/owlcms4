@@ -135,7 +135,7 @@ public class AgeGroupRepository {
      * @param g        gender
      * @return
      */
-    public static List<PAthlete> allPAthletesForAgeGroup(String agPrefix) {
+    public static List<Athlete> allPAthletesForAgeGroup(String agPrefix) {
         if (agPrefix == null || agPrefix.isBlank()) {
             List<Athlete> athletes = AthleteRepository.findAll();
             return athletes.stream().map(a -> new PAthlete(a.getMainRankings())).collect(Collectors.toList());
@@ -195,9 +195,9 @@ public class AgeGroupRepository {
         return parts.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
     }
 
-    public static List<PAthlete> allPAthletesForAgeGroupAgeDivision(String ageGroupPrefix, AgeDivision ageDivision) {
+    public static List<Athlete> allPAthletesForAgeGroupAgeDivision(String ageGroupPrefix, AgeDivision ageDivision) {
         List<Participation> participations = allParticipationsForAgeGroupAgeDivision(ageGroupPrefix, ageDivision);
-        List<PAthlete> collect = participations.stream().map(p -> new PAthlete(p))
+        List<Athlete> collect = participations.stream().map(p -> new PAthlete(p))
                 .filter(a -> a.getBodyWeight() != null && a.getBodyWeight() > 0.1).collect(Collectors.toList());
         return collect;
     }
