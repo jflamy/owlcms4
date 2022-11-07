@@ -371,11 +371,11 @@ public class MQTTMonitor {
                 client.publish("owlcms/fop/decision/" + fop.getName(),
                         new MqttMessage((1 + " " + (ref1 ? "good" : "bad")).getBytes(StandardCharsets.UTF_8)));
             }
-            if (ref1 != null) {
+            if (ref2 != null) {
                 client.publish("owlcms/fop/decision/" + fop.getName(),
                         new MqttMessage((2 + " " + (ref2 ? "good" : "bad")).getBytes(StandardCharsets.UTF_8)));
             }
-            if (ref1 != null) {
+            if (ref3 != null) {
                 client.publish("owlcms/fop/decision/" + fop.getName(),
                         new MqttMessage((3 + " " + (ref3 ? "good" : "bad")).getBytes(StandardCharsets.UTF_8)));
             }
