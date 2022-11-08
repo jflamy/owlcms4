@@ -1278,7 +1278,7 @@ public class FieldOfPlay {
         // nextAthlete, currentDisplayAffected);
         Integer newWeight = getPrevWeight() != curWeight ? curWeight : null;
 
-        if (curAthlete.getActuallyAttemptedLifts() == 3) {
+        if (curAthlete != null && curAthlete.getActuallyAttemptedLifts() == 3) {
             // athlete has until before first CJ to comply with starting weights rule
             // if the snatch was lowered.
             warnMissingKg(); 
