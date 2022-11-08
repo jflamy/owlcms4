@@ -4134,19 +4134,8 @@ public class Athlete {
         if (!enforce20kg) {
             return true;
         }
-
-        int curStartingTotal = 0;
-
-        curStartingTotal = snatch1Request + cleanJerk1Request;
-        int delta = qualTotal - curStartingTotal;
-        int _20kgRuleValue = getStartingTotalMargin(this.getCategory(), qualTotal);
-
-        if (snatch1Request == 0 && cleanJerk1Request == 0) {
-            // not checking starting total - no declarations
-            return true;
-        }
-        RuleViolationException rule15_20Violated = null;
-        int missing = delta - _20kgRuleValue;
+        RuleViolationException rule15_20Violated;
+        int missing = startingTotalDelta(snatch1Request, cleanJerk1Request, qualTotal);
         if (missing > 0) {
             // logger.trace("FAIL missing {}",missing);
             Integer startNumber2 = this.getStartNumber();
@@ -4160,6 +4149,37 @@ public class Athlete {
             return true;
         }
     }
+    
+    public int startingTotalDelta() {
+        int sn1Decl = zeroIfInvalid(snatch1Declaration);
+        int cj1Decl = zeroIfInvalid(cleanJerk1Declaration);
+        getLogger().trace("prior to checking {} {}", sn1Decl, cj1Decl);
+        if (sn1Decl == 0 && cj1Decl == 0) {
+            return 0; // do not complain on registration form or empty weigh-in form.
+        }
+        Integer snatch1Request = last(sn1Decl, zeroIfInvalid(snatch1Change1), zeroIfInvalid(snatch1Change2));
+        Integer cleanJerk1Request = last(cj1Decl, zeroIfInvalid(cleanJerk1Change1), zeroIfInvalid(cleanJerk1Change2));
+        return startingTotalDelta(snatch1Request, cleanJerk1Request, getEntryTotal());
+    }
+
+    private int startingTotalDelta(Integer snatch1Request, Integer cleanJerk1Request, int qualTotal) {
+        boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
+        if (!enforce20kg) {
+            return 0;
+        }
+        int curStartingTotal = 0;
+        curStartingTotal = snatch1Request + cleanJerk1Request;
+        int delta = qualTotal - curStartingTotal;
+        int _20kgRuleValue = getStartingTotalMargin(this.getCategory(), qualTotal);
+
+        if (snatch1Request == 0 && cleanJerk1Request == 0) {
+            // not checking starting total - no declarations
+            return 0;
+        }
+        int missing = delta - _20kgRuleValue;
+        return missing;
+    }
+    
 
     /**
      * @param entryTotal

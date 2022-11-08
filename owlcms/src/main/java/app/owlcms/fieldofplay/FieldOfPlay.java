@@ -674,7 +674,7 @@ public class FieldOfPlay {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof JuryMemberDecisionUpdate) {
                 doJuryMemberDecisionUpdate((JuryMemberDecisionUpdate) e);
-             } else if (e instanceof JuryDecision) {
+            } else if (e instanceof JuryDecision) {
                 doJuryDecision((JuryDecision) e);
             } else if (e instanceof SummonReferee) {
                 doSummonReferee((SummonReferee) e);
@@ -1274,10 +1274,19 @@ public class FieldOfPlay {
         if (state == FOPState.BREAK) {
             inBreak = ((breakTimer != null && breakTimer.isRunning()));
         }
-        //logger.trace("uiDisplayCurrentAthleteAndTime {} {} {} {} {}", getCurAthlete(), inBreak, getPreviousAthlete(), nextAthlete, currentDisplayAffected);
+        // logger.trace("uiDisplayCurrentAthleteAndTime {} {} {} {} {}", getCurAthlete(), inBreak, getPreviousAthlete(),
+        // nextAthlete, currentDisplayAffected);
         Integer newWeight = getPrevWeight() != curWeight ? curWeight : null;
 
-        //logger.debug("&&&& previous {} current {} change {} from[{}]", getPrevWeight(), curWeight,  newWeight, LoggerUtils.whereFrom());
+        if (curAthlete.getActuallyAttemptedLifts() == 3) {
+            // athlete has until before first CJ to comply with starting weights rule
+            // if the snatch was lowered.
+            warnMissingKg(); 
+        }
+
+
+        // logger.debug("&&&& previous {} current {} change {} from[{}]", getPrevWeight(), curWeight, newWeight,
+        // LoggerUtils.whereFrom());
         pushOutUIEvent(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, getPreviousAthlete(),
                 changingAthlete,
                 getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),
@@ -1297,6 +1306,20 @@ public class FieldOfPlay {
 
         if (attempts >= 6) {
             pushOutDone();
+        }
+    }
+
+    private void warnMissingKg() {
+        int missingKg = this.getCurAthlete().startingTotalDelta();
+        if (missingKg > 0) {
+            pushOutUIEvent(
+                    new UIEvent.Notification(
+                            this.getCurAthlete(),
+                            this,
+                            UIEvent.Notification.Level.ERROR,
+                            "RuleViolation.StartingWeightCurrent",
+                            0, // 3 * UIEvent.Notification.NORMAL_DURATION,
+                            Integer.toString(missingKg)));
         }
     }
 
@@ -1735,7 +1758,8 @@ public class FieldOfPlay {
      * events resulting from decisions received so far (down signal, stopping timer, all decisions entered, etc.)
      */
     private void processJuryMemberDecisions(Object origin) {
-        logger.debug("*** process jury member decisions {} {} {} {}", Competition.getCurrent().getJurySize(), juryMemberDecision[0],  juryMemberDecision[1],  juryMemberDecision[2]);
+        logger.debug("*** process jury member decisions {} {} {} {}", Competition.getCurrent().getJurySize(),
+                juryMemberDecision[0], juryMemberDecision[1], juryMemberDecision[2]);
         int nbRed = 0;
         int nbWhite = 0;
         int nbDecisions = 0;
@@ -1762,7 +1786,7 @@ public class FieldOfPlay {
 
     private void showJuryMemberDecisionReceived(Object origin, int i, Boolean[] juryMemberDecision2, int jurySize) {
         // show that one jury decision has been received (green LED)
-        logger.debug("updating jury member {}",i);
+        logger.debug("updating jury member {}", i);
         getUiEventBus().post(new UIEvent.JuryUpdate(origin, i, juryMemberDecision2, jurySize));
     }
 
@@ -1845,7 +1869,7 @@ public class FieldOfPlay {
      * Reset decisions. Invoked when recomputing lifting order when a fresh clock is given.
      */
     private void resetDecisions() {
-        //logger.trace("{}resetting decisions", getLoggingName());
+        // logger.trace("{}resetting decisions", getLoggingName());
         refereeDecision = new Boolean[3];
         juryMemberDecision = new Boolean[5];
         refereeTime = new Integer[3];
