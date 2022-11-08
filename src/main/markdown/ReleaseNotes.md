@@ -1,9 +1,24 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 34.5.0-alpha00
+- 35.0.0-alpha:
 
-  - Enhancement: added the missing MQTT messages to allow jury/referee/timekeeper devices that sends MQTT commands instead of key presses.
-  - Fix: Final Package was including SMF and Sinclair results for all athletes, ignoring the filtering requested.
+  *Alpha release: Not recommended for use in actual competition. New features could affect refereeing devices and jury.*
+
+  - Enhancements
+
+    * 35.0.0-alpha00: added the missing MQTT messages to allow jury/referee/timekeeper devices that sends MQTT commands instead of key presses. (#469)  See  [MQTT Messages documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTTMessages).
+
+    - 35.0.0-alpha00: improved colors on Current Athlete view (current requested weight more visible, fixed empty cell colors) (#562)
+
+  - Fixes:
+
+    - 35.0.0-alpha00: Bottom part of Current Athlete view would switch to next athlete's attempts before top part updated (#558)
+
+    - 35.0.0-alpha00: Final Package was including SMF and Sinclair results for all athletes, ignoring the filtering requested. (#561)
+
+    - 35.0.0-alpha00: On mobile refereeing screen, reversal was not restoring button colors (#560)
+
+    - 35.0.0-alpha00: Record attempt notification remained on attempt board at end of group (#557)
 
 - 34.4.0
 
