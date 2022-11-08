@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
@@ -19,11 +20,13 @@ import com.google.common.eventbus.EventBus;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
@@ -33,6 +36,7 @@ import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
@@ -66,6 +70,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
      * Top part content
      */
     private ComboBox<Group> groupSelect;
+    private FlexLayout topBar;
 
     /**
      * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -75,7 +80,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
     }
 
     public void configureTopBar() {
-        FlexLayout topBar = getAppLayout().getAppBarElementWrapper();
+        topBar = getAppLayout().getAppBarElementWrapper();
         topBar.setSizeFull();
         topBar.setJustifyContentMode(JustifyContentMode.START);
     }
@@ -155,15 +160,37 @@ public abstract class BaseNavigationContent extends VerticalLayout
      */
     protected void createAppBar(HorizontalLayout fopField, HorizontalLayout groupField) {
         HorizontalLayout appBar = new HorizontalLayout();
+        appBar.setSizeFull();
         if (fopField != null) {
             appBar.add(fopField);
         }
         if (groupField != null) {
             appBar.add(groupField);
         }
+        Div spacer = new Div();
+        spacer.setSizeFull();
+        appBar.add(spacer);
+        
+        ComboBox<Locale> sessionLocaleField = new ComboBox<>();
+        sessionLocaleField.setWidth("24ch");
+        sessionLocaleField.setClearButtonVisible(true);
+        sessionLocaleField.setDataProvider(new ListDataProvider<>(Translator.getUsefulLocales()));
+        sessionLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
+        sessionLocaleField.setValue(Translator.getLocaleSupplier().get());
+        sessionLocaleField.addValueChangeListener(e -> {
+            OwlcmsSession.getCurrent().setLocale(e.getValue());
+            UI.getCurrent().getPage().reload();
+        });
+        sessionLocaleField.setPlaceholder(Translator.translate("MyLanguage"));
+        
+        appBar.add(sessionLocaleField);
         appBar.setSpacing(true);
         appBar.setAlignItems(FlexComponent.Alignment.CENTER);
-        getAppLayout().setAppBar(appBar);
+        appBar.setFlexGrow(1.0, spacer);
+        FlexLayout appBarElementWrapper = getAppLayout().getAppBarElementWrapper();
+        appBarElementWrapper.removeAll();
+        appBarElementWrapper.add(appBar);
+        appBarElementWrapper.setFlexGrow(1.0, appBar);
     }
 
     protected ComboBox<FieldOfPlay> createFopSelect(String placeHolder) {

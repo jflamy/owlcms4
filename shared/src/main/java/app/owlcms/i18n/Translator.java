@@ -27,6 +27,7 @@ import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.LoggerFactory;
@@ -89,6 +90,13 @@ public class Translator implements I18NProvider {
             Translator.getBundleFromCSV(Locale.ENGLISH);
         }
         return locales;
+    }
+    
+    public static List<Locale> getUsefulLocales() {
+        if (locales == null) {
+            Translator.getBundleFromCSV(Locale.ENGLISH);
+        }
+        return locales.stream().filter( l -> ! (l.getCountry() == "" && l.getLanguage() == "es")).collect(Collectors.toList());
     }
 
     public static List<Locale> getAvailableLocales() {
@@ -431,7 +439,10 @@ public class Translator implements I18NProvider {
     }
 
     private Locale overrideLocale(Locale locale) {
-        if (getForcedLocale() != null) {
+        Locale l = getLocaleSupplier().get();
+        if (l != null) {
+            locale = l;
+        } else if (getForcedLocale() != null) {
             locale = getForcedLocale();
         }
         return locale;
