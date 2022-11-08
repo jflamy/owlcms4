@@ -2,11 +2,14 @@
 
 - 35.0.0-alpha:
 
-  *Alpha release: Not recommended for use in actual competition. New features could affect refereeing devices and jury.*
+  *Alpha release: Not recommended for use in an actual competition.*
 
   - Enhancements
 
-    * 35.0.0-alpha00: added the missing MQTT messages to allow jury/referee/timekeeper devices that sends MQTT commands instead of key presses. (#469)  See  [MQTT Messages documentation](https://owlcms.github.io/owlcms4-prerelease/#/MQTTMessages).
+    * 35.0.0-alpha01:  Record information is now included in the json database export (#563)
+    * 35.0.0-alpha01:  In multi-lingual settings, a drop down at the top of navigation pages allows changing the language for the current browser. Pages and displays opened from that browser will be in the new language; the overall default is not changed.  (#553)
+    * 35.0.0-alpha01:  Notification given to TOs if current athlete does not meet starting weights rule when called for first clean and jerk (TCRR regulation to rule 6.6.5 clause 6) (#556)
+    * 35.0.0-alpha00: **Full support of MQTT messaging for devices**. Jury/referee/timekeeper devices can now issue MQTT commands instead of key presses, and subscribe to messages issued by the main program (#469)  See  [MQTT Messages documentation](https://owlcms.github.io/owlcms4-prerelease/#/MQTTMessages).
 
     - 35.0.0-alpha00: improved colors on Current Athlete view (current requested weight more visible, fixed empty cell colors) (#562)
 
@@ -24,7 +27,7 @@
 
   - Improvements
 
-    - New Weigh-in Starting Weights template to create a WeighinSummary. Meant to facilitate data entry. As used in Pan-American federation, the body weight and declarations are copied one per line and countersigned.
+    - New Weigh-in Starting Weights template to create a Weigh-in Summary. Meant to facilitate data entry. As used in Pan-American federation, the body weight and declarations are copied one per line and countersigned by the coach/athlete.
     - New Jury template with bigger cells and with additional info (team, entry total)
     - There are now separate passwords for officials (OWLCMS_PIN) and for displays (OWLCMS_DISPLAYPIN).  Normally only the officials password is set. This protects the competition input screens but keeps password-less access to the displays. If needed, scoreboards can also be protected by a password and by a separate list of authorized access lists.
     - The "Recompute Ranks" button on the Results and End of Competition pages now performs a full recalculation of all the ranks taking into account all the eligibilities.  This will now reflect eligibility changes made in the course of the competition, if any.
