@@ -508,10 +508,10 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
         }
     }
 
-    private void doUpdateBottomPart(UIEvent e) {
-        Athlete a = e.getAthlete();
-        updateBottom(computeLiftType(a), OwlcmsSession.getFop());
-    }
+//    private void doUpdateBottomPart(UIEvent e) {
+//        Athlete a = e.getAthlete();
+//        updateBottom(computeLiftType(a), OwlcmsSession.getFop());
+//    }
 
     private String formatAttempt(Integer attemptNo) {
         String translate = Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
