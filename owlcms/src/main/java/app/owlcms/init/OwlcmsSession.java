@@ -76,14 +76,15 @@ public class OwlcmsSession {
     }
 
     public static FieldOfPlay getFop() {
-        return (FieldOfPlay) getAttribute(FOP);
+        FieldOfPlay fop = (FieldOfPlay) getAttribute(FOP);
+        if (fop == null) {
+            fop = OwlcmsFactory.getDefaultFOP();
+        }
+        return (FieldOfPlay) fop;
     }
 
     public static String getFopLoggingName() {
         FieldOfPlay fop = getFop();
-        if (fop == null) {
-            fop = OwlcmsFactory.getDefaultFOP();
-        }
         if (fop != null) {
             return fop.getLoggingName();
         } else {

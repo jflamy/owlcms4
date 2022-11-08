@@ -1373,8 +1373,9 @@ public class FieldOfPlay {
         setNewRecords(List.of());
 
         if (getCurAthlete() != null && getCurAthlete().getAttemptsDone() < 6) {
-            setState(CURRENT_ATHLETE_DISPLAYED);
+            // display before setting state.
             uiDisplayCurrentAthleteAndTime(true, e, false);
+            setState(CURRENT_ATHLETE_DISPLAYED);
         } else {
             // special kind of break that allows moving back in case of jury reversal
             pushOutDone();

@@ -287,7 +287,8 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             setHidden(false);
-            doUpdateBottomPart(e);
+            // do not update the bottom part until decision has been shown
+            //doUpdateBottomPart(e);
             this.getElement().setProperty("hideBlock", "visibility:hidden");
             this.getElement().setProperty("noneBlock", "display:none");
             this.getElement().setProperty("hideInherited", "visibility:hidden");
@@ -304,7 +305,7 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
             if (isDone()) {
                 doDone(e.getAthlete().getGroup());
             } else {
-                doUpdateBottomPart(e);
+                doUpdate(e.getAthlete(), e);
                 this.getElement().setProperty("hideBlock", "visibility:visible");
                 this.getElement().setProperty("noneBlock", "display:block");
                 this.getElement().setProperty("hideInherited", "visibility:visible");
@@ -342,6 +343,11 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
     @Subscribe
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
         // uiLog(e);
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        FOPState state = fop.getState();
+        if (state == FOPState.DOWN_SIGNAL_VISIBLE || state == FOPState.DECISION_VISIBLE) {
+            return;
+        }
         uiEventLogger.debug("### {} isDisplayToggle={}", this.getClass().getSimpleName(), e.isDisplayToggle());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Athlete a = e.getAthlete();
@@ -434,14 +440,14 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
 
             // current athlete bottom should only change when top does
             if (fop.getState() != FOPState.DECISION_VISIBLE) {
-//                logger.debug("updating bottom {}", fop.getState());
+                //logger.debug("updating bottom {}", fop.getState());
                 updateBottom(computeLiftType(a), fop);
             } else {
-//                logger.debug("not updating bottom {}", fop.getState());
+              //logger.debug("not updating bottom {}", fop.getState());
             }
 
         }
-//        logger.debug("{} {}", leaveTopAlone, fop.getState());
+        //logger.debug("leave top alone {} {}", leaveTopAlone, fop.getState());
         if (leaveTopAlone && fop.getState() == FOPState.CURRENT_ATHLETE_DISPLAYED) {
             updateBottom(computeLiftType(a), fop);
         }
@@ -724,6 +730,7 @@ public class CurrentAthlete extends PolymerTemplate<TemplateModel>
     }
 
     private void updateBottom(String liftType, FieldOfPlay fop) {
+        //logger.debug("updateBottom {}",LoggerUtils.stackTrace());
         if (liftType != null) {
             getElement().setProperty("groupName", "");
             getElement().setProperty("liftsDone", "");
