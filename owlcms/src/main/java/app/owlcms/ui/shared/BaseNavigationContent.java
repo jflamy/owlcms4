@@ -181,7 +181,6 @@ public abstract class BaseNavigationContent extends VerticalLayout
             OwlcmsSession.getCurrent().setLocale(e.getValue());
             UI.getCurrent().getPage().reload();
         });
-        sessionLocaleField.setPlaceholder(Translator.translate("MyLanguage"));
         
         appBar.add(sessionLocaleField);
         appBar.setSpacing(true);

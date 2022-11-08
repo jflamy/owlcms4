@@ -22,6 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -36,6 +38,7 @@ import ch.qos.logback.classic.Logger;
         @Index(name = "ix_category", columnList = "gender,ageGrpLower,ageGrpUpper,bwCatLower,bwCatUpper") })
 @SuppressWarnings("serial")
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
+@JsonInclude(Include.NON_NULL)
 public class RecordEvent {
 
     public class MissingAgeGroup extends Exception {
@@ -151,7 +154,7 @@ public class RecordEvent {
     }
 
     public String getBirth() {
-        return (birthDate != null ? dateFormat.format(birthDate) : Integer.toString(birthYear));
+        return (birthDate != null ? dateFormat.format(birthDate) : (birthYear != null ? Integer.toString(birthYear) : null));
     }
 
     public LocalDate getBirthDate() {
