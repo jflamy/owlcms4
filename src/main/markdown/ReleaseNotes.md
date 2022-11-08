@@ -2,11 +2,12 @@
 
 - 35.0.0-alpha:
 
-  *Alpha release: Not recommended for use in actual competition. New features could affect refereeing devices and jury.*
+  *Alpha release: Not recommended for use in actual competition.*
 
   - Enhancements
 
-    * 35.0.0-alpha00: added the missing MQTT messages to allow jury/referee/timekeeper devices that sends MQTT commands instead of key presses. (#469)  See  [MQTT Messages documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTTMessages).
+    * 35.0.0-alpha01:  Notification given to TOs if current athlete does not meet starting weights rule when called for first clean and jerk (TCRR regulation to rule 6.6.5 clause 6) (#556)
+    * 35.0.0-alpha00: **Full support of MQTT messaging for devices**. Jury/referee/timekeeper devices can now issue MQTT commands instead of key presses, and subscribe to messages issued by the main program (#469)  See  [MQTT Messages documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTTMessages).
 
     - 35.0.0-alpha00: improved colors on Current Athlete view (current requested weight more visible, fixed empty cell colors) (#562)
 
