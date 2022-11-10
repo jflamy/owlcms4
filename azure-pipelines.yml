@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 35.0.0-alpha01
+    default: 35.0.0-alpha02
   - name: SkipTests
     type: string
     default: 'false'
@@ -173,10 +173,12 @@ jobs:
           assets: |
             $(Pipeline.Workspace)/OwlcmsZip/*
             $(Pipeline.Workspace)/PublicResultsZip/*
-            $(Pipeline.Workspace)/OwlcmsSetup/*
-            $(Pipeline.Workspace)/PublicResultsSetup/*
+            $(Agent.BuildDirectory)/s/owlcms-windows/target/owlcms_setup/owlcms_setup_${{ parameters.Revision }}.exe
+            $(Agent.BuildDirectory)/s/publicresults-windows/target/publicresults_setup/publicresults_setup_${{ parameters.Revision }}.exe
             $(Agent.BuildDirectory)/s/owlcms-docker/target/k8s.zip
             $(Agent.BuildDirectory)/s/owlcms-docker/target/k8s/k3s_setup.yaml
           assetUploadMode: "delete" # Optional. Options: delete, replace
           addChangeLog: false # Optional
+#            $(Pipeline.Workspace)/OwlcmsSetup/*
+#            $(Pipeline.Workspace)/PublicResultsSetup/*
         
