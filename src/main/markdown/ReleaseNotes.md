@@ -6,7 +6,7 @@
 
   - Enhancements
 
-    * 35.0.0-alpha04:  Add version number on installer files.
+    * 35.0.0-alpha05:  Add version number on installer files (#552)
     * 35.0.0-alpha01:  Record information is now included in the json database export (#563)
     * 35.0.0-alpha01:  In multi-lingual settings, a drop down at the top of navigation pages allows changing the language for the current browser. Pages and displays opened from that browser will be in the new language; the overall default is not changed.  (#553)
     * 35.0.0-alpha01:  Notification given to TOs if current athlete does not meet starting weights rule when called for first clean and jerk (TCRR regulation to rule 6.6.5 clause 6) (#556)
