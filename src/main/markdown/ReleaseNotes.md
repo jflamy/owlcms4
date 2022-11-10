@@ -34,16 +34,12 @@
     - The "Recompute Ranks" button on the Results and End of Competition pages now performs a full recalculation of all the ranks taking into account all the eligibilities.  This will now reflect eligibility changes made in the course of the competition, if any.
     - Added USAW Age group file and updated the results sheet to be in the USA BARS format.  To produce results for BARS you need to have loaded the USA Age Groups file and assigned the athletes using the USA Age Groups.
 
-  -  Fixes:
+  - Fixes:
 
     - Added hard page breaks to the Athlete cards; this works around a problem whereby Excel showed a correct print preview but the printer driver miscalculated margins.
-
     - When using flags, the announcer-entered decision is now correctly redisplaying the new clock value when the same athlete follows in sequence.
-
     - Fix: Jury display. Reds given if bar had gone past the knee and then put down are no longer erased from the referee decision section when the clock is restarted.  
-
     - Adjustments to the statuses provided for automatic video scene switching
-
     - Bookmarking the main screen with "public=true" now works.
 
 - 34.3.0: New end of competition report: records set during the meet are exported in the same format as the record definition files, to facilitate post-competition updates. Newly set records are kept in the database and preserved on application restart; a new "Clear New Records" is available to remove them when doing pre-competition tests.
