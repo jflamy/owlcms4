@@ -150,7 +150,6 @@ public class RecordRepository {
     }
 
     /**
-     * @param keepNewRecords if true, records established in a group of the current meet are kept.
      * @throws IOException
      */
     public static void clearLoadedRecords() throws IOException {
@@ -170,7 +169,6 @@ public class RecordRepository {
     }
 
     /**
-     * @param keepNewRecords if true, records established in a group of the current meet are kept.
      * @throws IOException
      */
     public static void clearNewRecords() throws IOException {
