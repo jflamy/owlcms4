@@ -30,9 +30,7 @@ Notes:
 -  Ages are inclusive.  Masters 35 is athletes between 35 and 39
 -  The lower bound of the bodyweight category is excluded.  45 to 49 means greater than 45 and lower or equal to 49.
 -  The upperbound of the heavyweight categories is written with a `>`.  So the SR heavyweights are written as bwlow 109 bwcat >109
-- You can translate the RecordName column, it is used only for display
--  -  
-
+-  You can translate the RecordName column, it is used only for display
 -  The `Lift` column relies on the first letter being S C or T to distinguish the lift types
 -  Columns `K` and after are not currently displayed, but are very useful when updating the files, and for human readers.
 
