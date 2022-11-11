@@ -26,15 +26,13 @@
 
 #### Subscribed by the referee device:
 
-- `fop/decisionRequest/A :ref :status`: The third ref must make a decision.
-    - LEGACY: `decisionRequest/A/:ref :status`
+- `fop/decisionRequest/A :ref`: The third ref must make a decision.
+    - LEGACY: `decisionRequest/A/:ref :status` (status is `on` or `off`)
     - `ref` is `1`, `2`, or `3`
-    - `status` is `on` or `off`.  Note: the legacy ESP32 implementation does not need "OFF".  Current owlcms code does not emit "OFF".
     - The delay before triggering is configurable in owlcms.  If the device decides to remind the referee on its own, it should be longer than the owlcms default.
 - `fop/summon/A :official :status`: The jury summons an official to the jury table.
-    - LEGACY: `summon/A/:official :status`
+    - LEGACY: `summon/A/:official :status` (status is `on` or `off`)
     - `official` is `1`, `2`, `3`, `all` (all referees) or `controller`.
-    - `status` is `on` or `off`.  Note: legacy ESP32 implementation does not need OFF, turns off on its own.
     -  Summoning controller not implemented yet  Normally results in a notification on the announcer/marshall/timekeeper screens because the TC is usually roaming.
     - The device can turn off the summon on its own.
 
@@ -42,8 +40,8 @@
 
 These messages would be used by a signal tower with a white light and a buzzer.
 
-- `fop/down/A :status`: The down signal has been given
-    - `status` is `on` or `off`;  only `on` is used, device must turn it off itself.
+- `fop/down/A`: The down signal has been given
+    - device must turn itself off.
 
 ### Messages published by the referee devices
 
@@ -60,7 +58,6 @@ Only owlcms listens; devices do not listen to one another.
 Only owlcms listens; devices do not listen to one another.
 
 - `clock/A :action`: The timekeeper has started, stopped, or reset the clock.
-
   - `action` is `start`, `stop`, `60`, or `120`
 
 ### Messages published by the jury device
