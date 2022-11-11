@@ -8,10 +8,10 @@
 
     * 35.0.0-alpha08:  Record eligibility check.  (#555)
       * If the AgeGroup column in the records file matches the code an active age group in the competition, then this means that the record can only be set if the athlete is eligible for that age group. 
-        * If a record is defined for age group M35, an athlete registered as eligible to M35 can break it.  But not an athlete that is eligible to SR only. An athlete that is eligible to M35 and SR will be able to break both records.
-        * For this to work you must use the same codes in your Age Groups and your Record definition files.
+        * If a record is defined for age group M35, an athlete registered as eligible to M35 can break it.  But not an athlete that is eligible to SR only. An athlete that is eligible to M35 and SR will be able to break both M35 and SR records.
+        * For this to work you must use the same codes in your Age Groups and in your Record definition files.
 
-      * If you have absolute records, or if you don't want to enforce this requirement, then use another age group in the record file that does not match a code (for example, "Absolute", "Junior", "Youth")  The names in the record files will be used on the record display.
+      * If you have absolute records, or if you don't want to enforce this requirement, then use age group names in the record file that does not match a code (for example, "Absolute", "Junior", "Youth")  The names in the record files will then be used on the record display.
 
     * 35.0.0-alpha07:  Add version number on installer and zip files (#552)
     * 35.0.0-alpha01:  Record information is now included in the json database export (#563)
