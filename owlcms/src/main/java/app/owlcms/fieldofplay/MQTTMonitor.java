@@ -273,7 +273,7 @@ public class MQTTMonitor {
     public void slaveJuryDecision(FOPEvent.JuryDecision jd) {
         logger.debug("MQTT monitor received FOPEvent {}", jd.getClass().getSimpleName());
     }
-    
+
     @Subscribe
     public void slaveJuryNotification(UIEvent.JuryNotification jn) {
         // these events come from the Jury Console as UI Events
@@ -298,7 +298,7 @@ public class MQTTMonitor {
         // the deliberation is about the last athlete judged, not on the current athlete.
         publishMqttRefereeUpdates(e.ref1, e.ref2, e.ref3);
     }
-    
+
     @Subscribe
     public void slaveSummonRef(UIEvent.SummonRef e) {
         // e.ref is 1..3
@@ -346,7 +346,7 @@ public class MQTTMonitor {
             sleep(1000);
         }
     }
-    
+
 
     private void doConnect() throws MqttSecurityException, MqttException {
         userName = StartupUtils.getStringParam("mqttUserName");
@@ -362,8 +362,20 @@ public class MQTTMonitor {
         client.subscribe(callback.decisionTopicName, 0);
         logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.decisionTopicName,
                 client.getCurrentServerURI());
+        client.subscribe(callback.downEmittedTopicName, 0);
+        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.downEmittedTopicName,
+                client.getCurrentServerURI());
+        client.subscribe(callback.juryBreakTopicName, 0);
+        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.juryBreakTopicName,
+                client.getCurrentServerURI());
         client.subscribe(callback.juryMemberDecisionTopicName, 0);
         logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.juryMemberDecisionTopicName,
+                client.getCurrentServerURI());
+        client.subscribe(callback.juryDecisionTopicName, 0);
+        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.juryDecisionTopicName,
+                client.getCurrentServerURI());
+        client.subscribe(callback.jurySummonTopicName, 0);
+        logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.jurySummonTopicName,
                 client.getCurrentServerURI());
         client.subscribe(callback.clockTopicName, 0);
         logger.info("{}MQTT subscribe {} {}", fop.getLoggingName(), callback.clockTopicName,
@@ -404,7 +416,7 @@ public class MQTTMonitor {
         } catch (MqttException e1) {
 
         }
-        
+
     }
     private void publishMqttResetAllDecisions() {
         logger.debug("{}MQTT resetDecisions", fop.getLoggingName());
