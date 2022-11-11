@@ -23,10 +23,18 @@ The following figure shows the content of the 10_Canada file, organized with one
 
 Notes:
 
--  The lower bound for bodyweights is the top of the previous category, and the heavyweight category is given with a > (`>109` for example).
-- You can translate the RecordName and AgeGroup columns.  They are used for display only.
-- The `Lift` column relies on the first letter being S C or T to distinguish the lift types
-- Columns `K` and after are not currently displayed, but are very useful when updating the files, and for human readers.
+- IMPORTANT: 
+  -  Normally the AgeGroup column should match the age groups in your competition.  When they do, this means that the athlete must be eligible in that age group to break the record.  For example, if a record is marked M35, the athlete must eligible as M35 -- a 35 year-old senior could for example be ineligible because he is not a member of his Masters federation, and he would not be shown as attempting the record.
+  -  **BUT** If you have "Absolute" records that are accessible to all categories, or other records for which the eligibility requirements don't match, just use another name for the age group.  For example, "Absolute", "Juvenile", etc.  Then the age group eligibility will not be checked, only the actual and bodyweight criteria listed on the record.
+
+-  Ages are inclusive.  Masters 35 is athletes between 35 and 39
+-  The lower bound of the bodyweight category is excluded.  45 to 49 means greater than 45 and lower or equal to 49.
+-  The upperbound of the heavyweight categories is written with a `>`.  So the SR heavyweights are written as bwlow 109 bwcat >109
+- You can translate the RecordName column, it is used only for display
+-  -  
+
+-  The `Lift` column relies on the first letter being S C or T to distinguish the lift types
+-  Columns `K` and after are not currently displayed, but are very useful when updating the files, and for human readers.
 
 ### Updating Records
 

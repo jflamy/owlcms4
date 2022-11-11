@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
@@ -187,13 +189,14 @@ public class RecordRepository {
         });
     }
 
-    public static JsonValue computeRecords(Gender gender, Integer age, Double bw, Integer snatchRequest,
-            Integer cjRequest, Integer totalRequest) {
-        List<RecordEvent> records = findFiltered(gender, age, bw, null, null);
-        return buildRecordJson(records, snatchRequest, cjRequest, totalRequest);
-    }
+//    public static JsonValue computeRecords(Gender gender, Integer age, Double bw, Integer snatchRequest,
+//            Integer cjRequest, Integer totalRequest) {
+//        List<RecordEvent> records = findFiltered(gender, age, bw, null, null);
+//        return buildRecordJson(records, snatchRequest, cjRequest, totalRequest);
+//    }
 
     public static List<RecordEvent> computeRecordsForAthlete(Athlete curAthlete) {
+
         List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
                 curAthlete.getBodyWeight(), null, null);
 
@@ -204,7 +207,16 @@ public class RecordRepository {
                         Function.identity(),
                         (r1, r2) -> r1.getRecordValue() > r2.getRecordValue() ? r1 : r2));
 
-        records = cleanMap.values().stream().collect(Collectors.toList());
+        Collection<RecordEvent> candidateRecords = cleanMap.values();
+        
+        // if a record is defined to apply to an age group that is active in the competition, athlete must be eligible in that age group. 
+        Set<String> activeAgeGroupCodes = AgeGroupRepository.findActive().stream().map(a -> a.getCode()).collect(Collectors.toSet());
+        Set<String> athleteAgeGroupCodes = curAthlete.getParticipations().stream().map(a -> a.getCategory().getAgeGroup().getCode()).collect(Collectors.toSet());        
+        logger.debug("athlete {} active {}", athleteAgeGroupCodes, activeAgeGroupCodes);
+        records = candidateRecords.stream().filter(c -> 
+            activeAgeGroupCodes.contains(c.getAgeGrp()) ?
+                    athleteAgeGroupCodes.contains(c.getAgeGrp())
+                    : true).collect(Collectors.toList());
         return records;
     }
 
