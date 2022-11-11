@@ -25,7 +25,7 @@ Notes:
 
 - IMPORTANT: 
   -  Normally the AgeGroup column should match the age groups in your competition.  When they do, this means that the athlete must be eligible in that age group to break the record.  For example, if a record is marked M35, the athlete must eligible as M35 -- a 35 year-old senior could for example be ineligible because he is not a member of his Masters federation, and he would not be shown as attempting the record.
-  -  **BUT** If you have "Absolute" records that are accessible to all categories, or other records for which the eligibility requirements don't match, just use another name for the age group.  For example, "Absolute", "Juvenile", etc.  Then the age group eligibility will not be checked, only the actual and bodyweight criteria listed on the record.
+  -  **BUT** If you have "Absolute" records that are accessible to all categories, or other records for which the eligibility requirements don't matter, just use another name for the age group.  For example, "Absolute", "Juvenile", etc.  Then the age group eligibility will not be checked, only the actual and bodyweight criteria listed on the record.
 
 -  Ages are inclusive.  Masters 35 is athletes between 35 and 39
 -  The lower bound of the bodyweight category is excluded.  45 to 49 means greater than 45 and lower or equal to 49.
