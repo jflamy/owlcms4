@@ -34,7 +34,7 @@ This is a standard Maven project.  If you wish, you can build the binaries from 
    - Close all Typora instances
 3. Refresh the `owlcms4top\src` directory, commit and push
 
-### Automated Releasing
+## Automated Releasing
 
 The automated build process takes place on the free tier of Azure DevOps.
 The `azure-pipelines.yml` defines the full process for building owlcms and the companion publicresults application, as well as the Heroku and Docker/Kubernetes packaging.
