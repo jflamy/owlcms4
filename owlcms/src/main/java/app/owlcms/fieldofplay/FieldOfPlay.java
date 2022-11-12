@@ -1877,7 +1877,7 @@ public class FieldOfPlay {
      * Reset decisions. Invoked when a fresh clock is given.
      */
     private void resetDecisions() {
-        logger.warn("{}****** resetting decisions", getLoggingName());
+        logger.debug("{}resetting decisions", getLoggingName());
         setRefereeDecision(new Boolean[3]);
         setJuryMemberDecision(new Boolean[5]);
         refereeTime = new Integer[3];
@@ -2340,7 +2340,7 @@ public class FieldOfPlay {
     }
 
     private void uiShowUpdateOnJuryScreen() {
-        uiEventLogger.warn("### uiShowUpdateOnJuryScreen {}", isRefereeForcedDecision());
+        uiEventLogger.debug("### uiShowUpdateOnJuryScreen {}", isRefereeForcedDecision());
         pushOutUIEvent(new UIEvent.RefereeUpdate(getCurAthlete(),
                 isRefereeForcedDecision() ? null : getRefereeDecision()[0],
                 getRefereeDecision()[1],

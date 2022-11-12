@@ -50,7 +50,6 @@ import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -134,8 +133,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     @Subscribe
     public void slaveRefereeDecision(UIEvent.Decision e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                e.getAthlete());
+        //uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getAthlete());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             // juryDeliberationButton.setEnabled(true);
             int d = e.decision ? 1 : 0;
@@ -214,8 +212,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             currentAttemptNumber = fop.getClockOwner().getActuallyAttemptedLifts();
             newClock = e.getTimeRemaining() == 60000 || e.getTimeRemaining() == 120000;
         });
-        // logger.debug("curr {} {} prev {} {} reset {}", currentAthleteAtStart, currentAttemptNumber,
-        // previousAthleteAtStart, previousAttemptNumber, newClock);
         if ((currentAthleteAtStart != previousAthleteAtStart)
                 || (currentAttemptNumber != previousAttemptNumber)
                 || newClock) {
@@ -328,7 +324,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     protected void init(int nbj) {
-        logger.debug("init {}", LoggerUtils.whereFrom());
+        //logger.trace("init {}", LoggerUtils.whereFrom());
         summonEnabled = true; // works with phones/tablets
         registrations = new ArrayList<>();
         this.setBoxSizing(BoxSizing.BORDER_BOX);
@@ -343,21 +339,12 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     protected void syncWithFOP(boolean refreshGrid) {
         super.syncWithFOP(refreshGrid);
         OwlcmsSession.withFop(fop -> {
-            // currently this doesn't do much because the FOP resets the decision immediately
-            // after showing the lights. This will become useful if/when decisions are reset
-            // on a meaningful clock start
-
             setAthleteUnderReview(fop.getAthleteUnderReview());
-//            logger.debug("{} juryContent syncWithFop {}", fop.getLoggingName(), getNbJurors());
-//            logger.debug("{} juryVotes {} athleteUnderReview {}", fop.getLoggingName(),
-//                    juryVotes != null ? juryVotes.length : "null!",
-//                    athleteUnderReview != null ? athleteUnderReview.getShortName() : "no athlete");
-
             Boolean[] curDecisions = fop.getJuryMemberDecision();
             if (curDecisions != null) {
                 for (int i = 0; i < getNbJurors(); i++) {
                     Boolean goodBad = curDecisions[i];
-                    logger.debug("existing jury {} {}", i, goodBad);
+                    //logger.trace("existing jury {} {}", i, goodBad);
                     juryVote(i, goodBad, false);
                 }
             }
@@ -365,7 +352,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             if (curRefDecisions != null) {
 //                for (int i = 0; i < 3; i++) {
 //                    Boolean goodBad = curRefDecisions[i];
-//                    logger.debug("existing ref {} {}", i, goodBad);
+//                    logger.trace("existing ref {} {}", i, goodBad);
 //                }
                 if (fop.isRefereeForcedDecision()) {
                     decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(athleteUnderReview, null,
@@ -386,7 +373,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     private void buildJuryBox(VerticalLayout juryContainer) {
-        logger.debug("buildJuryBox {}", LoggerUtils.whereFrom());
+        //logger.trace("buildJuryBox {}", LoggerUtils.whereFrom());
         HorizontalLayout topRow = new HorizontalLayout();
         juryLabel = new Label(getTranslation("JuryDecisions"));
         H3 labelWrapper = new H3(juryLabel);
@@ -585,12 +572,10 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     private void resetJuryVoting() {
-        logger.debug("resetJuryVoting 1 {} {}", UI.getCurrent(), LoggerUtils.whereFrom());
+        //logger.debug("resetJuryVoting {} {}", UI.getCurrent(), LoggerUtils.whereFrom());
         for (ShortcutRegistration sr : registrations) {
             sr.remove();
         }
-
-        // UIEventProcessor.uiAccess(UI.getCurrent(), uiEventBus, () -> {
         juryIcons = new Icon[getNbJurors()];
         juryVotes = new Boolean[getNbJurors()];
         for (int i = 0; i < getNbJurors(); i++) {
@@ -625,7 +610,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
                 registrations.add(reg);
             }
         }
-        // });
     }
 
     private void setNbJurors(int nbJurors) {
