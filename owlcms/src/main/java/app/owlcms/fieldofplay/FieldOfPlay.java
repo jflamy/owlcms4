@@ -220,6 +220,8 @@ public class FieldOfPlay {
     private Boolean[] juryMemberDecision;
     private Integer[] juryMemberTime;
 
+    private Athlete athleteUnderReview;
+
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
      * be used to provide the athletes and set the athleteTimer
@@ -275,6 +277,10 @@ public class FieldOfPlay {
      */
     public IProxyTimer getAthleteTimer() {
         return this.athleteTimer;
+    }
+
+    public Athlete getAthleteUnderReview() {
+        return athleteUnderReview;
     }
 
     public IBreakTimer getBreakTimer() {
@@ -365,6 +371,10 @@ public class FieldOfPlay {
         return group;
     }
 
+    public Boolean[] getJuryMemberDecision() {
+        return juryMemberDecision;
+    }
+
     public List<RecordEvent> getLastChallengedRecords() {
         return this.lastChallengedRecords;
     }
@@ -446,6 +456,10 @@ public class FieldOfPlay {
             return Json.createNull();
         }
         return recordsJson;
+    }
+
+    public Boolean[] getRefereeDecision() {
+        return refereeDecision;
     }
 
     /**
@@ -626,7 +640,7 @@ public class FieldOfPlay {
         case INACTIVE:
 //            if (e instanceof TimeStarted) {
 //                transitionToTimeRunning();
-//            } else 
+//            } else
             if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof FOPEvent.CeremonyStarted) {
@@ -877,6 +891,10 @@ public class FieldOfPlay {
         this.postBus = new AsyncEventBus("POST-" + name, Executors.newCachedThreadPool());
     }
 
+    public boolean isAnnouncerDecisionImmediate() {
+        return announcerDecisionImmediate;
+    }
+
     public boolean isCjStarted() {
         return cjStarted;
     }
@@ -1018,7 +1036,6 @@ public class FieldOfPlay {
                 } catch (Exception e) {
                     logger.error("{} global ranking exception {}\n ", getLoggingName(), e, LoggerUtils.stackTrace(e));
                 }
-                ;
                 for (Athlete a : l) {
                     nl.add(em.merge(a));
                 }
@@ -1170,6 +1187,10 @@ public class FieldOfPlay {
         this.group = group;
     }
 
+    public void setJuryMemberDecision(Boolean[] juryMemberDecision) {
+        this.juryMemberDecision = juryMemberDecision;
+    }
+
     /**
      * @param leaders the leaders to set
      */
@@ -1219,6 +1240,10 @@ public class FieldOfPlay {
 
     public void setRecordsJson(JsonValue computedRecords) {
         this.recordsJson = computedRecords;
+    }
+
+    public void setRefereeDecision(Boolean[] refereeDecision) {
+        this.refereeDecision = refereeDecision;
     }
 
     /**
@@ -1281,9 +1306,8 @@ public class FieldOfPlay {
         if (curAthlete != null && curAthlete.getActuallyAttemptedLifts() == 3) {
             // athlete has until before first CJ to comply with starting weights rule
             // if the snatch was lowered.
-            warnMissingKg(); 
+            warnMissingKg();
         }
-
 
         // logger.debug("&&&& previous {} current {} change {} from[{}]", getPrevWeight(), curWeight, newWeight,
         // LoggerUtils.whereFrom());
@@ -1306,20 +1330,6 @@ public class FieldOfPlay {
 
         if (attempts >= 6) {
             pushOutDone();
-        }
-    }
-
-    private void warnMissingKg() {
-        int missingKg = this.getCurAthlete().startingTotalDelta();
-        if (missingKg > 0) {
-            pushOutUIEvent(
-                    new UIEvent.Notification(
-                            this.getCurAthlete(),
-                            this,
-                            UIEvent.Notification.Level.ERROR,
-                            "RuleViolation.StartingWeightCurrent",
-                            0, // 3 * UIEvent.Notification.NORMAL_DURATION,
-                            Integer.toString(missingKg)));
         }
     }
 
@@ -1463,6 +1473,12 @@ public class FieldOfPlay {
         }
     }
 
+    private void doJuryMemberDecisionUpdate(FOPEvent.JuryMemberDecisionUpdate e) {
+        getJuryMemberDecision()[e.refIndex] = e.decision;
+        juryMemberTime[e.refIndex] = 0;
+        processJuryMemberDecisions(e.origin);
+    }
+
     private void doSetState(FOPState state) {
         if (state == CURRENT_ATHLETE_DISPLAYED) {
             Athlete a = getCurAthlete();
@@ -1488,6 +1504,11 @@ public class FieldOfPlay {
     }
 
     private void doSummonReferee(SummonReferee e) {
+        if (e.refNumber >= 4) {
+            JuryNotification event = new UIEvent.JuryNotification(null, e.getOrigin(),
+                    JuryDeliberationEventType.CALL_TECHNICAL_CONTROLLER, null, null);
+            getUiEventBus().post(event);
+        }
         getUiEventBus().post(new UIEvent.SummonRef(e.refNumber, true, this));
     }
 
@@ -1620,10 +1641,6 @@ public class FieldOfPlay {
         }
     }
 
-    public boolean isAnnouncerDecisionImmediate() {
-        return announcerDecisionImmediate;
-    }
-
     private boolean isDecisionDisplayScheduled() {
         return decisionDisplayScheduled;
     }
@@ -1678,14 +1695,40 @@ public class FieldOfPlay {
     /**
      * events resulting from decisions received so far (down signal, stopping timer, all decisions entered, etc.)
      */
+    private void processJuryMemberDecisions(Object origin) {
+        logger.debug("*** process jury member decisions {} {} {} {}", Competition.getCurrent().getJurySize(),
+                getJuryMemberDecision()[0], getJuryMemberDecision()[1], getJuryMemberDecision()[2]);
+        int nbRed = 0;
+        int nbWhite = 0;
+        int nbDecisions = 0;
+        int jurySize = Competition.getCurrent().getJurySize();
+        for (int i = 0; i < jurySize; i++) {
+            if (getJuryMemberDecision()[i] != null) {
+                if (getJuryMemberDecision()[i]) {
+                    nbWhite++;
+                } else {
+                    nbRed++;
+                }
+                showJuryMemberDecisionReceived(this, i, getJuryMemberDecision(), jurySize);
+                nbDecisions++;
+            }
+        }
+        if (nbDecisions == 3) {
+            showJuryDecisionNow(origin, (nbRed == jurySize || nbWhite == jurySize), jurySize, getJuryMemberDecision());
+        }
+    }
+
+    /**
+     * events resulting from decisions received so far (down signal, stopping timer, all decisions entered, etc.)
+     */
     private void processRefereeDecisions(FOPEvent e) {
         // logger.debug("*** process referee decisions");
         int nbRed = 0;
         int nbWhite = 0;
         int nbDecisions = 0;
         for (int i = 0; i < 3; i++) {
-            if (refereeDecision[i] != null) {
-                if (refereeDecision[i]) {
+            if (getRefereeDecision()[i] != null) {
+                if (getRefereeDecision()[i]) {
                     nbWhite++;
                 } else {
                     nbRed++;
@@ -1707,7 +1750,7 @@ public class FieldOfPlay {
                 try {
                     // wait a bit. If the decison comes in while waiting, this thread will be cancelled anyway
                     Thread.sleep(Competition.getCurrent().getRefereeWakeUpDelay());
-                    lastRef = ArrayUtils.indexOf(refereeDecision, null);
+                    lastRef = ArrayUtils.indexOf(getRefereeDecision(), null);
                     if (lastRef != -1 && !Thread.currentThread().isInterrupted()) {
                         // logger.debug("posting");
                         uiEventBus.post(new UIEvent.WakeUpRef(lastRef + 1, true, this));
@@ -1752,42 +1795,6 @@ public class FieldOfPlay {
                 // logger.debug("*** already scheduled");
             }
         }
-    }
-
-    /**
-     * events resulting from decisions received so far (down signal, stopping timer, all decisions entered, etc.)
-     */
-    private void processJuryMemberDecisions(Object origin) {
-        logger.debug("*** process jury member decisions {} {} {} {}", Competition.getCurrent().getJurySize(),
-                juryMemberDecision[0], juryMemberDecision[1], juryMemberDecision[2]);
-        int nbRed = 0;
-        int nbWhite = 0;
-        int nbDecisions = 0;
-        int jurySize = Competition.getCurrent().getJurySize();
-        for (int i = 0; i < jurySize; i++) {
-            if (juryMemberDecision[i] != null) {
-                if (juryMemberDecision[i]) {
-                    nbWhite++;
-                } else {
-                    nbRed++;
-                }
-                showJuryMemberDecisionReceived(this, i, juryMemberDecision, jurySize);
-                nbDecisions++;
-            }
-        }
-        if (nbDecisions == 3) {
-            showJuryDecisionNow(origin, (nbRed == jurySize || nbWhite == jurySize), jurySize, juryMemberDecision);
-        }
-    }
-
-    private void showJuryDecisionNow(Object origin, boolean unanimous, int jurySize, Boolean[] juryMemberDecision2) {
-        getUiEventBus().post(new UIEvent.JuryUpdate(origin, unanimous, juryMemberDecision, jurySize));
-    }
-
-    private void showJuryMemberDecisionReceived(Object origin, int i, Boolean[] juryMemberDecision2, int jurySize) {
-        // show that one jury decision has been received (green LED)
-        logger.debug("updating jury member {}", i);
-        getUiEventBus().post(new UIEvent.JuryUpdate(origin, i, juryMemberDecision2, jurySize));
     }
 
     private void pushOutDone() {
@@ -1870,8 +1877,8 @@ public class FieldOfPlay {
      */
     private void resetDecisions() {
         // logger.trace("{}resetting decisions", getLoggingName());
-        refereeDecision = new Boolean[3];
-        juryMemberDecision = new Boolean[5];
+        setRefereeDecision(new Boolean[3]);
+        setJuryMemberDecision(new Boolean[5]);
         refereeTime = new Integer[3];
         juryMemberTime = new Integer[5];
         refereeForcedDecision = false;
@@ -1913,6 +1920,10 @@ public class FieldOfPlay {
             resumed = true;
         }
         return resumed;
+    }
+
+    private void setAthleteUnderReview(Athlete curAthlete2) {
+        athleteUnderReview = curAthlete2;
     }
 
     private void setBreakParams(FOPEvent.BreakStarted e, IBreakTimer breakTimer2, BreakType breakType2,
@@ -2063,7 +2074,6 @@ public class FieldOfPlay {
         assert !isDecisionDisplayScheduled(); // caller checks.
         setDecisionDisplayScheduled(true); // so there are never two scheduled...
         new DelayTimer(isTestingMode()).schedule(() -> showDecisionNow(origin2), reversalDelay);
-
     }
 
     /**
@@ -2075,8 +2085,9 @@ public class FieldOfPlay {
         // we need to recompute majority, since they may have been reversal
         int nbWhite = 0;
         for (int i = 0; i < 3; i++) {
-            nbWhite = nbWhite + (Boolean.TRUE.equals(refereeDecision[i]) ? 1 : 0);
+            nbWhite = nbWhite + (Boolean.TRUE.equals(getRefereeDecision()[i]) ? 1 : 0);
         }
+        setAthleteUnderReview(curAthlete);
 
         setLastChallengedRecords(challengedRecords);
 
@@ -2100,7 +2111,7 @@ public class FieldOfPlay {
         setState(DECISION_VISIBLE);
         // logger.debug("*** Show decision now - doit");
         // use "this" because the origin must also show the decision.
-        uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), refereeDecision, refereeTime, this);
+        uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), getRefereeDecision(), refereeTime, this);
         recomputeLiftingOrder(true, true);
 
         // control timing of notifications
@@ -2114,6 +2125,16 @@ public class FieldOfPlay {
                 () -> {
                     fopEventPost(new DecisionReset(this));
                 }, DECISION_VISIBLE_DURATION);
+    }
+
+    private void showJuryDecisionNow(Object origin, boolean unanimous, int jurySize, Boolean[] juryMemberDecision2) {
+        getUiEventBus().post(new UIEvent.JuryUpdate(origin, unanimous, getJuryMemberDecision(), jurySize));
+    }
+
+    private void showJuryMemberDecisionReceived(Object origin, int i, Boolean[] juryMemberDecision2, int jurySize) {
+        // show that one jury decision has been received (green LED)
+        logger.debug("updating jury member {}", i);
+        getUiEventBus().post(new UIEvent.JuryUpdate(origin, i, juryMemberDecision2, jurySize));
     }
 
     /**
@@ -2316,9 +2337,10 @@ public class FieldOfPlay {
 
     private void uiShowUpdateOnJuryScreen() {
         uiEventLogger.debug("### uiShowUpdateOnJuryScreen");
-        pushOutUIEvent(new UIEvent.RefereeUpdate(getCurAthlete(), refereeForcedDecision ? null : refereeDecision[0],
-                refereeDecision[1],
-                refereeForcedDecision ? null : refereeDecision[2], refereeTime[0], refereeTime[1], refereeTime[2],
+        pushOutUIEvent(new UIEvent.RefereeUpdate(getCurAthlete(),
+                refereeForcedDecision ? null : getRefereeDecision()[0],
+                getRefereeDecision()[1],
+                refereeForcedDecision ? null : getRefereeDecision()[2], refereeTime[0], refereeTime[1], refereeTime[2],
                 this));
     }
 
@@ -2401,25 +2423,33 @@ public class FieldOfPlay {
     }
 
     private void updateRefereeDecisions(FOPEvent.DecisionFullUpdate e) {
-        refereeDecision[0] = e.ref1;
+        getRefereeDecision()[0] = e.ref1;
         refereeTime[0] = e.ref1Time;
-        refereeDecision[1] = e.ref2;
+        getRefereeDecision()[1] = e.ref2;
         refereeTime[1] = e.ref2Time;
-        refereeDecision[2] = e.ref3;
+        getRefereeDecision()[2] = e.ref3;
         refereeTime[2] = e.ref3Time;
         processRefereeDecisions(e);
     }
 
     private void updateRefereeDecisions(FOPEvent.DecisionUpdate e) {
-        refereeDecision[e.refIndex] = e.decision;
+        getRefereeDecision()[e.refIndex] = e.decision;
         refereeTime[e.refIndex] = 0;
         processRefereeDecisions(e);
     }
 
-    private void doJuryMemberDecisionUpdate(FOPEvent.JuryMemberDecisionUpdate e) {
-        juryMemberDecision[e.refIndex] = e.decision;
-        juryMemberTime[e.refIndex] = 0;
-        processJuryMemberDecisions(e.origin);
+    private void warnMissingKg() {
+        int missingKg = this.getCurAthlete().startingTotalDelta();
+        if (missingKg > 0) {
+            pushOutUIEvent(
+                    new UIEvent.Notification(
+                            this.getCurAthlete(),
+                            this,
+                            UIEvent.Notification.Level.ERROR,
+                            "RuleViolation.StartingWeightCurrent",
+                            0, // 3 * UIEvent.Notification.NORMAL_DURATION,
+                            Integer.toString(missingKg)));
+        }
     }
 
     /**

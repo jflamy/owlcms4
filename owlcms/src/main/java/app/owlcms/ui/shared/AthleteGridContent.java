@@ -568,7 +568,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                 break;
 
             case END_JURY_BREAK:
-                text = Translator.translate("JuryNotification.EndJuryBreak");
+                text = Translator.translate("JuryNotification.END_JURY_BREAK");
                 break;
             }
             doNotification(text, style);

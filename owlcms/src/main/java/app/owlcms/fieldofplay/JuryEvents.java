@@ -10,15 +10,15 @@ import app.owlcms.uievents.UIEvent.JuryNotification;
 
 public interface JuryEvents {
 
-    public default void postJurySummonNotification(FieldOfPlay fop, Object origin) {
+    public default void postJurySummonNotification(FieldOfPlay fop, Object origin, int refIndex) {
         //Logger logger = (Logger) LoggerFactory.getLogger("JuryEvents");
         //logger.debug("fop.getState() = {}", fop.getState());
         if (fop.getState() != FOPState.BREAK) {
             fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
             // do not notify multiple times if calling all referees.
-            JuryNotification event = new UIEvent.JuryNotification(null, origin, JuryDeliberationEventType.CALL_REFEREES,
-                    null, null);
-            fop.getUiEventBus().post(event);
+                JuryNotification event = new UIEvent.JuryNotification(null, origin, JuryDeliberationEventType.CALL_REFEREES,
+                        null, null);
+                fop.getUiEventBus().post(event);
         }
     }
 
@@ -41,19 +41,20 @@ public interface JuryEvents {
     
     public default void postJuryResumeCompetition(FieldOfPlay fop, Object origin, Athlete athleteUnderReview) {
         JuryDeliberationEventType endEvent = null;
-        BreakType deliberation = fop.getBreakType();
-        // TODO : using the break type.  not clear that the jury types are useful. 
-        switch (deliberation) {
-        case JURY:
-            endEvent = JuryDeliberationEventType.END_DELIBERATION;
-            break;
-        case TECHNICAL:
-            endEvent = JuryDeliberationEventType.END_TECHNICAL_PAUSE;
-            break;
-        default:
+//        BreakType deliberation = fop.getBreakType();
+//        if (deliberation == null) {
             endEvent = JuryDeliberationEventType.END_JURY_BREAK;
-            break;
-        }
+//        } else {
+//            // TODO : using the break type.  not clear that the jury types are useful.
+//            switch (deliberation) {
+//            case TECHNICAL:
+//                endEvent = JuryDeliberationEventType.END_TECHNICAL_PAUSE;
+//                break;
+//            default:
+//                endEvent = JuryDeliberationEventType.END_JURY_BREAK;
+//                break;
+//            }
+//        }
         JuryNotification event = new UIEvent.JuryNotification(athleteUnderReview, origin, endEvent, null, null);
         OwlcmsSession.getFop().getUiEventBus().post(event);
         fop.fopEventPost(new FOPEvent.StartLifting(this));

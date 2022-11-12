@@ -78,7 +78,7 @@ public class MQTTMonitor {
         public void messageArrived(String topic, MqttMessage message) throws Exception {
             new Thread(() -> {
                 String messageStr = new String(message.getPayload(), StandardCharsets.UTF_8);
-                logger.info("{}{} : {}", fop.getLoggingName(), topic, messageStr);
+                logger.info("{}{} : {}", fop.getLoggingName(), topic, messageStr.trim());
 
                 if (topic.endsWith(decisionTopicName) || topic.endsWith(deprecatedDecisionTopicName)) {
                     postFopEventRefereeDecisionUpdate(topic, messageStr);
@@ -161,9 +161,16 @@ public class MQTTMonitor {
             messageStr = messageStr.trim();
             try {
                 String[] parts = messageStr.split(" ");
-                int refIndex = Integer.parseInt(parts[0]) - 1;
+                int refIndex = 0;
+                if (parts[0].contentEquals("all")) {
+                    refIndex = 0;
+                } else if (parts[0].contentEquals("controller")) {
+                    refIndex = 4;
+                } else {
+                    refIndex = Integer.parseInt(parts[0]);
+                }
                 // calling referee triggers a jury break
-                postJurySummonNotification(fop, parts);
+                postJurySummonNotification(fop, this, refIndex);
                 // do the actual summoning
                 fop.fopEventPost(new FOPEvent.SummonReferee(this, refIndex));
             } catch (NumberFormatException e) {
@@ -249,12 +256,7 @@ public class MQTTMonitor {
 
     @Subscribe
     public void slaveDecisionReset(UIEvent.DecisionReset e) {
-        // Ignored.  We reset all devices on the clock start for next attempt (resetDecisions MQTT)
-//        try {
-//            client.publish("owlcms/fop/" + fop.getName(),
-//                    new MqttMessage("decisionReset".getBytes(StandardCharsets.UTF_8)));
-//        } catch (MqttException e1) {
-//        }
+        // Event Ignored.  We reset all devices on the clock start for next attempt (resetDecisions MQTT)
     }
 
     /**
@@ -275,19 +277,6 @@ public class MQTTMonitor {
     }
 
     @Subscribe
-    public void slaveJuryNotification(UIEvent.JuryNotification jn) {
-        // these events come from the Jury Console as UI Events
-        switch (jn.getDeliberationEventType()) {
-        case CALL_TECHNICAL_CONTROLLER:
-            // if we ever build a TC device
-            publishMqttSummonRef(4, true);
-            break;
-        default:
-            break;
-        }
-    }
-
-    @Subscribe
     public void slaveRefereeDecision(UIEvent.Decision e) {
         // the deliberation is about the last athlete judged, not on the current athlete.
         callback.setAthleteUnderReview(e.getAthlete());
@@ -298,14 +287,24 @@ public class MQTTMonitor {
         // the deliberation is about the last athlete judged, not on the current athlete.
         publishMqttRefereeUpdates(e.ref1, e.ref2, e.ref3);
     }
+    
+    @Subscribe
+    public void slaveJuryUpdate(UIEvent.JuryUpdate e) {
+        // Ignored for now.
+        // The jury user interface gets the UI events that result from jurybox and shows them on its screen.
+        // The opposite use case -- using the jury laptop keypads and having also a jury box does not make much sense.
+    }
+
+
 
     @Subscribe
     public void slaveSummonRef(UIEvent.SummonRef e) {
-        // e.ref is 1..3
-        // e.ref 4 is technical controller.
+        // e.ref is 0..2
+        // 3 is all
+        // 4 is controller.
         int ref = e.ref;
-        boolean on = e.on;
-        publishMqttSummonRef(ref, on);
+        
+        publishMqttSummonRef(ref);
     }
 
     @Subscribe
@@ -330,7 +329,7 @@ public class MQTTMonitor {
         // e.ref is 1..3
         // logger.debug("slaveWakeUp {}", e.on);
         int ref = e.ref;
-        publishMqttWakeUpRef(ref, e.on);
+        publishMqttWakeUpRef(ref);
     }
 
     private void connectionLoop() {
@@ -414,10 +413,9 @@ public class MQTTMonitor {
                         new MqttMessage((3 + " " + (ref3 ? "good" : "bad")).getBytes(StandardCharsets.UTF_8)));
             }
         } catch (MqttException e1) {
-
         }
-
     }
+    
     private void publishMqttResetAllDecisions() {
         logger.debug("{}MQTT resetDecisions", fop.getLoggingName());
         try {
@@ -428,31 +426,38 @@ public class MQTTMonitor {
         }
     }
 
-    private void publishMqttSummonRef(int ref, boolean onOff) {
-        logger.debug("{}MQTT summon {} {}", fop.getLoggingName(), ref, onOff);
+    private void publishMqttSummonRef(int ref) {
+        logger.warn("{}MQTT summon {}", fop.getLoggingName(), ref);
         try {
-            String topic = "owlcms/fop/summon/" + fop.getName();
-            String deprecatedTopic = "owlcms/summon/" + fop.getName() + "/" + ref;
-            // String refMacAddress = macAddress[e.ref-1];
-            // insert target device mac address for cross-check
-            client.publish(topic, new MqttMessage((onOff ? "on" : "off").getBytes(StandardCharsets.UTF_8)));
-            client.publish(deprecatedTopic, new MqttMessage((onOff ? "on" : "off").getBytes(StandardCharsets.UTF_8)));
+            if (ref > 0 && ref <= 4) {
+                doPublishMQTTSummon(ref);
+            } else if (ref == 0) {
+                for (int i = 1 ; i <= 3; i++ ) {
+                    doPublishMQTTSummon(i);
+                }
+            }
         } catch (MqttException e1) {
             logger.error("could not publish summon {}", e1.getCause());
         }
     }
 
-    private void publishMqttWakeUpRef(int ref, boolean onOff) {
-        logger.debug("{}MQTT decisionRequest {} {}", fop.getLoggingName(), ref, onOff);
+    private void doPublishMQTTSummon(int ref) throws MqttException, MqttPersistenceException {
+        String topic = "owlcms/fop/summon/" + fop.getName();
+        client.publish(topic, new MqttMessage(Integer.toString(ref).getBytes(StandardCharsets.UTF_8)));
+        String deprecatedTopic = "owlcms/summon/" + fop.getName() + "/" + ref;
+        client.publish(deprecatedTopic, new MqttMessage(("on").getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private void publishMqttWakeUpRef(int ref) {
+        logger.debug("{}MQTT decisionRequest {}", fop.getLoggingName(), ref);
         try {
-            // updated: no referee in the topic
             String topic = "owlcms/fop/decisionRequest/" + fop.getName();
+            client.publish(topic, new MqttMessage(Integer.toString(ref).getBytes(StandardCharsets.UTF_8)));
+            
             // Legacy : specific referee is added at the end of the topic.
             String deprecatedTopic = "owlcms/decisionRequest/" + fop.getName() + "/" + ref;
-            client.publish(topic,
-                    new MqttMessage((ref + " " + (onOff ? "on" : "off")).getBytes(StandardCharsets.UTF_8)));
             client.publish(deprecatedTopic,
-                    new MqttMessage((ref + " " + (onOff ? "on" : "off")).getBytes(StandardCharsets.UTF_8)));
+                    new MqttMessage((ref + " on").getBytes(StandardCharsets.UTF_8)));
         } catch (MqttException e1) {
             logger.error("could not publish decisionRequest {}", e1.getCause());
         }

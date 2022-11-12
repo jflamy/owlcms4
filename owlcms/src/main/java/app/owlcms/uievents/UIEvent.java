@@ -988,14 +988,12 @@ public class UIEvent {
 
     static public class SummonRef extends UIEvent {
 
-        public boolean on;
         public int ref;
 
         public SummonRef(int refNum, boolean b, Object origin) {
             // ref 1..3 ; 4 is technical controller.
             super(origin);
             this.ref = refNum;
-            this.on = b;
         }
 
     }

@@ -11,7 +11,7 @@
 
 #### Subscribed by all devices
 
-- `owlcms/fop/startup/A :status`: owlcms has completed the startup process.
+- `fop/startup/A :status`: owlcms has completed the startup process.
     - `status` is `on` or `off`
     - Turns the LEDs on (or off) on external devices to confirm connectivity.
     - DEPRECATED : the following message legacy message is equivalent : `led/A :status`
@@ -20,7 +20,8 @@
 
 - `fop/resetDecisions/A`: The clock has started for a new attempt 
     - This is not the timekeeper clock start.  It is the clock start only when a new attempt clock is starting, or athlete clock continues after changes. This event does not occur if the athlete lifts the bar and puts it down.
-- `fop/decision/A :ref :decision`: A referee has made a decision.
+- `fop/decision/A :ref :decision`: 
+   A referee has made a decision.  The jury devices shows the decision if it has the red/white LEDs.
    - `ref` is 1 2 or 3
     - `decision` is `good` or `bad`
 
@@ -30,11 +31,11 @@
     - LEGACY: `decisionRequest/A/:ref :status` (status is `on` or `off`)
     - `ref` is `1`, `2`, or `3`
     - The delay before triggering is configurable in owlcms.  If the device decides to remind the referee on its own, it should be longer than the owlcms default.
-- `fop/summon/A :official :status`: The jury summons an official to the jury table.
-    - LEGACY: `summon/A/:official :status` (status is `on` or `off`)
-    - `official` is `1`, `2`, `3`, `all` (all referees) or `controller`.
-    -  Summoning controller not implemented yet  Normally results in a notification on the announcer/marshall/timekeeper screens because the TC is usually roaming.
-    - The device can turn off the summon on its own.
+- `fop/summon/A :official`: The jury summons an official to the jury table.
+    - LEGACY: `summon/A/:official :status` (status is `on` or `off`, off is unused, device turns it off on its own)
+    - `official` is `1`, `2`, `3`
+    - Summon `all` results in 3 individual messages for referees 1 2 and 3;
+    - Official 4 is used for the technical controller.  Currently results in a notification on the announcer/marshall/timekeeper screens 
 
 #### Subscribed by the down signal device:
 

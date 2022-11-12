@@ -36,6 +36,7 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class JuryDialog extends EnhancedDialog implements JuryEvents {
+    private static final int CONTROLLER_REFNUM = 4;
     private JuryDeliberationEventType deliberation;
     private String endBreakText;
 
@@ -145,12 +146,15 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
         styleRefereeButton(three, false);
 
         Button all = new Button(Translator.translate("JuryDialog.AllReferees"), (e) -> {
+//            OwlcmsSession.withFop(fop -> {
+//                postJurySummonNotification(fop, this);
+//                // i = 0 means call all refs.
+//                for (int j = 1; j <= 3; j++) {
+//                    fop.fopEventPost(new FOPEvent.SummonReferee(this.origin, j));
+//                }
+//            });
             OwlcmsSession.withFop(fop -> {
-                postJurySummonNotification(fop, this);
-                // i = 0 means call all refs.
-                for (int j = 1; j <= 3; j++) {
-                    fop.fopEventPost(new FOPEvent.SummonReferee(this.origin, j));
-                }
+                this.summonReferee(0);
             });
         });
         styleRefereeButton(all, false);
@@ -185,7 +189,7 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
         if (shortcutTooSoon()) {
             return;
         }
-        postJuryCallController(fop, this);
+        this.summonReferee(CONTROLLER_REFNUM);
         return;
     }
 
@@ -295,7 +299,7 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
 
     private void doSummonReferees(Object origin2) {
         // jury calls referees
-        postJurySummonNotification(OwlcmsSession.getFop(),origin2);
+        postJurySummonNotification(OwlcmsSession.getFop(),origin2, 0);
         endBreakText = Translator.translate("JuryDialog.ResumeCompetition");
         this.addAttachListener((e) -> {
             this.setHeader(Translator.translate("JuryDialog.CALL_REFEREES"));
@@ -342,7 +346,7 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
 
     private void summonReferee(int i) {
         OwlcmsSession.withFop(fop -> {
-            postJurySummonNotification(fop, this);
+            postJurySummonNotification(fop, this, i);
             fop.fopEventPost(new FOPEvent.SummonReferee(this.origin, i));
         });
     }
