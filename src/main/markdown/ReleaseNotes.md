@@ -4,6 +4,8 @@
 
   *Alpha release: Not recommended for use in an actual competition.*
 
+  Release 35 aims at fully supporting jury, referee and timekeeper devices that can send commands using MQTT without having to act as a keyboard.  Release 35 also improves processing of records.
+
   - Enhancements
 
     * 35.0.0-alpha10: Field of play state is now full source of truth for jury decisions. 
