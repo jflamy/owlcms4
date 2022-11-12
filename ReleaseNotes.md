@@ -6,6 +6,8 @@
 
   - Enhancements
 
+    * 35.0.0-alpha09: MQTT events from referee box and jury box shown on jury page (#469)
+      
     * 35.0.0-alpha08:  Record eligibility check.  (#555)
       * If the AgeGroup column in the records file matches the code an active age group in the competition, then this means that the record can only be set if the athlete is eligible for that age group. 
         * If a record is defined for age group M35, an athlete registered as eligible to M35 can break it.  But not an athlete that is eligible to SR only. An athlete that is eligible to M35 and SR will be able to break both M35 and SR records.
@@ -116,7 +118,7 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_35.0.0-alpha09.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
