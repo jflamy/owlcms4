@@ -1877,12 +1877,13 @@ public class FieldOfPlay {
      * Reset decisions. Invoked when a fresh clock is given.
      */
     private void resetDecisions() {
-        logger.debug("{}resetting decisions", getLoggingName());
+        logger.debug("{}**** resetting all decisions on new clock", getLoggingName());
         setRefereeDecision(new Boolean[3]);
         setJuryMemberDecision(new Boolean[5]);
         refereeTime = new Integer[3];
         juryMemberTime = new Integer[5];
         setRefereeForcedDecision(false);
+        getUiEventBus().post(new UIEvent.ResetOnNewClock(clockOwner, this));
     }
 
     private void resetEmittedFlags() {
@@ -2286,7 +2287,6 @@ public class FieldOfPlay {
             setClockOwner(getCurAthlete());
             // setClockOwnerInitialTimeAllowed(getTimeAllowed());
         }
-        int time = getTimeAllowed();
         resetEmittedFlags();
         prepareDownSignal();
         setWeightAtLastStart();
@@ -2295,6 +2295,8 @@ public class FieldOfPlay {
         // enable master to listening for decision
         setState(TIME_RUNNING);
         setGoodLift(null);
+        
+        int time = getAthleteTimer().getTimeRemaining();
         if (isForcedTime() || clockOwner != previousAthlete || (time == 60000 || time == 120000)) {
             resetDecisions();
         }

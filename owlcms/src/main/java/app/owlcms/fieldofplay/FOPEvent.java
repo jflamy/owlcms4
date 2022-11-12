@@ -325,7 +325,7 @@ public class FOPEvent {
         }
 
         private void trace(Boolean ref1, Boolean ref2, Boolean ref3, boolean immediate) {
-            logger.warn("decision update {} {} {} {}", ref1, ref2, ref3, LoggerUtils.whereFrom(2));
+            //logger.trace("decision update {} {} {} {}", ref1, ref2, ref3, LoggerUtils.whereFrom(2));
         }
         public void trace() {
             trace(ref1, ref2, ref3, immediate);
@@ -444,7 +444,7 @@ public class FOPEvent {
         public ExplicitDecision(Athlete athlete, Object origin, boolean decision, Boolean ref1, Boolean ref2,
                 Boolean ref3) {
             super(athlete, origin);
-            logger.warn("explicit decision for {}", athlete);
+            //logger.debug("explicit decision for {}", athlete);
             this.success = decision;
             this.ref1 = ref1;
             this.ref2 = ref2;

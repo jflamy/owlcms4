@@ -431,6 +431,21 @@ public class UIEvent {
             super(a, origin);
         }
     }
+    
+    /**
+     * Class DecisionReset.
+     */
+    static public class ResetOnNewClock extends UIEvent {
+
+        /**
+         * Instantiates a new decision reset.
+         *
+         * @param origin the origin
+         */
+        public ResetOnNewClock(Athlete a, Object origin) {
+            super(a, origin);
+        }
+    }
 
     /**
      * Class DownSignal.

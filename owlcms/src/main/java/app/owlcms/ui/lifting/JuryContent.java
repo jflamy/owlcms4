@@ -132,8 +132,14 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     @Subscribe
+    public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> syncWithFOP(true));
+    }
+
+    @Subscribe
     public void slaveRefereeDecision(UIEvent.Decision e) {
-        //uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.getAthlete());
+        // uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+        // e.getAthlete());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             // juryDeliberationButton.setEnabled(true);
             int d = e.decision ? 1 : 0;
@@ -167,10 +173,11 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         Boolean[] decision = e.getJuryMemberDecision();
         Integer juryMember = e.getJuryMemberUpdated();
         Boolean goodBad = juryMember != null ? decision[juryMember] : null;
-        logger.debug("update jury decisions {} {}", goodBad, juryMember);
+        logger.debug("update jury decisions {} {} {} {}", goodBad, juryMember, this, e.getOrigin());
         if (juryMember != null && goodBad != null) {
-            UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, e.getOrigin(), () -> {
-                juryVote(juryMember, goodBad, true);
+            UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this, () -> {
+                logger.debug("updating");
+                juryVote(juryMember, goodBad, false);
             });
         }
     }
@@ -324,7 +331,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     protected void init(int nbj) {
-        //logger.trace("init {}", LoggerUtils.whereFrom());
+        // logger.trace("init {}", LoggerUtils.whereFrom());
         summonEnabled = true; // works with phones/tablets
         registrations = new ArrayList<>();
         this.setBoxSizing(BoxSizing.BORDER_BOX);
@@ -344,15 +351,16 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             if (curDecisions != null) {
                 for (int i = 0; i < getNbJurors(); i++) {
                     Boolean goodBad = curDecisions[i];
-                    //logger.trace("existing jury {} {}", i, goodBad);
+//                    logger.debug("existing jury {} {}", i, goodBad);
                     juryVote(i, goodBad, false);
                 }
             }
             Boolean[] curRefDecisions = fop.getRefereeDecision();
+            decisions.doReset();
             if (curRefDecisions != null) {
 //                for (int i = 0; i < 3; i++) {
 //                    Boolean goodBad = curRefDecisions[i];
-//                    logger.trace("existing ref {} {}", i, goodBad);
+//                    logger.debug("existing ref {} {}", i, goodBad);
 //                }
                 if (fop.isRefereeForcedDecision()) {
                     decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(athleteUnderReview, null,
@@ -373,7 +381,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     private void buildJuryBox(VerticalLayout juryContainer) {
-        //logger.trace("buildJuryBox {}", LoggerUtils.whereFrom());
+        // logger.trace("buildJuryBox {}", LoggerUtils.whereFrom());
         HorizontalLayout topRow = new HorizontalLayout();
         juryLabel = new Label(getTranslation("JuryDecisions"));
         H3 labelWrapper = new H3(juryLabel);
@@ -572,7 +580,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     private void resetJuryVoting() {
-        //logger.debug("resetJuryVoting {} {}", UI.getCurrent(), LoggerUtils.whereFrom());
+        // logger.debug("resetJuryVoting {} {}", UI.getCurrent(), LoggerUtils.whereFrom());
         for (ShortcutRegistration sr : registrations) {
             sr.remove();
         }
