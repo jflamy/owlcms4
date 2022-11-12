@@ -6,15 +6,17 @@
 
   - Enhancements
 
+    * 35.0.0-alpha10: Field of play state is now full source of truth for jury decisions. 
+      * Refreshing the jury page (or starting a new one) fetches the referee and jury decisions as stored in the state.
+      * Jury and Referee decisions are now cleared as late as possible on clock restart following change of clock ownership or when a new clock is granted, or on group change.
+
     * 35.0.0-alpha09: MQTT events from referee box and jury box shown on jury page (#469)
-      
     * 35.0.0-alpha08:  Record eligibility check.  (#555)
       * If the AgeGroup column in the records file matches the code an active age group in the competition, then this means that the record can only be set if the athlete is eligible for that age group. 
         * If a record is defined for age group M35, an athlete registered as eligible to M35 can break it.  But not an athlete that is eligible to SR only. An athlete that is eligible to M35 and SR will be able to break both M35 and SR records.
         * For this to work you must use the same codes in your Age Groups and in your Record definition files.
 
       * If you have absolute records, or if you don't want to enforce this requirement, then use age group names in the record file that does not match a code (for example, "Absolute", "Junior", "Youth")  The names in the record files will then be used on the record display.
-
     * 35.0.0-alpha07:  Add version number on installer and zip files (#552)
     * 35.0.0-alpha01:  Record information is now included in the json database export (#563)
     * 35.0.0-alpha01:  In multi-lingual settings, a drop down at the top of navigation pages allows changing the language for the current browser. Pages and displays opened from that browser will be in the new language; the overall default is not changed.  (#553)
