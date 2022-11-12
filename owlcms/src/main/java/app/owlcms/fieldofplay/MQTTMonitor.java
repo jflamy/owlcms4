@@ -427,7 +427,7 @@ public class MQTTMonitor {
     }
 
     private void publishMqttSummonRef(int ref) {
-        logger.warn("{}MQTT summon {}", fop.getLoggingName(), ref);
+        logger.debug("{}MQTT summon {}", fop.getLoggingName(), ref);
         try {
             if (ref > 0 && ref <= 4) {
                 doPublishMQTTSummon(ref);

@@ -1876,6 +1876,7 @@ public class FieldOfPlay {
      * Reset decisions. Invoked when recomputing lifting order when a fresh clock is given.
      */
     private void resetDecisions() {
+        //TODO we can wait to reset decisions until there is a meaningful clock start
         // logger.trace("{}resetting decisions", getLoggingName());
         setRefereeDecision(new Boolean[3]);
         setJuryMemberDecision(new Boolean[5]);

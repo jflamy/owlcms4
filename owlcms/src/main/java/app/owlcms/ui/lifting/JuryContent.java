@@ -319,7 +319,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     protected void init(int nbj) {
-        logger.warn("init{}", LoggerUtils.stackTrace());
+        logger.debug("init {}", LoggerUtils.whereFrom());
         summonEnabled = true; // works with phones/tablets
         registrations = new ArrayList<>();
         this.setBoxSizing(BoxSizing.BORDER_BOX);
@@ -332,23 +332,35 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     @Override
     protected void syncWithFOP(boolean refreshGrid) {
-        logger.warn("syncWithFop {}", getNbJurors());
         super.syncWithFOP(refreshGrid);
-        logger.warn("****** {}",juryVotes != null ? juryVotes.length : "whyNull");
         OwlcmsSession.withFop(fop -> {
+            // currently this doesn't do much because the FOP resets the decision immediately
+            // after showing the lights.  This will become useful if/when decisions are reset
+            // on a meaningful clock start
+            
             setAthleteUnderReview(fop.getAthleteUnderReview());
+//            logger.debug("{} juryContent syncWithFop {}", fop.getLoggingName(), getNbJurors());
+//            logger.debug("{} juryVotes {} athleteUnderReview {}", fop.getLoggingName(),
+//                    juryVotes != null ? juryVotes.length : "null!",
+//                    athleteUnderReview != null ? athleteUnderReview.getShortName() : "no athlete");
+
             Boolean[] curDecisions = fop.getJuryMemberDecision();
-            if (curDecisions == null) {
-                return;
-            }
-            for (int i = 0; i < getNbJurors() ; i ++) {
-                Boolean goodBad = curDecisions[i];
-                logger.warn("existing votes {} {}",i, goodBad);
-                juryVote(i, goodBad);
+            if (curDecisions != null) {
+                for (int i = 0; i < getNbJurors(); i++) {
+                    Boolean goodBad = curDecisions[i];
+//                    logger.debug("existing jury {} {}", i, goodBad);
+                    juryVote(i, goodBad);
+                }
             }
             Boolean[] curRefDecisions = fop.getRefereeDecision();
-            decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(athleteUnderReview, curRefDecisions[0], curRefDecisions[1], curRefDecisions[2], null, null, null, this));
-            
+            if (curRefDecisions != null) {
+//                for (int i = 0; i < 3; i++) {
+//                    Boolean goodBad = curRefDecisions[i];
+//                    logger.debug("existing ref {} {}", i, goodBad);
+//                }
+                decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(athleteUnderReview, curRefDecisions[0],
+                        curRefDecisions[1], curRefDecisions[2], null, null, null, this));
+            }
         });
     }
 
@@ -360,7 +372,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     private void buildJuryBox(VerticalLayout juryContainer) {
-        logger.warn("buildJuryBox {}", LoggerUtils.whereFrom());
+        logger.debug("buildJuryBox {}", LoggerUtils.whereFrom());
         HorizontalLayout topRow = new HorizontalLayout();
         juryLabel = new Label(getTranslation("JuryDecisions"));
         H3 labelWrapper = new H3(juryLabel);
@@ -559,7 +571,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     private void resetJuryVoting() {
-        logger.warn("resetJuryVoting 1 {} {}", UI.getCurrent(), LoggerUtils.whereFrom());
+        logger.debug("resetJuryVoting 1 {} {}", UI.getCurrent(), LoggerUtils.whereFrom());
         for (ShortcutRegistration sr : registrations) {
             sr.remove();
         }
