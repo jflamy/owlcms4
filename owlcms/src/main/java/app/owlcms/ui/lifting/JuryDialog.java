@@ -180,7 +180,9 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
         }
         fop.fopEventPost(new FOPEvent.JuryDecision(athleteUnderReview, this, false));
         UI.getCurrent().access(() -> {
-            ((JuryContent) origin).decisionNotification.close();
+            if (origin != null) {
+                ((JuryContent) origin).decisionNotification.close();
+            }
         });
         doClose(false);
     }
@@ -299,7 +301,7 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
 
     private void doSummonReferees(Object origin2) {
         // jury calls referees
-        postJurySummonNotification(OwlcmsSession.getFop(),origin2, 0);
+        postJurySummonNotification(OwlcmsSession.getFop(), origin2, 0);
         endBreakText = Translator.translate("JuryDialog.ResumeCompetition");
         this.addAttachListener((e) -> {
             this.setHeader(Translator.translate("JuryDialog.CALL_REFEREES"));
@@ -307,7 +309,7 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
     }
 
     private void doTechnicalPause(Object origin) {
-        postJuryTechnicalPause(OwlcmsSession.getFop(),origin);
+        postJuryTechnicalPause(OwlcmsSession.getFop(), origin);
         endBreakText = Translator.translate("JuryDialog.ResumeCompetition");
 
         this.addAttachListener((e) -> {

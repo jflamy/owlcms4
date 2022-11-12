@@ -491,7 +491,7 @@ public class FieldOfPlay {
             // left
             timeAllowed = getAthleteTimer().getTimeRemainingAtLastStop();
         } else if (getPreviousAthlete() != null && getPreviousAthlete().equals(a)) {
-            resetDecisions();
+            //** resetDecisions();
             if (owner != null || a.getAttemptNumber() == 1) {
                 // clock has started for someone else, one minute
                 // first C&J, one minute (doesn't matter who lifted last during snatch)
@@ -503,7 +503,7 @@ public class FieldOfPlay {
                 setClockOwnerInitialTimeAllowed(timeAllowed);
             }
         } else {
-            resetDecisions();
+            //** resetDecisions();
             timeAllowed = 60000;
             if (owner == null) {
                 setClockOwnerInitialTimeAllowed(timeAllowed);
@@ -933,6 +933,7 @@ public class FieldOfPlay {
         }
         this.setGroup(group);
         this.setCjStarted(false);
+        resetDecisions();
 
         if (group != null) {
             // protect against possible UI bug where switching group triggers a dropdown selection
@@ -1396,7 +1397,7 @@ public class FieldOfPlay {
     }
 
     private void doDecisionReset(FOPEvent e) {
-        logger.debug("{}resetting decisions", getLoggingName());
+        logger.debug("{}clearing decision lights", getLoggingName());
         // the state will be rewritten in displayOrBreakIfDone
         // this is so the decision reset knows that the decision is no longer displayed.
         cancelWakeUpRef();
@@ -1873,16 +1874,15 @@ public class FieldOfPlay {
     }
 
     /**
-     * Reset decisions. Invoked when recomputing lifting order when a fresh clock is given.
+     * Reset decisions. Invoked when a fresh clock is given.
      */
     private void resetDecisions() {
-        //TODO we can wait to reset decisions until there is a meaningful clock start
-        // logger.trace("{}resetting decisions", getLoggingName());
+        logger.warn("{}****** resetting decisions", getLoggingName());
         setRefereeDecision(new Boolean[3]);
         setJuryMemberDecision(new Boolean[5]);
         refereeTime = new Integer[3];
         juryMemberTime = new Integer[5];
-        refereeForcedDecision = false;
+        setRefereeForcedDecision(false);
     }
 
     private void resetEmittedFlags() {
@@ -2152,7 +2152,7 @@ public class FieldOfPlay {
         this.setClockOwner(null);
         DecisionFullUpdate ne = new DecisionFullUpdate(ed.getOrigin(), ed.getAthlete(), ed.ref1, ed.ref2, ed.ref3, now,
                 now, now, isAnnouncerDecisionImmediate());
-        refereeForcedDecision = true;
+        setRefereeForcedDecision(true);
         updateRefereeDecisions(ne);
         uiShowUpdateOnJuryScreen();
         // needed to make sure 2min rule is triggered
@@ -2286,7 +2286,7 @@ public class FieldOfPlay {
             setClockOwner(getCurAthlete());
             // setClockOwnerInitialTimeAllowed(getTimeAllowed());
         }
-        getTimeAllowed();
+        int time = getTimeAllowed();
         resetEmittedFlags();
         prepareDownSignal();
         setWeightAtLastStart();
@@ -2295,6 +2295,9 @@ public class FieldOfPlay {
         // enable master to listening for decision
         setState(TIME_RUNNING);
         setGoodLift(null);
+        if (isForcedTime() || clockOwner != previousAthlete || (time == 60000 || time == 120000)) {
+            resetDecisions();
+        }
         if (curAthlete.getAttemptsDone() >= 3) {
             setCjStarted(true);
         }
@@ -2327,9 +2330,9 @@ public class FieldOfPlay {
     private void uiShowRefereeDecisionOnSlaveDisplays(Athlete athlete2, Boolean goodLift2, Boolean[] refereeDecision2,
             Integer[] shownTimes, Object origin2) {
         uiEventLogger.debug("### showRefereeDecisionOnSlaveDisplays {}", athlete2);
-        pushOutUIEvent(new UIEvent.Decision(athlete2, goodLift2, refereeForcedDecision ? null : refereeDecision2[0],
+        pushOutUIEvent(new UIEvent.Decision(athlete2, goodLift2, isRefereeForcedDecision() ? null : refereeDecision2[0],
                 refereeDecision2[1],
-                refereeForcedDecision ? null : refereeDecision2[2], origin2));
+                isRefereeForcedDecision() ? null : refereeDecision2[2], origin2));
     }
 
     private void uiShowUpdatedRankings() {
@@ -2337,11 +2340,11 @@ public class FieldOfPlay {
     }
 
     private void uiShowUpdateOnJuryScreen() {
-        uiEventLogger.debug("### uiShowUpdateOnJuryScreen");
+        uiEventLogger.warn("### uiShowUpdateOnJuryScreen {}", isRefereeForcedDecision());
         pushOutUIEvent(new UIEvent.RefereeUpdate(getCurAthlete(),
-                refereeForcedDecision ? null : getRefereeDecision()[0],
+                isRefereeForcedDecision() ? null : getRefereeDecision()[0],
                 getRefereeDecision()[1],
-                refereeForcedDecision ? null : getRefereeDecision()[2], refereeTime[0], refereeTime[1], refereeTime[2],
+                isRefereeForcedDecision() ? null : getRefereeDecision()[2], refereeTime[0], refereeTime[1], refereeTime[2],
                 this));
     }
 
@@ -2462,6 +2465,14 @@ public class FieldOfPlay {
     private void weightChangeDoNotDisturb(WeightChange e) {
         recomputeOrderAndRanks(e.isResultChange());
         uiDisplayCurrentAthleteAndTime(false, e, false);
+    }
+
+    public boolean isRefereeForcedDecision() {
+        return refereeForcedDecision;
+    }
+
+    public void setRefereeForcedDecision(boolean refereeForcedDecision) {
+        this.refereeForcedDecision = refereeForcedDecision;
     }
 
 }

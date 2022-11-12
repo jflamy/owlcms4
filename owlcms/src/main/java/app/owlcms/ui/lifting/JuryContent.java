@@ -171,20 +171,29 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         Boolean goodBad = juryMember != null ? decision[juryMember] : null;
         logger.debug("update jury decisions {} {}", goodBad, juryMember);
         if (juryMember != null && goodBad != null) {
-            UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-                juryVote(juryMember, goodBad);
+            UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, e.getOrigin(), () -> {
+                juryVote(juryMember, goodBad, true);
             });
         }
     }
 
-    private void juryVote(Integer juryMember, Boolean goodBad) {
+    private void juryVote(Integer juryMember, Boolean goodBad, boolean sendFOPEvent) {
         if (goodBad == null) {
+            Icon nonVotedIcon = bigIcon(VaadinIcon.CIRCLE_THIN, "gray");
+            juryVotingButtons.replace(juryIcons[juryMember], nonVotedIcon);
+            juryIcons[juryMember] = nonVotedIcon;
+            juryVotes[juryMember] = null;
             return;
         }
         Icon votedIcon = bigIcon(VaadinIcon.CIRCLE, "gray");
         juryVotingButtons.replace(juryIcons[juryMember], votedIcon);
         juryIcons[juryMember] = votedIcon;
         juryVotes[juryMember] = goodBad;
+        if (sendFOPEvent) {
+            OwlcmsSession.withFop(fop -> {
+                fop.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(this, juryMember, goodBad));
+            });
+        }
         checkAllVoted();
     }
 
@@ -335,9 +344,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         super.syncWithFOP(refreshGrid);
         OwlcmsSession.withFop(fop -> {
             // currently this doesn't do much because the FOP resets the decision immediately
-            // after showing the lights.  This will become useful if/when decisions are reset
+            // after showing the lights. This will become useful if/when decisions are reset
             // on a meaningful clock start
-            
+
             setAthleteUnderReview(fop.getAthleteUnderReview());
 //            logger.debug("{} juryContent syncWithFop {}", fop.getLoggingName(), getNbJurors());
 //            logger.debug("{} juryVotes {} athleteUnderReview {}", fop.getLoggingName(),
@@ -348,8 +357,8 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             if (curDecisions != null) {
                 for (int i = 0; i < getNbJurors(); i++) {
                     Boolean goodBad = curDecisions[i];
-//                    logger.debug("existing jury {} {}", i, goodBad);
-                    juryVote(i, goodBad);
+                    logger.debug("existing jury {} {}", i, goodBad);
+                    juryVote(i, goodBad, false);
                 }
             }
             Boolean[] curRefDecisions = fop.getRefereeDecision();
@@ -358,8 +367,13 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 //                    Boolean goodBad = curRefDecisions[i];
 //                    logger.debug("existing ref {} {}", i, goodBad);
 //                }
-                decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(athleteUnderReview, curRefDecisions[0],
-                        curRefDecisions[1], curRefDecisions[2], null, null, null, this));
+                if (fop.isRefereeForcedDecision()) {
+                    decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(athleteUnderReview, null,
+                            curRefDecisions[1], null, null, null, null, this));
+                } else {
+                    decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(athleteUnderReview, curRefDecisions[0],
+                            curRefDecisions[1], curRefDecisions[2], null, null, null, this));
+                }
             }
         });
     }
@@ -587,19 +601,11 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             juryVotingButtons.add(juryIcons[ix], nonVotedIcon);
             ShortcutRegistration reg;
             reg = UI.getCurrent().addShortcutListener(() -> {
-                Icon votedIcon = bigIcon(VaadinIcon.CIRCLE, "gray");
-                juryVotingButtons.replace(juryIcons[ix], votedIcon);
-                juryIcons[ix] = votedIcon;
-                juryVotes[ix] = true;
-                checkAllVoted();
+                juryVote(ix, true, true);
             }, getGoodKey(i));
             registrations.add(reg);
             reg = UI.getCurrent().addShortcutListener(() -> {
-                Icon votedIcon = bigIcon(VaadinIcon.CIRCLE, "gray");
-                juryVotingButtons.replace(juryIcons[ix], votedIcon);
-                juryIcons[ix] = votedIcon;
-                juryVotes[ix] = false;
-                checkAllVoted();
+                juryVote(ix, false, true);
             }, getBadKey(i));
             registrations.add(reg);
             reg = UI.getCurrent().addShortcutListener(

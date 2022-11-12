@@ -321,6 +321,14 @@ public class FOPEvent {
             this.ref2Time = long2;
             this.ref3Time = long3;
             this.immediate = immediate;
+            trace();
+        }
+
+        private void trace(Boolean ref1, Boolean ref2, Boolean ref3, boolean immediate) {
+            logger.warn("decision update {} {} {} {}", ref1, ref2, ref3, LoggerUtils.whereFrom(2));
+        }
+        public void trace() {
+            trace(ref1, ref2, ref3, immediate);
         }
 
         @Override
@@ -436,7 +444,7 @@ public class FOPEvent {
         public ExplicitDecision(Athlete athlete, Object origin, boolean decision, Boolean ref1, Boolean ref2,
                 Boolean ref3) {
             super(athlete, origin);
-            logger.trace("referee decision for {}", athlete);
+            logger.warn("explicit decision for {}", athlete);
             this.success = decision;
             this.ref1 = ref1;
             this.ref2 = ref2;
