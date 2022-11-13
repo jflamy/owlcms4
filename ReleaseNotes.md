@@ -8,7 +8,7 @@
 
   - Enhancements
 
-    * 35.0.0-alpha10: Field of play state is now full source of truth for jury decisions. 
+    * 35.0.0-alpha11: Field of play state is now full source of truth for jury decisions. 
       * Refreshing the jury page (or starting a new one) fetches the referee and jury decisions as stored in the state.
       * Jury and Referee decisions are now cleared as late as possible on clock restart following change of clock ownership or when a new clock is granted, or on group change.
 
@@ -122,7 +122,7 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_35.0.0-alpha10.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_35.0.0-alpha11.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
