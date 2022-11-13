@@ -8,7 +8,9 @@
 
   - Enhancements
 
-    * 35.0.0-alpha11: Field of play state is now full source of truth for jury decisions. 
+    * 35.0.0-alpha12: Timekeeper can now switch groups and start countdowns. Useful when veteran announcer is only using the scoreboard.
+      
+    * 35.0.0-alpha11: Field of play state is now full source of truth for jury decisions. (#469)
       * Refreshing the jury page (or starting a new one) fetches the referee and jury decisions as stored in the state.
       * Jury and Referee decisions are now cleared as late as possible on clock restart following change of clock ownership or when a new clock is granted, or on group change.
 
