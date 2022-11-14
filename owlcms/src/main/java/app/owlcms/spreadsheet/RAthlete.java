@@ -136,7 +136,7 @@ public class RAthlete {
     }
 
     public void setFederationCodes(String federationCodes) {
-        a.setCoach(federationCodes);
+        a.setFederationCodes(federationCodes);
     }
 
     /**
