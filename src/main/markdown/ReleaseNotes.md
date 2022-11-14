@@ -8,6 +8,8 @@
 
   - Enhancements
 
+    * 35.0.0-alpha12:  New "record eligibility federations" field in Athlete registration form. If present, athlete is restricted to breaking records in the listed federations (comma-separated).  Typically used for invited athletes - adding their country code will exclude them from the available records, or in multinational meets where country-specific records can be broken.
+      
     * 35.0.0-alpha12: Timekeeper can now switch groups and start countdowns. Useful when veteran announcer is only using the scoreboard.
       
     * 35.0.0-alpha11: Field of play state is now full source of truth for jury decisions. (#469)

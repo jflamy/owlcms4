@@ -21,18 +21,24 @@ The following figure shows the content of the 10_Canada file, organized with one
 
 ![](img/Records/excel.png)
 
-Notes:
 
-- IMPORTANT: 
-  -  Normally the AgeGroup column should match the age groups in your competition.  When they do, this means that the athlete must be eligible in that age group to break the record.  For example, if a record is marked M35, the athlete must eligible as M35 -- a 35 year-old senior could for example be ineligible because he is not a member of his Masters federation, and he would not be shown as attempting the record.
-  -  **BUT** If you have "Absolute" records that are accessible to all categories, or other records for which the eligibility requirements don't matter, just use another name for the age group.  For example, "Absolute", "Juvenile", etc.  Then the age group eligibility will not be checked, only the actual and bodyweight criteria listed on the record.
 
--  Ages are inclusive.  Masters 35 is athletes between 35 and 39
--  The lower bound of the bodyweight category is excluded.  45 to 49 means greater than 45 and lower or equal to 49.
--  The upperbound of the heavyweight categories is written with a `>`.  So the SR heavyweights are written as bwlow 109 bwcat >109
--  You can translate the RecordName column, it is used only for display
--  The `Lift` column relies on the first letter being S C or T to distinguish the lift types
--  Columns `K` and after are not currently displayed, but are very useful when updating the files, and for human readers.
+### Eligibility Criteria
+
+- Each athlete's registration record can have a list of federations under which they can break records. By default, the list is empty and athletes are eligible for the records from all the listed federations if they meet the age group, age and weight requirements.
+  If a list of federations (comma-separated) is given, the athletes will be restricted to these federation records. For example, if in a national championship you have an athlete invited from another country, add the country code for that country and the athlete will not be eligible to your records.
+- Similarly, if you have a multi-national championship, you can load the records from each country, and the meet records as well.  Simply list the federations that the athletes belong to. For example, CAN,PanAm and USA,PanAm depending on the athlete.
+- Normally the AgeGroup column should match the age groups in your competition.  When they do, this means that the athlete must be eligible in that age group to break the record.  For example, if a record is marked M35, the athlete must eligible as M35 -- a 35 year-old senior could for example be ineligible because he is not a member of his Masters federation, and he would not be shown as attempting the record.
+- **BUT** If you have "Absolute" records that are accessible to all categories, or other records for which the eligibility requirements don't matter, just use another name for the age group.  For example, "Absolute", "Juvenile", etc.  Then the age group eligibility will not be checked, only the actual and bodyweight criteria listed on the record.
+
+### Other Notes
+
+- Ages are inclusive.  Masters 35 is athletes between 35 and 39
+- The lower bound of the bodyweight category is excluded.  45 to 49 means greater than 45 and lower or equal to 49.
+- The upperbound of the heavyweight categories is written with a `>`.  So the SR heavyweights are written as bwlow 109 bwcat >109
+- You can translate the RecordName column, it is used only for display
+- The `Lift` column relies on the first letter being S C or T to distinguish the lift types
+- Columns `K` and after are not currently displayed, but are very useful when updating the files, and for human readers.
 
 ### Updating Records
 
