@@ -2136,7 +2136,7 @@ public class FieldOfPlay {
 
     private void showJuryMemberDecisionReceived(Object origin, int i, Boolean[] juryMemberDecision2, int jurySize) {
         // show that one jury decision has been received (green LED)
-        logger.debug("updating jury member {}", i);
+        logger.debug("{}updating jury member {}", getLoggingName(), i);
         getUiEventBus().post(new UIEvent.JuryUpdate(origin, i, juryMemberDecision2, jurySize));
     }
 
@@ -2374,7 +2374,7 @@ public class FieldOfPlay {
      */
     private List<RecordEvent> updateRecords(Athlete a, boolean success, List<RecordEvent> challengedRecords,
             List<RecordEvent> voidableRecords) {
-        logger.debug("updateRecords {} {} {}", a.getShortName(), success, LoggerUtils.whereFrom());
+        logger.debug("{}updateRecords {} {} {}", getLoggingName(), a.getShortName(), success, LoggerUtils.whereFrom());
         ArrayList<RecordEvent> newRecords = new ArrayList<>();
         if (success) {
             for (RecordEvent rec : challengedRecords) {

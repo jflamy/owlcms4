@@ -66,7 +66,7 @@ public class MQTTMonitor {
         public void connectionLost(Throwable cause) {
             logger.debug("{}lost connection to MQTT: {}", fop.getLoggingName(), cause.getLocalizedMessage());
             // Called when the client lost the connection to the broker
-            connectionLoop();
+            connectionLoop(client);
         }
 
         @Override
@@ -214,16 +214,9 @@ public class MQTTMonitor {
     private FieldOfPlay fop;
     private Logger logger = (Logger) LoggerFactory.getLogger(MQTTMonitor.class);
     private String password;
-    private String port;
-    private String server;
+
     private String userName;
     private MQTTCallback callback;
-    private Athlete currentAthleteAtStart;
-    private int currentAttemptNumber;
-    private boolean newClock;
-    private Athlete previousAthleteAtStart;
-    private int previousAttemptNumber;
-
     MQTTMonitor(FieldOfPlay fop) {
         logger.setLevel(Level.DEBUG);
         this.setFop(fop);
@@ -231,19 +224,24 @@ public class MQTTMonitor {
         fop.getFopEventBus().register(this);
 
         try {
-            server = StartupUtils.getStringParam("mqttServer");
-            port = StartupUtils.getStringParam("mqttPort");
-            client = new MqttAsyncClient(
-                    "tcp://" +
-                            (server != null ? server : "test.mosquitto.org") +
-                            ":" +
-                            (port != null ? port : "1883"),
-                    MqttClient.generateClientId(), // ClientId
-                    new MemoryPersistence()); // Persistence
-            connectionLoop();
+            client = createMQTTClient();
+            connectionLoop(client);
         } catch (MqttException e) {
             logger.error("cannot initialize MQTT: {}", LoggerUtils.stackTrace(e));
         }
+    }
+
+    public static MqttAsyncClient createMQTTClient() throws MqttException {
+        String server = StartupUtils.getStringParam("mqttServer");
+        String port = StartupUtils.getStringParam("mqttPort");
+        MqttAsyncClient client = new MqttAsyncClient(
+                "tcp://" +
+                        (server != null ? server : "test.mosquitto.org") +
+                        ":" +
+                        (port != null ? port : "1883"),
+                MqttClient.generateClientId(), // ClientId
+                new MemoryPersistence()); // Persistence
+        return client;
     }
 
     public FieldOfPlay getFop() {
@@ -295,8 +293,6 @@ public class MQTTMonitor {
         // The opposite use case -- using the jury laptop keypads and having also a jury box does not make much sense.
     }
 
-
-
     @Subscribe
     public void slaveSummonRef(UIEvent.SummonRef e) {
         // e.ref is 0..2
@@ -309,20 +305,27 @@ public class MQTTMonitor {
 
     @Subscribe
     public void slaveTimeStarted(UIEvent.StartTime e) {
-        OwlcmsSession.withFop(fop -> {
-            currentAthleteAtStart = fop.getClockOwner();
-            currentAttemptNumber = fop.getClockOwner().getActuallyAttemptedLifts();
-            newClock = e.getTimeRemaining() == 60000 || e.getTimeRemaining() == 120000;
-        });
-        if ((currentAthleteAtStart != previousAthleteAtStart)
-                || (currentAttemptNumber != previousAttemptNumber)
-                || newClock) {
-            // we switched lifter, or we switched attempt. reset the decisions.
-            publishMqttResetAllDecisions();
-        }
-        previousAthleteAtStart = currentAthleteAtStart;
-        previousAttemptNumber = currentAttemptNumber;
+//        OwlcmsSession.withFop(fop -> {
+//            currentAthleteAtStart = fop.getClockOwner();
+//            currentAttemptNumber = fop.getClockOwner().getActuallyAttemptedLifts();
+//            newClock = e.getTimeRemaining() == 60000 || e.getTimeRemaining() == 120000;
+//        });
+//        if ((currentAthleteAtStart != previousAthleteAtStart)
+//                || (currentAttemptNumber != previousAttemptNumber)
+//                || newClock) {
+//            // we switched lifter, or we switched attempt. reset the decisions.
+//            publishMqttResetAllDecisions();
+//        }
+//        previousAthleteAtStart = currentAthleteAtStart;
+//        previousAttemptNumber = currentAttemptNumber;
     }
+    
+    @Subscribe
+    public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
+        // we switched lifter, or we switched attempt. reset the decisions.
+        publishMqttResetAllDecisions();
+    }
+
 
     @Subscribe
     public void slaveWakeUpRef(UIEvent.WakeUpRef e) {
@@ -332,8 +335,8 @@ public class MQTTMonitor {
         publishMqttWakeUpRef(ref, e.on);
     }
 
-    private void connectionLoop() {
-        while (!client.isConnected()) {
+    private void connectionLoop(MqttAsyncClient mqttAsyncClient) {
+        while (!mqttAsyncClient.isConnected()) {
             try {
                 // doConnect will generate a new client Id, and wait for completion
                 // client.reconnect() and automaticReconnection do not work as I expect.

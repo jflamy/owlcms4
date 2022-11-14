@@ -83,7 +83,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
     }
 
     @Override
-    public void slaveReset(DecisionReset e) {
+    public void slaveDecisionReset(DecisionReset e) {
         // ignore
     }
 

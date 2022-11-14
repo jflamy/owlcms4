@@ -173,10 +173,10 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         Boolean[] decision = e.getJuryMemberDecision();
         Integer juryMember = e.getJuryMemberUpdated();
         Boolean goodBad = juryMember != null ? decision[juryMember] : null;
-        logger.debug("update jury decisions {} {} {} {}", goodBad, juryMember, this, e.getOrigin());
+        //logger.debug("update jury decisions {} {} {} {}", goodBad, juryMember, this, e.getOrigin());
         if (juryMember != null && goodBad != null) {
             UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this, () -> {
-                logger.debug("updating");
+                //logger.debug("updating");
                 juryVote(juryMember, goodBad, false);
             });
         }
@@ -219,6 +219,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             currentAttemptNumber = fop.getClockOwner().getActuallyAttemptedLifts();
             newClock = e.getTimeRemaining() == 60000 || e.getTimeRemaining() == 120000;
         });
+        // this is redundant because of slaveResetOnNewClock
         if ((currentAthleteAtStart != previousAthleteAtStart)
                 || (currentAttemptNumber != previousAttemptNumber)
                 || newClock) {
@@ -317,7 +318,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     protected void doSync() {
         syncWithFOP(false);
-        decisions.slaveReset(null);
+        decisions.slaveDecisionReset(null);
 
         // OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this));
         if (decisionNotification != null) {
