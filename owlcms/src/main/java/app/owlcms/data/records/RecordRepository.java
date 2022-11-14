@@ -219,10 +219,10 @@ public class RecordRepository {
                 .map(a -> a.getCategory().getAgeGroup().getCode()).collect(Collectors.toSet());
         Set<String> athleteFederations = curAthlete.getFederationCodes() != null ?
                 new HashSet<>(Arrays.asList(curAthlete.getFederationCodes().split("[,;]"))) : Set.of();
-        logger.warn(" ***2 athlete {} agegroups {} active {} federations {}", curAthlete.getShortName(), athleteAgeGroupCodes, activeAgeGroupCodes, athleteFederations);
+//        logger.debug(" *** athlete {} agegroups {} active {} federations {}", curAthlete.getShortName(), athleteAgeGroupCodes, activeAgeGroupCodes, athleteFederations);
         records = candidateRecords.stream()
                 .filter(c -> athleteFederations.isEmpty() ? true : athleteFederations.contains(c.getRecordFederation()))
-                .peek(c -> logger.warn("retained {}", c.getRecordFederation()))
+//                .peek(c -> logger.debug("retained {}", c.getRecordFederation()))
                 .filter(c -> activeAgeGroupCodes
                         .contains(c.getAgeGrp()) ? athleteAgeGroupCodes.contains(c.getAgeGrp())
                                 : true)
