@@ -329,7 +329,7 @@ public class MQTTMonitor {
         // e.ref is 1..3
         // logger.debug("slaveWakeUp {}", e.on);
         int ref = e.ref;
-        publishMqttWakeUpRef(ref);
+        publishMqttWakeUpRef(ref, e.on);
     }
 
     private void connectionLoop() {
@@ -448,16 +448,25 @@ public class MQTTMonitor {
         client.publish(deprecatedTopic, new MqttMessage(("on").getBytes(StandardCharsets.UTF_8)));
     }
 
-    private void publishMqttWakeUpRef(int ref) {
+    private void publishMqttWakeUpRef(int ref, boolean on) {
         logger.debug("{}MQTT decisionRequest {}", fop.getLoggingName(), ref);
         try {
+            FOPState state = fop.getState();
+            if (state != FOPState.DOWN_SIGNAL_VISIBLE || state != FOPState.TIME_RUNNING || state != FOPState.TIME_STOPPED) {
+                // safeguard in case the thread was not killed.
+                return;
+            }
             String topic = "owlcms/fop/decisionRequest/" + fop.getName();
             client.publish(topic, new MqttMessage(Integer.toString(ref).getBytes(StandardCharsets.UTF_8)));
             
             // Legacy : specific referee is added at the end of the topic.
             String deprecatedTopic = "owlcms/decisionRequest/" + fop.getName() + "/" + ref;
-            client.publish(deprecatedTopic,
+            if (on) {
+                client.publish(deprecatedTopic,
                     new MqttMessage((ref + " on").getBytes(StandardCharsets.UTF_8)));
+            } else {
+                // off is not sent, even in legacy mode.
+            }
         } catch (MqttException e1) {
             logger.error("could not publish decisionRequest {}", e1.getCause());
         }
