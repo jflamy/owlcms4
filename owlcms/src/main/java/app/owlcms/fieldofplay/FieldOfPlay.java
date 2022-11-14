@@ -1112,29 +1112,30 @@ public class FieldOfPlay {
         Integer totalRequest = attemptsDone >= 3 && bestSnatch != null && bestSnatch > 0 ? (bestSnatch + request)
                 : null;
 
-        List<RecordEvent> records = RecordRepository.computeRecordsForAthlete(curAthlete);
+        List<RecordEvent> eligibleRecords = RecordRepository.computeEligibleRecordsForAthlete(curAthlete);
 
         List<RecordEvent> challengedRecords = new ArrayList<>();
         challengedRecords
-                .addAll(records.stream()
+                .addAll(eligibleRecords.stream()
                         .filter(rec -> rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null
                                 && rec.getRecordValue() != null
                                 && snatchRequest > rec.getRecordValue())
                         .collect(Collectors.toList()));
         challengedRecords
-                .addAll(records.stream()
+                .addAll(eligibleRecords.stream()
                         .filter(rec -> rec.getRecordLift() == Ranking.CLEANJERK && cjRequest != null
                                 && rec.getRecordValue() != null
                                 && cjRequest > rec.getRecordValue())
                         .collect(Collectors.toList()));
         challengedRecords
-                .addAll(records.stream()
+                .addAll(eligibleRecords.stream()
                         .filter(rec -> rec.getRecordLift() == Ranking.TOTAL && totalRequest != null
                                 && rec.getRecordValue() != null
                                 && totalRequest > rec.getRecordValue())
                         .collect(Collectors.toList()));
 
-        JsonValue recordsJson = RecordRepository.buildRecordJson(records, snatchRequest, cjRequest, totalRequest);
+        // TODO: option to show all records for all age groups in current group
+        JsonValue recordsJson = RecordRepository.buildRecordJson(eligibleRecords, snatchRequest, cjRequest, totalRequest);
         setRecordsJson(recordsJson);
         setChallengedRecords(challengedRecords);
         for (RecordEvent re : challengedRecords) {

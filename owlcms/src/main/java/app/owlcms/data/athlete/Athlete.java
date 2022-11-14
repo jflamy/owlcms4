@@ -405,6 +405,8 @@ public class Athlete {
     @Transient
     @JsonIgnore
     private static SinclairCoefficients sinclairProperties2024 = new SinclairCoefficients(2024);
+    
+    private String federationCodes;
 
     /**
      * Instantiates a new athlete.
@@ -4934,6 +4936,14 @@ public class Athlete {
         }
         timingLogger.info("validateDeclaration {}ms {} {}", System.currentTimeMillis() - start, curLift,
                 LoggerUtils.whereFrom());
+    }
+
+    public String getFederationCodes() {
+        return federationCodes;
+    }
+
+    public void setFederationCodes(String federationCodes) {
+        this.federationCodes = federationCodes;
     }
 
 }

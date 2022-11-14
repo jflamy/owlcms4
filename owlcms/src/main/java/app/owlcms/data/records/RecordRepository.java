@@ -9,8 +9,10 @@ package app.owlcms.data.records;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -195,7 +197,7 @@ public class RecordRepository {
 //        return buildRecordJson(records, snatchRequest, cjRequest, totalRequest);
 //    }
 
-    public static List<RecordEvent> computeRecordsForAthlete(Athlete curAthlete) {
+    public static List<RecordEvent> computeEligibleRecordsForAthlete(Athlete curAthlete) {
 
         List<RecordEvent> records = RecordRepository.findFiltered(curAthlete.getGender(), curAthlete.getAge(),
                 curAthlete.getBodyWeight(), null, null);
@@ -208,15 +210,23 @@ public class RecordRepository {
                         (r1, r2) -> r1.getRecordValue() > r2.getRecordValue() ? r1 : r2));
 
         Collection<RecordEvent> candidateRecords = cleanMap.values();
-        
-        // if a record is defined to apply to an age group that is active in the competition, athlete must be eligible in that age group. 
-        Set<String> activeAgeGroupCodes = AgeGroupRepository.findActive().stream().map(a -> a.getCode()).collect(Collectors.toSet());
-        Set<String> athleteAgeGroupCodes = curAthlete.getParticipations().stream().map(a -> a.getCategory().getAgeGroup().getCode()).collect(Collectors.toSet());        
-        logger.debug("athlete {} active {}", athleteAgeGroupCodes, activeAgeGroupCodes);
-        records = candidateRecords.stream().filter(c -> 
-            activeAgeGroupCodes.contains(c.getAgeGrp()) ?
-                    athleteAgeGroupCodes.contains(c.getAgeGrp())
-                    : true).collect(Collectors.toList());
+
+        // if a record is defined to apply to an age group that is active in the competition, athlete must be eligible
+        // in that age group.
+        Set<String> activeAgeGroupCodes = AgeGroupRepository.findActive().stream().map(a -> a.getCode())
+                .collect(Collectors.toSet());
+        Set<String> athleteAgeGroupCodes = curAthlete.getParticipations().stream()
+                .map(a -> a.getCategory().getAgeGroup().getCode()).collect(Collectors.toSet());
+        Set<String> athleteFederations = curAthlete.getFederationCodes() != null ?
+                new HashSet<>(Arrays.asList(curAthlete.getFederationCodes().split("[,;]"))) : Set.of();
+        logger.warn(" ***2 athlete {} agegroups {} active {} federations {}", curAthlete.getShortName(), athleteAgeGroupCodes, activeAgeGroupCodes, athleteFederations);
+        records = candidateRecords.stream()
+                .filter(c -> athleteFederations.isEmpty() ? true : athleteFederations.contains(c.getRecordFederation()))
+                .peek(c -> logger.warn("retained {}", c.getRecordFederation()))
+                .filter(c -> activeAgeGroupCodes
+                        .contains(c.getAgeGrp()) ? athleteAgeGroupCodes.contains(c.getAgeGrp())
+                                : true)
+                .collect(Collectors.toList());
         return records;
     }
 
@@ -301,8 +311,6 @@ public class RecordRepository {
         RecordDefinitionReader.readZip(is);
     }
 
-
-    
     /**
      * Save.
      *

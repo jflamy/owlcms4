@@ -33,6 +33,7 @@
                 <mapping col="13">a.coach</mapping>
                 <mapping col="14">a.custom1</mapping>
                 <mapping col="15">a.custom2</mapping>
+                <mapping col="16">a.federationCodes</mapping>
 			</section>
 			<loopbreakcondition>
 				<rowcheck offset="0">
