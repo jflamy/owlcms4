@@ -8,7 +8,7 @@
 
   - Enhancements
 
-    * 35.0.0-alpha12:  New Records Eligibility Criteria based on Federations (so invited athletes do not show up as breaking local records, etc.). See [Records Eligibility](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Records#eligibility) documentation.
+    * 35.0.0-alpha12:  New Records Eligibility Criteria based on Federations (so invited athletes do not show up as breaking local records, etc.). See [Records Eligibility](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Records#eligibility-criteria) documentation.
       
     * 35.0.0-alpha12: Timekeeper can now switch groups and start countdowns. Useful when veteran announcer is only using the scoreboard.
       
@@ -17,7 +17,7 @@
       * Jury and Referee decisions are now cleared as late as possible on clock restart following change of clock ownership or when a new clock is granted, or on group change.
 
     * 35.0.0-alpha09: MQTT events from referee box and jury box shown on jury page (#469)
-    * 35.0.0-alpha08:  Record eligibility check for Age Groups.  (#555).  See [Records Eligibility](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Records#eligibility) documentation.
+    * 35.0.0-alpha08:  Record eligibility check for Age Groups.  (#555).  See [Records Eligibility](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Records#eligibility-criteria) documentation.
     * 35.0.0-alpha07:  Add version number on installer and zip files (#552)
     * 35.0.0-alpha01:  Record information is now included in the json database export (#563)
     * 35.0.0-alpha01:  In multi-lingual settings, a drop down at the top of navigation pages allows changing the language for the current browser. Pages and displays opened from that browser will be in the new language; the overall default is not changed.  (#553)

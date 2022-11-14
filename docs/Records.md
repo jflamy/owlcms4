@@ -25,11 +25,18 @@ The following figure shows the content of the 10_Canada file, organized with one
 
 ### Eligibility Criteria
 
-- Each athlete's registration record can have a list of federations under which they can break records. By default, the list is empty and athletes are eligible for the records from all the listed federations if they meet the age group, age and weight requirements.
-  If a list of federations (comma-separated) is given, the athletes will be restricted to these federation records. For example, if in a national championship you have an athlete invited from another country, add the country code for that country and the athlete will not be eligible to your records.
-- Similarly, if you have a multi-national championship, you can load the records from each country, and the meet records as well.  Simply list the federations that the athletes belong to. For example, CAN,PanAm and USA,PanAm depending on the athlete.
-- Normally the AgeGroup column should match the age groups in your competition.  When they do, this means that the athlete must be eligible in that age group to break the record.  For example, if a record is marked M35, the athlete must eligible as M35 -- a 35 year-old senior could for example be ineligible because he is not a member of his Masters federation, and he would not be shown as attempting the record.
-- **BUT** If you have "Absolute" records that are accessible to all categories, or other records for which the eligibility requirements don't matter, just use another name for the age group.  For example, "Absolute", "Juvenile", etc.  Then the age group eligibility will not be checked, only the actual and bodyweight criteria listed on the record.
+For a record to be broken, in addition to meeting the age and bodyweight requirements, the athlete must be eligible
+
+- **Federation Eligibility** In the database, the athlete's registration record can optionnally have a list of federations under which they can break records.  If provided, there must be a match with the first column in the Excel file that states the federation with authority over the record.
+  -  By default, the list is empty and athletes are eligible for the records from all the listed federations if they meet the age group, age and weight requirements.
+  - If a list of federations (comma-separated) is given, the athletes will be restricted to these federation records. For example, if in a national championship for Canada (Federation WHC) you have an athlete invited from another country USA (Federation USAW).  If all Canadian athletes have no federation codes, and the USA athletes have USAW, then the USAW athletes cannot break Canadian records.
+  - If, in a joint South American and PanAm championship, `SudAm` and `PanAm` records have been loaded, then South American athletes would have `SudAm,Panam` and all others (such as North American Athletes) would have only `PanAm` to determine who can break what record.
+
+- **Age Group Eligibility** 
+
+  - As a good practice, the AgeGroup column should match the age groups in your competition.  When there is a match, this means that the athlete must be eligible in that age group to break the record.  For example, if a record is marked M35, the athlete must eligible as M35 -- a 35 year-old senior could for example be ineligible because he is not a member of his Masters federation, and he would not be shown as attempting the record.
+
+  - **Exception: ** If you have "Absolute" records that are accessible to all categories, or other records for which the eligibility requirements don't matter, just use another name for the age group.  For example, "Absolute", "Juvenile", etc.  Then the age group eligibility will not be checked, only the actual and bodyweight criteria listed on the record.
 
 ### Other Notes
 

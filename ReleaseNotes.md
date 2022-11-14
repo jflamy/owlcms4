@@ -8,7 +8,7 @@
 
   - Enhancements
 
-    * 35.0.0-alpha12:  New "record eligibility federations" field in Athlete registration form. If present, athlete is restricted to breaking records in the listed federations (comma-separated).  Typically used for invited athletes - adding their country code will exclude them from the available records, or in multinational meets where country-specific records can be broken.
+    * 35.0.0-alpha12:  New Records Eligibility Criteria based on Federations (so invited athletes do not show up as breaking local records, etc.). See [Records Eligibility](https://owlcms.github.io/owlcms4-prerelease/#/Records#eligibility-criteria) documentation.
       
     * 35.0.0-alpha12: Timekeeper can now switch groups and start countdowns. Useful when veteran announcer is only using the scoreboard.
       
@@ -17,30 +17,27 @@
       * Jury and Referee decisions are now cleared as late as possible on clock restart following change of clock ownership or when a new clock is granted, or on group change.
 
     * 35.0.0-alpha09: MQTT events from referee box and jury box shown on jury page (#469)
-    * 35.0.0-alpha08:  Record eligibility check.  (#555)
-      * If the AgeGroup column in the records file matches the code an active age group in the competition, then this means that the record can only be set if the athlete is eligible for that age group. 
-        * If a record is defined for age group M35, an athlete registered as eligible to M35 can break it.  But not an athlete that is eligible to SR only. An athlete that is eligible to M35 and SR will be able to break both M35 and SR records.
-        * For this to work you must use the same codes in your Age Groups and in your Record definition files.
-
-      * If you have absolute records, or if you don't want to enforce this requirement, then use age group names in the record file that does not match a code (for example, "Absolute", "Junior", "Youth")  The names in the record files will then be used on the record display.
+    * 35.0.0-alpha08:  Record eligibility check for Age Groups.  (#555).  See [Records Eligibility](https://owlcms.github.io/owlcms4-prerelease/#/Records#eligibility-criteria) documentation.
     * 35.0.0-alpha07:  Add version number on installer and zip files (#552)
     * 35.0.0-alpha01:  Record information is now included in the json database export (#563)
     * 35.0.0-alpha01:  In multi-lingual settings, a drop down at the top of navigation pages allows changing the language for the current browser. Pages and displays opened from that browser will be in the new language; the overall default is not changed.  (#553)
     * 35.0.0-alpha01:  Notification given to TOs if current athlete does not meet starting weights rule when called for first clean and jerk (TCRR regulation to rule 6.6.5 clause 6) (#556)
     * 35.0.0-alpha00: **Full support of MQTT messaging for devices**. Jury/referee/timekeeper devices can now issue MQTT commands instead of key presses, and subscribe to messages issued by the main program (#469)  See  [MQTT Messages documentation](https://owlcms.github.io/owlcms4-prerelease/#/MQTTMessages).
-
+    
     - 35.0.0-alpha00: improved colors on Current Athlete view (current requested weight more visible, fixed empty cell colors) (#562)
-
+    
   - Fixes:
-
+  
+    - 35.0.0-alpha13: Fixed import of registration data for federation codes used for record eligibility.
+  
     - 35.0.0-alpha00: Bottom part of Current Athlete view would switch to next athlete's attempts before top part updated (#558)
-
+  
     - 35.0.0-alpha00: Final Package was including SMF and Sinclair results for all athletes, ignoring the filtering requested. (#561)
-
+  
     - 35.0.0-alpha00: On mobile refereeing screen, reversal was not restoring button colors (#560)
-
+    
     - 35.0.0-alpha00: Record attempt notification remained on attempt board at end of group (#557)
-
+  
 - 34.4.0
 
   - Improvements
