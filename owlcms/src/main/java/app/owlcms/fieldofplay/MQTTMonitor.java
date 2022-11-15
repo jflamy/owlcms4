@@ -1,6 +1,8 @@
 package app.owlcms.fieldofplay;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Optional;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
@@ -110,6 +112,7 @@ public class MQTTMonitor {
 
         /**
          * Tell others that the refbox has given the down signal
+         * 
          * @param topic
          * @param messageStr
          */
@@ -217,6 +220,8 @@ public class MQTTMonitor {
 
     private String userName;
     private MQTTCallback callback;
+    private Long prevRefereeTimeStamp = 0L;
+
     MQTTMonitor(FieldOfPlay fop) {
         logger.setLevel(Level.DEBUG);
         this.setFop(fop);
@@ -254,11 +259,13 @@ public class MQTTMonitor {
 
     @Subscribe
     public void slaveDecisionReset(UIEvent.DecisionReset e) {
-        // Event Ignored.  We reset all devices on the clock start for next attempt (resetDecisions MQTT)
+        // Event Ignored. We reset all devices on the clock start for next attempt (resetDecisions MQTT)
     }
 
     /**
-     * A display or console has triggered the down signal (e.g. keypad connected to a laptop) and down signal post connected via MQTT.
+     * A display or console has triggered the down signal (e.g. keypad connected to a laptop) and down signal post
+     * connected via MQTT.
+     * 
      * @param d
      */
     @Subscribe
@@ -283,9 +290,9 @@ public class MQTTMonitor {
     @Subscribe
     public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
         // the deliberation is about the last athlete judged, not on the current athlete.
-        publishMqttRefereeUpdates(e.ref1, e.ref2, e.ref3);
+        publishMqttRefereeUpdates(e.ref1, e.ref2, e.ref3, e.ref1Time, e.ref2Time, e.ref3Time);
     }
-    
+
     @Subscribe
     public void slaveJuryUpdate(UIEvent.JuryUpdate e) {
         // Ignored for now.
@@ -299,7 +306,7 @@ public class MQTTMonitor {
         // 3 is all
         // 4 is controller.
         int ref = e.ref;
-        
+
         publishMqttSummonRef(ref);
     }
 
@@ -319,13 +326,13 @@ public class MQTTMonitor {
 //        previousAthleteAtStart = currentAthleteAtStart;
 //        previousAttemptNumber = currentAttemptNumber;
     }
-    
+
     @Subscribe
     public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
         // we switched lifter, or we switched attempt. reset the decisions.
+        prevRefereeTimeStamp = 0L;
         publishMqttResetAllDecisions();
     }
-
 
     @Subscribe
     public void slaveWakeUpRef(UIEvent.WakeUpRef e) {
@@ -348,7 +355,6 @@ public class MQTTMonitor {
             sleep(1000);
         }
     }
-
 
     private void doConnect() throws MqttSecurityException, MqttException {
         userName = StartupUtils.getStringParam("mqttUserName");
@@ -400,25 +406,40 @@ public class MQTTMonitor {
         client.publish(deprecatedTopic, new MqttMessage("off".getBytes(StandardCharsets.UTF_8)));
     }
 
-    private void publishMqttRefereeUpdates(Boolean ref1, Boolean ref2, Boolean ref3) {
-        logger.debug("{}MQTT publishMqttRefereeUpdates {} {} {}", fop.getLoggingName(), ref1, ref2, ref3);
-        try {
-            if (ref1 != null) {
-                client.publish("owlcms/fop/decision/" + fop.getName(),
-                        new MqttMessage((1 + " " + (ref1 ? "good" : "bad")).getBytes(StandardCharsets.UTF_8)));
+    private void publishMqttRefereeUpdates(Boolean ref1, Boolean ref2, Boolean ref3, Long ref1Time, Long ref2Time,
+            Long ref3Time) {
+        Optional<Long> curRefereeUpdateTimeStamp = Arrays.asList(ref1Time, ref2Time, ref3Time)
+                .stream()
+                .filter(ts -> {
+                    return ts != null;
+                })
+                .max(Long::compare);
+        if (curRefereeUpdateTimeStamp.isPresent()
+                && curRefereeUpdateTimeStamp.get() >= prevRefereeTimeStamp) {
+            logger.debug("{}MQTT publishMqttRefereeUpdates {}({}) {}({}) {}({})", fop.getLoggingName(), ref1, ref1Time,
+                    ref2, ref2Time, ref3, ref3Time);
+            try {
+                if (ref1 != null) {
+                    client.publish("owlcms/fop/decision/" + fop.getName(),
+                            new MqttMessage((1 + " " + (ref1 ? "good" : "bad")).getBytes(StandardCharsets.UTF_8)));
+                }
+                if (ref2 != null) {
+                    client.publish("owlcms/fop/decision/" + fop.getName(),
+                            new MqttMessage((2 + " " + (ref2 ? "good" : "bad")).getBytes(StandardCharsets.UTF_8)));
+                }
+                if (ref3 != null) {
+                    client.publish("owlcms/fop/decision/" + fop.getName(),
+                            new MqttMessage((3 + " " + (ref3 ? "good" : "bad")).getBytes(StandardCharsets.UTF_8)));
+                }
+            } catch (MqttException e1) {
             }
-            if (ref2 != null) {
-                client.publish("owlcms/fop/decision/" + fop.getName(),
-                        new MqttMessage((2 + " " + (ref2 ? "good" : "bad")).getBytes(StandardCharsets.UTF_8)));
-            }
-            if (ref3 != null) {
-                client.publish("owlcms/fop/decision/" + fop.getName(),
-                        new MqttMessage((3 + " " + (ref3 ? "good" : "bad")).getBytes(StandardCharsets.UTF_8)));
-            }
-        } catch (MqttException e1) {
+        } else {
+            logger.debug("{}MQTT skipping out-of-date publishMqttRefereeUpdates {}({}) {}({}) {}({})", fop.getLoggingName(), ref1, ref1Time,
+                    ref2, ref2Time, ref3, ref3Time);
         }
+        prevRefereeTimeStamp = curRefereeUpdateTimeStamp.isPresent() ? curRefereeUpdateTimeStamp.get() : 0L;
     }
-    
+
     private void publishMqttResetAllDecisions() {
         logger.debug("{}MQTT resetDecisions", fop.getLoggingName());
         try {
@@ -435,7 +456,7 @@ public class MQTTMonitor {
             if (ref > 0 && ref <= 4) {
                 doPublishMQTTSummon(ref);
             } else if (ref == 0) {
-                for (int i = 1 ; i <= 3; i++ ) {
+                for (int i = 1; i <= 3; i++) {
                     doPublishMQTTSummon(i);
                 }
             }
@@ -455,18 +476,19 @@ public class MQTTMonitor {
         logger.debug("{}MQTT decisionRequest {}", fop.getLoggingName(), ref);
         try {
             FOPState state = fop.getState();
-            if (state != FOPState.DOWN_SIGNAL_VISIBLE || state != FOPState.TIME_RUNNING || state != FOPState.TIME_STOPPED) {
+            if (state != FOPState.DOWN_SIGNAL_VISIBLE || state != FOPState.TIME_RUNNING
+                    || state != FOPState.TIME_STOPPED) {
                 // safeguard in case the thread was not killed.
                 return;
             }
             String topic = "owlcms/fop/decisionRequest/" + fop.getName();
             client.publish(topic, new MqttMessage(Integer.toString(ref).getBytes(StandardCharsets.UTF_8)));
-            
+
             // Legacy : specific referee is added at the end of the topic.
             String deprecatedTopic = "owlcms/decisionRequest/" + fop.getName() + "/" + ref;
             if (on) {
                 client.publish(deprecatedTopic,
-                    new MqttMessage((ref + " on").getBytes(StandardCharsets.UTF_8)));
+                        new MqttMessage((ref + " on").getBytes(StandardCharsets.UTF_8)));
             } else {
                 // off is not sent, even in legacy mode.
             }

@@ -77,9 +77,14 @@ public class JuryDisplayDecisionElement extends DecisionElement {
     public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
             uiEventLogger.debug("*** {} referee update ({} {} {})", this.getOrigin(), e.ref1, e.ref2, e.ref3);
-            this.getElement().callJsFunction("showDecisionsForJury", e.ref1, e.ref2, e.ref3, e.ref1Time, e.ref2Time,
-                    e.ref3Time);
+            this.getElement().callJsFunction("showDecisionsForJury", e.ref1, e.ref2, e.ref3, intBox(e.ref1Time),
+                    intBox(e.ref2Time),
+                    intBox(e.ref3Time));
         });
+    }
+
+    private Integer intBox(Long ref1Time) {
+        return ref1Time != null ? ref1Time.intValue() : null;
     }
 
     @Override

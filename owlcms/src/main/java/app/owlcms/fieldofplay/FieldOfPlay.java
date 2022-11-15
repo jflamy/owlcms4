@@ -188,7 +188,7 @@ public class FieldOfPlay {
 
     private boolean refereeForcedDecision;
 
-    private Integer[] refereeTime;
+    private Long[] refereeTime;
 
     private FOPState state;
 
@@ -1832,7 +1832,7 @@ public class FieldOfPlay {
         logger.debug("{}**** resetting all decisions on new clock", getLoggingName());
         setRefereeDecision(new Boolean[3]);
         setJuryMemberDecision(new Boolean[5]);
-        refereeTime = new Integer[3];
+        setRefereeTime(new Long[3]);
         juryMemberTime = new Integer[5];
         setRefereeForcedDecision(false);
         getUiEventBus().post(new UIEvent.ResetOnNewClock(clockOwner, this));
@@ -2065,7 +2065,7 @@ public class FieldOfPlay {
         setState(DECISION_VISIBLE);
         // logger.debug("*** Show decision now - doit");
         // use "this" because the origin must also show the decision.
-        uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), getRefereeDecision(), refereeTime, this);
+        uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), getRefereeDecision(), getRefereeTime(), this);
         recomputeLiftingOrder(true, true);
 
         // control timing of notifications
@@ -2097,7 +2097,7 @@ public class FieldOfPlay {
      * @param e
      */
     private void simulateDecision(ExplicitDecision ed) {
-        int now = (int) System.currentTimeMillis();
+        long now = System.currentTimeMillis();
         if (getAthleteTimer().isRunning()) {
             getAthleteTimer().stop();
         }
@@ -2336,7 +2336,7 @@ public class FieldOfPlay {
     }
 
     private void uiShowRefereeDecisionOnSlaveDisplays(Athlete athlete2, Boolean goodLift2, Boolean[] refereeDecision2,
-            Integer[] shownTimes, Object origin2) {
+            Long[] longs, Object origin2) {
         uiEventLogger.debug("### showRefereeDecisionOnSlaveDisplays {}", athlete2);
         pushOutUIEvent(new UIEvent.Decision(athlete2, goodLift2, isRefereeForcedDecision() ? null : refereeDecision2[0],
                 refereeDecision2[1],
@@ -2349,11 +2349,12 @@ public class FieldOfPlay {
 
     private void uiShowUpdateOnJuryScreen() {
         uiEventLogger.debug("### uiShowUpdateOnJuryScreen {}", isRefereeForcedDecision());
+        //logger.warn("uiShowUpdateOnJuryScreen {}", LoggerUtils.stackTrace());
         pushOutUIEvent(new UIEvent.RefereeUpdate(getCurAthlete(),
                 isRefereeForcedDecision() ? null : getRefereeDecision()[0],
                 getRefereeDecision()[1],
-                isRefereeForcedDecision() ? null : getRefereeDecision()[2], refereeTime[0], refereeTime[1],
-                refereeTime[2],
+                isRefereeForcedDecision() ? null : getRefereeDecision()[2], getRefereeTime()[0], getRefereeTime()[1],
+                getRefereeTime()[2],
                 this));
     }
 
@@ -2437,17 +2438,17 @@ public class FieldOfPlay {
 
     private void updateRefereeDecisions(FOPEvent.DecisionFullUpdate e) {
         getRefereeDecision()[0] = e.ref1;
-        refereeTime[0] = e.ref1Time;
+        getRefereeTime()[0] = e.ref1Time;
         getRefereeDecision()[1] = e.ref2;
-        refereeTime[1] = e.ref2Time;
+        getRefereeTime()[1] = e.ref2Time;
         getRefereeDecision()[2] = e.ref3;
-        refereeTime[2] = e.ref3Time;
+        getRefereeTime()[2] = e.ref3Time;
         processRefereeDecisions(e);
     }
 
     private void updateRefereeDecisions(FOPEvent.DecisionUpdate e) {
         getRefereeDecision()[e.refIndex] = e.decision;
-        refereeTime[e.refIndex] = 0;
+        getRefereeTime()[e.refIndex] = System.currentTimeMillis();
         processRefereeDecisions(e);
     }
 
@@ -2474,6 +2475,14 @@ public class FieldOfPlay {
     private void weightChangeDoNotDisturb(WeightChange e) {
         recomputeOrderAndRanks(e.isResultChange());
         uiDisplayCurrentAthleteAndTime(false, e, false);
+    }
+
+    public Long[] getRefereeTime() {
+        return refereeTime;
+    }
+
+    public void setRefereeTime(Long[] refereeTime) {
+        this.refereeTime = refereeTime;
     }
 
 }

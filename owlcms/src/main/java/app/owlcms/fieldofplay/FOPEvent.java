@@ -302,17 +302,16 @@ public class FOPEvent {
     static public class DecisionFullUpdate extends FOPEvent {
         public Boolean ref1;
 
-        public Integer ref1Time;
-
+        public Long ref1Time;
         public Boolean ref2;
-        public Integer ref2Time;
+        public Long ref2Time;
         public Boolean ref3;
-        public Integer ref3Time;
+        public Long ref3Time;
 
         private boolean immediate;
 
         public DecisionFullUpdate(Object origin, Athlete athlete, Boolean ref1, Boolean ref2, Boolean ref3,
-                Integer long1, Integer long2, Integer long3, boolean immediate) {
+                Long long1, Long long2, Long long3, boolean immediate) {
             super(athlete, origin);
             this.ref1 = ref1;
             this.ref2 = ref2;
@@ -325,7 +324,7 @@ public class FOPEvent {
         }
 
         private void trace(Boolean ref1, Boolean ref2, Boolean ref3, boolean immediate) {
-            //logger.trace("decision update {} {} {} {}", ref1, ref2, ref3, LoggerUtils.whereFrom(2));
+            logger.trace("decision full update {} {} {} {}", ref1, ref2, ref3, LoggerUtils.whereFrom(2));
         }
         public void trace() {
             trace(ref1, ref2, ref3, immediate);

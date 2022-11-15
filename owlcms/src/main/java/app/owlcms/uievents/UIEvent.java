@@ -869,21 +869,21 @@ public class UIEvent {
      */
     static public class RefereeUpdate extends UIEvent {
         public Boolean ref1;
-        public Integer ref1Time;
+        public Long ref1Time;
         public Boolean ref2;
-        public Integer ref2Time;
+        public Long ref2Time;
         public Boolean ref3;
-        public Integer ref3Time;
+        public Long ref3Time;
 
-        public RefereeUpdate(Athlete a, Boolean ref1, Boolean ref2, Boolean ref3, Integer refereeTime,
-                Integer refereeTime2, Integer refereeTime3, Object origin) {
+        public RefereeUpdate(Athlete a, Boolean ref1, Boolean ref2, Boolean ref3, Long long1,
+                Long long2, Long long3, Object origin) {
             super(a, origin);
             this.ref1 = ref1;
             this.ref2 = ref2;
             this.ref3 = ref3;
-            this.ref1Time = refereeTime;
-            this.ref2Time = refereeTime2;
-            this.ref3Time = refereeTime3;
+            this.ref1Time = long1;
+            this.ref2Time = long2;
+            this.ref3Time = long3;
         }
     }
 

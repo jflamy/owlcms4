@@ -159,8 +159,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
                 }
             } else {
                 fop.fopEventPost(
-                        new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3, ref1Time,
-                                ref2Time, ref3Time, false));
+                        new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3, Long.valueOf(ref1Time),
+                                Long.valueOf(ref2Time), Long.valueOf(ref3Time), false));
             }
         });
 

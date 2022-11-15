@@ -357,6 +357,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
                 }
             }
             Boolean[] curRefDecisions = fop.getRefereeDecision();
+            Long[] curRefTimes = fop.getRefereeTime();
             decisions.doReset();
             if (curRefDecisions != null) {
 //                for (int i = 0; i < 3; i++) {
@@ -365,10 +366,10 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 //                }
                 if (fop.isRefereeForcedDecision()) {
                     decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(athleteUnderReview, null,
-                            curRefDecisions[1], null, null, null, null, this));
+                            curRefDecisions[1], null, null, curRefTimes[1], null, this));
                 } else {
                     decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(athleteUnderReview, curRefDecisions[0],
-                            curRefDecisions[1], curRefDecisions[2], null, null, null, this));
+                            curRefDecisions[1], curRefDecisions[2], curRefTimes[0], curRefTimes[1], curRefTimes[2], this));
                 }
             }
         });
