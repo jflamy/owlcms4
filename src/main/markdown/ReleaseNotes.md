@@ -27,7 +27,7 @@
     
   - Fixes:
   
-    - 35.0.0-beta02: Ignore superseded out-of-order events on the asynchronous UI Update bus (#567). The events are innocuous but make logs confusing to read.
+    - 35.0.0-beta01: Ignore superseded out-of-order events on the asynchronous UI Update bus (#567). The events are innocuous but make logs confusing to read.
   
     - 35.0.0-beta01: Code review to improve concurrency-resilience and privacy of the field of play state (#566)
   
