@@ -86,7 +86,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     private static final Duration DEFAULT_DURATION = Duration.ofMinutes(10L);
 
-    private Button athleteButton;
+//    private Button athleteButton;
     private Button breakEnd = null;
 
     private Button breakPause = null;
@@ -94,7 +94,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     private Button breakStart = null;
     private BreakTimerElement breakTimerElement;
 
-    private Button countdownButton;
+//    private Button countdownButton;
     private RadioButtonGroup<BreakType> countdownRadios;
     private DatePicker datePicker = new DatePicker();
 
