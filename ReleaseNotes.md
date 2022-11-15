@@ -6,8 +6,9 @@
 
   Release 35 aims at fully supporting jury, referee and timekeeper devices that can send commands using MQTT without having to act as a keyboard.  Release 35 also improves processing of records.
 
-  - Enhancements
+  - Enhancements / functional changes
 
+    * 35.0.0-beta01: Removed obsolete feature on break dialog that was used to show next weight to be loaded, to enable fix
     * 35.0.0-beta00: new feature switch `mqttDecisions` for testing purposes.  This tells the decision displays to send MQTT messages just as if they were independent referee boxes.
     * 35.0.0-alpha12:  New Records Eligibility Criteria based on Federations (so invited athletes do not show up as breaking local records, etc.). See [Records Eligibility](https://owlcms.github.io/owlcms4-prerelease/#/Records#eligibility-criteria) documentation.
     * 35.0.0-alpha12: Timekeeper can now switch groups and start countdowns. Useful when veteran announcer is only using the scoreboard.
@@ -26,12 +27,16 @@
     
   - Fixes:
   
+    - 35.0.0-beta01: Ignore superseded out-of-order events on the asynchronous UI Update bus (#567). The events are innocuous but make logs confusing to read.
+  
+    - 35.0.0-beta01: Code review to improve concurrency-resilience and privacy of the field of play state (#566)
+  
     - 35.0.0-alpha13: Fixed import of registration data for federation codes used for record eligibility.
   
     - 35.0.0-alpha00: Bottom part of Current Athlete view would switch to next athlete's attempts before top part updated (#558)
-  
+    
     - 35.0.0-alpha00: Final Package was including SMF and Sinclair results for all athletes, ignoring the filtering requested. (#561)
-  
+    
     - 35.0.0-alpha00: On mobile refereeing screen, reversal was not restoring button colors (#560)
     
     - 35.0.0-alpha00: Record attempt notification remained on attempt board at end of group (#557)
@@ -121,7 +126,7 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_35.0.0-beta00.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_35.0.0-beta01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
