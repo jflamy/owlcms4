@@ -98,7 +98,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     private RadioButtonGroup<BreakType> countdownRadios;
     private DatePicker datePicker = new DatePicker();
 
-    private HorizontalLayout dt;
+    //private HorizontalLayout dt;
     private DurationField durationField = new DurationField();
     private RadioButtonGroup<CountdownType> durationRadios;
     private Button endIntroButton;
@@ -338,30 +338,30 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         return tr;
     }
 
-    private void createAttemptBoardInfoSelection() {
-        dt = new HorizontalLayout();
-        athleteButton = new Button(
-                getTranslation("DisplayType.LIFT_INFO"), (e) -> {
-                    OwlcmsSession.withFop(fop -> {
-                        fop.recomputeLiftingOrder(true, false);
-                        fop.uiDisplayCurrentAthleteAndTime(false, new FOPEvent(null, this), true);
-                    });
-                });
-        athleteButton.setTabIndex(-1);
-        countdownButton = new Button(
-                getTranslation("DisplayType.COUNTDOWN_INFO"), (e) -> {
-                    OwlcmsSession.withFop(fop -> {
-                        fop.recomputeLiftingOrder(true, false);
-                        OwlcmsSession.getFop().getUiEventBus()
-                                .post(new UIEvent.BreakStarted(0, this.getOrigin(), true, countdownRadios.getValue(),
-                                        durationRadios.getValue(), LoggerUtils.stackTrace(), false));
-                    });
-                });
-        countdownButton.setTabIndex(-1);
-        athleteButton.getThemeNames().add("secondary contrast");
-        countdownButton.getThemeNames().add("secondary contrast");
-        dt.add(countdownButton, athleteButton);
-    }
+//    private void createAttemptBoardInfoSelection() {
+//        dt = new HorizontalLayout();
+//        athleteButton = new Button(
+//                getTranslation("DisplayType.LIFT_INFO"), (e) -> {
+//                    OwlcmsSession.withFop(fop -> {
+//                        fop.recomputeLiftingOrder(true, false);
+//                        fop.uiDisplayCurrentAthleteAndTime(false, new FOPEvent(null, this), true);
+//                    });
+//                });
+//        athleteButton.setTabIndex(-1);
+//        countdownButton = new Button(
+//                getTranslation("DisplayType.COUNTDOWN_INFO"), (e) -> {
+//                    OwlcmsSession.withFop(fop -> {
+//                        fop.recomputeLiftingOrder(true, false);
+//                        OwlcmsSession.getFop().getUiEventBus()
+//                                .post(new UIEvent.BreakStarted(0, this.getOrigin(), true, countdownRadios.getValue(),
+//                                        durationRadios.getValue(), LoggerUtils.stackTrace(), false));
+//                    });
+//                });
+//        countdownButton.setTabIndex(-1);
+//        athleteButton.getThemeNames().add("secondary contrast");
+//        countdownButton.getThemeNames().add("secondary contrast");
+//        dt.add(countdownButton, athleteButton);
+//    }
 
     private FlexLayout createBreakTimerButtons() {
         breakStart = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
@@ -524,11 +524,11 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         ce.add(label("PublicMsg.Medals"), groupCategorySelectionMenu);
         ce.add(medalButtons);
 
-        Hr hr = new Hr();
-        hr.getElement().setAttribute("style", "margin-top: 2ex");
-        Label label = label("DisplayType.Title");
-        ce.add(hr, label);
-        ce.add(dt);
+//        Hr hr = new Hr();
+//        hr.getElement().setAttribute("style", "margin-top: 2ex");
+//        Label label = label("DisplayType.Title");
+//        ce.add(hr, label);
+//        ce.add(dt);
         return ce;
     }
 
@@ -667,7 +667,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         this.parentDialog = parentDialog;
 
         createCountdownColumn();
-        createAttemptBoardInfoSelection();
+        //createAttemptBoardInfoSelection();
         computeDefaultTimeValues();
 
         setCountdownValue(brt);
