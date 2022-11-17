@@ -8,7 +8,8 @@
 
   - Enhancements / functional changes
 
-    * 35.0.0-beta01: Removed obsolete feature on break dialog that was used to show next weight to be loaded, to enable fix
+    * 35.0.0-beta02: Added a feature toggle `forceAllGroupRecords`.  If true, the scoreboards will show all the records that can be broken in the current group (as opposed to just those for the current athlete, which is the default.) This works if there is less than about 6 age groups in the group (zooming and adjusting the font size may be required)
+    * 35.0.0-beta01: Removed obsolete feature on break dialog to toggle display of next weight (now always shown)
     * 35.0.0-beta00: new feature switch `mqttDecisions` for testing purposes.  This tells the decision displays to send MQTT messages just as if they were independent referee boxes.
     * 35.0.0-alpha12:  New Records Eligibility Criteria based on Federations (so invited athletes do not show up as breaking local records, etc.). See [Records Eligibility](https://owlcms.github.io/owlcms4-prerelease/#/Records#eligibility-criteria) documentation.
     * 35.0.0-alpha12: Timekeeper can now switch groups and start countdowns. Useful when veteran announcer is only using the scoreboard.
@@ -126,7 +127,7 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_35.0.0-beta01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_35.0.0-beta02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
