@@ -53,6 +53,7 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
@@ -227,6 +228,8 @@ public class FieldOfPlay {
     Map<Athlete, List<RecordEvent>> recordsByAthlete = new HashMap<>();
 
     Set<RecordEvent> groupRecords = new HashSet<>();
+
+    private boolean showAllGroupRecords;
 
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
@@ -1028,7 +1031,8 @@ public class FieldOfPlay {
 
         // List<RecordEvent> eligibleRecords = RecordFilter.computeEligibleRecordsForAthlete(curAthlete);
         List<RecordEvent> eligibleRecords = recordsByAthlete.get(curAthlete);
-        boolean showAllGroupRecords = true;
+        
+        //FIXME: should be an option
         logger.warn("groupRecords {}", groupRecords);
         for (RecordEvent rec : eligibleRecords) {
             logger.warn("eligibleRecord {}", rec);
@@ -1040,7 +1044,7 @@ public class FieldOfPlay {
                 totalRequest);
 
         JsonValue recordsJson = RecordFilter.buildRecordJson(
-                showAllGroupRecords ? new ArrayList<>(groupRecords) : eligibleRecords,
+                computeShowAllGroupRecords() ? new ArrayList<>(groupRecords) : eligibleRecords,
                 new HashSet<>(challengedRecords), snatchRequest, cjRequest,
                 totalRequest);
         setRecordsJson(recordsJson);
@@ -2501,6 +2505,15 @@ public class FieldOfPlay {
     private void weightChangeDoNotDisturb(WeightChange e) {
         recomputeOrderAndRanks(e.isResultChange());
         uiDisplayCurrentAthleteAndTime(false, e, false);
+    }
+
+    public boolean computeShowAllGroupRecords() {
+        boolean forced = Config.getCurrent().featureSwitch("forceAllGroupRecords", true);
+        return forced || showAllGroupRecords;
+    }
+
+    public void setShowAllGroupRecords(boolean showAllGroupRecords) {
+        this.showAllGroupRecords = showAllGroupRecords;
     }
 
 }
