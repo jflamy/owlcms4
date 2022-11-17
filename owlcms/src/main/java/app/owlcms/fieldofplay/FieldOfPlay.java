@@ -2512,6 +2512,13 @@ public class FieldOfPlay {
         return forced || showAllGroupRecords;
     }
 
+    /**
+     * @return the showAllGroupRecords
+     */
+    public boolean isShowAllGroupRecords() {
+        return showAllGroupRecords;
+    }
+
     public void setShowAllGroupRecords(boolean showAllGroupRecords) {
         this.showAllGroupRecords = showAllGroupRecords;
     }
