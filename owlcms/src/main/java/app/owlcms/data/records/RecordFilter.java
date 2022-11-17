@@ -28,6 +28,8 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
 public class RecordFilter {
+    
+    @SuppressWarnings("unused")
     private static Logger logger = (Logger)LoggerFactory.getLogger(RecordFilter.class);
     
     public static JsonValue buildRecordJson(List<RecordEvent> displayedRecords, Set<RecordEvent> challengedRecords,
