@@ -19,11 +19,15 @@ import static app.owlcms.uievents.BreakType.FIRST_CJ;
 import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.Executors;
@@ -53,7 +57,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.records.RecordEvent;
-import app.owlcms.data.records.RecordRepository;
+import app.owlcms.data.records.RecordFilter;
 import app.owlcms.fieldofplay.FOPEvent.BarbellOrPlatesChanged;
 import app.owlcms.fieldofplay.FOPEvent.CeremonyDone;
 import app.owlcms.fieldofplay.FOPEvent.CeremonyStarted;
@@ -219,6 +223,10 @@ public class FieldOfPlay {
     private Integer[] juryMemberTime;
 
     private Athlete athleteUnderReview;
+
+    Map<Athlete, List<RecordEvent>> recordsByAthlete = new HashMap<>();
+
+    Set<RecordEvent> groupRecords = new HashSet<>();
 
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
@@ -458,6 +466,10 @@ public class FieldOfPlay {
 
     public Boolean[] getRefereeDecision() {
         return refereeDecision;
+    }
+
+    public Long[] getRefereeTime() {
+        return refereeTime;
     }
 
     /**
@@ -855,6 +867,8 @@ public class FieldOfPlay {
         }
         this.setMedals(new TreeMap<Category, TreeSet<Athlete>>());
 
+        this.recomputeRecordsMap(athletes);
+
         boolean done = false;
         if (athletes != null && athletes.size() > 0) {
             done = recomputeLiftingOrder(true, true);
@@ -934,8 +948,8 @@ public class FieldOfPlay {
         resetDecisions();
 
         if (group != null) {
-            // protect against possible UI bug where switching group triggers a dropdown selection
-            // which triggers a switchgroup (there may be multiple announcer screens open)
+            // debounce spurious requests due to misconfigured client that would trigger
+            // a loadGroup upon receiveing a UIEvent.
             long now = System.currentTimeMillis();
             if (!testingMode && now - this.lastGroupLoaded < 300) {
                 logger./**/warn("ignoring request to load group {}", group);
@@ -956,6 +970,7 @@ public class FieldOfPlay {
                 AthleteRepository.assignStartNumbers(group);
                 groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true);
             }
+
             init(groupAthletes, athleteTimer, breakTimer, alreadyLoaded);
             this.lastGroupLoaded = now;
         } else {
@@ -1011,30 +1026,22 @@ public class FieldOfPlay {
         Integer totalRequest = attemptsDone >= 3 && bestSnatch != null && bestSnatch > 0 ? (bestSnatch + request)
                 : null;
 
-        List<RecordEvent> eligibleRecords = RecordRepository.computeEligibleRecordsForAthlete(curAthlete);
+        // List<RecordEvent> eligibleRecords = RecordFilter.computeEligibleRecordsForAthlete(curAthlete);
+        List<RecordEvent> eligibleRecords = recordsByAthlete.get(curAthlete);
+        boolean showAllGroupRecords = true;
+        logger.warn("groupRecords {}", groupRecords);
+        for (RecordEvent rec : eligibleRecords) {
+            logger.warn("eligibleRecord {}", rec);
+        }
+        List<RecordEvent> challengedRecords = RecordFilter.computeChallengedRecords(
+                eligibleRecords,
+                snatchRequest,
+                cjRequest,
+                totalRequest);
 
-        List<RecordEvent> challengedRecords = new ArrayList<>();
-        challengedRecords
-                .addAll(eligibleRecords.stream()
-                        .filter(rec -> rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null
-                                && rec.getRecordValue() != null
-                                && snatchRequest > rec.getRecordValue())
-                        .collect(Collectors.toList()));
-        challengedRecords
-                .addAll(eligibleRecords.stream()
-                        .filter(rec -> rec.getRecordLift() == Ranking.CLEANJERK && cjRequest != null
-                                && rec.getRecordValue() != null
-                                && cjRequest > rec.getRecordValue())
-                        .collect(Collectors.toList()));
-        challengedRecords
-                .addAll(eligibleRecords.stream()
-                        .filter(rec -> rec.getRecordLift() == Ranking.TOTAL && totalRequest != null
-                                && rec.getRecordValue() != null
-                                && totalRequest > rec.getRecordValue())
-                        .collect(Collectors.toList()));
-
-        // TODO: option to show all records for all age groups in current group
-        JsonValue recordsJson = RecordRepository.buildRecordJson(eligibleRecords, snatchRequest, cjRequest,
+        JsonValue recordsJson = RecordFilter.buildRecordJson(
+                showAllGroupRecords ? new ArrayList<>(groupRecords) : eligibleRecords,
+                new HashSet<>(challengedRecords), snatchRequest, cjRequest,
                 totalRequest);
         setRecordsJson(recordsJson);
         setChallengedRecords(challengedRecords);
@@ -1150,6 +1157,10 @@ public class FieldOfPlay {
 
     public void setRefereeForcedDecision(boolean refereeForcedDecision) {
         this.refereeForcedDecision = refereeForcedDecision;
+    }
+
+    public void setRefereeTime(Long[] refereeTime) {
+        this.refereeTime = refereeTime;
     }
 
     /**
@@ -1804,8 +1815,7 @@ public class FieldOfPlay {
 
             List<Athlete> liftingOrder2 = getLiftingOrder();
             setCurAthlete(liftingOrder2 != null && liftingOrder2.size() > 0 ? liftingOrder2.get(0) : null);
-            recomputeCurrentLeaders(athletes);
-            recomputeRecords(curAthlete);
+//***            recomputeLeadersAndRecords(athletes);
 //            for (Athlete a : liftingOrder2) {
 //                logger.debug("sinclair {} {}",a.getShortName(), a.getSinclairRank());
 //            }
@@ -1823,6 +1833,19 @@ public class FieldOfPlay {
                     (endLeaders - endDisplayOrder) / 1000000.0);
         }
 
+    }
+
+    private void recomputeLeadersAndRecords(List<Athlete> athletes) {
+        recomputeCurrentLeaders(athletes);
+        recomputeRecords(curAthlete);
+    }
+
+    private void recomputeRecordsMap(List<Athlete> athletes) {
+        for (Athlete a : athletes) {
+            List<RecordEvent> eligibleRecords = RecordFilter.computeEligibleRecordsForAthlete(a);
+            recordsByAthlete.put(a, eligibleRecords);
+            groupRecords.addAll(eligibleRecords);
+        }
     }
 
     /**
@@ -2065,7 +2088,8 @@ public class FieldOfPlay {
         setState(DECISION_VISIBLE);
         // logger.debug("*** Show decision now - doit");
         // use "this" because the origin must also show the decision.
-        uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), getRefereeDecision(), getRefereeTime(), this);
+        uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), getRefereeDecision(), getRefereeTime(),
+                this);
         recomputeLiftingOrder(true, true);
 
         // control timing of notifications
@@ -2287,7 +2311,7 @@ public class FieldOfPlay {
             // if the snatch was lowered.
             warnMissingKg();
         }
-
+        recomputeLeadersAndRecords(displayOrder);
         // logger.debug("&&&& previous {} current {} change {} from[{}]", getPrevWeight(), curWeight, newWeight,
         // LoggerUtils.whereFrom());
         pushOutUIEvent(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, getPreviousAthlete(),
@@ -2349,7 +2373,7 @@ public class FieldOfPlay {
 
     private void uiShowUpdateOnJuryScreen() {
         uiEventLogger.debug("### uiShowUpdateOnJuryScreen {}", isRefereeForcedDecision());
-        //logger.warn("uiShowUpdateOnJuryScreen {}", LoggerUtils.stackTrace());
+        // logger.warn("uiShowUpdateOnJuryScreen {}", LoggerUtils.stackTrace());
         pushOutUIEvent(new UIEvent.RefereeUpdate(getCurAthlete(),
                 isRefereeForcedDecision() ? null : getRefereeDecision()[0],
                 getRefereeDecision()[1],
@@ -2419,6 +2443,7 @@ public class FieldOfPlay {
                 }
                 return null;
             });
+            recomputeRecordsMap(displayOrder);
             return newRecords;
         } else {
             // remove records just established as they are invalid.
@@ -2430,6 +2455,7 @@ public class FieldOfPlay {
                     }
                     return null;
                 });
+                recomputeRecordsMap(displayOrder);
             }
             return new ArrayList<>();
         }
@@ -2475,14 +2501,6 @@ public class FieldOfPlay {
     private void weightChangeDoNotDisturb(WeightChange e) {
         recomputeOrderAndRanks(e.isResultChange());
         uiDisplayCurrentAthleteAndTime(false, e, false);
-    }
-
-    public Long[] getRefereeTime() {
-        return refereeTime;
-    }
-
-    public void setRefereeTime(Long[] refereeTime) {
-        this.refereeTime = refereeTime;
     }
 
 }
