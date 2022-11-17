@@ -1029,14 +1029,11 @@ public class FieldOfPlay {
         Integer totalRequest = attemptsDone >= 3 && bestSnatch != null && bestSnatch > 0 ? (bestSnatch + request)
                 : null;
 
-        // List<RecordEvent> eligibleRecords = RecordFilter.computeEligibleRecordsForAthlete(curAthlete);
-        List<RecordEvent> eligibleRecords = recordsByAthlete.get(curAthlete);
-        
-        //FIXME: should be an option
-        logger.warn("groupRecords {}", groupRecords);
-        for (RecordEvent rec : eligibleRecords) {
-            logger.warn("eligibleRecord {}", rec);
-        }
+        List<RecordEvent> eligibleRecords = recordsByAthlete.get(curAthlete);    
+//        logger.debug("groupRecords {}", groupRecords);
+//        for (RecordEvent rec : eligibleRecords) {
+//            logger.debug("eligibleRecord {}", rec);
+//        }
         List<RecordEvent> challengedRecords = RecordFilter.computeChallengedRecords(
                 eligibleRecords,
                 snatchRequest,
@@ -2377,7 +2374,7 @@ public class FieldOfPlay {
 
     private void uiShowUpdateOnJuryScreen() {
         uiEventLogger.debug("### uiShowUpdateOnJuryScreen {}", isRefereeForcedDecision());
-        // logger.warn("uiShowUpdateOnJuryScreen {}", LoggerUtils.stackTrace());
+        //logger.debug("uiShowUpdateOnJuryScreen {}", LoggerUtils.stackTrace());
         pushOutUIEvent(new UIEvent.RefereeUpdate(getCurAthlete(),
                 isRefereeForcedDecision() ? null : getRefereeDecision()[0],
                 getRefereeDecision()[1],

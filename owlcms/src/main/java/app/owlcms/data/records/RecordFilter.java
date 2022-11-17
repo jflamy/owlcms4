@@ -109,7 +109,7 @@ public class RecordFilter {
                     cell.put(rec.getRecordLift().name(), recordValue != null ? recordValue : 999.0D);
 
                     if (challengedRecords.stream().anyMatch(cr -> cr.sameAs(rec))) {
-                        logger.warn("rec found {}", rec);
+                        //logger.debug("rec found {}", rec);
                         if (rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null && recordValue != null
                                 && snatchRequest > recordValue) {
                             cell.put("snatchHighlight", "highlight");
@@ -121,7 +121,7 @@ public class RecordFilter {
                             cell.put("totalHighlight", "highlight");
                         }
                     } else {
-                        logger.warn("rec {} not found in {}", rec, challengedRecords);
+                        //logger.debug("rec {} not found in {}", rec, challengedRecords);
                     }
                 }
                 columnCells.set(i, cell);
