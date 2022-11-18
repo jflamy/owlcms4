@@ -15,9 +15,33 @@ The program reads all the tabs of all the files found in the `local/records` dir
 
 > Note that `local/records` is case-sensitive (lowercase `r`)
 
-Records are shown according the the sorting order of the files.  To control the sorting order, start the file names with a numerical prefix, e.g. 10_Canada.xlsx and 20_World.xlsx and 30_Commonwealth.xlsx would display the records in that order.
+> Example of record files (and up-to-date IWF and EWF records) can be found at the following [location](https://www.dropbox.com/sh/sbr804kqfwkgs6g/AAAEcT2sih9MmnrpYzkh6Erma?dl=0).  These are the files you would copy to local/records, rename and edit according to your need.
 
-The following figure shows the content of the 10_Canada file, organized with one age group per tab.  In order to support non-standard age groups, and non-standard categories, the lower and upper bounds for ages and for body weights are given. 
+Records rows are shown according the the sorting order of the files.  The name of the rows. To control the sorting order, start the file names with a numerical prefix, e.g. 10_Canada.xlsx and 20_World.xlsx and 30_Commonwealth.xlsx would display the records in that order.
+
+### Record File Content
+
+The following fields are expected in the file, in that specific order.  The first line contains the names of the field.  The program stops reading at the first line where the Federation field is blank.
+
+| Field      | Content                                                      |
+| ---------- | ------------------------------------------------------------ |
+| Federation | The acronym of the federation with authority to certify the record.  In competitions that involve athletes from multiple federations, this can be used to check whether an athlete belongs to the correct federation to break a record (see [Eligibility Criteria](#eligibility-criteria) below).<br />Using the official federation acronym is recommended (e.g. IWF) |
+| RecordName | The name of the record, used for naming the rows in the display.  This field can be translated to the local language.<br />For an IWF record, the name will likely be "World".<br />**Note:**  Because the name of the files controls the ordering of the rows, records that bear the same name MUST all be in the same file.  If you have "National" Masters records and "National" SR records, and you want them to be on the same row, then combine the two in the same file. |
+| AgeGroup   | The age group to which the record applies.  The codes should match those that have been specified when loading the Age Groups (see the [Age Groups and Categories](Categories) page).  In competitions that involve multiple age groups, this can be used to determine which records can be broken by an athlete (see [Eligibility Criteria](#eligibility-criteria) below).<br />Note that there can also be records whose age group does not match a competition age group -- for example, a record that can be broken by anyone.  If the name does not match an age group active in the competition, the eligibility checks will be skipped. |
+| Gender     | M or F depending on the gender of the athlete.               |
+| ageLow     | Lowest inclusive age for breaking the record.  For IWF JR, you would use 15. |
+| ageCat     | Highest inclusive age for breaking the record. For IWF JR you would use 20. Use 999 when there is no upper limit. |
+| bwLow      | Lowest *exclusive* body weight for breaking the record.  For the women under 55kg category, this would be 49 with the understanding that the body weight must be strictly above 49. |
+| bwcat      | Highest *inclusive* body weight for breaking the record. For the women under 55kg category, the field would be 55. |
+| Lift       | The kind of record: `SNATCH`, `CLEANJERK`, `TOTAL`.  Note that only the first letter (`S` `C` `T`) is actually checked. |
+| Record     | The weight lifted for the record                             |
+| Name       | The name of the athlete holding the record (optional).  Not currently displayed by the program, but available in some federations' databases; could be used in the future. |
+| Born       | The date of birth of the athlete holding the record (optional). |
+| Nation     | The nationality of the athlete holding the record (optional).  Not currently displayed by the program, but available in some federations' databases; could be used in the future. |
+| Date       | The date at which the record was established (optional).  Not currently displayed by the program, but available in some federations' databases; could be used in the future. |
+| Place      | The location where the record was established. Typically City, Country. |
+
+The following figure shows the content of the 10_Canada file, organized with one age group per tab.
 
 ![](img/Records/excel.png)
 
