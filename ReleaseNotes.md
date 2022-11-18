@@ -2,7 +2,7 @@
 
 - 35.0.0-beta:
 
-  *Beta release: Ready for translation and exploratory use. Not yet recommended for use in an actual competition.*
+  *Beta release: Ready for translation and exploratory use. Test thoroughly with your own data if you intend to use in a meet.*
 
   Release 35 aims at fully supporting jury, referee and timekeeper devices that can send commands using MQTT without having to act as a keyboard.  Release 35 also improves processing of records.
 
@@ -28,12 +28,16 @@
     
   - Fixes:
   
+    - 35.0.0-beta04: Updated documentation for [Records](https://owlcms.github.io/owlcms4-prerelease/#/Records) to describe  the fields and to include links to examples.  
+  
+    - 35.0.0-beta04: The .zip distributions for owlcms were missing some of the directories under `local` (e.g. records).
+  
     - 35.0.0-beta01: Ignore superseded out-of-order events on the asynchronous UI Update bus (#567). The events are innocuous but make logs confusing to read.
   
     - 35.0.0-beta01: Code review to improve concurrency-resilience and privacy of the field of play state (#566)
-  
+    
     - 35.0.0-alpha13: Fixed import of registration data for federation codes used for record eligibility.
-  
+    
     - 35.0.0-alpha00: Bottom part of Current Athlete view would switch to next athlete's attempts before top part updated (#558)
     
     - 35.0.0-alpha00: Final Package was including SMF and Sinclair results for all athletes, ignoring the filtering requested. (#561)
@@ -127,7 +131,7 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_35.0.0-beta03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_35.0.0-beta04.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
