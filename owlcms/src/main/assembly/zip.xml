@@ -11,9 +11,11 @@
             <directory>${project.basedir}/src/main/resources</directory>
             <outputDirectory>local</outputDirectory>
             <includes>
-                <include>i18n**/**</include>
+                <include>agegroups**/**</include>
+                <include>records**/**</include>
+                <include>sinclair**/**</include>
                 <include>templates**/**</include>
-                <include>config**/**</include>
+                <include>logback.xml</include>
             </includes>
         </fileSet>
         <fileSet>
