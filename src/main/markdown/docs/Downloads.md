@@ -1,4 +1,4 @@
-Several options are available for installation, depending on your needs. Additional details and diagrams are available in the [**Installation Overview**](InstallationOverview) and [Equipment Setup](EquipmentSetup) pages.
+Several options are available for installation, depending on your needs. Additional details and diagrams are available in the [**Installation Overview**](InstallationOverview) and [Equipment Setup](EquipmentSetup) pages.  Note that there are two levels of releases. The download files are contained in two separate directories: one is for [ Prerelease builds and documentation](https://github.com/owlcms/owlcms4-prerelease) and the other is for [Stable releases](https://github.com/owlcms/owlcms4).  You should normally use the latest stable release for a meet, unless you need a specific new feature or fix introduced in a prerelease.
 
 |                                                              |                                                              |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
