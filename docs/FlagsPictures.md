@@ -1,4 +1,4 @@
-Warning:  This feature is new and may evolve.  It has been implemented in the simplest way to validate its usefulness.  Some features require running locally and not in the cloud.
+Warning:  This feature is new and may evolve.  It has been implemented in the simplest way to validate its usefulness.  As it stands, the picture feature requires running locally and not in the cloud.
 
 ### Including a Flag
 
@@ -36,11 +36,11 @@ The current implementation is very simple.
 
 - Athlete pictures are expected to be in JPEG format.  They can be stored under the `.jpg` (preferred) or .jpeg extension.
 
-- Due to the presence of the picture, the font size for the last name is slightly smaller and the flag is moved.
+- Due to the presence of the picture, the font size for the last name is slightly smaller and the flag is moved to the center section.
 
-- The picture should be edited and saved to a small size (100KB).  They are saved in the `local/pictures` folder (see below for the conventions)
+- The picture should be edited and saved to a small size (100KB).  Pictures are saved in the `local/pictures` folder (see below for the conventions)
 
-  > Because of the size of pictures, you should NOT use this feature for cloud-based deployments.  Under the current very simple implementation you will run out of memory.
+  > Because of the size of pictures you should NOT use pictures when running in the cloud.  Under the current very simple implementation you will run out of memory.
 
 - The picture should be named using the *Membership* number of the athlete.  This will allow you to create a folder with all the pictures of the athletes in a federation and reuse it.
 

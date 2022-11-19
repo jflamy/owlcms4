@@ -446,6 +446,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         // don't block others
         new Thread(() -> {
             UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+                this.getElement().setProperty("hideBecauseDecision", "hideBecauseDecision");
                 this.getElement().callJsFunction("down");
             });
         }).start();
@@ -540,6 +541,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         // this does not actually display the down signal, it makes it so the decision
         // element can show the down or decision.
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+            this.getElement().setProperty("hideBecauseDecision", "hideBecauseDecision");
             this.getElement().callJsFunction("down");
         });
     }
@@ -558,6 +560,8 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            this.getElement().setProperty("hideBecauseDecision", "");
+            this.getElement().setProperty("hideBecauseRecord", "");
             this.getElement().callJsFunction("reset");
         });
     }

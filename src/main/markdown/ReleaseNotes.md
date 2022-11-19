@@ -8,6 +8,7 @@
 
   - Enhancements / functional changes
 
+    * 35.0.0-beta04: Experimental capability to add flags and athlete pictures on the attempt board (#508).  See [Flags and Pictures](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FlagsPicture) documentation.
     * 35.0.0-beta03: Added a feature toggle `forceAllGroupRecords`.  If true, the scoreboards will show all the records that can be broken in the current group (as opposed to just those for the current athlete, which is the default.) This works if there is less than about 6 age groups in the group (zooming and adjusting the font size may be required)
     * 35.0.0-beta01: Removed obsolete feature on break dialog to toggle display of next weight (now always shown)
     * 35.0.0-beta00: new feature switch `mqttDecisions` for testing purposes.  This tells the decision displays to send MQTT messages just as if they were independent referee boxes.
