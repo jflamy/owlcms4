@@ -358,7 +358,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
                         return;
                     }
                     breakButton.setText("");
-                    quietBreakButton(false);
+                    quietBreakButton(null);
                 }
                 breakButton.setEnabled(true);
 

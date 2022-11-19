@@ -80,7 +80,6 @@ import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.lifting.AnnouncerContent;
 import app.owlcms.ui.lifting.AthleteCardFormFactory;
-import app.owlcms.ui.lifting.JuryContent;
 import app.owlcms.ui.lifting.MarshallContent;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
@@ -373,13 +372,13 @@ public abstract class AthleteGridContent extends VerticalLayout
         return this.silenced;
     }
 
-    public void quietBreakButton(boolean b) {
+    public void quietBreakButton(String caption) {
         breakButton.getStyle().set("color", "var(--lumo-error-color)");
         breakButton.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
-        if (b) {
+        if (caption != null) {
             breakButton.getElement().setAttribute("theme", "secondary error");
-            breakButton.setText(getTranslation("BreakButton.JuryDeliberation"));
-            breakButton.getElement().setAttribute("title", getTranslation("BreakButton.JuryDeliberation"));
+            breakButton.setText(caption);
+            breakButton.getElement().setAttribute("title", caption);
         } else {
             breakButton.getElement().setAttribute("theme", "secondary error icon");
             breakButton.getElement().setAttribute("title", getTranslation("BreakButton.ToStartCaption"));
@@ -1219,7 +1218,8 @@ public abstract class AthleteGridContent extends VerticalLayout
                     }
                     if (breakButton != null) {
                         breakButton.setText("");
-                        quietBreakButton(this instanceof JuryContent);
+                        //quietBreakButton();
+                        quietBreakButton(this instanceof MarshallContent ? Translator.translate("BreakType.MARSHAL") : null);
                     }
                 }
                 if (breakButton != null) {

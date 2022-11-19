@@ -263,14 +263,14 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         return new HorizontalLayout(); // juryDeliberationButtons();
     }
 
-    /**
-     * @see app.owlcms.ui.shared.AthleteGridContent#breakButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
-     */
-    @Override
-    protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
-        // moved down to the jury section
-        return new HorizontalLayout(); // juryDeliberationButtons();
-    }
+//    /**
+//     * @see app.owlcms.ui.shared.AthleteGridContent#breakButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
+//     */
+//    @Override
+//    protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
+//        // moved down to the jury section
+//        return new HorizontalLayout(); // juryDeliberationButtons();
+//    }
 
     @Override
     protected void createTopBarSettingsMenu() {

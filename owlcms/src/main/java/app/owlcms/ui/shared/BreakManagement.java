@@ -13,7 +13,6 @@ import static app.owlcms.ui.shared.BreakManagement.CountdownType.TARGET;
 import static app.owlcms.uievents.BreakType.BEFORE_INTRODUCTION;
 import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
 import static app.owlcms.uievents.BreakType.JURY;
-import static app.owlcms.uievents.BreakType.MARSHAL;
 import static app.owlcms.uievents.BreakType.TECHNICAL;
 import static java.time.temporal.ChronoUnit.MILLIS;
 
@@ -295,8 +294,10 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
      */
     private boolean checkImmediateBreak() {
         return (getRequestedBreakType() != null
-                && (getRequestedBreakType() == JURY || getRequestedBreakType() == TECHNICAL
-                        || getRequestedBreakType() == MARSHAL));
+                && (getRequestedBreakType() == JURY 
+                //|| getRequestedBreakType() == TECHNICAL      
+                //|| getRequestedBreakType() == MARSHAL
+                ));
     }
 
     private void computeDefaultTimeValues() {
