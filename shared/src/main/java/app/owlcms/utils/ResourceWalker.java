@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -155,7 +154,6 @@ public class ResourceWalker {
      * @throws FileNotFoundException
      */
     public static Path getFileOrResourcePath(String name) throws FileNotFoundException {
-        logger.setLevel(Level.TRACE);
         String relativeName;
         if (name.startsWith("/")) {
             relativeName = name.substring(1);

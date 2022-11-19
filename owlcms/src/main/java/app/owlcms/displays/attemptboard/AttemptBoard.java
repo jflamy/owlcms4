@@ -536,8 +536,9 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
     public void slaveRefereeDecision(UIEvent.Decision e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        // hide the athleteTimer except if the down signal came from this ui.
-        // in which case the down has already been shown.
+        // hide the athleteTimer except if the decision came from this ui.
+        // this does not actually display the down signal, it makes it so the decision
+        // element can show the down or decision.
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
             this.getElement().callJsFunction("down");
         });
@@ -847,11 +848,13 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
     private void spotlightNewRecord() {
         this.getElement().setProperty("recordKind", "recordNotification new");
         this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.NewRecord"));
+        this.getElement().setProperty("hideBecauseRecord", "hideBecauseRecord");
     }
 
     private void spotlightRecordAttempt() {
         this.getElement().setProperty("recordKind", "recordNotification attempt");
         this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.RecordAttempt"));
+        this.getElement().setProperty("hideBecauseRecord", "hideBecauseRecord");
     }
 
     private void spotlightRecords(FieldOfPlay fop) {
@@ -862,6 +865,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         } else {
             this.getElement().setProperty("recordKind", "recordNotification none");
             this.getElement().setProperty("teamName", fop.getCurAthlete().getTeam());
+            this.getElement().setProperty("hideBecauseRecord", "");
         }
     }
 
