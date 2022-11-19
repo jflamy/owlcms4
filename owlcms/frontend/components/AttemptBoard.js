@@ -20,8 +20,8 @@ class CurrentAttempt extends PolymerElement {
 		<div class$="lastName[[WithPicture]]" id="lastNameDiv"><div>[[lastName]]</div></div>
 		<div class$="firstName[[WithPicture]]" id="firstNameDiv"><div>[[firstName]]</div></div>
 		<div class="teamName" id="teamNameDiv">[[teamName]]</div>
-		<div class$="flag[[WithPicture]]" id="flagDiv" inner-h-t-m-l="[[teamFlagImg]]"></div>
-		<div class="picture" id="pictureDiv" inner-h-t-m-l="[[athleteImg]]"></div>
+		<div class$="flag[[WithPicture]] [[hideBecauseRecord]]" id="flagDiv" inner-h-t-m-l="[[teamFlagImg]]"></div>
+		<div class$="picture [[hideBecauseRecord]]" id="pictureDiv" inner-h-t-m-l="[[athleteImg]]"></div>
 		<div class$="[[recordKind]]" id="recordDiv">[[recordMessage]]</div>
 		<div class="startNumber" id="startNumberDiv">
 			<span>[[startNumber]]</span>
