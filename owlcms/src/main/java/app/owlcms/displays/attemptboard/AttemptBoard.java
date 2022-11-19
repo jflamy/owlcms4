@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.displays.attemptboard;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TreeMap;
@@ -58,6 +59,7 @@ import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -81,7 +83,7 @@ import ch.qos.logback.classic.Logger;
 @CssImport(value = "./styles/plates.css")
 @Route("displays/attemptBoard")
 @Push
-public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel> implements DisplayParameters,
+public class AttemptBoard extends PolymerTemplate<TemplateModel> implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin {
 
     /**
@@ -92,47 +94,47 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      *
      * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
      */
-    public interface AttemptBoardModel extends TemplateModel {
-        String getAttempt();
-
-        String getFirstName();
-
-        String getJavaComponentId();
-
-        String getKgSymbol();
-
-        String getLastName();
-
-        Integer getStartNumber();
-
-        String getTeamName();
-
-        Integer getWeight();
-
-        Boolean isPublicFacing();
-
-        Boolean isShowBarbell();
-
-        void setAttempt(String formattedAttempt);
-
-        void setFirstName(String firstName);
-
-        void setJavaComponentId(String id);
-
-        void setKgSymbol(String kgSymbol);
-
-        void setLastName(String lastName);
-
-        void setPublicFacing(Boolean publicFacing);
-
-        void setShowBarbell(Boolean showBarbell);
-
-        void setStartNumber(Integer integer);
-
-        void setTeamName(String teamName);
-
-        void setWeight(Integer weight);
-    }
+//    public interface AttemptBoardModel extends TemplateModel {
+//        String getAttempt();
+//
+//        String getFirstName();
+//
+//        String getJavaComponentId();
+//
+//        String getKgSymbol();
+//
+//        String getLastName();
+//
+//        Integer getStartNumber();
+//
+//        String getTeamName();
+//
+//        Integer getWeight();
+//
+//        Boolean isPublicFacing();
+//
+//        Boolean isShowBarbell();
+//
+//        void setAttempt(String formattedAttempt);
+//
+//        void setFirstName(String firstName);
+//
+//        void setJavaComponentId(String id);
+//
+//        void setKgSymbol(String kgSymbol);
+//
+//        void setLastName(String lastName);
+//
+//        void setPublicFacing(Boolean publicFacing);
+//
+//        void setShowBarbell(Boolean showBarbell);
+//
+//        void setStartNumber(Integer integer);
+//
+//        void setTeamName(String teamName);
+//
+//        void setWeight(Integer weight);
+//    }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -165,6 +167,10 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     private boolean silenced = true;
     private EventBus uiEventBus;
     private Timer dialogTimer;
+    private boolean publicFacing;
+    private boolean showBarbell;
+    protected boolean teamFlags;
+    protected boolean athletePictures;
 
     /**
      * Instantiates a new attempt board.
@@ -173,9 +179,26 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         OwlcmsFactory.waitDBInitialized();
         // logger.debug("*** AttemptBoard new {}", LoggerUtils.whereFrom());
         athleteTimer.setOrigin(this);
-        getModel().setJavaComponentId(this.toString());
         this.getElement().setProperty("kgSymbol", getTranslation("KgSymbol"));
         breakTimer.setParent("attemptBoard");
+        
+        checkImages();
+    }
+
+    protected void checkImages() {
+        try {
+            ResourceWalker.getFileOrResourcePath("pictures");
+            athletePictures = true;
+        } catch (FileNotFoundException e) {
+            athletePictures = false;
+        }
+        
+        try {
+            ResourceWalker.getFileOrResourcePath("flags");
+            teamFlags = true;
+        } catch (FileNotFoundException e) {
+            teamFlags = false;
+        }
     }
 
     /**
@@ -243,6 +266,11 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     @Override
+    public Timer getDialogTimer() {
+        return dialogTimer;
+    }
+
+    @Override
     public Location getLocation() {
         return this.location;
     }
@@ -270,6 +298,20 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     @Override
     public boolean isIgnoreGroupFromURL() {
         return true;
+    }
+
+    /**
+     * @return the publicFacing
+     */
+    public boolean isPublicFacing() {
+        return publicFacing;
+    }
+
+    /**
+     * @return the showBarbell
+     */
+    public boolean isShowBarbell() {
+        return showBarbell;
     }
 
     /**
@@ -309,11 +351,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     @Override
-    public Timer getDialogTimer() {
-        return dialogTimer;
-    }
-
-    @Override
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -321,6 +358,22 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    /**
+     * @param publicFacing the publicFacing to set
+     */
+    public void setPublicFacing(boolean publicFacing) {
+        this.getElement().setProperty("publicFacing", true);
+        this.publicFacing = publicFacing;
+    }
+
+    /**
+     * @param showBarbell the showBarbell to set
+     */
+    public void setShowBarbell(boolean showBarbell) {
+        this.getElement().setProperty("showBarbell", true);
+        this.showBarbell = showBarbell;
     }
 
     /**
@@ -588,7 +641,29 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         String lastName = a.getLastName();
         this.getElement().setProperty("lastName", lastName.toUpperCase());
         this.getElement().setProperty("firstName", a.getFirstName());
-        this.getElement().setProperty("teamName", a.getTeam());
+        
+        String team = a.getTeam();
+        this.getElement().setProperty("teamName", team);
+        if (teamFlags && team != null) {
+            boolean done;
+            done = setProp("teamFlagImg", "flags/", team, ".svg");
+            if (!done) {
+                done = setProp("teamFlagImg", "flags/", team, ".png");
+                if (!done) {
+                    done = setProp("teamFlagImg", "flags/", team, ".jpg");
+                }
+            }
+        }
+
+        String membership = a.getMembership();
+        if (athletePictures && membership != null) {
+            boolean done;
+            done = setProp("athleteImg", "pictures/", membership, ".jpg");
+            if (!done) {
+                done = setProp("athleteImg", "pictures/", membership, ".jpeg");
+            }
+            this.getElement().setProperty("WithPicture", done ? "WithPicture" : "");
+        }
 
         spotlightRecords(fop);
 
@@ -602,25 +677,20 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         setDone(false);
     }
 
-    private void spotlightNewRecord() {
-        this.getElement().setProperty("recordKind", "recordNotification new");
-        this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.NewRecord"));
-    }
-
-    private void spotlightRecordAttempt() {
-        this.getElement().setProperty("recordKind", "recordNotification attempt");
-        this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.RecordAttempt"));
-    }
-
-    private void spotlightRecords(FieldOfPlay fop) {
-        if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
-            spotlightNewRecord();
-        } else if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
-            spotlightRecordAttempt();
-        } else {
-            this.getElement().setProperty("recordKind", "recordNotification none");
-            this.getElement().setProperty("teamName", fop.getCurAthlete().getTeam());
+    private boolean setProp(String propertyName, String prefix, String name, String suffix) {
+        boolean found;
+        try {
+            ResourceWalker.getFileOrResourcePath(prefix + name + suffix);
+            found = true;
+        } catch (FileNotFoundException e) {
+            found = false;
         }
+        if (found) {
+            this.getElement().setProperty(propertyName, "<img src='local/" + prefix + name + suffix + "'></img>");
+        } else {
+            this.getElement().setProperty(propertyName, "");
+        }
+        return found;
     }
 
     /**
@@ -772,6 +842,27 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 }
             });
         });
+    }
+
+    private void spotlightNewRecord() {
+        this.getElement().setProperty("recordKind", "recordNotification new");
+        this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.NewRecord"));
+    }
+
+    private void spotlightRecordAttempt() {
+        this.getElement().setProperty("recordKind", "recordNotification attempt");
+        this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.RecordAttempt"));
+    }
+
+    private void spotlightRecords(FieldOfPlay fop) {
+        if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
+            spotlightNewRecord();
+        } else if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
+            spotlightRecordAttempt();
+        } else {
+            this.getElement().setProperty("recordKind", "recordNotification none");
+            this.getElement().setProperty("teamName", fop.getCurAthlete().getTeam());
+        }
     }
 
     private void syncWithFOP(FieldOfPlay fop) {

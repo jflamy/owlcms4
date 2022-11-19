@@ -32,23 +32,21 @@ public class PublicFacingDecisionBoard extends AttemptBoard {
         setSilenced(isSilencedByDefault());
         breakTimer.setParent("DecisionBoard");
     }
+    
+    @Override
+    protected void checkImages() {
+        athletePictures = false;
+        teamFlags = false;
+    }
 
     @Override
     public String getPageTitle() {
         return getTranslation("Decision_PF_") + OwlcmsSession.getFopNameIfMultiple();
     }
 
-    public boolean isPublicFacing() {
-        return Boolean.TRUE.equals(getModel().isPublicFacing());
-    }
-
     @Override
     public boolean isSilencedByDefault() {
         return true;
-    }
-
-    public void setPublicFacing(boolean publicFacing) {
-        getModel().setPublicFacing(publicFacing);
     }
 
     /*
@@ -62,7 +60,4 @@ public class PublicFacingDecisionBoard extends AttemptBoard {
         decisions.setPublicFacing(false);
     }
 
-    private void setShowBarbell(boolean b) {
-        getModel().setShowBarbell(b);
-    }
 }
