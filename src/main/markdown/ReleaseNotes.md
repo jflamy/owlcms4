@@ -8,6 +8,7 @@
 
   - Enhancements / functional changes
 
+    * 35.0.0-beta06: Improved ordering of the registration export page to make it easier to do the initial allocation to groups when there are multiple age groups and there is a need to create A and B groups.
     * 35.0.0-beta05: Experimental capability to add flags and athlete pictures on the attempt board (#508).  See [Flags and Pictures](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FlagsPicture) documentation.
     * 35.0.0-beta05: Clicking on the pink break buttons no longer starts a technical or marshal break immediately. It is possible to cancel, or to change the kind of break desired. The ▶ button must be used to start the break. Also, the Marshall break button is labeled "Marshal Issue" to make it's purpose clearer. (#569)
     * 35.0.0-beta03: Added a feature toggle `forceAllGroupRecords`.  If true, the scoreboards will show all the records that can be broken in the current group (as opposed to just those for the current athlete, which is the default.) This works if there is less than about 6 age groups in the group (zooming and adjusting the font size may be required)

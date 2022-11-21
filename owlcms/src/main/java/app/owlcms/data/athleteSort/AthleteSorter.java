@@ -416,6 +416,30 @@ public class AthleteSorter implements Serializable {
         registrationOrder(sorted);
         return sorted;
     }
+    
+    /**
+     * Sort athletes according to official rules (in place) for the technical meeting <tableToolbar>
+     * <li>by registration category</li>
+     * <li>by lot number</li> </tableToolbar>.
+     *
+     * @param toBeSorted the to be sorted
+     */
+    static public void registrationExport(List<Athlete> toBeSorted) {
+        Collections.sort(toBeSorted, new RegistrationExportComparator());
+    }
+
+    /**
+     * Sort athletes according to official rules, creating a new list.
+     *
+     * @param toBeSorted the to be sorted
+     * @return athletes, ordered according to their standard order for the technical meeting
+     * @see #liftingExport(List)
+     */
+    static public List<Athlete> registrationExportCopy(List<Athlete> toBeSorted) {
+        List<Athlete> sorted = new ArrayList<>(toBeSorted);
+        registrationExport(sorted);
+        return sorted;
+    }
 
     /**
      * Sort athletes according to winning order.

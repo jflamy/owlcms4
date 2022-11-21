@@ -50,7 +50,7 @@ public class JXLSRegistrationExport extends JXLSWorkbookStreamSource {
     protected List<Athlete> getSortedAthletes() {
         List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, null);
         return AthleteSorter
-                .registrationOrderCopy(athletes);
+                .registrationExportCopy(athletes);
     }
 
 }

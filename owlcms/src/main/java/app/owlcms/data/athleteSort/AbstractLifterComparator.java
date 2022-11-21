@@ -479,6 +479,20 @@ public class AbstractLifterComparator {
         }
         return lifter1Value.compareTo(lifter2Value);
     }
+    
+    /**
+     * Compare lot number.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
+    int compareEntryTotal(Athlete lifter1, Athlete lifter2) {
+        Integer lifter1Value = lifter1.getEntryTotal();
+        Integer lifter2Value = lifter2.getEntryTotal();
+        return ObjectUtils.compare(lifter1Value, lifter2Value, false);
+    }
+
 
     /**
      * Compare absolute value of attempts prior to attempt "startingFrom" Start comparing attempted weights at
