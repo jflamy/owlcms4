@@ -528,7 +528,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     @Subscribe
     public void slaveJuryNotification(UIEvent.JuryNotification e) {
-        logger.warn("slaveJuryNotification {}",e.getDeliberationEventType());
+        //logger.debug("slaveJuryNotification {}",e.getDeliberationEventType());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             String text = "";
             String reversalText = "";
