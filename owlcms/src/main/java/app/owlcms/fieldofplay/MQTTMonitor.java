@@ -476,9 +476,11 @@ public class MQTTMonitor {
         logger.debug("{}MQTT decisionRequest {}", fop.getLoggingName(), ref);
         try {
             FOPState state = fop.getState();
-            if (state != FOPState.DOWN_SIGNAL_VISIBLE || state != FOPState.TIME_RUNNING
-                    || state != FOPState.TIME_STOPPED) {
-                // safeguard in case the thread was not killed.
+            if (state != FOPState.DOWN_SIGNAL_VISIBLE 
+                    && state != FOPState.TIME_RUNNING
+                    && state != FOPState.TIME_STOPPED) {
+                // boundary condition where the wait thread to remind referee is not cancelled
+                // in time; should not happen, this is defensive.
                 return;
             }
             String topic = "owlcms/fop/decisionRequest/" + fop.getName();
