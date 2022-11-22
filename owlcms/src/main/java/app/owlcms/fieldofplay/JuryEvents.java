@@ -1,11 +1,5 @@
 package app.owlcms.fieldofplay;
 
-import app.owlcms.data.athlete.Athlete;
-import app.owlcms.init.OwlcmsSession;
-import app.owlcms.uievents.JuryDeliberationEventType;
-import app.owlcms.uievents.UIEvent;
-import app.owlcms.uievents.UIEvent.JuryNotification;
-
 public interface JuryEvents {
 
 //    public default void postJurySummonNotification(FieldOfPlay fop, Object origin, int refIndex) {
@@ -53,11 +47,10 @@ public interface JuryEvents {
 //                break;
 //            }
 //        }
-//        JuryNotification event = new UIEvent.JuryNotification(athleteUnderReview, origin, endEvent, null, null);
-//        OwlcmsSession.getFop().getUiEventBus().post(event);
+//        OwlcmsSession.getFop().getUiEventBus().post(new UIEvent.JuryNotification(athleteUnderReview, origin, endEvent, null, null));
 //        fop.fopEventPost(new FOPEvent.StartLifting(this));
 //    }
-    
+//    
 //    public default void postJuryCallController(FieldOfPlay fop, Object origin) {
 //        JuryNotification event = new UIEvent.JuryNotification(null, origin,
 //                JuryDeliberationEventType.CALL_TECHNICAL_CONTROLLER, null, null);
