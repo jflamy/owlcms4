@@ -2244,7 +2244,7 @@ public class FieldOfPlay {
     }
 
     private void doTONotifications(BreakType newBreak) {
-        logger.warn("doTONotifications {}\n{}", newBreak, LoggerUtils.stackTrace());
+        //logger.debug("doTONotifications {}\n{}", newBreak, LoggerUtils.stackTrace());
         if (newBreak == null) {
             // resuming
             if (state == BREAK) {
