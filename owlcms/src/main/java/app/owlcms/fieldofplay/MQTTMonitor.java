@@ -29,7 +29,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * This class listens and emits MQTT events.
+ * This class receives and emits MQTT events.
  *
  * Events initiated by the devices start with topics that names the device (owlcms/jurybox) Devices do not listen to
  * other devices. They listen to MQTT events that come from the field of play. These events are of the form
@@ -174,7 +174,13 @@ public class MQTTMonitor {
                     refIndex = Integer.parseInt(parts[0]);
                 }
                 // do the actual summoning
-                fop.fopEventPost(new FOPEvent.SummonReferee(this, refIndex));
+                if (fop != null) {
+                    if (fop.getState() != FOPState.BREAK) {
+                        fop.fopEventPost(
+                                new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
+                    }
+                    fop.fopEventPost(new FOPEvent.SummonReferee(this, refIndex));
+                }
             } catch (NumberFormatException e) {
                 logger.error("{}Malformed MQTT referee summon message topic='{}' message='{}'",
                         fop.getLoggingName(), topic, messageStr);

@@ -196,6 +196,8 @@ public abstract class AthleteGridContent extends VerticalLayout
     private String topBarTitle;
     private HorizontalLayout attempts;
     private Integer prevWeight;
+    private boolean summonNotificationSent;
+    private boolean deliberationNotificationSent;
 
     /**
      * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -541,8 +543,20 @@ public abstract class AthleteGridContent extends VerticalLayout
             JuryDeliberationEventType et = e.getDeliberationEventType();
             switch (et) {
             case CALL_REFEREES:
-            case END_CALL_REFEREES:
+                text = Translator.translate("JuryNotification." + et.name());
+                if (!summonNotificationSent) {
+                    doNotification(text, style);
+                }
+                summonNotificationSent = true;
+                return;
             case START_DELIBERATION:
+                text = Translator.translate("JuryNotification." + et.name());
+                if (!deliberationNotificationSent) {
+                    doNotification(text, style);
+                }
+                deliberationNotificationSent = true;
+                return;
+            case END_CALL_REFEREES:
             case END_DELIBERATION:
             case END_TECHNICAL_PAUSE:
                 text = Translator.translate("JuryNotification." + et.name());
@@ -566,6 +580,8 @@ public abstract class AthleteGridContent extends VerticalLayout
                 text = Translator.translate("JuryNotification.LoadingError");
                 break;
             case END_JURY_BREAK:
+                summonNotificationSent = false;
+                deliberationNotificationSent = false;
                 text = Translator.translate("JuryNotification.END_JURY_BREAK");
                 break;
             case TECHNICAL_PAUSE:
@@ -596,6 +612,8 @@ public abstract class AthleteGridContent extends VerticalLayout
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             logger.trace("starting lifting");
             syncWithFOP(true);
+            summonNotificationSent = false;
+            deliberationNotificationSent = false;
         });
     }
 

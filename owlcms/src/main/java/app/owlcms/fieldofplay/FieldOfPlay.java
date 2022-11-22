@@ -2215,12 +2215,13 @@ public class FieldOfPlay {
                     return;
                 }
             } else {
-                // we are in a break, resume.
-                // logger.trace("{}resuming break : current {} new {}", getLoggingName(), getBreakType(),
-                // e.getBreakType());
-                breakTimer.setOrigin(e.getOrigin());
-                breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);
-                breakTimer.start();
+                // we are in a break, resume if needed
+                //logger.debug("{}resuming break : current {} new {}", getLoggingName(), getBreakType(), e.getBreakType());
+                if (!breakTimer.isIndefinite()) {
+                    breakTimer.setOrigin(e.getOrigin());
+                    breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);
+                    breakTimer.start();
+                }
                 return;
             }
         } else if (state == INACTIVE) {

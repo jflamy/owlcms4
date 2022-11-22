@@ -283,6 +283,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
                 return;
             }
             // should emit sound at end of break
+            logger.debug("timeOver \n{}",LoggerUtils.stackTrace());
             getFop().pushOutUIEvent(new UIEvent.BreakDone(origin, getFop().getBreakType()));
             getFop().fopEventPost(new FOPEvent.BreakDone(getFop().getBreakType(), origin));
         } else {

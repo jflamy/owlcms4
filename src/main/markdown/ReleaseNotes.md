@@ -31,12 +31,16 @@
     
   - Fixes:
   
+    - 35.0.0-beta07: Fixed regression that disabled MQTT referee reminders (#571)
+  
+    - 35.0.0-beta07: Fixed premature notifications to technical officials for events that were in fact forbidden (#570)  All TO notifications were refactored to be issued from the FOP state machine.
+  
     - 35.0.0-beta04: Updated documentation for [Records](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Records) to describe  the fields and to include links to examples.  
   
     - 35.0.0-beta04: The .zip distributions for owlcms were missing some of the directories under `local` (e.g. records).
-  
+    
     - 35.0.0-beta01: Ignore superseded out-of-order events on the asynchronous UI Update bus (#567). The events are innocuous but make logs confusing to read.
-  
+    
     - 35.0.0-beta01: Code review to improve concurrency-resilience and privacy of the field of play state (#566)
     
     - 35.0.0-alpha13: Fixed import of registration data for federation codes used for record eligibility.

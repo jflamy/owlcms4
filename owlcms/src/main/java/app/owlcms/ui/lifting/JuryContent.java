@@ -208,6 +208,8 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             if (juryDialog != null && juryDialog.isOpened()) {
                 juryDialog.doClose(true);
+            } else {
+                doSync();
             }
         });
     }

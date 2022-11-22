@@ -26,6 +26,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.JuryEvents;
 import app.owlcms.i18n.Translator;
@@ -309,9 +310,11 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
 
     private void doSummonReferees(Object origin2) {
         // jury calls referees
-        OwlcmsSession.withFop(fop -> {
-            fop.fopEventPost(new FOPEvent.SummonReferee(origin2, 0));
-        });
+//        OwlcmsSession.withFop(fop -> {
+//            // stop competition
+//            fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
+//            fop.fopEventPost(new FOPEvent.SummonReferee(origin2, 0));
+//        });
         endBreakText = Translator.translate("JuryDialog.ResumeCompetition");
         this.addAttachListener((e) -> {
             this.setHeader(Translator.translate("JuryDialog.CALL_REFEREES"));
@@ -362,10 +365,16 @@ public class JuryDialog extends EnhancedDialog implements JuryEvents {
     }
 
     private void summonReferee(int i) {
-        OwlcmsSession.withFop(fop -> {
-//            postJurySummonNotification(fop, this, i);
-            fop.fopEventPost(new FOPEvent.SummonReferee(this.origin, i));
-        });
+        // stop competition
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        if (fop == null) {
+            return;
+        }
+        if (fop.getState() != FOPState.BREAK) {
+            fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
+        }
+        fop.fopEventPost(new FOPEvent.SummonReferee(this.origin, i));
+
     }
 
     private Athlete getReviewedAthlete() {
