@@ -590,7 +590,8 @@ public class FieldOfPlay {
             }
             return;
         } else if (e instanceof StartLifting) {
-            if (state == BREAK && (breakType == BreakType.JURY || breakType == BreakType.TECHNICAL)) {
+            if (state == BREAK && (breakType == BreakType.JURY || breakType == BreakType.TECHNICAL
+                    || breakType == BreakType.MARSHAL)) {
                 // if group under way, this will try to just keep going.
                 resumeLifting(e);
                 return;
@@ -1029,7 +1030,7 @@ public class FieldOfPlay {
         Integer totalRequest = attemptsDone >= 3 && bestSnatch != null && bestSnatch > 0 ? (bestSnatch + request)
                 : null;
 
-        List<RecordEvent> eligibleRecords = recordsByAthlete.get(curAthlete);    
+        List<RecordEvent> eligibleRecords = recordsByAthlete.get(curAthlete);
 //        logger.debug("groupRecords {}", groupRecords);
 //        for (RecordEvent rec : eligibleRecords) {
 //            logger.debug("eligibleRecord {}", rec);
@@ -1373,6 +1374,10 @@ public class FieldOfPlay {
         if (e.refNumber >= 4) {
             JuryNotification event = new UIEvent.JuryNotification(null, e.getOrigin(),
                     JuryDeliberationEventType.CALL_TECHNICAL_CONTROLLER, null, null);
+            getUiEventBus().post(event);
+        } else {
+            JuryNotification event = new UIEvent.JuryNotification(null, this, JuryDeliberationEventType.CALL_REFEREES,
+                    null, null);
             getUiEventBus().post(event);
         }
         getUiEventBus().post(new UIEvent.SummonRef(e.refNumber, true, this));
@@ -1878,6 +1883,7 @@ public class FieldOfPlay {
 
         boolean resumed = false;
         if (getCurAthlete() != null) {
+            doTONotifications(null);
             Athlete clockOwner = getClockOwner();
             if (getCurAthlete().equals(clockOwner)) {
                 setState(TIME_STOPPED); // allows referees to enter decisions even if time is not restarted (which
@@ -1892,6 +1898,7 @@ public class FieldOfPlay {
             }
 
             getBreakTimer().stop();
+            // TODO push out TO Notification
             setBreakType(null);
             pushOutStartLifting(getGroup(), e.getOrigin());
             uiDisplayCurrentAthleteAndTime(true, e, false);
@@ -2161,6 +2168,10 @@ public class FieldOfPlay {
         IBreakTimer breakTimer = getBreakTimer();
         boolean indefinite = breakTimer.isIndefinite();
         this.ceremonyType = null;
+
+        // TODO roll this back into BreakStarted/StartLifting
+        doTONotifications(newBreak);
+
         if (state == BREAK) {
             if (getBreakType() == null) {
                 // don't care about what was going on, force new break. Used by BreakManagement.
@@ -2189,7 +2200,7 @@ public class FieldOfPlay {
                     breakTimer.start();
                     return;
                 } else if (breakTimer.getBreakType().isCountdown()) {
-                    logger.debug("{}switching do countdown {}");
+                    logger.debug("{}switching to countdown {}");
                     setBreakType(newBreak);
                     getBreakTimer().start();
                     pushOutUIEvent(new UIEvent.BreakStarted(breakTimer.liveTimeRemaining(), this, false, newBreak,
@@ -2229,6 +2240,42 @@ public class FieldOfPlay {
         if (!breakTimer.isRunning()) {
             breakTimer.setOrigin(e.getOrigin());
             breakTimer.start();
+        }
+    }
+
+    private void doTONotifications(BreakType newBreak) {
+        logger.warn("doTONotifications {}\n{}", newBreak, LoggerUtils.stackTrace());
+        if (newBreak == null) {
+            // resuming
+            if (state == BREAK) {
+                switch (breakType) {
+                case JURY:
+                case MARSHAL:
+                case TECHNICAL:
+                    getUiEventBus().post(new UIEvent.JuryNotification(athleteUnderReview, this,
+                            JuryDeliberationEventType.END_JURY_BREAK, null, null));
+                    break;
+                default:
+                    break;       
+                }
+            }
+        } else {
+            switch (newBreak) {
+            case JURY:
+                getUiEventBus().post(new UIEvent.JuryNotification(athleteUnderReview, this,
+                        JuryDeliberationEventType.START_DELIBERATION, null, null));
+                break;
+            case MARSHAL:
+                getUiEventBus().post(new UIEvent.JuryNotification(athleteUnderReview, this,
+                        JuryDeliberationEventType.MARSHALL, null, null));
+                break;
+            case TECHNICAL:
+                getUiEventBus().post(new UIEvent.JuryNotification(null, this,
+                        JuryDeliberationEventType.TECHNICAL_PAUSE, null, null));
+                break;
+            default:
+                break;
+            }
         }
     }
 
@@ -2374,7 +2421,7 @@ public class FieldOfPlay {
 
     private void uiShowUpdateOnJuryScreen() {
         uiEventLogger.debug("### uiShowUpdateOnJuryScreen {}", isRefereeForcedDecision());
-        //logger.debug("uiShowUpdateOnJuryScreen {}", LoggerUtils.stackTrace());
+        // logger.debug("uiShowUpdateOnJuryScreen {}", LoggerUtils.stackTrace());
         pushOutUIEvent(new UIEvent.RefereeUpdate(getCurAthlete(),
                 isRefereeForcedDecision() ? null : getRefereeDecision()[0],
                 getRefereeDecision()[1],

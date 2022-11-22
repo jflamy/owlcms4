@@ -528,6 +528,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     @Subscribe
     public void slaveJuryNotification(UIEvent.JuryNotification e) {
+        logger.warn("slaveJuryNotification {}",e.getDeliberationEventType());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             String text = "";
             String reversalText = "";
@@ -543,7 +544,6 @@ public abstract class AthleteGridContent extends VerticalLayout
             case END_CALL_REFEREES:
             case START_DELIBERATION:
             case END_DELIBERATION:
-            case TECHNICAL_PAUSE:
             case END_TECHNICAL_PAUSE:
                 text = Translator.translate("JuryNotification." + et.name());
                 break;
@@ -565,9 +565,16 @@ public abstract class AthleteGridContent extends VerticalLayout
             case LOADING_ERROR:
                 text = Translator.translate("JuryNotification.LoadingError");
                 break;
-
             case END_JURY_BREAK:
                 text = Translator.translate("JuryNotification.END_JURY_BREAK");
+                break;
+            case TECHNICAL_PAUSE:
+                text = Translator.translate("BreakType.TECHNICAL");
+                break;
+            case MARSHALL:
+                text = Translator.translate("BreakType.MARSHAL");
+                break;
+            default:
                 break;
             }
             doNotification(text, style);

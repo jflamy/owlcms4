@@ -20,7 +20,8 @@ import com.google.common.eventbus.Subscribe;
 
 import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.init.OwlcmsSession;
+import app.owlcms.ui.shared.BreakManagement.CountdownType;
+import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
@@ -127,7 +128,7 @@ public class MQTTMonitor {
                 fop.fopEventPost(
                         new FOPEvent.JuryDecision(athleteUnderReview, this, messageStr.contentEquals("good")));
             } catch (NumberFormatException e) {
-                logger.error("{}Malformed MQTT decision message topic='{}' message='{}'",
+                logger.error("{}Malformed MQTT jury decision message topic='{}' message='{}'",
                         fop.getLoggingName(), topic, messageStr);
             }
         }
@@ -141,7 +142,7 @@ public class MQTTMonitor {
                 fop.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(MQTTMonitor.this, refIndex,
                         parts[parts.length - 1].contentEquals("good")));
             } catch (NumberFormatException e) {
-                logger.error("{}Malformed MQTT decision message topic='{}' message='{}'",
+                logger.error("{}Malformed MQTT jury member decision message topic='{}' message='{}'",
                         fop.getLoggingName(), topic, messageStr);
             }
         }
@@ -155,7 +156,7 @@ public class MQTTMonitor {
                         parts[parts.length - 1].contentEquals("good")));
                 ;
             } catch (NumberFormatException e) {
-                logger.error("{}Malformed MQTT decision message topic='{}' message='{}'",
+                logger.error("{}Malformed MQTT referee decision message topic='{}' message='{}'",
                         fop.getLoggingName(), topic, messageStr);
             }
         }
@@ -172,12 +173,10 @@ public class MQTTMonitor {
                 } else {
                     refIndex = Integer.parseInt(parts[0]);
                 }
-                // calling referee triggers a jury break
-                postJurySummonNotification(fop, this, refIndex);
                 // do the actual summoning
                 fop.fopEventPost(new FOPEvent.SummonReferee(this, refIndex));
             } catch (NumberFormatException e) {
-                logger.error("{}Malformed MQTT decision message topic='{}' message='{}'",
+                logger.error("{}Malformed MQTT referee summon message topic='{}' message='{}'",
                         fop.getLoggingName(), topic, messageStr);
             }
         }
@@ -185,13 +184,16 @@ public class MQTTMonitor {
         private void postFopJuryBreakEvents(String topic, String messageStr) {
             messageStr = messageStr.trim();
             if (messageStr.equalsIgnoreCase("technical")) {
-                postJuryTechnicalPause(fop, this);
+                fop.fopEventPost(
+                        new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.INDEFINITE, 0, null, true, this));
             } else if (messageStr.equalsIgnoreCase("deliberation")) {
-                postJuryDeliberation(OwlcmsSession.getFop(), this, athleteUnderReview);
+                fop.fopEventPost(
+                        new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
             } else if (messageStr.equalsIgnoreCase("stop")) {
-                postJuryResumeCompetition(OwlcmsSession.getFop(), this, athleteUnderReview);
+                fop.fopEventPost(
+                        new FOPEvent.StartLifting(this));
             } else {
-                logger.error("{}Malformed MQTT clock message topic='{}' message='{}'",
+                logger.error("{}Malformed MQTT jury break message topic='{}' message='{}'",
                         fop.getLoggingName(), topic, messageStr);
             }
         }
@@ -434,7 +436,8 @@ public class MQTTMonitor {
             } catch (MqttException e1) {
             }
         } else {
-            logger.debug("{}MQTT skipping out-of-date publishMqttRefereeUpdates {}({}) {}({}) {}({})", fop.getLoggingName(), ref1, ref1Time,
+            logger.debug("{}MQTT skipping out-of-date publishMqttRefereeUpdates {}({}) {}({}) {}({})",
+                    fop.getLoggingName(), ref1, ref1Time,
                     ref2, ref2Time, ref3, ref3Time);
         }
         prevRefereeTimeStamp = curRefereeUpdateTimeStamp.isPresent() ? curRefereeUpdateTimeStamp.get() : 0L;
@@ -476,7 +479,7 @@ public class MQTTMonitor {
         logger.debug("{}MQTT decisionRequest {}", fop.getLoggingName(), ref);
         try {
             FOPState state = fop.getState();
-            if (state != FOPState.DOWN_SIGNAL_VISIBLE 
+            if (state != FOPState.DOWN_SIGNAL_VISIBLE
                     && state != FOPState.TIME_RUNNING
                     && state != FOPState.TIME_STOPPED) {
                 // boundary condition where the wait thread to remind referee is not cancelled

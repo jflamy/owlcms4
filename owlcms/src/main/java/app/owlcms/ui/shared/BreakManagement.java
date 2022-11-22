@@ -12,7 +12,6 @@ import static app.owlcms.ui.shared.BreakManagement.CountdownType.INDEFINITE;
 import static app.owlcms.ui.shared.BreakManagement.CountdownType.TARGET;
 import static app.owlcms.uievents.BreakType.BEFORE_INTRODUCTION;
 import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
-import static app.owlcms.uievents.BreakType.JURY;
 import static app.owlcms.uievents.BreakType.TECHNICAL;
 import static java.time.temporal.ChronoUnit.MILLIS;
 
@@ -208,7 +207,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
             if (bType != null && (bType.isInterruption())) {
                 logger.debug("starting break from radiobutton setvalue {}", bType);
-                startIndefiniteBreakImmediately(bType);
+                //startIndefiniteBreakImmediately(bType);
+                setBreakTimerFromFields(durationRadios.getValue());
             } else {
                 setBreakTimerFromFields(durationRadios.getValue());
             }
@@ -293,11 +293,12 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
      * @return true if we triggered an immediate break.
      */
     private boolean checkImmediateBreak() {
-        return (getRequestedBreakType() != null
-                && (getRequestedBreakType() == JURY 
-                //|| getRequestedBreakType() == TECHNICAL      
-                //|| getRequestedBreakType() == MARSHAL
-                ));
+        return false;
+//                (getRequestedBreakType() != null
+//                && (getRequestedBreakType() == JURY 
+//                || getRequestedBreakType() == TECHNICAL      
+//                || getRequestedBreakType() == MARSHAL
+//                ));
     }
 
     private void computeDefaultTimeValues() {
