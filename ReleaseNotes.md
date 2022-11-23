@@ -31,12 +31,16 @@
     
   - Fixes:
   
+    - 35.0.0-beta07: Fixed regression that disabled MQTT referee reminders (#571)
+  
+    - 35.0.0-beta07: Fixed premature notifications to technical officials for events that were in fact forbidden (#570)  All TO notifications were refactored to be issued from the FOP state machine.
+  
     - 35.0.0-beta04: Updated documentation for [Records](https://owlcms.github.io/owlcms4-prerelease/#/Records) to describe  the fields and to include links to examples.  
   
     - 35.0.0-beta04: The .zip distributions for owlcms were missing some of the directories under `local` (e.g. records).
-  
+    
     - 35.0.0-beta01: Ignore superseded out-of-order events on the asynchronous UI Update bus (#567). The events are innocuous but make logs confusing to read.
-  
+    
     - 35.0.0-beta01: Code review to improve concurrency-resilience and privacy of the field of play state (#566)
     
     - 35.0.0-alpha13: Fixed import of registration data for federation codes used for record eligibility.
@@ -134,7 +138,7 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_35.0.0-beta06.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_35.0.0-beta07.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
