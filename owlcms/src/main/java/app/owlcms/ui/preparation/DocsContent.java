@@ -7,6 +7,7 @@
 
 package app.owlcms.ui.preparation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -14,17 +15,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
-import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -43,10 +44,12 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.DownloadButtonFactory;
 import app.owlcms.components.GroupSelectionMenu;
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.category.AgeDivision;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -54,8 +57,10 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSMedalsSheet;
 import app.owlcms.spreadsheet.JXLSResultSheet;
+import app.owlcms.spreadsheet.JXLSStartingList;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AthleteCrudGrid;
@@ -105,7 +110,13 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
     private Group currentGroup;
     private DownloadButtonFactory downloadButtonFactory;
 
-    private Checkbox medalsOnly;
+    private ComboBox<AgeDivision> ageDivisionFilter;
+    private ComboBox<AgeGroup> ageGroupFilter;
+    private String ageGroupPrefix;
+    private AgeDivision ageDivision;
+    private Category category;
+    private JXLSStartingList startingXlsWriter;
+    private JXLSCards cardsXlsWriter;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
@@ -174,36 +185,99 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
      *
      * @see org.vaadin.crudui.crud.CrudListener#findAll()
      */
+//    @Override
+//    public Collection<Athlete> findAll() {
+//        Group currentGroup = getGroupFilter().getValue();
+//        Gender currentGender = genderFilter.getValue();
+//
+//        List<Athlete> athletes = AthleteRepository.findFiltered(null, currentGroup, null, null, null, currentGender, null, 0, 0);
+//
+//        return athletes;
+//    }
+    
     @Override
     public Collection<Athlete> findAll() {
-        Group currentGroup = getGroupFilter().getValue();
-        Gender currentGender = genderFilter.getValue();
+        Competition competition = Competition.getCurrent();
+        HashMap<String, Object> beans = competition.computeReportingInfo(ageGroupPrefix, ageDivision);
 
-        List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(currentGroup);
+        // String suffix = (getAgeGroupPrefix() != null) ? getAgeGroupPrefix() : getAgeDivision().name();
+        // String key = "mwTot"+suffix;
+        // List<Athlete> ranked = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL, false);
 
-        if (currentGroup != null) {
-            rankedAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
-                    .filter(a -> a.getGroup() != null ? a.getGroup().equals(currentGroup) : false)
-                    .filter(a -> a.getGender() != null
-                            ? (currentGender != null ? currentGender.equals(a.getGender()) : true)
-                            : false)
-                    .collect(Collectors.toList());
-        } else {
-            rankedAthletes = AthleteSorter.displayOrderCopy(rankedAthletes).stream()
-                    .filter(a -> a.getGender() != null
-                            ? (currentGender != null ? currentGender.equals(a.getGender()) : true)
-                            : false)
-                    .collect(Collectors.toList());
+        String key = "mwTot";
+        @SuppressWarnings("unchecked")
+        List<Athlete> ranked = (List<Athlete>) beans.get(key);
+        if (ranked == null || ranked.isEmpty()) {
+            return new ArrayList<>();
         }
+        Category catFilterValue = getCategoryValue();
+        Stream<Athlete> stream = ranked.stream()
+                .filter(a -> {
+                    Gender genderFilterValue = genderFilter != null ? genderFilter.getValue() : null;
+                    Gender athleteGender = a.getGender();
+                    boolean catOk = (catFilterValue == null
+                            || catFilterValue.toString().equals(a.getCategory().toString()))
+                            && (genderFilterValue == null || genderFilterValue == athleteGender);
+                    // logger.debug("filter {} : {} {} {} | {} {}", catOk, catFilterValue, a.getCategory(),
+                    // genderFilterValue, athleteGender);
+                    return catOk;
+                });
+        List<Athlete> found = stream.collect(Collectors.toList());
 
-        Boolean medals = medalsOnly.getValue();
-        if (medals != null && medals) {
-            return rankedAthletes.stream()
-                    .filter(a -> a.getMainRankings().getTotalRank() >= 1 && a.getMainRankings().getTotalRank() <= 3)
-                    .collect(Collectors.toList());
-        } else {
-            return rankedAthletes;
+        if (topBar != null) {
+//            computeAnchors();
+            cardsXlsWriter.setSortedAthletes(found);
+            startingXlsWriter.setSortedAthletes(found);
         }
+        updateURLLocations();
+        return found;
+    }
+    
+    /**
+     * @return the ageGroupPrefix
+     */
+    public String getAgeGroupPrefix() {
+        return ageGroupPrefix;
+    }
+
+    /**
+     * @param ageGroupPrefix the ageGroupPrefix to set
+     */
+    public void setAgeGroupPrefix(String ageGroupPrefix) {
+        this.ageGroupPrefix = ageGroupPrefix;
+    }
+
+    /**
+     * @return the ageDivision
+     */
+    public AgeDivision getAgeDivision() {
+        return ageDivision;
+    }
+
+    /**
+     * @param ageDivision the ageDivision to set
+     */
+    public void setAgeDivision(AgeDivision ageDivision) {
+        this.ageDivision = ageDivision;
+    }
+
+    protected void updateURLLocations() {
+
+        updateURLLocation(UI.getCurrent(), getLocation(), "fop", null);
+        String ag = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
+        updateURLLocation(UI.getCurrent(), getLocation(), "ag",
+                ag);
+        String ad = getAgeDivision() != null ? getAgeDivision().name() : null;
+        updateURLLocation(UI.getCurrent(), getLocation(), "ad",
+                ad);
+        String cat = getCategoryValue() != null ? getCategoryValue().getComputedCode() : null;
+        updateURLLocation(UI.getCurrent(), getLocation(), "cat",
+                cat);
+        // logger.debug("update URL {} {} {}",ag,ad,cat);
+    }
+
+    private Category getCategoryValue() {
+        return category;
     }
 
     public Group getGridGroup() {
@@ -223,7 +297,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         return false;
     }
 
-    public void refresh() {
+    private void refresh() {
         crudGrid.sort(null);
         crudGrid.refreshGrid();
     }
@@ -247,45 +321,21 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
      *      java.lang.String)
      */
     @Override
-    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-        setLocation(event.getLocation());
+    public void setParameter(BeforeEvent event, @OptionalParameter String unused) {
+        Location location = event.getLocation();
+        setLocation(location);
         setLocationUI(event.getUI());
-        QueryParameters queryParameters = getLocation().getQueryParameters();
-        Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
-        HashMap<String, List<String>> params = new HashMap<>(parametersMap);
 
-        logger.debug("parsing query parameters ResultContent");
-        List<String> groupNames = params.get("group");
-        if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
-            String groupName = groupNames.get(0);
-            if (groupName == "*") {
-                // special group to show all athletes
-                currentGroup = null;
-            } else {
-                currentGroup = GroupRepository.findByName(groupName);
-            }
-        } else {
-            // if no group, we pick the first alphabetical group as a filter
-            // to avoid showing hundreds of athlete at the end of each of the groups
-            // (which has a noticeable impact on slower machines)
-            List<Group> groups = GroupRepository.findAll();
-            groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
-            currentGroup = (groups.size() > 0 ? groups.get(0) : null);
-        }
-        if (currentGroup != null) {
-            params.put("group", Arrays.asList(URLUtils.urlEncode(currentGroup.getName())));
-        } else {
-            // params.remove("group");
-            params.put("group", Arrays.asList(URLUtils.urlEncode("*")));
-        }
-        doSwitchGroup(currentGroup);
-        params.remove("fop");
-        logger.debug("params {}", params);
+        // the OptionalParameter string is the part of the URL path that can be interpreted as REST arguments
+        // we use the ? query parameters instead.
+        QueryParameters queryParameters = location.getQueryParameters();
+        Map<String, List<String>> parametersMap = queryParameters.getParameters();
+        HashMap<String, List<String>> params = readParams(location, parametersMap);
 
-        // change the URL to reflect group
         event.getUI().getPage().getHistory().replaceState(null,
-                new Location(getLocation().getPath(), new QueryParameters(params)));
+                new Location(location.getPath(), new QueryParameters(params)));
     }
+
 
     @Override
     public void updateURLLocation(UI ui, Location location, Group newGroup) {
@@ -310,15 +360,16 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
      */
     @Override
     protected Component createReset() {
-        reset = new Button(Translator.translate("RecomputeRanks"), IronIcons.REFRESH.create(),
-                (e) -> OwlcmsSession.withFop((fop) -> {
-                    AthleteRepository.assignCategoryRanks();
-                    refresh();
-                }));
-
-        reset.getElement().setAttribute("title", Translator.translate("RecomputeRanks"));
-        reset.getElement().setAttribute("theme", "secondary contrast small icon");
-        return reset;
+//        reset = new Button(Translator.translate("RecomputeRanks"), IronIcons.REFRESH.create(),
+//                (e) -> OwlcmsSession.withFop((fop) -> {
+//                    AthleteRepository.assignCategoryRanks();
+//                    refresh();
+//                }));
+//
+//        reset.getElement().setAttribute("title", Translator.translate("RecomputeRanks"));
+//        reset.getElement().setAttribute("theme", "secondary contrast small icon");
+//        return reset;
+        return null;
     }
 
     /**
@@ -338,6 +389,8 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         getAppLayout().closeDrawer();
 
         topBar = getAppLayout().getAppBarElementWrapper();
+        startingXlsWriter = new JXLSStartingList();
+        cardsXlsWriter = new JXLSCards();
 
         H3 title = new H3();
         title.setText(Translator.translate("GroupResults"));
@@ -407,10 +460,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
      */
     @Override
     protected void defineFilters(GridCrud<Athlete> crud) {
-        if (medalsOnly != null) {
-            return;
-        }
-
+        
         getGroupFilter().setPlaceholder(Translator.translate("Group"));
         List<Group> groups = GroupRepository.findAll();
         groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
@@ -426,14 +476,14 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         });
         crud.getCrudLayout().addFilterComponent(getGroupFilter());
 
-        medalsOnly = new Checkbox();
-        medalsOnly.setLabel(Translator.translate("MedalsOnly"));
-        medalsOnly.setValue(false);
-        medalsOnly.addValueChangeListener(e -> {
-            crudGrid.getGrid().getElement().getClassList().set("medals", Boolean.TRUE.equals(e.getValue()));
-            crud.refreshGrid();
-        });
-        crud.getCrudLayout().addFilterComponent(medalsOnly);
+//        medalsOnly = new Checkbox();
+//        medalsOnly.setLabel(Translator.translate("MedalsOnly"));
+//        medalsOnly.setValue(false);
+//        medalsOnly.addValueChangeListener(e -> {
+//            crudGrid.getGrid().getElement().getClassList().set("medals", Boolean.TRUE.equals(e.getValue()));
+//            crud.refreshGrid();
+//        });
+//        crud.getCrudLayout().addFilterComponent(medalsOnly);
 
         genderFilter.setPlaceholder(Translator.translate("Gender"));
         genderFilter.setItems(Gender.M, Gender.F);
@@ -446,6 +496,37 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         });
         genderFilter.setWidth("10em");
         crud.getCrudLayout().addFilterComponent(genderFilter);
+        
+        if (ageDivisionFilter == null) {
+            ageDivisionFilter = new ComboBox<>();
+        }
+        ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
+        List<AgeDivision> adItems = AgeGroupRepository.allAgeDivisionsForAllAgeGroups();
+        ageDivisionFilter.setItems(adItems);
+        ageDivisionFilter.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
+        ageDivisionFilter.setClearButtonVisible(true);
+        ageDivisionFilter.setWidth("8em");
+        ageDivisionFilter.getStyle().set("margin-left", "1em");
+        ageDivisionFilter.addValueChangeListener(e -> {
+            crud.refreshGrid();
+        });
+        crud.getCrudLayout().addFilterComponent(ageDivisionFilter);
+        
+        if (ageGroupFilter == null) {
+            ageGroupFilter = new ComboBox<>();
+        }
+        ageGroupFilter.setPlaceholder(getTranslation("AgeGroup"));
+        List<AgeGroup> agItems = AgeGroupRepository.findFiltered(null, null, null, null, true, 0, 0);
+        ageGroupFilter.setItems(agItems);
+        //ageGroupFilter.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
+        ageGroupFilter.setClearButtonVisible(true);
+        ageGroupFilter.setWidth("8em");
+        ageGroupFilter.getStyle().set("margin-left", "1em");
+        ageGroupFilter.addValueChangeListener(e -> {
+            crud.refreshGrid();
+        });
+        crud.getCrudLayout().addFilterComponent(ageGroupFilter);
+        //ageDivisionFilter.setValue(getAgeDivision());
     }
 
     /**
