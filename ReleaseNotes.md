@@ -8,6 +8,7 @@
 
   - Enhancements / functional changes
 
+    * 35.0.0-beta08: Export of registration data now lists the groups per platform to make time allocation easier.
     * 35.0.0-beta06: Improved ordering of the registration export page to make it easier to do the initial allocation to groups when there are multiple age groups and there is a need to create A and B groups.
     * 35.0.0-beta05: Experimental capability to add flags and athlete pictures on the attempt board (#508).  See [Flags and Pictures](https://owlcms.github.io/owlcms4-prerelease/#/FlagsPicture) documentation.
     * 35.0.0-beta05: Clicking on the pink break buttons no longer starts a technical or marshal break immediately. It is possible to cancel, or to change the kind of break desired. The ▶ button must be used to start the break. Also, the Marshall break button is labeled "Marshal Issue" to make it's purpose clearer. (#569)
@@ -31,12 +32,14 @@
     
   - Fixes:
   
+    - 35.0.0-beta08: Fixed 2 missing values in the default Latin American Spanish translations
+  
     - 35.0.0-beta07: Fixed regression that disabled MQTT referee reminders (#571)
   
     - 35.0.0-beta07: Fixed premature notifications to technical officials for events that were in fact forbidden (#570)  All TO notifications were refactored to be issued from the FOP state machine.
   
     - 35.0.0-beta04: Updated documentation for [Records](https://owlcms.github.io/owlcms4-prerelease/#/Records) to describe  the fields and to include links to examples.  
-  
+    
     - 35.0.0-beta04: The .zip distributions for owlcms were missing some of the directories under `local` (e.g. records).
     
     - 35.0.0-beta01: Ignore superseded out-of-order events on the asynchronous UI Update bus (#567). The events are innocuous but make logs confusing to read.
@@ -138,7 +141,7 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_35.0.0-beta07.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_35.0.0-beta08.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
