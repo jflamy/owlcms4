@@ -10,7 +10,6 @@ package app.owlcms.ui.preparation;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,6 +107,8 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         super();
         defineFilters(crudGrid);
         setTopBarTitle(Translator.translate("DocsContent"));
+        cardsXlsWriter = new JXLSCards();
+        startingXlsWriter = new JXLSStartingList();
     }
 
     /**
@@ -173,7 +174,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 //    }
 
     @Override
-    public Collection<Athlete> findAll() {
+    public List<Athlete> findAll() {
         logger.warn("findall agp {} ad {} group {} fop {}", getAgeGroupPrefix(), getAgeDivision(),
                 getGroupFilter().getValue(), OwlcmsSession.getFop());
         List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),
@@ -193,11 +194,9 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                         : true);
         List<Athlete> found = stream.collect(Collectors.toList());
 
-        if (topBar != null) {
-//            computeAnchors();
-            cardsXlsWriter.setSortedAthletes(found);
-            startingXlsWriter.setSortedAthletes(found);
-        }
+        logger.warn("setting values {}", found.size());
+        cardsXlsWriter.setSortedAthletes(found);
+        startingXlsWriter.setSortedAthletes(found);
         updateURLLocations();
         return found;
     }
@@ -225,7 +224,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
      */
     @Override
     public String getPageTitle() {
-        return Translator.translate("GroupResults");
+        return getTopBarTitle();
     }
 
     @Override
@@ -379,20 +378,18 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         getAppLayout().closeDrawer();
 
         topBar = getAppLayout().getAppBarElementWrapper();
-        startingXlsWriter = new JXLSStartingList();
-        cardsXlsWriter = new JXLSCards();
+
+        Button cardsButton = createCardsButton();
+        Button startingListButton = createStartingListButton();
 
         H3 title = new H3();
-        title.setText(Translator.translate("GroupResults"));
+        title.setText(getTopBarTitle());
         title.add();
         title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
 
-        Button resultsButton = createGroupResultsDownloadButton();
-        Button medalsButtons = createGroupMedalsDownloadButton();
-
         createTopBarGroupSelect();
 
-        HorizontalLayout buttons = new HorizontalLayout(resultsButton, medalsButtons);
+        HorizontalLayout buttons = new HorizontalLayout(startingListButton, cardsButton);
         buttons.setPadding(true);
         buttons.getStyle().set("margin-left", "5em");
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
@@ -404,6 +401,46 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         topBar.setFlexGrow(0.2, title);
 //        topBar.setSpacing(true);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+    }
+    
+    private Button createCardsButton() {
+        String resourceDirectoryLocation = "/templates/cards";
+        String title = Translator.translate("AthleteCards");
+        String downloadedFilePrefix = "cards";
+        DownloadButtonFactory cardsButtonFactory = new DownloadButtonFactory(
+                () -> {
+                    // group may have been edited since the page was loaded
+                    cardsXlsWriter.setGroup(getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
+                    // findAll sets the sortedAthletes.
+                    return cardsXlsWriter;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedCardsTemplateFileName,
+                Competition::setCardsTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return cardsButtonFactory.createTopBarDownloadButton();
+    }
+
+    private Button createStartingListButton() {
+        String resourceDirectoryLocation = "/templates/start";
+        String title = Translator.translate("StartingList");
+        String downloadedFilePrefix = "startingList";
+
+        DownloadButtonFactory startingListFactory = new DownloadButtonFactory(
+                () -> {
+                    // group may have been edited since the page was loaded
+                    startingXlsWriter.setGroup(getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
+                    return startingXlsWriter;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedStartListTemplateFileName,
+                Competition::setStartListTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return startingListFactory.createTopBarDownloadButton();
     }
 
     @Override
