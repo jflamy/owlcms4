@@ -8,6 +8,7 @@
 
   - Enhancements / functional changes
 
+    * 35.0.0-beta093: Added a feature toggle `preCompDocs`.  If defined, the download buttons for pre-competition documents (start list and athlete card) are moved on a new separate page.  This allows more appropriate filtering (for example, producing different start lists for different competitions if there are joint meets, or a schedule for each platform)
     * 35.0.0-beta08: Export of registration data now lists the groups per platform to make time allocation easier.
     * 35.0.0-beta06: Improved ordering of the registration export page to make it easier to do the initial allocation to groups when there are multiple age groups and there is a need to create A and B groups.
     * 35.0.0-beta05: Experimental capability to add flags and athlete pictures on the attempt board (#508).  See [Flags and Pictures](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FlagsPicture) documentation.

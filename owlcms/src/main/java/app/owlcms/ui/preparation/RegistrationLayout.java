@@ -34,6 +34,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -160,9 +161,16 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         });
         resetCats.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
 
-        HorizontalLayout buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts, startingListButton,
-                cardsButton,
-                resetCats);
+        HorizontalLayout buttons;
+        if (Config.getCurrent().featureSwitch("preCompDocs", true)) {
+            buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts,
+                    resetCats);
+        } else {
+            buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts, startingListButton,
+                    cardsButton,
+                    resetCats);
+        }
+
         buttons.setPadding(true);
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);

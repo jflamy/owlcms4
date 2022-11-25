@@ -88,8 +88,9 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 
     private DownloadButtonFactory downloadButtonFactory;
     private ComboBox<AgeDivision> ageDivisionFilter;
-
     private ComboBox<String> ageGroupFilter;
+    private ComboBox<Platform> platformFilter;
+
     private String ageGroupPrefix;
     private AgeDivision ageDivision;
     private Category category;
@@ -166,12 +167,22 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 
     @Override
     public List<Athlete> findAll() {
-        //logger.debug("findall agp {} ad {} group {} fop {}", getAgeGroupPrefix(), getAgeDivision(), getGroupFilter().getValue(), OwlcmsSession.getFop());
+        //logger.debug("findall gender {} agp {} ad {} group {} platform {}", getGender(), getAgeGroupPrefix(), getAgeDivision(), getGroupFilter().getValue(), getPlatform());
         List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),
                 getAgeDivision());
 
         Category catFilterValue = getCategoryValue();
         Stream<Athlete> stream = athletes.stream()
+                .filter(a -> {
+                    Platform platformFilterValue = platformFilter != null ? platformFilter.getValue() : null;
+                    if (platformFilterValue == null) {
+                        return true;
+                    }
+                    Platform athletePlaform = a.getGroup() != null
+                            ? (a.getGroup().getPlatform() != null ? a.getGroup().getPlatform() : null)
+                            : null;
+                    return platformFilterValue.equals(athletePlaform);
+                })
                 .filter(a -> a.getCategory() != null)
                 .filter(a -> {
                     Gender genderFilterValue = genderFilter != null ? genderFilter.getValue() : null;
@@ -189,7 +200,8 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                     }
                     return a;
                 });
-        List<Athlete> found = stream.sorted(Comparator.comparing(Athlete::getGroup).thenComparing(Athlete::getCategory)).collect(Collectors.toList());
+        List<Athlete> found = stream.sorted(Comparator.comparing(Athlete::getGroup).thenComparing(Athlete::getCategory))
+                .collect(Collectors.toList());
         cardsXlsWriter.setSortedAthletes(found);
         startingXlsWriter.setSortedAthletes(found);
         updateURLLocations();
@@ -263,12 +275,12 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         ageGroupFilter.setValue(ageGroupPrefix);
         String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
         updateParam(params1, "ag", value2);
-        
+
         List<String> genderParams = params1.get("gender");
         // no age group is the default
         String genderString = (genderParams != null && !genderParams.isEmpty() ? genderParams.get(0) : null);
         Gender genderValue = genderString != null ? Gender.valueOf(genderString) : null;
-        //setGender(genderValue);
+        setGender(genderValue);
         genderFilter.setValue(genderValue);
         updateParam(params1, "gender", genderString);
 
@@ -283,7 +295,9 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         String platformParam = (platformParams != null && !platformParams.isEmpty() ? platformParams.get(0) : null);
         platformParam = platformParam != null ? URLDecoder.decode(platformParam, StandardCharsets.UTF_8) : null;
         Platform platform = PlatformRepository.findByName(platformParam);
+        //logger.debug("reading param platform {}", platformParam);
         this.setPlatform(platform);
+        platformFilter.setValue(platform);
         updateParam(params1, "platform", platform != null ? platformParam : null);
 
         // logger.debug("params {}", params1);
@@ -408,7 +422,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 //        topBar.setSpacing(true);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
     }
-    
+
     private Button createCardsButton() {
         String resourceDirectoryLocation = "/templates/cards";
         String title = Translator.translate("AthleteCards");
@@ -416,7 +430,8 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         DownloadButtonFactory cardsButtonFactory = new DownloadButtonFactory(
                 () -> {
                     // group may have been edited since the page was loaded
-                    cardsXlsWriter.setGroup(getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
+                    cardsXlsWriter.setGroup(
+                            getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
                     return cardsXlsWriter;
                 },
                 resourceDirectoryLocation,
@@ -436,7 +451,8 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         DownloadButtonFactory startingListFactory = new DownloadButtonFactory(
                 () -> {
                     // group may have been edited since the page was loaded
-                    startingXlsWriter.setGroup(getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
+                    startingXlsWriter.setGroup(
+                            getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
                     return startingXlsWriter;
                 },
                 resourceDirectoryLocation,
@@ -458,7 +474,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         groups.sort(new NaturalOrderComparator<Group>());
 
         OwlcmsSession.withFop(fop -> {
-            //logger.debug("initial setting group to {} {}", getCurrentGroup(), LoggerUtils.whereFrom());
+            // logger.debug("initial setting group to {} {}", getCurrentGroup(), LoggerUtils.whereFrom());
             getGroupFilter().setValue(getCurrentGroup());
             // switching to group "*" is understood to mean all groups
             topBarMenu = new GroupSelectionMenu(groups, getCurrentGroup(),
@@ -536,8 +552,25 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
             crud.refreshGrid();
         });
         crud.getCrudLayout().addFilterComponent(ageGroupFilter);
-        //logger.debug("define ageGroupFilter {} getAgeGroupPrefix {}",getAgeGroupPrefix());
         ageGroupFilter.setValue(getAgeGroupPrefix());
+
+        if (platformFilter == null) {
+            platformFilter = new ComboBox<>();
+        }
+        platformFilter.setPlaceholder(getTranslation("Platform"));
+        List<Platform> agItems1 = PlatformRepository.findAll();
+        platformFilter.setItems(agItems1);
+        // platformFilter.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
+        platformFilter.setClearButtonVisible(true);
+        platformFilter.setWidth("8em");
+        platformFilter.getStyle().set("margin-left", "1em");
+        platformFilter.addValueChangeListener(e -> {
+            setPlatform(e.getValue());
+            crud.refreshGrid();
+        });
+        crud.getCrudLayout().addFilterComponent(platformFilter);
+        //logger.debug("setting platform filter {}", getPlatform());
+        platformFilter.setValue(getPlatform());
     }
 
     private void setGender(Gender value) {
@@ -567,6 +600,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         updateURLLocation(UI.getCurrent(), getLocation(), "cat",
                 cat);
         String platformName = getPlatform() != null ? getPlatform().getName() : null;
+        //logger.debug("updating platform {}", platformName);
         updateURLLocation(UI.getCurrent(), getLocation(), "platform",
                 platformName);
         String group = getCurrentGroup() != null ? getCurrentGroup().getName() : null;
