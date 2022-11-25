@@ -150,7 +150,7 @@ public class PlatformRepository {
             Query query = em.createQuery("select c from Platform c where lower(name) = lower(:string)");
             query.setParameter("string", string);
             List<Platform> resultList = query.getResultList();
-            return resultList.get(0);
+            return resultList.isEmpty() ? null : resultList.get(0);
         });
     }
 
