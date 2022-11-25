@@ -76,6 +76,7 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "preparation/docs", layout = AthleteGridLayout.class)
 public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 
+    public static final String PRECOMP_DOCS_TITLE = "Preparation.PrecompDocsTitle";
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
     final private static Logger logger = (Logger) LoggerFactory.getLogger(DocsContent.class);
     static {
@@ -105,7 +106,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
     public DocsContent() {
         super();
         defineFilters(crudGrid);
-        setTopBarTitle(Translator.translate("DocsContent"));
+        setTopBarTitle(Translator.translate(PRECOMP_DOCS_TITLE));
         cardsXlsWriter = new JXLSCardsDocs();
         startingXlsWriter = new JXLSStartingListDocs();
     }
