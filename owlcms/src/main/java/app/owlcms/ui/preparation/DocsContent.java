@@ -7,10 +7,10 @@
 
 package app.owlcms.ui.preparation;
 
-import java.util.ArrayList;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +29,6 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.menubar.MenuBar;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -44,18 +42,18 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.DownloadButtonFactory;
 import app.owlcms.components.GroupSelectionMenu;
-import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.data.platform.Platform;
+import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSMedalsSheet;
@@ -88,35 +86,19 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         jexlLogger.setLevel(Level.ERROR);
     }
 
-    private Grid<Athlete> createResultGrid() {
-        Grid<Athlete> grid = new Grid<>(Athlete.class, false);
-        grid.addColumn("lotNumber").setHeader(Translator.translate("Lot"));
-        grid.addColumn("lastName").setHeader(Translator.translate("LastName"));
-        grid.addColumn("firstName").setHeader(Translator.translate("FirstName"));
-        grid.addColumn("team").setHeader(Translator.translate("Team"));
-        grid.addColumn("yearOfBirth").setHeader(Translator.translate("BirthDate"));
-        grid.addColumn("gender").setHeader(Translator.translate("Gender"));
-        grid.addColumn("ageGroup").setHeader(Translator.translate("AgeGroup"));
-        grid.addColumn("category").setHeader(Translator.translate("Category"));
-        grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()), "bodyWeight")
-                .setHeader(Translator.translate("BodyWeight"));
-        grid.addColumn("group").setHeader(Translator.translate("Group"));
-        grid.addColumn("eligibleCategories").setHeader(Translator.translate("Registration.EligibleCategories"));
-        grid.addColumn("entryTotal").setHeader(Translator.translate("EntryTotal"));
-        grid.addColumn("federationCodes").setHeader(Translator.translate("Registration.FederationCodes"));
-        return grid;
-    }
-
     private Group currentGroup;
-    private DownloadButtonFactory downloadButtonFactory;
 
+    private DownloadButtonFactory downloadButtonFactory;
     private ComboBox<AgeDivision> ageDivisionFilter;
-    private ComboBox<AgeGroup> ageGroupFilter;
+
+    private ComboBox<String> ageGroupFilter;
     private String ageGroupPrefix;
     private AgeDivision ageDivision;
     private Category category;
     private JXLSStartingList startingXlsWriter;
     private JXLSCards cardsXlsWriter;
+    private String groupName;
+    private Platform platform;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
@@ -147,7 +129,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                 OwlcmsSession.setAttribute("weighIn", null);
             }
         };
-        
+
         AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, gridLayout, crudFormFactory, grid) {
             @Override
             protected void initToolbar() {
@@ -159,17 +141,12 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 
             @Override
             protected void updateButtonClicked() {
-                // only edit non-lifting groups
-                if (!checkFOP()) {
-                    super.updateButtonClicked();
-                }
             }
 
             @Override
             protected void updateButtons() {
             }
         };
-
 
         defineFilters(crudGrid);
 
@@ -194,34 +171,26 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 //
 //        return athletes;
 //    }
-    
+
     @Override
     public Collection<Athlete> findAll() {
-        Competition competition = Competition.getCurrent();
-        HashMap<String, Object> beans = competition.computeReportingInfo(ageGroupPrefix, ageDivision);
+        logger.warn("findall agp {} ad {} group {} fop {}", getAgeGroupPrefix(), getAgeDivision(),
+                getGroupFilter().getValue(), OwlcmsSession.getFop());
+        List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),
+                getAgeDivision());
 
-        // String suffix = (getAgeGroupPrefix() != null) ? getAgeGroupPrefix() : getAgeDivision().name();
-        // String key = "mwTot"+suffix;
-        // List<Athlete> ranked = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL, false);
-
-        String key = "mwTot";
-        @SuppressWarnings("unchecked")
-        List<Athlete> ranked = (List<Athlete>) beans.get(key);
-        if (ranked == null || ranked.isEmpty()) {
-            return new ArrayList<>();
-        }
         Category catFilterValue = getCategoryValue();
-        Stream<Athlete> stream = ranked.stream()
+        Stream<Athlete> stream = athletes.stream()
                 .filter(a -> {
                     Gender genderFilterValue = genderFilter != null ? genderFilter.getValue() : null;
                     Gender athleteGender = a.getGender();
                     boolean catOk = (catFilterValue == null
                             || catFilterValue.toString().equals(a.getCategory().toString()))
                             && (genderFilterValue == null || genderFilterValue == athleteGender);
-                    // logger.debug("filter {} : {} {} {} | {} {}", catOk, catFilterValue, a.getCategory(),
-                    // genderFilterValue, athleteGender);
                     return catOk;
-                });
+                })
+                .filter(a -> getGroupFilter().getValue() != null ? getGroupFilter().getValue().equals(a.getGroup())
+                        : true);
         List<Athlete> found = stream.collect(Collectors.toList());
 
         if (topBar != null) {
@@ -232,20 +201,6 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         updateURLLocations();
         return found;
     }
-    
-    /**
-     * @return the ageGroupPrefix
-     */
-    public String getAgeGroupPrefix() {
-        return ageGroupPrefix;
-    }
-
-    /**
-     * @param ageGroupPrefix the ageGroupPrefix to set
-     */
-    public void setAgeGroupPrefix(String ageGroupPrefix) {
-        this.ageGroupPrefix = ageGroupPrefix;
-    }
 
     /**
      * @return the ageDivision
@@ -255,29 +210,10 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     /**
-     * @param ageDivision the ageDivision to set
+     * @return the ageGroupPrefix
      */
-    public void setAgeDivision(AgeDivision ageDivision) {
-        this.ageDivision = ageDivision;
-    }
-
-    protected void updateURLLocations() {
-
-        updateURLLocation(UI.getCurrent(), getLocation(), "fop", null);
-        String ag = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
-        updateURLLocation(UI.getCurrent(), getLocation(), "ag",
-                ag);
-        String ad = getAgeDivision() != null ? getAgeDivision().name() : null;
-        updateURLLocation(UI.getCurrent(), getLocation(), "ad",
-                ad);
-        String cat = getCategoryValue() != null ? getCategoryValue().getComputedCode() : null;
-        updateURLLocation(UI.getCurrent(), getLocation(), "cat",
-                cat);
-        // logger.debug("update URL {} {} {}",ag,ad,cat);
-    }
-
-    private Category getCategoryValue() {
-        return category;
+    public String getAgeGroupPrefix() {
+        return ageGroupPrefix;
     }
 
     public Group getGridGroup() {
@@ -293,13 +229,74 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     @Override
+    public boolean isIgnoreFopFromURL() {
+        return true;
+    }
+
+    @Override
     public boolean isIgnoreGroupFromURL() {
         return false;
     }
 
-    private void refresh() {
-        crudGrid.sort(null);
-        crudGrid.refreshGrid();
+    /**
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
+     *      java.util.Map)
+     */
+    @Override
+    public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
+        HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
+
+        List<String> ageDivisionParams = params1.get("ad");
+
+        try {
+            String ageDivisionName = (ageDivisionParams != null
+                    && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
+            AgeDivision valueOf = AgeDivision.valueOf(ageDivisionName);
+            setAgeDivision(valueOf);
+        } catch (Exception e) {
+            setAgeDivision(null);
+        }
+        // remove if now null
+        String value = getAgeDivision() != null ? getAgeDivision().name() : null;
+        updateParam(params1, "ad", value);
+
+        List<String> ageGroupParams = params1.get("ag");
+        // no age group is the default
+        String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
+        setAgeGroupPrefix(ageGroupPrefix);
+        String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
+        updateParam(params1, "ag", value2);
+
+        List<String> catParams = params1.get("cat");
+        String catParam = (catParams != null && !catParams.isEmpty() ? catParams.get(0) : null);
+        catParam = catParam != null ? URLDecoder.decode(catParam, StandardCharsets.UTF_8) : null;
+        this.setCategory(CategoryRepository.findByCode(catParam));
+        String catValue = getCategoryValue() != null ? getCategoryValue().toString() : null;
+        updateParam(params1, "cat", catValue);
+
+        List<String> platformParams = params1.get("platform");
+        String platformParam = (platformParams != null && !platformParams.isEmpty() ? platformParams.get(0) : null);
+        platformParam = platformParam != null ? URLDecoder.decode(platformParam, StandardCharsets.UTF_8) : null;
+        Platform platform = PlatformRepository.findByName(platformParam);
+        this.setPlatform(platform);
+        updateParam(params1, "platform", platform != null ? platformParam : null);
+
+        // logger.debug("params {}", params1);
+        return params1;
+    }
+
+    /**
+     * @param ageDivision the ageDivision to set
+     */
+    public void setAgeDivision(AgeDivision ageDivision) {
+        this.ageDivision = ageDivision;
+    }
+
+    /**
+     * @param ageGroupPrefix the ageGroupPrefix to set
+     */
+    public void setAgeGroupPrefix(String ageGroupPrefix) {
+        this.ageGroupPrefix = ageGroupPrefix;
     }
 
     public void setGridGroup(Group group) {
@@ -331,11 +328,13 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         QueryParameters queryParameters = location.getQueryParameters();
         Map<String, List<String>> parametersMap = queryParameters.getParameters();
         HashMap<String, List<String>> params = readParams(location, parametersMap);
+        List<String> groups = params.get("group");
+        groupName = (groups != null && !groups.isEmpty() ? groups.get(0) : null);
+        getGroupFilter().setValue(GroupRepository.findByName(groupName));
 
         event.getUI().getPage().getHistory().replaceState(null,
                 new Location(location.getPath(), new QueryParameters(params)));
     }
-
 
     @Override
     public void updateURLLocation(UI ui, Location location, Group newGroup) {
@@ -360,15 +359,6 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
      */
     @Override
     protected Component createReset() {
-//        reset = new Button(Translator.translate("RecomputeRanks"), IronIcons.REFRESH.create(),
-//                (e) -> OwlcmsSession.withFop((fop) -> {
-//                    AthleteRepository.assignCategoryRanks();
-//                    refresh();
-//                }));
-//
-//        reset.getElement().setAttribute("title", Translator.translate("RecomputeRanks"));
-//        reset.getElement().setAttribute("theme", "secondary contrast small icon");
-//        return reset;
         return null;
     }
 
@@ -423,34 +413,19 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         // filter.
 
         List<Group> groups = GroupRepository.findAll();
-        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+        groups.sort(new NaturalOrderComparator<Group>());
 
         OwlcmsSession.withFop(fop -> {
-            logger.trace("initial setting group to {} {}", currentGroup, LoggerUtils.whereFrom());
-            getGroupFilter().setValue(currentGroup);
+            logger.warn("initial setting group to {} {}", getCurrentGroup(), LoggerUtils.whereFrom());
+            getGroupFilter().setValue(getCurrentGroup());
             // switching to group "*" is understood to mean all groups
-            topBarMenu = new GroupSelectionMenu(groups, currentGroup,
+            topBarMenu = new GroupSelectionMenu(groups, getCurrentGroup(),
                     fop,
                     (g1) -> doSwitchGroup(g1),
                     (g1) -> doSwitchGroup(new Group("*")),
-                    null, 
+                    null,
                     Translator.translate("AllGroups"));
         });
-    }
-
-    private void doSwitchGroup(Group newCurrentGroup) {
-        if (newCurrentGroup != null && newCurrentGroup.getName() == "*") {
-            currentGroup = null;
-        } else {
-            currentGroup = newCurrentGroup;
-        }
-        setGridGroup(currentGroup);
-        if (downloadButtonFactory != null)
-            downloadButtonFactory.createTopBarDownloadButton();
-        MenuBar oldMenu = topBarMenu;
-        createTopBarGroupSelect();
-        if (topBar != null)
-            topBar.replace(oldMenu, topBarMenu);
     }
 
     /**
@@ -460,18 +435,18 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
      */
     @Override
     protected void defineFilters(GridCrud<Athlete> crud) {
-        
+
         getGroupFilter().setPlaceholder(Translator.translate("Group"));
         List<Group> groups = GroupRepository.findAll();
-        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+        groups.sort(new NaturalOrderComparator<Group>());
         getGroupFilter().setItems(groups);
         getGroupFilter().setItemLabelGenerator(Group::getName);
         // hide because the top bar has it
         getGroupFilter().getStyle().set("display", "none");
         getGroupFilter().addValueChangeListener(e -> {
             logger.debug("updating filters: group={}", e.getValue());
-            currentGroup = e.getValue();
-            updateURLLocation(getLocationUI(), getLocation(), currentGroup);
+            setCurrentGroup(e.getValue());
+            updateURLLocation(getLocationUI(), getLocation(), getCurrentGroup());
 //            subscribeIfLifting(e.getValue());
         });
         crud.getCrudLayout().addFilterComponent(getGroupFilter());
@@ -496,7 +471,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         });
         genderFilter.setWidth("10em");
         crud.getCrudLayout().addFilterComponent(genderFilter);
-        
+
         if (ageDivisionFilter == null) {
             ageDivisionFilter = new ComboBox<>();
         }
@@ -508,25 +483,27 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         ageDivisionFilter.setWidth("8em");
         ageDivisionFilter.getStyle().set("margin-left", "1em");
         ageDivisionFilter.addValueChangeListener(e -> {
+            setAgeDivision(e.getValue());
             crud.refreshGrid();
         });
         crud.getCrudLayout().addFilterComponent(ageDivisionFilter);
-        
+
         if (ageGroupFilter == null) {
             ageGroupFilter = new ComboBox<>();
         }
         ageGroupFilter.setPlaceholder(getTranslation("AgeGroup"));
-        List<AgeGroup> agItems = AgeGroupRepository.findFiltered(null, null, null, null, true, 0, 0);
+        List<String> agItems = AgeGroupRepository.findActiveAndUsed(getAgeDivision());
         ageGroupFilter.setItems(agItems);
-        //ageGroupFilter.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
+        // ageGroupFilter.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
         ageGroupFilter.setClearButtonVisible(true);
         ageGroupFilter.setWidth("8em");
         ageGroupFilter.getStyle().set("margin-left", "1em");
         ageGroupFilter.addValueChangeListener(e -> {
+            setAgeGroupPrefix(e.getValue());
             crud.refreshGrid();
         });
         crud.getCrudLayout().addFilterComponent(ageGroupFilter);
-        //ageDivisionFilter.setValue(getAgeDivision());
+        // ageDivisionFilter.setValue(getAgeDivision());
     }
 
     /**
@@ -539,28 +516,24 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         createTopBar();
     }
 
-    /**
-     * @return true if the current group is safe for editing -- i.e. not lifting currently
-     */
-    private boolean checkFOP() {
-        Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
-        FieldOfPlay liftingFop = null;
-        search: for (FieldOfPlay fop : fops) {
-            if (fop.getGroup() != null && fop.getGroup().equals(currentGroup)) {
-                liftingFop = fop;
-                break search;
-            }
-        }
-        if (liftingFop != null) {
-            Notification.show(
-                    Translator.translate("Warning_GroupLifting") + liftingFop.getName() + Translator.translate("CannotEditResults"),
-                    3000, Position.MIDDLE);
-            logger.debug(Translator.translate("CannotEditResults_logging"), currentGroup, liftingFop);
-//            subscribeIfLifting(currentGroup);
-        } else {
-            logger.debug(Translator.translate("EditingResults_logging"), currentGroup, liftingFop);
-        }
-        return liftingFop != null;
+    protected void updateURLLocations() {
+        updateURLLocation(UI.getCurrent(), getLocation(), "fop", null);
+
+        String ag = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
+        updateURLLocation(UI.getCurrent(), getLocation(), "ag",
+                ag);
+        String ad = getAgeDivision() != null ? getAgeDivision().name() : null;
+        updateURLLocation(UI.getCurrent(), getLocation(), "ad",
+                ad);
+        String cat = getCategoryValue() != null ? getCategoryValue().getComputedCode() : null;
+        updateURLLocation(UI.getCurrent(), getLocation(), "cat",
+                cat);
+        String platformName = getPlatform() != null ? getPlatform().getName() : null;
+        updateURLLocation(UI.getCurrent(), getLocation(), "platform",
+                platformName);
+        String group = getCurrentGroup() != null ? getCurrentGroup().getName() : null;
+        updateURLLocation(UI.getCurrent(), getLocation(), "group",
+                group);
     }
 
     private Button createGroupMedalsDownloadButton() {
@@ -568,7 +541,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                 () -> {
                     JXLSMedalsSheet rs = new JXLSMedalsSheet();
                     // group may have been edited since the page was loaded
-                    rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
+                    rs.setGroup(getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
                     return rs;
                 },
                 "/templates/medals",
@@ -585,7 +558,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                 () -> {
                     JXLSResultSheet rs = new JXLSResultSheet();
                     // group may have been edited since the page was loaded
-                    rs.setGroup(currentGroup != null ? GroupRepository.getById(currentGroup.getId()) : null);
+                    rs.setGroup(getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
                     return rs;
                 },
                 "/templates/protocol",
@@ -595,6 +568,75 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                 "results", Translator.translate("Download"));
         Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
         return resultsButton;
+    }
+
+    private Grid<Athlete> createResultGrid() {
+        Grid<Athlete> grid = new Grid<>(Athlete.class, false);
+        grid.addColumn("lotNumber").setHeader(Translator.translate("Lot"));
+        grid.addColumn("lastName").setHeader(Translator.translate("LastName"));
+        grid.addColumn("firstName").setHeader(Translator.translate("FirstName"));
+        grid.addColumn("team").setHeader(Translator.translate("Team"));
+        grid.addColumn("yearOfBirth").setHeader(Translator.translate("BirthDate"));
+        grid.addColumn("gender").setHeader(Translator.translate("Gender"));
+        grid.addColumn("ageGroup").setHeader(Translator.translate("AgeGroup"));
+        grid.addColumn("category").setHeader(Translator.translate("Category"));
+        grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()), "bodyWeight")
+                .setHeader(Translator.translate("BodyWeight"));
+        grid.addColumn("group").setHeader(Translator.translate("Group"));
+        grid.addColumn("eligibleCategories").setHeader(Translator.translate("Registration.EligibleCategories"));
+        grid.addColumn("entryTotal").setHeader(Translator.translate("EntryTotal"));
+        grid.addColumn("federationCodes").setHeader(Translator.translate("Registration.FederationCodes"));
+        return grid;
+    }
+
+    private void doSwitchGroup(Group newCurrentGroup) {
+        if (newCurrentGroup != null && newCurrentGroup.getName() == "*") {
+            setCurrentGroup(null);
+        } else {
+            setCurrentGroup(newCurrentGroup);
+        }
+        setGridGroup(getCurrentGroup());
+        if (downloadButtonFactory != null) {
+            downloadButtonFactory.createTopBarDownloadButton();
+        }
+        MenuBar oldMenu = topBarMenu;
+        createTopBarGroupSelect();
+        if (topBar != null) {
+            topBar.replace(oldMenu, topBarMenu);
+        }
+    }
+
+    private Category getCategory() {
+        return category;
+    }
+
+    private Category getCategoryValue() {
+        return getCategory();
+    }
+
+    private Group getCurrentGroup() {
+        return currentGroup;
+    }
+
+    private Platform getPlatform() {
+        return platform;
+    }
+
+    private void refresh() {
+        crudGrid.sort(null);
+        crudGrid.refreshGrid();
+    }
+
+    private void setCategory(Category category) {
+        this.category = category;
+    }
+
+    private void setCurrentGroup(Group currentGroup) {
+        this.currentGroup = currentGroup;
+    }
+
+    private void setPlatform(Platform platformValue) {
+        this.platform = platformValue;
     }
 
 }
