@@ -96,6 +96,12 @@ public class PAthlete extends Athlete implements IRankHolder {
     public void computeMainAndEligibleCategories() {
         a.getCategory();
     }
+    
+    @Override
+    public String getCategoryCode() {
+        return a.getCategoryCode();
+    }
+    
 
     @Override
     public boolean equals(Object obj) {
