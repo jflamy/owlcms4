@@ -344,13 +344,13 @@ public class Competition {
     }
 
     synchronized public HashMap<String, Object> computeReportingInfo() {
-        List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(null, null);
+        List<Athlete> athletes = AgeGroupRepository.allWeighedInPAthletesForAgeGroupAgeDivision(null, null);
         doComputeReportingInfo(true, athletes, (String) null, null);
         return reportingBeans;
     }
 
     synchronized public HashMap<String, Object> computeReportingInfo(String ageGroupPrefix, AgeDivision ad) {
-        List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(ageGroupPrefix, ad);
+        List<Athlete> athletes = AgeGroupRepository.allWeighedInPAthletesForAgeGroupAgeDivision(ageGroupPrefix, ad);
         doComputeReportingInfo(true, athletes, ageGroupPrefix, ad);
         return reportingBeans;
     }

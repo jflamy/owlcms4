@@ -195,10 +195,16 @@ public class AgeGroupRepository {
         return parts.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
     }
 
-    public static List<Athlete> allPAthletesForAgeGroupAgeDivision(String ageGroupPrefix, AgeDivision ageDivision) {
+    public static List<Athlete> allWeighedInPAthletesForAgeGroupAgeDivision(String ageGroupPrefix, AgeDivision ageDivision) {
         List<Participation> participations = allParticipationsForAgeGroupAgeDivision(ageGroupPrefix, ageDivision);
         List<Athlete> collect = participations.stream().map(p -> new PAthlete(p))
                 .filter(a -> a.getBodyWeight() != null && a.getBodyWeight() > 0.1).collect(Collectors.toList());
+        return collect;
+    }
+    
+    public static List<Athlete> allPAthletesForAgeGroupAgeDivision(String ageGroupPrefix, AgeDivision ageDivision) {
+        List<Participation> participations = allParticipationsForAgeGroupAgeDivision(ageGroupPrefix, ageDivision);
+        List<Athlete> collect = participations.stream().map(p -> new PAthlete(p)).collect(Collectors.toList());
         return collect;
     }
 
@@ -246,13 +252,23 @@ public class AgeGroupRepository {
     }
 
     public static List<String> findActiveAndUsed(AgeDivision ageDivisionValue) {
+       
         return JPAService.runInTransaction((em) -> {
-            TypedQuery<String> q = em.createQuery(
+            if (ageDivisionValue == null) {
+                TypedQuery<String> q = em.createQuery(
+                        "select distinct ag.code from Participation p join p.category c join c.ageGroup ag",
+                        String.class);
+                List<String> resultSet = q.getResultList();
+                return resultSet;
+            } else {
+                TypedQuery<String> q = em.createQuery(
                     "select distinct ag.code from Participation p join p.category c join c.ageGroup ag where ag.ageDivision = :agv",
                     String.class);
-            q.setParameter("agv", ageDivisionValue);
-            List<String> resultSet = q.getResultList();
-            return resultSet;
+                q.setParameter("agv", ageDivisionValue);
+                List<String> resultSet = q.getResultList();
+                return resultSet;
+            }
+
         });
     }
 
