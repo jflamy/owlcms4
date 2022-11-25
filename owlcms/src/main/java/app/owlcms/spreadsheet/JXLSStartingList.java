@@ -51,7 +51,7 @@ public class JXLSStartingList extends JXLSWorkbookStreamSource {
                         }
                         return a;
                     }).collect(Collectors.toList());
-            logger.warn("sorted by category {}", collect);
+            //logger.debug("sorted by category {}", collect);
             return collect;
         } else {
             List<Athlete> collect = AthleteSorter.registrationOrderCopy(AthleteRepository.findAll()).stream()
@@ -62,7 +62,7 @@ public class JXLSStartingList extends JXLSWorkbookStreamSource {
                         }
                         return a;
                     }).collect(Collectors.toList());
-            logger.warn("sorted by group {}", collect);
+            //logger.debug("sorted by group {}", collect);
             return collect;
         }
     }

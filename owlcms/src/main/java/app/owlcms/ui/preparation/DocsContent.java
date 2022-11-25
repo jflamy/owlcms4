@@ -10,6 +10,7 @@ package app.owlcms.ui.preparation;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,6 @@ import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AthleteCrudGrid;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -96,6 +96,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
     private JXLSCardsDocs cardsXlsWriter;
     private String groupName;
     private Platform platform;
+    private Gender gender;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
@@ -164,8 +165,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 
     @Override
     public List<Athlete> findAll() {
-        logger.warn("findall agp {} ad {} group {} fop {}", getAgeGroupPrefix(), getAgeDivision(),
-                getGroupFilter().getValue(), OwlcmsSession.getFop());
+        //logger.debug("findall agp {} ad {} group {} fop {}", getAgeGroupPrefix(), getAgeDivision(), getGroupFilter().getValue(), OwlcmsSession.getFop());
         List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),
                 getAgeDivision());
 
@@ -188,7 +188,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                     }
                     return a;
                 });
-        List<Athlete> found = stream.collect(Collectors.toList());
+        List<Athlete> found = stream.sorted(Comparator.comparing(Athlete::getGroup).thenComparing(Athlete::getCategory)).collect(Collectors.toList());
         cardsXlsWriter.setSortedAthletes(found);
         startingXlsWriter.setSortedAthletes(found);
         updateURLLocations();
@@ -246,8 +246,10 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                     && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
             AgeDivision valueOf = AgeDivision.valueOf(ageDivisionName);
             setAgeDivision(valueOf);
+            ageDivisionFilter.setValue(valueOf);
         } catch (Exception e) {
             setAgeDivision(null);
+            ageDivisionFilter.setValue(null);
         }
         // remove if now null
         String value = getAgeDivision() != null ? getAgeDivision().name() : null;
@@ -257,8 +259,17 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         // no age group is the default
         String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
         setAgeGroupPrefix(ageGroupPrefix);
+        ageGroupFilter.setValue(ageGroupPrefix);
         String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
         updateParam(params1, "ag", value2);
+        
+        List<String> genderParams = params1.get("gender");
+        // no age group is the default
+        String genderString = (genderParams != null && !genderParams.isEmpty() ? genderParams.get(0) : null);
+        Gender genderValue = genderString != null ? Gender.valueOf(genderString) : null;
+        //setGender(genderValue);
+        genderFilter.setValue(genderValue);
+        updateParam(params1, "gender", genderString);
 
         List<String> catParams = params1.get("cat");
         String catParam = (catParams != null && !catParams.isEmpty() ? catParams.get(0) : null);
@@ -446,7 +457,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         groups.sort(new NaturalOrderComparator<Group>());
 
         OwlcmsSession.withFop(fop -> {
-            logger.warn("initial setting group to {} {}", getCurrentGroup(), LoggerUtils.whereFrom());
+            //logger.debug("initial setting group to {} {}", getCurrentGroup(), LoggerUtils.whereFrom());
             getGroupFilter().setValue(getCurrentGroup());
             // switching to group "*" is understood to mean all groups
             topBarMenu = new GroupSelectionMenu(groups, getCurrentGroup(),
@@ -477,18 +488,8 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
             logger.debug("updating filters: group={}", e.getValue());
             setCurrentGroup(e.getValue());
             updateURLLocation(getLocationUI(), getLocation(), getCurrentGroup());
-//            subscribeIfLifting(e.getValue());
         });
         crud.getCrudLayout().addFilterComponent(getGroupFilter());
-
-//        medalsOnly = new Checkbox();
-//        medalsOnly.setLabel(Translator.translate("MedalsOnly"));
-//        medalsOnly.setValue(false);
-//        medalsOnly.addValueChangeListener(e -> {
-//            crudGrid.getGrid().getElement().getClassList().set("medals", Boolean.TRUE.equals(e.getValue()));
-//            crud.refreshGrid();
-//        });
-//        crud.getCrudLayout().addFilterComponent(medalsOnly);
 
         genderFilter.setPlaceholder(Translator.translate("Gender"));
         genderFilter.setItems(Gender.M, Gender.F);
@@ -497,6 +498,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         });
         genderFilter.setClearButtonVisible(true);
         genderFilter.addValueChangeListener(e -> {
+            setGender(e.getValue());
             crud.refreshGrid();
         });
         genderFilter.setWidth("10em");
@@ -533,7 +535,12 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
             crud.refreshGrid();
         });
         crud.getCrudLayout().addFilterComponent(ageGroupFilter);
-        // ageDivisionFilter.setValue(getAgeDivision());
+        //logger.debug("define ageGroupFilter {} getAgeGroupPrefix {}",getAgeGroupPrefix());
+        ageGroupFilter.setValue(getAgeGroupPrefix());
+    }
+
+    private void setGender(Gender value) {
+        this.gender = value;
     }
 
     /**
@@ -564,6 +571,9 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         String group = getCurrentGroup() != null ? getCurrentGroup().getName() : null;
         updateURLLocation(UI.getCurrent(), getLocation(), "group",
                 group);
+        String gender = getGender() != null ? getGender().name() : null;
+        updateURLLocation(UI.getCurrent(), getLocation(), "gender",
+                gender);
     }
 
     private Grid<Athlete> createRegistrationGrid() {
@@ -633,6 +643,10 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 
     private void setPlatform(Platform platformValue) {
         this.platform = platformValue;
+    }
+
+    private Gender getGender() {
+        return gender;
     }
 
 }

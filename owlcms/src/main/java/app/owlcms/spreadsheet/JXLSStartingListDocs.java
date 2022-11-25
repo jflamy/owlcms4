@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -44,11 +43,11 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
     protected List<Athlete> getSortedAthletes() {
         if (Competition.getCurrent().getComputedStartListTemplateFileName().contains("Categor")) {
             List<Athlete> displayOrderCopy = AthleteSorter.displayOrderCopy(sortedAthletes);
-            logger.warn("sorting by category from {} {}", LoggerUtils.whereFrom(), displayOrderCopy);
+            //logger.debug("sorting by category from {} {}", LoggerUtils.whereFrom(), displayOrderCopy);
             return displayOrderCopy;
         } else {
             List<Athlete> registrationOrderCopy = AthleteSorter.registrationOrderCopy(sortedAthletes);
-            logger.warn("sorting by group from {} {}", LoggerUtils.whereFrom(), registrationOrderCopy);
+            //logger.debug("sorting by group from {} {}", LoggerUtils.whereFrom(), registrationOrderCopy);
             return registrationOrderCopy;
         }
     }
