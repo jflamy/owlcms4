@@ -43,7 +43,7 @@ public class JXLSStartingList extends JXLSWorkbookStreamSource {
     @Override
     protected List<Athlete> getSortedAthletes() {
         if (Competition.getCurrent().getComputedStartListTemplateFileName().contains("Categor")) {
-            return AthleteSorter.displayOrderCopy(AthleteRepository.findAll()).stream()
+            List<Athlete> collect = AthleteSorter.displayOrderCopy(AthleteRepository.findAll()).stream()
                     .filter(a -> a.getCategory() != null)
                     .map(a -> {
                         if (a.getTeam() == null) {
@@ -51,8 +51,10 @@ public class JXLSStartingList extends JXLSWorkbookStreamSource {
                         }
                         return a;
                     }).collect(Collectors.toList());
+            logger.warn("sorted by category {}", collect);
+            return collect;
         } else {
-            return AthleteSorter.registrationOrderCopy(AthleteRepository.findAll()).stream()
+            List<Athlete> collect = AthleteSorter.registrationOrderCopy(AthleteRepository.findAll()).stream()
                     .filter(a -> a.getGroup() != null)
                     .map(a -> {
                         if (a.getTeam() == null) {
@@ -60,6 +62,8 @@ public class JXLSStartingList extends JXLSWorkbookStreamSource {
                         }
                         return a;
                     }).collect(Collectors.toList());
+            logger.warn("sorted by group {}", collect);
+            return collect;
         }
     }
 

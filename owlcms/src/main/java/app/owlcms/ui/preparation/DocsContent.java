@@ -54,10 +54,8 @@ import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.spreadsheet.JXLSCards;
-import app.owlcms.spreadsheet.JXLSMedalsSheet;
-import app.owlcms.spreadsheet.JXLSResultSheet;
-import app.owlcms.spreadsheet.JXLSStartingList;
+import app.owlcms.spreadsheet.JXLSCardsDocs;
+import app.owlcms.spreadsheet.JXLSStartingListDocs;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AthleteCrudGrid;
@@ -94,8 +92,8 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
     private String ageGroupPrefix;
     private AgeDivision ageDivision;
     private Category category;
-    private JXLSStartingList startingXlsWriter;
-    private JXLSCards cardsXlsWriter;
+    private JXLSStartingListDocs startingXlsWriter;
+    private JXLSCardsDocs cardsXlsWriter;
     private String groupName;
     private Platform platform;
 
@@ -107,8 +105,8 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         super();
         defineFilters(crudGrid);
         setTopBarTitle(Translator.translate("DocsContent"));
-        cardsXlsWriter = new JXLSCards();
-        startingXlsWriter = new JXLSStartingList();
+        cardsXlsWriter = new JXLSCardsDocs();
+        startingXlsWriter = new JXLSStartingListDocs();
     }
 
     /**
@@ -120,7 +118,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
      */
     @Override
     public AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-        Grid<Athlete> grid = createResultGrid();
+        Grid<Athlete> grid = createRegistrationGrid();
 
         OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class) {
             @Override
@@ -163,15 +161,6 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
      *
      * @see org.vaadin.crudui.crud.CrudListener#findAll()
      */
-//    @Override
-//    public Collection<Athlete> findAll() {
-//        Group currentGroup = getGroupFilter().getValue();
-//        Gender currentGender = genderFilter.getValue();
-//
-//        List<Athlete> athletes = AthleteRepository.findFiltered(null, currentGroup, null, null, null, currentGender, null, 0, 0);
-//
-//        return athletes;
-//    }
 
     @Override
     public List<Athlete> findAll() {
@@ -182,6 +171,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 
         Category catFilterValue = getCategoryValue();
         Stream<Athlete> stream = athletes.stream()
+                .filter(a -> a.getCategory() != null)
                 .filter(a -> {
                     Gender genderFilterValue = genderFilter != null ? genderFilter.getValue() : null;
                     Gender athleteGender = a.getGender();
@@ -191,10 +181,14 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                     return catOk;
                 })
                 .filter(a -> getGroupFilter().getValue() != null ? getGroupFilter().getValue().equals(a.getGroup())
-                        : true);
+                        : true)
+                .map(a -> {
+                    if (a.getTeam() == null) {
+                        a.setTeam("-");
+                    }
+                    return a;
+                });
         List<Athlete> found = stream.collect(Collectors.toList());
-
-        logger.warn("setting values {}", found.size());
         cardsXlsWriter.setSortedAthletes(found);
         startingXlsWriter.setSortedAthletes(found);
         updateURLLocations();
@@ -411,7 +405,6 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                 () -> {
                     // group may have been edited since the page was loaded
                     cardsXlsWriter.setGroup(getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
-                    // findAll sets the sortedAthletes.
                     return cardsXlsWriter;
                 },
                 resourceDirectoryLocation,
@@ -573,41 +566,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                 group);
     }
 
-    private Button createGroupMedalsDownloadButton() {
-        downloadButtonFactory = new DownloadButtonFactory(
-                () -> {
-                    JXLSMedalsSheet rs = new JXLSMedalsSheet();
-                    // group may have been edited since the page was loaded
-                    rs.setGroup(getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
-                    return rs;
-                },
-                "/templates/medals",
-                Competition::getComputedMedalsTemplateFileName,
-                Competition::setMedalsTemplateFileName,
-                Translator.translate("Results.Medals"),
-                "medals", Translator.translate("Download"));
-        Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
-        return resultsButton;
-    }
-
-    private Button createGroupResultsDownloadButton() {
-        downloadButtonFactory = new DownloadButtonFactory(
-                () -> {
-                    JXLSResultSheet rs = new JXLSResultSheet();
-                    // group may have been edited since the page was loaded
-                    rs.setGroup(getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
-                    return rs;
-                },
-                "/templates/protocol",
-                Competition::getComputedProtocolTemplateFileName,
-                Competition::setProtocolTemplateFileName,
-                Translator.translate("GroupResults"),
-                "results", Translator.translate("Download"));
-        Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
-        return resultsButton;
-    }
-
-    private Grid<Athlete> createResultGrid() {
+    private Grid<Athlete> createRegistrationGrid() {
         Grid<Athlete> grid = new Grid<>(Athlete.class, false);
         grid.addColumn("lotNumber").setHeader(Translator.translate("Lot"));
         grid.addColumn("lastName").setHeader(Translator.translate("LastName"));
