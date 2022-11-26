@@ -66,6 +66,7 @@ public class LazyDownloadButton extends Button {
     private Supplier<String> fileNameCallback;
 
     private InputStreamFactory inputStreamCallback;
+    private StreamResourceWriter streamResourceWriter;
 
     public LazyDownloadButton() {
     }
@@ -90,33 +91,37 @@ public class LazyDownloadButton extends Button {
     public LazyDownloadButton(String text, Component icon, InputStreamFactory inputStreamFactory) {
         this(text, icon, DEFAULT_FILE_NAME_SUPPLIER, inputStreamFactory);
     }
+    
+    public LazyDownloadButton(String text, Component icon, StreamResourceWriter srw) {
+        this(text, icon, DEFAULT_FILE_NAME_SUPPLIER, srw);
+    }
 
     /**
-     * Creates a download button. The first two parameters are used for the button displayment.
+     * Creates a download button. 
+     * 
+     * The first two parameters are used for the button display.
+     * <p>
+     * The third parameter is a callback, that is used to generate the download file name
      * <p/>
-     * The third callback is called, when the download button is clicked. This is called inside the UI thread before the
-     * input stream generation starts. It can be used for instance to deactivate the button.
-     * <p/>
-     * The fourth parameter is a callback, that is used to generate the download file name
-     * <p/>
-     * The fifth parameter is a callback to generate the input stream sent to the client. This callback will be called
+     * <p>
+     * The fourth parameter is a callback to generate the input stream sent to the client. This callback will be called
      * in a separate thread (so that the UI thread is not blocked).
      * <p/>
-     * The sixth callback is called when the download anchor on the client side has been clicked (means the input stream
-     * content is now sent to the user). This callback is called inside the UI thread. BE AWARE THAT THE FILE IS STILL
-     * SENT TO THE CLIENT AT THIS POINT. Deleting or removing things can interrupt the download.
-     *
+     * <p>
+     * You can add an additional listener using {@link #addDownloadStartsListener(ComponentEventListener)} for when the download starts
+     * </p>
+     * 
      * @param text                button text
      * @param icon                button icon
      * @param fileNameCallback    callback for file name generation
      * @param inputStreamCallback callback for input stream generation
      */
-    public LazyDownloadButton(String text, Component icon, Supplier<String> fileNameCallback,
-            InputStreamFactory inputStreamCallback) {
+    public LazyDownloadButton(String text, Component icon, Supplier<String> pFileNameCallback,
+            InputStreamFactory pInputStreamCallback) {
         super(text);
 
-        this.fileNameCallback = fileNameCallback;
-        this.inputStreamCallback = inputStreamCallback;
+        this.setFileNameCallback(pFileNameCallback);
+        this.setInputStreamCallback(pInputStreamCallback);
 
         if (icon != null) {
             setIcon(icon);
@@ -128,8 +133,8 @@ public class LazyDownloadButton extends Button {
             // since the button might be disabled or invisible thus makes the anchor not usable.
             // The anchor must not be removed by this component, since the download failes otherwise
             getParent().ifPresent(component -> {
-                Objects.requireNonNull(fileNameCallback, "File name callback must not be null");
-                Objects.requireNonNull(inputStreamCallback, "Input stream callback must not be null");
+                Objects.requireNonNull(getFileNameCallback(), "File name callback must not be null");
+                Objects.requireNonNull(getInputStreamCallback(), "Input stream callback must not be null");
 
                 if (anchor == null) {
                     anchor = new Anchor();
@@ -146,9 +151,9 @@ public class LazyDownloadButton extends Button {
                 ExecutorService newSingleThreadExecutor = Executors.newSingleThreadExecutor();
                 newSingleThreadExecutor.execute(() -> {
                     try {
-                        InputStream inputStream = inputStreamCallback.createInputStream();
+                        InputStream inputStream = getInputStreamCallback().createInputStream();
                         optionalUI.ifPresent(ui -> ui.access(() -> {
-                            StreamResource href = new StreamResource(fileNameCallback.get(), () -> inputStream);
+                            StreamResource href = new StreamResource(getFileNameCallback().get(), () -> inputStream);
                             href.setCacheTime(0);
                             anchor.setHref(href);
                             anchor.getElement().callJsFunction("click");
@@ -164,30 +169,27 @@ public class LazyDownloadButton extends Button {
     }
 
     /**
-     * Creates a download button. The first two parameters are used for the button displayment.
+     * The first two parameters are used for the button display.
+     * <p>
+     * The third parameter is a callback, that is used to generate the download file name
      * <p/>
-     * The third callback is called, when the download button is clicked. This is called inside the UI thread before the
-     * input stream generation starts. It can be used for instance to deactivate the button.
+     * <p>
+     * The fourth parameter is the captured streamResourceWriter.
      * <p/>
-     * The fourth parameter is a callback, that is used to generate the download file name
-     * <p/>
-     * The fifth parameter is a callback to generate the input stream sent to the client. This callback will be called
-     * in a separate thread (so that the UI thread is not blocked).
-     * <p/>
-     * The sixth callback is called when the download anchor on the client side has been clicked (means the input stream
-     * content is now sent to the user). This callback is called inside the UI thread. BE AWARE THAT THE FILE IS STILL
-     * SENT TO THE CLIENT AT THIS POINT. Deleting or removing things can interrupt the download.
+     * <p>
+     * You can add an additional listener using {@link #addDownloadStartsListener(ComponentEventListener)} for when the download starts
+     * </p>
      *
      * @param text                 button text
      * @param icon                 button icon
      * @param fileNameCallback     callback for file name generation
      * @param streamResourceWriter captured object for content generation
      */
-    public LazyDownloadButton(String text, Component icon, Supplier<String> fileNameCallback,
-            StreamResourceWriter streamResourceWriter) {
+    public LazyDownloadButton(String text, Component icon, Supplier<String> pFileNameCallback,
+            StreamResourceWriter pStreamResourceWriter) {
         super(text);
-
-        this.fileNameCallback = fileNameCallback;
+        this.setFileNameCallback(pFileNameCallback);
+        this.setStreamResourceWriter(pStreamResourceWriter);;
 
         if (icon != null) {
             setIcon(icon);
@@ -199,8 +201,8 @@ public class LazyDownloadButton extends Button {
             // since the button might be disabled or invisible thus makes the anchor not usable.
             // The anchor must not be removed by this component, since the download failes otherwise
             getParent().ifPresent(component -> {
-                Objects.requireNonNull(fileNameCallback, "File name callback must not be null");
-                Objects.requireNonNull(streamResourceWriter, "Stream writer must not be null");
+                Objects.requireNonNull(getFileNameCallback(), "File name callback must not be null");
+                Objects.requireNonNull(getStreamResourceWriter(), "Stream writer must not be null");
 
                 if (anchor == null) {
                     anchor = new Anchor();
@@ -217,7 +219,8 @@ public class LazyDownloadButton extends Button {
                 new Thread(() -> {
                     try {
                         optionalUI.ifPresent(ui -> ui.access(() -> {
-                            StreamResource href = new StreamResource(fileNameCallback.get(), streamResourceWriter);
+                            StreamResource href = new StreamResource(this.getFileNameCallback().get(),
+                                    this.getStreamResourceWriter());
                             href.setCacheTime(0);
                             anchor.setHref(href);
                             anchor.getElement().callJsFunction("click");
@@ -251,12 +254,20 @@ public class LazyDownloadButton extends Button {
         return inputStreamCallback;
     }
 
+    public StreamResourceWriter getStreamResourceWriter() {
+        return streamResourceWriter;
+    }
+
     public void setFileNameCallback(Supplier<String> fileNameCallback) {
         this.fileNameCallback = fileNameCallback;
     }
 
     public void setInputStreamCallback(InputStreamFactory inputStreamCallback) {
         this.inputStreamCallback = inputStreamCallback;
+    }
+
+    public void setStreamResourceWriter(StreamResourceWriter streamResourceWriter) {
+        this.streamResourceWriter = streamResourceWriter;
     }
 
     @Override

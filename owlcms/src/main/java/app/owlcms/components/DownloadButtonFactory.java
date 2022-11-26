@@ -22,6 +22,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.server.StreamResourceWriter;
 
 import app.owlcms.components.elements.LazyDownloadButton;
 import app.owlcms.data.competition.Competition;
@@ -103,14 +104,20 @@ public class DownloadButtonFactory {
         //templateSelect.getStyle().set("margin-left", "1em");
         templateSelect.getStyle().set("margin-right", "0.8em");
 //        innerButton.setEnabled(false);
+        
+        downloadButton = new LazyDownloadButton(
+                buttonLabel,
+                new Icon(VaadinIcon.DOWNLOAD_ALT),
+                null,
+                (StreamResourceWriter)null);
         try {
             // Competition.getTemplateFileName()
             // the getter should return a default if not set.
             String curTemplateName = fileNameGetter.apply(Competition.getCurrent());
-            logger.debug("(1) curTemplateName {}", curTemplateName);
+            logger.warn("(1) curTemplateName {}", curTemplateName);
             // searchMatch should always return something unless the directory is empty.
             Resource found = searchMatch(resourceList, curTemplateName);
-            logger.debug("(1) template found {}", found != null ? found.getFilePath() : null);
+            logger.warn("(1) template found {}", found != null ? found.getFilePath() : null);
 
             templateSelect.addValueChangeListener(e -> {
                 try {
@@ -118,29 +125,31 @@ public class DownloadButtonFactory {
                     String fileName = e.getValue().getFileName();
                     fileNameSetter.accept(Competition.getCurrent(), fileName);
                     xlsWriter = streamSourceSupplier.get();
-                    logger.debug("(2) xlsWriter {} {}", xlsWriter, fileName);
+                    logger.warn("(2) xlsWriter {} {}", xlsWriter, fileName);
 
                     // supplier is a lambda that sets the template and the filter values in the xls source
                     Resource res = searchMatch(resourceList, fileName);
                     if (res == null) {
                         throw new Exception("template note found " + fileName);
                     }
-                    logger.debug("(2) template found {}", res != null ? res.getFileName() : null);
+                    logger.warn("(2) template found {}", res != null ? res.getFileName() : null);
 
                     InputStream is = res.getStream();
                     xlsWriter.setInputStream(is);
-                    logger.debug("(2) filter present = {}", xlsWriter.getGroup());
+                    logger.warn("(2) filter present = {}", xlsWriter.getGroup());
 
                     CompetitionRepository.save(Competition.getCurrent());
                     fileName = getTargetFileName();
-                    logger.debug("(2) filename final = {}", fileName);
+                    logger.warn("(2) filename final = {}", fileName);
 
                     Supplier<String> supplier = () -> getTargetFileName();
                     downloadButton = new LazyDownloadButton(
                             buttonLabel,
                             new Icon(VaadinIcon.DOWNLOAD_ALT),
                             supplier,
-                            xlsWriter);
+                            (StreamResourceWriter)null);
+                    downloadButton.setFileNameCallback(supplier);
+                    downloadButton.setStreamResourceWriter(xlsWriter);
                     downloadButton.addDownloadStartsListener(ds -> dialog.close());
 
 //                    wrappedButton.setHref(new StreamResource(fileName, xlsWriter));
