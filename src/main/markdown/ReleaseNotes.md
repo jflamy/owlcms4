@@ -1,8 +1,8 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 35.0.0-rc:
+- 35.0.0-beta:
 
-  *Release Candidate:  Test thoroughly with your own data if you intend to use in a meet.*
+  *No new features, bug fixes only at this stage. Test thoroughly with your own data if you intend to use in a meet.*
 
   Release 35 improves the processing of records for joint meets (several age groups or multiple federations). Release 35 also supports jury, referee and timekeeper devices using MQTT (such as [blue-owl](https://github.com/scottgonzalez/blue-owl) project).  Miscellaneous user interface and reporting improvements were also made.
 
@@ -23,7 +23,8 @@
     
   - Fixes:
   
-    - 35.0.0-beta11: Fixed a race condition that could cause 404 errors when trying to download a file, or required a second click to work. (#574)
+    - 35.0.0-beta11: Fixed a race condition that could cause 404 errors when trying to download a file, or silently required a second click to work. (#574)
+    - 35.0.0-beta11: Fixed spurious error message if clock started when already running (#575)
     - Fixed a vulnerability in processing the passwords. An error message is given at startup if the faulty encoding is detected, asking users to change the password (#574)
     - Fixed premature notifications to technical officials for events that were in fact forbidden (#570)
     - Final Package was including SMF and Sinclair results for all athletes, ignoring the filtering requested. (#561)
