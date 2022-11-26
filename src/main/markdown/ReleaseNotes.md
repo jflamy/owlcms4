@@ -23,6 +23,7 @@
     
   - Fixes:
   
+    - 35.0.0-beta11: Fixed a race condition that could cause 404 errors when trying to download a file, or required a second click to work. (#574)
     - Fixed a vulnerability in processing the passwords. An error message is given at startup if the faulty encoding is detected, asking users to change the password (#574)
     - Fixed premature notifications to technical officials for events that were in fact forbidden (#570)
     - Final Package was including SMF and Sinclair results for all athletes, ignoring the filtering requested. (#561)

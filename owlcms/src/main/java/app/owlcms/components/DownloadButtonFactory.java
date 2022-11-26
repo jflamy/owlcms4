@@ -19,11 +19,9 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.components.elements.LazyDownloadButton;
 import app.owlcms.data.competition.Competition;
@@ -89,8 +87,7 @@ public class DownloadButtonFactory {
     }
 
     private EnhancedDialog createDialog() {
-        Anchor wrappedButton = new Anchor("", "");
-        Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
+//        Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
         EnhancedDialog dialog = new EnhancedDialog();
         dialog.setHeader(new H3(dialogTitle));
         ComboBox<Resource> templateSelect = new ComboBox<>();
@@ -103,8 +100,9 @@ public class DownloadButtonFactory {
         templateSelect.setItems(resourceList);
         templateSelect.setValue(null);
         templateSelect.setWidth("15em");
-        templateSelect.getStyle().set("margin-left", "1em");
-        innerButton.setEnabled(false);
+        //templateSelect.getStyle().set("margin-left", "1em");
+        templateSelect.getStyle().set("margin-right", "0.8em");
+//        innerButton.setEnabled(false);
         try {
             // Competition.getTemplateFileName()
             // the getter should return a default if not set.
@@ -145,8 +143,8 @@ public class DownloadButtonFactory {
                             xlsWriter);
                     downloadButton.addDownloadStartsListener(ds -> dialog.close());
 
-                    wrappedButton.setHref(new StreamResource(fileName, xlsWriter));
-                    innerButton.setEnabled(true);
+//                    wrappedButton.setHref(new StreamResource(fileName, xlsWriter));
+//                    innerButton.setEnabled(true);
                 } catch (Throwable e1) {
                     logger.error("{}", LoggerUtils.stackTrace(e1));
                 }
@@ -157,11 +155,11 @@ public class DownloadButtonFactory {
             throw new RuntimeException(e1);
         }
 
-        wrappedButton.getStyle().set("margin-left", "1em");
-
-        logger.debug("adding dialog button {}", wrappedButton.getHref());
-        wrappedButton.add(innerButton);
-        innerButton.addClickListener(e -> dialog.close());
+//        wrappedButton.getStyle().set("margin-left", "1em");
+//
+//        logger.debug("adding dialog button {}", wrappedButton.getHref());
+//        wrappedButton.add(innerButton);
+//        innerButton.addClickListener(e -> dialog.close());
 
         dialog.add(templateSelect, downloadButton);
         return dialog;
