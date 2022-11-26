@@ -2365,8 +2365,7 @@ public class FieldOfPlay {
             warnMissingKg();
         }
         recomputeLeadersAndRecords(displayOrder);
-        // logger.debug("&&&& previous {} current {} change {} from[{}]", getPrevWeight(), curWeight, newWeight,
-        // LoggerUtils.whereFrom());
+        //logger.debug("&&&& previous {} current {} change {} from[{}]", getPrevWeight(), curWeight, newWeight, LoggerUtils.whereFrom());
         pushOutUIEvent(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, getPreviousAthlete(),
                 changingAthlete,
                 getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),

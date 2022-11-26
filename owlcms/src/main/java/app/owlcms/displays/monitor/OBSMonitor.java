@@ -99,7 +99,8 @@ public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> impleme
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(OBSMonitor.class);
 
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + OBSMonitor.class.getSimpleName());
+    final private static Logger uiEventLogger = (Logger) LoggerFactory
+            .getLogger("UI" + OBSMonitor.class.getSimpleName());
     static {
         uiEventLogger.setLevel(Level.INFO);
     }
@@ -186,7 +187,7 @@ public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> impleme
                 });
             });
         }
-        // uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e /*, e.getTrace()*/);
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e /*, e.getTrace()*/);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             if (syncWithFOP(e)) {
                 // significant transition
@@ -257,9 +258,9 @@ public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> impleme
                 pageTitle.append(".NEW_RECORD");
             }
         } else if (currentChallengedRecords) {
-                pageTitle.append(".RECORD_ATTEMPT");
+            pageTitle.append(".RECORD_ATTEMPT");
         }
-        
+
         pageTitle.append(";");
         pageTitle.append("previous=");
         pageTitle.append(previousState.name());
@@ -273,7 +274,7 @@ public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> impleme
             pageTitle.append(".");
             pageTitle.append(previousDecision == null ? "UNDECIDED" : (previousDecision ? "GOOD_LIFT" : "BAD_LIFT"));
         }
-        
+
         if (currentLiftType != null) {
             pageTitle.append(";");
             pageTitle.append("liftType=");
@@ -309,7 +310,7 @@ public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> impleme
         currentDecision = h0 != null ? h0.decision : null;
         currentChallengedRecords = h0 != null ? h0.challengedRecords : false;
         currentLiftType = h0 != null ? h0.liftType : null;
-        
+
         previousState = h1 != null ? h1.state : null;
         previousBreakType = h1 != null ? h1.breakType : null;
         previousCeremony = h1 != null ? h1.ceremonyType : null;
@@ -327,8 +328,8 @@ public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> impleme
 
     private synchronized void doUpdate() {
         title = computePageTitle();
-        String comparisonTitle = title != null ? title.substring(0,title.indexOf(";")) : title;
-        String comparisonPrevTitle = prevTitle != null ? prevTitle.substring(0,prevTitle.indexOf(";")) : prevTitle;
+        String comparisonTitle = title != null ? title.substring(0, title.indexOf(";")) : title;
+        String comparisonPrevTitle = prevTitle != null ? prevTitle.substring(0, prevTitle.indexOf(";")) : prevTitle;
         logger.debug("comparing comparisonTitle={} with comparisonPrevTitle={}", comparisonTitle, comparisonPrevTitle);
         boolean same = false;
         if (comparisonPrevTitle == null || comparisonTitle == null) {
@@ -366,9 +367,13 @@ public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> impleme
         OwlcmsSession.withFop(fop -> {
             currentFOP = fop.getName();
             boolean fopChallengedRecords = fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty();
-            boolean newRecord = e instanceof UIEvent.JuryNotification && ((UIEvent.JuryNotification)e).getNewRecord();
+            boolean newRecord = e instanceof UIEvent.JuryNotification && ((UIEvent.JuryNotification) e).getNewRecord();
             boolean curChallengedRecords = history.get(0).challengedRecords;
-            if (fop.getState() != history.get(0).state || fopChallengedRecords != curChallengedRecords) {
+
+            boolean stateChanged = fop.getState() != history.get(0).state;
+            boolean recordsChanged = fopChallengedRecords != curChallengedRecords;
+            logger.debug(">>>>>>OBSMonitor fop {} history {} recordsChanged {}",fop.getState(),history.get(0).state, recordsChanged);
+            if (stateChanged || recordsChanged) {
                 doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), fop.getGoodLift(),
                         isNotEmpty(fop.getChallengedRecords()) || newRecord, fop.getCurrentStage()));
                 significant[0] = true;
@@ -379,15 +384,17 @@ public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> impleme
                             isNotEmpty(fop.getChallengedRecords()), null));
                     significant[0] = true;
                 } else {
-                    // logger.trace("*** OBSMonitor ignored duplicate {} {}", fop.getBreakType(), fop.getCeremonyType());
+                    // logger.trace("*** OBSMonitor ignored duplicate {} {}", fop.getBreakType(),
+                    // fop.getCeremonyType());
                 }
             } else {
                 // logger.trace("*** OBSMonitor non break {}", fop.getState());
             }
         });
+        logger.debug(">>>>>>OBSMonitor sync significant {}", significant[0]);
         return significant[0];
     }
-    
+
     private boolean isNotEmpty(List<RecordEvent> list) {
         return list != null && !list.isEmpty();
     }
