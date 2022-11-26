@@ -25,6 +25,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.server.StreamResource;
 
+import app.owlcms.components.elements.LazyDownloadButton;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
@@ -47,6 +48,7 @@ public class DownloadButtonFactory {
     private String resourceDirectoryLocation;
     private Supplier<JXLSWorkbookStreamSource> streamSourceSupplier;
     private JXLSWorkbookStreamSource xlsWriter;
+    private LazyDownloadButton downloadButton;
 
     /**
      * @param streamSourceSupplier      lambda that creates a JXLSWorkbookStreamSource and sets its filters
@@ -123,7 +125,7 @@ public class DownloadButtonFactory {
                     // supplier is a lambda that sets the template and the filter values in the xls source
                     Resource res = searchMatch(resourceList, fileName);
                     if (res == null) {
-                        throw new Exception("template note found "+fileName);
+                        throw new Exception("template note found " + fileName);
                     }
                     logger.debug("(2) template found {}", res != null ? res.getFileName() : null);
 
@@ -134,6 +136,15 @@ public class DownloadButtonFactory {
                     CompetitionRepository.save(Competition.getCurrent());
                     fileName = getTargetFileName();
                     logger.debug("(2) filename final = {}", fileName);
+
+                    Supplier<String> supplier = () -> getTargetFileName();
+                    downloadButton = new LazyDownloadButton(
+                            buttonLabel,
+                            new Icon(VaadinIcon.DOWNLOAD_ALT),
+                            supplier,
+                            xlsWriter);
+                    downloadButton.addDownloadStartsListener(ds -> dialog.close());
+
                     wrappedButton.setHref(new StreamResource(fileName, xlsWriter));
                     innerButton.setEnabled(true);
                 } catch (Throwable e1) {
@@ -152,7 +163,7 @@ public class DownloadButtonFactory {
         wrappedButton.add(innerButton);
         innerButton.addClickListener(e -> dialog.close());
 
-        dialog.add(templateSelect, wrappedButton);
+        dialog.add(templateSelect, downloadButton);
         return dialog;
     }
 
