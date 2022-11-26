@@ -1,62 +1,33 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 35.0.0-beta:
+- 35.0.0-rc:
 
-  *Beta release: Ready for translation and exploratory use. Test thoroughly with your own data if you intend to use in a meet.*
+  *Release Candidate:  Test thoroughly with your own data if you intend to use in a meet.*
 
-  Release 35 aims at fully supporting jury, referee and timekeeper devices that can send commands using MQTT without having to act as a keyboard.  Release 35 also improves processing of records.
+  Release 35 improves the processing of records for joint meets (several age groups or multiple federations). Release 35 also supports jury, referee and timekeeper devices using MQTT (such as [blue-owl](https://github.com/scottgonzalez/blue-owl) project).  Miscellaneous user interface and reporting improvements were also made.
 
   - Enhancements / functional changes
 
-    * 35.0.0-beta10: Fixed a vulnerability in processing the passwords. An error message is given at startup if the faulty encoding is detected, asking users to change the password (#574)
-    * 35.0.0-beta09: Added a feature toggle `preCompDocs`.  If defined, the download buttons for pre-competition documents (start list and athlete card) are moved on a new separate page.  This allows more appropriate filtering (for example, producing different start lists for different competitions if there are joint meets, or a schedule for each platform)
-    * 35.0.0-beta08: Export of registration data now lists the groups per platform to make time allocation easier.
-    * 35.0.0-beta06: Improved ordering of the registration export page to make it easier to do the initial allocation to groups when there are multiple age groups and there is a need to create A and B groups.
-    * 35.0.0-beta05: Experimental capability to add flags and athlete pictures on the attempt board (#508).  See [Flags and Pictures](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FlagsPicture) documentation.
-    * 35.0.0-beta05: Clicking on the pink break buttons no longer starts a technical or marshal break immediately. It is possible to cancel, or to change the kind of break desired. The ▶ button must be used to start the break. Also, the Marshall break button is labeled "Marshal Issue" to make it's purpose clearer. (#569)
-    * 35.0.0-beta03: Added a feature toggle `forceAllGroupRecords`.  If true, the scoreboards will show all the records that can be broken in the current group (as opposed to just those for the current athlete, which is the default.) This works if there is less than about 6 age groups in the group (zooming and adjusting the font size may be required)
-    * 35.0.0-beta01: Removed obsolete feature on break dialog to toggle display of next weight (now always shown)
-    * 35.0.0-beta00: new feature toggle `mqttDecisions` for testing purposes.  This tells the decision displays to send MQTT messages just as if they were independent referee boxes.
-    * 35.0.0-alpha12:  New Records Eligibility Criteria based on Federations (so invited athletes do not show up as breaking local records, etc.). See [Records Eligibility](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Records#eligibility-criteria) documentation.
-    * 35.0.0-alpha12: Timekeeper can now switch groups and start countdowns. Useful when veteran announcer is only using the scoreboard.
-    * 35.0.0-alpha11: Field of play state is now full source of truth for jury decisions. (#469)
-      * Refreshing the jury page (or starting a new one) fetches the referee and jury decisions as stored in the state.
-      * Jury and Referee decisions are now cleared as late as possible on clock restart following change of clock ownership or when a new clock is granted, or on group change.
-    * 35.0.0-alpha09: MQTT events from referee box and jury box shown on jury page (#469)
-    * 35.0.0-alpha08:  Record eligibility check for Age Groups.  (#555).  See [Records Eligibility](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Records#eligibility-criteria) documentation.
-    * 35.0.0-alpha07:  Add version number on installer and zip files (#552)
-    * 35.0.0-alpha01:  Record information is now included in the json database export (#563)
-    * 35.0.0-alpha01:  In multi-lingual settings, a drop down at the top of navigation pages allows changing the language for the current browser. Pages and displays opened from that browser will be in the new language; the overall default is not changed.  (#553)
-    * 35.0.0-alpha01:  Notification given to TOs if current athlete does not meet starting weights rule when called for first clean and jerk (TCRR regulation to rule 6.6.5 clause 6) (#556)
-    * 35.0.0-alpha00: **Full support of MQTT messaging for devices**. Jury/referee/timekeeper devices can now issue MQTT commands instead of key presses, and subscribe to messages issued by the main program (#469)  See  [MQTT Messages documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTTMessages).
+    * Experimental capability to add flags and athlete pictures on the attempt board (#508).  See [Flags and Pictures](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FlagsPicture) documentation.
+    * New Records Eligibility Criteria based on Age Groups and Federations (so invited athletes do not show up as breaking local records, etc.). See [Records Eligibility](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Records#eligibility-criteria) documentation. 
+    * Timekeeper can now switch groups and start countdowns. Useful when a veteran announcer is using the scoreboard only.
+    * Notification given to TOs if current athlete does not meet starting weights rule when called for first clean and jerk (TCRR regulation to rule 6.6.5 clause 6) (#556)
+    * Clicking on the pink break buttons no longer starts a technical or marshal break immediately. It is possible to cancel, or to change the kind of break desired. The ▶ button must be used to start the break. Also, the Marshall break button is labeled "Marshal Issue" to make it's purpose clearer. (#569)
+    * Added a feature toggle `forceAllGroupRecords`.  If true, the scoreboards will show all the records that can be broken in the current group (as opposed to just those for the current athlete, which is the default.) This works if there is less than about 6 age groups in the group (zooming and adjusting the font size may be required)
+    * Added a feature toggle `preCompDocs`.  If defined, the download buttons for pre-competition documents (start list and athlete card) are moved on a new separate page.  This allows more appropriate filtering (for example, producing different start lists for different competitions if there are joint meets, or a schedule for each platform)
+    * Improved ordering of the registration export page to make it easier to do the initial allocation to groups when there are multiple age groups and there is a need to create A and B groups.
+    * In multi-lingual settings, a drop down at the top of navigation pages allows changing the language for the current browser. Pages and displays opened from that browser will be in the new language; the overall default is not changed.  (#553)
+    * Full support of MQTT messaging for devices. Jury/referee/timekeeper devices can now issue MQTT commands instead of key presses, and subscribe to messages issued by the main program (#469)  See  [MQTT Messages documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTTMessages).
     
-    - 35.0.0-alpha00: improved colors on Current Athlete view (current requested weight more visible, fixed empty cell colors) (#562)
+    - Improved colors on the Current Athlete view used for streaming (current requested weight more visible, fixed empty cell colors) (#562)
     
   - Fixes:
   
-    - 35.0.0-beta08: Fixed 2 missing values in the default Latin American Spanish translations
-  
-    - 35.0.0-beta07: Fixed regression that disabled MQTT referee reminders (#571)
-  
-    - 35.0.0-beta07: Fixed premature notifications to technical officials for events that were in fact forbidden (#570)  All TO notifications were refactored to be issued from the FOP state machine.
-  
-    - 35.0.0-beta04: Updated documentation for [Records](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Records) to describe  the fields and to include links to examples.  
-    
-    - 35.0.0-beta04: The .zip distributions for owlcms were missing some of the directories under `local` (e.g. records).
-    
-    - 35.0.0-beta01: Ignore superseded out-of-order events on the asynchronous UI Update bus (#567). The events are innocuous but make logs confusing to read.
-    
-    - 35.0.0-beta01: Code review to improve concurrency-resilience and privacy of the field of play state (#566)
-    
-    - 35.0.0-alpha13: Fixed import of registration data for federation codes used for record eligibility.
-    
-    - 35.0.0-alpha00: Bottom part of Current Athlete view would switch to next athlete's attempts before top part updated (#558)
-    
-    - 35.0.0-alpha00: Final Package was including SMF and Sinclair results for all athletes, ignoring the filtering requested. (#561)
-    
-    - 35.0.0-alpha00: On mobile refereeing screen, reversal was not restoring button colors (#560)
-    
-    - 35.0.0-alpha00: Record attempt notification remained on attempt board at end of group (#557)
+    - Fixed a vulnerability in processing the passwords. An error message is given at startup if the faulty encoding is detected, asking users to change the password (#574)
+    - Fixed premature notifications to technical officials for events that were in fact forbidden (#570)
+    - Final Package was including SMF and Sinclair results for all athletes, ignoring the filtering requested. (#561)
+    - On mobile refereeing screen, reversal was not restoring button colors (#560)
+    - Record attempt notification remained on attempt board at end of group (#557)
   
 - 34.4.0
 
