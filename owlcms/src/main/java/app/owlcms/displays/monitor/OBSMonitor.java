@@ -41,18 +41,18 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Class Monitor
+ * Class OBSMonitor
  *
  * Show athlete lifting order
  *
  */
 @SuppressWarnings("serial")
 @Tag("monitor-template")
-@JsModule("./components/Monitor.js")
+@JsModule("./components/OBSMonitor.js")
 @Route("displays/monitor")
 @Theme(value = Lumo.class)
 @Push
-public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FOPParameters,
+public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> implements FOPParameters,
         SafeEventBusRegistration, UIEventProcessor {
 
     /**
@@ -97,9 +97,9 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
 
     final static int HISTORY_SIZE = 3;
 
-    final private Logger logger = (Logger) LoggerFactory.getLogger(Monitor.class);
+    final private Logger logger = (Logger) LoggerFactory.getLogger(OBSMonitor.class);
 
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + Monitor.class.getSimpleName());
+    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + OBSMonitor.class.getSimpleName());
     static {
         uiEventLogger.setLevel(Level.INFO);
     }
@@ -132,7 +132,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     /**
      * Instantiates a new results board.
      */
-    public Monitor() {
+    public OBSMonitor() {
         OwlcmsFactory.waitDBInitialized();
         this.getElement().getStyle().set("width", "100%");
         // we need two items on the stack (current + previous)
@@ -290,7 +290,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
 
     @Override
     public String toString() {
-        return "Monitor [history=" + history + ", currentBreakType=" + currentBreakType + ", currentCeremony="
+        return "OBSMonitor [history=" + history + ", currentBreakType=" + currentBreakType + ", currentCeremony="
                 + currentCeremony + ", currentDecision=" + currentDecision + ", currentChallengedRecords="
                 + currentChallengedRecords + ", currentFOP=" + currentFOP + ", currentState=" + currentState
                 + ", previousBreakType=" + previousBreakType + ", previousCeremony=" + previousCeremony
@@ -379,10 +379,10 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
                             isNotEmpty(fop.getChallengedRecords()), null));
                     significant[0] = true;
                 } else {
-                    // logger.trace("*** Monitor ignored duplicate {} {}", fop.getBreakType(), fop.getCeremonyType());
+                    // logger.trace("*** OBSMonitor ignored duplicate {} {}", fop.getBreakType(), fop.getCeremonyType());
                 }
             } else {
-                // logger.trace("*** Monitor non break {}", fop.getState());
+                // logger.trace("*** OBSMonitor non break {}", fop.getState());
             }
         });
         return significant[0];
