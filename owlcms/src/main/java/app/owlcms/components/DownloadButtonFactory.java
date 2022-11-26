@@ -114,10 +114,10 @@ public class DownloadButtonFactory {
             // Competition.getTemplateFileName()
             // the getter should return a default if not set.
             String curTemplateName = fileNameGetter.apply(Competition.getCurrent());
-            logger.warn("(1) curTemplateName {}", curTemplateName);
+            logger.debug("(1) curTemplateName {}", curTemplateName);
             // searchMatch should always return something unless the directory is empty.
             Resource found = searchMatch(resourceList, curTemplateName);
-            logger.warn("(1) template found {}", found != null ? found.getFilePath() : null);
+            logger.debug("(1) template found {}", found != null ? found.getFilePath() : null);
 
             templateSelect.addValueChangeListener(e -> {
                 try {
@@ -125,22 +125,22 @@ public class DownloadButtonFactory {
                     String fileName = e.getValue().getFileName();
                     fileNameSetter.accept(Competition.getCurrent(), fileName);
                     xlsWriter = streamSourceSupplier.get();
-                    logger.warn("(2) xlsWriter {} {}", xlsWriter, fileName);
+                    logger.debug("(2) xlsWriter {} {}", xlsWriter, fileName);
 
                     // supplier is a lambda that sets the template and the filter values in the xls source
                     Resource res = searchMatch(resourceList, fileName);
                     if (res == null) {
                         throw new Exception("template note found " + fileName);
                     }
-                    logger.warn("(2) template found {}", res != null ? res.getFileName() : null);
+                    logger.debug("(2) template found {}", res != null ? res.getFileName() : null);
 
                     InputStream is = res.getStream();
                     xlsWriter.setInputStream(is);
-                    logger.warn("(2) filter present = {}", xlsWriter.getGroup());
+                    logger.debug("(2) filter present = {}", xlsWriter.getGroup());
 
                     CompetitionRepository.save(Competition.getCurrent());
                     fileName = getTargetFileName();
-                    logger.warn("(2) filename final = {}", fileName);
+                    logger.debug("(2) filename final = {}", fileName);
 
                     Supplier<String> supplier = () -> getTargetFileName();
                     downloadButton = new LazyDownloadButton(
