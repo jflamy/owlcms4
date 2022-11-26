@@ -749,6 +749,10 @@ public class FieldOfPlay {
                 setState(TIME_STOPPED);
             } else if (e instanceof ForceTime) {
                 doForceTime((ForceTime) e);
+            } else if (e instanceof TimeStarted) {
+                // do nothing
+                logger.debug("{}ignoring start clock when clock is running.", getLoggingName());
+                return;
             } else {
                 unexpectedEventInState(e, TIME_RUNNING);
             }
