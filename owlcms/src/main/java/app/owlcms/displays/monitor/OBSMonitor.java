@@ -372,8 +372,14 @@ public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> impleme
 
             boolean stateChanged = fop.getState() != history.get(0).state;
             boolean recordsChanged = fopChallengedRecords != curChallengedRecords;
-            logger.debug(">>>>>>OBSMonitor fop {} history {} recordsChanged {}",fop.getState(),history.get(0).state, recordsChanged);
-            if (stateChanged || recordsChanged) {
+            logger.debug(">>>>>>OBSMonitor event {} fop {} history {} recordsChanged {}",e != null ? e.getClass().getSimpleName() : null, fop.getState(),history.get(0).state, recordsChanged);
+            if (e != null && e instanceof UIEvent.DecisionReset) {
+                // this event does not change state, and should always be ignored.
+                // however, because it can occur very close to the lifter update, and we have asynchronous events
+                // there is a possibility that it comes late and out of order.  So we ignore it explicitly.
+                logger.debug(">>>>>>OBSMonitor DecisionReset ignored");
+                significant[0] = false;
+            } else if (stateChanged || recordsChanged) {
                 doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), fop.getGoodLift(),
                         isNotEmpty(fop.getChallengedRecords()) || newRecord, fop.getCurrentStage()));
                 significant[0] = true;
