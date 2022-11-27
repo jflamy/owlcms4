@@ -330,7 +330,10 @@ public class FieldOfPlay {
      * @return the current athlete (to be called, or currently lifting)
      */
     public Athlete getCurAthlete() {
-        if (curAthlete != null && curAthlete.fop == null) {
+        // the UI framework uses simple setters to set, for example, the next request.
+        // but we need to validate in the context of the FOP (previous lifted values, etc.).
+        // So we set the FOP forcefully, to make sure all validations are in the correct context.
+        if (curAthlete != null) {
             curAthlete.setFop(this);
         }
         return curAthlete;
@@ -2230,7 +2233,8 @@ public class FieldOfPlay {
                 }
             } else {
                 // we are in a break, resume if needed
-                //logger.debug("{}resuming break : current {} new {}", getLoggingName(), getBreakType(), e.getBreakType());
+                // logger.debug("{}resuming break : current {} new {}", getLoggingName(), getBreakType(),
+                // e.getBreakType());
                 if (!breakTimer.isIndefinite()) {
                     breakTimer.setOrigin(e.getOrigin());
                     breakTimer.setTimeRemaining(breakTimer.liveTimeRemaining(), false);
@@ -2259,7 +2263,7 @@ public class FieldOfPlay {
     }
 
     private void doTONotifications(BreakType newBreak) {
-        //logger.debug("doTONotifications {}\n{}", newBreak, LoggerUtils.stackTrace());
+        // logger.debug("doTONotifications {}\n{}", newBreak, LoggerUtils.stackTrace());
         if (newBreak == null) {
             // resuming
             if (state == BREAK) {
@@ -2271,7 +2275,7 @@ public class FieldOfPlay {
                             JuryDeliberationEventType.END_JURY_BREAK, null, null));
                     break;
                 default:
-                    break;       
+                    break;
                 }
             }
         } else {
@@ -2375,7 +2379,8 @@ public class FieldOfPlay {
             warnMissingKg();
         }
         recomputeLeadersAndRecords(displayOrder);
-        //logger.debug("&&&& previous {} current {} change {} from[{}]", getPrevWeight(), curWeight, newWeight, LoggerUtils.whereFrom());
+        // logger.debug("&&&& previous {} current {} change {} from[{}]", getPrevWeight(), curWeight, newWeight,
+        // LoggerUtils.whereFrom());
         pushOutUIEvent(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, getPreviousAthlete(),
                 changingAthlete,
                 getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),

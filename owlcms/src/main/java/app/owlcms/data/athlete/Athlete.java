@@ -3218,7 +3218,7 @@ public class Athlete {
     }
 
     public void setFop(FieldOfPlay fop) {
-        logger.warn("++++++ setting fop {} for {}", fop, this.getShortName());
+        //logger.debug("++++++ setting fop {} for {}", fop, this.getShortName());
         this.fop = fop;
     }
 
