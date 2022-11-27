@@ -9,7 +9,7 @@
 
     <name>Olympic Weightlifting Competition Management System</name>
     <artifactId>owlcms</artifactId>
-    <version>${revision}c</version>
+    <version>${revision}</version>
     <packaging>jar</packaging>
 
     <dependencies>
