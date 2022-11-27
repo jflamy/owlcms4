@@ -78,6 +78,7 @@ import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
 import app.owlcms.spreadsheet.PAthlete;
@@ -1192,6 +1193,9 @@ public class FieldOfPlay {
      *
      */
     public void testBefore() {
+        if (OwlcmsSession.getFop() == null) {
+            OwlcmsSession.setFop(this);
+        }
         setWeightAtLastStart(0);
         testStartLifting(null, null);
         return;
@@ -2382,7 +2386,6 @@ public class FieldOfPlay {
         int attempts = getCurAthlete() == null ? 0 : getCurAthlete().getAttemptsDone();
 
         String shortName = getCurAthlete() == null ? "" : getCurAthlete().getShortName();
-        /*debug*/getCurAthlete().getFop();
         logger.info("{}current athlete = {} attempt = {}, requested = {}, clock={} initialTime={}",
                 getLoggingName(), shortName, attempts + 1, curWeight,
                 clock,
