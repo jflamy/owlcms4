@@ -329,6 +329,9 @@ public class FieldOfPlay {
      * @return the current athlete (to be called, or currently lifting)
      */
     public Athlete getCurAthlete() {
+        if (curAthlete != null && curAthlete.fop == null) {
+            curAthlete.setFop(this);
+        }
         return curAthlete;
     }
 
@@ -348,8 +351,8 @@ public class FieldOfPlay {
         }
 
         LiftDefinition.Stage stage = null;
-        if (curAthlete != null) {
-            return curAthlete.getAttemptsDone() < 3 ? LiftDefinition.Stage.SNATCH : LiftDefinition.Stage.CLEANJERK;
+        if (getCurAthlete() != null) {
+            return getCurAthlete().getAttemptsDone() < 3 ? LiftDefinition.Stage.SNATCH : LiftDefinition.Stage.CLEANJERK;
         }
 
         return stage;
@@ -597,7 +600,7 @@ public class FieldOfPlay {
                 return;
             } else if (state == BREAK && (breakType == BreakType.GROUP_DONE)) {
                 // resume lifting only if current athlete has one more lift to do
-                if (curAthlete != null && curAthlete.getAttemptsDone() < 6) {
+                if (getCurAthlete() != null && getCurAthlete().getAttemptsDone() < 6) {
                     transitionToLifting(e, getGroup(), true);
                 }
                 return;
@@ -729,7 +732,7 @@ public class FieldOfPlay {
                 // athlete lifted the bar
                 setState(TIME_STOPPED);
                 getAthleteTimer().stop();
-                logger.info("{}time stopped for {} : {}", getLoggingName(), curAthlete.getShortName(),
+                logger.info("{}time stopped for {} : {}", getLoggingName(), getCurAthlete().getShortName(),
                         getAthleteTimer().getTimeRemainingAtLastStop());
             } else if (e instanceof DecisionFullUpdate) {
                 // decision board/attempt board sends bulk update
@@ -878,6 +881,9 @@ public class FieldOfPlay {
         this.recomputeRecordsMap(athletes);
 
         boolean done = false;
+        for (Athlete a : athletes) {
+            a.setFop(this);
+        }
         if (athletes != null && athletes.size() > 0) {
             done = recomputeLiftingOrder(true, true);
         }
@@ -1847,7 +1853,7 @@ public class FieldOfPlay {
 
     private void recomputeLeadersAndRecords(List<Athlete> athletes) {
         recomputeCurrentLeaders(athletes);
-        recomputeRecords(curAthlete);
+        recomputeRecords(getCurAthlete());
     }
 
     private void recomputeRecordsMap(List<Athlete> athletes) {
@@ -2076,7 +2082,7 @@ public class FieldOfPlay {
         for (int i = 0; i < 3; i++) {
             nbWhite = nbWhite + (Boolean.TRUE.equals(getRefereeDecision()[i]) ? 1 : 0);
         }
-        setAthleteUnderReview(curAthlete);
+        setAthleteUnderReview(getCurAthlete());
 
         setLastChallengedRecords(challengedRecords);
 
@@ -2331,7 +2337,7 @@ public class FieldOfPlay {
         setState(TIME_RUNNING);
         setGoodLift(null);
 
-        if (curAthlete.getAttemptsDone() >= 3) {
+        if (getCurAthlete().getAttemptsDone() >= 3) {
             setCjStarted(true);
         }
         getAthleteTimer().start();
@@ -2359,7 +2365,7 @@ public class FieldOfPlay {
         // nextAthlete, currentDisplayAffected);
         Integer newWeight = getPrevWeight() != curWeight ? curWeight : null;
 
-        if (curAthlete != null && curAthlete.getActuallyAttemptedLifts() == 3) {
+        if (getCurAthlete() != null && getCurAthlete().getActuallyAttemptedLifts() == 3) {
             // athlete has until before first CJ to comply with starting weights rule
             // if the snatch was lowered.
             warnMissingKg();
@@ -2376,6 +2382,7 @@ public class FieldOfPlay {
         int attempts = getCurAthlete() == null ? 0 : getCurAthlete().getAttemptsDone();
 
         String shortName = getCurAthlete() == null ? "" : getCurAthlete().getShortName();
+        /*debug*/getCurAthlete().getFop();
         logger.info("{}current athlete = {} attempt = {}, requested = {}, clock={} initialTime={}",
                 getLoggingName(), shortName, attempts + 1, curWeight,
                 clock,
