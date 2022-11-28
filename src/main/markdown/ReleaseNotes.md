@@ -23,6 +23,8 @@
     
   - Fixes:
   
+    - 35.0.0-beta12: During the simulation of a multi-platform competition, the platform used for validation of athlete changes could sometimes become undefined, causing the simulation to stop (#577) .
+    - 35.0.0-beta12: Fixed intermittent missing status change in OBS monitor. After a decision shown the status would not switch to "current athlete displayed "(#576)
     - 35.0.0-beta11: Fixed a race condition that could cause 404 errors when trying to download a file, or silently required a second click to work. (#574)
     - 35.0.0-beta11: Fixed spurious error message if clock started when already running (#575)
     - Fixed a vulnerability in processing the passwords. An error message is given at startup if the faulty encoding is detected, asking users to change the password (#574)
