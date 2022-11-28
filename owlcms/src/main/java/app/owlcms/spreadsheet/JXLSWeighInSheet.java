@@ -7,12 +7,14 @@
 package app.owlcms.spreadsheet;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -40,13 +42,25 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
     @Override
     protected List<Athlete> getSortedAthletes() {
         final Group currentGroup = getGroup();
-        if (currentGroup != null) {
+        if (Competition.getCurrent().getComputedStartingWeightsSheetTemplateFileName().contains("Weigh")) {
+            List<Athlete> collect = AthleteSorter.displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, false)).stream()
+                    .map(a -> {
+                        if (a.getTeam() == null) {
+                            a.setTeam("-");
+                        }
+                        return a;
+                    }).collect(Collectors.toList());
+            //logger.debug("sorted by category {}", collect);
+            return collect;
+        } if (currentGroup != null) {
             return AthleteSorter
                     .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, isExcludeNotWeighed()));
         } else {
             return AthleteSorter
                     .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed()));
         }
+        
+        
     }
 
 }
