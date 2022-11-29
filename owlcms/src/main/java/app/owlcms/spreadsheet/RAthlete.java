@@ -37,13 +37,13 @@ public class RAthlete {
     private Pattern legacyPattern;
     Athlete a = new Athlete();
 
-    public RAthlete() {
-    }
-
     final Logger logger = (Logger) LoggerFactory.getLogger(RAthlete.class);
 
     {
         logger.setLevel(Level.INFO);
+    }
+
+    public RAthlete() {
     }
 
     public Athlete getAthlete() {
@@ -60,6 +60,10 @@ public class RAthlete {
 
     public String getCustom2() {
         return a.getCustom2();
+    }
+
+    public String getFederationCodes() {
+        return a.getFederationCodes();
     }
 
     /**
@@ -112,57 +116,6 @@ public class RAthlete {
         return;
     }
 
-    private void setCategoryHeuristics(String categoryName) throws Exception {
-        Matcher legacyResult = getLegacyPattern().matcher(categoryName);
-        double searchBodyWeight;
-        if (!legacyResult.matches()) {
-
-            // try by explicit name
-            Category category = RCompetition.getActiveCategories().get(categoryName);
-            if (category == null) {
-                throw new Exception(Translator.translate("Upload.CategoryNotFoundByName", categoryName));
-            }
-            if (category.getGender() != a.getGender()) {
-                throw new Exception(
-                        Translator.translate("Upload.GenderMismatch", categoryName, a.getGender()));
-            }
-            a.setCategory(category);
-            return;
-        } else {
-            fixLegacyGender(legacyResult);
-            if (!legacyResult.group(2).isEmpty() || !legacyResult.group(4).isEmpty()) {
-                // > or +
-                searchBodyWeight = Integer.parseInt(legacyResult.group(3)) + 0.1D;
-            } else {
-                searchBodyWeight = Integer.parseInt(legacyResult.group(3)) - 0.1D;
-            }
-            //logger.debug("gt 1:'{}' 2:'{}' 3:'{}' 4:'{}'", legacyResult.group(1), legacyResult.group(2), legacyResult.group(3), legacyResult.group(4));
-        }
-
-        int age;
-        // if no birth date, try with 0 and see if we get the default group.
-        if (a.getFullBirthDate() == null) {
-            age = 0;
-        } else {
-            age = LocalDate.now().getYear() - a.getYearOfBirth();
-        }
-
-        List<Category> found = CategoryRepository.findByGenderAgeBW(a.getGender(), age, searchBodyWeight);
-        Set<Category> eligibles = new LinkedHashSet<>();
-        eligibles.addAll(found);
-        a.setEligibleCategories(eligibles);
-        Category category = found.size() > 0 ? found.get(0) : null;
-        if (category == null) {
-            throw new Exception(
-                    Translator.translate(
-                            "Upload.CategoryNotFound", age, a.getGender(),
-                            legacyResult.group(2) + legacyResult.group(3)));
-        }
-
-        a.setCategory(category);
-        // logger.debug("setting category to {} athlete {}",category.longDump(), a.longDump());
-    }
-
     /**
      * @param cleanJerk1Declaration
      */
@@ -182,6 +135,10 @@ public class RAthlete {
         a.setCustom2(v);
     }
 
+    public void setFederationCodes(String federationCodes) {
+        a.setFederationCodes(federationCodes);
+    }
+
     /**
      * @param firstName
      * @see app.owlcms.data.athlete.Athlete#setFirstName(java.lang.String)
@@ -189,19 +146,6 @@ public class RAthlete {
     public void setFirstName(String firstName) {
         a.setFirstName(firstName);
     }
-
-//	/**
-//	 * @param category
-//	 * @throws Exception
-//	 * @see app.owlcms.data.athlete.Athlete#setCategory(app.owlcms.data.category.Category)
-//	 */
-//	public void setFullBirthDate(Date fullBirthDate) throws Exception {
-//		if (fullBirthDate == null) return;
-//		LocalDate fbd = fullBirthDate.toInstant()
-//			      .atZone(ZoneId.systemDefault())
-//			      .toLocalDate();
-//		a.setFullBirthDate(fbd);
-//	}
 
     /**
      * Note the mapping file must process the birth date before the category, as it is a required input to determine the
@@ -231,6 +175,19 @@ public class RAthlete {
             a.setFullBirthDate(parse);
         }
     }
+
+//	/**
+//	 * @param category
+//	 * @throws Exception
+//	 * @see app.owlcms.data.athlete.Athlete#setCategory(app.owlcms.data.category.Category)
+//	 */
+//	public void setFullBirthDate(Date fullBirthDate) throws Exception {
+//		if (fullBirthDate == null) return;
+//		LocalDate fbd = fullBirthDate.toInstant()
+//			      .atZone(ZoneId.systemDefault())
+//			      .toLocalDate();
+//		a.setFullBirthDate(fbd);
+//	}
 
     /**
      * @param lastName
@@ -311,6 +268,18 @@ public class RAthlete {
         a.setTeam(club);
     }
 
+    Pattern getLegacyPattern() {
+        if (legacyPattern == null) {
+            setLegacyPattern(Pattern
+                    .compile("([mMfF]?) *([>" + Pattern.quote("+") + "]?) *(\\d+) *(" + Pattern.quote("+") + "?)$"));
+        }
+        return legacyPattern;
+    }
+
+    void setLegacyPattern(Pattern legacyPattern) {
+        this.legacyPattern = legacyPattern;
+    }
+
     private void fixLegacyGender(Matcher result) throws Exception {
         String genderLetter = result.group(1);
         if (a.getGender() == null) {
@@ -330,16 +299,56 @@ public class RAthlete {
         }
     }
 
-    Pattern getLegacyPattern() {
-        if (legacyPattern == null) {
-            setLegacyPattern(Pattern
-                    .compile("([mMfF]?) *([>" + Pattern.quote("+") + "]?) *(\\d+) *(" + Pattern.quote("+") + "?)$"));
-        }
-        return legacyPattern;
-    }
+    private void setCategoryHeuristics(String categoryName) throws Exception {
+        Matcher legacyResult = getLegacyPattern().matcher(categoryName);
+        double searchBodyWeight;
+        if (!legacyResult.matches()) {
 
-    void setLegacyPattern(Pattern legacyPattern) {
-        this.legacyPattern = legacyPattern;
+            // try by explicit name
+            Category category = RCompetition.getActiveCategories().get(categoryName);
+            if (category == null) {
+                throw new Exception(Translator.translate("Upload.CategoryNotFoundByName", categoryName));
+            }
+            if (category.getGender() != a.getGender()) {
+                throw new Exception(
+                        Translator.translate("Upload.GenderMismatch", categoryName, a.getGender()));
+            }
+            a.setCategory(category);
+            return;
+        } else {
+            fixLegacyGender(legacyResult);
+            if (!legacyResult.group(2).isEmpty() || !legacyResult.group(4).isEmpty()) {
+                // > or +
+                searchBodyWeight = Integer.parseInt(legacyResult.group(3)) + 0.1D;
+            } else {
+                searchBodyWeight = Integer.parseInt(legacyResult.group(3)) - 0.1D;
+            }
+            // logger.debug("gt 1:'{}' 2:'{}' 3:'{}' 4:'{}'", legacyResult.group(1), legacyResult.group(2),
+            // legacyResult.group(3), legacyResult.group(4));
+        }
+
+        int age;
+        // if no birth date, try with 0 and see if we get the default group.
+        if (a.getFullBirthDate() == null) {
+            age = 0;
+        } else {
+            age = LocalDate.now().getYear() - a.getYearOfBirth();
+        }
+
+        List<Category> found = CategoryRepository.findByGenderAgeBW(a.getGender(), age, searchBodyWeight);
+        Set<Category> eligibles = new LinkedHashSet<>();
+        eligibles.addAll(found);
+        a.setEligibleCategories(eligibles);
+        Category category = found.size() > 0 ? found.get(0) : null;
+        if (category == null) {
+            throw new Exception(
+                    Translator.translate(
+                            "Upload.CategoryNotFound", age, a.getGender(),
+                            legacyResult.group(2) + legacyResult.group(3)));
+        }
+
+        a.setCategory(category);
+        // logger.debug("setting category to {} athlete {}",category.longDump(), a.longDump());
     }
 
 }

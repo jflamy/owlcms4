@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.hash.Hashing;
 import com.vaadin.flow.server.VaadinServletRequest;
 
+import app.owlcms.Main;
 import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
@@ -29,52 +30,63 @@ public class AccessUtils {
         boolean isAuthenticated = OwlcmsSession.isAuthenticated();
 
         if (!isAuthenticated) {
-            boolean whiteListed = AccessUtils.checkWhitelist(getClientIp());
-
-            // check for PIN if one is specified
-            String expectedPin = Config.getCurrent().getParamPin();
-            String hashedPassword = Config.getCurrent().encodeUserPassword(password, Config.getCurrent().getPin());
-            //logger.debug("checking whiteListed={} pin={} password={} hashedPassword={}", whiteListed, expectedPin, password, hashedPassword);
-            //logger.debug("{}", LoggerUtils.stackTrace());
-            if (whiteListed && (expectedPin == null || expectedPin.isBlank())) {
-                // there is no password provided in the environmet, or it is empty. Check that there is no password in
-                // the database.
-                OwlcmsSession.setAuthenticated(true);
-                return true;
-            } else if (whiteListed && (expectedPin.contentEquals(hashedPassword))) {
-                OwlcmsSession.setAuthenticated(true);
-                return true;
-            } else {
+            boolean ipIsAllowed = AccessUtils.ipIsAllowedForOfficials(getClientIp());
+            if (! (ipIsAllowed)) {
                 OwlcmsSession.setAuthenticated(false);
                 return false;
             }
+
+            String pinOverride = Config.getCurrent().getParamPin();
+            String dbPin = Config.getCurrent().getPin();
+            return checkPassword(password, pinOverride, dbPin, "TO");
         }
         return true;
+    }
+
+    private static boolean checkPassword(String password, String pinOverride, String dbPin, String loggingContext) {
+        
+        logger.debug("{} override {} provided {} dbPin {}", loggingContext, pinOverride, password,  dbPin) ;
+        String hashedPassword = Config.getCurrent().encodeUserPassword(password, dbPin);
+        logger.debug("checking override={} password={} storedHashedPassword={} hashedUserPassword={}", pinOverride, password, dbPin, hashedPassword);
+        
+        if (pinOverride != null && pinOverride.isBlank()) {
+            // no check
+            logger.info("empty {} password override", loggingContext);
+            OwlcmsSession.setAuthenticated(true);
+            return true;
+        } else if (pinOverride != null && !pinOverride.isBlank()) {
+            if (pinOverride.contentEquals(password)) {
+                logger.info("{} password override successful", loggingContext);
+                OwlcmsSession.setAuthenticated(true);
+                return true;
+            } else {
+                logger.error("{} password override unsuccessful", loggingContext);
+                OwlcmsSession.setAuthenticated(false);
+                return false;
+            }
+        } else if (dbPin == null || hashedPassword.contentEquals(dbPin)) {
+            OwlcmsSession.setAuthenticated(true);
+            return true;
+        } else {
+            OwlcmsSession.setAuthenticated(false);
+            return false;
+        }
     }
     
     public static boolean checkDisplayAuthenticated(String password) {
         boolean isAuthenticated = OwlcmsSession.isDisplayAuthenticated();
 
         if (!isAuthenticated) {
-            boolean whiteListed = AccessUtils.checkDisplayList(getClientIp());
-
-            // check for PIN if one is specified
-            String expectedPin = Config.getCurrent().getParamDisplayPin();
-            String hashedPassword = Config.getCurrent().encodeUserPassword(password, Config.getCurrent().getDisplayPin());
-            //logger.debug("checking displayWhiteListed={} pin={} password={} hashedPassword={}", whiteListed, expectedPin, password, hashedPassword);
-            //logger.debug("{}", LoggerUtils.stackTrace());
-            if (whiteListed && (expectedPin == null || expectedPin.isBlank())) {
-                // there is no password provided in the environmet, or it is empty. Check that there is no password in
-                // the database.
-                OwlcmsSession.setDisplayAuthenticated(true);
-                return true;
-            } else if (whiteListed && (expectedPin.contentEquals(hashedPassword))) {
-                OwlcmsSession.setDisplayAuthenticated(true);
-                return true;
-            } else {
-                OwlcmsSession.setDisplayAuthenticated(false);
+            boolean ipIsAllowed = AccessUtils.isIpAllowedForDisplay(getClientIp());
+            if (! (ipIsAllowed)) {
+                OwlcmsSession.setAuthenticated(false);
                 return false;
             }
+
+            // check for PIN if one is specified
+            String pinOverride = Config.getCurrent().getParamDisplayPin();
+            String dbPin = Config.getCurrent().getDisplayPin();
+            return checkPassword(password, pinOverride, dbPin, "Display");
         }
         return true;
     }
@@ -84,17 +96,18 @@ public class AccessUtils {
         return checkListMembership(clientIp, backdoorList, false);
     }
 
-    public static boolean checkWhitelist(String clientIp) {
+    public static boolean ipIsAllowedForOfficials(String clientIp) {
         String whiteList = Config.getCurrent().getParamAccessList();
-        return checkListMembership(clientIp, whiteList, true);
+        return (whiteList != null && !whiteList.isEmpty()) ? checkListMembership(clientIp, whiteList, true) : true;
     }
     
-    public static boolean checkDisplayList(String clientIp) {
+    public static boolean isIpAllowedForDisplay(String clientIp) {
         String displayList = Config.getCurrent().getParamDisplayList();
         return checkListMembership(clientIp, displayList, true);
     }
 
     public static String encodePin(String pin, String storedPin, boolean checkingPassword) {
+        logger.debug("encodePin {} {} {}",pin, storedPin, checkingPassword);
         if (pin == null) {
             return null;
         }
@@ -103,7 +116,7 @@ public class AccessUtils {
         String salt = config.getSalt();
 
         String doSHA = doSHA(pin, salt);
-        if (checkingPassword) {;
+        if (checkingPassword) {
             if (salt == null || salt.isBlank()) {
                 // use new technique - salt is after the encrypted password
                 if (storedPin.length() > 64) {
@@ -115,8 +128,13 @@ public class AccessUtils {
                             storedSHA,
                             doSHA, salt, LoggerUtils.whereFrom());
                     return doSHA+"_"+salt;
+                } else if (Config.FAKE_PIN.contentEquals(storedPin)) {
+                    // workaround for old bug.
+                    logger.error("Important: Obsolete password encoding detected; Please change your password.");
+                    Main.getStartupLogger().error("Important: Obsolete password encoding detected; Please change your password.");
+                    return storedPin; 
                 } else {
-                    return storedPin; // no salt, should never happen
+                    throw new RuntimeException("can't happen, stored password with no salt");
                 }
             } else {
                 // old technique - salt is saved in the database
@@ -168,8 +186,8 @@ public class AccessUtils {
                 logger.error("login attempt from non-whitelisted host {} (whitelist={})", clientIp, whiteListedList);
             }
         } else {
-            // no white list, allow all IP addresses
-            whiteListed = true;
+            // no white list
+            whiteListed = false;
         }
         return whiteListed;
     }

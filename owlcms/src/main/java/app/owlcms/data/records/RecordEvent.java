@@ -8,6 +8,7 @@ package app.owlcms.data.records;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
@@ -22,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -36,6 +39,7 @@ import ch.qos.logback.classic.Logger;
         @Index(name = "ix_category", columnList = "gender,ageGrpLower,ageGrpUpper,bwCatLower,bwCatUpper") })
 @SuppressWarnings("serial")
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
+@JsonInclude(Include.NON_NULL)
 public class RecordEvent {
 
     public class MissingAgeGroup extends Exception {
@@ -151,7 +155,7 @@ public class RecordEvent {
     }
 
     public String getBirth() {
-        return (birthDate != null ? dateFormat.format(birthDate) : Integer.toString(birthYear));
+        return (birthDate != null ? dateFormat.format(birthDate) : (birthYear != null ? Integer.toString(birthYear) : null));
     }
 
     public LocalDate getBirthDate() {
@@ -244,6 +248,33 @@ public class RecordEvent {
 
     public Double getRecordValue() {
         return recordValue;
+    }
+
+    /**
+     * The two records are equivalent (ignores Id in database)
+     * @param obj
+     * @return
+     */
+    public boolean sameAs(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RecordEvent other = (RecordEvent) obj;
+        return Objects.equals(ageGrp, other.ageGrp) && ageGrpLower == other.ageGrpLower
+                && ageGrpUpper == other.ageGrpUpper && Objects.equals(athleteName, other.athleteName)
+                && Objects.equals(birthDate, other.birthDate) && Objects.equals(birthYear, other.birthYear)
+                && bwCatLower == other.bwCatLower && Objects.equals(bwCatString, other.bwCatString)
+                && Objects.equals(bwCatUpper, other.bwCatUpper) && Objects.equals(categoryString, other.categoryString)
+                && Objects.equals(event, other.event) && Objects.equals(eventLocation, other.eventLocation)
+                && Objects.equals(fileName, other.fileName) && gender == other.gender
+                && Objects.equals(groupNameString, other.groupNameString) && Objects.equals(nation, other.nation)
+                && Objects.equals(recordDate, other.recordDate)
+                && Objects.equals(recordFederation, other.recordFederation) && recordLift == other.recordLift
+                && Objects.equals(recordName, other.recordName) && Objects.equals(recordValue, other.recordValue)
+                && recordYear == other.recordYear;
     }
 
     public int getRecordYear() {

@@ -29,15 +29,17 @@
   * [Live Streaming Events](Streaming)
   * [Automatic Scene Switching](OBSSceneSwitching)
 * Advanced Topics
-  * [Updating Cloud-based Applications](UpdatingCloudApplications)
   * [Customization](UploadingLocalSettings)
   * [Scoreboard Colors](Styles)
+  * [Flags and Pictures (experimental)](FlagsPictures)
   * [Excel Template Variables](TemplateVariables)
   * [Translations](Translation)
   * [Configuration Parameters](Configuration)
   * [Feature Toggles](FeatureToggles)
+  * [Updating Cloud-based Applications](UpdatingCloudApplications)
   * [Simulation and Load Testing](Simulation)
   * [MQTT Server Configuration](MQTT)
+  * [MQTT Messaging Specification](MQTTMessages)
   * [Using PostgreSQL](PostgreSQL)
   * [Contributing to the code](Gitpod)
 * Downloads

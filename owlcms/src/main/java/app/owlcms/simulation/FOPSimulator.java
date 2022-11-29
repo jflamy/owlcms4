@@ -284,9 +284,9 @@ public class FOPSimulator {
                 Thread.sleep(6000);
             } catch (InterruptedException e) {
             }
-            logger.info("########## switching to group {} of {}", g, curGs);
+            logger.info("{}########## switching to group {} of {}", fop.getLoggingName(), g, curGs);
             fop.fopEventPost(new FOPEvent.SwitchGroup(g, this));
-            logger.info("########## starting group");
+            logger.info("{}########## starting group {}", fop.getLoggingName(), g);
             groupDone = false;
             fop.fopEventPost(new FOPEvent.StartLifting(this));
 

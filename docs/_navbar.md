@@ -1,10 +1,8 @@
 * [Home](index)
-
 * Installation
   * [Downloads](Downloads)
   * [Installation](InstallationOverview)
   * [Equipment Setup](EquipmentSetup)
-  
 * Competitions
   * [Preparation](Preparation)
   * [Language and System Settings](SystemSettings)
@@ -18,7 +16,6 @@
   * [Breaks and Ceremonies](Breaks)
   * [Records](Records)
   * [Result Documents](Documents)
-  
 * Virtual Competitions
   * [Overview](VirtualOverview)
   * [Full Cloud Setup](HerokuLarge)
@@ -28,20 +25,20 @@
   * [Preparing the Video Setup](OBS)
   * [Live Streaming Events](Streaming)
   * [Automatic Scene Switching](OBSSceneSwitching)
-  
 * Advanced
-  * [Updating Cloud-based Applications](UpdatingCloudApplications)
   * [Customization](UploadingLocalSettings)
   * [Changing Scoreboard Colors](Styles)
+  * [Flags and Pictures (experimental)](FlagsPictures)
   * [Excel Template Variables](TemplateVariables)
   * [Translations](Translation)
   * [Configuration Parameters](Configuration)
   * [Feature Toggles](FeatureToggles)
+  * [Updating Cloud-based Applications](UpdatingCloudApplications)
   * [Simulation and Load Testing](Simulation)
   * [MQTT Server Configuration](MQTT)
+  * [MQTT Messaging Specification](MQTTMessages)
   * [Using PostgreSQL](PostgreSQL)
   * [Contributing to the code](Gitpod)
-
 * Downloads
 
   * [Licensing and Notes](Licensing)

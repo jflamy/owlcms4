@@ -105,6 +105,14 @@ public class Athlete {
 
     private static final int YEAR = LocalDateTime.now().getYear();
 
+    @Transient
+    @JsonIgnore
+    private static SinclairCoefficients sinclairProperties2020 = new SinclairCoefficients(2020);
+
+    @Transient
+    @JsonIgnore
+    private static SinclairCoefficients sinclairProperties2024 = new SinclairCoefficients(2024);
+
     public static void conditionalCopy(Athlete dest, Athlete src, boolean copyResults) {
         boolean validation = dest.isValidation();
         Level prevSrcLevel = src.getLogger().getLevel();
@@ -252,6 +260,14 @@ public class Athlete {
         }
     }
 
+    /**
+     * We cannot always rely on the session to be present and give us a valid Fop.
+     * LoadGroup should set the Fop.
+     */
+    @Transient
+    @JsonIgnore
+    public FieldOfPlay fop;
+
     @Transient
     protected final Logger timingLogger = (Logger) LoggerFactory.getLogger("TimingLogger");
 
@@ -293,39 +309,38 @@ public class Athlete {
     private String cleanJerk2ActualLift;
 
     private String cleanJerk2Change1;
-
     private String cleanJerk2Change2;
-
     private String cleanJerk2Declaration;
     private LocalDateTime cleanJerk2LiftTime;
     private String cleanJerk3ActualLift;
     private String cleanJerk3Change1;
+
     private String cleanJerk3Change2;
     private String cleanJerk3Declaration;
-
     private LocalDateTime cleanJerk3LiftTime;
     private String coach;
     @Column(columnDefinition = "integer default 0")
     private int combinedRank;
+
     @Transient
     private Long copyId = null;
     private String custom1;
-
     private String custom2;
     private Double customScore;
     @Column(columnDefinition = "boolean default true")
     private boolean eligibleForIndividualRanking = true;
+
     private boolean eligibleForTeamRanking = true;
+
     private String firstName = "";
 
     /** The forced as current. */
     @Column(columnDefinition = "boolean default false")
     private boolean forcedAsCurrent = false;
-
     @Convert(converter = LocalDateAttributeConverter.class)
     private LocalDate fullBirthDate = null;
-
     private Gender gender = null; // $NON-NLS-1$
+
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_group", nullable = true)
@@ -333,26 +348,25 @@ public class Athlete {
     @Id
     // @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     private String lastName = "";
     private Integer lotNumber = null;
     private String membership = "";
+
     @Transient
     private final Level NORMAL_LEVEL = Level.INFO;
     @OneToMany(mappedBy = "athlete", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonProperty(index = 200)
     private List<Participation> participations = new ArrayList<>();
-
     /**
      * body weight inferred from category, used until real bodyweight is known.
      */
     private Double presumedBodyWeight;
     private Integer qualifyingTotal = 0;
     private Integer robiRank;
+
     private Integer sinclairRank;
     @Column(columnDefinition = "integer default 0")
     private int smmRank;
-
     private String snatch1ActualLift;
     private String snatch1Change1;
     private String snatch1Change2;
@@ -367,9 +381,9 @@ public class Athlete {
     private LocalDateTime snatch1LiftTime;
     private String snatch2ActualLift;
     private String snatch2Change1;
+
     private String snatch2Change2;
     private String snatch2Declaration;
-
     private LocalDateTime snatch2LiftTime;
     private String snatch3ActualLift;
     private String snatch3Change1;
@@ -377,11 +391,13 @@ public class Athlete {
     private String snatch3Declaration;
     private LocalDateTime snatch3LiftTime;
     private Integer startNumber = null;
+
     private String team = "";
     private Integer teamCleanJerkRank;
-
     private Integer teamCombinedRank;
+
     private Integer teamCustomRank;
+
     private Integer teamRobiRank;
 
     private Integer teamSinclairRank;
@@ -398,13 +414,7 @@ public class Athlete {
     @JsonIgnore
     private SinclairCoefficients sinclairProperties;
 
-    @Transient
-    @JsonIgnore
-    private static SinclairCoefficients sinclairProperties2020 = new SinclairCoefficients(2020);
-
-    @Transient
-    @JsonIgnore
-    private static SinclairCoefficients sinclairProperties2024 = new SinclairCoefficients(2024);
+    private String federationCodes;
 
     /**
      * Instantiates a new athlete.
@@ -638,15 +648,13 @@ public class Athlete {
      * Failed lift.
      */
     public void failedLift() {
-        OwlcmsSession.withFop(fop -> {
-            try {
-                getLogger().info("{}no lift for {}", OwlcmsSession.getFopLoggingName(), this.getShortName());
-                final String weight = Integer.toString(-getNextAttemptRequestedWeight());
-                doLift(weight);
-            } catch (Exception e) {
-                getLogger().error(e.getLocalizedMessage());
-            }
-        });
+        try {
+            getLogger().info("{}no lift for {}", OwlcmsSession.getFopLoggingName(), this.getShortName());
+            final String weight = Integer.toString(-getNextAttemptRequestedWeight());
+            doLift(weight);
+        } catch (Exception e) {
+            getLogger().error(e.getLocalizedMessage());
+        }
     }
 
     @Transient
@@ -685,6 +693,36 @@ public class Athlete {
     }
 
     /**
+     * Gets the attempted lifts. 0 means no lift done.
+     *
+     * @return the attempted lifts
+     */
+    @Transient
+    @JsonIgnore
+    public int getActuallyAttemptedLifts() {
+        int i = 0;
+        if (zeroIfInvalid(snatch1ActualLift) != 0) {
+            i++;
+        }
+        if (zeroIfInvalid(snatch2ActualLift) != 0) {
+            i++;
+        }
+        if (zeroIfInvalid(snatch3ActualLift) != 0) {
+            i++;
+        }
+        if (zeroIfInvalid(cleanJerk1ActualLift) != 0) {
+            i++;
+        }
+        if (zeroIfInvalid(cleanJerk2ActualLift) != 0) {
+            i++;
+        }
+        if (zeroIfInvalid(cleanJerk3ActualLift) != 0) {
+            i++;
+        }
+        return i; // long ago
+    }
+
+    /**
      * @return age as of current day
      */
     @Transient
@@ -715,34 +753,20 @@ public class Athlete {
         return (cat != null ? cat.getAgeGroup() : null);
     }
 
-    /**
-     * Gets the attempted lifts. 0 means no lift done.
-     *
-     * @return the attempted lifts
-     */
     @Transient
     @JsonIgnore
-    public int getActuallyAttemptedLifts() {
-        int i = 0;
-        if (zeroIfInvalid(snatch1ActualLift) != 0) {
-            i++;
+    public String getAllCategoriesAsString() {
+        String mainCategory = this.getMainRankings().getCategory().getName();
+        // get all eligibles except main category.
+        String eligiblesAsString = this.getEligibleCategories().stream()
+                .map(Category::getName)
+                .filter(c -> !c.contentEquals(mainCategory))
+                .collect(Collectors.joining(";"));
+        if (eligiblesAsString.isBlank()) {
+            return mainCategory;
+        } else {
+            return mainCategory + "|" + eligiblesAsString;
         }
-        if (zeroIfInvalid(snatch2ActualLift) != 0) {
-            i++;
-        }
-        if (zeroIfInvalid(snatch3ActualLift) != 0) {
-            i++;
-        }
-        if (zeroIfInvalid(cleanJerk1ActualLift) != 0) {
-            i++;
-        }
-        if (zeroIfInvalid(cleanJerk2ActualLift) != 0) {
-            i++;
-        }
-        if (zeroIfInvalid(cleanJerk3ActualLift) != 0) {
-            i++;
-        }
-        return i; // long ago
     }
 
     /**
@@ -1420,25 +1444,13 @@ public class Athlete {
         return s;
     }
 
-    @Transient
-    @JsonIgnore
-    public String getAllCategoriesAsString() {
-        String mainCategory = this.getMainRankings().getCategory().getName();
-        // get all eligibles except main category.
-        String eligiblesAsString = this.getEligibleCategories().stream()
-                .map(Category::getName)
-                .filter(c -> !c.contentEquals(mainCategory))
-                .collect(Collectors.joining(";"));
-        if (eligiblesAsString.isBlank()) {
-            return mainCategory;
-        } else {
-            return mainCategory + "|" + eligiblesAsString;
-        }
-    }
-
     public Integer getEntryTotal() {
         // intentional, this is the legacy name of the column in the database
         return getQualifyingTotal();
+    }
+
+    public String getFederationCodes() {
+        return federationCodes;
     }
 
     /**
@@ -1473,6 +1485,13 @@ public class Athlete {
      */
     public String getFirstName() {
         return firstName;
+    }
+
+    public FieldOfPlay getFop() {
+        if (fop == null) {
+            return OwlcmsSession.getFop();
+        }
+        return fop;
     }
 
     @Transient
@@ -2055,64 +2074,29 @@ public class Athlete {
     }
 
     /**
-     * Gets the 2020 Sinclair for use in SMF for Delta
-     *
-     * @return a Sinclair value even if c&j has not started
-     */
-    @Transient
-    @JsonIgnore
-    private Double getMastersSinclairForDelta() {
-        final Double bodyWeight1 = getBodyWeight();
-        if (bodyWeight1 == null) {
-            return 0.0;
-        }
-        Integer total1 = getBestCleanJerk() + getBestSnatch();
-        if (total1 == null || total1 < 0.1 || (gender == null)) {
-            return 0.0;
-        }
-        if (gender == Gender.M) { // $NON-NLS-1$
-            return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.menCoefficient(),
-                    sinclairProperties2020.menMaxWeight());
-        } else {
-            return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.womenCoefficient(),
-                    sinclairProperties2020.womenMaxWeight());
-        }
-    }
-
-    /**
-     * Gets the 2020 Sinclair for use in SMF for Delta
-     *
-     * @return a Sinclair value even if c&j has not started
-     */
-    @Transient
-    @JsonIgnore
-    private Double getMastersSinclair() {
-        final Double bodyWeight1 = getBodyWeight();
-        if (bodyWeight1 == null) {
-            return 0.0;
-        }
-        Integer bestCleanJerk = getBestCleanJerk();
-        Integer bestSnatch = getBestSnatch();
-        Integer total1 = bestCleanJerk + bestSnatch;
-        if (bestCleanJerk == null || bestSnatch == null || total1 == null || total1 < 0.1 || (gender == null)) {
-            return 0.0;
-        }
-        if (gender == Gender.M) { // $NON-NLS-1$
-            return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.menCoefficient(),
-                    sinclairProperties2020.menMaxWeight());
-        } else {
-            return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.womenCoefficient(),
-                    sinclairProperties2020.womenMaxWeight());
-        }
-    }
-
-    /**
      * Gets the sinclair rank.
      *
      * @return the sinclair rank
      */
     public Integer getSinclairRank() {
         return sinclairRank;
+    }
+
+    /**
+     * Gets the smm.
+     *
+     * @return the smm
+     */
+    @Transient
+    @JsonIgnore
+    public Double getSmfForDelta() {
+        final Integer birthDate1 = getYearOfBirth();
+        if (birthDate1 == null) {
+            return 0.0;
+        }
+        double d = getMastersSinclairForDelta()
+                * sinclairProperties2020.getAgeGenderCoefficient(YEAR - birthDate1, getGender());
+        return d;
     }
 
     /**
@@ -2129,31 +2113,6 @@ public class Athlete {
             return 0.0;
         }
         double d = getMastersSinclair()
-                * sinclairProperties2020.getAgeGenderCoefficient(YEAR - birthDate1, getGender());
-        return d;
-    }
-
-    private SinclairCoefficients getSinclairProperties() {
-        if (sinclairProperties == null) {
-            sinclairProperties = (Competition.getCurrent().getSinclairYear() == 2024 ? sinclairProperties2024
-                    : sinclairProperties2020);
-        }
-        return sinclairProperties;
-    }
-
-    /**
-     * Gets the smm.
-     *
-     * @return the smm
-     */
-    @Transient
-    @JsonIgnore
-    public Double getSmfForDelta() {
-        final Integer birthDate1 = getYearOfBirth();
-        if (birthDate1 == null) {
-            return 0.0;
-        }
-        double d = getMastersSinclairForDelta()
                 * sinclairProperties2020.getAgeGenderCoefficient(YEAR - birthDate1, getGender());
         return d;
     }
@@ -3245,6 +3204,10 @@ public class Athlete {
         setQualifyingTotal(entryTotal);
     }
 
+    public void setFederationCodes(String federationCodes) {
+        this.federationCodes = federationCodes;
+    }
+
     /**
      * Sets the first name.
      *
@@ -3253,6 +3216,17 @@ public class Athlete {
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
+
+    public void setFop(FieldOfPlay fop) {
+        //logger.debug("++++++ setting fop {} for {}", fop, this.getShortName());
+        this.fop = fop;
+    }
+
+    /*
+     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
+     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
+     * register/unregister itself.
+     */
 
     /**
      * Sets the forced as current.
@@ -3263,12 +3237,6 @@ public class Athlete {
         // logger.trace("setForcedAsCurrent({}) from {}", forcedAsCurrent, LoggerUtils.whereFrom());
         this.forcedAsCurrent = forcedAsCurrent;
     }
-
-    /*
-     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
-     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
-     * register/unregister itself.
-     */
 
     /**
      * Sets the full birth date.
@@ -3637,27 +3605,6 @@ public class Athlete {
     public void setSnatch3AutomaticProgression(String s) {
     }
 
-    /**
-     * Sets the snatch 3 change 1.
-     *
-     * @param snatch3Change1 the new snatch 3 change 1
-     */
-    public void setSnatch3Change1(String snatch3Change1) {
-        if ("0".equals(snatch3Change1)) {
-            this.snatch3Change1 = snatch3Change1;
-            getLogger().info("{}{} snatch3Change1={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
-                    snatch3Change1);
-            setSnatch3ActualLift("0");
-            return;
-        }
-        if (isValidation()) {
-            validateSnatch3Change1(snatch3Change1);
-        }
-        this.snatch3Change1 = snatch3Change1;
-        getLogger().info("{}{} snatch3Change1={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
-                snatch3Change1);
-    }
-
 //    /**
 //     * Sets the snatch rank.
 //     *
@@ -3678,6 +3625,27 @@ public class Athlete {
 //    public void setSnatchRankYth(Integer snatchRankYth) {
 //        this.snatchRankYth = snatchRankYth;
 //    }
+
+    /**
+     * Sets the snatch 3 change 1.
+     *
+     * @param snatch3Change1 the new snatch 3 change 1
+     */
+    public void setSnatch3Change1(String snatch3Change1) {
+        if ("0".equals(snatch3Change1)) {
+            this.snatch3Change1 = snatch3Change1;
+            getLogger().info("{}{} snatch3Change1={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+                    snatch3Change1);
+            setSnatch3ActualLift("0");
+            return;
+        }
+        if (isValidation()) {
+            validateSnatch3Change1(snatch3Change1);
+        }
+        this.snatch3Change1 = snatch3Change1;
+        getLogger().info("{}{} snatch3Change1={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+                snatch3Change1);
+    }
 
     /**
      * Sets the snatch 3 change 2.
@@ -3876,19 +3844,29 @@ public class Athlete {
         setFullBirthDateFromYear(birthYear);
     }
 
+    public int startingTotalDelta() {
+        int sn1Decl = zeroIfInvalid(snatch1Declaration);
+        int cj1Decl = zeroIfInvalid(cleanJerk1Declaration);
+        getLogger().trace("prior to checking {} {}", sn1Decl, cj1Decl);
+        if (sn1Decl == 0 && cj1Decl == 0) {
+            return 0; // do not complain on registration form or empty weigh-in form.
+        }
+        Integer snatch1Request = last(sn1Decl, zeroIfInvalid(snatch1Change1), zeroIfInvalid(snatch1Change2));
+        Integer cleanJerk1Request = last(cj1Decl, zeroIfInvalid(cleanJerk1Change1), zeroIfInvalid(cleanJerk1Change2));
+        return startingTotalDelta(snatch1Request, cleanJerk1Request, getEntryTotal());
+    }
+
     /**
      * Successful lift.
      */
     public void successfulLift() {
-        OwlcmsSession.withFop(fop -> {
-            try {
-                getLogger().info("{}good lift for {}", OwlcmsSession.getFopLoggingName(), this.getShortName());
-                final String weight = Integer.toString(getNextAttemptRequestedWeight());
-                doLift(weight);
-            } catch (Exception e) {
-                getLogger().error(e.getLocalizedMessage());
-            }
-        });
+        try {
+            getLogger().info("{}good lift for {}", OwlcmsSession.getFopLoggingName(), this.getShortName());
+            final String weight = Integer.toString(getNextAttemptRequestedWeight());
+            doLift(weight);
+        } catch (Exception e) {
+            getLogger().error(e.getLocalizedMessage());
+        }
     }
 
     public String toShortString() {
@@ -4134,19 +4112,8 @@ public class Athlete {
         if (!enforce20kg) {
             return true;
         }
-
-        int curStartingTotal = 0;
-
-        curStartingTotal = snatch1Request + cleanJerk1Request;
-        int delta = qualTotal - curStartingTotal;
-        int _20kgRuleValue = getStartingTotalMargin(this.getCategory(), qualTotal);
-
-        if (snatch1Request == 0 && cleanJerk1Request == 0) {
-            // not checking starting total - no declarations
-            return true;
-        }
-        RuleViolationException rule15_20Violated = null;
-        int missing = delta - _20kgRuleValue;
+        RuleViolationException rule15_20Violated;
+        int missing = startingTotalDelta(snatch1Request, cleanJerk1Request, qualTotal);
         if (missing > 0) {
             // logger.trace("FAIL missing {}",missing);
             Integer startNumber2 = this.getStartNumber();
@@ -4370,15 +4337,13 @@ public class Athlete {
         if (curLift != this.getAttemptsDone()) {
             return;
         }
-        OwlcmsSession.withFop(fop -> {
-            int clock = fop.getAthleteTimer().liveTimeRemaining();
-            if (declaration == null || declaration.isBlank()) {
-                // there was no declaration made in time
-                logger./**/warn("{}{} change without declaration (not owning clock)", OwlcmsSession.getFopLoggingName(),
-                        this.getShortName());
-                throw new RuleViolationException.MustDeclareFirst(this, clock);
-            }
-        });
+        int clock = getFop().getAthleteTimer().liveTimeRemaining();
+        if (declaration == null || declaration.isBlank()) {
+            // there was no declaration made in time
+            logger./**/warn("{}{} change without declaration (not owning clock)", OwlcmsSession.getFopLoggingName(),
+                    this.getShortName());
+            throw new RuleViolationException.MustDeclareFirst(this, clock);
+        }
         timingLogger.info("    checkDeclarationWasMade {}ms {} {}", System.currentTimeMillis() - start, curLift,
                 LoggerUtils.whereFrom());
     }
@@ -4526,7 +4491,6 @@ public class Athlete {
     }
 
     private void doCheckChangeVsLiftOrder(int curLift, int newVal) throws RuleViolationException {
-
         int currentLiftNo = getAttemptsDone() + 1; // check
         int checkedLift = curLift + 1;
         if (checkedLift < currentLiftNo) {
@@ -4546,48 +4510,46 @@ public class Athlete {
         } else {
             getLogger().trace("{}lifting", fopLoggingName);
         }
-        OwlcmsSession.withFop(fop -> {
-            Integer weightAtLastStart = fop.getWeightAtLastStart();
-            if (fop.getState() == FOPState.INACTIVE) {
-                weightAtLastStart = null;
-            }
-            if (weightAtLastStart == null || weightAtLastStart == 0 || newVal == weightAtLastStart) {
-                getLogger().trace("{}weight at last start: {} request = {}", fopLoggingName, weightAtLastStart, newVal);
-                // program has just been started, or first athlete in group, or moving down to clock value
-                // compare with what the lifting order rules say.
-                LiftOrderReconstruction pastOrder = new LiftOrderReconstruction(fop);
-                LiftOrderInfo reference = null;
+        Integer weightAtLastStart = getFop().getWeightAtLastStart();
+        if (getFop().getState() == FOPState.INACTIVE) {
+            weightAtLastStart = null;
+        }
+        if (weightAtLastStart == null || weightAtLastStart == 0 || newVal == weightAtLastStart) {
+            getLogger().trace("{}weight at last start: {} request = {}", fopLoggingName, weightAtLastStart, newVal);
+            // program has just been started, or first athlete in group, or moving down to clock value
+            // compare with what the lifting order rules say.
+            LiftOrderReconstruction pastOrder = new LiftOrderReconstruction(getFop());
+            LiftOrderInfo reference = null;
 
-                Athlete clockOwner = fop.getClockOwner();
-                if (clockOwner != null) {
-                    // if clock is running, reference becomes the clock owner instead of last good/bad lift.
-                    reference = clockOwner.getRunningLiftOrderInfo();
-                    pastOrder.shortDump("lastLift info clock running", getLogger());
-                } else {
-                    reference = pastOrder.getLastLift();
-                    pastOrder.shortDump("lastLift info no clock", getLogger());
-                }
-
-                if (reference != null) {
-                    checkAttemptVsLiftOrderReference(curLift, newVal, reference);
-                } else {
-                    // no last lift, go ahead
-                }
-            } else if (newVal > 0 && newVal < weightAtLastStart) {
-                // check that we are comparing the value for the same lift
-                boolean cjClock = fop.getLiftsDoneAtLastStart() >= 3;
-                boolean cjStarted = getAttemptsDone() >= 3;
-                // logger.trace("newval {} weightAtLastStart {}", newVal, weightAtLastStart);
-                // logger.trace("lifts done at last start {} current lifts done {}", fop.getLiftsDoneAtLastStart(),
-                // getAttemptsDone());
-                if (!Competition.getCurrent().isRoundRobinOrder()
-                        && ((!cjClock && !cjStarted) || (cjStarted && cjClock))) {
-                    throw new RuleViolationException.ValueBelowStartedClock(this, newVal, weightAtLastStart);
-                }
+            Athlete clockOwner = getFop().getClockOwner();
+            if (clockOwner != null) {
+                // if clock is running, reference becomes the clock owner instead of last good/bad lift.
+                reference = clockOwner.getRunningLiftOrderInfo();
+                pastOrder.shortDump("lastLift info clock running", getLogger());
             } else {
-                // ok, nothing to do.
+                reference = pastOrder.getLastLift();
+                pastOrder.shortDump("lastLift info no clock", getLogger());
             }
-        });
+
+            if (reference != null) {
+                checkAttemptVsLiftOrderReference(curLift, newVal, reference);
+            } else {
+                // no last lift, go ahead
+            }
+        } else if (newVal > 0 && newVal < weightAtLastStart) {
+            // check that we are comparing the value for the same lift
+            boolean cjClock = getFop().getLiftsDoneAtLastStart() >= 3;
+            boolean cjStarted = getAttemptsDone() >= 3;
+            // logger.trace("newval {} weightAtLastStart {}", newVal, weightAtLastStart);
+            // logger.trace("lifts done at last start {} current lifts done {}", fop.getLiftsDoneAtLastStart(),
+            // getAttemptsDone());
+            if (!Competition.getCurrent().isRoundRobinOrder()
+                    && ((!cjClock && !cjStarted) || (cjStarted && cjClock))) {
+                throw new RuleViolationException.ValueBelowStartedClock(this, newVal, weightAtLastStart);
+            }
+        } else {
+            // ok, nothing to do.
+        }
     }
 
     private void doCheckChangeVsTimer(String declaration, String change1, String change2) {
@@ -4600,24 +4562,74 @@ public class Athlete {
         } else {
             // getLogger().trace("{}lifting", fopLoggingName);
         }
-        OwlcmsSession.withFop(fop -> {
-            int clock = fop.getAthleteTimer().liveTimeRemaining();
-            Athlete owner = fop.getClockOwner();
-            int initialTime = fop.getClockOwnerInitialTimeAllowed();
-            // logger.trace("{}athlete={} owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}",
-            // OwlcmsSession.getFopLoggingName(), this, owner, clock, initialTime, declaration, change1, change2);
-            if (!this.isSameAthleteAs(owner)) {
-                // clock is not running for us
-                doCheckChangeNotOwningTimer(declaration, change1, change2, fop, clock, initialTime);
-                return;
-            } else {
-                doCheckChangeOwningTimer(declaration, change1, change2, fop, clock, initialTime);
-            }
-        });
+        int clock = getFop().getAthleteTimer().liveTimeRemaining();
+        Athlete owner = getFop().getClockOwner();
+        int initialTime = getFop().getClockOwnerInitialTimeAllowed();
+        // logger.trace("{}athlete={} owner={}, clock={}, initialTimeAllowed={}, d={}, c1={}, c2={}",
+        // OwlcmsSession.getFopLoggingName(), this, owner, clock, initialTime, declaration, change1, change2);
+        if (!this.isSameAthleteAs(owner)) {
+            // clock is not running for us
+            doCheckChangeNotOwningTimer(declaration, change1, change2, getFop(), clock, initialTime);
+            return;
+        } else {
+            doCheckChangeOwningTimer(declaration, change1, change2, getFop(), clock, initialTime);
+        }
     }
 
     private String emptyIfNull(String value) {
         return (value == null ? "" : value);
+    }
+
+    /**
+     * Gets the 2020 Sinclair for use in SMF for Delta
+     *
+     * @return a Sinclair value even if c&j has not started
+     */
+    @Transient
+    @JsonIgnore
+    private Double getMastersSinclair() {
+        final Double bodyWeight1 = getBodyWeight();
+        if (bodyWeight1 == null) {
+            return 0.0;
+        }
+        Integer bestCleanJerk = getBestCleanJerk();
+        Integer bestSnatch = getBestSnatch();
+        Integer total1 = bestCleanJerk + bestSnatch;
+        if (bestCleanJerk == null || bestSnatch == null || total1 == null || total1 < 0.1 || (gender == null)) {
+            return 0.0;
+        }
+        if (gender == Gender.M) { // $NON-NLS-1$
+            return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.menCoefficient(),
+                    sinclairProperties2020.menMaxWeight());
+        } else {
+            return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.womenCoefficient(),
+                    sinclairProperties2020.womenMaxWeight());
+        }
+    }
+
+    /**
+     * Gets the 2020 Sinclair for use in SMF for Delta
+     *
+     * @return a Sinclair value even if c&j has not started
+     */
+    @Transient
+    @JsonIgnore
+    private Double getMastersSinclairForDelta() {
+        final Double bodyWeight1 = getBodyWeight();
+        if (bodyWeight1 == null) {
+            return 0.0;
+        }
+        Integer total1 = getBestCleanJerk() + getBestSnatch();
+        if (total1 == null || total1 < 0.1 || (gender == null)) {
+            return 0.0;
+        }
+        if (gender == Gender.M) { // $NON-NLS-1$
+            return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.menCoefficient(),
+                    sinclairProperties2020.menMaxWeight());
+        } else {
+            return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.womenCoefficient(),
+                    sinclairProperties2020.womenMaxWeight());
+        }
     }
 
     @Transient
@@ -4671,6 +4683,14 @@ public class Athlete {
             return total1 * sinclairFactor(bodyWeight1, getSinclairProperties().womenCoefficient(),
                     getSinclairProperties().womenMaxWeight());
         }
+    }
+
+    private SinclairCoefficients getSinclairProperties() {
+        if (sinclairProperties == null) {
+            sinclairProperties = (Competition.getCurrent().getSinclairYear() == 2024 ? sinclairProperties2024
+                    : sinclairProperties2020);
+        }
+        return sinclairProperties;
     }
 
     /**
@@ -4823,6 +4843,24 @@ public class Athlete {
         } else {
             return Math.pow(10.0, coefficient * (Math.pow(Math.log10(bodyWeight1 / maxWeight), 2)));
         }
+    }
+
+    private int startingTotalDelta(Integer snatch1Request, Integer cleanJerk1Request, int qualTotal) {
+        boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
+        if (!enforce20kg) {
+            return 0;
+        }
+        int curStartingTotal = 0;
+        curStartingTotal = snatch1Request + cleanJerk1Request;
+        int delta = qualTotal - curStartingTotal;
+        int _20kgRuleValue = getStartingTotalMargin(this.getCategory(), qualTotal);
+
+        if (snatch1Request == 0 && cleanJerk1Request == 0) {
+            // not checking starting total - no declarations
+            return 0;
+        }
+        int missing = delta - _20kgRuleValue;
+        return missing;
     }
 
     /**

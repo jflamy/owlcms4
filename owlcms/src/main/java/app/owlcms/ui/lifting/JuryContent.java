@@ -42,6 +42,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -62,7 +63,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     final private static Logger logger = (Logger) LoggerFactory.getLogger(JuryContent.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     static {
-        logger.setLevel(Level.INFO);
+        logger.setLevel(Level.DEBUG);
         uiEventLogger.setLevel(Level.INFO);
     }
 
@@ -82,7 +83,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private HorizontalLayout refContainer;
     private Component refereeLabelWrapper;
     private boolean summonEnabled;
-    
+
     Athlete previousAthleteAtStart;
     int previousAttemptNumber;
     Athlete currentAthleteAtStart;
@@ -131,15 +132,20 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     @Subscribe
+    public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> syncWithFOP(true));
+    }
+
+    @Subscribe
     public void slaveRefereeDecision(UIEvent.Decision e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                e.getAthlete());
+        // uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+        // e.getAthlete());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             // juryDeliberationButton.setEnabled(true);
             int d = e.decision ? 1 : 0;
             String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
             // logger.debug("setting athleteUnderReview2 {}", e.getAthlete());
-            athleteUnderReview = e.getAthlete();
+            setAthleteUnderReview(e.getAthlete());
 
             decisionNotification = new Notification();
             // Notification theme styling is done in
@@ -162,32 +168,66 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         });
     }
 
+    @Subscribe
+    public void slaveJuryMemberDecision(UIEvent.JuryUpdate e) {
+        Boolean[] decision = e.getJuryMemberDecision();
+        Integer juryMember = e.getJuryMemberUpdated();
+        Boolean goodBad = juryMember != null ? decision[juryMember] : null;
+        //logger.debug("update jury decisions {} {} {} {}", goodBad, juryMember, this, e.getOrigin());
+        if (juryMember != null && goodBad != null) {
+            UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this, () -> {
+                //logger.debug("updating");
+                juryVote(juryMember, goodBad, false);
+            });
+        }
+    }
+
+    private void juryVote(Integer juryMember, Boolean goodBad, boolean sendFOPEvent) {
+        if (goodBad == null) {
+            Icon nonVotedIcon = bigIcon(VaadinIcon.CIRCLE_THIN, "gray");
+            juryVotingButtons.replace(juryIcons[juryMember], nonVotedIcon);
+            juryIcons[juryMember] = nonVotedIcon;
+            juryVotes[juryMember] = null;
+            return;
+        }
+        Icon votedIcon = bigIcon(VaadinIcon.CIRCLE, "gray");
+        juryVotingButtons.replace(juryIcons[juryMember], votedIcon);
+        juryIcons[juryMember] = votedIcon;
+        juryVotes[juryMember] = goodBad;
+        if (sendFOPEvent) {
+            OwlcmsSession.withFop(fop -> {
+                fop.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(this, juryMember, goodBad));
+            });
+        }
+        checkAllVoted();
+    }
+
     @Override
     @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             if (juryDialog != null && juryDialog.isOpened()) {
                 juryDialog.doClose(true);
+            } else {
+                doSync();
             }
         });
     }
 
     @Subscribe
     public void slaveTimeStarted(UIEvent.StartTime e) {
-        // FIXME: should not clear decisions on stop/no knee/start
         OwlcmsSession.withFop(fop -> {
             currentAthleteAtStart = fop.getClockOwner();
             currentAttemptNumber = fop.getClockOwner().getActuallyAttemptedLifts();
             newClock = e.getTimeRemaining() == 60000 || e.getTimeRemaining() == 120000;
         });
-        logger.warn("curr {} {} prev {} {} reset {}", currentAthleteAtStart, currentAttemptNumber, previousAthleteAtStart, previousAttemptNumber, newClock);
+        // this is redundant because of slaveResetOnNewClock
         if ((currentAthleteAtStart != previousAthleteAtStart)
                 || (currentAttemptNumber != previousAttemptNumber)
-                || newClock ) {
+                || newClock) {
             // we switched lifter, or we switched attempt.
             // reset the decisions.
-            logger.warn("RESETTING");
-
+            // logger.debug("RESETTING");
             UIEventProcessor.uiAccess(this, uiEventBus, () -> {
                 decisions.doReset();
                 juryVotingButtons.removeAll();
@@ -201,7 +241,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
                 swapRefereeLabel(null);
             });
         } else {
-            logger.warn("NOT resetting");
+            // logger.debug("NOT resetting");
         }
         previousAthleteAtStart = currentAthleteAtStart;
         previousAttemptNumber = currentAttemptNumber;
@@ -225,14 +265,14 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         return new HorizontalLayout(); // juryDeliberationButtons();
     }
 
-    /**
-     * @see app.owlcms.ui.shared.AthleteGridContent#breakButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
-     */
-    @Override
-    protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
-        // moved down to the jury section
-        return new HorizontalLayout(); // juryDeliberationButtons();
-    }
+//    /**
+//     * @see app.owlcms.ui.shared.AthleteGridContent#breakButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
+//     */
+//    @Override
+//    protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
+//        // moved down to the jury section
+//        return new HorizontalLayout(); // juryDeliberationButtons();
+//    }
 
     @Override
     protected void createTopBarSettingsMenu() {
@@ -280,9 +320,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     protected void doSync() {
         syncWithFOP(false);
-        decisions.slaveReset(null);
+        decisions.slaveDecisionReset(null);
 
-        OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this));
+        // OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this));
         if (decisionNotification != null) {
             decisionNotification.close();
         }
@@ -290,14 +330,12 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     @Override
     protected void init() {
-        init(3);
+        setNbJurors(Competition.getCurrent().getJurySize());
     }
 
     protected void init(int nbj) {
+        // logger.trace("init {}", LoggerUtils.whereFrom());
         summonEnabled = true; // works with phones/tablets
-//        OwlcmsSession.withFop(fop -> {
-//            summonEnabled = fop.getMqttServer() != null;
-//        });
         registrations = new ArrayList<>();
         this.setBoxSizing(BoxSizing.BORDER_BOX);
         this.setSizeFull();
@@ -305,6 +343,38 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         nbJurors = nbj;
         buildJuryBox(this);
         buildRefereeBox(this);
+    }
+
+    @Override
+    protected void syncWithFOP(boolean refreshGrid) {
+        super.syncWithFOP(refreshGrid);
+        OwlcmsSession.withFop(fop -> {
+            setAthleteUnderReview(fop.getAthleteUnderReview());
+            Boolean[] curDecisions = fop.getJuryMemberDecision();
+            if (curDecisions != null) {
+                for (int i = 0; i < getNbJurors(); i++) {
+                    Boolean goodBad = curDecisions[i];
+//                    logger.debug("existing jury {} {}", i, goodBad);
+                    juryVote(i, goodBad, false);
+                }
+            }
+            Boolean[] curRefDecisions = fop.getRefereeDecision();
+            Long[] curRefTimes = fop.getRefereeTime();
+            decisions.doReset();
+            if (curRefDecisions != null) {
+//                for (int i = 0; i < 3; i++) {
+//                    Boolean goodBad = curRefDecisions[i];
+//                    logger.debug("existing ref {} {}", i, goodBad);
+//                }
+                if (fop.isRefereeForcedDecision()) {
+                    decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(athleteUnderReview, null,
+                            curRefDecisions[1], null, null, curRefTimes[1], null, this));
+                } else {
+                    decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(athleteUnderReview, curRefDecisions[0],
+                            curRefDecisions[1], curRefDecisions[2], curRefTimes[0], curRefTimes[1], curRefTimes[2], this));
+                }
+            }
+        });
     }
 
     private Icon bigIcon(VaadinIcon iconDef, String color) {
@@ -315,6 +385,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     private void buildJuryBox(VerticalLayout juryContainer) {
+        // logger.trace("buildJuryBox {}", LoggerUtils.whereFrom());
         HorizontalLayout topRow = new HorizontalLayout();
         juryLabel = new Label(getTranslation("JuryDecisions"));
         H3 labelWrapper = new H3(juryLabel);
@@ -506,60 +577,51 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private void openJuryDialog(JuryDeliberationEventType deliberation) {
         long now = System.currentTimeMillis();
         if (now - lastOpen > 100 && (juryDialog == null || !juryDialog.isOpened())) {
-            juryDialog = new JuryDialog(JuryContent.this, athleteUnderReview, deliberation, summonEnabled);
+            juryDialog = new JuryDialog(JuryContent.this, getAthleteUnderReview(), deliberation, summonEnabled);
             juryDialog.open();
             lastOpen = now;
         }
     }
 
     private void resetJuryVoting() {
+        // logger.debug("resetJuryVoting {} {}", UI.getCurrent(), LoggerUtils.whereFrom());
         for (ShortcutRegistration sr : registrations) {
             sr.remove();
         }
-        UIEventProcessor.uiAccess(UI.getCurrent(), uiEventBus, () -> {
-            juryIcons = new Icon[getNbJurors()];
-            juryVotes = new Boolean[getNbJurors()];
-            for (int i = 0; i < getNbJurors(); i++) {
-                final int ix = i;
-                Icon nonVotedIcon = bigIcon(VaadinIcon.CIRCLE_THIN, "gray");
-                juryIcons[ix] = nonVotedIcon;
-                juryVotes[ix] = null;
-                juryVotingButtons.add(juryIcons[ix], nonVotedIcon);
-                ShortcutRegistration reg;
-                reg = UI.getCurrent().addShortcutListener(() -> {
-                    Icon votedIcon = bigIcon(VaadinIcon.CIRCLE, "gray");
-                    juryVotingButtons.replace(juryIcons[ix], votedIcon);
-                    juryIcons[ix] = votedIcon;
-                    juryVotes[ix] = true;
-                    checkAllVoted();
-                }, getGoodKey(i));
+        juryIcons = new Icon[getNbJurors()];
+        juryVotes = new Boolean[getNbJurors()];
+        for (int i = 0; i < getNbJurors(); i++) {
+            final int ix = i;
+            Icon nonVotedIcon = bigIcon(VaadinIcon.CIRCLE_THIN, "gray");
+            juryIcons[ix] = nonVotedIcon;
+            juryVotes[ix] = null;
+            juryVotingButtons.add(juryIcons[ix], nonVotedIcon);
+            ShortcutRegistration reg;
+            reg = UI.getCurrent().addShortcutListener(() -> {
+                juryVote(ix, true, true);
+            }, getGoodKey(i));
+            registrations.add(reg);
+            reg = UI.getCurrent().addShortcutListener(() -> {
+                juryVote(ix, false, true);
+            }, getBadKey(i));
+            registrations.add(reg);
+            reg = UI.getCurrent().addShortcutListener(
+                    () -> openJuryDialog(JuryDeliberationEventType.START_DELIBERATION), Key.KEY_D);
+            registrations.add(reg);
+            reg = UI.getCurrent().addShortcutListener(
+                    () -> openJuryDialog(JuryDeliberationEventType.TECHNICAL_PAUSE), Key.KEY_T);
+            registrations.add(reg);
+            if (summonEnabled) {
+                reg = UI.getCurrent().addShortcutListener(() -> summonReferee(1), Key.KEY_H);
                 registrations.add(reg);
-                reg = UI.getCurrent().addShortcutListener(() -> {
-                    Icon votedIcon = bigIcon(VaadinIcon.CIRCLE, "gray");
-                    juryVotingButtons.replace(juryIcons[ix], votedIcon);
-                    juryIcons[ix] = votedIcon;
-                    juryVotes[ix] = false;
-                    checkAllVoted();
-                }, getBadKey(i));
+                reg = UI.getCurrent().addShortcutListener(() -> summonReferee(2), Key.KEY_I);
                 registrations.add(reg);
-                reg = UI.getCurrent().addShortcutListener(
-                        () -> openJuryDialog(JuryDeliberationEventType.START_DELIBERATION), Key.KEY_D);
+                reg = UI.getCurrent().addShortcutListener(() -> summonReferee(3), Key.KEY_J);
                 registrations.add(reg);
-                reg = UI.getCurrent().addShortcutListener(
-                        () -> openJuryDialog(JuryDeliberationEventType.TECHNICAL_PAUSE), Key.KEY_T);
+                reg = UI.getCurrent().addShortcutListener(() -> summonReferee(0), Key.KEY_K);
                 registrations.add(reg);
-                if (summonEnabled) {
-                    reg = UI.getCurrent().addShortcutListener(() -> summonReferee(1), Key.KEY_H);
-                    registrations.add(reg);
-                    reg = UI.getCurrent().addShortcutListener(() -> summonReferee(2), Key.KEY_I);
-                    registrations.add(reg);
-                    reg = UI.getCurrent().addShortcutListener(() -> summonReferee(3), Key.KEY_J);
-                    registrations.add(reg);
-                    reg = UI.getCurrent().addShortcutListener(() -> summonReferee(0), Key.KEY_K);
-                    registrations.add(reg);
-                }
             }
-        });
+        }
     }
 
     private void setNbJurors(int nbJurors) {
@@ -576,11 +638,11 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
             OwlcmsSession.withFop(fop -> {
                 if (i > 0) {
-                    fop.fopEventPost(new FOPEvent.SummonReferee(i, this.getOrigin()));
+                    fop.fopEventPost(new FOPEvent.SummonReferee(this.getOrigin(), i));
                 } else {
                     // i = 0 means call all refs.
                     for (int j = 1; j <= 3; j++) {
-                        fop.fopEventPost(new FOPEvent.SummonReferee(j, this.getOrigin()));
+                        fop.fopEventPost(new FOPEvent.SummonReferee(this.getOrigin(), j));
                     }
                 }
             });
@@ -625,6 +687,14 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         Component nc = createRefereeLabel(athlete);
         this.replace(refereeLabelWrapper, nc);
         refereeLabelWrapper = nc;
+    }
+
+    private Athlete getAthleteUnderReview() {
+        return athleteUnderReview;
+    }
+
+    private void setAthleteUnderReview(Athlete athleteUnderReview) {
+        this.athleteUnderReview = athleteUnderReview;
     }
 
 }

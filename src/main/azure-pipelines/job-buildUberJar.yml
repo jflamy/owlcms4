@@ -42,5 +42,5 @@ jobs:
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           effectivePomSkip: true
           goals: -P production -pl ${{ parameters.moduleName }} -am $(MavenOpts) -Dmaven.test.skip=${{ parameters.skipTests }} $(BuildGoal)
-      - publish: $(Agent.BuildDirectory)/s/${{ parameters.moduleName }}/target/${{ parameters.moduleName }}.zip
+      - publish: $(Agent.BuildDirectory)/s/${{ parameters.moduleName }}/target/prerelease/${{ parameters.moduleName }}_$(Revision).zip
         artifact: ${{ parameters.artifactName }}

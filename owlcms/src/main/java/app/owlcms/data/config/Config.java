@@ -17,8 +17,6 @@ import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Transient;
@@ -46,7 +44,7 @@ import ch.qos.logback.classic.Logger;
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 public class Config {
 
-    private static final String FAKE_PIN = "\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF";
+    public static final String FAKE_PIN = "\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF";
 
     public static final int SHORT_TEAM_LENGTH = 6;
 
@@ -83,8 +81,7 @@ public class Config {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    Long id = 1L; // is a singleton. if we ever create a new one it should merge.
 
     @Column(columnDefinition = "boolean default false")
     private boolean clearZip;
@@ -130,14 +127,8 @@ public class Config {
     }
 
     public String encodeUserPassword(String password, String storedPassword) {
-        String uPin = StartupUtils.getStringParam("pin");
-        if (uPin == null) {
-            String encodedPassword = AccessUtils.encodePin(password, storedPassword, true);
-            return encodedPassword;
-        } else {
-            // we are comparing cleartext
-            return password;
-        }
+        String encodedPassword = AccessUtils.encodePin(password, storedPassword, true);
+        return encodedPassword;
     }
 
     @Override
@@ -308,16 +299,17 @@ public class Config {
     public String getParamDisplayPin() {
         String uPin = StartupUtils.getStringParam("displayPin");
         if (uPin == null) {
-            // not defined in environment
-            // use pin from database, which is either empty (no password required)
-            // or current.
-            uPin = Config.getCurrent().getDisplayPin();
-            // logger.debug("pin = {}", uPin);
-            if (uPin == null || uPin.isBlank()) {
-                return null;
-            } else {
-                return uPin; // what is in the database is already encrypted
-            }
+//            // not defined in environment
+//            // use pin from database, which is either empty (no password required)
+//            // or current.
+//            uPin = Config.getCurrent().getDisplayPin();
+//            // logger.debug("pin = {}", uPin);
+//            if (uPin == null || uPin.isBlank()) {
+//                return null;
+//            } else {
+//                return uPin; // what is in the database is already encrypted
+//            }
+            return null;
         } else if (uPin.isBlank()) {
             // no password will be expected
             return null;
@@ -337,22 +329,26 @@ public class Config {
             // not defined in environment
             // use pin from database, which is either empty (no password required)
             // or legacy (not crypted) or current.
-            uPin = Config.getCurrent().getPin();
-            //logger.debug("getParamPin pin = {}", uPin);
-            if (uPin == null || uPin.isBlank() || uPin.trim().contentEquals(FAKE_PIN)) {
-                //logger.debug("no pin");
-                return null;
-            } else if (uPin.length() < 64) {
-                // assume legacy
-                String encodedPin = AccessUtils.encodePin(uPin, Config.getCurrent().getPin(), false);
-                return encodedPin;
-            } else {
-                return uPin; // what is in the database is already
-            }
+//            uPin = Config.getCurrent().getPin();
+//            logger.debug("getParamPin uPin = {}", uPin);
+//            if (uPin == null || uPin.isBlank() || uPin.trim().contentEquals(FAKE_PIN)) {
+//                logger.debug("no uPin");
+//                return null;
+//            } else if (uPin.length() < 64) {
+//                // assume legacy
+//                logger.debug("legacy uPin");
+//                String encodedPin = AccessUtils.encodePin(uPin, Config.getCurrent().getPin(), false);
+//                return encodedPin;
+//            } else {
+//                logger.debug("encrypted uPin");
+//                return uPin; // what is in the database is already encrypted
+//            }
+            return null;
         } else if (uPin.isBlank()) {
             // no password will be expected
             return null;
         } else {
+            logger.debug("param uPin {}", uPin);
             return uPin;
         }
     }
@@ -495,19 +491,19 @@ public class Config {
     }
 
     public void setDisplayPin(String displayPin) {
-        //logger.debug("setting displayPin {}",displayPin);
+        // logger.debug("setting displayPin {}",displayPin);
         this.displayPin = displayPin;
     }
 
     public void setDisplayPinForField(String displayPin) {
-        //logger.debug("setDisplayPinForField with {}", displayPin);
+        // logger.debug("setDisplayPinForField with {}", displayPin);
         if (displayPin != null && displayPin.length() != 64 && displayPin != FAKE_PIN) {
             String encodedPin = AccessUtils.encodePin(displayPin, Config.getCurrent().getPin(), false);
-            //logger.debug("encoded displayPin {}", encodedPin);
+            logger.debug("encoded displayPin {}", encodedPin);
             this.setDisplayPin(encodedPin);
-        } else {
-            //logger.debug("plain {}", displayPin);
-            this.setDisplayPin(displayPin);
+        } else if (displayPin == null || displayPin.isBlank()) {
+            logger.debug("empty {}", displayPin);
+            this.setDisplayPin(null);
         }
     }
 
@@ -548,16 +544,16 @@ public class Config {
     }
 
     public void setPin(String pin) {
-        //logger.debug("setting pin {}",pin);
+        // logger.debug("setting pin {}",pin);
         this.pin = pin;
     }
 
     public void setPinForField(String pin) {
-        //logger.debug("displayPin setter called with {}", displayPin);
+        // logger.debug("displayPin setter called with {}", displayPin);
         if (pin != null && pin.length() != 64 && pin != FAKE_PIN) {
             this.setPin(AccessUtils.encodePin(pin, Config.getCurrent().getPin(), false));
-        } else {
-            this.setPin(pin);
+        } else if (pin == null || pin.isBlank()) {
+            this.setPin(null);
         }
     }
 

@@ -222,6 +222,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
     }
 
     public void setSortedAthletes(List<Athlete> sortedAthletes) {
+        //logger.debug("setSortedAthletes {}", LoggerUtils.stackTrace());
         this.sortedAthletes = sortedAthletes;
     }
 

@@ -33,6 +33,8 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.data.records.RecordEvent;
+import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
@@ -47,6 +49,7 @@ public class CompetitionData {
     private Config config;
     private List<Group> groups;
     private List<Platform> platforms;
+    private List<RecordEvent> records;
 
     public CompetitionData() {
     }
@@ -106,6 +109,7 @@ public class CompetitionData {
         setPlatforms(PlatformRepository.findAll());
         setConfigForExport(Config.getCurrent());
         setCompetitionForExport(Competition.getCurrent());
+        setRecords(RecordRepository.findAll());
         return this;
     }
 
@@ -137,6 +141,11 @@ public class CompetitionData {
     @JsonProperty(index = 10)
     public List<Platform> getPlatforms() {
         return platforms;
+    }
+
+    @JsonProperty(index = 50)
+    public List<RecordEvent> getRecords() {
+        return records;
     }
 
     public CompetitionData importData(InputStream serialized) {
@@ -171,7 +180,7 @@ public class CompetitionData {
                 CompetitionData updated = this.importData(inputStream);
                 Config config = updated.getConfig();
                 ResourceWalker.initLocalDir();
-                
+
                 Locale defaultLocale = config.getDefaultLocale();
                 Translator.reset();
                 Translator.setForcedLocale(defaultLocale);
@@ -183,19 +192,19 @@ public class CompetitionData {
                 }
 
                 for (Athlete a : updated.getAthletes()) {
-                    // defensive programming if import file is corrupt
-                    // a.checkParticipations();
                     em.persist(a);
                 }
 
                 for (Group g : updated.getGroups()) {
                     em.merge(g);
                 }
-//
-//                for (Platform p : updated.getPlatforms()) {
-//                    em.merge(p);
-//                }
-//
+
+                if (updated.getRecords() != null) {
+                    for (RecordEvent r : updated.getRecords()) {
+                        em.merge(r);
+                    }
+                }
+
                 em.merge(competition);
 
                 em.flush();
@@ -247,6 +256,10 @@ public class CompetitionData {
 
     public void setPlatforms(List<Platform> platforms) {
         this.platforms = platforms;
+    }
+
+    public void setRecords(List<RecordEvent> records) {
+        this.records = records;
     }
 
     private void removeAll() {

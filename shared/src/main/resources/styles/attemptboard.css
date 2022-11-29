@@ -20,9 +20,9 @@
 	width: 100vw;
 	height: 100vh;
 	grid-template-columns: [firstName-start lastName-start teamName-start
-		startNumber-start weight-start] 1fr [startNumber-end attempt-start] 2fr [attempt-end
-		weight-end barbell-start down-start decision-start] 3fr [barbell-end
-		timer-start] 3fr [timer-end name-end down-end decision-end];
+  startNumber-start weight-start] 1fr [startNumber-end attempt-start] 2fr [attempt-end
+  weight-end barbell-start down-start decision-start] 4fr [barbell-end
+  timer-start] 2fr [timer-end name-end down-end decision-end];
 	grid-template-rows: [lastName-start] 1fr [lastName-end firstName-start] 1fr [firstName-end
 		teamName-start down-start] 2fr [teamName-end  decision-start] 1fr [startNumber-start
 		attempt-start barbell-start timer-start] 1fr [startNumber-end
@@ -39,15 +39,30 @@
 	justify-self: left;
 	font-size: 12vh;
 	line-height: 12vh;
+	grid-area: lastName-start/lastName-start/lastName-end/lastName-end;
+}
+
+.attemptBoard .lastNameWithPicture {
+	justify-self: left;
+	font-size: 9vh;
+	line-height: 10vh;
 	font-weight: bold;
 	grid-area: lastName-start/lastName-start/lastName-end/lastName-end;
 }
+
+.attemptBoard .lastNameWithPicture div {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+	font-weight: normal;
+	max-width: 70vw;
+}
+
 
 @media screen and (max-width: 1300px) {
 	.attemptBoard .lastName {
 		font-size: 7vw;
 		line-height: 7vw;
-		font-weight: bold;
 	}
 }
 
@@ -56,6 +71,22 @@
 	font-size: 10vh;
 	grid-area: firstName-start/firstName-start/firstName-end/firstName-end;
 }
+
+.attemptBoard .firstNameWithPicture {
+	justify-self: left;
+	font-size: 9vh;
+	line-height: 10vh;
+	font-weight: normal;
+	grid-area: firstName-start/firstName-start/firstName-end/timer-start;
+}
+
+.attemptBoard .firstNameWithPicture div {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+	max-width: 70vw;
+}
+
 
 @media screen and (max-width: 1300px) {
 	.attemptBoard .firstName {
@@ -66,16 +97,48 @@
 
 .attemptBoard .teamName {
 	justify-self: left;
+	align-self: center;
 	font-size: 8vh;
 	line-height: 8vh;
 	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
 }
 
-.attemptBoard .teamName {
-	justify-self: left;
-	font-size: 8vh;
-	height: 100%;
-	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
+.attemptBoard .flag {
+	justify-self: center;
+	justify-content: center;
+	align-self: start;
+	align-self: end;
+	grid-area: teamName-start/timer-start/timer-start/timer-end;
+	z-index: 10;
+}
+.attemptBoard .flag > img {
+	object-fit: cover;
+	max-height: 100%;
+	width: 15vw;
+}
+
+.attemptBoard .flagWithPicture {
+	justify-self: center;
+	justify-content: center;
+	align-self: start;
+	grid-area: teamName-start/barbell-start/barbell-start/barbell-end;
+	z-index: 0;
+}
+.attemptBoard .flagWithPicture > img {
+	height: 14vh;
+	align-self: start;
+}
+
+.attemptBoard .picture {
+	justify-self: center;
+	justify-content: center;
+	align-self: start;
+	grid-area: lastName-start/timer-start/timer-start/timer-end;
+	z-index: 0;
+}
+.attemptBoard .picture > img {
+	height: 40vh;
+	/* align-self: end; */
 }
 
 .attemptBoard .recordNotification {
@@ -125,6 +188,14 @@
     align-content: center;
     padding: 0.4em;
 	z-index: -10;
+}
+
+.hideBecauseRecord {
+	visibility: hidden;
+}
+
+.hideBecauseDecision {
+	visibility: hidden;
 }
 
 @media screen and (max-width: 1300px) {

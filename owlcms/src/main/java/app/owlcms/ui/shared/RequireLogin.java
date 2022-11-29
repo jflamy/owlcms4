@@ -35,36 +35,41 @@ public interface RequireLogin extends BeforeEnterObserver {
 
         String path = event.getLocation().getPath();
         QueryParameters queryParameters = event.getLocation().getQueryParameters();
-        String whiteList = Config.getCurrent().getParamAccessList();
-        String pin = Config.getCurrent().getParamPin();
+        String paramPin = Config.getCurrent().getParamPin();
+        String dbPin = Config.getCurrent().getPin();
         String backdoorList = Config.getCurrent().getParamBackdoorList();
 
-        boolean noPin = pin == null || pin.isBlank();
-        boolean noWhiteList = whiteList == null || whiteList.isBlank();
+        boolean pinOverride = paramPin != null && paramPin.isBlank();
         boolean backdoor = backdoorList != null && !backdoorList.isBlank();
-        if ((noPin && noWhiteList)) {
+        if (pinOverride) {
             // no check required
+            logger.debug("noPin {}", paramPin == null ? null : paramPin.length());
             OwlcmsSession.setAuthenticated(true);
             return;
-        } else if (backdoor && AccessUtils.checkBackdoor(AccessUtils.getClientIp())) {
-            // explicit backdoor access allowed (e.g. for video capture of browser screens)
-            logger.info("allowing backdoor access from {}", AccessUtils.getClientIp());
-            OwlcmsSession.setAuthenticated(true);
-            return;
-        } else if (noPin && AccessUtils.checkWhitelist(AccessUtils.getClientIp())) {
-            // no pin required, proper origin, no need to challenge
-            OwlcmsSession.setAuthenticated(true);
-            return;
-        } else if (!path.equals(LoginView.LOGIN)) {
-            // prompt user for PIN
-            // (if whitelist membership is required, will be prompted even if no PIN is
-            // required, so that an error message is shown)
-            OwlcmsSession.setRequestedUrl(path);
-            OwlcmsSession.setRequestedQueryParameters(queryParameters);
-            event.forwardTo(LoginView.LOGIN);
         } else {
-            // already on login view, do nothing.
-            // login will send to home.
+            boolean pinExpected = (paramPin != null && !paramPin.isBlank()) || (dbPin != null && !dbPin.isBlank());
+            // non-whitelisted addresses will get the login page, but will stubbornly be denied login.
+            // we don't return 403
+            if (pinExpected) {
+                logger.debug("paramPin {} pin {}", paramPin, dbPin);
+                String clientIp = AccessUtils.getClientIp();
+                if (backdoor && AccessUtils.checkBackdoor(clientIp)) {
+                    // explicit backdoor access allowed (e.g. for video capture of browser screens)
+                    logger.info("Backdoor access from {}", clientIp);
+                    OwlcmsSession.setAuthenticated(true);
+                    return;
+                } else if (!path.equals(LoginView.LOGIN)) {
+                    // prompt user for PIN
+                    OwlcmsSession.setRequestedUrl(path);
+                    OwlcmsSession.setRequestedQueryParameters(queryParameters);
+                    event.forwardTo(LoginView.LOGIN);
+                } else {
+                    // already on login view, do nothing.
+                    // login will send to home.
+                }
+            } else {
+                logger.debug("no pin expected {} {}",paramPin, dbPin);
+            }
         }
     }
 

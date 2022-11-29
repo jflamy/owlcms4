@@ -294,6 +294,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         grid.addColumn("group").setHeader(getTranslation("Group"));
         grid.addColumn("eligibleCategories").setHeader(getTranslation("Registration.EligibleCategories"));
         grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal"));
+        grid.addColumn("federationCodes").setHeader(getTranslation("Registration.FederationCodes"));
         OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
             @Override
             public void hideForm() {
@@ -466,6 +467,10 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 
         props.add("lotNumber");
         captions.add(getTranslation("Lot"));
+        
+        props.add("federationCodes");
+        captions.add(getTranslation("Registration.FederationCodes"));
+        
         props.add("eligibleForIndividualRanking");
         captions.add(getTranslation("Eligible for Individual Ranking?"));
 

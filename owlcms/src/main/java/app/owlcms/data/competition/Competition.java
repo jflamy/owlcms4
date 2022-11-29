@@ -109,8 +109,8 @@ public class Competition {
         }
     }
 
-    public static void splitPByGender(List<PAthlete> athletes, List<Athlete> men, List<Athlete> women) {
-        for (PAthlete l : athletes) {
+    public static void splitPByGender(List<Athlete> athletes, List<Athlete> men, List<Athlete> women) {
+        for (Athlete l : athletes) {
             Gender gender = l.getGender();
             if (Gender.M == gender) {
                 men.add(l);
@@ -239,6 +239,9 @@ public class Competition {
     
     @Column(columnDefinition = "boolean default false")
     private boolean sinclairMeet;
+    
+    @Column(columnDefinition = "integer default 3")
+    private Integer jurySize = 3;
 
     public Competition() {
         medalsByGroup = new HashMap<>();
@@ -341,13 +344,13 @@ public class Competition {
     }
 
     synchronized public HashMap<String, Object> computeReportingInfo() {
-        List<PAthlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(null, null);
+        List<Athlete> athletes = AgeGroupRepository.allWeighedInPAthletesForAgeGroupAgeDivision(null, null);
         doComputeReportingInfo(true, athletes, (String) null, null);
         return reportingBeans;
     }
 
     synchronized public HashMap<String, Object> computeReportingInfo(String ageGroupPrefix, AgeDivision ad) {
-        List<PAthlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(ageGroupPrefix, ad);
+        List<Athlete> athletes = AgeGroupRepository.allWeighedInPAthletesForAgeGroupAgeDivision(ageGroupPrefix, ad);
         doComputeReportingInfo(true, athletes, ageGroupPrefix, ad);
         return reportingBeans;
     }
@@ -1070,7 +1073,7 @@ public class Competition {
         athletes.addAll(sorted);
     }
 
-    private void categoryRankings(List<PAthlete> athletes) {
+    private void categoryRankings(List<Athlete> athletes) {
         List<Athlete> sortedAthletes;
         List<Athlete> sortedMen = null;
         List<Athlete> sortedWomen = null;
@@ -1160,7 +1163,7 @@ public class Competition {
         getOrCreateBean("mwCustom" + suffix).clear();
     }
 
-    private void doComputeReportingInfo(boolean full, List<PAthlete> athletes, String ageGroupPrefix,
+    private void doComputeReportingInfo(boolean full, List<Athlete> athletes, String ageGroupPrefix,
             AgeDivision ad) {
         // reporting does many database queries. fork a low-priority thread.
         runInThread(() -> {
@@ -1186,8 +1189,9 @@ public class Competition {
                     teamRankings(athletes, ageGroupPrefix);
                 }
             }
-
-            globalRankings();
+            
+            doGlobalRankings(athletes);
+            //globalRankings();
         }, Thread.MIN_PRIORITY);
     }
 
@@ -1203,7 +1207,7 @@ public class Competition {
      * @param singleAgeGroup true if not called in a loop, can compute team stats.
      * @param ageGroupPrefix
      */
-    private void doTeamRankings(List<PAthlete> athletes, String suffix, boolean singleAgeGroup) {
+    private void doTeamRankings(List<Athlete> athletes, String suffix, boolean singleAgeGroup) {
         // team-oriented rankings. These rankings put all the athletes from the same team
         // together, sorted according to their points, so the top n can be kept if needed.
         // substitutes are not included -- they should be marked as !isEligibleForTeamRanking
@@ -1273,7 +1277,7 @@ public class Competition {
         doGlobalRankings(athletes);
     }
 
-    private void doGlobalRankings(List<Athlete> athletes) {
+    public void doGlobalRankings(List<Athlete> athletes) {
         List<Athlete> sortedAthletes;
         List<Athlete> sortedMen;
         List<Athlete> sortedWomen;
@@ -1408,7 +1412,7 @@ public class Competition {
         logger.debug("updated reporting data");
     }
 
-    private void teamRankings(List<PAthlete> athletes, String ageGroupPrefix) {
+    private void teamRankings(List<Athlete> athletes, String ageGroupPrefix) {
         clearTeamReportingBeans(ageGroupPrefix);
         doTeamRankings(athletes, ageGroupPrefix, true);
     }
@@ -1426,7 +1430,7 @@ public class Competition {
         List<String> agePrefixes = AgeGroupRepository.findActiveAndUsed(ad);
 
         for (String curAGPrefix : agePrefixes) {
-            List<PAthlete> athletes = AgeGroupRepository.allPAthletesForAgeGroup(curAGPrefix);
+            List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroup(curAGPrefix);
             doTeamRankings(athletes, ad.name(), false);
         }
 
@@ -1481,5 +1485,16 @@ public class Competition {
     }
     public void setSinclair(boolean b) {
         this.sinclairMeet = b;
+    }
+
+    public Integer getJurySize() {
+        if (jurySize == null || jurySize < 3) {
+            return 3;
+        }
+        return jurySize;
+    }
+
+    public void setJurySize(Integer jurySize) {
+        this.jurySize = jurySize;
     }
 }

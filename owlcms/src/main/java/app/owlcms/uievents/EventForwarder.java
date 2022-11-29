@@ -515,6 +515,10 @@ public class EventForwarder implements BreakDisplay {
         if (curAthlete != null && curAthlete.getGender() != null) {
             setCategoryName(curAthlete.getCategory().getName());
             groupLeaders = fop.getLeaders();
+            if (groupLeaders == null || groupLeaders.isEmpty()) {
+                setLeaders(null);
+                return;
+            }
             int size = groupLeaders.size();
             if (size > 16) {
                 setLeaders(null);

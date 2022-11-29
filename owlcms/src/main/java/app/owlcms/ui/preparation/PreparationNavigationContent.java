@@ -33,6 +33,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.components.NavigationPage;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.records.RecordRepository;
@@ -93,6 +94,13 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams);
         doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
+        
+        if (Config.getCurrent().featureSwitch("preCompDocs", true)) {
+            FlexibleGridLayout grid6;
+            Button documents = openInNewTabNoParam(DocsContent.class, getTranslation(DocsContent.PRECOMP_DOCS_TITLE));
+            grid6 = HomeNavigationContent.navigationGrid(documents);
+            doGroup(getTranslation(DocsContent.PRECOMP_DOCS_TITLE), grid6, this);
+        }
 
         Button uploadJson = new Button(getTranslation("ExportDatabase.UploadJson"), new Icon(VaadinIcon.UPLOAD_ALT),
                 buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());

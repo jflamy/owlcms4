@@ -35,17 +35,9 @@ public class AthleteFacingAttemptBoard extends AttemptBoard {
         return getTranslation("AttemptAF") + OwlcmsSession.getFopNameIfMultiple();
     }
 
-    public boolean isPublicFacing() {
-        return Boolean.TRUE.equals(getModel().isPublicFacing());
-    }
-
     @Override
     public boolean isSilencedByDefault() {
         return false;
-    }
-
-    public void setPublicFacing(boolean publicFacing) {
-        getModel().setPublicFacing(publicFacing);
     }
 
     /*

@@ -35,7 +35,7 @@ KubeSail offers a free service that will enable you to connect your private clus
 
 Modern web applications use the https protocol to protect privacy.  Not using this protocol causes an irritating warning in the browser.  However, using this protocol requires using a registered name in order to obtain the certificates used to encrypt the traffic.
 
-If you own your own domain name, skip to [Alternative 2](#Alternative-2:-You-own-a-DNS-domain) below.
+If you own your own domain name, skip to [Alternative 2](#alternative-2-you-own-a-dns-domain) below.
 
 #### Alternative 1: You do not own a DNS domain
 

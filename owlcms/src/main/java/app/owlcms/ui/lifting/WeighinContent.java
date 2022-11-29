@@ -279,6 +279,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         grid.addColumn("cleanJerk1Declaration").setHeader(getTranslation("C_and_J_decl"));
         grid.addColumn("eligibleCategories").setHeader(getTranslation("Registration.EligibleCategories"));
         grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal"));
+        grid.addColumn("federationCodes").setHeader(getTranslation("Registration.FederationCodes"));
         OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
             @Override
             public void hideForm() {
@@ -448,6 +449,9 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         props.add("lotNumber");
         captions.add(getTranslation("Lot"));
 
+        props.add("federationCodes");
+        captions.add(getTranslation("Registration.FederationCodes"));
+        
         props.add("eligibleForIndividualRanking");
         captions.add(getTranslation("Eligible for Individual Ranking?"));
 

@@ -410,6 +410,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
         });
         good.getStyle().set("color", "DarkSlateGrey");
         good.getStyle().set("outline-color", "white");
+        bad.getStyle().set("color", "red");
     }
 
     private void doWhite() {
@@ -418,6 +419,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
         });
         bad.getStyle().set("color", "DarkSlateGrey");
         bad.getStyle().set("outline-color", "white");
+        good.getStyle().set("color", "white");
     }
 
     private Object getOrigin() {

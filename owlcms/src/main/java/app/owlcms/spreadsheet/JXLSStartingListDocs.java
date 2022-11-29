@@ -6,18 +6,13 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
-import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.UI;
-
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.competition.Competition;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -26,10 +21,11 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-public class JXLSRegistrationExport2 extends JXLSWorkbookStreamSource {
+public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSRegistrationExport2.class);
+
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSStartingListDocs.class);
     final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
     static {
         logger.setLevel(Level.INFO);
@@ -37,20 +33,22 @@ public class JXLSRegistrationExport2 extends JXLSWorkbookStreamSource {
         tagLogger.setLevel(Level.ERROR);
     }
 
-    public JXLSRegistrationExport2(UI ui) {
+    public JXLSStartingListDocs() {
         super();
+        this.setExcludeNotWeighed(false);
     }
 
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/registration/RegistrationExport", ".xls", locale);
-    }
-
+    
     @Override
     protected List<Athlete> getSortedAthletes() {
-        List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, null);
-        return AthleteSorter
-                .registrationOrderCopy(athletes);
+        if (Competition.getCurrent().getComputedStartListTemplateFileName().contains("Categor")) {
+            List<Athlete> displayOrderCopy = AthleteSorter.displayOrderCopy(sortedAthletes);
+            //logger.debug("sorting by category from {} {}", LoggerUtils.whereFrom(), displayOrderCopy);
+            return displayOrderCopy;
+        } else {
+            List<Athlete> registrationOrderCopy = AthleteSorter.registrationOrderCopy(sortedAthletes);
+            //logger.debug("sorting by group from {} {}", LoggerUtils.whereFrom(), registrationOrderCopy);
+            return registrationOrderCopy;
+        }
     }
-
 }

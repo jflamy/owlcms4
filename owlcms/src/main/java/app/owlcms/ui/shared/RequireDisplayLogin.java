@@ -52,7 +52,7 @@ public interface RequireDisplayLogin extends BeforeEnterObserver {
             logger.info("allowing backdoor access from {}", AccessUtils.getClientIp());
             OwlcmsSession.setDisplayAuthenticated(true);
             return;
-        } else if (noDisplayPin && AccessUtils.checkDisplayList(AccessUtils.getClientIp())) {
+        } else if (noDisplayPin && AccessUtils.isIpAllowedForDisplay(AccessUtils.getClientIp())) {
             // no pin required, proper origin, no need to challenge
             OwlcmsSession.setDisplayAuthenticated(true);
             return;

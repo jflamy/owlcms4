@@ -27,7 +27,7 @@ import app.owlcms.displays.attemptboard.AthleteFacingAttemptBoard;
 import app.owlcms.displays.attemptboard.AthleteFacingDecisionBoard;
 import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.displays.attemptboard.PublicFacingDecisionBoard;
-import app.owlcms.displays.monitor.Monitor;
+import app.owlcms.displays.monitor.OBSMonitor;
 import app.owlcms.displays.scoreboard.CurrentAthlete;
 import app.owlcms.displays.scoreboard.Medals;
 import app.owlcms.displays.scoreboard.Results;
@@ -103,7 +103,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         Button topTeams = openInNewTab(TopTeams.class, getTranslation("Scoreboard.TopTeams"));
         Button topTeamsSinclair = openInNewTab(TopTeamsSinclair.class, getTranslation("Scoreboard.TopTeamsSinclair"));
 
-        Button obsMonitor = openInNewTab(Monitor.class, getTranslation("OBS.MonitoringButton"));
+        Button obsMonitor = openInNewTab(OBSMonitor.class, getTranslation("OBS.MonitoringButton"));
         Button publicDecisions = openInNewTab(PublicFacingDecisionBoard.class, getTranslation("RefereeDecisions"));
 
         fillH(intro, this);

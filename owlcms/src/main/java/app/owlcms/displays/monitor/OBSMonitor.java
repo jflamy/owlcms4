@@ -41,18 +41,18 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Class Monitor
+ * Class OBSMonitor
  *
  * Show athlete lifting order
  *
  */
 @SuppressWarnings("serial")
 @Tag("monitor-template")
-@JsModule("./components/Monitor.js")
+@JsModule("./components/OBSMonitor.js")
 @Route("displays/monitor")
 @Theme(value = Lumo.class)
 @Push
-public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FOPParameters,
+public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> implements FOPParameters,
         SafeEventBusRegistration, UIEventProcessor {
 
     /**
@@ -97,9 +97,10 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
 
     final static int HISTORY_SIZE = 3;
 
-    final private Logger logger = (Logger) LoggerFactory.getLogger(Monitor.class);
+    final private Logger logger = (Logger) LoggerFactory.getLogger(OBSMonitor.class);
 
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + Monitor.class.getSimpleName());
+    final private static Logger uiEventLogger = (Logger) LoggerFactory
+            .getLogger("UI" + OBSMonitor.class.getSimpleName());
     static {
         uiEventLogger.setLevel(Level.INFO);
     }
@@ -132,7 +133,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
     /**
      * Instantiates a new results board.
      */
-    public Monitor() {
+    public OBSMonitor() {
         OwlcmsFactory.waitDBInitialized();
         this.getElement().getStyle().set("width", "100%");
         // we need two items on the stack (current + previous)
@@ -186,7 +187,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
                 });
             });
         }
-        // uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e /*, e.getTrace()*/);
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e /*, e.getTrace()*/);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             if (syncWithFOP(e)) {
                 // significant transition
@@ -257,9 +258,9 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
                 pageTitle.append(".NEW_RECORD");
             }
         } else if (currentChallengedRecords) {
-                pageTitle.append(".RECORD_ATTEMPT");
+            pageTitle.append(".RECORD_ATTEMPT");
         }
-        
+
         pageTitle.append(";");
         pageTitle.append("previous=");
         pageTitle.append(previousState.name());
@@ -273,7 +274,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
             pageTitle.append(".");
             pageTitle.append(previousDecision == null ? "UNDECIDED" : (previousDecision ? "GOOD_LIFT" : "BAD_LIFT"));
         }
-        
+
         if (currentLiftType != null) {
             pageTitle.append(";");
             pageTitle.append("liftType=");
@@ -290,7 +291,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
 
     @Override
     public String toString() {
-        return "Monitor [history=" + history + ", currentBreakType=" + currentBreakType + ", currentCeremony="
+        return "OBSMonitor [history=" + history + ", currentBreakType=" + currentBreakType + ", currentCeremony="
                 + currentCeremony + ", currentDecision=" + currentDecision + ", currentChallengedRecords="
                 + currentChallengedRecords + ", currentFOP=" + currentFOP + ", currentState=" + currentState
                 + ", previousBreakType=" + previousBreakType + ", previousCeremony=" + previousCeremony
@@ -309,7 +310,7 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         currentDecision = h0 != null ? h0.decision : null;
         currentChallengedRecords = h0 != null ? h0.challengedRecords : false;
         currentLiftType = h0 != null ? h0.liftType : null;
-        
+
         previousState = h1 != null ? h1.state : null;
         previousBreakType = h1 != null ? h1.breakType : null;
         previousCeremony = h1 != null ? h1.ceremonyType : null;
@@ -327,8 +328,8 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
 
     private synchronized void doUpdate() {
         title = computePageTitle();
-        String comparisonTitle = title != null ? title.substring(0,title.indexOf(";")) : title;
-        String comparisonPrevTitle = prevTitle != null ? prevTitle.substring(0,prevTitle.indexOf(";")) : prevTitle;
+        String comparisonTitle = title != null ? title.substring(0, title.indexOf(";")) : title;
+        String comparisonPrevTitle = prevTitle != null ? prevTitle.substring(0, prevTitle.indexOf(";")) : prevTitle;
         logger.debug("comparing comparisonTitle={} with comparisonPrevTitle={}", comparisonTitle, comparisonPrevTitle);
         boolean same = false;
         if (comparisonPrevTitle == null || comparisonTitle == null) {
@@ -366,9 +367,19 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
         OwlcmsSession.withFop(fop -> {
             currentFOP = fop.getName();
             boolean fopChallengedRecords = fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty();
-            boolean newRecord = e instanceof UIEvent.JuryNotification && ((UIEvent.JuryNotification)e).getNewRecord();
+            boolean newRecord = e instanceof UIEvent.JuryNotification && ((UIEvent.JuryNotification) e).getNewRecord();
             boolean curChallengedRecords = history.get(0).challengedRecords;
-            if (fop.getState() != history.get(0).state || fopChallengedRecords != curChallengedRecords) {
+
+            boolean stateChanged = fop.getState() != history.get(0).state;
+            boolean recordsChanged = fopChallengedRecords != curChallengedRecords;
+            logger.debug(">>>>>>OBSMonitor event {} fop {} history {} recordsChanged {}",e != null ? e.getClass().getSimpleName() : null, fop.getState(),history.get(0).state, recordsChanged);
+            if (e != null && e instanceof UIEvent.DecisionReset) {
+                // this event does not change state, and should always be ignored.
+                // however, because it can occur very close to the lifter update, and we have asynchronous events
+                // there is a possibility that it comes late and out of order.  So we ignore it explicitly.
+                logger.debug(">>>>>>OBSMonitor DecisionReset ignored");
+                significant[0] = false;
+            } else if (stateChanged || recordsChanged) {
                 doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), fop.getGoodLift(),
                         isNotEmpty(fop.getChallengedRecords()) || newRecord, fop.getCurrentStage()));
                 significant[0] = true;
@@ -379,15 +390,17 @@ public class Monitor extends PolymerTemplate<Monitor.MonitorModel> implements FO
                             isNotEmpty(fop.getChallengedRecords()), null));
                     significant[0] = true;
                 } else {
-                    // logger.trace("*** Monitor ignored duplicate {} {}", fop.getBreakType(), fop.getCeremonyType());
+                    // logger.trace("*** OBSMonitor ignored duplicate {} {}", fop.getBreakType(),
+                    // fop.getCeremonyType());
                 }
             } else {
-                // logger.trace("*** Monitor non break {}", fop.getState());
+                // logger.trace("*** OBSMonitor non break {}", fop.getState());
             }
         });
+        logger.debug(">>>>>>OBSMonitor sync significant {}", significant[0]);
         return significant[0];
     }
-    
+
     private boolean isNotEmpty(List<RecordEvent> list) {
         return list != null && !list.isEmpty();
     }

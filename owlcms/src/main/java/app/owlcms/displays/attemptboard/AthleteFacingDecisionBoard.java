@@ -38,16 +38,12 @@ public class AthleteFacingDecisionBoard extends AttemptBoard {
     }
 
     public boolean isPublicFacing() {
-        return Boolean.TRUE.equals(getModel().isPublicFacing());
+        return Boolean.TRUE.equals(isPublicFacing());
     }
 
     @Override
     public boolean isSilencedByDefault() {
         return false;
-    }
-
-    public void setPublicFacing(boolean publicFacing) {
-        getModel().setPublicFacing(publicFacing);
     }
 
     /*
@@ -61,8 +57,9 @@ public class AthleteFacingDecisionBoard extends AttemptBoard {
         decisions.setPublicFacing(false);
     }
 
-    private void setShowBarbell(boolean b) {
-        // unused - web component currently always hides barbell
-        getModel().setShowBarbell(b);
+    @Override
+    protected void checkImages() {
+        athletePictures = false;
+        teamFlags = false;
     }
 }

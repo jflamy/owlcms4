@@ -30,9 +30,11 @@ See the following instructions
 
 In this scenario, the owlcms software runs as a web site on the Internet, but it is your own private copy, with your own database.  All that is needed is a good internet connection from the competition site.
 
-- We provide instructions for two inexpensive cloud services
-  - **Heroku**: For Heroku, there is an extremely simple one-click install. See [Heroku Cloud Installation Instructions](Heroku).  Current pricing is about 0.50 US$ per day when the application is active (when preparing and running a competition, the billing can be turned off the rest of the time.)
-  - **Fly.io**: A second cloud offering, fly.io, is also supported.  It is actually cheaper at 0.10 US$ per day when the application is active (the application can be turned off when not needed). The only minor drawback is that the initial installation requires typing a few commands. See the [Fly Cloud Installation Instructions](Fly).
+- We provide instructions for the following variations
+  - **Fly.io**: Fly.io is essentially free because its cost is about 10 cents per day and there is no billing for less than 5$ usage per month. Both the database and publicresults are covered in their default "free" package. Only the owlcms memory requirements exceed the threshold and incurs the small charge. The application can be turned off when not needed and not billed at all. The only minor drawback is that the initial installation requires typing a few commands. See the [Fly Cloud Installation Instructions](Fly).  
+  - **Heroku**: For Heroku, there is an extremely simple one-click install. See [Heroku Cloud Installation Instructions](Heroku).  Current pricing is 5$ per month for all the applications you can use in "Economy mode", but there is an extra 5$ per month for *each* database (each owlcms application needs one).  Hosting one owlcms and one publicresults costs 10$ per month because only owlcms needs a database.
+  - **Docker**: if you have your own hosting, you can deploy a docker image using [Docker Instructions](Docker) 
+  - **Kubernetes**: see [self-hosted Kubernetes instructions](DigitalOcean)
 - All the various display screens and devices connect to the cloud using the competition site's network.
 - In the following diagram phones are shown as the referee device.  But you can actually referee using hand signals, flags, phones, or dedicated keypads (USB or Bluetooth). See [this page](Refereeing)
 

@@ -431,6 +431,21 @@ public class UIEvent {
             super(a, origin);
         }
     }
+    
+    /**
+     * Class DecisionReset.
+     */
+    static public class ResetOnNewClock extends UIEvent {
+
+        /**
+         * Instantiates a new decision reset.
+         *
+         * @param origin the origin
+         */
+        public ResetOnNewClock(Athlete a, Object origin) {
+            super(a, origin);
+        }
+    }
 
     /**
      * Class DownSignal.
@@ -535,6 +550,58 @@ public class UIEvent {
 
         private void setNewRecord(Boolean newRecord) {
             this.newRecord = newRecord;
+        }
+
+    }
+
+    static public class JuryUpdate extends UIEvent {
+
+        private Boolean unanimous;
+        private Boolean[] juryMemberDecision;
+        private int jurySize;
+
+        private Integer juryMemberUpdated;
+
+        public JuryUpdate(Object origin, boolean unanimous, Boolean[] juryMemberDecision, int jurySize) {
+            super(origin);
+            this.unanimous = unanimous;
+            this.juryMemberDecision = juryMemberDecision;
+            this.jurySize = jurySize;
+        }
+
+        public JuryUpdate(Object origin, int i, Boolean[] juryMemberDecision2, int jurySize) {
+            super(origin);
+            this.unanimous = null;
+            this.juryMemberUpdated = i;
+            this.juryMemberDecision = juryMemberDecision2;
+        }
+
+        /**
+         * @return the juryMemberDecision
+         */
+        public Boolean[] getJuryMemberDecision() {
+            return juryMemberDecision;
+        }
+
+        /**
+         * @return the juryMemberUpdated
+         */
+        public Integer getJuryMemberUpdated() {
+            return juryMemberUpdated;
+        }
+
+        /**
+         * @return the jurySize
+         */
+        public int getJurySize() {
+            return jurySize;
+        }
+
+        /**
+         * @return the unanimous
+         */
+        public Boolean getUnanimous() {
+            return unanimous;
         }
 
     }
@@ -802,21 +869,21 @@ public class UIEvent {
      */
     static public class RefereeUpdate extends UIEvent {
         public Boolean ref1;
-        public Integer ref1Time;
+        public Long ref1Time;
         public Boolean ref2;
-        public Integer ref2Time;
+        public Long ref2Time;
         public Boolean ref3;
-        public Integer ref3Time;
+        public Long ref3Time;
 
-        public RefereeUpdate(Athlete a, Boolean ref1, Boolean ref2, Boolean ref3, Integer refereeTime,
-                Integer refereeTime2, Integer refereeTime3, Object origin) {
+        public RefereeUpdate(Athlete a, Boolean ref1, Boolean ref2, Boolean ref3, Long long1,
+                Long long2, Long long3, Object origin) {
             super(a, origin);
             this.ref1 = ref1;
             this.ref2 = ref2;
             this.ref3 = ref3;
-            this.ref1Time = refereeTime;
-            this.ref2Time = refereeTime2;
-            this.ref3Time = refereeTime3;
+            this.ref1Time = long1;
+            this.ref2Time = long2;
+            this.ref3Time = long3;
         }
     }
 
@@ -936,14 +1003,12 @@ public class UIEvent {
 
     static public class SummonRef extends UIEvent {
 
-        public boolean on;
         public int ref;
 
         public SummonRef(int refNum, boolean b, Object origin) {
             // ref 1..3 ; 4 is technical controller.
             super(origin);
             this.ref = refNum;
-            this.on = b;
         }
 
     }

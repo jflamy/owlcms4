@@ -297,22 +297,23 @@ table.results td.liftName div {
 }
 
 :host(.dark) .request {
-    background-color: black;
+    background-color: var(--darkEmptyBackgroundColor);
     font-style: italic;
     width: var(--narrow-width);
     text-align: center;
 }
 
 :host(.light) .request {
-    background-color: white;
+    background-color: var(--lightEmptyBackgroundColor);
     font-style: italic;
     width: var(--narrow-width);
     text-align: center;
 }
 
 :host(.dark) td.current {
-    color: var(--darkCurrentTextColor);
-    background-color: var(--darkCurrentBackgroundColor);
+/* intentionally light, we want the yellow background */
+    color: var(--lightCurrentTextColor);
+    background-color: var(--lightCurrentBackgroundColor);
     font-weight: bold;
     width: var(--narrow-width);
     text-align: center;
@@ -360,19 +361,19 @@ table.results td.liftName div {
 }
 
 :host(.dark) table.results td.empty {
-    background-color: var(--lightEmptyBackgroundColor);
-    font-style: italic;
-    width: var(--narrow-width);
-}
-
-:host(.light) table.results td.empty {
     background-color: var(--darkEmptyBackgroundColor);
     font-style: italic;
     width: var(--narrow-width);
 }
 
+:host(.light) table.results td.empty {
+    background-color: var(--lightEmptyBackgroundColor);
+    font-style: italic;
+    width: var(--narrow-width);
+}
+
 :host(.dark) table.results td.total {
-    background-color: var(--lightTotalBackgroundColor);
+    background-color: var(--darkTotalBackgroundColor);
     color: var(--lightTotalTextColor);
     width: var(--narrow-width);
     text-align: center;
@@ -381,14 +382,13 @@ table.results td.liftName div {
 }
 
 :host(.light) table.results td.total {
-    background-color: var(--darkTotalBackgroundColor);
+    background-color: var(--lightTotalBackgroundColor);
     color: var(--darkTotalTextColor);
     width: var(--narrow-width);
     text-align: center;
     font-style: normal;
     font-weight: bold;
 }
-
 
 .v-system-error {
     display: none;

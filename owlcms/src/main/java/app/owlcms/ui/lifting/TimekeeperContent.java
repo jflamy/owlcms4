@@ -8,10 +8,13 @@
 package app.owlcms.ui.lifting;
 
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
+import com.flowingcode.vaadin.addons.ironicons.PlacesIcons;
 import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.ShortcutRegistration;
@@ -30,9 +33,11 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.init.OwlcmsSession;
@@ -42,6 +47,7 @@ import app.owlcms.ui.shared.BreakDialog;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -124,12 +130,41 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         return buttons;
     }
 
+    
+    /**
+     * @see app.owlcms.ui.shared.AthleteGridContent#createTopBarGroupSelect()
+     */
+    @Override
+    protected void createTopBarGroupSelect() {
+        // there is already all the SQL filtering logic for the group attached
+        // hidden field in the crudGrid part of the page so we just set that
+        // filter.
+
+        List<Group> groups = GroupRepository.findAll();
+        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+
+        OwlcmsSession.withFop(fop -> {
+            topBarMenu = new GroupSelectionMenu(groups, fop.getGroup(),
+                    fop,
+                    (g1) -> fop.fopEventPost(
+                            new FOPEvent.SwitchGroup(g1.compareTo(fop.getGroup()) == 0 ? null : g1, this)),
+                    (g1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
+            createTopBarSettingsMenu();
+        });
+        
+    }
+    
+    @Override
+    public boolean isIgnoreGroupFromURL() {
+        return false;
+    }
+    
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#createInitialBar()
      */
     @Override
     protected void createInitialBar() {
-        logger.debug("AnnouncerContent creating top bar");
+        logger.debug("AnnouncerContent creating top bar {}", LoggerUtils.whereFrom());
         topBar = getAppLayout().getAppBarElementWrapper();
         topBar.removeAll();
         initialBar = true;
@@ -137,16 +172,38 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         createTopBarGroupSelect();
         createTopBarLeft();
 
-        introCountdownButton = new Button(getTranslation("introCountdown"), AvIcons.AV_TIMER.create(), (e) -> {
-            BreakDialog dialog = new BreakDialog(this, BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET);
-            dialog.open();
-        });
+        introCountdownButton = new Button(getTranslation("introCountdown"), AvIcons.AV_TIMER.create(),
+                (e) -> {
+                    OwlcmsSession.withFop(fop -> {
+                        BreakDialog dialog = new BreakDialog(this, BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET);
+                        dialog.open();
+                    });
+                });
         introCountdownButton.getElement().setAttribute("theme", "primary contrast");
+
+        startLiftingButton = new Button(getTranslation("startLifting"), PlacesIcons.FITNESS_CENTER.create(), (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                UI.getCurrent().access(() -> createTopBar());
+                fop.fopEventPost(new FOPEvent.StartLifting(this));
+            });
+        });
+        startLiftingButton.getThemeNames().add("success primary");
+
+        showResultsButton = new Button(getTranslation("ShowResults"), PlacesIcons.FITNESS_CENTER.create(), (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                UI.getCurrent().access(() -> createTopBar());
+                fop.fopEventPost(
+                        new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null, true,
+                                this));
+            });
+        });
+        showResultsButton.getThemeNames().add("success primary");
+        showResultsButton.setVisible(false);
 
         warning = new H3();
         warning.getStyle().set("margin-top", "0").set("margin-bottom", "0");
         HorizontalLayout topBarRight = new HorizontalLayout();
-        topBarRight.add(warning, introCountdownButton);
+        topBarRight.add(warning, introCountdownButton, startLiftingButton, showResultsButton);
         topBarRight.setSpacing(true);
         topBarRight.setPadding(true);
         topBarRight.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -159,11 +216,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
         topBar.setFlexGrow(0.0, getTopBarLeft());
         topBar.setFlexGrow(1.0, topBarRight);
-
-        if (timer != null) {
-            timer.detach();
-        }
-        this.removeAll();
     }
 
     /**
@@ -306,7 +358,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
                         return;
                     }
                     breakButton.setText("");
-                    quietBreakButton(false);
+                    quietBreakButton(null);
                 }
                 breakButton.setEnabled(true);
 
