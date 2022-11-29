@@ -1,6 +1,6 @@
 ## Windows Installation
 
-- **Windows Installer** : Get the current [`owlcms_setup.exe`](https://github.com/owlcms/owlcms4-prerelease/releases/download/35.0.0-beta12/owlcms_setup_35.0.0-beta12.exe) file (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4-prerelease/releases/latest) ).
+- **Windows Installer** : Get the current [`owlcms_setup.exe`](https://github.com/owlcms/owlcms4-prerelease/releases/download/35.0.0-rc01/owlcms_setup_35.0.0-rc01.exe) file (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4-prerelease/releases/latest) ).
 
 ![zip](img\LocalInstall\010_setupexe.png)
 
@@ -67,6 +67,31 @@ When OWLCMS is started on a laptop, two windows are visible:  a command-line win
 - the file ending in `.jar` is the OWLCMS application in executable format
 
 - the `owlcms.l4j.ini` file is used to override application settings (for example, to force the display language) or technical settings
+
+## Control Access to the Application
+
+Mischevious users can probably figure out your WiFi network password, and gain access to the application. To prevent this, you will need to start the application with an extra parameter.
+
+- `PIN` is an arbitrary strings of characters that will be requested when starting the first screen whenever you start a new session (typically, once per browser, or when the system is restarted). 
+
+- On Windows, go to the installation directory (see [Accessing the Program Files and Configuration](LocalSetup#control-access-to-the-application) for how) and right-click on the `owlcms.l4j.ini` file; select `Edit` and add a line that reads 
+
+  ```
+  -DPIN=5612
+  ```
+
+  to define the pin (use your own value instead of 5612, obviously).  You can then use `owlcms.exe` as usual
+
+
+## Defining the language
+
+You can use the same technique as for the PIN to force a language to be used on all the screens.  By default, OWLCMS will respect the browser settings.  To force a locale (say Canadian French, whose code is `fr_CA`)-- a locale is a language with possible per-country variations --  you can
+
+-  define the Java system property `locale` (small letters) using the syntax 
+  `java -Dlocale=fr_CA` (on Windows, add `-Dlocale=fr_CA` to the `owlcms.l4j.ini` file).  
+- Alternately, define the environment variable `LOCALE` with the value `fr_CA` 
+
+If neither `-Dlocale` or `LOCALE` are defined, the [language setting](Preparation#display-language) from the competition information page is used.
 
 ## Configuration Parameters
 
