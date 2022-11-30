@@ -4491,6 +4491,9 @@ public class Athlete {
     }
 
     private void doCheckChangeVsLiftOrder(int curLift, int newVal) throws RuleViolationException {
+        if (getFop() == null) {
+            return;
+        }
         int currentLiftNo = getAttemptsDone() + 1; // check
         int checkedLift = curLift + 1;
         if (checkedLift < currentLiftNo) {
