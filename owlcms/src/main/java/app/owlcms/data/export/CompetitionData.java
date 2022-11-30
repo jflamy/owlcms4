@@ -36,6 +36,7 @@ import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
@@ -205,8 +206,13 @@ public class CompetitionData {
                     }
                 }
 
+                if (updated.getPlatforms() != null) {
+                    for (Platform p : updated.getPlatforms()) {
+                        em.merge(p);
+                    }
+                }
+                
                 em.merge(competition);
-
                 em.flush();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -215,6 +221,8 @@ public class CompetitionData {
             }
             return null;
         });
+        // register the new FOPs for events and MQTT
+        OwlcmsFactory.initFOPByName();
     }
 
     public void setAgeGroups(List<AgeGroup> ageGroups) {
