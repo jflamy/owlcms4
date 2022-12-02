@@ -23,6 +23,7 @@
     
   - Fixes:
   
+    - 35.5.0-rc02: Fix: Pre-competition documents now work in the cloud (Postgres is stricter than H2) (#582)
     - 35.5.0-rc02: Fix: Platforms are now reloaded correctly and also registered to MQTT after importing a JSON database file (#579)
     - Fixed the Weigh-In Summary document available from the Starting Weights button on the weigh-in page.  The document was not being produced (#578)
     - Fixed a race condition that could cause 404 errors when trying to download a file, or silently required a second click to work. (#574)
