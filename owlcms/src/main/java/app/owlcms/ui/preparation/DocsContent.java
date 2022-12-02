@@ -294,7 +294,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         List<String> platformParams = params1.get("platform");
         String platformParam = (platformParams != null && !platformParams.isEmpty() ? platformParams.get(0) : null);
         platformParam = platformParam != null ? URLDecoder.decode(platformParam, StandardCharsets.UTF_8) : null;
-        Platform platform = PlatformRepository.findByName(platformParam);
+        platform = platformParam != null ? PlatformRepository.findByName(platformParam) : null;
         //logger.debug("reading param platform {}", platformParam);
         this.setPlatform(platform);
         platformFilter.setValue(platform);

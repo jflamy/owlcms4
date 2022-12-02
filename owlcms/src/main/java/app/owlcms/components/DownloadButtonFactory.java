@@ -125,14 +125,15 @@ public class DownloadButtonFactory {
                     String fileName = e.getValue().getFileName();
                     fileNameSetter.accept(Competition.getCurrent(), fileName);
                     xlsWriter = streamSourceSupplier.get();
-                    logger.debug("(2) xlsWriter {} {}", xlsWriter, fileName);
+                    logger.warn("(2) xlsWriter {} {}", xlsWriter, fileName);
 
                     // supplier is a lambda that sets the template and the filter values in the xls source
                     Resource res = searchMatch(resourceList, fileName);
                     if (res == null) {
-                        throw new Exception("template note found " + fileName);
+                        logger.warn("(2) template NOT found {} {}", fileName, resourceList);
+                        throw new Exception("template not found " + fileName);
                     }
-                    logger.debug("(2) template found {}", res != null ? res.getFileName() : null);
+                    logger.warn("(2) template found {}", res != null ? res.getFileName() : null);
 
                     InputStream is = res.getStream();
                     xlsWriter.setInputStream(is);
