@@ -96,7 +96,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     private RadioButtonGroup<BreakType> countdownRadios;
     private DatePicker datePicker = new DatePicker();
 
-    //private HorizontalLayout dt;
+    // private HorizontalLayout dt;
     private DurationField durationField = new DurationField();
     private RadioButtonGroup<CountdownType> durationRadios;
     private Button endIntroButton;
@@ -207,7 +207,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
             if (bType != null && (bType.isInterruption())) {
                 logger.debug("starting break from radiobutton setvalue {}", bType);
-                //startIndefiniteBreakImmediately(bType);
+                // startIndefiniteBreakImmediately(bType);
                 setBreakTimerFromFields(durationRadios.getValue());
             } else {
                 setBreakTimerFromFields(durationRadios.getValue());
@@ -373,8 +373,12 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     // force FOP to accept our break and value as new
                     fop.setBreakType(null);
                     fop.setCountdownType(null);
-                    fop.getBreakTimer()
-                            .setTimeRemaining(this.computeTimerRemainingFromFields(durationRadios.getValue()), false);
+                    Integer tr = this.computeTimerRemainingFromFields(durationRadios.getValue());
+                    if (tr == null) {
+                        fop.getBreakTimer().setTimeRemaining(0, true);
+                    } else {
+                        fop.getBreakTimer().setTimeRemaining(tr, false);
+                    }
                 }
             });
             masterStartBreak();
@@ -669,7 +673,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         this.parentDialog = parentDialog;
 
         createCountdownColumn();
-        //createAttemptBoardInfoSelection();
+        // createAttemptBoardInfoSelection();
         computeDefaultTimeValues();
 
         setCountdownValue(brt);
@@ -962,13 +966,13 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private void startBreakIfInactive(FieldOfPlay fop) {
-        if (fop.getState() == FOPState.INACTIVE) {
+//        if (fop.getState() == FOPState.INACTIVE) {
             fop.getBreakTimer().setIndefinite();
             fop.setWeightAtLastStart(0);
             fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.FIRST_SNATCH, CountdownType.INDEFINITE,
                     null, null, true,
                     this.getOrigin()));
-        }
+//        }
     }
 
     private void startDisabled() {
