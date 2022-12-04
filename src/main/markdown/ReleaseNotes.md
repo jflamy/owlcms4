@@ -23,7 +23,7 @@
     
   - Fixes:
   
-    - 35.5.0-rc04: Fix: Heroku Deploy button should work again - adjusted the specifications after removal of free plans (#588)
+    - 35.5.0-rc05: Fix: Heroku Deploy button should work again - adjusted the specifications after removal of free plans (#588)
     - 35.5.0-rc03: Fix: No blinking, leaders or records shown during introduction of athletes (#587)
     - 35.5.0-rc02: Fix: Pre-competition documents now work in the cloud (Postgres is stricter than H2) (#582)
     - 35.5.0-rc02: Fix: Platforms are now reloaded correctly and also registered to MQTT after importing a JSON database file (#579)
