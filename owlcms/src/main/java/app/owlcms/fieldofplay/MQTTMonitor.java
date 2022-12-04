@@ -42,7 +42,7 @@ public class MQTTMonitor {
     /**
      * This inner class contains the routines executed when an MQTT message is received.
      */
-    private class MQTTCallback implements MqttCallback, JuryEvents {
+    private class MQTTCallback implements MqttCallback {
         Athlete athleteUnderReview;
         String juryBreakTopicName;
         String juryMemberDecisionTopicName;
