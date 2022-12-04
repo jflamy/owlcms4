@@ -23,7 +23,7 @@
     
   - Fixes:
   
-    - 35.5.0-rc03: Fix: Heroku Deploy button should work again - adjusted the specifications after removal of free plans (#588)
+    - 35.5.0-rc04: Fix: Heroku Deploy button should work again - adjusted the specifications after removal of free plans (#588)
     - 35.5.0-rc03: Fix: No blinking, leaders or records shown during introduction of athletes (#587)
     - 35.5.0-rc02: Fix: Pre-competition documents now work in the cloud (Postgres is stricter than H2) (#582)
     - 35.5.0-rc02: Fix: Platforms are now reloaded correctly and also registered to MQTT after importing a JSON database file (#579)
@@ -48,7 +48,7 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_35.0.0-rc03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_35.0.0-rc04.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
