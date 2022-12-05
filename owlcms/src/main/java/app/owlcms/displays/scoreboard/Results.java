@@ -571,7 +571,7 @@ public class Results extends PolymerTemplate<TemplateModel>
         OwlcmsSession.withFop(fop -> {
             Athlete curAthlete = fop.getCurAthlete();
             if (curAthlete != null && curAthlete.getGender() != null) {
-                if (!done) {
+                if (!done && showCurrent(fop)) {
                     this.getElement().setPropertyJson("records", fop.getRecordsJson());
                 } else {
                     // nothing to show
@@ -706,7 +706,7 @@ public class Results extends PolymerTemplate<TemplateModel>
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
         String highlight = "";
-        if (fop.getState() != FOPState.DECISION_VISIBLE && notDone) {
+        if (fop.getState() != FOPState.DECISION_VISIBLE && notDone && showCurrent(fop)) {
             switch (liftOrderRank) {
             case 1:
                 highlight = (" current" + blink);
@@ -720,6 +720,18 @@ public class Results extends PolymerTemplate<TemplateModel>
         }
         // logger.debug("{} {} {}", a.getShortName(), fop.getState(), highlight);
         ja.put("classname", highlight);
+    }
+
+    private boolean showCurrent(FieldOfPlay fop) {
+        // No blinking during introductions, medals etc.
+        if (fop.getState() == FOPState.BREAK) {
+            if (fop.getBreakType() == BreakType.FIRST_SNATCH
+                    || fop.getBreakType() == BreakType.FIRST_CJ
+                    || fop.getBreakType() == BreakType.GROUP_DONE) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -808,7 +820,7 @@ public class Results extends PolymerTemplate<TemplateModel>
                         // don't blink while decision is visible. wait until lifting displayOrder has been
                         // recomputed and we get DECISION_RESET
                         int liftBeingDisplayed = i.getLiftNo();
-                        if (liftBeingDisplayed == curLift && (fop.getState() != FOPState.DECISION_VISIBLE)) {
+                        if (liftBeingDisplayed == curLift && (fop.getState() != FOPState.DECISION_VISIBLE) && showCurrent(fop)) {
                             switch (liftOrderRank) {
                             case 1:
                                 highlight = (" current" + blink);
@@ -932,6 +944,9 @@ public class Results extends PolymerTemplate<TemplateModel>
         boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
         computeLeaders(done);
         computeRecords(done);
+        if (!showCurrent(fop)) {
+            this.getElement().callJsFunction("groupDone");
+        }
     }
 
     private String computeLiftType(Athlete a) {

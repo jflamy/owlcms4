@@ -2,7 +2,7 @@
 
 - 35.0.0-rc:
 
-  *Release Candidate.  Test thoroughly with your own data, should be stable enough to use in a meet.*
+  *Release Candidate.  Has been used in meets.*
 
   - Enhancements / functional changes
 
@@ -23,6 +23,9 @@
     
   - Fixes:
   
+    - 35.5.0-rc05: Fix: Heroku Deploy button should work again - adjusted the specifications after removal of free plans (#588)
+    - 35.5.0-rc03: Fix: No blinking, leaders or records shown during introduction of athletes (#587)
+    - 35.5.0-rc02: Fix: Pre-competition documents now work in the cloud (Postgres is stricter than H2) (#582)
     - 35.5.0-rc02: Fix: Platforms are now reloaded correctly and also registered to MQTT after importing a JSON database file (#579)
     - Fixed the Weigh-In Summary document available from the Starting Weights button on the weigh-in page.  The document was not being produced (#578)
     - Fixed a race condition that could cause 404 errors when trying to download a file, or silently required a second click to work. (#574)

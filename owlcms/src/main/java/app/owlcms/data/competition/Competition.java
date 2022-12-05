@@ -432,6 +432,7 @@ public class Competition {
     @Transient
     @JsonIgnore
     public String getComputedCardsTemplateFileName() {
+        logger.warn("getComputedCardsTemplateFileName {}",cardsTemplateFileName);
         if (cardsTemplateFileName == null) {
             return "IWF-A4.xls";
         }

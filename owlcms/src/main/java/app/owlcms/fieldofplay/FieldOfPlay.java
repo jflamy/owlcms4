@@ -881,7 +881,6 @@ public class FieldOfPlay {
             ageGroupMap.put(ag.getCode(), null);
         }
         this.setMedals(new TreeMap<Category, TreeSet<Athlete>>());
-
         this.recomputeRecordsMap(athletes);
 
         boolean done = false;
@@ -893,6 +892,8 @@ public class FieldOfPlay {
         }
         if (done) {
             pushOutDone();
+        } else {
+            this.recomputeLeadersAndRecords(athletes);
         }
         if (getGroup() != null) {
         }
