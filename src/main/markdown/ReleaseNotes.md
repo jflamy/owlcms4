@@ -1,8 +1,8 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 35.0.0-rc:
+- 35.0.0:
 
-  *Release Candidate.  Has been used in meets.*
+  *Stable release.*
 
   - Enhancements / functional changes
 
@@ -23,25 +23,20 @@
     
   - Fixes:
   
-    - 35.5.0-rc05: Fix: Heroku Deploy button should work again - adjusted the specifications after removal of free plans (#588)
-    - 35.5.0-rc03: Fix: No blinking, leaders or records shown during introduction of athletes (#587)
-    - 35.5.0-rc02: Fix: Pre-competition documents now work in the cloud (Postgres is stricter than H2) (#582)
-    - 35.5.0-rc02: Fix: Platforms are now reloaded correctly and also registered to MQTT after importing a JSON database file (#579)
-    - Fixed the Weigh-In Summary document available from the Starting Weights button on the weigh-in page.  The document was not being produced (#578)
-    - Fixed a race condition that could cause 404 errors when trying to download a file, or silently required a second click to work. (#574)
-    - 35.0.0-beta11: Fixed spurious error message if clock started when already running (#575)
-    - Fixed a vulnerability in processing the passwords. An error message is given at startup if the faulty encoding is detected, asking users to change the password (#574)
-    - Fixed premature notifications to technical officials for events that were in fact forbidden (#570)
-    - Final Package was including SMF and Sinclair results for all athletes, ignoring the filtering requested. (#561)
-    - On mobile refereeing screen, reversal was not restoring button colors (#560)
-    - Record attempt notification remained on attempt board at end of group (#557)
+    - Fix: Heroku Deploy button works after removal of Free Plans (#588)
+    - Fix: Platforms are now reloaded correctly and also registered to MQTT after importing a JSON database file (#579)
+    - Fix: the Weigh-In Summary document available from the Starting Weights button on the weigh-in page is now correctly produced (#578)
+    - Fix:  in previous releases, a race condition that could cause 404 errors when trying to download a file, or silently required a second click to work. (#574)
+    - Fix: Removed a vulnerability in processing the passwords due to a faulty encoding. An error message is given at startup if the condition is detected, asking users to change the password. Passwords (#574)
+    - Fix: Final Package now correctly filters the Sinclair and SMF pages. (#561)
+    - Fix: Records, Record attempt notifications, and leaders remained on scoreboard and attempt board in various situations where there was no current athlete.
 
 ##### Highlights from recent stable releases
 
+- **New Sinclair coefficients for the 2024 Olympiad**.  An option on the Competition rules page allows using the previous (2020 Olympiad) values if your local rules require them.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
 - Experimental capability to add flags and athlete pictures on the attempt board (#508).  See [Flags and Pictures](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FlagsPicture) documentation.
 - New Records processing, including Eligibility Criteria based on Age Groups and Federations (so invited athletes do not show up as breaking local records, etc.). See [Records Eligibility](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Records) documentation. 
 - New Weigh-in template to create a Weigh-in Summary. Meant to facilitate data entry. As used in Pan-American federation, the body weight and declarations are copied one per line and countersigned by the coach/athlete. Select the template from the "Starting Weights" button on the weigh-in page.
-- New Sinclair coefficients for the 2024 Olympiad.  An option on the Competition rules page allows using the previous (2020 Olympiad) values if your local rules require them.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
 - [Customization](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/UploadingLocalSettings) of colors and styling of scoreboards and attempt board. 
 - Improved management of ceremonies : see [Breaks and Ceremonies](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Breaks) procedures, and [Result Documents](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Documents) for the medals spreadsheet.
 
