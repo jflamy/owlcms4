@@ -34,14 +34,15 @@ import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.Resource;
 import app.owlcms.utils.ResourceWalker;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class DownloadButtonFactory {
 
     private String buttonLabel;
     private String dialogTitle;
-    private Function<Competition, String> fileNameGetter;
-    private BiConsumer<Competition, String> fileNameSetter;
+    private Function<Competition, String> templateNameGetter;
+    private BiConsumer<Competition, String> templateNameSetter;
     private Logger logger = (Logger) LoggerFactory.getLogger(DownloadButtonFactory.class);
     private String outputFileName;
     private String resourceDirectoryLocation;
@@ -52,8 +53,8 @@ public class DownloadButtonFactory {
     /**
      * @param streamSourceSupplier      lambda that creates a JXLSWorkbookStreamSource and sets its filters
      * @param resourceDirectoryLocation where to look for templates
-     * @param fileNameGetter            get last file name stored in Competition
-     * @param fileNameSetter            set last file name in Competition
+     * @param templateNameGetter            get last file name stored in Competition
+     * @param templateNameSetter            set last file name in Competition
      * @param buttonLabel
      * @param buttonLabel               label used in top bar
      * @param outputFileName            first part of the downloaded file name (not dependent on template).
@@ -63,14 +64,15 @@ public class DownloadButtonFactory {
     public DownloadButtonFactory(
             Supplier<JXLSWorkbookStreamSource> streamSourceSupplier,
             String resourceDirectoryLocation,
-            Function<Competition, String> fileNameGetter,
-            BiConsumer<Competition, String> fileNameSetter,
+            Function<Competition, String> templateNameGetter,
+            BiConsumer<Competition, String> templateNameSetter,
             String dialogTitle, String outputFileName, String buttonLabel) {
+        logger.setLevel(Level.DEBUG);
         this.outputFileName = outputFileName;
         this.streamSourceSupplier = streamSourceSupplier;
         this.resourceDirectoryLocation = resourceDirectoryLocation;
-        this.fileNameGetter = fileNameGetter;
-        this.fileNameSetter = fileNameSetter;
+        this.templateNameGetter = templateNameGetter;
+        this.templateNameSetter = templateNameSetter;
         this.buttonLabel = buttonLabel;
         this.dialogTitle = dialogTitle;
     }
@@ -113,48 +115,47 @@ public class DownloadButtonFactory {
         try {
             // Competition.getTemplateFileName()
             // the getter should return a default if not set.
-            String curTemplateName = fileNameGetter.apply(Competition.getCurrent());
-            logger.debug("(1) curTemplateName {}", curTemplateName);
+            String curTemplateName = templateNameGetter.apply(Competition.getCurrent());
+            logger.trace("(1) curTemplateName {}", curTemplateName);
             // searchMatch should always return something unless the directory is empty.
             Resource found = searchMatch(resourceList, curTemplateName);
-            logger.debug("(1) template found {}", found != null ? found.getFilePath() : null);
+            logger.trace("(1) template found {}", found != null ? found.getFilePath() : null);
 
             templateSelect.addValueChangeListener(e -> {
                 try {
-                    // Competition.setTemplateFileName(...)
-                    String fileName = e.getValue().getFileName();
-                    fileNameSetter.accept(Competition.getCurrent(), fileName);
+                    String newTemplateName = e.getValue().getFileName();
+                    
+                    Competition current = Competition.getCurrent();
+                    
                     xlsWriter = streamSourceSupplier.get();
-                    logger.warn("(2) xlsWriter {} {}", xlsWriter, fileName);
+                    logger.trace("(2) xlsWriter {} {}", xlsWriter, newTemplateName);
 
                     // supplier is a lambda that sets the template and the filter values in the xls source
-                    Resource res = searchMatch(resourceList, fileName);
+                    Resource res = searchMatch(resourceList, newTemplateName);
                     if (res == null) {
-                        logger.warn("(2) template NOT found {} {}", fileName, resourceList);
-                        throw new Exception("template not found " + fileName);
+                        logger.debug("(2) template NOT found {} {}", newTemplateName, resourceList);
+                        throw new Exception("template not found " + newTemplateName);
                     }
-                    logger.warn("(2) template found {}", res != null ? res.getFileName() : null);
+                    logger.debug("(2) template found {}", res != null ? res.getFileName() : null);
+                    templateNameSetter.accept(current, newTemplateName);
+                    logger.debug("(2) template as set {}", templateNameGetter.apply(current));
+                    
+                    CompetitionRepository.save(current);
+                    current = Competition.getCurrent();
+                    logger.debug("(2) template as stored {}", templateNameGetter.apply(current));
 
                     InputStream is = res.getStream();
                     xlsWriter.setInputStream(is);
                     logger.debug("(2) filter present = {}", xlsWriter.getGroup());
 
-                    CompetitionRepository.save(Competition.getCurrent());
-                    fileName = getTargetFileName();
-                    logger.debug("(2) filename final = {}", fileName);
+                    String targetFileName = getTargetFileName();
+                    logger.debug("(2) targetFileName final = {}", targetFileName);
 
                     Supplier<String> supplier = () -> getTargetFileName();
-                    downloadButton = new LazyDownloadButton(
-                            buttonLabel,
-                            new Icon(VaadinIcon.DOWNLOAD_ALT),
-                            supplier,
-                            (StreamResourceWriter)null);
+
                     downloadButton.setFileNameCallback(supplier);
                     downloadButton.setStreamResourceWriter(xlsWriter);
                     downloadButton.addDownloadStartsListener(ds -> dialog.close());
-
-//                    wrappedButton.setHref(new StreamResource(fileName, xlsWriter));
-//                    innerButton.setEnabled(true);
                 } catch (Throwable e1) {
                     logger.error("{}", LoggerUtils.stackTrace(e1));
                 }
@@ -198,7 +199,7 @@ public class DownloadButtonFactory {
         suffix.append(".xls");
         String fileName = outputFileName + suffix;
         fileName = sanitizeFilename(fileName);
-        logger.debug(fileName);
+        logger.trace(fileName);
         return fileName;
     }
 
@@ -210,7 +211,7 @@ public class DownloadButtonFactory {
         Resource found = null;
         for (Resource curResource : resourceList) {
             String fileName = curResource.getFileName();
-            logger.debug("comparing {} {}", fileName, curTemplateName);
+            logger.trace("comparing {} {}", fileName, curTemplateName);
             if (fileName.equals(curTemplateName)) {
                 found = curResource;
                 break;
