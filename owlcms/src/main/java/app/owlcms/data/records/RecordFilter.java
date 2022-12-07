@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.i18n.Translator;
@@ -181,10 +180,10 @@ public class RecordFilter {
 
         // if a record is defined to apply to an age group that is active in the competition, athlete must be eligible
         // in that age group.
-        Set<String> activeAgeGroupCodes = AgeGroupRepository.findActive().stream().map(a -> a.getCode())
-                .collect(Collectors.toSet());
-        Set<String> athleteAgeGroupCodes = curAthlete.getParticipations().stream()
-                .map(a -> a.getCategory().getAgeGroup().getCode()).collect(Collectors.toSet());
+//        Set<String> activeAgeGroupCodes = AgeGroupRepository.findActive().stream().map(a -> a.getCode())
+//                .collect(Collectors.toSet());
+//        Set<String> athleteAgeGroupCodes = curAthlete.getParticipations().stream()
+//                .map(a -> a.getCategory().getAgeGroup().getCode()).collect(Collectors.toSet());
         Set<String> athleteFederations = curAthlete.getFederationCodes() != null
                 ? new HashSet<>(Arrays.asList(curAthlete.getFederationCodes().split("[,;]")))
                 : Set.of();
@@ -192,9 +191,9 @@ public class RecordFilter {
         records = candidateRecords.stream()
                 .filter(c -> athleteFederations.isEmpty() ? true : athleteFederations.contains(c.getRecordFederation()))
 //                .peek(c -> logger.debug("retained {}", c.getRecordFederation()))
-                .filter(c -> activeAgeGroupCodes
-                        .contains(c.getAgeGrp()) ? athleteAgeGroupCodes.contains(c.getAgeGrp())
-                                : true)
+//                .filter(c -> activeAgeGroupCodes
+//                        .contains(c.getAgeGrp()) ? athleteAgeGroupCodes.contains(c.getAgeGrp())
+//                                : true)
                 .collect(Collectors.toList());
         return records;
     }
