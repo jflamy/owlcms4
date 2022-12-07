@@ -1,20 +1,17 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 35.0.1-rc01:
-
-  *Minor fixes* for [(#589)](https://github.com/jflamy/owlcms4/issues/589) [(#590)](https://github.com/jflamy/owlcms4/issues/590)
+- 35.0.1-rc02:  Simplified records eligibility [(#592)](https://github.com/jflamy/owlcms4/issues/592), Flags/picture directories created by default [(#589)](https://github.com/jflamy/owlcms4/issues/589), 
 
   - 35.0 Enhancements / functional changes
 
+    * 35.0.1-rc02: Records Eligibility Criteria were simplified in 35.0.1. See [Records Eligibility](https://owlcms.github.io/owlcms4-prerelease/#/Records#eligibility-criteria) documentation. 
     * Initial capability to add flags and athlete pictures on the attempt board (#508).  See [Flags and Pictures](https://owlcms.github.io/owlcms4-prerelease/#/FlagsPicture) documentation.
-    * New Records Eligibility Criteria based on Age Groups and Federations (so invited athletes do not show up as breaking local records, etc.). See [Records Eligibility](https://owlcms.github.io/owlcms4-prerelease/#/Records#eligibility-criteria) documentation. 
     * Timekeeper can now switch groups and start countdowns. Useful when a veteran announcer is using the scoreboard only.
     * Notification given to TOs if current athlete does not meet starting weights rule when called for first clean and jerk (TCRR regulation to rule 6.6.5 clause 6) (#556)
     * Clicking on the break button no longer starts a technical or marshal break immediately. It is possible to cancel, or to change the kind of break desired. The ▶ button must be used to start the break. Also, the Marshall break button is labeled "Marshal Issue" to make it's purpose clearer. (#569)
     * Feature toggles to enable new features that may still evolve.  See [Feature Toggles](https://owlcms.github.io/owlcms4-prerelease/#/FeatureToggles) for documentation.
       * Added a feature toggle `forceAllGroupRecords`.  If true, the scoreboards will show all the records that can be broken in the current group (as opposed to just those for the current athlete, which is the default.) This works if there is less than about 6 age groups in the group (zooming and adjusting the font size may be required)
       * Added a feature toggle `preCompDocs`.  If defined, the download buttons for pre-competition documents (start list and athlete card) are moved on a new separate page.  This allows more appropriate filtering (for example, producing different start lists for different competitions if there are joint meets, or a schedule for each platform)
-    
     * Improved ordering of the registration export page to make it easier to do the initial allocation to groups when there are multiple age groups and there is a need to create A and B groups.
     * In multi-lingual settings, a drop down at the top of navigation pages allows changing the language for the current browser. Pages and displays opened from that browser will be in the new language; the overall default is not changed.  (#553)
     * Full support of MQTT messaging for devices. Jury/referee/timekeeper devices can now issue MQTT commands instead of key presses, and subscribe to messages issued by the main program (#469)  See  [MQTT Messages documentation](https://owlcms.github.io/owlcms4-prerelease/#/MQTTMessages).
@@ -45,7 +42,7 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_35.0.1-rc01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_35.0.1-rc02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
