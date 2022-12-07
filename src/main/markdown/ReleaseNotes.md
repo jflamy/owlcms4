@@ -1,10 +1,10 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 35.0.0:
+- 35.0.1-rc01:
 
-  *Stable release.*
+  *Minor fixes* for [(#589)](https://github.com/jflamy/owlcms4/issues/589) [(#590)](https://github.com/jflamy/owlcms4/issues/590)
 
-  - Enhancements / functional changes
+  - 35.0 Enhancements / functional changes
 
     * Initial capability to add flags and athlete pictures on the attempt board (#508).  See [Flags and Pictures](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FlagsPicture) documentation.
     * New Records Eligibility Criteria based on Age Groups and Federations (so invited athletes do not show up as breaking local records, etc.). See [Records Eligibility](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Records#eligibility-criteria) documentation. 
@@ -21,8 +21,10 @@
     
     - Improved colors on the Current Athlete view used when streaming (current requested weight are more visible, empty cells are less visible) (#562)
     
-  - Fixes:
+  - 35.0 Fixes:
   
+    - 35.0.1-rc01 Fix: Flags/Pictures not correctly shown after a decision [(#589)](https://github.com/jflamy/owlcms4/issues/589)
+    - 35.0.1-rc01 Fix: Document template selection would sometimes require two attempts [(#590)](https://github.com/jflamy/owlcms4/issues/590)
     - Fix: Heroku Deploy button works after removal of Free Plans (#588)
     - Fix: Platforms are now reloaded correctly and also registered to MQTT after importing a JSON database file (#579)
     - Fix: the Weigh-In Summary document available from the Starting Weights button on the weigh-in page is now correctly produced (#578)
