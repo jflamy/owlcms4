@@ -1,6 +1,6 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 35.0.1-rc02:  Fix for flags/pictures, simplified records eligibility
+- 35.0.1-rc02:  Simplified records eligibility [(#592)](https://github.com/jflamy/owlcms4/issues/592), Flags/picture directories created by default [(#589)](https://github.com/jflamy/owlcms4/issues/589), 
 
   - 35.0 Enhancements / functional changes
 
