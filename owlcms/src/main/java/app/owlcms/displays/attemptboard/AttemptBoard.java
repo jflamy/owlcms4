@@ -646,6 +646,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         String lastName = a.getLastName();
         this.getElement().setProperty("lastName", lastName.toUpperCase());
         this.getElement().setProperty("firstName", a.getFirstName());
+        this.getElement().setProperty("hideBecauseDecision", "");
         
         String team = a.getTeam();
         this.getElement().setProperty("teamName", team);

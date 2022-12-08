@@ -42,8 +42,10 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
     @Override
     protected List<Athlete> getSortedAthletes() {
         final Group currentGroup = getGroup();
-        if (Competition.getCurrent().getComputedStartingWeightsSheetTemplateFileName().contains("Weigh")) {
-            List<Athlete> collect = AthleteSorter.displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, false)).stream()
+        String computedStartingWeightsSheetTemplateFileName = Competition.getCurrent().getComputedStartingWeightsSheetTemplateFileName();
+        //logger.debug(computedStartingWeightsSheetTemplateFileName);
+        if (computedStartingWeightsSheetTemplateFileName.contains("Weigh")) {
+            List<Athlete> collect = AthleteSorter.displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, null)).stream()
                     .map(a -> {
                         if (a.getTeam() == null) {
                             a.setTeam("-");

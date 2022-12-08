@@ -12,8 +12,12 @@
             <outputDirectory>local</outputDirectory>
             <includes>
                 <include>agegroups**/**</include>
-                <include>templates**/**</include>
+                <include>records**/**</include>
                 <include>sinclair**/**</include>
+                <include>templates**/**</include>
+                <include>flags**/**</include>
+                <include>pictures**/**</include>
+                <include>logback.xml</include>
             </includes>
         </fileSet>
         <fileSet>
