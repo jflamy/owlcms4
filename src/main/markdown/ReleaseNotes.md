@@ -1,10 +1,12 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 35.0.1-rc02:  Simplified records eligibility [(#592)](https://github.com/jflamy/owlcms4/issues/592), Flags/picture directories created by default [(#589)](https://github.com/jflamy/owlcms4/issues/589), 
+- 35.0.1:  
+
+  Summary: Simplified records eligibility [(#592)](https://github.com/jflamy/owlcms4/issues/592), Flags/picture directories created by default [(#589)](https://github.com/jflamy/owlcms4/issues/589), 
 
   - 35.0 Enhancements / functional changes
-
-    * 35.0.1-rc02: Records Eligibility Criteria were simplified in 35.0.1. See [Records Eligibility](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Records#eligibility-criteria) documentation. 
+  
+    * 35.0.1: Simplified Records Eligibility Criteria (removal of counter-intuitive and now unneeded age group criteria). See [Records Eligibility](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Records#eligibility-criteria) documentation. 
     * Initial capability to add flags and athlete pictures on the attempt board (#508).  See [Flags and Pictures](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FlagsPicture) documentation.
     * Timekeeper can now switch groups and start countdowns. Useful when a veteran announcer is using the scoreboard only.
     * Notification given to TOs if current athlete does not meet starting weights rule when called for first clean and jerk (TCRR regulation to rule 6.6.5 clause 6) (#556)
@@ -20,8 +22,8 @@
     
   - 35.0 Fixes:
   
-    - 35.0.1-rc01 Fix: Flags/Pictures not correctly shown after a decision [(#589)](https://github.com/jflamy/owlcms4/issues/589)
-    - 35.0.1-rc01 Fix: Document template selection would sometimes require two attempts [(#590)](https://github.com/jflamy/owlcms4/issues/590)
+    - 35.0.1: Fix: Flags/Pictures not correctly shown after a decision [(#589)](https://github.com/jflamy/owlcms4/issues/589).  Also added the folders with README files to the installation directory.
+    - 35.0.1: Fix: Document template selection would sometimes require two attempts [(#590)](https://github.com/jflamy/owlcms4/issues/590)
     - Fix: Heroku Deploy button works after removal of Free Plans (#588)
     - Fix: Platforms are now reloaded correctly and also registered to MQTT after importing a JSON database file (#579)
     - Fix: the Weigh-In Summary document available from the Starting Weights button on the weigh-in page is now correctly produced (#578)

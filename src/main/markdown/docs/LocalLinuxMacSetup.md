@@ -2,17 +2,17 @@
 
 - **Get the installation zip archive**: Get the current  [`owlcms_${revision}.zip`](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/latest/download/owlcms_${revision}.zip) file  (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/latest) .
 
-- Double-click on the downloaded zip file, and extract the files to a directory.  We suggest you use `~/owlcms4` as the unzipped location.
+- Double-click on the downloaded zip file, and extract the files to a directory.  We suggest you use `~/owlcms` as the unzipped location.
 
 - Make sure you have a Java 11 JRE installed (you may use a JDK if you prefer)
 
   -  For Linux, refer to https://adoptopenjdk.net/releases.html depending on the Linux type you run
   -  For macOS, see https://adoptopenjdk.net/releases.html#x64_mac
 
-- To start the program, open a Terminal window,  directory to the location where you unzipped the files and launch Java as follows.  Assuming you extracted to a directory called `owlcms4` in your home, the following would work
+- To start the program, open a Terminal window,  directory to the location where you unzipped the files and launch Java as follows.  Assuming you extracted to a directory called `owlcms` in your home, the following would work
 
   ```bash
-  cd ~/owlcms4
+  cd ~/owlcms
   java -jar owlcms.jar
   ```
   This will actually start the program. See [Initial Startup](#initial-startup) for how to proceed.
@@ -26,7 +26,7 @@
 
 ## Initial Startup
 
-When OWLCMS is started on a laptop, two windows are visible:  a command-line window, and an internet browser
+When owlcms is started on a laptop, two windows are visible:  a command-line window, and an internet browser
 
 - The command-line window (typically with a black background) is where the OWLCMS primary web server shows its execution log.  
 
@@ -46,11 +46,7 @@ When OWLCMS is started on a laptop, two windows are visible:  a command-line win
 
 In order to uninstall owlcms4, to report problems, or to change some program configurations, you may need to access the program directory where you unzipped the files (the same where you start java from).
 
-If you do so, you will see the installation directory content:
-
-- `owlcms.exe` starts the owlcms server.  `demo-owlcms.exe` does the same, but using fictitious data that is reset anew on every start; this makes it perfect for practicing.
-
-- `unins000.exe` is the unistaller.  It will cleanly uninstall everything (including the database and logs, so be careful)
+If you do so, you will see the installation directory content that is relevant to Linux and MacOS:
 
 - `database` contains a file ending in `.db` which contains competition data and is managed using the [H2 database engine](https://www.h2database.com/html/main.html). 
 
@@ -62,37 +58,6 @@ If you do so, you will see the installation directory content:
 
 - the file ending in `.jar` is the OWLCMS application in executable format
 
-- the `owlcms.l4j.ini` file is used to override application settings (for example, to force the display language) or technical settings
-
-## Control Access to the Application
-
-Mischievous users can probably figure out your Wi-Fi network password, and gain access to the application. To prevent this, you will need to start the application with an extra parameter.
-
-- `PIN` is an arbitrary strings of characters that will be requested when starting the first screen whenever you start a new session (typically, once per browser, or when the system is restarted). 
-
-  ![B_PIN](img/Heroku/B_PIN.png)
-
-- On Mac OS or Linux, you can give the PIN when starting the program, as follows
-
-  ```bash
-  java -DPIN=5612 -jar owlcms.jar
-  ```
-
-  or, alternately, as an environment variable that you can define using the `set` command or even dynamically when launching OWLCMS. 
-
-  ```bash
-  PIN=5612 java -jar owlcms.jar
-  ```
-
-## Defining the language
-
-You can use the same technique as for the PIN to force a language to be used on all the screens.  By default, OWLCMS will respect the browser settings.  To force a locale (say Canadian French, whose code is `fr_CA`)-- a locale is a language with possible per-country variations --  you can
-
--  define the Java system property `locale` (small letters) using the syntax 
-  `java -Dlocale=fr_CA`
-- Alternately, define the environment variable `LOCALE` with the value `fr_CA` 
-
-If neither `-Dlocale` or `LOCALE` are defined, the [language setting](Preparation#display-language) from the competition information page is used.
 
 ## Configuration Parameters
 
