@@ -1,6 +1,6 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 35.0.2-snapshot:  
+- 35.0.2-rc01: Fix for presentation ceremonies [(#593)](https://github.com/jflamy/owlcms4/issues/593)
 
   - 35.0 Enhancements / functional changes
 
@@ -20,6 +20,7 @@
     
   - 35.0 Fixes:
   
+    - 35.0.2: Fix: Ceremonies initiated during "before snatch" break would terminate immediately [(#593)](https://github.com/jflamy/owlcms4/issues/593)
     - 35.0.1: Fix: Flags/Pictures not correctly shown after a decision [(#589)](https://github.com/jflamy/owlcms4/issues/589).  Also added the folders with README files to the installation directory.
     - 35.0.1: Fix: Document template selection would sometimes require two attempts [(#590)](https://github.com/jflamy/owlcms4/issues/590)
     - Fix: Heroku Deploy button works after removal of Free Plans (#588)
