@@ -417,7 +417,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                             return;
                         }
 
-                        startBreakIfInactive(fop);
+                        startBreakIfNeeded(fop);
                         endIntroButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
                         // we are in a running break such as before snatch already scheduled and want to switch to intro
@@ -463,7 +463,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         if (fop.getCeremonyType() == CeremonyType.OFFICIALS_INTRODUCTION) {
                             return;
                         }
-                        startBreakIfInactive(fop);
+                        startBreakIfNeeded(fop);
                         masterStartCeremony(fop, CeremonyType.OFFICIALS_INTRODUCTION);
                     });
                 });
@@ -505,7 +505,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     endMedalCeremony.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
                     OwlcmsSession.withFop(fop -> {
                         inactive = fop.getState() == INACTIVE;
-                        startBreakIfInactive(fop);
+                        startBreakIfNeeded(fop);
                         fop.fopEventPost(
                                 new FOPEvent.CeremonyStarted(CeremonyType.MEDALS, getMedalGroup(), getMedalCategory(),
                                         this));
@@ -965,14 +965,15 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     }
 
-    private void startBreakIfInactive(FieldOfPlay fop) {
-//        if (fop.getState() == FOPState.INACTIVE) {
+    private void startBreakIfNeeded(FieldOfPlay fop) {
+        // don't start a break if already in a break
+        if (fop.getState() == FOPState.INACTIVE || fop.getState() != FOPState.BREAK) {
             fop.getBreakTimer().setIndefinite();
             fop.setWeightAtLastStart(0);
             fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.FIRST_SNATCH, CountdownType.INDEFINITE,
                     null, null, true,
                     this.getOrigin()));
-//        }
+        }
     }
 
     private void startDisabled() {
