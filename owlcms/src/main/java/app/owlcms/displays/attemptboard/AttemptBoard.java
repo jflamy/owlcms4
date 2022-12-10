@@ -863,15 +863,21 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
     }
 
     private void spotlightRecords(FieldOfPlay fop) {
-        if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
+        if (fop.getState() == FOPState.INACTIVE || fop.getState() == FOPState.BREAK) {
+            hideRecordInfo(fop);
+        } else if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
             spotlightNewRecord();
         } else if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
             spotlightRecordAttempt();
         } else {
-            this.getElement().setProperty("recordKind", "recordNotification none");
-            this.getElement().setProperty("teamName", fop.getCurAthlete().getTeam());
-            this.getElement().setProperty("hideBecauseRecord", "");
+            hideRecordInfo(fop);
         }
+    }
+
+    private void hideRecordInfo(FieldOfPlay fop) {
+        this.getElement().setProperty("recordKind", "recordNotification none");
+        this.getElement().setProperty("teamName", fop.getCurAthlete().getTeam());
+        this.getElement().setProperty("hideBecauseRecord", "");
     }
 
     private void syncWithFOP(FieldOfPlay fop) {

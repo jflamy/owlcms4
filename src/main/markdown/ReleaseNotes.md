@@ -1,11 +1,9 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 35.0.1:  
-
-  Summary: Simplified records eligibility [(#592)](https://github.com/jflamy/owlcms4/issues/592), Flags/picture directories created by default [(#589)](https://github.com/jflamy/owlcms4/issues/589), 
+- 35.0.2-rc01: Fix for presentation ceremonies [(#593)](https://github.com/jflamy/owlcms4/issues/593)
 
   - 35.0 Enhancements / functional changes
-  
+
     * 35.0.1: Simplified Records Eligibility Criteria (removal of counter-intuitive and now unneeded age group criteria). See [Records Eligibility](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Records#eligibility-criteria) documentation. 
     * Initial capability to add flags and athlete pictures on the attempt board (#508).  See [Flags and Pictures](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FlagsPicture) documentation.
     * Timekeeper can now switch groups and start countdowns. Useful when a veteran announcer is using the scoreboard only.
@@ -22,6 +20,7 @@
     
   - 35.0 Fixes:
   
+    - 35.0.2: Fix: Ceremonies initiated during "before snatch" break would terminate immediately [(#593)](https://github.com/jflamy/owlcms4/issues/593)
     - 35.0.1: Fix: Flags/Pictures not correctly shown after a decision [(#589)](https://github.com/jflamy/owlcms4/issues/589).  Also added the folders with README files to the installation directory.
     - 35.0.1: Fix: Document template selection would sometimes require two attempts [(#590)](https://github.com/jflamy/owlcms4/issues/590)
     - Fix: Heroku Deploy button works after removal of Free Plans (#588)
@@ -48,7 +47,7 @@
 
     > If you get a window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_${revision}.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Heroku](Heroku) **or **[Fly.io](Fly)** installation instructions.
 
