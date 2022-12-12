@@ -15,6 +15,7 @@
         </section>
 		<!-- numbers are 0 based: Excel cell number is one more -->
         <!-- group is read first because it is created if missing  -->
+        <!-- category is read after gender bodyweight and qualifying total because if missing it is inferred -->
 		<loop items="athletes" var="a" varType="app.owlcms.spreadsheet.RAthlete">
 			<section>
                 <mapping col="11">a.group</mapping>
@@ -25,11 +26,11 @@
                 <mapping col="4">a.team</mapping>
                 <mapping col="5">a.fullBirthDate</mapping>
 				<mapping col="6">a.gender</mapping>
-				<mapping col="7">a.category</mapping>
                 <mapping col="8">a.bodyWeight</mapping>
+                <mapping col="12">a.qualifyingTotal</mapping>
+                <mapping col="7">a.category</mapping>
                 <mapping col="9">a.snatch1Declaration</mapping>
                 <mapping col="10">a.cleanJerk1Declaration</mapping>
-				<mapping col="12">a.qualifyingTotal</mapping>
                 <mapping col="13">a.coach</mapping>
                 <mapping col="14">a.custom1</mapping>
                 <mapping col="15">a.custom2</mapping>

@@ -227,7 +227,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     }
 
     public void enablePrint(Athlete domainObject) {
-        if (domainObject.getId() == null) {
+        if (domainObject == null || domainObject.getId() == null) {
             printButton.setEnabled(false);
         } else {
             printButton.setEnabled(true);

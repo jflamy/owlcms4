@@ -60,6 +60,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.LiftOrderInfo;
 import app.owlcms.fieldofplay.LiftOrderReconstruction;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.spreadsheet.RAthlete;
 import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
@@ -261,8 +262,7 @@ public class Athlete {
     }
 
     /**
-     * We cannot always rely on the session to be present and give us a valid Fop.
-     * LoadGroup should set the Fop.
+     * We cannot always rely on the session to be present and give us a valid Fop. LoadGroup should set the Fop.
      */
     @Transient
     @JsonIgnore
@@ -755,14 +755,23 @@ public class Athlete {
     @Transient
     @JsonIgnore
     public String getAllCategoriesAsString() {
-        String mainCategory = this.getMainRankings().getCategory().getName();
-        // get all eligibles except main category.
-        String eligiblesAsString = this.getEligibleCategories().stream()
-                .map(Category::getName)
-                .filter(c -> !c.contentEquals(mainCategory))
+        Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
+        String mainCategory = mrCat != null ? mrCat.getName() : "";
+
+        String mainCategoryString = mainCategory;
+        if (mrCat != null && !getMainRankings().getTeamMember()) {
+            mainCategoryString = mainCategory + RAthlete.NoTeamMarker;
+        }
+
+        String eligiblesAsString = this.getParticipations().stream()
+                .filter(p -> (p.getCategory() != mrCat))
+                .map(p -> {
+                    String catName = p.getCategory().getName();
+                    return catName + (!p.getTeamMember() ? RAthlete.NoTeamMarker : "");
+                })
                 .collect(Collectors.joining(";"));
         if (eligiblesAsString.isBlank()) {
-            return mainCategory;
+            return mainCategoryString;
         } else {
             return mainCategory + "|" + eligiblesAsString;
         }
@@ -3217,7 +3226,7 @@ public class Athlete {
     }
 
     public void setFop(FieldOfPlay fop) {
-        //logger.debug("++++++ setting fop {} for {}", fop, this.getShortName());
+        // logger.debug("++++++ setting fop {} for {}", fop, this.getShortName());
         this.fop = fop;
     }
 

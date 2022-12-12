@@ -26,17 +26,22 @@ public class RCompetition {
     static Map<String, Category> activeCategories = new HashMap<>();
     static Map<String, Group> activeGroups = new HashMap<>();
     static Map<Long, Set<Category>> athleteToEligibles = new HashMap<>();
+    static Map<Long, Set<Category>> athleteToTeams = new HashMap<>();
 
     public static Map<String, Category> getActiveCategories() {
         return activeCategories;
     }
-    
+
     public static Map<String, Group> getActiveGroups() {
         return activeGroups;
     }
 
-    public static  Map<Long, Set<Category>> getAthleteToEligibles() {
+    public static Map<Long, Set<Category>> getAthleteToEligibles() {
         return athleteToEligibles;
+    }
+
+    public static Map<Long, Set<Category>> getAthleteToTeams() {
+        return athleteToTeams;
     }
 
     public static void resetActiveCategories() {
@@ -45,7 +50,6 @@ public class RCompetition {
             activeCategories.put(c.getName(), c);
         });
     }
-    
 
     public static void resetActiveGroups() {
         activeGroups.clear();
@@ -53,11 +57,14 @@ public class RCompetition {
             activeGroups.put(g.getName(), g);
         });
     }
-    
+
     public static void resetAthleteToEligibles() {
         athleteToEligibles = new HashMap<>();
     }
 
+    public static void resetAthleteToTeams() {
+        athleteToTeams = new HashMap<>();
+    }
 
     Competition c = new Competition();
 

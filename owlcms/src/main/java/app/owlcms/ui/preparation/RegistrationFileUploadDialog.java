@@ -33,6 +33,7 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -163,6 +164,7 @@ public class RegistrationFileUploadDialog extends Dialog {
                 RCompetition.resetActiveCategories();
                 RCompetition.resetActiveGroups();
                 RCompetition.resetAthleteToEligibles();
+                RCompetition.resetAthleteToTeams();
 
                 List<RAthlete> athletes = new ArrayList<>();
 
@@ -172,8 +174,8 @@ public class RegistrationFileUploadDialog extends Dialog {
 
                 XLSReadStatus status = reader.read(inputStream, beans);
 
-                // we created a batch of new athletes. the ones that are exact matches have
-                // their eligibility already done.
+                // we created a batch of new athletes. the ones that have exact matches for a 
+                // category have had their eligibility and team memberships set in during the reader processing.
                 keepParticipations = beans.values().stream()
                         .filter(r -> ((RAthlete) r).getAthlete().getEligibleCategories() != null).findFirst()
                         .isPresent();
@@ -319,15 +321,26 @@ public class RegistrationFileUploadDialog extends Dialog {
                 LinkedHashSet<Category> eligibles = (LinkedHashSet<Category>) RCompetition
                         .getAthleteToEligibles()
                         .get(a2.getId());
+                LinkedHashSet<Category> teams = (LinkedHashSet<Category>) RCompetition
+                        .getAthleteToTeams()
+                        .get(a2.getId());
                 if (eligibles != null) {
                     Category first = eligibles.stream().findFirst().orElse(null);
                     a2.setCategory(first);
                     a2.setEligibleCategories(eligibles);
+                    List<Participation> participations2 = a2.getParticipations();
+                    for (Participation p : participations2) {
+                        if (teams.contains(p.getCategory())) {
+                            p.setTeamMember(true);
+                        } else {
+                            logger.info("Excluding {} as team member for {}",a2.getShortName(),p.getCategory().getComputedCode());
+                            p.setTeamMember(false);
+                        }
+                    }
                     em.merge(a2);
                 }
             });
             em.flush();
-
             return null;
         });
     }
