@@ -1,13 +1,13 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 35.1: Clarification of registration sheet behavior ([#594](https://github.com/jflamy/owlcms4/issues/594), [#595](https://github.com/jflamy/owlcms4/issues/595))
+- 35.1: Improvement of registration sheet behavior ([#594](https://github.com/jflamy/owlcms4/issues/594), [#595](https://github.com/jflamy/owlcms4/issues/595))
   - 35.1 Enhancements / functional changes
-    - [Registration Spreadsheet Documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Registration): the recommended way to enter categories when initially loading the athletes has been documented. The export format used to preserve changes to eligibility or team membership done using the user interface has been documented.
+    - [Registration Spreadsheet Documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Registration): the recommended way to enter categories when initially loading the athletes has been clarified and documented. Documentation of the export conventions for category eligibility and team membership.
     
   - 35.1 Fixes:
     - Fix: Using the registration spreadsheet to enter the athletes did not make them team members by default.  The import/export process did not preserve team membership changes ([#594](https://github.com/jflamy/owlcms4/issues/594))
     - Fix: Entering the expected bodyweight of an athlete on the registration sheet was no longer inferring the eligibility categories ([#595](https://github.com/jflamy/owlcms4/issues/595))
-    - Fix: Entering a bodyweight category in short form (just the limit) was no longer considering the qualification total to determine eligibility.
+    - Fix: Categories entered on the registration sheet are now always checked relative to the qualification criterion.
 
 ##### Highlights from recent stable releases
 
