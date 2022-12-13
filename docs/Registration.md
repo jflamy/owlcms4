@@ -12,11 +12,13 @@ These steps are performed from the `Prepare Competition` page
 
 ## Clearing athletes from a previous competition
 
-If you have more than a dozen athletes, we suggest that you enter your athletes using an Excel spreadsheet (see below), and this step is not necessary.
+> If using an Excel spreadsheet to enter the athletes, **this step is not necessary** (the loading will clear the previous athletes).
 
 In order to clear the database from a previous competition, use to the **`Edit Athlete Entries`** button on the `Prepare Competition` page.   At the top of the page, use the `Delete Athletes` button and Confirm.
 
 ![070_Delete](img/Preparation/070_Delete.png)
+
+
 
 ## Uploading a list of athletes
 
@@ -32,9 +34,9 @@ Because entering athletes is tedious, it is easier to upload a list prepared wit
 2. Fill-in the Excel with the information about your athletes.  
 
    - For each athlete, you need to provide at least the birth year, the gender, and a way to determine the body weight category.
-     - You can also enter a category in "simple" format.  for example, 89.  For heavyweight categories you can use 109+ or >109)
-     - You can enter the expected bodyweight of the athlete in the bodyweight column. Entering the expected bodyweight instead of a category is useful when there are overlapping age groups with different weight class limits (e.g. a male 105 can be >102 in YTH and 109 in SR).  You can then export the data, clear the body weights and reload.
-     - Note that if you export the data, a different format is used for the categories, which describes exactly what is in the database (see [below](#reloading-information)). We don't recommend that you use this format for the initial load.
+     - The most intuitive way is to enter the category weight limit in "simple" format.  for example, 89.  For heavyweight categories you can use 109+ or >109
+     - Alternately, you can enter the expected bodyweight of the athlete in the bodyweight column. Entering the expected bodyweight instead of a category is useful when there are overlapping age groups with different weight class limits (e.g. a male 105 can be >102 in YTH and 109 in SR).  You can then export the data, clear the body weights column, and then reload.
+     - Note: when you export the data, a different format is used for the categories, which describes exactly what is in the database (see [below](#reloading-information)). We don't recommend that you use this format for the initial load.
 - The program will automatically assign the athlete to the age groups and categories where he or she is eligible. If you have multiple overlapping age groups (for example IWF Junior and Senior) present, the athlete will be added to both categories.  If there are additional eligibility requirements that mean an athlete is not eligible, you can remove the eligibility using the registration page in the program.
    - This will set the weight of the athlete in the program.   You can export the list of athletes, clear the weights, and reload.  If there is no weight but the category is present, the category will be kept.
 
@@ -42,7 +44,7 @@ Because entering athletes is tedious, it is easier to upload a list prepared wit
 
    ![073_excel](img/Preparation/073_excel.png)
 
-4. The groups that you list on the "Athletes" tab should be defined on the second "Groups" tab.  The minimum is to provide the group code.
+4. The groups that you list on the "Athletes" tab **must** be defined on the second "Groups" tab.  At a minimum, provide a group code.
 
    - The program will create groups with the code names you use.  You can use numbers, or any short combinations.  Some people use the categories present in the group (ex: M81B-M77A)
    - When entering dates and times, <u>we recommend that you use the format that Excel shows you</u> (which may vary based on your Office and operating system settings).  The program will also accept an international `yyyy-MM-dd hh:mm`  format (4-digit year, month, day, 24-hour hour, minutes) as an alternative.
@@ -65,9 +67,9 @@ As stated earlier, this will recreate the athletes and groups from scratch, so *
 
 If you export the information after loading the database, the format for categories includes the additional eligibilities if any, and the team memberships. The format is as follows
 
-- The main category is.  For a Youth athletes, this could be `YTH M 81` as an example
-- If the athlete is eligible to JR and SR because he has made the totals, the additional categories are added after a `|`, and separated by a `;`. So a youth athlete eligible to JR and SR would be `YTH M 81|JR M 81;SR M 81`  and if only eligible for JR, the string would be `YTH M 81|JR M 81`
-- Any category can be annotated with `/NoTeam` if the athlete is not part of the corresponding team (by default, an athlete is included in the teams).
+- The main category is first.  For a Youth athletes, this could be `YTH M 81` as an example.  If there are no additional eligibility categories, then only the main category is shown. 
+- If the athlete is eligible to more than one category because qualifying totals were met, the additional categories are added after a `|`, and separated by a `;`. So a YTH athlete also eligible to both JR and SR would be `YTH M 81|JR M 81;SR M 81`  and if only eligible for JR, the string would be `YTH M 81|JR M 81`
+- Any category can be annotated with `/NoTeam` if the athlete is not part of the corresponding team (by default, an athlete is included in the teams where he is eligible).
   In our example, if the athlete is eligible for SR but is NOT included in the SR team, then `/NoTeam` is added to the team from which the athlete is excluded.  In that case, the string will be `YTH M 81|JR M 81;SR M 81/NoTeam`.  The annotation also works on the main category `YTH M 81/NoTeam` is a legal specification.
 - The recommended practice is to load the database, and do the eligibility or team adjustments using the program, and then re-export. Exporting and re-importing is very useful when reallocating groups, less so when doing minor changes.
 
