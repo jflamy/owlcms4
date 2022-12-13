@@ -3,7 +3,7 @@
 - 35.1: Improvement of registration sheet behavior ([#594](https://github.com/jflamy/owlcms4/issues/594), [#595](https://github.com/jflamy/owlcms4/issues/595))
   - 35.1 Enhancements / functional changes
     - [Registration Spreadsheet Documentation](https://owlcms.github.io/owlcms4-prerelease/#/Registration): the recommended way to enter categories when initially loading the athletes has been clarified and documented. Documentation of the export conventions for category eligibility and team membership.
-    
+    - 35.1.0-rc02: Added capability to use a VLOOKUP formula in the competition book team reasults template. See [example](https://github.com/jflamy/owlcms4/raw/develop/owlcms/src/test/resources/templates/competitionBook/EC-SnatchCJTotal-A4.xls). The formulas for points are in cell K12 of the MCT, WCT and MWCT tabs. The points are in the tab named "Points"
   - 35.1 Fixes:
     - Fix: Using the registration spreadsheet to enter the athletes did not make them team members by default.  The import/export process did not preserve team membership changes ([#594](https://github.com/jflamy/owlcms4/issues/594))
     - Fix: Entering the expected bodyweight of an athlete on the registration sheet was no longer inferring the eligibility categories ([#595](https://github.com/jflamy/owlcms4/issues/595))
@@ -21,11 +21,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_35.1.0-rc01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_35.1.0-rc02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_35.1.0-rc01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_35.1.0-rc02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Heroku](Heroku) **or **[Fly.io](Fly)** installation instructions.
 
