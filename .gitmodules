@@ -1,8 +1,9 @@
 [submodule "publicresults-heroku"]
 	path = publicresults-heroku
 	url = https://github.com/jflamy/publicresults-heroku.git
+	branch = .
 
 [submodule "owlcms-heroku"]
 	path = owlcms-heroku
 	url = https://github.com/jflamy/owlcms-heroku.git
-	branch = master
+	branch = .

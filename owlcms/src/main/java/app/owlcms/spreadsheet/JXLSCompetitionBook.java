@@ -150,8 +150,8 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
         for (int sheetIndex = 0; sheetIndex < nbSheets; sheetIndex++) {
             Sheet curSheet = workbook.getSheetAt(sheetIndex);
             String sheetName = curSheet.getSheetName();
-            workbook.setSheetName(sheetIndex,
-                    Translator.translate("CompetitionBook." + sheetName, OwlcmsSession.getLocale()));
+            String translate = Translator.translateOrElseNull("CompetitionBook." + sheetName, OwlcmsSession.getLocale());
+            workbook.setSheetName(sheetIndex, translate != null ? translate : sheetName);
 
             // use translate so this shows as missing on the sheet.
             String leftHeader = Translator.translate("CompetitionBook." + sheetName + "_LeftHeader",

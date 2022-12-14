@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,7 @@ import ch.qos.logback.classic.Logger;
  */
 public class RAthlete {
 
+    public static final String NoTeamMarker = "/NoTeam";
     private Pattern legacyPattern;
     Athlete a = new Athlete();
 
@@ -79,41 +81,77 @@ public class RAthlete {
      * @see app.owlcms.data.athlete.Athlete#setCategory(app.owlcms.data.category.Category)
      */
     public void setCategory(String categoryName) throws Exception {
-        if (categoryName == null) {
-            return;
-        }
-        categoryName = categoryName.trim();
-        if (categoryName.isEmpty()) {
+        if (categoryName == null || categoryName.isBlank()) {
+            // no category, infer from age and body weight
+            a.computeMainAndEligibleCategories();
+            a.getParticipations().stream().forEach(p -> p.setTeamMember(true));
             return;
         }
 
         String[] parts = categoryName.split("\\|");
         if (parts.length >= 1) {
             String catName = parts[0].trim();
+
+            // check for team exclusion marker.
+            boolean teamMember = true;
+            if (catName.endsWith(NoTeamMarker)) {
+                catName = catName.substring(0, categoryName.length() - NoTeamMarker.length());
+                teamMember = false;
+            }
+
             Category c;
             if ((c = RCompetition.getActiveCategories().get(catName)) != null) {
-                // exact match for a category.
-                Set<Category> eligibleCategories = new LinkedHashSet<>();
-                eligibleCategories.add(c);
-                if (parts.length > 1) {
-                    String[] eligibleNames = parts[1].split(";");
-                    for (String eligibleName : eligibleNames) {
-                        Category c2;
-                        if ((c2 = RCompetition.getActiveCategories().get(eligibleName.trim())) != null) {
-                            eligibleCategories.add(c2);
-                        } else {
-                            throw new Exception(
-                                    Translator.translate("Upload.CategoryNotFoundByName", eligibleName.trim()));
-                        }
-                    }
-                }
-                RCompetition.getAthleteToEligibles().put(a.getId(), eligibleCategories);
+                // exact match for a category. This is the athlete's registration category.
+                processEligibilityAndTeams(parts, c, teamMember);
             } else {
+                // we have a short form category. infer from age and category limit
                 setCategoryHeuristics(categoryName);
+                a.getParticipations().stream().forEach(p -> p.setTeamMember(true));
             }
         }
 
         return;
+    }
+
+    private void processEligibilityAndTeams(String[] parts, Category c, boolean mainCategoryTeamMember)
+            throws Exception {
+        Set<Category> eligibleCategories = new LinkedHashSet<>();
+        Set<Category> teams = new LinkedHashSet<>();
+        Integer athleteQTotal = this.getAthlete().getQualifyingTotal();
+
+        addIfEligible(eligibleCategories, teams, athleteQTotal, mainCategoryTeamMember, c);
+
+        // process the other participations. They are ; separated.
+        if (parts.length > 1) {
+            String[] eligibleNames = parts[1].split(";");
+            for (String eligibleName : eligibleNames) {
+                boolean teamMember = true;
+                if (eligibleName.endsWith(NoTeamMarker)) {
+                    eligibleName = eligibleName.substring(0, eligibleName.length() - NoTeamMarker.length());
+                    teamMember = false;
+                }
+                Category c2;
+                if ((c2 = RCompetition.getActiveCategories().get(eligibleName.trim())) != null) {
+                    addIfEligible(eligibleCategories, teams, athleteQTotal, teamMember, c2);
+                } else {
+                    throw new Exception(
+                            Translator.translate("Upload.CategoryNotFoundByName", eligibleName.trim()));
+                }
+            }
+        }
+
+        RCompetition.getAthleteToEligibles().put(a.getId(), eligibleCategories);
+        RCompetition.getAthleteToTeams().put(a.getId(), teams);
+    }
+
+    private void addIfEligible(Set<Category> eligibleCategories, Set<Category> teams, Integer athleteQTotal,
+            boolean teamMember, Category c2) {
+        if (athleteQTotal != null && athleteQTotal >= c2.getQualifyingTotal()) {
+            eligibleCategories.add(c2);
+            if (teamMember) {
+                teams.add(c2);
+            }
+        }
     }
 
     /**
@@ -335,10 +373,22 @@ public class RAthlete {
             age = LocalDate.now().getYear() - a.getYearOfBirth();
         }
 
+        Integer qualifyingTotal = this.getAthlete().getQualifyingTotal();
+        Category category = findByAgeBW(legacyResult, searchBodyWeight, age,
+                qualifyingTotal != null ? qualifyingTotal : 999);
+
+        a.setCategory(category);
+        // logger.debug("setting category to {} athlete {}",category.longDump(), a.longDump());
+    }
+
+    private Category findByAgeBW(Matcher legacyResult, double searchBodyWeight, int age, int qualifyingTotal)
+            throws Exception {
         List<Category> found = CategoryRepository.findByGenderAgeBW(a.getGender(), age, searchBodyWeight);
         Set<Category> eligibles = new LinkedHashSet<>();
-        eligibles.addAll(found);
+        eligibles = found.stream().filter(c -> qualifyingTotal >= c.getQualifyingTotal())
+                .collect(Collectors.toSet());
         a.setEligibleCategories(eligibles);
+
         Category category = found.size() > 0 ? found.get(0) : null;
         if (category == null) {
             throw new Exception(
@@ -346,9 +396,7 @@ public class RAthlete {
                             "Upload.CategoryNotFound", age, a.getGender(),
                             legacyResult.group(2) + legacyResult.group(3)));
         }
-
-        a.setCategory(category);
-        // logger.debug("setting category to {} athlete {}",category.longDump(), a.longDump());
+        return category;
     }
 
 }

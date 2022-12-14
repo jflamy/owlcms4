@@ -34,3 +34,4 @@ git commit -m "sync submodules"
 git merge origin/$REMOTE --no-ff -m "merge origin/$REMOTE [skip ci]"
 git push origin $LOCAL
 echo Done.  pulled $REMOTE into $LOCAL.
+read -p "Hit enter to exit" VAR
