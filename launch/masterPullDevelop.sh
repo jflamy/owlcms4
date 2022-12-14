@@ -12,7 +12,7 @@ LOCAL=master
 REMOTE=develop
 
 git checkout $LOCAL
-git fetch
+git pull
 
 cd publicresults-heroku
 git checkout $LOCAL
