@@ -7,9 +7,6 @@
 package app.owlcms.ui.shared;
 
 import static app.owlcms.fieldofplay.FOPState.INACTIVE;
-import static app.owlcms.ui.shared.BreakManagement.CountdownType.DURATION;
-import static app.owlcms.ui.shared.BreakManagement.CountdownType.INDEFINITE;
-import static app.owlcms.ui.shared.BreakManagement.CountdownType.TARGET;
 import static app.owlcms.uievents.BreakType.BEFORE_INTRODUCTION;
 import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
 import static app.owlcms.uievents.BreakType.TECHNICAL;
@@ -59,6 +56,7 @@ import app.owlcms.components.fields.DurationField;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -78,9 +76,6 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class BreakManagement extends VerticalLayout implements SafeEventBusRegistration {
-    public enum CountdownType {
-        DURATION, INDEFINITE, TARGET
-    }
 
     private static final Duration DEFAULT_DURATION = Duration.ofMinutes(10L);
 
@@ -327,14 +322,14 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     private Integer computeTimerRemainingFromFields(CountdownType countdownType) {
         logger.debug("computeTimerRemainingFromFields");
         Integer tr;
-        if (countdownType == INDEFINITE) {
+        if (countdownType == CountdownType.INDEFINITE) {
             tr = null;
-        } else if (countdownType == TARGET) {
+        } else if (countdownType == CountdownType.TARGET) {
             // recompute duration, in case there was a pause.
-            setBreakTimerFromFields(TARGET);
+            setBreakTimerFromFields(CountdownType.TARGET);
             tr = timeRemaining.intValue();
         } else {
-            setBreakTimerFromFields(DURATION);
+            setBreakTimerFromFields(CountdownType.DURATION);
             tr = timeRemaining.intValue();
         }
         return tr;
@@ -441,7 +436,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         if (switchToSnatch) {
                             durationField.setValue(DEFAULT_DURATION);
                             setCountdownValue(FIRST_SNATCH);
-                            durationRadios.setValue(DURATION);
+                            durationRadios.setValue(CountdownType.DURATION);
                             ignoreNextDisable = true;
                             startEnabled();
                         }
@@ -518,7 +513,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         endMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
                         fop.fopEventPost(new FOPEvent.CeremonyDone(CeremonyType.MEDALS, this.getOrigin()));
                         if (inactive) {
-                            setBreakTimerFromFields(TARGET);
+                            setBreakTimerFromFields(CountdownType.TARGET);
                         }
                     });
                 });
@@ -567,16 +562,16 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         durationRadios.setItems(CountdownType.values());
         durationRadios.setRenderer(new TextRenderer<CountdownType>(
                 (item) -> getTranslation(CountdownType.class.getSimpleName() + "." + item.name())));
-        durationRadios.prependComponents(INDEFINITE, new Paragraph(""));
-        durationRadios.prependComponents(TARGET, new Paragraph(""));
+        durationRadios.prependComponents(CountdownType.INDEFINITE, new Paragraph(""));
+        durationRadios.prependComponents(CountdownType.TARGET, new Paragraph(""));
 
         Locale locale = new Locale("en", "SE"); // ISO 8601 style dates and time
         timePicker.setLocale(locale);
         datePicker.setLocale(locale);
         minutes = new Label(Translator.translate("minutes"));
 
-        durationRadios.addComponents(DURATION, durationField, new Label(" "), minutes, new Div());
-        durationRadios.addComponents(TARGET, datePicker, new Label(" "), timePicker);
+        durationRadios.addComponents(CountdownType.DURATION, durationField, new Label(" "), minutes, new Div());
+        durationRadios.addComponents(CountdownType.TARGET, datePicker, new Label(" "), timePicker);
 
         createTimerDisplay();
         FlexLayout timerButtons = createBreakTimerButtons();
@@ -1071,7 +1066,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     // logger.trace(" syncWithFOP: break under way {} {} indefinite={}", fopBreakType,
                     // fopCountdownType,fopBreakTimer.isIndefinite());
 
-                    if (fopCountdownType == INDEFINITE) {
+                    if (fopCountdownType == CountdownType.INDEFINITE) {
                         fopLiveTimeRemaining = (int) DEFAULT_DURATION.toMillis();
                     }
 
