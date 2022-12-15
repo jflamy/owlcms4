@@ -13,7 +13,6 @@ import static app.owlcms.fieldofplay.FOPState.DOWN_SIGNAL_VISIBLE;
 import static app.owlcms.fieldofplay.FOPState.INACTIVE;
 import static app.owlcms.fieldofplay.FOPState.TIME_RUNNING;
 import static app.owlcms.fieldofplay.FOPState.TIME_STOPPED;
-import static app.owlcms.ui.shared.BreakManagement.CountdownType.INDEFINITE;
 import static app.owlcms.uievents.BreakType.BEFORE_INTRODUCTION;
 import static app.owlcms.uievents.BreakType.FIRST_CJ;
 import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
@@ -82,7 +81,6 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
 import app.owlcms.spreadsheet.PAthlete;
-import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.EventForwarder;
@@ -689,7 +687,7 @@ public class FieldOfPlay {
                     transitionToLifting(e, getGroup(), false);
                 } else if (breakType == BEFORE_INTRODUCTION) {
                     transitionToBreak(
-                            new FOPEvent.BreakStarted(FIRST_SNATCH, INDEFINITE, null,
+                            new FOPEvent.BreakStarted(FIRST_SNATCH, CountdownType.INDEFINITE, null,
                                     null, true, this));
                     doStartCeremony(new FOPEvent.CeremonyStarted(CeremonyType.INTRODUCTION, getGroup(), null, this));
                 } else {
