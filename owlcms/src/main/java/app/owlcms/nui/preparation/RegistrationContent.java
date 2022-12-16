@@ -409,7 +409,8 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         getRouterLayout().closeDrawer();
-        ((RegistrationLayout) getRouterLayout()).getGroupSelect().setValue(currentGroup);
+        //FIXME groupselect
+        //((RegistrationLayout) getRouterLayout()).getGroupSelect().setValue(currentGroup);
     }
 
     /**
