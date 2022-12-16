@@ -51,10 +51,10 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
 import app.owlcms.nui.shared.IAthleteEditing;
+import app.owlcms.spreadsheet.PAthlete;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")

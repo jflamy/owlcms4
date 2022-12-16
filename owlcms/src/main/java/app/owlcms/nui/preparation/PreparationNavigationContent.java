@@ -41,7 +41,7 @@ import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.nui.shared.NavigationPage;
-import app.owlcms.nui.shared.OwlcmsRouterLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSRegistration;
 import app.owlcms.spreadsheet.JXLSRegistrationExport;
 import app.owlcms.utils.URLUtils;
@@ -52,7 +52,7 @@ import ch.qos.logback.classic.Logger;
  * The Class PreparationNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "npreparation", layout = OwlcmsRouterLayout.class)
+@Route(value = "npreparation", layout = OwlcmsLayout.class)
 public class PreparationNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(PreparationNavigationContent.class);
@@ -137,14 +137,6 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         return this.locationUI;
     }
 
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("OWLCMS_Preparation");
-    }
-
     /*
      * (non-Javadoc)
      *
@@ -211,7 +203,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
     }
 
     @Override
-    protected String getTitle() {
+    public String getPageTitle() {
         return getTranslation("PrepareCompetition");
     }
 

@@ -51,7 +51,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * OwlcmsRouterLayout.
+ * OwlcmsLayout.
  */
 @SuppressWarnings({ "serial", "rawtypes", "deprecation" })
 @Push
@@ -66,7 +66,7 @@ import ch.qos.logback.classic.Logger;
 @JsModule("@polymer/iron-icons/social-icons.js")
 @JsModule("@polymer/iron-icons/places-icons.js")
 
-public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageConfigurator {
+public class OwlcmsRouterLayoutX extends AppLayoutRouterLayout implements PageConfigurator {
 
     /**
      * The Class BehaviourSelector.
@@ -109,7 +109,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
     String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup");
     String START_DISPLAYS = Translator.translate("StartDisplays");
     private HasElement layoutComponentContent;
-    final private Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsRouterLayout.class);
+    final private Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsLayout.class);
     private Class<? extends AppLayout> variant;
 
     private UI ui;
@@ -119,7 +119,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
     }
 
     @SuppressWarnings("unchecked")
-    public OwlcmsRouterLayout() {
+    public OwlcmsRouterLayoutX() {
         try {
             OwlcmsFactory.getInitializationLatch().await();
             OwlcmsFactory.getAppUIBus().register(this);
@@ -162,19 +162,19 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
         return layoutComponentContent;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#
-     * showRouterLayoutContent(com.vaadin.flow.component.HasElement)
-     */
-    @Override
-    public void showRouterLayoutContent(HasElement content) {
-        logger.debug("showRouterLayoutContent {}", content.getClass().getSimpleName());
-        ((AppLayoutAware) content).setRouterLayout(this);
-        super.showRouterLayoutContent(content);
-        this.setLayoutComponentContent(content);
-    }
+//    /*
+//     * (non-Javadoc)
+//     *
+//     * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#
+//     * showRouterLayoutContent(com.vaadin.flow.component.HasElement)
+//     */
+//    @Override
+//    public void showRouterLayoutContent(HasElement content) {
+//        logger.debug("showRouterLayoutContent {}", content.getClass().getSimpleName());
+//        ((AppLayoutAware) content).setRouterLayout(this);
+//        super.showRouterLayoutContent(content);
+//        this.setLayoutComponentContent(content);
+//    }
 
     /**
      * @param variant
@@ -233,7 +233,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
         init(getLayoutConfiguration(variant));
     }
 
-    private void setLayoutComponentContent(HasElement layoutContent) {
-        this.layoutComponentContent = layoutContent;
-    }
+//    private void setLayoutComponentContent(HasElement layoutContent) {
+//        this.layoutComponentContent = layoutContent;
+//    }
 }

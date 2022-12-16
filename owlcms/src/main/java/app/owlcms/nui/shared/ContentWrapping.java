@@ -33,7 +33,7 @@ public interface ContentWrapping {
     public default void fillH(Component content, VerticalLayout vWrapper) {
         vWrapper.setBoxSizing(BoxSizing.BORDER_BOX);
         vWrapper.setHeight(null);
-        vWrapper.setWidth("100%");
+        vWrapper.setWidth("95%");
         vWrapper.add(content);
     }
 

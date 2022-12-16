@@ -26,7 +26,7 @@ import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.referee.RefContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
-import app.owlcms.nui.shared.OwlcmsRouterLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -34,7 +34,7 @@ import ch.qos.logback.classic.Logger;
  * The Class LiftingNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "nlifting", layout = OwlcmsRouterLayout.class)
+@Route(value = "nlifting", layout = OwlcmsLayout.class)
 public class LiftingNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(LiftingNavigationContent.class);
@@ -122,11 +122,6 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
         HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);
         fopField.setAlignItems(Alignment.CENTER);
         return fopField;
-    }
-
-    @Override
-    protected String getTitle() {
-        return getTranslation("RunLiftingGroup");
     }
 
 }

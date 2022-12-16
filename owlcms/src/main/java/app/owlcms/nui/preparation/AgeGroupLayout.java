@@ -6,24 +6,20 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
-import com.github.appreciated.app.layout.component.applayout.AppLayout;
-import com.github.appreciated.app.layout.component.applayout.LeftLayouts;
-import com.vaadin.flow.component.html.Label;
-
-import app.owlcms.nui.shared.OwlcmsRouterLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 
 @SuppressWarnings("serial")
-public class AgeGroupLayout extends OwlcmsRouterLayout {
+public class AgeGroupLayout extends OwlcmsLayout {
 
-    /**
-     * @see app.owlcms.nui.shared.OwlcmsRouterLayout#getLayoutConfiguration(java.lang.Class)
-     */
-    @Override
-    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
-        variant = LeftLayouts.Left.class;
-        AppLayout appLayout = super.getLayoutConfiguration(variant);
-        appLayout.closeDrawer();
-        appLayout.setTitleComponent(new Label(getTranslation("EditAgeGroups")));
-        return appLayout;
-    }
+//    /**
+//     * @see app.owlcms.nui.shared.OwlcmsLayout#getLayoutConfiguration(java.lang.Class)
+//     */
+//    @Override
+//    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
+//        variant = LeftLayouts.Left.class;
+//        AppLayout appLayout = super.getLayoutConfiguration(variant);
+//        appLayout.closeDrawer();
+//        appLayout.setTitleComponent(new Label(getTranslation("EditAgeGroups")));
+//        return appLayout;
+//    }
 }

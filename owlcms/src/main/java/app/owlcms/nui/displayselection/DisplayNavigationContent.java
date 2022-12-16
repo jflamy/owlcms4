@@ -45,7 +45,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
-import app.owlcms.nui.shared.OwlcmsRouterLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.nui.shared.RequireDisplayLogin;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -54,7 +54,7 @@ import ch.qos.logback.classic.Logger;
  * The Class DisplayNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "ndisplays", layout = OwlcmsRouterLayout.class)
+@Route(value = "ndisplays", layout = OwlcmsLayout.class)
 public class DisplayNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle, RequireDisplayLogin {
 
     final static Logger logger = (Logger) LoggerFactory.getLogger(DisplayNavigationContent.class);
@@ -183,13 +183,6 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         return fopField;
     }
 
-    /**
-     * @see app.owlcms.nui.shared.BaseNavigationContent#getTitle()
-     */
-    @Override
-    protected String getTitle() {
-        return getTranslation("StartDisplays");
-    }
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {

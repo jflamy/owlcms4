@@ -15,7 +15,6 @@ import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
-import com.github.appreciated.app.layout.component.applayout.AbstractLeftAppLayoutBase;
 import com.google.common.eventbus.EventBus;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
@@ -63,14 +62,13 @@ public abstract class BaseNavigationContent extends VerticalLayout
 
     protected Location location;
     protected UI locationUI;
-    protected OwlcmsRouterLayout routerLayout;
+    protected OwlcmsLayout routerLayout;
 
     protected EventBus uiEventBus;
     /**
      * Top part content
      */
     private ComboBox<Group> groupSelect;
-    private FlexLayout topBar;
 
     /**
      * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -80,9 +78,10 @@ public abstract class BaseNavigationContent extends VerticalLayout
     }
 
     public void configureTopBar() {
-        topBar = getAppLayout().getAppBarElementWrapper();
-        topBar.setSizeFull();
-        topBar.setJustifyContentMode(JustifyContentMode.START);
+//        topBar = getAppLayout().getAppBarElementWrapper();
+//        topBar.setSizeFull();
+//        topBar.setJustifyContentMode(JustifyContentMode.START);
+        routerLayout.getNavBarComponents();
     }
 
     public ComboBox<Group> createGroupSelect(String placeHolder) {
@@ -97,7 +96,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
     }
 
     @Override
-    final public OwlcmsRouterLayout getRouterLayout() {
+    final public OwlcmsLayout getRouterLayout() {
         return routerLayout;
     }
 
@@ -115,7 +114,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
     }
 
     @Override
-    final public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+    final public void setRouterLayout(OwlcmsLayout routerLayout) {
         this.routerLayout = routerLayout;
     }
 
@@ -145,10 +144,11 @@ public abstract class BaseNavigationContent extends VerticalLayout
      * @param appLayoutComponent
      */
     protected void configureTopBarTitle(String topBarTitle) {
-        AbstractLeftAppLayoutBase appLayout = (AbstractLeftAppLayoutBase) getRouterLayout().getAppLayout();
-        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 20em");
-        Label label = new Label(topBarTitle);
-        appLayout.setTitleComponent(label);
+//        OwlcmsLayout appLayout = getAppLayout();
+        // FIXME  getTitleWrapper  setTitleComponent
+//        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 20em");
+//        Label label = new Label(topBarTitle);
+//        appLayout.setTitleComponent(label);
     }
 
     /**
@@ -245,8 +245,6 @@ public abstract class BaseNavigationContent extends VerticalLayout
         return this;
     }
 
-    protected abstract String getTitle();
-
     /*
      * (non-Javadoc)
      *
@@ -256,7 +254,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
     protected void onAttach(AttachEvent attachEvent) {
         OwlcmsSession.withFop(fop -> {
             // create the top bar, now that we know the group and fop
-            String title = getTitle();
+            String title = getPageTitle();
             logger.debug("createTopBar {}", title);
             createTopBar(title);
             // we listen on uiEventBus.

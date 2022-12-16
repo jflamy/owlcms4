@@ -55,15 +55,15 @@ import app.owlcms.data.team.TeamTreeData;
 import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.AthleteGridLayout;
 import app.owlcms.nui.shared.IAthleteEditing;
 import app.owlcms.nui.shared.OwlcmsContent;
-import app.owlcms.nui.shared.OwlcmsRouterLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.nui.shared.RequireLogin;
+import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -108,7 +108,7 @@ public class TeamResultsContent extends VerticalLayout
     private Location location;
 
     private UI locationUI;
-    private OwlcmsRouterLayout routerLayout;
+    private OwlcmsLayout routerLayout;
     private ComboBox<AgeDivision> topBarAgeDivisionSelect;
     // private ComboBox<String> teamFilter;
     private ComboBox<String> topBarAgeGroupPrefixSelect;
@@ -189,7 +189,7 @@ public class TeamResultsContent extends VerticalLayout
     }
 
     @Override
-    public OwlcmsRouterLayout getRouterLayout() {
+    public OwlcmsLayout getRouterLayout() {
         return routerLayout;
     }
 
@@ -257,7 +257,7 @@ public class TeamResultsContent extends VerticalLayout
     }
 
     @Override
-    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+    public void setRouterLayout(OwlcmsLayout routerLayout) {
         this.routerLayout = routerLayout;
     }
 

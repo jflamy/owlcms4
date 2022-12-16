@@ -21,11 +21,11 @@ import com.vaadin.flow.data.binder.BinderValidationStatus;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.team.TeamTreeItem;
-import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.lifting.AthleteCardFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
 import app.owlcms.nui.shared.IAthleteEditing;
+import app.owlcms.spreadsheet.PAthlete;
 
 @SuppressWarnings("serial")
 

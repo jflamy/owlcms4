@@ -24,7 +24,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
-import app.owlcms.nui.shared.OwlcmsRouterLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -38,7 +38,7 @@ public class CompetitionContent extends Composite<VerticalLayout>
 
     Logger logger = (Logger) LoggerFactory.getLogger(CompetitionContent.class);
     private OwlcmsCrudFormFactory<Competition> factory;
-    private OwlcmsRouterLayout routerLayout;
+    private OwlcmsLayout routerLayout;
 
     /**
      * Instantiates a new preparation navigation content.
@@ -87,7 +87,7 @@ public class CompetitionContent extends Composite<VerticalLayout>
     }
 
     @Override
-    public OwlcmsRouterLayout getRouterLayout() {
+    public OwlcmsLayout getRouterLayout() {
         return routerLayout;
     }
 
@@ -109,7 +109,7 @@ public class CompetitionContent extends Composite<VerticalLayout>
     }
 
     @Override
-    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+    public void setRouterLayout(OwlcmsLayout routerLayout) {
         this.routerLayout = routerLayout;
     }
 

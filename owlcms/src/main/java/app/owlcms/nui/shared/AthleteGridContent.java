@@ -190,7 +190,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     /**
      * Bottom part content
      */
-    private OwlcmsRouterLayout routerLayout;
+    private OwlcmsLayout routerLayout;
     private boolean silenced = true;
     private HorizontalLayout topBarLeft;
     private String topBarTitle;
@@ -356,7 +356,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     @Override
-    public OwlcmsRouterLayout getRouterLayout() {
+    public OwlcmsLayout getRouterLayout() {
         return routerLayout;
     }
 
@@ -441,10 +441,10 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     /**
-     * @see app.owlcms.nui.shared.AppLayoutAware#setRouterLayout(app.owlcms.nui.shared.OwlcmsRouterLayout)
+     * @see app.owlcms.nui.shared.AppLayoutAware#setRouterLayout(app.owlcms.nui.shared.OwlcmsLayout)
      */
     @Override
-    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+    public void setRouterLayout(OwlcmsLayout routerLayout) {
         this.routerLayout = routerLayout;
     }
 

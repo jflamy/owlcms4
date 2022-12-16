@@ -8,7 +8,6 @@ package app.owlcms.nui.home;
 
 import org.slf4j.LoggerFactory;
 
-import com.github.appreciated.app.layout.component.applayout.AbstractLeftAppLayoutBase;
 import com.github.appreciated.css.grid.GridLayoutComponent.AutoFlow;
 import com.github.appreciated.css.grid.GridLayoutComponent.Overflow;
 import com.github.appreciated.css.grid.sizes.Flex;
@@ -38,7 +37,7 @@ import app.owlcms.nui.preparation.PreparationNavigationContent;
 import app.owlcms.nui.results.ResultsNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
-import app.owlcms.nui.shared.OwlcmsRouterLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.IPInterfaceUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -51,7 +50,7 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-@Route(value = "n", layout = OwlcmsRouterLayout.class)
+@Route(value = "n", layout = OwlcmsLayout.class)
 public class HomeNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(HomeNavigationContent.class);
@@ -118,14 +117,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
     }
 
     /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("OWLCMS_Home");
-    }
-
-    /**
      * @see app.owlcms.apputils.queryparameters.FOPParameters#isIgnoreFopFromURL()
      */
     @Override
@@ -150,10 +141,12 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
      */
     @Override
     protected void configureTopBarTitle(String topBarTitle) {
-        AbstractLeftAppLayoutBase appLayout = getAppLayout();
-        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 40em");
-        Label label = new Label(getTitle());
-        appLayout.setTitleComponent(label);
+        ((OwlcmsLayout)this.getAppLayout()).setViewTitle(topBarTitle);
+        //FIXME getTitleWrapper setTitleComponent
+//        AbstractLeftAppLayoutBase appLayout = getAppLayout();
+//        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 40em");
+//        Label label = new Label(getTitle());
+//        appLayout.setTitleComponent(label);
     }
 
     /**
@@ -165,10 +158,10 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
     }
 
     /**
-     * @see app.owlcms.nui.shared.BaseNavigationContent#getTitle()
+     * @see app.owlcms.nui.shared.BaseNavigationContent#getPageTitle()
      */
     @Override
-    protected String getTitle() {
+    public String getPageTitle() {
         return getTranslation("OWLCMS_Top");
     }
 

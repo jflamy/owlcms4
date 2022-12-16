@@ -11,9 +11,6 @@ import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
-import com.github.appreciated.app.layout.component.applayout.AbstractLeftAppLayoutBase;
-import com.github.appreciated.app.layout.component.applayout.AppLayout;
-import com.github.appreciated.app.layout.component.applayout.LeftLayouts;
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.button.Button;
@@ -37,11 +34,11 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
+import app.owlcms.nui.shared.OwlcmsLayout;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSJurySheet;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
-import app.owlcms.nui.shared.OwlcmsRouterLayout;
-import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -50,22 +47,20 @@ import ch.qos.logback.classic.Logger;
  * Weigh-in page -- top bar.
  */
 @SuppressWarnings("serial")
-public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusRegistration, UIEventProcessor {
+public class WeighinLayout extends OwlcmsLayout implements SafeEventBusRegistration, UIEventProcessor {
 
     private final static Logger logger = (Logger) LoggerFactory.getLogger(WeighinLayout.class);
     static {
         logger.setLevel(Level.INFO);
     }
 
-    private AppLayout appLayout;
     private Button cardsButton;
     private ComboBox<Group> gridGroupFilter;
     private Group group;
     private ComboBox<Group> groupSelect;
     private Button juryButton;
     private Button startingWeightsButton;
-    private FlexLayout topBar;
-
+    
     public ComboBox<Group> getGroupSelect() {
         return groupSelect;
     }
@@ -80,7 +75,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
     @Override
     public void showRouterLayoutContent(HasElement content) {
         super.showRouterLayoutContent(content);
-        WeighinContent weighinContent = (WeighinContent) getLayoutComponentContent();
+        WeighinContent weighinContent = (WeighinContent) getContent();
         gridGroupFilter = weighinContent.getGroupFilter();
     }
 
@@ -150,22 +145,22 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         notification.open();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see app.owlcms.nui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.
-     * appreciated.app.layout.behaviour.Behaviour)
-     */
-    @Override
-    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
-        variant = LeftLayouts.Left.class;
-        appLayout = super.getLayoutConfiguration(variant);
-        appLayout.closeDrawer();
-        this.topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
-        createTopBar(topBar);
-        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 0px");
-        return appLayout;
-    }
+//    /*
+//     * (non-Javadoc)
+//     *
+//     * @see app.owlcms.nui.home.OwlcmsLayout#getLayoutConfiguration(com.github.
+//     * appreciated.app.layout.behaviour.Behaviour)
+//     */
+//    @Override
+//    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
+//        variant = LeftLayouts.Left.class;
+//        appLayout = super.getLayoutConfiguration(variant);
+//        appLayout.closeDrawer();
+//        this.topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
+//        createTopBar(topBar);
+//        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 0px");
+//        return appLayout;
+//    }
 
     protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
         group = e.getValue();
@@ -186,7 +181,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
             }
             return currentGroupAthletes;
         });
-        ((WeighinContent) getLayoutComponentContent()).refresh();
+        ((WeighinContent) getContent()).refresh();
     }
 
     private Button createCardsButton(JXLSCards cardsWriter) {
@@ -258,6 +253,6 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
             return;
         }
         AthleteRepository.assignStartNumbers(group);
-        ((WeighinContent) getLayoutComponentContent()).refresh();
+        ((WeighinContent) getContent()).refresh();
     }
 }

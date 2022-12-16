@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
-import com.github.appreciated.app.layout.component.applayout.AbstractLeftAppLayoutBase;
 import com.github.appreciated.css.grid.GridLayoutComponent.AutoFlow;
 import com.github.appreciated.css.grid.GridLayoutComponent.Overflow;
 import com.github.appreciated.css.grid.sizes.Flex;
@@ -28,7 +27,6 @@ import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -42,7 +40,7 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
-import app.owlcms.nui.shared.OwlcmsRouterLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -54,7 +52,7 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-@Route(value = "ninfo", layout = OwlcmsRouterLayout.class)
+@Route(value = "ninfo", layout = OwlcmsLayout.class)
 public class InfoNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(InfoNavigationContent.class);
@@ -133,10 +131,11 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
      */
     @Override
     protected void configureTopBarTitle(String topBarTitle) {
-        AbstractLeftAppLayoutBase appLayout = getAppLayout();
-        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 40em");
-        Label label = new Label(getTitle());
-        appLayout.setTitleComponent(label);
+        //FIXME getTitleWrapper setTitleComponent
+//        AbstractLeftAppLayoutBase appLayout = getAppLayout();
+//        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 40em");
+//        Label label = new Label(getTitle());
+//        appLayout.setTitleComponent(label);
     }
 
     /**
@@ -145,14 +144,6 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
     @Override
     protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
         return null;
-    }
-
-    /**
-     * @see app.owlcms.nui.shared.BaseNavigationContent#getTitle()
-     */
-    @Override
-    protected String getTitle() {
-        return getTranslation("OWLCMS_Top");
     }
 
     private VerticalLayout buildLicense() {

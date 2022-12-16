@@ -38,8 +38,8 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
-import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.LocalDateField;
+import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.ValidationTextField;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -61,7 +61,7 @@ import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.crudui.OwlcmsMultiSelectComboBoxProvider;
 import app.owlcms.nui.shared.AthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
-import app.owlcms.nui.shared.OwlcmsRouterLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -94,7 +94,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     private TextField lastNameFilter = new TextField();
     private Location location;
     private UI locationUI;
-    private OwlcmsRouterLayout routerLayout;
+    private OwlcmsLayout routerLayout;
     private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
 
     /**
@@ -162,7 +162,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     }
 
     @Override
-    public OwlcmsRouterLayout getRouterLayout() {
+    public OwlcmsLayout getRouterLayout() {
         return routerLayout;
     }
 
@@ -234,7 +234,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     }
 
     @Override
-    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+    public void setRouterLayout(OwlcmsLayout routerLayout) {
         this.routerLayout = routerLayout;
     }
 

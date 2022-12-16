@@ -23,14 +23,14 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
-import app.owlcms.sound.Speakers;
 import app.owlcms.nui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.lifting.TCContent;
 import app.owlcms.nui.shared.OwlcmsContent;
-import app.owlcms.nui.shared.OwlcmsRouterLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
+import app.owlcms.sound.Speakers;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -50,7 +50,7 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
     }
 
     private OwlcmsCrudFormFactory<Platform> editingFormFactory;
-    private OwlcmsRouterLayout routerLayout;
+    private OwlcmsLayout routerLayout;
 
     /**
      * Instantiates the Platform crudGrid.
@@ -91,12 +91,12 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
     }
 
     @Override
-    public OwlcmsRouterLayout getRouterLayout() {
+    public OwlcmsLayout getRouterLayout() {
         return routerLayout;
     }
 
     @Override
-    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+    public void setRouterLayout(OwlcmsLayout routerLayout) {
         this.routerLayout = routerLayout;
     }
 

@@ -6,10 +6,10 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displayselection.DisplayNavigationContent;
-import app.owlcms.nui.shared.OwlcmsRouterLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 
 @SuppressWarnings("serial")
-@Route(value = DisplayLoginView.LOGIN, layout = OwlcmsRouterLayout.class)
+@Route(value = DisplayLoginView.LOGIN, layout = OwlcmsLayout.class)
 public class DisplayLoginView extends LoginView {
     
     public static final String LOGIN = "ndisplaylogin";

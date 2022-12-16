@@ -27,10 +27,10 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.HasValue;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.HasValue.ValueChangeEvent;
 import com.vaadin.flow.component.HasValue.ValueChangeListener;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -51,8 +51,8 @@ import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
-import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.LocalDateField;
+import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -247,13 +247,13 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     }
 
     @Override
-    public OwlcmsRouterLayout getRouterLayout() {
+    public OwlcmsLayout getRouterLayout() {
         // not used
         return null;
     }
 
     @Override
-    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+    public void setRouterLayout(OwlcmsLayout routerLayout) {
         // not used
     }
 

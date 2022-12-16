@@ -11,9 +11,6 @@ import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
-import com.github.appreciated.app.layout.component.applayout.AbstractLeftAppLayoutBase;
-import com.github.appreciated.app.layout.component.applayout.AppLayout;
-import com.github.appreciated.app.layout.component.applayout.LeftLayouts;
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.button.Button;
@@ -39,11 +36,11 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
+import app.owlcms.nui.lifting.UIEventProcessor;
+import app.owlcms.nui.shared.OwlcmsLayout;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSStartingList;
-import app.owlcms.nui.lifting.UIEventProcessor;
-import app.owlcms.nui.shared.OwlcmsRouterLayout;
-import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -52,20 +49,18 @@ import ch.qos.logback.classic.Logger;
  * Weigh-in page -- top bar.
  */
 @SuppressWarnings("serial")
-public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventBusRegistration, UIEventProcessor {
+public class RegistrationLayout extends OwlcmsLayout implements SafeEventBusRegistration, UIEventProcessor {
 
     private final static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationLayout.class);
     static {
         logger.setLevel(Level.INFO);
     }
 
-    private AppLayout appLayout;
     private Button cardsButton;
     private ComboBox<Group> gridGroupFilter;
     private Group group;
     private ComboBox<Group> groupSelect;
     private Button startingListButton;
-    private FlexLayout topBar;
 
     /**
      * @return the groupSelect
@@ -91,7 +86,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
     @Override
     public void showRouterLayoutContent(HasElement content) {
         super.showRouterLayoutContent(content);
-        RegistrationContent weighinContent = (RegistrationContent) getLayoutComponentContent();
+        RegistrationContent weighinContent = (RegistrationContent) getContent();
         gridGroupFilter = weighinContent.getGroupFilter();
     }
 
@@ -195,23 +190,23 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         notification.setPosition(Position.MIDDLE);
         notification.open();
     }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see app.owlcms.nui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.
-     * appreciated.app.layout.behaviour.Behaviour)
-     */
-    @Override
-    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
-        variant = LeftLayouts.Left.class;
-        appLayout = super.getLayoutConfiguration(variant);
-        appLayout.closeDrawer();
-        this.topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
-        createTopBar(topBar);
-        appLayout.getTitleWrapper().getStyle().set("flex", "0 1 0px");
-        return appLayout;
-    }
+//
+//    /*
+//     * (non-Javadoc)
+//     *
+//     * @see app.owlcms.nui.home.OwlcmsLayout#getLayoutConfiguration(com.github.
+//     * appreciated.app.layout.behaviour.Behaviour)
+//     */
+//    @Override
+//    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
+//        variant = LeftLayouts.Left.class;
+//        appLayout = super.getLayoutConfiguration(variant);
+//        appLayout.closeDrawer();
+//        this.topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
+//        createTopBar(topBar);
+//        appLayout.getTitleWrapper().getStyle().set("flex", "0 1 0px");
+//        return appLayout;
+//    }
 
     protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
         group = e.getValue();
@@ -220,7 +215,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
 
     private void clearLifts() {
         JPAService.runInTransaction(em -> {
-            RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
+            RegistrationContent content = (RegistrationContent) getContent();
             List<Athlete> athletes = (List<Athlete>) content.doFindAll(em);
             for (Athlete a : athletes) {
                 a.clearLifts();
@@ -273,7 +268,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
     }
 
     private void deleteAthletes() {
-        RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
+        RegistrationContent content = (RegistrationContent) getContent();
         JPAService.runInTransaction(em -> {
             List<Athlete> athletes = (List<Athlete>) content.doFindAll(em);
             for (Athlete a : athletes) {
@@ -286,7 +281,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
     }
 
     private void drawLots() {
-        RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
+        RegistrationContent content = (RegistrationContent) getContent();
         JPAService.runInTransaction(em -> {
             List<Athlete> toBeShuffled = AthleteRepository.doFindAll(em);
             AthleteSorter.drawLots(toBeShuffled);
@@ -300,7 +295,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
     }
 
     private void resetCategories() {
-        RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
+        RegistrationContent content = (RegistrationContent) getContent();
         AthleteRepository.resetParticipations();
         content.refreshCrudGrid();
     }

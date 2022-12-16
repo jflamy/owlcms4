@@ -15,8 +15,8 @@ import com.vaadin.flow.component.HasValue;
 
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
-import app.owlcms.sound.Speakers;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.sound.Speakers;
 
 @SuppressWarnings("serial")
 class PlatformEditingFormFactory extends OwlcmsCrudFormFactory<Platform> {

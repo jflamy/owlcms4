@@ -25,7 +25,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.data.config.Config;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
-import app.owlcms.nui.shared.OwlcmsRouterLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.IPInterfaceUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
@@ -42,7 +42,7 @@ public class ConfigContent extends Composite<VerticalLayout>
 
     Logger logger = (Logger) LoggerFactory.getLogger(ConfigContent.class);
     private OwlcmsCrudFormFactory<Config> factory;
-    private OwlcmsRouterLayout routerLayout;
+    private OwlcmsLayout routerLayout;
 
     /**
      * Instantiates a new preparation navigation content.
@@ -97,7 +97,7 @@ public class ConfigContent extends Composite<VerticalLayout>
     }
 
     @Override
-    public OwlcmsRouterLayout getRouterLayout() {
+    public OwlcmsLayout getRouterLayout() {
         return routerLayout;
     }
 
@@ -119,7 +119,7 @@ public class ConfigContent extends Composite<VerticalLayout>
     }
 
     @Override
-    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+    public void setRouterLayout(OwlcmsLayout routerLayout) {
         this.routerLayout = routerLayout;
     }
 

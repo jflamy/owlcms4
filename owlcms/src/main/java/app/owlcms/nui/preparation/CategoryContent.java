@@ -38,7 +38,7 @@ import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.OwlcmsContent;
-import app.owlcms.nui.shared.OwlcmsRouterLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.nui.shared.RequireLogin;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -62,7 +62,7 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
     private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
     private OwlcmsCrudFormFactory<Category> crudFormFactory;
     private TextField nameFilter = new TextField();
-    private OwlcmsRouterLayout routerLayout;
+    private OwlcmsLayout routerLayout;
 
     /**
      * Instantiates the category crudGrid.
@@ -105,12 +105,12 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
     }
 
     @Override
-    public OwlcmsRouterLayout getRouterLayout() {
+    public OwlcmsLayout getRouterLayout() {
         return routerLayout;
     }
 
     @Override
-    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+    public void setRouterLayout(OwlcmsLayout routerLayout) {
         this.routerLayout = routerLayout;
     }
 

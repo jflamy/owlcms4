@@ -23,7 +23,7 @@ import app.owlcms.nui.preparation.TeamSelectionContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.nui.shared.NavigationPage;
-import app.owlcms.nui.shared.OwlcmsRouterLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSExportRecords;
 import app.owlcms.spreadsheet.JXLSTimingStats;
 import ch.qos.logback.classic.Level;
@@ -33,7 +33,7 @@ import ch.qos.logback.classic.Logger;
  * The Class ResultsNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "nresults", layout = OwlcmsRouterLayout.class)
+@Route(value = "nresults", layout = OwlcmsLayout.class)
 public class ResultsNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsNavigationContent.class);
@@ -81,11 +81,6 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
     }
 
     @Override
-    public String getPageTitle() {
-        return getTranslation("OWLCMS_Results");
-    }
-
-    @Override
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -101,7 +96,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
     }
 
     @Override
-    protected String getTitle() {
+    public String getPageTitle() {
         return getTranslation("Results");
     }
 

@@ -6,30 +6,26 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
-import com.github.appreciated.app.layout.component.applayout.AppLayout;
-import com.github.appreciated.app.layout.component.applayout.LeftLayouts;
-import com.vaadin.flow.component.html.Label;
-
-import app.owlcms.nui.shared.OwlcmsRouterLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 
 /**
  * The Class CategoryLayout.
  */
 @SuppressWarnings("serial")
-public class CompetitionLayout extends OwlcmsRouterLayout {
+public class CompetitionLayout extends OwlcmsLayout {
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see app.owlcms.nui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.
-     * appreciated.app.layout.behaviour.Behaviour)
-     */
-    @Override
-    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
-        variant = LeftLayouts.Left.class;
-        AppLayout appLayout = super.getLayoutConfiguration(variant);
-        appLayout.closeDrawer();
-        appLayout.setTitleComponent(new Label(getTranslation("EditCompetitionInformation")));
-        return appLayout;
-    }
+//    /*
+//     * (non-Javadoc)
+//     *
+//     * @see app.owlcms.nui.home.OwlcmsLayout#getLayoutConfiguration(com.github.
+//     * appreciated.app.layout.behaviour.Behaviour)
+//     */
+//    @Override
+//    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
+//        variant = LeftLayouts.Left.class;
+//        AppLayout appLayout = super.getLayoutConfiguration(variant);
+//        appLayout.closeDrawer();
+//        appLayout.setTitleComponent(new Label(getTranslation("EditCompetitionInformation")));
+//        return appLayout;
+//    }
 }
