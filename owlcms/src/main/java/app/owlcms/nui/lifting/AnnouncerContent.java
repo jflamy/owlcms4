@@ -290,7 +290,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
      * @see app.owlcms.nui.shared.AthleteGridContent#createTopBar()
      */
     @Override
-    protected void createTopBar() {
+    public void createTopBar() {
         super.createTopBar();
         // this hides the back arrow
         getAppLayout().setMenuVisible(false);

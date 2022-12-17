@@ -171,7 +171,7 @@ public class OwlcmsRouterLayoutX extends AppLayoutRouterLayout implements PageCo
 //    @Override
 //    public void showRouterLayoutContent(HasElement content) {
 //        logger.debug("showRouterLayoutContent {}", content.getClass().getSimpleName());
-//        ((AppLayoutAware) content).setRouterLayout(this);
+//        ((OwlcmsLayoutAware) content).setRouterLayout(this);
 //        super.showRouterLayoutContent(content);
 //        this.setLayoutComponentContent(content);
 //    }

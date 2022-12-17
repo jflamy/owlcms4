@@ -65,13 +65,7 @@ public class WeighinLayout extends OwlcmsLayout implements SafeEventBusRegistrat
         return groupSelect;
     }
 
-    /**
-     * The layout is created before the content. This routine has created the content, we can refer to the content using
-     * {@link #getLayoutComponentContent()} and the content can refer to us via
-     * {@link AppLayoutContent#getParentLayout()}
-     *
-     * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#showRouterLayoutContent(com.vaadin.flow.component.HasElement)
-     */
+
     @Override
     public void showRouterLayoutContent(HasElement content) {
         super.showRouterLayoutContent(content);

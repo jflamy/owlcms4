@@ -65,6 +65,7 @@ import app.owlcms.nui.crudui.OwlcmsMultiSelectComboBoxProvider;
 import app.owlcms.nui.shared.AthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -108,6 +109,11 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         crudGrid = createGrid(crudFormFactory);
         defineFilters(crudGrid);
         fillHW(crudGrid, this);
+    }
+    
+    @Override
+    public void setHeaderContent() {
+        logger.warn("***** RegistrationContent setHeaderContent from {}",LoggerUtils.whereFrom());
     }
 
     @Override

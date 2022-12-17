@@ -39,6 +39,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -84,6 +85,11 @@ public abstract class BaseNavigationContent extends VerticalLayout
         routerLayout.getNavBarComponents();
     }
 
+    public void setHeaderContent() {
+        routerLayout.setViewTitle(getPageTitle());
+        routerLayout.showLocaleDropdown(true);
+    }
+
     public ComboBox<Group> createGroupSelect(String placeHolder) {
         groupSelect = new ComboBox<>();
         groupSelect.setPlaceholder(placeHolder);
@@ -115,6 +121,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
 
     @Override
     final public void setRouterLayout(OwlcmsLayout routerLayout) {
+        logger.warn("**** setting router layout {}", routerLayout);
         this.routerLayout = routerLayout;
     }
 
@@ -145,7 +152,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
      */
     protected void configureTopBarTitle(String topBarTitle) {
 //        OwlcmsLayout appLayout = getAppLayout();
-        // FIXME  getTitleWrapper  setTitleComponent
+        // FIXME getTitleWrapper setTitleComponent
 //        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 20em");
 //        Label label = new Label(topBarTitle);
 //        appLayout.setTitleComponent(label);
@@ -158,7 +165,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
      * @param groupField
      * @param appLayoutComponent
      */
-    protected void createAppBar(HorizontalLayout fopField, HorizontalLayout groupField) {
+    protected FlexLayout createAppBar(HorizontalLayout fopField, HorizontalLayout groupField) {
         HorizontalLayout appBar = new HorizontalLayout();
         appBar.setSizeFull();
         if (fopField != null) {
@@ -170,7 +177,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
         Div spacer = new Div();
         spacer.setSizeFull();
         appBar.add(spacer);
-        
+
         ComboBox<Locale> sessionLocaleField = new ComboBox<>();
         sessionLocaleField.setWidth("24ch");
         sessionLocaleField.setClearButtonVisible(true);
@@ -181,7 +188,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
             OwlcmsSession.getCurrent().setLocale(e.getValue());
             UI.getCurrent().getPage().reload();
         });
-        
+
         appBar.add(sessionLocaleField);
         appBar.setSpacing(true);
         appBar.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -190,6 +197,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
         appBarElementWrapper.removeAll();
         appBarElementWrapper.add(appBar);
         appBarElementWrapper.setFlexGrow(1.0, appBar);
+        return appBarElementWrapper;
     }
 
     protected ComboBox<FieldOfPlay> createFopSelect(String placeHolder) {
@@ -206,13 +214,15 @@ public abstract class BaseNavigationContent extends VerticalLayout
      * place to put it is in the top bar which is managed by the layout, but this could change. So we change the
      * surrounding layout from this class. In this way, only one class (the content) listens for events. Doing it the
      * other way around would require multiple layouts, which breaks the idea of a single page app.
+     * @return 
      */
-    protected void createTopBar(String title) {
+    public FlexLayout createTopBar(String title) {
         configureTopBar();
         configureTopBarTitle(title);
         HorizontalLayout fopField = createTopBarFopField(getTranslation("CompetitionPlatform"),
                 getTranslation("SelectPlatform"));
-        createAppBar(fopField, null); // , groupField
+        FlexLayout fl = createAppBar(fopField, null); // , groupField
+        return fl;
     }
 
     protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
@@ -252,6 +262,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
+        logger.warn("***** base navigation content onAttach\n{}", LoggerUtils.stackTrace());
         OwlcmsSession.withFop(fop -> {
             // create the top bar, now that we know the group and fop
             String title = getPageTitle();

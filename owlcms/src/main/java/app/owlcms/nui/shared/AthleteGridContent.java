@@ -291,6 +291,10 @@ public abstract class AthleteGridContent extends VerticalLayout
         }
 
     }
+    
+    public void setHeaderContent() {
+        createTopBar();
+    }
 
     /**
      * @see app.owlcms.uievents.BreakDisplay#doCeremony(app.owlcms.uievents.UIEvent.CeremonyStarted)
@@ -441,7 +445,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     /**
-     * @see app.owlcms.nui.shared.AppLayoutAware#setRouterLayout(app.owlcms.nui.shared.OwlcmsLayout)
+     * @see app.owlcms.nui.shared.OwlcmsLayoutAware#setRouterLayout(app.owlcms.nui.shared.OwlcmsLayout)
      */
     @Override
     public void setRouterLayout(OwlcmsLayout routerLayout) {

@@ -6,9 +6,15 @@
  *******************************************************************************/
 package app.owlcms.nui.shared;
 
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.router.HasDynamicTitle;
 
 public interface OwlcmsContent
-        extends ContentWrapping, AppLayoutAware, HasDynamicTitle, SafeEventBusRegistration, RequireLogin {
+        extends ContentWrapping, OwlcmsLayoutAware, HasDynamicTitle, SafeEventBusRegistration, RequireLogin {
+    
+    public default void setHeaderContent() {
+        LoggerFactory.getLogger("OwlcmsContent").warn("!!!!! not implemented");
+    }
 
 }

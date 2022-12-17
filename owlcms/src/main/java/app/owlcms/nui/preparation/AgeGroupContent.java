@@ -213,7 +213,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
      *
      * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
      */
-    protected void createTopBar() {
+    public void createTopBar() {
         // show arrow but close menu
         getAppLayout().setMenuVisible(true);
         getAppLayout().closeDrawer();

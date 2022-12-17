@@ -6,7 +6,7 @@
  *******************************************************************************/
 package app.owlcms.nui.shared;
 
-public interface AppLayoutAware {
+public interface OwlcmsLayoutAware {
 
     /**
      * A Vaadin RouterLayout contains an instance of an AppLayout.
@@ -29,5 +29,7 @@ public interface AppLayoutAware {
     }
     
     public String getPageTitle();
+
+    public void setHeaderContent();
 
 }

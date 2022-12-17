@@ -21,7 +21,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.shared.AppLayoutAware;
+import app.owlcms.nui.shared.OwlcmsLayoutAware;
 import app.owlcms.nui.shared.ContentWrapping;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.nui.shared.RequireLogin;
@@ -44,7 +44,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = LoginView.LOGIN, layout = OwlcmsLayout.class)
-public class LoginView extends Composite<VerticalLayout> implements AppLayoutAware, ContentWrapping {
+public class LoginView extends Composite<VerticalLayout> implements OwlcmsLayoutAware, ContentWrapping {
 
     public static final String LOGIN = "nlogin";
 
@@ -117,6 +117,11 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
     @Override
     public String getPageTitle() {
         return Translator.translate("Login");
+    }
+    
+    @Override
+    public void setHeaderContent() {
+        return;
     }
 
 }
