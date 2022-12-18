@@ -7,28 +7,32 @@ import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
+import com.flowingcode.vaadin.addons.ironicons.IronIcons;
+import com.flowingcode.vaadin.addons.ironicons.SocialIcons;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Footer;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.IronIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.Scroller;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.RouterLink;
 
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.home.HomeNavigationContent;
+import app.owlcms.nui.preparation.PreparationNavigationContent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -42,6 +46,13 @@ public class OwlcmsLayout extends AppLayout {
     public static final String NONE = "m-0";
     Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsLayout.class);
     private Label viewTitle;
+
+    String DOCUMENTATION = Translator.translate("Documentation_Menu");
+    String INFO = Translator.translate("About");
+    String PREFERENCES = Translator.translate("Preferences");
+    String RESULT_DOCUMENTS = Translator.translate("Results");
+    String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup");
+    String START_DISPLAYS = Translator.translate("StartDisplays");
 
     protected List<Component> navBarComponents;
 
@@ -187,15 +198,19 @@ public class OwlcmsLayout extends AppLayout {
     }
 
     private void addDrawerContent() {
-        H3 appName = new H3("TBD");
-        appName.addClassNames(LARGE, NONE);
-        Header header = new Header(appName);
-        header.getStyle().set("margin-left", "1em");
+//        H3 appName = new H3("TBD");
+//        appName.addClassNames(LARGE, NONE);
+//        Header header = new Header(appName);
+//        header.getStyle().set("margin-left", "1em");
+//
+//        VerticalLayout createNavigation = createNavigation();
+//        createNavigation.setWidth("90%");
+//        Scroller scroller = new Scroller(createNavigation);
+        
+        Tabs tabs = getTabs();
 
-        VerticalLayout createNavigation = createNavigation();
-        createNavigation.setWidth("90%");
-        Scroller scroller = new Scroller(createNavigation);
-        addToDrawer(header, scroller, createFooter());
+        addToDrawer(tabs);
+//        addToDrawer(header, scroller, createFooter());
     }
 
     private void clearNavBar() {
@@ -205,11 +220,11 @@ public class OwlcmsLayout extends AppLayout {
         navBarComponents.clear();
     }
 
-    private Footer createFooter() {
-        Footer layout = new Footer();
-
-        return layout;
-    }
+//    private Footer createFooter() {
+//        Footer layout = new Footer();
+//
+//        return layout;
+//    }
 
     private ComboBox<Locale> createLocaleDropdown() {
         ComboBox<Locale> sessionLocaleField = new ComboBox<>();
@@ -223,10 +238,6 @@ public class OwlcmsLayout extends AppLayout {
             UI.getCurrent().getPage().reload();
         });
         return sessionLocaleField;
-    }
-
-    private VerticalLayout createNavigation() {
-        return new VerticalLayout();
     }
 
     private String getCurrentPageTitle() {
@@ -244,6 +255,30 @@ public class OwlcmsLayout extends AppLayout {
 
     private void setViewTitle(Label viewTitle) {
         this.viewTitle = viewTitle;
+    }
+
+    private Tabs getTabs() {
+        Tabs tabs = new Tabs();
+        tabs.add(
+                createTab(IronIcons.HOME.create(), Translator.translate("Home"), HomeNavigationContent.class),
+                createTab(SocialIcons.GROUP_ADD.create(), Translator.translate("PrepareCompetition"), PreparationNavigationContent.class));
+
+        tabs.setOrientation(Tabs.Orientation.VERTICAL);
+        return tabs;
+    }
+
+    private Tab createTab(IronIcon viewIcon, String viewName, Class<? extends Component> viewClass) {
+        viewIcon.getStyle().set("box-sizing", "border-box")
+                .set("margin-inline-end", "var(--lumo-space-m)")
+                .set("padding", "var(--lumo-space-xs)");
+
+        RouterLink link = new RouterLink();
+        link.add(viewIcon, new Span(viewName));
+        // Demo has no routes
+        link.setRoute(viewClass);
+        link.setTabIndex(-1);
+
+        return new Tab(link);
     }
 
 }
