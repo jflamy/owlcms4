@@ -120,34 +120,6 @@ public class CompetitionContent extends Composite<VerticalLayout>
         this.routerLayout = routerLayout;
     }
 
-//    /**
-//     * The content and ordering of the editing form
-//     *
-//     * @param crudFormFactory the factory that will create the form using this information
-//     */
-//    private void createFormLayout(DefaultCrudFormFactory<Competition> crudFormFactory) {
-//        crudFormFactory.setVisibleProperties("competitionName", "competitionDate", "competitionOrganizer",
-//                "competitionSite", "competitionCity", "federation", "federationAddress", "federationEMail",
-//                "federationWebSite", "defaultLocale", "enforce20kgRule", "masters", "useBirthYear", "customScore");
-//        crudFormFactory.setFieldCaptions(Translator.translate("Competition.competitionName"),
-//                Translator.translate("Competition.competitionDate"),
-//                Translator.translate("Competition.competitionOrganizer"),
-//                Translator.translate("Competition.competitionSite"),
-//                Translator.translate("Competition.competitionCity"),
-//                Translator.translate("Competition.federation"),
-//                Translator.translate("Competition.federationAddress"),
-//                Translator.translate("Competition.federationEMail"),
-//                Translator.translate("Competition.federationWebSite"),
-//                Translator.translate("Competition.defaultLocale"),
-//                Translator.translate("Competition.enforce20kgRule"),
-//                Translator.translate("Competition.masters"),
-//                Translator.translate("Competition.useBirthYear"),
-//                Translator.translate("Competition.customScore"));
-//        ItemLabelGenerator<Locale> nameGenerator = (locale) -> locale.getDisplayName(locale);
-//        crudFormFactory.setFieldProvider("defaultLocale", new OwlcmsComboBoxProvider<>(getTranslation("Locale"),
-//                Translator.getAllAvailableLocales(), new TextRenderer<>(nameGenerator), nameGenerator));
-//        crudFormFactory.setFieldType("competitionDate", DatePicker.class);
-//    }
 
     @Override
     public void showDialog(String caption, Component form) {

@@ -81,7 +81,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
     public void setHeaderContent() {
         routerLayout.setTopBarTitle(getPageTitle());
         routerLayout.showLocaleDropdown(true);
-        routerLayout.setDrawerOpened(false);
+        routerLayout.setDrawerOpened(true);
     }
 
     public ComboBox<Group> createGroupSelect(String placeHolder) {
