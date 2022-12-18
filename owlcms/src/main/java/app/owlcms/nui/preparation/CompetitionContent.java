@@ -32,7 +32,7 @@ import ch.qos.logback.classic.Logger;
  * Class PreparationNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "npreparation/competition", layout = CompetitionLayout.class)
+@Route(value = "npreparation/competition", layout = OwlcmsLayout.class)
 public class CompetitionContent extends Composite<VerticalLayout>
         implements CrudLayout, OwlcmsContent, CrudListener<Competition> {
 
@@ -49,6 +49,13 @@ public class CompetitionContent extends Composite<VerticalLayout>
         Component form = factory.buildNewForm(CrudOperation.UPDATE, Competition.getCurrent(), false, null, event -> {
         });
         fillH(form, getContent());
+    }
+    
+    @Override
+    public void setHeaderContent() {
+        routerLayout.setTopBarTitle(getPageTitle());
+        routerLayout.showLocaleDropdown(true);
+        routerLayout.setDrawerOpened(false);
     }
 
     @Override
@@ -83,7 +90,7 @@ public class CompetitionContent extends Composite<VerticalLayout>
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("Preparation_Competition");
+        return getTranslation("EditCompetitionInformation");
     }
 
     @Override

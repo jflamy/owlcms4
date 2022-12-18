@@ -397,7 +397,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         getAppLayout().setMenuVisible(true);
         getAppLayout().closeDrawer();
 
-        topBar = getAppLayout().getAppBarElementWrapper();
+        topBar = getAppLayout().getButtonArea();
 
         Button cardsButton = createCardsButton();
         Button startingListButton = createStartingListButton();

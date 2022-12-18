@@ -218,7 +218,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         getAppLayout().setMenuVisible(true);
         getAppLayout().closeDrawer();
 
-        topBar = getAppLayout().getAppBarElementWrapper();
+        topBar = getAppLayout().getButtonArea();
 
         resetCats = new Button(getTranslation("ResetCategories.ResetAthletes"), (e) -> {
             new ConfirmationDialog(

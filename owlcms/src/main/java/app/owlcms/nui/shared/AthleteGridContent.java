@@ -820,7 +820,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     protected void createInitialBar() {
         // logger.debug("{} {} creating top bar {}", this.getClass().getSimpleName(), LoggerUtils.whereFrom());
-        topBar = getAppLayout().getAppBarElementWrapper();
+        topBar = getAppLayout().getButtonArea();
         topBar.removeAll();
         initialBar = true;
 
@@ -864,7 +864,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     protected void createTopBar() {
         logger.debug("AthleteGridContent creating top bar");
-        topBar = getAppLayout().getAppBarElementWrapper();
+        topBar = getAppLayout().getButtonArea();
         topBar.setClassName("athleteGridTopBar");
         topBar.removeAll();
         initialBar = false;

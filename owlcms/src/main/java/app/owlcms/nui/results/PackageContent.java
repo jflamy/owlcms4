@@ -394,7 +394,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         title.add();
         title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
 
-        topBar = getAppLayout().getAppBarElementWrapper();
+        topBar = getAppLayout().getButtonArea();
         xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
 
         catXlsWriter = new JXLSCatResults(UI.getCurrent());

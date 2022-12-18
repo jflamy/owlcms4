@@ -192,7 +192,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     @Override
     protected void createInitialBar() {
         logger.debug("AnnouncerContent creating top bar {}", LoggerUtils.whereFrom());
-        topBar = getAppLayout().getAppBarElementWrapper();
+        topBar = getAppLayout().getButtonArea();
         topBar.removeAll();
         initialBar = true;
 

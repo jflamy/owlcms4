@@ -358,7 +358,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         getAppLayout().setMenuVisible(true);
         getAppLayout().closeDrawer();
 
-        topBar = getAppLayout().getAppBarElementWrapper();
+        topBar = getAppLayout().getButtonArea();
 
         H3 title = new H3();
         title.setText(Translator.translate("GroupResults"));

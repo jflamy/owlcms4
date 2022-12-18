@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +24,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
@@ -35,7 +33,6 @@ import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
@@ -79,15 +76,12 @@ public abstract class BaseNavigationContent extends VerticalLayout
     }
 
     public void configureTopBar() {
-//        topBar = getAppLayout().getAppBarElementWrapper();
-//        topBar.setSizeFull();
-//        topBar.setJustifyContentMode(JustifyContentMode.START);
-        routerLayout.getNavBarComponents();
     }
 
     public void setHeaderContent() {
-        routerLayout.setViewTitle(getPageTitle());
+        routerLayout.setTopBarTitle(getPageTitle());
         routerLayout.showLocaleDropdown(true);
+        routerLayout.setDrawerOpened(false);
     }
 
     public ComboBox<Group> createGroupSelect(String placeHolder) {
@@ -151,11 +145,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
      * @param appLayoutComponent
      */
     protected void configureTopBarTitle(String topBarTitle) {
-//        OwlcmsLayout appLayout = getAppLayout();
-        // FIXME getTitleWrapper setTitleComponent
-//        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 20em");
-//        Label label = new Label(topBarTitle);
-//        appLayout.setTitleComponent(label);
+        getAppLayout().setTopBarTitle(topBarTitle);
     }
 
     /**
@@ -177,23 +167,11 @@ public abstract class BaseNavigationContent extends VerticalLayout
         Div spacer = new Div();
         spacer.setSizeFull();
         appBar.add(spacer);
-
-        ComboBox<Locale> sessionLocaleField = new ComboBox<>();
-        sessionLocaleField.setWidth("24ch");
-        sessionLocaleField.setClearButtonVisible(true);
-        sessionLocaleField.setDataProvider(new ListDataProvider<>(Translator.getUsefulLocales()));
-        sessionLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
-        sessionLocaleField.setValue(Translator.getLocaleSupplier().get());
-        sessionLocaleField.addValueChangeListener(e -> {
-            OwlcmsSession.getCurrent().setLocale(e.getValue());
-            UI.getCurrent().getPage().reload();
-        });
-
-        appBar.add(sessionLocaleField);
+        
         appBar.setSpacing(true);
         appBar.setAlignItems(FlexComponent.Alignment.CENTER);
         appBar.setFlexGrow(1.0, spacer);
-        FlexLayout appBarElementWrapper = getAppLayout().getAppBarElementWrapper();
+        FlexLayout appBarElementWrapper = getAppLayout().getButtonArea();
         appBarElementWrapper.removeAll();
         appBarElementWrapper.add(appBar);
         appBarElementWrapper.setFlexGrow(1.0, appBar);

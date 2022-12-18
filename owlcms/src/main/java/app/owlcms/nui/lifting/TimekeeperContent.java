@@ -165,7 +165,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
     @Override
     protected void createInitialBar() {
         logger.debug("AnnouncerContent creating top bar {}", LoggerUtils.whereFrom());
-        topBar = getAppLayout().getAppBarElementWrapper();
+        topBar = getAppLayout().getButtonArea();
         topBar.removeAll();
         initialBar = true;
 
@@ -245,7 +245,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
      */
     @Override
     protected void createTopBar() {
-        topBar = getAppLayout().getAppBarElementWrapper();
+        topBar = getAppLayout().getButtonArea();
         topBar.setClassName("timeKeeperTopBar");
         topBar.removeAll();
         initialBar = false;

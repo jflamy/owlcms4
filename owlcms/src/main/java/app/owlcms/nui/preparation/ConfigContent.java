@@ -36,7 +36,7 @@ import ch.qos.logback.classic.Logger;
  * Class PreparationNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "npreparation/config", layout = ConfigLayout.class)
+@Route(value = "npreparation/config", layout = OwlcmsLayout.class)
 public class ConfigContent extends Composite<VerticalLayout>
         implements CrudLayout, OwlcmsContent, CrudListener<Config> {
 
@@ -59,6 +59,13 @@ public class ConfigContent extends Composite<VerticalLayout>
         Component form = factory.buildNewForm(CrudOperation.UPDATE, Config.getCurrent(), false, null, event -> {
         });
         fillH(form, getContent());
+    }
+    
+    @Override
+    public void setHeaderContent() {
+        routerLayout.setTopBarTitle(getPageTitle());
+        routerLayout.showLocaleDropdown(true);
+        routerLayout.setDrawerOpened(false);
     }
 
     @Override

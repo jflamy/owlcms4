@@ -29,6 +29,8 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -222,7 +224,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
             name = ((AgeGroup) domainObject).getName();
         }
         H3 messageLabel = new H3(Translator.translate("DeleteConfirmation", name));
-                //Translator.translate("Delete") + " " + name + Translator.translate("Question"));
+        // Translator.translate("Delete") + " " + name + Translator.translate("Question"));
 
         // create a new delete button for the confirm dialog
         Button confirmButton = doBuildButton(operation);
@@ -383,12 +385,15 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         // field must visible and added to the layout for focus() to work, so we hide it
         // brutally
         updateTrigger.getStyle().set("z-index", "-10");
+        updateTrigger.getStyle().set("width", "0");
         return updateTrigger;
     }
 
     protected boolean isValid() {
         return valid;
     }
+
+    Notification notif = new Notification("Saved.");
 
     protected void performOperationAndCallback(CrudOperation operation, T domainObject,
             ComponentEventListener<ClickEvent<Button>> gridCallback) {
@@ -401,6 +406,9 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
             } else if (operation == CrudOperation.UPDATE) {
                 logger.debug("updating 	{}", domainObject);
                 this.update(domainObject);
+                notif.setPosition(Position.TOP_END);
+                notif.setDuration(2500);
+                notif.open();
                 gridCallback.onComponentEvent(operationTriggerEvent);
             } else if (operation == CrudOperation.DELETE) {
                 logger.debug("deleting 	{}", domainObject);
