@@ -26,6 +26,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -47,6 +48,7 @@ import ch.qos.logback.classic.Logger;
  * The main view is a top-level placeholder for other views.
  */
 @SuppressWarnings("serial")
+@Push
 public class OwlcmsLayout extends AppLayout {
 
     public static final String LARGE = "text-l";

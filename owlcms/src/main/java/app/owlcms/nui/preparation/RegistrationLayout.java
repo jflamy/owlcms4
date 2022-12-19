@@ -26,7 +26,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import app.owlcms.components.ConfirmationDialog;
-import app.owlcms.components.DownloadButtonFactory;
+import app.owlcms.components.DialogDownloadButtonFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -230,7 +230,7 @@ public class RegistrationLayout extends OwlcmsLayout implements SafeEventBusRegi
         String resourceDirectoryLocation = "/templates/cards";
         String title = Translator.translate("AthleteCards");
         String downloadedFilePrefix = "cards";
-        DownloadButtonFactory cardsButtonFactory = new DownloadButtonFactory(
+        DialogDownloadButtonFactory cardsButtonFactory = new DialogDownloadButtonFactory(
                 () -> {
                     JXLSCards rs = new JXLSCards();
                     // group may have been edited since the page was loaded
@@ -251,7 +251,7 @@ public class RegistrationLayout extends OwlcmsLayout implements SafeEventBusRegi
         String title = Translator.translate("StartingList");
         String downloadedFilePrefix = "startingList";
 
-        DownloadButtonFactory startingListFactory = new DownloadButtonFactory(
+        DialogDownloadButtonFactory startingListFactory = new DialogDownloadButtonFactory(
                 () -> {
                     JXLSStartingList rs = new JXLSStartingList();
                     // group may have been edited since the page was loaded

@@ -42,7 +42,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.components.DownloadButtonFactory;
+import app.owlcms.components.DialogDownloadButtonFactory;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -132,7 +132,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     private Group currentGroup;
-    private DownloadButtonFactory downloadButtonFactory;
+    private DialogDownloadButtonFactory dialogDownloadButtonFactory;
 
     private Checkbox medalsOnly;
 
@@ -413,8 +413,8 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             currentGroup = newCurrentGroup;
         }
         setGridGroup(currentGroup);
-        if (downloadButtonFactory != null)
-            downloadButtonFactory.createTopBarDownloadButton();
+        if (dialogDownloadButtonFactory != null)
+            dialogDownloadButtonFactory.createTopBarDownloadButton();
         MenuBar oldMenu = topBarMenu;
         createTopBarGroupSelect();
         if (topBar != null)
@@ -504,7 +504,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     private Button createGroupMedalsDownloadButton() {
-        downloadButtonFactory = new DownloadButtonFactory(
+        dialogDownloadButtonFactory = new DialogDownloadButtonFactory(
                 () -> {
                     JXLSMedalsSheet rs = new JXLSMedalsSheet();
                     // group may have been edited since the page was loaded
@@ -516,12 +516,12 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
                 Competition::setMedalsTemplateFileName,
                 Translator.translate("Results.Medals"),
                 "medals", Translator.translate("Download"));
-        Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
+        Button resultsButton = dialogDownloadButtonFactory.createTopBarDownloadButton();
         return resultsButton;
     }
 
     private Button createGroupResultsDownloadButton() {
-        downloadButtonFactory = new DownloadButtonFactory(
+        dialogDownloadButtonFactory = new DialogDownloadButtonFactory(
                 () -> {
                     JXLSResultSheet rs = new JXLSResultSheet();
                     // group may have been edited since the page was loaded
@@ -533,7 +533,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
                 Competition::setProtocolTemplateFileName,
                 Translator.translate("GroupResults"),
                 "results", Translator.translate("Download"));
-        Button resultsButton = downloadButtonFactory.createTopBarDownloadButton();
+        Button resultsButton = dialogDownloadButtonFactory.createTopBarDownloadButton();
         return resultsButton;
     }
 

@@ -25,7 +25,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 
-import app.owlcms.components.DownloadButtonFactory;
+import app.owlcms.components.DialogDownloadButtonFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -171,7 +171,7 @@ public class WeighinLayout extends OwlcmsLayout implements SafeEventBusRegistrat
         String resourceDirectoryLocation = "/templates/cards";
         String title = Translator.translate("AthleteCards");
         String downloadedFilePrefix = "cards";
-        DownloadButtonFactory cardsButtonFactory = new DownloadButtonFactory(
+        DialogDownloadButtonFactory cardsButtonFactory = new DialogDownloadButtonFactory(
                 () -> {
                     JXLSCards rs = new JXLSCards();
                     // group may have been edited since the page was loaded
@@ -192,7 +192,7 @@ public class WeighinLayout extends OwlcmsLayout implements SafeEventBusRegistrat
         String title = Translator.translate("Jury");
         String downloadedFilePrefix = "jury";
 
-        DownloadButtonFactory juryButton = new DownloadButtonFactory(
+        DialogDownloadButtonFactory juryButton = new DialogDownloadButtonFactory(
                 () -> {
                     JXLSJurySheet rs = new JXLSJurySheet();
                     // group may have been edited since the page was loaded
@@ -213,7 +213,7 @@ public class WeighinLayout extends OwlcmsLayout implements SafeEventBusRegistrat
         String title = Translator.translate("StartingWeightsSheet");
         String downloadedFilePrefix = "startingWeights";
 
-        DownloadButtonFactory startingWeightsButton = new DownloadButtonFactory(
+        DialogDownloadButtonFactory startingWeightsButton = new DialogDownloadButtonFactory(
                 () -> {
                     JXLSWeighInSheet rs = new JXLSWeighInSheet();
                     // group may have been edited since the page was loaded

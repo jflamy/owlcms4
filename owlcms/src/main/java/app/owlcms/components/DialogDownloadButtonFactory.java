@@ -37,13 +37,13 @@ import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
-public class DownloadButtonFactory {
+public class DialogDownloadButtonFactory {
 
     private String buttonLabel;
     private String dialogTitle;
     private Function<Competition, String> templateNameGetter;
     private BiConsumer<Competition, String> templateNameSetter;
-    private Logger logger = (Logger) LoggerFactory.getLogger(DownloadButtonFactory.class);
+    private Logger logger = (Logger) LoggerFactory.getLogger(DialogDownloadButtonFactory.class);
     private String outputFileName;
     private String resourceDirectoryLocation;
     private Supplier<JXLSWorkbookStreamSource> streamSourceSupplier;
@@ -61,7 +61,7 @@ public class DownloadButtonFactory {
      * @param dialogTitle
      * @return
      */
-    public DownloadButtonFactory(
+    public DialogDownloadButtonFactory(
             Supplier<JXLSWorkbookStreamSource> streamSourceSupplier,
             String resourceDirectoryLocation,
             Function<Competition, String> templateNameGetter,

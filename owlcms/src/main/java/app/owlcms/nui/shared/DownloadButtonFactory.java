@@ -12,16 +12,12 @@ import java.time.format.DateTimeFormatter;
 
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.components.elements.LazyDownloadButton;
 import app.owlcms.data.export.CompetitionData;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import ch.qos.logback.classic.Logger;
 
@@ -30,6 +26,7 @@ import ch.qos.logback.classic.Logger;
  */
 public class DownloadButtonFactory {
 
+    @SuppressWarnings("unused")
     final private static Logger logger = (Logger) LoggerFactory.getLogger(DownloadButtonFactory.class);
 
     public static Div createDynamicJsonDownloadButton(String prefix, String label) {
@@ -89,35 +86,5 @@ public class DownloadButtonFactory {
         return new Div(downloadButton);
     }
 
-    /**
-     * Creates a new Download Button object for a static resource
-     *
-     * @param prefix             the prefix
-     * @param label              the label
-     * @param templateNamePrefix the template name prefix
-     * @return the div
-     */
-    public static Div createStaticXLSDownloadButton(String prefix, String label, String templateNamePrefix) {
-        String templateFileName = templateNamePrefix + OwlcmsSession.getLocale().getLanguage() + ".xls";
-        logger.debug("templateFileName = {} href={}", templateFileName);
-        StreamResource href = new StreamResource(prefix + ".xls",
-                () -> OwlcmsSession.class.getResourceAsStream(templateFileName));
-        return buildButton(prefix, label, href);
-    }
-
-    private static Div buildButton(String prefix, String label, StreamResource href) {
-        Anchor finalResults = new Anchor(href, "");
-        Button finalResultsButton = new Button(label, new Icon(VaadinIcon.DOWNLOAD_ALT));
-        finalResultsButton.addFocusListener(e -> {
-            String dlName = prefix + "_" + LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE) + ".xls";
-            finalResults.getElement().setAttribute("download", dlName);
-        });
-        finalResultsButton.setWidth("93%"); // don't ask. this is a kludge.
-        finalResults.add(finalResultsButton);
-        finalResults.setWidth("100%");
-        Div finalResultsDiv = new Div(finalResults);
-        finalResultsDiv.setWidthFull();
-        return finalResultsDiv;
-    }
 
 }
