@@ -178,9 +178,7 @@ public class OwlcmsLayout extends AppLayout {
         Style style = getViewTitle().getElement().getStyle();
         style.set("font-size", "large");
         style.set("margin-left", "0");
-        FlexLayout hLayout = new FlexLayout();
-        hLayout.setFlexDirection(FlexDirection.ROW);
-        setButtonArea(hLayout);
+        setButtonArea(createButtonArea());
         setLocaleDropDown(createLocaleDropdown());
         topBar.setMargin(true);
         topBar.add(getDrawerToggle(), getViewTitle(), getButtonArea(), getLocaleDropDown());
@@ -193,7 +191,7 @@ public class OwlcmsLayout extends AppLayout {
         addToNavbar(false, topBar);
     }
 
-    private void setButtonArea(FlexLayout horizontalLayout) {
+    protected void setButtonArea(FlexLayout horizontalLayout) {
         this.buttonArea = horizontalLayout;
     }
 
@@ -304,7 +302,6 @@ public class OwlcmsLayout extends AppLayout {
         a.getElement().setAttribute("router-link", true);
 
         return new Tab(a);
-
     }
 
     private Tab createTab(IronIcon viewIcon, String viewName, Class<? extends Component> viewClass) {
@@ -319,6 +316,21 @@ public class OwlcmsLayout extends AppLayout {
         link.setTabIndex(-1);
 
         return new Tab(link);
+    }
+
+    /**
+     * Create the top bar.
+     *
+     * Note: the top bar is created before the content.
+     *
+     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
+     *
+     * @param topBar
+     */
+    protected FlexLayout createButtonArea() {
+        FlexLayout hLayout = new FlexLayout();
+        hLayout.setFlexDirection(FlexDirection.ROW);
+        return hLayout;
     }
 
 }

@@ -108,6 +108,13 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     }
 
     @Override
+    public void setHeaderContent() {
+        routerLayout.setTopBarTitle(getPageTitle());
+        routerLayout.showLocaleDropdown(false);
+        routerLayout.setDrawerOpened(false);
+    }
+    
+    @Override
     public Athlete add(Athlete athlete) {
         if (athlete.getGroup() == null && currentGroup != null) {
             athlete.setGroup(currentGroup);
@@ -390,7 +397,8 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         getRouterLayout().closeDrawer();
-        ((WeighinLayout) getRouterLayout()).getGroupSelect().setValue(currentGroup);
+        //FIXME groupSelect
+        //((WeighinLayout) getRouterLayout()).getGroupSelect().setValue(currentGroup);
     }
 
     /**

@@ -15,7 +15,6 @@ import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
@@ -81,13 +80,15 @@ public class WeighinLayout extends OwlcmsLayout implements SafeEventBusRegistrat
      * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
      *
      * @param topBar
+     * @return 
      */
-    protected void createTopBar(FlexLayout topBar) {
+    @Override
+    protected FlexLayout createButtonArea() {
 
-        H3 title = new H3();
-        title.setText(getTranslation("WeighIn"));
-        title.add();
-        title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
+//        H3 title = new H3();
+//        title.setText(getTranslation("WeighIn"));
+//        title.add();
+//        title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
 
         groupSelect = new ComboBox<>();
         groupSelect.setPlaceholder(getTranslation("Group"));
@@ -118,11 +119,14 @@ public class WeighinLayout extends OwlcmsLayout implements SafeEventBusRegistrat
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
-        topBar.getElement().getStyle().set("flex", "100 1");
+        FlexLayout topBar = new FlexLayout();
+        topBar .getElement().getStyle().set("flex", "100 1");
         topBar.removeAll();
-        topBar.add(title, groupSelect, buttons);
+        topBar.add(groupSelect, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+        
+        return topBar;
     }
 
     protected void errorNotification() {
@@ -138,23 +142,6 @@ public class WeighinLayout extends OwlcmsLayout implements SafeEventBusRegistrat
         notification.setPosition(Position.MIDDLE);
         notification.open();
     }
-
-//    /*
-//     * (non-Javadoc)
-//     *
-//     * @see app.owlcms.nui.home.OwlcmsLayout#getLayoutConfiguration(com.github.
-//     * appreciated.app.layout.behaviour.Behaviour)
-//     */
-//    @Override
-//    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
-//        variant = LeftLayouts.Left.class;
-//        appLayout = super.getLayoutConfiguration(variant);
-//        appLayout.closeDrawer();
-//        this.topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
-//        createTopBar(topBar);
-//        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 0px");
-//        return appLayout;
-//    }
 
     protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
         group = e.getValue();
