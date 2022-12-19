@@ -27,6 +27,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.Push;
 
 import app.owlcms.components.DownloadButtonFactory;
 import app.owlcms.data.athlete.Athlete;
@@ -49,6 +50,7 @@ import ch.qos.logback.classic.Logger;
 /**
  * Weigh-in page -- top bar.
  */
+@Push
 @SuppressWarnings("serial")
 public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusRegistration, UIEventProcessor {
 

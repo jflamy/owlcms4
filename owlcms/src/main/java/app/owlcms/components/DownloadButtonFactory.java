@@ -136,7 +136,7 @@ public class DownloadButtonFactory {
                         logger.debug("(2) template NOT found {} {}", newTemplateName, resourceList);
                         throw new Exception("template not found " + newTemplateName);
                     }
-                    logger.debug("(2) template found {}", res != null ? res.getFileName() : null);
+                    logger.debug("*(2) template found {}", res != null ? res.getFileName() : null);
                     templateNameSetter.accept(current, newTemplateName);
                     logger.debug("(2) template as set {}", templateNameGetter.apply(current));
                     
