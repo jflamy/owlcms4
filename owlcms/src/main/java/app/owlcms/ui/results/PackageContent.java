@@ -46,7 +46,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
-import app.owlcms.components.DialogDownloadButtonFactory;
+import app.owlcms.components.DownloadDialog;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -103,7 +103,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
     private JXLSCatResults catXlsWriter;
     private Group currentGroup;
-    private DialogDownloadButtonFactory dialogDownloadButtonFactory;
+    private DownloadDialog DownloadDialog;
     private JXLSCompetitionBook xlsWriter;
 
     /**
@@ -578,7 +578,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     private Button createCategoryResultsDownloadButton() {
-        dialogDownloadButtonFactory = new DialogDownloadButtonFactory(
+        DownloadDialog = new DownloadDialog(
                 () -> {
                     JXLSResultSheet rs = new JXLSResultSheet();
                     rs.setAgeDivision(ageDivision);
@@ -594,12 +594,12 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
                 Competition::setProtocolTemplateFileName,
                 Translator.translate("CategoryResults"),
                 "results", Translator.translate("Download"));
-        Button resultsButton = dialogDownloadButtonFactory.createTopBarDownloadButton();
+        Button resultsButton = DownloadDialog.createTopBarDownloadButton();
         return resultsButton;
     }
 
     private Button createFinalPackageDownloadButton() {
-        dialogDownloadButtonFactory = new DialogDownloadButtonFactory(
+        DownloadDialog = new DownloadDialog(
                 () -> {
                     JXLSCompetitionBook rs = new JXLSCompetitionBook(locationUI);
                     // group may have been edited since the page was loaded
@@ -614,7 +614,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
                 Competition::setFinalPackageTemplateFileName,
                 Translator.translate("FinalResultsPackage"),
                 "finalPackage", Translator.translate("Download"));
-        Button resultsButton = dialogDownloadButtonFactory.createTopBarDownloadButton();
+        Button resultsButton = DownloadDialog.createTopBarDownloadButton();
         return resultsButton;
     }
 

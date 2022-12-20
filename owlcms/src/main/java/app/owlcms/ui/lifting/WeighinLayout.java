@@ -28,7 +28,7 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-import app.owlcms.components.DialogDownloadButtonFactory;
+import app.owlcms.components.DownloadDialog;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -193,7 +193,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         String resourceDirectoryLocation = "/templates/cards";
         String title = Translator.translate("AthleteCards");
         String downloadedFilePrefix = "cards";
-        DialogDownloadButtonFactory cardsButtonFactory = new DialogDownloadButtonFactory(
+        DownloadDialog cardsButtonFactory = new DownloadDialog(
                 () -> {
                     JXLSCards rs = new JXLSCards();
                     // group may have been edited since the page was loaded
@@ -214,7 +214,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         String title = Translator.translate("Jury");
         String downloadedFilePrefix = "jury";
 
-        DialogDownloadButtonFactory juryButton = new DialogDownloadButtonFactory(
+        DownloadDialog juryButton = new DownloadDialog(
                 () -> {
                     JXLSJurySheet rs = new JXLSJurySheet();
                     // group may have been edited since the page was loaded
@@ -235,7 +235,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         String title = Translator.translate("StartingWeightsSheet");
         String downloadedFilePrefix = "startingWeights";
 
-        DialogDownloadButtonFactory startingWeightsButton = new DialogDownloadButtonFactory(
+        DownloadDialog startingWeightsButton = new DownloadDialog(
                 () -> {
                     JXLSWeighInSheet rs = new JXLSWeighInSheet();
                     // group may have been edited since the page was loaded
