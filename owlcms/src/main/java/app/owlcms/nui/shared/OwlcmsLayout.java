@@ -61,12 +61,12 @@ public class OwlcmsLayout extends AppLayout {
     private DrawerToggle drawerToggle;
     private ComboBox<Locale> localeDropDown;
     private FlexLayout buttonArea;
+    private HorizontalLayout header;
 
     public OwlcmsLayout() {
         logger.warn("***** creating layout");
         navBarComponents = new ArrayList<>();
-        populateNavBar();
-
+        populateHeader();
         // setPrimarySection(Section.DRAWER);
         addDrawerContent();
 
@@ -161,7 +161,7 @@ public class OwlcmsLayout extends AppLayout {
         } else {
             logger.warn("***** NOT aware showRouterLayoutContent {}", content);
             super.showRouterLayoutContent(content);
-            populateNavBar();
+            populateHeader();
         }
 
     }
@@ -172,28 +172,35 @@ public class OwlcmsLayout extends AppLayout {
         setTopBarTitle(getCurrentPageTitle());
     }
 
-    protected void populateNavBar() {
-        HorizontalLayout topBar = new HorizontalLayout();
+    protected void populateHeader() {
+        header = new HorizontalLayout();
+        
         setDrawerToggle(new DrawerToggle());
         getDrawerToggle().getElement().setAttribute("aria-label", "Menu drawerToggle");
+        
         setViewTitle(new Label());
         Style style = getViewTitle().getElement().getStyle();
         style.set("font-size", "large");
         style.set("margin-left", "0");
+        
         setButtonArea(createButtonArea());
         setLocaleDropDown(createLocaleDropdown());
-        topBar.setMargin(true);
-        topBar.add(getDrawerToggle(), getViewTitle(), getButtonArea(), getLocaleDropDown());
-        topBar.setFlexGrow(1.0D, getButtonArea());
-        topBar.setWidth("100%");
-        topBar.setAlignItems(Alignment.CENTER);
+    }
+
+    public void updateHeader() {
+        header.removeAll();
+        header.setMargin(true);
+        header.add(getDrawerToggle(), getViewTitle(), getButtonArea(), getLocaleDropDown());
+        header.setFlexGrow(1.0D, getButtonArea());
+        header.setWidth("100%");
+        header.setAlignItems(Alignment.CENTER);
 
         logger.warn("***** OwlcmsLayout set HeaderContent from {}", LoggerUtils.whereFrom());
         clearNavBar();
-        addToNavbar(false, topBar);
+        addToNavbar(false, header);
     }
 
-    protected void setButtonArea(FlexLayout horizontalLayout) {
+    public void setButtonArea(FlexLayout horizontalLayout) {
         this.buttonArea = horizontalLayout;
     }
 
@@ -327,7 +334,7 @@ public class OwlcmsLayout extends AppLayout {
      *
      * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
      *
-     * @param topBar
+     * @param header
      */
     protected FlexLayout createButtonArea() {
         FlexLayout hLayout = new FlexLayout();

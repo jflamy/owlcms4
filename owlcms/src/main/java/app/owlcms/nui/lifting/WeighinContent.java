@@ -9,7 +9,6 @@ package app.owlcms.nui.lifting;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,13 +18,20 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.NumberRenderer;
@@ -38,6 +44,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
+import app.owlcms.components.DownloadDialog;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.ValidationTextField;
@@ -53,6 +60,8 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.data.jpa.JPAService;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
@@ -62,6 +71,9 @@ import app.owlcms.nui.crudui.OwlcmsMultiSelectComboBoxProvider;
 import app.owlcms.nui.shared.AthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
+import app.owlcms.spreadsheet.JXLSCards;
+import app.owlcms.spreadsheet.JXLSJurySheet;
+import app.owlcms.spreadsheet.JXLSWeighInSheet;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -74,7 +86,7 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-@Route(value = "npreparation/weighin", layout = WeighinLayout.class)
+@Route(value = "npreparation/weighin", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/shared-styles.css")
 public class WeighinContent extends VerticalLayout implements CrudListener<Athlete>, OwlcmsContent, FOPParameters {
 
@@ -97,6 +109,18 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     private OwlcmsLayout routerLayout;
     private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
 
+    private Button cardsButton;
+
+    private ComboBox<Group> gridGroupFilter;
+
+    private Group group;
+
+    private ComboBox<Group> groupSelect;
+
+    private Button juryButton;
+
+    private Button startingWeightsButton;
+
     /**
      * Instantiates the athlete crudGrid
      */
@@ -108,19 +132,54 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     }
 
     @Override
-    public void setHeaderContent() {
-        routerLayout.setTopBarTitle(getPageTitle());
-        routerLayout.showLocaleDropdown(false);
-        routerLayout.setDrawerOpened(false);
-    }
-    
-    @Override
     public Athlete add(Athlete athlete) {
         if (athlete.getGroup() == null && currentGroup != null) {
             athlete.setGroup(currentGroup);
         }
         ((OwlcmsCrudFormFactory<Athlete>) crudGrid.getCrudFormFactory()).add(athlete);
         return athlete;
+    }
+
+    @Override
+    public FlexLayout createButtonArea() {
+
+        groupSelect = new ComboBox<>();
+        groupSelect.setPlaceholder(getTranslation("Group"));
+        List<Group> groups = GroupRepository.findAll();
+        groups.sort(new NaturalOrderComparator<Group>());
+        groupSelect.setItems(groups);
+        groupSelect.setItemLabelGenerator(Group::getName);
+        groupSelect.setClearButtonVisible(true);
+        groupSelect.addValueChangeListener(e -> {
+            setContentGroup(e);
+        });
+
+        JXLSCards cardsWriter = new JXLSCards();
+        JXLSJurySheet juryWriter = new JXLSJurySheet();
+        cardsButton = createCardsButton(cardsWriter);
+        startingWeightsButton = createStartingWeightsButton();
+        juryButton = createJuryButton(juryWriter);
+
+        Button start = new Button(getTranslation("GenerateStartNumbers"), (e) -> {
+            generateStartNumbers();
+        });
+        Button clear = new Button(getTranslation("ClearStartNumbers"), (e) -> {
+            clearStartNumbers();
+        });
+
+        HorizontalLayout buttons = new HorizontalLayout(start, clear, startingWeightsButton, cardsButton, juryButton);
+        buttons.setPadding(true);
+        buttons.setSpacing(true);
+        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+
+        FlexLayout topBar = new FlexLayout();
+        topBar.getElement().getStyle().set("flex", "100 1");
+        topBar.removeAll();
+        topBar.add(groupSelect, buttons);
+        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        return topBar;
     }
 
     @Override
@@ -148,6 +207,10 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
      */
     public ComboBox<Group> getGroupFilter() {
         return groupFilter;
+    }
+
+    public ComboBox<Group> getGroupSelect() {
+        return groupSelect;
     }
 
     @Override
@@ -188,6 +251,15 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     }
 
     @Override
+    public void setHeaderContent() {
+        routerLayout.setTopBarTitle(getPageTitle());
+        routerLayout.setButtonArea(createButtonArea());
+        routerLayout.showLocaleDropdown(false);
+        routerLayout.setDrawerOpened(false);
+        routerLayout.updateHeader();
+    }
+
+    @Override
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -217,9 +289,9 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
         HashMap<String, List<String>> params = new HashMap<>(parametersMap);
 
-        //logger.trace("parsing query parameters RegistrationContent");
+        // logger.trace("parsing query parameters RegistrationContent");
         List<String> groupNames = params.get("group");
-        //logger.trace("groupNames = {}", groupNames);
+        // logger.trace("groupNames = {}", groupNames);
         if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
             String groupName = groupNames.get(0);
             currentGroup = GroupRepository.findByName(groupName);
@@ -259,8 +331,9 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
      * @return the form factory that will create the actual form on demand
      */
     protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-        OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory = new AthleteRegistrationFormFactory(Athlete.class, currentGroup);
-        //logger.trace("created form factory {} {}", System.identityHashCode(athleteEditingFormFactory), currentGroup);
+        OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory = new AthleteRegistrationFormFactory(Athlete.class,
+                currentGroup);
+        // logger.trace("created form factory {} {}", System.identityHashCode(athleteEditingFormFactory), currentGroup);
         createFormLayout(athleteEditingFormFactory);
         return athleteEditingFormFactory;
     }
@@ -345,7 +418,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
         groupFilter.setPlaceholder(getTranslation("Group"));
         List<Group> groups = GroupRepository.findAll();
-        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+        groups.sort(new NaturalOrderComparator<Group>());
         groupFilter.setItems(groups);
         groupFilter.setItemLabelGenerator(Group::getName);
         groupFilter.setClearButtonVisible(true);
@@ -393,12 +466,68 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crudGrid.getCrudLayout().addFilterComponent(clearFilters);
     }
 
+    protected void errorNotification() {
+        Label content = new Label(getTranslation("Select_group_first"));
+        content.getElement().setAttribute("theme", "error");
+        Button buttonInside = new Button(getTranslation("GotIt"));
+        buttonInside.getElement().setAttribute("theme", "error primary");
+        VerticalLayout verticalLayout = new VerticalLayout(content, buttonInside);
+        verticalLayout.setAlignItems(Alignment.CENTER);
+        Notification notification = new Notification(verticalLayout);
+        notification.setDuration(3000);
+        buttonInside.addClickListener(event -> notification.close());
+        notification.setPosition(Position.MIDDLE);
+        notification.open();
+    }
+
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         getRouterLayout().closeDrawer();
-        //FIXME groupSelect
-        //((WeighinLayout) getRouterLayout()).getGroupSelect().setValue(currentGroup);
+        // FIXME groupSelect
+        // ((WeighinLayout) getRouterLayout()).getGroupSelect().setValue(currentGroup);
+    }
+
+    protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
+        group = e.getValue();
+        gridGroupFilter.setValue(e.getValue());
+    }
+
+    private void clearStartNumbers() {
+        Group group = groupSelect.getValue();
+        if (group == null) {
+            errorNotification();
+            return;
+        }
+        JPAService.runInTransaction((em) -> {
+            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, null,
+                    (Gender) null);
+            for (Athlete a : currentGroupAthletes) {
+                a.setStartNumber(0);
+            }
+            return currentGroupAthletes;
+        });
+        refresh();
+    }
+
+    private Button createCardsButton(JXLSCards cardsWriter) {
+        String resourceDirectoryLocation = "/templates/cards";
+        String title = Translator.translate("AthleteCards");
+        String downloadedFilePrefix = "cards";
+        DownloadDialog cardsButtonFactory = new DownloadDialog(
+                () -> {
+                    JXLSCards rs = new JXLSCards();
+                    // group may have been edited since the page was loaded
+                    rs.setGroup(group != null ? GroupRepository.getById(group.getId()) : null);
+                    return rs;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedCardsTemplateFileName,
+                Competition::setCardsTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return cardsButtonFactory.createTopBarDownloadButton();
     }
 
     /**
@@ -459,7 +588,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
         props.add("federationCodes");
         captions.add(getTranslation("Registration.FederationCodes"));
-        
+
         props.add("eligibleForIndividualRanking");
         captions.add(getTranslation("Eligible for Individual Ranking?"));
 
@@ -469,7 +598,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crudFormFactory.setFieldProvider("gender", new OwlcmsComboBoxProvider<>(getTranslation("Gender"),
                 Arrays.asList(Gender.mfValues()), new TextRenderer<>(Gender::name), Gender::name));
         List<Group> groups = GroupRepository.findAll();
-        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+        groups.sort(new NaturalOrderComparator<Group>());
         crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(getTranslation("Group"),
                 groups, new TextRenderer<>(Group::getName), Group::getName));
         crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
@@ -494,6 +623,58 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crudFormFactory.setFieldCreationListener("bodyWeight", (e) -> {
             ((LocalizedDecimalField) e).focus();
         });
+    }
+
+    private Button createJuryButton(JXLSJurySheet juryWriter) {
+        String resourceDirectoryLocation = "/templates/jury";
+        String title = Translator.translate("Jury");
+        String downloadedFilePrefix = "jury";
+
+        DownloadDialog juryButton = new DownloadDialog(
+                () -> {
+                    JXLSJurySheet rs = new JXLSJurySheet();
+                    // group may have been edited since the page was loaded
+                    rs.setGroup(group != null ? GroupRepository.getById(group.getId()) : null);
+                    return rs;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedJuryTemplateFileName,
+                Competition::setJuryTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return juryButton.createTopBarDownloadButton();
+    }
+
+    private Button createStartingWeightsButton() {
+        String resourceDirectoryLocation = "/templates/weighin";
+        String title = Translator.translate("StartingWeightsSheet");
+        String downloadedFilePrefix = "startingWeights";
+
+        DownloadDialog startingWeightsButton = new DownloadDialog(
+                () -> {
+                    JXLSWeighInSheet rs = new JXLSWeighInSheet();
+                    // group may have been edited since the page was loaded
+                    rs.setGroup(group != null ? GroupRepository.getById(group.getId()) : null);
+                    return rs;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedStartingWeightsSheetTemplateFileName,
+                Competition::setStartingWeightsSheetTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return startingWeightsButton.createTopBarDownloadButton();
+    }
+
+    private void generateStartNumbers() {
+        Group group = groupSelect.getValue();
+        if (group == null) {
+            errorNotification();
+            return;
+        }
+        AthleteRepository.assignStartNumbers(group);
+        refresh();
     }
 
     private void updateURLLocation(UI ui, Location location, Group newGroup) {

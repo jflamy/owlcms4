@@ -40,7 +40,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.components.DialogDownloadButtonFactory;
+import app.owlcms.components.DownloadDialog;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
@@ -86,7 +86,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 
     private Group currentGroup;
 
-    private DialogDownloadButtonFactory dialogDownloadButtonFactory;
+    private DownloadDialog downloadDialog;
     private ComboBox<AgeDivision> ageDivisionFilter;
     private ComboBox<String> ageGroupFilter;
     private ComboBox<Platform> platformFilter;
@@ -427,7 +427,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         String resourceDirectoryLocation = "/templates/cards";
         String title = Translator.translate("AthleteCards");
         String downloadedFilePrefix = "cards";
-        DialogDownloadButtonFactory cardsButtonFactory = new DialogDownloadButtonFactory(
+        DownloadDialog cardsButtonFactory = new DownloadDialog(
                 () -> {
                     // group may have been edited since the page was loaded
                     cardsXlsWriter.setGroup(
@@ -448,7 +448,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         String title = Translator.translate("StartingList");
         String downloadedFilePrefix = "startingList";
 
-        DialogDownloadButtonFactory startingListFactory = new DialogDownloadButtonFactory(
+        DownloadDialog startingListFactory = new DownloadDialog(
                 () -> {
                     // group may have been edited since the page was loaded
                     startingXlsWriter.setGroup(
@@ -637,8 +637,8 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
             setCurrentGroup(newCurrentGroup);
         }
         setGridGroup(getCurrentGroup());
-        if (dialogDownloadButtonFactory != null) {
-            dialogDownloadButtonFactory.createTopBarDownloadButton();
+        if (downloadDialog != null) {
+            downloadDialog.createTopBarDownloadButton();
         }
         MenuBar oldMenu = topBarMenu;
         createTopBarGroupSelect();

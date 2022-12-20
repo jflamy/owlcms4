@@ -6,6 +6,8 @@
  *******************************************************************************/
 package app.owlcms.nui.shared;
 
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
+
 public interface OwlcmsLayoutAware {
 
     /**
@@ -31,5 +33,7 @@ public interface OwlcmsLayoutAware {
     public String getPageTitle();
 
     public void setHeaderContent();
+
+    public FlexLayout createButtonArea();
 
 }
