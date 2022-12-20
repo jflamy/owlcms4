@@ -168,8 +168,9 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         });
 
         HorizontalLayout buttons = new HorizontalLayout(start, clear, startingWeightsButton, cardsButton, juryButton);
-        buttons.setPadding(true);
+        buttons.setPadding(false);
         buttons.setSpacing(true);
+        buttons.setMargin(false);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
         FlexLayout topBar = new FlexLayout();

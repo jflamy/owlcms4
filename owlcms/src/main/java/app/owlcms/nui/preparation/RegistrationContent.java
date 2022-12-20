@@ -192,7 +192,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("Preparation_Registration");
+        return getTranslation("EditRegisteredAthletes");
     }
 
     @Override
@@ -637,7 +637,8 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
                     resetCats);
         }
 
-        buttons.setPadding(true);
+        buttons.setPadding(false);
+        buttons.setMargin(false);
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 

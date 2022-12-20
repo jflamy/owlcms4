@@ -157,6 +157,7 @@ public class OwlcmsLayout extends AppLayout {
             OwlcmsLayoutAware appContent = (OwlcmsLayoutAware) content;
             appContent.setRouterLayout(this);
             super.showRouterLayoutContent(content);
+            populateHeader();
             appContent.setHeaderContent();
         } else {
             logger.warn("***** NOT aware showRouterLayoutContent {}", content);
@@ -185,6 +186,8 @@ public class OwlcmsLayout extends AppLayout {
         
         setButtonArea(createButtonArea());
         setLocaleDropDown(createLocaleDropdown());
+        
+        updateHeader();
     }
 
     public void updateHeader() {
