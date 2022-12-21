@@ -97,7 +97,11 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 
     @Override
     public String getPageTitle() {
-        return getTranslation("Results");
+        return getTranslation("ShortTitle.Results");
     }
 
+    @Override
+    public String getMenuTitle() {
+        return getTranslation("ShortTitle.Results");
+    }
 }

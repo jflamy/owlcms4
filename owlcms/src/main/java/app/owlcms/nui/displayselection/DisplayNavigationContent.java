@@ -141,12 +141,14 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         return this.locationUI;
     }
 
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
     @Override
     public String getPageTitle() {
-        return getTranslation("OWLCMS_Displays") + OwlcmsSession.getFopNameIfMultiple();
+        return getTranslation("ShortTitle.Displays") + OwlcmsSession.getFopNameIfMultiple();
+    }
+    
+    @Override
+    public String getMenuTitle() {
+        return getTranslation("ShortTitle.Displays");
     }
 
     @Override

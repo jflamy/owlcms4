@@ -128,7 +128,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     
     @Override
     public void setHeaderContent() {
-        routerLayout.setTopBarTitle(getPageTitle());
+        routerLayout.setMenuTitle(getPageTitle());
         routerLayout.setMenuArea(createMenuArea());
         routerLayout.showLocaleDropdown(false);
         routerLayout.setDrawerOpened(false);

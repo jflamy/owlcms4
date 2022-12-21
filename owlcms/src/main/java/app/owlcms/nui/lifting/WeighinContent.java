@@ -253,7 +253,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
     @Override
     public void setHeaderContent() {
-        routerLayout.setTopBarTitle(getPageTitle());
+        routerLayout.setMenuTitle(getPageTitle());
         routerLayout.setMenuArea(createMenuArea());
         routerLayout.showLocaleDropdown(false);
         routerLayout.setDrawerOpened(false);

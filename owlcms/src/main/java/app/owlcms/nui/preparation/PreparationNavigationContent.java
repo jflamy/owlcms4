@@ -204,7 +204,12 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 
     @Override
     public String getPageTitle() {
-        return getTranslation("PrepareCompetition");
+        return getTranslation("ShortTitle.Preparation");
+    }
+    
+    @Override
+    public String getMenuTitle() {
+        return getTranslation("ShortTitle.Preparation");
     }
 
 }

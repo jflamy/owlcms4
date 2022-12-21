@@ -38,6 +38,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displayselection.DisplayNavigationContent;
 import app.owlcms.nui.home.HomeNavigationContent;
+import app.owlcms.nui.home.InfoNavigationContent;
 import app.owlcms.nui.lifting.LiftingNavigationContent;
 import app.owlcms.nui.preparation.PreparationNavigationContent;
 import app.owlcms.nui.results.ResultsNavigationContent;
@@ -135,7 +136,7 @@ public class OwlcmsLayout extends AppLayout {
         this.navBarComponents = navBarComponents;
     }
 
-    public void setTopBarTitle(String topBarTitle) {
+    public void setMenuTitle(String topBarTitle) {
         getViewTitle().setText(topBarTitle);
     }
 
@@ -163,7 +164,7 @@ public class OwlcmsLayout extends AppLayout {
     @Override
     protected void afterNavigation() {
         super.afterNavigation();
-        setTopBarTitle(getCurrentPageTitle());
+        setMenuTitle(getCurrentPageTitle());
     }
 
     protected void populateHeader() {
@@ -269,10 +270,7 @@ public class OwlcmsLayout extends AppLayout {
                         ),
                 createTab(IronIcons.INFO_OUTLINE.create(), 
                         Translator.translate("About"),
-                        PreparationNavigationContent.class)
-//                createTab(IronIcons.SETTINGS.create(), 
-//                        Translator.translate("Preferences"),
-//                        PreparationNavigationContent.class)
+                        InfoNavigationContent.class)
                 );
 
         Translator.translate("RunLiftingGroup");

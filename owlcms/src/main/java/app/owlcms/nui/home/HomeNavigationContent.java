@@ -135,16 +135,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
     }
 
     /**
-     * The left part of the top bar.
-     *
-     * @see app.owlcms.nui.shared.BaseNavigationContent#configureTopBarTitle(java.lang.String)
-     */
-    @Override
-    protected void configureTopBarTitle(String topBarTitle) {
-        ((OwlcmsLayout)this.getAppLayout()).setTopBarTitle(topBarTitle);
-    }
-
-    /**
      * @see app.owlcms.nui.shared.BaseNavigationContent#createMenuBarFopField(java.lang.String, java.lang.String)
      */
     @Override
@@ -157,6 +147,11 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
      */
     @Override
     public String getPageTitle() {
+        return getTranslation("OWLCMS_Top");
+    }
+    
+    @Override
+    public String getMenuTitle() {
         return getTranslation("OWLCMS_Top");
     }
 

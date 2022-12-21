@@ -103,6 +103,14 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
      */
     @Override
     public String getPageTitle() {
+        return getTranslation("ShortTitle.Info");
+    }
+    
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getMenuTitle() {
         return getTranslation("OWLCMS_Info");
     }
 
@@ -122,20 +130,6 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
-    }
-
-    /**
-     * The left part of the top bar.
-     *
-     * @see app.owlcms.nui.shared.BaseNavigationContent#configureTopBarTitle(java.lang.String)
-     */
-    @Override
-    protected void configureTopBarTitle(String topBarTitle) {
-        //FIXME getTitleWrapper setTitleComponent
-//        AbstractLeftAppLayoutBase appLayout = getAppLayout();
-//        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 40em");
-//        Label label = new Label(getTitle());
-//        appLayout.setTitleComponent(label);
     }
 
     /**

@@ -63,7 +63,7 @@ public class ConfigContent extends Composite<VerticalLayout>
     
     @Override
     public void setHeaderContent() {
-        routerLayout.setTopBarTitle(getPageTitle());
+        routerLayout.setMenuTitle(getPageTitle());
         routerLayout.showLocaleDropdown(true);
         routerLayout.setDrawerOpened(false);
     }

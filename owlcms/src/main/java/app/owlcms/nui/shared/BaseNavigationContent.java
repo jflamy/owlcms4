@@ -75,12 +75,9 @@ public abstract class BaseNavigationContent extends VerticalLayout
     public BaseNavigationContent() {
     }
 
-    public void configureTopBar() {
-    }
-
     @Override
     public void setHeaderContent() {
-        routerLayout.setTopBarTitle(getPageTitle());
+        routerLayout.setMenuTitle(getMenuTitle());
         routerLayout.setMenuArea(createMenuArea());
         routerLayout.showLocaleDropdown(true);
         routerLayout.setDrawerOpened(true);
@@ -141,46 +138,6 @@ public abstract class BaseNavigationContent extends VerticalLayout
         ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
 
-    /**
-     * The left part of the top bar.
-     *
-     * @param topBarTitle
-     * @param appLayoutComponent
-     */
-    protected void configureTopBarTitle(String topBarTitle) {
-        getAppLayout().setTopBarTitle(topBarTitle);
-    }
-
-    /**
-     * The middle part of the top bar.
-     *
-     * @param fopField
-     * @param groupField
-     * @param appLayoutComponent
-     */
-    protected FlexLayout createAppBar(HorizontalLayout fopField, HorizontalLayout groupField) {
-        HorizontalLayout appBar = new HorizontalLayout();
-        appBar.setSizeFull();
-        if (fopField != null) {
-            appBar.add(fopField);
-        }
-        if (groupField != null) {
-            appBar.add(groupField);
-        }
-        Div spacer = new Div();
-        spacer.setSizeFull();
-        appBar.add(spacer);
-        
-        appBar.setSpacing(true);
-        appBar.setAlignItems(FlexComponent.Alignment.CENTER);
-        appBar.setFlexGrow(1.0, spacer);
-        FlexLayout appBarElementWrapper = getAppLayout().getButtonArea();
-        appBarElementWrapper.removeAll();
-        appBarElementWrapper.add(appBar);
-        appBarElementWrapper.setFlexGrow(1.0, appBar);
-        return appBarElementWrapper;
-    }
-
     protected ComboBox<FieldOfPlay> createFopSelect(String placeHolder) {
         ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
         fopSelect.setPlaceholder(placeHolder);
@@ -198,11 +155,23 @@ public abstract class BaseNavigationContent extends VerticalLayout
      * @return 
      */
     public FlexLayout createMenuArea() {
-        configureTopBar();
-        configureTopBarTitle(getPageTitle());
         HorizontalLayout fopField = createMenuBarFopField(getTranslation("CompetitionPlatform"),
                 getTranslation("SelectPlatform"));
-        FlexLayout fl = createAppBar(fopField, null); // , groupField
+        HorizontalLayout menu = new HorizontalLayout();
+        menu.setSizeFull();
+        if (fopField != null) {
+            menu.add(fopField);
+        }
+        Div spacer = new Div();
+        spacer.setSizeFull();
+        
+        menu.add(spacer);
+        menu.setSpacing(true);
+        menu.setAlignItems(FlexComponent.Alignment.CENTER);
+        menu.setFlexGrow(1.0, spacer);
+        FlexLayout fl = new FlexLayout();
+        fl.add(menu);
+        fl.setFlexGrow(1.0, menu);
         return fl;
     }
 
