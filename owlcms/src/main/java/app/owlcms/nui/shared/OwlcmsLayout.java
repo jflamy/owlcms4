@@ -126,7 +126,7 @@ public class OwlcmsLayout extends AppLayout {
     }
 
     public void setMenuVisible(boolean hamburgerShown) {
-        // FIXME no way to hide hamburger?
+        getDrawerToggle().setVisible(hamburgerShown);
     }
 
     /**
