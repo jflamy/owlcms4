@@ -74,7 +74,6 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSJurySheet;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -141,8 +140,6 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
     @Override
     public FlexLayout createMenuArea() {
-        logger.warn("weighIn createMenuArea {}",LoggerUtils.stackTrace());
-
         groupSelect = new ComboBox<>();
         groupSelect.setPlaceholder(getTranslation("Group"));
         List<Group> groups = GroupRepository.findAll();
@@ -485,8 +482,6 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         getRouterLayout().closeDrawer();
-        // FIXME groupSelect
-        // ((WeighinLayout) getRouterLayout()).getGroupSelect().setValue(currentGroup);
     }
 
     protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
