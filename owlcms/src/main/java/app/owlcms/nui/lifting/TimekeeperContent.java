@@ -23,7 +23,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -105,6 +104,12 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
     public String getPageTitle() {
         return getTranslation("Timekeeper") + OwlcmsSession.getFopNameIfMultiple();
     }
+    
+    @Override
+    public String getMenuTitle() {
+        return getTranslation("Timekeeper") + OwlcmsSession.getFopNameIfMultiple();
+    }
+
 
     /*
      * (non-Javadoc)
@@ -163,7 +168,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
      */
     @Override
     protected FlexLayout createInitialBar() {
-        logger.debug("AnnouncerContent creating top bar {}", LoggerUtils.whereFrom());
+        logger.warn("TimekeeperContent creating initial bar {}", LoggerUtils.whereFrom());
         topBar = new FlexLayout();
         initialBar = true;
 
@@ -198,7 +203,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         showResultsButton.getThemeNames().add("success primary");
         showResultsButton.setVisible(false);
 
-        warning = new H4();
+        warning = new H3();
         warning.getStyle().set("margin-top", "0").set("margin-bottom", "0");
         HorizontalLayout topBarRight = new HorizontalLayout();
         topBarRight.add(warning, introCountdownButton, startLiftingButton, showResultsButton);
@@ -293,8 +298,8 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         topBar.setAlignSelf(Alignment.CENTER, attempt, weight);
         topBar.setFlexGrow(0.5, fullName);
         topBar.setFlexGrow(0.0, getTopBarLeft());
-        // this hides the back arrow
-        getAppLayout().setMenuVisible(false);
+        
+        getAppLayout().setMenuVisible(true);
 
         createBottom();
         return topBar;
@@ -328,7 +333,10 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
             if (state == FOPState.INACTIVE || (state == FOPState.BREAK && fop.getGroup() == null)) {
                 logger.debug("initial: {} {} {} {}", state, fop.getGroup(), curAthlete2,
                         curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
-                createInitialBar();
+                getRouterLayout().setMenuTitle(getMenuTitle());
+                getRouterLayout().setMenuArea(createInitialBar());
+                getRouterLayout().updateHeader();
+                
                 warning.setText(getTranslation("IdlePlatform"));
                 if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6 || fop.getLiftingOrder().size() == 0) {
                     topBarWarning(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(),
@@ -336,7 +344,10 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
                 }
             } else {
                 logger.debug("active: {}", state);
-                createTopBar();
+                getRouterLayout().setMenuTitle("");
+                getRouterLayout().setMenuArea(createTopBar());
+                getRouterLayout().updateHeader();
+                
                 if (state == FOPState.BREAK) {
                     if (buttons != null) {
                         hideButtons();

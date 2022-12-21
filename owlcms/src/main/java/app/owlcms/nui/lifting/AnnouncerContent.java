@@ -27,7 +27,7 @@ import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
@@ -206,8 +206,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     @Override
     protected FlexLayout createInitialBar() {
         logger.debug("AnnouncerContent creating top bar {}", LoggerUtils.whereFrom());
-        topBar = getAppLayout().getMenuArea();
-        topBar.removeAll();
+        topBar = new FlexLayout();
         initialBar = true;
 
         createTopBarGroupSelect();
@@ -241,7 +240,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         showResultsButton.getThemeNames().add("success primary");
         showResultsButton.setVisible(false);
 
-        warning = new H4();
+        warning = new H3();
         warning.getStyle().set("margin-top", "0").set("margin-bottom", "0");
         HorizontalLayout topBarRight = new HorizontalLayout();
         topBarRight.add(warning, introCountdownButton, startLiftingButton, showResultsButton);

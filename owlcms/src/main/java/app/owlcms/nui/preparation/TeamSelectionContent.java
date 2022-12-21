@@ -32,7 +32,6 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -351,6 +350,15 @@ public class TeamSelectionContent extends VerticalLayout
         return null;
     }
 
+    @Override
+    public void setHeaderContent() {
+        routerLayout.setMenuTitle(getPageTitle());
+        routerLayout.setMenuArea(createMenuArea());
+        routerLayout.showLocaleDropdown(false);
+        routerLayout.setDrawerOpened(false);
+        routerLayout.updateHeader();
+    }
+    
     /**
      * Gets the crudGrid.
      *
@@ -489,9 +497,6 @@ public class TeamSelectionContent extends VerticalLayout
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        if (topBar == null) {
-            createTopBar();
-        }
     }
 
     protected void setAgeDivisionSelectionListener() {
@@ -567,18 +572,13 @@ public class TeamSelectionContent extends VerticalLayout
      *
      * @param topBar
      */
-    private void createTopBar() {
+    public FlexLayout createMenuArea() {
         // logger.trace("createTopBar {}", LoggerUtils. stackTrace());
         // show arrow but close menu
         getAppLayout().setMenuVisible(true);
         getAppLayout().closeDrawer();
 
-        H3 title = new H3();
-        title.setText(getTranslation(TITLE));
-        title.add();
-        title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
-
-        topBar = getAppLayout().getMenuArea();
+        topBar = new FlexLayout();
         xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
         StreamResource href = new StreamResource(TITLE + "Report" + ".xls", xlsWriter);
         finalPackage = new Anchor(href, "");
@@ -612,17 +612,19 @@ public class TeamSelectionContent extends VerticalLayout
         finalPackage.add(download);
         HorizontalLayout buttons = new HorizontalLayout(finalPackage);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+        buttons.setPadding(false);
+        buttons.setMargin(false);
+        buttons.setSpacing(true);
 
         topBar.getStyle().set("flex", "100 1");
         topBar.removeAll();
-        topBar.add(title,
-                topBarAgeDivisionSelect, topBarAgeGroupPrefixSelect
+        topBar.add(topBarAgeDivisionSelect, topBarAgeGroupPrefixSelect
         /* , templateSelect */
         /* , buttons */
         );
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
-        topBar.setFlexGrow(0.2, title);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+        return topBar;
     }
 
     private AgeDivision getAgeDivision() {

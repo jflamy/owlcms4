@@ -166,7 +166,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected MenuBar topBarSettings;
     // protected ComboBox<Group> this;
     protected EventBus uiEventBus;
-    protected H4 warning;
+    protected H3 warning;
     protected H2 weight;
     private AthleteCardFormFactory athleteEditingFormFactory;
     private BreakTimerElement breakTimerElement;
@@ -829,7 +829,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         createTopBarGroupSelect();
         HorizontalLayout topBarLeft = createTopBarLeft();
 
-        warning = new H4();
+        warning = new H3();
         warning.getStyle().set("margin-top", "0");
         warning.getStyle().set("margin-bottom", "0");
 
@@ -908,8 +908,19 @@ public abstract class AthleteGridContent extends VerticalLayout
         clearVerticalMargins(weight);
 
         buttons = announcerButtons(topBar);
+        buttons.setPadding(false);
+        buttons.setMargin(false);
+        buttons.setSpacing(true);
+        
         breaks = breakButtons(topBar);
+        breaks.setPadding(false);
+        breaks.setMargin(false);
+        breaks.setSpacing(true);
+        
         decisions = decisionButtons(topBar);
+        decisions.setPadding(false);
+        decisions.setMargin(false);
+        decisions.setSpacing(true);
         decisions.setAlignItems(FlexComponent.Alignment.BASELINE);
 
         topBar.setSizeFull();

@@ -151,7 +151,6 @@ public class OwlcmsLayout extends AppLayout {
             OwlcmsLayoutAware appContent = (OwlcmsLayoutAware) content;
             appContent.setRouterLayout(this);
             super.showRouterLayoutContent(content);
-            //populateHeader();
             appContent.setHeaderContent();
         } else {
             logger.warn("***** NOT aware showRouterLayoutContent {}", content);
@@ -169,14 +168,18 @@ public class OwlcmsLayout extends AppLayout {
 
     protected void populateHeader() {
         header = new HorizontalLayout();
+        header.setPadding(false);
+        header.setSpacing(false);
         
         setDrawerToggle(new DrawerToggle());
         getDrawerToggle().getElement().setAttribute("aria-label", "Menu drawerToggle");
+        getDrawerToggle().setSizeUndefined();
         
         setViewTitle(new Label());
         Style style = getViewTitle().getElement().getStyle();
         style.set("font-size", "large");
         style.set("margin-left", "0");
+        //getViewTitle().setWidth("12ch");
         
         setMenuArea(createMenuArea());
         

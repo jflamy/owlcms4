@@ -36,7 +36,6 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -212,7 +211,6 @@ public abstract class BaseNavigationContent extends VerticalLayout
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        logger.warn("***** base navigation content onAttach\n{}", LoggerUtils.stackTrace());
         OwlcmsSession.withFop(fop -> {
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
