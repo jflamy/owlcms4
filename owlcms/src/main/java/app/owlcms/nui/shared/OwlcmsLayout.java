@@ -65,13 +65,13 @@ public class OwlcmsLayout extends AppLayout {
     private HorizontalLayout header;
 
     public OwlcmsLayout() {
-        logger.warn("***** creating layout");
+        logger.warn("***** creating layout {}", getContent());
         navBarComponents = new ArrayList<>();
         // create default empty components. Content will fill them in.
         populateHeader();
         // setPrimarySection(Section.DRAWER);
         addDrawerContent();
-
+        setContent(null);
     }
 
     @Override
@@ -151,7 +151,7 @@ public class OwlcmsLayout extends AppLayout {
             OwlcmsLayoutAware appContent = (OwlcmsLayoutAware) content;
             appContent.setRouterLayout(this);
             super.showRouterLayoutContent(content);
-            populateHeader();
+            //populateHeader();
             appContent.setHeaderContent();
         } else {
             logger.warn("***** NOT aware showRouterLayoutContent {}", content);

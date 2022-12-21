@@ -126,6 +126,7 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
      */
     protected GridCrud<Platform> createGrid(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
         Grid<Platform> grid = new Grid<>(Platform.class, false);
+        grid.getThemeNames().add("row-stripes");
         grid.addColumn(Platform::getName).setHeader(getTranslation("Name"));
         grid.addColumn(Platform::getSoundMixerName).setHeader(getTranslation("Speakers"));
         grid.addColumn(new ComponentRenderer<>(p -> {

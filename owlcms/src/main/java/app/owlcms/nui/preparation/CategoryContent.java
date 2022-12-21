@@ -157,6 +157,7 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
      */
     protected GridCrud<Category> createGrid(OwlcmsCrudFormFactory<Category> crudFormFactory) {
         Grid<Category> grid = new Grid<>(Category.class, false);
+        grid.getThemeNames().add("row-stripes");
 //        grid.addColumn(new ComponentRenderer<>(cat -> {
 //            // checkbox to avoid entering in the form
 //            Checkbox activeBox = new Checkbox("Name");

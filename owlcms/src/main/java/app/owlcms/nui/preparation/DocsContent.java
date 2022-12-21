@@ -615,6 +615,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 
     private Grid<Athlete> createRegistrationGrid() {
         Grid<Athlete> grid = new Grid<>(Athlete.class, false);
+        grid.getThemeNames().add("row-stripes");
         grid.addColumn("lotNumber").setHeader(Translator.translate("Lot"));
         grid.addColumn("lastName").setHeader(Translator.translate("LastName"));
         grid.addColumn("firstName").setHeader(Translator.translate("FirstName"));

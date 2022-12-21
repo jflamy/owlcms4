@@ -38,6 +38,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -54,7 +55,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.Style;
-import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
@@ -142,7 +142,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      * Initial Bar
      */
     protected Button introCountdownButton;
-    protected H1 lastName;
+    protected H2 lastName;
     protected TextField lastNameFilter = new TextField();
     protected Location location;
 
@@ -160,18 +160,18 @@ public abstract class AthleteGridContent extends VerticalLayout
     /**
      * Top part content
      */
-    protected H3 title;
+    protected H4 title;
     protected FlexLayout topBar;
     protected MenuBar topBarMenu;
     protected MenuBar topBarSettings;
     // protected ComboBox<Group> this;
     protected EventBus uiEventBus;
-    protected H3 warning;
+    protected H4 warning;
     protected H2 weight;
     private AthleteCardFormFactory athleteEditingFormFactory;
     private BreakTimerElement breakTimerElement;
     private Athlete displayedAthlete;
-    private H2 firstNameWrapper;
+    private H3 firstNameWrapper;
 
     /**
      * groupFilter points to a hidden field on the crudGrid filtering row, which is slave to the group selection
@@ -292,8 +292,13 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     }
     
+    @Override
     public void setHeaderContent() {
-        createTopBar();
+        routerLayout.setMenuTitle(getPageTitle());
+        routerLayout.setMenuArea(createMenuArea());
+        routerLayout.showLocaleDropdown(false);
+        routerLayout.setDrawerOpened(false);
+        routerLayout.updateHeader();
     }
 
     /**
@@ -338,7 +343,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         return crudGrid;
     }
 
-    public H2 getFirstNameWrapper() {
+    public H3 getFirstNameWrapper() {
         return firstNameWrapper;
     }
 
@@ -412,7 +417,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         return params;
     }
 
-    public void setFirstNameWrapper(H2 firstNameWrapper) {
+    public void setFirstNameWrapper(H3 firstNameWrapper) {
         this.firstNameWrapper = firstNameWrapper;
     }
 
@@ -525,7 +530,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         OwlcmsSession.withFop((fop) -> {
             UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
                 // doUpdateTopBar(fop.getCurAthlete(), 0);
-                createInitialBar();
+                getRouterLayout().setMenuArea(createInitialBar());
                 syncWithFOP(true);
             });
         });
@@ -773,9 +778,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     protected AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
         Grid<Athlete> grid = new Grid<>(Athlete.class, false);
-        ThemeList themes = grid.getThemeNames();
-        themes.add("compact");
-        themes.add("row-stripes");
+        grid.getThemeNames().add("row-stripes");
         grid.addColumn(athlete -> athlete.getLastName().toUpperCase(), "lastName")
                 .setHeader(getTranslation("LastName"));
         grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
@@ -818,7 +821,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         return athleteEditingFormFactory;
     }
 
-    protected void createInitialBar() {
+    protected FlexLayout createInitialBar() {
         // logger.debug("{} {} creating top bar {}", this.getClass().getSimpleName(), LoggerUtils.whereFrom());
         topBar = new FlexLayout();
         initialBar = true;
@@ -826,7 +829,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         createTopBarGroupSelect();
         HorizontalLayout topBarLeft = createTopBarLeft();
 
-        warning = new H3();
+        warning = new H4();
         warning.getStyle().set("margin-top", "0");
         warning.getStyle().set("margin-bottom", "0");
 
@@ -837,6 +840,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
         topBar.setFlexGrow(0.0, topBarLeft);
+        return topBar;
     }
 
     protected Component createReset() {
@@ -854,37 +858,27 @@ public abstract class AthleteGridContent extends VerticalLayout
         stopTimeButton.addClickListener(e -> doStopTime());
         stopTimeButton.getElement().setAttribute("theme", "secondary icon");
     }
-
-    @Override
-    public FlexLayout createMenuArea() {
-        if (initialBar) {
-            createInitialBar();
-            return topBar;
-        } else {
-            createTopBar();
-            return topBar;
-        }
-    }
     
     /**
      * The top bar is logically is the master part of a master-detail In the current implementation, the most convenient
      * place to put it is in the top bar which is managed by the layout, but this could change. So we change the
      * surrounding layout from this class. In this way, only one class (the content) listens for events. Doing it the
      * other way around would require multiple layouts, which breaks the idea of a single page app.
+     * @return 
      */
-    protected void createTopBar() {
-        logger.debug("AthleteGridContent creating top bar");
+    protected FlexLayout createTopBar() {
+        logger.warn("**** AthleteGridContent creating top bar");
         topBar = new FlexLayout();
         topBar.setClassName("athleteGridTopBar");
         initialBar = false;
 
         HorizontalLayout topBarLeft = createTopBarLeft();
 
-        lastName = new H1();
+        lastName = new H2();
         lastName.setText("\u2013");
         lastName.getStyle().set("margin", "0px 0px 0px 0px");
 
-        setFirstNameWrapper(new H2(""));
+        setFirstNameWrapper(new H3(""));
         getFirstNameWrapper().getStyle().set("margin", "0px 0px 0px 0px");
         firstName = new Span("");
         firstName.getStyle().set("margin", "0px 0px 0px 0px");
@@ -935,6 +929,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         topBar.setAlignSelf(Alignment.CENTER, attempt, weight, time);
         topBar.setFlexGrow(0.5, fullName);
         topBar.setFlexGrow(0.0, topBarLeft);
+        return topBar;
     }
 
     protected void createTopBarGroupSelect() {
@@ -1132,7 +1127,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     protected void fillTopBarLeft() {
-        title = new H3();
+        title = new H4();
         title.setText(getTopBarTitle());
         title.setClassName("topBarTitle");
         title.getStyle().set("margin-top", "0px").set("margin-bottom", "0px").set("font-weight", "normal");
@@ -1210,7 +1205,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     protected void syncWithFOP(boolean refreshGrid) {
         OwlcmsSession.withFop((fop) -> {
-            // logger.debug("syncing FOP, group = {}, {}", fopGroup, LoggerUtils.whereFrom(2));
+            logger.warn("syncing FOP, group = {}, {}", fop.getGroup(), LoggerUtils.whereFrom(2));
             createTopBarGroupSelect();
 
             if (refreshGrid) {
@@ -1224,16 +1219,19 @@ public abstract class AthleteGridContent extends VerticalLayout
             Athlete curAthlete2 = fop.getCurAthlete();
             FOPState state = fop.getState();
             if (state == FOPState.INACTIVE || (state == FOPState.BREAK && fop.getGroup() == null)) {
-                // logger.debug("initial: {} {} {} {}", state, fop.getGroup(), curAthlete2, curAthlete2 == null ? 0 :
-                // curAthlete2.getAttemptsDone());
-                createInitialBar();
+                getRouterLayout().setMenuTitle(getMenuTitle());
+                getRouterLayout().setMenuArea(createInitialBar());
+                getRouterLayout().updateHeader();
+                
                 warning.setText(getTranslation("IdlePlatform"));
                 if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6 || fop.getLiftingOrder().size() == 0) {
                     topBarWarning(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(),
                             fop.getState(), fop.getLiftingOrder());
                 }
             } else {
-                createTopBar();
+                getRouterLayout().setMenuTitle("");
+                getRouterLayout().setMenuArea(createTopBar());
+                getRouterLayout().updateHeader();
                 if (state == FOPState.BREAK) {
                     // logger.debug("break");
                     if (buttons != null) {

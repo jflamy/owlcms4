@@ -306,6 +306,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
      */
     protected OwlcmsCrudGrid<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
         Grid<Athlete> grid = new Grid<>(Athlete.class, false);
+        grid.getThemeNames().add("row-stripes");
         grid.addColumn("lotNumber").setHeader(getTranslation("Lot"));
         grid.addColumn("lastName").setHeader(getTranslation("LastName"));
         grid.addColumn("firstName").setHeader(getTranslation("FirstName"));

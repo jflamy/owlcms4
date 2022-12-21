@@ -170,6 +170,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
      */
     protected GridCrud<AgeGroup> createGrid(OwlcmsCrudFormFactory<AgeGroup> crudFormFactory) {
         Grid<AgeGroup> grid = new Grid<>(AgeGroup.class, false);
+        grid.getThemeNames().add("row-stripes");
         grid.addColumn(new ComponentRenderer<>(cat -> {
             // checkbox to avoid entering in the form
             Checkbox activeBox = new Checkbox("Name");

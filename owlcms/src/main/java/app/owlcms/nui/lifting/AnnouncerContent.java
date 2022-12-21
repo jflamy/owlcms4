@@ -27,7 +27,7 @@ import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
@@ -86,9 +86,19 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
     public AnnouncerContent() {
         super();
+        createTopBarGroupSelect();
         defineFilters(crudGrid);
     }
 
+    @Override
+    public void setHeaderContent() {
+        getRouterLayout().setMenuTitle(getMenuTitle());
+        getRouterLayout().setMenuArea(new FlexLayout());
+        getRouterLayout().showLocaleDropdown(false);
+        getRouterLayout().setDrawerOpened(false);
+        getRouterLayout().updateHeader();
+    }
+    
     /**
      * Use lifting order instead of display order
      *
@@ -122,6 +132,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     @Override
     public String getPageTitle() {
         return getTranslation("Announcer") + OwlcmsSession.getFopNameIfMultiple();
+    }
+    
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
     }
 
     /**
@@ -189,7 +204,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
      * @see app.owlcms.nui.shared.AthleteGridContent#createInitialBar()
      */
     @Override
-    protected void createInitialBar() {
+    protected FlexLayout createInitialBar() {
         logger.debug("AnnouncerContent creating top bar {}", LoggerUtils.whereFrom());
         topBar = getAppLayout().getMenuArea();
         topBar.removeAll();
@@ -209,7 +224,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
         startLiftingButton = new Button(getTranslation("startLifting"), PlacesIcons.FITNESS_CENTER.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
-                UI.getCurrent().access(() -> createTopBar());
+                UI.getCurrent().access(() -> getRouterLayout().setMenuArea(createTopBar()));
                 fop.fopEventPost(new FOPEvent.StartLifting(this));
             });
         });
@@ -217,7 +232,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
         showResultsButton = new Button(getTranslation("ShowResults"), PlacesIcons.FITNESS_CENTER.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
-                UI.getCurrent().access(() -> createTopBar());
+                UI.getCurrent().access(() -> getRouterLayout().setMenuArea(createTopBar()));
                 fop.fopEventPost(
                         new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null, true,
                                 this));
@@ -226,7 +241,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         showResultsButton.getThemeNames().add("success primary");
         showResultsButton.setVisible(false);
 
-        warning = new H3();
+        warning = new H4();
         warning.getStyle().set("margin-top", "0").set("margin-bottom", "0");
         HorizontalLayout topBarRight = new HorizontalLayout();
         topBarRight.add(warning, introCountdownButton, startLiftingButton, showResultsButton);
@@ -242,6 +257,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
         topBar.setFlexGrow(0.0, getTopBarLeft());
         topBar.setFlexGrow(1.0, topBarRight);
+        return topBar;
     }
 
     /**

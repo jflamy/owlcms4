@@ -360,6 +360,7 @@ public class TeamSelectionContent extends VerticalLayout
      */
     protected OwlcmsCrudGrid<Participation> createGrid(OwlcmsCrudFormFactory<Participation> crudFormFactory) {
         Grid<Participation> grid = new Grid<>(Participation.class, false);
+        grid.getThemeNames().add("row-stripes");
         grid.addColumn(new ComponentRenderer<>(p -> {
             // checkbox to avoid entering in the form
             Checkbox activeBox = new Checkbox("Name");

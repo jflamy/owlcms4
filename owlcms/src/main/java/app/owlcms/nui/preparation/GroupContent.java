@@ -141,6 +141,7 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
      */
     protected GridCrud<Group> createGrid(OwlcmsCrudFormFactory<Group> crudFormFactory) {
         Grid<Group> grid = new Grid<>(Group.class, false);
+        grid.getThemeNames().add("row-stripes");
         grid.addColumn(Group::getName).setHeader(getTranslation("Name")).setComparator(Group::compareTo);
         grid.addColumn(Group::getDescription).setHeader(getTranslation("Group.Description"));
         grid.addColumn(Group::size).setHeader(getTranslation("GroupSize")).setTextAlign(ColumnTextAlign.CENTER);

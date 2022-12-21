@@ -87,6 +87,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
     public static Grid<Athlete> createResultGrid() {
         Grid<Athlete> grid = new Grid<>(Athlete.class, false);
+        grid.getThemeNames().add("row-stripes");
         ThemeList themes = grid.getThemeNames();
         themes.add("compact");
         themes.add("row-stripes");

@@ -21,9 +21,9 @@ import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -162,10 +162,9 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
      * @see app.owlcms.nui.shared.AthleteGridContent#createInitialBar()
      */
     @Override
-    protected void createInitialBar() {
+    protected FlexLayout createInitialBar() {
         logger.debug("AnnouncerContent creating top bar {}", LoggerUtils.whereFrom());
-        topBar = getAppLayout().getMenuArea();
-        topBar.removeAll();
+        topBar = new FlexLayout();
         initialBar = true;
 
         createTopBarGroupSelect();
@@ -199,7 +198,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         showResultsButton.getThemeNames().add("success primary");
         showResultsButton.setVisible(false);
 
-        warning = new H3();
+        warning = new H4();
         warning.getStyle().set("margin-top", "0").set("margin-bottom", "0");
         HorizontalLayout topBarRight = new HorizontalLayout();
         topBarRight.add(warning, introCountdownButton, startLiftingButton, showResultsButton);
@@ -215,6 +214,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
         topBar.setFlexGrow(0.0, getTopBarLeft());
         topBar.setFlexGrow(1.0, topBarRight);
+        return topBar;
     }
 
     /**
@@ -251,11 +251,11 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         createTopBarGroupSelect();
         createTopBarLeft();
 
-        lastName = new H1();
+        lastName = new H2();
         lastName.setText("\u2013");
         lastName.getStyle().set("margin", "0px 0px 0px 0px");
 
-        setFirstNameWrapper(new H2(""));
+        setFirstNameWrapper(new H3(""));
         getFirstNameWrapper().getStyle().set("margin", "0px 0px 0px 0px");
         firstName = new Span("");
         firstName.getStyle().set("margin", "0px 0px 0px 0px");
