@@ -142,11 +142,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
     @Override
     protected void configureTopBarTitle(String topBarTitle) {
         ((OwlcmsLayout)this.getAppLayout()).setTopBarTitle(topBarTitle);
-        //FIXME getTitleWrapper setTitleComponent
-//        AbstractLeftAppLayoutBase appLayout = getAppLayout();
-//        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 40em");
-//        Label label = new Label(getTitle());
-//        appLayout.setTitleComponent(label);
     }
 
     /**

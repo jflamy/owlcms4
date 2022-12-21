@@ -78,12 +78,15 @@ public abstract class BaseNavigationContent extends VerticalLayout
     public void configureTopBar() {
     }
 
+    @Override
     public void setHeaderContent() {
         routerLayout.setTopBarTitle(getPageTitle());
+        routerLayout.setMenuArea(createMenuArea());
         routerLayout.showLocaleDropdown(true);
         routerLayout.setDrawerOpened(true);
+        routerLayout.updateHeader();
     }
-
+    
     public ComboBox<Group> createGroupSelect(String placeHolder) {
         groupSelect = new ComboBox<>();
         groupSelect.setPlaceholder(placeHolder);
@@ -194,9 +197,9 @@ public abstract class BaseNavigationContent extends VerticalLayout
      * other way around would require multiple layouts, which breaks the idea of a single page app.
      * @return 
      */
-    public FlexLayout createTopBar(String title) {
+    public FlexLayout createMenuArea() {
         configureTopBar();
-        configureTopBarTitle(title);
+        configureTopBarTitle(getPageTitle());
         HorizontalLayout fopField = createTopBarFopField(getTranslation("CompetitionPlatform"),
                 getTranslation("SelectPlatform"));
         FlexLayout fl = createAppBar(fopField, null); // , groupField
@@ -242,10 +245,6 @@ public abstract class BaseNavigationContent extends VerticalLayout
     protected void onAttach(AttachEvent attachEvent) {
         logger.warn("***** base navigation content onAttach\n{}", LoggerUtils.stackTrace());
         OwlcmsSession.withFop(fop -> {
-            // create the top bar, now that we know the group and fop
-            String title = getPageTitle();
-            logger.debug("createTopBar {}", title);
-            createTopBar(title);
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
