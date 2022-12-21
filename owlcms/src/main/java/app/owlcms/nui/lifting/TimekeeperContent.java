@@ -43,8 +43,8 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.AthleteGridContent;
-import app.owlcms.nui.shared.AthleteGridLayout;
 import app.owlcms.nui.shared.BreakDialog;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
@@ -55,7 +55,7 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "nlifting/timekeeper", layout = AthleteGridLayout.class)
+@Route(value = "nlifting/timekeeper", layout = OwlcmsLayout.class)
 public class TimekeeperContent extends AthleteGridContent implements HasDynamicTitle {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(TimekeeperContent.class);
@@ -70,7 +70,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
     public TimekeeperContent() {
         super();
-        setTopBarTitle(getTranslation("Timekeeper"));
     }
 
     /*
@@ -165,7 +164,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
     @Override
     protected void createInitialBar() {
         logger.debug("AnnouncerContent creating top bar {}", LoggerUtils.whereFrom());
-        topBar = getAppLayout().getButtonArea();
+        topBar = getAppLayout().getMenuArea();
         topBar.removeAll();
         initialBar = true;
 
@@ -244,10 +243,9 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
      * @see app.owlcms.nui.shared.AthleteGridContent#createTopBar()
      */
     @Override
-    protected void createTopBar() {
-        topBar = getAppLayout().getButtonArea();
+    public FlexLayout createMenuArea() {
+        topBar = new FlexLayout();
         topBar.setClassName("timeKeeperTopBar");
-        topBar.removeAll();
         initialBar = false;
 
         createTopBarGroupSelect();
@@ -299,6 +297,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         getAppLayout().setMenuVisible(false);
 
         createBottom();
+        return topBar;
     }
 
     @Override

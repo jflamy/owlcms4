@@ -26,7 +26,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
@@ -61,7 +60,7 @@ import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.AthleteCrudGrid;
 import app.owlcms.nui.shared.AthleteGridContent;
-import app.owlcms.nui.shared.AthleteGridLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSMedalsSheet;
 import app.owlcms.spreadsheet.JXLSResultSheet;
 import app.owlcms.utils.LoggerUtils;
@@ -76,7 +75,7 @@ import ch.qos.logback.classic.Logger;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-@Route(value = "nresults/results", layout = AthleteGridLayout.class)
+@Route(value = "nresults/results", layout = OwlcmsLayout.class)
 public class ResultsContent extends AthleteGridContent implements HasDynamicTitle {
 
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
@@ -143,7 +142,6 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     public ResultsContent() {
         super();
         defineFilters(crudGrid);
-        setTopBarTitle(getTranslation("GroupResults"));
     }
 
     /**
@@ -343,27 +341,16 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     /**
-     * Create the top bar.
-     *
-     * Note: the top bar is created before the content.
-     *
      * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
-     *
-     * @param topBar
      */
     @Override
-    protected void createTopBar() {
-        logger.debug("createTopBar");
+    public FlexLayout createMenuArea() {
+        logger.debug("createMenuArea");
         // show back arrow but close menu
         getAppLayout().setMenuVisible(true);
         getAppLayout().closeDrawer();
 
-        topBar = getAppLayout().getButtonArea();
-
-        H3 title = new H3();
-        title.setText(Translator.translate("GroupResults"));
-        title.add();
-        title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
+        topBar = new FlexLayout();
 
         Button resultsButton = createGroupResultsDownloadButton();
         Button medalsButtons = createGroupMedalsDownloadButton();
@@ -371,21 +358,24 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         createTopBarGroupSelect();
 
         HorizontalLayout buttons = new HorizontalLayout(resultsButton, medalsButtons);
-        buttons.setPadding(true);
         buttons.getStyle().set("margin-left", "5em");
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
-
+        buttons.setMargin(false);
+        buttons.setPadding(false);
+        buttons.setSpacing(true);
+        
         topBar.getStyle().set("flex", "100 1");
         topBar.removeAll();
-        topBar.add(title, topBarMenu, buttons);
-        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
-        topBar.setFlexGrow(0.2, title);
-//        topBar.setSpacing(true);
+        topBar.add(topBarMenu, buttons);
+        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);;
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+        
+        return topBar;
     }
 
     @Override
     protected void createTopBarGroupSelect() {
+        //FIXME move createTopBarGroupSelect to superclass
         // there is already all the SQL filtering logic for the group attached
         // hidden field in the crudGrid part of the page so we just set that
         // filter.
@@ -476,7 +466,6 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        createTopBar();
     }
 
     /**

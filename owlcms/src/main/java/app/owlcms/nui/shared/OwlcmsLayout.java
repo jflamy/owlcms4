@@ -61,7 +61,7 @@ public class OwlcmsLayout extends AppLayout {
 
     private DrawerToggle drawerToggle;
     private ComboBox<Locale> localeDropDown;
-    private FlexLayout buttonArea;
+    private FlexLayout menuArea;
     private HorizontalLayout header;
 
     public OwlcmsLayout() {
@@ -92,8 +92,8 @@ public class OwlcmsLayout extends AppLayout {
         setDrawerOpened(false);
     }
 
-    public FlexLayout getButtonArea() {
-        return buttonArea;
+    public FlexLayout getMenuArea() {
+        return menuArea;
     }
 
     public DrawerToggle getDrawerToggle() {
@@ -188,8 +188,8 @@ public class OwlcmsLayout extends AppLayout {
     public void updateHeader() {
         header.removeAll();
         header.setMargin(true);
-        header.add(getDrawerToggle(), getViewTitle(), getButtonArea(), getLocaleDropDown());
-        header.setFlexGrow(1.0D, getButtonArea());
+        header.add(getDrawerToggle(), getViewTitle(), getMenuArea(), getLocaleDropDown());
+        header.setFlexGrow(1.0D, getMenuArea());
         header.setWidth("100%");
         header.setAlignItems(Alignment.CENTER);
 
@@ -199,7 +199,7 @@ public class OwlcmsLayout extends AppLayout {
     }
 
     public void setMenuArea(FlexLayout horizontalLayout) {
-        this.buttonArea = horizontalLayout;
+        this.menuArea = horizontalLayout;
     }
 
     private void addDrawerContent() {

@@ -40,7 +40,7 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.AthleteGridContent;
-import app.owlcms.nui.shared.AthleteGridLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.uievents.UIEvent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -51,7 +51,7 @@ import ch.qos.logback.classic.Logger;
  * Technical Controller / Plates loading information.
  */
 @SuppressWarnings("serial")
-@Route(value = "nlifting/tc", layout = AthleteGridLayout.class)
+@Route(value = "nlifting/tc", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/plates.css")
 public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 
@@ -68,7 +68,6 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 
     public TCContent() {
         super();
-        setTopBarTitle(getTranslation("PlatesCollarBarbell"));
     }
 
     @Override
@@ -118,16 +117,15 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     *
+    /**
      * @see app.owlcms.nui.shared.AthleteGridContent#createTopBar()
      */
     @Override
-    protected void createTopBar() {
-        super.createTopBar();
+   public FlexLayout createMenuArea () {
+        FlexLayout fl = super.createMenuArea();
         // this hides the back arrow
         getAppLayout().setMenuVisible(false);
+        return fl;
     }
 
     @Override

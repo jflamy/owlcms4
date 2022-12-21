@@ -58,7 +58,6 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
-import app.owlcms.nui.shared.AthleteGridLayout;
 import app.owlcms.nui.shared.IAthleteEditing;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -74,7 +73,7 @@ import ch.qos.logback.classic.Logger;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-@Route(value = "nresults/teamresults", layout = AthleteGridLayout.class)
+@Route(value = "nresults/teamresults", layout = OwlcmsLayout.class)
 public class TeamResultsContent extends VerticalLayout
         implements OwlcmsContent, RequireLogin, IAthleteEditing {
 
@@ -443,7 +442,7 @@ public class TeamResultsContent extends VerticalLayout
         title.add();
         title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
 
-        topBar = getAppLayout().getButtonArea();
+        topBar = getAppLayout().getMenuArea();
         xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
         StreamResource href = new StreamResource(TITLE + "Report" + ".xls", xlsWriter);
         finalPackage = new Anchor(href, "");

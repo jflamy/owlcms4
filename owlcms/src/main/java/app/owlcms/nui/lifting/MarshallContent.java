@@ -28,7 +28,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.AthleteGridContent;
-import app.owlcms.nui.shared.AthleteGridLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -38,7 +38,7 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "nlifting/marshall", layout = AthleteGridLayout.class)
+@Route(value = "nlifting/marshall", layout = OwlcmsLayout.class)
 public class MarshallContent extends AthleteGridContent implements HasDynamicTitle {
 
     // @SuppressWarnings("unused")
@@ -51,7 +51,6 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 
     public MarshallContent() {
         super();
-        setTopBarTitle(getTranslation("Marshall"));
     }
 
     /**
@@ -136,10 +135,11 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
      * @see app.owlcms.nui.shared.AthleteGridContent#createTopBar()
      */
     @Override
-    protected void createTopBar() {
-        super.createTopBar();
+   public FlexLayout createMenuArea () {
+        FlexLayout fl = super.createMenuArea();
         // this hides the back arrow
         getAppLayout().setMenuVisible(false);
+        return fl;
     }
 
     /**

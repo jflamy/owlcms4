@@ -30,7 +30,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -65,7 +64,7 @@ import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.AthleteCrudGrid;
 import app.owlcms.nui.shared.AthleteGridContent;
-import app.owlcms.nui.shared.AthleteGridLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCatResults;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.spreadsheet.JXLSResultSheet;
@@ -79,7 +78,7 @@ import ch.qos.logback.classic.Logger;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-@Route(value = "nresults/finalpackage", layout = AthleteGridLayout.class)
+@Route(value = "nresults/finalpackage", layout = OwlcmsLayout.class)
 public class PackageContent extends AthleteGridContent implements HasDynamicTitle {
 
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
@@ -113,9 +112,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     public PackageContent() {
         super();
         defineFilters(crudGrid);
-        // crudGrid.setClickable(false);
-        // crudGrid.getGrid().setMultiSort(true);
-        setTopBarTitle(getTranslation(TITLE));
     }
 
     /**
@@ -384,17 +380,12 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
      * @param topBar
      */
     @Override
-    protected void createTopBar() {
+    public FlexLayout createMenuArea() {
         // show arrow but close menu
         getAppLayout().setMenuVisible(true);
         getAppLayout().closeDrawer();
 
-        H3 title = new H3();
-        title.setText(getTranslation(TITLE));
-        title.add();
-        title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
-
-        topBar = getAppLayout().getButtonArea();
+        topBar = new FlexLayout();
         xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
 
         catXlsWriter = new JXLSCatResults(UI.getCurrent());
@@ -432,15 +423,16 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         HorizontalLayout buttons = new HorizontalLayout(finalPackageDownloadButton, categoryResultsDownloadButton);
         buttons.getStyle().set("margin-left", "5em");
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+        buttons.setPadding(false);
+        buttons.setMargin(false);
+        buttons.setSpacing(true);
 
         topBar.getStyle().set("flex", "100 1");
         topBar.removeAll();
-        topBar.add(title,
-                /* topBarGroupSelect, */
-                topBarAgeDivisionSelect, topBarAgeGroupPrefixSelect, buttons);
+        topBar.add(topBarAgeDivisionSelect, topBarAgeGroupPrefixSelect, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
-        topBar.setFlexGrow(0.2, title);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+        return topBar;
     }
 
     @Override
@@ -484,9 +476,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        if (topBar == null) {
-            createTopBar();
-        }
     }
 
     protected void setAgeDivisionSelectionListener() {

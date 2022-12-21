@@ -49,7 +49,7 @@ import ch.qos.logback.classic.Logger;
  * Defines the toolbar and the table for editing data on categories.
  */
 @SuppressWarnings("serial")
-@Route(value = "npreparation/categories", layout = CategoryLayout.class)
+@Route(value = "npreparation/categories", layout = OwlcmsLayout.class)
 public class CategoryContent extends VerticalLayout implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(CategoryContent.class);

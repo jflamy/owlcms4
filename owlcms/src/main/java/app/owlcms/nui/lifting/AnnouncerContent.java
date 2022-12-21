@@ -50,8 +50,8 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.AthleteGridContent;
-import app.owlcms.nui.shared.AthleteGridLayout;
 import app.owlcms.nui.shared.BreakDialog;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
@@ -64,7 +64,7 @@ import ch.qos.logback.classic.Logger;
  */
 
 @SuppressWarnings("serial")
-@Route(value = "nlifting/announcer", layout = AthleteGridLayout.class)
+@Route(value = "nlifting/announcer", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/shared-styles.css")
 @CssImport(value = "./styles/notification-theme.css", themeFor = "vaadin-notification-card")
 @CssImport(value = "./styles/text-field-theme.css", themeFor = "vaadin-text-field")
@@ -87,7 +87,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     public AnnouncerContent() {
         super();
         defineFilters(crudGrid);
-        setTopBarTitle(getTranslation("Announcer"));
     }
 
     /**
@@ -192,7 +191,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     @Override
     protected void createInitialBar() {
         logger.debug("AnnouncerContent creating top bar {}", LoggerUtils.whereFrom());
-        topBar = getAppLayout().getButtonArea();
+        topBar = getAppLayout().getMenuArea();
         topBar.removeAll();
         initialBar = true;
 
@@ -287,16 +286,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     }
 
     /**
-     * @see app.owlcms.nui.shared.AthleteGridContent#createTopBar()
-     */
-    @Override
-    public void createTopBar() {
-        super.createTopBar();
-        // this hides the back arrow
-        getAppLayout().setMenuVisible(false);
-    }
-
-    /**
      * @see app.owlcms.nui.shared.AthleteGridContent#createTopBarGroupSelect()
      */
     @Override
@@ -375,14 +364,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             createDecisionLights();
             getTopBarLeft().add(decisionLights);
         }
-    }
-
-    @Override
-    protected void fillTopBarLeft() {
-        super.fillTopBarLeft();
-        getTopBarLeft().addClassName("announcerLeft");
-        getTopBarLeft().add(topBarMenu, topBarSettings);
-        // getTopBarLeft().setWidth("12em");
     }
 
     private void createDecisionLights() {

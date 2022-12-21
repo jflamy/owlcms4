@@ -47,7 +47,7 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.AthleteGridContent;
-import app.owlcms.nui.shared.AthleteGridLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import ch.qos.logback.classic.Level;
@@ -57,7 +57,7 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "nlifting/jury", layout = AthleteGridLayout.class)
+@Route(value = "nlifting/jury", layout = OwlcmsLayout.class)
 public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(JuryContent.class);
@@ -339,7 +339,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         registrations = new ArrayList<>();
         this.setBoxSizing(BoxSizing.BORDER_BOX);
         this.setSizeFull();
-        setTopBarTitle(getTranslation("Jury"));
         nbJurors = nbj;
         buildJuryBox(this);
         buildRefereeBox(this);

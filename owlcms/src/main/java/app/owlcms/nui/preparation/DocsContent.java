@@ -59,7 +59,7 @@ import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.AthleteCrudGrid;
 import app.owlcms.nui.shared.AthleteGridContent;
-import app.owlcms.nui.shared.AthleteGridLayout;
+import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCardsDocs;
 import app.owlcms.spreadsheet.JXLSStartingListDocs;
 import app.owlcms.utils.NaturalOrderComparator;
@@ -73,7 +73,7 @@ import ch.qos.logback.classic.Logger;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-@Route(value = "npreparation/docs", layout = AthleteGridLayout.class)
+@Route(value = "npreparation/docs", layout = OwlcmsLayout.class)
 public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 
     public static final String PRECOMP_DOCS_TITLE = "Preparation.PrecompDocsTitle";
@@ -107,7 +107,6 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
     public DocsContent() {
         super();
         defineFilters(crudGrid);
-        setTopBarTitle(Translator.translate(PRECOMP_DOCS_TITLE));
         cardsXlsWriter = new JXLSCardsDocs();
         startingXlsWriter = new JXLSStartingListDocs();
     }
@@ -391,13 +390,13 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
      * @param topBar
      */
     @Override
-    protected void createTopBar() {
+    public FlexLayout createMenuArea() {
         logger.debug("createTopBar");
         // show back arrow but close menu
         getAppLayout().setMenuVisible(true);
         getAppLayout().closeDrawer();
 
-        topBar = getAppLayout().getButtonArea();
+        topBar = new FlexLayout();
 
         Button cardsButton = createCardsButton();
         Button startingListButton = createStartingListButton();
@@ -410,17 +409,21 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         createTopBarGroupSelect();
 
         HorizontalLayout buttons = new HorizontalLayout(startingListButton, cardsButton);
-        buttons.setPadding(true);
+        buttons.setPadding(false);
+        buttons.setMargin(false);
+        buttons.setSpacing(true);
         buttons.getStyle().set("margin-left", "5em");
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
         topBar.getStyle().set("flex", "100 1");
         topBar.removeAll();
-        topBar.add(title, topBarMenu, buttons);
+        topBar.add(topBarMenu, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         topBar.setFlexGrow(0.2, title);
 //        topBar.setSpacing(true);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+        
+        return topBar;
     }
 
     private Button createCardsButton() {
@@ -584,7 +587,6 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        createTopBar();
     }
 
     protected void updateURLLocations() {

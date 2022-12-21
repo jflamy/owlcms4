@@ -820,8 +820,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     protected void createInitialBar() {
         // logger.debug("{} {} creating top bar {}", this.getClass().getSimpleName(), LoggerUtils.whereFrom());
-        topBar = getAppLayout().getButtonArea();
-        topBar.removeAll();
+        topBar = new FlexLayout();
         initialBar = true;
 
         createTopBarGroupSelect();
@@ -856,6 +855,17 @@ public abstract class AthleteGridContent extends VerticalLayout
         stopTimeButton.getElement().setAttribute("theme", "secondary icon");
     }
 
+    @Override
+    public FlexLayout createMenuArea() {
+        if (initialBar) {
+            createInitialBar();
+            return topBar;
+        } else {
+            createTopBar();
+            return topBar;
+        }
+    }
+    
     /**
      * The top bar is logically is the master part of a master-detail In the current implementation, the most convenient
      * place to put it is in the top bar which is managed by the layout, but this could change. So we change the
@@ -864,9 +874,8 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     protected void createTopBar() {
         logger.debug("AthleteGridContent creating top bar");
-        topBar = getAppLayout().getButtonArea();
+        topBar = new FlexLayout();
         topBar.setClassName("athleteGridTopBar");
-        topBar.removeAll();
         initialBar = false;
 
         HorizontalLayout topBarLeft = createTopBarLeft();
