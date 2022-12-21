@@ -111,8 +111,6 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
     private Button cardsButton;
 
-    private ComboBox<Group> gridGroupFilter;
-
     private Group group;
 
     private ComboBox<Group> groupSelect;
@@ -141,7 +139,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     }
 
     @Override
-    public FlexLayout createButtonArea() {
+    public FlexLayout createMenuArea() {
 
         groupSelect = new ComboBox<>();
         groupSelect.setPlaceholder(getTranslation("Group"));
@@ -254,7 +252,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     @Override
     public void setHeaderContent() {
         routerLayout.setTopBarTitle(getPageTitle());
-        routerLayout.setButtonArea(createButtonArea());
+        routerLayout.setMenuArea(createMenuArea());
         routerLayout.showLocaleDropdown(false);
         routerLayout.setDrawerOpened(false);
         routerLayout.updateHeader();
@@ -491,7 +489,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
     protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
         group = e.getValue();
-        gridGroupFilter.setValue(e.getValue());
+        groupFilter.setValue(e.getValue());
     }
 
     private void clearStartNumbers() {

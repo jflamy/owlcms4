@@ -72,7 +72,6 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
         doGroup(getTranslation("Referees_Jury"), grid2, this);
 
         DebugUtils.gc();
-        logger.trace("LiftingNavigationContent constructor stop");
     }
 
     @Override
@@ -87,7 +86,8 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 
     @Override
     public String getPageTitle() {
-        return getTranslation("OWLCMS_Lifting") + OwlcmsSession.getFopNameIfMultiple();
+        String fopNameIfMultiple = OwlcmsSession.getFopNameIfMultiple();
+        return getTranslation("RunLiftingGroup") + (fopNameIfMultiple.isBlank() ? ("-" + getTranslation("Platform") + fopNameIfMultiple) : "");
     }
 
     @Override

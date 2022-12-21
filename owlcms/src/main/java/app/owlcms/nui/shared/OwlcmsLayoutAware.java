@@ -34,6 +34,6 @@ public interface OwlcmsLayoutAware {
 
     public void setHeaderContent();
 
-    public FlexLayout createButtonArea();
+    public FlexLayout createMenuArea();
 
 }

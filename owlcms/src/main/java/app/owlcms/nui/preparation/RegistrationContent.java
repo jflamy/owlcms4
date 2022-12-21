@@ -119,6 +119,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
      * Instantiates the athlete crudGrid
      */
     public RegistrationContent() {
+        logger.warn("::::: creating registration content");
         OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
         crudGrid = createGrid(crudFormFactory);
         defineFilters(crudGrid);
@@ -128,7 +129,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     @Override
     public void setHeaderContent() {
         routerLayout.setTopBarTitle(getPageTitle());
-        routerLayout.setButtonArea(createButtonArea());
+        routerLayout.setMenuArea(createMenuArea());
         routerLayout.showLocaleDropdown(false);
         routerLayout.setDrawerOpened(false);
         routerLayout.updateHeader();
@@ -339,6 +340,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
      * @param crudGrid the crudGrid that will be filtered.
      */
     protected void defineFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
+        logger.warn("::::: defining filters");
         lastNameFilter.setPlaceholder(getTranslation("LastName"));
         lastNameFilter.setClearButtonVisible(true);
         lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
@@ -433,8 +435,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         getRouterLayout().closeDrawer();
-        //FIXME groupselect
-        //((RegistrationLayout) getRouterLayout()).getGroupSelect().setValue(currentGroup);
+        getGroupSelect().setValue(currentGroup);
     }
 
     /**
@@ -546,7 +547,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
     private Button cardsButton;
-    private ComboBox<Group> gridGroupFilter;
     private Group group;
     private ComboBox<Group> groupSelect;
     private Button startingListButton;
@@ -575,18 +575,17 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
      * @param topBar
      */
     @Override
-    public FlexLayout createButtonArea() {
-
-        groupSelect = new ComboBox<>();
-        groupSelect.setPlaceholder(getTranslation("Group"));
+    public FlexLayout createMenuArea() {
+        logger.warn("::::: creating buttons");
+        setGroupSelect(new ComboBox<>());
+        getGroupSelect().setPlaceholder(getTranslation("Group"));
         List<Group> groups = GroupRepository.findAll();
         groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
-        groupSelect.setItems(groups);
-        groupSelect.setItemLabelGenerator(Group::getName);
-        groupSelect.setClearButtonVisible(true);
-
-        groupSelect.setValue(null);
-        groupSelect.addValueChangeListener(e -> {
+        getGroupSelect().setItems(groups);
+        getGroupSelect().setItemLabelGenerator(Group::getName);
+        getGroupSelect().setClearButtonVisible(true);
+        getGroupSelect().setValue(null);
+        getGroupSelect().addValueChangeListener(e -> {
             setContentGroup(e);
         });
 
@@ -645,7 +644,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         FlexLayout topBar = new FlexLayout();
         topBar.getStyle().set("flex", "100 1");
         topBar.removeAll();
-        topBar.add(groupSelect, buttons);
+        topBar.add(getGroupSelect(), buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
         
@@ -668,7 +667,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 
     protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
         group = e.getValue();
-        gridGroupFilter.setValue(e.getValue());
+        groupFilter.setValue(e.getValue());
     }
 
     private void clearLifts() {

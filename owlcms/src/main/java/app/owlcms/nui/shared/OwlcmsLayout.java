@@ -66,6 +66,7 @@ public class OwlcmsLayout extends AppLayout {
     public OwlcmsLayout() {
         logger.warn("***** creating layout");
         navBarComponents = new ArrayList<>();
+        // create default empty components. Content will fill them in.
         populateHeader();
         // setPrimarySection(Section.DRAWER);
         addDrawerContent();
@@ -89,14 +90,6 @@ public class OwlcmsLayout extends AppLayout {
     public void closeDrawer() {
         setDrawerOpened(false);
     }
-
-//    public FlexLayout getButtonArea() {
-//        // FIXME
-//        if (navBarComponents.size() <= 2) {
-//            navBarComponents.add(new FlexLayout());
-//        }
-//        return (FlexLayout) navBarComponents.get(navBarComponents.size() - 1);
-//    }
 
     public FlexLayout getButtonArea() {
         return buttonArea;
@@ -184,7 +177,8 @@ public class OwlcmsLayout extends AppLayout {
         style.set("font-size", "large");
         style.set("margin-left", "0");
         
-        setButtonArea(createButtonArea());
+        setMenuArea(createMenuArea());
+        
         setLocaleDropDown(createLocaleDropdown());
         
         updateHeader();
@@ -198,29 +192,18 @@ public class OwlcmsLayout extends AppLayout {
         header.setWidth("100%");
         header.setAlignItems(Alignment.CENTER);
 
-        logger.warn("***** OwlcmsLayout set HeaderContent from {}", LoggerUtils.whereFrom());
+        logger.warn("***** OwlcmsLayout update HeaderContent from {}", LoggerUtils.whereFrom());
         clearNavBar();
         addToNavbar(false, header);
     }
 
-    public void setButtonArea(FlexLayout horizontalLayout) {
+    public void setMenuArea(FlexLayout horizontalLayout) {
         this.buttonArea = horizontalLayout;
     }
 
     private void addDrawerContent() {
-//        H3 appName = new H3("TBD");
-//        appName.addClassNames(LARGE, NONE);
-//        Header header = new Header(appName);
-//        header.getStyle().set("margin-left", "1em");
-//
-//        VerticalLayout createNavigation = createNavigation();
-//        createNavigation.setWidth("90%");
-//        Scroller scroller = new Scroller(createNavigation);
-
         Tabs tabs = getTabs();
-
         addToDrawer(tabs);
-//        addToDrawer(header, scroller, createFooter());
     }
 
     private void clearNavBar() {
@@ -229,12 +212,6 @@ public class OwlcmsLayout extends AppLayout {
         }
         navBarComponents.clear();
     }
-
-//    private Footer createFooter() {
-//        Footer layout = new Footer();
-//
-//        return layout;
-//    }
 
     private ComboBox<Locale> createLocaleDropdown() {
         ComboBox<Locale> sessionLocaleField = new ComboBox<>();
@@ -323,7 +300,6 @@ public class OwlcmsLayout extends AppLayout {
 
         RouterLink link = new RouterLink();
         link.add(viewIcon, new Span(viewName));
-        // Demo has no routes
         link.setRoute(viewClass);
         link.setTabIndex(-1);
 
@@ -339,7 +315,7 @@ public class OwlcmsLayout extends AppLayout {
      *
      * @param header
      */
-    protected FlexLayout createButtonArea() {
+    protected FlexLayout createMenuArea() {
         FlexLayout hLayout = new FlexLayout();
         hLayout.setFlexDirection(FlexDirection.ROW);
         return hLayout;

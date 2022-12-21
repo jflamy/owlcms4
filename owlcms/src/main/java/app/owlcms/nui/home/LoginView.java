@@ -126,7 +126,7 @@ public class LoginView extends Composite<VerticalLayout> implements OwlcmsLayout
     }
 
     @Override
-    public FlexLayout createButtonArea() {
+    public FlexLayout createMenuArea() {
         return new FlexLayout();
     }
 

@@ -248,7 +248,6 @@ public abstract class BaseNavigationContent extends VerticalLayout
             createTopBar(title);
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
-
         });
     }
 

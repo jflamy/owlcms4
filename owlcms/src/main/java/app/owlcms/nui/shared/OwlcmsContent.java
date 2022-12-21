@@ -16,7 +16,7 @@ public interface OwlcmsContent
         throw new UnsupportedOperationException(this.getClass()+" setHeaderContent not defined");
     }
     
-    public default FlexLayout createButtonArea() {
+    public default FlexLayout createMenuArea() {
         throw new UnsupportedOperationException(this.getClass()+" createButtonArea not defined");
     }
     
