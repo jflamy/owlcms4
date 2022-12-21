@@ -165,7 +165,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
      * @see app.owlcms.nui.home.BaseNavigationContent#createTopBarFopField(java.lang. String, java.lang.String)
      */
     @Override
-    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
+    protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
         Label fopLabel = new Label(label);
         formatLabel(fopLabel);
 

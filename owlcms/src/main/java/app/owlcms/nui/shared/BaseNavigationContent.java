@@ -200,13 +200,13 @@ public abstract class BaseNavigationContent extends VerticalLayout
     public FlexLayout createMenuArea() {
         configureTopBar();
         configureTopBarTitle(getPageTitle());
-        HorizontalLayout fopField = createTopBarFopField(getTranslation("CompetitionPlatform"),
+        HorizontalLayout fopField = createMenuBarFopField(getTranslation("CompetitionPlatform"),
                 getTranslation("SelectPlatform"));
         FlexLayout fl = createAppBar(fopField, null); // , groupField
         return fl;
     }
 
-    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
+    protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
         Label fopLabel = new Label(label);
         formatLabel(fopLabel);
 

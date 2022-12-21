@@ -139,10 +139,10 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
     }
 
     /**
-     * @see app.owlcms.nui.shared.BaseNavigationContent#createTopBarFopField(java.lang.String, java.lang.String)
+     * @see app.owlcms.nui.shared.BaseNavigationContent#createMenuBarFopField(java.lang.String, java.lang.String)
      */
     @Override
-    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
+    protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
         return null;
     }
 

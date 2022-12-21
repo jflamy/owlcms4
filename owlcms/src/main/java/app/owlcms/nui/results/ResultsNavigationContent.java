@@ -91,7 +91,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
     }
 
     @Override
-    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
+    protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
         return null;
     }
 
