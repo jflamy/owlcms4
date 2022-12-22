@@ -233,7 +233,12 @@ public class OwlcmsLayout extends AppLayout {
         ComboBox<Locale> sessionLocaleField = new ComboBox<>();
         sessionLocaleField.setWidth("24ch");
         sessionLocaleField.setClearButtonVisible(true);
-        sessionLocaleField.setDataProvider(new ListDataProvider<>(Translator.getUsefulLocales()));
+        List<Locale> usefulLocales = Translator.getUsefulLocales();
+//        Locale curLocale = OwlcmsSession.getLocale();
+//        usefulLocales.sort((a,b) -> {
+//            return a.getDisplayName(a).compareTo(b.getDisplayName(b));
+//        });
+        sessionLocaleField.setDataProvider(new ListDataProvider<>(usefulLocales));
         sessionLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
         sessionLocaleField.setValue(Translator.getLocaleSupplier().get());
         sessionLocaleField.addValueChangeListener(e -> {
