@@ -16,6 +16,7 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.HasUrlParameter;
@@ -23,6 +24,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
@@ -68,6 +70,11 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
     }
 
     @Override
+    public FlexLayout createMenuArea() {
+        return new FlexLayout();
+    }
+
+    @Override
     public void delete(Platform domainObjectToDelete) {
         editingFormFactory.delete(domainObjectToDelete);
     }
@@ -84,7 +91,7 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
 
     @Override
     public String getMenuTitle() {
-        return getPageTitle();
+        return Translator.translate("EditPlatforms");
     }
 
     /**

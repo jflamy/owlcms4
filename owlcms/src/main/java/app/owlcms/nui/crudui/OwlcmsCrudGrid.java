@@ -39,7 +39,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsCrudGrid.class);
 
-    //private OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory;
+    // private OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory;
     protected OwlcmsGridLayout owlcmsGridLayout;
 
     private boolean clickable = true;
@@ -58,8 +58,9 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
             OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory, Grid<T> grid) {
         super(domainType, crudLayout);
         this.grid = grid;
-        //this.owlcmsCrudFormFactory = owlcmsCrudFormFactory;
-        //logger.trace("creating OwlcmsCrudGrid with formfactory {} wherefrom {}",System.identityHashCode(owlcmsCrudFormFactory), LoggerUtils.whereFrom());
+        // this.owlcmsCrudFormFactory = owlcmsCrudFormFactory;
+        // logger.trace("creating OwlcmsCrudGrid with formfactory {} wherefrom
+        // {}",System.identityHashCode(owlcmsCrudFormFactory), LoggerUtils.whereFrom());
         this.setCrudFormFactory(owlcmsCrudFormFactory);
         this.owlcmsGridLayout = crudLayout;
         initLayoutGrid();
@@ -179,7 +180,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
     @Override
     protected void showForm(CrudOperation operation, T domainObject, boolean readOnly, String successMessage,
             ComponentEventListener<ClickEvent<Button>> unused) {
-        OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory = (OwlcmsCrudFormFactory<T>)this.getCrudFormFactory();
+        OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory = (OwlcmsCrudFormFactory<T>) this.getCrudFormFactory();
         Component form = owlcmsCrudFormFactory.buildNewForm(operation, domainObject, readOnly,
                 cancelButtonClickEvent -> {
                     logger.debug("cancelButtonClickEvent");

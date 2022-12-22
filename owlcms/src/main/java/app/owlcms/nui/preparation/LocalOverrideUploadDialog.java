@@ -78,7 +78,7 @@ public class LocalOverrideUploadDialog extends Dialog {
         } catch (Exception e) {
             String localizedMessage = e.getLocalizedMessage();
             appendErrors(ta, localizedMessage != null ? localizedMessage : e.toString());
-            logger.error("{}",LoggerUtils.stackTrace(e));
+            logger.error("{}", LoggerUtils.stackTrace(e));
         }
         return;
     }

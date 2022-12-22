@@ -19,6 +19,7 @@ import org.vaadin.crudui.layout.CrudLayout;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
@@ -73,6 +74,11 @@ public class ConfigContent extends Composite<VerticalLayout>
 
     @Override
     public void addToolbarComponent(Component component) {
+    }
+
+    @Override
+    public FlexLayout createMenuArea() {
+        return new FlexLayout();
     }
 
     @Override

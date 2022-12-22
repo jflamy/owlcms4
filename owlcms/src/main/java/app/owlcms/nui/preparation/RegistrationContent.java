@@ -126,7 +126,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
      * Instantiates the athlete crudGrid
      */
     public RegistrationContent() {
-        logger.warn("::::: creating registration content");
+
         OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
         crudGrid = createGrid(crudFormFactory);
         defineFilters(crudGrid);
@@ -153,7 +153,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
      */
     @Override
     public FlexLayout createMenuArea() {
-        logger.warn("::::: creating buttons");
+
         setGroupSelect(new ComboBox<>());
         getGroupSelect().setPlaceholder(getTranslation("Group"));
         List<Group> groups = GroupRepository.findAll();
@@ -454,7 +454,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
      * @param crudGrid the crudGrid that will be filtered.
      */
     protected void defineFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
-        logger.warn("::::: defining filters");
+
         lastNameFilter.setPlaceholder(getTranslation("LastName"));
         lastNameFilter.setClearButtonVisible(true);
         lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);

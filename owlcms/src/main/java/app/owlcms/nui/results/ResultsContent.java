@@ -9,7 +9,6 @@ package app.owlcms.nui.results;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -188,6 +187,39 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     /**
+     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
+     */
+    @Override
+    public FlexLayout createMenuArea() {
+        logger.debug("createMenuArea");
+        // show back arrow but close menu
+        getAppLayout().setMenuVisible(true);
+        getAppLayout().closeDrawer();
+
+        topBar = new FlexLayout();
+
+        Button resultsButton = createGroupResultsDownloadButton();
+        Button medalsButtons = createGroupMedalsDownloadButton();
+
+        createTopBarGroupSelect();
+
+        HorizontalLayout buttons = new HorizontalLayout(resultsButton, medalsButtons);
+        buttons.getStyle().set("margin-left", "5em");
+        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+        buttons.setMargin(false);
+        buttons.setPadding(false);
+        buttons.setSpacing(true);
+
+        topBar.getStyle().set("flex", "100 1");
+        topBar.removeAll();
+        topBar.add(topBarMenu, buttons);
+        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        return topBar;
+    }
+
+    /**
      * Get the content of the crudGrid. Invoked by refreshGrid.
      *
      * @see org.vaadin.crudui.crud.CrudListener#findAll()
@@ -228,17 +260,17 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         return getGroupFilter().getValue();
     }
 
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
+    }
+
     /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
     @Override
     public String getPageTitle() {
         return getTranslation("GroupResults");
-    }
-    
-    @Override
-    public String getMenuTitle() {
-        return getPageTitle();
     }
 
     @Override
@@ -292,7 +324,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             // to avoid showing hundreds of athlete at the end of each of the groups
             // (which has a noticeable impact on slower machines)
             List<Group> groups = GroupRepository.findAll();
-            groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+            groups.sort(new NaturalOrderComparator<Group>());
             currentGroup = (groups.size() > 0 ? groups.get(0) : null);
         }
         if (currentGroup != null) {
@@ -345,54 +377,6 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     /**
-     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
-     */
-    @Override
-    public FlexLayout createMenuArea() {
-        logger.debug("createMenuArea");
-        // show back arrow but close menu
-        getAppLayout().setMenuVisible(true);
-        getAppLayout().closeDrawer();
-
-        topBar = new FlexLayout();
-
-        Button resultsButton = createGroupResultsDownloadButton();
-        Button medalsButtons = createGroupMedalsDownloadButton();
-
-        createTopBarGroupSelect();
-
-        HorizontalLayout buttons = new HorizontalLayout(resultsButton, medalsButtons);
-        buttons.getStyle().set("margin-left", "5em");
-        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
-        buttons.setMargin(false);
-        buttons.setPadding(false);
-        buttons.setSpacing(true);
-        
-        topBar.getStyle().set("flex", "100 1");
-        topBar.removeAll();
-        topBar.add(topBarMenu, buttons);
-        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);;
-        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-        
-        return topBar;
-    }
-
-    private void doSwitchGroup(Group newCurrentGroup) {
-        if (newCurrentGroup != null && newCurrentGroup.getName() == "*") {
-            currentGroup = null;
-        } else {
-            currentGroup = newCurrentGroup;
-        }
-        setGridGroup(currentGroup);
-        if (downloadDialog != null)
-            downloadDialog.createTopBarDownloadButton();
-        MenuBar oldMenu = topBarMenu;
-        createTopBarGroupSelect();
-        if (topBar != null)
-            topBar.replace(oldMenu, topBarMenu);
-    }
-
-    /**
      * We do not control the groups on other screens/displays
      *
      * @param crudGrid the crudGrid that will be filtered.
@@ -405,7 +389,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
         getGroupFilter().setPlaceholder(getTranslation("Group"));
         List<Group> groups = GroupRepository.findAll();
-        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+        groups.sort(new NaturalOrderComparator<Group>());
         getGroupFilter().setItems(groups);
         getGroupFilter().setItemLabelGenerator(Group::getName);
         // hide because the top bar has it
@@ -505,6 +489,23 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
                 "results", Translator.translate("Download"));
         Button resultsButton = downloadDialog.createTopBarDownloadButton();
         return resultsButton;
+    }
+
+    private void doSwitchGroup(Group newCurrentGroup) {
+        if (newCurrentGroup != null && newCurrentGroup.getName() == "*") {
+            currentGroup = null;
+        } else {
+            currentGroup = newCurrentGroup;
+        }
+        setGridGroup(currentGroup);
+        if (downloadDialog != null) {
+            downloadDialog.createTopBarDownloadButton();
+        }
+        MenuBar oldMenu = topBarMenu;
+        createTopBarGroupSelect();
+        if (topBar != null) {
+            topBar.replace(oldMenu, topBarMenu);
+        }
     }
 
 }

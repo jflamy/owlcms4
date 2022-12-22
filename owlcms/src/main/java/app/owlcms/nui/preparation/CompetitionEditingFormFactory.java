@@ -315,7 +315,7 @@ public class CompetitionEditingFormFactory
         layout.addFormItem(useBirthYearField, Translator.translate("Competition.useBirthYear"));
         binder.forField(useBirthYearField)
                 .bind(Competition::isUseBirthYear, Competition::setUseBirthYear);
-        
+
         RadioButtonGroup<Integer> sinclairYear = new RadioButtonGroup<>();
         layout.addFormItem(sinclairYear, Translator.translate("sinclair"));
         sinclairYear.setItems(2020, 2024);
@@ -390,13 +390,13 @@ public class CompetitionEditingFormFactory
                 labelWithHelp("Competition.genderOrder", "Competition.genderOrderExplanation"));
         binder.forField(genderOrderField)
                 .bind(Competition::isGenderOrder, Competition::setGenderOrder);
-        
+
         Checkbox sinclairMeetField = new Checkbox();
         layout.addFormItem(sinclairMeetField,
                 labelWithHelp("Competition.SinclairMeet", "Competition.SinclairMeetExplanation"));
         binder.forField(sinclairMeetField)
                 .bind(Competition::isSinclair, Competition::setSinclair);
-        
+
         Checkbox customScoreField = new Checkbox();
         layout.addFormItem(customScoreField,
                 labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));

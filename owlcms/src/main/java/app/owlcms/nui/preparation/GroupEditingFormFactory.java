@@ -155,7 +155,7 @@ public class GroupEditingFormFactory
         binder.forField(marshall)
                 .withNullRepresentation("")
                 .bind(Group::getMarshall, Group::setMarshall);
-        
+
         TextField marshal2 = new TextField(Translator.translate("Marshal2"));
         formLayout.add(marshal2);
         binder.forField(marshal2)
@@ -167,7 +167,7 @@ public class GroupEditingFormFactory
         binder.forField(technicalController)
                 .withNullRepresentation("")
                 .bind(Group::getTechnicalController, Group::setTechnicalController);
-        
+
         TextField technicalController2 = new TextField(Translator.translate("TechnicalController2"));
         formLayout.add(technicalController2);
         binder.forField(technicalController2)

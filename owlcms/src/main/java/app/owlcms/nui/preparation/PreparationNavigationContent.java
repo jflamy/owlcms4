@@ -72,7 +72,8 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, getTranslation("DefineAgeGroups"));
         Button groups = openInNewTabNoParam(GroupContent.class, getTranslation("DefineGroups"));
         Button platforms = openInNewTabNoParam(PlatformContent.class, getTranslation("DefineFOP"));
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, platforms, groups);
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, platforms,
+                groups);
         doGroup(getTranslation("PreCompetitionSetup"), grid1, this);
 
         Div downloadDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("registration",
@@ -94,7 +95,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams);
         doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
-        
+
         if (Config.getCurrent().featureSwitch("preCompDocs", true)) {
             FlexibleGridLayout grid6;
             Button documents = openInNewTabNoParam(DocsContent.class, getTranslation(DocsContent.PRECOMP_DOCS_TITLE));
@@ -111,7 +112,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         exportJsonDiv.setWidthFull();
         FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson/* , clearDatabase */);
         doGroup(getTranslation("ExportDatabase.ExportImport"), grid4, this);
-        
+
         Button clearNewRecords = new Button(getTranslation("Preparation.ClearNewRecords"),
                 buttonClickEvent -> {
                     try {
@@ -120,7 +121,8 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
                         throw new RuntimeException(e);
                     }
                 });
-        clearNewRecords.getElement().setProperty("title", Translator.translate("Preparation.ClearNewRecordsExplanation"));
+        clearNewRecords.getElement().setProperty("title",
+                Translator.translate("Preparation.ClearNewRecordsExplanation"));
         FlexibleGridLayout grid5 = HomeNavigationContent.navigationGrid(clearNewRecords);
         doGroup(getTranslation("Preparation.Records"), grid5, this);
 
@@ -135,6 +137,16 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
     @Override
     public UI getLocationUI() {
         return this.locationUI;
+    }
+
+    @Override
+    public String getMenuTitle() {
+        return getTranslation("PrepareCompetition");
+    }
+
+    @Override
+    public String getPageTitle() {
+        return getTranslation("ShortTitle.Preparation");
     }
 
     /*
@@ -200,16 +212,6 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
     @Override
     protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
         return null;
-    }
-
-    @Override
-    public String getPageTitle() {
-        return getTranslation("ShortTitle.Preparation");
-    }
-    
-    @Override
-    public String getMenuTitle() {
-        return getTranslation("ShortTitle.Preparation");
     }
 
 }

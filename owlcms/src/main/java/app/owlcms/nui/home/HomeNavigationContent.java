@@ -116,6 +116,19 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
         return this.locationUI;
     }
 
+    @Override
+    public String getMenuTitle() {
+        return getTranslation("OWLCMS_Top");
+    }
+
+    /**
+     * @see app.owlcms.nui.shared.BaseNavigationContent#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("OWLCMS_Top");
+    }
+
     /**
      * @see app.owlcms.apputils.queryparameters.FOPParameters#isIgnoreFopFromURL()
      */
@@ -140,19 +153,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
     @Override
     protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
         return null;
-    }
-
-    /**
-     * @see app.owlcms.nui.shared.BaseNavigationContent#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("OWLCMS_Top");
-    }
-    
-    @Override
-    public String getMenuTitle() {
-        return getTranslation("OWLCMS_Top");
     }
 
     private VerticalLayout buildIntro() {

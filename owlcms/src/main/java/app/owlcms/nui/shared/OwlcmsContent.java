@@ -11,16 +11,18 @@ import com.vaadin.flow.router.HasDynamicTitle;
 
 public interface OwlcmsContent
         extends ContentWrapping, OwlcmsLayoutAware, HasDynamicTitle, SafeEventBusRegistration, RequireLogin {
-    
+
+    @Override
+    public FlexLayout createMenuArea();
+
+    public String getMenuTitle();
+
+    @Override
     public default void setHeaderContent() {
         getRouterLayout().setMenuTitle(getMenuTitle());
         getRouterLayout().setMenuArea(createMenuArea());
         getRouterLayout().showLocaleDropdown(false);
-        getRouterLayout().setDrawerOpened(true);
+        getRouterLayout().setDrawerOpened(false);
         getRouterLayout().updateHeader();
     }
-    
-    public FlexLayout createMenuArea();
-
-    public String getMenuTitle();
 }

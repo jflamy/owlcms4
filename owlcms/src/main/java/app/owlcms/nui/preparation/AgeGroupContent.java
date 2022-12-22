@@ -42,6 +42,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
@@ -96,6 +97,63 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         return getAgeGroupEditingFormFactory().add(ageGroup);
     }
 
+    /**
+     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
+     */
+    @Override
+    public FlexLayout createMenuArea() {
+        topBar = new FlexLayout();
+        resetCats = new Button(getTranslation("ResetCategories.ResetAthletes"), (e) -> {
+            new ConfirmationDialog(
+                    getTranslation("ResetCategories.ResetCategories"),
+                    getTranslation("ResetCategories.Warning_ResetCategories"),
+                    getTranslation("ResetCategories.CategoriesReset"), () -> {
+                        resetCategories();
+                    }).open();
+        });
+        resetCats.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
+        HorizontalLayout resetButton = new HorizontalLayout(resetCats);
+        resetButton.setMargin(false);
+
+        ageGroupDefinitionSelect = new ComboBox<>();
+        ageGroupDefinitionSelect.setPlaceholder(getTranslation("ResetCategories.AvailableDefinitions"));
+        List<Resource> resourceList = new ResourceWalker().getResourceList("/agegroups", ResourceWalker::relativeName,
+                null, new Locale(""));
+        resourceList.sort((a, b) -> a.compareTo(b));
+        ageGroupDefinitionSelect.setItems(resourceList);
+        ageGroupDefinitionSelect.setValue(null);
+        ageGroupDefinitionSelect.setWidth("15em");
+        ageGroupDefinitionSelect.getStyle().set("margin-left", "1em");
+        setAgeGroupsSelectionListener(resourceList);
+
+        Button reload = new Button(getTranslation("ResetCategories.ReloadAgeGroups"), (e) -> {
+            Resource definitions = ageGroupDefinitionSelect.getValue();
+            if (definitions == null) {
+                String labelText = getTranslation("ResetCategories.PleaseSelectDefinitionFile");
+                NotificationUtils.errorNotification(labelText);
+            } else {
+                new ConfirmationDialog(getTranslation("ResetCategories.ResetCategories"),
+                        getTranslation("ResetCategories.Warning_ResetCategories"),
+                        getTranslation("ResetCategories.CategoriesReset"), () -> {
+                            AgeGroupRepository.reloadDefinitions(definitions.getFileName());
+                            resetCategories();
+                        }).open();
+            }
+        });
+
+        HorizontalLayout reloadDefinition = new HorizontalLayout(ageGroupDefinitionSelect, reload);
+        reloadDefinition.setAlignItems(FlexComponent.Alignment.BASELINE);
+        reloadDefinition.setMargin(false);
+        reloadDefinition.setPadding(false);
+        reloadDefinition.setSpacing(false);
+
+        topBar.add(resetButton, reloadDefinition);
+        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        return topBar;
+    }
+
     @Override
     public void delete(AgeGroup domainObjectToDelete) {
         getAgeGroupEditingFormFactory().delete(domainObjectToDelete);
@@ -134,17 +192,17 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         return all;
     }
 
+    @Override
+    public String getMenuTitle() {
+        return Translator.translate("EditAgeGroups");
+    }
+
     /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
     @Override
     public String getPageTitle() {
         return getTranslation("Preparation_AgeGroups");
-    }
-    
-    @Override
-    public String getMenuTitle() {
-        return getPageTitle();
     }
 
     @Override
@@ -154,6 +212,15 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
 
     public void highlightResetButton() {
         resetCats.setThemeName("primary error");
+    }
+
+    @Override
+    public void setHeaderContent() {
+        getRouterLayout().setMenuTitle(getMenuTitle());
+        getRouterLayout().setMenuArea(createMenuArea());
+        getRouterLayout().showLocaleDropdown(false);
+        getRouterLayout().setDrawerOpened(false);
+        getRouterLayout().updateHeader();
     }
 
     @Override
@@ -210,67 +277,6 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         crud.setCrudListener(this);
         crud.setClickRowToUpdate(true);
         return crud;
-    }
-
-    /**
-     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
-     */
-    public FlexLayout createMenuArea() {
-        // show arrow but close menu
-        getAppLayout().setMenuVisible(true);
-        getAppLayout().closeDrawer();
-
-        topBar = new FlexLayout();
-
-
-        resetCats = new Button(getTranslation("ResetCategories.ResetAthletes"), (e) -> {
-            new ConfirmationDialog(
-                    getTranslation("ResetCategories.ResetCategories"),
-                    getTranslation("ResetCategories.Warning_ResetCategories"),
-                    getTranslation("ResetCategories.CategoriesReset"), () -> {
-                        resetCategories();
-                    }).open();
-        });
-        resetCats.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
-        HorizontalLayout resetButton = new HorizontalLayout(resetCats);
-        resetButton.setMargin(false);
-
-        ageGroupDefinitionSelect = new ComboBox<>();
-        ageGroupDefinitionSelect.setPlaceholder(getTranslation("ResetCategories.AvailableDefinitions"));
-        List<Resource> resourceList = new ResourceWalker().getResourceList("/agegroups", ResourceWalker::relativeName, null, new Locale(""));
-        resourceList.sort((a, b) -> a.compareTo(b));
-        ageGroupDefinitionSelect.setItems(resourceList);
-        ageGroupDefinitionSelect.setValue(null);
-        ageGroupDefinitionSelect.setWidth("15em");
-        ageGroupDefinitionSelect.getStyle().set("margin-left", "1em");
-        setAgeGroupsSelectionListener(resourceList);
-
-        Button reload = new Button(getTranslation("ResetCategories.ReloadAgeGroups"), (e) -> {
-            Resource definitions = ageGroupDefinitionSelect.getValue();
-            if (definitions == null) {
-                String labelText = getTranslation("ResetCategories.PleaseSelectDefinitionFile");
-                NotificationUtils.errorNotification(labelText);
-            } else {
-                new ConfirmationDialog(getTranslation("ResetCategories.ResetCategories"),
-                        getTranslation("ResetCategories.Warning_ResetCategories"),
-                        getTranslation("ResetCategories.CategoriesReset"), () -> {
-                            AgeGroupRepository.reloadDefinitions(definitions.getFileName());
-                            resetCategories();
-                        }).open();
-            }
-        });
-        
-        HorizontalLayout reloadDefinition = new HorizontalLayout(ageGroupDefinitionSelect, reload);
-        reloadDefinition.setAlignItems(FlexComponent.Alignment.BASELINE);
-        reloadDefinition.setMargin(false);
-        reloadDefinition.setPadding(false);
-        reloadDefinition.setSpacing(false);
-
-        topBar.add(resetButton, reloadDefinition);
-        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-        
-        return topBar;
     }
 
     /**

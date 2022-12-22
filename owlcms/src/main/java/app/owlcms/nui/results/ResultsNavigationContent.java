@@ -54,14 +54,15 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 
         Div timingStats = DownloadButtonFactory.createDynamicXLSDownloadButton("timingStats",
                 getTranslation("TimingStatistics"), new JXLSTimingStats(UI.getCurrent()));
-        ((Button)timingStats.getComponentAt(0)).setWidth("95%");
+        ((Button) timingStats.getComponentAt(0)).setWidth("95%");
         Div newRecords = DownloadButtonFactory.createDynamicXLSDownloadButton("records",
                 getTranslation("Results.NewRecords"), new JXLSExportRecords(UI.getCurrent()));
-        ((Button)newRecords.getComponentAt(0)).setWidth("95%");
+        ((Button) newRecords.getComponentAt(0)).setWidth("95%");
 
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(groupResults, medals);
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(teamResults, teams);
-        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(finalPackage, categoryResults, newRecords, timingStats);
+        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(finalPackage, categoryResults, newRecords,
+                timingStats);
 
         doGroup(getTranslation("ForEachCompetitionGroup"), grid1, this);
         doGroup(getTranslation("TeamResults.Title"), grid2, this);
@@ -81,6 +82,16 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
     }
 
     @Override
+    public String getMenuTitle() {
+        return getTranslation("ShortTitle.Results");
+    }
+
+    @Override
+    public String getPageTitle() {
+        return getTranslation("ShortTitle.Results");
+    }
+
+    @Override
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -93,15 +104,5 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
     @Override
     protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {
         return null;
-    }
-
-    @Override
-    public String getPageTitle() {
-        return getTranslation("ShortTitle.Results");
-    }
-
-    @Override
-    public String getMenuTitle() {
-        return getTranslation("ShortTitle.Results");
     }
 }

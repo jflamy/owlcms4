@@ -127,28 +127,7 @@ public class OwlcmsRouterLayoutX extends AppLayoutRouterLayout implements PageCo
         }
         init(getLayoutConfiguration(variant));
     }
-    
-    @Subscribe
-    public void slaveAppNotification(AppEvent.AppNotification e) {
-        if (ui == null) {
-            return;
-        }
-        ui.access(() -> {
-            e.doNotification();
-        });
-    }
-    
-    @Subscribe
-    public void slaveAppClose(AppEvent.CloseUI e) {
-        if (ui == null) {
-            return;
-        }
-        ui.access(() -> {
-            OwlcmsFactory.getAppUIBus().unregister(this);
-            e.closeUI();
-        });
-    }
-    
+
     @Override
     public void configurePage(InitialPageSettings settings) {
         settings.addInlineWithContents("<link rel=\"icon\" href=\"./frontend/images/owlcms.ico\">",
@@ -160,6 +139,27 @@ public class OwlcmsRouterLayoutX extends AppLayoutRouterLayout implements PageCo
      */
     public HasElement getLayoutComponentContent() {
         return layoutComponentContent;
+    }
+
+    @Subscribe
+    public void slaveAppClose(AppEvent.CloseUI e) {
+        if (ui == null) {
+            return;
+        }
+        ui.access(() -> {
+            OwlcmsFactory.getAppUIBus().unregister(this);
+            e.closeUI();
+        });
+    }
+
+    @Subscribe
+    public void slaveAppNotification(AppEvent.AppNotification e) {
+        if (ui == null) {
+            return;
+        }
+        ui.access(() -> {
+            e.doNotification();
+        });
     }
 
 //    /*

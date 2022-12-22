@@ -20,6 +20,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
@@ -49,7 +50,6 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
     static {
         logger.setLevel(Level.INFO);
     }
-
     private OwlcmsCrudFormFactory<Group> editingFormFactory;
     private OwlcmsLayout routerLayout;
 
@@ -69,6 +69,11 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
     }
 
     public void closeDialog() {
+    }
+
+    @Override
+    public FlexLayout createMenuArea() {
+        return new FlexLayout();
     }
 
     @Override

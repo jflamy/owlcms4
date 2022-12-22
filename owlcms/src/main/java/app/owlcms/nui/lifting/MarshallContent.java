@@ -80,6 +80,11 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
         }
     }
 
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
+    }
+
     /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
@@ -129,12 +134,6 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
         HorizontalLayout buttons = new HorizontalLayout(stopTimeButton);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
         return buttons;
-    }
-    
-
-    @Override
-    public String getMenuTitle() {
-        return getPageTitle();
     }
 
     /**

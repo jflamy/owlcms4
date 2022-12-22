@@ -816,7 +816,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                     origin.closeDialog();
                 });
         withdrawalButton.getElement().setAttribute("theme", "error");
-        
 
         if (attemptsDone < 3) {
             vl.add(snatchWithdrawalButton, withdrawalButton);

@@ -162,7 +162,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
      */
     @Override
     protected FlexLayout createInitialBar() {
-        logger.warn("TimekeeperContent creating initial bar {}", LoggerUtils.whereFrom());
+
         topBar = new FlexLayout();
         initialBar = true;
 
@@ -240,7 +240,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
     @Override
     protected FlexLayout createTopBar() {
-        logger.warn("**** AthleteGridContent creating top bar");
+
         topBar = new FlexLayout();
         topBar.setClassName("athleteGridTopBar");
         initialBar = false;

@@ -70,6 +70,8 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
     protected ResponsiveStep[] responsiveSteps;
     private boolean valid = false;
 
+    Notification notif = new Notification("Saved.");
+
     /**
      * Instantiates a new Form Factory
      *
@@ -392,8 +394,6 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
     protected boolean isValid() {
         return valid;
     }
-
-    Notification notif = new Notification("Saved.");
 
     protected void performOperationAndCallback(CrudOperation operation, T domainObject,
             ComponentEventListener<ClickEvent<Button>> gridCallback) {

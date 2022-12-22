@@ -22,9 +22,9 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.nui.shared.OwlcmsLayoutAware;
 import app.owlcms.nui.shared.ContentWrapping;
 import app.owlcms.nui.shared.OwlcmsLayout;
+import app.owlcms.nui.shared.OwlcmsLayoutAware;
 import app.owlcms.nui.shared.RequireLogin;
 import ch.qos.logback.classic.Logger;
 
@@ -62,7 +62,7 @@ public class LoginView extends Composite<VerticalLayout> implements OwlcmsLayout
         pinField.setWidthFull();
         pinField.addValueChangeListener(event -> {
             String value = event.getValue();
-            logger.debug("login input {}",value);
+            logger.debug("login input {}", value);
             if (checkAuthenticated(value)) {
                 pinField.setErrorMessage(getTranslation("LoginDenied"));
                 pinField.setInvalid(true);
@@ -92,17 +92,14 @@ public class LoginView extends Composite<VerticalLayout> implements OwlcmsLayout
 
     }
 
-    protected void redirect() {
-        String requestedUrl = OwlcmsSession.getRequestedUrl();
-        if (requestedUrl != null) {
-            UI.getCurrent().navigate(requestedUrl, OwlcmsSession.getRequestedQueryParameters());
-        } else {
-            UI.getCurrent().navigate(HomeNavigationContent.class);
-        }
+    @Override
+    public FlexLayout createMenuArea() {
+        return new FlexLayout();
     }
 
-    protected boolean checkAuthenticated(String value) {
-        return !AccessUtils.checkAuthenticated(value);
+    @Override
+    public String getPageTitle() {
+        return Translator.translate("Login");
     }
 
     @Override
@@ -111,23 +108,26 @@ public class LoginView extends Composite<VerticalLayout> implements OwlcmsLayout
     }
 
     @Override
-    public void setRouterLayout(OwlcmsLayout routerLayout) {
-        this.routerLayout = routerLayout;
-    }
-
-    @Override
-    public String getPageTitle() {
-        return Translator.translate("Login");
-    }
-    
-    @Override
     public void setHeaderContent() {
         return;
     }
 
     @Override
-    public FlexLayout createMenuArea() {
-        return new FlexLayout();
+    public void setRouterLayout(OwlcmsLayout routerLayout) {
+        this.routerLayout = routerLayout;
+    }
+
+    protected boolean checkAuthenticated(String value) {
+        return !AccessUtils.checkAuthenticated(value);
+    }
+
+    protected void redirect() {
+        String requestedUrl = OwlcmsSession.getRequestedUrl();
+        if (requestedUrl != null) {
+            UI.getCurrent().navigate(requestedUrl, OwlcmsSession.getRequestedQueryParameters());
+        } else {
+            UI.getCurrent().navigate(HomeNavigationContent.class);
+        }
     }
 
 }

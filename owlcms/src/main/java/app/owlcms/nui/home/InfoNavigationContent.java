@@ -102,16 +102,16 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
     @Override
-    public String getPageTitle() {
-        return getTranslation("ShortTitle.Info");
+    public String getMenuTitle() {
+        return getTranslation("OWLCMS_Info");
     }
-    
+
     /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
     @Override
-    public String getMenuTitle() {
-        return getTranslation("OWLCMS_Info");
+    public String getPageTitle() {
+        return getTranslation("ShortTitle.Info");
     }
 
     /**

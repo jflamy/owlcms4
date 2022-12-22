@@ -68,7 +68,7 @@ public interface RequireLogin extends BeforeEnterObserver {
                     // login will send to home.
                 }
             } else {
-                logger.debug("no pin expected {} {}",paramPin, dbPin);
+                logger.debug("no pin expected {} {}", paramPin, dbPin);
             }
         }
     }

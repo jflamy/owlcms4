@@ -55,7 +55,8 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "ndisplays", layout = OwlcmsLayout.class)
-public class DisplayNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle, RequireDisplayLogin {
+public class DisplayNavigationContent extends BaseNavigationContent
+        implements NavigationPage, HasDynamicTitle, RequireDisplayLogin {
 
     final static Logger logger = (Logger) LoggerFactory.getLogger(DisplayNavigationContent.class);
     static {
@@ -91,13 +92,13 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
             scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"));
             scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"));
             scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
-            scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class, getTranslation("ScoreboardMultiRanksButton"));
+            scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
+                    getTranslation("ScoreboardMultiRanksButton"));
             medals = openInNewTab(ResultsMedals.class, getTranslation("CeremonyType.MEDALS"));
             currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"));
         }
-            
 
-        //Button liftingOrder = openInNewTab(LiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
+        // Button liftingOrder = openInNewTab(LiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
         Button liftingOrder = openInNewTab(ResultsLiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
         Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
         Button topTeams = openInNewTab(TopTeams.class, getTranslation("Scoreboard.TopTeams"));
@@ -132,6 +133,11 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
     }
 
     @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        RequireDisplayLogin.super.beforeEnter(event);
+    }
+
+    @Override
     public Location getLocation() {
         return this.location;
     }
@@ -142,13 +148,13 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
     }
 
     @Override
+    public String getMenuTitle() {
+        return getTranslation("StartDisplays");
+    }
+
+    @Override
     public String getPageTitle() {
         return getTranslation("ShortTitle.Displays") + OwlcmsSession.getFopNameIfMultiple();
-    }
-    
-    @Override
-    public String getMenuTitle() {
-        return getTranslation("ShortTitle.Displays");
     }
 
     @Override
@@ -183,12 +189,6 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);
         fopField.setAlignItems(Alignment.CENTER);
         return fopField;
-    }
-
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        RequireDisplayLogin.super.beforeEnter(event);
     }
 
 }

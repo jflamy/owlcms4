@@ -86,5 +86,4 @@ public class DownloadButtonFactory {
         return new Div(downloadButton);
     }
 
-
 }

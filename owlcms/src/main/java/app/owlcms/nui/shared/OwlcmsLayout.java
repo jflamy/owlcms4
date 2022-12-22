@@ -42,7 +42,6 @@ import app.owlcms.nui.home.InfoNavigationContent;
 import app.owlcms.nui.lifting.LiftingNavigationContent;
 import app.owlcms.nui.preparation.PreparationNavigationContent;
 import app.owlcms.nui.results.ResultsNavigationContent;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -65,7 +64,7 @@ public class OwlcmsLayout extends AppLayout {
     private HorizontalLayout header;
 
     public OwlcmsLayout() {
-        logger.warn("***** creating layout {}", getContent());
+
         navBarComponents = new ArrayList<>();
         // create default empty components. Content will fill them in.
         populateHeader();
@@ -76,14 +75,14 @@ public class OwlcmsLayout extends AppLayout {
 
     @Override
     public void addToNavbar(boolean touchOptimized, Component... components) {
-        logger.warn("***** adding1 {} from {}", components, LoggerUtils.whereFrom());
+
         navBarComponents.addAll(Arrays.asList(components));
         super.addToNavbar(touchOptimized, components);
     }
 
     @Override
     public void addToNavbar(Component... components) {
-        logger.warn("***** adding2 {} from {}", components, LoggerUtils.whereFrom());
+
         navBarComponents.addAll(Arrays.asList(components));
         super.addToNavbar(components);
     }
@@ -92,16 +91,16 @@ public class OwlcmsLayout extends AppLayout {
         setDrawerOpened(false);
     }
 
-    public FlexLayout getMenuArea() {
-        return menuArea;
-    }
-
     public DrawerToggle getDrawerToggle() {
         return drawerToggle;
     }
 
     public ComboBox<Locale> getLocaleDropDown() {
         return localeDropDown;
+    }
+
+    public FlexLayout getMenuArea() {
+        return menuArea;
     }
 
     /**
@@ -125,6 +124,14 @@ public class OwlcmsLayout extends AppLayout {
         super.remove(components);
     }
 
+    public void setMenuArea(FlexLayout horizontalLayout) {
+        this.menuArea = horizontalLayout;
+    }
+
+    public void setMenuTitle(String topBarTitle) {
+        getViewTitle().setText(topBarTitle);
+    }
+
     public void setMenuVisible(boolean hamburgerShown) {
         getDrawerToggle().setVisible(hamburgerShown);
     }
@@ -136,10 +143,6 @@ public class OwlcmsLayout extends AppLayout {
         this.navBarComponents = navBarComponents;
     }
 
-    public void setMenuTitle(String topBarTitle) {
-        getViewTitle().setText(topBarTitle);
-    }
-
     public void showLocaleDropdown(boolean b) {
         getLocaleDropDown().getStyle().set("display", b ? "block" : "none");
     }
@@ -147,45 +150,17 @@ public class OwlcmsLayout extends AppLayout {
     @Override
     public void showRouterLayoutContent(HasElement content) {
         if (content instanceof OwlcmsLayoutAware) {
-            logger.warn("***** aware showRouterLayoutContent {}", content);
+
             OwlcmsLayoutAware appContent = (OwlcmsLayoutAware) content;
             appContent.setRouterLayout(this);
             super.showRouterLayoutContent(content);
             appContent.setHeaderContent();
         } else {
-            logger.warn("***** NOT aware showRouterLayoutContent {}", content);
+
             super.showRouterLayoutContent(content);
             populateHeader();
         }
 
-    }
-
-    @Override
-    protected void afterNavigation() {
-        super.afterNavigation();
-        setMenuTitle(getCurrentPageTitle());
-    }
-
-    protected void populateHeader() {
-        header = new HorizontalLayout();
-        header.setPadding(false);
-        header.setSpacing(false);
-        
-        setDrawerToggle(new DrawerToggle());
-        getDrawerToggle().getElement().setAttribute("aria-label", "Menu drawerToggle");
-        getDrawerToggle().setSizeUndefined();
-        
-        setViewTitle(new Label());
-        Style style = getViewTitle().getElement().getStyle();
-        style.set("font-size", "large");
-        style.set("margin-left", "0");
-        //getViewTitle().setWidth("12ch");
-        
-        setMenuArea(createMenuArea());
-        
-        setLocaleDropDown(createLocaleDropdown());
-        
-        updateHeader();
     }
 
     public void updateHeader() {
@@ -196,13 +171,50 @@ public class OwlcmsLayout extends AppLayout {
         header.setWidth("100%");
         header.setAlignItems(Alignment.CENTER);
 
-        logger.warn("***** OwlcmsLayout update HeaderContent from {}", LoggerUtils.whereFrom());
         clearNavBar();
         addToNavbar(false, header);
     }
 
-    public void setMenuArea(FlexLayout horizontalLayout) {
-        this.menuArea = horizontalLayout;
+    @Override
+    protected void afterNavigation() {
+        super.afterNavigation();
+        setMenuTitle(getCurrentPageTitle());
+    }
+
+    /**
+     * Create the top bar.
+     *
+     * Note: the top bar is created before the content.
+     *
+     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
+     *
+     * @param header
+     */
+    protected FlexLayout createMenuArea() {
+        FlexLayout hLayout = new FlexLayout();
+        hLayout.setFlexDirection(FlexDirection.ROW);
+        return hLayout;
+    }
+
+    protected void populateHeader() {
+        header = new HorizontalLayout();
+        header.setPadding(false);
+        header.setSpacing(false);
+
+        setDrawerToggle(new DrawerToggle());
+        getDrawerToggle().getElement().setAttribute("aria-label", "Menu drawerToggle");
+        getDrawerToggle().setSizeUndefined();
+
+        setViewTitle(new Label());
+        Style style = getViewTitle().getElement().getStyle();
+        style.set("font-size", "large");
+        style.set("padding-right", "1em");
+
+        setMenuArea(createMenuArea());
+
+        setLocaleDropDown(createLocaleDropdown());
+
+        updateHeader();
     }
 
     private void addDrawerContent() {
@@ -231,69 +243,6 @@ public class OwlcmsLayout extends AppLayout {
         return sessionLocaleField;
     }
 
-    private String getCurrentPageTitle() {
-        PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
-        return title == null ? "" : title.value();
-    }
-
-    private void setDrawerToggle(DrawerToggle drawerToggle) {
-        this.drawerToggle = drawerToggle;
-    }
-
-    private void setLocaleDropDown(ComboBox<Locale> localeDropDown) {
-        this.localeDropDown = localeDropDown;
-    }
-
-    private void setViewTitle(Label viewTitle) {
-        this.viewTitle = viewTitle;
-    }
-
-    private Tabs getTabs() {
-        Tabs tabs = new Tabs();
-        String docOpener = "javascript:window.open('https://jflamy.github.io/owlcms4/#/index','_blank')";
-        tabs.add(
-                createTab(IronIcons.HOME.create(), 
-                        Translator.translate("Home"), 
-                        HomeNavigationContent.class),
-                createTab(SocialIcons.GROUP_ADD.create(), 
-                        Translator.translate("PrepareCompetition"),
-                        PreparationNavigationContent.class),
-                createTab(PlacesIcons.FITNESS_CENTER.create(), 
-                        Translator.translate("RunLiftingGroup"),
-                        LiftingNavigationContent.class),
-                createTab(HardwareIcons.DESKTOP_WINDOWS.create(), 
-                        Translator.translate("StartDisplays"),
-                        DisplayNavigationContent.class),
-                createTab(MapsIcons.LOCAL_PRINTSHOP.create(), 
-                        Translator.translate("Results"),
-                        ResultsNavigationContent.class),
-                createTab(IronIcons.HELP.create(), 
-                        Translator.translate("Documentation_Menu"),
-                        docOpener
-                        ),
-                createTab(IronIcons.INFO_OUTLINE.create(), 
-                        Translator.translate("About"),
-                        InfoNavigationContent.class)
-                );
-
-        Translator.translate("RunLiftingGroup");
-        tabs.setOrientation(Tabs.Orientation.VERTICAL);
-        return tabs;
-    }
-
-    private Tab createTab(IronIcon viewIcon, String viewName,
-            String docOpener) {
-        Anchor a = new Anchor();
-        a.setHref(docOpener);
-        a.add(viewIcon);
-        // copied from router-link
-        viewIcon.getElement().setAttribute("style", "padding: var(--lumo-space-xs); margin-inline-end: var(--lumo-space-m); box-sizing: border-box;");
-        a.add(new Span(viewName));
-        a.getElement().setAttribute("router-link", true);
-
-        return new Tab(a);
-    }
-
     private Tab createTab(IronIcon viewIcon, String viewName, Class<? extends Component> viewClass) {
         viewIcon.getStyle().set("box-sizing", "border-box")
                 .set("margin-inline-end", "var(--lumo-space-m)")
@@ -307,19 +256,66 @@ public class OwlcmsLayout extends AppLayout {
         return new Tab(link);
     }
 
-    /**
-     * Create the top bar.
-     *
-     * Note: the top bar is created before the content.
-     *
-     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
-     *
-     * @param header
-     */
-    protected FlexLayout createMenuArea() {
-        FlexLayout hLayout = new FlexLayout();
-        hLayout.setFlexDirection(FlexDirection.ROW);
-        return hLayout;
+    private Tab createTab(IronIcon viewIcon, String viewName,
+            String docOpener) {
+        Anchor a = new Anchor();
+        a.setHref(docOpener);
+        a.add(viewIcon);
+        // copied from router-link
+        viewIcon.getElement().setAttribute("style",
+                "padding: var(--lumo-space-xs); margin-inline-end: var(--lumo-space-m); box-sizing: border-box;");
+        a.add(new Span(viewName));
+        a.getElement().setAttribute("router-link", true);
+
+        return new Tab(a);
+    }
+
+    private String getCurrentPageTitle() {
+        PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
+        return title == null ? "" : title.value();
+    }
+
+    private Tabs getTabs() {
+        Tabs tabs = new Tabs();
+        String docOpener = "javascript:window.open('https://jflamy.github.io/owlcms4/#/index','_blank')";
+        tabs.add(
+                createTab(IronIcons.HOME.create(),
+                        Translator.translate("Home"),
+                        HomeNavigationContent.class),
+                createTab(SocialIcons.GROUP_ADD.create(),
+                        Translator.translate("PrepareCompetition"),
+                        PreparationNavigationContent.class),
+                createTab(PlacesIcons.FITNESS_CENTER.create(),
+                        Translator.translate("RunLiftingGroup"),
+                        LiftingNavigationContent.class),
+                createTab(HardwareIcons.DESKTOP_WINDOWS.create(),
+                        Translator.translate("StartDisplays"),
+                        DisplayNavigationContent.class),
+                createTab(MapsIcons.LOCAL_PRINTSHOP.create(),
+                        Translator.translate("Results"),
+                        ResultsNavigationContent.class),
+                createTab(IronIcons.HELP.create(),
+                        Translator.translate("Documentation_Menu"),
+                        docOpener),
+                createTab(IronIcons.INFO_OUTLINE.create(),
+                        Translator.translate("About"),
+                        InfoNavigationContent.class));
+
+        Translator.translate("RunLiftingGroup");
+        tabs.setOrientation(Tabs.Orientation.VERTICAL);
+        return tabs;
+    }
+
+    private void setDrawerToggle(DrawerToggle drawerToggle) {
+        this.drawerToggle = drawerToggle;
+    }
+
+    private void setLocaleDropDown(ComboBox<Locale> localeDropDown) {
+        this.localeDropDown = localeDropDown;
+    }
+
+    private void setViewTitle(Label viewTitle) {
+        this.viewTitle = viewTitle;
     }
 
 }

@@ -109,7 +109,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     public AthleteRegistrationFormFactory(Class<Athlete> domainType, Group group) {
         super(domainType);
-        //logger.trace("constructor {} {}", System.identityHashCode(this), group);
+        // logger.trace("constructor {} {}", System.identityHashCode(this), group);
         this.setCurrentGroup(group);
     }
 
@@ -141,6 +141,65 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     }
 
     /**
+     * @see app.owlcms.nui.crudui.OwlcmsCrudFormFactory#buildFooter(org.vaadin.crudui.crud.CrudOperation,
+     *      java.lang.Object, com.vaadin.flow.component.ComponentEventListener,
+     *      com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.ComponentEventListener)
+     */
+    @Override
+    public Component buildFooter(CrudOperation operation,
+            Athlete athlete,
+            ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
+            ComponentEventListener<ClickEvent<Button>> postOperationCallBack,
+            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener,
+            boolean shortcutEnter,
+            Button... buttons) {
+
+        Button operationButton = null;
+
+        if (operation == CrudOperation.UPDATE) {
+            operationButton = buildOperationButton(CrudOperation.UPDATE, athlete, postOperationCallBack);
+        } else if (operation == CrudOperation.ADD) {
+            operationButton = buildOperationButton(CrudOperation.ADD, athlete, postOperationCallBack);
+        }
+        Button deleteButton = buildDeleteButton(CrudOperation.DELETE, athlete, deleteButtonClickListener);
+        Checkbox validateEntries = buildIgnoreErrorsCheckbox();
+        Button cancelButton = buildCancelButton(cancelButtonClickListener);
+
+        HorizontalLayout footerLayout = new HorizontalLayout();
+        footerLayout.setWidth("100%");
+        footerLayout.setSpacing(true);
+        footerLayout.setPadding(false);
+
+        if (deleteButton != null && operation != CrudOperation.ADD) {
+            footerLayout.add(deleteButton);
+        }
+
+        Label spacer = new Label();
+        footerLayout.add(spacer, operationTrigger);
+        VerticalLayout vl = new VerticalLayout();
+        vl.setSizeUndefined();
+        vl.setPadding(false);
+        vl.setMargin(false);
+        vl.add(validateEntries);
+        footerLayout.add(vl);
+        footerLayout.setAlignItems(Alignment.CENTER);
+
+        if (cancelButton != null) {
+            footerLayout.add(cancelButton);
+        }
+
+        if (operationButton != null) {
+            footerLayout.add(operationButton);
+            if (operation == CrudOperation.UPDATE && shortcutEnter) {
+                ShortcutRegistration reg = operationButton.addClickShortcut(Key.ENTER);
+                reg.allowBrowserDefault();
+            }
+        }
+        footerLayout.setFlexGrow(1.0, spacer);
+        return footerLayout;
+    }
+
+    /**
      * @see app.owlcms.nui.crudui.OwlcmsCrudFormFactory#buildNewForm(org.vaadin.crudui.crud.CrudOperation,
      *      java.lang.Object, boolean, com.vaadin.flow.component.ComponentEventListener,
      *      com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.ComponentEventListener,
@@ -153,7 +212,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
         printButton = new Button(Translator.translate("AthleteCard"), IronIcons.PRINT.create());
 
-        //logger.trace("buildNewForm {} {} {}", System.identityHashCode(this), getCurrentGroup(), LoggerUtils.stackTrace());
+        // logger.trace("buildNewForm {} {} {}", System.identityHashCode(this), getCurrentGroup(),
+        // LoggerUtils.stackTrace());
         if (operation == CrudOperation.ADD) {
             Athlete editedAthlete2 = new Athlete();
             if (getCurrentGroup() != null) {
@@ -238,28 +298,6 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     @Override
     public Collection<Athlete> findAll() {
         throw new UnsupportedOperationException(); // should be called on the grid, not on the form
-    }
-
-    @Override
-    public String getPageTitle() {
-        // not used
-        return null;
-    }
-    
-    @Override
-    public String getMenuTitle() {
-        return getPageTitle();
-    }
-
-    @Override
-    public OwlcmsLayout getRouterLayout() {
-        // not used
-        return null;
-    }
-
-    @Override
-    public void setRouterLayout(OwlcmsLayout routerLayout) {
-        // not used
     }
 
     @Override
@@ -372,7 +410,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected void validateCategory(Binder.BindingBuilder bindingBuilder) {
-        
+
         // check that category is consistent with body weight
         Validator<Category> v1 = Validator.from((category) -> {
             try {
@@ -460,15 +498,17 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             return true;
         }, Translator.translate("Category_no_match_gender"));
         bindingBuilder.withValidator(v3);
-        
+
         // a category change requires explicit ok.
 
         Validator<Category> v4 = Validator.from((category) -> {
             try {
-                if (isIgnoreErrors() || initialCategory == null || (getEditedAthlete().getBodyWeight() == null && category == null)) {
+                if (isIgnoreErrors() || initialCategory == null
+                        || (getEditedAthlete().getBodyWeight() == null && category == null)) {
                     return true;
                 }
-                logger.debug("initialCategory = {}  new category = {}", initialCategory, getEditedAthlete().getCategory());
+                logger.debug("initialCategory = {}  new category = {}", initialCategory,
+                        getEditedAthlete().getCategory());
                 return category.sameAs(initialCategory);
             } catch (Exception e) {
                 LoggerUtils.logError(logger, e);
@@ -540,6 +580,20 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     private Category bestMatch(List<Category> allEligible2) {
         return allEligible2 != null ? (allEligible2.size() > 0 ? allEligible2.get(0) : null) : null;
+    }
+
+    private Checkbox buildIgnoreErrorsCheckbox() {
+        ignoreErrorsCheckbox = new Checkbox(Translator.translate("RuleViolation.ignoreErrors"), e -> {
+            if (BooleanUtils.isTrue(isIgnoreErrors())) {
+                logger./**/warn/**/("{}!Errors ignored - checkbox override for athlete {}",
+                        OwlcmsSession.getFop().getLoggingName(), this.getEditedAthlete().getShortName());
+                // binder.validate();
+                binder.writeBeanAsDraft(editedAthlete, true);
+            }
+
+        });
+        ignoreErrorsCheckbox.getStyle().set("margin-left", "3em");
+        return ignoreErrorsCheckbox;
     }
 
     private boolean categoryIsEligible(Category category, List<Category> eligibles) {
@@ -728,6 +782,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         return age;
     }
 
+    private Group getCurrentGroup() {
+        return currentGroup;
+    }
+
     private Athlete getEditedAthlete() {
         return editedAthlete;
     }
@@ -752,6 +810,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     private boolean isCheckOther20kgFields() {
         return checkOther20kgFields;
+    }
+
+    private boolean isIgnoreErrors() {
+        return BooleanUtils.isTrue(ignoreErrorsCheckbox == null ? null : ignoreErrorsCheckbox.getValue());
     }
 
     private void recomputeCategories(
@@ -820,6 +882,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     private void setCheckOther20kgFields(boolean checkOther20kgFields) {
         logger.debug("checkOther20kgFields={} {}", checkOther20kgFields, LoggerUtils.whereFrom());
         this.checkOther20kgFields = checkOther20kgFields;
+    }
+
+    private void setCurrentGroup(Group currentGroup) {
+        this.currentGroup = currentGroup;
     }
 
     private void setEditedAthlete(Athlete editedAthlete) {
@@ -902,91 +968,6 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             throw e1;
         }
         return true;
-    }
-
-    /**
-     * @see app.owlcms.nui.crudui.OwlcmsCrudFormFactory#buildFooter(org.vaadin.crudui.crud.CrudOperation,
-     *      java.lang.Object, com.vaadin.flow.component.ComponentEventListener,
-     *      com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.ComponentEventListener)
-     */
-    @Override
-    public Component buildFooter(CrudOperation operation,
-            Athlete athlete,
-            ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> postOperationCallBack,
-            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener,
-            boolean shortcutEnter,
-            Button... buttons) {
-
-        Button operationButton = null;
-
-        if (operation == CrudOperation.UPDATE) {
-            operationButton = buildOperationButton(CrudOperation.UPDATE, athlete, postOperationCallBack);
-        } else if (operation == CrudOperation.ADD) {
-            operationButton = buildOperationButton(CrudOperation.ADD, athlete, postOperationCallBack);
-        }
-        Button deleteButton = buildDeleteButton(CrudOperation.DELETE, athlete, deleteButtonClickListener);
-        Checkbox validateEntries = buildIgnoreErrorsCheckbox();
-        Button cancelButton = buildCancelButton(cancelButtonClickListener);
-
-        HorizontalLayout footerLayout = new HorizontalLayout();
-        footerLayout.setWidth("100%");
-        footerLayout.setSpacing(true);
-        footerLayout.setPadding(false);
-
-        if (deleteButton != null && operation != CrudOperation.ADD) {
-            footerLayout.add(deleteButton);
-        }
-
-        Label spacer = new Label();
-        footerLayout.add(spacer, operationTrigger);
-        VerticalLayout vl = new VerticalLayout();
-        vl.setSizeUndefined();
-        vl.setPadding(false);
-        vl.setMargin(false);
-        vl.add(validateEntries);
-        footerLayout.add(vl);
-        footerLayout.setAlignItems(Alignment.CENTER);
-
-        if (cancelButton != null) {
-            footerLayout.add(cancelButton);
-        }
-
-        if (operationButton != null) {
-            footerLayout.add(operationButton);
-            if (operation == CrudOperation.UPDATE && shortcutEnter) {
-                ShortcutRegistration reg = operationButton.addClickShortcut(Key.ENTER);
-                reg.allowBrowserDefault();
-            }
-        }
-        footerLayout.setFlexGrow(1.0, spacer);
-        return footerLayout;
-    }
-
-    private Checkbox buildIgnoreErrorsCheckbox() {
-        ignoreErrorsCheckbox = new Checkbox(Translator.translate("RuleViolation.ignoreErrors"), e -> {
-            if (BooleanUtils.isTrue(isIgnoreErrors())) {
-                logger./**/warn/**/("{}!Errors ignored - checkbox override for athlete {}",
-                        OwlcmsSession.getFop().getLoggingName(), this.getEditedAthlete().getShortName());
-                // binder.validate();
-                binder.writeBeanAsDraft(editedAthlete, true);
-            }
-
-        });
-        ignoreErrorsCheckbox.getStyle().set("margin-left", "3em");
-        return ignoreErrorsCheckbox;
-    }
-
-    private boolean isIgnoreErrors() {
-        return BooleanUtils.isTrue(ignoreErrorsCheckbox == null ? null : ignoreErrorsCheckbox.getValue());
-    }
-
-    private Group getCurrentGroup() {
-        return currentGroup;
-    }
-
-    private void setCurrentGroup(Group currentGroup) {
-        this.currentGroup = currentGroup;
     }
 
 }

@@ -27,7 +27,7 @@ import app.owlcms.utils.URLUtils;
  * @author Jean-François Lamy
  *
  */
-public interface NavigationPage extends OwlcmsContent {
+public interface NavigationPage extends ContentWrapping {
 
     /**
      * Create a paragraph with HTML inside.

@@ -17,7 +17,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -289,8 +288,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     private boolean checkImmediateBreak() {
         return false;
 //                (getRequestedBreakType() != null
-//                && (getRequestedBreakType() == JURY 
-//                || getRequestedBreakType() == TECHNICAL      
+//                && (getRequestedBreakType() == JURY
+//                || getRequestedBreakType() == TECHNICAL
 //                || getRequestedBreakType() == MARSHAL
 //                ));
     }
@@ -485,7 +484,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         HorizontalLayout medalButtons = new HorizontalLayout();
 
         List<Group> groups = GroupRepository.findAll();
-        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+        groups.sort(new NaturalOrderComparator<Group>());
         FieldOfPlay fop2 = OwlcmsSession.getFop();
         GroupCategorySelectionMenu groupCategorySelectionMenu = new GroupCategorySelectionMenu(groups, fop2,
                 // group has been selected

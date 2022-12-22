@@ -76,6 +76,17 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
         return athlete;
     }
 
+    /**
+     * @see app.owlcms.nui.shared.AthleteGridContent#createTopBar()
+     */
+    @Override
+    public FlexLayout createMenuArea() {
+        FlexLayout fl = super.createMenuArea();
+        // this hides the back arrow
+        getAppLayout().setMenuVisible(true);
+        return fl;
+    }
+
     @Override
     public void delete(Athlete Athlete) {
 
@@ -86,17 +97,17 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
         return crudFormFactory;
     }
 
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
+    }
+
     /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
     @Override
     public String getPageTitle() {
         return getTranslation("PlatesCollarBarbell") + OwlcmsSession.getFopNameIfMultiple();
-    }
-    
-    @Override
-    public String getMenuTitle() {
-        return getPageTitle();
     }
 
     public void setCrudFormFactory(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
@@ -120,17 +131,6 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
     @Override
     protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
         return null;
-    }
-
-    /**
-     * @see app.owlcms.nui.shared.AthleteGridContent#createTopBar()
-     */
-    @Override
-   public FlexLayout createMenuArea () {
-        FlexLayout fl = super.createMenuArea();
-        // this hides the back arrow
-        getAppLayout().setMenuVisible(true);
-        return fl;
     }
 
     @Override
@@ -158,7 +158,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
         StringToIntegerConverter converter = new StringToIntegerConverter(getTranslation("MustEnterNumber"));
 
         Binder<Platform> binder = new Binder<>();
-        Converter<Boolean,Integer> bc = Converter.from(checked -> Result.ok(checked ? 1 : 0),
+        Converter<Boolean, Integer> bc = Converter.from(checked -> Result.ok(checked ? 1 : 0),
                 value -> value > 0);
 
         TextField nbL25 = new TextField();
@@ -219,7 +219,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
         Checkbox nbC2_5 = new Checkbox();
         collar.addFormItem(nbC2_5, getTranslation("Kg", 2.5));
         binder.forField(nbC2_5).withConverter(bc).bind(Platform::getNbC_2_5, Platform::setNbC_2_5);
-        
+
         Checkbox useOtherBar = new Checkbox();
         TextField barWeight = new TextField();
         barWeight.setWidth("5ch");
@@ -260,12 +260,12 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
         });
 
         FlexLayout platesEdit = new FlexLayout(
-                new H3(getTranslation("BumperPlates")), 
+                new H3(getTranslation("BumperPlates")),
                 new Label(getTranslation("PlatesPerSide")),
                 largePlates,
-                new H3(getTranslation("MetalPlates")), smallPlates, 
+                new H3(getTranslation("MetalPlates")), smallPlates,
                 new H3(getTranslation("Collar")), collar,
-                new H3(getTranslation("Bar")), lightBar, 
+                new H3(getTranslation("Bar")), lightBar,
                 new H3(""), applyButton);
         platesEdit.getStyle().set("flex-direction", "column");
         platesEdit.setWidth("120em");

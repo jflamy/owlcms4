@@ -134,7 +134,7 @@ public class RegistrationFileUploadDialog extends Dialog {
             if (e != null) {
                 Throwable cause = e.getCause();
                 String causeMessage = cause != null ? cause.getLocalizedMessage() : e.getLocalizedMessage();
-                //causeMessage = LoggerUtils.stackTrace(cause);
+                // causeMessage = LoggerUtils.stackTrace(cause);
                 causeMessage = causeMessage != null ? causeMessage : e.toString();
                 if (causeMessage.contentEquals("text")) {
                     causeMessage = "Empty or invalid.";
@@ -174,7 +174,7 @@ public class RegistrationFileUploadDialog extends Dialog {
 
                 XLSReadStatus status = reader.read(inputStream, beans);
 
-                // we created a batch of new athletes. the ones that have exact matches for a 
+                // we created a batch of new athletes. the ones that have exact matches for a
                 // category have had their eligibility and team memberships set in during the reader processing.
                 keepParticipations = beans.values().stream()
                         .filter(r -> ((RAthlete) r).getAthlete().getEligibleCategories() != null).findFirst()
@@ -333,7 +333,8 @@ public class RegistrationFileUploadDialog extends Dialog {
                         if (teams.contains(p.getCategory())) {
                             p.setTeamMember(true);
                         } else {
-                            logger.info("Excluding {} as team member for {}",a2.getShortName(),p.getCategory().getComputedCode());
+                            logger.info("Excluding {} as team member for {}", a2.getShortName(),
+                                    p.getCategory().getComputedCode());
                             p.setTeamMember(false);
                         }
                     }

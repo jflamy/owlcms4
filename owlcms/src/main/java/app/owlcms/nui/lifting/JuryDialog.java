@@ -340,6 +340,14 @@ public class JuryDialog extends EnhancedDialog {
         f.getElement().getStyle().set("--vaadin-form-item-label-width", "15em");
     }
 
+    private Athlete getReviewedAthlete() {
+        return reviewedAthlete;
+    }
+
+    private void setReviewedAthlete(Athlete reviewedAthlete) {
+        this.reviewedAthlete = reviewedAthlete;
+    }
+
     private synchronized boolean shortcutTooSoon() {
         long now = System.currentTimeMillis();
         long delta = now - lastShortcut;
@@ -374,13 +382,5 @@ public class JuryDialog extends EnhancedDialog {
         }
         fop.fopEventPost(new FOPEvent.SummonReferee(this.origin, i));
 
-    }
-
-    private Athlete getReviewedAthlete() {
-        return reviewedAthlete;
-    }
-
-    private void setReviewedAthlete(Athlete reviewedAthlete) {
-        this.reviewedAthlete = reviewedAthlete;
     }
 }

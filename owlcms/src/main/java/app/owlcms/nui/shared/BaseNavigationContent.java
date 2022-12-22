@@ -8,7 +8,6 @@
 package app.owlcms.nui.shared;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -74,6 +73,52 @@ public abstract class BaseNavigationContent extends VerticalLayout
     public BaseNavigationContent() {
     }
 
+    public ComboBox<Group> createGroupSelect(String placeHolder) {
+        groupSelect = new ComboBox<>();
+        groupSelect.setPlaceholder(placeHolder);
+        List<Group> groups = GroupRepository.findAll();
+        groups.sort(new NaturalOrderComparator<Group>());
+        groupSelect.setItems(groups);
+        groupSelect.setItemLabelGenerator(Group::getName);
+        groupSelect.setWidth("10rem");
+        return groupSelect;
+    }
+
+    /**
+     * The top bar is logically is the master part of a master-detail In the current implementation, the most convenient
+     * place to put it is in the top bar which is managed by the layout, but this could change. So we change the
+     * surrounding layout from this class. In this way, only one class (the content) listens for events. Doing it the
+     * other way around would require multiple layouts, which breaks the idea of a single page app.
+     *
+     * @return
+     */
+    @Override
+    public FlexLayout createMenuArea() {
+        HorizontalLayout fopField = createMenuBarFopField(getTranslation("CompetitionPlatform"),
+                getTranslation("SelectPlatform"));
+        HorizontalLayout menu = new HorizontalLayout();
+        menu.setSizeFull();
+        if (fopField != null) {
+            menu.add(fopField);
+        }
+        Div spacer = new Div();
+        spacer.setSizeFull();
+
+        menu.add(spacer);
+        menu.setSpacing(true);
+        menu.setAlignItems(FlexComponent.Alignment.CENTER);
+        menu.setFlexGrow(1.0, spacer);
+        FlexLayout fl = new FlexLayout();
+        fl.add(menu);
+        fl.setFlexGrow(1.0, menu);
+        return fl;
+    }
+
+    @Override
+    final public OwlcmsLayout getRouterLayout() {
+        return routerLayout;
+    }
+
     @Override
     public void setHeaderContent() {
         routerLayout.setMenuTitle(getMenuTitle());
@@ -81,22 +126,6 @@ public abstract class BaseNavigationContent extends VerticalLayout
         routerLayout.showLocaleDropdown(true);
         routerLayout.setDrawerOpened(true);
         routerLayout.updateHeader();
-    }
-    
-    public ComboBox<Group> createGroupSelect(String placeHolder) {
-        groupSelect = new ComboBox<>();
-        groupSelect.setPlaceholder(placeHolder);
-        List<Group> groups = GroupRepository.findAll();
-        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
-        groupSelect.setItems(groups);
-        groupSelect.setItemLabelGenerator(Group::getName);
-        groupSelect.setWidth("10rem");
-        return groupSelect;
-    }
-
-    @Override
-    final public OwlcmsLayout getRouterLayout() {
-        return routerLayout;
     }
 
     /**
@@ -114,7 +143,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
 
     @Override
     final public void setRouterLayout(OwlcmsLayout routerLayout) {
-        logger.warn("**** setting router layout {}", routerLayout);
+
         this.routerLayout = routerLayout;
     }
 
@@ -144,34 +173,6 @@ public abstract class BaseNavigationContent extends VerticalLayout
         fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
         fopSelect.setWidth("10rem");
         return fopSelect;
-    }
-
-    /**
-     * The top bar is logically is the master part of a master-detail In the current implementation, the most convenient
-     * place to put it is in the top bar which is managed by the layout, but this could change. So we change the
-     * surrounding layout from this class. In this way, only one class (the content) listens for events. Doing it the
-     * other way around would require multiple layouts, which breaks the idea of a single page app.
-     * @return 
-     */
-    public FlexLayout createMenuArea() {
-        HorizontalLayout fopField = createMenuBarFopField(getTranslation("CompetitionPlatform"),
-                getTranslation("SelectPlatform"));
-        HorizontalLayout menu = new HorizontalLayout();
-        menu.setSizeFull();
-        if (fopField != null) {
-            menu.add(fopField);
-        }
-        Div spacer = new Div();
-        spacer.setSizeFull();
-        
-        menu.add(spacer);
-        menu.setSpacing(true);
-        menu.setAlignItems(FlexComponent.Alignment.CENTER);
-        menu.setFlexGrow(1.0, spacer);
-        FlexLayout fl = new FlexLayout();
-        fl.add(menu);
-        fl.setFlexGrow(1.0, menu);
-        return fl;
     }
 
     protected HorizontalLayout createMenuBarFopField(String label, String placeHolder) {

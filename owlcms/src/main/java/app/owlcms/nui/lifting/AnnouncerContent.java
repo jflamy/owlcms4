@@ -340,7 +340,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
     @Override
     protected FlexLayout createTopBar() {
-        logger.warn("**** AthleteGridContent creating top bar");
+
         topBar = new FlexLayout();
         topBar.setClassName("athleteGridTopBar");
         initialBar = false;

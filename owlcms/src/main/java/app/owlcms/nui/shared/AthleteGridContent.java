@@ -9,7 +9,6 @@ package app.owlcms.nui.shared;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -262,59 +261,10 @@ public abstract class AthleteGridContent extends VerticalLayout
         crudGrid.getGrid().asSingleSelect().clear();
     }
 
-    public HorizontalLayout createTopBarLeft() {
-        setTopBarLeft(new HorizontalLayout());
-        fillTopBarLeft();
-        return getTopBarLeft();
-    }
-
     /**
-     * Delegate to the form factory which actually implements deletion
+     * Used by the TimeKeeper and TechnicalController classes that abusively inherit from this class (they don't
+     * actually have a grid)
      *
-     * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
-     */
-    @Override
-    public void delete(Athlete notUsed) {
-        getAthleteEditingFormFactory().delete(notUsed);
-    }
-
-    /**
-     * @see app.owlcms.uievents.BreakDisplay#doBreak(app.owlcms.uievents.UIEvent)
-     */
-    @Override
-    public void doBreak(UIEvent event) {
-        if (event instanceof UIEvent.BreakStarted) {
-            UIEvent.BreakStarted e = (UIEvent.BreakStarted) event;
-            if (breakButton != null) {
-                breakButton.setText(getTranslation("BreakType." + e.getBreakType()) + "\u00a0\u00a0");
-            }
-        }
-
-    }
-
-    @Override
-    public void setHeaderContent() {
-        routerLayout.setMenuTitle(getPageTitle());
-        routerLayout.setMenuArea(createMenuArea());
-        routerLayout.showLocaleDropdown(false);
-        routerLayout.setDrawerOpened(false);
-        routerLayout.updateHeader();
-    }
-
-    /**
-     * @see app.owlcms.uievents.BreakDisplay#doCeremony(app.owlcms.uievents.UIEvent.CeremonyStarted)
-     */
-    @Override
-    public void doCeremony(UIEvent.CeremonyStarted e) {
-        if (breakButton != null) {
-            breakButton.setText(getTranslation("CeremonyType." + e.getCeremonyType()) + "\u00a0\u00a0");
-        }
-    }
-
-    /**
-     * Used by the TimeKeeper and TechnicalController classes that abusively
-     * inherit from this class (they don't actually have a grid)
-     * 
      * @see app.owlcms.nui.shared.AthleteGridContent#createTopBar()
      */
     @Override
@@ -382,7 +332,47 @@ public abstract class AthleteGridContent extends VerticalLayout
         topBar.setFlexGrow(0.0, topBarLeft);
         return topBar;
     }
-    
+
+    public HorizontalLayout createTopBarLeft() {
+        setTopBarLeft(new HorizontalLayout());
+        fillTopBarLeft();
+        return getTopBarLeft();
+    }
+
+    /**
+     * Delegate to the form factory which actually implements deletion
+     *
+     * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
+     */
+    @Override
+    public void delete(Athlete notUsed) {
+        getAthleteEditingFormFactory().delete(notUsed);
+    }
+
+    /**
+     * @see app.owlcms.uievents.BreakDisplay#doBreak(app.owlcms.uievents.UIEvent)
+     */
+    @Override
+    public void doBreak(UIEvent event) {
+        if (event instanceof UIEvent.BreakStarted) {
+            UIEvent.BreakStarted e = (UIEvent.BreakStarted) event;
+            if (breakButton != null) {
+                breakButton.setText(getTranslation("BreakType." + e.getBreakType()) + "\u00a0\u00a0");
+            }
+        }
+
+    }
+
+    /**
+     * @see app.owlcms.uievents.BreakDisplay#doCeremony(app.owlcms.uievents.UIEvent.CeremonyStarted)
+     */
+    @Override
+    public void doCeremony(UIEvent.CeremonyStarted e) {
+        if (breakButton != null) {
+            breakButton.setText(getTranslation("CeremonyType." + e.getCeremonyType()) + "\u00a0\u00a0");
+        }
+    }
+
     /**
      * Get the content of the crudGrid. Invoked by refreshGrid.
      *
@@ -491,6 +481,15 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     public void setFirstNameWrapper(H3 firstNameWrapper) {
         this.firstNameWrapper = firstNameWrapper;
+    }
+
+    @Override
+    public void setHeaderContent() {
+        routerLayout.setMenuTitle(getPageTitle());
+        routerLayout.setMenuArea(createMenuArea());
+        routerLayout.showLocaleDropdown(false);
+        routerLayout.setDrawerOpened(false);
+        routerLayout.updateHeader();
     }
 
     public void setIgnoreSwitchGroup(boolean b) {
@@ -675,6 +674,19 @@ public abstract class AthleteGridContent extends VerticalLayout
                 break;
             }
             doNotification(text, style);
+        });
+    }
+
+    @Subscribe
+    public void slaveNotification(UIEvent.Notification e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            String fopEventString = e.getFopEventString();
+            if (fopEventString != null && fopEventString.contentEquals("TimeStarted")) {
+                // time started button was selected, but denied. reset the colors
+                // to show that time is not running.
+                buttonsTimeStopped();
+            }
+            e.doNotification();
         });
     }
 
@@ -932,7 +944,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     protected FlexLayout createTopBar() {
-        logger.warn("**** AthleteGridContent creating top bar");
+
         topBar = new FlexLayout();
         topBar.setClassName("athleteGridTopBar");
         initialBar = false;
@@ -1085,7 +1097,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
         getGroupFilter().setPlaceholder(getTranslation("Group"));
         List<Group> groups = GroupRepository.findAll();
-        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+        groups.sort(new NaturalOrderComparator<Group>());
         getGroupFilter().setItems(groups);
         getGroupFilter().setItemLabelGenerator(Group::getName);
         // hide because the top bar has it
@@ -1111,6 +1123,22 @@ public abstract class AthleteGridContent extends VerticalLayout
         toolbarLayout.setSizeUndefined();
 
         horizontalLayout.getParent().get().getElement().setAttribute("style", "width: 100%");
+    }
+
+    protected void doNotification(String text, String theme) {
+        Notification n = new Notification();
+        // Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
+        n.getElement().getThemeList().add(theme);
+        n.setDuration(6000);
+        n.setPosition(Position.TOP_START);
+        Div label = new Div();
+        label.getElement().setProperty("innerHTML", text);
+        label.addClickListener((event) -> n.close());
+        label.getStyle().set("font-size", "large");
+        n.add(label);
+        n.open();
+        n.open();
+        return;
     }
 
     protected void doStartTime() {
@@ -1287,7 +1315,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     protected void syncWithFOP(boolean refreshGrid) {
         OwlcmsSession.withFop((fop) -> {
-            logger.warn("syncing FOP, group = {}, {}", fop.getGroup(), LoggerUtils.whereFrom(2));
+
             createTopBarGroupSelect();
 
             if (refreshGrid) {
@@ -1413,22 +1441,6 @@ public abstract class AthleteGridContent extends VerticalLayout
         ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
 
-    protected void doNotification(String text, String theme) {
-        Notification n = new Notification();
-        // Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
-        n.getElement().getThemeList().add(theme);
-        n.setDuration(6000);
-        n.setPosition(Position.TOP_START);
-        Div label = new Div();
-        label.getElement().setProperty("innerHTML", text);
-        label.addClickListener((event) -> n.close());
-        label.getStyle().set("font-size", "large");
-        n.add(label);
-        n.open();
-        n.open();
-        return;
-    }
-
     /**
      * @return the athleteEditingFormFactory
      */
@@ -1503,19 +1515,6 @@ public abstract class AthleteGridContent extends VerticalLayout
             doNotification(Translator.translate("Notification.WeightToBeLoaded", newWeight), "info");
             prevWeight = newWeight;
         }
-    }
-
-    @Subscribe
-    public void slaveNotification(UIEvent.Notification e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            String fopEventString = e.getFopEventString();
-            if (fopEventString != null && fopEventString.contentEquals("TimeStarted")) {
-                // time started button was selected, but denied. reset the colors
-                // to show that time is not running.
-                buttonsTimeStopped();
-            }
-            e.doNotification();
-        });
     }
 
 }

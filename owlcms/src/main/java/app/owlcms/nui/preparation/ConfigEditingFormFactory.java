@@ -139,7 +139,7 @@ public class ConfigEditingFormFactory
                 translationLayout);
         mainLayout.setMargin(false);
         mainLayout.setPadding(false);
-        
+
         config.setSkipReading(false);
         binder.readBean(config);
         config.setSkipReading(true);
@@ -177,19 +177,19 @@ public class ConfigEditingFormFactory
     @Override
     public Config update(Config config) {
         try {
-        config.setSkipReading(true);
-        if (config.isClearZip()) {
-            config.setLocalZipBlob(null);
-            ResourceWalker.checkForLocalOverrideDirectory();
-        }
-        Config saved = Config.setCurrent(config);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            // ignored
-        }
-        UI.getCurrent().getPage().reload();
-        return saved;
+            config.setSkipReading(true);
+            if (config.isClearZip()) {
+                config.setLocalZipBlob(null);
+                ResourceWalker.checkForLocalOverrideDirectory();
+            }
+            Config saved = Config.setCurrent(config);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // ignored
+            }
+            UI.getCurrent().getPage().reload();
+            return saved;
         } finally {
             config.setSkipReading(false);
         }
@@ -215,7 +215,7 @@ public class ConfigEditingFormFactory
                 .withNullRepresentation("")
                 .bind(Config::getPinForField, Config::setPinForField);
 
-        //configLayout.addFormItem(new Html("<br/>"), "");
+        // configLayout.addFormItem(new Html("<br/>"), "");
 
         TextField accessListField = new TextField();
         accessListField.setWidthFull();
@@ -224,7 +224,6 @@ public class ConfigEditingFormFactory
                 .withNullRepresentation("")
                 .bind(Config::getIpAccessList, Config::setIpAccessList);
 
-
         PasswordField displayPasswordField = new PasswordField();
         displayPasswordField.setWidthFull();
         configLayout.addFormItem(displayPasswordField, Translator.translate("Config.DisplayPIN"));
@@ -232,7 +231,7 @@ public class ConfigEditingFormFactory
                 .withNullRepresentation("")
                 .bind(Config::getDisplayPinForField, Config::setDisplayPinForField);
 
-        //configLayout.addFormItem(new Html("<br/>"), "");
+        // configLayout.addFormItem(new Html("<br/>"), "");
 
         TextField displayListField = new TextField();
         displayListField.setWidthFull();
@@ -240,7 +239,7 @@ public class ConfigEditingFormFactory
         binder.forField(displayListField)
                 .withNullRepresentation("")
                 .bind(Config::getIpDisplayList, Config::setIpDisplayList);
-        
+
         TextField backdoorField = new TextField();
         backdoorField.setWidthFull();
         configLayout.addFormItem(backdoorField, Translator.translate("Config.Backdoor"));
@@ -264,6 +263,23 @@ public class ConfigEditingFormFactory
         title.getStyle().set("margin-top", "0");
         title.getStyle().set("margin-bottom", "0");
         return title;
+    }
+
+    private FormLayout featuresForm() {
+        FormLayout layout = createLayout();
+        Component title = createTitle("Config.FeatureSwitchesTitle");
+        layout.add(title);
+        layout.setColspan(title, 2);
+
+        TextField featureSwitchesField = new TextField();
+        featureSwitchesField.setWidthFull();
+        FormItem fi = layout.addFormItem(featureSwitchesField, Translator.translate("Config.FeatureSwitchesLabel"));
+        layout.setColspan(fi, 2);
+        binder.forField(featureSwitchesField)
+                .withNullRepresentation("")
+                .bind(Config::getFeatureSwitches, Config::setFeatureSwitches);
+
+        return layout;
     }
 
     private FormLayout localOverrideForm() {
@@ -296,7 +312,7 @@ public class ConfigEditingFormFactory
         layout.addFormItem(clearField, Translator.translate("Config.ClearZipLabel"));
         binder.forField(clearField)
                 .bind(Config::isClearZip, Config::setClearZip);
-        
+
         Checkbox localTemplatesField = new Checkbox(Translator.translate("Config.LocalTemplate"));
         localTemplatesField.setWidthFull();
         layout.addFormItem(localTemplatesField, Translator.translate("Config.LocalTemplateLabel"));
@@ -341,23 +357,6 @@ public class ConfigEditingFormFactory
         binder.forField(updateKey)
                 .withNullRepresentation("")
                 .bind(Config::getUpdatekey, Config::setUpdatekey);
-
-        return layout;
-    }
-    
-    private FormLayout featuresForm() {
-        FormLayout layout = createLayout();
-        Component title = createTitle("Config.FeatureSwitchesTitle");
-        layout.add(title);
-        layout.setColspan(title, 2);
-
-        TextField featureSwitchesField = new TextField();
-        featureSwitchesField.setWidthFull();
-        FormItem fi = layout.addFormItem(featureSwitchesField, Translator.translate("Config.FeatureSwitchesLabel"));
-        layout.setColspan(fi, 2);
-        binder.forField(featureSwitchesField)
-                .withNullRepresentation("")
-                .bind(Config::getFeatureSwitches, Config::setFeatureSwitches);
 
         return layout;
     }
