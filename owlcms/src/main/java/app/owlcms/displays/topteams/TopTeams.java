@@ -30,7 +30,6 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
@@ -38,8 +37,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.server.PageConfigurator;
 import com.vaadin.flow.templatemodel.TemplateModel;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -56,9 +53,9 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.shared.RequireDisplayLogin;
-import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.nui.lifting.UIEventProcessor;
+import app.owlcms.nui.shared.RequireDisplayLogin;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
@@ -81,10 +78,10 @@ import elemental.json.JsonValue;
 @Tag("topteams-template")
 @JsModule("./components/TopTeams.js")
 @Route("displays/topteams")
-@Theme(value = Lumo.class, variant = Lumo.DARK)
-@Push
+
+
 public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements DisplayParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin, PageConfigurator {
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin {
 
     /**
      * LiftingOrderModel
@@ -181,15 +178,6 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
 
         vl.add(new Label(getTranslation("SelectAgeGroup")),
                 new HorizontalLayout(ageDivisionComboBox, ageGroupPrefixComboBox));
-    }
-
-    @Override
-    public void configurePage(InitialPageSettings settings) {
-        settings.addMetaTag("mobile-web-app-capable", "yes");
-        settings.addMetaTag("apple-mobile-web-app-capable", "yes");
-        settings.addLink("shortcut icon", "frontend/images/owlcms.ico");
-        settings.addFavIcon("icon", "frontend/images/logo.png", "96x96");
-        settings.setViewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes");
     }
 
     @Override

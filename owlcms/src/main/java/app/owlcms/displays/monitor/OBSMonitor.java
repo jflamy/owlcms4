@@ -17,13 +17,10 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.data.athlete.LiftDefinition;
@@ -32,8 +29,8 @@ import app.owlcms.data.records.RecordEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.nui.lifting.UIEventProcessor;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
@@ -46,12 +43,11 @@ import ch.qos.logback.classic.Logger;
  * Show athlete lifting order
  *
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 @Tag("monitor-template")
 @JsModule("./components/OBSMonitor.js")
 @Route("displays/monitor")
-@Theme(value = Lumo.class)
-@Push
+
 public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> implements FOPParameters,
         SafeEventBusRegistration, UIEventProcessor {
 

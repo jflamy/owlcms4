@@ -22,7 +22,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
@@ -33,7 +32,7 @@ import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 @Route
-@Push
+
 public class MainView extends VerticalLayout {
 
     static Text text;

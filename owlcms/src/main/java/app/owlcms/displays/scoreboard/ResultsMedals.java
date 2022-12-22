@@ -31,15 +31,12 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
@@ -59,9 +56,9 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.shared.RequireDisplayLogin;
-import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.nui.lifting.UIEventProcessor;
+import app.owlcms.nui.shared.RequireDisplayLogin;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
@@ -81,12 +78,12 @@ import elemental.json.JsonValue;
  * Show athlete 6-attempt results and leaders for the athlete's category
  *
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 @Tag("resultsmedals-template")
 @JsModule("./components/ResultsMedals.js")
 @Route("displays/resultsMedals")
-@Theme(value = Lumo.class, variant = Lumo.DARK)
-@Push
+
+
 public class ResultsMedals extends PolymerTemplate<TemplateModel>
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle,
         RequireDisplayLogin {

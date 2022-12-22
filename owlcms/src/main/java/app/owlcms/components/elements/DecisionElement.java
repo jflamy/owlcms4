@@ -28,8 +28,8 @@ import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.MQTTMonitor;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.nui.lifting.UIEventProcessor;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
@@ -38,7 +38,7 @@ import ch.qos.logback.classic.Logger;
 /**
  * ExplicitDecision display element.
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 @Tag("decision-element")
 @JsModule("./components/DecisionElement.js")
 public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionModel>

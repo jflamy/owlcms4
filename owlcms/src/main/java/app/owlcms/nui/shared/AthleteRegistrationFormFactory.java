@@ -19,7 +19,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
-import org.vaadin.gatanaso.MultiselectComboBox;
 
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.flow.component.ClickEvent;
@@ -33,6 +32,7 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
@@ -665,7 +665,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         ComboBox<Category> categoryField = (ComboBox<Category>) categoryBinding.getField();
 
         Binding<Athlete, ?> eligibleBinding = binder.getBinding("eligibleCategories").get();
-        MultiselectComboBox<Category> eligibleField = (MultiselectComboBox<Category>) eligibleBinding.getField();
+        CheckboxGroup<Category> eligibleField = (CheckboxGroup<Category>) eligibleBinding.getField();
 
         Binding<Athlete, ?> qualifyingTotalBinding = binder.getBinding("qualifyingTotal").get();
         TextField qualifyingTotalField = (TextField) qualifyingTotalBinding.getField();
@@ -818,7 +818,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     private void recomputeCategories(
             ComboBox<Gender> genderField, LocalizedDecimalField bodyWeightField,
-            ComboBox<Category> categoryField, MultiselectComboBox<Category> eligibleField,
+            ComboBox<Category> categoryField, CheckboxGroup<Category> eligibleField,
             HasValue<?, ?> dateField, TextField qualifyingTotalField) {
 
         Category value = categoryField.getValue();
@@ -893,7 +893,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     }
 
     private void updateCategoryFields(Category bestMatch, ComboBox<Category> categoryField,
-            MultiselectComboBox<Category> eligibleField, TextField qualifyingTotalField, List<Category> allEligible,
+            CheckboxGroup<Category> eligibleField, TextField qualifyingTotalField, List<Category> allEligible,
             boolean recompute) {
 
         LinkedHashSet<Category> newEligibles = new LinkedHashSet<>();

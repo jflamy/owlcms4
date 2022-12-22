@@ -34,6 +34,7 @@ import com.vaadin.flow.templatemodel.TemplateModel;
  * @author Kaspar Scherrer, Stuart Robinson; adapted to web-component by miki@vaadin.com ; UI-scope by jf@jflamy.dev
  * @since 2020-04-29
  */
+@SuppressWarnings("deprecation")
 @JsModule("./unload/unload-observer.js")
 @Tag("unload-observer")
 public final class UnloadObserver extends PolymerTemplate<TemplateModel> {

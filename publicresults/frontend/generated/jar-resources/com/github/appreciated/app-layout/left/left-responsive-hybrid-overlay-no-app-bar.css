@@ -1,0 +1,21 @@
+app-layout-left-responsive-hybrid-overlay-no-app-bar:not([narrow]) #menu-header-title,
+app-layout-left-responsive-hybrid-overlay-no-app-bar:not([narrow]) #menu-header-subtitle {
+    opacity: 1.0;
+    transition: opacity 0.2s, max-height 0.5s, margin-top 0.5s;
+    max-height: 50px;
+}
+
+app-layout-left-responsive-hybrid-overlay-no-app-bar:not([narrow]) #menu-header-wrapper {
+    transition: padding 0.5s;
+}
+
+app-layout-left-responsive-hybrid-overlay-no-app-bar:not([narrow]):not([wide]) #menu-header-title,
+app-layout-left-responsive-hybrid-overlay-no-app-bar:not([narrow]):not([wide]) #menu-header-subtitle {
+    opacity: 0;
+    max-height: 0px;
+    margin-top: 0px;
+}
+
+app-layout-left-responsive-hybrid-overlay-no-app-bar:not([narrow]):not([wide]) #menu-header-wrapper {
+    --app-layout-menu-header-padding: 0 4px;
+}

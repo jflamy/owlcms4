@@ -30,14 +30,11 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -54,9 +51,9 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.shared.RequireDisplayLogin;
-import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.nui.lifting.UIEventProcessor;
+import app.owlcms.nui.shared.RequireDisplayLogin;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
@@ -75,12 +72,12 @@ import elemental.json.JsonValue;
  * @author Jean-François Lamu
  *
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 @Tag("topteamsinclair-template")
 @JsModule("./components/TopTeamsSinclair.js")
 @Route("displays/topteamsinclair")
-@Theme(value = Lumo.class, variant = Lumo.DARK)
-@Push
+
+
 public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
         implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin {

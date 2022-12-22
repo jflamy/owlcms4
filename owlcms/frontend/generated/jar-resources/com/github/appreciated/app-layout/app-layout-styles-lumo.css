@@ -1,0 +1,139 @@
+html {
+    --app-layout-primary-color: var(--lumo-primary-color);
+    --app-layout-primary-text-color: var(--lumo-primary-text-color);
+    --app-layout-space-s: var(--lumo-space-s);
+    --app-layout-section-divider-color: var(--lumo-contrast-20pct);
+    --app-layout-badge-background: var(--lumo-primary-color);
+    --app-layout-background: var(--lumo-base-color);
+    --app-layout-font-size-header: var(--lumo-font-size-m);
+    --app-layout-font-size-menu: var(--lumo-font-size-m);
+    --app-layout-font-size-notifications: var(--lumo-font-size-m);
+    --app-layout-font-size-app-bar: var(--lumo-font-size-m);
+    --app-layout-bar-height: calc(var(--lumo-size-s) * 2.1);
+    --app-layout-bar-background-base-color: var(--lumo-base-color);
+    --app-layout-bar-background-color: var(--lumo-base-color);
+    --app-layout-bar-font-color: var(--lumo-contrast-70pct);
+    --app-layout-bar-shadow: var(--lumo-box-shadow-s);
+    --app-layout-bar-z-index: 10;
+    --app-layout-bar-padding: 0 var(--app-layout-space-s);
+    --app-layout-bar-padding-small: 0 0;
+    --app-layout-bar-padding-double: 0 0;
+    --app-layout-drawer-shadow: var(--lumo-box-shadow-s);
+    --app-layout-drawer-background-base-color: var(--lumo-base-color);
+    --app-layout-drawer-background-color: var(--lumo-base-color);
+    --app-layout-drawer-submenu-background-color: var(--lumo-contrast-10pct);
+    --app-layout-drawer-font-color: var(--lumo-contrast-90pct);
+    --app-layout-drawer-width: calc(var(--lumo-size-xl) * 4.6);
+    --app-layout-drawer-small-width: calc(var(--app-layout-bar-height) - 1px);
+    --app-layout-menu-button-height: calc(var(--lumo-size-s) * 1.6);
+    --app-layout-menu-button-padding: 0 var(--app-layout-space-s);
+    --app-layout-menu-button-margin: 0;
+    --app-layout-menu-toggle-button-padding: var(--app-layout-space-s);
+    --app-layout-menu-padding: var(--app-layout-space-s) 0;
+    --app-layout-menu-button-border-radius: var(--lumo-border-radius);
+    --app-layout-menu-header-padding: var(--app-layout-space-s) calc(var(--app-layout-space-s) * 2) 0 calc(var(--app-layout-space-s) * 2);
+    --app-layout-app-selected-bg-color: var(--lumo-primary-color-10pct);
+    --app-layout-app-color: var(--lumo-secondary-text-color);
+    --app-layout-badge-width: calc(var(--lumo-size-s) * 0.8);
+    --app-layout-badge-height: calc(var(--lumo-size-s) * 0.8);
+    --app-layout-badge-top: 50%;
+    --app-layout-badge-right: 0px;
+    --app-layout-badge-color: var(--app-layout-bar-font-color);
+    --app-layout-badge-small-width: 5px;
+    --app-layout-badge-small-height: 5px;
+    --app-layout-badge-small-top: 22%;
+    --app-layout-badge-small-right: -5px;
+    --app-layout-badge-font-color: var(--lumo-primary-contrast-color);
+    --app-layout-notification-highlight-color: var(--app-layout-primary-color);
+    --app-layout-notification-font-color: var(--lumo-body-text-color);
+    --app-layout-notification-background-base-color: var(--lumo-base-color);
+    --app-layout-notification-background-color: var(--lumo-base-color);
+    --app-layout-notification-shadow: var(--lumo-box-shadow-s);
+    /* Variables of webcomponents */
+    --paper-drawer-title-background-color: var(--lumo-base-color);
+    --paper-drawer-title-color: var(--lumo-body-text-color);
+    --paper-icon-button-ink-color: var(--lumo-contrast);
+    --app-drawer-width: var(--app-layout-drawer-width);
+    /* -webkit-tap-highlight-color: transparent; */
+    --paper-tabs-selection-bar-color: var(--lumo-primary-color);
+    --paper-tab-ink: var(--lumo-primary-color);
+    --app-bar-height: var(--app-layout-bar-height);
+    --app-menu-background-color: transparent;
+    --app-menu-selected-bg-color: var(--app-layout-app-selected-bg-color);
+    --app-menu-color: var(--app-layout-drawer-font-color);
+    --app-layout-app-bar-flex-direction: row;
+    --app-layout-app-bar-large-object-display: visible;
+    --app-layout-notification-error-color: var(--lumo-error-color);
+    --app-layout-bar-toggle-icon-right: 0px;
+    --app-layout-notification-warning-color: #fdd835;
+    --iron-overlay-backdrop-background-color: var(--lumo-shade-20pct);
+}
+
+[theme~="dark"] {
+    --app-layout-background: var(--lumo-base-color);
+    --app-layout-bar-background-base-color: var(--lumo-base-color);
+    --app-layout-bar-background-color: var(--lumo-contrast-10pct);
+    --app-layout-bar-font-color: var(--lumo-contrast-90);
+    --app-layout-bar-shadow: var(--lumo-box-shadow-s);
+    --app-layout-drawer-shadow: var(--lumo-box-shadow-s);
+    --app-layout-drawer-background-base-color: var(--lumo-base-color);
+    --app-layout-drawer-background-color: var(--lumo-contrast-5pct);
+    --app-layout-app-color: var(--lumo-secondary-text-color);
+    --paper-tabs-selection-bar-color: var(--lumo-primary-color);
+    --iron-overlay-backdrop-background-color: var(--lumo-shade-20pct);
+    --app-layout-drawer-submenu-background-color: var(--lumo-contrast-10pct);
+}
+
+body {
+    overflow-x: hidden;
+}
+
+iron-collapse-layout[opened] > div > .app-menu-item > .collapse-icon {
+    transform: translate(0%, -50%) rotate(180deg) !important;
+}
+
+.app-menu-item {
+    box-sizing: border-box;
+    height: var(--app-layout-menu-button-height);
+    width: 100%;
+    position: relative;
+    padding: var(--app-layout-menu-button-padding);
+    border-radius: var(--app-layout-menu-button-border-radius);
+    overflow: hidden;
+    --lumo-primary-text-color: var(--app-layout-app-color);
+    line-height: var(--app-layout-menu-button-height);
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--app-layout-app-color, var(--primary-text-color));
+    transition: color 0.4s ease-out, background 0.4s ease-out;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-size: 14px;
+    font-weight: 500;
+    min-height: var(--app-layout-menu-button-height);
+    white-space: nowrap;
+}
+
+.app-menu-item:hover, .app-menu-item[highlight] {
+    background: var(--lumo-primary-color-10pct);
+}
+
+.app-menu-item {
+    color: var(--app-layout-app-color, var(--primary-text-color));
+}
+
+.app-menu-item:hover,
+.app-menu-item[highlight] {
+    color: var(--lumo-primary-color);
+}
+
+.app-menu-item iron-icon {
+    flex-shrink: 0;
+}
+
+.app-menu-item label {
+    margin-left: 18px;
+}

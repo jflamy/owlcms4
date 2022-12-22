@@ -8,10 +8,7 @@ package app.owlcms.displays.scoreboard;
 
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
@@ -27,8 +24,8 @@ import app.owlcms.init.OwlcmsSession;
 @JsModule("./components/Results.js")
 @JsModule("./components/AudioContext.js")
 @Route("displays/results")
-@Theme(value = Lumo.class, variant = Lumo.DARK)
-@Push
+
+
 public class ResultsNoLeaders extends Results {
 
     /**

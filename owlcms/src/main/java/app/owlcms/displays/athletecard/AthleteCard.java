@@ -18,15 +18,12 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.data.agegroup.AgeGroup;
@@ -36,8 +33,8 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.ui.shared.RequireLogin;
-import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.nui.shared.RequireLogin;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -46,13 +43,13 @@ import elemental.json.JsonObject;
 /**
  * Attempt board.
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 @Tag("athlete-card-template")
 @JsModule("./components/AthleteCard.js")
 @CssImport(value = "./styles/shared-styles.css")
 @Route("weighin/AthleteCard")
-@Theme(value = Lumo.class, variant = Lumo.LIGHT)
-@Push
+
+
 public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
         implements FOPParameters, SafeEventBusRegistration, HasDynamicTitle, RequireLogin {
 

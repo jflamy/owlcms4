@@ -21,22 +21,17 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
-import app.owlcms.data.config.Config;
 import app.owlcms.displays.attemptboard.AthleteFacingAttemptBoard;
 import app.owlcms.displays.attemptboard.AthleteFacingDecisionBoard;
 import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.displays.attemptboard.PublicFacingDecisionBoard;
 import app.owlcms.displays.monitor.OBSMonitor;
 import app.owlcms.displays.scoreboard.CurrentAthlete;
-import app.owlcms.displays.scoreboard.Medals;
 import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.displays.scoreboard.ResultsLeadersRanks;
 import app.owlcms.displays.scoreboard.ResultsLiftingOrder;
 import app.owlcms.displays.scoreboard.ResultsMedals;
 import app.owlcms.displays.scoreboard.ResultsNoLeaders;
-import app.owlcms.displays.scoreboard.ScoreMultiRanks;
-import app.owlcms.displays.scoreboard.ScoreWithLeaders;
-import app.owlcms.displays.scoreboard.Scoreboard;
 import app.owlcms.displays.topathletes.TopSinclair;
 import app.owlcms.displays.topteams.TopTeams;
 import app.owlcms.displays.topteams.TopTeamsSinclair;
@@ -81,22 +76,14 @@ public class DisplayNavigationContent extends BaseNavigationContent
         Button scoreboardMultiRanks;
         Button currentAthlete;
         Button medals;
-        if (Config.getCurrent().isOldScoreboards()) {
-            scoreboard = openInNewTab(Scoreboard.class, getTranslation("Scoreboard"));
-            scoreboardWLeaders = openInNewTab(ScoreWithLeaders.class, getTranslation("ScoreboardWLeadersButton"));
-            scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
-            scoreboardMultiRanks = openInNewTab(ScoreMultiRanks.class, getTranslation("ScoreboardMultiRanksButton"));
-            medals = openInNewTab(Medals.class, getTranslation("CeremonyType.MEDALS"));
-            currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"));
-        } else {
-            scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"));
-            scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"));
-            scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
-            scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
-                    getTranslation("ScoreboardMultiRanksButton"));
-            medals = openInNewTab(ResultsMedals.class, getTranslation("CeremonyType.MEDALS"));
-            currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"));
-        }
+
+        scoreboard = openInNewTab(ResultsNoLeaders.class, getTranslation("Scoreboard"));
+        scoreboardWLeaders = openInNewTab(Results.class, getTranslation("ScoreboardWLeadersButton"));
+        scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
+        scoreboardMultiRanks = openInNewTab(ResultsLeadersRanks.class,
+                getTranslation("ScoreboardMultiRanksButton"));
+        medals = openInNewTab(ResultsMedals.class, getTranslation("CeremonyType.MEDALS"));
+        currentAthlete = openInNewTab(CurrentAthlete.class, getTranslation("CurrentAthleteTitle"));
 
         // Button liftingOrder = openInNewTab(LiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
         Button liftingOrder = openInNewTab(ResultsLiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));

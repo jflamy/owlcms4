@@ -18,7 +18,7 @@ import com.vaadin.flow.component.ClientCallable;
 
 import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;

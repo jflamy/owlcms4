@@ -17,6 +17,7 @@ import java.util.Map;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
+import org.vaadin.crudui.form.impl.field.provider.CheckBoxGroupProvider;
 
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.AttachEvent;
@@ -67,7 +68,6 @@ import app.owlcms.nui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
-import app.owlcms.nui.crudui.OwlcmsMultiSelectComboBoxProvider;
 import app.owlcms.nui.shared.AthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -606,8 +606,8 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
                 CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName));
         crudFormFactory.setFieldProvider("eligibleCategories",
-                new OwlcmsMultiSelectComboBoxProvider<>(getTranslation("Registration.EligibleCategories"),
-                        new ArrayList<Category>(), new TextRenderer<>(Category::getName), Category::getName));
+                new CheckBoxGroupProvider<Category>(getTranslation("Registration.EligibleCategories"),
+                        new ArrayList<Category>(), (c) -> (c.getName())));
 //        crudFormFactory.setFieldProvider("ageDivision",
 //                new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
 //                        new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));

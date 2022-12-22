@@ -19,15 +19,12 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.components.elements.AthleteTimerElementPR;
@@ -60,12 +57,13 @@ import elemental.json.impl.JreJsonFactory;
  * Show athlete 6-attempt results
  *
  */
+@SuppressWarnings("deprecation")
 @Tag("resultsPR-template")
 @JsModule("./components/ResultsPR.js")
 @JsModule("./components/AudioContext.js")
 @Route("results")
-@Theme(value = Lumo.class, variant = Lumo.DARK)
-@Push
+
+
 public class ResultsPR extends PolymerTemplate<TemplateModel>
         implements DisplayParameters, HasDynamicTitle, SafeEventBusRegistrationPR {
 

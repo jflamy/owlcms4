@@ -19,7 +19,7 @@ import com.vaadin.flow.router.HasUrlParameter;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.shared.OwlcmsContent;
+import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.utils.URLUtils;
 
 /**

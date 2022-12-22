@@ -29,7 +29,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.dom.DomEvent;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -65,9 +64,9 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings({ "serial", "deprecation" })
 @Route(value = "nref")
 @CssImport(value = "./styles/shared-styles.css")
-@Push
+
 public class RefContent extends VerticalLayout implements FOPParameters, SafeEventBusRegistration,
-        UIEventProcessor, HasDynamicTitle, RequireLogin, PageConfigurator, BeforeEnterListener {
+        UIEventProcessor, HasDynamicTitle, RequireLogin, BeforeEnterListener {
 
     private class DelayTimer {
         private final Timer t = new Timer();
@@ -118,15 +117,6 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
     public void beforeEnter(BeforeEnterEvent event) {
         RequireLogin.super.beforeEnter(event);
         UI.getCurrent().getPage().setTitle(getPageTitle());
-    }
-
-    @Override
-    public void configurePage(InitialPageSettings settings) {
-        settings.addMetaTag("mobile-web-app-capable", "yes");
-        settings.addMetaTag("apple-mobile-web-app-capable", "yes");
-        settings.addLink("shortcut icon", "frontend/images/owlcms.ico");
-        settings.addFavIcon("icon", "frontend/images/logo.png", "96x96");
-        settings.setViewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes");
     }
 
     @Override

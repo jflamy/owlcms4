@@ -12,12 +12,12 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
-import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 
 /**
  * ExplicitDecision display element.
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 @Tag("beep-element")
 @JsModule("./components/BeepElement.js")
 public class BeepElement extends PolymerTemplate<BeepElement.BeepModel>

@@ -23,8 +23,8 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.nui.lifting.UIEventProcessor;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -32,7 +32,7 @@ import ch.qos.logback.classic.Logger;
 /**
  * Countdown timer element.
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 @Tag("timer-element")
 @JsModule("./components/TimerElement.js")
 public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerModel>

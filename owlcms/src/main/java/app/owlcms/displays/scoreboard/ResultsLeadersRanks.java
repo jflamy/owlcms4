@@ -13,10 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
@@ -41,8 +38,8 @@ import elemental.json.JsonValue;
 @JsModule("./components/ResultsLeadersRanks.js")
 @JsModule("./components/AudioContext.js")
 @Route("displays/resultsLeadersRanks")
-@Theme(value = Lumo.class, variant = Lumo.DARK)
-@Push
+
+
 public class ResultsLeadersRanks extends Results {
 
     protected Logger logger = (Logger) LoggerFactory.getLogger(ResultsLeadersRanks.class);

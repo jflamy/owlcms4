@@ -1,0 +1,10 @@
+app-layout-left-responsive-small-no-app-bar:not([narrow]) #menu-header-title,
+app-layout-left-responsive-small-no-app-bar:not([narrow]) #menu-header-subtitle {
+    opacity: 0;
+    max-height: 0px;
+    margin-top: 0px;
+}
+
+app-layout-left-responsive-small-no-app-bar:not([narrow]) #menu-header-wrapper {
+    --app-layout-menu-header-padding: 0 4px;
+}

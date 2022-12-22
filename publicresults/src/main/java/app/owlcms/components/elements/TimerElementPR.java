@@ -31,6 +31,7 @@ import ch.qos.logback.classic.Logger;
 /**
  * Countdown timer element.
  */
+@SuppressWarnings("deprecation")
 @Tag("timer-element")
 @JsModule("./components/TimerElement.js")
 public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.TimerModel>

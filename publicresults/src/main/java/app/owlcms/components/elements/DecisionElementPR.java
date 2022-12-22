@@ -32,6 +32,7 @@ import ch.qos.logback.classic.Logger;
 /**
  * ExplicitDecision display element.
  */
+@SuppressWarnings("deprecation")
 @Tag("decision-element-pr")
 @JsModule("./components/DecisionElementPR.js")
 public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.DecisionModel>

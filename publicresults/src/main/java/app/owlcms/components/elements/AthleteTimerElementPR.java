@@ -167,6 +167,7 @@ public class AthleteTimerElementPR extends TimerElementPR {
      *
      * @see app.owlcms.displays.attemptboard.TimerElement#init()
      */
+    @SuppressWarnings("deprecation")
     @Override
     protected void init() {
         super.init();

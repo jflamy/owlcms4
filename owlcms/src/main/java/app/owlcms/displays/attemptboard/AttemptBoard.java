@@ -26,7 +26,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
@@ -36,7 +35,6 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
-import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.apputils.SoundUtils;
@@ -53,9 +51,9 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.shared.RequireDisplayLogin;
-import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.nui.lifting.UIEventProcessor;
+import app.owlcms.nui.shared.RequireDisplayLogin;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
@@ -66,23 +64,15 @@ import ch.qos.logback.classic.Logger;
 /**
  * Attempt board.
  */
-/**
- * @author JF
- *
- */
-/**
- * @author JF
- *
- */
-@Theme(value = Lumo.class, variant = Lumo.DARK)
-@SuppressWarnings("serial")
+
+@SuppressWarnings({ "serial", "deprecation" })
 @Tag("attempt-board-template")
 @JsModule("./components/AttemptBoard.js")
 @JsModule("./components/AudioContext.js")
 @CssImport(value = "./styles/shared-styles.css")
 @CssImport(value = "./styles/plates.css")
 @Route("displays/attemptBoard")
-@Push
+
 public class AttemptBoard extends PolymerTemplate<TemplateModel> implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin {
 
@@ -150,13 +140,13 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
     }
 
     @Id("athleteTimer")
-    protected AthleteTimerElement athleteTimer; // created by Flow during template instanciation
+    protected AthleteTimerElement athleteTimer; // created by Flow during template instantiation
 
     @Id("breakTimer")
-    protected BreakTimerElement breakTimer; // created by Flow during template instanciation
+    protected BreakTimerElement breakTimer; // created by Flow during template instantiation
 
     @Id("decisions")
-    protected DecisionElement decisions; // created by Flow during template instanciation
+    protected DecisionElement decisions; // created by Flow during template instantiation
 
     private Dialog dialog;
     private boolean groupDone;
