@@ -859,13 +859,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         stopTimeButton.getElement().setAttribute("theme", "secondary icon");
     }
     
-    /**
-     * The top bar is logically is the master part of a master-detail In the current implementation, the most convenient
-     * place to put it is in the top bar which is managed by the layout, but this could change. So we change the
-     * surrounding layout from this class. In this way, only one class (the content) listens for events. Doing it the
-     * other way around would require multiple layouts, which breaks the idea of a single page app.
-     * @return 
-     */
+
     protected FlexLayout createTopBar() {
         logger.warn("**** AthleteGridContent creating top bar");
         topBar = new FlexLayout();

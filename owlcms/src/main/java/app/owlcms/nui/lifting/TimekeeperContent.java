@@ -21,6 +21,7 @@ import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
@@ -134,6 +135,66 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         return buttons;
     }
 
+    protected FlexLayout createTopBar() {
+        logger.warn("**** AthleteGridContent creating top bar");
+        topBar = new FlexLayout();
+        topBar.setClassName("athleteGridTopBar");
+        initialBar = false;
+
+        HorizontalLayout topBarLeft = createTopBarLeft();
+
+        lastName = new H2();
+        lastName.setText("\u2013");
+        lastName.getStyle().set("margin", "0px 0px 0px 0px");
+
+        setFirstNameWrapper(new H3(""));
+        getFirstNameWrapper().getStyle().set("margin", "0px 0px 0px 0px");
+        firstName = new Span("");
+        firstName.getStyle().set("margin", "0px 0px 0px 0px");
+        startNumber = new Span("");
+        Style style = startNumber.getStyle();
+        style.set("margin", "0px 0px 0px 1em");
+        style.set("padding", "0px 0px 0px 0px");
+        style.set("border", "2px solid var(--lumo-primary-color)");
+        style.set("font-size", "90%");
+        style.set("width", "1.4em");
+        style.set("text-align", "center");
+        style.set("display", "inline-block");
+        startNumber.setVisible(false);
+        getFirstNameWrapper().add(firstName, startNumber);
+        Div fullName = new Div(lastName, getFirstNameWrapper());
+
+        attempt = new H2();
+        weight = new H2();
+        weight.setText("");
+        if (timer == null) {
+            timer = new AthleteTimerElement(this);
+        }
+        timer.setSilenced(this.isSilenced());
+        H1 time = new H1(timer);
+        clearVerticalMargins(attempt);
+        clearVerticalMargins(time);
+        clearVerticalMargins(weight);
+        
+        breaks = breakButtons(topBar);
+        breaks.setPadding(false);
+        breaks.setMargin(false);
+        breaks.setSpacing(true);
+
+        topBar.setSizeFull();
+        topBar.add(topBarLeft, fullName, attempt, weight, time);
+        
+        if (breaks != null) {
+            topBar.add(breaks);
+        }
+
+        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
+        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+        topBar.setAlignSelf(Alignment.CENTER, attempt, weight, time);
+        topBar.setFlexGrow(0.5, fullName);
+        topBar.setFlexGrow(0.0, topBarLeft);
+        return topBar;
+    }
     
     /**
      * @see app.owlcms.nui.shared.AthleteGridContent#createTopBarGroupSelect()
