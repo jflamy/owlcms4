@@ -291,7 +291,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         }
 
     }
-    
+
     @Override
     public void setHeaderContent() {
         routerLayout.setMenuTitle(getPageTitle());
@@ -539,7 +539,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     @Subscribe
     public void slaveJuryNotification(UIEvent.JuryNotification e) {
-        //logger.debug("slaveJuryNotification {}",e.getDeliberationEventType());
+        // logger.debug("slaveJuryNotification {}",e.getDeliberationEventType());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             String text = "";
             String reversalText = "";
@@ -661,7 +661,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             // uiEventLogger.debug("slaveUpdateAnnouncerBar in {} origin {}", this, LoggerUtils. stackTrace());
             // do not send weight change notification if we are the source of the weight
             // change
-            //logger.debug("slaveUpdateAnnouncerBar {}\n=======\n {}", LoggerUtils.stackTrace(), e.getTrace());
+            // logger.debug("slaveUpdateAnnouncerBar {}\n=======\n {}", LoggerUtils.stackTrace(), e.getTrace());
             UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
                 warnOthersIfCurrent(e, athlete, fop);
                 doUpdateTopBar(athlete, e.getTimeAllowed());
@@ -858,7 +858,6 @@ public abstract class AthleteGridContent extends VerticalLayout
         stopTimeButton.addClickListener(e -> doStopTime());
         stopTimeButton.getElement().setAttribute("theme", "secondary icon");
     }
-    
 
     protected FlexLayout createTopBar() {
         logger.warn("**** AthleteGridContent creating top bar");
@@ -905,12 +904,12 @@ public abstract class AthleteGridContent extends VerticalLayout
         buttons.setPadding(false);
         buttons.setMargin(false);
         buttons.setSpacing(true);
-        
+
         breaks = breakButtons(topBar);
         breaks.setPadding(false);
         breaks.setMargin(false);
         breaks.setSpacing(true);
-        
+
         decisions = decisionButtons(topBar);
         decisions.setPadding(false);
         decisions.setMargin(false);
@@ -1021,7 +1020,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         getGroupFilter().getStyle().set("display", "none");
         // note: group switching is done from the announcer menu, not in the grid filters.
         crudLayout.addFilterComponent(getGroupFilter());
-        
+
         if (attempts == null) {
             attempts = new HorizontalLayout();
             attempts.setHeight("100%");
@@ -1033,12 +1032,12 @@ public abstract class AthleteGridContent extends VerticalLayout
 //            }
         }
         attempts.getElement().setAttribute("style", "float: right");
-        HorizontalLayout horizontalLayout = (HorizontalLayout)crudLayout.getFilterLayout();
+        HorizontalLayout horizontalLayout = (HorizontalLayout) crudLayout.getFilterLayout();
         horizontalLayout.add(attempts);
-        
-        HorizontalLayout toolbarLayout = (HorizontalLayout)crudLayout.getToolbarLayout();
+
+        HorizontalLayout toolbarLayout = (HorizontalLayout) crudLayout.getToolbarLayout();
         toolbarLayout.setSizeUndefined();
-        
+
         horizontalLayout.getParent().get().getElement().setAttribute("style", "width: 100%");
     }
 
@@ -1136,7 +1135,13 @@ public abstract class AthleteGridContent extends VerticalLayout
         title.setText(getTopBarTitle());
         title.setClassName("topBarTitle");
         title.getStyle().set("margin-top", "0px").set("margin-bottom", "0px").set("font-weight", "normal");
-        getTopBarLeft().add(title, topBarMenu, topBarSettings);
+        getTopBarLeft().add(title);
+        if (topBarMenu != null) {
+            getTopBarLeft().add(topBarMenu);
+        }
+        if (topBarSettings != null) {
+            getTopBarLeft().add(topBarSettings);
+        }
         getTopBarLeft().setAlignItems(Alignment.CENTER);
         getTopBarLeft().setPadding(true);
         getTopBarLeft().setId("topBarLeft");
@@ -1227,7 +1232,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                 getRouterLayout().setMenuTitle(getMenuTitle());
                 getRouterLayout().setMenuArea(createInitialBar());
                 getRouterLayout().updateHeader();
-                
+
                 warning.setText(getTranslation("IdlePlatform"));
                 if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6 || fop.getLiftingOrder().size() == 0) {
                     topBarWarning(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(),
@@ -1259,8 +1264,9 @@ public abstract class AthleteGridContent extends VerticalLayout
                     }
                     if (breakButton != null) {
                         breakButton.setText("");
-                        //quietBreakButton();
-                        quietBreakButton(this instanceof MarshallContent ? Translator.translate("BreakType.MARSHAL") : null);
+                        // quietBreakButton();
+                        quietBreakButton(
+                                this instanceof MarshallContent ? Translator.translate("BreakType.MARSHAL") : null);
                     }
                 }
                 if (breakButton != null) {

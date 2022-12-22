@@ -8,7 +8,6 @@
 package app.owlcms.nui.lifting;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 import org.slf4j.LoggerFactory;
@@ -83,6 +82,16 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         return athlete;
     }
 
+    /**
+     * Not used in this class. We use createInitialBar and createTopBar as required.
+     *
+     * @see app.owlcms.nui.shared.OwlcmsContent#createMenuArea()
+     */
+    @Override
+    public FlexLayout createMenuArea() {
+        return null;
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -98,6 +107,11 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         return ImmutableList.of();
     }
 
+    @Override
+    public String getMenuTitle() {
+        return getTranslation("Timekeeper") + OwlcmsSession.getFopNameIfMultiple();
+    }
+
     /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
@@ -105,12 +119,20 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
     public String getPageTitle() {
         return getTranslation("Timekeeper") + OwlcmsSession.getFopNameIfMultiple();
     }
-    
+
     @Override
-    public String getMenuTitle() {
-        return getTranslation("Timekeeper") + OwlcmsSession.getFopNameIfMultiple();
+    public boolean isIgnoreGroupFromURL() {
+        return false;
     }
 
+    @Override
+    public void setHeaderContent() {
+        getRouterLayout().setMenuTitle(getMenuTitle());
+        getRouterLayout().setMenuArea(createInitialBar());
+        getRouterLayout().showLocaleDropdown(false);
+        getRouterLayout().setDrawerOpened(false);
+        getRouterLayout().updateHeader();
+    }
 
     /*
      * (non-Javadoc)
@@ -135,95 +157,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         return buttons;
     }
 
-    protected FlexLayout createTopBar() {
-        logger.warn("**** AthleteGridContent creating top bar");
-        topBar = new FlexLayout();
-        topBar.setClassName("athleteGridTopBar");
-        initialBar = false;
-
-        HorizontalLayout topBarLeft = createTopBarLeft();
-
-        lastName = new H2();
-        lastName.setText("\u2013");
-        lastName.getStyle().set("margin", "0px 0px 0px 0px");
-
-        setFirstNameWrapper(new H3(""));
-        getFirstNameWrapper().getStyle().set("margin", "0px 0px 0px 0px");
-        firstName = new Span("");
-        firstName.getStyle().set("margin", "0px 0px 0px 0px");
-        startNumber = new Span("");
-        Style style = startNumber.getStyle();
-        style.set("margin", "0px 0px 0px 1em");
-        style.set("padding", "0px 0px 0px 0px");
-        style.set("border", "2px solid var(--lumo-primary-color)");
-        style.set("font-size", "90%");
-        style.set("width", "1.4em");
-        style.set("text-align", "center");
-        style.set("display", "inline-block");
-        startNumber.setVisible(false);
-        getFirstNameWrapper().add(firstName, startNumber);
-        Div fullName = new Div(lastName, getFirstNameWrapper());
-
-        attempt = new H2();
-        weight = new H2();
-        weight.setText("");
-        if (timer == null) {
-            timer = new AthleteTimerElement(this);
-        }
-        timer.setSilenced(this.isSilenced());
-        H1 time = new H1(timer);
-        clearVerticalMargins(attempt);
-        clearVerticalMargins(time);
-        clearVerticalMargins(weight);
-        
-        breaks = breakButtons(topBar);
-        breaks.setPadding(false);
-        breaks.setMargin(false);
-        breaks.setSpacing(true);
-
-        topBar.setSizeFull();
-        topBar.add(topBarLeft, fullName, attempt, weight, time);
-        
-        if (breaks != null) {
-            topBar.add(breaks);
-        }
-
-        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
-        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-        topBar.setAlignSelf(Alignment.CENTER, attempt, weight, time);
-        topBar.setFlexGrow(0.5, fullName);
-        topBar.setFlexGrow(0.0, topBarLeft);
-        return topBar;
-    }
-    
-    /**
-     * @see app.owlcms.nui.shared.AthleteGridContent#createTopBarGroupSelect()
-     */
-    @Override
-    protected void createTopBarGroupSelect() {
-        // there is already all the SQL filtering logic for the group attached
-        // hidden field in the crudGrid part of the page so we just set that
-        // filter.
-
-        List<Group> groups = GroupRepository.findAll();
-        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
-
-        OwlcmsSession.withFop(fop -> {
-            topBarMenu = new GroupSelectionMenu(groups, fop.getGroup(),
-                    fop,
-                    (g1) -> fop.fopEventPost(
-                            new FOPEvent.SwitchGroup(g1.compareTo(fop.getGroup()) == 0 ? null : g1, this)),
-                    (g1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
-            createTopBarSettingsMenu();
-        });
-        
-    }
-    
-    @Override
-    public boolean isIgnoreGroupFromURL() {
-        return false;
-    }
-    
     /**
      * @see app.owlcms.nui.shared.AthleteGridContent#createInitialBar()
      */
@@ -305,17 +238,14 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
     }
 
-    /**
-     * @see app.owlcms.nui.shared.AthleteGridContent#createTopBar()
-     */
     @Override
-    public FlexLayout createMenuArea() {
+    protected FlexLayout createTopBar() {
+        logger.warn("**** AthleteGridContent creating top bar");
         topBar = new FlexLayout();
-        topBar.setClassName("timeKeeperTopBar");
+        topBar.setClassName("athleteGridTopBar");
         initialBar = false;
 
-        createTopBarGroupSelect();
-        createTopBarLeft();
+        HorizontalLayout topBarLeft = createTopBarLeft();
 
         lastName = new H2();
         lastName.setText("\u2013");
@@ -334,36 +264,63 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         style.set("width", "1.4em");
         style.set("text-align", "center");
         style.set("display", "inline-block");
+        startNumber.setVisible(false);
         getFirstNameWrapper().add(firstName, startNumber);
         Div fullName = new Div(lastName, getFirstNameWrapper());
 
         attempt = new H2();
         weight = new H2();
         weight.setText("");
-
+        if (timer == null) {
+            timer = new AthleteTimerElement(this);
+        }
+        timer.setSilenced(this.isSilenced());
+        H1 time = new H1(timer);
         clearVerticalMargins(attempt);
+        clearVerticalMargins(time);
         clearVerticalMargins(weight);
 
-        buttons = null;
-        decisions = null;
         breaks = breakButtons(topBar);
+        breaks.setPadding(false);
+        breaks.setMargin(false);
+        breaks.setSpacing(true);
 
         topBar.setSizeFull();
-        topBar.add(getTopBarLeft(), fullName, attempt, weight, breaks);
+        topBar.add(topBarLeft, fullName, attempt, weight, time);
+
         if (breaks != null) {
             topBar.add(breaks);
         }
 
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-        topBar.setAlignSelf(Alignment.CENTER, attempt, weight);
+        topBar.setAlignSelf(Alignment.CENTER, attempt, weight, time);
         topBar.setFlexGrow(0.5, fullName);
-        topBar.setFlexGrow(0.0, getTopBarLeft());
-        
-        getAppLayout().setMenuVisible(true);
-
-        createBottom();
+        topBar.setFlexGrow(0.0, topBarLeft);
         return topBar;
+    }
+
+    /**
+     * @see app.owlcms.nui.shared.AthleteGridContent#createTopBarGroupSelect()
+     */
+    @Override
+    protected void createTopBarGroupSelect() {
+        // there is already all the SQL filtering logic for the group attached
+        // hidden field in the crudGrid part of the page so we just set that
+        // filter.
+
+        List<Group> groups = GroupRepository.findAll();
+        groups.sort(new NaturalOrderComparator<Group>());
+
+        OwlcmsSession.withFop(fop -> {
+            topBarMenu = new GroupSelectionMenu(groups, fop.getGroup(),
+                    fop,
+                    (g1) -> fop.fopEventPost(
+                            new FOPEvent.SwitchGroup(g1.compareTo(fop.getGroup()) == 0 ? null : g1, this)),
+                    (g1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
+            createTopBarSettingsMenu();
+        });
+
     }
 
     @Override
@@ -374,7 +331,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
     @Override
     protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
-        showButtons();
         super.doUpdateTopBar(athlete, timeAllowed);
     }
 
@@ -391,13 +347,14 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
             Athlete curAthlete2 = fop.getCurAthlete();
             FOPState state = fop.getState();
+            this.removeAll();
             if (state == FOPState.INACTIVE || (state == FOPState.BREAK && fop.getGroup() == null)) {
                 logger.debug("initial: {} {} {} {}", state, fop.getGroup(), curAthlete2,
                         curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
                 getRouterLayout().setMenuTitle(getMenuTitle());
                 getRouterLayout().setMenuArea(createInitialBar());
                 getRouterLayout().updateHeader();
-                
+
                 warning.setText(getTranslation("IdlePlatform"));
                 if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6 || fop.getLiftingOrder().size() == 0) {
                     topBarWarning(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(),
@@ -408,7 +365,8 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
                 getRouterLayout().setMenuTitle("");
                 getRouterLayout().setMenuArea(createTopBar());
                 getRouterLayout().updateHeader();
-                
+                createBottom();
+
                 if (state == FOPState.BREAK) {
                     if (buttons != null) {
                         hideButtons();
@@ -454,24 +412,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         time.setAlignSelf(Alignment.CENTER, timer);
         centerH(timer, time);
         this.add(time);
-
-//        Icon startIcon = AvIcons.PLAY_ARROW.create();
-//        startTimeButton = new Button(startIcon);
-//        startTimeButton.addClickListener(e -> {
-//            OwlcmsSession.withFop(fop -> {
-//                fop.fopEventPost(new FOPEvent.TimeStarted(this.getOrigin()));
-//            });
-//        });
-//        startTimeButton.getElement().setAttribute("theme", "primary success");
-//
-//        Icon stopIcon = AvIcons.PAUSE.create();
-//        stopTimeButton = new Button();
-//        stopTimeButton.addClickListener(e1 -> {
-//            OwlcmsSession.withFop(fop -> {
-//                fop.fopEventPost(new FOPEvent.TimeStopped(this.getOrigin()));
-//            });
-//        });
-//        stopTimeButton.getElement().setAttribute("theme", "secondary");
 
         createStartTimeButton();
         createStopTimeButton();

@@ -21,6 +21,6 @@ public interface OwlcmsContent
     }
 
     public default String getMenuTitle() {
-        throw new UnsupportedOperationException(this.getClass()+" menuTitle not defined");
+        throw new UnsupportedOperationException(this.getClass()+" createMenuTitle not defined");
     }
 }

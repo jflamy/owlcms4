@@ -8,7 +8,6 @@
 package app.owlcms.nui.lifting;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -95,91 +94,16 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         defineFilters(crudGrid);
     }
 
+    /**
+     * Not used in this class. We use createInitialBar and createTopBar as required.
+     *
+     * @see app.owlcms.nui.shared.OwlcmsContent#createMenuArea()
+     */
     @Override
-    public void setHeaderContent() {
-        getRouterLayout().setMenuTitle(getMenuTitle());
-        getRouterLayout().setMenuArea(new FlexLayout());
-        getRouterLayout().showLocaleDropdown(false);
-        getRouterLayout().setDrawerOpened(false);
-        getRouterLayout().updateHeader();
+    public FlexLayout createMenuArea() {
+        return null;
     }
-    
-    protected FlexLayout createTopBar() {
-        logger.warn("**** AthleteGridContent creating top bar");
-        topBar = new FlexLayout();
-        topBar.setClassName("athleteGridTopBar");
-        initialBar = false;
 
-        HorizontalLayout topBarLeft = createTopBarLeft();
-
-        lastName = new H2();
-        lastName.setText("\u2013");
-        lastName.getStyle().set("margin", "0px 0px 0px 0px");
-
-        setFirstNameWrapper(new H3(""));
-        getFirstNameWrapper().getStyle().set("margin", "0px 0px 0px 0px");
-        firstName = new Span("");
-        firstName.getStyle().set("margin", "0px 0px 0px 0px");
-        startNumber = new Span("");
-        Style style = startNumber.getStyle();
-        style.set("margin", "0px 0px 0px 1em");
-        style.set("padding", "0px 0px 0px 0px");
-        style.set("border", "2px solid var(--lumo-primary-color)");
-        style.set("font-size", "90%");
-        style.set("width", "1.4em");
-        style.set("text-align", "center");
-        style.set("display", "inline-block");
-        startNumber.setVisible(false);
-        getFirstNameWrapper().add(firstName, startNumber);
-        Div fullName = new Div(lastName, getFirstNameWrapper());
-
-        attempt = new H2();
-        weight = new H2();
-        weight.setText("");
-        if (timer == null) {
-            timer = new AthleteTimerElement(this);
-        }
-        timer.setSilenced(this.isSilenced());
-        H1 time = new H1(timer);
-        clearVerticalMargins(attempt);
-        clearVerticalMargins(time);
-        clearVerticalMargins(weight);
-
-        buttons = announcerButtons(topBar);
-        buttons.setPadding(false);
-        buttons.setMargin(false);
-        buttons.setSpacing(true);
-        
-        breaks = breakButtons(topBar);
-        breaks.setPadding(false);
-        breaks.setMargin(false);
-        breaks.setSpacing(true);
-        
-        decisions = decisionButtons(topBar);
-        decisions.setPadding(false);
-        decisions.setMargin(false);
-        decisions.setSpacing(true);
-        decisions.setAlignItems(FlexComponent.Alignment.BASELINE);
-
-        topBar.setSizeFull();
-        topBar.add(topBarLeft, fullName, attempt, weight, time);
-        if (buttons != null) {
-            topBar.add(buttons);
-        }
-        if (breaks != null) {
-            topBar.add(breaks);
-        }
-        if (decisions != null) {
-            topBar.add(decisions);
-        }
-
-        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
-        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-        topBar.setAlignSelf(Alignment.CENTER, attempt, weight, time);
-        topBar.setFlexGrow(0.5, fullName);
-        topBar.setFlexGrow(0.0, topBarLeft);
-        return topBar;
-    }
     /**
      * Use lifting order instead of display order
      *
@@ -207,17 +131,17 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         }
     }
 
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
+    }
+
     /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
     @Override
     public String getPageTitle() {
         return getTranslation("Announcer") + OwlcmsSession.getFopNameIfMultiple();
-    }
-    
-    @Override
-    public String getMenuTitle() {
-        return getPageTitle();
     }
 
     /**
@@ -231,6 +155,39 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     @Override
     public boolean isIgnoreGroupFromURL() {
         return false;
+    }
+
+    @Override
+    public boolean isSingleReferee() {
+        return singleReferee;
+    }
+
+    @Override
+    public void setHeaderContent() {
+        getRouterLayout().setMenuTitle(getMenuTitle());
+        getRouterLayout().setMenuArea(new FlexLayout());
+        getRouterLayout().showLocaleDropdown(false);
+        getRouterLayout().setDrawerOpened(false);
+        getRouterLayout().updateHeader();
+    }
+
+    @Override
+    public void setSingleReferee(boolean b) {
+        this.singleReferee = b;
+    }
+
+    @Override
+    @Subscribe
+    public void slaveNotification(UIEvent.Notification e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            String fopEventString = e.getFopEventString();
+            if (fopEventString != null && fopEventString.contentEquals("TimeStarted")) {
+                // time started button was selected, but denied. reset the colors
+                // to show that time is not running.
+                buttonsTimeStopped();
+            }
+            e.doNotification();
+        });
     }
 
     @Subscribe
@@ -381,6 +338,84 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
     }
 
+    @Override
+    protected FlexLayout createTopBar() {
+        logger.warn("**** AthleteGridContent creating top bar");
+        topBar = new FlexLayout();
+        topBar.setClassName("athleteGridTopBar");
+        initialBar = false;
+
+        HorizontalLayout topBarLeft = createTopBarLeft();
+
+        lastName = new H2();
+        lastName.setText("\u2013");
+        lastName.getStyle().set("margin", "0px 0px 0px 0px");
+
+        setFirstNameWrapper(new H3(""));
+        getFirstNameWrapper().getStyle().set("margin", "0px 0px 0px 0px");
+        firstName = new Span("");
+        firstName.getStyle().set("margin", "0px 0px 0px 0px");
+        startNumber = new Span("");
+        Style style = startNumber.getStyle();
+        style.set("margin", "0px 0px 0px 1em");
+        style.set("padding", "0px 0px 0px 0px");
+        style.set("border", "2px solid var(--lumo-primary-color)");
+        style.set("font-size", "90%");
+        style.set("width", "1.4em");
+        style.set("text-align", "center");
+        style.set("display", "inline-block");
+        startNumber.setVisible(false);
+        getFirstNameWrapper().add(firstName, startNumber);
+        Div fullName = new Div(lastName, getFirstNameWrapper());
+
+        attempt = new H2();
+        weight = new H2();
+        weight.setText("");
+        if (timer == null) {
+            timer = new AthleteTimerElement(this);
+        }
+        timer.setSilenced(this.isSilenced());
+        H1 time = new H1(timer);
+        clearVerticalMargins(attempt);
+        clearVerticalMargins(time);
+        clearVerticalMargins(weight);
+
+        buttons = announcerButtons(topBar);
+        buttons.setPadding(false);
+        buttons.setMargin(false);
+        buttons.setSpacing(true);
+
+        breaks = breakButtons(topBar);
+        breaks.setPadding(false);
+        breaks.setMargin(false);
+        breaks.setSpacing(true);
+
+        decisions = decisionButtons(topBar);
+        decisions.setPadding(false);
+        decisions.setMargin(false);
+        decisions.setSpacing(true);
+        decisions.setAlignItems(FlexComponent.Alignment.BASELINE);
+
+        topBar.setSizeFull();
+        topBar.add(topBarLeft, fullName, attempt, weight, time);
+        if (buttons != null) {
+            topBar.add(buttons);
+        }
+        if (breaks != null) {
+            topBar.add(breaks);
+        }
+        if (decisions != null) {
+            topBar.add(decisions);
+        }
+
+        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
+        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+        topBar.setAlignSelf(Alignment.CENTER, attempt, weight, time);
+        topBar.setFlexGrow(0.5, fullName);
+        topBar.setFlexGrow(0.0, topBarLeft);
+        return topBar;
+    }
+
     /**
      * @see app.owlcms.nui.shared.AthleteGridContent#createTopBarGroupSelect()
      */
@@ -391,7 +426,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         // filter.
 
         List<Group> groups = GroupRepository.findAll();
-        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+        groups.sort(new NaturalOrderComparator<Group>());
 
         OwlcmsSession.withFop((fop) -> {
             Group group = fop.getGroup();
@@ -407,6 +442,52 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                     (g1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
             createTopBarSettingsMenu();
         });
+    }
+
+    @Override
+    protected void createTopBarSettingsMenu() {
+        topBarSettings = new MenuBar();
+        topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
+        MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
+        SubMenu subMenu2 = item2.getSubMenu();
+
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        MenuItem subItemSoundOn = subMenu2.addItem(
+                Translator.translate("Settings.TurnOnSound"),
+                e -> {
+                    switchSoundMode(this, !this.isSilenced(), true);
+                    e.getSource().setChecked(!this.isSilenced());
+                    if (decisionDisplay != null) {
+                        decisionDisplay.setSilenced(this.isSilenced());
+                    }
+                    if (timer != null) {
+                        timer.setSilenced(this.isSilenced());
+                    }
+                });
+        subItemSoundOn.setCheckable(true);
+        subItemSoundOn.setChecked(!this.isSilenced());
+
+        MenuItem subItemSingleRef = subMenu2.addItem(
+                Translator.translate("Settings.SingleReferee"));
+        subItemSingleRef.setCheckable(true);
+        subItemSingleRef.setChecked(this.isSingleReferee());
+        MenuItem immediateDecision = subMenu2.addItem(
+                Translator.translate("Settings.ImmediateDecision"));
+        immediateDecision.setCheckable(true);
+        immediateDecision.setChecked(fop.isAnnouncerDecisionImmediate());
+
+        immediateDecision.addClickListener(e -> {
+            switchImmediateDecisionMode(this, !fop.isAnnouncerDecisionImmediate(), true);
+            e.getSource().setChecked(fop.isAnnouncerDecisionImmediate());
+        });
+        subItemSingleRef.addClickListener(e -> {
+            // single referee implies not immediate so down is shown
+            switchSingleRefereeMode(this, !this.isSingleReferee(), true);
+            switchImmediateDecisionMode(this, !this.isSingleReferee(), true);
+            immediateDecision.setChecked(fop.isAnnouncerDecisionImmediate());
+            e.getSource().setChecked(this.isSingleReferee());
+        });
+
     }
 
     /**
@@ -476,73 +557,5 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         getTopBarLeft().removeAll();
         fillTopBarLeft();
         decisionLights = null;
-    }
-
-    protected void createTopBarSettingsMenu() {
-        topBarSettings = new MenuBar();
-        topBarSettings.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
-        MenuItem item2 = topBarSettings.addItem(IronIcons.SETTINGS.create());
-        SubMenu subMenu2 = item2.getSubMenu();
-
-        FieldOfPlay fop = OwlcmsSession.getFop();
-        MenuItem subItemSoundOn = subMenu2.addItem(
-                Translator.translate("Settings.TurnOnSound"),
-                e -> {
-                    switchSoundMode(this, !this.isSilenced(), true);
-                    e.getSource().setChecked(!this.isSilenced());
-                    if (decisionDisplay != null) {
-                        decisionDisplay.setSilenced(this.isSilenced());
-                    }
-                    if (timer != null) {
-                        timer.setSilenced(this.isSilenced());
-                    }
-                });
-        subItemSoundOn.setCheckable(true);
-        subItemSoundOn.setChecked(!this.isSilenced());
-
-        MenuItem subItemSingleRef = subMenu2.addItem(
-                Translator.translate("Settings.SingleReferee"));
-        subItemSingleRef.setCheckable(true);
-        subItemSingleRef.setChecked(this.isSingleReferee());
-        MenuItem immediateDecision = subMenu2.addItem(
-                Translator.translate("Settings.ImmediateDecision"));
-        immediateDecision.setCheckable(true);
-        immediateDecision.setChecked(fop.isAnnouncerDecisionImmediate());
-
-        immediateDecision.addClickListener(e -> {
-            switchImmediateDecisionMode(this, !fop.isAnnouncerDecisionImmediate(), true);
-            e.getSource().setChecked(fop.isAnnouncerDecisionImmediate());
-        });
-        subItemSingleRef.addClickListener(e -> {
-            // single referee implies not immediate so down is shown
-            switchSingleRefereeMode(this, !this.isSingleReferee(), true);
-            switchImmediateDecisionMode(this, !this.isSingleReferee(), true);
-            immediateDecision.setChecked(fop.isAnnouncerDecisionImmediate());
-            e.getSource().setChecked(this.isSingleReferee());
-        });
-
-    }
-
-    @Override
-    public void setSingleReferee(boolean b) {
-        this.singleReferee = b;
-    }
-
-    @Override
-    public boolean isSingleReferee() {
-        return singleReferee;
-    }
-
-    @Subscribe
-    public void slaveNotification(UIEvent.Notification e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            String fopEventString = e.getFopEventString();
-            if (fopEventString != null && fopEventString.contentEquals("TimeStarted")) {
-                // time started button was selected, but denied. reset the colors
-                // to show that time is not running.
-                buttonsTimeStopped();
-            }
-            e.doNotification();
-        });
     }
 }
