@@ -93,6 +93,11 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
     public String getPageTitle() {
         return getTranslation("PlatesCollarBarbell") + OwlcmsSession.getFopNameIfMultiple();
     }
+    
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
+    }
 
     public void setCrudFormFactory(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
         this.crudFormFactory = crudFormFactory;
@@ -124,7 +129,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
    public FlexLayout createMenuArea () {
         FlexLayout fl = super.createMenuArea();
         // this hides the back arrow
-        getAppLayout().setMenuVisible(false);
+        getAppLayout().setMenuVisible(true);
         return fl;
     }
 

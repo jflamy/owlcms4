@@ -15,20 +15,14 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -141,75 +135,6 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
     @Override
     public String getMenuTitle() {
         return getPageTitle();
-    }
-
-    /**
-     * @see app.owlcms.nui.shared.AthleteGridContent#createTopBar()
-     */
-    @Override
-    public FlexLayout createMenuArea() {
-        topBar = new FlexLayout();
-        topBar.setClassName("athleteGridTopBar");
-        initialBar = false;
-
-        HorizontalLayout topBarLeft = createTopBarLeft();
-
-        lastName = new H2();
-        lastName.setText("\u2013");
-        lastName.getStyle().set("margin", "0px 0px 0px 0px");
-
-        setFirstNameWrapper(new H3(""));
-        getFirstNameWrapper().getStyle().set("margin", "0px 0px 0px 0px");
-        firstName = new Span("");
-        firstName.getStyle().set("margin", "0px 0px 0px 0px");
-        startNumber = new Span("");
-        Style style = startNumber.getStyle();
-        style.set("margin", "0px 0px 0px 1em");
-        style.set("padding", "0px 0px 0px 0px");
-        style.set("border", "2px solid var(--lumo-primary-color)");
-        style.set("font-size", "90%");
-        style.set("width", "1.4em");
-        style.set("text-align", "center");
-        style.set("display", "inline-block");
-        startNumber.setVisible(false);
-        getFirstNameWrapper().add(firstName, startNumber);
-        Div fullName = new Div(lastName, getFirstNameWrapper());
-
-        attempt = new H2();
-        weight = new H2();
-        weight.setText("");
-        if (timer == null) {
-            timer = new AthleteTimerElement(this);
-        }
-        timer.setSilenced(this.isSilenced());
-        H1 time = new H1(timer);
-        clearVerticalMargins(attempt);
-        clearVerticalMargins(time);
-        clearVerticalMargins(weight);
-
-        buttons = announcerButtons(topBar);
-        breaks = breakButtons(topBar);
-        decisions = decisionButtons(topBar);
-        decisions.setAlignItems(FlexComponent.Alignment.BASELINE);
-
-        topBar.setSizeFull();
-        topBar.add(topBarLeft, fullName, attempt, weight, time);
-        if (buttons != null) {
-            topBar.add(buttons);
-        }
-        if (breaks != null) {
-            topBar.add(breaks);
-        }
-        if (decisions != null) {
-            topBar.add(decisions);
-        }
-
-        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
-        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-        topBar.setAlignSelf(Alignment.CENTER, attempt, weight, time);
-        topBar.setFlexGrow(0.5, fullName);
-        topBar.setFlexGrow(0.0, topBarLeft);
-        return topBar;
     }
 
     /**

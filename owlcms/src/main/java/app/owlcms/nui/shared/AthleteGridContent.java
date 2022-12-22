@@ -312,6 +312,78 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     /**
+     * Used by the TimeKeeper and TechnicalController classes that abusively
+     * inherit from this class (they don't actually have a grid)
+     * 
+     * @see app.owlcms.nui.shared.AthleteGridContent#createTopBar()
+     */
+    @Override
+    public FlexLayout createMenuArea() {
+        topBar = new FlexLayout();
+        topBar.setClassName("athleteGridTopBar");
+        initialBar = false;
+
+        HorizontalLayout topBarLeft = createTopBarLeft();
+
+        lastName = new H2();
+        lastName.setText("\u2013");
+        lastName.getStyle().set("margin", "0px 0px 0px 0px");
+
+        setFirstNameWrapper(new H3(""));
+        getFirstNameWrapper().getStyle().set("margin", "0px 0px 0px 0px");
+        firstName = new Span("");
+        firstName.getStyle().set("margin", "0px 0px 0px 0px");
+        startNumber = new Span("");
+        Style style = startNumber.getStyle();
+        style.set("margin", "0px 0px 0px 1em");
+        style.set("padding", "0px 0px 0px 0px");
+        style.set("border", "2px solid var(--lumo-primary-color)");
+        style.set("font-size", "90%");
+        style.set("width", "1.4em");
+        style.set("text-align", "center");
+        style.set("display", "inline-block");
+        startNumber.setVisible(false);
+        getFirstNameWrapper().add(firstName, startNumber);
+        Div fullName = new Div(lastName, getFirstNameWrapper());
+
+        attempt = new H2();
+        weight = new H2();
+        weight.setText("");
+        if (timer == null) {
+            timer = new AthleteTimerElement(this);
+        }
+        timer.setSilenced(this.isSilenced());
+        H1 time = new H1(timer);
+        clearVerticalMargins(attempt);
+        clearVerticalMargins(time);
+        clearVerticalMargins(weight);
+
+        buttons = announcerButtons(topBar);
+        breaks = breakButtons(topBar);
+        decisions = decisionButtons(topBar);
+        decisions.setAlignItems(FlexComponent.Alignment.BASELINE);
+
+        topBar.setSizeFull();
+        topBar.add(topBarLeft, fullName, attempt, weight, time);
+        if (buttons != null) {
+            topBar.add(buttons);
+        }
+        if (breaks != null) {
+            topBar.add(breaks);
+        }
+        if (decisions != null) {
+            topBar.add(decisions);
+        }
+
+        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
+        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+        topBar.setAlignSelf(Alignment.CENTER, attempt, weight, time);
+        topBar.setFlexGrow(0.5, fullName);
+        topBar.setFlexGrow(0.0, topBarLeft);
+        return topBar;
+    }
+    
+    /**
      * Get the content of the crudGrid. Invoked by refreshGrid.
      *
      * @see org.vaadin.crudui.crud.CrudListener#findAll()
