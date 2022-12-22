@@ -1,19 +1,18 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 36.0: (Optional) Future user interface navigation available as an alternative. Redoing the navigation using a standard library is necessary to catch up with the current release of the [Vaadin](https://vaadin.com/components) user interface framework. There are no changes to the competition engine and to the various buttons and menus.
-  - To test, use `/n` as the starting point (for example, start from http://localhost/n and navigate from there.
+- 36.0: Future user navigation available for testing.
+  - 36.0 Enhancements
+    - (Optional) Renovated user interface navigation available as an alternative. Redoing the navigation using a standard library is necessary to catch up with the current release of the [Vaadin](https://vaadin.com/components) user interface framework. There are no changes to the competition engine and to the various buttons and menus.
+      - To test, use `/n` as the starting point (for example, start from http://localhost/n and navigate from there.
 
-- 35.1: Improvement of registration sheet ([#594](https://github.com/jflamy/owlcms4/issues/594), [#595](https://github.com/jflamy/owlcms4/issues/595)), customization of team point system  [(#597)](https://github.com/jflamy/owlcms4/issues/597).
-  - 35.1 Enhancements / functional changes
-    - [Registration Spreadsheet Documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Registration): the recommended way to enter categories when initially loading the athletes has been clarified and documented. Documentation of the export conventions for category eligibility and team membership.
-    - Customization of team points. Templates for the final results package now have an extra tab that contains the points awarded for each rank. Copy and rename the template if you need to change the point system for a given competition [(#597)](https://github.com/jflamy/owlcms4/issues/597).
-  - 35.1 Fixes:
-    - Fix: Using the registration spreadsheet to enter the athletes did not make them team members by default.  The import/export process did not preserve team membership changes ([#594](https://github.com/jflamy/owlcms4/issues/594))
-    - Fix: Entering the expected bodyweight of an athlete on the registration sheet was no longer inferring the eligibility categories ([#595](https://github.com/jflamy/owlcms4/issues/595))
-    - Fix: Categories entered on the registration sheet are now always checked relative to the qualification criterion.
+  - 36.0 Fixes
+    - 36.0.0-alpha00 Fix: referee reminder was broken for legacy implementation ([#599](https://github.com/jflamy/owlcms4/issues/599)). Referee number had been erroneously added to legacy MQTT message.
+
 
 ##### Highlights from recent stable releases
 
+- Customization of team points. Templates for the final results package now have an extra tab that contains the points awarded for each rank. Copy and rename the template if you need to change the point system for a given competition.
+-  Improvement of registration spreadsheet.  See [Registration Spreadsheet Documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Registration)
 - **New Sinclair coefficients for the 2024 Olympiad**.  An option on the Competition rules page allows using the previous (2020 Olympiad) values if your local rules require them.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
 - Experimental capability to add flags and athlete pictures on the attempt board (#508).  See [Flags and Pictures](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/FlagsPicture) documentation.
 - New Records processing, including Eligibility Criteria and Federations (so invited athletes do not show up as breaking local records, etc.). See [Records Eligibility](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Records) documentation. 
