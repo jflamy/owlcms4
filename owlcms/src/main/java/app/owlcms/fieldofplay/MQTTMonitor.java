@@ -481,7 +481,7 @@ public class MQTTMonitor {
     }
 
     private void publishMqttWakeUpRef(int ref, boolean on) {
-        logger.debug("{}MQTT decisionRequest {}", fop.getLoggingName(), ref);
+        logger.debug("{}MQTT decisionRequest {} {}", fop.getLoggingName(), ref, on);
         try {
             FOPState state = fop.getState();
             if (state != FOPState.DOWN_SIGNAL_VISIBLE
@@ -492,13 +492,15 @@ public class MQTTMonitor {
                 return;
             }
             String topic = "owlcms/fop/decisionRequest/" + fop.getName();
-            client.publish(topic, new MqttMessage(Integer.toString(ref).getBytes(StandardCharsets.UTF_8)));
+            if (on) {
+                client.publish(topic, new MqttMessage(Integer.toString(ref).getBytes(StandardCharsets.UTF_8)));
+            }
 
             // Legacy : specific referee is added at the end of the topic.
             String deprecatedTopic = "owlcms/decisionRequest/" + fop.getName() + "/" + ref;
             if (on) {
                 client.publish(deprecatedTopic,
-                        new MqttMessage((ref + " on").getBytes(StandardCharsets.UTF_8)));
+                        new MqttMessage(("on").getBytes(StandardCharsets.UTF_8)));
             } else {
                 // off is not sent, even in legacy mode.
             }
