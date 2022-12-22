@@ -72,7 +72,7 @@
 		<dependency>
 			<groupId>org.vaadin.crudui</groupId>
 			<artifactId>crudui</artifactId>
-			<version>4.2.0</version>
+			<version>6.2.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -349,7 +349,6 @@
 				<configuration>
 					<pnpmEnable>false</pnpmEnable>
 					<skipEs5>true</skipEs5>
-					<useDeprecatedV14Bootstrapping>true</useDeprecatedV14Bootstrapping>
 				</configuration>
 			</plugin>
 			<plugin>

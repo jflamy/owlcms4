@@ -19,6 +19,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
+import org.vaadin.crudui.form.CrudFormConfiguration;
 
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.flow.component.ClickEvent;
@@ -339,7 +340,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    protected void bindField(HasValue field, String property, Class<?> propertyType) {
+    protected void bindField(HasValue field, String property, Class<?> propertyType, CrudFormConfiguration c) {
         Binder.BindingBuilder bindingBuilder = binder.forField(field);
 
         if ("bodyWeight".equals(property)) {
@@ -384,7 +385,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         } else if ("eligibleCategories".equals(property)) {
             bindingBuilder.bind(property);
         } else {
-            super.bindField(field, property, propertyType);
+            super.bindField(field, property, propertyType, c);
         }
     }
 

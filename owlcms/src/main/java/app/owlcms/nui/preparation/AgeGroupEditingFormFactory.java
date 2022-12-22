@@ -11,6 +11,7 @@ import java.util.Collection;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
+import org.vaadin.crudui.form.CrudFormConfiguration;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
@@ -208,9 +209,9 @@ public class AgeGroupEditingFormFactory
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    protected void bindField(HasValue field, String property, Class<?> propertyType) {
+    protected void bindField(HasValue field, String property, Class<?> propertyType, CrudFormConfiguration c) {
         binder.forField(field);
-        super.bindField(field, property, propertyType);
+        super.bindField(field, property, propertyType, c);
     }
 
 }

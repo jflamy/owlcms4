@@ -11,6 +11,8 @@ import java.util.List;
 
 import javax.sound.sampled.Mixer;
 
+import org.vaadin.crudui.form.CrudFormConfiguration;
+
 import com.vaadin.flow.component.HasValue;
 
 import app.owlcms.data.platform.Platform;
@@ -49,7 +51,7 @@ class PlatformEditingFormFactory extends OwlcmsCrudFormFactory<Platform> {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    protected void bindField(HasValue field, String property, Class<?> propertyType) {
+    protected void bindField(HasValue field, String property, Class<?> propertyType, CrudFormConfiguration c) {
         if (property.equals("soundMixerName")) {
             field.addValueChangeListener(e -> {
                 List<Mixer> soundMixers = Speakers.getOutputs();
@@ -64,6 +66,6 @@ class PlatformEditingFormFactory extends OwlcmsCrudFormFactory<Platform> {
                 }
             });
         }
-        super.bindField(field, property, propertyType);
+        super.bindField(field, property, propertyType, c);
     }
 }
