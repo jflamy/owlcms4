@@ -86,6 +86,11 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
         return GroupRepository.findAll().stream().sorted(Group::compareToWeighIn).collect(Collectors.toList());
     }
 
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
+    }
+
     /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
@@ -150,13 +155,13 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
         grid.addColumn(LocalDateTimeField.getRenderer(Group::getCompetitionTime, this.getLocale()))
                 .setHeader(getTranslation("StartTime"));
         grid.addColumn(Group::getPlatform).setHeader(getTranslation("Platform"));
-        String translation= getTranslation("EditAthletes");
+        String translation = getTranslation("EditAthletes");
         int tSize = translation.length();
         grid.addColumn(new ComponentRenderer<>(p -> {
             Button technical = openInNewTab(RegistrationContent.class, translation, p.getName());
             technical.addThemeVariants(ButtonVariant.LUMO_SMALL);
             return technical;
-        })).setHeader("").setWidth(tSize+"ch");
+        })).setHeader("").setWidth(tSize + "ch");
 
         GridCrud<Group> crud = new OwlcmsCrudGrid<>(Group.class, new OwlcmsGridLayout(Group.class),
                 crudFormFactory, grid);
@@ -164,10 +169,11 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
         crud.setClickRowToUpdate(true);
         return crud;
     }
-    
+
     private <T extends Component> String getWindowOpenerFromClass(Class<T> targetClass,
             String parameter) {
-        return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?group=" + URLEncoder.encode(parameter, StandardCharsets.UTF_8)
+        return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?group="
+                + URLEncoder.encode(parameter, StandardCharsets.UTF_8)
                 + "','" + targetClass.getSimpleName() + "')";
     }
 

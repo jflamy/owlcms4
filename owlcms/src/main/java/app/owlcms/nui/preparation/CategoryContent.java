@@ -96,6 +96,11 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
                 ageGroupFilter.getValue(), (Integer) null, (Double) null, activeFilter.getValue(), -1, -1);
     }
 
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
+    }
+
     /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */

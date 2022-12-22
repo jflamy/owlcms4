@@ -235,6 +235,11 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     public String getPageTitle() {
         return getTranslation("GroupResults");
     }
+    
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
+    }
 
     @Override
     public boolean isIgnoreGroupFromURL() {

@@ -141,6 +141,11 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
     public String getPageTitle() {
         return getTranslation("Preparation_AgeGroups");
     }
+    
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
+    }
 
     @Override
     public OwlcmsLayout getRouterLayout() {
@@ -208,18 +213,15 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
     }
 
     /**
-     * Create the top bar.
-     *
-     * Note: the top bar is created before the content.
-     *
      * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
      */
-    public void createTopBar() {
+    public FlexLayout createMenuArea() {
         // show arrow but close menu
         getAppLayout().setMenuVisible(true);
         getAppLayout().closeDrawer();
 
-        topBar = getAppLayout().getMenuArea();
+        topBar = new FlexLayout();
+
 
         resetCats = new Button(getTranslation("ResetCategories.ResetAthletes"), (e) -> {
             new ConfirmationDialog(
@@ -231,7 +233,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         });
         resetCats.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
         HorizontalLayout resetButton = new HorizontalLayout(resetCats);
-        resetButton.setMargin(true);
+        resetButton.setMargin(false);
 
         ageGroupDefinitionSelect = new ComboBox<>();
         ageGroupDefinitionSelect.setPlaceholder(getTranslation("ResetCategories.AvailableDefinitions"));
@@ -257,15 +259,18 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
                         }).open();
             }
         });
+        
         HorizontalLayout reloadDefinition = new HorizontalLayout(ageGroupDefinitionSelect, reload);
         reloadDefinition.setAlignItems(FlexComponent.Alignment.BASELINE);
-        reloadDefinition.setMargin(true);
+        reloadDefinition.setMargin(false);
+        reloadDefinition.setPadding(false);
         reloadDefinition.setSpacing(false);
 
-//        topBar.getStyle().set("flex", "100 1");
         topBar.add(resetButton, reloadDefinition);
-        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+        
+        return topBar;
     }
 
     /**
@@ -313,9 +318,6 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        createTopBar();
-//        Competition competition = Competition.getCurrent();
-//        competition.computeGlobalRankings();
     }
 
     void closeDialog() {

@@ -11,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -115,6 +114,14 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     private OwlcmsLayout routerLayout;
     private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
 
+    private Button cardsButton;
+
+    private Group group;
+
+    private ComboBox<Group> groupSelect;
+
+    private Button startingListButton;
+
     /**
      * Instantiates the athlete crudGrid
      */
@@ -125,15 +132,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         defineFilters(crudGrid);
         fillHW(crudGrid, this);
     }
-    
-    @Override
-    public void setHeaderContent() {
-        routerLayout.setMenuTitle(getPageTitle());
-        routerLayout.setMenuArea(createMenuArea());
-        routerLayout.showLocaleDropdown(false);
-        routerLayout.setDrawerOpened(false);
-        routerLayout.updateHeader();
-    }
 
     @Override
     public Athlete add(Athlete athlete) {
@@ -142,6 +140,92 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         }
         ((OwlcmsCrudFormFactory<Athlete>) crudGrid.getCrudFormFactory()).add(athlete);
         return athlete;
+    }
+
+    /**
+     * Create the top bar.
+     *
+     * Note: the top bar is created before the content.
+     *
+     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
+     *
+     * @param topBar
+     */
+    @Override
+    public FlexLayout createMenuArea() {
+        logger.warn("::::: creating buttons");
+        setGroupSelect(new ComboBox<>());
+        getGroupSelect().setPlaceholder(getTranslation("Group"));
+        List<Group> groups = GroupRepository.findAll();
+        groups.sort(new NaturalOrderComparator<Group>());
+        getGroupSelect().setItems(groups);
+        getGroupSelect().setItemLabelGenerator(Group::getName);
+        getGroupSelect().setClearButtonVisible(true);
+        getGroupSelect().setValue(null);
+        getGroupSelect().addValueChangeListener(e -> {
+            setContentGroup(e);
+        });
+
+        Button drawLots = new Button(getTranslation("DrawLotNumbers"), (e) -> {
+            drawLots();
+        });
+
+        Button deleteAthletes = new Button(getTranslation("DeleteAthletes"), (e) -> {
+            new ConfirmationDialog(getTranslation("DeleteAthletes"), getTranslation("Warning_DeleteAthletes"),
+                    getTranslation("Done_period"), () -> {
+                        deleteAthletes();
+                    }).open();
+
+        });
+        deleteAthletes.getElement().setAttribute("title", getTranslation("DeleteAthletes_forListed"));
+
+        Button clearLifts = new Button(getTranslation("ClearLifts"), (e) -> {
+            new ConfirmationDialog(getTranslation("ClearLifts"), getTranslation("Warning_ClearAthleteLifts"),
+                    getTranslation("LiftsCleared"), () -> {
+                        clearLifts();
+                    }).open();
+        });
+        deleteAthletes.getElement().setAttribute("title", getTranslation("ClearLifts_forListed"));
+
+        JXLSCards cardsWriter = new JXLSCards();
+        JXLSStartingList startingListWriter = new JXLSStartingList();
+
+        cardsButton = createCardsButton(cardsWriter);
+        startingListButton = createStartingListButton(startingListWriter);
+
+        Button resetCats = new Button(getTranslation("ResetCategories.ResetAthletes"), (e) -> {
+            new ConfirmationDialog(
+                    getTranslation("ResetCategories.ResetCategories"),
+                    getTranslation("ResetCategories.Warning_ResetCategories"),
+                    getTranslation("ResetCategories.CategoriesReset"), () -> {
+                        resetCategories();
+                    }).open();
+        });
+        resetCats.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
+
+        HorizontalLayout buttons;
+        if (Config.getCurrent().featureSwitch("preCompDocs", true)) {
+            buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts,
+                    resetCats);
+        } else {
+            buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts, startingListButton,
+                    cardsButton,
+                    resetCats);
+        }
+
+        buttons.setPadding(false);
+        buttons.setMargin(false);
+        buttons.setSpacing(true);
+        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+
+        FlexLayout topBar = new FlexLayout();
+        topBar.getStyle().set("flex", "100 1");
+        topBar.removeAll();
+        topBar.add(getGroupSelect(), buttons);
+        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        return topBar;
     }
 
     @Override
@@ -178,6 +262,13 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         return groupFilter;
     }
 
+    /**
+     * @return the groupSelect
+     */
+    public ComboBox<Group> getGroupSelect() {
+        return groupSelect;
+    }
+
     @Override
     public Location getLocation() {
         return this.location;
@@ -186,6 +277,11 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     @Override
     public UI getLocationUI() {
         return this.locationUI;
+    }
+
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
     }
 
     /**
@@ -219,6 +315,22 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         crudGrid.refreshGrid();
     }
 
+    /**
+     * @param groupSelect the groupSelect to set
+     */
+    public void setGroupSelect(ComboBox<Group> groupSelect) {
+        this.groupSelect = groupSelect;
+    }
+
+    @Override
+    public void setHeaderContent() {
+        routerLayout.setMenuTitle(getPageTitle());
+        routerLayout.setMenuArea(createMenuArea());
+        routerLayout.showLocaleDropdown(false);
+        routerLayout.setDrawerOpened(false);
+        routerLayout.updateHeader();
+    }
+
     @Override
     public void setLocation(Location location) {
         this.location = location;
@@ -249,9 +361,9 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
         HashMap<String, List<String>> params = new HashMap<>(parametersMap);
 
-        //logger.trace("parsing query parameters RegistrationContent");
+        // logger.trace("parsing query parameters RegistrationContent");
         List<String> groupNames = params.get("group");
-        //logger.trace("groupNames = {}", groupNames);
+        // logger.trace("groupNames = {}", groupNames);
         if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
             String groupName = groupNames.get(0);
             groupName = URLDecoder.decode(groupName, StandardCharsets.UTF_8);
@@ -293,7 +405,8 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
      * @return the form factory that will create the actual form on demand
      */
     protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-        OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory = new AthleteRegistrationFormFactory(Athlete.class, currentGroup);
+        OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory = new AthleteRegistrationFormFactory(Athlete.class,
+                currentGroup);
         createFormLayout(athleteEditingFormFactory);
         return athleteEditingFormFactory;
     }
@@ -383,7 +496,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 
         groupFilter.setPlaceholder(getTranslation("Group"));
         List<Group> groups = GroupRepository.findAll();
-        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+        groups.sort(new NaturalOrderComparator<Group>());
         groupFilter.setItems(groups);
         groupFilter.setItemLabelGenerator(Group::getName);
         groupFilter.addValueChangeListener(e -> {
@@ -432,11 +545,62 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         crudGrid.getCrudLayout().addFilterComponent(clearFilters);
     }
 
+    protected void errorNotification() {
+        Label content = new Label(getTranslation("Select_group_first"));
+        content.getElement().setAttribute("theme", "error");
+        Button buttonInside = new Button(getTranslation("GotIt"));
+        buttonInside.getElement().setAttribute("theme", "error primary");
+        VerticalLayout verticalLayout = new VerticalLayout(content, buttonInside);
+        verticalLayout.setAlignItems(Alignment.CENTER);
+        Notification notification = new Notification(verticalLayout);
+        notification.setDuration(3000);
+        buttonInside.addClickListener(event -> notification.close());
+        notification.setPosition(Position.MIDDLE);
+        notification.open();
+    }
+
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         getRouterLayout().closeDrawer();
         getGroupSelect().setValue(currentGroup);
+    }
+
+    protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
+        group = e.getValue();
+        groupFilter.setValue(e.getValue());
+    }
+
+    private void clearLifts() {
+        JPAService.runInTransaction(em -> {
+            List<Athlete> athletes = (List<Athlete>) doFindAll(em);
+            for (Athlete a : athletes) {
+                a.clearLifts();
+                em.merge(a);
+            }
+            em.flush();
+            return null;
+        });
+    }
+
+    private Button createCardsButton(JXLSCards cardsWriter) {
+        String resourceDirectoryLocation = "/templates/cards";
+        String title = Translator.translate("AthleteCards");
+        String downloadedFilePrefix = "cards";
+        DownloadDialog cardsButtonFactory = new DownloadDialog(
+                () -> {
+                    JXLSCards rs = new JXLSCards();
+                    // group may have been edited since the page was loaded
+                    rs.setGroup(group != null ? GroupRepository.getById(group.getId()) : null);
+                    return rs;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedCardsTemplateFileName,
+                Competition::setCardsTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return cardsButtonFactory.createTopBarDownloadButton();
     }
 
     /**
@@ -494,10 +658,10 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 
         props.add("lotNumber");
         captions.add(getTranslation("Lot"));
-        
+
         props.add("federationCodes");
         captions.add(getTranslation("Registration.FederationCodes"));
-        
+
         props.add("eligibleForIndividualRanking");
         captions.add(getTranslation("Eligible for Individual Ranking?"));
 
@@ -507,7 +671,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         crudFormFactory.setFieldProvider("gender", new OwlcmsComboBoxProvider<>(getTranslation("Gender"),
                 Arrays.asList(Gender.mfValues()), new TextRenderer<>(Gender::name), Gender::name));
         List<Group> groups = GroupRepository.findAll();
-        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+        groups.sort(new NaturalOrderComparator<Group>());
         crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(getTranslation("Group"),
                 groups, new TextRenderer<>(Group::getName), Group::getName));
         crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
@@ -528,179 +692,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         crudFormFactory.setFieldType("cleanJerk1Declaration", ValidationTextField.class);
         crudFormFactory.setFieldType("qualifyingTotal", ValidationTextField.class);
         crudFormFactory.setFieldType("yearOfBirth", ValidationTextField.class);
-    }
-
-    private void updateURLLocation(UI ui, Location location, Group newGroup) {
-        // change the URL to reflect fop group
-        HashMap<String, List<String>> params = new HashMap<>(
-                location.getQueryParameters().getParameters());
-        if (!isIgnoreGroupFromURL() && newGroup != null) {
-            params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
-            if (newGroup != null) {
-                params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
-                currentGroup = newGroup;
-                OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
-                crudGrid.setCrudFormFactory(crudFormFactory);
-            }
-        } else {
-            params.remove("group");
-        }
-        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
-    }
-    private Button cardsButton;
-    private Group group;
-    private ComboBox<Group> groupSelect;
-    private Button startingListButton;
-
-    /**
-     * @return the groupSelect
-     */
-    public ComboBox<Group> getGroupSelect() {
-        return groupSelect;
-    }
-
-    /**
-     * @param groupSelect the groupSelect to set
-     */
-    public void setGroupSelect(ComboBox<Group> groupSelect) {
-        this.groupSelect = groupSelect;
-    }
-
-    /**
-     * Create the top bar.
-     *
-     * Note: the top bar is created before the content.
-     *
-     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
-     *
-     * @param topBar
-     */
-    @Override
-    public FlexLayout createMenuArea() {
-        logger.warn("::::: creating buttons");
-        setGroupSelect(new ComboBox<>());
-        getGroupSelect().setPlaceholder(getTranslation("Group"));
-        List<Group> groups = GroupRepository.findAll();
-        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
-        getGroupSelect().setItems(groups);
-        getGroupSelect().setItemLabelGenerator(Group::getName);
-        getGroupSelect().setClearButtonVisible(true);
-        getGroupSelect().setValue(null);
-        getGroupSelect().addValueChangeListener(e -> {
-            setContentGroup(e);
-        });
-
-        Button drawLots = new Button(getTranslation("DrawLotNumbers"), (e) -> {
-            drawLots();
-        });
-
-        Button deleteAthletes = new Button(getTranslation("DeleteAthletes"), (e) -> {
-            new ConfirmationDialog(getTranslation("DeleteAthletes"), getTranslation("Warning_DeleteAthletes"),
-                    getTranslation("Done_period"), () -> {
-                        deleteAthletes();
-                    }).open();
-
-        });
-        deleteAthletes.getElement().setAttribute("title", getTranslation("DeleteAthletes_forListed"));
-
-        Button clearLifts = new Button(getTranslation("ClearLifts"), (e) -> {
-            new ConfirmationDialog(getTranslation("ClearLifts"), getTranslation("Warning_ClearAthleteLifts"),
-                    getTranslation("LiftsCleared"), () -> {
-                        clearLifts();
-                    }).open();
-        });
-        deleteAthletes.getElement().setAttribute("title", getTranslation("ClearLifts_forListed"));
-
-        JXLSCards cardsWriter = new JXLSCards();
-        JXLSStartingList startingListWriter = new JXLSStartingList();
-
-        cardsButton = createCardsButton(cardsWriter);
-        startingListButton = createStartingListButton(startingListWriter);
-
-        Button resetCats = new Button(getTranslation("ResetCategories.ResetAthletes"), (e) -> {
-            new ConfirmationDialog(
-                    getTranslation("ResetCategories.ResetCategories"),
-                    getTranslation("ResetCategories.Warning_ResetCategories"),
-                    getTranslation("ResetCategories.CategoriesReset"), () -> {
-                        resetCategories();
-                    }).open();
-        });
-        resetCats.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
-
-        HorizontalLayout buttons;
-        if (Config.getCurrent().featureSwitch("preCompDocs", true)) {
-            buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts,
-                    resetCats);
-        } else {
-            buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts, startingListButton,
-                    cardsButton,
-                    resetCats);
-        }
-
-        buttons.setPadding(false);
-        buttons.setMargin(false);
-        buttons.setSpacing(true);
-        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
-
-        FlexLayout topBar = new FlexLayout();
-        topBar.getStyle().set("flex", "100 1");
-        topBar.removeAll();
-        topBar.add(getGroupSelect(), buttons);
-        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-        
-        return topBar;
-    }
-
-    protected void errorNotification() {
-        Label content = new Label(getTranslation("Select_group_first"));
-        content.getElement().setAttribute("theme", "error");
-        Button buttonInside = new Button(getTranslation("GotIt"));
-        buttonInside.getElement().setAttribute("theme", "error primary");
-        VerticalLayout verticalLayout = new VerticalLayout(content, buttonInside);
-        verticalLayout.setAlignItems(Alignment.CENTER);
-        Notification notification = new Notification(verticalLayout);
-        notification.setDuration(3000);
-        buttonInside.addClickListener(event -> notification.close());
-        notification.setPosition(Position.MIDDLE);
-        notification.open();
-    }
-
-    protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
-        group = e.getValue();
-        groupFilter.setValue(e.getValue());
-    }
-
-    private void clearLifts() {
-        JPAService.runInTransaction(em -> {
-            List<Athlete> athletes = (List<Athlete>) doFindAll(em);
-            for (Athlete a : athletes) {
-                a.clearLifts();
-                em.merge(a);
-            }
-            em.flush();
-            return null;
-        });
-    }
-
-    private Button createCardsButton(JXLSCards cardsWriter) {
-        String resourceDirectoryLocation = "/templates/cards";
-        String title = Translator.translate("AthleteCards");
-        String downloadedFilePrefix = "cards";
-        DownloadDialog cardsButtonFactory = new DownloadDialog(
-                () -> {
-                    JXLSCards rs = new JXLSCards();
-                    // group may have been edited since the page was loaded
-                    rs.setGroup(group != null ? GroupRepository.getById(group.getId()) : null);
-                    return rs;
-                },
-                resourceDirectoryLocation,
-                Competition::getComputedCardsTemplateFileName,
-                Competition::setCardsTemplateFileName,
-                title,
-                downloadedFilePrefix,
-                Translator.translate("Download"));
-        return cardsButtonFactory.createTopBarDownloadButton();
     }
 
     private Button createStartingListButton(JXLSStartingList startingListWriter) {
@@ -752,5 +743,23 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     private void resetCategories() {
         AthleteRepository.resetParticipations();
         refreshCrudGrid();
+    }
+
+    private void updateURLLocation(UI ui, Location location, Group newGroup) {
+        // change the URL to reflect fop group
+        HashMap<String, List<String>> params = new HashMap<>(
+                location.getQueryParameters().getParameters());
+        if (!isIgnoreGroupFromURL() && newGroup != null) {
+            params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
+            if (newGroup != null) {
+                params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
+                currentGroup = newGroup;
+                OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
+                crudGrid.setCrudFormFactory(crudFormFactory);
+            }
+        } else {
+            params.remove("group");
+        }
+        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
 }

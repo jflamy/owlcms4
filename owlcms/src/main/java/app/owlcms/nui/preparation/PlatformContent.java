@@ -82,6 +82,11 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
         return PlatformRepository.findAll();
     }
 
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
+    }
+
     /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */

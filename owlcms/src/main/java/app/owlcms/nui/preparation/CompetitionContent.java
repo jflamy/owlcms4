@@ -50,13 +50,6 @@ public class CompetitionContent extends Composite<VerticalLayout>
         });
         fillH(form, getContent());
     }
-    
-    @Override
-    public void setHeaderContent() {
-        routerLayout.setMenuTitle(getPageTitle());
-        routerLayout.showLocaleDropdown(true);
-        routerLayout.setDrawerOpened(false);
-    }
 
     @Override
     public Competition add(Competition domainObjectToAdd) {
@@ -85,6 +78,11 @@ public class CompetitionContent extends Composite<VerticalLayout>
         return arrayList;
     }
 
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
+    }
+
     /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
@@ -106,6 +104,13 @@ public class CompetitionContent extends Composite<VerticalLayout>
         logger.setLevel(Level.INFO);
     }
 
+    @Override
+    public void setHeaderContent() {
+        routerLayout.setMenuTitle(getPageTitle());
+        routerLayout.showLocaleDropdown(true);
+        routerLayout.setDrawerOpened(false);
+    }
+
     /**
      * @see org.vaadin.crudui.layout.CrudLayout#setMainComponent(com.vaadin.flow.component.Component)
      */
@@ -119,7 +124,6 @@ public class CompetitionContent extends Composite<VerticalLayout>
     public void setRouterLayout(OwlcmsLayout routerLayout) {
         this.routerLayout = routerLayout;
     }
-
 
     @Override
     public void showDialog(String caption, Component form) {

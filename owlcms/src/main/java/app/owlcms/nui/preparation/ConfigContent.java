@@ -60,13 +60,6 @@ public class ConfigContent extends Composite<VerticalLayout>
         });
         fillH(form, getContent());
     }
-    
-    @Override
-    public void setHeaderContent() {
-        routerLayout.setMenuTitle(getPageTitle());
-        routerLayout.showLocaleDropdown(true);
-        routerLayout.setDrawerOpened(false);
-    }
 
     @Override
     public Config add(Config domainObjectToAdd) {
@@ -95,6 +88,11 @@ public class ConfigContent extends Composite<VerticalLayout>
         return arrayList;
     }
 
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
+    }
+
     /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
@@ -114,6 +112,13 @@ public class ConfigContent extends Composite<VerticalLayout>
 
     public void initLoggers() {
         logger.setLevel(Level.INFO);
+    }
+
+    @Override
+    public void setHeaderContent() {
+        routerLayout.setMenuTitle(getPageTitle());
+        routerLayout.showLocaleDropdown(true);
+        routerLayout.setDrawerOpened(false);
     }
 
     /**

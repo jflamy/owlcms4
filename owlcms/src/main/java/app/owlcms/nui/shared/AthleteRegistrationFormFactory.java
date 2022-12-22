@@ -245,6 +245,11 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         // not used
         return null;
     }
+    
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
+    }
 
     @Override
     public OwlcmsLayout getRouterLayout() {

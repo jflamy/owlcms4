@@ -179,6 +179,11 @@ public class TeamResultsContent extends VerticalLayout
         return locationUI;
     }
 
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
+    }
+
     /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
@@ -502,7 +507,8 @@ public class TeamResultsContent extends VerticalLayout
             @Override
             public DataProvider<TeamTreeItem, ?> getDataProvider() {
                 return new TreeDataProvider<>(
-                        new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), getGenderFilter().getValue(), Ranking.SNATCH_CJ_TOTAL));
+                        new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(), getGenderFilter().getValue(),
+                                Ranking.SNATCH_CJ_TOTAL));
             }
 
             @Override

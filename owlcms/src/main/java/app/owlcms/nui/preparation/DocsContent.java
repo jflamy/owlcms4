@@ -83,15 +83,14 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         logger.setLevel(Level.INFO);
         jexlLogger.setLevel(Level.ERROR);
     }
-
     private Group currentGroup;
-
     private DownloadDialog downloadDialog;
+
     private ComboBox<AgeDivision> ageDivisionFilter;
     private ComboBox<String> ageGroupFilter;
     private ComboBox<Platform> platformFilter;
-
     private String ageGroupPrefix;
+
     private AgeDivision ageDivision;
     private Category category;
     private JXLSStartingListDocs startingXlsWriter;
@@ -159,6 +158,52 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     /**
+     * Create the top bar.
+     *
+     * Note: the top bar is created before the content.
+     *
+     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
+     *
+     * @param topBar
+     */
+    @Override
+    public FlexLayout createMenuArea() {
+        logger.debug("createTopBar");
+        // show back arrow but close menu
+        getAppLayout().setMenuVisible(true);
+        getAppLayout().closeDrawer();
+
+        topBar = new FlexLayout();
+
+        Button cardsButton = createCardsButton();
+        Button startingListButton = createStartingListButton();
+
+        H3 title = new H3();
+        title.setText(getTopBarTitle());
+        title.add();
+        title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
+
+        createTopBarGroupSelect();
+
+        HorizontalLayout buttons = new HorizontalLayout(startingListButton, cardsButton);
+        buttons.setPadding(false);
+        buttons.setMargin(false);
+        buttons.setSpacing(true);
+        buttons.getStyle().set("margin-left", "5em");
+        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+
+        topBar.getStyle().set("flex", "100 1");
+        topBar.removeAll();
+        topBar.add(topBarMenu, buttons);
+        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+        topBar.setFlexGrow(0.2, title);
+//        topBar.setSpacing(true);
+        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        return topBar;
+    }
+
+    /**
      * Get the content of the crudGrid. Invoked by refreshGrid.
      *
      * @see org.vaadin.crudui.crud.CrudListener#findAll()
@@ -166,7 +211,8 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 
     @Override
     public List<Athlete> findAll() {
-        //logger.debug("findall gender {} agp {} ad {} group {} platform {}", getGender(), getAgeGroupPrefix(), getAgeDivision(), getGroupFilter().getValue(), getPlatform());
+        // logger.debug("findall gender {} agp {} ad {} group {} platform {}", getGender(), getAgeGroupPrefix(),
+        // getAgeDivision(), getGroupFilter().getValue(), getPlatform());
         List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),
                 getAgeDivision());
 
@@ -223,6 +269,11 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 
     public Group getGridGroup() {
         return getGroupFilter().getValue();
+    }
+
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
     }
 
     /**
@@ -294,7 +345,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         String platformParam = (platformParams != null && !platformParams.isEmpty() ? platformParams.get(0) : null);
         platformParam = platformParam != null ? URLDecoder.decode(platformParam, StandardCharsets.UTF_8) : null;
         platform = platformParam != null ? PlatformRepository.findByName(platformParam) : null;
-        //logger.debug("reading param platform {}", platformParam);
+        // logger.debug("reading param platform {}", platformParam);
         this.setPlatform(platform);
         platformFilter.setValue(platform);
         updateParam(params1, "platform", platform != null ? platformParam : null);
@@ -378,93 +429,6 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
     @Override
     protected Component createReset() {
         return null;
-    }
-
-    /**
-     * Create the top bar.
-     *
-     * Note: the top bar is created before the content.
-     *
-     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
-     *
-     * @param topBar
-     */
-    @Override
-    public FlexLayout createMenuArea() {
-        logger.debug("createTopBar");
-        // show back arrow but close menu
-        getAppLayout().setMenuVisible(true);
-        getAppLayout().closeDrawer();
-
-        topBar = new FlexLayout();
-
-        Button cardsButton = createCardsButton();
-        Button startingListButton = createStartingListButton();
-
-        H3 title = new H3();
-        title.setText(getTopBarTitle());
-        title.add();
-        title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
-
-        createTopBarGroupSelect();
-
-        HorizontalLayout buttons = new HorizontalLayout(startingListButton, cardsButton);
-        buttons.setPadding(false);
-        buttons.setMargin(false);
-        buttons.setSpacing(true);
-        buttons.getStyle().set("margin-left", "5em");
-        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
-
-        topBar.getStyle().set("flex", "100 1");
-        topBar.removeAll();
-        topBar.add(topBarMenu, buttons);
-        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
-        topBar.setFlexGrow(0.2, title);
-//        topBar.setSpacing(true);
-        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-        
-        return topBar;
-    }
-
-    private Button createCardsButton() {
-        String resourceDirectoryLocation = "/templates/cards";
-        String title = Translator.translate("AthleteCards");
-        String downloadedFilePrefix = "cards";
-        DownloadDialog cardsButtonFactory = new DownloadDialog(
-                () -> {
-                    // group may have been edited since the page was loaded
-                    cardsXlsWriter.setGroup(
-                            getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
-                    return cardsXlsWriter;
-                },
-                resourceDirectoryLocation,
-                Competition::getComputedCardsTemplateFileName,
-                Competition::setCardsTemplateFileName,
-                title,
-                downloadedFilePrefix,
-                Translator.translate("Download"));
-        return cardsButtonFactory.createTopBarDownloadButton();
-    }
-
-    private Button createStartingListButton() {
-        String resourceDirectoryLocation = "/templates/start";
-        String title = Translator.translate("StartingList");
-        String downloadedFilePrefix = "startingList";
-
-        DownloadDialog startingListFactory = new DownloadDialog(
-                () -> {
-                    // group may have been edited since the page was loaded
-                    startingXlsWriter.setGroup(
-                            getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
-                    return startingXlsWriter;
-                },
-                resourceDirectoryLocation,
-                Competition::getComputedStartListTemplateFileName,
-                Competition::setStartListTemplateFileName,
-                title,
-                downloadedFilePrefix,
-                Translator.translate("Download"));
-        return startingListFactory.createTopBarDownloadButton();
     }
 
     @Override
@@ -572,12 +536,8 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
             crud.refreshGrid();
         });
         crud.getCrudLayout().addFilterComponent(platformFilter);
-        //logger.debug("setting platform filter {}", getPlatform());
+        // logger.debug("setting platform filter {}", getPlatform());
         platformFilter.setValue(getPlatform());
-    }
-
-    private void setGender(Gender value) {
-        this.gender = value;
     }
 
     /**
@@ -602,7 +562,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         updateURLLocation(UI.getCurrent(), getLocation(), "cat",
                 cat);
         String platformName = getPlatform() != null ? getPlatform().getName() : null;
-        //logger.debug("updating platform {}", platformName);
+        // logger.debug("updating platform {}", platformName);
         updateURLLocation(UI.getCurrent(), getLocation(), "platform",
                 platformName);
         String group = getCurrentGroup() != null ? getCurrentGroup().getName() : null;
@@ -611,6 +571,26 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         String gender = getGender() != null ? getGender().name() : null;
         updateURLLocation(UI.getCurrent(), getLocation(), "gender",
                 gender);
+    }
+
+    private Button createCardsButton() {
+        String resourceDirectoryLocation = "/templates/cards";
+        String title = Translator.translate("AthleteCards");
+        String downloadedFilePrefix = "cards";
+        DownloadDialog cardsButtonFactory = new DownloadDialog(
+                () -> {
+                    // group may have been edited since the page was loaded
+                    cardsXlsWriter.setGroup(
+                            getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
+                    return cardsXlsWriter;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedCardsTemplateFileName,
+                Competition::setCardsTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return cardsButtonFactory.createTopBarDownloadButton();
     }
 
     private Grid<Athlete> createRegistrationGrid() {
@@ -631,6 +611,27 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         grid.addColumn("entryTotal").setHeader(Translator.translate("EntryTotal"));
         grid.addColumn("federationCodes").setHeader(Translator.translate("Registration.FederationCodes"));
         return grid;
+    }
+
+    private Button createStartingListButton() {
+        String resourceDirectoryLocation = "/templates/start";
+        String title = Translator.translate("StartingList");
+        String downloadedFilePrefix = "startingList";
+
+        DownloadDialog startingListFactory = new DownloadDialog(
+                () -> {
+                    // group may have been edited since the page was loaded
+                    startingXlsWriter.setGroup(
+                            getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
+                    return startingXlsWriter;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedStartListTemplateFileName,
+                Competition::setStartListTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return startingListFactory.createTopBarDownloadButton();
     }
 
     private void doSwitchGroup(Group newCurrentGroup) {
@@ -662,6 +663,10 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         return currentGroup;
     }
 
+    private Gender getGender() {
+        return gender;
+    }
+
     private Platform getPlatform() {
         return platform;
     }
@@ -679,12 +684,12 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         this.currentGroup = currentGroup;
     }
 
-    private void setPlatform(Platform platformValue) {
-        this.platform = platformValue;
+    private void setGender(Gender value) {
+        this.gender = value;
     }
 
-    private Gender getGender() {
-        return gender;
+    private void setPlatform(Platform platformValue) {
+        this.platform = platformValue;
     }
 
 }

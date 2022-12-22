@@ -221,6 +221,11 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         return this.locationUI;
     }
 
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
+    }
+
     /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
