@@ -8,7 +8,7 @@
   
   - 36.0 Fixes
     - 36.0.0-alpha00 Fix: referee reminder was broken for legacy implementation ([#599](https://github.com/jflamy/owlcms4/issues/599)). Referee number had been erroneously added to legacy MQTT message.
-    - 36.0.0-beta01 Fix: Clock was not reset correctly after using explicit time (1 or 2 min) ([#601](https://github.com/jflamy/owlcms4/issues/601))
+    - 36.0.0-beta01 Fix: Clock was not reset correctly for the next athlete after using explicit time (1 or 2 min) ([#601](https://github.com/jflamy/owlcms4/issues/601))
 
 
 ##### Highlights from recent stable releases
