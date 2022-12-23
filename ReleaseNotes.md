@@ -1,6 +1,6 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 36.0.0-alpha00: Future user navigation available for testing.
+- 36.0.0-beta01: Future user navigation available for testing.
   *alpha is used because this is the first build with the new addition. Using the old interface (which remains the default) should work as before; if you need the fixes, perform some tests for peace of mind before using in a competition.*
   - 36.0 Enhancements
     - (Optional) Renovated user interface navigation available as an alternative. Redoing the navigation using a standard library is necessary to catch up with the current release of the [Vaadin](https://vaadin.com/components) user interface framework. There are no changes to the competition engine and to the various buttons and menus.
@@ -8,6 +8,7 @@
   
   - 36.0 Fixes
     - 36.0.0-alpha00 Fix: referee reminder was broken for legacy implementation ([#599](https://github.com/jflamy/owlcms4/issues/599)). Referee number had been erroneously added to legacy MQTT message.
+    - 36.0.0-beta01 Fix: Clock was not reset correctly after using explicit time (1 or 2 min) ([#601](https://github.com/jflamy/owlcms4/issues/601))
 
 
 ##### Highlights from recent stable releases
@@ -24,11 +25,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_36.0.0-alpha00.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_36.0.0-beta01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if Microsoft Edge gives you warnings, please see this page : [Make Windows Defender Allow Installation](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_36.0.0-alpha00.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_36.0.0-beta01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the **[Heroku](Heroku) **or **[Fly.io](Fly)** installation instructions.
 
