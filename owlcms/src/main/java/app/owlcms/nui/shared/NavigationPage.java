@@ -61,22 +61,36 @@ public interface NavigationPage extends ContentWrapping {
 
     public default void doGroup(String label, FlexibleGridLayout grid1, VerticalLayout wrapper) {
         VerticalLayout content1 = new VerticalLayout();
+        content1.setSpacing(false);
+        content1.setPadding(true);
         Label label2 = new Label(label);
         label2.getStyle().set("font-weight", "bold");
         content1.add(label2);
         content1.getStyle().set("margin-bottom", "-2ex");
         fillH(content1, wrapper);
+        grid1.setPadding(false);
+        grid1.getStyle().set("padding-top", "0.5em");
+        grid1.getStyle().set("padding-left", "1em");
+        grid1.getStyle().set("padding-bottom", "1em");
         fillH(grid1, wrapper);
     }
 
     public default void doGroup(String label, VerticalLayout intro, FlexibleGridLayout grid1, VerticalLayout wrapper) {
         VerticalLayout content1 = new VerticalLayout();
+        content1.setSpacing(false);
+        content1.setPadding(true);
         Label label2 = new Label(label);
         label2.getStyle().set("font-weight", "bold");
         content1.add(label2);
+        intro.setPadding(false);
+        intro.getStyle().set("padding-left", "0");
         content1.add(intro);
         content1.getStyle().set("margin-bottom", "-2ex");
         fillH(content1, wrapper);
+        grid1.setPadding(false);
+        grid1.getStyle().set("padding-top", "0.5em");
+        grid1.getStyle().set("padding-left", "1em");
+        grid1.getStyle().set("padding-bottom", "1em");
         fillH(grid1, wrapper);
     }
 

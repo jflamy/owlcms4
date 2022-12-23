@@ -129,5 +129,10 @@ public class LoginView extends Composite<VerticalLayout> implements OwlcmsLayout
             UI.getCurrent().navigate(HomeNavigationContent.class);
         }
     }
+    
+    @Override
+    public void setPadding(boolean b) {
+        // not needed
+    }
 
 }

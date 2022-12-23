@@ -131,7 +131,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         getRouterLayout().setMenuArea(createInitialBar());
         getRouterLayout().showLocaleDropdown(false);
         getRouterLayout().setDrawerOpened(false);
-        getRouterLayout().updateHeader();
+        getRouterLayout().updateHeader(true);
     }
 
     /*
@@ -353,7 +353,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
                         curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
                 getRouterLayout().setMenuTitle(getMenuTitle());
                 getRouterLayout().setMenuArea(createInitialBar());
-                getRouterLayout().updateHeader();
+                getRouterLayout().updateHeader(true);
 
                 warning.setText(getTranslation("IdlePlatform"));
                 if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6 || fop.getLiftingOrder().size() == 0) {
@@ -364,7 +364,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
                 logger.debug("active: {}", state);
                 getRouterLayout().setMenuTitle("");
                 getRouterLayout().setMenuArea(createTopBar());
-                getRouterLayout().updateHeader();
+                getRouterLayout().updateHeader(true);
                 createBottom();
 
                 if (state == FOPState.BREAK) {

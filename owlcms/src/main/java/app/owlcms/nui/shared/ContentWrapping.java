@@ -34,6 +34,7 @@ public interface ContentWrapping {
         vWrapper.setBoxSizing(BoxSizing.BORDER_BOX);
         vWrapper.setHeight(null);
         vWrapper.setWidth("95%");
+        vWrapper.setSpacing(false);
         vWrapper.add(content);
     }
 

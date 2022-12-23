@@ -168,7 +168,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         getRouterLayout().setMenuArea(new FlexLayout());
         getRouterLayout().showLocaleDropdown(false);
         getRouterLayout().setDrawerOpened(false);
-        getRouterLayout().updateHeader();
+        getRouterLayout().updateHeader(false);
     }
 
     @Override

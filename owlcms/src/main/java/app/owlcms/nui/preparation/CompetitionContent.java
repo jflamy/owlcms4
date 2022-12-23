@@ -160,4 +160,9 @@ public class CompetitionContent extends Composite<VerticalLayout>
         return competitionEditingFormFactory;
     }
 
+    @Override
+    public void setPadding(boolean b) {
+        // not needed
+    }
+
 }

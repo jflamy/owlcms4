@@ -125,7 +125,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
         routerLayout.setMenuArea(createMenuArea());
         routerLayout.showLocaleDropdown(true);
         routerLayout.setDrawerOpened(true);
-        routerLayout.updateHeader();
+        routerLayout.updateHeader(true);
     }
 
     /**

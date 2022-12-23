@@ -220,7 +220,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         getRouterLayout().setMenuArea(createMenuArea());
         getRouterLayout().showLocaleDropdown(false);
         getRouterLayout().setDrawerOpened(false);
-        getRouterLayout().updateHeader();
+        getRouterLayout().updateHeader(true);
     }
 
     @Override

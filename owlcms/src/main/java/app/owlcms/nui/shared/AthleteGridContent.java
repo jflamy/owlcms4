@@ -489,7 +489,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         routerLayout.setMenuArea(createMenuArea());
         routerLayout.showLocaleDropdown(false);
         routerLayout.setDrawerOpened(false);
-        routerLayout.updateHeader();
+        routerLayout.updateHeader(false);
     }
 
     public void setIgnoreSwitchGroup(boolean b) {
@@ -863,6 +863,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
         Grid<Athlete> grid = new Grid<>(Athlete.class, false);
         grid.getThemeNames().add("row-stripes");
+        grid.getThemeNames().add("compact");
         grid.addColumn(athlete -> athlete.getLastName().toUpperCase(), "lastName")
                 .setHeader(getTranslation("LastName"));
         grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
@@ -1331,7 +1332,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             if (state == FOPState.INACTIVE || (state == FOPState.BREAK && fop.getGroup() == null)) {
                 getRouterLayout().setMenuTitle(getMenuTitle());
                 getRouterLayout().setMenuArea(createInitialBar());
-                getRouterLayout().updateHeader();
+                getRouterLayout().updateHeader(false);
 
                 warning.setText(getTranslation("IdlePlatform"));
                 if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6 || fop.getLiftingOrder().size() == 0) {
@@ -1341,7 +1342,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             } else {
                 getRouterLayout().setMenuTitle("");
                 getRouterLayout().setMenuArea(createTopBar());
-                getRouterLayout().updateHeader();
+                getRouterLayout().updateHeader(false);
                 if (state == FOPState.BREAK) {
                     // logger.debug("break");
                     if (buttons != null) {

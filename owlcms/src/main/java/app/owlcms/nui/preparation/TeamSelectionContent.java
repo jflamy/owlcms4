@@ -395,7 +395,7 @@ public class TeamSelectionContent extends VerticalLayout
         routerLayout.setMenuArea(createMenuArea());
         routerLayout.showLocaleDropdown(false);
         routerLayout.setDrawerOpened(false);
-        routerLayout.updateHeader();
+        routerLayout.updateHeader(true);
     }
 
     @Override

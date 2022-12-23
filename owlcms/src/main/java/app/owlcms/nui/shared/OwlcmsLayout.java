@@ -146,22 +146,23 @@ public class OwlcmsLayout extends AppLayout {
     @Override
     public void showRouterLayoutContent(HasElement content) {
         if (content instanceof OwlcmsLayoutAware) {
-
             OwlcmsLayoutAware appContent = (OwlcmsLayoutAware) content;
+            appContent.setPadding(false);
+            appContent.getStyle().set("padding", "0 1em 0.5em");
             appContent.setRouterLayout(this);
             super.showRouterLayoutContent(content);
             appContent.setHeaderContent();
         } else {
-
             super.showRouterLayoutContent(content);
             populateHeader();
         }
 
     }
 
-    public void updateHeader() {
+    public void updateHeader(boolean margin) {
         header.removeAll();
-        header.setMargin(true);
+        header.setMargin(margin);
+        header.setPadding(false);
         header.add(getDrawerToggle(), getViewTitle(), getMenuArea(), getLocaleDropDown());
         header.setFlexGrow(1.0D, getMenuArea());
         header.setWidth("100%");
@@ -210,7 +211,7 @@ public class OwlcmsLayout extends AppLayout {
 
         setLocaleDropDown(createLocaleDropdown());
 
-        updateHeader();
+        updateHeader(true);
     }
 
     private void addDrawerContent() {

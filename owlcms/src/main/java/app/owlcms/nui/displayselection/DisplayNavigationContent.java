@@ -63,6 +63,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
      */
     public DisplayNavigationContent() {
         VerticalLayout intro = new VerticalLayout();
+        intro.setSpacing(false);
         addP(intro, getTranslation("Dropdown_Select_Platform"));
         addP(intro, getTranslation("Button_Open_Display"));
         intro.getStyle().set("margin-bottom", "0");

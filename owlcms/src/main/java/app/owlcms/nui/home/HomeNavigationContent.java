@@ -67,12 +67,14 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
     public static FlexibleGridLayout navigationGrid(Component... items) {
         FlexibleGridLayout layout = new FlexibleGridLayout();
         layout.withColumns(Repeat.RepeatMode.AUTO_FILL, new MinMax(new Length("300px"), new Flex(1)))
-                .withAutoRows(new Length("1fr")).withItems(items).withGap(new Length("2vmin"))
+                .withAutoRows(new Length("1fr")).withItems(items)
                 .withOverflow(Overflow.AUTO).withAutoFlow(AutoFlow.ROW).withMargin(false).withPadding(true)
                 .withSpacing(false);
+        layout.getContent().setGap(new Length("0.5em"), new Length("1.0em"));
         layout.setSizeUndefined();
         layout.setWidth("80%");
         layout.setBoxSizing(BoxSizing.BORDER_BOX);
+        layout.setPadding(true);
         return layout;
     }
 
@@ -87,8 +89,8 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
      * Instantiates a new main navigation content.
      */
     public HomeNavigationContent() {
-
         VerticalLayout intro = buildIntro();
+        intro.setSpacing(false);
 
         Button prepare = new Button(PREPARE_COMPETITION,
                 buttonClickEvent -> UI.getCurrent().navigate(PreparationNavigationContent.class));
@@ -157,6 +159,8 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 
     private VerticalLayout buildIntro() {
         VerticalLayout intro = new VerticalLayout();
+        intro.setSpacing(false);
+        intro.setId("homeIntro");
         IPInterfaceUtils urlFinder = new IPInterfaceUtils();
         urlFinder.checkRequest();
         addP(intro, getTranslation("SystemURL"));

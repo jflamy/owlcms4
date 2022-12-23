@@ -23,6 +23,6 @@ public interface OwlcmsContent
         getRouterLayout().setMenuArea(createMenuArea());
         getRouterLayout().showLocaleDropdown(false);
         getRouterLayout().setDrawerOpened(false);
-        getRouterLayout().updateHeader();
+        getRouterLayout().updateHeader(true);
     }
 }

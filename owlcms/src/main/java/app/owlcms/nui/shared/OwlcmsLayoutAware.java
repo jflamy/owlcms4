@@ -6,9 +6,10 @@
  *******************************************************************************/
 package app.owlcms.nui.shared;
 
+import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 
-public interface OwlcmsLayoutAware {
+public interface OwlcmsLayoutAware extends HasStyle {
 
     public FlexLayout createMenuArea();
 
@@ -35,5 +36,7 @@ public interface OwlcmsLayoutAware {
      * @param owlcmsLayout
      */
     public void setRouterLayout(OwlcmsLayout owlcmsLayout);
+    
+    public void setPadding(boolean b);
 
 }
