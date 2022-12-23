@@ -1,7 +1,7 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
 - 37.0.0-alpha00: Initial port to Vaadin v23
-  **Version 37 is the version updated to the current framework, with new navigation only. See version 36 for fixes to the usual version** 
+  **Version 37 is the version updated to the current framework, with new navigation. See version 36 for fixes to the usual version** 
   - 37.0 Enhancements
     - Migration to Vaadin version 23
     
