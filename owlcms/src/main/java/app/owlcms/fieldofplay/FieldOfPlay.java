@@ -2102,6 +2102,7 @@ public class FieldOfPlay {
             getCurAthlete().failedLift();
         }
         getCurAthlete().resetForcedAsCurrent();
+        setForcedTime(false);
         AthleteRepository.save(getCurAthlete());
         List<RecordEvent> newRecords = updateRecords(getCurAthlete(), getGoodLift(), getChallengedRecords(), List.of());
         setNewRecords(newRecords);
