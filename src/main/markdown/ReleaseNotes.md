@@ -1,11 +1,12 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as small user interface improvements or technical changes.  Third level = bug fixes.
 
-- 37.0.0-alpha01: New version after migration to Vaadin 23
+- 37.0.0-alpha02: New version after migration to Vaadin 23
   **First builds after migration, for testing only.**
   - 37.0 Enhancements
     - Migration to new version of the user interface framework
-  - 37.0 Fixes
-    - None.
+  - 37.0 Fixes (synchronized with 36.0)
+    - Fix: referee reminder was broken for legacy implementation ([#599](https://github.com/jflamy/owlcms4/issues/599)). Referee number had been erroneously added to legacy MQTT message.
+    - Fix: Clock was not reset correctly for the next athlete after using explicit time (1 or 2 min) ([#601](https://github.com/jflamy/owlcms4/issues/601))
 
 
 ##### Highlights from recent stable releases
