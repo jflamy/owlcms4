@@ -604,7 +604,8 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         grid.addColumn("gender").setHeader(Translator.translate("Gender"));
         grid.addColumn("ageGroup").setHeader(Translator.translate("AgeGroup"));
         grid.addColumn("category").setHeader(Translator.translate("Category"));
-        grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()), "bodyWeight")
+        grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
+                .setSortProperty("bodyWeight")
                 .setHeader(Translator.translate("BodyWeight"));
         grid.addColumn("group").setHeader(Translator.translate("Group"));
         grid.addColumn("eligibleCategories").setHeader(Translator.translate("Registration.EligibleCategories"));

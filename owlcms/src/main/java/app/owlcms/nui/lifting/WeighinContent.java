@@ -357,7 +357,8 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         grid.addColumn("ageGroup").setHeader(getTranslation("AgeGroup"));
         grid.addColumn("category").setHeader(getTranslation("Category"));
         grid.addColumn("group").setHeader(getTranslation("Group"));
-        grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()), "bodyWeight")
+        grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
+                .setSortProperty("bodyWeight")
                 .setHeader(getTranslation("BodyWeight"));
         grid.addColumn("snatch1Declaration").setHeader(getTranslation("SnatchDecl_"));
         grid.addColumn("cleanJerk1Declaration").setHeader(getTranslation("C_and_J_decl"));

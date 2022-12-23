@@ -428,7 +428,8 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         grid.addColumn("gender").setHeader(getTranslation("Gender"));
         grid.addColumn("ageGroup").setHeader(getTranslation("AgeGroup"));
         grid.addColumn("category").setHeader(getTranslation("Category"));
-        grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()), "bodyWeight")
+        grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
+                .setSortProperty("bodyWeight")
                 .setHeader(getTranslation("BodyWeight"));
         grid.addColumn("group").setHeader(getTranslation("Group"));
         grid.addColumn("eligibleCategories").setHeader(getTranslation("Registration.EligibleCategories"));

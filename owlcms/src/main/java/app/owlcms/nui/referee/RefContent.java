@@ -39,8 +39,6 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.InitialPageSettings;
-import com.vaadin.flow.server.PageConfigurator;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.FOPParameters;

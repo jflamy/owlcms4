@@ -74,14 +74,12 @@ public class OwlcmsLayout extends AppLayout {
 
     @Override
     public void addToNavbar(boolean touchOptimized, Component... components) {
-
         navBarComponents.addAll(Arrays.asList(components));
         super.addToNavbar(touchOptimized, components);
     }
 
     @Override
     public void addToNavbar(Component... components) {
-
         navBarComponents.addAll(Arrays.asList(components));
         super.addToNavbar(components);
     }
@@ -143,7 +141,7 @@ public class OwlcmsLayout extends AppLayout {
     }
 
     public void showLocaleDropdown(boolean b) {
-        getLocaleDropDown().getStyle().set("display", b ? "block" : "none");
+        getLocaleDropDown().getStyle().set("display", b ? "flex" : "none");
     }
 
     @Override
