@@ -494,6 +494,8 @@ public class MQTTMonitor {
             String topic = "owlcms/fop/decisionRequest/" + fop.getName();
             if (on) {
                 client.publish(topic, new MqttMessage(Integer.toString(ref).getBytes(StandardCharsets.UTF_8)));
+            } else {
+                // off is not sent in modern mode.
             }
 
             // Legacy : specific referee is added at the end of the topic.
@@ -502,7 +504,8 @@ public class MQTTMonitor {
                 client.publish(deprecatedTopic,
                         new MqttMessage(("on").getBytes(StandardCharsets.UTF_8)));
             } else {
-                // off is not sent, even in legacy mode.
+                client.publish(deprecatedTopic,
+                        new MqttMessage(("off").getBytes(StandardCharsets.UTF_8)));
             }
         } catch (MqttException e1) {
             logger.error("could not publish decisionRequest {}", e1.getCause());
