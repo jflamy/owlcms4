@@ -79,15 +79,18 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         Div downloadDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("registration",
                 getTranslation("DownloadRegistrationTemplate"), new JXLSRegistration(UI.getCurrent()));
         Optional<Component> content = downloadDiv.getChildren().findFirst();
-        content.ifPresent(c -> ((Button) c).setWidth("93%"));
+        content.ifPresent(c -> ((Button) c).setWidth("90%"));
         downloadDiv.setWidthFull();
+        
         Button upload = new Button(getTranslation("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
                 buttonClickEvent -> new RegistrationFileUploadDialog().open());
+        
         Div exportDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("exportRegistration",
                 getTranslation("ExportRegistrationData"), new JXLSRegistrationExport(UI.getCurrent()));
         Optional<Component> exportDivButton = exportDiv.getChildren().findFirst();
-        exportDivButton.ifPresent(c -> ((Button) c).setWidth("93%"));
+        exportDivButton.ifPresent(c -> ((Button) c).setWidth("90%"));
         exportDiv.setWidthFull();
+        
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload, exportDiv);
         doGroup(getTranslation("Registration"), grid2, this);
 
