@@ -1472,6 +1472,7 @@ public class FieldOfPlay {
 
     private void doWeightChange(WeightChange wc, Athlete changingAthlete, Athlete clockOwner,
             boolean currentDisplayAffected) {
+        setForcedTime(false);
         recomputeLiftingOrder(currentDisplayAffected, wc.isResultChange());
         // if the currentAthlete owns the clock, then the next ui update will show the
         // correct athlete and
@@ -2102,6 +2103,7 @@ public class FieldOfPlay {
             getCurAthlete().failedLift();
         }
         getCurAthlete().resetForcedAsCurrent();
+        setForcedTime(false);
         AthleteRepository.save(getCurAthlete());
         List<RecordEvent> newRecords = updateRecords(getCurAthlete(), getGoodLift(), getChallengedRecords(), List.of());
         setNewRecords(newRecords);
