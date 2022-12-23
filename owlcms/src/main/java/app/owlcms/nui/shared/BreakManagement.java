@@ -136,6 +136,9 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
      * @param cdt
      */
     BreakManagement(Object origin, BreakType brt, CountdownType cdt, Dialog parentDialog) {
+        setPadding(false);
+        setMargin(false);
+        this.setSizeFull();
         logger.setLevel(Level.DEBUG);
         init(origin, brt, cdt, parentDialog);
         setRequestedBreakType(brt);

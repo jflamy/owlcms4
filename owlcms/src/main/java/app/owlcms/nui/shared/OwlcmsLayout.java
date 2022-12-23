@@ -18,6 +18,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
@@ -47,7 +48,7 @@ import ch.qos.logback.classic.Logger;
  * The main view is a top-level placeholder for other views.
  */
 @SuppressWarnings("serial")
-
+@JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js") 
 public class OwlcmsLayout extends AppLayout {
 
     public static final String LARGE = "text-l";
