@@ -620,9 +620,6 @@
 								<phase>compile</phase>
 							</execution>
 						</executions>
-						<configuration>
-							<useDeprecatedV14Bootstrapping>true</useDeprecatedV14Bootstrapping>
-						</configuration>
 					</plugin>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>

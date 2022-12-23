@@ -143,32 +143,39 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
     private VerticalLayout buildLicense() {
         VerticalLayout license = new VerticalLayout();
         license.add(
-                new H3(getTranslation("OwlcmsBuild", OwlcmsFactory.getVersion(), OwlcmsFactory.getBuildTimestamp())));
-        license.add(new H3(getTranslation("CopyrightLicense")));
+                sectionTitle(getTranslation("OwlcmsBuild", OwlcmsFactory.getVersion(), OwlcmsFactory.getBuildTimestamp())));
+        license.add(sectionTitle(getTranslation("CopyrightLicense")));
         addP(license, getTranslation("Copyright2009") + LocalDate.now().getYear() + " " + getTranslation("JFL"));
         addP(license, getTranslation("LicenseUsed"));
-        license.add(new H3(getTranslation("SourceDocumentation")));
+        license.add(sectionTitle(getTranslation("SourceDocumentation")));
         addUL(license,
                 getTranslation("ProjectRepository"),
                 getTranslation("Documentation"));
 
-        license.add(new H3(getTranslation("Notes")));
+        license.add(sectionTitle(getTranslation("Notes")));
         addP(license, getTranslation("TCRRCompliance") + getTranslation("AtTimeOfRelease")
                 + getTranslation("UseAtYourOwnRisk"));
 
-        license.add(new H3(getTranslation("Credits")));
+        license.add(sectionTitle(getTranslation("Credits")));
         addUL(license, getTranslation("WrittenJFL"), getTranslation("ThanksToAll"));
 
 //        Button resetTranslation = new Button(getTranslation("reloadTranslation"), buttonClickEvent -> Translator.reset());
 //        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(resetTranslation);
 //        doGroup(getTranslation("reloadTranslationInfo"), grid1, license);
 
-        license.add(new H3(getTranslation("Translation")));
+        license.add(sectionTitle(getTranslation("Translation")));
         addUL(license,
                 getTranslation("ThanksToTranslators") + translators(),
                 getTranslation("TranslationDocumentation"));
 
         return license;
+    }
+
+    private Component sectionTitle(String translation) {
+        H3 h3 = new H3(translation);
+        h3.getStyle().set("margin-bottom","-0.5em");
+        h3.getStyle().set("margin-top","0.5em");
+        return h3;
     }
 
     private String translators() {
