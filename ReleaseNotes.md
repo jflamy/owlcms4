@@ -1,13 +1,12 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as user interface improvements or technical changes.  Third level = bug fixes.
 
-- 36.0.0-alpha00: Future user navigation available for testing.
-  *alpha is used because this is the first build with the new addition. Using the old interface (which remains the default) should work as before; if you need the fixes, perform some tests for peace of mind before using in a competition.*
-  - 36.0 Enhancements
-    - (Optional) Renovated user interface navigation available as an alternative. Redoing the navigation using a standard library is necessary to catch up with the current release of the [Vaadin](https://vaadin.com/components) user interface framework. There are no changes to the competition engine and to the various buttons and menus.
-      - To test, use `/n` as the starting point (for example, start from http://localhost/n and navigate from there.
-  
-  - 36.0 Fixes
-    - 36.0.0-alpha00 Fix: referee reminder was broken for legacy implementation ([#599](https://github.com/jflamy/owlcms4/issues/599)). Referee number had been erroneously added to legacy MQTT message.
+- 37.0.0-alpha00: Initial port to Vaadin v23
+  **This release is for testing the build process. Do not use for competitions (yet).**
+  - 37.0 Enhancements
+    - Migration to Vaadin version 23
+    
+  - 37.0 Fixes
+    - none
 
 
 ##### Highlights from recent stable releases

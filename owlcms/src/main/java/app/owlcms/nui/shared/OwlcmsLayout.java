@@ -63,7 +63,6 @@ public class OwlcmsLayout extends AppLayout {
     private HorizontalLayout header;
 
     public OwlcmsLayout() {
-
         navBarComponents = new ArrayList<>();
         // create default empty components. Content will fill them in.
         populateHeader();
