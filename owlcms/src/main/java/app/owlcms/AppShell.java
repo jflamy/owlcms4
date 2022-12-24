@@ -31,7 +31,7 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
             LoadingIndicatorConfiguration conf = uiInitEvent.getUI().getLoadingIndicatorConfiguration();
 
             // disable default theme on loading indicator -> loading indicator isn't shown
-            conf.setApplyDefaultTheme(false);
+//            conf.setApplyDefaultTheme(false);
 
             /*
              * Delay for showing the indicator and setting the 'first' class name.

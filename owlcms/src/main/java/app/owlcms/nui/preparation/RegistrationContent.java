@@ -204,14 +204,14 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         resetCats.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
 
         HorizontalLayout buttons;
-        if (Config.getCurrent().featureSwitch("preCompDocs", true)) {
+        //if (Config.getCurrent().featureSwitch("preCompDocs", true)) {
             buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts,
                     resetCats);
-        } else {
-            buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts, startingListButton,
-                    cardsButton,
-                    resetCats);
-        }
+//        } else {
+//            buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts, startingListButton,
+//                    cardsButton,
+//                    resetCats);
+//        }
 
         buttons.setPadding(false);
         buttons.setMargin(false);

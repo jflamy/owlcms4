@@ -22,6 +22,8 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.ListItem;
+import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -164,20 +166,26 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
         IPInterfaceUtils urlFinder = new IPInterfaceUtils();
         urlFinder.checkRequest();
         addP(intro, getTranslation("SystemURL"));
+        UnorderedList ul = new UnorderedList();
         for (String url : urlFinder.getRecommended()) {
-            intro.add(new Div(new Anchor(url, url)));
+            ul.add(new ListItem(new Anchor(url, url)));
         }
         for (String url : urlFinder.getWired()) {
-            intro.add(new Div(new Anchor(url, url), new Label(getTranslation("Wired"))));
+            ul.add(new ListItem(new Anchor(url, url), new Label(getTranslation("Wired"))));
         }
         for (String url : urlFinder.getWireless()) {
-            intro.add(new Div(new Anchor(url, url), new Label(getTranslation("Wireless"))));
+            ul.add(new ListItem(new Anchor(url, url), new Label(getTranslation("Wireless"))));
         }
         for (String url : urlFinder.getLocalUrl()) {
-            intro.add(new Div(new Anchor(url, url), new Label(getTranslation("LocalComputer"))));
+            ul.add(new ListItem(new Anchor(url, url), new Label(getTranslation("LocalComputer"))));
         }
-        intro.add(new Div());
-        intro.add(new Hr());
+        intro.add(ul);
+        Div div = new Div();
+        intro.add(div);
+        div.getStyle().set("margin-bottom", "1ex");
+        Hr hr = new Hr();
+        hr.getStyle().set("margin-bottom", "2ex");
+        intro.add(hr);
         addP(intro,
                 getTranslation("LeftMenuNavigate")
                         + getTranslation("PrepareCompatition_description", PREPARE_COMPETITION)

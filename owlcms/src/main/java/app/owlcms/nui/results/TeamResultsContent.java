@@ -27,7 +27,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -139,13 +138,7 @@ public class TeamResultsContent extends VerticalLayout
      */
     @Override
     public FlexLayout createMenuArea() {
-
-        H3 title = new H3();
-        title.setText(getTranslation(TITLE));
-        title.add();
-        title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
-
-        topBar = getAppLayout().getMenuArea();
+        topBar = new FlexLayout();
         xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
         StreamResource href = new StreamResource(TITLE + "Report" + ".xls", xlsWriter);
         finalPackage = new Anchor(href, "");
@@ -179,13 +172,8 @@ public class TeamResultsContent extends VerticalLayout
 
         topBar.getStyle().set("flex", "100 1");
         topBar.removeAll();
-        topBar.add(title,
-                topBarAgeDivisionSelect, topBarAgeGroupPrefixSelect
-        /* , templateSelect */
-        /* , buttons */
-        );
+        topBar.add(topBarAgeDivisionSelect, topBarAgeGroupPrefixSelect);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
-        topBar.setFlexGrow(0.2, title);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
         return topBar;
     }

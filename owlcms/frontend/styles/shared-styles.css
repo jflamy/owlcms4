@@ -4,9 +4,11 @@ html {
   box-sizing: border-box;
 }
 
+/*
 *, *:before, *:after {
   box-sizing: inherit;
 }
+*/
 
 /* spurious system error coming from crudui or app-layout */
 .v-system-error {

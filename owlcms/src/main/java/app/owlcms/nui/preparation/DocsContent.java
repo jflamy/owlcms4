@@ -110,6 +110,31 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         startingXlsWriter = new JXLSStartingListDocs();
     }
 
+    @Override
+    protected HorizontalLayout announcerButtons(FlexLayout topBar2) {
+        return null;
+    }
+
+    private Button createCardsButton() {
+        String resourceDirectoryLocation = "/templates/cards";
+        String title = Translator.translate("AthleteCards");
+        String downloadedFilePrefix = "cards";
+        DownloadDialog cardsButtonFactory = new DownloadDialog(
+                () -> {
+                    // group may have been edited since the page was loaded
+                    cardsXlsWriter.setGroup(
+                            getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
+                    return cardsXlsWriter;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedCardsTemplateFileName,
+                Competition::setCardsTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return cardsButtonFactory.createTopBarDownloadButton();
+    }
+
     /**
      * Gets the crudGrid.
      *
@@ -203,224 +228,25 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         return topBar;
     }
 
-    /**
-     * Get the content of the crudGrid. Invoked by refreshGrid.
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#findAll()
-     */
-
-    @Override
-    public List<Athlete> findAll() {
-        // logger.debug("findall gender {} agp {} ad {} group {} platform {}", getGender(), getAgeGroupPrefix(),
-        // getAgeDivision(), getGroupFilter().getValue(), getPlatform());
-        List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),
-                getAgeDivision());
-
-        Category catFilterValue = getCategoryValue();
-        Stream<Athlete> stream = athletes.stream()
-                .filter(a -> {
-                    Platform platformFilterValue = platformFilter != null ? platformFilter.getValue() : null;
-                    if (platformFilterValue == null) {
-                        return true;
-                    }
-                    Platform athletePlaform = a.getGroup() != null
-                            ? (a.getGroup().getPlatform() != null ? a.getGroup().getPlatform() : null)
-                            : null;
-                    return platformFilterValue.equals(athletePlaform);
-                })
-                .filter(a -> a.getCategory() != null)
-                .filter(a -> {
-                    Gender genderFilterValue = genderFilter != null ? genderFilter.getValue() : null;
-                    Gender athleteGender = a.getGender();
-                    boolean catOk = (catFilterValue == null
-                            || catFilterValue.toString().equals(a.getCategory().toString()))
-                            && (genderFilterValue == null || genderFilterValue == athleteGender);
-                    return catOk;
-                })
-                .filter(a -> getGroupFilter().getValue() != null ? getGroupFilter().getValue().equals(a.getGroup())
-                        : true)
-                .map(a -> {
-                    if (a.getTeam() == null) {
-                        a.setTeam("-");
-                    }
-                    return a;
-                });
-        List<Athlete> found = stream.sorted(Comparator.comparing(Athlete::getGroup).thenComparing(Athlete::getCategory))
-                .collect(Collectors.toList());
-        cardsXlsWriter.setSortedAthletes(found);
-        startingXlsWriter.setSortedAthletes(found);
-        updateURLLocations();
-        return found;
-    }
-
-    /**
-     * @return the ageDivision
-     */
-    public AgeDivision getAgeDivision() {
-        return ageDivision;
-    }
-
-    /**
-     * @return the ageGroupPrefix
-     */
-    public String getAgeGroupPrefix() {
-        return ageGroupPrefix;
-    }
-
-    public Group getGridGroup() {
-        return getGroupFilter().getValue();
-    }
-
-    @Override
-    public String getMenuTitle() {
-        return getPageTitle();
-    }
-
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTopBarTitle();
-    }
-
-    @Override
-    public boolean isIgnoreFopFromURL() {
-        return true;
-    }
-
-    @Override
-    public boolean isIgnoreGroupFromURL() {
-        return false;
-    }
-
-    /**
-     * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
-     *      java.util.Map)
-     */
-    @Override
-    public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
-        HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
-
-        List<String> ageDivisionParams = params1.get("ad");
-
-        try {
-            String ageDivisionName = (ageDivisionParams != null
-                    && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
-            AgeDivision valueOf = AgeDivision.valueOf(ageDivisionName);
-            setAgeDivision(valueOf);
-            ageDivisionFilter.setValue(valueOf);
-        } catch (Exception e) {
-            setAgeDivision(null);
-            ageDivisionFilter.setValue(null);
-        }
-        // remove if now null
-        String value = getAgeDivision() != null ? getAgeDivision().name() : null;
-        updateParam(params1, "ad", value);
-
-        List<String> ageGroupParams = params1.get("ag");
-        // no age group is the default
-        String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
-        setAgeGroupPrefix(ageGroupPrefix);
-        ageGroupFilter.setValue(ageGroupPrefix);
-        String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
-        updateParam(params1, "ag", value2);
-
-        List<String> genderParams = params1.get("gender");
-        // no age group is the default
-        String genderString = (genderParams != null && !genderParams.isEmpty() ? genderParams.get(0) : null);
-        Gender genderValue = genderString != null ? Gender.valueOf(genderString) : null;
-        setGender(genderValue);
-        genderFilter.setValue(genderValue);
-        updateParam(params1, "gender", genderString);
-
-        List<String> catParams = params1.get("cat");
-        String catParam = (catParams != null && !catParams.isEmpty() ? catParams.get(0) : null);
-        catParam = catParam != null ? URLDecoder.decode(catParam, StandardCharsets.UTF_8) : null;
-        this.setCategory(CategoryRepository.findByCode(catParam));
-        String catValue = getCategoryValue() != null ? getCategoryValue().toString() : null;
-        updateParam(params1, "cat", catValue);
-
-        List<String> platformParams = params1.get("platform");
-        String platformParam = (platformParams != null && !platformParams.isEmpty() ? platformParams.get(0) : null);
-        platformParam = platformParam != null ? URLDecoder.decode(platformParam, StandardCharsets.UTF_8) : null;
-        platform = platformParam != null ? PlatformRepository.findByName(platformParam) : null;
-        // logger.debug("reading param platform {}", platformParam);
-        this.setPlatform(platform);
-        platformFilter.setValue(platform);
-        updateParam(params1, "platform", platform != null ? platformParam : null);
-
-        // logger.debug("params {}", params1);
-        return params1;
-    }
-
-    /**
-     * @param ageDivision the ageDivision to set
-     */
-    public void setAgeDivision(AgeDivision ageDivision) {
-        this.ageDivision = ageDivision;
-    }
-
-    /**
-     * @param ageGroupPrefix the ageGroupPrefix to set
-     */
-    public void setAgeGroupPrefix(String ageGroupPrefix) {
-        this.ageGroupPrefix = ageGroupPrefix;
-    }
-
-    public void setGridGroup(Group group) {
-//        subscribeIfLifting(group);
-        getGroupFilter().setValue(group);
-        refresh();
-    }
-
-    /**
-     * Parse the http query parameters
-     *
-     * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
-     *
-     * @param event     Vaadin navigation event
-     * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
-     *                  parameters instead.
-     *
-     * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
-     *      java.lang.String)
-     */
-    @Override
-    public void setParameter(BeforeEvent event, @OptionalParameter String unused) {
-        Location location = event.getLocation();
-        setLocation(location);
-        setLocationUI(event.getUI());
-
-        // the OptionalParameter string is the part of the URL path that can be interpreted as REST arguments
-        // we use the ? query parameters instead.
-        QueryParameters queryParameters = location.getQueryParameters();
-        Map<String, List<String>> parametersMap = queryParameters.getParameters();
-        HashMap<String, List<String>> params = readParams(location, parametersMap);
-        List<String> groups = params.get("group");
-        groupName = (groups != null && !groups.isEmpty() ? groups.get(0) : null);
-        getGroupFilter().setValue(GroupRepository.findByName(groupName));
-
-        event.getUI().getPage().getHistory().replaceState(null,
-                new Location(location.getPath(), new QueryParameters(params)));
-    }
-
-    @Override
-    public void updateURLLocation(UI ui, Location location, Group newGroup) {
-        // change the URL to reflect fop group
-        HashMap<String, List<String>> params = new HashMap<>(
-                location.getQueryParameters().getParameters());
-        if (!isIgnoreGroupFromURL() && newGroup != null) {
-            params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
-        } else {
-            params.remove("group");
-        }
-        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
-    }
-
-    @Override
-    protected HorizontalLayout announcerButtons(FlexLayout topBar2) {
-        return null;
+    private Grid<Athlete> createRegistrationGrid() {
+        Grid<Athlete> grid = new Grid<>(Athlete.class, false);
+        grid.getThemeNames().add("row-stripes");
+        grid.addColumn("lotNumber").setHeader(Translator.translate("Lot"));
+        grid.addColumn("lastName").setHeader(Translator.translate("LastName"));
+        grid.addColumn("firstName").setHeader(Translator.translate("FirstName"));
+        grid.addColumn("team").setHeader(Translator.translate("Team"));
+        grid.addColumn("yearOfBirth").setHeader(Translator.translate("BirthDate"));
+        grid.addColumn("gender").setHeader(Translator.translate("Gender"));
+        grid.addColumn("ageGroup").setHeader(Translator.translate("AgeGroup"));
+        grid.addColumn("category").setHeader(Translator.translate("Category"));
+        grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
+                .setSortProperty("bodyWeight")
+                .setHeader(Translator.translate("BodyWeight"));
+        grid.addColumn("group").setHeader(Translator.translate("Group"));
+        grid.addColumn("eligibleCategories").setHeader(Translator.translate("Registration.EligibleCategories"));
+        grid.addColumn("entryTotal").setHeader(Translator.translate("EntryTotal"));
+        grid.addColumn("federationCodes").setHeader(Translator.translate("Registration.FederationCodes"));
+        return grid;
     }
 
     /**
@@ -429,6 +255,27 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
     @Override
     protected Component createReset() {
         return null;
+    }
+
+    private Button createStartingListButton() {
+        String resourceDirectoryLocation = "/templates/start";
+        String title = Translator.translate("StartingList");
+        String downloadedFilePrefix = "startingList";
+
+        DownloadDialog startingListFactory = new DownloadDialog(
+                () -> {
+                    // group may have been edited since the page was loaded
+                    startingXlsWriter.setGroup(
+                            getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
+                    return startingXlsWriter;
+                },
+                resourceDirectoryLocation,
+                Competition::getComputedStartListTemplateFileName,
+                Competition::setStartListTemplateFileName,
+                title,
+                downloadedFilePrefix,
+                Translator.translate("Download"));
+        return startingListFactory.createTopBarDownloadButton();
     }
 
     @Override
@@ -540,6 +387,134 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         platformFilter.setValue(getPlatform());
     }
 
+    private void doSwitchGroup(Group newCurrentGroup) {
+        if (newCurrentGroup != null && newCurrentGroup.getName() == "*") {
+            setCurrentGroup(null);
+        } else {
+            setCurrentGroup(newCurrentGroup);
+        }
+        setGridGroup(getCurrentGroup());
+        if (downloadDialog != null) {
+            downloadDialog.createTopBarDownloadButton();
+        }
+        MenuBar oldMenu = topBarMenu;
+        createTopBarGroupSelect();
+        if (topBar != null) {
+            topBar.replace(oldMenu, topBarMenu);
+        }
+    }
+
+    /**
+     * Get the content of the crudGrid. Invoked by refreshGrid.
+     *
+     * @see org.vaadin.crudui.crud.CrudListener#findAll()
+     */
+
+    @Override
+    public List<Athlete> findAll() {
+        // logger.debug("findall gender {} agp {} ad {} group {} platform {}", getGender(), getAgeGroupPrefix(),
+        // getAgeDivision(), getGroupFilter().getValue(), getPlatform());
+        List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(getAgeGroupPrefix(),
+                getAgeDivision());
+
+        Category catFilterValue = getCategoryValue();
+        Stream<Athlete> stream = athletes.stream()
+                .filter(a -> {
+                    Platform platformFilterValue = platformFilter != null ? platformFilter.getValue() : null;
+                    if (platformFilterValue == null) {
+                        return true;
+                    }
+                    Platform athletePlaform = a.getGroup() != null
+                            ? (a.getGroup().getPlatform() != null ? a.getGroup().getPlatform() : null)
+                            : null;
+                    return platformFilterValue.equals(athletePlaform);
+                })
+                .filter(a -> a.getCategory() != null)
+                .filter(a -> {
+                    Gender genderFilterValue = genderFilter != null ? genderFilter.getValue() : null;
+                    Gender athleteGender = a.getGender();
+                    boolean catOk = (catFilterValue == null
+                            || catFilterValue.toString().equals(a.getCategory().toString()))
+                            && (genderFilterValue == null || genderFilterValue == athleteGender);
+                    return catOk;
+                })
+                .filter(a -> getGroupFilter().getValue() != null ? getGroupFilter().getValue().equals(a.getGroup())
+                        : true)
+                .map(a -> {
+                    if (a.getTeam() == null) {
+                        a.setTeam("-");
+                    }
+                    return a;
+                });
+        List<Athlete> found = stream.sorted(Comparator.comparing(Athlete::getGroup).thenComparing(Athlete::getCategory))
+                .collect(Collectors.toList());
+        cardsXlsWriter.setSortedAthletes(found);
+        startingXlsWriter.setSortedAthletes(found);
+        updateURLLocations();
+        return found;
+    }
+
+    /**
+     * @return the ageDivision
+     */
+    public AgeDivision getAgeDivision() {
+        return ageDivision;
+    }
+
+    /**
+     * @return the ageGroupPrefix
+     */
+    public String getAgeGroupPrefix() {
+        return ageGroupPrefix;
+    }
+
+    private Category getCategory() {
+        return category;
+    }
+
+    private Category getCategoryValue() {
+        return getCategory();
+    }
+
+    private Group getCurrentGroup() {
+        return currentGroup;
+    }
+
+    private Gender getGender() {
+        return gender;
+    }
+
+    public Group getGridGroup() {
+        return getGroupFilter().getValue();
+    }
+
+    @Override
+    public String getMenuTitle() {
+        return getPageTitle();
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Preparation.PrecompDocsTitle");
+    }
+
+    private Platform getPlatform() {
+        return platform;
+    }
+
+    @Override
+    public boolean isIgnoreFopFromURL() {
+        return true;
+    }
+
+    @Override
+    public boolean isIgnoreGroupFromURL() {
+        return false;
+    }
+
     /**
      * We do not connect to the event bus, and we do not track a field of play (non-Javadoc)
      *
@@ -547,6 +522,151 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
+    }
+
+    /**
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#readParams(com.vaadin.flow.router.Location,
+     *      java.util.Map)
+     */
+    @Override
+    public HashMap<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
+        HashMap<String, List<String>> params1 = new HashMap<>(parametersMap);
+
+        List<String> ageDivisionParams = params1.get("ad");
+
+        try {
+            String ageDivisionName = (ageDivisionParams != null
+                    && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
+            AgeDivision valueOf = AgeDivision.valueOf(ageDivisionName);
+            setAgeDivision(valueOf);
+            ageDivisionFilter.setValue(valueOf);
+        } catch (Exception e) {
+            setAgeDivision(null);
+            ageDivisionFilter.setValue(null);
+        }
+        // remove if now null
+        String value = getAgeDivision() != null ? getAgeDivision().name() : null;
+        updateParam(params1, "ad", value);
+
+        List<String> ageGroupParams = params1.get("ag");
+        // no age group is the default
+        String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
+        setAgeGroupPrefix(ageGroupPrefix);
+        ageGroupFilter.setValue(ageGroupPrefix);
+        String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
+        updateParam(params1, "ag", value2);
+
+        List<String> genderParams = params1.get("gender");
+        // no age group is the default
+        String genderString = (genderParams != null && !genderParams.isEmpty() ? genderParams.get(0) : null);
+        Gender genderValue = genderString != null ? Gender.valueOf(genderString) : null;
+        setGender(genderValue);
+        genderFilter.setValue(genderValue);
+        updateParam(params1, "gender", genderString);
+
+        List<String> catParams = params1.get("cat");
+        String catParam = (catParams != null && !catParams.isEmpty() ? catParams.get(0) : null);
+        catParam = catParam != null ? URLDecoder.decode(catParam, StandardCharsets.UTF_8) : null;
+        this.setCategory(CategoryRepository.findByCode(catParam));
+        String catValue = getCategoryValue() != null ? getCategoryValue().toString() : null;
+        updateParam(params1, "cat", catValue);
+
+        List<String> platformParams = params1.get("platform");
+        String platformParam = (platformParams != null && !platformParams.isEmpty() ? platformParams.get(0) : null);
+        platformParam = platformParam != null ? URLDecoder.decode(platformParam, StandardCharsets.UTF_8) : null;
+        platform = platformParam != null ? PlatformRepository.findByName(platformParam) : null;
+        // logger.debug("reading param platform {}", platformParam);
+        this.setPlatform(platform);
+        platformFilter.setValue(platform);
+        updateParam(params1, "platform", platform != null ? platformParam : null);
+
+        // logger.debug("params {}", params1);
+        return params1;
+    }
+
+    private void refresh() {
+        crudGrid.sort(null);
+        crudGrid.refreshGrid();
+    }
+
+    /**
+     * @param ageDivision the ageDivision to set
+     */
+    public void setAgeDivision(AgeDivision ageDivision) {
+        this.ageDivision = ageDivision;
+    }
+
+    /**
+     * @param ageGroupPrefix the ageGroupPrefix to set
+     */
+    public void setAgeGroupPrefix(String ageGroupPrefix) {
+        this.ageGroupPrefix = ageGroupPrefix;
+    }
+
+    private void setCategory(Category category) {
+        this.category = category;
+    }
+
+    private void setCurrentGroup(Group currentGroup) {
+        this.currentGroup = currentGroup;
+    }
+
+    private void setGender(Gender value) {
+        this.gender = value;
+    }
+
+    public void setGridGroup(Group group) {
+//        subscribeIfLifting(group);
+        getGroupFilter().setValue(group);
+        refresh();
+    }
+
+    /**
+     * Parse the http query parameters
+     *
+     * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
+     *
+     * @param event     Vaadin navigation event
+     * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
+     *                  parameters instead.
+     *
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+     *      java.lang.String)
+     */
+    @Override
+    public void setParameter(BeforeEvent event, @OptionalParameter String unused) {
+        Location location = event.getLocation();
+        setLocation(location);
+        setLocationUI(event.getUI());
+
+        // the OptionalParameter string is the part of the URL path that can be interpreted as REST arguments
+        // we use the ? query parameters instead.
+        QueryParameters queryParameters = location.getQueryParameters();
+        Map<String, List<String>> parametersMap = queryParameters.getParameters();
+        HashMap<String, List<String>> params = readParams(location, parametersMap);
+        List<String> groups = params.get("group");
+        groupName = (groups != null && !groups.isEmpty() ? groups.get(0) : null);
+        getGroupFilter().setValue(GroupRepository.findByName(groupName));
+
+        event.getUI().getPage().getHistory().replaceState(null,
+                new Location(location.getPath(), new QueryParameters(params)));
+    }
+
+    private void setPlatform(Platform platformValue) {
+        this.platform = platformValue;
+    }
+
+    @Override
+    public void updateURLLocation(UI ui, Location location, Group newGroup) {
+        // change the URL to reflect fop group
+        HashMap<String, List<String>> params = new HashMap<>(
+                location.getQueryParameters().getParameters());
+        if (!isIgnoreGroupFromURL() && newGroup != null) {
+            params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
+        } else {
+            params.remove("group");
+        }
+        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
 
     protected void updateURLLocations() {
@@ -571,126 +691,6 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         String gender = getGender() != null ? getGender().name() : null;
         updateURLLocation(UI.getCurrent(), getLocation(), "gender",
                 gender);
-    }
-
-    private Button createCardsButton() {
-        String resourceDirectoryLocation = "/templates/cards";
-        String title = Translator.translate("AthleteCards");
-        String downloadedFilePrefix = "cards";
-        DownloadDialog cardsButtonFactory = new DownloadDialog(
-                () -> {
-                    // group may have been edited since the page was loaded
-                    cardsXlsWriter.setGroup(
-                            getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
-                    return cardsXlsWriter;
-                },
-                resourceDirectoryLocation,
-                Competition::getComputedCardsTemplateFileName,
-                Competition::setCardsTemplateFileName,
-                title,
-                downloadedFilePrefix,
-                Translator.translate("Download"));
-        return cardsButtonFactory.createTopBarDownloadButton();
-    }
-
-    private Grid<Athlete> createRegistrationGrid() {
-        Grid<Athlete> grid = new Grid<>(Athlete.class, false);
-        grid.getThemeNames().add("row-stripes");
-        grid.addColumn("lotNumber").setHeader(Translator.translate("Lot"));
-        grid.addColumn("lastName").setHeader(Translator.translate("LastName"));
-        grid.addColumn("firstName").setHeader(Translator.translate("FirstName"));
-        grid.addColumn("team").setHeader(Translator.translate("Team"));
-        grid.addColumn("yearOfBirth").setHeader(Translator.translate("BirthDate"));
-        grid.addColumn("gender").setHeader(Translator.translate("Gender"));
-        grid.addColumn("ageGroup").setHeader(Translator.translate("AgeGroup"));
-        grid.addColumn("category").setHeader(Translator.translate("Category"));
-        grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
-                .setSortProperty("bodyWeight")
-                .setHeader(Translator.translate("BodyWeight"));
-        grid.addColumn("group").setHeader(Translator.translate("Group"));
-        grid.addColumn("eligibleCategories").setHeader(Translator.translate("Registration.EligibleCategories"));
-        grid.addColumn("entryTotal").setHeader(Translator.translate("EntryTotal"));
-        grid.addColumn("federationCodes").setHeader(Translator.translate("Registration.FederationCodes"));
-        return grid;
-    }
-
-    private Button createStartingListButton() {
-        String resourceDirectoryLocation = "/templates/start";
-        String title = Translator.translate("StartingList");
-        String downloadedFilePrefix = "startingList";
-
-        DownloadDialog startingListFactory = new DownloadDialog(
-                () -> {
-                    // group may have been edited since the page was loaded
-                    startingXlsWriter.setGroup(
-                            getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
-                    return startingXlsWriter;
-                },
-                resourceDirectoryLocation,
-                Competition::getComputedStartListTemplateFileName,
-                Competition::setStartListTemplateFileName,
-                title,
-                downloadedFilePrefix,
-                Translator.translate("Download"));
-        return startingListFactory.createTopBarDownloadButton();
-    }
-
-    private void doSwitchGroup(Group newCurrentGroup) {
-        if (newCurrentGroup != null && newCurrentGroup.getName() == "*") {
-            setCurrentGroup(null);
-        } else {
-            setCurrentGroup(newCurrentGroup);
-        }
-        setGridGroup(getCurrentGroup());
-        if (downloadDialog != null) {
-            downloadDialog.createTopBarDownloadButton();
-        }
-        MenuBar oldMenu = topBarMenu;
-        createTopBarGroupSelect();
-        if (topBar != null) {
-            topBar.replace(oldMenu, topBarMenu);
-        }
-    }
-
-    private Category getCategory() {
-        return category;
-    }
-
-    private Category getCategoryValue() {
-        return getCategory();
-    }
-
-    private Group getCurrentGroup() {
-        return currentGroup;
-    }
-
-    private Gender getGender() {
-        return gender;
-    }
-
-    private Platform getPlatform() {
-        return platform;
-    }
-
-    private void refresh() {
-        crudGrid.sort(null);
-        crudGrid.refreshGrid();
-    }
-
-    private void setCategory(Category category) {
-        this.category = category;
-    }
-
-    private void setCurrentGroup(Group currentGroup) {
-        this.currentGroup = currentGroup;
-    }
-
-    private void setGender(Gender value) {
-        this.gender = value;
-    }
-
-    private void setPlatform(Platform platformValue) {
-        this.platform = platformValue;
     }
 
 }

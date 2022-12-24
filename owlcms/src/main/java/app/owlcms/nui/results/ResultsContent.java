@@ -9,6 +9,7 @@ package app.owlcms.nui.results;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.DownloadDialog;
+import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -61,6 +63,7 @@ import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSMedalsSheet;
 import app.owlcms.spreadsheet.JXLSResultSheet;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -219,6 +222,28 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
         return topBar;
+    }
+    
+    @Override
+    protected void createTopBarGroupSelect() {
+        // there is already all the SQL filtering logic for the group attached
+        // hidden field in the crudGrid part of the page so we just set that
+        // filter.
+
+        List<Group> groups = GroupRepository.findAll();
+        groups.sort((Comparator<Group>) new NaturalOrderComparator<Group>());
+
+        OwlcmsSession.withFop(fop -> {
+            logger.trace("initial setting group to {} {}", currentGroup, LoggerUtils.whereFrom());
+            getGroupFilter().setValue(currentGroup);
+            // switching to group "*" is understood to mean all groups
+            topBarMenu = new GroupSelectionMenu(groups, currentGroup,
+                    fop,
+                    (g1) -> doSwitchGroup(g1),
+                    (g1) -> doSwitchGroup(new Group("*")),
+                    null, 
+                    Translator.translate("AllGroups"));
+        });
     }
 
     /**

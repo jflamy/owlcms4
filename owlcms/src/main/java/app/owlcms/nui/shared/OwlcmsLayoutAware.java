@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.nui.shared;
 
+import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 

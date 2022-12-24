@@ -19,6 +19,7 @@ import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.data.renderer.LocalDateRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
+import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.function.ValueProvider;
 
 import ch.qos.logback.classic.Level;
@@ -36,7 +37,8 @@ public class LocalDateField extends WrappedTextField<LocalDate> {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
 
     public static <SOURCE> Renderer<SOURCE> getRenderer(ValueProvider<SOURCE, LocalDate> v, Locale locale) {
-        return new LocalDateRenderer<>(v, FORMATTER.withLocale(locale));
+        SerializableSupplier<DateTimeFormatter> ss = () -> FORMATTER.withLocale(locale);
+        return new LocalDateRenderer<>(v, ss);
     }
 
     @Override

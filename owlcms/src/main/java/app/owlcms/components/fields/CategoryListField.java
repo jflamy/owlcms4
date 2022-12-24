@@ -54,7 +54,7 @@ public class CategoryListField extends CustomField<List<Category>> {
         adder.getStyle().set("margin-bottom", "1em");
         TextField newCategoryField = new TextField();
         newCategoryField.setPlaceholder(getTranslation("LimitForCategory"));
-        newCategoryField.setPreventInvalidInput(true);
+        newCategoryField.setAllowedCharPattern("[0-9]");
         newCategoryField.setPattern("[0-9]{0,3}");
 
         Button button = new Button(getTranslation("AddNewCategory"));

@@ -844,7 +844,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
     private TextField createActualWeightField(int row, int col) {
         TextField tf = new TextField();
         tf.setPattern("^[-]{0,1}\\d*$");
-        tf.setPreventInvalidInput(true);
+        tf.setAllowedCharPattern("[0-9-]");
         tf.setValueChangeMode(ValueChangeMode.ON_BLUR);
         return tf;
     }
@@ -852,7 +852,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
     private TextField createPositiveWeightField(int row, int col) {
         TextField tf = new TextField();
         tf.setPattern("^\\d*$");
-        tf.setPreventInvalidInput(true);
+        tf.setAllowedCharPattern("[0-9]");
         tf.setValueChangeMode(ValueChangeMode.ON_BLUR);
         return tf;
     }

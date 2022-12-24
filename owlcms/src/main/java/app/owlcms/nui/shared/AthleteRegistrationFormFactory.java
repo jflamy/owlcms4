@@ -626,7 +626,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         textField.setAutoselect(true);
         textField.setValueChangeMode(ValueChangeMode.ON_BLUR);
         textField.setPattern("^(-?\\d+)|()$"); // optional minus and at least one digit, or empty.
-        textField.setPreventInvalidInput(true);
+        textField.setAllowedCharPattern("[0-9-]");
         textField.addValueChangeListener((e) -> {
             if (!isChangeListenersEnabled()) {
                 return;

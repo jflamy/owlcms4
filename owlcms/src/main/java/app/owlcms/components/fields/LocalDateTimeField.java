@@ -22,6 +22,7 @@ import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
+import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.function.ValueProvider;
 
 import ch.qos.logback.classic.Level;
@@ -42,7 +43,8 @@ public class LocalDateTimeField extends WrappedTextField<LocalDateTime> implemen
             .appendPattern(DATE_FORMAT).toFormatter();
 
     public static <SOURCE> Renderer<SOURCE> getRenderer(ValueProvider<SOURCE, LocalDateTime> v, Locale locale) {
-        return new LocalDateTimeRenderer<>(v, FORMATTER.withLocale(locale));
+        SerializableSupplier<DateTimeFormatter> ss = () -> FORMATTER.withLocale(locale);
+        return new LocalDateTimeRenderer<>(v, ss);
     }
 
     @Override

@@ -66,6 +66,7 @@ public interface NavigationPage extends ContentWrapping {
         Label label2 = new Label(label);
         label2.getStyle().set("font-weight", "bold");
         content1.add(label2);
+        label2.getStyle().set("margin-bottom", "0.8ex");
         content1.getStyle().set("margin-bottom", "-2ex");
         fillH(content1, wrapper);
         grid1.setPadding(false);
@@ -80,12 +81,13 @@ public interface NavigationPage extends ContentWrapping {
         content1.setSpacing(false);
         content1.setPadding(true);
         Label label2 = new Label(label);
+        label2.getStyle().set("margin-bottom", "0.8ex");
         label2.getStyle().set("font-weight", "bold");
         content1.add(label2);
         intro.setPadding(false);
         intro.getStyle().set("padding-left", "0");
         content1.add(intro);
-        content1.getStyle().set("margin-bottom", "-2ex");
+        content1.getStyle().set("margin-bottom", "-1ex");
         fillH(content1, wrapper);
         grid1.setPadding(false);
         grid1.getStyle().set("padding-top", "0.5em");
