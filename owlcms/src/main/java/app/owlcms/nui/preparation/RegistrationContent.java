@@ -32,6 +32,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -51,6 +52,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.components.DownloadDialog;
+import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.ValidationTextField;
@@ -64,7 +66,6 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -77,7 +78,6 @@ import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.AthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
-import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSStartingList;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
@@ -106,21 +106,17 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     private OwlcmsCrudGrid<Athlete> crudGrid;
     private Group currentGroup;
     private ComboBox<Gender> genderFilter = new ComboBox<>();
-
     private ComboBox<Group> groupFilter = new ComboBox<>();
     private TextField lastNameFilter = new TextField();
     private Location location;
     private UI locationUI;
     private OwlcmsLayout routerLayout;
     private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
-
-    private Button cardsButton;
-
     private Group group;
 
     private ComboBox<Group> groupSelect;
-
-    private Button startingListButton;
+    private GroupSelectionMenu topBarMenu;
+    private FlexLayout topBar;
 
     /**
      * Instantiates the athlete crudGrid
@@ -135,36 +131,16 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 
     @Override
     public Athlete add(Athlete athlete) {
-        if (athlete.getGroup() == null && currentGroup != null) {
-            athlete.setGroup(currentGroup);
+        if (athlete.getGroup() == null && getCurrentGroup() != null) {
+            athlete.setGroup(getCurrentGroup());
         }
         ((OwlcmsCrudFormFactory<Athlete>) crudGrid.getCrudFormFactory()).add(athlete);
         return athlete;
     }
 
-    /**
-     * Create the top bar.
-     *
-     * Note: the top bar is created before the content.
-     *
-     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
-     *
-     * @param topBar
-     */
     @Override
     public FlexLayout createMenuArea() {
-
-        setGroupSelect(new ComboBox<>());
-        getGroupSelect().setPlaceholder(getTranslation("Group"));
-        List<Group> groups = GroupRepository.findAll();
-        groups.sort(new NaturalOrderComparator<Group>());
-        getGroupSelect().setItems(groups);
-        getGroupSelect().setItemLabelGenerator(Group::getName);
-        getGroupSelect().setClearButtonVisible(true);
-        getGroupSelect().setValue(null);
-        getGroupSelect().addValueChangeListener(e -> {
-            setContentGroup(e);
-        });
+        createTopBarGroupSelect();
 
         Button drawLots = new Button(getTranslation("DrawLotNumbers"), (e) -> {
             drawLots();
@@ -186,12 +162,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
                     }).open();
         });
         deleteAthletes.getElement().setAttribute("title", getTranslation("ClearLifts_forListed"));
-
-        JXLSCards cardsWriter = new JXLSCards();
-        JXLSStartingList startingListWriter = new JXLSStartingList();
-
-        cardsButton = createCardsButton(cardsWriter);
-        startingListButton = createStartingListButton(startingListWriter);
 
         Button resetCats = new Button(getTranslation("ResetCategories.ResetAthletes"), (e) -> {
             new ConfirmationDialog(
@@ -218,10 +188,10 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
-        FlexLayout topBar = new FlexLayout();
+        topBar = new FlexLayout();
         topBar.getStyle().set("flex", "100 1");
         topBar.removeAll();
-        topBar.add(getGroupSelect(), buttons);
+        topBar.add(topBarMenu, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
@@ -262,9 +232,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         return groupFilter;
     }
 
-    /**
-     * @return the groupSelect
-     */
     public ComboBox<Group> getGroupSelect() {
         return groupSelect;
     }
@@ -367,12 +334,12 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
             String groupName = groupNames.get(0);
             groupName = URLDecoder.decode(groupName, StandardCharsets.UTF_8);
-            currentGroup = GroupRepository.findByName(groupName);
+            setCurrentGroup(GroupRepository.findByName(groupName));
         } else {
-            currentGroup = null;
+            setCurrentGroup(null);
         }
-        if (currentGroup != null) {
-            params.put("group", Arrays.asList(URLUtils.urlEncode(currentGroup.getName())));
+        if (getCurrentGroup() != null) {
+            params.put("group", Arrays.asList(URLUtils.urlEncode(getCurrentGroup().getName())));
             OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
             crudGrid.setCrudFormFactory(crudFormFactory);
         } else {
@@ -406,9 +373,40 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
      */
     protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
         OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory = new AthleteRegistrationFormFactory(Athlete.class,
-                currentGroup);
+                getCurrentGroup());
         createFormLayout(athleteEditingFormFactory);
         return athleteEditingFormFactory;
+    }
+    
+    protected void createTopBarGroupSelect() {
+        // there is already all the SQL filtering logic for the group attached
+        // hidden field in the crudGrid part of the page so we just set that
+        // filter.
+
+        List<Group> groups = GroupRepository.findAll();
+        groups.sort(new NaturalOrderComparator<Group>());
+
+        OwlcmsSession.withFop(fop -> {
+            // logger.debug("initial setting group to {} {}", getCurrentGroup(), LoggerUtils.whereFrom());
+            getGroupFilter().setValue(getCurrentGroup());
+            // switching to group "*" is understood to mean all groups
+            topBarMenu = new GroupSelectionMenu(groups, getCurrentGroup(),
+                    fop,
+                    (g1) -> doSwitchGroup(g1),
+                    (g1) -> doSwitchGroup(new Group("*")),
+                    null,
+                    Translator.translate("AllGroups"));
+        });
+    }
+    
+    private void doSwitchGroup(Group newCurrentGroup) {
+        if (newCurrentGroup != null && newCurrentGroup.getName() == "*") {
+            setCurrentGroup(null);
+        } else {
+            setCurrentGroup(newCurrentGroup);
+        }
+        getRouterLayout().updateHeader(true);
+        getGroupFilter().setValue(newCurrentGroup);
     }
 
     /**
@@ -419,23 +417,26 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
      */
     protected OwlcmsCrudGrid<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
         Grid<Athlete> grid = new Grid<>(Athlete.class, false);
+        
         grid.getThemeNames().add("row-stripes");
-        grid.addColumn("lotNumber").setHeader(getTranslation("Lot"));
+        grid.getThemeNames().add("compact");
+        grid.addColumn("lotNumber").setHeader(getTranslation("Lot")).setAutoWidth(true);
         grid.addColumn("lastName").setHeader(getTranslation("LastName"));
         grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
-        grid.addColumn("team").setHeader(getTranslation("Team"));
-        grid.addColumn("yearOfBirth").setHeader(getTranslation("BirthDate"));
-        grid.addColumn("gender").setHeader(getTranslation("Gender"));
-        grid.addColumn("ageGroup").setHeader(getTranslation("AgeGroup"));
-        grid.addColumn("category").setHeader(getTranslation("Category"));
+        grid.addColumn("team").setHeader(getTranslation("Team")).setAutoWidth(true);
+        grid.addColumn("yearOfBirth").setHeader(getTranslation("BirthDate")).setAutoWidth(true);
+        grid.addColumn("gender").setHeader(getTranslation("Gender")).setAutoWidth(true);
+        grid.addColumn("ageGroup").setHeader(getTranslation("AgeGroup")).setAutoWidth(true);
+        grid.addColumn("category").setHeader(getTranslation("Category")).setAutoWidth(true);
         grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
                 .setSortProperty("bodyWeight")
-                .setHeader(getTranslation("BodyWeight"));
-        grid.addColumn("group").setHeader(getTranslation("Group"));
-        grid.addColumn("eligibleCategories").setHeader(getTranslation("Registration.EligibleCategories"));
-        grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal"));
-        grid.addColumn("federationCodes").setHeader(getTranslation("Registration.FederationCodes"));
+                .setHeader(getTranslation("BodyWeight")).setAutoWidth(true);
+        grid.addColumn("group").setHeader(getTranslation("Group")).setAutoWidth(true);
+        grid.addColumn("eligibleCategories").setHeader(getTranslation("Registration.EligibleCategories")).setAutoWidth(true);
+        grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal")).setAutoWidth(true);
+        grid.addColumn("federationCodes").setHeader(getTranslation("Registration.FederationCodesShort")).setAutoWidth(true);
         OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
+
             @Override
             public void hideForm() {
                 super.hideForm();
@@ -448,6 +449,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         crudGrid.setClickRowToUpdate(true);
         return crudGrid;
     }
+
 
     /**
      * The filters at the top of the crudGrid
@@ -502,7 +504,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         groupFilter.setItemLabelGenerator(Group::getName);
         groupFilter.addValueChangeListener(e -> {
             crudGrid.refreshGrid();
-            currentGroup = e.getValue();
+            setCurrentGroup(e.getValue());
             updateURLLocation(getLocationUI(), getLocation(), e.getValue());
         });
         groupFilter.setWidth("10em");
@@ -533,12 +535,13 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         genderFilter.setWidth("10em");
         crudGrid.getCrudLayout().addFilterComponent(genderFilter);
 
-        Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
+        Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
         clearFilters.addClickListener(event -> {
             lastNameFilter.clear();
+            ageGroupFilter.clear();
             ageDivisionFilter.clear();
             categoryFilter.clear();
-            groupFilter.clear();
+            //groupFilter.clear();
             weighedInFilter.clear();
             genderFilter.clear();
         });
@@ -562,9 +565,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        getRouterLayout().closeDrawer();
-        getGroupSelect().setValue(currentGroup);
     }
 
     protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
@@ -583,27 +583,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
             return null;
         });
     }
-
-    private Button createCardsButton(JXLSCards cardsWriter) {
-        String resourceDirectoryLocation = "/templates/cards";
-        String title = Translator.translate("AthleteCards");
-        String downloadedFilePrefix = "cards";
-        DownloadDialog cardsButtonFactory = new DownloadDialog(
-                () -> {
-                    JXLSCards rs = new JXLSCards();
-                    // group may have been edited since the page was loaded
-                    rs.setGroup(group != null ? GroupRepository.getById(group.getId()) : null);
-                    return rs;
-                },
-                resourceDirectoryLocation,
-                Competition::getComputedCardsTemplateFileName,
-                Competition::setCardsTemplateFileName,
-                title,
-                downloadedFilePrefix,
-                Translator.translate("Download"));
-        return cardsButtonFactory.createTopBarDownloadButton();
-    }
-
+    
     /**
      * The content and ordering of the editing form
      *
@@ -754,7 +734,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
             params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
             if (newGroup != null) {
                 params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
-                currentGroup = newGroup;
+                setCurrentGroup(newGroup);
                 OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
                 crudGrid.setCrudFormFactory(crudFormFactory);
             }
@@ -762,5 +742,13 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
             params.remove("group");
         }
         ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
+    }
+
+    private Group getCurrentGroup() {
+        return currentGroup;
+    }
+
+    private void setCurrentGroup(Group currentGroup) {
+        this.currentGroup = currentGroup;
     }
 }

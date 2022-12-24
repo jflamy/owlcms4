@@ -99,6 +99,9 @@ public class AthleteRepository {
 
     public static Integer doCountFiltered(String lastName, Group group, Category category, AgeGroup ageGroup,
             AgeDivision ageDivision, Gender gender, Boolean weighedIn, EntityManager em) {
+        if (group != null && group.getName() == "*") {
+            group = null;
+        }
         String selection = filteringSelection(lastName, group, category, ageGroup, ageDivision, gender, weighedIn);
         String qlString = "select count(a.id) from Athlete a " + selection;
         logger.trace("count query = {}", qlString);
@@ -116,6 +119,9 @@ public class AthleteRepository {
     public static List<Athlete> doFindAllByAgeroupGroupAndWeighIn(EntityManager em, AgeGroup ageGroup, Group group,
             Boolean weighedIn,
             Gender gender) {
+        if (group != null && group.getName() == "*") {
+            group = null;
+        }
         return doFindFiltered(em, (String) null, group, (Category) null, ageGroup, (AgeDivision) null, gender,
                 weighedIn,
                 -1, -1);
@@ -123,6 +129,9 @@ public class AthleteRepository {
 
     public static List<Athlete> doFindAllByGroupAndWeighIn(EntityManager em, Group group, Boolean weighedIn,
             Gender gender) {
+        if (group != null && group.getName() == "*") {
+            group = null;
+        }
         return doFindFiltered(em, (String) null, group, (Category) null, (AgeGroup) null, (AgeDivision) null, gender,
                 weighedIn,
                 -1, -1);
@@ -131,6 +140,9 @@ public class AthleteRepository {
     public static List<Athlete> doFindFiltered(EntityManager em, String lastName, Group group, Category category,
             AgeGroup ageGroup,
             AgeDivision ageDivision, Gender gender, Boolean weighedIn, int offset, int limit) {
+        if (group != null && group.getName() == "*") {
+            group = null;
+        }
         String qlString = "select a from Athlete a"
                 + filteringSelection(lastName, group, category, ageGroup, ageDivision, gender, weighedIn)
                 + " order by a.category";

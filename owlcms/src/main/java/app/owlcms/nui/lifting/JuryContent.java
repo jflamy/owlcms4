@@ -79,7 +79,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private HorizontalLayout juryVotingButtons;
     private VerticalLayout juryVotingCenterHorizontally;
     private long lastOpen;
-    private int nbJurors;
     private HorizontalLayout refContainer;
     private Component refereeLabelWrapper;
     private boolean summonEnabled;
@@ -324,7 +323,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         registrations = new ArrayList<>();
         this.setBoxSizing(BoxSizing.BORDER_BOX);
         this.setSizeFull();
-        nbJurors = nbj;
+        Competition.getCurrent().setJurySize(nbj);
         buildJuryBox(this);
         buildRefereeBox(this);
     }

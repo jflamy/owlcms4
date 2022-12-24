@@ -23,7 +23,6 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.IronIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
@@ -151,9 +150,6 @@ public class OwlcmsLayout extends AppLayout {
             OwlcmsLayoutAware appContent = (OwlcmsLayoutAware) content;
             appContent.setPadding(false);
             appContent.getStyle().set("padding", "0 1em 0.5em");
-//            if (appContent instanceof FlexComponent) {
-//                ((FlexComponent)appContent).setSizeFull();
-//            }
             appContent.setRouterLayout(this);
             super.showRouterLayoutContent(content);
             appContent.setHeaderContent();

@@ -483,14 +483,14 @@ public abstract class AthleteGridContent extends VerticalLayout
         this.firstNameWrapper = firstNameWrapper;
     }
 
-    @Override
-    public void setHeaderContent() {
-        routerLayout.setMenuTitle(getPageTitle());
-        routerLayout.setMenuArea(createMenuArea());
-        routerLayout.showLocaleDropdown(false);
-        routerLayout.setDrawerOpened(false);
-        routerLayout.updateHeader(false);
-    }
+//    @Override
+//    public void setHeaderContent() {
+//        routerLayout.setMenuTitle(getPageTitle());
+//        routerLayout.setMenuArea(createMenuArea());
+//        routerLayout.showLocaleDropdown(false);
+//        routerLayout.setDrawerOpened(false);
+//        routerLayout.updateHeader(false);
+//    }
 
     public void setIgnoreSwitchGroup(boolean b) {
         ignoreSwitchGroup = b;

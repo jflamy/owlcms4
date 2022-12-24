@@ -6,6 +6,8 @@
  *******************************************************************************/
 package app.owlcms.nui.lifting;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,7 +18,6 @@ import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
-import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.CheckBoxGroupProvider;
 
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
@@ -46,6 +47,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.components.DownloadDialog;
+import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.ValidationTextField;
@@ -80,9 +82,9 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Class AthleteContent
+ * Class WeighinContent
  *
- * Defines the toolbar and the table for editing data on athletes.
+ * Defines the toolbar and the table for editing data on athletes during weigh-in
  *
  */
 @SuppressWarnings("serial")
@@ -100,7 +102,6 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     private ComboBox<Category> categoryFilter = new ComboBox<>();
     private OwlcmsCrudGrid<Athlete> crudGrid;
     private Group currentGroup;
-
     private ComboBox<Gender> genderFilter = new ComboBox<>();
     private ComboBox<Group> groupFilter = new ComboBox<>();
     private TextField lastNameFilter = new TextField();
@@ -114,6 +115,8 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     private Group group;
 
     private ComboBox<Group> groupSelect;
+    private GroupSelectionMenu topBarMenu;
+    private FlexLayout topBar;
 
     private Button juryButton;
 
@@ -140,16 +143,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
     @Override
     public FlexLayout createMenuArea() {
-        groupSelect = new ComboBox<>();
-        groupSelect.setPlaceholder(getTranslation("Group"));
-        List<Group> groups = GroupRepository.findAll();
-        groups.sort(new NaturalOrderComparator<Group>());
-        groupSelect.setItems(groups);
-        groupSelect.setItemLabelGenerator(Group::getName);
-        groupSelect.setClearButtonVisible(true);
-        groupSelect.addValueChangeListener(e -> {
-            setContentGroup(e);
-        });
+        createTopBarGroupSelect();
 
         JXLSCards cardsWriter = new JXLSCards();
         JXLSJurySheet juryWriter = new JXLSJurySheet();
@@ -171,9 +165,9 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
         FlexLayout topBar = new FlexLayout();
-        topBar.getElement().getStyle().set("flex", "100 1");
+        topBar.getStyle().set("flex", "100 1");
         topBar.removeAll();
-        topBar.add(groupSelect, buttons);
+        topBar.add(topBarMenu, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
@@ -207,9 +201,9 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         return groupFilter;
     }
 
-    public ComboBox<Group> getGroupSelect() {
-        return groupSelect;
-    }
+//    public ComboBox<Group> getGroupSelect() {
+//        return groupSelect;
+//    }
 
     @Override
     public Location getLocation() {
@@ -253,6 +247,13 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crudGrid.refreshGrid();
     }
 
+//    /**
+//     * @param groupSelect the groupSelect to set
+//     */
+//    public void setGroupSelect(ComboBox<Group> groupSelect) {
+//        this.groupSelect = groupSelect;
+//    }
+    
     @Override
     public void setHeaderContent() {
         routerLayout.setMenuTitle(getPageTitle());
@@ -297,11 +298,13 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         // logger.trace("groupNames = {}", groupNames);
         if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
             String groupName = groupNames.get(0);
-            currentGroup = GroupRepository.findByName(groupName);
+            groupName = URLDecoder.decode(groupName, StandardCharsets.UTF_8);
+            setCurrentGroup(GroupRepository.findByName(groupName));
         } else {
             currentGroup = null;
         }
-        if (currentGroup != null) {
+        if (getCurrentGroup() != null) {
+            params.put("group", Arrays.asList(URLUtils.urlEncode(getCurrentGroup().getName())));
             OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
             crudGrid.setCrudFormFactory(crudFormFactory);
         } else {
@@ -341,6 +344,37 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         return athleteEditingFormFactory;
     }
 
+    protected void createTopBarGroupSelect() {
+        // there is already all the SQL filtering logic for the group attached
+        // hidden field in the crudGrid part of the page so we just set that
+        // filter.
+
+        List<Group> groups = GroupRepository.findAll();
+        groups.sort(new NaturalOrderComparator<Group>());
+
+        OwlcmsSession.withFop(fop -> {
+            // logger.debug("initial setting group to {} {}", getCurrentGroup(), LoggerUtils.whereFrom());
+            getGroupFilter().setValue(getCurrentGroup());
+            // switching to group "*" is understood to mean all groups
+            topBarMenu = new GroupSelectionMenu(groups, getCurrentGroup(),
+                    fop,
+                    (g1) -> doSwitchGroup(g1),
+                    (g1) -> doSwitchGroup(new Group("*")),
+                    null,
+                    Translator.translate("AllGroups"));
+        });
+    }
+    
+    private void doSwitchGroup(Group newCurrentGroup) {
+        if (newCurrentGroup != null && newCurrentGroup.getName() == "*") {
+            setCurrentGroup(null);
+        } else {
+            setCurrentGroup(newCurrentGroup);
+        }
+        getRouterLayout().updateHeader(true);
+        getGroupFilter().setValue(newCurrentGroup);
+    }
+
     /**
      * The columns of the crudGrid
      *
@@ -350,21 +384,21 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     protected OwlcmsCrudGrid<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
         Grid<Athlete> grid = new Grid<>(Athlete.class, false);
         grid.getThemeNames().add("row-stripes");
-        grid.addColumn("startNumber").setHeader(getTranslation("Start_"));
+        grid.addColumn("startNumber").setHeader(getTranslation("Start_")).setAutoWidth(true);
         grid.addColumn("lastName").setHeader(getTranslation("LastName"));
         grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
-        grid.addColumn("team").setHeader(getTranslation("Team"));
-        grid.addColumn("ageGroup").setHeader(getTranslation("AgeGroup"));
-        grid.addColumn("category").setHeader(getTranslation("Category"));
-        grid.addColumn("group").setHeader(getTranslation("Group"));
+        grid.addColumn("team").setHeader(getTranslation("Team")).setAutoWidth(true);
+        grid.addColumn("gender").setHeader(getTranslation("Gender")).setAutoWidth(true);
+        grid.addColumn("ageGroup").setHeader(getTranslation("AgeGroup")).setAutoWidth(true);
+        grid.addColumn("category").setHeader(getTranslation("Category")).setAutoWidth(true);
         grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
                 .setSortProperty("bodyWeight")
-                .setHeader(getTranslation("BodyWeight"));
+                .setHeader(getTranslation("BodyWeight")).setAutoWidth(true);
         grid.addColumn("snatch1Declaration").setHeader(getTranslation("SnatchDecl_"));
         grid.addColumn("cleanJerk1Declaration").setHeader(getTranslation("C_and_J_decl"));
-        grid.addColumn("eligibleCategories").setHeader(getTranslation("Registration.EligibleCategories"));
-        grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal"));
-        grid.addColumn("federationCodes").setHeader(getTranslation("Registration.FederationCodes"));
+        grid.addColumn("eligibleCategories").setHeader(getTranslation("Registration.EligibleCategories")).setAutoWidth(true);
+        grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal")).setAutoWidth(true);
+        grid.addColumn("federationCodes").setHeader(getTranslation("Registration.FederationCodesShort")).setAutoWidth(true);
         OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
             @Override
             public void hideForm() {
@@ -384,7 +418,8 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
      *
      * @param crudGrid the crudGrid that will be filtered.
      */
-    protected void defineFilters(GridCrud<Athlete> crudGrid) {
+    protected void defineFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
+
         lastNameFilter.setPlaceholder(getTranslation("LastName"));
         lastNameFilter.setClearButtonVisible(true);
         lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
@@ -429,7 +464,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         groupFilter.setClearButtonVisible(true);
         groupFilter.addValueChangeListener(e -> {
             crudGrid.refreshGrid();
-            currentGroup = e.getValue();
+            setCurrentGroup(e.getValue());
             updateURLLocation(getLocationUI(), getLocation(), e.getValue());
         });
         crudGrid.getCrudLayout().addFilterComponent(groupFilter);
@@ -459,9 +494,10 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         genderFilter.setWidth("10em");
         crudGrid.getCrudLayout().addFilterComponent(genderFilter);
 
-        Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
+        Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
         clearFilters.addClickListener(event -> {
             lastNameFilter.clear();
+            ageGroupFilter.clear();
             ageDivisionFilter.clear();
             categoryFilter.clear();
             // groupFilter.clear();
@@ -487,8 +523,6 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        getRouterLayout().closeDrawer();
     }
 
     protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
@@ -497,7 +531,8 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     }
 
     private void clearStartNumbers() {
-        Group group = groupSelect.getValue();
+        Group group = getCurrentGroup();
+        logger.warn("group {}",getCurrentGroup());
         if (group == null) {
             errorNotification();
             return;
@@ -506,6 +541,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
             List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, null,
                     (Gender) null);
             for (Athlete a : currentGroupAthletes) {
+                logger.warn(a.getShortName());
                 a.setStartNumber(0);
             }
             return currentGroupAthletes;
@@ -671,7 +707,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     }
 
     private void generateStartNumbers() {
-        Group group = groupSelect.getValue();
+        Group group = getCurrentGroup();
         if (group == null) {
             errorNotification();
             return;
@@ -696,5 +732,13 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
             params.remove("group");
         }
         ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
+    }
+
+    private Group getCurrentGroup() {
+        return currentGroup;
+    }
+
+    private void setCurrentGroup(Group currentGroup) {
+        this.currentGroup = currentGroup;
     }
 }

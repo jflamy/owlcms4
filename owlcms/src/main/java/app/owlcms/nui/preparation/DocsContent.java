@@ -27,7 +27,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -62,6 +62,7 @@ import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCardsDocs;
 import app.owlcms.spreadsheet.JXLSStartingListDocs;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -105,7 +106,6 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
      */
     public DocsContent() {
         super();
-        defineFilters(crudGrid);
         cardsXlsWriter = new JXLSCardsDocs();
         startingXlsWriter = new JXLSStartingListDocs();
     }
@@ -113,6 +113,18 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
     @Override
     protected HorizontalLayout announcerButtons(FlexLayout topBar2) {
         return null;
+    }
+    
+    /**
+     * @see app.owlcms.nui.shared.OwlcmsContent#setHeaderContent()
+     */
+    @Override
+    public void setHeaderContent() {
+        getRouterLayout().setMenuTitle(getPageTitle());
+        getRouterLayout().setMenuArea(createMenuArea());
+        getRouterLayout().showLocaleDropdown(false);
+        getRouterLayout().setDrawerOpened(false);
+        getRouterLayout().updateHeader(true);
     }
 
     private Button createCardsButton() {
@@ -158,10 +170,10 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, gridLayout, crudFormFactory, grid) {
             @Override
             protected void initToolbar() {
-                Component reset = createReset();
-                if (reset != null) {
-                    crudLayout.addToolbarComponent(reset);
-                }
+                findAllButton = new Button(getTranslation("RefreshList"), VaadinIcon.REFRESH.create(),
+                        e -> findAllButtonClicked());
+                findAllButton.getElement().setAttribute("title", getTranslation("RefreshList"));
+                crudLayout.addToolbarComponent(findAllButton);
             }
 
             @Override
@@ -172,8 +184,6 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
             protected void updateButtons() {
             }
         };
-
-        defineFilters(crudGrid);
 
         crudGrid.setCrudListener(this);
         crudGrid.setClickRowToUpdate(true);
@@ -193,20 +203,10 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
      */
     @Override
     public FlexLayout createMenuArea() {
-        logger.debug("createTopBar");
-        // show back arrow but close menu
-        getAppLayout().setMenuVisible(true);
-        getAppLayout().closeDrawer();
-
         topBar = new FlexLayout();
 
         Button cardsButton = createCardsButton();
         Button startingListButton = createStartingListButton();
-
-        H3 title = new H3();
-        title.setText(getTopBarTitle());
-        title.add();
-        title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
 
         createTopBarGroupSelect();
 
@@ -218,11 +218,8 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
         topBar.getStyle().set("flex", "100 1");
-        topBar.removeAll();
         topBar.add(topBarMenu, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
-        topBar.setFlexGrow(0.2, title);
-//        topBar.setSpacing(true);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
         return topBar;
@@ -231,21 +228,22 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
     private Grid<Athlete> createRegistrationGrid() {
         Grid<Athlete> grid = new Grid<>(Athlete.class, false);
         grid.getThemeNames().add("row-stripes");
+        grid.getThemeNames().add("compact");
         grid.addColumn("lotNumber").setHeader(Translator.translate("Lot"));
         grid.addColumn("lastName").setHeader(Translator.translate("LastName"));
-        grid.addColumn("firstName").setHeader(Translator.translate("FirstName"));
-        grid.addColumn("team").setHeader(Translator.translate("Team"));
-        grid.addColumn("yearOfBirth").setHeader(Translator.translate("BirthDate"));
-        grid.addColumn("gender").setHeader(Translator.translate("Gender"));
-        grid.addColumn("ageGroup").setHeader(Translator.translate("AgeGroup"));
-        grid.addColumn("category").setHeader(Translator.translate("Category"));
+        grid.addColumn("firstName").setHeader(Translator.translate("FirstName")).setAutoWidth(true);
+        grid.addColumn("team").setHeader(Translator.translate("Team")).setAutoWidth(true);
+        grid.addColumn("yearOfBirth").setHeader(Translator.translate("BirthDate")).setAutoWidth(true);
+        grid.addColumn("gender").setHeader(Translator.translate("Gender")).setAutoWidth(true);
+        grid.addColumn("ageGroup").setHeader(Translator.translate("AgeGroup")).setAutoWidth(true);
+        grid.addColumn("category").setHeader(Translator.translate("Category")).setAutoWidth(true);
         grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
                 .setSortProperty("bodyWeight")
-                .setHeader(Translator.translate("BodyWeight"));
-        grid.addColumn("group").setHeader(Translator.translate("Group"));
-        grid.addColumn("eligibleCategories").setHeader(Translator.translate("Registration.EligibleCategories"));
-        grid.addColumn("entryTotal").setHeader(Translator.translate("EntryTotal"));
-        grid.addColumn("federationCodes").setHeader(Translator.translate("Registration.FederationCodes"));
+                .setHeader(Translator.translate("BodyWeight")).setAutoWidth(true);
+        grid.addColumn("group").setHeader(Translator.translate("Group")).setAutoWidth(true);
+        grid.addColumn("eligibleCategories").setHeader(Translator.translate("Registration.EligibleCategories")).setAutoWidth(true);
+        grid.addColumn("entryTotal").setHeader(Translator.translate("EntryTotal")).setAutoWidth(true);
+        grid.addColumn("federationCodes").setHeader(Translator.translate("Registration.FederationCodesShort")).setAutoWidth(true);
         return grid;
     }
 
@@ -307,7 +305,6 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
      */
     @Override
     protected void defineFilters(GridCrud<Athlete> crud) {
-
         getGroupFilter().setPlaceholder(Translator.translate("Group"));
         List<Group> groups = GroupRepository.findAll();
         groups.sort(new NaturalOrderComparator<Group>());
@@ -385,6 +382,16 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         crud.getCrudLayout().addFilterComponent(platformFilter);
         // logger.debug("setting platform filter {}", getPlatform());
         platformFilter.setValue(getPlatform());
+        
+        Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
+        clearFilters.addClickListener(event -> {
+            lastNameFilter.clear();
+            ageGroupFilter.clear();
+            ageDivisionFilter.clear();
+            platformFilter.clear();
+            genderFilter.clear();
+        });
+        crud.getCrudLayout().addFilterComponent(clearFilters);
     }
 
     private void doSwitchGroup(Group newCurrentGroup) {

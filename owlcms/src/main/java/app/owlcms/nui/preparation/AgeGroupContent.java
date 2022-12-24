@@ -310,8 +310,10 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         activeFilter.setAriaLabel(getTranslation("ActiveCategoriesOnly"));
         crud.getCrudLayout().addFilterComponent(activeFilter);
 
-        Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
+        Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
         clearFilters.addClickListener(event -> {
+            nameFilter.clear();
+            activeFilter.clear();
             ageDivisionFilter.clear();
         });
         crud.getCrudLayout().addFilterComponent(clearFilters);
