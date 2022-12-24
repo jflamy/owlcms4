@@ -526,7 +526,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     private int getNbJurors() {
-        return nbJurors;
+        return Competition.getCurrent().getJurySize();
     }
 
     private HorizontalLayout juryDecisionButtons() {
@@ -639,6 +639,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     private void setNbJurors(int nbJurors) {
         this.removeAll();
+        Competition.getCurrent().setJurySize(nbJurors);
         init(nbJurors);
     }
 

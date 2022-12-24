@@ -1,12 +1,18 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as small user interface improvements or technical changes.  Third level = bug fixes.
 
-- 37.0.0-alpha03: **New version after migration to Vaadin 23. For testing only**
+- 37.0.0-beta01: **New version after migration to Vaadin 23.**
+
+  All features from version 35 (which used Vaadin 14) appear to work.
+
   - 37.0 Enhancements
     - Migration to new version of the user interface framework
-  - 37.0 Fixes (synchronized with 36.0)
+    - beta01: On the preparation page, moved the pre-competition documents (Start List, Cards) to their own page to allow more meaningful filtering.
+  - 37.0 Fixes
+    - beta01: restored missing group selection dropdown for the group results page
+    - beta01: on the jury page,  the number of jury members is correctly updated and taken into account.
     - alpha03: Fix: Icons moved to documented location.
-    - Fix: referee reminder was broken for legacy implementation ([#599](https://github.com/jflamy/owlcms4/issues/599)). Referee number had been erroneously added to legacy MQTT message.
-    - Fix: Clock was not reset correctly for the next athlete after using explicit time (1 or 2 min) ([#601](https://github.com/jflamy/owlcms4/issues/601))
+    - alpha02: Fix: referee reminder was broken for legacy implementation ([#599](https://github.com/jflamy/owlcms4/issues/599)). Referee number had been erroneously added to legacy MQTT message.
+    - alpha02: Clock was not reset correctly for the next athlete after using explicit time (1 or 2 min) ([#601](https://github.com/jflamy/owlcms4/issues/601))
 
 
 ##### Highlights from recent stable releases
