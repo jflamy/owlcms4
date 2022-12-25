@@ -1,5 +1,7 @@
 package app.owlcms;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.LoadingIndicatorConfiguration;
 import com.vaadin.flow.component.page.Push;
@@ -7,8 +9,11 @@ import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
+import com.vaadin.flow.server.VaadinServletResponse;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
+
+import app.owlcms.init.OwlcmsSession;
 
 /**
  * Use the @PWA annotation make the application installable on phones, tablets
@@ -19,12 +24,22 @@ import com.vaadin.flow.theme.lumo.Lumo;
 @Push
 @Theme(themeClass=Lumo.class)
 public class AppShell implements AppShellConfigurator, VaadinServiceInitListener  {
+    
+    /**
+     * @see com.vaadin.flow.component.page.AppShellConfigurator#configurePage(com.vaadin.flow.server.AppShellSettings)
+     */
     @Override
     public void configurePage(AppShellSettings settings) {
+        HttpServletResponse response = VaadinServletResponse.getCurrent().getHttpServletResponse();
+        response.addHeader("Content-Language",  OwlcmsSession.getLocale().toString().replace("_", "*"));
+        settings.addInlineWithContents("<meta http-equiv='content-language' content='"+OwlcmsSession.getLocale().toString().replace("_", "-")+"'>",  null);
         settings.addLink("shortcut icon", "icons/owlcms.ico");
         settings.addFavIcon("icon", "icons/owlcms.png", "96x96");
     }
     
+    /**
+     * @see com.vaadin.flow.server.VaadinServiceInitListener#serviceInit(com.vaadin.flow.server.ServiceInitEvent)
+     */
     @Override
     public void serviceInit(ServiceInitEvent serviceInitEvent) {
         serviceInitEvent.getSource().addUIInitListener(uiInitEvent -> {
