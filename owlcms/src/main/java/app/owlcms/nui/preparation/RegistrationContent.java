@@ -24,15 +24,14 @@ import org.vaadin.crudui.form.impl.field.provider.CheckBoxGroupProvider;
 
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -350,7 +349,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 
         // change the URL to reflect group
         event.getUI().getPage().getHistory().replaceState(null,
-                new Location(getLocation().getPath(), new QueryParameters(params)));
+                new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 
     @Override
@@ -420,25 +419,27 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         
         grid.getThemeNames().add("row-stripes");
         grid.getThemeNames().add("compact");
-        grid.addColumn("lotNumber").setHeader(getTranslation("Lot")).setAutoWidth(true);
-        grid.addColumn("lastName").setHeader(getTranslation("LastName"));
+        grid.addColumn("lotNumber").setHeader(getTranslation("Lot")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+        grid.addColumn("lastName").setHeader(getTranslation("LastName")).setWidth("20ch");
         grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
         grid.addColumn("team").setHeader(getTranslation("Team")).setAutoWidth(true);
-        grid.addColumn("yearOfBirth").setHeader(getTranslation("BirthDate")).setAutoWidth(true);
-        grid.addColumn("gender").setHeader(getTranslation("Gender")).setAutoWidth(true);
-        grid.addColumn("ageGroup").setHeader(getTranslation("AgeGroup")).setAutoWidth(true);
-        grid.addColumn("category").setHeader(getTranslation("Category")).setAutoWidth(true);
+        grid.addColumn("yearOfBirth").setHeader(getTranslation("BirthDate")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+        grid.addColumn("gender").setHeader(getTranslation("Gender")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+        grid.addColumn("ageGroup").setHeader(getTranslation("AgeGroup")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+        grid.addColumn("category").setHeader(getTranslation("Category")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
         grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
                 .setSortProperty("bodyWeight")
-                .setHeader(getTranslation("BodyWeight")).setAutoWidth(true);
-        grid.addColumn("group").setHeader(getTranslation("Group")).setAutoWidth(true);
+                .setHeader(getTranslation("BodyWeight")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+        grid.addColumn("group").setHeader(getTranslation("Group")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
         grid.addColumn("eligibleCategories").setHeader(getTranslation("Registration.EligibleCategories")).setAutoWidth(true);
-        grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal")).setAutoWidth(true);
+        grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
         grid.addColumn("federationCodes").setHeader(getTranslation("Registration.FederationCodesShort")).setAutoWidth(true);
+        
         OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
 
             @Override
             public void hideForm() {
+                // registration should be the same as weigh-in (set an attribute to prevent interference with validations)
                 super.hideForm();
                 logger.trace("clearing {}", OwlcmsSession.getAttribute("weighIn"));
                 OwlcmsSession.setAttribute("weighIn", null);
@@ -741,7 +742,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         } else {
             params.remove("group");
         }
-        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
+        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 
     private Group getCurrentGroup() {

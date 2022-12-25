@@ -6,10 +6,12 @@
 
   - 37.0 Enhancements
     - Migration to new version of the user interface framework
-    - beta02: WeighIn and Registration menu bar now use the dropdown with group descriptions.
+    - beta02: Weigh In and Registration menu bar now use the dropdown with group descriptions.
     - beta01: On the preparation page, moved the pre-competition documents (Start List, Cards) to their own page to allow more meaningful filtering.
     
   - 37.0 Fixes
+
+    - beta02: clean-up of URL query parameters used to store group and other filters.
     - beta01: restored missing group selection dropdown for the group results page
     - beta01: on the jury page,  the number of jury members is correctly updated and taken into account.
     - alpha03: Fix: Icons moved to documented location.

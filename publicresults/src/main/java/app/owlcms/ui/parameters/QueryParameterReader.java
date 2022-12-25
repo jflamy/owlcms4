@@ -24,6 +24,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -114,7 +115,7 @@ public interface QueryParameterReader extends HasUrlParameter<String> {
         HashMap<String, List<String>> params = computeParams(location, parametersMap);
         // change the URL to reflect retrieved parameters
         event.getUI().getPage().getHistory().replaceState(null,
-                new Location(location.getPath(), new QueryParameters(params)));
+                new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 
 }

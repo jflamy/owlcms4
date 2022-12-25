@@ -307,7 +307,7 @@ public class TeamResultsContent extends VerticalLayout
 
         // change the URL to reflect group
         event.getUI().getPage().getHistory().replaceState(null,
-                new Location(getLocation().getPath(), new QueryParameters(params)));
+                new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 
     @Override
@@ -324,7 +324,7 @@ public class TeamResultsContent extends VerticalLayout
         } else {
             params.remove("group");
         }
-        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
+        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 
     protected HorizontalLayout announcerButtons(FlexLayout topBar2) {

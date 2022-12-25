@@ -147,7 +147,7 @@ public interface FOPParameters extends HasUrlParameter<String> {
 
         // change the URL to reflect the updated parameters
         event.getUI().getPage().getHistory().replaceState(null,
-                new Location(location.getPath(), new QueryParameters(params)));
+                new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 
     /**

@@ -58,6 +58,7 @@ import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.ResourceWalker;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -611,7 +612,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         updateParam(parametersMap, parameter, mode);
         FieldOfPlay fop = OwlcmsSession.getFop();
         updateParam(parametersMap, "fop", fop != null ? fop.getName() : null);
-        Location location2 = new Location(location.getPath(), new QueryParameters(parametersMap));
+        Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(parametersMap)));
         ui.getPage().getHistory().replaceState(null, location2);
         setLocation(location2);
     }

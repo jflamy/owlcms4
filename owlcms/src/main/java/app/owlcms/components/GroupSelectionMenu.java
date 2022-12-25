@@ -40,10 +40,13 @@ public class GroupSelectionMenu extends MenuBar {
     public GroupSelectionMenu(List<Group> groups, Group curGroup, FieldOfPlay fop2,
             Consumer<Group> whenChecked, Consumer<Group> whenUnselected, Icon unselectedIcon, String unselectedLabel) {
         MenuItem item;
+     
         if (curGroup != null) {
+            logger.warn(curGroup.toString());
             item = this.addItem(curGroup.getName() + "\u2003\u25bd");
             this.addThemeVariants(MenuBarVariant.LUMO_SMALL);
         } else {
+            logger.warn("null group");
             item = this.addItem(Translator.translate("Group") + "\u2003\u25bc");
             this.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY);
         }
@@ -60,6 +63,8 @@ public class GroupSelectionMenu extends MenuBar {
                         e.getSource().setChecked(true);
                         currentlyChecked[0] = e.getSource();
                         item.setText(g.getName() + "\u2003\u25bd");
+                        logger.warn("selected {}",g.getName());
+                        this.removeThemeVariants(MenuBarVariant.LUMO_PRIMARY);
                     });
             subItem.setCheckable(true);
             subItem.setChecked(g.compareTo(curGroup) == 0);
@@ -92,6 +97,7 @@ public class GroupSelectionMenu extends MenuBar {
                     }
                     whenUnselected.accept(null);
                     item.setText(Translator.translate("Group") + "\u2003\u25bd");
+                    this.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY);
                 });
         item3.setCheckable(false);
         item.setEnabled(true);

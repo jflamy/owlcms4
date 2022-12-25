@@ -26,6 +26,7 @@ import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -62,7 +63,6 @@ import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCardsDocs;
 import app.owlcms.spreadsheet.JXLSStartingListDocs;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -229,21 +229,22 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         Grid<Athlete> grid = new Grid<>(Athlete.class, false);
         grid.getThemeNames().add("row-stripes");
         grid.getThemeNames().add("compact");
-        grid.addColumn("lotNumber").setHeader(Translator.translate("Lot"));
-        grid.addColumn("lastName").setHeader(Translator.translate("LastName"));
-        grid.addColumn("firstName").setHeader(Translator.translate("FirstName")).setAutoWidth(true);
-        grid.addColumn("team").setHeader(Translator.translate("Team")).setAutoWidth(true);
-        grid.addColumn("yearOfBirth").setHeader(Translator.translate("BirthDate")).setAutoWidth(true);
-        grid.addColumn("gender").setHeader(Translator.translate("Gender")).setAutoWidth(true);
-        grid.addColumn("ageGroup").setHeader(Translator.translate("AgeGroup")).setAutoWidth(true);
-        grid.addColumn("category").setHeader(Translator.translate("Category")).setAutoWidth(true);
+        grid.addColumn("lotNumber").setHeader(getTranslation("Lot")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+        grid.addColumn("lastName").setHeader(getTranslation("LastName")).setWidth("20ch");
+        grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
+        grid.addColumn("team").setHeader(getTranslation("Team")).setAutoWidth(true);
+        grid.addColumn("yearOfBirth").setHeader(getTranslation("BirthDate")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+        grid.addColumn("gender").setHeader(getTranslation("Gender")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+        grid.addColumn("ageGroup").setHeader(getTranslation("AgeGroup")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+        grid.addColumn("category").setHeader(getTranslation("Category")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
         grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
                 .setSortProperty("bodyWeight")
-                .setHeader(Translator.translate("BodyWeight")).setAutoWidth(true);
-        grid.addColumn("group").setHeader(Translator.translate("Group")).setAutoWidth(true);
-        grid.addColumn("eligibleCategories").setHeader(Translator.translate("Registration.EligibleCategories")).setAutoWidth(true);
-        grid.addColumn("entryTotal").setHeader(Translator.translate("EntryTotal")).setAutoWidth(true);
-        grid.addColumn("federationCodes").setHeader(Translator.translate("Registration.FederationCodesShort")).setAutoWidth(true);
+                .setHeader(getTranslation("BodyWeight")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+        grid.addColumn("group").setHeader(getTranslation("Group")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+        grid.addColumn("eligibleCategories").setHeader(getTranslation("Registration.EligibleCategories")).setAutoWidth(true);
+        grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
+        grid.addColumn("federationCodes").setHeader(getTranslation("Registration.FederationCodesShort")).setAutoWidth(true);
+        
         return grid;
     }
 
@@ -656,7 +657,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         getGroupFilter().setValue(GroupRepository.findByName(groupName));
 
         event.getUI().getPage().getHistory().replaceState(null,
-                new Location(location.getPath(), new QueryParameters(params)));
+                new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 
     private void setPlatform(Platform platformValue) {
@@ -666,14 +667,15 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
     @Override
     public void updateURLLocation(UI ui, Location location, Group newGroup) {
         // change the URL to reflect fop group
-        HashMap<String, List<String>> params = new HashMap<>(
+        Map<String, List<String>> params = new HashMap<>(
                 location.getQueryParameters().getParameters());
         if (!isIgnoreGroupFromURL() && newGroup != null) {
             params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
         } else {
             params.remove("group");
         }
-        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
+        params = URLUtils.cleanParams(params);
+        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 
     protected void updateURLLocations() {

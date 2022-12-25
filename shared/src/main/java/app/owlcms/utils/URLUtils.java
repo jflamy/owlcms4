@@ -11,6 +11,10 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -142,6 +146,10 @@ public class URLUtils {
         } catch (UnsupportedEncodingException e) {
         }
         return name;
+    }
+
+    public static Map<String, List<String>> cleanParams(Map<String, List<String>> params) {
+        return params.entrySet().stream().filter(e -> !e.getKey().isBlank()).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     }
 
 }

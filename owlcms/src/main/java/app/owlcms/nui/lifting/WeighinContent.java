@@ -315,7 +315,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
         // change the URL to reflect group
         event.getUI().getPage().getHistory().replaceState(null,
-                new Location(getLocation().getPath(), new QueryParameters(params)));
+                new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 
     @Override
@@ -731,7 +731,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         } else {
             params.remove("group");
         }
-        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
+        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 
     private Group getCurrentGroup() {

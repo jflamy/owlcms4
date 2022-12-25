@@ -111,7 +111,7 @@ public class MainView extends VerticalLayout {
                         String url = URLUtils.getRelativeURLFromTargetClass(ResultsPR.class);
                         HashMap<String, List<String>> params = new HashMap<>();
                         params.put("fop", Arrays.asList(fopName));
-                        QueryParameters parameters = new QueryParameters(params);
+                        QueryParameters parameters = new QueryParameters(URLUtils.cleanParams(params));
                         UI.getCurrent().navigate(url, parameters);
                     });
             add(fopButton);

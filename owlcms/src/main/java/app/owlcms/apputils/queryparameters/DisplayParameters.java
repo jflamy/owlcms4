@@ -33,6 +33,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.URLUtils;
 
 /**
  * @author owlcms
@@ -149,7 +150,7 @@ public interface DisplayParameters extends ContentParameters {
         HashMap<String, List<String>> params = readParams(location, parametersMap);
 
         event.getUI().getPage().getHistory().replaceState(null,
-                new Location(location.getPath(), new QueryParameters(params)));
+                new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 
     public void addDialogContent(Component target, VerticalLayout vl);

@@ -24,6 +24,8 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
+import app.owlcms.utils.URLUtils;
+
 /**
  * @author owlcms
  *
@@ -138,7 +140,7 @@ public interface DarkModeParameters extends QueryParameterReader {
         } else {
             params.remove(DARK);
         }
-        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
+        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 
 }

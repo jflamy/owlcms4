@@ -209,7 +209,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 
         // change the URL to reflect group
         event.getUI().getPage().getHistory().replaceState(null,
-                new Location(getLocation().getPath(), new QueryParameters(params)));
+                new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 
     @Override
