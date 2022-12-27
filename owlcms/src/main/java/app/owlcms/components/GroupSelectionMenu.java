@@ -42,11 +42,11 @@ public class GroupSelectionMenu extends MenuBar {
         MenuItem item;
      
         if (curGroup != null) {
-            logger.warn(curGroup.toString());
+            //logger.debug(curGroup.toString());
             item = this.addItem(curGroup.getName() + "\u2003\u25bd");
             this.addThemeVariants(MenuBarVariant.LUMO_SMALL);
         } else {
-            logger.warn("null group");
+            //logger.debug("null group");
             item = this.addItem(Translator.translate("Group") + "\u2003\u25bc");
             this.addThemeVariants(MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_PRIMARY);
         }
