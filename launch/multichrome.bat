@@ -1,4 +1,4 @@
-set SITE=http://localhost:8081
+set SITE=http://localhost:8080
 set PLATFORM=A
 
 set CHROME=C:\Program Files\Google\Chrome\Application\chrome.exe
