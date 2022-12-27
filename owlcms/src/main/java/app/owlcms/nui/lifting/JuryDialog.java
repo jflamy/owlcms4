@@ -27,7 +27,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
-import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -48,6 +47,7 @@ public class JuryDialog extends EnhancedDialog {
     private Object origin;
     private Athlete reviewedAthlete;
     private Integer reviewedLift;
+    
     {
         logger.setLevel(Level.INFO);
     }
@@ -148,6 +148,10 @@ public class JuryDialog extends EnhancedDialog {
             });
         });
         styleRefereeButton(three, false);
+        Shortcuts.addShortcutListener(this, () -> summonReferee(1), Key.KEY_H);
+        Shortcuts.addShortcutListener(this, () -> summonReferee(2), Key.KEY_I);
+        Shortcuts.addShortcutListener(this, () -> summonReferee(3), Key.KEY_J);
+        Shortcuts.addShortcutListener(this, () -> summonReferee(0), Key.KEY_K);
 
         Button all = new Button(Translator.translate("JuryDialog.AllReferees"), (e) -> {
 //            OwlcmsSession.withFop(fop -> {
@@ -309,11 +313,6 @@ public class JuryDialog extends EnhancedDialog {
 
     private void doSummonReferees(Object origin2) {
         // jury calls referees
-//        OwlcmsSession.withFop(fop -> {
-//            // stop competition
-//            fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
-//            fop.fopEventPost(new FOPEvent.SummonReferee(origin2, 0));
-//        });
         endBreakText = Translator.translate("JuryDialog.ResumeCompetition");
         this.addAttachListener((e) -> {
             this.setHeader(Translator.translate("JuryDialog.CALL_REFEREES"));
@@ -372,14 +371,14 @@ public class JuryDialog extends EnhancedDialog {
     }
 
     private void summonReferee(int i) {
-        // stop competition
+        // stop competition and summon referee
         FieldOfPlay fop = OwlcmsSession.getFop();
         if (fop == null) {
             return;
         }
-        if (fop.getState() != FOPState.BREAK) {
-            fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
-        }
+//        if (fop.getState() != FOPState.BREAK) {
+//            fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
+//        }
         fop.fopEventPost(new FOPEvent.SummonReferee(this.origin, i));
 
     }

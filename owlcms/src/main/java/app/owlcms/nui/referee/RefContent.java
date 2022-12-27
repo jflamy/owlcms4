@@ -221,7 +221,7 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
 
     @Subscribe
     public void slaveSummonRef(UIEvent.SummonRef e) {
-        if (getRef13ix() == null || e.ref != getRef13ix()) {
+        if (getRef13ix() == null || (e.ref != 0 && e.ref != getRef13ix())) {
             return;
         }
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {

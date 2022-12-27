@@ -594,7 +594,17 @@ public class FieldOfPlay {
                 logger.info("{}Deferred break", getLoggingName());
             }
             return;
-        } else if (e instanceof StartLifting) {
+        } 
+        else if (e instanceof SummonReferee) {
+            // exception: wait until a decision has been registered to process jury deliberation.
+            if (state != DECISION_VISIBLE && state != DOWN_SIGNAL_VISIBLE) {
+                transitionToBreak(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, null , null, true, e.getOrigin()));
+                doSummonReferee((SummonReferee) e);
+                return;
+            }
+            // do not return; error message will be shown if state does not allow summon.
+        } 
+        else if (e instanceof StartLifting) {
             if (state == BREAK && (breakType == BreakType.JURY || breakType == BreakType.TECHNICAL
                     || breakType == BreakType.MARSHAL)) {
                 // if group under way, this will try to just keep going.

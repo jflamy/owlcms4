@@ -43,11 +43,14 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
+import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import ch.qos.logback.classic.Level;
@@ -283,15 +286,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             });
         });
     }
-
-//    /**
-//     * @see app.owlcms.nui.shared.AthleteGridContent#breakButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
-//     */
-//    @Override
-//    protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
-//        // moved down to the jury section
-//        return new HorizontalLayout(); // juryDeliberationButtons();
-//    }
 
     /**
      * @see app.owlcms.nui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
@@ -585,9 +579,15 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private void openJuryDialog(JuryDeliberationEventType deliberation) {
         long now = System.currentTimeMillis();
         if (now - lastOpen > 100 && (juryDialog == null || !juryDialog.isOpened())) {
-            juryDialog = new JuryDialog(JuryContent.this, getAthleteUnderReview(), deliberation, summonEnabled);
-            juryDialog.open();
-            lastOpen = now;
+            OwlcmsSession.withFop(fop -> {
+                if (fop.getState() != FOPState.BREAK) {
+                    fop.fopEventPost(
+                            new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
+                }
+                juryDialog = new JuryDialog(JuryContent.this, getAthleteUnderReview(), deliberation, summonEnabled);
+                juryDialog.open();
+                lastOpen = now;
+            });
         }
     }
 
@@ -618,6 +618,11 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             registrations.add(reg);
             reg = UI.getCurrent().addShortcutListener(
                     () -> openJuryDialog(JuryDeliberationEventType.TECHNICAL_PAUSE), Key.KEY_T);
+            reg = UI.getCurrent().addShortcutListener(
+                    () -> {
+                        openJuryDialog(JuryDeliberationEventType.TECHNICAL_PAUSE);
+                        summonReferee(4);
+                    }, Key.KEY_C);
             registrations.add(reg);
             if (summonEnabled) {
                 reg = UI.getCurrent().addShortcutListener(() -> summonReferee(1), Key.KEY_H);
@@ -645,7 +650,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private void summonReferee(int i) {
         long now = System.currentTimeMillis();
         if (now - lastOpen > 100) {
-            // start a break
+            
             openJuryDialog(JuryDeliberationEventType.CALL_REFEREES);
             lastOpen = now;
 

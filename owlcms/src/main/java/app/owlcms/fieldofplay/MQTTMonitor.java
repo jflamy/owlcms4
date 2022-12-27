@@ -464,6 +464,7 @@ public class MQTTMonitor {
             if (ref > 0 && ref <= 4) {
                 doPublishMQTTSummon(ref);
             } else if (ref == 0) {
+                // 0 = all referees
                 for (int i = 1; i <= 3; i++) {
                     doPublishMQTTSummon(i);
                 }
