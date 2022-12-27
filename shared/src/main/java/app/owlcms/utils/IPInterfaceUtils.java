@@ -17,6 +17,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -90,6 +91,40 @@ public class IPInterfaceUtils {
                 }
             }
         }
+    }
+    
+    public List<String> getLocalAdresses() {
+        String ip;
+        ArrayList<String> localAdresses = new ArrayList<>();
+        Enumeration<NetworkInterface> interfaces;
+        try {
+            interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface iface = interfaces.nextElement();
+                // filters out 127.0.0.1 and inactive interfaces
+                if (// iface.isLoopback() ||
+                !iface.isUp()) {
+                    continue;
+                }
+
+                String displayName = iface.getDisplayName();
+                String ifaceDisplay = displayName.toLowerCase();
+
+                // filter out interfaces to virtual machines
+                if (!virtual(ifaceDisplay)) {
+                    Enumeration<InetAddress> addresses = iface.getInetAddresses();
+                    while (addresses.hasMoreElements()) {
+                        InetAddress addr = addresses.nextElement();
+                        ip = addr.getHostAddress();
+                        if (addr instanceof Inet4Address) {
+                            localAdresses.add(ip);
+                        }
+                    }
+                }
+            }
+        } catch (SocketException e) {
+        }
+        return localAdresses;
     }
 
     public void checkRequest() {

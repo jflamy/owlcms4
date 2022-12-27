@@ -54,7 +54,7 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "nlifting/timekeeper", layout = OwlcmsLayout.class)
+@Route(value = "lifting/timekeeper", layout = OwlcmsLayout.class)
 public class TimekeeperContent extends AthleteGridContent implements HasDynamicTitle {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(TimekeeperContent.class);

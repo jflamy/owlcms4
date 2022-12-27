@@ -88,7 +88,7 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-@Route(value = "npreparation/weighin", layout = OwlcmsLayout.class)
+@Route(value = "preparation/weighin", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/shared-styles.css")
 public class WeighinContent extends VerticalLayout implements CrudListener<Athlete>, OwlcmsContent, FOPParameters {
 

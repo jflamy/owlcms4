@@ -51,7 +51,7 @@ import ch.qos.logback.classic.Logger;
  * The Class PreparationNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "npreparation", layout = OwlcmsLayout.class)
+@Route(value = "preparation", layout = OwlcmsLayout.class)
 public class PreparationNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(PreparationNavigationContent.class);

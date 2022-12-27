@@ -37,7 +37,7 @@ import ch.qos.logback.classic.Logger;
  * Class PreparationNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "npreparation/config", layout = OwlcmsLayout.class)
+@Route(value = "preparation/config", layout = OwlcmsLayout.class)
 public class ConfigContent extends Composite<VerticalLayout>
         implements CrudLayout, OwlcmsContent, CrudListener<Config> {
 

@@ -61,7 +61,7 @@ import ch.qos.logback.classic.Logger;
  * Defines the toolbar and the table for editing data on categories.
  */
 @SuppressWarnings("serial")
-@Route(value = "npreparation/agegroup", layout = OwlcmsLayout.class)
+@Route(value = "preparation/agegroup", layout = OwlcmsLayout.class)
 public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeGroup>, OwlcmsContent, RequireLogin {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupContent.class);

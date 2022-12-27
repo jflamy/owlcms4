@@ -34,7 +34,7 @@ import ch.qos.logback.classic.Logger;
  * The Class LiftingNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "nlifting", layout = OwlcmsLayout.class)
+@Route(value = "lifting", layout = OwlcmsLayout.class)
 public class LiftingNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(LiftingNavigationContent.class);

@@ -75,7 +75,7 @@ import ch.qos.logback.classic.Logger;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-@Route(value = "nresults/finalpackage", layout = OwlcmsLayout.class)
+@Route(value = "results/finalpackage", layout = OwlcmsLayout.class)
 public class PackageContent extends AthleteGridContent implements HasDynamicTitle {
 
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");

@@ -43,7 +43,7 @@ import ch.qos.logback.classic.Logger;
  * Defines the toolbar and the table for editing data on categories.
  */
 @SuppressWarnings("serial")
-@Route(value = "npreparation/platforms", layout = OwlcmsLayout.class)
+@Route(value = "preparation/platforms", layout = OwlcmsLayout.class)
 public class PlatformContent extends VerticalLayout implements CrudListener<Platform>, OwlcmsContent {
 
     final static Logger logger = (Logger) LoggerFactory.getLogger(PlatformContent.class);

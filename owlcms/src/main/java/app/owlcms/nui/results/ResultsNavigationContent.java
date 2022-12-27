@@ -33,7 +33,7 @@ import ch.qos.logback.classic.Logger;
  * The Class ResultsNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "nresults", layout = OwlcmsLayout.class)
+@Route(value = "results", layout = OwlcmsLayout.class)
 public class ResultsNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsNavigationContent.class);

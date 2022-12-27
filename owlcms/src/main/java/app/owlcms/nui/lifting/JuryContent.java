@@ -57,7 +57,7 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "nlifting/jury", layout = OwlcmsLayout.class)
+@Route(value = "lifting/jury", layout = OwlcmsLayout.class)
 public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(JuryContent.class);

@@ -12,7 +12,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 @Route(value = DisplayLoginView.LOGIN, layout = OwlcmsLayout.class)
 public class DisplayLoginView extends LoginView {
 
-    public static final String LOGIN = "ndisplaylogin";
+    public static final String LOGIN = "displaylogin";
 
     @Override
     protected boolean checkAuthenticated(String value) {

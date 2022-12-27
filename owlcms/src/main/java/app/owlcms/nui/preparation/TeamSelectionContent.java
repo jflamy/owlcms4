@@ -72,7 +72,7 @@ import ch.qos.logback.classic.Logger;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-@Route(value = "npreparation/teams", layout = OwlcmsLayout.class)
+@Route(value = "preparation/teams", layout = OwlcmsLayout.class)
 public class TeamSelectionContent extends VerticalLayout
         implements CrudListener<Participation>, OwlcmsContent, DisplayParameters {
 

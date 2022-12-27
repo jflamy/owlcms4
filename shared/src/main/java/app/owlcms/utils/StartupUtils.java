@@ -15,7 +15,9 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.Properties;
 
 import org.slf4j.LoggerFactory;
@@ -183,8 +185,7 @@ public class StartupUtils {
                 logger./**/warn("public demo, not starting browser");
                 return;
             }
-            InetAddress localMachine = InetAddress.getLocalHost();
-            String hostName = localMachine.getHostName();
+            String hostName = fixBrowserHostname(); 
             Desktop desktop = null;
             if (Desktop.isDesktopSupported()) {
                 desktop = Desktop.getDesktop();
@@ -197,6 +198,31 @@ public class StartupUtils {
         } catch (Throwable t) {
             logger./**/warn("Cannot start browser: {}", t.getCause() != null ? t.getCause() : t.getMessage());
         }
+    }
+
+    /**
+     * In development mode when the browser is opened on the local machine, it appears that
+     * the Vite server cannot be reached unless the address is given as "localhost".
+     * (Observed on Windows 11 with firewalls disabled, with Vaadin 23.3.2).
+     * 
+     * If the IP address returned for the current machine name is one of the current machine's interfaces, we
+     * force "localhost" as the name to be used in the browser.
+     * 
+     * @return "localhost" if the address is local to the dev machine
+     * @throws UnknownHostException
+     */
+    private static String fixBrowserHostname() throws UnknownHostException {
+        InetAddress localMachine = InetAddress.getLocalHost();
+        String ipAddress = localMachine.getHostAddress();
+        String hostName;
+        List<String> localAdresses = new IPInterfaceUtils().getLocalAdresses();
+        //logger.debug("addresses {} {}", ipAddress, localAdresses);
+        if (localAdresses.contains(ipAddress)) {
+            hostName = "localhost";
+        } else {
+            hostName = localMachine.getHostName();
+        }
+        return hostName;
     }
 
     private static void setVersion(String v) {

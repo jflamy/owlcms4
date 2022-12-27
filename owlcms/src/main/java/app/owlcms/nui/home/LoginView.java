@@ -47,7 +47,7 @@ import ch.qos.logback.classic.Logger;
 @Route(value = LoginView.LOGIN, layout = OwlcmsLayout.class)
 public class LoginView extends Composite<VerticalLayout> implements OwlcmsLayoutAware, ContentWrapping {
 
-    public static final String LOGIN = "nlogin";
+    public static final String LOGIN = "login";
 
     static Logger logger = (Logger) LoggerFactory.getLogger(LoginView.class);
 

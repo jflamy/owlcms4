@@ -90,7 +90,7 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-@Route(value = "npreparation/athletes", layout = OwlcmsLayout.class)
+@Route(value = "preparation/athletes", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/shared-styles.css")
 public class RegistrationContent extends VerticalLayout implements CrudListener<Athlete>, OwlcmsContent, FOPParameters {
 

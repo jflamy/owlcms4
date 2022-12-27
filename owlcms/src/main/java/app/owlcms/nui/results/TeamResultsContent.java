@@ -72,7 +72,7 @@ import ch.qos.logback.classic.Logger;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-@Route(value = "nresults/teamresults", layout = OwlcmsLayout.class)
+@Route(value = "results/teamresults", layout = OwlcmsLayout.class)
 public class TeamResultsContent extends VerticalLayout
         implements OwlcmsContent, RequireLogin, IAthleteEditing {
 

@@ -51,7 +51,7 @@ import ch.qos.logback.classic.Logger;
  * Technical Controller / Plates loading information.
  */
 @SuppressWarnings("serial")
-@Route(value = "nlifting/tc", layout = OwlcmsLayout.class)
+@Route(value = "lifting/tc", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/plates.css")
 public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 

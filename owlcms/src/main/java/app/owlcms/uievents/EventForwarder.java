@@ -387,7 +387,7 @@ public class EventForwarder implements BreakDisplay {
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
         uiLog(e);
         Athlete a = e.getAthlete();
-        computeCurrentGroup(e.getAthlete().getGroup());
+        computeCurrentGroup(e.getAthlete() != null ? e.getAthlete().getGroup() : null);
         doUpdate(a, e);
         pushUpdate();
     }

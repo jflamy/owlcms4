@@ -74,7 +74,7 @@ import ch.qos.logback.classic.Logger;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-@Route(value = "npreparation/docs", layout = OwlcmsLayout.class)
+@Route(value = "preparation/docs", layout = OwlcmsLayout.class)
 public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 
     public static final String PRECOMP_DOCS_TITLE = "Preparation.PrecompDocsTitle";

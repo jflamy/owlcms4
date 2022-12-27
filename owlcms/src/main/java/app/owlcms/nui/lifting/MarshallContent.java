@@ -38,7 +38,7 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "nlifting/marshall", layout = OwlcmsLayout.class)
+@Route(value = "lifting/marshall", layout = OwlcmsLayout.class)
 public class MarshallContent extends AthleteGridContent implements HasDynamicTitle {
 
     // @SuppressWarnings("unused")

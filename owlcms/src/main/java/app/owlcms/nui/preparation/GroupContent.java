@@ -43,7 +43,7 @@ import ch.qos.logback.classic.Logger;
  * Defines the toolbar and the table for editing data on groups.
  */
 @SuppressWarnings("serial")
-@Route(value = "npreparation/groups", layout = OwlcmsLayout.class)
+@Route(value = "preparation/groups", layout = OwlcmsLayout.class)
 public class GroupContent extends VerticalLayout implements CrudListener<Group>, OwlcmsContent {
 
     final static Logger logger = (Logger) LoggerFactory.getLogger(GroupContent.class);

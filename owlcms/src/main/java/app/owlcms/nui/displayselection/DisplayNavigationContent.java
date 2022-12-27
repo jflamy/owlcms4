@@ -49,7 +49,7 @@ import ch.qos.logback.classic.Logger;
  * The Class DisplayNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "ndisplays", layout = OwlcmsLayout.class)
+@Route(value = "displays", layout = OwlcmsLayout.class)
 public class DisplayNavigationContent extends BaseNavigationContent
         implements NavigationPage, HasDynamicTitle, RequireDisplayLogin {
 

@@ -60,7 +60,7 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings({ "serial", "deprecation" })
-@Route(value = "nref")
+@Route(value = "ref")
 @CssImport(value = "./styles/shared-styles.css")
 
 public class RefContent extends VerticalLayout implements FOPParameters, SafeEventBusRegistration,
