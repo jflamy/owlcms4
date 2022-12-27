@@ -327,6 +327,9 @@ public class AthleteRepository {
      * @return the athlete
      */
     public static Athlete save(Athlete athlete) {
+        if (athlete == null) {
+            return athlete;
+        }
         return JPAService.runInTransaction((em) -> {
             Competition.getCurrent().setRankingsInvalid(true);
             Athlete merged = em.merge(athlete);
