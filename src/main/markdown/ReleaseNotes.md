@@ -1,24 +1,19 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as small user interface improvements or technical changes.  Third level = bug fixes.
 
-- 37.0.0-beta01: **New version after migration to Vaadin 23.**
+- 37.0.0-beta03: **New version after migration to Vaadin 23.**
 
   All features from version 35 (which used Vaadin 14) appear to work.
 
   - 37.0 Enhancements
     - Migration to new version of the user interface framework
-    - beta02: Weigh In and Registration menu bar now use the dropdown with group descriptions.
-    - beta01: On the preparation page, moved the pre-competition documents (Start List, Cards) to their own page to allow more meaningful filtering.
-    
+    - On the preparation page, moved the pre-competition documents (Start List, Cards) to a separate page with more appropriate filtering.
   - 37.0 Fixes
-    - beta03: the page names are now the same as in version 35 (the leading "n" has been removed)
+    - beta03: made the referee summoning keyboard shortcuts work again on the jury page ([#603](https://github.com/jflamy/owlcms4/issues/603)); also fixed phone/tablet refereeing to obey "summon all" correctly
+    - beta03: the web page names are now the same as in version 35 (the leading "n" has been removed)
+    - beta03: checked that all page sizes in the final package and pre-competition documents are correct ([#605](https://github.com/jflamy/owlcms4/issues/605))
     - beta03: the current language is now indicated correctly in the html response ([#604](https://github.com/jflamy/owlcms4/issues/604))
-    - beta02: clean-up of URL query parameters used to store group and other filters.
-    - beta01: restored missing group selection dropdown for the group results page
-    - beta01: on the jury page,  the number of jury members is correctly updated and taken into account.
-    - alpha03: Fix: Icons moved to documented location.
-    - alpha02: Fix: referee reminder was broken for legacy implementation ([#599](https://github.com/jflamy/owlcms4/issues/599)). Referee number had been erroneously added to legacy MQTT message.
-    - alpha02: Clock was not reset correctly for the next athlete after using explicit time (1 or 2 min) ([#601](https://github.com/jflamy/owlcms4/issues/601))
-
+    - beta03: fixed wrong column heading translation string in Weigh-In summary template
+    - beta03: small user interface tweaks.
 
 ##### Highlights from recent stable releases
 
