@@ -27,6 +27,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -154,13 +155,6 @@ public class JuryDialog extends EnhancedDialog {
         Shortcuts.addShortcutListener(this, () -> summonReferee(0), Key.KEY_K);
 
         Button all = new Button(Translator.translate("JuryDialog.AllReferees"), (e) -> {
-//            OwlcmsSession.withFop(fop -> {
-//                postJurySummonNotification(fop, this);
-//                // i = 0 means call all refs.
-//                for (int j = 1; j <= 3; j++) {
-//                    fop.fopEventPost(new FOPEvent.SummonReferee(this.origin, j));
-//                }
-//            });
             OwlcmsSession.withFop(fop -> {
                 this.summonReferee(0);
             });
@@ -209,7 +203,10 @@ public class JuryDialog extends EnhancedDialog {
         if (fop == null) {
             return;
         }
-        fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
+        if (!(fop.getState() != FOPState.BREAK && fop.getBreakType() == BreakType.JURY)) {
+            // not already in a jury break, force one.
+            fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
+        }
 
         Button goodLift = new Button(IronIcons.DONE.create(),
                 (e) -> doGoodLift(athleteUnderReview, OwlcmsSession.getFop()));

@@ -595,7 +595,7 @@ public class FieldOfPlay {
             }
             return;
         } else if (e instanceof SummonReferee) {
-            // exception: wait until a decision has been registered to process jury deliberation.
+            // Summoning a referee must trigger a break if not already done
             if (state != DECISION_VISIBLE && state != DOWN_SIGNAL_VISIBLE) {
                 transitionToBreak(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, null, null, true,
                         e.getOrigin()));
