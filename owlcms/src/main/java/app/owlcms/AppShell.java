@@ -77,6 +77,5 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
     @Override
     public void modifyIndexHtmlResponse(IndexHtmlResponse indexHtmlResponse) {
         indexHtmlResponse.getDocument().getElementsByTag("html").attr("lang", getCurrentUserLanguage());
-        System.err.println("modified document "+ indexHtmlResponse.getDocument().getElementsByTag("html"));
     }
 }
