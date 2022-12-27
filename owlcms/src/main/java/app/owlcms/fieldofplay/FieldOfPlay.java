@@ -594,17 +594,16 @@ public class FieldOfPlay {
                 logger.info("{}Deferred break", getLoggingName());
             }
             return;
-        } 
-        else if (e instanceof SummonReferee) {
+        } else if (e instanceof SummonReferee) {
             // exception: wait until a decision has been registered to process jury deliberation.
             if (state != DECISION_VISIBLE && state != DOWN_SIGNAL_VISIBLE) {
-                transitionToBreak(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, null , null, true, e.getOrigin()));
+                transitionToBreak(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, null, null, true,
+                        e.getOrigin()));
                 doSummonReferee((SummonReferee) e);
                 return;
             }
             // do not return; error message will be shown if state does not allow summon.
-        } 
-        else if (e instanceof StartLifting) {
+        } else if (e instanceof StartLifting) {
             if (state == BREAK && (breakType == BreakType.JURY || breakType == BreakType.TECHNICAL
                     || breakType == BreakType.MARSHAL)) {
                 // if group under way, this will try to just keep going.
@@ -2105,14 +2104,20 @@ public class FieldOfPlay {
 
         if (nbWhite >= 2) {
             setGoodLift(true);
-            this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
-            getCurAthlete().successfulLift();
+            if (getCurAthlete() != null) {
+                this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
+                getCurAthlete().successfulLift();
+            }
         } else {
             setGoodLift(false);
-            this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
-            getCurAthlete().failedLift();
+            if (getCurAthlete() != null) {
+                this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
+                getCurAthlete().failedLift();
+            }
         }
-        getCurAthlete().resetForcedAsCurrent();
+        if (getCurAthlete() != null) {
+            getCurAthlete().resetForcedAsCurrent();
+        }
         setForcedTime(false);
         AthleteRepository.save(getCurAthlete());
         List<RecordEvent> newRecords = updateRecords(getCurAthlete(), getGoodLift(), getChallengedRecords(), List.of());
@@ -2483,8 +2488,11 @@ public class FieldOfPlay {
      */
     private List<RecordEvent> updateRecords(Athlete a, boolean success, List<RecordEvent> challengedRecords,
             List<RecordEvent> voidableRecords) {
-        logger.debug("{}updateRecords {} {} {}", getLoggingName(), a.getShortName(), success, LoggerUtils.whereFrom());
         ArrayList<RecordEvent> newRecords = new ArrayList<>();
+        if (a == null) {
+            return newRecords;
+        }
+        logger.debug("{}updateRecords {} {} {}", getLoggingName(), a.getShortName(), success, LoggerUtils.whereFrom());
         if (success) {
             for (RecordEvent rec : challengedRecords) {
                 Double value = rec.getRecordValue();
