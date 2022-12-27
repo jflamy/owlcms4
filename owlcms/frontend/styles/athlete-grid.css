@@ -27,6 +27,7 @@
 
 #topBarLeft {
     width: 12em;
+    height: 7ex;
 }
 #topBarLeft vaadin-combo-box{
     width: 12ch;
