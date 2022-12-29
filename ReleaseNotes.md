@@ -8,9 +8,9 @@
     - Migration to new version of the user interface framework
     - On the preparation page, moved the pre-competition documents (Start List, Cards) to a separate page with more appropriate filtering.
   - 37.0 Fixes
+    - beta06: update build to create Heroku version
     - beta05: code updates to use recommended v23 routines.
     - beta05: very minor interface tweaks to fonts and sizing
-    - beta05: update build to create Heroku version
     - beta04: minor changes to ensure there is a break before jury gives decision.
     - beta03: made the referee summoning keyboard shortcuts work again on the jury page ([#603](https://github.com/jflamy/owlcms4/issues/603)); also fixed phone/tablet refereeing to obey "summon all" correctly
     - beta03: the web page names are now the same as in version 35 (the leading "n" has been removed)
