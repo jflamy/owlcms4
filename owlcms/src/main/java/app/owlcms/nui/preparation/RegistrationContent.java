@@ -50,7 +50,6 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.components.ConfirmationDialog;
-import app.owlcms.components.DownloadDialog;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.LocalizedDecimalField;
@@ -77,7 +76,6 @@ import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.AthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
-import app.owlcms.spreadsheet.JXLSStartingList;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -111,7 +109,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     private UI locationUI;
     private OwlcmsLayout routerLayout;
     private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
-    private Group group;
+//    private Group group;
 
     private ComboBox<Group> groupSelect;
     private GroupSelectionMenu topBarMenu;
@@ -569,7 +567,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     }
 
     protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
-        group = e.getValue();
+        //group = e.getValue();
         groupFilter.setValue(e.getValue());
     }
 
@@ -676,26 +674,26 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         crudFormFactory.setFieldType("yearOfBirth", ValidationTextField.class);
     }
 
-    private Button createStartingListButton(JXLSStartingList startingListWriter) {
-        String resourceDirectoryLocation = "/templates/start";
-        String title = Translator.translate("StartingList");
-        String downloadedFilePrefix = "startingList";
-
-        DownloadDialog startingListFactory = new DownloadDialog(
-                () -> {
-                    JXLSStartingList rs = new JXLSStartingList();
-                    // group may have been edited since the page was loaded
-                    rs.setGroup(group != null ? GroupRepository.getById(group.getId()) : null);
-                    return rs;
-                },
-                resourceDirectoryLocation,
-                Competition::getComputedStartListTemplateFileName,
-                Competition::setStartListTemplateFileName,
-                title,
-                downloadedFilePrefix,
-                Translator.translate("Download"));
-        return startingListFactory.createTopBarDownloadButton();
-    }
+//    private Button createStartingListButton(JXLSStartingList startingListWriter) {
+//        String resourceDirectoryLocation = "/templates/start";
+//        String title = Translator.translate("StartingList");
+//        String downloadedFilePrefix = "startingList";
+//
+//        DownloadDialog startingListFactory = new DownloadDialog(
+//                () -> {
+//                    JXLSStartingList rs = new JXLSStartingList();
+//                    // group may have been edited since the page was loaded
+//                    rs.setGroup(group != null ? GroupRepository.getById(group.getId()) : null);
+//                    return rs;
+//                },
+//                resourceDirectoryLocation,
+//                Competition::getComputedStartListTemplateFileName,
+//                Competition::setStartListTemplateFileName,
+//                title,
+//                downloadedFilePrefix,
+//                Translator.translate("Download"));
+//        return startingListFactory.createTopBarDownloadButton();
+//    }
 
     private void deleteAthletes() {
         JPAService.runInTransaction(em -> {

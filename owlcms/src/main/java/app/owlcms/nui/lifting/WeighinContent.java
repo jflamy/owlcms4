@@ -114,9 +114,9 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
     private Group group;
 
-    private ComboBox<Group> groupSelect;
+//    private ComboBox<Group> groupSelect;
     private GroupSelectionMenu topBarMenu;
-    private FlexLayout topBar;
+//    private FlexLayout topBar;
 
     private Button juryButton;
 

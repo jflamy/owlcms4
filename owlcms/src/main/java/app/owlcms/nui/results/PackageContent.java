@@ -29,7 +29,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -91,16 +90,16 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     private AgeDivision ageDivision;
     private String ageGroupPrefix;
 
-    private Button catDownloadButton;
+//    private Button catDownloadButton;
 
     private ComboBox<Category> categoryFilter;
     private Category categoryValue;
-    private Anchor catResultsAnchor;
+//    private Anchor catResultsAnchor;
 
 //    private JXLSCatResults catXlsWriter = new JXLSCatResults(UI.getCurrent());
     private Group currentGroup;
     private DownloadDialog downloadDialog;
-    private JXLSCompetitionBook xlsWriter;
+//    private JXLSCompetitionBook xlsWriter;
     private List<AgeDivision> adItems;
 
     /**
