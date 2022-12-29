@@ -1,28 +1,13 @@
 ## macOS or Linux Installation
 
-- **Get the installation zip archive**: Get the current  [`owlcms_37.0.0-beta04.zip`](https://github.com/owlcms/owlcms4-prerelease/releases/latest/download/owlcms_37.0.0-beta04.zip) file  (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4-prerelease/releases/latest) .
+- **Get the installation zip archive**: Get the current  [`owlcms_37.0.0-beta05.zip`](https://github.com/owlcms/owlcms4-prerelease/releases/latest/download/owlcms_37.0.0-beta05.zip) file  (located in the `assets` section at the bottom of each release in the [release repository](https://github.com/owlcms/owlcms4-prerelease/releases/latest) .
 
 - Double-click on the downloaded zip file, and extract the files to a directory.  We suggest you use `~/owlcms` as the unzipped location.
 
-- Make sure you have a Java 11 or 17 installed (JRE or JDK)
+- Make sure you have a Java 11 JRE installed (you may use a JDK if you prefer)
 
-  - For Linux, refer to [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) depending on the Linux type you run
-
-    -  For Ubuntu and other Debian variants, you may try `sudo apt install default-jre`
-
-  - For macOS, see [Latest Releases | Adoptium](https://adoptium.net/temurin/releases/) or you can use HomeBrew to install
-
-    - Start a terminal and run the following commands - each command is on a single line -- move your mouse over the grey box and use "Copy to Clipboard".
-
-      ```bash
-      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      ```
-
-      ```bash
-      brew install openjdk@17
-      ```
-
-      
+  -  For Linux, refer to https://adoptopenjdk.net/releases.html depending on the Linux type you run
+  -  For macOS, see https://adoptopenjdk.net/releases.html#x64_mac
 
 - To start the program, open a Terminal window,  directory to the location where you unzipped the files and launch Java as follows.  Assuming you extracted to a directory called `owlcms` in your home, the following would work
 
