@@ -49,73 +49,8 @@ import elemental.json.JsonObject;
 @CssImport(value = "./styles/shared-styles.css")
 @Route("weighin/AthleteCard")
 
-
-public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
+public class AthleteCard extends PolymerTemplate<TemplateModel>
         implements FOPParameters, SafeEventBusRegistration, HasDynamicTitle, RequireLogin {
-
-    /**
-     * AthleteCardModel
-     *
-     * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties. When the JS
-     * properties are changed, a "propname-changed" event is triggered.
-     *
-     * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
-     */
-    public interface AthleteCardModel extends TemplateModel {
-
-        String getAgeDivision();
-
-        Integer getAgeGroup();
-
-        String getBirth();
-
-        String getBodyWeight();
-
-        String getCategory();
-
-        String getCleanJerk1Declaration();
-
-        String getEntryTotal();
-
-        String getFullName();
-
-        String getGroup();
-
-        String getLotNumber();
-
-        String getSnatch1Declaration();
-
-        String getStartNumber();
-
-        String getTeam();
-
-        void setAgeDivision(String division);
-
-        void setAgeGroup(String string);
-
-        void setBirth(String birth);
-
-        void setBodyWeight(String format);
-
-        void setCategory(String name);
-
-        void setCleanJerk1Declaration(String cleanJerk1Declaration);
-
-        void setEntryTotal(String entryTotal);
-
-        void setFullName(String fullName);
-
-        void setGroup(String group);
-
-        void setLotNumber(String string);
-
-        void setSnatch1Declaration(String snatch1Declaration);
-
-        void setStartNumber(String string);
-
-        void setTeam(String team);
-
-    }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteCard.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -186,60 +121,59 @@ public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
     protected void onAttach(AttachEvent attachEvent) {
         init();
 
-        AthleteCardModel model = getModel();
-        model.setFullName(athlete.getFullName());
-        model.setTeam(athlete.getTeam());
-        model.setBodyWeight(String.format("%.2f", athlete.getBodyWeight()));
+        getElement().setProperty("fullName",athlete.getFullName());
+        getElement().setProperty("team",athlete.getTeam());
+        getElement().setProperty("bodyWeight",String.format("%.2f", athlete.getBodyWeight()));
         AgeGroup ageGroup = athlete.getAgeGroup();
-        model.setAgeGroup(ageGroup != null ? ageGroup.getName() : "");
-        model.setAgeDivision(ageGroup != null ? getTranslation("Division." + ageGroup.getAgeDivision().name()) : "");
+        getElement().setProperty("ageGroup",ageGroup != null ? ageGroup.getName() : "");
+        getElement().setProperty("ageDivision",ageGroup != null ? getTranslation("Division." + ageGroup.getAgeDivision().name()) : "");
         Integer yearOfBirth = athlete.getYearOfBirth();
         if (yearOfBirth != null && yearOfBirth > 1900) {
-            model.setBirth(yearOfBirth.toString());
+            getElement().setProperty("birth",yearOfBirth.toString());
         } else {
-            model.setBirth("");
+            getElement().setProperty("birth","");
         }
         Integer lotNumber = athlete.getLotNumber();
         if (lotNumber != null && lotNumber > 0) {
-            model.setLotNumber(lotNumber.toString());
+            getElement().setProperty("lotNumber",lotNumber.toString());
         } else {
-            model.setLotNumber("");
+            getElement().setProperty("lotNumber","");
         }
         Integer startNumber = athlete.getStartNumber();
         if (startNumber != null && startNumber > 0) {
-            model.setStartNumber(startNumber.toString());
+            getElement().setProperty("startNumber",startNumber.toString());
         } else {
-            model.setStartNumber("");
+            getElement().setProperty("startNumber","");
         }
         Group group = athlete.getGroup();
         if (group != null && group != null) {
-            model.setGroup(group.getName());
+            getElement().setProperty("group",group.getName());
         } else {
-            model.setGroup("");
+            getElement().setProperty("group","");
         }
         Category category = athlete.getCategory();
         if (category != null) {
-            model.setCategory(category.getName());
+            getElement().setProperty("category",category.getName());
         } else {
-            model.setCategory("");
+            getElement().setProperty("category","");
         }
         String snatch1Declaration = athlete.getSnatch1Declaration();
         if (snatch1Declaration != null && zeroIfInvalid(snatch1Declaration) > 0) {
-            model.setSnatch1Declaration(snatch1Declaration);
+            getElement().setProperty("snatch1Declaration",snatch1Declaration);
         } else {
-            model.setSnatch1Declaration("");
+            getElement().setProperty("snatch1Declaration","");
         }
         String cleanJerk1Declaration = athlete.getCleanJerk1Declaration();
         if (cleanJerk1Declaration != null && zeroIfInvalid(cleanJerk1Declaration) > 0) {
-            model.setCleanJerk1Declaration(cleanJerk1Declaration);
+            getElement().setProperty("cleanJerk1Declaration",cleanJerk1Declaration);
         } else {
-            model.setCleanJerk1Declaration("");
+            getElement().setProperty("cleanJerk1Declaration","");
         }
         Integer entryTotal = athlete.getEntryTotal();
         if (entryTotal != null && entryTotal > 0) {
-            model.setEntryTotal(entryTotal.toString());
+            getElement().setProperty("entryTotal",entryTotal.toString());
         } else {
-            model.setEntryTotal("");
+            getElement().setProperty("entryTotal","");
         }
     }
 

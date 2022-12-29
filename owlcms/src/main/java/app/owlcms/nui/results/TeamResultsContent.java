@@ -368,7 +368,7 @@ public class TeamResultsContent extends VerticalLayout
                 // genderFilter.getValue());
                 TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(),
                         genderFilter.getValue(), Ranking.SNATCH_CJ_TOTAL);
-                grid.setDataProvider(new TreeDataProvider<>(teamTreeData));
+                grid.setItems(new TreeDataProvider<>(teamTreeData));
             }
 
             @Override

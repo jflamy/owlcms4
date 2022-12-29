@@ -41,30 +41,8 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("decision-element")
 @JsModule("./components/DecisionElement.js")
-public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionModel>
+public class DecisionElement extends PolymerTemplate<TemplateModel>
         implements SafeEventBusRegistration {
-
-    /**
-     * The Interface DecisionModel.
-     */
-    public interface DecisionModel extends TemplateModel {
-
-        boolean isEnabled();
-
-        boolean isJury();
-
-        boolean isPublicFacing();
-
-        void setEnabled(boolean b);
-
-        void setFopName(String fopName);
-
-        void setJury(boolean juryMode);
-
-        void setPublicFacing(boolean publicFacing);
-
-        void setSilent(boolean b);
-    }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -89,7 +67,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
                 String userName = StartupUtils.getStringParam("mqttUserName");
                 String password = StartupUtils.getStringParam("mqttPassword");
                 MqttConnectOptions connOpts = setUpConnectionOptions(userName != null ? userName : "",
-                        password != null ? password : "");;
+                        password != null ? password : "");
+                ;
                 client.connect(connOpts).waitForCompletion();
             } catch (MqttException e) {
             }
@@ -108,10 +87,6 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         connOpts.setCleanSession(true);
         // connOpts.setAutomaticReconnect(true);
         return connOpts;
-    }
-    
-    public boolean isPublicFacing() {
-        return getModel().isPublicFacing();
     }
 
     /**
@@ -140,26 +115,28 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
             if (!fopName.contentEquals(fop.getName())) {
                 return;
             }
-            //logger.debug("master referee update {} ({} {} {})", fop.getCurAthlete(), ref1, ref2, ref3, ref1Time, ref2Time, ref3Time);
+            // logger.debug("master referee update {} ({} {} {})", fop.getCurAthlete(), ref1, ref2, ref3, ref1Time,
+            // ref2Time, ref3Time);
             if (isMqttDecisions()) {
                 if (ref1 != null && prevRef1 != ref1) {
-                    //logger.debug("update 1 {}", ref1);
+                    // logger.debug("update 1 {}", ref1);
                     mqttPublish("owlcms/decision/A", "1 " + (ref1 ? "good" : "bad"));
                     prevRef1 = ref1;
                 }
                 if (ref2 != null && prevRef2 != ref2) {
-                    //logger.debug("update 2 {}", ref2);
+                    // logger.debug("update 2 {}", ref2);
                     mqttPublish("owlcms/decision/A", "2 " + (ref2 ? "good" : "bad"));
                     prevRef2 = ref2;
                 }
                 if (ref3 != null && prevRef3 != ref3) {
-                    //logger.debug("update 3 {}", ref3);
+                    // logger.debug("update 3 {}", ref3);
                     mqttPublish("owlcms/decision/A", "3 " + (ref3 ? "good" : "bad"));
                     prevRef3 = ref3;
                 }
             } else {
                 fop.fopEventPost(
-                        new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3, Long.valueOf(ref1Time),
+                        new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3,
+                                Long.valueOf(ref1Time),
                                 Long.valueOf(ref2Time), Long.valueOf(ref3Time), false));
             }
         });
@@ -189,21 +166,22 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
      */
     public void masterShowDown(String fopName, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
         Object origin = this.getOrigin();
-        // logger.debug("=== master {} down: decision={} ({} {} {})", origin, decision.getClass().getSimpleName(), ref1, ref2, ref3);
+        // logger.debug("=== master {} down: decision={} ({} {} {})", origin, decision.getClass().getSimpleName(), ref1,
+        // ref2, ref3);
         OwlcmsSession.getFop().fopEventPost(new FOPEvent.DownSignal(origin));
     }
 
     public void setJury(boolean juryMode) {
-        getModel().setJury(juryMode);
+        getElement().setProperty("jury", juryMode);
     }
 
     public void setPublicFacing(boolean publicFacing) {
-        getModel().setPublicFacing(publicFacing);
+        getElement().setProperty("publicFacing", publicFacing);
     }
 
     public void setSilenced(boolean b) {
         // logger.trace("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.whereFrom(1));
-        getModel().setSilent(b);
+        getElement().setProperty("silent",b);
         silenced = b;
     }
 
@@ -212,7 +190,6 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             logger.debug("slaveBreakStart disable");
             this.getElement().callJsFunction("setEnabled", false);
-            // getModel().setEnabled(false);
         });
     }
 
@@ -241,7 +218,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
             prevRef3 = null;
         });
     }
-    
+
     @Subscribe
     public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
@@ -259,7 +236,6 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
                     this.getParent().get().getClass().getSimpleName());
             this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
             this.getElement().callJsFunction("setEnabled", false);
-            // getModel().setEnabled(false);
         });
     }
 
@@ -268,7 +244,6 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             logger.debug("slaveStartTimer enable");
             this.getElement().callJsFunction("setEnabled", true);
-            // getModel().setEnabled(true);
         });
     }
 
@@ -277,7 +252,6 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             logger.debug("slaveStopTimer enable");
             this.getElement().callJsFunction("setEnabled", true);
-            // getModel().setEnabled(true);
         });
     }
 
@@ -303,9 +277,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     }
 
     private void init(String fopName) {
-        DecisionModel model = getModel();
-        model.setPublicFacing(true);
-        model.setFopName(fopName);
+        getElement().setProperty("publicFacing", true);
+        getElement().setProperty("fopName", fopName);
 
         Element elem = this.getElement();
         elem.addPropertyChangeListener("ref1", "ref1-changed", (e) -> {

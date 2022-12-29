@@ -548,11 +548,6 @@ public class ResultsMedals extends PolymerTemplate<TemplateModel>
         });
     }
 
-//    private void doUpdateBottomPart(UIEvent e) {
-//        MedalsTemplate model = getModel();
-//        updateBottom(model, null, OwlcmsSession.getFop());
-//    }
-
     private void computeGroupMedalsJson() {
         OwlcmsSession.withFop(fop -> {
             // logger.trace("computeGroupMedalsJson = {} {}", getGroup(), LoggerUtils.stackTrace());

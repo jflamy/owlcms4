@@ -77,56 +77,6 @@ import ch.qos.logback.classic.Logger;
 public class AttemptBoard extends PolymerTemplate<TemplateModel> implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin {
 
-    /**
-     * AttemptBoardModel
-     *
-     * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties. When the JS
-     * properties are changed, a "propname-changed" event is triggered.
-     *
-     * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
-     */
-//    public interface AttemptBoardModel extends TemplateModel {
-//        String getAttempt();
-//
-//        String getFirstName();
-//
-//        String getJavaComponentId();
-//
-//        String getKgSymbol();
-//
-//        String getLastName();
-//
-//        Integer getStartNumber();
-//
-//        String getTeamName();
-//
-//        Integer getWeight();
-//
-//        Boolean isPublicFacing();
-//
-//        Boolean isShowBarbell();
-//
-//        void setAttempt(String formattedAttempt);
-//
-//        void setFirstName(String firstName);
-//
-//        void setJavaComponentId(String id);
-//
-//        void setKgSymbol(String kgSymbol);
-//
-//        void setLastName(String lastName);
-//
-//        void setPublicFacing(Boolean publicFacing);
-//
-//        void setShowBarbell(Boolean showBarbell);
-//
-//        void setStartNumber(Integer integer);
-//
-//        void setTeamName(String teamName);
-//
-//        void setWeight(Integer weight);
-//    }
-
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
@@ -742,8 +692,6 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 
     private void doDone(Group g) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-//            AttemptBoardModel model = getModel();
-//            if (model != null) {
             if (g != null) {
                 this.getElement().setProperty("lastName", getTranslation("Group_number_done", g.toString()));
             } else {
@@ -753,7 +701,6 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
             this.getElement().setProperty("recordKind", "recordNotification none");
             this.getElement().setProperty("teamName", "");
             this.getElement().setProperty("firstName", "");
-//            }
             this.getElement().callJsFunction("groupDone");
             hidePlates();
         });

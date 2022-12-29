@@ -66,31 +66,8 @@ import elemental.json.JsonValue;
 @JsModule("./components/TopSinclair.js")
 @Route("displays/topsinclair")
 
-public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> implements DisplayParameters,
+public class TopSinclair extends PolymerTemplate<TemplateModel> implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin {
-
-    /**
-     * LiftingOrderModel
-     *
-     * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties. When the JS
-     * properties are changed, a "propname-changed" event is triggered.
-     * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
-     *
-     */
-    public interface TopSinclairModel extends TemplateModel {
-
-        String getFullName();
-
-        Boolean isHidden();
-
-        Boolean isWideTeamNames();
-
-        void setFullName(String lastName);
-
-        void setHidden(boolean b);
-
-        void setWideTeamNames(boolean b);
-    }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(TopSinclair.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -159,18 +136,17 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
         // create copies because we want to change the list
         AthleteSorter.TopSinclair topSinclair;
         List<Athlete> sortedMen2 = new ArrayList<Athlete>(competition.getGlobalSinclairRanking(Gender.M));
-        topSinclair = (AthleteSorter.topSinclair(sortedMen2,5));
+        topSinclair = (AthleteSorter.topSinclair(sortedMen2, 5));
         setSortedMen(topSinclair.topAthletes);
         topManSinclair = topSinclair.best;
-        
+
         List<Athlete> sortedWomen2 = new ArrayList<Athlete>(competition.getGlobalSinclairRanking(Gender.F));
-        topSinclair = (AthleteSorter.topSinclair(sortedWomen2,5));
+        topSinclair = (AthleteSorter.topSinclair(sortedWomen2, 5));
         setSortedWomen(topSinclair.topAthletes);
         topWomanSinclair = topSinclair.best;
 
-        updateBottom(getModel());
+        updateBottom();
     }
-
 
     public void getAthleteJson(Athlete a, JsonObject ja, Gender g, int needed) {
         String category;
@@ -309,7 +285,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     public void slaveStartLifting(UIEvent.StartLifting e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            getModel().setHidden(false);
+            getElement().setProperty("hidden",false);
             this.getElement().callJsFunction("reset");
         });
     }
@@ -325,16 +301,15 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
 
     protected void doEmpty() {
         logger.trace("doEmpty");
-        this.getModel().setHidden(true);
+        getElement().setProperty("hidden",true);
     }
 
     protected void doUpdate(Athlete a, UIEvent e) {
         logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            TopSinclairModel model = getModel();
             if (a != null) {
-                model.setFullName(getTranslation("Scoreboard.TopSinclair"));
-                updateBottom(model);
+                getElement().setProperty("fullName",getTranslation("Scoreboard.TopSinclair"));
+                updateBottom();
             }
         });
     }
@@ -513,11 +488,11 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     }
 
     private void setWide(boolean b) {
-        getModel().setWideTeamNames(b);
+        getElement().setProperty("wideTeamNames", b);
     }
 
-    private void updateBottom(TopSinclairModel model) {
-        getModel().setFullName(getTranslation("Scoreboard.TopSinclair"));
+    private void updateBottom() {
+        getElement().setProperty("fullName", getTranslation("Scoreboard.TopSinclair"));
         List<Athlete> sortedMen2 = getSortedMen();
         this.getElement().setProperty("topSinclairMen",
                 sortedMen2 != null && sortedMen2.size() > 0 ? getTranslation("Scoreboard.TopSinclairMen") : "");
@@ -530,7 +505,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
 
         logger.debug("updateBottom {} {}", sortedWomen2, sortedMen2);
     }
-    
+
     @Override
     public Timer getDialogTimer() {
         return this.dialogTimer;
@@ -538,7 +513,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
 
     @Override
     public void setDialogTimer(Timer timer) {
-        this.dialogTimer = timer; 
+        this.dialogTimer = timer;
     }
 
 }

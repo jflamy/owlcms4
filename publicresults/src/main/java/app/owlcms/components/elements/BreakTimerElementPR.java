@@ -170,12 +170,11 @@ public class BreakTimerElementPR extends TimerElementPR {
      *
      * @see app.owlcms.displays.attemptboard.TimerElement#init()
      */
-    @SuppressWarnings("deprecation")
     @Override
     protected void init() {
         super.init();
         setSilenced(true);
-        getModel().setSilent(true); // do not emit sounds
+        getElement().setProperty("silent",true); // do not emit sounds
     }
 
     /*

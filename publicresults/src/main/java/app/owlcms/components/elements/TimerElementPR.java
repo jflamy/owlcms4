@@ -34,97 +34,8 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("deprecation")
 @Tag("timer-element")
 @JsModule("./components/TimerElement.js")
-public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.TimerModel>
+public abstract class TimerElementPR extends PolymerTemplate<TemplateModel>
         implements IFopName, SafeEventBusRegistrationPR {
-
-    /**
-     * TimerModel Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties.
-     * When the JS properties are changed, a "propname-changed" event is triggered.
-     * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
-     */
-    public interface TimerModel extends TemplateModel {
-
-        /**
-         * Gets the current time.
-         *
-         * @return the current time
-         */
-        double getCurrentTime();
-
-        /**
-         * Gets the start time (the time to which the timer will reset)
-         *
-         * @return the start time
-         */
-        double getStartTime();
-
-        /**
-         * Checks if is counting up.
-         *
-         * @return true, if is counting up
-         */
-        boolean isCountUp();
-
-        boolean isIndefinite();
-
-        /**
-         * Checks if timer is running.
-         *
-         * @return true, if is running
-         */
-        boolean isRunning();
-
-        /**
-         * Checks if timer is silenced.
-         *
-         * @return true, if sounds are to be emitted.
-         */
-        boolean isSilent();
-
-        /**
-         * Sets the count direction.
-         *
-         * @param countUp counts up if true, down if false.
-         */
-        void setCountUp(boolean countUp);
-
-        /**
-         * Sets the current time.
-         *
-         * @param seconds the new current time
-         */
-        void setCurrentTime(double seconds);
-
-        void setFopName(String fopName);
-
-        /**
-         * If indefinite, the timer doesn't start or stop, it just stays there with --:--
-         *
-         * @param b
-         */
-        void setIndefinite(boolean b);
-
-        /**
-         * Sets the timer running with true, stops if false.
-         *
-         * @param running setting to true starts the timer, false stops it.
-         */
-        void setRunning(boolean running);
-
-        /**
-         * Determine whether sounds are emitted at 90, 30 and 0 seconds
-         *
-         * @param quiet true indicates no sound
-         */
-        void setSilent(boolean quiet);
-
-        /**
-         * Sets the start time (the time to which the timer will reset)
-         *
-         * @param seconds the new start time
-         */
-        void setStartTime(double seconds);
-    }
 
     private String fopName;
 
@@ -224,7 +135,7 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
             String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
             lastStartMillis = System.currentTimeMillis();
             logger.trace("server starting timer {}, {}, {}", parent, milliseconds, lastStartMillis);
-            getModel().setSilent(isSilent());
+            getElement().setProperty("silent",isSilent());
             start(milliseconds, isIndefinite(), isSilent(), parent);
         });
     }
@@ -258,15 +169,13 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
             return;
         }
         UI.getCurrent().access(() -> {
-            TimerModel model = getModel();
-            model.setStartTime(0.0D);
-            model.setCurrentTime(seconds);
-            model.setCountUp(false);
-            model.setRunning(false);
-            model.setSilent(false);
-            model.setFopName(getFopName());
+            getElement().setProperty("startTime",0.0D);
+            getElement().setProperty("currentTime",seconds);
+            getElement().setProperty("countUp",false);
+            getElement().setProperty("running",false);
+            getElement().setProperty("silent",false);
+            getElement().setProperty("fopName",getFopName());
         });
-        // vsession = VaadinSession.getCurrent();
     }
 
     protected boolean isIndefinite() {
@@ -303,7 +212,7 @@ public abstract class TimerElementPR extends PolymerTemplate<TimerElementPR.Time
         // tell the javascript to stay quiet
         setSilenced(true);
         setTimerElement(null);
-        getModel().setSilent(true);
+        getElement().setProperty("silent",true);
     }
 
     protected void setIndefinite(boolean indefinite) {

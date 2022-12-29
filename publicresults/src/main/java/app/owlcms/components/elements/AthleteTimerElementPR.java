@@ -167,11 +167,10 @@ public class AthleteTimerElementPR extends TimerElementPR {
      *
      * @see app.owlcms.displays.attemptboard.TimerElement#init()
      */
-    @SuppressWarnings("deprecation")
     @Override
     protected void init() {
         super.init();
-        getModel().setSilent(false); // emit sounds
+        getElement().setProperty("silent",false); // emit sounds
     }
 
     /*

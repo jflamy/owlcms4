@@ -534,6 +534,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         return ce;
     }
 
+    @SuppressWarnings("deprecation")
     private VerticalLayout createCountdownColumn() {
         countdownRadios = new RadioButtonGroup<>();
         countdownRadios.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
@@ -544,6 +545,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         List<BreakType> countdowns = Arrays.asList(BreakType.values()).stream().filter(bt -> bt.isCountdown())
                 .collect(Collectors.toList());
         breaks.addAll(countdowns);
+        
         countdownRadios.setItems(breaks);
         countdownRadios.setRenderer(new TextRenderer<BreakType>(
                 (item) -> getTranslation(BreakType.class.getSimpleName() + "." + item.name())));

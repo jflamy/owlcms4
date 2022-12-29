@@ -77,32 +77,8 @@ import elemental.json.JsonValue;
 @JsModule("./components/TopTeams.js")
 @Route("displays/topteams")
 
-
-public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements DisplayParameters,
+public class TopTeams extends PolymerTemplate<TemplateModel> implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin {
-
-    /**
-     * LiftingOrderModel
-     *
-     * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties. When the JS
-     * properties are changed, a "propname-changed" event is triggered.
-     * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
-     *
-     */
-    public interface TopTeamsModel extends TemplateModel {
-
-        String getFullName();
-
-        Boolean isHidden();
-
-        Boolean isWideTeamNames();
-
-        void setFullName(String lastName); // misnomer, is actually the title
-
-        void setHidden(boolean b);
-
-        void setWideTeamNames(boolean b);
-    }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(TopTeams.class);
     private static final int SHOWN_ON_BOARD = 5;
@@ -210,7 +186,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         }
         womensTeams = topN(womensTeams);
 
-        updateBottom(getModel());
+        updateBottom();
     }
 
     /**
@@ -403,7 +379,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         Competition competition = Competition.getCurrent();
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             doUpdate(competition);
-            getModel().setHidden(false);
+            getElement().setProperty("hidden", false);
             this.getElement().callJsFunction("reset");
         });
     }
@@ -437,15 +413,14 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
 
     protected void doEmpty() {
         logger.trace("doEmpty");
-        this.getModel().setHidden(true);
+        getElement().setProperty("hidden", true);
     }
 
     protected void doUpdate(Athlete a, UIEvent e) {
         logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            TopTeamsModel model = getModel();
             if (a != null) {
-                updateBottom(model);
+                updateBottom();
             }
         });
     }
@@ -566,7 +541,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     private void setWide(boolean b) {
-        getModel().setWideTeamNames(b);
+        getElement().setProperty("wideTeamNames", b);
     }
 
     private List<TeamTreeItem> topN(List<TeamTreeItem> list) {
@@ -581,7 +556,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         return list;
     }
 
-    private void updateBottom(TopTeamsModel model) {
+    private void updateBottom() {
         this.getElement().setProperty("topTeamsMen",
                 mensTeams != null && mensTeams.size() > 0
                         ? getTranslation("Scoreboard.TopTeamsMen") + computeAgeGroupSuffix()

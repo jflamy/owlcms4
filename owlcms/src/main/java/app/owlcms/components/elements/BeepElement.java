@@ -20,15 +20,8 @@ import app.owlcms.nui.shared.SafeEventBusRegistration;
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("beep-element")
 @JsModule("./components/BeepElement.js")
-public class BeepElement extends PolymerTemplate<BeepElement.BeepModel>
+public class BeepElement extends PolymerTemplate<TemplateModel>
         implements SafeEventBusRegistration {
-
-    /**
-     * The Interface BeepModel.
-     */
-    public interface BeepModel extends TemplateModel {
-        void setSilent(boolean b);
-    }
 
     public void beep() {
         this.getElement().callJsFunction("beep");
@@ -40,6 +33,6 @@ public class BeepElement extends PolymerTemplate<BeepElement.BeepModel>
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        getModel().setSilent(false);
+        getElement().setProperty("silent", false);
     }
 }

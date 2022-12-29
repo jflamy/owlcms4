@@ -35,7 +35,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("deprecation")
 @Tag("decision-element-pr")
 @JsModule("./components/DecisionElementPR.js")
-public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.DecisionModel>
+public class DecisionElementPR extends PolymerTemplate<TemplateModel>
         implements IFopName, SafeEventBusRegistrationPR {
 
     /**
@@ -79,10 +79,6 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
         return this.fopName;
     }
 
-    public boolean isPublicFacing() {
-        return getModel().isPublicFacing();
-    }
-
     public boolean isSilenced() {
         return silenced;
     }
@@ -94,11 +90,12 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
     }
 
     public void setJury(boolean juryMode) {
-        getModel().setJury(false);
+        // ignore input.d
+        getElement().setProperty("jury",false);
     }
 
     public void setPublicFacing(boolean publicFacing) {
-        getModel().setPublicFacing(publicFacing);
+        getElement().setProperty("publicFacing", publicFacing);
     }
 
     public void setSilenced(boolean silenced) {
@@ -256,8 +253,7 @@ public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.Decisio
     }
 
     private void init() {
-        DecisionModel model = getModel();
-        model.setPublicFacing(true);
+        getElement().setProperty("publicFacing", true);
     }
 
 }

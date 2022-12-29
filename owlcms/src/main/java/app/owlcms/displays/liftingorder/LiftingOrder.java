@@ -64,51 +64,8 @@ import elemental.json.JsonValue;
 @JsModule("./components/LiftingOrder.js")
 @Route("displays/liftingorder")
 
-
-public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel> implements DisplayParameters,
+public class LiftingOrder extends PolymerTemplate<TemplateModel> implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireDisplayLogin {
-
-    /**
-     * LiftingOrderModel
-     *
-     * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties. When the JS
-     * properties are changed, a "propname-changed" event is triggered.
-     * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
-     *
-     */
-    public interface LiftingOrderModel extends TemplateModel {
-        String getAttempt();
-
-        String getFullName();
-
-        Integer getStartNumber();
-
-        String getTeamName();
-
-        Integer getWeight();
-
-        Boolean isHidden();
-
-        Boolean isWideCategory();
-
-        void setAttempt(String formattedAttempt);
-
-        void setFullName(String lastName);
-
-        void setGroupName(String name);
-
-        void setHidden(boolean b);
-
-        void setLiftsDone(String formattedDone);
-
-        void setStartNumber(Integer integer);
-
-        void setTeamName(String teamName);
-
-        void setWeight(Integer weight);
-
-        void setWideCategory(boolean b);
-    }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(LiftingOrder.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -149,9 +106,8 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     @Override
     public void doBreak(UIEvent e) {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            LiftingOrderModel model = getModel();
             order = fop.getLiftingOrder();
-            model.setHidden(false);
+            getElement().setProperty("hidden", false);
             doUpdate(fop.getCurAthlete(), null);
         }));
     }
@@ -267,7 +223,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Athlete a = e.getAthlete();
-            getModel().setHidden(false);
+            getElement().setProperty("hidden", false);
             liftsDone = AthleteSorter.countLiftsDone(order);
             doUpdate(a, e);
         });
@@ -277,7 +233,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     public void slaveDecision(UIEvent.Decision e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            getModel().setHidden(false);
+            getElement().setProperty("hidden", false);
             doUpdateBottomPart(e);
         });
     }
@@ -286,7 +242,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     public void slaveDecisionReset(UIEvent.DecisionReset e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            getModel().setHidden(false);
+            getElement().setProperty("hidden", false);
             this.getElement().callJsFunction("reset");
         });
     }
@@ -296,7 +252,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setHidden(false);
+            getElement().setProperty("hidden", false);
             doDone(e.getGroup());
         });
     }
@@ -317,7 +273,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setHidden(false);
+            getElement().setProperty("hidden", false);
             doBreak(e);
         });
     }
@@ -326,7 +282,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     public void slaveStartLifting(UIEvent.StartLifting e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            getModel().setHidden(false);
+            getElement().setProperty("hidden",false);
             this.getElement().callJsFunction("reset");
         });
     }
@@ -336,7 +292,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setHidden(false);
+            getElement().setProperty("hidden",false);
             Athlete a = e.getAthlete();
             this.getElement().callJsFunction("reset");
             doUpdate(a, e);
@@ -374,17 +330,14 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
 
     protected void doEmpty() {
         logger.trace("doEmpty");
-        this.getModel().setHidden(true);
+        getElement().setProperty("hidden", true);
     }
 
     protected void doUpdate(Athlete a, UIEvent e) {
         logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
-        LiftingOrderModel model = getModel();
-
-//            model.setHidden(a == null);
         if (a != null) {
-            model.setFullName(getTranslation("Scoreboard.LiftingOrder"));
-            updateBottom(model, computeLiftType(a));
+            getElement().setProperty("fullName", getTranslation("Scoreboard.LiftingOrder"));
+            updateBottom(computeLiftType(a));
         }
         if (a == null || a.getAttemptsDone() >= 6) {
             OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
@@ -435,15 +388,14 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         if (g == null) {
             return;
         } else {
-            getModel().setFullName(getTranslation("Group_number_done", g.toString()));
+            getElement().setProperty("fullName", getTranslation("Group_number_done", g.toString()));
             this.getElement().callJsFunction("groupDone");
         }
     }
 
     private void doUpdateBottomPart(Decision e) {
-        LiftingOrderModel model = getModel();
         Athlete a = e.getAthlete();
-        updateBottom(model, computeLiftType(a));
+        updateBottom(computeLiftType(a));
     }
 
     private JsonValue getAthletesJson(List<Athlete> list2) {
@@ -491,20 +443,20 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             logger.trace("{}Starting result board", fop.getLoggingName());
             setId("scoreboard-" + fop.getName());
             curGroup = fop.getGroup();
-            getModel().setWideCategory(true);
+            getElement().setProperty("wideCategory", true);
         });
         setTranslationMap();
         order = ImmutableList.of();
     }
 
-    private void updateBottom(LiftingOrderModel model, String liftType) {
+    private void updateBottom(String liftType) {
         OwlcmsSession.withFop((fop) -> {
             curGroup = fop.getGroup();
-            model.setGroupName(
+            getElement().setProperty("groupName",
                     curGroup != null ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
                             : "");
         });
-        model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
+        getElement().setProperty("liftsDone", Translator.translate("Scoreboard.AttemptsDone", liftsDone));
         this.getElement().setPropertyJson("athletes", getAthletesJson(order));
     }
 
