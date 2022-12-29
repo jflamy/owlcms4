@@ -1,6 +1,7 @@
 package app.owlcms.publicresults;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
@@ -12,6 +13,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
  */
 @PWA(name = "owlcms remote scoreboard", shortName = "publicresults")
 @Theme(variant=Lumo.DARK)
+@Push
 public class AppShell implements AppShellConfigurator {
     
     @Override
