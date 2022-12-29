@@ -82,12 +82,6 @@ jobs:
       - download: current
         artifact: PublicResultsSetup
       - template: src/main/azure-pipelines/steps-prepare-maven.yml
-#       - task: Docker@2
-#         displayName: Login to Docker Registry
-#         inputs:
-#           command: login
-#           containerRegistry: docker.io
-#       - script: ls -la
       - task: Maven@3.205.1
         displayName: Build and Push Docker Images
         inputs:
@@ -179,6 +173,4 @@ jobs:
             $(Agent.BuildDirectory)/s/owlcms-docker/target/k8s/k3s_setup.yaml
           assetUploadMode: "delete" # Optional. Options: delete, replace
           addChangeLog: false # Optional
-#            $(Agent.BuildDirectory)/s/owlcms-windows/target/owlcms_setup/owlcms_setup_${{ parameters.Revision }}.exe
-#            $(Agent.BuildDirectory)/s/publicresults-windows/target/publicresults_setup/publicresults_setup_${{ parameters.Revision }}.exe
         
