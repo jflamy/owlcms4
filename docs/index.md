@@ -10,15 +10,6 @@ Yet it is simple enough to setup that you can use it to run a club or regional c
 <br>
 [^images]
 
-## Downloads and Installation
-
-To run the program on a laptop at the competition site ([overview](InstallationOverview#stand-alone-laptop-installation))
-
-- [Windows Stand-alone Installation](LocalWindowsSetup)
-- [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
-
-You can also run the program in the cloud. See [here](InstallationOverview#cloud-based-installation) for instructions
-
 ## Demo
 
 The following videos and demos are available
@@ -90,7 +81,7 @@ The following list is a sampling of the many features available.  <u>*Click on t
 - [**Team Competitions and Sinclair Competitions**](Displays#Top-Teams-Scoreboard).  Team Results are computed in either the IWF points system or as a sum of Sinclair scores. The competition secretary has access to the full details.
   
   ![050_TeamScoreboard](img/Displays/050_TeamScoreboard.png ':size=350')
-  ![060_TopSinclair](img/Displays/060_TopSinclair.png ':size=350')
+![060_TopSinclair](img/Displays/060_TopSinclair.png ':size=350')
     ![061_TopTeamSinclair](img/Displays/061_TopTeamSinclair.png ':size=350')
   
 - [**3 and 5-person jury**](Refereeing#jury).  Jury members see referee decisions as they happen. Jury members see their vote outcome once all jurors have voted. 
