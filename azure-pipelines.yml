@@ -39,11 +39,11 @@ jobs:
       dependsOn: BuildOwlcmsUberJar
       moduleName: owlcms
       artifactName: OwlcmsSetup
-#  - template: src/main/azure-pipelines/job-herokuRelease.yml
-#    parameters:
-#      jobName: ReleaseOwlcmsHeroku
-#      dependsOn: BuildOwlcmsUberJar
-#      moduleName: owlcms
+  - template: src/main/azure-pipelines/job-herokuRelease.yml
+    parameters:
+      jobName: ReleaseOwlcmsHeroku
+      dependsOn: BuildOwlcmsUberJar
+      moduleName: owlcms
 
   # build publicresults uberjar, zip and installer
   - template: src/main/azure-pipelines/job-buildUberJar.yml
@@ -57,13 +57,13 @@ jobs:
       dependsOn: BuildPublicResultsUberJar
       moduleName: publicresults
       artifactName: PublicResultsSetup
-#  - template: src/main/azure-pipelines/job-herokuRelease.yml
-#    parameters:
-#      jobName: ReleasePublicResultsHeroku
-#      dependsOn: 
-#        - BuildPublicResultsUberJar
-#        - BuildOwlcmsUberJar
-#      moduleName: publicresults
+  - template: src/main/azure-pipelines/job-herokuRelease.yml
+    parameters:
+      jobName: ReleasePublicResultsHeroku
+      dependsOn: 
+        - BuildPublicResultsUberJar
+        - BuildOwlcmsUberJar
+      moduleName: publicresults
 
   # release the installers to github repositories
   - job: ReleaseInstallers
