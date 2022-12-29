@@ -111,7 +111,7 @@ public class AgeGroupEditingFormFactory
                 .bind(AgeGroup::getCode, AgeGroup::setCode);
 
         ComboBox<AgeDivision> ageDivisionField = new ComboBox<>();
-        ageDivisionField.setDataProvider(new ListDataProvider<>(Arrays.asList(AgeDivision.values())));
+        ageDivisionField.setItems(new ListDataProvider<>(Arrays.asList(AgeDivision.values())));
         ageDivisionField.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
         binder.forField(ageDivisionField).bind(AgeGroup::getAgeDivision, AgeGroup::setAgeDivision);
         formLayout.addFormItem(ageDivisionField, Translator.translate("AgeDivision"));
@@ -133,7 +133,7 @@ public class AgeGroupEditingFormFactory
                 .bind(AgeGroup::getMaxAge, AgeGroup::setMaxAge);
 
         ComboBox<Gender> genderField = new ComboBox<>();
-        genderField.setDataProvider(new ListDataProvider<>(Arrays.asList(Gender.mfValues())));
+        genderField.setItems(new ListDataProvider<>(Arrays.asList(Gender.mfValues())));
         binder.forField(genderField).bind(AgeGroup::getGender, AgeGroup::setGender);
         formLayout.addFormItem(genderField, Translator.translate("Gender"));
 

@@ -47,7 +47,7 @@ import ch.qos.logback.classic.Logger;
 /**
  * The main view is a top-level placeholder for other views.
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 @JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js") 
 public class OwlcmsLayout extends AppLayout {
 
@@ -236,7 +236,7 @@ public class OwlcmsLayout extends AppLayout {
 //        usefulLocales.sort((a,b) -> {
 //            return a.getDisplayName(a).compareTo(b.getDisplayName(b));
 //        });
-        sessionLocaleField.setDataProvider(new ListDataProvider<>(usefulLocales));
+        sessionLocaleField.setItems(new ListDataProvider<>(usefulLocales));
         sessionLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
         sessionLocaleField.setValue(Translator.getLocaleSupplier().get());
         sessionLocaleField.addValueChangeListener(e -> {

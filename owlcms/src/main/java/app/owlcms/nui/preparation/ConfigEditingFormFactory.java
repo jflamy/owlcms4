@@ -331,7 +331,7 @@ public class ConfigEditingFormFactory
 
         ComboBox<Locale> defaultLocaleField = new ComboBox<>();
         defaultLocaleField.setClearButtonVisible(true);
-        defaultLocaleField.setDataProvider(new ListDataProvider<>(Translator.getAllAvailableLocales()));
+        defaultLocaleField.setItems(new ListDataProvider<>(Translator.getAllAvailableLocales()));
         defaultLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
         binder.forField(defaultLocaleField).bind(Config::getDefaultLocale, Config::setDefaultLocale);
         layout.addFormItem(defaultLocaleField, Translator.translate("Competition.defaultLocale"));

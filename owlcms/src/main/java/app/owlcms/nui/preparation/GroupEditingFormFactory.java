@@ -103,7 +103,7 @@ public class GroupEditingFormFactory
 
         ComboBox<Platform> platformField = new ComboBox<>(Translator.translate("Platform"));
         platformField.setSizeUndefined();
-        platformField.setDataProvider(new ListDataProvider<>(PlatformRepository.findAll()));
+        platformField.setItems(new ListDataProvider<>(PlatformRepository.findAll()));
         platformField.setItemLabelGenerator(Platform::getName);
         platformField.setClearButtonVisible(true);
         formLayout.add(platformField);
