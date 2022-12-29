@@ -1,7 +1,11 @@
-Several installation options are possible, depending on what is available at the competition site and the size of the competition.  The scenarios below fall in two categories:
+Several installation options are possible, depending on what is available at the competition site and the size of the competition.
+
+- Stand-alone installation, if you prefer to run things locally ([details below](#stand-alone-laptop-installation))
+  - [Windows Stand-alone Installation](LocalWindowsSetup)
+  - [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
+
 
 - Cloud-based options, where all you need are browsers (and a good internet connection).  Such setups are ideal for virtual competitions.
-- Stand-alone installation, if you prefer to run things locally
 
 ## Stand-alone: Laptop installation
 
