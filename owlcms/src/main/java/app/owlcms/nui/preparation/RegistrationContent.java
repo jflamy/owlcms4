@@ -429,7 +429,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
                 .setSortProperty("bodyWeight")
                 .setHeader(getTranslation("BodyWeight")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
         grid.addColumn("group").setHeader(getTranslation("Group")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
-        grid.addColumn("eligibleCategories").setHeader(getTranslation("Registration.EligibleCategories")).setAutoWidth(true);
+        grid.addColumn("eligibleCategories").setHeader(getTranslation("Weighin.EligibleCategories")).setAutoWidth(true);
         grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
         grid.addColumn("federationCodes").setHeader(getTranslation("Registration.FederationCodesShort")).setAutoWidth(true);
         
@@ -622,7 +622,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         captions.add(getTranslation("EntryTotal"));
 
         props.add("category");
-        captions.add(getTranslation("Category"));
+        captions.add(getTranslation("Registration.Category"));
         props.add("eligibleCategories");
         captions.add(getTranslation("Registration.EligibleCategories"));
 
