@@ -59,6 +59,7 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
     private Boolean prevRef2;
     private Boolean prevRef3;
     private MqttAsyncClient client;
+    private boolean juryMode;
 
     public DecisionElement() {
         if (isMqttDecisions()) {
@@ -172,6 +173,7 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
     }
 
     public void setJury(boolean juryMode) {
+        this.setJuryMode(juryMode);
         getElement().setProperty("jury", juryMode);
     }
 
@@ -195,6 +197,9 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
 
     @Subscribe
     public void slaveDownSignal(UIEvent.DownSignal e) {
+        if (isJuryMode()) {
+            return;
+        }
         // logger.trace("slaveDownSignal {} {} {}", this, this.getOrigin(), e.getOrigin());
         if (this.getOrigin() == e.getOrigin()) {
             // we emitted the down signal, don't do it again.
@@ -293,5 +298,13 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
         elem.addPropertyChangeListener("decision", "decision-changed", (e) -> {
             uiEventLogger.debug(e.getPropertyName() + " changed to " + e.getValue());
         });
+    }
+
+    private boolean isJuryMode() {
+        return juryMode;
+    }
+
+    private void setJuryMode(boolean juryMode) {
+        this.juryMode = juryMode;
     }
 }
