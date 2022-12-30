@@ -1541,8 +1541,8 @@ public class Athlete {
     @Transient
     @JsonIgnore
     public String getFullName() {
-        String upperCase = this.getLastName().toUpperCase();
-        String firstName2 = this.getFirstName();
+        String upperCase = this.getLastName() != null ? this.getLastName().toUpperCase() : "";
+        String firstName2 = this.getFirstName() != null ? this.getFirstName() : "";;
         if ((upperCase != null) && !upperCase.trim().isEmpty() && (firstName2 != null)
                 && !firstName2.trim().isEmpty()) {
             return upperCase + ", " + firstName2;
