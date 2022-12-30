@@ -1,21 +1,21 @@
-# owlcms : Olympic Weightlifting Competition Management System 
+# Olympic Weightlifting Competition Management System 
 
-This free application is a *fully-compliant* weightlifting competition management system that been used to manage large scale championships, worldwide.
-**BUT** it is *simple* enough that you can run a small club meet or a regional meet with only everyday electronics (a laptop, a TV, maybe some phones)
+This free application is a fully-compliant weightlifting competition management system. 
 
 ## Gallery
 
+It has been used to manage national championships and even continental championships, worldwide.
+Yet it is simple enough to setup that you can use it to run a club or regional competition (click on pictures to enlarge).
+
 <table>
-<tr><td><img src='img/Gallery/lima.jpg'></img></td><td>PanAm Junior and SouthAmerican Junior U20/U17/U15, Lima, Peru.<br>The program  supports simultaneous platforms and displays the multiple rankings for multiple concurrent age group competitions</td></tr>
-<tr><td><img src='img/Gallery/ElSalvador.jpg'></img></td><td>National Competition, El Salvador.<br>A simple setup with everyday electronics.</td></tr>
-<tr><td><img src='img/Gallery/chelles.jpg' size=250></img></td><td>Club meet, Chelles, France.<br>Supports mixed-gender kid groups.</td></tr>
-<tr><td><img src='img/Gallery/IMG_1480.jpg' size=250></img></td><td>Canadian Senior Championship, Kelowna, Canada. A full-scale national championship.</td></tr>
-<tr><td><img src='img/Gallery/gaspe2018.png' size=250></img></td><td>PanAm Masters Championship, Gaspé, Canada. The program has full support of Masters rules and coefficients.</td></tr>
-<tr><td><img src='img/Gallery/nordic2021.png' size=250></img></td><td>Nordic Championships, Copenhagen, Denmark.<br> Streaming software can easily integrate the displays produced by the application.</td></tr>
-<tr><td><img src='img/Gallery/mexicoNational.jpg'></img></td><td>Mexico National Games.<br>(4 platforms, each with jury.)</td></tr>
+<tr><td><img src='img/Gallery/lima.jpg'></img></td><td>PanAm Junior and SouthAmerican Junior U20/U17/U15, Lima, Peru</td></tr>
+<tr><td><img src='img/Gallery/chelles.jpg' size=250></img></td><td>Club meet, Chelles, France.</td></tr>
+<tr><td><img src='img/Gallery/IMG_1480.jpg' size=250></img></td><td>Canadian Senior Championship, Kelowna, Canada</td></tr>
+<tr><td><img src='img/Gallery/gaspe2018.png' size=250></img></td><td>PanAm Masters Championship, Gaspé, Canada</td></tr>
+<tr><td><img src='img/Gallery/nordic2021.png' size=250></img></td><td>Nordic Championships, Copenhagen, Denmark (with video inserts)</td></tr>
+<tr><td><img src='img/Gallery/mexicoNational.jpg'></img></td><td>Mexico National Games</td></tr>
 
 </table>
-
 ## Downloads and Installation
 
 To run the program on a laptop at the competition site ([overview](InstallationOverview#stand-alone-laptop-installation))
@@ -148,3 +148,14 @@ The following list is a sampling of the many features available.  <u>*Click on t
 - [Discussion list](https://groups.google.com/forum/#!forum/owlcms)  If you wish to discuss the program or ask questions, please add yourself to this discussion [group](https://groups.google.com/forum/#!forum/owlcms).  You can withdraw at any time.
 - [Issues and Feature Requests](https://github.com/jflamy/owlcms4/projects/1)  Use the "Issues" icon at the top of the page.
 - [Project board](https://github.com/jflamy/owlcms4/projects/1) This shows what we are working on, and our work priorities.  Check here first, we may actually already be working on it
+<br><br>
+<br><br>
+
+
+[^images]: <span style="font-size:1.5em">Description of the images</span> (click on underlined text to return)
+  - Club meet in Chelles, France (2021)
+  - Canadian Senior National Championship 2022
+  - 2018 PanAmerican Masters Championships (Gaspé, CA)
+  - Nordic Championships 2021 (Scandinavian nations, including video overlays produced by owlcms)
+  - Mexican National Games 2022 (4 simultaneous platforms)
+  - 2022 PanAmerican U15 and U17 Championships (Monterey, MX)
