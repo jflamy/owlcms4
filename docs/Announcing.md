@@ -6,7 +6,7 @@ The first thing to do is to check that the correct field of play (platform) is d
 
 ## Selecting the current group
 
-The **announcer** screen selects which group is competing.  When the announcer selects a group, all displays for the field of play switch to that group.
+The current group is normally selected on the announcer screen (but may also be selected on the timekeeper screen).  When the current group is selected, all the displays for the field of play switch to that group.
 
 ![012_SelectGroup](img/Lifting/012_SelectGroup.png)
 
@@ -26,11 +26,11 @@ Following the IWF rules, the announcer should then proceed as follows
 
 1. The announcer says: "**Loaders, please load 62kg on the ba**r"
 2. Once the platform is clear, the announcer says, in the local language then in English: "**The bar is now loaded with 62kg for the first attempt of Larry BROWN**"
-3. When pronouncing the **family name of the athlete in English**, [start the clock](#starting-the-clock) -- see the next section -- by using the `Play` (triangle)button.
+3. When pronouncing the **family name of the athlete in English**, [start the clock](#starting-the-clock) -- see the next section -- by using the `Play` (triangle) button.
 
 ## Starting the clock
 
-Either the announcer or the timekeeper can start the clock.  In most meets, in fact, it is probably more convenient that the announcer starts the clock.   We recommend that the announcer start time even when a separate person is acting as timekeeper, since that eliminates confusion.  
+Either the announcer or the timekeeper can start the clock.  
 
 ![014_StartClock](img/Lifting/014_StartClock.png)
 
