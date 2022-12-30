@@ -22,6 +22,7 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
+
 import com.vaadin.flow.component.icon.IronIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -54,7 +55,7 @@ public class OwlcmsLayout extends AppLayout {
     public static final String LARGE = "text-l";
     public static final String NONE = "m-0";
     Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsLayout.class);
-    private Label viewTitle;
+    private Component viewTitle;
 
     protected List<Component> navBarComponents;
 
@@ -62,6 +63,7 @@ public class OwlcmsLayout extends AppLayout {
     private ComboBox<Locale> localeDropDown;
     private FlexLayout menuArea;
     private HorizontalLayout header;
+    private boolean margin;
 
     public OwlcmsLayout() {
         navBarComponents = new ArrayList<>();
@@ -107,7 +109,7 @@ public class OwlcmsLayout extends AppLayout {
         return navBarComponents;
     }
 
-    public Label getViewTitle() {
+    public Component getViewTitle() {
         return viewTitle;
     }
 
@@ -126,7 +128,18 @@ public class OwlcmsLayout extends AppLayout {
     }
 
     public void setMenuTitle(String topBarTitle) {
-        getViewTitle().setText(topBarTitle);
+        if (getViewTitle() instanceof Label) {
+            ((Label)getViewTitle()).setText(topBarTitle); 
+        } else {
+            setMenuTitle(new Label("topBarTitle"));
+        }
+    }
+    
+    public void setMenuTitle(Component topBarTitle) {
+        Component curTitle = getViewTitle();
+        remove(curTitle);
+        setViewTitle(topBarTitle);
+        updateHeader(margin);
     }
 
     public void setMenuVisible(boolean hamburgerShown) {
@@ -161,6 +174,7 @@ public class OwlcmsLayout extends AppLayout {
     }
 
     public void updateHeader(boolean margin) {
+        this.margin = margin;
         header.removeAll();
         header.setMargin(margin);
         header.setPadding(false);
@@ -232,10 +246,6 @@ public class OwlcmsLayout extends AppLayout {
         //sessionLocaleField.setWidth("24ch");
         sessionLocaleField.setClearButtonVisible(true);
         List<Locale> usefulLocales = Translator.getUsefulLocales();
-//        Locale curLocale = OwlcmsSession.getLocale();
-//        usefulLocales.sort((a,b) -> {
-//            return a.getDisplayName(a).compareTo(b.getDisplayName(b));
-//        });
         sessionLocaleField.setItems(new ListDataProvider<>(usefulLocales));
         sessionLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
         sessionLocaleField.setValue(Translator.getLocaleSupplier().get());
@@ -246,6 +256,7 @@ public class OwlcmsLayout extends AppLayout {
         return sessionLocaleField;
     }
 
+    @SuppressWarnings("deprecation")
     private Tab createTab(IronIcon viewIcon, String viewName, Class<? extends Component> viewClass) {
         viewIcon.getStyle().set("box-sizing", "border-box")
                 .set("margin-inline-end", "var(--lumo-space-m)")
@@ -259,6 +270,7 @@ public class OwlcmsLayout extends AppLayout {
         return new Tab(link);
     }
 
+    @SuppressWarnings("deprecation")
     private Tab createTab(IronIcon viewIcon, String viewName,
             String docOpener) {
         Anchor a = new Anchor();
@@ -317,8 +329,8 @@ public class OwlcmsLayout extends AppLayout {
         this.localeDropDown = localeDropDown;
     }
 
-    private void setViewTitle(Label viewTitle) {
-        this.viewTitle = viewTitle;
+    private void setViewTitle(Component topBarTitle) {
+        this.viewTitle = topBarTitle;
     }
 
 }

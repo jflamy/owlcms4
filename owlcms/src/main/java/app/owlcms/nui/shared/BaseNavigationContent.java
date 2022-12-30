@@ -18,6 +18,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -121,7 +122,14 @@ public abstract class BaseNavigationContent extends VerticalLayout
 
     @Override
     public void setHeaderContent() {
-        routerLayout.setMenuTitle(getMenuTitle());
+        Label label = new Label(getMenuTitle());
+        label.getStyle().set("font-size", "var(--lumo-font-size-xl");
+        Image image = new Image("icons/owlcms.png", "owlcms icon");
+        image.getStyle().set("height", "7ex");
+        image.getStyle().set("width", "auto");
+        HorizontalLayout topBarTitle = new HorizontalLayout(image, label);
+        topBarTitle.setAlignSelf(Alignment.CENTER, label);
+        routerLayout.setMenuTitle(topBarTitle);
         routerLayout.setMenuArea(createMenuArea());
         routerLayout.showLocaleDropdown(true);
         routerLayout.setDrawerOpened(true);
