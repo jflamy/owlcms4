@@ -1,9 +1,5 @@
 package app.owlcms.utils;
 /*
- Copyright (c) 2003-2022 Pierre-Luc Paour
-*/
-
-/*
  Copyright (c) 2003 Pierre-Luc Paour
 
  NaturalOrderComparator.java -- Perform 'natural order' comparisons of strings in Java.
