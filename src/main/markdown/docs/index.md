@@ -1,7 +1,8 @@
-# owlcms : Olympic Weightlifting Competition Management System 
+# owlcms: Olympic Weightlifting Competition Management System 
 
-This free application is a *fully-compliant* weightlifting competition management system that been used to manage large scale championships, worldwide.
-**BUT** it is *simple* enough that you can run a small club meet or a regional meet with only everyday electronics (a laptop, a TV, maybe some phones)
+> **The full-range solution for running competitions**
+>
+> This free application is a *fully-compliant* weightlifting competition management system that has been used worldwide to manage many large-scale championships. **BUT** at the same time, it is simple enough that you can run a small club meet with just a single laptop, or a regional meet with only everyday electronics (a couple laptops and TVs, some phones).
 
 ## Gallery
 
