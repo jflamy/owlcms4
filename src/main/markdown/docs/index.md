@@ -7,13 +7,14 @@
 ## Gallery
 
 <table>
-<tr><td><img src='img/Gallery/lima.jpg'></img></td><td>PanAm Junior and SouthAmerican Junior U20/U17/U15, Lima, Peru.<br>The program  supports simultaneous platforms and displays the multiple rankings for multiple concurrent age group competitions</td></tr>
+<tr><td><img src='img/Gallery/lima.jpg'></img></td><td>PanAm Junior and SouthAmerican  U20/U17/U15 Championships, Lima, Peru.<br>The program  supports simultaneous platforms and displays the multiple rankings for multiple concurrent age group competitions</td></tr>
 <tr><td><img src='img/Gallery/ElSalvador.jpg'></img></td><td>National Competition, El Salvador.<br>A simple setup with everyday electronics.</td></tr>
 <tr><td><img src='img/Gallery/chelles.jpg' size=250></img></td><td>Club meet, Chelles, France.<br>Supports mixed-gender kid groups.</td></tr>
 <tr><td><img src='img/Gallery/IMG_1480.jpg' size=250></img></td><td>Canadian Senior Championship, Kelowna, Canada. A full-scale national championship.</td></tr>
 <tr><td><img src='img/Gallery/gaspe2018.png' size=250></img></td><td>PanAm Masters Championship, Gaspé, Canada. The program has full support of Masters rules and coefficients.</td></tr>
 <tr><td><img src='img/Gallery/nordic2021.png' size=250></img></td><td>Nordic Championships, Copenhagen, Denmark.<br> Streaming software can easily integrate the displays produced by the application.</td></tr>
 <tr><td><img src='img/Gallery/mexicoNational.jpg'></img></td><td>Mexico National Games.<br>(4 platforms, each with jury.)</td></tr>
+
 
 </table>
 
