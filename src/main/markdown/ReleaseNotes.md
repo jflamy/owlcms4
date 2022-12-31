@@ -7,8 +7,8 @@
   - 37.0 Enhancements
     - Migration to new version of the user interface framework
     - On the preparation page, moved the pre-competition documents (Start List, Cards) to a separate page with more appropriate filtering.
+    - beta09: Edit Athlete Entries: updated the category selection logic to make initial entry of athletes (+) more intuitive
   - 37.0-beta Fixes
-    - beta08: registration page: more significant labels on the category selection fields
     - beta08: enhanced documentation for physical setup and networking options
     - beta08: changed the multichrome.bat script to use Edge instead of Chrome (uses much less memory)
     - beta07: the public results scoreboard was not updating
