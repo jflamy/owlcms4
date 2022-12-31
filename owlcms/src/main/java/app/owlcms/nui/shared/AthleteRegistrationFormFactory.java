@@ -8,6 +8,7 @@ package app.owlcms.nui.shared;
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -664,6 +665,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
         Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
         ComboBox<Category> categoryField = (ComboBox<Category>) categoryBinding.getField();
+        categoryField.setClearButtonVisible(true);
 
         Binding<Athlete, ?> eligibleBinding = binder.getBinding("eligibleCategories").get();
         CheckboxGroup<Category> eligibleField = (CheckboxGroup<Category>) eligibleBinding.getField();
@@ -673,7 +675,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
         if (initCategories) {
             allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField,
-                    qualifyingTotalField);
+                    categoryField, qualifyingTotalField);
             logger.trace("**gender = {}, eligible = {}", genderField.getValue(), allEligible);
             // ListDataProvider<Category> listDataProvider = new ListDataProvider<>(allEligible);
             updateCategoryFields(category, categoryField, eligibleField, qualifyingTotalField, allEligible, false);
@@ -683,6 +685,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             if (!isChangeListenersEnabled()) {
                 return;
             }
+            List<Category> pertinentCategories = CategoryRepository.findByGenderAgeBW(getGenderFieldValue(), getAgeFromFields(), null);
+            categoryField.setItems(pertinentCategories);
             recomputeCategories(genderField, bodyWeightField, categoryField, eligibleField, dateField,
                     qualifyingTotalField);
         });
@@ -697,6 +701,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 if (!isChangeListenersEnabled()) {
                     return;
                 }
+                List<Category> pertinentCategories = CategoryRepository.findByGenderAgeBW(getGenderFieldValue(), getAgeFromFields(), null);
+                categoryField.setItems(pertinentCategories);
                 recomputeCategories(genderField, bodyWeightField, categoryField, eligibleField, dateField,
                         qualifyingTotalField);
             };
@@ -709,6 +715,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 if (!isChangeListenersEnabled()) {
                     return;
                 }
+                List<Category> pertinentCategories = CategoryRepository.findByGenderAgeBW(getGenderFieldValue(), getAgeFromFields(), null);
+                categoryField.setItems(pertinentCategories);
                 recomputeCategories(genderField, bodyWeightField, categoryField, eligibleField, dateField,
                         qualifyingTotalField);
             };
@@ -725,6 +733,25 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             recomputeCategories(genderField, bodyWeightField, categoryField, eligibleField, dateField,
                     qualifyingTotalField);
         });
+        
+        categoryField.addValueChangeListener((vc) -> {
+            Category value = vc.getValue();
+            logger.warn("category new value {}",value);
+            if (!isChangeListenersEnabled()) {
+                return;
+            }
+            setChangeListenersEnabled(false); // prevent recursion.
+            if (genderField.getValue() == null) {
+                genderField.setValue(value.getGender());
+            }
+            if (value == null) {
+                eligibleField.setItems(new ArrayList<>());
+            } else {
+                recomputeCategories(genderField, bodyWeightField, categoryField, eligibleField, dateField,
+                        qualifyingTotalField);
+            }
+            setChangeListenersEnabled(true);
+        });
 
         eligibleField.addValueChangeListener((vc) -> {
             if (!isChangeListenersEnabled()) {
@@ -732,8 +759,13 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             }
             setChangeListenersEnabled(false); // prevent recursion.
             // false as last argument: do not reset to all eligible categories
-            updateCategoryFields(categoryField.getValue(), categoryField, eligibleField, qualifyingTotalField,
-                    allEligible, false);
+            logger.warn("eligibleField update");
+            allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField, categoryField, qualifyingTotalField);
+            Category category2 = bestMatch(allEligible);
+            categoryField.setValue(category2);
+//          updateCategoryFields(category2, categoryField, eligibleField, qualifyingTotalField, allEligible, true);
+//            updateCategoryFields(categoryField.getValue(), categoryField, eligibleField, qualifyingTotalField,
+//                    allEligible, false);
             setChangeListenersEnabled(true);
         });
 
@@ -750,10 +782,15 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     }
 
     private List<Category> findEligibleCategories(ComboBox<Gender> genderField, Integer ageFromFields,
-            LocalizedDecimalField bodyWeightField, TextField qualifyingTotalField) {
+            LocalizedDecimalField bodyWeightField, ComboBox<Category> categoryField, TextField qualifyingTotalField) {
         // best match is first
+        Double bw = bodyWeightField.getValue();
+        Double catW = categoryField.getValue() != null ?  categoryField.getValue().getMaximumWeight() : null;
+        if (bw == null) {
+            bw = catW;
+        }
         return doFindEligibleCategories(genderField.getValue(),
-                ageFromFields, bodyWeightField.getValue(), Athlete.zeroIfInvalid(qualifyingTotalField.getValue()));
+                ageFromFields, bw, Athlete.zeroIfInvalid(qualifyingTotalField.getValue()));
     }
 
     @SuppressWarnings("unchecked")
@@ -823,18 +860,19 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             HasValue<?, ?> dateField, TextField qualifyingTotalField) {
 
         Category value = categoryField.getValue();
+        Integer age = getAgeFromFields();
         if (bodyWeightField.getValue() != null) {
-            if (genderField.getValue() != null && dateField.getValue() != null) {
+            if (genderField.getValue() != null && age != null) {
                 // body weight, gender, date
                 allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField,
-                        qualifyingTotalField);
-                // logger.debug("cat {} eli {}", value, allEligible);
+                        categoryField, qualifyingTotalField);
+                logger.warn("cat {} eli {}", value, allEligible);
                 if (value != null && categoryIsEligible(value, allEligible)) {
                     // current category is amongst eligibles. Don't recompute anything.
                     // logger.debug("leave alone");
                 } else {
                     // logger.debug("recompute");
-                    // category is null or not withing eligibles, recompute
+                    // category is null or not within eligibles, recompute
                     Category bestMatchCategory = bestMatch(allEligible);
                     updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField,
                             allEligible, true);
@@ -844,7 +882,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             }
         } else {
             // no body weight, but category available.
-            if (genderField.getValue() != null && dateField.getValue() != null && value != null) {
+            if (genderField.getValue() != null && age != null && value != null) {
                 Double bw = value.getMaximumWeight();
                 int qualifyingTotal = Athlete.zeroIfInvalid(qualifyingTotalField.getValue());
                 Integer ageFromFields = getAgeFromFields();
@@ -895,18 +933,18 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     private void updateCategoryFields(Category bestMatch, ComboBox<Category> categoryField,
             CheckboxGroup<Category> eligibleField, TextField qualifyingTotalField, List<Category> allEligible,
-            boolean recompute) {
+            boolean recomputeEligibles) {
 
         LinkedHashSet<Category> newEligibles = new LinkedHashSet<>();
         Set<Category> prevEligibles;
-        if (recompute) {
+        if (recomputeEligibles) {
             prevEligibles = new LinkedHashSet<>();
             prevEligibles.addAll(allEligible);
         } else {
             prevEligibles = eligibleField.getValue();
         }
-        // logger.debug("updateCategoryFields {} - {} {} {}", prevEligibles, category, allEligible,
-        // LoggerUtils.whereFrom());
+         logger.warn("updateCategoryFields {} {} - {} {} {}", categoryField.getValue(), bestMatch, prevEligibles, allEligible,
+         LoggerUtils.whereFrom());
 
         if (prevEligibles != null) {
             // update the list of eligible categories. Must use the matching items in allEligibles so that
@@ -922,9 +960,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                     }
                 }
             }
-            // logger.debug("new eligibles {}", newEligibles.stream().map(v ->
-            // v.longDump()).collect(Collectors.toList()));
-            categoryField.setItems(newEligibles);
+            logger.debug("all eligibles {}", allEligible.stream().map(v -> v.longDump()).collect(Collectors.toList()));
+            
+            List<Category> pertinentCategories = CategoryRepository.findByGenderAgeBW(getGenderFieldValue(), getAgeFromFields(), null);
+            categoryField.setItems(pertinentCategories);
             eligibleField.setItems(allEligible);
             eligibleField.setValue(newEligibles);
         }
@@ -942,7 +981,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 }
             }
             categoryField.setValue(matchingEligible);
-            logger.debug("category {} {} matching eligible {} {}", bestMatch, System.identityHashCode(bestMatch),
+            logger.warn("category {} {} matching eligible {} {}", bestMatch, System.identityHashCode(bestMatch),
                     matchingEligible, System.identityHashCode(matchingEligible));
         } else {
             logger.debug("category is null");
