@@ -23,7 +23,7 @@ To run the program on a laptop at the competition site ([overview](InstallationO
 - [Windows Stand-alone Installation](LocalWindowsSetup)
 - [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
 
-You can also run the program in the cloud. See [here](InstallationOverview#cloud-based-installation) for instructions
+You can also run the program in the cloud, for example to host virtual meets. See [here](InstallationOverview#cloud-based-installation) for instructions
 
 ## Demo
 
