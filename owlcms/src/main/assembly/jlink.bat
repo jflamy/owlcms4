@@ -1,5 +1,5 @@
 @rem ***************************************************************************
-@rem Copyright (c) 2009-2022 Jean-François Lamy
+@rem Copyright (c) 2009-2023 Jean-François Lamy
 @rem
 @rem Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
 @rem License text at https://opensource.org/licenses/NPOSL-3.0
