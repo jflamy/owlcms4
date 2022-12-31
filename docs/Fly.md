@@ -30,17 +30,18 @@ Note that if you own your own domain, you can add names under your own domain to
       fly auth create
       ```
    
-  2. If you already have a fly.io account, type this command instead.
+   2. If you already have a fly.io account, type this command instead.
 
-     ```bash
-     fly auth login
-     ```
-
-4. install owlcms and give it enough memory.
+      ```bash
+      fly auth login
+      ```
+   
+3. install owlcms and give it enough memory.
 
    > **Answer `y` (YES) ** when asked if you want a Postgres database.  This is required for owlcms to store its data.
+   >
+   > Replace `myclub` with the name you want for your application
 
-   Replace `myclub` with the name you want for your application
       ```
    fly launch --image owlcms/owlcms:stable --app myclub
    fly scale memory 512 --app myclub
@@ -52,24 +53,33 @@ This is not required, but since there is no extra cost associated, you might as 
 
 1. Install public results.
 
+   > Replace `myclub-results` with the name you want for your remote scoreboard application
+   >
    > **Answer `n` (NO)** when asked if you want a Postgres database.  publicresults does not need a database.
-
-   Replace `myclub-results` with the name you want for your remote scoreboard application
 
    ```
    fly launch --image owlcms/publicresults:stable --app myclub-results
    ```
 
-2. Create a secret that owlcms will use as an update key to send its updates to the public results scoreboard.  See [this page](PublicResults) for an overview of how owlcms and publicresults work together.
+2. Create a shared secret between the two applications. See [this page](PublicResults) for an overview of how owlcms and publicresults work together.
 
-   Use your own secret - do not paste this line as is !
-   
+   > Use your own secret - do not paste this line as is !  
+   >
+   > Replace myclub and myclub-results with your own names
+   >
 
-   ```
-   fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app myclub-results
-   ```
+    ```
+    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app myclub-results
+    fly secrets set OWLCMS_UPDATEKEY=MaryHadALittleLamb --app myclub
+    ```
 
-5. Configure the connection between your owlcms and your Go to the owlcms application you just created  (https://myclub.fly.dev) and  follow [this procedure](Remote#configure-updates-from-owlcms).   Don't forget to use the Update button at the top of the page.
+3. Tell your owlcms application where your public results application is so it can connect.
+
+      > Replace myclub and myclub-results with your own names
+
+    ```
+    fly secrets set OWLCMS_REMOTE=https://myclub-results.fly.dev --app myclub-results
+    ```
 
 ### Updating
 
@@ -109,8 +119,6 @@ You can run the commands from any command shell you have.
    fly scale count 1 --app myclub
    fly scale count 1 --app myclub-results
    ```
-
-
 
 ### Scale-up and Scale-down of owlcms
 
