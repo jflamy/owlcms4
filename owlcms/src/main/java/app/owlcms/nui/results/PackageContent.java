@@ -63,7 +63,6 @@ import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.spreadsheet.JXLSResultSheet;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -414,7 +413,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
     @Override
     protected void defineFilters(GridCrud<Athlete> crud) {
-        logger.warn("defineFilters from {}",LoggerUtils.whereFrom());
+        //logger.debug("defineFilters from {}",LoggerUtils.whereFrom());
         
         if (topBarAgeDivisionSelect == null) {
             topBarAgeDivisionSelect = new ComboBox<>();
@@ -426,7 +425,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             topBarAgeDivisionSelect.setClearButtonVisible(true);
             topBarAgeDivisionSelect.getStyle().set("margin-left", "1em");
             setAgeDivisionSelectionListener();
-            logger.warn("adItems {}",adItems);
+            //logger.debug("adItems {}",adItems);
         }
         
         if (topBarAgeGroupPrefixSelect == null) {
@@ -492,7 +491,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
     protected void setAgeDivisionSelectionListener() {
         topBarAgeDivisionSelect.addValueChangeListener(e -> {
-            logger.warn("topBarAgeDivisionSelect {}",e.getValue());
+            //logger.debug("topBarAgeDivisionSelect {}",e.getValue());
             // the name of the resulting file is set as an attribute on the <a href tag that
             // surrounds the packageDownloadButton button.
             AgeDivision ageDivisionValue = e.getValue();
@@ -511,7 +510,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
             topBarAgeGroupPrefixSelect.setItems(ageDivisionAgeGroupPrefixes);
             boolean notEmpty = ageDivisionAgeGroupPrefixes.size() > 0;
-            logger.warn("ageDivisionAgeGroupPrefixes {}",ageDivisionAgeGroupPrefixes);
+            //logger.debug("ageDivisionAgeGroupPrefixes {}",ageDivisionAgeGroupPrefixes);
             topBarAgeGroupPrefixSelect.setEnabled(notEmpty);
             String first = (notEmpty && ageDivisionValue == AgeDivision.IWF) || (ageDivisionAgeGroupPrefixes.size() == 1)? ageDivisionAgeGroupPrefixes.get(0)
                     : null;
@@ -642,7 +641,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     private void setAgeDivision(AgeDivision ageDivision) {
-        logger.warn("setAgeDivision to {} from {}",ageDivision, LoggerUtils.whereFrom());
+        //logger.debug("setAgeDivision to {} from {}",ageDivision, LoggerUtils.whereFrom());
         this.ageDivision = ageDivision;
     }
 

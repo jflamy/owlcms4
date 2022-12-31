@@ -737,7 +737,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         
         categoryField.addValueChangeListener((vc) -> {
             Category value = vc.getValue();
-            logger.warn("category new value {}",value);
+            //logger.debug("category new value {}",value);
             if (!isChangeListenersEnabled()) {
                 return;
             }
@@ -760,11 +760,11 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             }
             setChangeListenersEnabled(false); // prevent recursion.
             // false as last argument: do not reset to all eligible categories
-            logger.warn("eligibleField update");
+            //logger.debug("eligibleField update");
             Set<Category> selectedCategories = eligibleField.getSelectedItems();
             allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField, categoryField, qualifyingTotalField);
             Stream<Category> filter = allEligible.stream().filter(c -> c.sameAsAny(selectedCategories));
-//            logger.warn("selected categories in order {}", filter.collect(Collectors.toList()));
+//            //logger.debug("selected categories in order {}", filter.collect(Collectors.toList()));
 //            filter = allEligible.stream().filter(c -> c.sameAsAny(selectedCategories));
             Category category2 = filter.findFirst().orElse(null);
             categoryField.setValue(category2);
@@ -871,7 +871,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 // body weight, gender, date
                 allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField,
                         categoryField, qualifyingTotalField);
-                logger.warn("cat {} eli {}", value, allEligible);
+                //logger.debug("cat {} eli {}", value, allEligible);
                 if (value != null && categoryIsEligible(value, allEligible)) {
                     // current category is amongst eligibles. Don't recompute anything.
                     // logger.debug("leave alone");
@@ -948,8 +948,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         } else {
             prevEligibles = eligibleField.getValue();
         }
-         logger.warn("updateCategoryFields {} {} - {} {} {}", categoryField.getValue(), bestMatch, prevEligibles, allEligible,
-         LoggerUtils.whereFrom());
+         //logger.debug("updateCategoryFields {} {} - {} {} {}", categoryField.getValue(), bestMatch, prevEligibles, allEligible, LoggerUtils.whereFrom());
 
         if (prevEligibles != null) {
             // update the list of eligible categories. Must use the matching items in allEligibles so that
@@ -986,8 +985,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 }
             }
             categoryField.setValue(matchingEligible);
-            logger.warn("category {} {} matching eligible {} {}", bestMatch, System.identityHashCode(bestMatch),
-                    matchingEligible, System.identityHashCode(matchingEligible));
+            //logger.debug("category {} {} matching eligible {} {}", bestMatch, System.identityHashCode(bestMatch), matchingEligible, System.identityHashCode(matchingEligible));
         } else {
             logger.debug("category is null");
         }

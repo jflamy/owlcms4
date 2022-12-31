@@ -63,7 +63,7 @@ public class GroupSelectionMenu extends MenuBar {
                         e.getSource().setChecked(true);
                         currentlyChecked[0] = e.getSource();
                         item.setText(g.getName() + "\u2003\u25bd");
-                        logger.warn("selected {}",g.getName());
+                        //logger.debug("selected {}",g.getName());
                         this.removeThemeVariants(MenuBarVariant.LUMO_PRIMARY);
                     });
             subItem.setCheckable(true);

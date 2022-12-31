@@ -532,7 +532,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
     private void clearStartNumbers() {
         Group group = getCurrentGroup();
-        logger.warn("group {}",getCurrentGroup());
+        //logger.debug("group {}",getCurrentGroup());
         if (group == null) {
             errorNotification();
             return;
@@ -541,7 +541,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
             List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, null,
                     (Gender) null);
             for (Athlete a : currentGroupAthletes) {
-                logger.warn(a.getShortName());
+                //logger.debug(a.getShortName());
                 a.setStartNumber(0);
             }
             return currentGroupAthletes;
