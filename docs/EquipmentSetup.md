@@ -1,9 +1,6 @@
 ## Physical Setup
 
-OWLCMS is a web-based application.  
-
-- All the displays run using a browser. You can use *any* device that can run a browser - the cheapest available device will do.  This can be an old laptop, a [FireTV stick with the Silk web browser](FireTV),  a [Raspbery Pi](https://www.raspberrypi.org/products/raspberry-pi-400/), or an entry-level Chromebook. 
-- The OWLCMS program runs in one of two ways: on a local laptop, or in the cloud.  The only need for a good laptop is if you want to run the program locally (see [Computer Requirements](#computer-requirements) below)
+owlcms is a web-based application.  All the displays connect to owlcms using a browser.  In most scenarios, owlcms runs on a good laptop at the competition site, and all the other displays connect to that laptop.  For virtual meets, the computer running owlcms is actually running somewhere in the internet -- everything else on this page still applies.
 
 ### Small Club Meets
 
@@ -12,6 +9,12 @@ In the simplest setup, a single person will act as announcer, register changes, 
 Typically however, you will want to have a scoreboard so athletes and coaches can follow the competition as they warm up.  So a no-nonsense setup a small club meet might look like
 
 <center><img src="img/equipment/ClubCompetitionWIFI.png" alt="ClubCompetitionWIFI" /></center>
+
+If you want to go the next step and have displays for the athletes and coaches, you can connect old laptops to a normal household router.  You would normally start with an attempt board in the main room and a scoreboard in the warmup area.  If you can, use Ethernet cables - there is often interference in gyms.
+
+![wirednetwork](img/equipment/wirednetwork.png)
+
+
 
 ### Full Competition Setup
 
@@ -23,33 +26,53 @@ At the opposite end of the spectrum, a setup for a state competition using refer
 
 
 
-You can also add a jury laptop with 5 refereeing devices, add additional results displays, as many as you want.  You can even replicate the full setup on multiple platforms, all running at once.  No matter how many platforms, there is only one OWLCMS primary server (either a laptop running locally, or a cloud application) 
+There are basically two ways to achieve such as setup.  The first one uses fewer computers and relies on HDMI extenders, the second (illustrated above) uses old laptops, or small devices such as FireSticks, ChromeCasts, or mini PC sticks to feed the displays.  The two approaches can be combined as needed.
+
+#### Approach 1: Fewer laptops, HDMI extenders
+
+In this approach, officials use the main display of the laptop.  The monitor output is used to show scoreboards.  An HDMI extender is used to send the signal over Ethernet cabling to a large display located far away.  Extenders can provide a second output that is connected to a monitor next to the laptop.  In this way, the announcer can see the main scoreboard, and the marshall can see the warmup scoreboard.
+
+The diagram below illustrates the "full setup" that would be used in a multi-platform competition with a full jury.
+
+- A software like [DualMonitorTool](https://dualmonitortool.sourceforge.net/) is used to prevent the mouse from moving out of sight during the sessions.
+
+- The advantage to that setup is that HDMI extension is comparatively cheap (50-100$ per screen) and that there are extenders with an HDMI loop-out that allow the officials to have the same output on a monitor. This also makes it easy to control what is seen on the remote screens. 
+- The laptops are wired using a networking switch.
+- If needed, the laptops can also provide power or control refereeing/jury/timekeeping devices (that typically use Arduino or ESP32 chips).
+- *Two laptops are shared between all competition platforms*; one runs owlcms, the other is for the competition secretary. In a large meet the competition secretary needs a dedicated computer to do the data entry and to produce the results.  They can be connected to the router or to a switch.  In a smaller meet it is often the case that either the announcer laptop or the secretary laptop will run owlcms, but due to the risk of human error, a separate laptop is preferred.
+- *Four laptops are required per platform*, plus one for the jury if there is one, plus one for video streaming if needed.  The laptops are wired to a switch.
+- If there is only one platform, the video streaming computer can be attached to the competition router
+
+![hdmi](EquipmentSetup/images/hdmi.png)
+
+#### Approach 2: Fully Networked
+
+In this second approach, every screen is connected to a networked device.  The small green boxes in the diagram represent the networked devices.  In pre-pandemic times, it was easy to buy a Raspberry Pi for roughly 100$, which made this option price-competitive with the HDMI scenario described above.  These times are gone, so this approach is good when devices are already available and can be scrounged.
+
+Anything that can still run a recent version of Chromium is fine  This includes:
+
+- Old laptops (old laptops can often be converted to Chromebooks and get a second life).  Most old laptops that are too slow for anything else can still run Chrome or Edge.
+- Raspberry Pi (the [model 400](https://www.raspberrypi.org/products/raspberry-pi-400/), has everything built-in and is an excellent choice - when available).
+- PC Sticks or MiniPCs (preferably with an Ethernet port)
+- [Amazon Fire TV sticks](FireTV) (this requires WiFi to be of excellent quality)
+- Chromecasts (this requires internet access to start up, and WiFi has to be of excellent quality). A computer must provide the display being replicated -- a single laptop can drive multiple displays)
+
+The disadvantage to this approach is that each display must be setup separately, and the cost of the devices if you don't have a plentiful supply of obsolete laptops.  The reliance on good WiFi for certain devices is also something to take into account. This advantage is that every display is independent, so this is extremely flexible.
+
+
+
+![networking](EquipmentSetup/images/networking.png)
 
 ## Computer Requirements
 
 - The server software will run either 
   - on any reasonably recent laptop (this laptop will act as a primary server in a local networking setup, see [below](#local-access-over-a-local-network) for details.  In our experience, a Core i5 or equivalent is plenty.
-  - or on a cloud service. We test and support the [Heroku cloud service](Heroku#Heroku), which has a free tier suitable for small competitions owlcms, and a reasonably priced paying tier you can use on the actual days of a [large competition](HerokuLarge)
-- For the user interface and displays,  It is recommended to use a recent version of **Chrome**, **Edge** or **Firefox** on any laptop/miniPC (Windows, Linux, Mac), or on a specialized display device (Amazon FireStick).  **Safari** also works on iPads, but the smaller screen resolution needs to be taken into account.
-  -  The cheapest solutions to drive TV screens are [Amazon Fire TV sticks](FireTV), and Raspberry Pi  computers (the [model 400](https://www.raspberrypi.org/products/raspberry-pi-400/), has everything built-in).
-  - For the officials, you can use just about any laptop.  Refurbished Chromebooks or refurbished Windows laptops work well -- all that is needed is the ability to run a recent version of Chrome or Firefox.
-  - Apple iPhones and iPads are ok as [mobile refereeing devices](Refereeing#mobile-device-refereeing).   Display features such as the Scoreboard and the refereeing displays (attempt board, athlete-facing decisions) also work.
-  - Android phones and tablets work fine for all features (just install Chrome)
-
-## Networking Requirements
-
-When running locally, all that is required is a local Wi-Fi router.  We recommend that the main laptop be connected using an ethernet wire to the router.   If there is Wi-Fi interference in the competition area (which is fairly common), the following minimal setup using Ethernet wires can be used. 
-
-![wirednetwork](img/equipment/wirednetwork.png)
-
-In the diagram above, computers that are essential to the competition flow are wired.  Other computers such as the one used to enter weigh-in information or to print results can be connected using Wi-Fi.   If you need to wire more devices, you can [connect as many switches as you want](https://www.linksys.com/support-article?articleNum=139602) to your router.
-
-When running over the cloud, the additional requirement is that the main router be connected to the internet with a reliable connection.
-
-When running several platforms, we recommend that you use a well-designed setup with multiple Wi-Fi access points.  Ask a technical person for advice.
+  - or on a cloud service.  The the minimum image size required is 512MB, and 1024 is preferred for large competitions.
+- As stated above, for the user interface and displays,  It is recommended to use a recent version of **Chrome**, **Edge** or **Firefox** on any laptop/miniPC (Windows, Linux, Mac), or on a specialized display device (Amazon FireStick).  **Safari** also works on iPads, but the smaller screen resolution needs to be taken into account.
+- Apple iPhones and iPads are ok as [mobile refereeing devices](Refereeing#mobile-device-refereeing).   Display features such as the Scoreboard and the refereeing displays (attempt board, athlete-facing decisions) also work.
 
 ## Sound Requirements
 
-By default, all the displays that show timers can emit sound, but are silent by default.  Having warnings come from several locations is confusing, you should pick one display per room to have sound on and leave the others silent.  See this [page](Displays#display-settings) for controlling the sound parameters for the various displays.
+By default, only the athlete-facing decision display emits sound.  See this [page](Displays#display-settings) for controlling the sound parameters for the various displays if you need to enable it on another display.  Enable sound only on one display per room, multiple sources are confusing.
 
-Another option is to get the primary laptop to generate the sounds.  This is mostly done for backward compatibility with the old behavior of the program, or when the equipment used for display has no speakers.   See [these explanations.](Preparation#associating-an-audio-output-with-a-platform)
+If the equipment used for display has no speakers, you can get the main computer to generate the sounds.   See [these explanations.](Preparation#associating-an-audio-output-with-a-platform)
