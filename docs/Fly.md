@@ -30,11 +30,11 @@ Note that if you own your own domain, you can add names under your own domain to
       fly auth create
       ```
    
-    2. If you already have a fly.io account, type this command instead.
+  2. If you already have a fly.io account, type this command instead.
 
-       ```bash
-       fly auth login
-       ```
+     ```bash
+     fly auth login
+     ```
 
 4. install owlcms and give it enough memory.
 
@@ -73,16 +73,21 @@ This is not required, but since there is no extra cost associated, you might as 
 
 ### Updating
 
-owlcms and publicresults are packaged as Docker images. The `fly deploy` command fetches the newest version available from the public hub.docker.com repository and restarts the application.
+The `fly deploy` command fetches the newest version available from the public hub.docker.com repository and restarts the application.
+
+To update to the latest stable version
 
 ```
 fly deploy --image owlcms/owlcms:stable --app myclub
 fly deploy --image owlcms/publicresults:stable --app myclub-results
 ```
 
-### Using pre-releases
+To switch to the latest prerelease version
 
-In order to switch to a prerelease, simply use the [Updating](#updating) instructions, but replace the word `stable` with the word `prerelease`
+```
+fly deploy --image owlcms/owlcms:prerelease --app myclub
+fly deploy --image owlcms/publicresults:prelease --app myclub-results
+```
 
 ### Stopping and Resuming Billing
 
