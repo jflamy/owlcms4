@@ -396,7 +396,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
                 .setHeader(getTranslation("BodyWeight")).setAutoWidth(true);
         grid.addColumn("snatch1Declaration").setHeader(getTranslation("SnatchDecl_"));
         grid.addColumn("cleanJerk1Declaration").setHeader(getTranslation("C_and_J_decl"));
-        grid.addColumn("eligibleCategories").setHeader(getTranslation("Registration.EligibleCategories")).setAutoWidth(true);
+        grid.addColumn("eligibleCategories").setHeader(getTranslation("Weighin.EligibleCategories")).setAutoWidth(true);
         grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal")).setAutoWidth(true);
         grid.addColumn("federationCodes").setHeader(getTranslation("Registration.FederationCodesShort")).setAutoWidth(true);
         OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
@@ -643,7 +643,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
                 CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName));
         crudFormFactory.setFieldProvider("eligibleCategories",
-                new CheckBoxGroupProvider<Category>(getTranslation("Registration.EligibleCategories"),
+                new CheckBoxGroupProvider<Category>(getTranslation("Weighin.EligibleCategories"),
                         new ArrayList<Category>(), (c) -> (c.getName())));
 //        crudFormFactory.setFieldProvider("ageDivision",
 //                new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),

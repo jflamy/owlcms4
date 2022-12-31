@@ -241,7 +241,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                 .setSortProperty("bodyWeight")
                 .setHeader(getTranslation("BodyWeight")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
         grid.addColumn("group").setHeader(getTranslation("Group")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
-        grid.addColumn("eligibleCategories").setHeader(getTranslation("Registration.EligibleCategories")).setAutoWidth(true);
+        grid.addColumn("eligibleCategories").setHeader(getTranslation("Weighin.EligibleCategories")).setAutoWidth(true);
         grid.addColumn("entryTotal").setHeader(getTranslation("EntryTotal")).setAutoWidth(true).setTextAlign(ColumnTextAlign.CENTER);
         grid.addColumn("federationCodes").setHeader(getTranslation("Registration.FederationCodesShort")).setAutoWidth(true);
         

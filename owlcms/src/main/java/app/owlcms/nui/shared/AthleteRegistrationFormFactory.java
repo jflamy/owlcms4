@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -511,7 +512,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 }
                 logger.debug("initialCategory = {}  new category = {}", initialCategory,
                         getEditedAthlete().getCategory());
-                return category.sameAs(initialCategory);
+                return category != null && category.sameAs(initialCategory);
             } catch (Exception e) {
                 LoggerUtils.logError(logger, e);
             }
@@ -760,8 +761,12 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             setChangeListenersEnabled(false); // prevent recursion.
             // false as last argument: do not reset to all eligible categories
             logger.warn("eligibleField update");
+            Set<Category> selectedCategories = eligibleField.getSelectedItems();
             allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField, categoryField, qualifyingTotalField);
-            Category category2 = bestMatch(allEligible);
+            Stream<Category> filter = allEligible.stream().filter(c -> c.sameAsAny(selectedCategories));
+//            logger.warn("selected categories in order {}", filter.collect(Collectors.toList()));
+//            filter = allEligible.stream().filter(c -> c.sameAsAny(selectedCategories));
+            Category category2 = filter.findFirst().orElse(null);
             categoryField.setValue(category2);
 //          updateCategoryFields(category2, categoryField, eligibleField, qualifyingTotalField, allEligible, true);
 //            updateCategoryFields(categoryField.getValue(), categoryField, eligibleField, qualifyingTotalField,
