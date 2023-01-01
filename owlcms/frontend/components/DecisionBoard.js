@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';       
+import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 class DecisionBoard extends PolymerElement {
 	static get is() {
 		return 'decision-board-template'
@@ -36,7 +36,7 @@ class DecisionBoard extends PolymerElement {
 	}
 
 	static get properties() {
-		return { 
+		return {
 			weight: {
 				type: Number,
 				value: 0
@@ -47,9 +47,9 @@ class DecisionBoard extends PolymerElement {
 	ready() {
 		super.ready();
 		console.log("decision board ready.")
-		this.doBreak(); 
-		this.$.athleteTimerDiv.style.display="none";
-		this.$.barbellDiv.style.display="none";
+		this.doBreak();
+		this.$.athleteTimerDiv.style.display = "none";
+		this.$.barbellDiv.style.display = "none";
 	}
 
 	start() {
@@ -60,28 +60,28 @@ class DecisionBoard extends PolymerElement {
 		//this.$.decisionBoardDiv.style.display="grid";
 		//this.$.decisionBoardDiv.style.color="white";
 		this.$.athleteTimer.reset(this.$.athleteTimer);
-		this.$.athleteTimerDiv.style.display="block";
-		this.$.breakTimerDiv.style.display="none";
-		this.$.barbellDiv.style.display="none";
-		this.$.decisionDiv.style.display="none";
+		this.$.athleteTimerDiv.style.display = "block";
+		this.$.breakTimerDiv.style.display = "none";
+		this.$.barbellDiv.style.display = "none";
+		this.$.decisionDiv.style.display = "none";
 	}
 
 	down() {
-		this.$.athleteTimerDiv.style.display="none";
-		this.$.breakTimerDiv.style.display="none";
-		this.$.barbellDiv.style.display="none";
-		this.$.decisionDiv.style.display="block";
+		this.$.athleteTimerDiv.style.display = "none";
+		this.$.breakTimerDiv.style.display = "none";
+		this.$.barbellDiv.style.display = "none";
+		this.$.decisionDiv.style.display = "block";
 	}
 
 	doBreak() {
 		//console.debug("decisionBoard doBreak");
 		//this.$.decisionBoardDiv.style.display="grid";
 		//this.$.decisionBoardDiv.style.color="white";
-		this.$.breakTimer.style.display="block";
-		this.$.athleteTimerDiv.style.display="none";
-		//this.$.breakTimerDiv.style.display="block";
-		this.$.barbellDiv.style.display="none";
-		this.$.decisionDiv.style.display="none";
+		this.$.breakTimer.style.display = "block";
+		this.$.athleteTimerDiv.style.display = "none";
+		this.$.breakTimerDiv.style.display="block";
+		this.$.barbellDiv.style.display = "none";
+		this.$.decisionDiv.style.display = "none";
 	}
 
 	groupDone() {
@@ -89,9 +89,9 @@ class DecisionBoard extends PolymerElement {
 	}
 
 	clear() {
-		this.$.decisionBoardDiv.style.display="none";
+		this.$.decisionBoardDiv.style.display = "none";
 	}
-	
+
 	reload() {
 		console.log("reloading");
 		window.location.reload();
