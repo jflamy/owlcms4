@@ -13,21 +13,25 @@ class DecisionBoard extends PolymerElement {
 	static get template() {
 		return html`
 <link rel="stylesheet" type="text/css" href="local/styles/decisionboard.css">
-<div class="wrapper">
-<div class="decisionBoard" id="decisionBoardDiv">
-	<div class="barbell" id="barbellDiv">
-		<slot name="barbell"></slot>
+<div class$="wrapper [[inactiveClass]]">
+	<div style$="[[inactiveBlockStyle]]" >
+		<div class="competitionName">[[competitionName]]</div><br>
+		<div class="nextGroup">[[t.WaitingNextGroup]]</div>
 	</div>
-	<div class="timer athleteTimer" id="athleteTimerDiv">
-		<timer-element id="athleteTimer"></timer-element>
+	<div class="decisionBoard" id="decisionBoardDiv" style$="[[activeGridStyle]]">
+		<div class="barbell" id="barbellDiv">
+			<slot name="barbell"></slot>
+		</div>
+		<div class="timer athleteTimer" id="athleteTimerDiv">
+			<timer-element id="athleteTimer"></timer-element>
+		</div>
+		<div class="timer breakTime" id="breakTimerDiv">
+			<timer-element id="breakTimer"></timer-element>
+		</div>
+		<div class="decision" id="decisionDiv" on-down="down">
+			<decision-element id="decisions"></decision-element>
+		</div>
 	</div>
-	<div class="timer breakTime" id="breakTimerDiv">
-		<timer-element id="breakTimer"></timer-element>
-	</div>
-	<div class="decision" id="decisionDiv" on-down="down">
-		<decision-element id="decisions"></decision-element>
-	</div>
-</div>
 </div>`;
 	}
 

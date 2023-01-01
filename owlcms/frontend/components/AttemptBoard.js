@@ -15,8 +15,12 @@ class CurrentAttempt extends PolymerElement {
 		return html`
 <link rel="stylesheet" type="text/css" href="local/styles/colors.css">
 <link rel="stylesheet" type="text/css" href="local/styles/attemptboard.css">
-<div class="wrapper">
-	<div class="attemptBoard" id="attemptBoardDiv">
+<div class$="wrapper [[inactiveClass]]">
+	<div style$="[[inactiveBlockStyle]]">
+		<div class="competitionName">[[competitionName]]</div><br>
+		<div class="nextGroup">[[t.WaitingNextGroup]]</div>
+	</div>
+	<div class="attemptBoard" id="attemptBoardDiv"  style$="[[activeGridStyle]]">
 		<div class$="lastName[[WithPicture]]" id="lastNameDiv"><div>[[lastName]]</div></div>
 		<div class$="firstName[[WithPicture]]" id="firstNameDiv"><div>[[firstName]]</div></div>
 		<div class="teamName" id="teamNameDiv">[[teamName]]</div>
@@ -91,8 +95,8 @@ class CurrentAttempt extends PolymerElement {
 
 	reset() {
 		console.warn("attemptBoard reset " + this.javaComponentId);
-		this.$.attemptBoardDiv.style.display = "grid";
-		this.$.attemptBoardDiv.style.color = "white";
+		//this.$.attemptBoardDiv.style.display = "grid";
+		//this.$.attemptBoardDiv.style.color = "white";
 		this.$.athleteTimer.reset(this.$.athleteTimer);
 		this.$.athleteTimerDiv.style.display = "grid";
 		this.$.firstNameDiv.style.display = "grid";
@@ -117,8 +121,8 @@ class CurrentAttempt extends PolymerElement {
 
 	doBreak(showWeight) {
 		console.debug("attemptBoard doBreak " + this.javaComponentId + " showWeight = " + showWeight);
-		this.$.attemptBoardDiv.style.display = "grid";
-		this.$.attemptBoardDiv.style.color = "white";
+		//this.$.attemptBoardDiv.style.display = "grid";
+		//this.$.attemptBoardDiv.style.color = "white";
 		this.$.athleteTimerDiv.style.display = "none";
 		this.$.breakTimerDiv.style.display = "grid";
 		this.$.firstNameDiv.style.display = "grid";
@@ -141,8 +145,8 @@ class CurrentAttempt extends PolymerElement {
 
 	groupDone() {
 		console.debug("attemptBoard groupDone " + this.javaComponentId);
-		this.$.attemptBoardDiv.style.display = "grid";
-		this.$.attemptBoardDiv.style.color = "white";
+		//this.$.attemptBoardDiv.style.display = "grid";
+		//this.$.attemptBoardDiv.style.color = "white";
 		// this.$.breakTimer.reset();
 		this.$.athleteTimerDiv.style.display = "none";
 		this.$.firstNameDiv.style.display = "none";

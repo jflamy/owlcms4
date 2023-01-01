@@ -81,3 +81,17 @@
 .v-system-error {
 	display: none;
 }
+
+.bigTitle {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.competitionName {
+    font-size: 4em;
+}
+
+.nextGroup {
+    font-size: 2em;
+}

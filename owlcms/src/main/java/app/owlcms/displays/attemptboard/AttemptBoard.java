@@ -7,6 +7,7 @@
 package app.owlcms.displays.attemptboard;
 
 import java.io.FileNotFoundException;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Timer;
 import java.util.TreeMap;
@@ -57,10 +58,13 @@ import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import elemental.json.Json;
+import elemental.json.JsonObject;
 
 /**
  * Attempt board.
@@ -122,7 +126,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         athleteTimer.setOrigin(this);
         this.getElement().setProperty("kgSymbol", getTranslation("KgSymbol"));
         breakTimer.setParent("attemptBoard");
-        
+
         checkImages();
     }
 
@@ -133,7 +137,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         } catch (FileNotFoundException e) {
             athletePictures = false;
         }
-        
+
         try {
             ResourceWalker.getFileOrResourcePath("flags");
             teamFlags = true;
@@ -164,6 +168,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
                     // the announcer has switched groups, but not started the introduction countdown.
                     doEmpty();
                 } else {
+                    doNotEmpty();
                     doDone(group);
                 }
                 return;
@@ -492,12 +497,14 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            doNotEmpty();
             doBreak(e);
         });
     }
 
     @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
+        doNotEmpty();
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
@@ -530,6 +537,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            logger.warn("switch {} {}", e.getGroup());
             OwlcmsSession.withFop(fop -> {
                 switch (fop.getState()) {
                 case INACTIVE:
@@ -539,10 +547,12 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
                     if (e.getGroup() == null) {
                         doEmpty();
                     } else {
+                        doNotEmpty();
                         doBreak(e);
                     }
                     break;
                 default:
+                    doNotEmpty();
                     doAthleteUpdate(fop.getCurAthlete());
                 }
             });
@@ -580,6 +590,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
             doEmpty();
             return;
         } else if (a.getAttemptsDone() >= 6) {
+            doNotEmpty();
             setDone(true);
             return;
         }
@@ -588,7 +599,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         this.getElement().setProperty("lastName", lastName.toUpperCase());
         this.getElement().setProperty("firstName", a.getFirstName());
         this.getElement().setProperty("hideBecauseDecision", "");
-        
+
         String team = a.getTeam();
         this.getElement().setProperty("teamName", team);
         if (teamFlags && team != null) {
@@ -666,7 +677,23 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 
     protected void doEmpty() {
         hidePlates();
-        this.getElement().callJsFunction("clear");
+        FieldOfPlay fop2 = OwlcmsSession.getFop();
+        boolean inactive = fop2 == null || fop2.getState() == FOPState.INACTIVE;
+        logger.warn("empty {}", LoggerUtils.whereFrom());
+        // this.getElement().callJsFunction("clear");
+        this.getElement().setProperty("inactiveBlockStyle", (inactive ? "display:grid" : "display:none"));
+        this.getElement().setProperty("activeGridStyle", (inactive ? "display:none" : "display:grid"));
+        this.getElement().setProperty("inactiveClass", (inactive ? "bigTitle" : ""));
+    }
+
+    protected void doNotEmpty() {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            boolean inactive = false;
+            logger.warn("NOT empty {}", LoggerUtils.whereFrom());
+            this.getElement().setProperty("inactiveBlockStyle", (inactive ? "display:grid" : "display:none"));
+            this.getElement().setProperty("activeGridStyle", (inactive ? "display:none" : "display:grid"));
+            this.getElement().setProperty("inactiveClass", (inactive ? "bigTitle" : ""));
+        });
     }
 
     /*
@@ -755,6 +782,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
             logger.trace("{}Starting attempt board", fop.getLoggingName());
             setId("attempt-board-template");
         });
+        setTranslationMap();
     }
 
     private boolean isDone() {
@@ -823,6 +851,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         if (fop.getState() == FOPState.INACTIVE && fop.getCeremonyType() == null) {
             doEmpty();
         } else {
+            doNotEmpty();
             Athlete curAthlete = fop.getCurAthlete();
             if (fop.getState() == FOPState.BREAK || fop.getState() == FOPState.INACTIVE) {
                 // logger.trace("syncwithfop {} {}",fop.getBreakType(), fop.getCeremonyType());
@@ -837,6 +866,18 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
                 doAthleteUpdate(curAthlete);
             }
         }
+    }
+
+    protected void setTranslationMap() {
+        JsonObject translations = Json.createObject();
+        Enumeration<String> keys = Translator.getKeys();
+        while (keys.hasMoreElements()) {
+            String curKey = keys.nextElement();
+            if (curKey.startsWith("Scoreboard.")) {
+                translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
+            }
+        }
+        this.getElement().setPropertyJson("t", translations);
     }
 
 }
