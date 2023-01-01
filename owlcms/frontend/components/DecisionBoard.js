@@ -57,8 +57,8 @@ class DecisionBoard extends PolymerElement {
 	}
 
 	reset() {
-		this.$.decisionBoardDiv.style.display="grid";
-		this.$.decisionBoardDiv.style.color="white";
+		//this.$.decisionBoardDiv.style.display="grid";
+		//this.$.decisionBoardDiv.style.color="white";
 		this.$.athleteTimer.reset(this.$.athleteTimer);
 		this.$.athleteTimerDiv.style.display="block";
 		this.$.breakTimerDiv.style.display="none";
@@ -75,11 +75,11 @@ class DecisionBoard extends PolymerElement {
 
 	doBreak() {
 		//console.debug("decisionBoard doBreak");
-		this.$.decisionBoardDiv.style.display="grid";
-		this.$.decisionBoardDiv.style.color="white";
-		//this.$.breakTimer.style.display="block";
+		//this.$.decisionBoardDiv.style.display="grid";
+		//this.$.decisionBoardDiv.style.color="white";
+		this.$.breakTimer.style.display="block";
 		this.$.athleteTimerDiv.style.display="none";
-		this.$.breakTimerDiv.style.display="block";
+		//this.$.breakTimerDiv.style.display="block";
 		this.$.barbellDiv.style.display="none";
 		this.$.decisionDiv.style.display="none";
 	}

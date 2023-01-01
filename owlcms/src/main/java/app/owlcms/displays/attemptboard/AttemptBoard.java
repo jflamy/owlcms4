@@ -45,6 +45,7 @@ import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.components.elements.Plates;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FOPState;
@@ -684,6 +685,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         this.getElement().setProperty("inactiveBlockStyle", (inactive ? "display:grid" : "display:none"));
         this.getElement().setProperty("activeGridStyle", (inactive ? "display:none" : "display:grid"));
         this.getElement().setProperty("inactiveClass", (inactive ? "bigTitle" : ""));
+        this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
     }
 
     protected void doNotEmpty() {

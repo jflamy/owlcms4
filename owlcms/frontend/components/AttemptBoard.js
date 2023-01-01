@@ -98,7 +98,7 @@ class CurrentAttempt extends PolymerElement {
 		//this.$.attemptBoardDiv.style.display = "grid";
 		//this.$.attemptBoardDiv.style.color = "white";
 		this.$.athleteTimer.reset(this.$.athleteTimer);
-		this.$.athleteTimerDiv.style.display = "grid";
+		//this.$.athleteTimerDiv.style.display = "grid";
 		this.$.firstNameDiv.style.display = "grid";
 		this.$.teamNameDiv.style.display = "grid";
 		this.$.attemptDiv.style.display = "block";
@@ -124,7 +124,7 @@ class CurrentAttempt extends PolymerElement {
 		//this.$.attemptBoardDiv.style.display = "grid";
 		//this.$.attemptBoardDiv.style.color = "white";
 		this.$.athleteTimerDiv.style.display = "none";
-		this.$.breakTimerDiv.style.display = "grid";
+		//this.$.breakTimerDiv.style.display = "grid";
 		this.$.firstNameDiv.style.display = "grid";
 		this.$.teamNameDiv.style.display = "none";
 		this.$.attemptDiv.style.display = "none";
@@ -138,7 +138,7 @@ class CurrentAttempt extends PolymerElement {
 			this.$.weightDiv.style.display = "none";
 			this.$.barbellDiv.style.display = "none";
 			this.$.decisionDiv.style.display = "none";
-			//this.$.breakTimerDiv.style.display = "none";
+			this.$.breakTimerDiv.style.display = "none";
 		}
 		console.debug("attemptBoard end doBreak " + this.javaComponentId);
 	}
