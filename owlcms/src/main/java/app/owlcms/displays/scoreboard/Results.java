@@ -913,6 +913,8 @@ public class Results extends PolymerTemplate<TemplateModel>
 
     protected void updateBottom(String liftType, FieldOfPlay fop) {
         curGroup = fop.getGroup();
+        String groupDescription = curGroup != null ? curGroup.getDescription() : null;
+        logger.warn("group = {}, switchable = {}, description='{}'", curGroup, isSwitchableDisplay(), groupDescription);
         displayOrder = getOrder(fop);
         spotlightRecords(fop);
 
@@ -926,8 +928,15 @@ public class Results extends PolymerTemplate<TemplateModel>
                             ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
                             : "");
             liftsDone = AthleteSorter.countLiftsDone(displayOrder);
-            this.getElement().setProperty("liftsDone", Translator.translate("Scoreboard.AttemptsDone", liftsDone));
+            if (isSwitchableDisplay() && groupDescription != null) {
+                this.getElement().setProperty("liftsDone", groupDescription);
+            } else {
+                this.getElement().setProperty("liftsDone", Translator.translate("Scoreboard.AttemptsDone", liftsDone));
+            }
         } else {
+            if (isSwitchableDisplay() && groupDescription != null) {
+                this.getElement().setProperty("liftsDone", groupDescription);
+            }
             this.getElement().setProperty("groupName", "");
             this.getElement().callJsFunction("groupDone");
         }
