@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -50,15 +51,17 @@ public class CompetitionSimulator {
     }
 
     public String runSimulation() throws InterruptedException {
+        Competition.getCurrent().setSimulation(true);
         logger.setLevel(Level.DEBUG);
 
         Map<Platform, List<Group>> groupsByPlatform = new TreeMap<>();
         List<Platform> ps = PlatformRepository.findAll().stream().collect(Collectors.toList());
-        List<Group> gs = GroupRepository.findAll().stream().sorted(new NaturalOrderComparator<>()).sorted((a, b) -> {
-            LocalDateTime ta = a.getCompetitionTime();
-            LocalDateTime tb = b.getCompetitionTime();
-            return ObjectUtils.compare(ta, tb, true);
-        }).collect(Collectors.toList());
+        List<Group> gs = GroupRepository.findAll().stream().sorted(new NaturalOrderComparator<>())
+                .sorted((a, b) -> {
+                    LocalDateTime ta = a.getCompetitionTime();
+                    LocalDateTime tb = b.getCompetitionTime();
+                    return ObjectUtils.compare(ta, tb, true);
+                }).collect(Collectors.toList());
 
         clearLifts();
 
@@ -136,12 +139,11 @@ public class CompetitionSimulator {
             }
             double bodyWeight = catLimit - (r.nextDouble() * 2.0);
             a.setBodyWeight(bodyWeight);
-            
-            
+
             Integer entryTotal = a.getEntryTotal();
             if (entryTotal != null && entryTotal > 0) {
                 long isd = Math.round(entryTotal * 0.44D); // qualification snatch
-                long icjd  = Math.round(entryTotal * 0.56D); // qualification CJ
+                long icjd = Math.round(entryTotal * 0.56D); // qualification CJ
                 a.setSnatch1Declaration(Long.toString(isd));
                 a.setCleanJerk1Declaration(Long.toString(icjd));
                 AthleteRepository.save(a);

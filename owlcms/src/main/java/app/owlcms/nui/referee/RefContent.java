@@ -43,6 +43,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.components.elements.BeepElement;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -282,6 +283,48 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
         });
     }
 
+    @Subscribe
+    public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
+        // only used during simulations to show what the fake referees pressed.
+        if (!Competition.getCurrent().isSimulation()) {
+            return;
+        }
+        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this, () -> {
+            switch (getRef13ix()) {
+            case 1:
+                if (e.ref1 != null) {
+                    if (e.ref1) {
+                        doWhiteColor();
+                    } else {
+                        doRedColor();
+                    }
+                }
+                break;
+            case 2:
+                if (e.ref2 != null) {
+                    if (e.ref2) {
+                        doWhiteColor();
+                    } else {
+                        doRedColor();
+                    }
+                }
+                break;
+            case 3:
+                if (e.ref3 != null) {
+                    if (e.ref3) {
+                        doWhiteColor();
+                    } else {
+                        doRedColor();
+                    }
+                }
+                break;
+            default:
+                break;
+            }
+        });
+
+    }
+
     protected ComboBox<FieldOfPlay> createFopSelect() {
         ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
         fopSelect.setPlaceholder(getTranslation("SelectPlatform"));
@@ -396,6 +439,10 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
         OwlcmsSession.withFop(fop -> {
             fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), getRef13ix() - 1, false));
         });
+        doRedColor();
+    }
+
+    private void doRedColor() {
         good.getStyle().set("color", "DarkSlateGrey");
         good.getStyle().set("outline-color", "white");
         bad.getStyle().set("color", "red");
@@ -405,6 +452,10 @@ public class RefContent extends VerticalLayout implements FOPParameters, SafeEve
         OwlcmsSession.withFop(fop -> {
             fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), getRef13ix() - 1, true));
         });
+        doWhiteColor();
+    }
+
+    private void doWhiteColor() {
         bad.getStyle().set("color", "DarkSlateGrey");
         bad.getStyle().set("outline-color", "white");
         good.getStyle().set("color", "white");

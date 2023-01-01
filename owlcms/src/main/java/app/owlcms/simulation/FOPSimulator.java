@@ -173,6 +173,11 @@ public class FOPSimulator {
 
         // stop time and get decisions
         fop.fopEventPost(new FOPEvent.TimeStopped(this));
+        // wait for clock to run down a bit
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
         fop.fopEventPost(new FOPEvent.DecisionUpdate(this, 0, goodLift(r)));
         fop.fopEventPost(new FOPEvent.DecisionUpdate(this, 1, goodLift(r)));
         fop.fopEventPost(new FOPEvent.DecisionUpdate(this, 2, goodLift(r)));

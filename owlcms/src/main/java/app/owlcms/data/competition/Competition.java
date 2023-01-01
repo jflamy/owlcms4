@@ -242,6 +242,10 @@ public class Competition {
     
     @Column(columnDefinition = "integer default 3")
     private Integer jurySize = 3;
+    
+    @Transient
+    @JsonIgnore
+    private boolean simulation;
 
     public Competition() {
         medalsByGroup = new HashMap<>();
@@ -1497,5 +1501,15 @@ public class Competition {
 
     public void setJurySize(Integer jurySize) {
         this.jurySize = jurySize;
+    }
+
+    public void setSimulation(boolean b) {
+        logger.warn("setting simulation is {}",b);
+        this.simulation = b;
+    }
+
+    public boolean isSimulation() {
+        logger.warn("simulation is {}",simulation);
+        return simulation;
     }
 }

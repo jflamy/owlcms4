@@ -19,12 +19,12 @@
         <mapEntry key="OWLCMS_MQTTSERVER" value="localhost"/>
         <mapEntry key="OWLCMS_MQTTUSERNAME" value="owlcms"/>
         <mapEntry key="OWLCMS_PORT" value="8081"/>
-        <mapEntry key="OWLCMS_REMOTE" value="http://localhost:8082/update"/>
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="maryhadalittlelamb"/>
         <mapEntry key="_OWLCMS_DISPLAYPIN" value="dis"/>
         <mapEntry key="_OWLCMS_PIN" value="test"/>
         <mapEntry key="_OWLCMS_PUBLICDEMO" value="60"/>
+        <mapEntry key="_OWLCMS_REMOTE" value="http://localhost:8082/update"/>
     </mapAttribute>
     <mapAttribute key="org.eclipse.debug.core.preferred_launchers">
         <mapEntry key="[debug]" value="org.eclipse.jdt.launching.localJavaApplication"/>

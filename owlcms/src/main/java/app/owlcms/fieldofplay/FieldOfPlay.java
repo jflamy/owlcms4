@@ -748,10 +748,10 @@ public class FieldOfPlay {
             } else if (e instanceof DecisionFullUpdate) {
                 // decision board/attempt board sends bulk update
                 updateRefereeDecisions((DecisionFullUpdate) e);
-                uiShowUpdateOnJuryScreen();
+                uiShowUpdateOnJuryScreen(e);
             } else if (e instanceof DecisionUpdate) {
                 updateRefereeDecisions((DecisionUpdate) e);
-                uiShowUpdateOnJuryScreen();
+                uiShowUpdateOnJuryScreen(e);
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
             } else if (e instanceof ExplicitDecision) {
@@ -779,10 +779,10 @@ public class FieldOfPlay {
             } else if (e instanceof DecisionFullUpdate) {
                 // decision coming from decision display or attempt board
                 updateRefereeDecisions((DecisionFullUpdate) e);
-                uiShowUpdateOnJuryScreen();
+                uiShowUpdateOnJuryScreen(e);
             } else if (e instanceof DecisionUpdate) {
                 updateRefereeDecisions((DecisionUpdate) e);
-                uiShowUpdateOnJuryScreen();
+                uiShowUpdateOnJuryScreen(e);
             } else if (e instanceof TimeStarted) {
                 if (!getCurAthlete().equals(getClockOwner())) {
                     setClockOwner(getCurAthlete());
@@ -821,10 +821,10 @@ public class FieldOfPlay {
             } else if (e instanceof DecisionFullUpdate) {
                 // decision coming from decision display or attempt board
                 updateRefereeDecisions((DecisionFullUpdate) e);
-                uiShowUpdateOnJuryScreen();
+                uiShowUpdateOnJuryScreen(e);
             } else if (e instanceof DecisionUpdate) {
                 updateRefereeDecisions((DecisionUpdate) e);
-                uiShowUpdateOnJuryScreen();
+                uiShowUpdateOnJuryScreen(e);
             } else if (e instanceof WeightChange) {
                 logger.debug("weight change during down {} {} {}", e.getAthlete(), this.getPreviousAthlete(),
                         this.getCurAthlete());
@@ -850,10 +850,10 @@ public class FieldOfPlay {
             } else if (e instanceof DecisionFullUpdate) {
                 // decision coming from decision display or attempt board
                 updateRefereeDecisions((DecisionFullUpdate) e);
-                uiShowUpdateOnJuryScreen();
+                uiShowUpdateOnJuryScreen(e);
             } else if (e instanceof DecisionUpdate) {
                 updateRefereeDecisions((DecisionUpdate) e);
-                uiShowUpdateOnJuryScreen();
+                uiShowUpdateOnJuryScreen(e);
             } else if (e instanceof WeightChange) {
                 recomputeLiftingOrder(true, ((WeightChange) e).isResultChange()); // &&&&&&&&&&&&&&&&&&&&&
                 // weightChangeDoNotDisturb((WeightChange) e);
@@ -1645,7 +1645,7 @@ public class FieldOfPlay {
             wakeUpRef = new Thread(() -> {
                 int lastRef = -1;
                 try {
-                    // wait a bit. If the decison comes in while waiting, this thread will be cancelled anyway
+                    // wait a bit. If the decision comes in while waiting, this thread will be cancelled anyway
                     Thread.sleep(Competition.getCurrent().getRefereeWakeUpDelay());
                     lastRef = ArrayUtils.indexOf(getRefereeDecision(), null);
                     if (lastRef != -1 && !Thread.currentThread().isInterrupted()) {
@@ -2172,7 +2172,7 @@ public class FieldOfPlay {
                 now, now, isAnnouncerDecisionImmediate());
         setRefereeForcedDecision(true);
         updateRefereeDecisions(ne);
-        uiShowUpdateOnJuryScreen();
+        uiShowUpdateOnJuryScreen(ed);
         // needed to make sure 2min rule is triggered
         this.setPreviousAthlete(getCurAthlete());
         this.setClockOwnerInitialTimeAllowed(0);
@@ -2454,7 +2454,7 @@ public class FieldOfPlay {
         pushOutUIEvent(new UIEvent.GlobalRankingUpdated(this));
     }
 
-    private void uiShowUpdateOnJuryScreen() {
+    private void uiShowUpdateOnJuryScreen(FOPEvent e) {
         uiEventLogger.debug("### uiShowUpdateOnJuryScreen {}", isRefereeForcedDecision());
         // logger.debug("uiShowUpdateOnJuryScreen {}", LoggerUtils.stackTrace());
         pushOutUIEvent(new UIEvent.RefereeUpdate(getCurAthlete(),
@@ -2462,7 +2462,7 @@ public class FieldOfPlay {
                 getRefereeDecision()[1],
                 isRefereeForcedDecision() ? null : getRefereeDecision()[2], getRefereeTime()[0], getRefereeTime()[1],
                 getRefereeTime()[2],
-                this));
+                e.getOrigin()));
     }
 
     private void unexpectedEventInState(FOPEvent e, FOPState state) {
