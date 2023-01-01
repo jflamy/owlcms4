@@ -59,7 +59,6 @@ import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -538,7 +537,6 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            logger.warn("switch {} {}", e.getGroup());
             OwlcmsSession.withFop(fop -> {
                 switch (fop.getState()) {
                 case INACTIVE:
@@ -680,7 +678,6 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         hidePlates();
         FieldOfPlay fop2 = OwlcmsSession.getFop();
         boolean inactive = fop2 == null || fop2.getState() == FOPState.INACTIVE;
-        logger.warn("empty {}", LoggerUtils.whereFrom());
         // this.getElement().callJsFunction("clear");
         this.getElement().setProperty("inactiveBlockStyle", (inactive ? "display:grid" : "display:none"));
         this.getElement().setProperty("activeGridStyle", (inactive ? "display:none" : "display:grid"));
@@ -691,7 +688,6 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
     protected void doNotEmpty() {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             boolean inactive = false;
-            logger.warn("NOT empty {}", LoggerUtils.whereFrom());
             this.getElement().setProperty("inactiveBlockStyle", (inactive ? "display:grid" : "display:none"));
             this.getElement().setProperty("activeGridStyle", (inactive ? "display:none" : "display:grid"));
             this.getElement().setProperty("inactiveClass", (inactive ? "bigTitle" : ""));

@@ -1504,12 +1504,10 @@ public class Competition {
     }
 
     public void setSimulation(boolean b) {
-        logger.warn("setting simulation is {}",b);
         this.simulation = b;
     }
 
     public boolean isSimulation() {
-        logger.warn("simulation is {}",simulation);
         return simulation;
     }
 }

@@ -914,7 +914,6 @@ public class Results extends PolymerTemplate<TemplateModel>
     protected void updateBottom(String liftType, FieldOfPlay fop) {
         curGroup = fop.getGroup();
         String groupDescription = curGroup != null ? curGroup.getDescription() : null;
-        logger.warn("group = {}, switchable = {}, description='{}'", curGroup, isSwitchableDisplay(), groupDescription);
         displayOrder = getOrder(fop);
         spotlightRecords(fop);
 
