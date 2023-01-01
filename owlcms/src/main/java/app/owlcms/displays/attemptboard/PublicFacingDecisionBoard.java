@@ -54,7 +54,10 @@ public class PublicFacingDecisionBoard extends AttemptBoard {
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
-        decisions.setPublicFacing(false);
+        decisions.setPublicFacing(true);
+        setPublicFacing(true);
+        setShowBarbell(false);
+        setSilenced(isSilencedByDefault());
     }
 
 }
