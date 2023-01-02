@@ -1,16 +1,17 @@
 > New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as small user interface improvements or technical changes.  Third level = bug fixes.
 
-- 37.0.0-beta: **New version after migration to Vaadin 23.**
+- 37.0.0-beta: **New version after migration to the current version of the Vaadin user interface framework**
 
   All features from version 35 (which used Vaadin 14) appear to work.
 
   - 37.0 Enhancements
-    - Migration to new version of the user interface framework
-    - On the preparation page, moved the pre-competition documents (Start List, Cards) to a separate page with more appropriate filtering.
-    - beta09: Edit Athlete Entries: updated the category selection logic to make initial entry of athletes (+) more intuitive
-    - beta10: main screen shows the group description at the top if one is available
-    - beta10: attempt board and decision board now show a "waiting for next group" instead of blank.
+    - Migration to the current version of the Vaadin user interface framework. Some of the user interface elements were replaced with newer versions.
+    - On the preparation page, the pre-competition documents (Start List, Cards) were moved to a separate page with more appropriate filtering.
+    - The main scoreboard shows the group description at the top if one is available. Warmup scoreboards still have the "lifts done" information.
+    - The attempt board and decision board now show a "waiting for next group" instead of blank when the platform is inactive
+    - On the Edit Athlete Entries page, the interactive addition of athletes using `+` is now more intuitive, in particular regarding category selection.
   - 37.0-beta Fixes
+    - beta11: When a new release is made, the browser will no longer use old (cached) style sheets.
     - beta10: The decision display for TV (public-facing) was showing decision lights in the reverse order.  The public-facing attempt board was correct.
     - beta08: enhanced documentation for physical setup and networking options
     - beta08: changed the multichrome.bat script to use Edge instead of Chrome (uses much less memory)
