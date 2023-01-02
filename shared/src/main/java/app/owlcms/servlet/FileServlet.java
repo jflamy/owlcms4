@@ -303,7 +303,12 @@ public class FileServlet extends HttpServlet {
             // @webservlet processing takes care of preventing ../.. escaping so we don't have to.
             // logger.debug("requestedFile {}", requestedFile);
             String relativeFileName = URLDecoder.decode(requestedFile, "UTF-8");
-            return getPathForResource(response, "/" + relativeFileName);
+            
+            String target = "__[-.a-z0-9]+([.][a-z]{1,4})$";
+            String unversionedName = relativeFileName.replaceFirst(target, "$1");
+            //logger.debug("relativeFileName = {} fixed = {} regex={}", relativeFileName, unversionedName, target);
+            
+            return getPathForResource(response, "/" + unversionedName);
         } catch (IllegalArgumentException e) {
             logger.error(e.getLocalizedMessage());
             response.getWriter().print(e.getLocalizedMessage());

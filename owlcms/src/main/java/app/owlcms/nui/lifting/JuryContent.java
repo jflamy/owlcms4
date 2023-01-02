@@ -205,7 +205,11 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     public void slaveTimeStarted(UIEvent.StartTime e) {
         OwlcmsSession.withFop(fop -> {
             currentAthleteAtStart = fop.getClockOwner();
-            currentAttemptNumber = fop.getClockOwner().getActuallyAttemptedLifts();
+            if (currentAthleteAtStart != null) {
+                currentAttemptNumber = currentAthleteAtStart.getActuallyAttemptedLifts();
+            } else {
+                currentAttemptNumber = 0;
+            }
             newClock = e.getTimeRemaining() == 60000 || e.getTimeRemaining() == 120000;
         });
         // this is redundant because of slaveResetOnNewClock

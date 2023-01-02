@@ -13,8 +13,8 @@ class CurrentAttempt extends PolymerElement {
 
 	static get template() {
 		return html`
-<link rel="stylesheet" type="text/css" href="local/styles/colors.css">
-<link rel="stylesheet" type="text/css" href="local/styles/attemptboard.css">
+<link rel="stylesheet" type="text/css" href="local/styles/colors_[[autoversion]].css">
+<link rel="stylesheet" type="text/css" href="local/styles/attemptboard_[[autoversion]].css">
 <div class$="wrapper [[inactiveClass]]">
 	<div style$="[[inactiveBlockStyle]]">
 		<div class="competitionName">[[competitionName]]</div><br>

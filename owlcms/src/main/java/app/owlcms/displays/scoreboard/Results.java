@@ -66,6 +66,7 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -136,6 +137,8 @@ public class Results extends PolymerTemplate<TemplateModel>
         setDarkMode(true);
         setDefaultLeadersDisplay(true);
         setDefaultRecordsDisplay(true);
+        // js files add the build number to file names in order to prevent cache collisions
+        this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
     }
 
     /**

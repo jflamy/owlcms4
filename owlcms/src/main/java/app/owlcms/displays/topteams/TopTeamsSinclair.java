@@ -57,6 +57,7 @@ import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -130,6 +131,8 @@ public class TopTeamsSinclair extends PolymerTemplate<TemplateModel>
      */
     public TopTeamsSinclair() {
         OwlcmsFactory.waitDBInitialized();
+        // js files add the build number to file names in order to prevent cache collisions
+        this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
     }
 
     /**

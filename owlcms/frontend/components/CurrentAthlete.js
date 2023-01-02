@@ -13,7 +13,7 @@ class CurrentAthlete extends PolymerElement {
 
 	static get template() {
 		return html`
-<link rel="stylesheet" type="text/css" href="local/styles/currentathlete.css">
+<link rel="stylesheet" type="text/css" href="local/styles/currentathlete_[[autoversion]].css">
 <div class$="wrapper [[teamWidthClass]] [[inactiveClass]]">
 
 	<!-- this div is SHOWN when the platform is inactive -->

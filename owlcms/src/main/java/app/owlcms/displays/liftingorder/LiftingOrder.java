@@ -46,6 +46,7 @@ import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.Decision;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -96,6 +97,8 @@ public class LiftingOrder extends PolymerTemplate<TemplateModel> implements Disp
         OwlcmsFactory.waitDBInitialized();
         this.getElement().getStyle().set("width", "100%");
         setDarkMode(true);
+        // js files add the build number to file names in order to prevent cache collisions
+        this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
     }
 
     @Override

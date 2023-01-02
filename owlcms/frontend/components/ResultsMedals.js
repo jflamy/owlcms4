@@ -13,7 +13,7 @@ class ResultsMedals extends PolymerElement {
 
     static get template() {
         return html`
-<link rel="stylesheet" type="text/css" href="local/styles/results.css">
+<link rel="stylesheet" type="text/css" href="local/styles/results_[[autoversion]].css">
 
 <div class$="wrapper [[teamWidthClass]] [[inactiveClass]]">
     <div style$="[[inactiveBlockStyle]]">

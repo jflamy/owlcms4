@@ -108,6 +108,10 @@ public class StartupUtils {
     public static String getVersion() {
         return version;
     }
+    
+    public static String getAutoVersion() {
+        return "_"+getVersion();
+    }
 
     public static boolean isDebugSetting() {
         String param = StartupUtils.getStringParam("DEBUG");

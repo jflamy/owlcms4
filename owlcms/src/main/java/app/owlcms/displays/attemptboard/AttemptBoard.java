@@ -60,6 +60,7 @@ import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.ResourceWalker;
+import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -126,8 +127,9 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         athleteTimer.setOrigin(this);
         this.getElement().setProperty("kgSymbol", getTranslation("KgSymbol"));
         breakTimer.setParent("attemptBoard");
-
         checkImages();
+        // js files add the build number to file names in order to prevent cache collisions
+        this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
     }
 
     protected void checkImages() {

@@ -12,7 +12,7 @@ class TopSinclair extends PolymerElement {
 
 	static get template() {
 		return html`
-<link rel="stylesheet" type="text/css" href="local/styles/top.css">
+<link rel="stylesheet" type="text/css" href="local/styles/top_[[autoversion]].css">
 <div class$="wrapper [[_computeTeamWidth(wideTeamNames)]]" id="resultBoardDiv">
 	<template is="dom-if" if="[[topSinclairWomen]]">
 		<h2 class="fullName" id="fullNameDiv" inner-h-t-m-l="[[topSinclairWomen]]"></h2>
