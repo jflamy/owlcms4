@@ -3,9 +3,12 @@
 All prior features from release 35 appear to work, simulation of large competition on multiple platforms is successful. There are known user interface glitches.
 *As for all pre-releases, test with your own data before using the program in a real competition.*
 
+This should be the last beta before release candidates.
+
 - 37.0 Enhancements
   - Migration to the current version of the Vaadin user interface framework. The navigation (menu, top menu bar) was redone.
-  - On the preparation page, items have been rearranged to be more intuitive.  Initial athlete data entry from the Edit Athlete Entries page is also clearer.
+  - On the preparation page, items have been rearranged to be more intuitive.
+  - Separate page for pre-competition documents. There are now separate documents for each purpose instead of multiple tabs. See [Pre-Competition Documents Documentation](https://owlcms.github.io/owlcms4-prerelease/#/2400PreCompetitionDocuments).
   - The main scoreboard shows the group description at the top if one is available. Warmup scoreboards still have the "lifts done" information.
   - The attempt board and decision board now show a "waiting for next group" instead of a blank screen when the platform is inactive
   - Many small annoyances were fixed.
