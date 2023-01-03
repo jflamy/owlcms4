@@ -61,7 +61,6 @@ public class CategoryGridField extends CustomField<List<Category>> {
 
     private Div validationStatus;
 
-    @SuppressWarnings("deprecation")
     public CategoryGridField(AgeGroup ag) {
         super(new ArrayList<Category>());
         this.ageGroup = ag;
@@ -75,7 +74,9 @@ public class CategoryGridField extends CustomField<List<Category>> {
         qualTotColumn = catGrid
                 .addColumn(Category::getQualifyingTotal)
                 .setHeader(Translator.translate("Category.QualificationTotal"));
-        catGrid.setHeightByRows(true);
+        catGrid.setAllRowsVisible(true);
+        catGrid.setSizeUndefined();
+        this.setWidth("50em");
 
         setupEditing(catGrid);
 
@@ -84,7 +85,7 @@ public class CategoryGridField extends CustomField<List<Category>> {
         adder.getStyle().set("margin-bottom", "1em");
         TextField newCategoryField = new TextField();
         newCategoryField.setPlaceholder(getTranslation("LimitForCategory"));
-        newCategoryField.setPreventInvalidInput(true);
+        newCategoryField.setAllowedCharPattern("[0-9]");
         newCategoryField.setPattern("[0-9]{0,3}");
 
         Button button = new Button(getTranslation("AddNewCategory"));
@@ -188,21 +189,31 @@ public class CategoryGridField extends CustomField<List<Category>> {
             delete.setEnabled(!catEditor.isOpen());
             editButtons.add(edit);
             editButtons.add(delete);
-            Div div = new Div();
-            div.add(edit, delete);
-            return div;
+            
+            HorizontalLayout buttons = new HorizontalLayout();
+            buttons.setSizeUndefined();
+            buttons.setMargin(false);
+            buttons.setPadding(false);
+            buttons.setSpacing(true);
+            buttons.add(edit, delete);
+            return buttons;
         });
+        editorColumn.setWidth("20em");
 
         catEditor.addOpenListener(e -> editButtons.stream()
                 .forEach(button -> button.setEnabled(!catEditor.isOpen())));
         catEditor.addCloseListener(e -> editButtons.stream()
                 .forEach(button -> button.setEnabled(!catEditor.isOpen())));
 
-        Button save = new Button("Update", e -> catEditor.save());
+        Button save = new Button("OK", e -> catEditor.save());
         save.addClassName("save");
         Button cancel = new Button("Cancel", e -> catEditor.cancel());
         cancel.addClassName("cancel");
-        Div buttons = new Div(save, cancel);
+        HorizontalLayout buttons = new HorizontalLayout(save, cancel);
+        buttons.setSizeUndefined();
+        buttons.setPadding(false);
+        buttons.setMargin(false);
+        buttons.setSpacing(true);
         editorColumn.setEditorComponent(buttons);
 
         catEditor.addSaveListener(
@@ -241,6 +252,7 @@ public class CategoryGridField extends CustomField<List<Category>> {
 
         }
         catGrid.setItems(presentationCategories);
+        catGrid.setSizeUndefined();
     }
 
 }
