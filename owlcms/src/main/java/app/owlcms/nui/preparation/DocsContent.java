@@ -139,11 +139,11 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                     return cardsXlsWriter;
                 },
                 resourceDirectoryLocation,
+                null,
                 Competition::getComputedCardsTemplateFileName,
                 Competition::setCardsTemplateFileName,
                 title,
-                downloadedFilePrefix,
-                Translator.translate("Download"));
+                downloadedFilePrefix, Translator.translate("Download"));
         return cardsButtonFactory.createTopBarDownloadButton();
     }
 
@@ -269,11 +269,11 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                     return startingXlsWriter;
                 },
                 resourceDirectoryLocation,
+                null,
                 Competition::getComputedStartListTemplateFileName,
                 Competition::setStartListTemplateFileName,
                 title,
-                downloadedFilePrefix,
-                Translator.translate("Download"));
+                downloadedFilePrefix, Translator.translate("Download"));
         return startingListFactory.createTopBarDownloadButton();
     }
 

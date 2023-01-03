@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -464,7 +465,7 @@ public class ResourceWalker {
     // Path rootPath = null;
     public List<Resource> getLocalOverrideResourceList(String root,
             BiFunction<Path, Path, String> nameGenerator,
-            String startsWith, Locale locale) {
+            Predicate<String> predicate, Locale locale) {
         if (root.startsWith("/")) {
             root = root.substring(1);
         }
@@ -474,7 +475,7 @@ public class ResourceWalker {
             basePath = basePath.resolve(root);
             // what is in the path does not necessarily have an override
             if (Files.exists(basePath)) {
-                List<Resource> resourceListFromPath = getResourceListFromPath(nameGenerator, startsWith, basePath,
+                List<Resource> resourceListFromPath = getResourceListFromPath(nameGenerator, predicate, basePath,
                         locale);
                 logger.debug("local override resources {}", resourceListFromPath);
                 return resourceListFromPath;
@@ -487,7 +488,7 @@ public class ResourceWalker {
     }
 
     public List<Resource> getResourceList(String absoluteRoot, BiFunction<Path, Path, String> nameGenerator,
-            String startsWith, Locale locale) {
+            Predicate<String> startsWith, Locale locale) {
         return getResourceList(absoluteRoot, nameGenerator, startsWith, locale, false);
     }
 
@@ -508,7 +509,7 @@ public class ResourceWalker {
      */
     // Path rootPath = null;
     public List<Resource> getResourceList(String absoluteRoot, BiFunction<Path, Path, String> nameGenerator,
-            String startsWith, Locale locale, boolean overridesOnly) {
+            Predicate<String> startsWith, Locale locale, boolean overridesOnly) {
 
         Map<String, Resource> classPathResourcesMap = overridesOnly ? Map.of()
                 : getResourceListFromPath(nameGenerator, startsWith,
@@ -634,7 +635,7 @@ public class ResourceWalker {
      * @param locale        if null return files with no locale suffix, else return files that match the locale
      * @return
      */
-    private List<Resource> getResourceListFromPath(BiFunction<Path, Path, String> nameGenerator, String startsWith,
+    private List<Resource> getResourceListFromPath(BiFunction<Path, Path, String> nameGenerator, Predicate<String> predicate,
             Path rootPath, Locale locale) {
         try {
             List<Resource> localeNames = new ArrayList<>();
@@ -647,8 +648,8 @@ public class ResourceWalker {
                     String generatedName = nameGenerator.apply(filePath, rootPath);
                     String baseName = filePath.getFileName().toString();
                     logger.trace("visiting {} {}", filePath, locale);
-                    if (startsWith != null) {
-                        if (!baseName.startsWith(startsWith)) {
+                    if (predicate != null) {
+                        if (!predicate.test(baseName)) {
                             logger.trace("ignored {}", filePath);
                             return FileVisitResult.CONTINUE;
                         }

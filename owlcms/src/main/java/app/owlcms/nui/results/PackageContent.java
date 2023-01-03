@@ -590,10 +590,10 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
                     return rs;
                 },
                 "/templates/protocol",
+                null,
                 Competition::getComputedProtocolTemplateFileName,
                 Competition::setProtocolTemplateFileName,
-                Translator.translate("CategoryResults"),
-                "results", Translator.translate("Download"));
+                Translator.translate("CategoryResults"), "results", Translator.translate("Download"));
         Button resultsButton = downloadDialog.createTopBarDownloadButton();
         return resultsButton;
     }
@@ -610,10 +610,10 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
                     return rs;
                 },
                 "/templates/competitionBook",
+                null,
                 Competition::getComputedFinalPackageTemplateFileName,
                 Competition::setFinalPackageTemplateFileName,
-                Translator.translate("FinalResultsPackage"),
-                "finalPackage", Translator.translate("Download"));
+                Translator.translate("FinalResultsPackage"), "finalPackage", Translator.translate("Download"));
         Button resultsButton = downloadDialog.createTopBarDownloadButton();
         return resultsButton;
     }

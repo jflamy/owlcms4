@@ -561,11 +561,11 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
                     return rs;
                 },
                 resourceDirectoryLocation,
+                null,
                 Competition::getComputedCardsTemplateFileName,
                 Competition::setCardsTemplateFileName,
                 title,
-                downloadedFilePrefix,
-                Translator.translate("Download"));
+                downloadedFilePrefix, Translator.translate("Download"));
         return cardsButtonFactory.createTopBarDownloadButton();
     }
 
@@ -677,11 +677,11 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
                     return rs;
                 },
                 resourceDirectoryLocation,
+                null,
                 Competition::getComputedJuryTemplateFileName,
                 Competition::setJuryTemplateFileName,
                 title,
-                downloadedFilePrefix,
-                Translator.translate("Download"));
+                downloadedFilePrefix, Translator.translate("Download"));
         return juryButton.createTopBarDownloadButton();
     }
 
@@ -698,11 +698,11 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
                     return rs;
                 },
                 resourceDirectoryLocation,
+                null,
                 Competition::getComputedStartingWeightsSheetTemplateFileName,
                 Competition::setStartingWeightsSheetTemplateFileName,
                 title,
-                downloadedFilePrefix,
-                Translator.translate("Download"));
+                downloadedFilePrefix, Translator.translate("Download"));
         return startingWeightsButton.createTopBarDownloadButton();
     }
 

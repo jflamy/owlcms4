@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.slf4j.LoggerFactory;
@@ -52,21 +53,22 @@ public class DownloadDialog {
 
     /**
      * @param streamSourceSupplier      lambda that creates a JXLSWorkbookStreamSource and sets its filters
-     * @param resourceDirectoryLocation where to look for templates
+     * @param resourceDirectory         Location where to look for templates
+     * @param namePredicate             filtering on base name
      * @param templateNameGetter            get last file name stored in Competition
      * @param templateNameSetter            set last file name in Competition
+     * @param dialogTitle
+     * @param outputFileName            first part of the downloaded file name (not dependent on template).
      * @param buttonLabel
      * @param buttonLabel               label used in top bar
-     * @param outputFileName            first part of the downloaded file name (not dependent on template).
-     * @param dialogTitle
      * @return
      */
     public DownloadDialog(
             Supplier<JXLSWorkbookStreamSource> streamSourceSupplier,
             String resourceDirectoryLocation,
+            Predicate<String> namePredicate,
             Function<Competition, String> templateNameGetter,
-            BiConsumer<Competition, String> templateNameSetter,
-            String dialogTitle, String outputFileName, String buttonLabel) {
+            BiConsumer<Competition, String> templateNameSetter, String dialogTitle, String outputFileName, String buttonLabel) {
         logger.setLevel(Level.DEBUG);
         this.outputFileName = outputFileName;
         this.streamSourceSupplier = streamSourceSupplier;
