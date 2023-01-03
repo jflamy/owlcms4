@@ -207,10 +207,13 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
 
         Button cardsButton = createCardsButton();
         Button startingListButton = createStartingListButton();
+        Button categoriesListButton = createCategoriesListButton();
+        Button teamsListButton = createTeamsListButton();
+        Button officialSchedule = createOfficalsButton();
 
         createTopBarGroupSelect();
 
-        HorizontalLayout buttons = new HorizontalLayout(startingListButton, cardsButton);
+        HorizontalLayout buttons = new HorizontalLayout(startingListButton, categoriesListButton, teamsListButton, officialSchedule, cardsButton);
         buttons.setPadding(false);
         buttons.setMargin(false);
         buttons.setSpacing(true);
@@ -272,6 +275,69 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                 null,
                 Competition::getComputedStartListTemplateFileName,
                 Competition::setStartListTemplateFileName,
+                title,
+                downloadedFilePrefix, Translator.translate("Download"));
+        return startingListFactory.createTopBarDownloadButton();
+    }
+    
+    private Button createCategoriesListButton() {
+        String resourceDirectoryLocation = "/templates/categories";
+        String title = Translator.translate("StartingList.Categories");
+        String downloadedFilePrefix = "startingList";
+
+        DownloadDialog startingListFactory = new DownloadDialog(
+                () -> {
+                    // group may have been edited since the page was loaded
+                    startingXlsWriter.setGroup(
+                            getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
+                    return startingXlsWriter;
+                },
+                resourceDirectoryLocation,
+                null,
+                Competition::getComputedCategoriesListTemplateFileName,
+                Competition::setCategoriesListTemplateFileName,
+                title,
+                downloadedFilePrefix, Translator.translate("Download"));
+        return startingListFactory.createTopBarDownloadButton();
+    }
+    
+    private Button createTeamsListButton() {
+        String resourceDirectoryLocation = "/templates/teams";
+        String title = Translator.translate("StartingList.Teams");
+        String downloadedFilePrefix = "startingList";
+
+        DownloadDialog startingListFactory = new DownloadDialog(
+                () -> {
+                    // group may have been edited since the page was loaded
+                    startingXlsWriter.setGroup(
+                            getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
+                    return startingXlsWriter;
+                },
+                resourceDirectoryLocation,
+                null,
+                Competition::getComputedTeamsListTemplateFileName,
+                Competition::setTeamsListTemplateFileName,
+                title,
+                downloadedFilePrefix, Translator.translate("Download"));
+        return startingListFactory.createTopBarDownloadButton();
+    }
+    
+    private Button createOfficalsButton() {
+        String resourceDirectoryLocation = "/templates/officials";
+        String title = Translator.translate("StartingList.Officials");
+        String downloadedFilePrefix = "startingList";
+
+        DownloadDialog startingListFactory = new DownloadDialog(
+                () -> {
+                    // group may have been edited since the page was loaded
+                    startingXlsWriter.setGroup(
+                            getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
+                    return startingXlsWriter;
+                },
+                resourceDirectoryLocation,
+                null,
+                Competition::getComputedOfficialsListTemplateFileName,
+                Competition::setOfficialsListTemplateFileName,
                 title,
                 downloadedFilePrefix, Translator.translate("Download"));
         return startingListFactory.createTopBarDownloadButton();

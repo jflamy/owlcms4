@@ -194,7 +194,9 @@ public class Competition {
     private boolean roundRobinOrder;
     @Column(columnDefinition = "boolean default false")
     private boolean snatchCJTotalMedals = false;
+    
     private String startingWeightsSheetTemplateFileName;
+    
     private String startListTemplateFileName;
     /**
      * Do not require month and day for birth.
@@ -246,6 +248,9 @@ public class Competition {
     @Transient
     @JsonIgnore
     private boolean simulation;
+    private String categoriesListTemplateFileName;
+    private String officialsListTemplateFileName;
+    private String teamsListTemplateFileName;
 
     public Competition() {
         medalsByGroup = new HashMap<>();
@@ -518,6 +523,57 @@ public class Competition {
             return "StartSheet-A4.xls";
         }
         return startListTemplateFileName;
+    }
+    
+    @Transient
+    @JsonIgnore
+    public String getComputedCategoriesListTemplateFileName() {
+        if (categoriesListTemplateFileName == null) {
+            return "Categories-A4.xls";
+        }
+        return categoriesListTemplateFileName;
+    }
+    
+    public String getCategoriesListTemplateFileName() {
+        return categoriesListTemplateFileName;
+    }
+
+    public void setCategoriesListTemplateFileName(String categoriesListTemplateFileName) {
+        this.categoriesListTemplateFileName = categoriesListTemplateFileName;
+    }
+
+    @Transient
+    @JsonIgnore
+    public String getComputedOfficialsListTemplateFileName() {
+        if (officialsListTemplateFileName == null) {
+            return "Officials-A4.xls";
+        }
+        return officialsListTemplateFileName;
+    }
+    
+    @Transient
+    @JsonIgnore
+    public String getComputedTeamsListTemplateFileName() {
+        if (teamsListTemplateFileName == null) {
+            return "Teams-A4.xls";
+        }
+        return teamsListTemplateFileName;
+    }
+
+    public String getOfficialsListTemplateFileName() {
+        return officialsListTemplateFileName;
+    }
+
+    public void setOfficialsListTemplateFileName(String officialsListTemplateFileName) {
+        this.officialsListTemplateFileName = officialsListTemplateFileName;
+    }
+
+    public String getTeamsListTemplateFileName() {
+        return teamsListTemplateFileName;
+    }
+
+    public void setTeamsListTemplateFileName(String teamsListTemplateFileName) {
+        this.teamsListTemplateFileName = teamsListTemplateFileName;
     }
 
     /**
