@@ -1924,7 +1924,6 @@ public class FieldOfPlay {
             }
 
             getBreakTimer().stop();
-            // TODO push out TO Notification
             setBreakType(null);
             pushOutStartLifting(getGroup(), e.getOrigin());
             uiDisplayCurrentAthleteAndTime(true, e, false);
@@ -2202,7 +2201,6 @@ public class FieldOfPlay {
         boolean indefinite = breakTimer.isIndefinite();
         this.ceremonyType = null;
 
-        // TODO roll this back into BreakStarted/StartLifting
         doTONotifications(newBreak);
 
         if (state == BREAK) {

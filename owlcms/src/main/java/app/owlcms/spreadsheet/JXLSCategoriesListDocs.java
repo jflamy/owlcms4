@@ -21,11 +21,11 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
+public class JXLSCategoriesListDocs extends JXLSStartingListDocs {
 
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSStartingListDocs.class);
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSCategoriesListDocs.class);
     final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
     static {
         logger.setLevel(Level.INFO);
@@ -33,15 +33,15 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
         tagLogger.setLevel(Level.ERROR);
     }
 
-    public JXLSStartingListDocs() {
+    public JXLSCategoriesListDocs() {
         super();
         this.setExcludeNotWeighed(false);
     }
 
     @Override
     protected List<Athlete> getSortedAthletes() {
-        List<Athlete> registrationOrderCopy = AthleteSorter.registrationOrderCopy(sortedAthletes);
-        logger.warn("sorting by group from {} {}", LoggerUtils.whereFrom(), registrationOrderCopy);
-        return registrationOrderCopy;
+        logger.warn("sorting by category from {} {}", LoggerUtils.whereFrom(), sortedAthletes);
+        List<Athlete> displayOrderCopy = AthleteSorter.displayOrderCopy(sortedAthletes);
+        return displayOrderCopy;
     }
 }

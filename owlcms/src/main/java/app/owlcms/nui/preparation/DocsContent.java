@@ -62,6 +62,7 @@ import app.owlcms.nui.shared.AthleteCrudGrid;
 import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCardsDocs;
+import app.owlcms.spreadsheet.JXLSCategoriesListDocs;
 import app.owlcms.spreadsheet.JXLSStartingListDocs;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
@@ -95,10 +96,12 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
     private AgeDivision ageDivision;
     private Category category;
     private JXLSStartingListDocs startingXlsWriter;
+    private JXLSCategoriesListDocs categoriesXlsWriter;
     private JXLSCardsDocs cardsXlsWriter;
     private String groupName;
     private Platform platform;
     private Gender gender;
+
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
@@ -108,6 +111,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         super();
         cardsXlsWriter = new JXLSCardsDocs();
         startingXlsWriter = new JXLSStartingListDocs();
+        categoriesXlsWriter = new JXLSCategoriesListDocs();
     }
 
     @Override
@@ -136,6 +140,8 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                     // group may have been edited since the page was loaded
                     cardsXlsWriter.setGroup(
                             getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
+                    // get current version of athletes.
+                    findAll();
                     return cardsXlsWriter;
                 },
                 resourceDirectoryLocation,
@@ -269,6 +275,8 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                     // group may have been edited since the page was loaded
                     startingXlsWriter.setGroup(
                             getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
+                    // get current version of athletes.
+                    findAll();
                     return startingXlsWriter;
                 },
                 resourceDirectoryLocation,
@@ -288,9 +296,11 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
         DownloadDialog startingListFactory = new DownloadDialog(
                 () -> {
                     // group may have been edited since the page was loaded
-                    startingXlsWriter.setGroup(
+                    categoriesXlsWriter.setGroup(
                             getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
-                    return startingXlsWriter;
+                    // get current version of athletes.
+                    findAll();
+                    return categoriesXlsWriter;
                 },
                 resourceDirectoryLocation,
                 null,
@@ -311,6 +321,8 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                     // group may have been edited since the page was loaded
                     startingXlsWriter.setGroup(
                             getCurrentGroup() != null ? GroupRepository.getById(getCurrentGroup().getId()) : null);
+                    // get current version of athletes.
+                    findAll();
                     return startingXlsWriter;
                 },
                 resourceDirectoryLocation,
@@ -524,6 +536,7 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                 .collect(Collectors.toList());
         cardsXlsWriter.setSortedAthletes(found);
         startingXlsWriter.setSortedAthletes(found);
+        categoriesXlsWriter.setSortedAthletes(found);
         updateURLLocations();
         return found;
     }
