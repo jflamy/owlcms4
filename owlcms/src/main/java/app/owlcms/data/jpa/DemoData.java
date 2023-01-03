@@ -130,12 +130,12 @@ public class DemoData {
         Competition competition = new Competition();
 
         competition.setCompetitionName("Spring Equinox Open");
-        competition.setCompetitionCity("Sometown, Lower FOPState");
+        competition.setCompetitionCity("Sometown, Lower Cascadia");
         competition.setCompetitionDate(LocalDate.of(2019, 03, 23));
         competition.setCompetitionOrganizer("Giant Weightlifting Club");
         competition.setCompetitionSite("West-End Gym");
         competition.setFederation("National Weightlifting Federation");
-        competition.setFederationAddress("22 River Street, Othertown, Upper FOPState,  J0H 1J8");
+        competition.setFederationAddress("22 River Street, Othertown, Upper Cascadia,  J0H 1J8");
         competition.setFederationEMail("results@national-weightlifting.org");
         competition.setFederationWebSite("http://national-weightlifting.org");
 
@@ -143,6 +143,8 @@ public class DemoData {
         competition.setMasters(ageDivisions != null && ageDivisions.contains(MASTERS));
         competition.setUseBirthYear(false);
         competition.setAnnouncerLiveDecisions(true);
+        competition.setMensTeamSize(null);
+        competition.setWomensTeamSize(null);
 
         return competition;
     }
@@ -197,32 +199,34 @@ public class DemoData {
      */
     protected static void setupDemoData(EntityManager em, int liftersToLoad, EnumSet<AgeDivision> ageDivisions) {
 
-        LocalDateTime w = LocalDateTime.now();
-        LocalDateTime c = w.plusHours((long) 2.0);
+        LocalDateTime c = LocalDateTime.now();
+
+        c = LocalDateTime.of(c.getYear(), c.getMonth(), c.getDayOfMonth(), 10, 30, 0);
 
         Platform platform1 = new Platform("A");
         //Platform platform2 = new Platform("B");
         Platform platform2 = platform1;
 
-        groupM1 = new Group("M1", w, c);
+        groupM1 = new Group("M1", c.plusHours((long) -2.0), c);
         groupM1.setPlatform(platform1);
-
-        groupM2 = new Group("M2", w, c);
+        c = c.plusMinutes(120);
+        logger.warn("new c2 = {}", c);
+        
+        groupM2 = new Group("M2", c.plusHours((long) -2.0), c);
         groupM2.setPlatform(platform2);
-
-        groupF1 = new Group("F1", w, c);
+        c = c.plusMinutes(150);
+        
+        groupF1 = new Group("F1", c.plusHours((long) -2.0), c);
         groupF1.setPlatform(platform1);
+        c = c.plusMinutes(90);
 
-        groupY1 = new Group("Y1", w, c);
+        groupY1 = new Group("Y1", c.plusHours((long) -2.0), c);
         groupY1.setPlatform(platform2);
 
         em.persist(groupM1);
         em.persist(groupM2);
-        em.persist(new Group("M3", null, null));
-        em.persist(new Group("M4", null, null));
         em.persist(groupF1);
         em.persist(groupY1);
-        em.persist(new Group("F3", null, null));
 
         em.persist(platform1);
         em.persist(platform2);
