@@ -41,7 +41,6 @@ import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
-import app.owlcms.spreadsheet.JXLSRegistration;
 import app.owlcms.spreadsheet.JXLSRegistrationEmptyExport;
 import app.owlcms.spreadsheet.JXLSRegistrationExport;
 import app.owlcms.utils.URLUtils;
