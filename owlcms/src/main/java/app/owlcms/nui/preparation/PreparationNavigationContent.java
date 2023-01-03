@@ -42,6 +42,7 @@ import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSRegistration;
+import app.owlcms.spreadsheet.JXLSRegistrationEmptyExport;
 import app.owlcms.spreadsheet.JXLSRegistrationExport;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -81,12 +82,12 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
                 });
         clearNewRecords.getElement().setProperty("title",
                 Translator.translate("Preparation.ClearNewRecordsExplanation"));
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, platforms,
-                groups, clearNewRecords);
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, platforms,
+                clearNewRecords);
         doGroup(getTranslation("PreCompetitionSetup"), grid1, this);
 
         Div downloadDiv = DownloadButtonFactory.createDynamicXLSDownloadButton("registration",
-                getTranslation("DownloadRegistrationTemplate"), new JXLSRegistration(UI.getCurrent()));
+                getTranslation("DownloadRegistrationTemplate"), new JXLSRegistrationEmptyExport(UI.getCurrent()));
         Optional<Component> content = downloadDiv.getChildren().findFirst();
         content.ifPresent(c -> ((Button) c).setWidth("100%"));
         downloadDiv.setWidthFull();
@@ -100,12 +101,12 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         exportDivButton.ifPresent(c -> ((Button) c).setWidth("100%"));
         exportDiv.setWidthFull();
         
-        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload, exportDiv);
+        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(ageGroups, groups, downloadDiv, upload);
         doGroup(getTranslation("Registration"), grid2, this);
 
         Button athletes = openInNewTabNoParam(RegistrationContent.class, getTranslation("EditAthletes"));
         Button teams = openInNewTabNoParam(TeamSelectionContent.class, getTranslation(TeamSelectionContent.TITLE));
-        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams);
+        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams, exportDiv);
         doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
 
         //if (Config.getCurrent().featureSwitch("preCompDocs", true)) {
