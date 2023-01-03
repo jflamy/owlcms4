@@ -160,7 +160,7 @@ public class AgeGroupEditingFormFactory
         Component footerLayout = this.buildFooter(operation, aFromDb, cancelButtonClickListener,
                 updateButtonClickListener, deleteButtonClickListener, false);
 
-        VerticalLayout mainLayout = new VerticalLayout(formLayout, footerLayout);
+        VerticalLayout mainLayout = new VerticalLayout(footerLayout, formLayout);
         mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout);
         mainLayout.setMargin(false);
         mainLayout.setPadding(false);
