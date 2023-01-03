@@ -1451,6 +1451,34 @@ public class Athlete {
         // LoggerUtils.whereFrom());
         return s;
     }
+    
+    @Transient
+    @JsonIgnore
+    public Set<AgeGroup> getTeamAgeGroups() {
+        // brain dead version, cannot get query version to work.
+        Set<AgeGroup> s = new LinkedHashSet<>();
+        List<Participation> participations2 = getParticipations();
+        for (Participation p : participations2) {
+            if (p.getTeamMember()) {
+                s.add(p.getCategory().getAgeGroup());
+            }
+        }
+        // logger.trace("{}{} getEligibleCategories {} from {}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+        // s.toString(),
+        // LoggerUtils.whereFrom());
+        return s;
+    }
+    
+    @Transient
+    @JsonIgnore
+    public String getTeamAgeGroupsAsString() {
+        Set<AgeGroup> tag = getTeamAgeGroups();
+        if (tag == null || tag.isEmpty()) {
+            return "";
+        } else {
+            return tag.toString();
+        }
+    }
 
     public Integer getEntryTotal() {
         // intentional, this is the legacy name of the column in the database
