@@ -102,7 +102,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
                 setReportingInfo();
                 HashMap<String, Object> reportingInfo = getReportingBeans();
                 List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
-                if (athletes != null && athletes.size() > 0) {
+                if (athletes != null && (athletes.size() > 0 || isEmptyOk())) {
                     workbook = transformer.transformXLS(getTemplate(locale), reportingInfo);
                     if (workbook != null) {
                         postProcess(workbook);
@@ -134,6 +134,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         } finally {
             session.unlock();
         }
+    }
+
+    protected boolean isEmptyOk() {
+        return false;
     }
 
     /**
