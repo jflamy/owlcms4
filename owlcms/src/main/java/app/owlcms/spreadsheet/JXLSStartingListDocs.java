@@ -41,7 +41,6 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
     @Override
     protected List<Athlete> getSortedAthletes() {
         List<Athlete> registrationOrderCopy = AthleteSorter.registrationOrderCopy(sortedAthletes);
-        logger.warn("sorting by group from {} {}", LoggerUtils.whereFrom(), registrationOrderCopy);
         return registrationOrderCopy;
     }
 }

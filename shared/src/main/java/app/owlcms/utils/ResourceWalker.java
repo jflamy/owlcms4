@@ -526,8 +526,8 @@ public class ResourceWalker {
 
         Set<String> classPathResourceNames = classPathResourcesMap.keySet();
         Set<String> overrideResourceNames = overrideResourcesMap.keySet();
-        logger.warn("classpath resources {}", classPathResourceNames);
-        logger.warn("override resources {}", overrideResourceNames);
+        //logger.debug("classpath resources {}", classPathResourceNames);
+        //logger.debug("override resources {}", overrideResourceNames);
         TreeSet<String> allResourceNames = new TreeSet<>();
         allResourceNames.addAll(classPathResourceNames);
         allResourceNames.addAll(overrideResourceNames);

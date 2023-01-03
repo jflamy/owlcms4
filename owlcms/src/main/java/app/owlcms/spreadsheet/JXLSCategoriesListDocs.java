@@ -21,7 +21,7 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-public class JXLSCategoriesListDocs extends JXLSStartingListDocs {
+public class JXLSCategoriesListDocs extends JXLSWorkbookStreamSource {
 
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
 
@@ -40,7 +40,6 @@ public class JXLSCategoriesListDocs extends JXLSStartingListDocs {
 
     @Override
     protected List<Athlete> getSortedAthletes() {
-        logger.warn("sorting by category from {} {}", LoggerUtils.whereFrom(), sortedAthletes);
         List<Athlete> displayOrderCopy = AthleteSorter.displayOrderCopy(sortedAthletes);
         return displayOrderCopy;
     }

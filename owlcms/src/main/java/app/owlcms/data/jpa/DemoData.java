@@ -210,7 +210,6 @@ public class DemoData {
         groupM1 = new Group("M1", c.plusHours((long) -2.0), c);
         groupM1.setPlatform(platform1);
         c = c.plusMinutes(120);
-        logger.warn("new c2 = {}", c);
         
         groupM2 = new Group("M2", c.plusHours((long) -2.0), c);
         groupM2.setPlatform(platform2);
