@@ -2,19 +2,28 @@
 
 owlcms is a web-based application.  All the displays connect to owlcms using a browser.  In most scenarios, owlcms runs on a good laptop at the competition site, and all the other displays connect to that laptop.  For virtual meets, the computer running owlcms is actually running somewhere in the internet -- everything else on this page still applies.
 
-### Small Club Meets
+### Minimalistic Setup
 
-In the simplest setup, a single person will act as announcer, register changes, and operate the clock.  This can be done on a single laptop, as demonstrated in this [video](Demo1).
+In a small club meet, the announcer will often do everything - announce, enter the weight changes, and operate the clock. This can be done on a single laptop, as demonstrated in this [video](Demo1).  You can sometimes even do away with the scoreboard.
 
-Typically however, you will want to have a scoreboard so athletes and coaches can follow the competition as they warm up.  So a no-nonsense setup a small club meet might look like
+
 
 <center><img src="img/equipment/ClubCompetitionWIFI.png" alt="ClubCompetitionWIFI" /></center>
 
-If you want to go the next step and have displays for the athletes and coaches, you can connect old laptops to a normal household router.  You would normally start with an attempt board in the main room and a scoreboard in the warmup area.  If you can, use Ethernet cables - there is often interference in gyms.
+### Suggested Small Competition Setup
 
-![wirednetwork](img/equipment/wirednetwork.png)
+If you have a meeting with multiple groups, the following setup will allow you to comply with most requirements.  This adds a computer in the warmup area, and there is an attempt board on the platform.
 
+<table>
+<tr><td><img src='img/Gallery/ElSalvador.jpg'></img></td><td><img src='img/Gallery/ElSalvador_marshall.jpg'></img></td></tr></table>
 
+![minimal](EquipmentSetup/images/minimal.png)
+
+- The clock and decisions are visible on the attempt board.  The attempt board should visible from the chalk box and from the center of the platform.
+- This uses the "extend desktop" capability of the laptop to have a different output on the monitor. To avoid moving the mouse non-intentionally on the external monitor, you can use [DualMonitorTool](https://dualmonitortool.sourceforge.net/) 
+  - Many people have also had success using Chromecast devices to drive the extra screens.
+- If you have an extra laptop and a projector at your disposal, you can add a scoreboard for the public. 
+- The next step up is to have the secretary on a separate laptop so that weigh-in data can be entered while the competition is going on.
 
 ### Full Competition Setup
 
@@ -30,7 +39,9 @@ There are basically two ways to achieve such as setup.  The first one uses fewer
 
 #### Approach 1: Fewer laptops, HDMI extenders
 
-In this approach, officials use the main display of the laptop.  The monitor output is used to show scoreboards.  An HDMI extender is used to send the signal over Ethernet cabling to a large display located far away.  Extenders can provide a second output that is connected to a monitor next to the laptop.  In this way, the announcer can see the main scoreboard, and the marshall can see the warmup scoreboard.
+In this approach, officials use the main display of the laptop.  The monitor output is used to show scoreboards.  
+
+You can either use an HDMI Extender or use HDMI Fiber cables.  Use extenders that can provide a second output that is connected to a monitor next to the laptop.  In this way, the announcer can see the main scoreboard, and the marshall can see the warmup scoreboard.  If using HDMI Fiber cables, then you will need a splitter to send one signal to the monitor and one signal to the far-away TV.
 
 The diagram below illustrates the "full setup" that would be used in a multi-platform competition with a full jury.
 
