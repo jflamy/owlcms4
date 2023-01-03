@@ -47,6 +47,27 @@ Note that if you own your own domain, you can add names under your own domain to
    fly scale memory 512 --app myclub
       ```
 
+### Scale-up and Scale-down of owlcms
+
+For a larger competition, you might want to give owlcms a dedicated virtual machine with more memory.  **This is only needed for the duration of the competition.**
+
+> NOTE: scaling the memory must be done after scaling the vm because default sizes are re-applied.
+
+1. Make the application bigger. 
+
+   ```
+   fly scale vm dedicated-cpu-1x --app myclub
+   fly scale memory 1024 --app myclub
+   ```
+
+2. Revert to cheaper settings: make the application smaller, use a smaller computer, and either shut it down (count 0) or leave it running (count 1)
+
+   ```
+   fly scale vm shared-cpu-1x --app myclub
+   fly scale memory 512 --app myclub
+   fly scale count 0 --app myclub
+   ```
+
 ### (Optional) Install the public results scoreboard
 
 This is not required, but since there is no extra cost associated, you might as well configure it even if you don't need it immediately.
@@ -81,7 +102,7 @@ This is not required, but since there is no extra cost associated, you might as 
     fly secrets set OWLCMS_REMOTE=https://myclub-results.fly.dev --app myclub-results
     ```
 
-### Updating
+### Updating for new releases
 
 The `fly deploy` command fetches the newest version available from the public hub.docker.com repository and restarts the application.
 
@@ -98,6 +119,10 @@ To switch to the latest prerelease version
 fly deploy --image owlcms/owlcms:prerelease --app myclub
 fly deploy --image owlcms/publicresults:prelease --app myclub-results
 ```
+
+### Control access to the application
+
+In a gym setting, people can read the web addresses on the screens.  Because the cloud application is visible to the world, some "funny" person may be tempted to log in to the system and mess things up.  See this [page](AdvancedSystemSettings) for how to control access.
 
 ### Stopping and Resuming Billing
 
@@ -120,44 +145,4 @@ You can run the commands from any command shell you have.
    fly scale count 1 --app myclub-results
    ```
 
-### Scale-up and Scale-down of owlcms
-
-For a larger competition, you might want to give owlcms a dedicated virtual machine with more memory.  You only need this for owlcms
-
-> NOTE: scaling the memory must be done after scaling the vm because default sizes are re-applied.
-
-1. Make the application bigger. 
-
-   ```
-   fly scale vm dedicated-cpu-1x --app myclub
-   fly scale memory 1024 --app myclub
-   ```
-   
-2. Revert to cheaper settings: make the application smaller, use a smaller computer, and either shut it down (count 0) or leave it running (count 1)
-
-   ```
-   fly scale vm shared-cpu-1x --app myclub
-   fly scale memory 512 --app myclub
-   fly scale count 0 --app myclub
-   ```
-
-
-
-### Control access to the application
-
-In a gym setting, people can read the web addresses on the screens, and one day, some "funny" person will log in to the system and be tempted to mess things up.
-
-- We suggest that you set a PIN or Password that officials will be required to type when first logging in.  This is done on via the `Prepare Competition` page, using the `Language and System Settings` button.
-
-![053_editPIN](img/PublicResults/053_editPIN.png)
-
-- You can restrict access to the cloud application to come only from your competition site router. The access list is a comma-separated list of allowed IPv4 addresses.   In order to find the proper value:
-
-  - From your competition site, browse to https://google.com and 
-
-  - Type the string  `my ip`  in the search box.  
-    This will display the address of your competition site router as seen from the cloud.  
-
-  - You should see a set of four numbers separated by dots like `24.157.203.247`  . This the address you should use -- owlcms will reject connections coming from other places than your competition router. 
-
-  Note that if you use the OWLCMS_IP environment setting in your fly.toml file, these will take precedence over what is in the database.
+### 

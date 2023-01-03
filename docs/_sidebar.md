@@ -5,10 +5,10 @@
   * [Installation](InstallationOverview)
   * [Equipment Setup](EquipmentSetup)
 * Competition Setup
-  * [Competition Information](Preparation)
-  * [Language and System Settings](SystemSettings)
-  * [Age Groups and Categories](Categories)
-  * [Athlete Registration](Registration)
+  * [Pre-Competition Setup](2100PreCompetitionSetup)
+  * [Registration](2200Registration)
+  * [Edit Athlete Entries](2300EditAthleteEntries)
+  * [Pre-competition Documents](2400PreCompetitionDocuments)
 * Running a Competition
   * [Weigh-in and Start Numbers](WeighIn)
   * [Announcing, Marshaling and Timekeeping](Announcing)

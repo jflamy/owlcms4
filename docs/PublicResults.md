@@ -19,7 +19,9 @@ There are three ways to install and run publicresults.  The first two options ar
 2. Install it on the Fly.io cloud.  See [this page](Fly) for details.
 3. Install it locally.  See [this page](PublicResults_Local) for details.
 
-## Configure Updates from `owlcms`
+
+
+## Configure `owlcms` to send updates
 
 1. Open the owlcms application on Heroku and go to the `Prepare Competition` - `Language and System Settings ` page.
 
@@ -28,6 +30,8 @@ There are three ways to install and run publicresults.  The first two options ar
      - Click on update.
 
      ![GkwHZ4ZHeW](img/PublicResults/Example/GkwHZ4ZHeW.png)
+
+
 
  ## Test the setup
 
@@ -50,7 +54,17 @@ There are three ways to install and run publicresults.  The first two options ar
 
 7. From then on, the publicresults screen will track the competition. It just repeats the events taking place on the local scoreboard.
 
-## Check for updates
 
-Once you have created the application once, you can download a program that will check for updates and remote control Heroku to grab them.   See [Instructions](https://github.com/owlcms/owlcms-heroku-updater) and [Releases · owlcms/owlcms4-heroku-updater (github.com)](https://github.com/owlcms/owlcms4-heroku-updater/releases)
+
+## Update the program when you update owlcms
+
+- For fly.io, if your application is called `myclub-scoreboard` you would use
+
+  ```
+  fly deploy --app myclub-scoreboard -i owlcms/publicresults-stable --detach
+  ```
+
+  
+
+- For Heroku Once you have created the application once, you can download a program that will check for updates and remote control Heroku to grab them.   See [Instructions](https://github.com/${env.REPO_OWNER}/owlcms-heroku-updater) and [Releases · owlcms/owlcms4-heroku-updater (github.com)](https://github.com/owlcms/owlcms4-heroku-updater/releases)
 
