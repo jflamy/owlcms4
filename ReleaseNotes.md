@@ -1,8 +1,6 @@
-37.0.0-rc01: New version after update to a major release of the user interface libraries
+37.0.0: New version after update to a major release of the user interface libraries
 
-This is a [release candidate](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate).
-All prior features from release 35 appear to work, simulation of large competition on multiple platforms is successful. There are no known issues.
-*As for all pre-releases, test with your own data before using the program in a real competition.*
+Because this is a major new release, you are reminded that it is always a good idea to do a few tests with your own data.
 
 - 37.0 Enhancements
   - Migration to the current version of the Vaadin user interface framework. The navigation (menu, top menu bar) was redone.
