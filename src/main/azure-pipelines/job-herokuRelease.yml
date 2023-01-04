@@ -69,7 +69,7 @@ jobs:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: $(RELEASE_USER)/${{ parameters.moduleName }}-heroku$(RELEASE_SUFFIX)
             isPreRelease: false
-          ${{ if eq(variables['Build.SourceBranchName'], 'fixrelease') }}:
+          ${{ if eq(variables['Build.SourceBranchName'], 'v23') }}:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: $(RELEASE_USER)/${{ parameters.moduleName }}-heroku$(RELEASE_SUFFIX)
             isPreRelease: false
