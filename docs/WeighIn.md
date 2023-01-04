@@ -36,17 +36,23 @@ Athlete cards are produced as an Excel document which can be printed.  Several t
 
 ![040_AthleteCards](img/WeighIn/040_AthleteCards.png)
 
-The CardTemplate style prints two athletes on the same page, which can be cut in half.
-
-![042_AthleteCards](img/WeighIn/042_AthleteCards.png)
-
 The IWF style is meant to be folded.  Each lift appears on one side, so the card is flipped between lifts.
 
 ![043_AthleteCards](img/WeighIn/043_AthleteCards.png)
 
-### Starting Weight Sheet
 
-The starting weight sheet shows the start number and the requested weights.  It is used to cross-check that the information printed is the same as on the athlete cards, and to write down the start numbers on the athlete cards.
+
+## Weigh-In Blank Summary
+
+In some federations, when weigh-in is performed, a separate blank sheet is prepared with the bodyweight and declarations of the athletes.  This sheet is used to facilitate data entry.  Some federations require the coach to also sign the weigh-in summary. 
+
+To produce the weigh-in blank summary, use the Starting Weights sheet (see below) and select the Weigh-In Summary.
+
+## Starting Weight Sheet
+
+The starting weight sheet shows a printout with the start number and the requested weights.  It is printed after the weights have been entered.  
+
+It is used to cross-check that the information printed is the same as on the athlete cards, and to write down the start numbers on the athlete cards.  Some competitions distribute that sheet to the coaches.
 
 You should select the group prior to printing the starting weights sheet.
 
