@@ -403,7 +403,7 @@ public class MQTTMonitor {
     }
 
     private void publishMqttLedOnOff() throws MqttException, MqttPersistenceException {
-        logger.debug("{}MQTT LedOnOff", fop.getLoggingName());
+        //logger.debug("{}MQTT LedOnOff", fop.getLoggingName());
         String topic = "owlcms/fop/startup/" + fop.getName();
         String deprecatedTopic = "owlcms/led/" + fop.getName();
         client.publish(topic, new MqttMessage("on".getBytes(StandardCharsets.UTF_8)));
