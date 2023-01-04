@@ -1,28 +1,30 @@
-> New numbering scheme.  First level = significant features that can affect how a competition is run.  Second level = smaller features such as small user interface improvements or technical changes.  Third level = bug fixes.
+37.0.0-beta12: **New version after update to a major release of the user interface libraries**
 
-- 37.0.0-beta: **New version after migration to the current version of the Vaadin user interface framework**
+All prior features from release 35 appear to work, simulation of large competition on multiple platforms is successful. There are known user interface glitches.
+*As for all pre-releases, test with your own data before using the program in a real competition.*
 
-  All features from version 35 (which used Vaadin 14) appear to work.
+This should be the last beta before release candidates.
 
-  - 37.0 Enhancements
-    - Migration to the current version of the Vaadin user interface framework. Some of the user interface elements were replaced with newer versions.
-    - On the preparation page, the pre-competition documents (Start List, Cards) were moved to a separate page with more appropriate filtering.
-    - The main scoreboard shows the group description at the top if one is available. Warmup scoreboards still have the "lifts done" information.
-    - The attempt board and decision board now show a "waiting for next group" instead of blank when the platform is inactive
-    - On the Edit Athlete Entries page, the interactive addition of athletes using `+` is now more intuitive, in particular regarding category selection.
-  - 37.0-beta Fixes
-    - beta11: When a new release is made, the browser will no longer use old (cached) style sheets.
-    - beta10: The decision display for TV (public-facing) was showing decision lights in the reverse order.  The public-facing attempt board was correct.
-    - beta08: enhanced documentation for physical setup and networking options
-    - beta08: changed the multichrome.bat script to use Edge instead of Chrome (uses much less memory)
-    - beta07: the public results scoreboard was not updating
-    - beta06: updated build to create Heroku version
-    - beta04: jury could give a premature decision while lights were still on; jury break is now required.
-    - beta03: made the referee summoning keyboard shortcuts work again on the jury page ([#603](https://github.com/jflamy/owlcms4/issues/603)); also fixed phone/tablet refereeing so they obey "summon all" correctly
-    - beta03: the web page names are now the same as in version 35 (the leading "n" has been removed)
-    - beta03: checked that all page sizes in the final package and pre-competition documents are correct ([#605](https://github.com/jflamy/owlcms4/issues/605))
-    - beta03: the current language is now indicated explicitly in the html response ([#604](https://github.com/jflamy/owlcms4/issues/604))
-    - beta03: fixed wrong column heading translation string in Weigh-In summary template.
+- 37.0 Enhancements
+  - Migration to the current version of the Vaadin user interface framework. The navigation (menu, top menu bar) was redone.
+  - On the preparation page, items have been rearranged to be more intuitive.
+  - Separate page for pre-competition documents. There are now separate documents for each purpose instead of multiple tabs. See [Pre-Competition Documents Documentation](https://owlcms.github.io/owlcms4-prerelease/#/2400PreCompetitionDocuments).
+  - The main scoreboard shows the group description at the top if one is available. Warmup scoreboards still have the "lifts done" information.
+  - The attempt board and decision board now show a "waiting for next group" instead of a blank screen when the platform is inactive
+  - Many small annoyances were fixed.
+- 37.0-beta Fixes
+  - beta11: the static resources (css, images, etc...) are now loaded in a way that will prevent the browser from using obsolete copies.
+  - beta10: The decision display for TV (public-facing) was showing decision lights in the reverse order.  The public-facing attempt board was correct.
+  - beta08: enhanced documentation for physical setup and networking options
+  - beta08: changed the multichrome.bat script to use Edge instead of Chrome (uses much less memory)
+  - beta07: the public results scoreboard was not updating
+  - beta06: updated build to create Heroku version
+  - beta04: jury could give a premature decision while lights were still on; jury break is now required.
+  - beta03: made the referee summoning keyboard shortcuts work again on the jury page ([#603](https://github.com/jflamy/owlcms4/issues/603)); also fixed phone/tablet refereeing so they obey "summon all" correctly
+  - beta03: the web page names are now the same as in version 35 (the leading "n" has been removed)
+  - beta03: checked that all page sizes in the final package and pre-competition documents are correct ([#605](https://github.com/jflamy/owlcms4/issues/605))
+  - beta03: the current language is now indicated explicitly in the html response ([#604](https://github.com/jflamy/owlcms4/issues/604))
+  - beta03: fixed wrong column heading translation string in Weigh-In summary template.
 
 ##### Highlights from recent stable releases
 
