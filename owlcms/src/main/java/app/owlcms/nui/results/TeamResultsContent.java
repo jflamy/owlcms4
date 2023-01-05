@@ -359,6 +359,7 @@ public class TeamResultsContent extends VerticalLayout
         OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(TeamTreeItem.class);
         OwlcmsCrudGrid<TeamTreeItem> crudGrid = new OwlcmsCrudGrid<>(TeamTreeItem.class, gridLayout,
                 crudFormFactory, grid) {
+            @SuppressWarnings("deprecation")
             @Override
             public void refreshGrid() {
                 if (topBar == null) {
@@ -368,7 +369,7 @@ public class TeamResultsContent extends VerticalLayout
                 // genderFilter.getValue());
                 TeamTreeData teamTreeData = new TeamTreeData(getAgeGroupPrefix(), getAgeDivision(),
                         genderFilter.getValue(), Ranking.SNATCH_CJ_TOTAL);
-                grid.setItems(new TreeDataProvider<>(teamTreeData));
+                grid.setDataProvider(new TreeDataProvider<>(teamTreeData));
             }
 
             @Override
