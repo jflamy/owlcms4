@@ -520,17 +520,20 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
     public void slaveStopBreak(UIEvent.BreakDone e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
+//        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+//            Athlete a = e.getAthlete();
+//            if (a == null) {
+//                OwlcmsSession.withFop(fop -> {
+//                    List<Athlete> order = fop.getLiftingOrder();
+//                    Athlete athlete = order.size() > 0 ? order.get(0) : null;
+//                    doAthleteUpdate(athlete);
+//                });
+//            } else {
+//                doAthleteUpdate(a);
+//            }
+//        });
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            Athlete a = e.getAthlete();
-            if (a == null) {
-                OwlcmsSession.withFop(fop -> {
-                    List<Athlete> order = fop.getLiftingOrder();
-                    Athlete athlete = order.size() > 0 ? order.get(0) : null;
-                    doAthleteUpdate(athlete);
-                });
-            } else {
-                doAthleteUpdate(a);
-            }
+            syncWithFOP(OwlcmsSession.getFop());
         });
     }
 
@@ -864,6 +867,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
                 }
             } else {
                 doAthleteUpdate(curAthlete);
+                athleteTimer.syncWithFop();
             }
         }
     }
