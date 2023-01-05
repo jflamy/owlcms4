@@ -135,11 +135,12 @@ public class SinclairCoefficients {
      */
     private void loadProps() {
         props = new Properties();
+        String name = "/sinclair/sinclair"+sinclairYear+".properties";
         try {
-            InputStream stream = ResourceWalker.getResourceAsStream("/sinclair/sinclair"+sinclairYear+".properties");
+            InputStream stream = ResourceWalker.getResourceAsStream(name);
             props.load(stream);
         } catch (IOException e) {
-            LoggerUtils.logError(logger, e);
+            logger.error("could not load {} because {}\n{}", name, e, LoggerUtils.stackTrace(e));
         }
     }
 
