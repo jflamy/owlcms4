@@ -41,7 +41,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -361,11 +360,13 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 //        dt.add(countdownButton, athleteButton);
 //    }
 
-    private FlexLayout createBreakTimerButtons() {
+    private Component createBreakTimerButtons() {
         breakStart = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
                 BreakType value = countdownRadios.getValue();
-                if (value != null && value.isCountdown()) {
+                if (value != null && 
+                        (value.isCountdown()
+                        || (durationRadios.getValue() != CountdownType.INDEFINITE))) {
                     // force FOP to accept our break and value as new
                     fop.setBreakType(null);
                     fop.setCountdownType(null);
@@ -394,9 +395,11 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         breakEnd.getElement().setAttribute("theme", "primary success");
         breakEnd.getElement().setAttribute("title", getTranslation("EndBreak"));
 
-        FlexLayout buttons = new FlexLayout();
+        HorizontalLayout buttons = new HorizontalLayout();
         buttons.add(breakStart, breakPause, /* breakReset, */ breakEnd);
-        buttons.setWidth("100%");
+        buttons.setSpacing(true);
+        buttons.setMargin(false);
+        buttons.setPadding(false);
         buttons.setJustifyContentMode(JustifyContentMode.AROUND);
         return buttons;
     }
@@ -577,7 +580,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         durationRadios.addComponents(CountdownType.TARGET, datePicker, new Label(" "), timePicker);
 
         createTimerDisplay();
-        FlexLayout timerButtons = createBreakTimerButtons();
+        Component timerButtons = createBreakTimerButtons();
 
         VerticalLayout cd = new VerticalLayout();
 
