@@ -1,10 +1,11 @@
-37.0.0-rc02: New version after update to a major release of the user interface libraries
+37.0.0-rc03: New version after update to a major release of the user interface libraries
 
 This is a [release candidate](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate).
 All prior features from release 35 appear to work, simulation of large competition on multiple platforms is successful. There are no known issues.
 *As for all pre-releases, test with your own data before using the program in a real competition.*
 
 - 37.0 Enhancements
+  - 37.0.0-rc03: Hungarian and Romanian translations added (thanks to Attila Feri)
   - Migration to the current version of the Vaadin user interface framework. The navigation (menu, top menu bar) was redone.
   - On the preparation page, items have been rearranged to be more intuitive.
   - There is now a separate page for pre-competition documents. There are now separate documents for each purpose instead of multiple tabs. See [Pre-Competition Documents Documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/2400PreCompetitionDocuments).
