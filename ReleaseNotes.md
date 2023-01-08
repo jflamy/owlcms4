@@ -1,4 +1,4 @@
-37.0.0-rc01: New version after update to a major release of the user interface libraries
+37.0.0-rc02: New version after update to a major release of the user interface libraries
 
 This is a [release candidate](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate).
 All prior features from release 35 appear to work, simulation of large competition on multiple platforms is successful. There are no known issues.
@@ -13,6 +13,10 @@ All prior features from release 35 appear to work, simulation of large competiti
   - Documentation of [equipment and networking setup](https://owlcms.github.io/owlcms4-prerelease/#/EquipmentSetup) has been enhanced
   - Documentation of the pre-competition setup and registration activities has been redone.
   - Many small annoyances were fixed.
+- 37.0.0-rc Fixes
+  - 37.0.0-rc02: The Team Results page was not loading. ([#613](https://github.com/jflamy/owlcms4/issues/613))
+  - 37.0.0-rc02: The clock on the scoreboard and attempt board would not count down in certain rare conditions ([#611](https://github.com/jflamy/owlcms4/issues/611)) The announcer and technical official displays were updating correctly.
+  - 37.0.0-rc02: It was not always possible to switch from one type of break to another, or to set a duration on a technical break. Using Pause and changing break type/duration should now work. ([#612](https://github.com/jflamy/owlcms4/issues/612))
 - 37.0 Fixes
   - The static resources (css, images, etc...) are now loaded in a way that will prevent the browser from using obsolete copies.
 
@@ -29,11 +33,11 @@ All prior features from release 35 appear to work, simulation of large competiti
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_37.0.0-rc01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_37.0.0-rc02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_37.0.0-rc01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_37.0.0-rc02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4-prerelease/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
