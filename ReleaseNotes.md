@@ -1,4 +1,4 @@
-37.0.0: New version after update to a major release of the user interface libraries
+37.0.1: New version after update to a major release of the user interface libraries
 
 - 37.0 Enhancements
   - Migration to the current version of the Vaadin user interface framework. The navigation (menu, top menu bar) has been redone to use officially supported components.
@@ -11,7 +11,9 @@
   - Documentation of the pre-competition setup and registration activities has been redone.
   - Many small annoyances were fixed.
 - 37.0 Fixes
+  - 37.0.1: fixes to documentation files.
   - The static resources (css, images, etc...) are now loaded in a way that will prevent the browser from using obsolete copies.
+
 
 ##### Highlights from recent stable releases
 
@@ -24,11 +26,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_37.1.0-SNAPSHOT.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_37.0.1.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_37.1.0-SNAPSHOT.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_37.0.1.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4-prerelease/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
