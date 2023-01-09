@@ -1,10 +1,11 @@
-37.0.0-rc02: New version after update to a major release of the user interface libraries
+37.0.0-rc03: New version after update to a major release of the user interface libraries
 
 This is a [release candidate](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate).
 All prior features from release 35 appear to work, simulation of large competition on multiple platforms is successful. There are no known issues.
 *As for all pre-releases, test with your own data before using the program in a real competition.*
 
 - 37.0 Enhancements
+  - 37.0.0-rc03: Hungarian and Romanian translations added (thanks to Attila Feri)
   - Migration to the current version of the Vaadin user interface framework. The navigation (menu, top menu bar) was redone.
   - On the preparation page, items have been rearranged to be more intuitive.
   - There is now a separate page for pre-competition documents. There are now separate documents for each purpose instead of multiple tabs. See [Pre-Competition Documents Documentation](https://owlcms.github.io/owlcms4-prerelease/#/2400PreCompetitionDocuments).
@@ -33,11 +34,11 @@ All prior features from release 35 appear to work, simulation of large competiti
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_37.0.0-rc02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_37.0.0-rc03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_37.0.0-rc02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_37.0.0-rc03.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4-prerelease/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
