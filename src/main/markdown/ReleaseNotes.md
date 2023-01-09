@@ -1,4 +1,4 @@
-37.0.1: New version after update to a major release of the user interface libraries
+37.0.2: New version after update to a major release of the user interface libraries
 
 - 37.0 Enhancements
   - Migration to the current version of the Vaadin user interface framework. The navigation (menu, top menu bar) has been redone to use officially supported components.
@@ -11,7 +11,7 @@
   - Documentation of the pre-competition setup and registration activities has been redone.
   - Many small annoyances were fixed.
 - 37.0 Fixes
-  - 37.0.1: fixes to documentation files.
+  - 37.0.2: fixes to documentation files.
   - The static resources (css, images, etc...) are now loaded in a way that will prevent the browser from using obsolete copies.
 
 
