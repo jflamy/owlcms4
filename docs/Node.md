@@ -1,10 +1,8 @@
-## Installing Blue Owl
+## Installing the Blue Owl Refereeing Package
 
 ### Pre-Requisites
 
-Node.js is a very popular way to execute programs that are written in JavaScript. 
-
-owlcms uses Node programs when the Blue Owl refereeing software is being used.  We will install two pieces of software, nvm and npm
+Blue Owl requires a Node.js server to run.  We will install two pieces of software, nvm and npm
 
 - nvm  which is a tool for installing Node.js.  The process for Windows and for macOS/Linux is different.
 - npm (node package manager) which is what we will be using mostly.
@@ -18,7 +16,7 @@ owlcms uses Node programs when the Blue Owl refereeing software is being used.  
 
 #### Installing Node.js and NPM
 
-You now need to start a command shell.  On windows left-click *once* on `⊞` and type `cmd` or use the  `⊞` `R` shortcut to run a command. and then type `cmd`. On a Mac or Linux, start a Terminal session.
+You now need to start a command shell.  On Windows aaaa10/11 left-click *once* on `⊞` and type `cmd` (or use the  `⊞` `R` shortcut to run a command. and then type `cmd`). On a Mac or Linux, start a Terminal session.
 
 Installing the Node.js and npm programs is now done using
 
