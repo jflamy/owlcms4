@@ -230,5 +230,20 @@ public class AthleteTimerElement extends TimerElement {
             return System.currentTimeMillis() - lastMillis;
         }
     }
+    
+    public void syncWithFop() {
+        OwlcmsSession.withFop(fop -> {
+            init(fop.getName());
+            // sync with current status of FOP
+            IProxyTimer athleteTimer = fop.getAthleteTimer();
+            if (athleteTimer != null) {
+                if (athleteTimer.isRunning()) {
+                    doStartTimer(athleteTimer.liveTimeRemaining(), isSilenced() || fop.isEmitSoundsOnServer());
+                } else {
+                    doSetTimer(athleteTimer.getTimeRemaining());
+                }
+            }
+        });
+    }
 
 }

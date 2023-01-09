@@ -163,6 +163,10 @@ public class Results extends PolymerTemplate<TemplateModel>
      */
     @Override
     public void doBreak(UIEvent event) {
+        doFopBreak();
+    }
+
+    private void doFopBreak() {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             String title = inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType());
             this.getElement().setProperty("fullName", title);
@@ -511,20 +515,25 @@ public class Results extends PolymerTemplate<TemplateModel>
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             setHidden(false);
-            this.getElement().callJsFunction("reset");
+            syncWithFOP();
         });
     }
 
     @Subscribe
     public void slaveStopBreak(UIEvent.BreakDone e) {
         uiLog(e);
+//        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+//            setHidden(false);
+//            Athlete a = e.getAthlete();
+//            this.getElement().callJsFunction("reset");
+//            doUpdate(a, e);
+//        });
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            setHidden(false);
-            Athlete a = e.getAthlete();
-            this.getElement().callJsFunction("reset");
-            doUpdate(a, e);
+            syncWithFOP();
         });
     }
+
+
 
     @Subscribe
     public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
@@ -1045,7 +1054,7 @@ public class Results extends PolymerTemplate<TemplateModel>
     }
 
     private void syncWithFOP(UIEvent.SwitchGroup e) {
-        switch (e.getState()) {
+        switch (OwlcmsSession.getFop().getState()) {
         case INACTIVE:
             doEmpty();
             break;
@@ -1061,6 +1070,13 @@ public class Results extends PolymerTemplate<TemplateModel>
             setHidden(false);
             doUpdate(e.getAthlete(), e);
         }
+    }
+    
+    private void syncWithFOP() {
+        OwlcmsSession.withFop(fop -> {
+            syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
+        });
+        
     }
 
 }

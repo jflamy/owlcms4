@@ -1,10 +1,11 @@
-37.0.0-rc01: New version after update to a major release of the user interface libraries
+37.0.0-rc03: New version after update to a major release of the user interface libraries
 
 This is a [release candidate](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate).
 All prior features from release 35 appear to work, simulation of large competition on multiple platforms is successful. There are no known issues.
 *As for all pre-releases, test with your own data before using the program in a real competition.*
 
 - 37.0 Enhancements
+  - 37.0.0-rc03: Hungarian and Romanian translations added (thanks to Attila Feri)
   - Migration to the current version of the Vaadin user interface framework. The navigation (menu, top menu bar) was redone.
   - On the preparation page, items have been rearranged to be more intuitive.
   - There is now a separate page for pre-competition documents. There are now separate documents for each purpose instead of multiple tabs. See [Pre-Competition Documents Documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/2400PreCompetitionDocuments).
@@ -13,6 +14,10 @@ All prior features from release 35 appear to work, simulation of large competiti
   - Documentation of [equipment and networking setup](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/EquipmentSetup) has been enhanced
   - Documentation of the pre-competition setup and registration activities has been redone.
   - Many small annoyances were fixed.
+- 37.0.0-rc Fixes
+  - 37.0.0-rc02: The Team Results page was not loading. ([#613](https://github.com/jflamy/owlcms4/issues/613))
+  - 37.0.0-rc02: The clock on the scoreboard and attempt board would not count down in certain rare conditions ([#611](https://github.com/jflamy/owlcms4/issues/611)) The announcer and technical official displays were updating correctly.
+  - 37.0.0-rc02: It was not always possible to switch from one type of break to another, or to set a duration on a technical break. Using Pause and changing break type/duration should now work. ([#612](https://github.com/jflamy/owlcms4/issues/612))
 - 37.0 Fixes
   - The static resources (css, images, etc...) are now loaded in a way that will prevent the browser from using obsolete copies.
 

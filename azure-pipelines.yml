@@ -9,7 +9,6 @@ parameters:
     type: string
     default: 'false'
 
-
 variables:
   # overrides pom.xml; must be unique if BuildGoal is set to deploy.
   - name: Revision
@@ -135,7 +134,7 @@ jobs:
           # publish sources and docs to release repo
           # library group ReleaseRepoCredentials contains github users and tokens
           git push https://$(releaseToken)@github.com/$(releaseUser)/owlcms4.git $(Build.SourceBranchName):master --force
-        condition: or(eq(variables['Build.SourceBranchName'], 'master'),eq(variables['Build.SourceBranchName'], 'v23'))
+        condition: or(eq(variables['Build.SourceBranchName'], 'master'),eq(variables['Build.SourceBranchName'], 'fixrelease'))
         displayName: sync release repo
       # all releases are marked as "isPreRelease: false" else we cannot have a generic link to the latest prerelease.
       # the repo and name determines the maturity status.  
@@ -150,7 +149,7 @@ jobs:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
             isPreRelease: false
-          ${{ if eq(variables['Build.SourceBranchName'], 'v23') }}:
+          ${{ if eq(variables['Build.SourceBranchName'], 'fixrelease') }}:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: $(RELEASE_USER)/owlcms4$(RELEASE_SUFFIX)
             isPreRelease: false

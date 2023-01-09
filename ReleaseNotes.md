@@ -1,13 +1,12 @@
 37.0.0: New version after update to a major release of the user interface libraries
 
-Because this is a major new release, you are reminded that it is always a good idea to do a few tests with your own data.
-
 - 37.0 Enhancements
-  - Migration to the current version of the Vaadin user interface framework. The navigation (menu, top menu bar) was redone.
+  - Migration to the current version of the Vaadin user interface framework. The navigation (menu, top menu bar) has been redone using now available official components.
   - On the preparation page, items have been rearranged to be more intuitive.
   - There is now a separate page for pre-competition documents. There are now separate documents for each purpose instead of multiple tabs. See [Pre-Competition Documents Documentation](https://owlcms.github.io/owlcms4-prerelease/#/2400PreCompetitionDocuments).
   - The main scoreboard shows the group description at the top if one is available. Warmup scoreboards still have the "lifts done" information.
   - The attempt board and decision board now show a "waiting for next group" instead of a blank screen when the platform is inactive
+  - Hungarian and Romanian translations added (thanks to Attila Feri)
   - Documentation of [equipment and networking setup](https://owlcms.github.io/owlcms4-prerelease/#/EquipmentSetup) has been enhanced
   - Documentation of the pre-competition setup and registration activities has been redone.
   - Many small annoyances were fixed.
@@ -17,22 +16,20 @@ Because this is a major new release, you are reminded that it is always a good i
 ##### Highlights from recent stable releases
 
 - Customization of team points. Templates for the final results package now have an extra tab that contains the points awarded for each rank. Copy and rename the template if you need to change the point system for a given competition.
+- Capability to add flags and athlete pictures on the attempt board (#508).  See [Flags and Pictures](https://owlcms.github.io/owlcms4-prerelease/#/FlagsPicture) documentation.
+- New Records processing, including Federation Eligibility Criteria. See [Records Eligibility](https://owlcms.github.io/owlcms4-prerelease/#/Records) documentation. 
+- New Weigh-in template to facilitate data entry.
 - **New Sinclair coefficients for the 2024 Olympiad**.  An option on the Competition rules page allows using the previous (2020 Olympiad) values if your local rules require them.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
-- Experimental capability to add flags and athlete pictures on the attempt board (#508).  See [Flags and Pictures](https://owlcms.github.io/owlcms4-prerelease/#/FlagsPicture) documentation.
-- New Records processing, including Eligibility Criteria and Federations (so invited athletes do not show up as breaking local records, etc.). See [Records Eligibility](https://owlcms.github.io/owlcms4-prerelease/#/Records) documentation. 
-- New Weigh-in template to create a Weigh-in Summary. Meant to facilitate data entry. As used in Pan-American federation, the body weight and declarations are copied one per line and countersigned by the coach/athlete. Select the template from the "Starting Weights" button on the weigh-in page.
-- [Customization](https://owlcms.github.io/owlcms4-prerelease/#/UploadingLocalSettings) of colors and styling of scoreboards and attempt board. 
-- Improved management of ceremonies : see [Breaks and Ceremonies](https://owlcms.github.io/owlcms4-prerelease/#/Breaks) procedures, and [Result Documents](https://owlcms.github.io/owlcms4-prerelease/#/Documents) for the medals spreadsheet.
 
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_37.0.0-rc01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_37.0.0-rc03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_37.0.0-rc01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_37.0.0-rc03.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
-  - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4-prerelease/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
+  - For **Cloud PaaS** installs, no download is necessary. Follow **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation (recommended, free) or the [Heroku](https://owlcms.github.io/owlcms4-prerelease/#Heroku) instructions (slightly easier, moderate fees)
 
   - For self-hosted **Docker**, see [Docker](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup). For self-hosted **Kubernetes** see [Kubernetes](https://owlcms.github.io/owlcms4-prerelease/#/DigitalOcean)
