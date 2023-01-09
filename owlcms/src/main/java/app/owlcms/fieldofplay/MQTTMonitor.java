@@ -20,6 +20,7 @@ import com.google.common.eventbus.Subscribe;
 
 import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.config.Config;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
@@ -244,8 +245,8 @@ public class MQTTMonitor {
     }
 
     public static MqttAsyncClient createMQTTClient() throws MqttException {
-        String server = StartupUtils.getStringParam("mqttServer");
-        String port = StartupUtils.getStringParam("mqttPort");
+        String server = Config.getCurrent().getParamMqttServer();
+        String port = Config.getCurrent().getParamMqttPort();
         MqttAsyncClient client = new MqttAsyncClient(
                 "tcp://" +
                         (server != null ? server : "test.mosquitto.org") +

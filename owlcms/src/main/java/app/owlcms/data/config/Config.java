@@ -95,6 +95,9 @@ public class Config {
     private String ipDisplayList;
     private String ipBackdoorList;
 
+    private String mqttServer;
+    private String mqttPort;
+
     /**
      * Local Override: a zip file that is used to override resources, stored as a blob
      */
@@ -236,6 +239,14 @@ public class Config {
 
     }
 
+    public String getMqttPort() {
+        return mqttPort;
+    }
+
+    public String getMqttServer() {
+        return mqttServer;
+    }
+
     /**
      * @return the current whitelist.
      */
@@ -251,6 +262,40 @@ public class Config {
             }
         }
         return uAccessList;
+    }
+    
+    /**
+     * @return the current mqtt server.
+     */
+    @Transient
+    @JsonIgnore
+    public String getParamMqttServer() {
+        String param = StartupUtils.getStringParam("mqttServer");
+        if (param == null) {
+            // get from database
+            param = Config.getCurrent().getMqttServer();
+            if (param == null || param.isBlank()) {
+                param = null;
+            }
+        }
+        return param;
+    }
+    
+    /**
+     * @return the current mqtt port.
+     */
+    @Transient
+    @JsonIgnore
+    public String getParamMqttPort() {
+        String param = StartupUtils.getStringParam("mqttPort");
+        if (param == null) {
+            // get from database
+            param = Config.getCurrent().getMqttPort();
+            if (param == null || param.isBlank()) {
+                param = null;
+            }
+        }
+        return param;
     }
 
     /**
@@ -543,6 +588,14 @@ public class Config {
         }
     }
 
+    public void setMqttPort(String mqttPort) {
+        this.mqttPort = mqttPort;
+    }
+
+    public void setMqttServer(String mqttServer) {
+        this.mqttServer = mqttServer;
+    }
+
     public void setPin(String pin) {
         // logger.debug("setting pin {}",pin);
         this.pin = pin;
@@ -561,6 +614,14 @@ public class Config {
         this.publicResultsURL = publicResultsURL;
     }
 
+    /**
+     * @param salt the salt to set
+     */
+    private void setSalt(String salt) {
+        this.salt = salt;
+        logger.debug("setting salt to {}", this.salt);
+    }
+
     public void setSkipReading(boolean b) {
         this.skipReading = b;
     }
@@ -576,14 +637,6 @@ public class Config {
 
     public void setUpdatekey(String updatekey) {
         this.updatekey = updatekey;
-    }
-
-    /**
-     * @param salt the salt to set
-     */
-    private void setSalt(String salt) {
-        this.salt = salt;
-        logger.debug("setting salt to {}", this.salt);
     }
 
 }

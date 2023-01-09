@@ -36,6 +36,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.PendingJavaScriptResult;
+import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -117,6 +118,7 @@ public class ConfigEditingFormFactory
         FormLayout localOverrideLayout = localOverrideForm();
         FormLayout translationLayout = translationForm();
         FormLayout featuresLayout = featuresForm();
+        FormLayout mqttLayout = mqttForm();
 
         Component footer = this.buildFooter(operation, config, cancelButtonClickListener,
                 c -> {
@@ -129,15 +131,24 @@ public class ConfigEditingFormFactory
                             defaultLocale, Translator.getForcedLocale());
                 }, deleteButtonClickListener, false);
 
+        TabSheet ts = new TabSheet();
+        ts.add(Translator.translate("Config.LanguageTab"),
+                new VerticalLayout(new Div(), languageLayout, separator(),
+                        tzLayout, separator(), translationLayout));
+        ts.add(Translator.translate("Config.ConnexionsTab"),
+                new VerticalLayout(
+                        new Div(), publicResultsLayout, separator(),
+                        mqttLayout, separator()));
+        ts.add(Translator.translate("Config.AccessControlTab"),
+                new VerticalLayout(
+                        new Div(), accessLayout));
+        ts.add(Translator.translate("Config.CustomizationTab"),
+                new VerticalLayout(new Div(), localOverrideLayout, separator(),
+                        featuresLayout));
+
         VerticalLayout mainLayout = new VerticalLayout(
                 footer,
-                languageLayout, separator(),
-                tzLayout, separator(),
-                accessLayout, separator(),
-                publicResultsLayout, separator(),
-                localOverrideLayout, separator(),
-                featuresLayout, separator(),
-                translationLayout);
+                ts);
         mainLayout.setMargin(false);
         mainLayout.setPadding(false);
 
@@ -362,6 +373,30 @@ public class ConfigEditingFormFactory
         return layout;
     }
 
+    private FormLayout mqttForm() {
+        FormLayout layout = createLayout();
+        Component title = createTitle("Config.MQTTSectionTitle");
+        layout.add(title);
+        layout.setColspan(title, 2);
+
+        TextField mqttServerField = new TextField();
+        mqttServerField.setWidthFull();
+        layout.addFormItem(mqttServerField, Translator.translate("Config.MQTTServer"));
+        binder.forField(mqttServerField)
+                .withNullRepresentation("")
+                .bind(Config::getPublicResultsURL, Config::setPublicResultsURL);
+
+        TextField mqttPort = new TextField();
+        mqttPort.setWidthFull();
+        mqttPort.setAllowedCharPattern("[0-9]");
+        layout.addFormItem(mqttPort, Translator.translate("Config.MQTTPort"));
+        binder.forField(mqttPort)
+                .withNullRepresentation("")
+                .bind(Config::getUpdatekey, Config::setUpdatekey);
+
+        return layout;
+    }
+
     private Hr separator() {
         Hr hr = new Hr();
         hr.getStyle().set("margin-top", "0.5em");
@@ -384,16 +419,17 @@ public class ConfigEditingFormFactory
     }
 
     private FormLayout tzForm() {
-
         FormLayout layout = createLayout();
-        ComboBox<TimeZone> tzCombo = new ComboBox<>();
-        tzCombo.setWidthFull();
-
+        layout.setWidth("95%"); // kludge - otherwise scroll bar appears
         Component title = createTitle("Config.TZTitle");
         layout.add(title);
         layout.setColspan(title, 2);
 
+        ComboBox<TimeZone> tzCombo = new ComboBox<>();
+        tzCombo.setWidthFull();
+
         UnorderedList ulTZ = new UnorderedList();
+
         ListItem defaultTZ = new ListItem();
         ListItem browserTZ = new ListItem();
         Span browserTZText = new Span();
@@ -401,13 +437,18 @@ public class ConfigEditingFormFactory
             tzCombo.setValue(browserZoneId != null ? TimeZone.getTimeZone(browserZoneId) : null);
         });
         browserTZ.add(browserTZText, browserTZButton);
+
         ListItem explainTZ = new ListItem();
         explainTZ.getElement().setProperty("innerHTML", Translator.translate("Config.TZExplain"));
-        ulTZ.add(defaultTZ, browserTZ, explainTZ);
+        ulTZ.add(
+                defaultTZ,
+                browserTZ,
+                explainTZ);
         layout.add(ulTZ);
         layout.setColspan(ulTZ, 2);
 
         layout.addFormItem(tzCombo, Translator.translate("Config.TZ_Selection"));
+        tzCombo.setWidthFull();
 
         List<TimeZone> tzList = TimeZoneUtils.allTimeZones();
         tzCombo.setItems(tzList);

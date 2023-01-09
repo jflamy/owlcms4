@@ -89,7 +89,6 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.JuryNotification;
 import app.owlcms.utils.DelayTimer;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonValue;
@@ -247,7 +246,7 @@ public class FieldOfPlay {
         initEventBuses();
 
         // check if refereeing devices connected via MQTT are in use
-        mqttServer = StartupUtils.getStringParam("mqttServer");
+        mqttServer = Config.getCurrent().getParamMqttServer();
         if (mqttServer != null && !mqttServer.isBlank()) {
             new MQTTMonitor(this);
         }
