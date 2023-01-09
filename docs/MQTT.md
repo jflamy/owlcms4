@@ -41,26 +41,16 @@ See [MQTT Messages](MQTTMessages) for details on how MQTT is used.
    copy "C:\Program Files\Mosquitto\mosquitto.conf" .
    ```
 
-4. Open the  `mosquitto.conf`  file.  Add the following lines at the top.  The `allow_anonymous` line is used for initial testing. After the initial tests, a password file should be added. This will be done later in the installation process.
+4. Open the  `mosquitto.conf`  file.  Add the following lines at the top.  The `allow_anonymous` line is used for initial testing. After the initial tests, we strongly recommend that you add a password file, which will be explained further down.
 
    ```shell
-   # owlcms config parameters  for mosquitto
+   # owlcms config parameters for mosquitto
    listener 1883
    allow_anonymous true
    connection_messages true
    log_timestamp true
    log_timestamp_format %Y-%m-%dT%H:%M:%S
    ```
-
-5. From the configuration directory, start Mosquitto in "verbose" mode
-
-   ```
-   "C:\Program Files\Mosquitto\mosquitto.exe" -v -c mosquitto.conf
-   ```
-
-   You should now see all the traffic going through the server
-
-6. Install a MQTT interactive tool for testing and monitoring.  An easy tool that runs as a Chrome application is [MQTTlens](https://chrome.google.com/webstore/detail/mqttlens/hemojaaeigabkbcookmlgmdigohjobjm?utm_source=chrome-app-launcher-info-dialog) . 
 
 ### Local configuration of owlcms
 
@@ -82,52 +72,9 @@ owlcms needs to connect to your MQTT server.
 
 In MQTT, all communications go through an intermediate server (often called the broker).  By subscribing to all the owlcms topics, we can effectively monitor everything that is going on.  Conversely, we can also simulate all the messages sent to the broker by the devices or by owlcms.
 
-1. Start MQTTLens.
-
+1. Install MQTTX
 2. Create a connection to your local Mosquitto  and Save.
    ![01lensconnection](img/MQTT/01lensconnection.png)
-
-3. If you look at the mosquitto window, you should see something like
-
-   ```
-   2022-02-02T14:09:03: New client connected from 192.168.1.101:39899 as lens_QHQNpt4hPp5h5RWQBnRHBsmLXEX (p1, c1, k120, u'owlcms').
-   ```
-
-4. Create a Subscription to `owlcms/#` 
-   This will show all the messages received that start with owlcms, no matter their depth) 
-   Click "Subscribe"![02lensSubscribe](img/MQTT/02lensSubscribe.png)
-
-5. Mosquitto will show something like
-
-   ```
-   2022-02-02T14:09:03: Received SUBSCRIBE from lens_QHQNpt4hPp5h5RWQBnRHBsmLXEX
-   2022-02-02T14:09:03:    owlcms/# (QoS 0)
-   ```
-
-6. Start owlcms.  When owlcms starts, it sends a message to turn the LED on and off. So in the Subscription section of the application, you should see something like this for each of your platforms (`A` will be replaced by the actual name of your platform(s))![03lensMessagesReceived](img/MQTT/03lensMessagesReceived.png)
-
-7. Mosquitto shows the message received from owlcms ("received publish") and the send to Lens ("sending publish").  "paho" is the name of the library used by owlcms.
-
-   ```
-   2022-02-02T14:15:55: Received PUBLISH from paho100726418685300 (d0, q1, r0, m1, 'owlcms/led/A', ... (2 bytes))
-   2022-02-02T14:15:55: Sending PUBLISH to lens_QHQNpt4hPp5h5RWQBnRHBsmLXEX (d0, q0, r0, m0, 'owlcms/led/A', ... (2 bytes))
-   ```
-
-8. We can also simulate what the referee will send to Mosquitto. 
-   For platform `A`, referee 1 will send its decisions on topic `owlcms/decision/A` . 
-   The message is the referee number followed by a space and then `good` or `bad`
-
-   ![04lensTesting](img/MQTT/04lensTesting.png)
-
-9. Mosquitto will display the results.  Notice that all the subscribers get the message, including lens itself.
-
-```
-2022-02-02T14:23:40: Received PUBLISH from lens_QHQNpt4hPp5h5RWQBnRHBsmLXEX (d0, q0, r0, m0, 'owlcms/decision/A', ... (6 bytes))
-2022-02-02T14:23:40: Sending PUBLISH to paho100726418685300 (d0, q0, r0, m0, 'owlcms/decision/A', ... (6 bytes))
-2022-02-02T14:23:40: Sending PUBLISH to lens_QHQNpt4hPp5h5RWQBnRHBsmLXEX (d0, q0, r0, m0, 'owlcms/decision/A', ... (6 bytes))
-```
-
-10. You can send a second message `2 good`. After the second decision, owlcms will send two messages to `owlcms/decisionRequest/A/3` indicating that referee 3 needs to make a decision. There will be an `on` message, and two seconds later, an `off` message.  The device will use this to remind the referee, and after two seconds, owlcms tells the device to end the reminder.  The device can either do its own timing (and ignore the end message), or wait for the owlcms message.
 
 ### Running Mosquitto as a background service.
 
