@@ -97,6 +97,8 @@ public class Config {
 
     private String mqttServer;
     private String mqttPort;
+    private String mqttUserName;
+    private String mqttPassword;
 
     /**
      * Local Override: a zip file that is used to override resources, stored as a blob
@@ -239,12 +241,20 @@ public class Config {
 
     }
 
+    public String getMqttPassword() {
+        return mqttPassword;
+    }
+
     public String getMqttPort() {
         return mqttPort;
     }
 
     public String getMqttServer() {
         return mqttServer;
+    }
+
+    public String getMqttUserName() {
+        return mqttUserName;
     }
 
     /**
@@ -262,40 +272,6 @@ public class Config {
             }
         }
         return uAccessList;
-    }
-    
-    /**
-     * @return the current mqtt server.
-     */
-    @Transient
-    @JsonIgnore
-    public String getParamMqttServer() {
-        String param = StartupUtils.getStringParam("mqttServer");
-        if (param == null) {
-            // get from database
-            param = Config.getCurrent().getMqttServer();
-            if (param == null || param.isBlank()) {
-                param = null;
-            }
-        }
-        return param;
-    }
-    
-    /**
-     * @return the current mqtt port.
-     */
-    @Transient
-    @JsonIgnore
-    public String getParamMqttPort() {
-        String param = StartupUtils.getStringParam("mqttPort");
-        if (param == null) {
-            // get from database
-            param = Config.getCurrent().getMqttPort();
-            if (param == null || param.isBlank()) {
-                param = null;
-            }
-        }
-        return param;
     }
 
     /**
@@ -361,6 +337,74 @@ public class Config {
         } else {
             return uPin;
         }
+    }
+
+    /**
+     * @return the current mqtt server.
+     */
+    @Transient
+    @JsonIgnore
+    public String getParamMqttPassword() {
+        String param = StartupUtils.getStringParam("mqttPassword");
+        if (param == null) {
+            // get from database
+            param = Config.getCurrent().getMqttPassword();
+            if (param == null || param.isBlank()) {
+                param = null;
+            }
+        }
+        return param;
+    }
+
+    /**
+     * @return the current mqtt port.
+     */
+    @Transient
+    @JsonIgnore
+    public String getParamMqttPort() {
+        String param = StartupUtils.getStringParam("mqttPort");
+        if (param == null) {
+            // get from database
+            param = Config.getCurrent().getMqttPort();
+            if (param == null || param.isBlank()) {
+                param = null;
+            }
+        }
+        return param;
+    }
+
+    /**
+     * @return the current mqtt server.
+     */
+    @Transient
+    @JsonIgnore
+    public String getParamMqttServer() {
+        String param = StartupUtils.getStringParam("mqttServer");
+        if (param == null) {
+            // get from database
+            param = Config.getCurrent().getMqttServer();
+            if (param == null || param.isBlank()) {
+                param = null;
+            }
+        }
+        return param;
+    }
+
+    /**
+     * @return the current mqtt server.
+     */
+    @Transient
+    @JsonIgnore
+    public String getParamMqttUserName() {
+        String param = StartupUtils.getStringParam("mqttUserName");
+        if (param == null) {
+            // get from database
+            param = Config.getCurrent().getMqttUserName();
+            if (param == null || param.isBlank()) {
+                param = null;
+            }
+        }
+        return param;
     }
 
     /**
@@ -588,12 +632,20 @@ public class Config {
         }
     }
 
+    public void setMqttPassword(String mqttPassword) {
+        this.mqttPassword = mqttPassword;
+    }
+
     public void setMqttPort(String mqttPort) {
         this.mqttPort = mqttPort;
     }
 
     public void setMqttServer(String mqttServer) {
         this.mqttServer = mqttServer;
+    }
+
+    public void setMqttUserName(String mqttUserName) {
+        this.mqttUserName = mqttUserName;
     }
 
     public void setPin(String pin) {

@@ -393,6 +393,22 @@ public class ConfigEditingFormFactory
         binder.forField(mqttPort)
                 .withNullRepresentation("")
                 .bind(Config::getUpdatekey, Config::setUpdatekey);
+        
+        TextField mqttUserName = new TextField();
+        mqttUserName.setWidthFull();
+        mqttUserName.setAllowedCharPattern("[0-9]");
+        layout.addFormItem(mqttUserName, Translator.translate("Config.MQTTUserName"));
+        binder.forField(mqttUserName)
+                .withNullRepresentation("")
+                .bind(Config::getUpdatekey, Config::setUpdatekey);
+        
+        TextField mqttPassword = new TextField();
+        mqttPassword.setWidthFull();
+        mqttPassword.setAllowedCharPattern("[0-9]");
+        layout.addFormItem(mqttPassword, Translator.translate("Config.MQTTPassword"));
+        binder.forField(mqttPassword)
+                .withNullRepresentation("")
+                .bind(Config::getUpdatekey, Config::setUpdatekey);
 
         return layout;
     }

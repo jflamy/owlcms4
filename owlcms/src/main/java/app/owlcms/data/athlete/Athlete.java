@@ -660,35 +660,55 @@ public class Athlete {
     @JsonIgnore
     public Integer getActualLift(int liftNo) {
         try {
-            String value = null;
-            switch (liftNo) {
-            case 1:
-                value = this.getSnatch1ActualLift();
-                break;
-            case 2:
-                value = this.getSnatch2ActualLift();
-                break;
-            case 3:
-                value = this.getSnatch3ActualLift();
-                break;
-            case 4:
-                value = this.getCleanJerk1ActualLift();
-                break;
-            case 5:
-                value = this.getCleanJerk2ActualLift();
-                break;
-            case 6:
-                value = this.getCleanJerk3ActualLift();
-                break;
-            default:
-                value = null;
-                break;
-            }
-            return value == null ? null : Integer.valueOf(value);
+            String value = getActualLiftStringOrElseNull(liftNo);
+            return value == null ? 0 : Integer.valueOf(value);
         } catch (NumberFormatException e) {
             LoggerUtils.logError(logger, e);
             return 0;
         }
+    }
+    
+    @Transient
+    @JsonIgnore
+    public Integer getActualLiftOrNull(int liftNo) {
+        try {
+            String value = getActualLiftStringOrElseNull(liftNo);
+            return value == null ? null : Integer.valueOf(value);
+        } catch (NumberFormatException e) {
+            LoggerUtils.logError(logger, e);
+            return null;
+        }
+    }
+
+    @Transient
+    @JsonIgnore
+    private String getActualLiftStringOrElseNull(int liftNo) {
+        String value = null;
+        switch (liftNo) {
+        case 1:
+            value = this.getSnatch1ActualLift();
+            break;
+        case 2:
+            value = this.getSnatch2ActualLift();
+            break;
+        case 3:
+            value = this.getSnatch3ActualLift();
+            break;
+        case 4:
+            value = this.getCleanJerk1ActualLift();
+            break;
+        case 5:
+            value = this.getCleanJerk2ActualLift();
+            break;
+        case 6:
+            value = this.getCleanJerk3ActualLift();
+            break;
+        default:
+            value = null;
+            break;
+        }
+        if (value.isBlank()) return null;
+        return value;
     }
 
     /**

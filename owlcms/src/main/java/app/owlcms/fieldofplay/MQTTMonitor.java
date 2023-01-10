@@ -24,7 +24,6 @@ import app.owlcms.data.config.Config;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -365,8 +364,8 @@ public class MQTTMonitor {
     }
 
     private void doConnect() throws MqttSecurityException, MqttException {
-        userName = StartupUtils.getStringParam("mqttUserName");
-        password = StartupUtils.getStringParam("mqttPassword");
+        userName = Config.getCurrent().getParamMqttUserName();
+        password = Config.getCurrent().getParamMqttPassword();
         MqttConnectOptions connOpts = setupMQTTClient();
         client.connect(connOpts).waitForCompletion();
 
