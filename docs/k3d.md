@@ -78,7 +78,7 @@ export RESULTS=results.owlcms.youraccount.usw1.k8g8.com
 2. This step fetches the configuration and substitutes the values for OFFICIALS and RESULTS before applying it. 
 
 ```powershell
-curl -sfL https://github.com/owlcms/owlcms4/releases/download/37.0.3/k3d_setup.yaml | envsubst | kubectl apply -f - 
+curl -sfL https://github.com/owlcms/owlcms4/releases/download/37.0.4-rc00/k3d_setup.yaml | envsubst | kubectl apply -f - 
 ```
 
 > Note: you may have to execute the command several times, because some steps take time to complete.  There is no harm done repeating the steps.  Wait 30 seconds or so between each attempt, every attempt will get further down the steps.  This is simpler than breaking down the setup in several steps. 
@@ -109,7 +109,7 @@ In order to update the application, repeat the installation step, but
 - The latest release can always be reached using this format (note that the download part is inverted relative to the revision name for some unfathomable reason)
 
   ```bash
-  curl -sfL https://github.com/owlcms/owlcms4/releases/latest/download/k3d_setup.yaml | envsubst | kubectl apply -f - 
+  curl -sfL https://github.com/owlcms/owlcms4-prerelease/releases/latest/download/k3d_setup.yaml | envsubst | kubectl apply -f - 
   ```
 
 ## Install Lens as Kubernetes Management Tool
