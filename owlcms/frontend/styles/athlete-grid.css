@@ -20,15 +20,67 @@
     #topBarLeft.announcerLeft vaadin-combo-box {
         width: 4em;
     }
+
     #topBarLeft.announcerLeft h3 {
         display: none;
     }
+}
+
+body {
+    --attemptFontSize: 1.2em;
+    --attemptLineHeight: 1.5em;
+    --margin: 2px;
 }
 
 #topBarLeft {
     width: 12em;
     height: 7ex;
 }
-#topBarLeft vaadin-combo-box{
+
+#topBarLeft vaadin-combo-box {
     width: 12ch;
+}
+
+.red,
+.yellow,
+.green,
+.gray,
+.next {
+    width: 5ch;
+    max-width: 5ch;
+    text-align: center;
+    font-size: var(--attemptFontSize);
+    line-height: var(--attemptLineHeight);
+    height: var(--attemptLineHeight);
+    text-justify: center;
+    font-weight: bold;
+    margin: var(--margin);
+    border: 1px;
+    border-style: solid;
+    border-color: black;
+    border-radius: 4px;
+}
+
+.yellow {
+    background-color: #FFF89A;
+}
+
+.green {
+    background-color: #C4DFAA;
+}
+
+.red {
+    background-color: #F8C4B4;
+}
+
+.gray {
+    visibility: hidden;
+}
+
+.next {
+    border: none;
+}
+
+.bold {
+    font-weight: bold;
 }

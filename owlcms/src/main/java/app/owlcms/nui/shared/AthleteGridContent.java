@@ -32,6 +32,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
@@ -867,15 +868,16 @@ public abstract class AthleteGridContent extends VerticalLayout
         Grid<Athlete> grid = new Grid<>(Athlete.class, false);
         grid.getThemeNames().add("row-stripes");
         grid.getThemeNames().add("compact");
-        grid.addColumn(athlete -> athlete.getLastName().toUpperCase(), "lastName")
+        grid.addColumn(createLastNameRenderer())
                 .setHeader(getTranslation("LastName"));
-        grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
+        grid.addColumn(createFirstNameRenderer()).setHeader(getTranslation("FirstName"));
         grid.addColumn("team").setHeader(getTranslation("Team"));
-        grid.addColumn("category").setHeader(getTranslation("Category"));
-        if (Config.getCurrent().featureSwitch("announcerAttempts", true)) {
+        grid.addColumn("category").setHeader(getTranslation("Category")).setTextAlign(ColumnTextAlign.CENTER);
+        if (Config.getCurrent().featureSwitch("announcerAttempts", true) || true) {
             grid.addColumn(createAttemptsRenderer()).setHeader("Attempts").setAutoWidth(true).setFlexGrow(0);
         }
-        grid.addColumn("nextAttemptRequestedWeight").setHeader(getTranslation("Requested_weight"));
+        grid.addColumn(a -> (a.getTotal() > 0 ? a.getTotal() : "-")).setHeader(getTranslation("Total"))
+                .setTextAlign(ColumnTextAlign.CENTER);
         // format attempt
         grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader(getTranslation("Attempt"));
         grid.addColumn("startNumber").setHeader(getTranslation("StartNumber"));
@@ -902,37 +904,60 @@ public abstract class AthleteGridContent extends VerticalLayout
         return crudGrid;
     }
 
-    @SuppressWarnings("unused")
+    private static Renderer<Athlete> createLastNameRenderer() {
+        return LitRenderer.<Athlete>of(
+                "<div class='${item.nameClass}'>${item.name}</div>")
+                .withProperty("nameClass", (a) -> computeNameClass(a))
+                .withProperty("name", a -> a.getLastName().toUpperCase());
+    }
+
+    private static Renderer<Athlete> createFirstNameRenderer() {
+        return LitRenderer.<Athlete>of(
+                "<div class='${item.nameClass}'>${item.name}</div>")
+                .withProperty("nameClass", (a) -> computeNameClass(a))
+                .withProperty("name", Athlete::getFirstName);
+    }
+
     private static Renderer<Athlete> createAttemptsRenderer() {
         return LitRenderer.<Athlete>of(
                 "<vaadin-horizontal-layout>" +
-                        "<span class='${item.sn1class}'>${item.sn1}</span>" +
-                        "<span class='${item.sn2class}'>${item.sn2}</span>" +
-                        "<span class='${item.sn3class}'>${item.sn3}</span>" +
-                        "<span class='${item.cj1class}'>${item.cj1}</span>" +
-                        "<span class='${item.cj2class}'>${item.cj2}</span>" +
-                        "<span class='${item.cj3class}'>${item.cj3}</span>" +
-                        "</vaadin-horizontal-layout>")
-                .withProperty("sn1", (a) -> computeLift(0, a))
-                .withProperty("sn2", (a) -> computeLift(1, a))
-                .withProperty("sn3", (a) -> computeLift(2, a))
-                .withProperty("cj1", (a) -> computeLift(3, a))
-                .withProperty("cj2", (a) -> computeLift(4, a))
-                .withProperty("cj3", (a) -> computeLift(5, a))
-                .withProperty("sn1class", (a) -> computeLiftClass(0, a))
-                .withProperty("sn2class", (a) -> computeLiftClass(1, a))
-                .withProperty("sn3class", (a) -> computeLiftClass(2, a))
-                .withProperty("cj1class", (a) -> computeLiftClass(3, a))
-                .withProperty("cj2class", (a) -> computeLiftClass(4, a))
-                .withProperty("cj3class", (a) -> computeLiftClass(5, a));
+                    "<span class='${item.sn1class}'>${item.sn1}</span>" +
+                    "<span class='${item.sn2class}'>${item.sn2}</span>" +
+                    "<span class='${item.sn3class}'>${item.sn3}</span>" +
+                    "<span class='spacer'>\u00a0\u00a0\u00a0</span>" +
+                    "<span class='${item.cj1class}'>${item.cj1}</span>" +
+                    "<span class='${item.cj2class}'>${item.cj2}</span>" +
+                    "<span class='${item.cj3class}'>${item.cj3}</span>" +
+                "</vaadin-horizontal-layout>")
+                .withProperty("sn1", (a) -> computeLift(1, a))
+                .withProperty("sn2", (a) -> computeLift(2, a))
+                .withProperty("sn3", (a) -> computeLift(3, a))
+                .withProperty("cj1", (a) -> computeLift(4, a))
+                .withProperty("cj2", (a) -> computeLift(5, a))
+                .withProperty("cj3", (a) -> computeLift(6, a))
+                .withProperty("sn1class", (a) -> computeLiftClass(1, a))
+                .withProperty("sn2class", (a) -> computeLiftClass(2, a))
+                .withProperty("sn3class", (a) -> computeLiftClass(3, a))
+                .withProperty("cj1class", (a) -> computeLiftClass(4, a))
+                .withProperty("cj2class", (a) -> computeLiftClass(5, a))
+                .withProperty("cj3class", (a) -> computeLiftClass(6, a));
+    }
+
+    private static String computeNameClass(Athlete a) {
+        return a == OwlcmsSession.getFop().getCurAthlete() ? "bold" : "";
     }
 
     private static String computeLiftClass(int i, Athlete a) {
         Integer lift = a.getActualLiftOrNull(i);
-        if (lift == null) {
-            return "yellow";
+        Integer attemptsDone = a.getAttemptsDone();
+        if (i == (attemptsDone + 1)) {
+            return a == OwlcmsSession.getFop().getCurAthlete() ? "yellow" : "next";
+        } else if (lift == null) {
+            return ("gray");
         } else if (lift > 0) {
             return "green";
+        } else if (lift == 0) {
+            return "red";
         } else {
             return "red";
         }
@@ -940,12 +965,17 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     private static String computeLift(int i, Athlete a) {
         Integer lift = a.getActualLiftOrNull(i);
-        if (lift == null) {
+        Integer attemptsDone = a.getAttemptsDone();
+        if (i == (attemptsDone + 1)) {
             return a.getRequestedWeightForAttempt(i).toString();
+        } else if (lift == null) {
+            return ("\u00a0");
         } else if (lift > 0) {
             return lift.toString();
+        } else if (lift == 0) {
+            return "-";
         } else {
-            return "(" + a.getRequestedWeightForAttempt(i).toString() + ")";
+            return "(" + Math.abs(lift) + ")";
         }
     }
 
@@ -1039,20 +1069,26 @@ public abstract class AthleteGridContent extends VerticalLayout
         clearVerticalMargins(weight);
 
         buttons = announcerButtons(topBar);
-        buttons.setPadding(false);
-        buttons.setMargin(false);
-        buttons.setSpacing(true);
+        if (buttons != null) {
+            buttons.setPadding(false);
+            buttons.setMargin(false);
+            buttons.setSpacing(true);
+        }
 
         breaks = breakButtons(topBar);
-        breaks.setPadding(false);
-        breaks.setMargin(false);
-        breaks.setSpacing(true);
+        if (breaks != null) {
+            breaks.setPadding(false);
+            breaks.setMargin(false);
+            breaks.setSpacing(true);
+        }
 
         decisions = decisionButtons(topBar);
-        decisions.setPadding(false);
-        decisions.setMargin(false);
-        decisions.setSpacing(true);
-        decisions.setAlignItems(FlexComponent.Alignment.BASELINE);
+        if (decisions != null) {
+            decisions.setPadding(false);
+            decisions.setMargin(false);
+            decisions.setSpacing(true);
+            decisions.setAlignItems(FlexComponent.Alignment.BASELINE);
+        }
 
         topBar.setSizeFull();
         topBar.add(topBarLeft, fullName, attempt, weight, time);
