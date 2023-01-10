@@ -1,4 +1,4 @@
-37.0.3: New version after update to a major release of the user interface libraries
+37.0.4: New version after update to a major release of the user interface libraries
 
 - 37.0 Enhancements
   - Migration to the current version of the Vaadin user interface framework. The navigation (menu, top menu bar) has been redone to use officially supported components.
