@@ -67,8 +67,8 @@ import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.CountdownType;
@@ -872,7 +872,9 @@ public abstract class AthleteGridContent extends VerticalLayout
         grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
         grid.addColumn("team").setHeader(getTranslation("Team"));
         grid.addColumn("category").setHeader(getTranslation("Category"));
-        //grid.addColumn(createAttemptsRenderer()).setHeader("Attempts").setAutoWidth(true).setFlexGrow(0);
+        if (Config.getCurrent().featureSwitch("announcerAttempts", true)) {
+            grid.addColumn(createAttemptsRenderer()).setHeader("Attempts").setAutoWidth(true).setFlexGrow(0);
+        }
         grid.addColumn("nextAttemptRequestedWeight").setHeader(getTranslation("Requested_weight"));
         // format attempt
         grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader(getTranslation("Attempt"));
@@ -902,34 +904,48 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     @SuppressWarnings("unused")
     private static Renderer<Athlete> createAttemptsRenderer() {
-        return LitRenderer.<Athlete> of(
+        return LitRenderer.<Athlete>of(
                 "<vaadin-horizontal-layout>" +
-                        "<span>${item.sn1}</span>" +
-                        "<span>${item.sn2}</span>" +
-                        "<span>${item.sn3}</span>" +
-                        "<span>${item.cj1}</span>" +
-                        "<span>${item.cj2}</span>" +
-                        "<span>${item.cj3}</span>" +
-                "</vaadin-horizontal-layout>") 
-                .withProperty("sn1",(a) -> renderLift(0,a))
-                .withProperty("sn2",(a) -> renderLift(1,a))
-                .withProperty("sn3",(a) -> renderLift(2,a))
-                .withProperty("cj1",(a) -> renderLift(3,a))
-                .withProperty("cj2",(a) -> renderLift(4,a))
-                .withProperty("cj3",(a) -> renderLift(5,a));
+                        "<span class='${item.sn1class}'>${item.sn1}</span>" +
+                        "<span class='${item.sn2class}'>${item.sn2}</span>" +
+                        "<span class='${item.sn3class}'>${item.sn3}</span>" +
+                        "<span class='${item.cj1class}'>${item.cj1}</span>" +
+                        "<span class='${item.cj2class}'>${item.cj2}</span>" +
+                        "<span class='${item.cj3class}'>${item.cj3}</span>" +
+                        "</vaadin-horizontal-layout>")
+                .withProperty("sn1", (a) -> computeLift(0, a))
+                .withProperty("sn2", (a) -> computeLift(1, a))
+                .withProperty("sn3", (a) -> computeLift(2, a))
+                .withProperty("cj1", (a) -> computeLift(3, a))
+                .withProperty("cj2", (a) -> computeLift(4, a))
+                .withProperty("cj3", (a) -> computeLift(5, a))
+                .withProperty("sn1class", (a) -> computeLiftClass(0, a))
+                .withProperty("sn2class", (a) -> computeLiftClass(1, a))
+                .withProperty("sn3class", (a) -> computeLiftClass(2, a))
+                .withProperty("cj1class", (a) -> computeLiftClass(3, a))
+                .withProperty("cj2class", (a) -> computeLiftClass(4, a))
+                .withProperty("cj3class", (a) -> computeLiftClass(5, a));
     }
 
-    private static String renderLift(int i, Athlete a) {
-        XAthlete x = new XAthlete(a);
-        Integer lift = x.getActualLift(i);
+    private static String computeLiftClass(int i, Athlete a) {
+        Integer lift = a.getActualLiftOrNull(i);
         if (lift == null) {
-            return "<span style='background-color: yellow'>"+x.getRequestedWeightForAttempt(i).toString()+"</span>";
+            return "yellow";
         } else if (lift > 0) {
-            return "<span style='background-color: green'>"+x.getRequestedWeightForAttempt(i).toString()+"</span>";
-        } else if (lift == 0) {
-            return "<span style='background-color: yellow'>-</span>";
+            return "green";
         } else {
-            return "<span style='background-color: red'>("+x.getRequestedWeightForAttempt(i).toString()+")</span>";
+            return "red";
+        }
+    }
+
+    private static String computeLift(int i, Athlete a) {
+        Integer lift = a.getActualLiftOrNull(i);
+        if (lift == null) {
+            return a.getRequestedWeightForAttempt(i).toString();
+        } else if (lift > 0) {
+            return lift.toString();
+        } else {
+            return "(" + a.getRequestedWeightForAttempt(i).toString() + ")";
         }
     }
 
