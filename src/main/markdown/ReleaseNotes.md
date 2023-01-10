@@ -1,9 +1,10 @@
-37.0.2: New version after update to a major release of the user interface libraries
+37.0.3: New version after update to a major release of the user interface libraries
 
 - 37.0 Enhancements
   - Migration to the current version of the Vaadin user interface framework. The navigation (menu, top menu bar) has been redone to use officially supported components.
   - On the preparation page, items have been rearranged to be more intuitive.
   - There is now a separate page for pre-competition documents. There are now separate documents for each purpose instead of multiple tabs. See [Pre-Competition Documents Documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/2400PreCompetitionDocuments).
+  - 37.0.3: Added the possibility to configure a MQTT server directly using the web interface (used for refereeing devices and jury devices with LEDs). Restructured the Settings menu for readability.
   - The main scoreboard shows the group description at the top if one is available. Warmup scoreboards still have the "lifts done" information.
   - The attempt board and decision board now show a "waiting for next group" instead of a blank screen when the platform is inactive
   - Hungarian and Romanian translations added (thanks to Attila Feri)
@@ -11,6 +12,7 @@
   - Documentation of the pre-competition setup and registration activities has been redone.
   - Many small annoyances were fixed.
 - 37.0 Fixes
+  - 37.0.3: Duplicate entries in the starting list were present if an athlete was eligible for multiple categories. ([#619](https://github.com/jflamy/owlcms4/issues/619))
   - 37.0.2: fixes to documentation files.
   - The static resources (css, images, etc...) are now loaded in a way that will prevent the browser from using obsolete copies.
 
