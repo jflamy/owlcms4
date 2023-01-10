@@ -9,11 +9,13 @@ package app.owlcms.nui.preparation;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -64,6 +66,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCardsDocs;
 import app.owlcms.spreadsheet.JXLSCategoriesListDocs;
 import app.owlcms.spreadsheet.JXLSStartingListDocs;
+import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -532,13 +535,21 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                     }
                     return a;
                 });
+        
+        // cards and starting we actually want the athlete, not the PAthlete to avoid duplicates.
         List<Athlete> found = stream.sorted(Comparator.comparing(Athlete::getGroup).thenComparing(Athlete::getCategory))
                 .collect(Collectors.toList());
-        cardsXlsWriter.setSortedAthletes(found);
-        startingXlsWriter.setSortedAthletes(found);
         categoriesXlsWriter.setSortedAthletes(found);
+        
+        Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete)pa)._getAthlete()).collect(Collectors.toSet());
+        List<Athlete> regCatAthletesList = new ArrayList<Athlete>(regCatAthletes);
+        regCatAthletesList.sort(Comparator.comparing(Athlete::getGroup).thenComparing(Athlete::getCategory));
+
+        cardsXlsWriter.setSortedAthletes(regCatAthletesList);
+        startingXlsWriter.setSortedAthletes(regCatAthletesList);
+
         updateURLLocations();
-        return found;
+        return regCatAthletesList;
     }
 
     /**

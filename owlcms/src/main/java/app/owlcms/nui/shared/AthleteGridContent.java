@@ -52,6 +52,8 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.LitRenderer;
+import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.BeforeEvent;
@@ -65,6 +67,7 @@ import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -869,6 +872,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
         grid.addColumn("team").setHeader(getTranslation("Team"));
         grid.addColumn("category").setHeader(getTranslation("Category"));
+        //grid.addColumn(createAttemptsRenderer()).setHeader("Attempts").setAutoWidth(true).setFlexGrow(0);
         grid.addColumn("nextAttemptRequestedWeight").setHeader(getTranslation("Requested_weight"));
         // format attempt
         grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader(getTranslation("Attempt"));
@@ -894,6 +898,39 @@ public abstract class AthleteGridContent extends VerticalLayout
         crudLayout.addToolbarComponent(getGroupFilter());
 
         return crudGrid;
+    }
+
+    @SuppressWarnings("unused")
+    private static Renderer<Athlete> createAttemptsRenderer() {
+        return LitRenderer.<Athlete> of(
+                "<vaadin-horizontal-layout>" +
+                        "<span>${item.sn1}</span>" +
+                        "<span>${item.sn2}</span>" +
+                        "<span>${item.sn3}</span>" +
+                        "<span>${item.cj1}</span>" +
+                        "<span>${item.cj2}</span>" +
+                        "<span>${item.cj3}</span>" +
+                "</vaadin-horizontal-layout>") 
+                .withProperty("sn1",(a) -> renderLift(0,a))
+                .withProperty("sn2",(a) -> renderLift(1,a))
+                .withProperty("sn3",(a) -> renderLift(2,a))
+                .withProperty("cj1",(a) -> renderLift(3,a))
+                .withProperty("cj2",(a) -> renderLift(4,a))
+                .withProperty("cj3",(a) -> renderLift(5,a));
+    }
+
+    private static String renderLift(int i, Athlete a) {
+        XAthlete x = new XAthlete(a);
+        Integer lift = x.getActualLift(i);
+        if (lift == null) {
+            return "<span style='background-color: yellow'>"+x.getRequestedWeightForAttempt(i).toString()+"</span>";
+        } else if (lift > 0) {
+            return "<span style='background-color: green'>"+x.getRequestedWeightForAttempt(i).toString()+"</span>";
+        } else if (lift == 0) {
+            return "<span style='background-color: yellow'>-</span>";
+        } else {
+            return "<span style='background-color: red'>("+x.getRequestedWeightForAttempt(i).toString()+")</span>";
+        }
     }
 
     /**
@@ -1439,7 +1476,8 @@ public abstract class AthleteGridContent extends VerticalLayout
         } else {
             params.remove("group");
         }
-        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+        ui.getPage().getHistory().replaceState(null,
+                new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 
     /**
