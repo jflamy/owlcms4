@@ -104,8 +104,10 @@ public class AgeGroupEditingFormFactory
         TextField codeField = new TextField();
         formLayout.addFormItem(codeField, Translator.translate("AgeGroupCode"));
         int maxLength = 5;
+        codeField.setRequired(true);
         binder.forField(codeField)
-                .withNullRepresentation("")
+                .withValidator(
+                        new StringLengthValidator(Translator.translate("ThisFieldIsRequired", maxLength), 1, maxLength))
                 .withValidator(
                         new StringLengthValidator(Translator.translate("CodeMustBeShort", maxLength), 0, maxLength))
                 .bind(AgeGroup::getCode, AgeGroup::setCode);
