@@ -536,11 +536,12 @@ public class DocsContent extends AthleteGridContent implements HasDynamicTitle {
                     return a;
                 });
         
-        // cards and starting we actually want the athlete, not the PAthlete to avoid duplicates.
+        // for categories listing we want all the participation categories
         List<Athlete> found = stream.sorted(Comparator.comparing(Athlete::getGroup).thenComparing(Athlete::getCategory))
                 .collect(Collectors.toList());
         categoriesXlsWriter.setSortedAthletes(found);
         
+        // cards and starting we only want the actual athlete, without duplicates
         Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete)pa)._getAthlete()).collect(Collectors.toSet());
         List<Athlete> regCatAthletesList = new ArrayList<Athlete>(regCatAthletes);
         regCatAthletesList.sort(Comparator.comparing(Athlete::getGroup).thenComparing(Athlete::getCategory));
