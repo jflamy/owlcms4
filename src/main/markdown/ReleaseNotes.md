@@ -12,6 +12,8 @@
   - Documentation of the pre-competition setup and registration activities has been redone.
   - Many small annoyances were fixed.
 - 37.0 Fixes
+  - 37.0.4: JSON database export would fail if an age group had no code.  Code is now mandatory. [(#620)](https://github.com/jflamy/owlcms4/issues/620)
+  - 37.0.4: Added missing fields for MQTT connections on Settings page. 
   - 37.0.3: Duplicate entries in the starting list were present if an athlete was eligible for multiple categories. ([#619](https://github.com/jflamy/owlcms4/issues/619))
   - 37.0.2: fixes to documentation files.
   - The static resources (css, images, etc...) are now loaded in a way that will prevent the browser from using obsolete copies.
