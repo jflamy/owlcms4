@@ -707,7 +707,7 @@ public class Athlete {
             value = null;
             break;
         }
-        if (value.isBlank()) return null;
+        if (value == null || value.isBlank()) return null;
         return value;
     }
 
