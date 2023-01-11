@@ -868,17 +868,25 @@ public abstract class AthleteGridContent extends VerticalLayout
         Grid<Athlete> grid = new Grid<>(Athlete.class, false);
         grid.getThemeNames().add("row-stripes");
         grid.getThemeNames().add("compact");
-        grid.addColumn(createLastNameRenderer())
-                .setHeader(getTranslation("LastName"));
-        grid.addColumn(createFirstNameRenderer()).setHeader(getTranslation("FirstName"));
-        grid.addColumn("team").setHeader(getTranslation("Team"));
-        grid.addColumn("category").setHeader(getTranslation("Category")).setTextAlign(ColumnTextAlign.CENTER);
-        if (Config.getCurrent().featureSwitch("announcerAttempts", true) || true) {
+        if (Config.getCurrent().featureSwitch("announcerAttempts", true)) {
+            grid.addColumn(
+                    createLastNameRenderer()).setHeader(getTranslation("LastName"));
+            grid.addColumn(
+                    createFirstNameRenderer()).setHeader(getTranslation("FirstName"));
+            grid.addColumn("team").setHeader(getTranslation("Team"));
+            grid.addColumn("category").setHeader(getTranslation("Category")).setTextAlign(ColumnTextAlign.CENTER);
             grid.addColumn(createAttemptsRenderer()).setHeader("Attempts").setAutoWidth(true).setFlexGrow(0);
+            grid.addColumn(
+                    a -> (a.getTotal() > 0 ? a.getTotal() : "-")).setHeader(getTranslation("Total"))
+                    .setTextAlign(ColumnTextAlign.CENTER);
+        } else {
+            grid.addColumn(athlete -> athlete.getLastName().toUpperCase(), "lastName")
+                    .setHeader(getTranslation("LastName"));
+            grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
+            grid.addColumn("team").setHeader(getTranslation("Team"));
+            grid.addColumn("category").setHeader(getTranslation("Category"));
+            grid.addColumn("nextAttemptRequestedWeight").setHeader(getTranslation("Requested_weight"));
         }
-        grid.addColumn(a -> (a.getTotal() > 0 ? a.getTotal() : "-")).setHeader(getTranslation("Total"))
-                .setTextAlign(ColumnTextAlign.CENTER);
-        // format attempt
         grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader(getTranslation("Attempt"));
         grid.addColumn("startNumber").setHeader(getTranslation("StartNumber"));
 
@@ -921,14 +929,14 @@ public abstract class AthleteGridContent extends VerticalLayout
     private static Renderer<Athlete> createAttemptsRenderer() {
         return LitRenderer.<Athlete>of(
                 "<vaadin-horizontal-layout>" +
-                    "<span class='${item.sn1class}'>${item.sn1}</span>" +
-                    "<span class='${item.sn2class}'>${item.sn2}</span>" +
-                    "<span class='${item.sn3class}'>${item.sn3}</span>" +
-                    "<span class='spacer'>\u00a0\u00a0\u00a0</span>" +
-                    "<span class='${item.cj1class}'>${item.cj1}</span>" +
-                    "<span class='${item.cj2class}'>${item.cj2}</span>" +
-                    "<span class='${item.cj3class}'>${item.cj3}</span>" +
-                "</vaadin-horizontal-layout>")
+                        "<span class='${item.sn1class}'>${item.sn1}</span>" +
+                        "<span class='${item.sn2class}'>${item.sn2}</span>" +
+                        "<span class='${item.sn3class}'>${item.sn3}</span>" +
+                        "<span class='spacer'>\u00a0\u00a0\u00a0</span>" +
+                        "<span class='${item.cj1class}'>${item.cj1}</span>" +
+                        "<span class='${item.cj2class}'>${item.cj2}</span>" +
+                        "<span class='${item.cj3class}'>${item.cj3}</span>" +
+                        "</vaadin-horizontal-layout>")
                 .withProperty("sn1", (a) -> computeLift(1, a))
                 .withProperty("sn2", (a) -> computeLift(2, a))
                 .withProperty("sn3", (a) -> computeLift(3, a))
