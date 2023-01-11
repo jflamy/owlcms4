@@ -4,18 +4,18 @@
   - The announcer and marshal screens now show the 6 attempts and total for each athlete. ([#525](https://github.com/jflamy/owlcms4/issues/525))
 
 - 37.1 Fixes
-  - Technical controller screen for changing plates was not loading.
+  - The screen for defining how many plates are available and for defining non-standard bars could occasionally fail to load in odd circumstances.
 
 
 ##### Highlights from recent stable releases
 
-- Migration to the current version of the Vaadin user interface framework. The navigation (menu, top menu bar) has been redone to use officially supported components.
+- Migration to the most recent version of the Vaadin user interface framework. The navigation (menu, top menu bar) has been redone to use officially supported components.
 - There is now a separate page for pre-competition documents. There are now separate documents for each purpose instead of multiple tabs. See [Pre-Competition Documents Documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/2400PreCompetitionDocuments).
 - Customization of team points. Templates for the final results package now have an extra tab that contains the points awarded for each rank. Copy and rename the template if you need to change the point system for a given competition.
 - Capability to add flags and athlete pictures on the attempt board (#508).  See [Flags and Pictures](https://owlcms.github.io/owlcms4-prerelease/#/FlagsPicture) documentation.
-- Improvements to Records processing. See [Records Eligibility](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Records) documentation. 
+- Improvements to Records eligibility. See [Records Eligibility](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Records) documentation. 
 - New Weigh-in template to create an empty Weigh-in Summary (used to facilitate data entry)
-- **New Sinclair coefficients for the 2024 Olympiad**.  An option on the Competition rules page allows using the previous (2020 Olympiad) values if your local rules require them.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
+- New Sinclair coefficients for the 2024 Olympiad.  An option on the Competition rules page allows using the previous (2020 Olympiad) values if your local rules require them.  Masters SMF and SMHF use the 2020 Olympiad values until further notice.
 
 
 ### **Installation Instructions**
