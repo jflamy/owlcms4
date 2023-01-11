@@ -69,7 +69,6 @@ import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.CountdownType;
@@ -868,25 +867,17 @@ public abstract class AthleteGridContent extends VerticalLayout
         Grid<Athlete> grid = new Grid<>(Athlete.class, false);
         grid.getThemeNames().add("row-stripes");
         grid.getThemeNames().add("compact");
-        if (Config.getCurrent().featureSwitch("announcerAttempts", true) || true) {
-            grid.addColumn(
-                    createLastNameRenderer()).setHeader(getTranslation("LastName"));
-            grid.addColumn(
-                    createFirstNameRenderer()).setHeader(getTranslation("FirstName"));
-            grid.addColumn("team").setHeader(getTranslation("Team"));
-            grid.addColumn("category").setHeader(getTranslation("Category")).setTextAlign(ColumnTextAlign.CENTER);
-            grid.addColumn(createAttemptsRenderer()).setHeader(Translator.translate("AthleteGrid.Attempts")).setAutoWidth(true).setFlexGrow(0);
-            grid.addColumn(
-                    a -> (a.getTotal() > 0 ? a.getTotal() : "-")).setHeader(getTranslation("Total"))
-                    .setTextAlign(ColumnTextAlign.CENTER);
-        } else {
-            grid.addColumn(athlete -> athlete.getLastName().toUpperCase(), "lastName")
-                    .setHeader(getTranslation("LastName"));
-            grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
-            grid.addColumn("team").setHeader(getTranslation("Team"));
-            grid.addColumn("category").setHeader(getTranslation("Category"));
-            grid.addColumn("nextAttemptRequestedWeight").setHeader(getTranslation("Requested_weight"));
-        }
+        grid.addColumn(
+                createLastNameRenderer()).setHeader(getTranslation("LastName"));
+        grid.addColumn(
+                createFirstNameRenderer()).setHeader(getTranslation("FirstName"));
+        grid.addColumn("team").setHeader(getTranslation("Team"));
+        grid.addColumn("category").setHeader(getTranslation("Category")).setTextAlign(ColumnTextAlign.CENTER);
+        grid.addColumn(createAttemptsRenderer()).setHeader(Translator.translate("AthleteGrid.Attempts"))
+                .setAutoWidth(true).setFlexGrow(0);
+        grid.addColumn(
+                a -> (a.getTotal() > 0 ? a.getTotal() : "-")).setHeader(getTranslation("Total"))
+                .setTextAlign(ColumnTextAlign.CENTER);
         grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader(getTranslation("Attempt"));
         grid.addColumn("startNumber").setHeader(getTranslation("StartNumber"));
 
