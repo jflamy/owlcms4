@@ -171,7 +171,7 @@ public class RecordDefinitionReader {
                                     LocalDate epoch = LocalDate.of(1900, 1, 1);
                                     LocalDate plusDays = epoch.plusDays(intExact - 2);
                                     // Excel quirks: 1 is 1900-01-01 and mistakenly assumes 1900-02-29 existed
-                                    rec.setRecordDate(plusDays);
+                                    rec.setBirthDate(plusDays);
                                 }
                                 break;
                             }
