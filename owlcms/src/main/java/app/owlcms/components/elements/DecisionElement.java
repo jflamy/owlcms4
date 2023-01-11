@@ -153,7 +153,7 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
     }
 
     private boolean isMqttDecisions() {
-        return Config.getCurrent().featureSwitch("mqttDecisions", true);
+        return Config.getCurrent().featureSwitch("mqttDecisions");
     }
 
     @ClientCallable

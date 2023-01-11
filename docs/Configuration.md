@@ -30,7 +30,9 @@ Parameters can be set in several ways:
 | mqttUserName              | OWLCMS_MQTTUSERNAME       |                   | Login for MQTT server                                        |
 | mqttPassword              | OWLCMS_MQTTPASSWORD       |                   | Password for MQTT server.  The file from which this value is fetched should be protected.  Do not add the actual cleartext value to a command-line parameter in a script. |
 | H2ServerPort              | OWLCMS_H2SERVERPORT       |                   | Normally given as 9092.  owlcms will tell its embedded H2 server to listen on this port.  This enables the h2.jar file to be run and start an H2 console.  In H2 console, use an URL of the form `jdbc:h2:tcp://localhost:9092/path`<br />where path is something like `c:/.../owlcms/database/owlcms-h2v2` . There is no .db extension at the end, replace `...` with the the actual path. Forward slashes are used even on Windows. |
-| publicDemo                | P                         |                   | If present, gives the number of seconds before the system exits. A warning is given beforehand.  When running under Kubernetes or under Docker with a restart policy, the process is immediately respawned from scratch. Windows will reload as soon as the site comes back, but with the clean data. |
+| publicDemo                | OWLCMS_PUBLICDEMO         |                   | If present, gives the number of seconds before the system exits. A warning is given beforehand.  When running under Kubernetes or under Docker with a restart policy, the process is immediately respawned from scratch. Windows will reload as soon as the site comes back, but with the clean data. |
+| useCompetitionDate        | OWLCMS_USECOMPETITIONDATE | false             | If present and true, the ages will be computed relative to the stored competition date.  Useful when loading a database from a previous year. |
+|                           | OWLCMS_FEATURESWITCHES    |                   | List of feature switches.  Overrides the ones in the database. |
 
 ### JDBC Parameters
 

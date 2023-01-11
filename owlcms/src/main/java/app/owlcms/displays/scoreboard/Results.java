@@ -50,7 +50,6 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.fieldofplay.FOPState;
@@ -976,7 +975,7 @@ public class Results extends PolymerTemplate<TemplateModel>
     }
 
     private void doChangeEmSize() {
-        if (Config.getCurrent().isSizeOverride() && getEmFontSize() != null) {
+        if (getEmFontSize() != null) {
             this.getElement().setProperty("sizeOverride", " --tableFontSize:" + getEmFontSize() + "rem;");
         }
     }

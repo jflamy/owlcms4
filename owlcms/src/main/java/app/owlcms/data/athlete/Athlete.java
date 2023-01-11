@@ -53,6 +53,7 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.category.RobiCategories;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.LocalDateAttributeConverter;
 import app.owlcms.fieldofplay.FOPState;
@@ -747,8 +748,10 @@ public class Athlete {
     @Transient
     @JsonIgnore
     public Integer getAge() {
-        // LocalDate date = Competition.getCurrent().getCompetitionDate();
         LocalDate date = null;
+        if (Config.getCurrent().isUseCompetitionDate()) {
+            date = Competition.getCurrent().getCompetitionDate();
+        }
         if (date == null) {
             date = LocalDate.now();
         }

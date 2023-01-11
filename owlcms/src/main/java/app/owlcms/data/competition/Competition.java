@@ -1542,7 +1542,7 @@ public class Competition {
     }
 
     public boolean isSinclair() {
-        return this.sinclairMeet || Config.getCurrent().featureSwitch("SinclairMeet",true);
+        return this.sinclairMeet || Config.getCurrent().featureSwitch("SinclairMeet");
     }
     public void setSinclair(boolean b) {
         this.sinclairMeet = b;

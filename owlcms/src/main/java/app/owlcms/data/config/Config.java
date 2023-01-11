@@ -126,6 +126,10 @@ public class Config {
     @Column(columnDefinition = "boolean default false")
     private boolean localTemplatesOnly;
 
+    @Transient
+    @JsonIgnore
+    private Boolean useCompetitionDate;
+
     public String computeSalt() {
         this.setSalt(null);
         return Integer.toHexString(new Random(System.currentTimeMillis()).nextInt());
@@ -148,12 +152,17 @@ public class Config {
         Config other = (Config) obj;
         return id != null && id.equals(other.getId());
     }
+    
+    public boolean featureSwitch(String string) {
+        return featureSwitch(string, true);
+    }
 
     public boolean featureSwitch(String string, boolean trueIfPresent) {
-        if (getFeatureSwitches() == null) {
+        String paramFeatureSwitches = getParamFeatureSwitches();
+        if (paramFeatureSwitches == null) {
             return !trueIfPresent;
         }
-        String[] switches = getFeatureSwitches().toLowerCase().split("[,; ]");
+        String[] switches = paramFeatureSwitches.toLowerCase().split("[,; ]");
         boolean present = Arrays.asList(switches).contains(string.toLowerCase());
         return trueIfPresent ? present : !present;
     }
@@ -256,6 +265,33 @@ public class Config {
     public String getMqttUserName() {
         return mqttUserName;
     }
+
+    
+    /**
+     * @return the current list of feature switches.
+     */
+    @Transient
+    @JsonIgnore
+    public String getParamFeatureSwitches() {
+        String uAccessList = StartupUtils.getStringParam("featureSwitches");
+        if (uAccessList == null) {
+            // use access list from database
+            uAccessList = Config.getCurrent().getFeatureSwitches();
+            if (uAccessList == null || uAccessList.isBlank()) {
+                uAccessList = null;
+            }
+        }
+        return uAccessList;
+    }
+    
+   @Transient
+   @JsonIgnore
+   public boolean isUseCompetitionDate() {
+       if (useCompetitionDate == null) {
+           useCompetitionDate = StartupUtils.getBooleanParam("useCompetitionDate");
+       }
+       return useCompetitionDate;
+   }
 
     /**
      * @return the current whitelist.
@@ -550,16 +586,7 @@ public class Config {
     }
 
     public boolean isLocalTemplatesOnly() {
-        return this.localTemplatesOnly || featureSwitch("localTemplatesOnly", true);
-    }
-
-    public boolean isOldScoreboards() {
-        return featureSwitch("oldScoreboards", true);
-    }
-
-    public boolean isSizeOverride() {
-        // return featureSwitch("sizeOverride", true);
-        return true;
+        return this.localTemplatesOnly || featureSwitch("localTemplatesOnly");
     }
 
     @Transient

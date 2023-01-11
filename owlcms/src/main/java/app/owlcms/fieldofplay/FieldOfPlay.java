@@ -272,7 +272,7 @@ public class FieldOfPlay {
     }
 
     public boolean computeShowAllGroupRecords() {
-        boolean forced = Config.getCurrent().featureSwitch("forceAllGroupRecords", true);
+        boolean forced = Config.getCurrent().featureSwitch("forceAllGroupRecords");
         return forced || showAllGroupRecords;
     }
 
