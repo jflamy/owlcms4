@@ -868,7 +868,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         Grid<Athlete> grid = new Grid<>(Athlete.class, false);
         grid.getThemeNames().add("row-stripes");
         grid.getThemeNames().add("compact");
-        if (Config.getCurrent().featureSwitch("announcerAttempts", true)) {
+        if (Config.getCurrent().featureSwitch("announcerAttempts", true) || true) {
             grid.addColumn(
                     createLastNameRenderer()).setHeader(getTranslation("LastName"));
             grid.addColumn(
