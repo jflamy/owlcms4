@@ -875,7 +875,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                     createFirstNameRenderer()).setHeader(getTranslation("FirstName"));
             grid.addColumn("team").setHeader(getTranslation("Team"));
             grid.addColumn("category").setHeader(getTranslation("Category")).setTextAlign(ColumnTextAlign.CENTER);
-            grid.addColumn(createAttemptsRenderer()).setHeader("Attempts").setAutoWidth(true).setFlexGrow(0);
+            grid.addColumn(createAttemptsRenderer()).setHeader(Translator.translate("AthleteGrid.Attempts")).setAutoWidth(true).setFlexGrow(0);
             grid.addColumn(
                     a -> (a.getTotal() > 0 ? a.getTotal() : "-")).setHeader(getTranslation("Total"))
                     .setTextAlign(ColumnTextAlign.CENTER);
