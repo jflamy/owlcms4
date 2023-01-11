@@ -46,6 +46,7 @@ import ch.qos.logback.classic.Logger;
 public class RecordDefinitionReader {
 
     private final static Logger logger = (Logger) LoggerFactory.getLogger(RecordDefinitionReader.class);
+    private final static Logger startupLogger = Main.getStartupLogger();
 
     public static int createRecords(Workbook workbook, String name, String baseName) {
 
@@ -130,6 +131,7 @@ public class RecordDefinitionReader {
                                                 cellValue.startsWith(">") ? 999 : Integer.parseInt(cellValue));
                                     } catch (NumberFormatException e) {
                                         if (cellValue != null && !cellValue.isBlank()) {
+                                            startupLogger.error("[" + sheet.getSheetName() + "," + cell.getAddress() + "]");
                                             logger.error("[" + sheet.getSheetName() + "," + cell.getAddress() + "]");
                                         }
                                     }
@@ -201,6 +203,7 @@ public class RecordDefinitionReader {
                         } catch (Exception e) {
                             // do not report errors on empty rows
                             if (!isEmptyRow(rec)) {
+                                startupLogger.error("{}[{}] {} ", sheet.getSheetName(), cell.getAddress(), e.getMessage());
                                 logger.error("{}[{}] {} ", sheet.getSheetName(), cell.getAddress(), e.getMessage());
                                 error = true;
                             }
@@ -227,6 +230,7 @@ public class RecordDefinitionReader {
             Competition comp = Competition.getCurrent();
             Competition comp2 = em.contains(comp) ? comp : em.merge(comp);
             comp2.setAgeGroupsFileName(name);
+            startupLogger.info("inserted {} record entries.", iRecord);
             logger.info("inserted {} record entries.", iRecord);
             return iRecord;
         });
@@ -245,18 +249,18 @@ public class RecordDefinitionReader {
         while ((nextEntry = zipStream.getNextEntry()) != null) {
             String name = nextEntry.getName();
             if (!name.endsWith("/")) {
-                Logger mainLogger = (Logger) LoggerFactory.getLogger(Main.class);
+                Logger startupLogger = (Logger) LoggerFactory.getLogger(Main.class);
                 logger.info("unzipping {}", name);
-                mainLogger.info("unzipping {}", name);
+                startupLogger.info("unzipping {}", name);
                 // read the current zip entry
                 try (Workbook workbook = WorkbookFactory.create(zipStream)) {
                     logger.info("loading record definition file {} {}", name, FilenameUtils.removeExtension(name));
-                    mainLogger.info("loading record definition file {}", name);
+                    startupLogger.info("loading record definition file {}", name);
                     createRecords(workbook, name, FilenameUtils.removeExtension(name));
                 } catch (Exception e) {
                     logger.error("could not process record definition file {}\n{}", name,
                             LoggerUtils./**/stackTrace(e));
-                    mainLogger.error("could not process record definition file {}. See log files for details.", name);
+                    startupLogger.error("could not process record definition file {}. See log files for details.", name);
                 }
             }
         }
@@ -290,25 +294,24 @@ public class RecordDefinitionReader {
         Files.walk(recordsPath).filter(f -> f.toString().endsWith(".xls") || f.toString().endsWith(".xlsx"))
                 .forEach(f -> {
                     InputStream is;
-                    Logger mainLogger = Main.getStartupLogger();
                     try {
                         is = Files.newInputStream(f);
                         try (Workbook workbook = WorkbookFactory.create(is)) {
                             logger.info("loading record definition file {} {}", f.toString(),
                                     FilenameUtils.removeExtension(f.getFileName().toString()));
-                            mainLogger.info("loading record definition file {}", f.toString());
+                            startupLogger.info("loading record definition file {}", f.toString());
                             createRecords(workbook, f.toString(),
                                     FilenameUtils.removeExtension(f.getFileName().toString()));
                         } catch (Exception e) {
                             logger.error("could not process record definition file {}\n{}", f.toString(),
                                     LoggerUtils./**/stackTrace(e));
-                            mainLogger.error("could not process record definition file {}. See log files for details.",
+                            startupLogger.error("could not process record definition file {}. See log files for details.",
                                     f.toString());
                         }
                     } catch (IOException e1) {
                         logger.error("could not open record definition file {}\n{}", f.toString(),
                                 LoggerUtils./**/stackTrace(e1));
-                        mainLogger.error("could not open record definition file {}.  See log files for details.",
+                        startupLogger.error("could not open record definition file {}.  See log files for details.",
                                 f.toString());
                     }
 
