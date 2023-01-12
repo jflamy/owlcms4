@@ -384,7 +384,7 @@ public class ConfigEditingFormFactory
         layout.addFormItem(mqttServerField, Translator.translate("Config.MQTTServer"));
         binder.forField(mqttServerField)
                 .withNullRepresentation("")
-                .bind(Config::getPublicResultsURL, Config::setPublicResultsURL);
+                .bind(Config::getMqttServer, Config::setMqttServer);
 
         TextField mqttPort = new TextField();
         mqttPort.setWidthFull();
@@ -392,23 +392,21 @@ public class ConfigEditingFormFactory
         layout.addFormItem(mqttPort, Translator.translate("Config.MQTTPort"));
         binder.forField(mqttPort)
                 .withNullRepresentation("")
-                .bind(Config::getUpdatekey, Config::setUpdatekey);
+                .bind(Config::getMqttPort, Config::setMqttPort);
         
         TextField mqttUserName = new TextField();
         mqttUserName.setWidthFull();
-        mqttUserName.setAllowedCharPattern("[0-9]");
         layout.addFormItem(mqttUserName, Translator.translate("Config.MQTTUserName"));
         binder.forField(mqttUserName)
                 .withNullRepresentation("")
-                .bind(Config::getUpdatekey, Config::setUpdatekey);
+                .bind(Config::getMqttUserName, Config::setMqttUserName);
         
         TextField mqttPassword = new TextField();
         mqttPassword.setWidthFull();
-        mqttPassword.setAllowedCharPattern("[0-9]");
         layout.addFormItem(mqttPassword, Translator.translate("Config.MQTTPassword"));
         binder.forField(mqttPassword)
                 .withNullRepresentation("")
-                .bind(Config::getUpdatekey, Config::setUpdatekey);
+                .bind(Config::getMqttPassword, Config::setMqttPassword);
 
         return layout;
     }
