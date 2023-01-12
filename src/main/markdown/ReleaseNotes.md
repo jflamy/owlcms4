@@ -1,4 +1,4 @@
-37.1.0: 
+37.1.0-beta02: 
 
 - 37.1 Enhancements
   - The announcer and marshal screens now show the 6 attempts and total for each athlete. ([#525](https://github.com/jflamy/owlcms4/issues/525))
@@ -7,6 +7,7 @@
     - Added OWLCMS_FEATURESWITCHES to load feature switches from the command line.
   
 - 37.1 Fixes
+  - 37.1.0-beta02: MQTT parameters entered in the Settings page were not stored correctly ([#621](https://github.com/jflamy/owlcms4/issues/621))
   - The screen for defining how many plates are available and for defining non-standard bars could occasionally fail to load in odd circumstances.
 
 
