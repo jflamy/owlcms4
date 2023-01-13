@@ -59,6 +59,7 @@ import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
@@ -132,6 +133,15 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
     }
 
+    /**
+     * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
+     *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
+     */
+    @Override
+    public void addDialogContent(Component target, VerticalLayout dialog) {
+        DisplayOptions.addSoundEntries(dialog, target, this);
+    }
+
     protected void checkImages() {
         try {
             ResourceWalker.getFileOrResourcePath("pictures");
@@ -148,13 +158,88 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         }
     }
 
+    protected void doAthleteUpdate(Athlete a) {
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        FOPState state = fop.getState();
+        if (fop.getState() == FOPState.INACTIVE
+                || (state == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE)) {
+            doEmpty();
+            return;
+        }
+
+        if (a == null) {
+            doEmpty();
+            return;
+        } else if (a.getAttemptsDone() >= 6) {
+            doNotEmpty();
+            setDone(true);
+            return;
+        }
+
+        String lastName = a.getLastName();
+        this.getElement().setProperty("lastName", lastName.toUpperCase());
+        this.getElement().setProperty("firstName", a.getFirstName());
+        this.getElement().setProperty("hideBecauseDecision", "");
+
+        String team = a.getTeam();
+        this.getElement().setProperty("teamName", team);
+        if (teamFlags && team != null) {
+            boolean done;
+            done = setProp("teamFlagImg", "flags/", team, ".svg");
+            if (!done) {
+                done = setProp("teamFlagImg", "flags/", team, ".png");
+                if (!done) {
+                    done = setProp("teamFlagImg", "flags/", team, ".jpg");
+                }
+            }
+        }
+
+        String membership = a.getMembership();
+        if (athletePictures && membership != null) {
+            boolean done;
+            done = setProp("athleteImg", "pictures/", membership, ".jpg");
+            if (!done) {
+                done = setProp("athleteImg", "pictures/", membership, ".jpeg");
+            }
+            this.getElement().setProperty("WithPicture", done ? "WithPicture" : "");
+        }
+
+        spotlightRecords(fop);
+
+        this.getElement().setProperty("startNumber", a.getStartNumber());
+        String formattedAttempt = formatAttempt(a.getAttemptNumber());
+        this.getElement().setProperty("attempt", formattedAttempt);
+        Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
+        setDisplayedWeight(nextAttemptRequestedWeight > 0 ? nextAttemptRequestedWeight.toString() : "");
+        showPlates();
+        this.getElement().callJsFunction("reset");
+
+        setDone(false);
+    }
+
     /**
-     * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
-     *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
+     * Restoring the attempt board during a break. The information about how/why the break was started is unavailable.
+     *
+     * @param fop
      */
-    @Override
-    public void addDialogContent(Component target, VerticalLayout dialog) {
-        DisplayOptions.addSoundEntries(dialog, target, this);
+    protected void doBreak(FieldOfPlay fop) {
+        this.getElement().setProperty("lastName", inferGroupName(fop.getCeremonyType()));
+        this.getElement().setProperty("firstName", inferMessage(fop.getBreakType(), fop.getCeremonyType()));
+        this.getElement().setProperty("teamName", "");
+        this.getElement().setProperty("attempt", "");
+        Athlete a = fop.getCurAthlete();
+        if (a != null) {
+            String formattedAttempt = formatAttempt(a.getAttemptNumber());
+            this.getElement().setProperty("attempt", formattedAttempt);
+            Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
+            setDisplayedWeight(nextAttemptRequestedWeight > 0 ? nextAttemptRequestedWeight.toString() : "");
+            showPlates();
+        }
+
+        boolean showWeights = fop.getCeremonyType() == null;
+        // logger.trace("*** doBreak {} {} {}", showWeights, fop.getCeremonyType(), LoggerUtils.whereFrom());
+        this.getElement().callJsFunction("doBreak", showWeights);
+        uiEventLogger.debug("$$$ attemptBoard doBreak(fop)");
     }
 
     @Override
@@ -164,31 +249,30 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
             BreakType breakType = fop.getBreakType();
             // logger.trace("doBreak({}) bt={} a={}}", e, breakType, fop.getCurAthlete());
             if (breakType == BreakType.GROUP_DONE) {
-                Group group = fop.getGroup();
-                Athlete a = fop.getCurAthlete();
-                if (a != null && a.getAttemptsDone() < 6) {
-                    // the announcer has switched groups, but not started the introduction countdown.
-                    doEmpty();
-                } else {
-                    doNotEmpty();
-                    doDone(group);
-                }
+                doGroupDoneBreak(fop);
+                return;
+            } else if (breakType == BreakType.JURY) {
+                doJuryBreak(fop, breakType);
                 return;
             }
+
             this.getElement().setProperty("lastName", inferGroupName());
             this.getElement().setProperty("firstName", inferMessage(breakType, fop.getCeremonyType()));
             this.getElement().setProperty("teamName", "");
+
+            setDisplayedWeight("");
 
             Athlete a = fop.getCurAthlete();
             if (a != null) {
                 String formattedAttempt = formatAttempt(a.getAttemptNumber());
                 this.getElement().setProperty("attempt", formattedAttempt);
-                this.getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
+                Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
+                setDisplayedWeight(nextAttemptRequestedWeight > 0 ? nextAttemptRequestedWeight.toString() : "");
                 showPlates();
                 // logger.trace("showingPlates {}",a.getNextAttemptRequestedWeight());
             } else {
                 this.getElement().setProperty("attempt", "");
-                this.getElement().setProperty("weight", "");
+                setDisplayedWeight("");
             }
 
             breakTimer.setVisible(!fop.getBreakTimer().isIndefinite());
@@ -201,6 +285,92 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 
     @Override
     public void doCeremony(UIEvent.CeremonyStarted e) {
+    }
+
+    private void doDone(Group g) {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            if (g != null) {
+                this.getElement().setProperty("lastName", getTranslation("Group_number_done", g.toString()));
+            } else {
+                this.getElement().setProperty("lastName", "");
+            }
+            // erase record notification if any
+            this.getElement().setProperty("recordKind", "recordNotification none");
+            this.getElement().setProperty("teamName", "");
+            this.getElement().setProperty("firstName", "");
+            setDisplayedWeight("");
+            this.getElement().callJsFunction("groupDone");
+            hidePlates();
+        });
+    }
+
+    protected void doEmpty() {
+        hidePlates();
+        FieldOfPlay fop2 = OwlcmsSession.getFop();
+        boolean inactive = fop2 == null || fop2.getState() == FOPState.INACTIVE;
+        // this.getElement().callJsFunction("clear");
+        this.getElement().setProperty("inactiveBlockStyle", (inactive ? "display:grid" : "display:none"));
+        this.getElement().setProperty("activeGridStyle", (inactive ? "display:none" : "display:grid"));
+        this.getElement().setProperty("inactiveClass", (inactive ? "bigTitle" : ""));
+        this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
+    }
+
+    private void doGroupDoneBreak(FieldOfPlay fop) {
+        Group group = fop.getGroup();
+        Athlete a = fop.getCurAthlete();
+        if (a != null && a.getAttemptsDone() < 6) {
+            // the announcer has switched groups, but not started the introduction countdown.
+            doEmpty();
+        } else {
+            doNotEmpty();
+            doDone(group);
+        }
+    }
+
+    private void doJuryBreak(FieldOfPlay fop, BreakType breakType) {
+        this.getElement().setProperty("lastName", inferGroupName());
+        this.getElement().setProperty("firstName", inferMessage(breakType, fop.getCeremonyType()));
+        this.getElement().setProperty("teamName", "");
+        // hide the weight and plates.
+        this.getElement().callJsFunction("doBreak", false);
+    }
+
+    protected void doNotEmpty() {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            boolean inactive = false;
+            this.getElement().setProperty("inactiveBlockStyle", (inactive ? "display:grid" : "display:none"));
+            this.getElement().setProperty("activeGridStyle", (inactive ? "display:none" : "display:grid"));
+            this.getElement().setProperty("inactiveClass", (inactive ? "bigTitle" : ""));
+        });
+    }
+
+    private void doNotification(String text, String recordText, String theme, int duration) {
+        Notification n = new Notification();
+        // Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
+        n.getElement().getThemeList().add(theme);
+
+        n.setDuration(duration);
+        n.setPosition(Position.TOP_STRETCH);
+        Div label = new Div();
+        label.getElement().setProperty("innerHTML", text + (recordText != null ? recordText : ""));
+        label.getElement().setAttribute("style", "text: align-center");
+        label.addClickListener((event) -> n.close());
+        label.setWidth("70vw");
+        label.getStyle().set("font-size", "7vh");
+        n.add(label);
+
+        OwlcmsSession.withFop(fop -> {
+//            this.getElement().callJsFunction("reset");
+//            syncWithFOP(OwlcmsSession.getFop());
+            n.open();
+            return;
+        });
+
+        return;
+    }
+
+    private String formatAttempt(Integer attemptNo) {
+        return getTranslation("AttemptBoard_attempt_number", attemptNo);
     }
 
     /**
@@ -228,14 +398,47 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         return this.locationUI;
     }
 
+    private Object getOrigin() {
+        return this;
+    }
+
     @Override
     public String getPageTitle() {
         return getTranslation("Attempt") + OwlcmsSession.getFopNameIfMultiple();
     }
 
+    private void hidePlates() {
+        if (plates != null) {
+            try {
+                this.getElement().removeChild(plates.getElement());
+            } catch (IllegalArgumentException e) {
+                // ignore
+            }
+        }
+        plates = null;
+    }
+
+    private void hideRecordInfo(FieldOfPlay fop) {
+        this.getElement().setProperty("recordKind", "recordNotification none");
+        this.getElement().setProperty("teamName", fop.getCurAthlete().getTeam());
+        this.getElement().setProperty("hideBecauseRecord", "");
+    }
+
+    private void init() {
+        OwlcmsSession.withFop(fop -> {
+            logger.trace("{}Starting attempt board", fop.getLoggingName());
+            setId("attempt-board-template");
+        });
+        setTranslationMap();
+    }
+
     @Override
     public boolean isDarkMode() {
         return true;
+    }
+
+    private boolean isDone() {
+        return this.groupDone;
     }
 
     /*
@@ -280,6 +483,27 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         return true;
     }
 
+    /*
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        // fop obtained via FOPParameters interface default methods.
+        OwlcmsSession.withFop(fop -> {
+            logger.debug("{}onAttach {}", fop.getLoggingName(), fop.getState());
+            init();
+            ThemeList themeList = UI.getCurrent().getElement().getThemeList();
+            themeList.remove(Lumo.LIGHT);
+            themeList.add(Lumo.DARK);
+
+            SoundUtils.enableAudioContextNotification(this.getElement());
+
+            syncWithFOP(fop);
+            // we send on fopEventBus, listen on uiEventBus.
+            uiEventBus = uiEventBusRegister(this, fop);
+        });
+    }
+
     /**
      * @see app.owlcms.apputils.queryparameters.DisplayParameters#setDarkMode(boolean)
      */
@@ -298,6 +522,14 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         this.dialogTimer = dialogTimer;
     }
 
+    private void setDisplayedWeight(String weight) {
+        this.getElement().setProperty("weight", weight);
+    }
+
+    private void setDone(boolean b) {
+        this.groupDone = b;
+    }
+
     @Override
     public void setLocation(Location location) {
         this.location = location;
@@ -306,6 +538,22 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    private boolean setProp(String propertyName, String prefix, String name, String suffix) {
+        boolean found;
+        try {
+            ResourceWalker.getFileOrResourcePath(prefix + name + suffix);
+            found = true;
+        } catch (FileNotFoundException e) {
+            found = false;
+        }
+        if (found) {
+            this.getElement().setProperty(propertyName, "<img src='local/" + prefix + name + suffix + "'></img>");
+        } else {
+            this.getElement().setProperty(propertyName, "");
+        }
+        return found;
     }
 
     /**
@@ -340,6 +588,41 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         this.breakTimer.setSilenced(silenced);
         this.decisions.setSilenced(silenced);
         this.silenced = silenced;
+    }
+
+    protected void setTranslationMap() {
+        JsonObject translations = Json.createObject();
+        Enumeration<String> keys = Translator.getKeys();
+        while (keys.hasMoreElements()) {
+            String curKey = keys.nextElement();
+            if (curKey.startsWith("Scoreboard.")) {
+                translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
+            }
+        }
+        this.getElement().setPropertyJson("t", translations);
+    }
+
+    private void showPlates() {
+        AttemptBoard attemptBoard = this;
+        OwlcmsSession.withFop((fop) -> {
+            UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+                try {
+                    if (plates != null) {
+                        attemptBoard.getElement().removeChild(plates.getElement());
+                    }
+                    plates = new Plates();
+                    plates.computeImageArea(fop, false);
+                    Element platesElement = plates.getElement();
+                    // tell polymer that the plates belong in the slot named barbell of the template
+                    platesElement.setAttribute("slot", "barbell");
+                    platesElement.getStyle().set("font-size", "3.3vh");
+                    platesElement.getClassList().set("dark", true);
+                    attemptBoard.getElement().appendChild(platesElement);
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+            });
+        });
     }
 
     @Subscribe
@@ -565,260 +848,6 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         });
     }
 
-    /**
-     * @see app.owlcms.apputils.queryparameters.FOPParameters#updateURLLocation(com.vaadin.flow.component.UI,
-     *      com.vaadin.flow.router.Location, java.lang.String, java.lang.String)
-     */
-    @Override
-    public void updateURLLocation(UI ui, Location location, String parameter, String mode) {
-        TreeMap<String, List<String>> parametersMap = new TreeMap<>(location.getQueryParameters().getParameters());
-        updateParam(parametersMap, DARK, null);
-        updateParam(parametersMap, parameter, mode);
-        FieldOfPlay fop = OwlcmsSession.getFop();
-        updateParam(parametersMap, "fop", fop != null ? fop.getName() : null);
-        Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(parametersMap)));
-        ui.getPage().getHistory().replaceState(null, location2);
-        setLocation(location2);
-    }
-
-    protected void doAthleteUpdate(Athlete a) {
-        FieldOfPlay fop = OwlcmsSession.getFop();
-        FOPState state = fop.getState();
-        if (fop.getState() == FOPState.INACTIVE
-                || (state == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE)) {
-            doEmpty();
-            return;
-        }
-
-        if (a == null) {
-            doEmpty();
-            return;
-        } else if (a.getAttemptsDone() >= 6) {
-            doNotEmpty();
-            setDone(true);
-            return;
-        }
-
-        String lastName = a.getLastName();
-        this.getElement().setProperty("lastName", lastName.toUpperCase());
-        this.getElement().setProperty("firstName", a.getFirstName());
-        this.getElement().setProperty("hideBecauseDecision", "");
-
-        String team = a.getTeam();
-        this.getElement().setProperty("teamName", team);
-        if (teamFlags && team != null) {
-            boolean done;
-            done = setProp("teamFlagImg", "flags/", team, ".svg");
-            if (!done) {
-                done = setProp("teamFlagImg", "flags/", team, ".png");
-                if (!done) {
-                    done = setProp("teamFlagImg", "flags/", team, ".jpg");
-                }
-            }
-        }
-
-        String membership = a.getMembership();
-        if (athletePictures && membership != null) {
-            boolean done;
-            done = setProp("athleteImg", "pictures/", membership, ".jpg");
-            if (!done) {
-                done = setProp("athleteImg", "pictures/", membership, ".jpeg");
-            }
-            this.getElement().setProperty("WithPicture", done ? "WithPicture" : "");
-        }
-
-        spotlightRecords(fop);
-
-        this.getElement().setProperty("startNumber", a.getStartNumber());
-        String formattedAttempt = formatAttempt(a.getAttemptNumber());
-        this.getElement().setProperty("attempt", formattedAttempt);
-        this.getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
-        showPlates();
-        this.getElement().callJsFunction("reset");
-
-        setDone(false);
-    }
-
-    private boolean setProp(String propertyName, String prefix, String name, String suffix) {
-        boolean found;
-        try {
-            ResourceWalker.getFileOrResourcePath(prefix + name + suffix);
-            found = true;
-        } catch (FileNotFoundException e) {
-            found = false;
-        }
-        if (found) {
-            this.getElement().setProperty(propertyName, "<img src='local/" + prefix + name + suffix + "'></img>");
-        } else {
-            this.getElement().setProperty(propertyName, "");
-        }
-        return found;
-    }
-
-    /**
-     * Restoring the attempt board during a break. The information about how/why the break was started is unavailable.
-     *
-     * @param fop
-     */
-    protected void doBreak(FieldOfPlay fop) {
-        this.getElement().setProperty("lastName", inferGroupName(fop.getCeremonyType()));
-        this.getElement().setProperty("firstName", inferMessage(fop.getBreakType(), fop.getCeremonyType()));
-        this.getElement().setProperty("teamName", "");
-        this.getElement().setProperty("attempt", "");
-        Athlete a = fop.getCurAthlete();
-        if (a != null) {
-            String formattedAttempt = formatAttempt(a.getAttemptNumber());
-            this.getElement().setProperty("attempt", formattedAttempt);
-            this.getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
-            showPlates();
-        }
-
-        boolean showWeights = fop.getCeremonyType() == null;
-        // logger.trace("*** doBreak {} {} {}", showWeights, fop.getCeremonyType(), LoggerUtils.whereFrom());
-        this.getElement().callJsFunction("doBreak", showWeights);
-        uiEventLogger.debug("$$$ attemptBoard doBreak(fop)");
-    }
-
-    protected void doEmpty() {
-        hidePlates();
-        FieldOfPlay fop2 = OwlcmsSession.getFop();
-        boolean inactive = fop2 == null || fop2.getState() == FOPState.INACTIVE;
-        // this.getElement().callJsFunction("clear");
-        this.getElement().setProperty("inactiveBlockStyle", (inactive ? "display:grid" : "display:none"));
-        this.getElement().setProperty("activeGridStyle", (inactive ? "display:none" : "display:grid"));
-        this.getElement().setProperty("inactiveClass", (inactive ? "bigTitle" : ""));
-        this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
-    }
-
-    protected void doNotEmpty() {
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            boolean inactive = false;
-            this.getElement().setProperty("inactiveBlockStyle", (inactive ? "display:grid" : "display:none"));
-            this.getElement().setProperty("activeGridStyle", (inactive ? "display:none" : "display:grid"));
-            this.getElement().setProperty("inactiveClass", (inactive ? "bigTitle" : ""));
-        });
-    }
-
-    /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        // fop obtained via FOPParameters interface default methods.
-        OwlcmsSession.withFop(fop -> {
-            logger.debug("{}onAttach {}", fop.getLoggingName(), fop.getState());
-            init();
-            ThemeList themeList = UI.getCurrent().getElement().getThemeList();
-            themeList.remove(Lumo.LIGHT);
-            themeList.add(Lumo.DARK);
-
-            SoundUtils.enableAudioContextNotification(this.getElement());
-
-            syncWithFOP(fop);
-            // we send on fopEventBus, listen on uiEventBus.
-            uiEventBus = uiEventBusRegister(this, fop);
-        });
-    }
-
-    private void doDone(Group g) {
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            if (g != null) {
-                this.getElement().setProperty("lastName", getTranslation("Group_number_done", g.toString()));
-            } else {
-                this.getElement().setProperty("lastName", "");
-            }
-            // erase record notification if any
-            this.getElement().setProperty("recordKind", "recordNotification none");
-            this.getElement().setProperty("teamName", "");
-            this.getElement().setProperty("firstName", "");
-            this.getElement().callJsFunction("groupDone");
-            hidePlates();
-        });
-    }
-
-    private void doNotification(String text, String recordText, String theme, int duration) {
-        Notification n = new Notification();
-        // Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
-        n.getElement().getThemeList().add(theme);
-
-        n.setDuration(duration);
-        n.setPosition(Position.TOP_STRETCH);
-        Div label = new Div();
-        label.getElement().setProperty("innerHTML", text + (recordText != null ? recordText : ""));
-        label.getElement().setAttribute("style", "text: align-center");
-        label.addClickListener((event) -> n.close());
-        label.setWidth("70vw");
-        label.getStyle().set("font-size", "7vh");
-        n.add(label);
-
-        OwlcmsSession.withFop(fop -> {
-//            this.getElement().callJsFunction("reset");
-//            syncWithFOP(OwlcmsSession.getFop());
-            n.open();
-            return;
-        });
-
-        return;
-    }
-
-    private String formatAttempt(Integer attemptNo) {
-        return getTranslation("AttemptBoard_attempt_number", attemptNo);
-    }
-
-    private Object getOrigin() {
-        return this;
-    }
-
-    private void hidePlates() {
-        if (plates != null) {
-            try {
-                this.getElement().removeChild(plates.getElement());
-            } catch (IllegalArgumentException e) {
-                // ignore
-            }
-        }
-        plates = null;
-    }
-
-    private void init() {
-        OwlcmsSession.withFop(fop -> {
-            logger.trace("{}Starting attempt board", fop.getLoggingName());
-            setId("attempt-board-template");
-        });
-        setTranslationMap();
-    }
-
-    private boolean isDone() {
-        return this.groupDone;
-    }
-
-    private void setDone(boolean b) {
-        this.groupDone = b;
-    }
-
-    private void showPlates() {
-        AttemptBoard attemptBoard = this;
-        OwlcmsSession.withFop((fop) -> {
-            UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-                try {
-                    if (plates != null) {
-                        attemptBoard.getElement().removeChild(plates.getElement());
-                    }
-                    plates = new Plates();
-                    plates.computeImageArea(fop, false);
-                    Element platesElement = plates.getElement();
-                    // tell polymer that the plates belong in the slot named barbell of the template
-                    platesElement.setAttribute("slot", "barbell");
-                    platesElement.getStyle().set("font-size", "3.3vh");
-                    platesElement.getClassList().set("dark", true);
-                    attemptBoard.getElement().appendChild(platesElement);
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                }
-            });
-        });
-    }
-
     private void spotlightNewRecord() {
         this.getElement().setProperty("recordKind", "recordNotification new");
         this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.NewRecord"));
@@ -841,12 +870,6 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         } else {
             hideRecordInfo(fop);
         }
-    }
-
-    private void hideRecordInfo(FieldOfPlay fop) {
-        this.getElement().setProperty("recordKind", "recordNotification none");
-        this.getElement().setProperty("teamName", fop.getCurAthlete().getTeam());
-        this.getElement().setProperty("hideBecauseRecord", "");
     }
 
     private void syncWithFOP(FieldOfPlay fop) {
@@ -872,16 +895,20 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         }
     }
 
-    protected void setTranslationMap() {
-        JsonObject translations = Json.createObject();
-        Enumeration<String> keys = Translator.getKeys();
-        while (keys.hasMoreElements()) {
-            String curKey = keys.nextElement();
-            if (curKey.startsWith("Scoreboard.")) {
-                translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
-            }
-        }
-        this.getElement().setPropertyJson("t", translations);
+    /**
+     * @see app.owlcms.apputils.queryparameters.FOPParameters#updateURLLocation(com.vaadin.flow.component.UI,
+     *      com.vaadin.flow.router.Location, java.lang.String, java.lang.String)
+     */
+    @Override
+    public void updateURLLocation(UI ui, Location location, String parameter, String mode) {
+        TreeMap<String, List<String>> parametersMap = new TreeMap<>(location.getQueryParameters().getParameters());
+        updateParam(parametersMap, DARK, null);
+        updateParam(parametersMap, parameter, mode);
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        updateParam(parametersMap, "fop", fop != null ? fop.getName() : null);
+        Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(parametersMap)));
+        ui.getPage().getHistory().replaceState(null, location2);
+        setLocation(location2);
     }
 
 }
