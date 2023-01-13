@@ -2,6 +2,7 @@
 
 - 37.1 Enhancements
   - The announcer and marshal screens now show the 6 attempts and total for each athlete. ([#525](https://github.com/jflamy/owlcms4/issues/525))
+  - 37.1.0-beta04: Updated Spanish, German, Danish, Swedish, Russian translations.
   - 37.1.0-beta01: Enhancements for testing
     - Added OWLCMS_USECOMPETITIONDATE to compute ages according to the competition date (useful when loading a database from a previous year).
     - Added OWLCMS_FEATURESWITCHES to load feature switches from the command line.
