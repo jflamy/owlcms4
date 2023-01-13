@@ -18,6 +18,7 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
@@ -27,6 +28,7 @@ import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.athlete.LiftDefinition.Stage;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.fieldofplay.FOPState;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
@@ -48,7 +50,7 @@ import ch.qos.logback.classic.Logger;
 @JsModule("./components/OBSMonitor.js")
 @Route("displays/monitor")
 
-public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> implements FOPParameters,
+public class OBSMonitor extends PolymerTemplate<TemplateModel> implements FOPParameters,
         SafeEventBusRegistration, UIEventProcessor {
 
     /**
@@ -126,6 +128,8 @@ public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> impleme
     private Object currentLiftType;
     private Object previousLiftType;
 
+    private long expiryBeforeChangingStatus;
+
     /**
      * Instantiates a new results board.
      */
@@ -183,7 +187,7 @@ public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> impleme
                 });
             });
         }
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e /*, e.getTrace()*/);
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e /* , e.getTrace() */);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             if (syncWithFOP(e)) {
                 // significant transition
@@ -253,6 +257,7 @@ public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> impleme
                 // special case where state changes too quickly;
                 pageTitle.append(".NEW_RECORD");
             }
+            setExpiryBeforeChangingStatus(System.currentTimeMillis() + (FieldOfPlay.DECISION_VISIBLE_DURATION));
         } else if (currentChallengedRecords) {
             pageTitle.append(".RECORD_ATTEMPT");
         }
@@ -283,6 +288,14 @@ public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> impleme
         String string = pageTitle.toString();
 
         return string;
+    }
+
+    private void setExpiryBeforeChangingStatus(long expiry) {
+        expiryBeforeChangingStatus = expiry;
+    }
+
+    private long getExpiryBeforeChangingStatus() {
+        return expiryBeforeChangingStatus;
     }
 
     @Override
@@ -337,14 +350,43 @@ public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> impleme
             same = comparisonTitle.contentEquals(comparisonPrevTitle);
         }
         if (!same && !(comparisonTitle == null) && !comparisonTitle.isBlank()) {
-            this.getElement().setProperty("title", title);
-            this.getElement().callJsFunction("setTitle", title);
-            logger.info("#### monitor {}", title);
+            long waitBeforeChangingStatus = waitBeforeChangingStatus();
+            Element element = this.getElement();
+            UI ui = UI.getCurrent();
+            if (waitBeforeChangingStatus > 0) {
+                if ((!title.startsWith("state=DECISION"))) {
+                    logger.info("#### DELAYING {} monitor {}", waitBeforeChangingStatus, title);
+                    new java.util.Timer().schedule(
+                            new java.util.TimerTask() {
+                                @Override
+                                public void run() {
+                                    ui.access(() -> {
+                                        element.setProperty("title", title);
+                                        element.callJsFunction("setTitle", title);
+                                        logger.info("#### DELAYED monitor {}", title);
+                                    });
+                                }
+                            },
+                            waitBeforeChangingStatus);
+                } else {
+                    this.getElement().setProperty("title", title);
+                    this.getElement().callJsFunction("setTitle", title);
+                    logger.info("#### DECISION monitor {}", title);
+                }
+            } else {
+                this.getElement().setProperty("title", title);
+                this.getElement().callJsFunction("setTitle", title);
+                logger.info("#### monitor {}", title);
+            }
             prevTitle = title;
         }
         if (same) {
             logger.debug("---- monitor duplicate {}", title);
         }
+    }
+
+    private long waitBeforeChangingStatus() {
+        return getExpiryBeforeChangingStatus() - System.currentTimeMillis();
     }
 
     private Object getOrigin() {
@@ -368,11 +410,13 @@ public class OBSMonitor extends PolymerTemplate<OBSMonitor.MonitorModel> impleme
 
             boolean stateChanged = fop.getState() != history.get(0).state;
             boolean recordsChanged = fopChallengedRecords != curChallengedRecords;
-            logger.debug(">>>>>>OBSMonitor event {} fop {} history {} recordsChanged {}",e != null ? e.getClass().getSimpleName() : null, fop.getState(),history.get(0).state, recordsChanged);
+            logger.debug(">>>>>>OBSMonitor event {} fop {} history {} recordsChanged {}",
+                    e != null ? e.getClass().getSimpleName() : null, fop.getState(), history.get(0).state,
+                    recordsChanged);
             if (e != null && e instanceof UIEvent.DecisionReset) {
                 // this event does not change state, and should always be ignored.
                 // however, because it can occur very close to the lifter update, and we have asynchronous events
-                // there is a possibility that it comes late and out of order.  So we ignore it explicitly.
+                // there is a possibility that it comes late and out of order. So we ignore it explicitly.
                 logger.debug(">>>>>>OBSMonitor DecisionReset ignored");
                 significant[0] = false;
             } else if (stateChanged || recordsChanged) {
