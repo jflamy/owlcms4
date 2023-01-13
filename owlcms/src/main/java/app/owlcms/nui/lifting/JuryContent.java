@@ -584,7 +584,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         long now = System.currentTimeMillis();
         if (now - lastOpen > 100 && (juryDialog == null || !juryDialog.isOpened())) {
             OwlcmsSession.withFop(fop -> {
-                if (fop.getState() != FOPState.BREAK) {
+                if (fop.getState() != FOPState.BREAK && deliberation != JuryDeliberationEventType.TECHNICAL_PAUSE) {
                     fop.fopEventPost(
                             new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, 0, null, true, this));
                 }
