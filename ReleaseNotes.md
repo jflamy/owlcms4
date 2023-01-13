@@ -7,6 +7,7 @@
     - Added OWLCMS_FEATURESWITCHES to load feature switches from the command line.
   
 - 37.1 Fixes
+  - 37.1.0-beta03: Automatic Streaming Scene Changes: Ensure that decisions are visible long enough in the status monitor so that OBS can detect the state change.
   - 37.1.0-beta02: MQTT parameters entered in the Settings page were not stored correctly ([#621](https://github.com/jflamy/owlcms4/issues/621))
   - The screen for defining how many plates are available and for defining non-standard bars could occasionally fail to load in odd circumstances.
 
@@ -24,11 +25,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_37.1.0-beta02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_37.1.0-beta03.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_37.1.0-beta02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_37.1.0-beta03.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4-prerelease/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
