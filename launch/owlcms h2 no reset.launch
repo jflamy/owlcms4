@@ -10,9 +10,7 @@
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="OWLCMS_H2SERVERPORT" value="9092"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="false"/>
-        <mapEntry key="OWLCMS_MQTTPASSWORD" value="45454545"/>
         <mapEntry key="OWLCMS_MQTTPORT" value="1883"/>
-        <mapEntry key="OWLCMS_MQTTSERVER" value="localhost"/>
         <mapEntry key="OWLCMS_MQTTUSERNAME" value="owlcms"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
         <mapEntry key="OWLCMS_RESETMODE" value="false"/>
@@ -22,6 +20,8 @@
         <mapEntry key="_JDBC_DATABASE_URL" value="jdbc:h2:file:./database/scolaire.mv.db"/>
         <mapEntry key="_OWLCMS_BACKDOOR" value="10.0.0.221,127.0.0.1,[0:0:0:0:0:0:0:1]"/>
         <mapEntry key="_OWLCMS_LOCALE" value="en_CA"/>
+        <mapEntry key="_OWLCMS_MQTTPASSWORD" value="45454545"/>
+        <mapEntry key="_OWLCMS_MQTTSERVER" value="localhost"/>
         <mapEntry key="_OWLCMS_PIN" value="1234"/>
         <mapEntry key="_OWLCMS_REMOTE" value="http://127.0.0.1:8082/update"/>
     </mapAttribute>

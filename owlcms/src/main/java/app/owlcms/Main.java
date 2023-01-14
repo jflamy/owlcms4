@@ -6,13 +6,17 @@
  *******************************************************************************/
 package app.owlcms;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
 
@@ -45,7 +49,15 @@ import app.owlcms.uievents.AppEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import io.moquette.BrokerConstants;
+import io.moquette.broker.Server;
+import io.moquette.broker.config.IConfig;
+import io.moquette.broker.config.MemoryConfig;
+import io.moquette.interception.AbstractInterceptHandler;
+import io.moquette.interception.InterceptHandler;
+import io.moquette.interception.messages.InterceptPublishMessage;
 
 /**
  * Main class for launching owlcms through an embedded jetty server.
@@ -69,6 +81,10 @@ public class Main {
 
     private static InitialData initialData;
 
+    public static String mqttStartup;
+
+    private static Integer demoResetDelay;
+
     public static Logger getStartupLogger() {
         String name = Main.class.getName() + ".startup";
         return (Logger) LoggerFactory.getLogger(name);
@@ -85,6 +101,10 @@ public class Main {
         }
         // check for database override of resource files
         Config.initConfig();
+        
+        if (demoResetDelay == null) {
+            startMQTT();
+        }
     }
 
     /**
@@ -124,7 +144,7 @@ public class Main {
      */
     public static void main(String... args) throws Exception {
         // there is no config read so far.
-        Integer demoResetDelay = StartupUtils.getIntegerParam("publicDemo", null);
+        demoResetDelay = StartupUtils.getIntegerParam("publicDemo", null);
         if (demoResetDelay != null) {
             logger.info("Public demo server, will reset after {} seconds", demoResetDelay);
         }
@@ -144,7 +164,6 @@ public class Main {
                 } catch (Exception e) {
                     logger.error("cannot start server {}\\n{}", e, LoggerUtils.stackTrace(e));
                 }
-
             });
             server.start();
             if (demoResetDelay == null) {
@@ -153,6 +172,7 @@ public class Main {
                 warnAndExit(demoResetDelay, embeddedJetty);
             }
         }
+
     }
 
     /**
@@ -380,5 +400,54 @@ public class Main {
         System.exit(0);
         return;
     }
+   
+    private static void startMQTT() {
+        mqttStartup = Long.toString(System.currentTimeMillis());
+        final IConfig mqttConfig = new MemoryConfig(new Properties());
+        mqttConfig.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.FALSE.toString());
+        mqttConfig.setProperty(BrokerConstants.AUTHENTICATOR_CLASS_NAME, "app.owlcms.init.MoquetteAuthenticator");
+        
+        ((Logger)LoggerFactory.getLogger("io.moquette.broker.NewNettyAcceptor")).setLevel(Level.OFF);
 
+        final Server mqttBroker = new Server();
+        List<? extends InterceptHandler> userHandlers = Collections.singletonList(new PublisherListener());
+        
+        if (!Config.getCurrent().isMqttInternal()) {
+            getStartupLogger().info("internal MQTT server not enabled, skipping");
+            logger.info("internal MQTT server not enabled, skipping");
+            return;
+        }
+        
+        try {
+            getStartupLogger().info("starting MQTT broker.");
+            logger.info("starting MQTT broker.");
+            
+            mqttBroker.startServer(mqttConfig, userHandlers);
+    
+            //Bind  a shutdown hook
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                logger.info("Stopping broker");
+                mqttBroker.stopServer();
+                logger.info("Broker stopped");
+            }));
+        } catch (Throwable e) {
+            getStartupLogger().error("could not start MQTT broker");
+            logger.error("could not start MQTT broker");
+        }
+    }
+
+
+    static class PublisherListener extends AbstractInterceptHandler {
+
+        @Override
+        public String getID() {
+            return "EmbeddedLauncherPublishListener";
+        }
+
+        @Override
+        public void onPublish(InterceptPublishMessage msg) {
+            final String decodedPayload = msg.getPayload().toString(UTF_8);
+            logger.debug("Received on topic: " + msg.getTopicName() + " content: " + decodedPayload);
+        }
+    }
 }

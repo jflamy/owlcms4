@@ -130,6 +130,9 @@ public class Config {
     @JsonIgnore
     private Boolean useCompetitionDate;
 
+    @Column(columnDefinition = "boolean default true")
+    private boolean mqttInternal;
+
     public String computeSalt() {
         this.setSalt(null);
         return Integer.toHexString(new Random(System.currentTimeMillis()).nextInt());
@@ -252,6 +255,28 @@ public class Config {
 
     public String getMqttPassword() {
         return mqttPassword;
+    }
+    
+    @Transient
+    @JsonIgnore
+    public String getMqttPasswordForField() {
+        if (getMqttPassword() == null) {
+            return "";
+        } else {
+            return FAKE_PIN;
+        }
+    }
+    
+    public void setMqttPasswordForField(String mqttPassword) {
+        // logger.debug("setMqttPasswordForField with {}", mqttPassword);
+        if (mqttPassword != null && mqttPassword.length() != 64 && mqttPassword != FAKE_PIN) {
+            String encodedPin = AccessUtils.encodePin(mqttPassword, Config.getCurrent().getPin(), false);
+            logger.warn("encoded mqttPassword {}", encodedPin);
+            this.setMqttPassword(encodedPin);
+        } else if (mqttPassword == null || mqttPassword.isBlank()) {
+            logger.warn("empty mqttPassword {}", mqttPassword);
+            this.setMqttPassword(null);
+        }
     }
 
     public String getMqttPort() {
@@ -381,14 +406,16 @@ public class Config {
     @Transient
     @JsonIgnore
     public String getParamMqttPassword() {
+        // get non-encrypted password
         String param = StartupUtils.getStringParam("mqttPassword");
-        if (param == null) {
-            // get from database
-            param = Config.getCurrent().getMqttPassword();
-            if (param == null || param.isBlank()) {
-                param = null;
-            }
-        }
+        // don't get from the database - useless because encrypted
+//        if (param == null) {
+//            // get from database
+//            param = Config.getCurrent().getMqttPassword();
+//            if (param == null || param.isBlank()) {
+//                param = null;
+//            }
+//        }
         return param;
     }
 
@@ -400,11 +427,7 @@ public class Config {
     public String getParamMqttPort() {
         String param = StartupUtils.getStringParam("mqttPort");
         if (param == null) {
-            // get from database
-            param = Config.getCurrent().getMqttPort();
-            if (param == null || param.isBlank()) {
-                param = null;
-            }
+            return "1883";
         }
         return param;
     }
@@ -417,11 +440,7 @@ public class Config {
     public String getParamMqttServer() {
         String param = StartupUtils.getStringParam("mqttServer");
         if (param == null) {
-            // get from database
-            param = Config.getCurrent().getMqttServer();
-            if (param == null || param.isBlank()) {
-                param = null;
-            }
+            return "127.0.0.1";
         }
         return param;
     }
@@ -476,6 +495,14 @@ public class Config {
             logger.debug("param uPin {}", uPin);
             return uPin;
         }
+    }
+    
+    public boolean isMqttInternal() {
+        return mqttInternal;
+    }
+
+    public void setMqttInternal(boolean mqttInternal) {
+        this.mqttInternal = mqttInternal;
     }
 
     /**

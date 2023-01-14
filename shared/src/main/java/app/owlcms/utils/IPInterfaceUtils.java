@@ -257,7 +257,7 @@ public class IPInterfaceUtils {
                 logger./**/warn("{} not reachable: {} {} ({})", testingURLString, response, ifaceName, ifaceDisplay);
             } else {
                 if (!silent) {
-                    logger.info("networking check: {} OK {} ({}) {}", ip + ":" + requestPort, ifaceName, ifaceDisplay,
+                    logger.debug("networking check: {} OK {} ({}) {}", ip + ":" + requestPort, ifaceName, ifaceDisplay,
                             testingURL);
                 }
                 if (ifaceName.startsWith("lo") || ifaceDisplay.contains("loopback")) {

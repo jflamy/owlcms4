@@ -31,6 +31,7 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosi
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
@@ -376,23 +377,18 @@ public class ConfigEditingFormFactory
     private FormLayout mqttForm() {
         FormLayout layout = createLayout();
         Component title = createTitle("Config.MQTTSectionTitle");
-        layout.add(title);
+        Label label = new Label("Config.MQTTExplain");
+        layout.add(title, label);
         layout.setColspan(title, 2);
+        layout.setColspan(label, 2);
 
-        TextField mqttServerField = new TextField();
-        mqttServerField.setWidthFull();
-        layout.addFormItem(mqttServerField, Translator.translate("Config.MQTTServer"));
-        binder.forField(mqttServerField)
-                .withNullRepresentation("")
-                .bind(Config::getMqttServer, Config::setMqttServer);
-
-        TextField mqttPort = new TextField();
-        mqttPort.setWidthFull();
-        mqttPort.setAllowedCharPattern("[0-9]");
-        layout.addFormItem(mqttPort, Translator.translate("Config.MQTTPort"));
-        binder.forField(mqttPort)
-                .withNullRepresentation("")
-                .bind(Config::getMqttPort, Config::setMqttPort);
+//        TextField mqttServerField = new TextField();
+//        mqttServerField.setWidthFull();
+//        layout.addFormItem(mqttServerField, Translator.translate("Config.MQTTServer"));
+//        binder.forField(mqttServerField)
+//                .withNullRepresentation("")
+//                .bind(Config::getMqttServer, Config::setMqttServer);
+//
         
         TextField mqttUserName = new TextField();
         mqttUserName.setWidthFull();
@@ -401,12 +397,26 @@ public class ConfigEditingFormFactory
                 .withNullRepresentation("")
                 .bind(Config::getMqttUserName, Config::setMqttUserName);
         
-        TextField mqttPassword = new TextField();
+        PasswordField mqttPassword = new PasswordField();
         mqttPassword.setWidthFull();
         layout.addFormItem(mqttPassword, Translator.translate("Config.MQTTPassword"));
         binder.forField(mqttPassword)
                 .withNullRepresentation("")
-                .bind(Config::getMqttPassword, Config::setMqttPassword);
+                .bind(Config::getMqttPasswordForField, Config::setMqttPasswordForField);
+        
+        TextField mqttPort = new TextField();
+        mqttPort.setWidthFull();
+        mqttPort.setAllowedCharPattern("[0-9]");
+        layout.addFormItem(mqttPort, Translator.translate("Config.MQTTPort"));
+        binder.forField(mqttPort)
+                .withNullRepresentation("")
+                .bind(Config::getMqttPort, Config::setMqttPort);
+        
+        Checkbox clearField = new Checkbox(Translator.translate("Config.MQTTEnableInternal"));
+        clearField.setWidthFull();
+        layout.addFormItem(clearField, Translator.translate("Config.MQTTEnableInternalExplain"));
+        binder.forField(clearField)
+                .bind(Config::isMqttInternal, Config::setMqttInternal);
 
         return layout;
     }

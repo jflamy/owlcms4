@@ -350,6 +350,7 @@ public class MQTTMonitor {
     }
 
     private void connectionLoop(MqttAsyncClient mqttAsyncClient) {
+        //FIXME: this causes thread blocking
         while (!mqttAsyncClient.isConnected()) {
             try {
                 // doConnect will generate a new client Id, and wait for completion
@@ -359,13 +360,17 @@ public class MQTTMonitor {
                 Main.logger.error("{}MQTT refereeing device server: {}", fop.getLoggingName(),
                         e1.getCause() != null ? e1.getCause().getMessage() : e1.getMessage());
             }
-            sleep(1000);
+            break;
+            //sleep(1000);
         }
     }
 
     private void doConnect() throws MqttSecurityException, MqttException {
         userName = Config.getCurrent().getParamMqttUserName();
         password = Config.getCurrent().getParamMqttPassword();
+        if (password == null) {
+            password = Main.mqttStartup;
+        }
         MqttConnectOptions connOpts = setupMQTTClient();
         client.connect(connOpts).waitForCompletion();
 
