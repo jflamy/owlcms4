@@ -61,7 +61,9 @@ The following list is a sampling of the many features available.  <u>*Click on t
 
 - [**Announcer and Marshall**](Announcing) screens (updating athlete cards and recalculation of lifting order).    The information is laid out as on the official cards.  Messages are given for late changes, and the changes are checked for correctness relative to the lifting order. 
   
-    ![020_EditLifterCard](img/Lifting/020_EditLifterCard.png  ':size=350')
+- ![090](nimg/3200Lifting/090.png ':size=350')
+  
+    
   
 - [**Timekeeping**](Announcing#Starting_the_clock) Time can either be [managed by the announcer](Announcing#Starting-the-clock)  (useful for smaller meets) or a dedicated [timekeeper screen](Announcing#Timekeeper) can be used. The timekeeper screen can be conveniently operated from a phone or tablet.
   
@@ -82,8 +84,10 @@ The following list is a sampling of the many features available.  <u>*Click on t
       ![mobile_ref](img/Refereeing/mobile_ref.png ':size=350')
       
   - [**Physical devices with visual and audio feedback capability**](Refereeing#full-feedback-keypad)  Schematics are available to build affordable devices that support referee reminders and jury summoning to comply with IWF TCRR.
+  
+      ![refereeBox](nimg/3200Lifting/refereeBox.png ':size=450')
 
-![device](https://camo.githubusercontent.com/c0d799a3bd35c47d4c4aa1d7caa508f32866820ca9ca7e24b20510b0ab27dbd1/68747470733a2f2f776f6b77692e636f6d2f63646e2d6367692f696d6167652f77696474683d313932302f68747470733a2f2f7468756d62732e776f6b77692e636f6d2f70726f6a656374732f3332323533343534333030383436353439312f7468756d626e61696c2e6a7067 ':size=450') 
+ 
 
 - **[Athlete-facing display](Displays#attempt-board)** (the decision display matches the referee positions as seen from platform). Refereeing keypads are typically connected to this laptop.
   
