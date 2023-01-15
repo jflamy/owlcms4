@@ -1,16 +1,13 @@
-37.1.0-beta04: 
+37.1.0-rc01:  Release Candidate.  Usable in a real competition, test with your own data beforehand.
 
 - 37.1 Enhancements
-  - The announcer and marshal screens now show the 6 attempts and total for each athlete. ([#525](https://github.com/jflamy/owlcms4/issues/525))
-  - 37.1.0-beta04: Updated Spanish, German, Danish, Swedish, Russian translations.
-  - 37.1.0-beta01: Enhancements for testing
+  - The announcer and marshal screens show the 6 attempts and total for each athlete. ([#525](https://github.com/jflamy/owlcms4/issues/525))
+  - Updated Spanish, German, Danish, Swedish, and Russian translations.
+  - Enhancements for testing
     - Added OWLCMS_USECOMPETITIONDATE to compute ages according to the competition date (useful when loading a database from a previous year).
     - Added OWLCMS_FEATURESWITCHES to load feature switches from the command line.
   
 - 37.1 Fixes
-  - 37.1.0-beta04: A confusing "Jury Deliberation" notification was given when the jury started a technical pause.  During a technical pause, the notification will now be shown only if the jury calls the referees or technical controller to discuss the matter.
-  - 37.1.0-beta03: Automatic Streaming Scene Changes: Ensure that decisions are visible long enough in the status monitor so that OBS can detect the state change.
-  - 37.1.0-beta02: MQTT parameters entered in the Settings page were not stored correctly ([#621](https://github.com/jflamy/owlcms4/issues/621))
   - The screen for defining how many plates are available and for defining non-standard bars could occasionally fail to load in odd circumstances.
 
 
