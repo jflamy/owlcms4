@@ -1,12 +1,14 @@
 37.2.0-alpha00:
 
-- 37.1 Enhancements
+- 37. 2 Enhancements
+  
   - MQTT server now embedded in owlcms. There is no longer a need to run a separate one. 
     - See [embedded MQTT Server configuration documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTT)
   
-    - **NOTE: **you need to remove your definition of OWLCMS_MQTTSERVER or the -DmqttServer system property definition. If they are present, then the embedded server is *not* started and an external MQTTSERVER is assumed to be present.
+    - **NOTE**: if you were using MQTT in earlier releases, you likely have have an OWLCMS_MQTTSERVER environment variable or have used the -DmqttServer system property definition. You should now remove them, otherwise owlcms will continue to use these variables to locate an external MQTT server.  On  Windows check the `owlcms.l4j.ini` file in the installation directory.
   
 - 37.2 Fixes
+  
   - none.
 
 
