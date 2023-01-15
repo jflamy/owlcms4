@@ -1,3 +1,5 @@
+## MQTT Server
+
 MQTT is used for communication between refereeing, jury and timekeeper devices built using Arduino, ESP32, Raspberry Pi and other device controllers.
 
 owlcms now includes an MQTT server to support these exchanges.
