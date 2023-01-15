@@ -1,21 +1,18 @@
-37.1.0-beta04: 
+37.2.0-alpha00:
 
 - 37.1 Enhancements
-  - The announcer and marshal screens now show the 6 attempts and total for each athlete. ([#525](https://github.com/jflamy/owlcms4/issues/525))
-  - 37.1.0-beta04: Updated Spanish, German, Danish, Swedish, Russian translations.
-  - 37.1.0-beta01: Enhancements for testing
-    - Added OWLCMS_USECOMPETITIONDATE to compute ages according to the competition date (useful when loading a database from a previous year).
-    - Added OWLCMS_FEATURESWITCHES to load feature switches from the command line.
+  - MQTT server now embedded in owlcms. There is no longer a need to run a separate one. 
+    - See [embedded MQTT Server configuration documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTT)
   
-- 37.1 Fixes
-  - 37.1.0-beta04: A confusing "Jury Deliberation" notification was given when the jury started a technical pause.  During a technical pause, the notification will now be shown only if the jury calls the referees or technical controller to discuss the matter.
-  - 37.1.0-beta03: Automatic Streaming Scene Changes: Ensure that decisions are visible long enough in the status monitor so that OBS can detect the state change.
-  - 37.1.0-beta02: MQTT parameters entered in the Settings page were not stored correctly ([#621](https://github.com/jflamy/owlcms4/issues/621))
-  - The screen for defining how many plates are available and for defining non-standard bars could occasionally fail to load in odd circumstances.
+    - **NOTE: **you need to remove your definition of OWLCMS_MQTTSERVER or the -DmqttServer system property definition. If they are present, then the embedded server is *not* started and an external MQTTSERVER is assumed to be present.
+  
+- 37.2 Fixes
+  - none.
 
 
 ##### Highlights from recent stable releases
 
+- The announcer and marshal screens show the 6 attempts and total for each athlete. ([#525](https://github.com/jflamy/owlcms4/issues/525))
 - Migration to the most recent version of the Vaadin user interface framework. The navigation (menu, top menu bar) has been redone to use officially supported components.
 - There is now a separate page for pre-competition documents. There are now separate documents for each purpose instead of multiple tabs. See [Pre-Competition Documents Documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/2400PreCompetitionDocuments).
 - Customization of team points. Templates for the final results package now have an extra tab that contains the points awarded for each rank. Copy and rename the template if you need to change the point system for a given competition.
