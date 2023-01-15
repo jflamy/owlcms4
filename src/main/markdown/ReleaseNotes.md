@@ -1,13 +1,19 @@
-37.2.0-alpha:  Initial builds.  For testing purposes only.
+37.2.0-alpha:  Initial builds for testing purposes.
+
+37.2 focuses on avoiding the need to install an MQTT server to support full-fledged refereeing devices (such as those in the [Blue Owl project](https://github.com/owlcms/blue-owl))
 
 - 37. 2 Enhancements
   
-  - MQTT server now embedded in owlcms. There is no longer a need to run a separate one. 
-    - See [embedded MQTT Server configuration documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTT)
+  - A MQTT server is now embedded in owlcms. There is no longer a need to run a separate one. 
+    
+  - If you don't use MQTT refereeing devices (such as referee devices with a warning light/buzzer) then you have nothing to do.
+    
+  - If you used MQTT before,
+    - See [embedded MQTT Server configuration documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTT)  Simple cases don't require any configuration.
   
-    - **NOTE**: if you were using MQTT in earlier releases, you likely have have an `OWLCMS_MQTTSERVER` environment variable or have used a `-DmqttServer` flag. You should now remove them, otherwise owlcms will continue to use these values to locate an external MQTT server.  On  Windows, check the `owlcms.l4j.ini` file in the installation directory.
+    - You likely have used a `-DmqttServer` flag (or have defined an `OWLCMS_MQTTSERVER` environment variable). You should *remove them*, otherwise owlcms will use these values to locate an *external* MQTT server.  On  Windows, check the `owlcms.l4j.ini` file in the installation directory.  You should also disable the local Mosquitto or aedes server if you wish to use the embedded one.
   
-  - 37.2.0-alpha01: For cloud-based setups, free MQTT brokers like hivemq that require mqtts are now supported (plain TLS without client-side certificates)
+  - 37.2.0-alpha01: For cloud-based setups, free MQTT brokers like [hivemq](https://console.hivemq.cloud) that require mqtts are now supported (plain TLS without client-side certificates).
   
 - 37.2 Fixes
   
