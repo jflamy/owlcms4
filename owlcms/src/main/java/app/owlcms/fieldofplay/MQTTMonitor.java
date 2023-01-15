@@ -222,7 +222,7 @@ public class MQTTMonitor {
 
     private MqttAsyncClient client;
     private FieldOfPlay fop;
-    private Logger logger = (Logger) LoggerFactory.getLogger(MQTTMonitor.class);
+    private static Logger logger = (Logger) LoggerFactory.getLogger(MQTTMonitor.class);
     private String password;
 
     private String userName;
@@ -236,7 +236,8 @@ public class MQTTMonitor {
         fop.getFopEventBus().register(this);
 
         try {
-            if (Config.getCurrent().isMqttInternal() || Config.getCurrent().getMqttServer() != null) {
+            logger.warn("MQTT Monitor {} {}",Config.getCurrent().isMqttInternal(), Config.getCurrent().getParamMqttServer());
+            if (Config.getCurrent().isMqttInternal() || Config.getCurrent().getParamMqttServer() != null) {
                 client = createMQTTClient();
                 connectionLoop(client);
             } else {
@@ -249,12 +250,13 @@ public class MQTTMonitor {
 
     public static MqttAsyncClient createMQTTClient() throws MqttException {
         String server = Config.getCurrent().getParamMqttServer();
+        server = (server != null ? server : "127.0.0.1");
         String port = Config.getCurrent().getParamMqttPort();
+        port = (port != null ? port : "1883");
+        logger.info("connecting to MQTT {} {}", server, port);
+        String string = port.startsWith("8") ? "ssl://" : "tcp://";
         MqttAsyncClient client = new MqttAsyncClient(
-                "tcp://" +
-                        (server != null ? server : "127.0.0.1") +
-                        ":" +
-                        (port != null ? port : "1883"),
+                string + server + ":" + port                        ,
                 MqttClient.generateClientId(), // ClientId
                 new MemoryPersistence()); // Persistence
         return client;
@@ -362,7 +364,7 @@ public class MQTTMonitor {
                 doConnect();
             } catch (Exception e1) {
                 Main.logger.error("{}MQTT refereeing device server: {}", fop.getLoggingName(),
-                        e1.getCause() != null ? e1.getCause().getMessage() : e1.getMessage());
+                        e1.getCause() != null ? e1.getCause().getMessage() : e1);
             }
             sleep(1000);
         }

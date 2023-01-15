@@ -244,7 +244,10 @@ public class FieldOfPlay {
         initEventBuses();
 
         // check if refereeing devices connected via MQTT are in use
-        if (Config.getCurrent().isMqttInternal() || Config.getCurrent().getMqttServer() != null) {
+        String paramMqttServer = Config.getCurrent().getParamMqttServer();
+        boolean mqttInternal = Config.getCurrent().isMqttInternal();
+        logger.warn("before MQTT Monitor {} {}",mqttInternal, paramMqttServer);
+        if (mqttInternal || paramMqttServer != null) {
             new MQTTMonitor(this);
         }
 
