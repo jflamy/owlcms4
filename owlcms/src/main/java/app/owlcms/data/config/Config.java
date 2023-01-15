@@ -499,12 +499,20 @@ public class Config {
         }
     }
     
+    public boolean getParamMqttInternal() {
+        Boolean enableInternal = StartupUtils.getBooleanParamOrElseNull("enableEmbeddedMqtt");
+        if (enableInternal != null) {
+            return enableInternal;
+        } else {
+            return isMqttInternal();
+        }
+    }
+    
     public boolean isMqttInternal() {
         return mqttInternal;
     }
 
-    public void setMqttInternal(boolean mqttInternal) {
-        logger.warn("setting mqttInternal {}", mqttInternal);
+    public void setMqttInternal(boolean mqttInternal) {;
         this.mqttInternal = mqttInternal;
     }
 

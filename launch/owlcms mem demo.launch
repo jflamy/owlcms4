@@ -18,6 +18,7 @@
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="maryhadalittlelamb"/>
         <mapEntry key="_OWLCMS_DISPLAYPIN" value="dis"/>
+        <mapEntry key="_OWLCMS_ENABLEEMBEDDEDMQTT" value="true"/>
         <mapEntry key="_OWLCMS_MQTTPASSWORD" value="Louis-Cyr"/>
         <mapEntry key="_OWLCMS_MQTTPORT" value="8883"/>
         <mapEntry key="_OWLCMS_MQTTSERVER" value="44341a3e47cc48d2b260b8064120f2df.s2.eu.hivemq.cloud"/>

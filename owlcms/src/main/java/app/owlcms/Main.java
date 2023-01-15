@@ -412,7 +412,7 @@ public class Main {
             logger.info("MQTT Server override by environment or system parameter, not starting embedded MQTT");
             return;
         }
-        if (!Config.getCurrent().isMqttInternal()) {
+        if (!Config.getCurrent().getParamMqttInternal()) {
             logger.info("internal MQTT server not enabled, skipping");
             return;
         }

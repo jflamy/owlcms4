@@ -245,9 +245,9 @@ public class FieldOfPlay {
 
         // check if refereeing devices connected via MQTT are in use
         String paramMqttServer = Config.getCurrent().getParamMqttServer();
-        boolean mqttInternal = Config.getCurrent().isMqttInternal();
+        boolean mqttInternal = Config.getCurrent().getParamMqttInternal();
         if (mqttInternal || paramMqttServer != null) {
-            new MQTTMonitor(this);
+            new Thread(() -> new MQTTMonitor(this)).start();
         }
 
         this.athleteTimer = null;

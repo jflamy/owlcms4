@@ -236,7 +236,7 @@ public class MQTTMonitor {
         fop.getFopEventBus().register(this);
 
         try {
-            if (Config.getCurrent().isMqttInternal() || Config.getCurrent().getParamMqttServer() != null) {
+            if (Config.getCurrent().getParamMqttInternal() || Config.getCurrent().getParamMqttServer() != null) {
                 client = createMQTTClient();
                 connectionLoop(client);
             } else {
@@ -325,19 +325,6 @@ public class MQTTMonitor {
 
     @Subscribe
     public void slaveTimeStarted(UIEvent.StartTime e) {
-//        OwlcmsSession.withFop(fop -> {
-//            currentAthleteAtStart = fop.getClockOwner();
-//            currentAttemptNumber = fop.getClockOwner().getActuallyAttemptedLifts();
-//            newClock = e.getTimeRemaining() == 60000 || e.getTimeRemaining() == 120000;
-//        });
-//        if ((currentAthleteAtStart != previousAthleteAtStart)
-//                || (currentAttemptNumber != previousAttemptNumber)
-//                || newClock) {
-//            // we switched lifter, or we switched attempt. reset the decisions.
-//            publishMqttResetAllDecisions();
-//        }
-//        previousAthleteAtStart = currentAthleteAtStart;
-//        previousAttemptNumber = currentAttemptNumber;
     }
 
     @Subscribe
@@ -356,7 +343,6 @@ public class MQTTMonitor {
     }
 
     private void connectionLoop(MqttAsyncClient mqttAsyncClient) {
-        //FIXME: this causes thread blocking
         while (!mqttAsyncClient.isConnected()) {
             try {
                 // doConnect will generate a new client Id, and wait for completion
@@ -371,7 +357,7 @@ public class MQTTMonitor {
     }
 
     private void doConnect() throws MqttSecurityException, MqttException {
-        if (Config.getCurrent().isMqttInternal()) {
+        if (Config.getCurrent().getParamMqttInternal() && Config.getCurrent().getParamMqttServer() == null) {
             userName = Config.getCurrent().getMqttUserName();
             password = Main.mqttStartup;
         } else {

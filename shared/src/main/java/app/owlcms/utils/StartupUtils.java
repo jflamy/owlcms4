@@ -37,7 +37,8 @@ public class StartupUtils {
     }
 
     /**
-     * return true if OWLCMS_KEY = true as an environment variable, and if not, if -Dkey=true as a system property.
+     * return true if OWLCMS_KEY = true as an environment variable, and if not, if
+     * -Dkey=true as a system property.
      *
      * Environment variables are upperCased, system properties are case-sensitive.
      * <ul>
@@ -54,6 +55,19 @@ public class StartupUtils {
             return val.equals("true");
         } else {
             return Boolean.getBoolean(key);
+        }
+    }
+
+    public static Boolean getBooleanParamOrElseNull(String key) {
+        String envVar = "OWLCMS_" + key.toUpperCase();
+        String val = System.getenv(envVar);
+        String prop = System.getProperty(key, null);
+        if (val != null) {
+            return val.equals("true");
+        } else if (prop != null) {
+            return prop.equals("true");
+        } else {
+            return null;
         }
     }
 
@@ -108,9 +122,9 @@ public class StartupUtils {
     public static String getVersion() {
         return version;
     }
-    
+
     public static String getAutoVersion() {
-        return "_"+getVersion();
+        return "_" + getVersion();
     }
 
     public static boolean isDebugSetting() {
@@ -189,7 +203,7 @@ public class StartupUtils {
                 logger./**/warn("public demo, not starting browser");
                 return;
             }
-            String hostName = fixBrowserHostname(); 
+            String hostName = fixBrowserHostname();
             Desktop desktop = null;
             if (Desktop.isDesktopSupported()) {
                 desktop = Desktop.getDesktop();
@@ -205,11 +219,13 @@ public class StartupUtils {
     }
 
     /**
-     * In development mode when the browser is opened on the local machine, it appears that
+     * In development mode when the browser is opened on the local machine, it
+     * appears that
      * the Vite server cannot be reached unless the address is given as "localhost".
      * (Observed on Windows 11 with firewalls disabled, with Vaadin 23.3.2).
      * 
-     * If the IP address returned for the current machine name is one of the current machine's interfaces, we
+     * If the IP address returned for the current machine name is one of the current
+     * machine's interfaces, we
      * force "localhost" as the name to be used in the browser.
      * 
      * @return "localhost" if the address is local to the dev machine
@@ -220,7 +236,7 @@ public class StartupUtils {
         String ipAddress = localMachine.getHostAddress();
         String hostName;
         List<String> localAdresses = new IPInterfaceUtils().getLocalAdresses();
-        //logger.debug("addresses {} {}", ipAddress, localAdresses);
+        // logger.debug("addresses {} {}", ipAddress, localAdresses);
         if (localAdresses.contains(ipAddress)) {
             hostName = "localhost";
         } else {
