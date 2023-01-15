@@ -236,8 +236,12 @@ public class MQTTMonitor {
         fop.getFopEventBus().register(this);
 
         try {
-            client = createMQTTClient();
-            connectionLoop(client);
+            if (Config.getCurrent().isMqttInternal() || Config.getCurrent().getMqttServer() != null) {
+                client = createMQTTClient();
+                connectionLoop(client);
+            } else {
+                logger.info("no MQTT server configured, skipping");
+            }
         } catch (MqttException e) {
             logger.error("cannot initialize MQTT: {}", LoggerUtils.stackTrace(e));
         }
@@ -248,7 +252,7 @@ public class MQTTMonitor {
         String port = Config.getCurrent().getParamMqttPort();
         MqttAsyncClient client = new MqttAsyncClient(
                 "tcp://" +
-                        (server != null ? server : "test.mosquitto.org") +
+                        (server != null ? server : "127.0.0.1") +
                         ":" +
                         (port != null ? port : "1883"),
                 MqttClient.generateClientId(), // ClientId
@@ -360,18 +364,19 @@ public class MQTTMonitor {
                 Main.logger.error("{}MQTT refereeing device server: {}", fop.getLoggingName(),
                         e1.getCause() != null ? e1.getCause().getMessage() : e1.getMessage());
             }
-            break;
-            //sleep(1000);
+            sleep(1000);
         }
     }
 
     private void doConnect() throws MqttSecurityException, MqttException {
-        userName = Config.getCurrent().getParamMqttUserName();
-        password = Config.getCurrent().getParamMqttPassword();
-        if (password == null) {
+        if (Config.getCurrent().isMqttInternal()) {
+            userName = Config.getCurrent().getMqttUserName();
             password = Main.mqttStartup;
+        } else {
+            userName = Config.getCurrent().getParamMqttUserName();
+            password = Config.getCurrent().getParamMqttPassword();
         }
-        MqttConnectOptions connOpts = setupMQTTClient();
+        MqttConnectOptions connOpts = setupMQTTClient(userName, password);
         client.connect(connOpts).waitForCompletion();
 
         publishMqttLedOnOff();
@@ -532,7 +537,7 @@ public class MQTTMonitor {
         return connOpts;
     }
 
-    private MqttConnectOptions setupMQTTClient() {
+    private MqttConnectOptions setupMQTTClient(String userName, String password) {
         MqttConnectOptions connOpts = setUpConnectionOptions(userName != null ? userName : "",
                 password != null ? password : "");
         callback = new MQTTCallback();

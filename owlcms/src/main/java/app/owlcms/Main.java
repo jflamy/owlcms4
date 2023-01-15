@@ -49,7 +49,6 @@ import app.owlcms.uievents.AppEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import io.moquette.BrokerConstants;
 import io.moquette.broker.Server;
@@ -101,10 +100,6 @@ public class Main {
         }
         // check for database override of resource files
         Config.initConfig();
-        
-        if (demoResetDelay == null) {
-            startMQTT();
-        }
     }
 
     /**
@@ -113,10 +108,12 @@ public class Main {
     public static void initData() {
         // Vaadin configs
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
+        if (demoResetDelay == null) {
+            startMQTT();
+        }
+        //initConfig();
 
-        initConfig();
-
-        // read locale from database and overrrde if needed
+        // read locale from database and override if needed
         Locale l = overrideDisplayLanguage();
         injectData(initialData, l);
         overrideTimeZone();
@@ -406,12 +403,14 @@ public class Main {
         final IConfig mqttConfig = new MemoryConfig(new Properties());
         mqttConfig.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.FALSE.toString());
         mqttConfig.setProperty(BrokerConstants.AUTHENTICATOR_CLASS_NAME, "app.owlcms.init.MoquetteAuthenticator");
-        
-        ((Logger)LoggerFactory.getLogger("io.moquette.broker.NewNettyAcceptor")).setLevel(Level.OFF);
 
         final Server mqttBroker = new Server();
         List<? extends InterceptHandler> userHandlers = Collections.singletonList(new PublisherListener());
         
+        if (Config.getCurrent().getParamMqttServer() != null) {
+            logger.info("MQTT Server override by environment or system parameter, not starting embedded MQTT");
+            return;
+        }
         if (!Config.getCurrent().isMqttInternal()) {
             getStartupLogger().info("internal MQTT server not enabled, skipping");
             logger.info("internal MQTT server not enabled, skipping");
@@ -430,9 +429,8 @@ public class Main {
                 mqttBroker.stopServer();
                 logger.info("Broker stopped");
             }));
-        } catch (Throwable e) {
-            getStartupLogger().error("could not start MQTT broker");
-            logger.error("could not start MQTT broker");
+        } catch (Exception e) {
+            logger.error("could not start server", e.toString(), e.getCause());
         }
     }
 

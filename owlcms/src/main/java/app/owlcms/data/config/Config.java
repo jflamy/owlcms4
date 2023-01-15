@@ -271,10 +271,10 @@ public class Config {
         // logger.debug("setMqttPasswordForField with {}", mqttPassword);
         if (mqttPassword != null && mqttPassword.length() != 64 && mqttPassword != FAKE_PIN) {
             String encodedPin = AccessUtils.encodePin(mqttPassword, Config.getCurrent().getPin(), false);
-            logger.warn("encoded mqttPassword {}", encodedPin);
+            logger.debug("encoded mqttPassword {}", encodedPin);
             this.setMqttPassword(encodedPin);
         } else if (mqttPassword == null || mqttPassword.isBlank()) {
-            logger.warn("empty mqttPassword {}", mqttPassword);
+            logger.debug("empty mqttPassword {}", mqttPassword);
             this.setMqttPassword(null);
         }
     }
@@ -427,7 +427,11 @@ public class Config {
     public String getParamMqttPort() {
         String param = StartupUtils.getStringParam("mqttPort");
         if (param == null) {
-            return "1883";
+            // get from database
+            param = Config.getCurrent().getMqttPort();
+            if (param == null || param.isBlank()) {
+                param = "1883";
+            }
         }
         return param;
     }
@@ -439,9 +443,6 @@ public class Config {
     @JsonIgnore
     public String getParamMqttServer() {
         String param = StartupUtils.getStringParam("mqttServer");
-        if (param == null) {
-            return "127.0.0.1";
-        }
         return param;
     }
 

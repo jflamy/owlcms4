@@ -377,7 +377,7 @@ public class ConfigEditingFormFactory
     private FormLayout mqttForm() {
         FormLayout layout = createLayout();
         Component title = createTitle("Config.MQTTSectionTitle");
-        Label label = new Label("Config.MQTTExplain");
+        Label label = new Label(Translator.translate("Config.MQTTExplain"));
         layout.add(title, label);
         layout.setColspan(title, 2);
         layout.setColspan(label, 2);
@@ -412,9 +412,9 @@ public class ConfigEditingFormFactory
                 .withNullRepresentation("")
                 .bind(Config::getMqttPort, Config::setMqttPort);
         
-        Checkbox clearField = new Checkbox(Translator.translate("Config.MQTTEnableInternal"));
+        Checkbox clearField = new Checkbox(Translator.translate("Config.MQTTEnableInternalExplain"));
         clearField.setWidthFull();
-        layout.addFormItem(clearField, Translator.translate("Config.MQTTEnableInternalExplain"));
+        layout.addFormItem(clearField, Translator.translate("Config.MQTTEnableInternal"));
         binder.forField(clearField)
                 .bind(Config::isMqttInternal, Config::setMqttInternal);
 

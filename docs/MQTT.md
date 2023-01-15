@@ -1,6 +1,8 @@
 MQTT is used for communication between refereeing, jury and timekeeper devices built using Arduino, ESP32, Raspberry Pi and other device controllers.
 
-For example
+owlcms now includes an MQTT server to support these exchanges.
+
+Sample projects that use MQTT for communication between devices and owlcms include:
 
 - https://github.com/jflamy/owlcms-esp32 contains Arduino code and simple circuit schematics to build a simple refereeing device with an indicator LED and a buzzer to remind a referee to enter a decision.
 
@@ -11,118 +13,49 @@ The devices and owlcms use the MQTT protocol to communicate with each other.  Th
 
 See [MQTT Messages](MQTTMessages) for details on how MQTT is used.
 
-### Local Installation of the MQTT server and tools
 
-1. Install a local MQTT server.  We suggest [Mosquitto](https://mosquitto.org/download/).  You can install it on the same machine as your owlcms if running locally. The installer works silently and creates a background service.
 
-2. For initial testing purposes, we will not be running Mosquitto as a service.  We will start it manually.
+### Configuration of the built-in MQTT server
 
-   1. Click on the Windows icon and type "Services"
-   2. Scroll down in the list to find Mosquitto![00aManualMosquitto](img/MQTT/00aManualMosquitto.png)
-   3. Right-click and select the Manual startup mode.
+By default, owlcms will start an MQTT server in anonymous mode. If there is no username,  any process can connect to the owlcms machine on port 1883 using any username and any password.
 
-   ![00bManualMosquitto](img/MQTT/00bManualMosquitto.png)
+If you have a wired network with no wifi you might be comfortable doing that, but we do suggest that you add a  username and password.
 
-### Initial Configuration
+The simplest way of doing this is using the user interface.  The values you set in these fields are the values you will use from your MQTT device controllers.
 
-1. Start a `cmd` window (click on the start menu icon and type `cmd` to locate it, or use the Windows-R keyboard shortcut).
+![](nimg/2120AdvancedSystemSettings/30.png)
 
-2. Go to your home directory (or any directory that does not contain a space anywhere). Create a `mosquitto` subdirectory. This will be our <u>Mosquitto configuration directory</u>. 
+> These fields were previously used to configure how owlcms connected to an external server such as Mosquitto or aedes.  *They no longer do.*  If you need to connect to an external server, you will need to use the method described further below.
 
-   ```
-   cd %HOMEPATH%
-   mkdir mosquitto
-   cd mosquitto
-   ```
 
-3. Copy the file "mosquitto.conf" from the Mosquitto installation directory to the configuration directory
 
-   ```
-   copy "C:\Program Files\Mosquitto\mosquitto.conf" .
-   ```
+## Configuration Variables
 
-4. Open the  `mosquitto.conf`  file.  Add the following lines at the top.  The `allow_anonymous` line is used for initial testing. After the initial tests, we strongly recommend that you add a password file, which will be explained further down.
+If you configure the MQTT Server in the database, the settings are valid when that database is in use.
 
-   ```shell
-   # owlcms config parameters for mosquitto
-   listener 1883
-   allow_anonymous true
-   connection_messages true
-   log_timestamp true
-   log_timestamp_format %Y-%m-%dT%H:%M:%S
-   ```
+If you want something more permanent you can use either environement variables or Java system properties.
 
-### Local configuration of owlcms
+On Windows, you can do as follows
 
-owlcms needs to connect to your MQTT server.  
-
-1. Go to the installation directory, and locate the `owlcms.l4j.ini` file (depending on your Windows configuration, the `.ini`can be hidden).  
-2. For our server without any passwords, add the following lines at the beginning of the file. Obviously, replace `192.168.0.101` with the actual IP address or name of your server (same as reported by owlcms when it starts up.)
+1. Go to the installation directory, and locate the `owlcms.l4j.ini` file (depending on your Windows configuration, the `.ini` extension can be hidden).  
+2. The following three properties can be defined -- they play the same role as the fields in the database.
 
 ```
--DmqttServer=192.168.0.101
--DmqttUserName=""
--DmqttPassword=""
+# MQTT for refereeing devices
+-DmqttUserName=owlcms
+-DmqttPassword=some_Password_you_choose
 -DmqttPort=1883
 ```
 
-> Once we are done with the initial tests, we will add a password file (see [Passwords](#passwords) later in this page)
+> NOTE that the variable `mqttServer` is NOT defined (see the next section)
 
-### Local Testing
+3. You can also use the three equivalent environment variables OWLCMS_MQTTUSERNAME, OWLCMS_MQTTPASSWORD and OWLCMS_MQTTPORT
 
-In MQTT, all communications go through an intermediate server (often called the broker).  By subscribing to all the owlcms topics, we can effectively monitor everything that is going on.  Conversely, we can also simulate all the messages sent to the broker by the devices or by owlcms.
 
-1. Install MQTTX
-2. Create a connection to your local Mosquitto  and Save.
-   ![01lensconnection](img/MQTT/01lensconnection.png)
 
-### Running Mosquitto as a background service.
+## Using an External Server
 
-Once everything works, you can let Windows run Mosquitto in the background and start automatically.   This step is optional. If you prefer watching what is going on, you can continue using a command window and run mosquitto from there.
-- The Services program is used to set the starting mode to `Automatic` (instead of `Manual` that we used in the first installation steps)
-- **IMPORTANT**: copy your `mosquitto.conf` file from your personal directory to the `Program File\Mosquitto` directory. There is no convenient way to tell the service to find your configuration file elsewhere.   Because your password file is indicated explicitly in the conf file, you can leave it where it is.
-- The Services command is also used to Stop/Start/Restart Mosquitto
+Some cloud environments won't allow owlcms to provide the server (Heroku, for example).  For these situations, define the environment variable OWLCMS_MQTTSERVER in addition to the other (OWLCMS_MQTTUSERNAME, OWLCMS_MQTTPASSWORD and OWLCMS_MQTTPORT).  Then owlcms will use the external server instead of its built-in server. 
 
-### Cloud configuration and testing
+> As soon as you define -DmqttServer or define OWLCMS_MQTTSERVER the built-in server is not used.
 
-The process is the very similar to configuring the Mosquitto connection parameters.  The difference is that you will be using a cloud MQTT server, with nothing to install locally.
-
-You want a cloud server that requires a login and a password.  We suggest StackHero because it has a free test mode (but only available through Heroku).  Since most people that use owlcms in the cloud use Heroku, this is actually convenient.
-
-1. Create a Heroku account if you don't have one.
-2. Create <u>a new application</u> to be used for MQTT.  You can have only one free MQTT server. So you will need to keep this application around, you won't create a new one for every meet.  Give it a meaningful name.
-3. Add the StackHero Mosquitto add-on to your new application (under Resources).  Select the `Test` plan which is free.
-4. Click on the link to configure a username and password
-5. For configurating owlcms and mqttLens, follow the same instructions as above, using the hostname, username and password from the StackHero Mosquitto configuration page.
-
-### Passwords
-
-Once initial testing is done, you should add passwords to the configuration.
-
-1. Go to your Mosquitto configuration directory
-
-2. The following *creates* (`-c`) a new password file, with a user `owlcms` (you can use whatever username you want).
-   You will be prompted to enter a password (twice).  
-
-   ```
-   "C:\Program Files\mosquitto\mosquitto_passwd.exe" -c pwfile owlcms
-   ```
-
-   > The file contains an undecipherable encoding of the password.  If you just want <u>to change a password</u>, or need to add another user, <u>call `mosquitto_passwd` *without* the `-c`</u> (otherwise you will erase and recreate a new file.)
-
-3. Change the beginning of the mosquitto.conf file to look like the following.  Use the correct full path for the password file in your configuration directory. The name must not have any blanks, and you cannot use quotes.
-
-   ```
-   listener 1883
-   allow_anonymous false
-   password_file C:\users\jf\mosquitto\pwfile
-   connection_messages true
-   log_type error
-   log_type warning
-   log_type notice
-   log_type information
-   log_timestamp true
-   log_timestamp_format %Y-%m-%dT%H:%M:%S
-   ```
-
-4. In the owlcms installation directory, change the owlcms.l4j.ini configuration file to use the username and password

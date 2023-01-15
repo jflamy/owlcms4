@@ -175,8 +175,6 @@ public class FieldOfPlay {
     final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
     private TreeMap<Category, TreeSet<Athlete>> medals;
 
-    private String mqttServer;
-
     private String name;
 
     private Platform platform = null;
@@ -246,8 +244,7 @@ public class FieldOfPlay {
         initEventBuses();
 
         // check if refereeing devices connected via MQTT are in use
-        mqttServer = Config.getCurrent().getParamMqttServer();
-        if (mqttServer != null && !mqttServer.isBlank()) {
+        if (Config.getCurrent().isMqttInternal() || Config.getCurrent().getMqttServer() != null) {
             new MQTTMonitor(this);
         }
 
@@ -744,10 +741,6 @@ public class FieldOfPlay {
 
     public TreeMap<Category, TreeSet<Athlete>> getMedals() {
         return medals;
-    }
-
-    public String getMqttServer() {
-        return mqttServer;
     }
 
     /**
@@ -1995,10 +1988,6 @@ public class FieldOfPlay {
 
     public void setMedals(TreeMap<Category, TreeSet<Athlete>> medals) {
         this.medals = medals;
-    }
-
-    public void setMqttServer(String mqttServer) {
-        this.mqttServer = mqttServer;
     }
 
     /**
