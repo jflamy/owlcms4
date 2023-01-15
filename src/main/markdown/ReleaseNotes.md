@@ -1,4 +1,4 @@
-37.2.0-alpha00:  Initial build.  For testing purposes only.
+37.2.0-alpha:  Initial builds.  For testing purposes only.
 
 - 37. 2 Enhancements
   
@@ -7,9 +7,12 @@
   
     - **NOTE**: if you were using MQTT in earlier releases, you likely have have an `OWLCMS_MQTTSERVER` environment variable or have used a `-DmqttServer` flag. You should now remove them, otherwise owlcms will continue to use these values to locate an external MQTT server.  On  Windows, check the `owlcms.l4j.ini` file in the installation directory.
   
+  - 37.2.0-alpha01: For cloud-based setups, free MQTT brokers like hivemq that require mqtts are now supported (plain TLS without client-side certificates)
+  
 - 37.2 Fixes
   
-  - none.
+  - 37.2.0-alpha01: the MQTT server was not enabled on a new database
+  - 37.2.0-alpha01: the presence/absence of the MQTT server parameter war.
 
 
 ##### Highlights from recent stable releases
