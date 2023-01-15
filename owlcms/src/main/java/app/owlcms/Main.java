@@ -85,8 +85,9 @@ public class Main {
     private static Integer demoResetDelay;
 
     public static Logger getStartupLogger() {
-        String name = Main.class.getName() + ".startup";
-        return (Logger) LoggerFactory.getLogger(name);
+        return logger;
+//        String name = Main.class.getName() + ".startup";
+//        return (Logger) LoggerFactory.getLogger(name);
     }
 
     public static void initConfig() {
@@ -412,13 +413,11 @@ public class Main {
             return;
         }
         if (!Config.getCurrent().isMqttInternal()) {
-            getStartupLogger().info("internal MQTT server not enabled, skipping");
             logger.info("internal MQTT server not enabled, skipping");
             return;
         }
         
         try {
-            getStartupLogger().info("starting MQTT broker.");
             logger.info("starting MQTT broker.");
             
             mqttBroker.startServer(mqttConfig, userHandlers);

@@ -236,7 +236,6 @@ public class MQTTMonitor {
         fop.getFopEventBus().register(this);
 
         try {
-            logger.warn("MQTT Monitor {} {}",Config.getCurrent().isMqttInternal(), Config.getCurrent().getParamMqttServer());
             if (Config.getCurrent().isMqttInternal() || Config.getCurrent().getParamMqttServer() != null) {
                 client = createMQTTClient();
                 connectionLoop(client);
@@ -253,8 +252,9 @@ public class MQTTMonitor {
         server = (server != null ? server : "127.0.0.1");
         String port = Config.getCurrent().getParamMqttPort();
         port = (port != null ? port : "1883");
-        logger.info("connecting to MQTT {} {}", server, port);
         String string = port.startsWith("8") ? "ssl://" : "tcp://";
+        Main.getStartupLogger().info("connecting to MQTT {}{}:{}", string, server, port);
+
         MqttAsyncClient client = new MqttAsyncClient(
                 string + server + ":" + port                        ,
                 MqttClient.generateClientId(), // ClientId

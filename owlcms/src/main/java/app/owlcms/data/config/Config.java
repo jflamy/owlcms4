@@ -69,6 +69,7 @@ public class Config {
         JPAService.runInTransaction(em -> {
             if (ConfigRepository.findAll().isEmpty()) {
                 Config config = new Config();
+                config.setMqttInternal(true);
                 Config.setCurrent(config);
             }
             return null;
@@ -503,6 +504,7 @@ public class Config {
     }
 
     public void setMqttInternal(boolean mqttInternal) {
+        logger.warn("setting mqttInternal {}", mqttInternal);
         this.mqttInternal = mqttInternal;
     }
 
