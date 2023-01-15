@@ -6,13 +6,13 @@ Parameters can be set in several ways:
    1. On Mac OS and Linux, on the java command line using the `-Dvariable=value` syntax, immediately after the java word.
       `java -Dport=80 owlcms.jar`
    2. On Windows, in the `owlcms.l4j.ini` file which is read by the `owlcms.exe` file
-   3. On Heroku, it is easier to use Environment Variables (see below)
 2. As Environment Variables.  See the table below to see the correspondence with System Properties
    1. On Windows, these are set using the control panel.  Click on the windows icon at the bottom left and type `envi` .  Select `Edit the Environment Variables for your account` and add the variable name and value you need.
       Setting the variable `OWLCMS_PORT` to the value `80` is the same as using `-Dport=80`.
    2. On Linux and Mac OS, these are set in the `~/.bash_profile` file.  Google a tutorial if not familiar with this process.
    3. On Heroku, on the `Settings` page for your application, under `Config Vars`.
-   4. On Kubernetes, as part of a secrets or configmap section in a manifest
+   4. On Fly.io, use the `flyctl secrets set NAM1E=VALUE1 NAME2=VALUE2`... command.
+   5. On Kubernetes, as part of a secrets or configmap section in a manifest
 
 | System Property Name (-D) | Environment Variable Name | Default Value     | Description                                                  |
 | ------------------------- | ------------------------- | ----------------- | ------------------------------------------------------------ |
@@ -25,14 +25,15 @@ Parameters can be set in several ways:
 | pin                       | OWLCMS_PIN                |                   | If defined, the provided PIN will be required as a password when a user connects to owlcms.<br /><u>Has priority over the PIN/Password set in the application database. Use an empty PIN to get access to a database where you have set a PIN but forgotten it.</u> |
 | ip                        | OWLCMS_IP                 |                   | If defined, connections will only be accepted from the address specified (or one of the comma-separated addresses).  Each address can be numerical like `24.157.203.237` or a fully qualified domain name.<br />A PIN is still required. See OWLCMS_BACKDOOR to allow passwordless access.<br /><u>Has priority over the access list set in the application database.</u> |
 | backdoor                  | OWLCMS_BACKDOOR           |                   | If defined, no password will be required to access the owlcms application from the listed addresses. <br />-  Can be used for a cloud-based competition to avoid having to enter passwords at the competition site (use the public address of the competition location).<br />-  Can be used during virtual competitions to allow the video editing station to access the owlcms screens without passwords.  This would be the public IP address of the video producer.<br /><u>Has priority over the backdoor setting in the database.</u> |
-| mqttServer                | OWLCMS_MQTTSERVER         |                   | If defined, owlcms will connect to the MQTT host and listen for referee decisions sent over MQTT, and will enable sending  reminders  or summoning referees. |
-| mqttPort                  | OWLCMS_MQTTPORT           | 1883              | Default is the non-TLS connection.                           |
-| mqttUserName              | OWLCMS_MQTTUSERNAME       |                   | Login for MQTT server                                        |
-| mqttPassword              | OWLCMS_MQTTPASSWORD       |                   | Password for MQTT server.  The file from which this value is fetched should be protected.  Do not add the actual cleartext value to a command-line parameter in a script. |
-| H2ServerPort              | OWLCMS_H2SERVERPORT       |                   | Normally given as 9092.  owlcms will tell its embedded H2 server to listen on this port.  This enables the h2.jar file to be run and start an H2 console.  In H2 console, use an URL of the form `jdbc:h2:tcp://localhost:9092/path`<br />where path is something like `c:/.../owlcms/database/owlcms-h2v2` . There is no .db extension at the end, replace `...` with the the actual path. Forward slashes are used even on Windows. |
+| mqttServer                | OWLCMS_MQTTSERVER         |                   | If defined, owlcms will connect to the MQTT host and listen for referee decisions sent over MQTT, and will enable sending  reminders  or summoning referees.<br />If NOT defined, owlcms starts an MQTT server itself, and connects to the embedded server.<br />Note that if you set this to 127.0.0.1, owlcms will try to connect to a locally running MQTT Server, and will NOT start its own. |
+| mqttPort                  | OWLCMS_MQTTPORT           | 1883              | When running the embedded MQTT server, this is the port that clients will use, and only non-TLS connections are accepted.<br />When connecting to an external server, if the port starts with 8 then a TLS connection will be used (mqtts without mutual authentication - no client certificate is used). |
+| mqttUserName              | OWLCMS_MQTTUSERNAME       |                   | Login for MQTT server.<br />When running the embedded server, if this is empty any login/password combination will work for the clients. |
+| mqttPassword              | OWLCMS_MQTTPASSWORD       |                   | Password for MQTT server<br />If running the embedded server, this is the password that will be expected from the clients.<br />When using an external server, this is the password to use<br />The file from which this value is fetched should be protected from indiscrete eyes. |
+| H2ServerPort              | OWLCMS_H2SERVERPORT       |                   | Normally absent.<br />If present, the usual value is 9092, and owlcms will tell its embedded H2 server to listen on this port.  This enables the h2.jar file to be run and start an H2 console.  In H2 console, use an URL of the form `jdbc:h2:tcp://localhost:9092/path`<br />where path is something like `c:/.../owlcms/database/owlcms-h2v2` . There is no .db extension at the end, replace `...` with the the actual path. Forward slashes are used even on Windows. |
+| enableEmbeddedMqtt        | OWLCMS_ENABLEEMBEDDEDMQTT | true              | If explicitly set to false, the embedded MQTT server will not be started. |
 | publicDemo                | OWLCMS_PUBLICDEMO         |                   | If present, gives the number of seconds before the system exits. A warning is given beforehand.  When running under Kubernetes or under Docker with a restart policy, the process is immediately respawned from scratch. Windows will reload as soon as the site comes back, but with the clean data. |
 | useCompetitionDate        | OWLCMS_USECOMPETITIONDATE | false             | If present and true, the ages will be computed relative to the stored competition date.  Useful when loading a database from a previous year. |
-|                           | OWLCMS_FEATURESWITCHES    |                   | List of feature switches.  Overrides the ones in the database. |
+| featureSwitches           | OWLCMS_FEATURESWITCHES    |                   | List of feature switches.  Overrides the ones in the database. |
 
 ### JDBC Parameters
 

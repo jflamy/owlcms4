@@ -1,6 +1,6 @@
-37.2.0-alpha:  Initial builds for testing purposes.
+37.2.0-beta:  Preliminary builds for testing purposes.
 
-37.2 focuses on avoiding the need to install an MQTT server to support full-fledged refereeing devices (such as those in the [Blue Owl project](https://github.com/owlcms/blue-owl))
+37.2 focuses on avoiding the need to install an MQTT server. MQTT is used  to support full-fledged hardware devices that are TCRR-compliant (such as those in the [Blue Owl project](https://github.com/owlcms/blue-owl))
 
 - 37. 2 Enhancements
   
@@ -13,7 +13,9 @@
   
     - You likely have used a `-DmqttServer` flag (or have defined an `OWLCMS_MQTTSERVER` environment variable). You should *remove them*, otherwise owlcms will use these values to locate an *external* MQTT server.  On  Windows, check the `owlcms.l4j.ini` file in the installation directory.  You should also disable the local Mosquitto or aedes server if you wish to use the embedded one.
   
-  - 37.2.0-alpha01: For cloud-based setups, free MQTT brokers like [hivemq](https://console.hivemq.cloud) that require mqtts are now supported (plain TLS without client-side certificates).
+  - 37.2.0-beta00: added a `OWLCMS_ENABLEEMBEDDEDMQTT` variable (`-DenableEmbeddedMqtt`).  If explicitly set to `false` (or any value other than `true`), then the embedded MQTT server will not be started.  If absent, the value of the checkbox in the database config is used.
+  
+  - 37.2.0-alpha01: For cloud-based setups, free MQTT brokers like [hivemq](https://console.hivemq.cloud) that require mqtts are now supported (plain TLS without client-side certificates).  If the port given to owlcms starts with "8", TLS will be used when connecting to an external server.
   
 - 37.2 Fixes
   
