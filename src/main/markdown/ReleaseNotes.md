@@ -19,6 +19,7 @@
   
 - 37.2 Fixes
   
+  - 37.2.0-beta00: the MQTT connection loop is now a separate thread to avoid blocking the user interface.
   - 37.2.0-alpha01: the MQTT server was not enabled on a new database
   - 37.2.0-alpha01: the presence/absence of the MQTT server parameter war.
 
