@@ -2,25 +2,25 @@ After a group has been weighed-in, the actual process of running the competition
 
 The first thing to do is to check that the correct field of play (platform) is displayed at the top of the page (and if not, to select the correct one.)
 
-![010_Lifting](img/Lifting/010_Lifting.png)
+![010_Lifting](nimg/3200Lifting/010.png)
 
 ## Selecting the current group
 
 The current group is normally selected on the announcer screen (but may also be selected on the timekeeper screen).  When the current group is selected, all the displays for the field of play switch to that group.
 
-![012_SelectGroup](img/Lifting/012_SelectGroup.png)
+![012_SelectGroup](nimg/3200Lifting/020.png)
 
 However, before lifting starts for a group, there is normally an official protocol followed, where athletes and officials are introduced, and a warm-up period is given after the introduction.  Applying this protocol for intermissions and breaks is explained on the [Intermissions and Breaks](Breaks) page.
 
 Let's assume we are running an informal club meet and we want to start lifting right away.  We select the green `Start Lifting` button.
 
-![012a_StartLifting](img/Lifting/012a_StartLifting.png)
+![012a_StartLifting](nimg/3200Lifting/030.png)
 
 ## Announcing an athlete
 
-The display shifts to the lifting order and announcing mode.  The next athlete to lift is displayed.
+The display shifts to the lifting order and announcing mode.  The next athlete to lift is displayed. The next weight requested is highlighted in yellow.
 
-![013_ShowCurrent](img/Lifting/013_ShowCurrent.png)
+![013_ShowCurrent](nimg/3200Lifting/040.png)
 
 Following the IWF rules, the announcer should then proceed as follows
 
@@ -32,25 +32,25 @@ Following the IWF rules, the announcer should then proceed as follows
 
 Either the announcer or the timekeeper can start the clock.  
 
-![014_StartClock](img/Lifting/014_StartClock.png)
+![014_StartClock](nimg/3200Lifting/050.png)
 
 ## Stopping/Restarting the clock
 
 The announcer (if acting as timekeeper), or the timekeeper (using the timekeeper screen), can stop the clock when the bar leaves ground.  Either person can restart the clock if the bar is put down not having travelled above the knee.
 
-![016_StopClock](img/Lifting/016_StopClock.png)
+![016_StopClock](nimg/3200Lifting/060.png)
 
 ## Manual Refereeing
 
 If no refereeing devices are being used, the announcer captures the decision given using flags, cards or hand signals.
 
-![018_SoloGoodLift](img/Lifting/018_SoloGoodLift.png)
+![018_SoloGoodLift](nimg/3200Lifting/070.png)
 
 ## Announcing the decision
 
 When a decision is entered (whether manually by the announcer, or automatically by referees using refereeing devices), a confirmation is shown for five seconds.
 
-![019_GoodLiftNotification](img/Lifting/019_GoodLiftNotification.png)
+![019_GoodLiftNotification](nimg/3200Lifting/080.png)
 
 ## Declarations and Weight Changes
 
@@ -64,11 +64,10 @@ Notes:
 
   > NOTE: the ability to edit the results is OFF by default on the Marshall screen, to prevent entering an extra change by mistake (which would then count as a good lift)
 
-- In order to mark a lift as <u>not taken</u> (such as a withdrawal), put "**0**" in the bottom row.
+- The withdrawal buttons are a shortcut and mark all the remaining lifts as not taken (0). You can also enter a zero (0) in the bottom row
 
-  - The withdrawal button is a shortcut and marks all the remaining lifts as not taken (0).
 
-![020_EditLifterCard](img/Lifting/020_EditLifterCard.png)
+![020_EditLifterCard](nimg/3200Lifting/090.png)
 
 ## Rules for Moving Down
 
@@ -90,9 +89,9 @@ In summary, moving down is only allowed if the requested weight does not cause t
 
 ## Weight Change for Current Athlete
 
-If a [marshall](#marshall) is present, it is possible that a weight change occurs for the athlete currently announced. If that is the case, a notification is shown on the announcer screen.
+When a weight change occurs for the athlete currently announced, a notification is shown on the other officials' screens. For example, if the marshal makes the change, the jury and the announcer will see the notification
 
-![022_CurrentAthlete](img/Lifting/022_CurrentAthlete.png)
+![022_CurrentAthlete](nimg/3200Lifting/100.png)
 
 ## Forcing the current athlete
 
@@ -102,38 +101,38 @@ In some small competitions, the official lifting order is not followed.  For exa
 
 ## Breaks
 
-If there is a technical difficulty (blood on the bar, problem with the platform, etc.) use the Break button.  By default, it will enter the `Technical Issue` mode if invoked during lifting.
+If there is a technical difficulty (blood on the bar, problem with the platform, etc.) use the Break button.  By default,  `Technical Issue` setting will be selected if invoked during lifting.  YOU DO NEED TO START THE BREAK by using the "Play" triangle at the bottom.
 
-![030_Break](img/Lifting/030_Break.png)
+![030_Break](nimg/3200Lifting/110.png)
 
 You can resume competition by using the `End Break` button.
 
-![031_endTechnicalIssue](img/Lifting/031_endTechnicalIssue.png)
+![031_endTechnicalIssue](nimg/3200Lifting/120.png)
 
 ## Intermissions
 
 See the [Breaks and Ceremonies](Breaks) page for how to manage the timers before introduction, before the first snatch, and before clean&jerk.
 
-## Marshall
+## Marshal
 
-In larger competitions, a separate Marshall desk is set up in the warm-up area.  The Marshall screen is identical in operation to the announcer screen, except that the Marshall cannot start/stop the clock and manage breaks.  As explained in the [Weight Change for Current Athlete](#weight-change-for-current-athlete) section, a notification is shown on the announcer screen if a change is made for the current athlete.  The other technical officials are also notified when a declaration is posted.
+In larger competitions, a separate Marshal desk is set up in the warm-up area.  The Marshal screen is very similar in operation to the announcer screen. The Marshal can use the break button to signal a problem with the lifting order.
 
-Useful tip: you can use the filtering box to quickly locate an athlete -- the screenshot below shows that there are three athletes with the same last name.
+![040_Marshall](nimg/3200Lifting/130.png)
 
-![040_Marshall](img/Lifting/040_Marshall.png)
+ As explained in the [Weight Change for Current Athlete](#weight-change-for-current-athlete) section, a notification is shown on the announcer screen if a change is made for the current athlete.  The other technical officials are also notified when a declaration is posted.
 
 ## Timekeeper
 
-The timekeeper screen operates like the announcer screen.  Both the announcer and timekeeper can start and stop time.  It is often less confusing if the announcer makes sure the platform is clear before announcing, and starts time herself.  The timekeeper can then take over and watch for the bar leaving the platform and going above the knees.
+The timekeeper screen operates like the announcer screen.  Both the announcer and timekeeper can start and stop time.  For example, the speaker can check that the platform is free, announce the name, and start time when done giving out the name.  Then the timekeeper can take over and watch for the bar reaching the knees.
+
+The timekeeper can also select the group, and supervise the breaks. 
 
 Notes:
 
 - the Timekeeper screen also works on iPhones, iPads and Android phones.
 - if using the phone with a laptop, you can use the `,` (comma) key to start the timer, and the `.` (period) key to stop it.  This also means that you can connect a programmable button device to control the clock
 
-The following screenshot is from an iPhone.
-
-![050_Timekeeper](img/Lifting/050_Timekeeper.png)
+![timekeeper](nimg/3200Lifting/140.png)
 
 ## Technical Controller
 
@@ -145,4 +144,4 @@ This has no incidence other than the graphics shown on the attempt board.
 
 In the following example, younger boys are using a 15kg bar instead of the regular 20kg bar.  This fact has been noted by clicking on `Non-standard Bar` and entering the weight of the bar.  For even smaller kids, it is possible to enter even smaller bars (10kg) and use no collars (enter 0).  Kids competitions also sometimes use 5kg and 2.5kg large plates in addition to the small metal plates.
 
-![060_Technical](img/Lifting/060_Technical.png)
+![040_Marshall](nimg/3200Lifting/150.png)
