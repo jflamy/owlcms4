@@ -1,4 +1,4 @@
-37.1.0-rc01:  Release Candidate.  Usable in a real competition, test with your own data beforehand.
+37.1.0:
 
 - 37.1 Enhancements
   - The announcer and marshal screens show the 6 attempts and total for each athlete. ([#525](https://github.com/jflamy/owlcms4/issues/525))
