@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+    <booleanAttribute key="org.eclipse.debug.core.ATTR_FORCE_SYSTEM_CONSOLE_ENCODING" value="false"/>
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
         <listEntry value="/owlcms/src/main/java/app/owlcms/Main.java"/>
     </listAttribute>
@@ -7,10 +8,10 @@
         <listEntry value="1"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-        <mapEntry key="OWLCMS_LOCALE" value="fr_CA"/>
-        <mapEntry key="OWLCMS_PORT" value="80"/>
-        <mapEntry key="OWLCMS_REMOTE" value="http://127.0.0.1:8081/update"/>
-        <mapEntry key="OWLCMS_UPDATEKEY" value="thisisaverylongsecretstring"/>
+        <mapEntry key="OWLCMS_LOCALE" value="en_CA"/>
+        <mapEntry key="OWLCMS_PORT" value="8080"/>
+        <mapEntry key="_OWLCMS_REMOTE" value="http://127.0.0.1:8081/update"/>
+        <mapEntry key="_OWLCMS_UPDATEKEY" value="thisisaverylongsecretstring"/>
     </mapAttribute>
     <mapAttribute key="org.eclipse.debug.core.preferred_launchers">
         <mapEntry key="[run]" value="org.eclipse.visualvm.launch.java"/>
