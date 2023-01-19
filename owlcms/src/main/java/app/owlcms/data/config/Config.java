@@ -33,6 +33,8 @@ import app.owlcms.data.jpa.LocaleAttributeConverter;
 import app.owlcms.servlet.FileServlet;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
+import io.moquette.BrokerConstants;
+import io.moquette.broker.config.IConfig;
 
 /**
  * Class Config.
@@ -133,6 +135,14 @@ public class Config {
 
     @Column(columnDefinition = "boolean default true")
     private boolean mqttInternal;
+
+    @Transient
+    @JsonIgnore
+    private IConfig mqttConfig;
+
+    public IConfig getMqttConfig() {
+        return mqttConfig;
+    }
 
     public String computeSalt() {
         this.setSalt(null);
@@ -710,6 +720,9 @@ public class Config {
     }
 
     public void setMqttUserName(String mqttUserName) {
+        // anonymous allowed iff mqttUserName is empty or null.
+        // we cannot override Moquette login to directly invoke our authenticator...
+        getMqttConfig().setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(mqttUserName == null || mqttUserName.isBlank()));
         this.mqttUserName = mqttUserName;
     }
 
@@ -754,6 +767,11 @@ public class Config {
 
     public void setUpdatekey(String updatekey) {
         this.updatekey = updatekey;
+    }
+
+    
+    public void setMqttConfig(IConfig mqttConfig) {
+        this.mqttConfig = mqttConfig;
     }
 
 }

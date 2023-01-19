@@ -112,7 +112,7 @@ public class Main {
         if (demoResetDelay == null) {
             startMQTT();
         }
-        //initConfig();
+        // initConfig();
 
         // read locale from database and override if needed
         Locale l = overrideDisplayLanguage();
@@ -373,8 +373,6 @@ public class Main {
         masters = StartupUtils.getBooleanParam("masters");
     }
 
-
-
     private static void warnAndExit(Integer demoResetDelay, EmbeddedJetty server)
             throws InterruptedException {
 
@@ -398,16 +396,17 @@ public class Main {
         System.exit(0);
         return;
     }
-   
+
     private static void startMQTT() {
         mqttStartup = Long.toString(System.currentTimeMillis());
         final IConfig mqttConfig = new MemoryConfig(new Properties());
-        mqttConfig.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.FALSE.toString());
+        Config.getCurrent().setMqttConfig(mqttConfig);
+        mqttConfig.setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(Config.getCurrent().getParamMqttUserName() == null));
         mqttConfig.setProperty(BrokerConstants.AUTHENTICATOR_CLASS_NAME, "app.owlcms.init.MoquetteAuthenticator");
 
         final Server mqttBroker = new Server();
         List<? extends InterceptHandler> userHandlers = Collections.singletonList(new PublisherListener());
-        
+
         if (Config.getCurrent().getParamMqttServer() != null) {
             logger.info("MQTT Server override by environment or system parameter, not starting embedded MQTT");
             return;
@@ -416,13 +415,13 @@ public class Main {
             logger.info("internal MQTT server not enabled, skipping");
             return;
         }
-        
+
         try {
             logger.info("starting MQTT broker.");
-            
+
             mqttBroker.startServer(mqttConfig, userHandlers);
-    
-            //Bind  a shutdown hook
+
+            // Bind a shutdown hook
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 logger.info("Stopping broker");
                 mqttBroker.stopServer();
@@ -432,7 +431,6 @@ public class Main {
             logger.error("could not start server", e.toString(), e.getCause());
         }
     }
-
 
     static class PublisherListener extends AbstractInterceptHandler {
 

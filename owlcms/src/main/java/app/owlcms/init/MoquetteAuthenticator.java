@@ -7,14 +7,20 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.Main;
 import app.owlcms.data.config.Config;
 import app.owlcms.utils.StartupUtils;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import io.moquette.broker.security.IAuthenticator;
 
 public class MoquetteAuthenticator implements IAuthenticator {
     Logger logger = (Logger) LoggerFactory.getLogger(MoquetteAuthenticator.class);
+    
+    public MoquetteAuthenticator() {
+        logger.setLevel(Level.TRACE);
+    }
 
     @Override
     public boolean checkValid(String clientId, String username, byte[] password) {
+        logger.warn("check valid");
         String clientPasswordString = new String(password, StandardCharsets.UTF_8);
         
         if (clientPasswordString.contentEquals(Main.mqttStartup)) {
