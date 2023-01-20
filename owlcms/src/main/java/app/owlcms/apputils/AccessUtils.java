@@ -46,7 +46,10 @@ public class AccessUtils {
     private static boolean checkPassword(String password, String pinOverride, String dbPin, String loggingContext) {
         
         logger.debug("{} override {} provided {} dbPin {}", loggingContext, pinOverride, password,  dbPin) ;
-        String hashedPassword = Config.getCurrent().encodeUserPassword(password, dbPin);
+        String hashedPassword = "";
+        if (dbPin != null) {
+            hashedPassword = Config.getCurrent().encodeUserPassword(password, dbPin);
+        }
         logger.debug("checking override={} password={} storedHashedPassword={} hashedUserPassword={}", pinOverride, password, dbPin, hashedPassword);
         
         if (pinOverride != null && pinOverride.isBlank()) {

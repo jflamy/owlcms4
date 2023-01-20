@@ -13,10 +13,14 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.AccessUtils;
@@ -45,7 +49,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = LoginView.LOGIN, layout = OwlcmsLayout.class)
-public class LoginView extends Composite<VerticalLayout> implements OwlcmsLayoutAware, ContentWrapping {
+public class LoginView extends Composite<VerticalLayout> implements OwlcmsLayoutAware, ContentWrapping, HasDynamicTitle {
 
     public static final String LOGIN = "login";
 
@@ -109,7 +113,22 @@ public class LoginView extends Composite<VerticalLayout> implements OwlcmsLayout
 
     @Override
     public void setHeaderContent() {
-        return;
+        Label label = new Label(getMenuTitle());
+        label.getStyle().set("font-size", "var(--lumo-font-size-xl");
+        Image image = new Image("icons/owlcms.png", "owlcms icon");
+        image.getStyle().set("height", "7ex");
+        image.getStyle().set("width", "auto");
+        HorizontalLayout topBarTitle = new HorizontalLayout(image, label);
+        topBarTitle.setAlignSelf(Alignment.CENTER, label);
+        routerLayout.setMenuTitle(topBarTitle);
+        routerLayout.setMenuArea(createMenuArea());
+        routerLayout.showLocaleDropdown(true);
+        routerLayout.setDrawerOpened(true);
+        routerLayout.updateHeader(true);
+    }
+
+    public String getMenuTitle() {
+        return getTranslation("OWLCMS_Top");
     }
 
     @Override
