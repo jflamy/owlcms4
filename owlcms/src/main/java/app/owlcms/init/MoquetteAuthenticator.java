@@ -20,7 +20,6 @@ public class MoquetteAuthenticator implements IAuthenticator {
 
     @Override
     public boolean checkValid(String clientId, String username, byte[] password) {
-        logger.warn("check valid");
         String clientPasswordString = new String(password, StandardCharsets.UTF_8);
         
         if (clientPasswordString.contentEquals(Main.mqttStartup)) {
