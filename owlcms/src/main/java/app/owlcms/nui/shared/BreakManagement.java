@@ -138,7 +138,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         setPadding(false);
         setMargin(false);
         this.setSizeFull();
-        logger.setLevel(Level.DEBUG);
+        //logger.setLevel(Level.DEBUG);
         init(origin, brt, cdt, parentDialog);
         setRequestedBreakType(brt);
     }

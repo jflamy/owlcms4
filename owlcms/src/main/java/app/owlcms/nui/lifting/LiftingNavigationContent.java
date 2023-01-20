@@ -11,8 +11,11 @@ import org.slf4j.LoggerFactory;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -49,11 +52,15 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
         logger.trace("LiftingNavigationContent constructor start");
 
         Button weighIn = openInNewTabNoParam(WeighinContent.class, getTranslation("WeighIn_StartNumbers"));
+        //weighIn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(weighIn);
         doGroup(getTranslation("WeighIn"), grid3, this);
 
         Button announcer = openInNewTab(AnnouncerContent.class, getTranslation("Announcer"));
-        announcer.setAutofocus(true);
+        announcer.setIcon(new Icon(VaadinIcon.MICROPHONE));
+        announcer.setTabIndex(2);
+        announcer.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+        announcer.setThemeName(FOP, isAttached());
         Button marshall = openInNewTab(MarshallContent.class, getTranslation("Marshall"));
         Button timekeeper = openInNewTab(TimekeeperContent.class, getTranslation("Timekeeper"));
         Button technical = openInNewTab(TCContent.class, getTranslation("PlatesCollarBarbell"));
