@@ -134,15 +134,11 @@ public class Config {
     private Boolean useCompetitionDate;
 
     @Column(columnDefinition = "boolean default true")
-    private boolean mqttInternal;
+    private Boolean mqttInternal = true;
 
     @Transient
     @JsonIgnore
     private IConfig mqttConfig;
-
-    public IConfig getMqttConfig() {
-        return mqttConfig;
-    }
 
     public String computeSalt() {
         this.setSalt(null);
@@ -166,7 +162,7 @@ public class Config {
         Config other = (Config) obj;
         return id != null && id.equals(other.getId());
     }
-    
+
     public boolean featureSwitch(String string) {
         return featureSwitch(string, true);
     }
@@ -264,10 +260,18 @@ public class Config {
 
     }
 
+    public IConfig getMqttConfig() {
+        return mqttConfig;
+    }
+
+    public Boolean getMqttInternal() {
+        return mqttInternal;
+    }
+
     public String getMqttPassword() {
         return mqttPassword;
     }
-    
+
     @Transient
     @JsonIgnore
     public String getMqttPasswordForField() {
@@ -275,18 +279,6 @@ public class Config {
             return "";
         } else {
             return FAKE_PIN;
-        }
-    }
-    
-    public void setMqttPasswordForField(String mqttPassword) {
-        // logger.debug("setMqttPasswordForField with {}", mqttPassword);
-        if (mqttPassword != null && mqttPassword.length() != 64 && mqttPassword != FAKE_PIN) {
-            String encodedPin = AccessUtils.encodePin(mqttPassword, Config.getCurrent().getPin(), false);
-            logger.debug("encoded mqttPassword {}", encodedPin);
-            this.setMqttPassword(encodedPin);
-        } else if (mqttPassword == null || mqttPassword.isBlank()) {
-            logger.debug("empty mqttPassword {}", mqttPassword);
-            this.setMqttPassword(null);
         }
     }
 
@@ -301,33 +293,6 @@ public class Config {
     public String getMqttUserName() {
         return mqttUserName;
     }
-
-    
-    /**
-     * @return the current list of feature switches.
-     */
-    @Transient
-    @JsonIgnore
-    public String getParamFeatureSwitches() {
-        String uAccessList = StartupUtils.getStringParam("featureSwitches");
-        if (uAccessList == null) {
-            // use access list from database
-            uAccessList = Config.getCurrent().getFeatureSwitches();
-            if (uAccessList == null || uAccessList.isBlank()) {
-                uAccessList = null;
-            }
-        }
-        return uAccessList;
-    }
-    
-   @Transient
-   @JsonIgnore
-   public boolean isUseCompetitionDate() {
-       if (useCompetitionDate == null) {
-           useCompetitionDate = StartupUtils.getBooleanParam("useCompetitionDate");
-       }
-       return useCompetitionDate;
-   }
 
     /**
      * @return the current whitelist.
@@ -408,6 +373,32 @@ public class Config {
             return null;
         } else {
             return uPin;
+        }
+    }
+
+    /**
+     * @return the current list of feature switches.
+     */
+    @Transient
+    @JsonIgnore
+    public String getParamFeatureSwitches() {
+        String uAccessList = StartupUtils.getStringParam("featureSwitches");
+        if (uAccessList == null) {
+            // use access list from database
+            uAccessList = Config.getCurrent().getFeatureSwitches();
+            if (uAccessList == null || uAccessList.isBlank()) {
+                uAccessList = null;
+            }
+        }
+        return uAccessList;
+    }
+
+    public boolean getParamMqttInternal() {
+        Boolean enableInternal = StartupUtils.getBooleanParamOrElseNull("enableEmbeddedMqtt");
+        if (enableInternal != null) {
+            return enableInternal;
+        } else {
+            return isMqttInternal();
         }
     }
 
@@ -507,23 +498,6 @@ public class Config {
             logger.debug("param uPin {}", uPin);
             return uPin;
         }
-    }
-    
-    public boolean getParamMqttInternal() {
-        Boolean enableInternal = StartupUtils.getBooleanParamOrElseNull("enableEmbeddedMqtt");
-        if (enableInternal != null) {
-            return enableInternal;
-        } else {
-            return isMqttInternal();
-        }
-    }
-    
-    public boolean isMqttInternal() {
-        return mqttInternal;
-    }
-
-    public void setMqttInternal(boolean mqttInternal) {;
-        this.mqttInternal = mqttInternal;
     }
 
     /**
@@ -637,6 +611,10 @@ public class Config {
         return this.localTemplatesOnly || featureSwitch("localTemplatesOnly");
     }
 
+    public boolean isMqttInternal() {
+        return mqttInternal;
+    }
+
     @Transient
     @JsonIgnore
     public boolean isTraceMemory() {
@@ -644,6 +622,15 @@ public class Config {
             traceMemory = StartupUtils.getBooleanParam("traceMemory");
         }
         return Boolean.TRUE.equals(traceMemory);
+    }
+
+    @Transient
+    @JsonIgnore
+    public boolean isUseCompetitionDate() {
+        if (useCompetitionDate == null) {
+            useCompetitionDate = StartupUtils.getBooleanParam("useCompetitionDate");
+        }
+        return useCompetitionDate;
     }
 
     public void setClearZip(boolean clearZipRequested) {
@@ -707,8 +694,32 @@ public class Config {
         }
     }
 
+    public void setMqttConfig(IConfig mqttConfig) {
+        this.mqttConfig = mqttConfig;
+    }
+
+    public void setMqttInternal(boolean mqttInternal) {
+        this.mqttInternal = mqttInternal;
+    }
+
+    public void setMqttInternal(Boolean mqttInternal) {
+        this.mqttInternal = mqttInternal;
+    }
+
     public void setMqttPassword(String mqttPassword) {
         this.mqttPassword = mqttPassword;
+    }
+
+    public void setMqttPasswordForField(String mqttPassword) {
+        // logger.debug("setMqttPasswordForField with {}", mqttPassword);
+        if (mqttPassword != null && mqttPassword.length() != 64 && mqttPassword != FAKE_PIN) {
+            String encodedPin = AccessUtils.encodePin(mqttPassword, Config.getCurrent().getPin(), false);
+            logger.debug("encoded mqttPassword {}", encodedPin);
+            this.setMqttPassword(encodedPin);
+        } else if (mqttPassword == null || mqttPassword.isBlank()) {
+            logger.debug("empty mqttPassword {}", mqttPassword);
+            this.setMqttPassword(null);
+        }
     }
 
     public void setMqttPort(String mqttPort) {
@@ -722,7 +733,10 @@ public class Config {
     public void setMqttUserName(String mqttUserName) {
         // anonymous allowed iff mqttUserName is empty or null.
         // we cannot override Moquette login to directly invoke our authenticator...
-        getMqttConfig().setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME, Boolean.toString(mqttUserName == null || mqttUserName.isBlank()));
+        if (getMqttConfig() != null) {
+            getMqttConfig().setProperty(BrokerConstants.ALLOW_ANONYMOUS_PROPERTY_NAME,
+                    Boolean.toString(mqttUserName == null || mqttUserName.isBlank()));
+        }
         this.mqttUserName = mqttUserName;
     }
 
@@ -767,11 +781,6 @@ public class Config {
 
     public void setUpdatekey(String updatekey) {
         this.updatekey = updatekey;
-    }
-
-    
-    public void setMqttConfig(IConfig mqttConfig) {
-        this.mqttConfig = mqttConfig;
     }
 
 }
