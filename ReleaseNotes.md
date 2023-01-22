@@ -12,6 +12,8 @@
   
 - 37.2 Fixes
   
+  - 37.2.0-rc02: Fix: could no longer process Zip overrides and other configuration changes when using an existing database.
+  - 37.2.0-rc02: MQTT enabled by default. Does no harm, having to enable is too complicated to explain, and it disables itself if people use the previous configuration method for an external server.
   - 37.2.0-rc01: Setting a password using OWLCMS_PIN or -Dpin now working again
   - 37.2.0-rc01: Connecting to the MQTT Server without a username is now possible (previously when the owlcms field was empty a username still had to be provided, but could be anything)
   - 37.2.0-beta00: the MQTT connection loop is now a separate thread to avoid blocking the user interface.
@@ -33,11 +35,11 @@
 
 ### **Installation Instructions**
 
-  - For **Windows**, download `owlcms_setup_37.2.0-rc01.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
+  - For **Windows**, download `owlcms_setup_37.2.0-rc02.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 
     > If you get a window with `Windows protected your PC`, or if your browser gives you warnings, please see this [page](https://owlcms.github.io/owlcms4-prerelease/#/DefenderOff)
 
-  - For **Linux** and **Mac OS**, download the `owlcms_37.2.0-rc01.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
+  - For **Linux** and **Mac OS**, download the `owlcms_37.2.0-rc02.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
 
   - For **Cloud PaaS** installs, no download is necessary. Follow the [Heroku](https://owlcms.github.io/owlcms4-prerelease/#Heroku) or (recommended) **[Fly.io](https://owlcms.github.io/owlcms4-prerelease/#Fly)** installation instructions.
 
