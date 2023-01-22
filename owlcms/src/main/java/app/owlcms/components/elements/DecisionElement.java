@@ -6,12 +6,6 @@
  *******************************************************************************/
 package app.owlcms.components.elements;
 
-import java.nio.charset.StandardCharsets;
-
-import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -24,14 +18,11 @@ import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
-import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FOPEvent;
-import app.owlcms.fieldofplay.MQTTMonitor;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -55,40 +46,40 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
     protected EventBus fopEventBus;
     protected EventBus uiEventBus;
     private boolean silenced;
-    private Boolean prevRef1;
-    private Boolean prevRef2;
-    private Boolean prevRef3;
-    private MqttAsyncClient client;
+//    private Boolean prevRef1;
+//    private Boolean prevRef2;
+//    private Boolean prevRef3;
+//    private MqttAsyncClient client;
     private boolean juryMode;
 
     public DecisionElement() {
-        if (isMqttDecisions()) {
-            try {
-                client = MQTTMonitor.createMQTTClient();
-                String userName = StartupUtils.getStringParam("mqttUserName");
-                String password = StartupUtils.getStringParam("mqttPassword");
-                MqttConnectOptions connOpts = setUpConnectionOptions(userName != null ? userName : "",
-                        password != null ? password : "");
-                ;
-                client.connect(connOpts).waitForCompletion();
-            } catch (MqttException e) {
-            }
-        }
+//        if (isMqttDecisions()) {
+//            try {
+//                client = MQTTMonitor.createMQTTClient(OwlcmsSession.getFop());
+//                String userName = StartupUtils.getStringParam("mqttUserName");
+//                String password = StartupUtils.getStringParam("mqttPassword");
+//                MqttConnectOptions connOpts = setUpConnectionOptions(userName != null ? userName : "",
+//                        password != null ? password : "");
+//                ;
+//                client.connect(connOpts).waitForCompletion();
+//            } catch (MqttException e) {
+//            }
+//        }
     }
 
-    private MqttConnectOptions setUpConnectionOptions(String username, String password) {
-        MqttConnectOptions connOpts = new MqttConnectOptions();
-        connOpts.setCleanSession(true);
-        if (username != null) {
-            connOpts.setUserName(username);
-        }
-        if (password != null) {
-            connOpts.setPassword(password.toCharArray());
-        }
-        connOpts.setCleanSession(true);
-        // connOpts.setAutomaticReconnect(true);
-        return connOpts;
-    }
+//    private MqttConnectOptions setUpConnectionOptions(String username, String password) {
+//        MqttConnectOptions connOpts = new MqttConnectOptions();
+//        connOpts.setCleanSession(true);
+//        if (username != null) {
+//            connOpts.setUserName(username);
+//        }
+//        if (password != null) {
+//            connOpts.setPassword(password.toCharArray());
+//        }
+//        connOpts.setCleanSession(true);
+//        // connOpts.setAutomaticReconnect(true);
+//        return connOpts;
+//    }
 
     /**
      * @return the silenced
@@ -118,43 +109,43 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
             }
             // logger.debug("master referee update {} ({} {} {})", fop.getCurAthlete(), ref1, ref2, ref3, ref1Time,
             // ref2Time, ref3Time);
-            if (isMqttDecisions()) {
-                if (ref1 != null && prevRef1 != ref1) {
-                    // logger.debug("update 1 {}", ref1);
-                    mqttPublish("owlcms/decision/A", "1 " + (ref1 ? "good" : "bad"));
-                    prevRef1 = ref1;
-                }
-                if (ref2 != null && prevRef2 != ref2) {
-                    // logger.debug("update 2 {}", ref2);
-                    mqttPublish("owlcms/decision/A", "2 " + (ref2 ? "good" : "bad"));
-                    prevRef2 = ref2;
-                }
-                if (ref3 != null && prevRef3 != ref3) {
-                    // logger.debug("update 3 {}", ref3);
-                    mqttPublish("owlcms/decision/A", "3 " + (ref3 ? "good" : "bad"));
-                    prevRef3 = ref3;
-                }
-            } else {
+//            if (isMqttDecisions()) {
+//                if (ref1 != null && prevRef1 != ref1) {
+//                    // logger.debug("update 1 {}", ref1);
+//                    mqttPublish("owlcms/decision/A", "1 " + (ref1 ? "good" : "bad"));
+//                    prevRef1 = ref1;
+//                }
+//                if (ref2 != null && prevRef2 != ref2) {
+//                    // logger.debug("update 2 {}", ref2);
+//                    mqttPublish("owlcms/decision/A", "2 " + (ref2 ? "good" : "bad"));
+//                    prevRef2 = ref2;
+//                }
+//                if (ref3 != null && prevRef3 != ref3) {
+//                    // logger.debug("update 3 {}", ref3);
+//                    mqttPublish("owlcms/decision/A", "3 " + (ref3 ? "good" : "bad"));
+//                    prevRef3 = ref3;
+//                }
+//            } else {
                 fop.fopEventPost(
                         new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3,
                                 Long.valueOf(ref1Time),
                                 Long.valueOf(ref2Time), Long.valueOf(ref3Time), false));
-            }
+//            }
         });
 
     }
 
-    private void mqttPublish(String topic, String message) {
-        try {
-            client.publish(topic, new MqttMessage(message.getBytes(StandardCharsets.UTF_8)));
-        } catch (MqttException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    private void mqttPublish(String topic, String message) {
+//        try {
+//            client.publish(topic, new MqttMessage(message.getBytes(StandardCharsets.UTF_8)));
+//        } catch (MqttException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
-    private boolean isMqttDecisions() {
-        return Config.getCurrent().featureSwitch("mqttDecisions");
-    }
+//    private boolean isMqttDecisions() {
+//        return Config.getCurrent().featureSwitch("mqttDecisions");
+//    }
 
     @ClientCallable
     /**
@@ -218,9 +209,9 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
     public void slaveDecisionReset(UIEvent.DecisionReset e) {
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
             getElement().callJsFunction("reset", false);
-            prevRef1 = null;
-            prevRef2 = null;
-            prevRef3 = null;
+//            prevRef1 = null;
+//            prevRef2 = null;
+//            prevRef3 = null;
         });
     }
 
@@ -228,9 +219,9 @@ public class DecisionElement extends PolymerTemplate<TemplateModel>
     public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
             getElement().callJsFunction("reset", false);
-            prevRef1 = null;
-            prevRef2 = null;
-            prevRef3 = null;
+//            prevRef1 = null;
+//            prevRef2 = null;
+//            prevRef3 = null;
         });
     }
 
