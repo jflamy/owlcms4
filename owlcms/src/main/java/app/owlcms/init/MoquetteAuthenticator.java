@@ -25,7 +25,7 @@ public class MoquetteAuthenticator implements IAuthenticator {
         if (clientPasswordString.contentEquals(Main.mqttStartup)) {
             // special case -- owlcms is calling it's own moquette locally
             // the shared secret is the milliseconds at which the server started.
-            logger.debug("owlcms MQTT connection {}",clientPasswordString);
+            logger.debug("owlcms MQTT connection from {}", clientId);
             return true;
         } 
         

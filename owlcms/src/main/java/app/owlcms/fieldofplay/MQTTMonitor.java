@@ -237,7 +237,7 @@ public class MQTTMonitor {
 
         try {
             if (Config.getCurrent().getParamMqttInternal() || Config.getCurrent().getParamMqttServer() != null) {
-                client = createMQTTClient();
+                client = createMQTTClient(fop);
                 connectionLoop(client);
             } else {
                 logger.info("no MQTT server configured, skipping");
@@ -247,7 +247,7 @@ public class MQTTMonitor {
         }
     }
 
-    public static MqttAsyncClient createMQTTClient() throws MqttException {
+    public static MqttAsyncClient createMQTTClient(FieldOfPlay fop) throws MqttException {
         String server = Config.getCurrent().getParamMqttServer();
         server = (server != null ? server : "127.0.0.1");
         String port = Config.getCurrent().getParamMqttPort();
@@ -257,7 +257,7 @@ public class MQTTMonitor {
 
         MqttAsyncClient client = new MqttAsyncClient(
                 string + server + ":" + port                        ,
-                MqttClient.generateClientId(), // ClientId
+                fop.getName()+"_"+MqttClient.generateClientId(), // ClientId
                 new MemoryPersistence()); // Persistence
         return client;
     }
@@ -349,7 +349,9 @@ public class MQTTMonitor {
                 // client.reconnect() and automaticReconnection do not work as I expect.
                 doConnect();
             } catch (Exception e1) {
-                Main.logger.error("{}MQTT refereeing device server: {}", fop.getLoggingName(),
+                Main.getStartupLogger().error("{}MQTT refereeing device server: {}", fop.getLoggingName(),
+                        e1.getCause() != null ? e1.getCause().getMessage() : e1);
+                logger.error("{}MQTT refereeing device server: {}", fop.getLoggingName(),
                         e1.getCause() != null ? e1.getCause().getMessage() : e1);
             }
             sleep(1000);
