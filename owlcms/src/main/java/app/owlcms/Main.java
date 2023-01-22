@@ -67,7 +67,7 @@ public class Main {
 
     private static final int WARNING_MINUTES = 5;
 
-    public final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
+    private final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
 
     protected static boolean demoData;
     protected static boolean demoMode;
@@ -85,9 +85,8 @@ public class Main {
     private static Integer demoResetDelay;
 
     public static Logger getStartupLogger() {
-        return logger;
-//        String name = Main.class.getName() + ".startup";
-//        return (Logger) LoggerFactory.getLogger(name);
+        String name = Main.class.getName() + ".startup";
+        return (Logger) LoggerFactory.getLogger(name);
     }
 
     public static void initConfig() {
@@ -112,7 +111,7 @@ public class Main {
         if (demoResetDelay == null) {
             startMQTT();
         }
-        // initConfig();
+  
 
         // read locale from database and override if needed
         Locale l = overrideDisplayLanguage();
@@ -398,6 +397,13 @@ public class Main {
     }
 
     private static void startMQTT() {
+        Config conf = Config.getCurrent();
+        if (conf.getMqttInternal() == null) {
+            logger.info("setting MQTT server as enabled unless overridden by environment or properties.");
+            conf.setMqttInternal(true);
+            Config.setCurrent(conf);
+        }
+        
         mqttStartup = Long.toString(System.currentTimeMillis());
         final IConfig mqttConfig = new MemoryConfig(new Properties());
         Config.getCurrent().setMqttConfig(mqttConfig);
@@ -410,6 +416,10 @@ public class Main {
         if (Config.getCurrent().getParamMqttServer() != null) {
             logger.info("MQTT Server override by environment or system parameter, not starting embedded MQTT");
             return;
+        }
+        if (Config.getCurrent().getMqttInternal() == null) {
+            // default should be true if not set previously
+            Config.getCurrent().setMqttInternal(true);
         }
         if (!Config.getCurrent().getParamMqttInternal()) {
             logger.info("internal MQTT server not enabled, skipping");
