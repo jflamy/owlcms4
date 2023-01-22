@@ -12,6 +12,8 @@
   
 - 37.2 Fixes
   
+  - 37.2.0-rc02: Fix: could no longer process Zip overrides and other configuration changes when using an existing database.
+  - 37.2.0-rc02: MQTT enabled by default. Does no harm, having to enable is too complicated to explain, and it disables itself if people use the previous configuration method for an external server.
   - 37.2.0-rc01: Setting a password using OWLCMS_PIN or -Dpin now working again
   - 37.2.0-rc01: Connecting to the MQTT Server without a username is now possible (previously when the owlcms field was empty a username still had to be provided, but could be anything)
   - 37.2.0-beta00: the MQTT connection loop is now a separate thread to avoid blocking the user interface.
