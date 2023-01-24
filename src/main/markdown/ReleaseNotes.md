@@ -1,7 +1,8 @@
-37.2.0-rc01:  Release Candidate.
+37.2.0:
 
 - 37. 2 Enhancements
   
+  - Minor user interface updates (Lifting Group page, Language and Settings page) and minor updates to translations
   - If you wish to build or use MQTT-enabled devices such as those in the [Blue-Owl](https://github.com/owlcms/blue-owl) project, a MQTT server is now embedded in owlcms. There is no longer a need to run a separate one and usual cases no longer need any owlcms configuration.
     - See the [embedded MQTT Server configuration documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTT). 
   
@@ -12,13 +13,7 @@
   
 - 37.2 Fixes
   
-  - 37.2.0-rc02: Fix: could no longer process Zip overrides and other configuration changes when using an existing database.
-  - 37.2.0-rc02: MQTT enabled by default. Does no harm, having to enable is too complicated to explain, and it disables itself if people use the previous configuration method for an external server.
-  - 37.2.0-rc01: Setting a password using OWLCMS_PIN or -Dpin now working again
-  - 37.2.0-rc01: Connecting to the MQTT Server without a username is now possible (previously when the owlcms field was empty a username still had to be provided, but could be anything)
-  - 37.2.0-beta00: the MQTT connection loop is now a separate thread to avoid blocking the user interface.
-  - 37.2.0-alpha01: the MQTT server was not enabled on a new database
-  - 37.2.0-alpha01: the presence/absence of the MQTT server parameter war.
+  - None relative to 37.1
 
 
 ##### Highlights from recent stable releases
