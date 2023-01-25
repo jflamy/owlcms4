@@ -2,16 +2,24 @@
 
 MQTT is used for communication between refereeing, jury and timekeeper devices built using Arduino, ESP32, Raspberry Pi and other device controllers.
 
-owlcms now includes an MQTT server to support these exchanges.
+owlcms now includes an MQTT server to support these exchanges, so the only software required is for the devices.
 
-Sample projects that use MQTT for communication between devices and owlcms include:
+Several projects that use MQTT for communication between devices and owlcms include:
 
-- https://github.com/jflamy/owlcms-esp32 contains Arduino code and simple circuit schematics to build a simple refereeing device with an indicator LED and a buzzer to remind a referee to enter a decision.
+- Arduino/Firmata projects: the following projects are based on widely-used Arduino boards, but could actually run on any board that supports the Firmata protocol
+  The two projects below provide software that connect owlcms to the devices.
 
-- [scottgonzalez/blue-owl: Technical Official device integration for OWLCMS (github.com)](https://github.com/scottgonzalez/blue-owl) is another example, using Johnny-Five to drive the device controllers.
-- https://github.com/kingbutter/owlcms4-ref-m5stack-core2 uses the M5Stack devices as a basis for touchscreen-based refereeing devices.
+  ![overview.drawio](img/MQTT/overview.drawio.png)
 
-The devices and owlcms use the MQTT protocol to communicate with each other.  The communication goes through an MQTT server that can be installed on the local area network or in the cloud.  MQTT is very lightweight and is used in home automation, in industrial telemetry application and other "Internet of Things" (IoT) settings.
+  - [owlcms/blue-owl: Technical Official device integration for OWLCMS (github.com)](https://github.com/owlcms/blue-owl)  This project is an extension of the one below by Scott Gonzalez targeted at persons interested in building their own devices. It contains a `build-it-yourself` section with diagrams, firmware and even instructions for simulating the device.  An interactive program for running the devices and connecting them to owlcms is provided. 
+  - [scottgonzalez/blue-owl: Technical Official device integration for OWLCMS (github.com)](https://github.com/scottgonzalez/blue-owl) is the originator of the Firmata integration with owlcms.  This software is expected to be the basis of commercial devices, but is freely licensed.
+
+- ESP32 projects
+
+  - https://github.com/jflamy/owlcms-esp32 contains Arduino code and simple circuit schematics to build a simple refereeing device with an indicator LED and a buzzer to remind a referee to enter a decision.  
+
+  - https://github.com/kingbutter/owlcms4-ref-m5stack-core2 uses the M5Stack devices as a basis for touchscreen-based refereeing devices.
+
 
 See [MQTT Messages](MQTTMessages) for details on how MQTT is used.
 

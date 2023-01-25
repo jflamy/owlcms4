@@ -5,7 +5,7 @@ There are several ways to referee using owlcms.  Each is discussed in details in
 1. [Manual refereeing](#manual-refereeing), where the referees use flags, cards, or hand signals.  The announcer enters the decisions.
 2. [Mobile devices](#mobile-device-refereeing): Using phones, tablets or laptops to referee.  Any device that has a browser can be used to enter decisions and receive notifications.
 3. [Button keypads](#button-keypads): These devices  provide real buttons, which many referees prefer over using a phone.  They can be bought, or built from affordable supplies. However they do not provide the feedback when a referee needs to be reminded to enter a decision.
-4. [Full feedback keypads](#full-feedback-keypad).  These devices have a LED and buzzer to remind the referee.  This enables compliance with the TCRR requirements.  The devices use the MQTT protocol to communicate, and also be built to be wireless.
+4. [Full feedback Devices](#full-feedback-devices).  These devices have a LED and buzzer to remind the referee.  This enables compliance with the TCRR requirements.  The devices use the MQTT protocol to communicate.
 
 ## Manual Refereeing
 
@@ -104,17 +104,11 @@ Note that the shortcut keys are as defined according to [a standard](https://www
 
 - For most countries, hitting the key "Digit1" sends a 1.  But there are exceptions. For example, in France, hitting Digit1 will actually send a "&" and depending on the software you may actually need to use "&" instead of "1".  Fortunately, most national keyboards send the digits directly.
 
-## Full-feedback Keypad
+## Full-feedback Devices
 
 In order to provide referees with a reminder to enter a decision, or to signal that they need to go to the jury table, it is necessary for owlcms to be able to communicate back with the devices. 
 
-The  most flexible way to accomplish this is to use a technique used for home automation and other internet-connected devices.  The MQTT protocol supports such usage, and there are now inexpensive devices that support it over WiFi.  For example, the ESP32 chip is available for roughly 10US$.
+owlcms uses the MQTT protocol used in Internet-Of-Things automation and monitoring applications to talks to the devices.  See the [MQTT](MQTT) page for more details and for schematics that you can use for your own devices.  It is also expected that owlcms-compatible devices will be offered commercially.
 
-There are two ways this can be done:
+![refereeBox](img/MQTT/refereeBox.png)
 
-- One device per referee.  No network wiring is needed. The only thing needed is electricity (which could be either a battery or a microUSB connection). Each device interacts with owlcms on its own.
-- One device for all referees.  Buttons, LED and buzzer are wired to a central box using twisted pair cable (standard Ethernet wires).  The referee devices get power from the central device, and only the central device needs power.  Building this is a little bit more complicated (more connectors, more soldering), but the fact that there is no need to bring power to the referee tables is a strong positive.
-
-Software and schematics for a device that can do both can be found at https://github.com/jflamy/owlcms-esp32.  For the one-device-per-referee variation, only the orange wires are used.  Full information on how to configure owlcms for using such devices can be found on the [MQTT](MQTT) page on this site.
-
-![design](https://camo.githubusercontent.com/c0d799a3bd35c47d4c4aa1d7caa508f32866820ca9ca7e24b20510b0ab27dbd1/68747470733a2f2f776f6b77692e636f6d2f63646e2d6367692f696d6167652f77696474683d313932302f68747470733a2f2f7468756d62732e776f6b77692e636f6d2f70726f6a656374732f3332323533343534333030383436353439312f7468756d626e61696c2e6a7067)
