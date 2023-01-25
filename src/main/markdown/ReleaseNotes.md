@@ -1,4 +1,4 @@
-37.2.0:
+37.2.1: Important fix for weigh-in documents.
 
 - 37. 2 Enhancements
   
@@ -11,9 +11,9 @@
   
     - For cloud users wishing to use MQTT Devices, see the [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTT) for how to reference a free external MQTT Server (the embedded server cannot be reached on Heroku or Fly.io)
   
-- 37.2 Fixes
+- 37.2.1 Fixes
   
-  - None relative to 37.1
+  - Fix: On the weigh-in page, filtering to produce group-specific documents (weigh-in sheet, jury sheet, cards for a single group) was not working - all athletes were included. ([#622](https://github.com/jflamy/owlcms4/issues/622))
 
 
 ##### Highlights from recent stable releases
