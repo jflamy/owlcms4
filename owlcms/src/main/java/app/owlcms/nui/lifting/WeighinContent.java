@@ -112,7 +112,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
     private Button cardsButton;
 
-    private Group group;
+    //private Group group;
 
 //    private ComboBox<Group> groupSelect;
     private GroupSelectionMenu topBarMenu;
@@ -187,7 +187,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
      */
     @Override
     public Collection<Athlete> findAll() {
-        List<Athlete> findFiltered = AthleteRepository.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
+        List<Athlete> findFiltered = AthleteRepository.findFiltered(lastNameFilter.getValue(), getGroupFilter().getValue(),
                 categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(),
                 genderFilter.getValue(), weighedInFilter.getValue(), -1, -1);
         AthleteSorter.registrationOrder(findFiltered);
@@ -526,7 +526,6 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     }
 
     protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
-        group = e.getValue();
         groupFilter.setValue(e.getValue());
     }
 
@@ -557,7 +556,8 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
                 () -> {
                     JXLSCards rs = new JXLSCards();
                     // group may have been edited since the page was loaded
-                    rs.setGroup(group != null ? GroupRepository.getById(group.getId()) : null);
+                    Group curGroup = getGroupFilter().getValue();
+                    rs.setGroup(curGroup != null ? GroupRepository.getById(curGroup.getId()) : null);
                     return rs;
                 },
                 resourceDirectoryLocation,
@@ -673,7 +673,8 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
                 () -> {
                     JXLSJurySheet rs = new JXLSJurySheet();
                     // group may have been edited since the page was loaded
-                    rs.setGroup(group != null ? GroupRepository.getById(group.getId()) : null);
+                    Group curGroup = getGroupFilter().getValue();
+                    rs.setGroup(curGroup != null ? GroupRepository.getById(curGroup.getId()) : null);
                     return rs;
                 },
                 resourceDirectoryLocation,
@@ -694,7 +695,8 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
                 () -> {
                     JXLSWeighInSheet rs = new JXLSWeighInSheet();
                     // group may have been edited since the page was loaded
-                    rs.setGroup(group != null ? GroupRepository.getById(group.getId()) : null);
+                    Group curGroup = getGroupFilter().getValue();
+                    rs.setGroup(curGroup != null ? GroupRepository.getById(curGroup.getId()) : null);
                     return rs;
                 },
                 resourceDirectoryLocation,
