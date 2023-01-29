@@ -182,23 +182,25 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
 
         String team = a.getTeam();
         this.getElement().setProperty("teamName", team);
+        this.getElement().setProperty("teamFlagImg", ""); 
         if (teamFlags && team != null) {
             boolean done;
-            done = setProp("teamFlagImg", "flags/", team, ".svg");
+            done = setImgProp("teamFlagImg", "flags/", team, ".svg");
             if (!done) {
-                done = setProp("teamFlagImg", "flags/", team, ".png");
+                done = setImgProp("teamFlagImg", "flags/", team, ".png");
                 if (!done) {
-                    done = setProp("teamFlagImg", "flags/", team, ".jpg");
+                    done = setImgProp("teamFlagImg", "flags/", team, ".jpg");
                 }
             }
         }
 
         String membership = a.getMembership();
+        this.getElement().setProperty("athleteImg", "");
         if (athletePictures && membership != null) {
             boolean done;
-            done = setProp("athleteImg", "pictures/", membership, ".jpg");
+            done = setImgProp("athleteImg", "pictures/", membership, ".jpg");
             if (!done) {
-                done = setProp("athleteImg", "pictures/", membership, ".jpeg");
+                done = setImgProp("athleteImg", "pictures/", membership, ".jpeg");
             }
             this.getElement().setProperty("WithPicture", done ? "WithPicture" : "");
         }
@@ -539,7 +541,7 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> implements Disp
         this.locationUI = locationUI;
     }
 
-    private boolean setProp(String propertyName, String prefix, String name, String suffix) {
+    private boolean setImgProp(String propertyName, String prefix, String name, String suffix) {
         boolean found;
         try {
             ResourceWalker.getFileOrResourcePath(prefix + name + suffix);
