@@ -347,6 +347,7 @@ public class Main {
         StartupUtils.setServerPort(serverPort);
 
         // drop the schema first
+        memoryMode = StartupUtils.getBooleanParam("memoryMode");
         resetMode = StartupUtils.getBooleanParam("resetMode") || demoMode || memoryMode;
 
         String initialDataString = StartupUtils.getStringParam("initialData");
