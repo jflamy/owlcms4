@@ -369,7 +369,7 @@ public class FieldOfPlay {
     private void doJuryMemberDecisionUpdate(FOPEvent.JuryMemberDecisionUpdate e) {
         getJuryMemberDecision()[e.refIndex] = e.decision;
         juryMemberTime[e.refIndex] = 0;
-        processJuryMemberDecisions(e.origin);
+        processJuryMemberDecisions(e.origin,e.refIndex);
     }
 
     private void doSetState(FOPState state) {
@@ -1407,14 +1407,17 @@ public class FieldOfPlay {
 
     /**
      * events resulting from decisions received so far (down signal, stopping timer, all decisions entered, etc.)
+     * @param refIndex 
      */
-    private void processJuryMemberDecisions(Object origin) {
+    private void processJuryMemberDecisions(Object origin, int refIndex) {
         logger.debug("*** process jury member decisions {} {} {} {}", Competition.getCurrent().getJurySize(),
                 getJuryMemberDecision()[0], getJuryMemberDecision()[1], getJuryMemberDecision()[2]);
+        int jurySize = Competition.getCurrent().getJurySize();
+        showJuryMemberDecisionReceived(this, refIndex, getJuryMemberDecision(), jurySize);
         int nbRed = 0;
         int nbWhite = 0;
         int nbDecisions = 0;
-        int jurySize = Competition.getCurrent().getJurySize();
+
         for (int i = 0; i < jurySize; i++) {
             if (getJuryMemberDecision()[i] != null) {
                 if (getJuryMemberDecision()[i]) {
@@ -1422,12 +1425,20 @@ public class FieldOfPlay {
                 } else {
                     nbRed++;
                 }
-                showJuryMemberDecisionReceived(this, i, getJuryMemberDecision(), jurySize);
                 nbDecisions++;
             }
         }
-        if (nbDecisions == 3) {
-            showJuryDecisionNow(origin, (nbRed == jurySize || nbWhite == jurySize), jurySize, getJuryMemberDecision());
+        final int reds = nbRed;
+        final int whites = nbWhite;
+        if (nbDecisions == jurySize) {
+            new Thread(() -> {
+                try {
+                    // make sure all greens are shown before showing decisions.
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                } 
+                showJuryMemberDecisionsNow(origin, (reds == jurySize || whites == jurySize), jurySize, getJuryMemberDecision());
+            }).start();
         }
     }
 
@@ -2184,13 +2195,14 @@ public class FieldOfPlay {
                 }, DECISION_VISIBLE_DURATION);
     }
 
-    private void showJuryDecisionNow(Object origin, boolean unanimous, int jurySize, Boolean[] juryMemberDecision2) {
-        getUiEventBus().post(new UIEvent.JuryUpdate(origin, unanimous, getJuryMemberDecision(), jurySize));
+    private void showJuryMemberDecisionsNow(Object origin, boolean unanimous, int jurySize, Boolean[] juryMemberDecision2) {
+        logger.warn("{}reveal jury member decisions {}", getLoggingName(), juryMemberDecision2);
+        getUiEventBus().post(new UIEvent.JuryUpdate(origin, unanimous, juryMemberDecision2, jurySize));
     }
 
     private void showJuryMemberDecisionReceived(Object origin, int i, Boolean[] juryMemberDecision2, int jurySize) {
         // show that one jury decision has been received (green LED)
-        logger.debug("{}updating jury member {}", getLoggingName(), i);
+        logger.warn("{}updating jury member {}", getLoggingName(), i);
         getUiEventBus().post(new UIEvent.JuryUpdate(origin, i, juryMemberDecision2, jurySize));
     }
 

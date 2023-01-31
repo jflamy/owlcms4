@@ -220,13 +220,28 @@ public class MQTTMonitor {
         }
     }
 
+    private static Logger logger = (Logger) LoggerFactory.getLogger(MQTTMonitor.class);
+    public static MqttAsyncClient createMQTTClient(FieldOfPlay fop) throws MqttException {
+        String server = Config.getCurrent().getParamMqttServer();
+        server = (server != null ? server : "127.0.0.1");
+        String port = Config.getCurrent().getParamMqttPort();
+        port = (port != null ? port : "1883");
+        String string = port.startsWith("8") ? "ssl://" : "tcp://";
+        Main.getStartupLogger().info("connecting to MQTT {}{}:{}", string, server, port);
+
+        MqttAsyncClient client = new MqttAsyncClient(
+                string + server + ":" + port                        ,
+                fop.getName()+"_"+MqttClient.generateClientId(), // ClientId
+                new MemoryPersistence()); // Persistence
+        return client;
+    }
     private MqttAsyncClient client;
     private FieldOfPlay fop;
-    private static Logger logger = (Logger) LoggerFactory.getLogger(MQTTMonitor.class);
-    private String password;
 
+    private String password;
     private String userName;
     private MQTTCallback callback;
+
     private Long prevRefereeTimeStamp = 0L;
 
     MQTTMonitor(FieldOfPlay fop) {
@@ -245,21 +260,6 @@ public class MQTTMonitor {
         } catch (MqttException e) {
             logger.error("cannot initialize MQTT: {}", LoggerUtils.stackTrace(e));
         }
-    }
-
-    public static MqttAsyncClient createMQTTClient(FieldOfPlay fop) throws MqttException {
-        String server = Config.getCurrent().getParamMqttServer();
-        server = (server != null ? server : "127.0.0.1");
-        String port = Config.getCurrent().getParamMqttPort();
-        port = (port != null ? port : "1883");
-        String string = port.startsWith("8") ? "ssl://" : "tcp://";
-        Main.getStartupLogger().info("connecting to MQTT {}{}:{}", string, server, port);
-
-        MqttAsyncClient client = new MqttAsyncClient(
-                string + server + ":" + port                        ,
-                fop.getName()+"_"+MqttClient.generateClientId(), // ClientId
-                new MemoryPersistence()); // Persistence
-        return client;
     }
 
     public FieldOfPlay getFop() {
@@ -295,6 +295,23 @@ public class MQTTMonitor {
     }
 
     @Subscribe
+    public void slaveJuryUpdate(UIEvent.JuryUpdate e) {
+        if (e.getCollective() == null) {
+            // individual decision hidden
+            publishMqttJuryMemberDecision(e.getJuryMemberUpdated());
+        } else {
+            Boolean[] decisions = e.getJuryMemberDecision();
+            int nbDecisions = 0;
+            for (int i = 0; i < e.getJurySize(); i++) {
+                nbDecisions += (decisions[i] != null ? 1 : 0);
+            }
+            if (nbDecisions == e.getJurySize()) {
+                publishMqttJuryReveal(nbDecisions, decisions);
+            }
+        }
+    }
+
+    @Subscribe
     public void slaveRefereeDecision(UIEvent.Decision e) {
         // the deliberation is about the last athlete judged, not on the current athlete.
         callback.setAthleteUnderReview(e.getAthlete());
@@ -307,10 +324,10 @@ public class MQTTMonitor {
     }
 
     @Subscribe
-    public void slaveJuryUpdate(UIEvent.JuryUpdate e) {
-        // Ignored for now.
-        // The jury user interface gets the UI events that result from jurybox and shows them on its screen.
-        // The opposite use case -- using the jury laptop keypads and having also a jury box does not make much sense.
+    public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
+        // we switched lifter, or we switched attempt. reset the decisions.
+        prevRefereeTimeStamp = 0L;
+        publishMqttResetAllDecisions();
     }
 
     @Subscribe
@@ -325,13 +342,6 @@ public class MQTTMonitor {
 
     @Subscribe
     public void slaveTimeStarted(UIEvent.StartTime e) {
-    }
-
-    @Subscribe
-    public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
-        // we switched lifter, or we switched attempt. reset the decisions.
-        prevRefereeTimeStamp = 0L;
-        publishMqttResetAllDecisions();
     }
 
     @Subscribe
@@ -397,9 +407,38 @@ public class MQTTMonitor {
                 client.getCurrentServerURI());
     }
 
+    private void doPublishMQTTSummon(int ref) throws MqttException, MqttPersistenceException {
+        String topic = "owlcms/fop/summon/" + fop.getName();
+        client.publish(topic, new MqttMessage(Integer.toString(ref).getBytes(StandardCharsets.UTF_8)));
+        String deprecatedTopic = "owlcms/summon/" + fop.getName() + "/" + ref;
+        client.publish(deprecatedTopic, new MqttMessage(("on").getBytes(StandardCharsets.UTF_8)));
+    }
+
     private void publishMqttDownSignal() throws MqttException, MqttPersistenceException {
         String topic = "owlcms/fop/down/" + fop.getName();
         client.publish(topic, new MqttMessage("on".getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private void publishMqttJuryMemberDecision(Integer juryMemberUpdated) {
+        String topic = "owlcms/fop/juryMemberDecision/" + fop.getName();
+        try {
+            String message = Integer.toString(juryMemberUpdated+1) + " hidden";
+            logger.warn("posting {} {}", topic, message);
+            client.publish(topic, new MqttMessage(message.getBytes(StandardCharsets.UTF_8)));
+        } catch (MqttException e) {
+        }
+    }
+
+    private void publishMqttJuryReveal(int jurySize, Boolean[] juryMemberDecision) {
+        String topic = "owlcms/fop/juryMemberDecision/" + fop.getName();
+        for (int i = 0 ; i < jurySize ; i++) {
+            try {
+                String message = Integer.toString(i+1) + (juryMemberDecision[i] ? " good" : " bad");
+                logger.warn("posting {} {}", topic, message);
+                client.publish(topic, new MqttMessage(message.getBytes(StandardCharsets.UTF_8)));
+            } catch (MqttException e) {
+            }
+        }
     }
 
     private void publishMqttLedOnOff() throws MqttException, MqttPersistenceException {
@@ -472,13 +511,6 @@ public class MQTTMonitor {
         } catch (MqttException e1) {
             logger.error("could not publish summon {}", e1.getCause());
         }
-    }
-
-    private void doPublishMQTTSummon(int ref) throws MqttException, MqttPersistenceException {
-        String topic = "owlcms/fop/summon/" + fop.getName();
-        client.publish(topic, new MqttMessage(Integer.toString(ref).getBytes(StandardCharsets.UTF_8)));
-        String deprecatedTopic = "owlcms/summon/" + fop.getName() + "/" + ref;
-        client.publish(deprecatedTopic, new MqttMessage(("on").getBytes(StandardCharsets.UTF_8)));
     }
 
     private void publishMqttWakeUpRef(int ref, boolean on) {

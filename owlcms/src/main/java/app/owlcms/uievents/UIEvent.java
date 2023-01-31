@@ -556,22 +556,22 @@ public class UIEvent {
 
     static public class JuryUpdate extends UIEvent {
 
-        private Boolean unanimous;
+        private Boolean collective;
         private Boolean[] juryMemberDecision;
         private int jurySize;
 
         private Integer juryMemberUpdated;
 
-        public JuryUpdate(Object origin, boolean unanimous, Boolean[] juryMemberDecision, int jurySize) {
+        public JuryUpdate(Object origin, boolean collective, Boolean[] juryMemberDecision, int jurySize) {
             super(origin);
-            this.unanimous = unanimous;
+            this.collective = collective;
             this.juryMemberDecision = juryMemberDecision;
             this.jurySize = jurySize;
         }
 
         public JuryUpdate(Object origin, int i, Boolean[] juryMemberDecision2, int jurySize) {
             super(origin);
-            this.unanimous = null;
+            this.collective = null;
             this.juryMemberUpdated = i;
             this.juryMemberDecision = juryMemberDecision2;
         }
@@ -598,10 +598,10 @@ public class UIEvent {
         }
 
         /**
-         * @return the unanimous
+         * @return the collective
          */
-        public Boolean getUnanimous() {
-            return unanimous;
+        public Boolean getCollective() {
+            return collective;
         }
 
     }
