@@ -423,7 +423,6 @@ public class MQTTMonitor {
         String topic = "owlcms/fop/juryMemberDecision/" + fop.getName();
         try {
             String message = Integer.toString(juryMemberUpdated+1) + " hidden";
-            logger.warn("posting {} {}", topic, message);
             client.publish(topic, new MqttMessage(message.getBytes(StandardCharsets.UTF_8)));
         } catch (MqttException e) {
         }
@@ -434,7 +433,6 @@ public class MQTTMonitor {
         for (int i = 0 ; i < jurySize ; i++) {
             try {
                 String message = Integer.toString(i+1) + (juryMemberDecision[i] ? " good" : " bad");
-                logger.warn("posting {} {}", topic, message);
                 client.publish(topic, new MqttMessage(message.getBytes(StandardCharsets.UTF_8)));
             } catch (MqttException e) {
             }
