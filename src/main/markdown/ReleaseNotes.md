@@ -1,17 +1,12 @@
-37.2.2: Flag handling minor fix.
+37.3.0-alpha00: Improvements to Jury breaks, additional support for Firmata Jury devices.
 
-- 37. 2 Enhancements
+- 37. 3 Enhancements
   
-  - Minor user interface updates (Lifting Group page, Language and Settings page) and minor updates to translations
-  - If you wish to build or use MQTT-enabled devices such as those in the [Blue-Owl](https://github.com/owlcms/blue-owl) project, a MQTT server is now embedded in owlcms. There is no longer a need to run a separate one and usual cases no longer need any owlcms configuration.
-    - See the [embedded MQTT Server configuration documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTT). 
+  - Jury break would switch from "technical" to "deliberation" if referees were called.
+  - Jury breaks now work when the platform is inactive, allowing referees to be called.
+  - MQTT Message added for telling a Firmata device that a jury member has voted.
   
-    - If you used MQTT before this release:
-      - To use the embedded server, remove the `-DmqttServer` flag (or your `OWLCMS_MQTTSERVER` environment variable).  If present, owlcms will use these values to locate an *external* MQTT server.  On  Windows, inspect the `owlcms.l4j.ini` file in the installation directory and remove the definition.  You should also disable the local Mosquitto or aedes server if you wish to use the embedded one.
-  
-    - For cloud users wishing to use MQTT Devices, see the [documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/MQTT) for how to reference a free external MQTT Server (the embedded server cannot be reached on Heroku or Fly.io)
-  
-- 37.2.2 Fixes
+- 37. 3Fixes
   
   - Fix: If an athlete had no associated flag (or picture), the image from the previous athlete would remain shown. ([#623](https://github.com/jflamy/owlcms4/issues/623))
 
