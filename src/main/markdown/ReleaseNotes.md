@@ -1,13 +1,10 @@
 37.3.0-alpha00: Improvements to Jury breaks, additional support for Firmata Jury devices.
 
-- 37. 3 Enhancements
-  
-  - Jury break would switch from "technical" to "deliberation" if referees were called.
-  - Jury breaks now work when the platform is inactive, allowing referees to be called.
+- 37.3 Enhancements
   - MQTT Message added for telling a Firmata device that a jury member has voted.
-  
-- 37. 3Fixes
-  
+- 37.3 Fixes
+  - Fix: Jury break would switch from "technical" to "deliberation" if referees were called, it no longer does.
+  - Jury breaks now work when the platform is inactive, allowing referees to be called.
   - Fix: If an athlete had no associated flag (or picture), the image from the previous athlete would remain shown. ([#623](https://github.com/jflamy/owlcms4/issues/623))
 
 
