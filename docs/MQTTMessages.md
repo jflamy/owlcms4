@@ -18,12 +18,20 @@
 
 #### Subscribed by jury and referee devices
 
-- `fop/resetDecisions/A`: The clock has started for a new attempt 
+- `fop/resetDecisions/A`: The clock has started for a new attempt. All LEDs for referee and jury member decisions are turned off. 
     - This is not the timekeeper clock start.  It is the clock start only when a new attempt clock is starting, or athlete clock continues after changes. This event does not occur if the athlete lifts the bar and puts it down.
 - `fop/decision/A :ref :decision`: 
    A referee has made a decision.  The jury devices shows the decision if it has the red/white LEDs.
    - `ref` is 1 2 or 3
     - `decision` is `good` or `bad`
+
+#### Subscribed by jury devices
+
+- `fop/juryMemberDecision/A :juryMember :decision`: 
+   A jury member has made a decision.  Decisions are not shown until all jury members have voted The jury devices shows `hidden` as a green LED, and good/bad as white/red.  This message is emitted as hidden when the jury member votes, and on the last vote the message is emitted again with the actual decision. The last jury member to vote is not given `hidden`.
+   A jury device may perform this processing autonomously and ignore these messages.
+   - `juryMember ` is 1 2 3 4 or 5
+    - `decision` is `hidden` `good` or `bad`
 
 #### Subscribed by the referee device:
 
@@ -103,7 +111,7 @@ Only owlcms listens; devices do not listen to one another.
     - When the jury ends a break, publish `jurybox/break/A stop`.
     - When a referee decision has been made, immediately display the decision on the jury control panel.
         - Subscribe to `fop/decision/A`.
-        - Reset the decision on `fop/resetDecisions/A` and `fop/clockStart/A`.
+        - Reset the decision on `fop/resetDecisions/A` .
 - Timekeeper
     - When the timekeeper starts the clock, publish `clock/A start`.
     - When the timekeeper stop the clock, publish `clock/A stop`.
