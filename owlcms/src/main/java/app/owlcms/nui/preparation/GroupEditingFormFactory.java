@@ -7,6 +7,7 @@
 package app.owlcms.nui.preparation;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -37,6 +38,7 @@ import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -103,7 +105,9 @@ public class GroupEditingFormFactory
 
         ComboBox<Platform> platformField = new ComboBox<>(Translator.translate("Platform"));
         platformField.setSizeUndefined();
-        platformField.setItems(new ListDataProvider<>(PlatformRepository.findAll()));
+        List<Platform> allPlatforms = PlatformRepository.findAll();
+        platformField.setItems(new ListDataProvider<>(allPlatforms));
+
         platformField.setItemLabelGenerator(Platform::getName);
         platformField.setClearButtonVisible(true);
         formLayout.add(platformField);
@@ -232,7 +236,10 @@ public class GroupEditingFormFactory
         binder.forField(jury5)
                 .withNullRepresentation("")
                 .bind(Group::getJury5, Group::setJury5);
-
+        
+        if (allPlatforms != null && allPlatforms.size() > 0) {
+            aFromDb.setPlatform(allPlatforms.get(0));
+        }
         binder.readBean(aFromDb);
 
         Component footerLayout = this.buildFooter(operation, aFromDb, cancelButtonClickListener,
