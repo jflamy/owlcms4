@@ -50,6 +50,7 @@ import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
+import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -657,6 +658,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         allGroups.sort(new NaturalOrderComparator<Group>());
         groupField.setItems(allGroups);
         groupField.setValue(curGroup);
+        groupField.setRenderer(new TextRenderer<Group>(g -> computeDesc(g)));
+        groupField.setItemLabelGenerator(g -> computeDesc(g));
 
         Binding<Athlete, ?> genderBinding = binder.getBinding("gender").get();
         ComboBox<Gender> genderField = (ComboBox<Gender>) genderBinding.getField();
@@ -784,6 +787,15 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         qualifyingTotalField.setAutoselect(true);
 
         setChangeListenersEnabled(true);
+    }
+
+    private String computeDesc(Group g) {
+        String desc = g.getDescription();
+        if (desc != null && !desc.isBlank()) {
+            return (g.getName() + " - " + desc);
+        } else {
+            return g.getName();
+        }
     }
 
     private List<Category> findEligibleCategories(ComboBox<Gender> genderField, Integer ageFromFields,
