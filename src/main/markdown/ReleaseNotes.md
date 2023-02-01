@@ -2,6 +2,7 @@
 
 - 37.3 Enhancements
   - MQTT Message added for telling a Firmata device that a jury member has voted.
+  - Added the group description to the group dropdown entries on the registration page.
 - 37.3 Fixes
   - Fix: Jury break would switch from "technical" to "deliberation" if referees were called, it no longer does.
   - Jury breaks now work when the platform is inactive, allowing referees to be called.
